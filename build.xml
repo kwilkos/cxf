@@ -1,24 +1,29 @@
 <?xml version="1.0"?>
 
 <project name="celtix" default="build" basedir=".">
-    <target name="build" depends="src.compile"/>
+    <target name="build" depends="src.compile,unittest.compile" description="Main build target"/>
+
+
+    <property environment="env"/>
+    <fail unless="env.JAXWS_HOME">.
+            The JAXWS_HOME  environment variable is unset.  We use the
+            JAX-WS interfaces and the JAXB jars that are included in the
+            JAX-WS 2.0 Early Access release.   You need to download that from
+            https://jax-rpc.dev.java.net/jaxws20-ea2/, install it, and set
+            the JAXWS_HOME environment variable to the installation
+            directory.
+    </fail>
+
 
     <!-- Find the location of the tools directory -->
     <import file="etc/ant-inc/tools.xml"/>
 
+    <!-- Load the compile targets -->
+    <import file="etc/ant-inc/compile.xml"/>
+
 
     <target name="clean">
         <delete dir="${basedir}/build" quiet="true"/>
-    </target>
-
-    <target name="src.compile">
-        <mkdir dir="${basedir}/build/classes"/>
-        <javac srcdir="${basedir}/src"
-            destdir="${basedir}/build/classes"
-            debug="true"
-            target="1.5"
-            source="1.5"
-            fork="true"/>
     </target>
 
 </project>

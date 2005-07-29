@@ -26,19 +26,19 @@
 
     <condition property="tools.dir.property" value="../tools">
         <and>
-            <available file="../tools"/>
             <not>
                 <isset property="tools.dir.property"/>
             </not>
+            <available file="../tools"/>
         </and>
     </condition>
 
     <condition property="tools.dir.property" value="../../tools">
         <and>
-            <available file="../../tools"/>
             <not>
                 <isset property="tools.dir.property"/>
             </not>
+            <available file="../../tools"/>
         </and>
     </condition>
 

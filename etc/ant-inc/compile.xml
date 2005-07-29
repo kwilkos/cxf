@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<project name="celtix-compile" basedir="../..">
+    <!-- Targets for compiling the codebase -->
+
+    <!-- The entire codebase will be checkstyled automatically as part
+    of the compile process.   If the code does not meet the style standards,
+    the build will fail.    This is to make sure the code is more maintainable. -->
+    <taskdef resource="checkstyletask.properties"
+         classpath="${tools.dir}/checkstyle/4.0-beta4/checkstyle-all-4.0-beta4.jar"/>
+
+    <target name="src.checkstyle" unless="no.checkstyle">
+        <checkstyle config="${basedir}/etc/checkstyle.xml">
+            <fileset dir="src" includes="**/*.java"/>
+        </checkstyle>
+    </target>
+    <target name="unittest.checkstyle" unless="no.checkstyle">
+        <checkstyle config="${basedir}/etc/checkstyle.xml">
+            <fileset dir="${basedir}/test/unit" includes="**/*.java"/>
+        </checkstyle>
+    </target>
+    <target name="checkstyle" depends="src.checkstyle,unittest.checkstyle" description="Checkstyle the entire codebase"/>
+
+
+
+    <!--  Targets to compile the code -->
+    <!-- TODO: need to setup classpaths and such for the dependent libs -->
+    <target name="src.compile" depends="src.checkstyle" description="Compile the source">
+        <mkdir dir="${basedir}/build/classes"/>
+        <javac srcdir="${basedir}/src"
+            destdir="${basedir}/build/classes"
+            debug="true"
+            target="1.5"
+            source="1.5"
+            fork="true"/>
+    </target>
+
+    <target name="unittest.compile" depends="unittest.checkstyle" description="Compile the unit tests">
+        <mkdir dir="${basedir}/build/classes-tests/unit"/>
+        <javac srcdir="${basedir}/test/unit"
+            destdir="${basedir}/build/classes-tests/unit"
+            debug="true"
+            target="1.5"
+            source="1.5"
+            fork="true"/>
+    </target>
+
+</project>
