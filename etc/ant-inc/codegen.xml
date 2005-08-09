@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<project name="celtix-codegenerate" basedir="../..">
+    <!-- Targets for compiling the codebase -->
+
+    <macrodef name="wsdltojava">
+        <attribute name="destdir"/>
+        <attribute name="file"/>
+        <attribute name="package" default="NOT_SPECIFIED"/>
+        <sequential>
+            <mkdir dir="@{destdir}"/>
+            <condition property="package.arg.@{file}" value="-p @{package}">
+                <not>
+                    <equals arg1="@{package}" arg2="NOT_SPECIFIED"/>
+                </not>
+            </condition>
+            <property name="package.arg.@{file}" value=""/>
+            <java classname="com.sun.tools.ws.WsImport" fork="yes">
+                <classpath>
+                    <fileset dir="${env.JAXWS_HOME}/lib">
+                        <include name="*.jar"/>
+                    </fileset>
+                    <pathelement location="${env.JAVA_HOME}/lib/tools.jar"/>
+                </classpath>
+                <arg line="${package.arg.@{file}}"/>
+                <arg value="-d"/>
+                <arg value="@{destdir}"/>
+                <arg value="@{file}"/>
+            </java>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="xsdtojava">
+        <attribute name="destdir"/>
+        <attribute name="file"/>
+        <attribute name="package" default="NOT_SPECIFIED"/>
+        <sequential>
+            <condition property="package.arg.@{file}" value="-p @{package}">
+                <not>
+                    <equals arg1="@{package}" arg2="NOT_SPECIFIED"/>
+                </not>
+            </condition>
+            <property name="package.arg.@{file}" value=""/>
+            <mkdir dir="@{destdir}"/>
+            <java classname="com.sun.tools.xjc.Driver" fork="yes">
+                <classpath>
+                    <fileset dir="${env.JAXWS_HOME}/lib">
+                        <include name="*.jar"/>
+                    </fileset>
+                    <pathelement location="${env.JAVA_HOME}/lib/tools.jar"/>
+                </classpath>
+                <arg line="${package.arg.@{file}}"/>
+                <arg value="-d"/>
+                <arg value="@{destdir}"/>
+                <arg value="@{file}"/>
+            </java>
+        </sequential>
+    </macrodef>
+
+    <target name="schemas.codegen.internal" unless="schema.codegen.notrequired">
+        <xsdtojava file="schemas/ws-addr-wsdl.xsd" destdir="build/src" package="org.objectweb.celtix.addressing"/>
+        <xsdtojava file="schemas/ws-addr.xsd" destdir="build/src" package="org.objectweb.celtix.addressing.wsdl"/>
+        <touch file="${basedir}/build/src/.SCHEMA.CODEGEN.DONE"/>
+    </target>
+
+    <target name="schemas.codegen">
+        <uptodate property="schema.codegen.notrequired" value="true">
+            <srcfiles dir="schemas" includes="*"/>
+            <srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
+            <mapper type="merge" to="${basedir}/build/src/.SCHEMA.CODEGEN.DONE"/>
+        </uptodate>
+        <antcall target="schemas.codegen.internal"/>
+    </target>
+</project>

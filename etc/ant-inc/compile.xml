@@ -24,14 +24,21 @@
 
     <!--  Targets to compile the code -->
     <!-- TODO: need to setup classpaths and such for the dependent libs -->
-    <target name="src.compile" depends="src.checkstyle" description="Compile the source">
+    <target name="src.compile" depends="src.checkstyle,schemas.codegen" description="Compile the source">
         <mkdir dir="${basedir}/build/classes"/>
-        <javac srcdir="${basedir}/src"
+        <javac
             destdir="${basedir}/build/classes"
             debug="true"
             target="1.5"
             source="1.5"
-            fork="true"/>
+            fork="true">
+            <src path="${basedir}/src"/>
+            <src path="${basedir}/build/src"/>
+
+            <classpath>
+                <path refid="jaxws.classpath"/>
+            </classpath>
+        </javac>
     </target>
 
     <target name="unittest.compile" depends="unittest.checkstyle" description="Compile the unit tests">

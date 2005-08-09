@@ -18,6 +18,12 @@
     <!-- Find the location of the tools directory -->
     <import file="etc/ant-inc/tools.xml"/>
 
+    <!-- Load the path definitions -->
+    <import file="etc/ant-inc/paths.xml"/>
+
+    <!-- Load the codegen targets -->
+    <import file="etc/ant-inc/codegen.xml"/>
+
     <!-- Load the compile targets -->
     <import file="etc/ant-inc/compile.xml"/>
 

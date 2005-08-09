@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<project name="celtix-paths" basedir="../..">
+    <!-- Path definitions -->
+
+    <path id="jaxws.classpath">
+        <fileset dir="${env.JAXWS_HOME}/lib">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement location="${env.JAVA_HOME}/lib/tools.jar"/>
+    </path>
+
+</project>
