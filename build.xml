@@ -3,6 +3,7 @@
 <project name="celtix" default="build" basedir=".">
     <target name="build" depends="src.compile,unittest.compile" description="Main build target"/>
 
+    <target name="cruisecontrol.build" depends="clean,build" description="Main target for cruisecontrol"/>
 
     <property environment="env"/>
     <fail unless="env.JAXWS_HOME">.
