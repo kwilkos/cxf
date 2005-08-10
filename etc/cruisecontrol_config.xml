@@ -20,16 +20,20 @@
         <publishers>
             <currentbuildstatuspublisher file="/x1/celtix_cruisecontrol/logs/celtix/currentbuild.txt" />
             <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/build/testresults" subdirectory="testresults" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <email mailhost="amereast-ems2.iona.com"
-                returnaddress="celtix-dev@objectweb.org"
+            <htmlemail mailhost="amereast-ems2.iona.com"
+                returnaddress="celtix-build@objectweb.org"
+                returnname="Celtix Build Machine"
                 defaultsuffix="@users.forge.objectweb.org"
                 buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/celtix"
-                skipusers="true"
+                skipusers="false"
                 subjectprefix="Celtix Cruisecontrol Build Result: "
+                css="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
+                xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
+                logdir="/x1/celtix_cruisecontrol/logs/celtix"
                 >
-                <always address="celtix-dev@objectweb.org" />
-                <failure address="celtix-dev@objectweb.org" />
-            </email>
+                <always address="celtix-build@objectweb.org" />
+                <failure address="celtix-build@objectweb.org" />
+            </htmlemail>
         </publishers>
     </project>
 </cruisecontrol> 
