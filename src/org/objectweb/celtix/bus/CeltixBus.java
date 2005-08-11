@@ -1,10 +1,12 @@
 package org.objectweb.celtix.bus;
 
+import java.util.Map;
+
+import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.configuration.Configuration;
 
-public class Bus {
-    
-    private static ThreadLocal<Bus> current;
+public class CeltixBus extends Bus {
     
     private Configuration configuration;
     private Object bindingManager;
@@ -19,11 +21,12 @@ public class Bus {
      * 
      * @param busArgs the command line configuration of this <code>Bus</code>.
      */
-    protected Bus(BusArguments busArgs) {
+    protected void initialize(String id, String[] args, Map<String, Object> properties)
+        throws BusException {
         
         // the real thing ...
         
-        configuration = new BusConfiguration(busArgs);
+        configuration = new BusConfiguration(id, args, properties);
         
         // (the bus) configuration should e completely intialized by now
         
@@ -70,32 +73,6 @@ public class Bus {
         // bindingManager.shutdown(wait);        
         // configuration.shutdown();
 
-    }
-    
-    /** 
-     * Returns the current <code>Bus</code> on this thread.
-     * 
-     * @return the current <code>Bus</code> on this thread.
-     */
-    public static Bus getCurrent() {
-        return current.get();
-    }
-    
-    /** 
-     * Sets the current <code>Bus</code>
-     * This method has been added to make the association between a <code>Service</code>
-     * and a <code>Bus</code> - as a runtime environment for the <code>Service</code> 
-     * more explicit. Recurring to the last <code>Bus</code> created in the process
-     * or the current <code>Bus</code> on a thread is necessary as the 
-     * JAX-WS <code>ServiceFactory</code> must be implemented as a Singleton.
-     * By exposing these APIs the dependency
-     * becomes more obvious and - more importantly - can be controlled by the application
-     * developer.
-     * 
-     * @param bus The <code>Bus</code> designated to be the current one on this thread.
-     */
-    public static void setCurrent(Bus bus) {
-        current.set(bus);
     }
     
     /** 
@@ -148,18 +125,5 @@ public class Bus {
      */
     public String toString() {
         return null;
-    }
-    
-    /**
-     * Delegates bus initialisation to the bus manager.
-     * 
-     * @param args the <code>Bus</code> command line arguments.
-     * @return existing or newly created <code>Bus</code>.
-     */
-    
-    private Bus initBus(String[] args) {
-    
-        BusManager bm = BusManager.getInstance();
-        return bm.getBus(args);
     }
 }

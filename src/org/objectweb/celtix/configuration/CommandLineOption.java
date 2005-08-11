@@ -35,7 +35,10 @@ public class CommandLineOption {
         return false;
     }
     
-    void initialize(String v) {
+    public void initialize(String v) {
         value = v;
+    }
+    
+    public void initialize(String[]args) {
     }
 }
