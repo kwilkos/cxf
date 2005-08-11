@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <project name="celtix" default="build" basedir=".">
 
     <target name="build" depends="src.compile,unittest.compile,unit.test" description="Main build target"/>
@@ -15,7 +14,6 @@
             the JAXWS_HOME environment variable to the installation
             directory.
     </fail>
-
 
     <!-- Find the location of the tools directory -->
     <import file="etc/ant-inc/tools.xml"/>
