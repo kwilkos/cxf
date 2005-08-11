@@ -15,12 +15,12 @@ import org.objectweb.celtix.configuration.CommandLineOption;
  * Manages the <code>Bus</code> instances in a process.
  */
 final class BusFactory {
+    static final String BUS_ID_PROPERTY = "org.objectweb.celtix.Bus";
+    static final String BUS_CLASS_PROPERTY = "org.objectweb.celtix.BusClass";
 
     private static final MessageFormat BUS_ID_FMT = new MessageFormat("_bus_id_{0}_");
     private static final CommandLineOption BUS_ID_OPT;
     private static final CommandLineOption BUS_CLASS_OPT;
-    private static final String BUS_ID_PROPERTY = "org.objectweb.celtix.Bus";
-    private static final String BUS_CLASS_PROPERTY = "org.objectweb.celtix.BusClass";
     private static final String DEFAULT_BUS_CLASSNAME = "org.objectweb.celtix.bus.CeltixBus";
     private static int lastId;
     private static BusFactory theInstance;
