@@ -3,6 +3,8 @@ package org.objectweb.celtix;
 import java.util.Map;
 
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.handlers.HandlerFactoryManager;
+import org.objectweb.celtix.transports.TransportFactoryManager;
 
 public abstract class Bus {
     
@@ -90,8 +92,8 @@ public abstract class Bus {
 
     public abstract void shutdown(boolean wait) throws BusException;
     public abstract Configuration getConfiguration();
-    public abstract Object getHandlerRegistry();
-    public abstract Object getTransportRegistry();
+    public abstract HandlerFactoryManager getHandlerFactoryManager();
+    public abstract TransportFactoryManager getTransportFactoryManager();
     public abstract Object getServantRegistry();
     public abstract Object getClientRegistry();
     

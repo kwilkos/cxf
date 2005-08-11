@@ -5,15 +5,17 @@ import java.util.Map;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.handlers.HandlerFactoryManager;
+import org.objectweb.celtix.transports.TransportFactoryManager;
 
 public class CeltixBus extends Bus {
     
     private Configuration configuration;
     private Object bindingManager;
     private Object clientRegistry;
-    private Object handlerRegistry;
+    private Object handlerFactoryManager;
     private Object servantRegistry;
-    private Object transportRegistry;
+    private Object transportFactoryManager;
     // maybe a plugin manager too ...
     
     /**
@@ -28,15 +30,18 @@ public class CeltixBus extends Bus {
         
         configuration = new BusConfiguration(id, args, properties);
         
-        // (the bus) configuration should e completely intialized by now
+        // (the bus) configuration should be completely intialized by now
+        
+        handlerFactoryManager = new HandlerFactoryManagerImpl(this);
+        transportFactoryManager = new TransportFactoryManagerImpl(this);
         
         // create and initialise the remaining objects:
         
         // bindingManager = new BindingManager(this);
         // clientRegistry = new ClientRegistry(this);
-        // handlerRegistry = new HandlerRegistry(this);
+        
         // servantRegistry = new ServantRegistry(this);
-        // transportRegistry = new TransportRegistry();
+        
                 
     }
     
@@ -89,7 +94,7 @@ public class CeltixBus extends Bus {
      * 
      * @return HandlerRegistry the servant registry of this <code>Bus</code>.
      */
-    public Object getHandlerRegistry() {
+    public HandlerFactoryManager getHandlerFactoryManager() {
         return null;
     }
     
@@ -98,7 +103,7 @@ public class CeltixBus extends Bus {
      * 
      * @return TransportRegistry the servant registry of this <code>Bus</code>.
      */
-    public Object getTransportRegistry() {
+    public TransportFactoryManager getTransportFactoryManager() {
         return null;
     }
     
