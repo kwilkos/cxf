@@ -194,8 +194,8 @@ final class BusFactory {
         String tmpId;
         do {
             lastId++;
-            tmpId = BUS_ID_FMT.format(new Integer(lastId));
-        } while(busses.get(tmpId) == null);
+            tmpId = BUS_ID_FMT.format(new Object[] {new Integer(lastId)});
+        } while(busses.get(tmpId) != null);
         return tmpId;        
     }    
  

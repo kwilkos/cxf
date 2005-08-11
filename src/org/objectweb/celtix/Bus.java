@@ -35,7 +35,7 @@ public abstract class Bus {
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
     public static synchronized Bus init(String[] args, Map<String, Object> properties) throws BusException {
-        return init(args, null, null);
+        return init(args, properties, null);
     }
     
     /**
