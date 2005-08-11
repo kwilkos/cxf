@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 
 <project name="celtix" default="build" basedir=".">
+
     <target name="build" depends="src.compile,unittest.compile,unit.test" description="Main build target"/>
 
     <target name="cruisecontrol.build" depends="clean,build" description="Main target for cruisecontrol"/>
@@ -31,7 +32,8 @@
     <!-- Load the unit test targets -->
     <import file="etc/ant-inc/unittest.xml"/>
 
-    <target name="clean">
+    <!-- Target to clean the build dir -->
+    <target name="clean" description="Clean the build artifacts">
         <delete dir="${basedir}/build" quiet="true"/>
     </target>
 
