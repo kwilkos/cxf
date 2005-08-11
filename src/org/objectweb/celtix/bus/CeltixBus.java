@@ -7,15 +7,17 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
 import org.objectweb.celtix.transports.TransportFactoryManager;
+import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class CeltixBus extends Bus {
     
     private Configuration configuration;
     private Object bindingManager;
     private Object clientRegistry;
-    private Object handlerFactoryManager;
+    private HandlerFactoryManager handlerFactoryManager;
     private Object servantRegistry;
-    private Object transportFactoryManager;
+    private TransportFactoryManager transportFactoryManager;
+    private WSDLManagerImpl wsdlManager;
     // maybe a plugin manager too ...
     
     /**
@@ -32,6 +34,7 @@ public class CeltixBus extends Bus {
         
         // (the bus) configuration should be completely intialized by now
         
+        wsdlManager = new WSDLManagerImpl(this);
         handlerFactoryManager = new HandlerFactoryManagerImpl(this);
         transportFactoryManager = new TransportFactoryManagerImpl(this);
         
@@ -95,7 +98,7 @@ public class CeltixBus extends Bus {
      * @return HandlerRegistry the servant registry of this <code>Bus</code>.
      */
     public HandlerFactoryManager getHandlerFactoryManager() {
-        return null;
+        return handlerFactoryManager;
     }
     
     /** 
@@ -104,7 +107,7 @@ public class CeltixBus extends Bus {
      * @return TransportRegistry the servant registry of this <code>Bus</code>.
      */
     public TransportFactoryManager getTransportFactoryManager() {
-        return null;
+        return transportFactoryManager;
     }
     
     /** 
@@ -124,6 +127,12 @@ public class CeltixBus extends Bus {
     public Object getClientRegistry() {
         return null;
     }
+    
+    
+    public WSDLManager getWSDLManager() {
+        return wsdlManager;
+    }
+
     
     /**
      * 

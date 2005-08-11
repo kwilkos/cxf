@@ -8,5 +8,25 @@
         </fileset>
         <pathelement location="${env.JAVA_HOME}/lib/tools.jar"/>
     </path>
+    
+    <path id="wsdl4j.classpath">
+        <fileset dir="${tools.dir}/wsdl4j/1.5.1">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+    
+  
+    <path id="src.compile.classpath">
+        <path refid="wsdl4j.classpath"/>
+    	<path refid="jaxws.classpath"/>
+    </path>
+    <path id="unit.test.compile.classpath">
+        <pathelement location="${basedir}/build/classes"/>
+        <path refid="src.compile.classpath"/>
+    </path>
+    <path id="unit.test.classpath">
+        <pathelement location="${basedir}/build/classes-tests/unit"/>
+    	<path refid="unit.test.compile.classpath"/>
+    </path>
 
 </project>

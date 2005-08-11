@@ -5,12 +5,10 @@
     <target name="unit.test" description="Run the unit tests" depends="src.compile,unittest.compile">
         <mkdir dir="${basedir}/build/testresults/unit"/>
         <junit fork="yes" haltonfailure="yes">
-            <formatter type="plain" usefile="false" />
+            <formatter type="brief" usefile="false" />
             <formatter type="xml"/>
             <classpath>
-                <pathelement location="${basedir}/build/classes-tests/unit"/>
-                <pathelement location="${basedir}/build/classes"/>
-                <path refid="jaxws.classpath"/>
+                <path refid="unit.test.classpath"/>
             </classpath>
 
             <batchtest todir="${basedir}/build/testresults/unit">

@@ -1,10 +1,12 @@
 package org.objectweb.celtix;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
 import org.objectweb.celtix.transports.TransportFactoryManager;
+import org.objectweb.celtix.wsdl.WSDLManager;
 
 public abstract class Bus {
     
@@ -20,7 +22,7 @@ public abstract class Bus {
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
     public static synchronized Bus init(String[] args) throws BusException {
-        return init(args, null);
+        return init(args, new HashMap<String, Object>());
     }
     
     /**
@@ -94,6 +96,7 @@ public abstract class Bus {
     public abstract Configuration getConfiguration();
     public abstract HandlerFactoryManager getHandlerFactoryManager();
     public abstract TransportFactoryManager getTransportFactoryManager();
+    public abstract WSDLManager getWSDLManager();
     public abstract Object getServantRegistry();
     public abstract Object getClientRegistry();
     

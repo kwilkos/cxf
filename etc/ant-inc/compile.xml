@@ -31,12 +31,13 @@
             debug="true"
             target="1.5"
             source="1.5"
-            fork="true">
+            fork="true"
+			includeAntRuntime="false">
             <src path="${basedir}/src"/>
             <src path="${basedir}/build/src"/>
 
             <classpath>
-                <path refid="jaxws.classpath"/>
+                <path refid="src.compile.classpath"/>
             </classpath>
         </javac>
     </target>
@@ -50,10 +51,12 @@
             source="1.5"
             fork="true">
             <classpath>
-                <pathelement location="${basedir}/build/classes"/>
-                <path refid="jaxws.classpath"/>
+                <path refid="unit.test.compile.classpath"/>
             </classpath>
         </javac>
+    	<copy todir="${basedir}/build/classes-tests/unit">
+    		<fileset dir="${basedir}/test/unit" includes="**/resources/**/*"/>
+    	</copy>
     </target>
 
 </project>

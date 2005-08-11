@@ -14,7 +14,7 @@
                 </not>
             </condition>
             <property name="package.arg.@{file}" value=""/>
-            <java classname="com.sun.tools.ws.WsImport" fork="yes">
+            <java failonerror="true" classname="com.sun.tools.ws.WsImport" fork="yes">
                 <classpath>
                     <fileset dir="${env.JAXWS_HOME}/lib">
                         <include name="*.jar"/>
@@ -41,7 +41,7 @@
             </condition>
             <property name="package.arg.@{file}" value=""/>
             <mkdir dir="@{destdir}"/>
-            <java classname="com.sun.tools.xjc.Driver" fork="yes">
+            <java failonerror="true" classname="com.sun.tools.xjc.Driver" fork="yes">
                 <classpath>
                     <fileset dir="${env.JAXWS_HOME}/lib">
                         <include name="*.jar"/>
