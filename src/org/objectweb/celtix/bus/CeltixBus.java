@@ -6,6 +6,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
+import org.objectweb.celtix.plugins.PluginManager;
 import org.objectweb.celtix.transports.TransportFactoryManager;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
@@ -17,7 +18,9 @@ public class CeltixBus extends Bus {
     private HandlerFactoryManager handlerFactoryManager;
     private Object servantRegistry;
     private TransportFactoryManager transportFactoryManager;
-    private WSDLManagerImpl wsdlManager;
+    private WSDLManager wsdlManager;
+    private PluginManager pluginManager;
+    
     // maybe a plugin manager too ...
     
     /**
@@ -132,8 +135,16 @@ public class CeltixBus extends Bus {
     public WSDLManager getWSDLManager() {
         return wsdlManager;
     }
-
     
+    /* (non-Javadoc)
+     * @see org.objectweb.celtix.Bus#getPluginManager()
+     */
+    @Override
+    public PluginManager getPluginManager() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     /**
      * 
      */

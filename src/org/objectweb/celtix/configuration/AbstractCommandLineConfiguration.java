@@ -3,7 +3,7 @@ package org.objectweb.celtix.configuration;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class AbstractCommandLineConfiguration implements Configuration {
+public abstract class AbstractCommandLineConfiguration implements Configuration {
 
     Collection<CommandLineOption> options;
     
@@ -14,7 +14,17 @@ public class AbstractCommandLineConfiguration implements Configuration {
     protected AbstractCommandLineConfiguration() {
         options = new ArrayList<CommandLineOption>();
     }
-    
+        
+    /* (non-Javadoc)
+     * @see org.objectweb.celtix.configuration.Configuration#getObject(java.lang.String)
+     */
+    public Object getObject(String name) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+
     /**
      * Parses the arguments and initialises the options. 
      * 

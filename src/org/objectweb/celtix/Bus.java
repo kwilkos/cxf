@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
+import org.objectweb.celtix.plugins.PluginManager;
 import org.objectweb.celtix.transports.TransportFactoryManager;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
@@ -99,6 +100,7 @@ public abstract class Bus {
     public abstract WSDLManager getWSDLManager();
     public abstract Object getServantRegistry();
     public abstract Object getClientRegistry();
+    public abstract PluginManager getPluginManager();
     
     protected abstract void initialize(String id, 
             String[] args,
