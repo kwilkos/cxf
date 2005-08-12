@@ -1,8 +1,11 @@
 package org.objectweb.celtix;
 
+import java.io.StringWriter;
 import java.net.URL;
 import javax.wsdl.Definition;
 import junit.framework.TestCase;
+
+import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 
 public class WSDLManagerTest extends TestCase {
     
@@ -79,5 +82,28 @@ public class WSDLManagerTest extends TestCase {
             bus.shutdown(true);
         }
     }
+    
 
+    public void testExtensions() throws Exception {
+        URL neturl = getClass().getResource("resources/jms_test.wsdl");
+        assertNotNull("Could not find WSDL", neturl);
+        String url = neturl.toString();
+        
+        Bus bus = Bus.init(new String[0]);
+        try {
+            JAXBExtensionHelper.addExtensions(bus.getWSDLManager().getExtenstionRegistry(),
+                                              javax.wsdl.Port.class,
+                                              org.objectweb.celtix.transports.jms.AddressType.class);
+            
+            Definition def = bus.getWSDLManager().getDefinition(url);
+            assertNotNull(def);
+            
+            StringWriter writer = new StringWriter();
+            bus.getWSDLManager().getWSDLFactory().newWSDLWriter().writeWSDL(def, writer);
+            assertTrue(writer.toString().indexOf("jms:address") != -1);
+            
+        } finally {
+            bus.shutdown(true);
+        }
+    }
 }

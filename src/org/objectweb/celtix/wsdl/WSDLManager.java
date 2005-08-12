@@ -5,6 +5,7 @@ import java.net.URL;
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
+import javax.wsdl.factory.WSDLFactory;
 
 /**
  * WSDLManager
@@ -19,6 +20,13 @@ public interface WSDLManager {
      * @return the ExtensionRegistry
      */
     ExtensionRegistry getExtenstionRegistry();
+    
+    /**
+     * Returns the WSDLFactory that is used to read/write WSDL dedfinitions
+     * @return the WSDLFactory
+     */
+    WSDLFactory getWSDLFactory();
+    
 
     /**
      * Get the WSDL definition for the given URL.  Implementations

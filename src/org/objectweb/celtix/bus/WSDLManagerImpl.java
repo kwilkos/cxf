@@ -34,6 +34,9 @@ class WSDLManagerImpl implements WSDLManager {
         definitionsMap = new WeakHashMap<Object, Definition>();        
     }
 
+    public WSDLFactory getWSDLFactory() {
+        return factory;
+    }
     /* (non-Javadoc)
      * @see org.objectweb.celtix.wsdl.WSDLManager#getExtenstionRegistry()
      */
