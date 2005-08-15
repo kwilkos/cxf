@@ -2,6 +2,8 @@
 <project name="celtix-compile" basedir="../..">
     <!-- Targets for compiling the codebase -->
 
+	<property name="xlint.args" value=":unchecked,deprecation,fallthrough,serial,finally"/>
+	
     <!-- The entire codebase will be checkstyled automatically as part
     of the compile process.   If the code does not meet the style standards,
     the build will fail.    This is to make sure the code is more maintainable. -->
@@ -32,9 +34,30 @@
             target="1.5"
             source="1.5"
             fork="true"
-			includeAntRuntime="false">
+        	sourcepath=""
+			includeAntRuntime="false">        	
+        	<compilerarg line="-Xlint${xlint.args}"/>
+        	
             <src path="${basedir}/src"/>
             <src path="${basedir}/build/src"/>
+			<exclude name="**/ObjectFactory.java"/>
+            <classpath>
+                <path refid="src.compile.classpath"/>
+            </classpath>
+        </javac>
+    	<!--ObjectFactory objects are known to have an unchecked issue, don't run with -Xlint -->
+        <javac
+            destdir="${basedir}/build/classes"
+            debug="true"
+            target="1.5"
+            source="1.5"
+        	sourcepath=""
+            fork="true"
+			includeAntRuntime="false">
+        	
+            <src path="${basedir}/src"/>
+            <src path="${basedir}/build/src"/>
+			<include name="**/ObjectFactory.java"/>
 
             <classpath>
                 <path refid="src.compile.classpath"/>
@@ -49,7 +72,9 @@
             debug="true"
             target="1.5"
             source="1.5"
+        	sourcepath=""
             fork="true">
+        	<compilerarg value="-Xlint${xlint.args}"/>
             <classpath>
                 <path refid="unit.test.compile.classpath"/>
             </classpath>
