@@ -28,14 +28,14 @@ public class ServiceImpl implements Service, InvocationHandler {
     public ServiceImpl(QName name, URL location) throws WebServiceException {
         wsdlLocation = location;
         serviceName = name;
-        endpointList = new Vector();
+        endpointList = new Vector<QName>();
     }
     
     public void addPort(QName portName, URI bindingId, String endpointAddress) throws WebServiceException {
         throw new UnsupportedOperationException("addPort not yet supported");        
     }   
     
-    public Object getPort(QName portName, Class serviceEndpointInterface) throws WebServiceException {
+    public <T> T getPort(QName portName, Class<T> serviceEndpointInterface) throws WebServiceException {
         //Assuming Annotation is Present
         javax.jws.WebService wsAnnotation = 
                 (WebService) serviceEndpointInterface.getAnnotation(WebService.class);
@@ -67,7 +67,7 @@ public class ServiceImpl implements Service, InvocationHandler {
         return null;
     }
 
-    public Object getPort(Class serviceEndpointInterface) throws WebServiceException {
+    public <T> T getPort(Class<T> serviceEndpointInterface) throws WebServiceException {
         javax.jws.WebService wsAnnotation = 
                 (WebService) serviceEndpointInterface.getAnnotation(WebService.class);
 
@@ -93,12 +93,12 @@ public class ServiceImpl implements Service, InvocationHandler {
         
     }
 
-    public Dispatch createDispatch(QName portName, Class serviceEndpointInterface, 
+    public <T> Dispatch<T> createDispatch(QName portName, Class<T> serviceEndpointInterface, 
                                     Mode mode) throws WebServiceException {
         return null;
     }
 
-    public Dispatch createDispatch(QName portName, JAXBContext context, Mode mode) {
+    public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Mode mode) {
         return null;
     }
 
@@ -126,7 +126,7 @@ public class ServiceImpl implements Service, InvocationHandler {
 
         if (Proxy.isProxyClass(proxy.getClass())) {
             
-            Class returnType = method.getReturnType();
+            Class<?> returnType = method.getReturnType();
             
             if (returnType != null) {
                 String endpointName = getEndpointName(method.getName());

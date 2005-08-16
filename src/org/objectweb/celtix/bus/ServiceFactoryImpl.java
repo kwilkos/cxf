@@ -5,20 +5,20 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.net.URL;
-import java.util.*;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.ServiceFactory;
 import javax.xml.ws.WebServiceException;
 
 public class ServiceFactoryImpl extends ServiceFactory {
-    private Class serviceClazz = null;
+    private Class<? extends Service> serviceClazz = null;
 
     public ServiceFactoryImpl() throws WebServiceException {
         try {
             ClassLoader loader = getClass().getClassLoader();
 
-            serviceClazz = Class.forName("org.objectweb.celtix.bus.ServiceImpl", true, loader);
+            serviceClazz = Class.forName("org.objectweb.celtix.bus.ServiceImpl", true, loader)
+                .asSubclass(Service.class);
         } catch (ClassNotFoundException cnfex) {
             throw new WebServiceException(cnfex);
         }
@@ -51,12 +51,12 @@ public class ServiceFactoryImpl extends ServiceFactory {
     * @param serviceInterface the class representing the generated Service.
     * @throws WebServiceException If there is an exception creating service.
     */
-    public Service createService(Class serviceInterface) throws WebServiceException {
+    public <T extends Service> T createService(Class<T> serviceInterface) throws WebServiceException {
         if (serviceInterface == null || !Service.class.isAssignableFrom(serviceInterface)) {
             throw new IllegalArgumentException("Invalid Service Class provided");
         }
         
-        return createProxyService(null, null, serviceInterface);
+        return serviceInterface.cast(createProxyService(null, null, serviceInterface));
     }
     
     /**
@@ -66,22 +66,24 @@ public class ServiceFactoryImpl extends ServiceFactory {
     * @param serviceInterface the class representing the generated Service.
     * @throws WebServiceException If there is an exception creating service.
     */
-    public Service createService(URL url, Class serviceInterface) throws WebServiceException {
+    public <T extends Service> T createService(URL url, 
+            Class<T> serviceInterface) throws WebServiceException {
+        
         if (serviceInterface == null || !Service.class.isAssignableFrom(serviceInterface)) {
             throw new IllegalArgumentException("Invalid Service Class provided");
         }
         
-        return createProxyService(url, null, serviceInterface);
+        return serviceInterface.cast(createProxyService(url, null, serviceInterface));
     }
 
-    private Service createProxyService(URL url, QName serviceName, Class serviceInterface)
-    {
+    private Service createProxyService(URL url, QName serviceName,
+            Class<? extends Service> serviceInterface) {
+        
         Service service = null;
         try {
-            Class types[] = {javax.xml.namespace.QName.class, java.net.URL.class};
-            Constructor constructor = serviceClazz.getConstructor(types);
-            Object args[] = {serviceName, url};
-            service = (Service) constructor.newInstance(args);
+            Constructor<? extends Service> constructor =
+                serviceClazz.getConstructor(QName.class, URL.class);
+            service = constructor.newInstance(serviceName, url);
         } catch (InvocationTargetException ite) {
             throw new WebServiceException(ite.getCause());
         } catch (Exception ex) {
@@ -90,8 +92,9 @@ public class ServiceFactoryImpl extends ServiceFactory {
         
         //Create a instance of a dynamic class that implements serviceInterface 
         if (serviceInterface != null) {
-            service = (Service)Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] {
-                serviceInterface, Service.class}, (InvocationHandler) service);
+            return (Service)Proxy.newProxyInstance(serviceInterface.getClassLoader(),
+                                              new Class[] {serviceInterface, Service.class},
+                                              (InvocationHandler) service);
         }
         
         return service;

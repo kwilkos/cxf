@@ -40,23 +40,11 @@ public class ServiceFactoryTest extends TestCase {
         URL url = null;
         try {
             try {
-                Class serviceInterface = null;
+                Class<Service> serviceInterface = null;
                 Service s  = sf.createService(url, serviceInterface);
             } catch (java.lang.IllegalArgumentException iae) {
                 //Expected Exception
-            } catch (Exception e) {
-                fail("Should have caught IllegalArgumentException");
-            } 
-
-            try {
-                Class serviceInterface = String.class;
-                Service s = sf.createService(url, serviceInterface);
-            } catch (java.lang.IllegalArgumentException iae) {
-                //Expected Exception
-            } catch (Exception e) {
-                fail("Should have caught IllegalArgumentException");
-            } 
-            
+            }
         } finally {
             bus.shutdown(true);
         }
@@ -75,9 +63,7 @@ public class ServiceFactoryTest extends TestCase {
             assertNull(s.getWSDLDocumentLocation());
             assertNotNull(s.getServiceName());
             assertEquals("ServiceName not the same", serviceName, s.getServiceName());
-        } catch (Exception e) {
-            fail("Should not have caught an exception");
-        } finally {
+        }  finally {
             bus.shutdown(true);
         }
     }
@@ -98,9 +84,7 @@ public class ServiceFactoryTest extends TestCase {
             assertEquals("URL not the same", url, s.getWSDLDocumentLocation());
             assertNotNull(s.getServiceName());
             assertEquals("ServiceName not the same", serviceName, s.getServiceName());
-        } catch (Exception e) {
-            fail("Should not have caught an exception");
-        } finally {
+        }  finally {
             bus.shutdown(true);
         }
     }
