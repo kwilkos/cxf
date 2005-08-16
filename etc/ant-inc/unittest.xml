@@ -4,8 +4,12 @@
 
     <target name="unit.test" description="Run the unit tests" depends="src.compile,unittest.compile">
         <mkdir dir="${basedir}/build/testresults/unit"/>
-        <junit fork="yes" haltonfailure="yes">
-            <formatter type="brief" usefile="false" />
+        <junit fork="yes" haltonfailure="false"
+        	failureproperty="unit.test.failed"
+        	dir="${basedir}/build/classes-tests/unit"
+        	timeout="100000"
+        	>
+            <formatter type="brief" useFile="false"/>
             <formatter type="xml"/>
             <classpath>
                 <path refid="unit.test.classpath"/>
@@ -18,6 +22,7 @@
                 </fileset>
             </batchtest>
         </junit>
+    	<fail message="JUnit test failure." if="unit.test.failed"/>
     </target>
 
 </project>

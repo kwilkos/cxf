@@ -22,6 +22,7 @@
                     <pathelement location="${env.JAVA_HOME}/lib/tools.jar"/>
                 </classpath>
                 <arg line="${package.arg.@{file}}"/>
+                <arg value="-quiet"/>
                 <arg value="-d"/>
                 <arg value="@{destdir}"/>
                 <arg value="@{file}"/>
@@ -49,6 +50,7 @@
                     <pathelement location="${env.JAVA_HOME}/lib/tools.jar"/>
                 </classpath>
                 <arg line="${package.arg.@{file}}"/>
+                <arg value="-quiet"/>
                 <arg value="-d"/>
                 <arg value="@{destdir}"/>
                 <arg value="@{file}"/>
