@@ -82,6 +82,9 @@
     	<copy todir="${basedir}/build/classes-tests/unit">
     		<fileset dir="${basedir}/test/unit" includes="**/resources/**/*"/>
     	</copy>
+    	<copy todir="${basedir}/build/classes-tests/unit">
+    		<fileset dir="${basedir}/etc" includes="logging.properties"/>
+    	</copy>
     </target>
 
 </project>
