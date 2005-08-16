@@ -1,14 +1,20 @@
 package org.objectweb.celtix.plugins;
 
+import org.objectweb.celtix.configuration.Configuration;
+
 public interface PluginManager {
     
     ClassLoader getPluginClassLoader();
     
-    Plugin getPlugin(String name) throws PluginException;
+    Configuration getConfiguration();
     
-    void registerPlugin(Plugin plugin) throws PluginException;
+    Object getPluginByName(String name) throws PluginException;
     
-    void unregisterPlugin(String name) throws PluginException;
+    Object getPlugin(String className) throws PluginException;
     
-    void unloadPlugin(String name) throws PluginException;
+    void registerPlugin(Object plugin) throws PluginException;
+    
+    void unregisterPlugin(Object plugin) throws PluginException;
+    
+    void unloadPlugin(Object plugin) throws PluginException;
 }

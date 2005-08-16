@@ -11,7 +11,8 @@ public final class Application {
     private PluginManager pluginManager;
     
     private Application() {
-        configuration = new ApplicationConfiguration();      
+        configuration = new ApplicationConfiguration(); 
+        pluginManager = new ApplicationPluginManager();
     }
     
     public static Application getInstance() {
