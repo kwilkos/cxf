@@ -30,7 +30,7 @@ public class CeltixBus extends Bus {
      */
     protected void initialize(String id, String[] args, Map<String, Object> properties)
         throws BusException {
-        
+
         // the real thing ...
         
         configuration = new BusConfiguration(id, args, properties);
@@ -48,7 +48,7 @@ public class CeltixBus extends Bus {
         
         // servantRegistry = new ServantRegistry(this);
         
-                
+        Bus.setCurrent(this);                
     }
     
     /**

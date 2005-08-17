@@ -90,6 +90,9 @@ public abstract class Bus {
     * @param bus The <code>Bus</code> designated to be the current one on this thread.
     */
     public static void setCurrent(Bus bus) {
+        if (current == null) {
+            current = new ThreadLocal<Bus>();
+        }
         current.set(bus);
     }
 
