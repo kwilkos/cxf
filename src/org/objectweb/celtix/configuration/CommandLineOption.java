@@ -28,7 +28,7 @@ public class CommandLineOption {
     }
     
     public Object getValue() {
-        return null;
+        return value;
     }
     
     public boolean exists() {

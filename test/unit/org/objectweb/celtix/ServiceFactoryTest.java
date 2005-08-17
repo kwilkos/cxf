@@ -41,7 +41,8 @@ public class ServiceFactoryTest extends TestCase {
         try {
             try {
                 Class<Service> serviceInterface = null;
-                Service s  = sf.createService(url, serviceInterface);
+                sf.createService(url, serviceInterface);
+                fail("Did not catch expected exception");
             } catch (java.lang.IllegalArgumentException iae) {
                 //Expected Exception
             }

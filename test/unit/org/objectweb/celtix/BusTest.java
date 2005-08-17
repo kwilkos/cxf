@@ -1,6 +1,5 @@
 package org.objectweb.celtix;
 
-import java.io.*;
 import java.util.HashMap;
 import junit.framework.*;
 

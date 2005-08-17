@@ -13,7 +13,7 @@ import org.objectweb.celtix.wsdl.WSDLManager;
 public class CeltixBus extends Bus {
     
     private Configuration configuration;
-    private Object bindingManager;
+    //private Object bindingManager;
     private Object clientRegistry;
     private HandlerFactoryManager handlerFactoryManager;
     private Object servantRegistry;
@@ -119,7 +119,7 @@ public class CeltixBus extends Bus {
      * @return ServantRegistry the servant registry of this <code>Bus</code>.
      */
     public Object getServantRegistry() {
-        return null;
+        return servantRegistry;
     }
     
     /** 
@@ -128,7 +128,7 @@ public class CeltixBus extends Bus {
      * @return ClientRegistry the client registry of this <code>Bus</code>.
      */
     public Object getClientRegistry() {
-        return null;
+        return clientRegistry;
     }
     
     
@@ -142,7 +142,7 @@ public class CeltixBus extends Bus {
     @Override
     public PluginManager getPluginManager() {
         // TODO Auto-generated method stub
-        return null;
+        return pluginManager;
     }
 
     /**
