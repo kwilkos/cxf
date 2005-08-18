@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
 import org.objectweb.celtix.plugins.PluginManager;
@@ -16,27 +17,23 @@ public class CeltixBus extends Bus {
     //private Object bindingManager;
     private Object clientRegistry;
     private HandlerFactoryManager handlerFactoryManager;
-    private Object servantRegistry;
+    private EndpointRegistry endpointRegistry;
     private TransportFactoryManager transportFactoryManager;
     private WSDLManager wsdlManager;
     private PluginManager pluginManager;
-    
-    // maybe a plugin manager too ...
+    private CeltixBusLifeCycleManager lifeCycleManager;
     
     /**
      * Protected constructor used by the <code>BusManager</code> to create a new bus.
      * 
      * @param busArgs the command line configuration of this <code>Bus</code>.
      */
-    protected void initialize(String id, String[] args, Map<String, Object> properties)
+    protected void initialize(String[] args, Map<String, Object> properties)
         throws BusException {
 
-        // the real thing ...
+        lifeCycleManager = new CeltixBusLifeCycleManager();
         
-        configuration = new BusConfiguration(id, args, properties);
-        
-        // (the bus) configuration should be completely intialized by now
-        
+        configuration = new BusConfiguration(args, properties);        
         wsdlManager = new WSDLManagerImpl(this);
         handlerFactoryManager = new HandlerFactoryManagerImpl(this);
         transportFactoryManager = new TransportFactoryManagerImpl(this);
@@ -46,9 +43,11 @@ public class CeltixBus extends Bus {
         // bindingManager = new BindingManager(this);
         // clientRegistry = new ClientRegistry(this);
         
-        // servantRegistry = new ServantRegistry(this);
+        endpointRegistry = new EndpointRegistry(this);
         
-        Bus.setCurrent(this);                
+        Bus.setCurrent(this); 
+        
+        lifeCycleManager.initComplete();
     }
     
     /**
@@ -75,15 +74,20 @@ public class CeltixBus extends Bus {
      */
     public void shutdown(boolean wait) throws BusException {
         
+        lifeCycleManager.preShutdown();
+        
         // shutdown in inverse order of construction
         
+        endpointRegistry.shutdown();
+        
         // transportRegistry.shutdown(wait);
-        // servantRegistry.shutdown(wait);
+        // 
         // handlerRegistry.shutdown(wait);
         // clientRegistry.shutdown(wait);
         // bindingManager.shutdown(wait);        
         // configuration.shutdown();
 
+        lifeCycleManager.postShutdown();
     }
     
     /** 
@@ -114,15 +118,6 @@ public class CeltixBus extends Bus {
     }
     
     /** 
-     * Returns the <code>ServantRegistry</code> of this <code>Bus</code>.
-     * 
-     * @return ServantRegistry the servant registry of this <code>Bus</code>.
-     */
-    public Object getServantRegistry() {
-        return servantRegistry;
-    }
-    
-    /** 
      * Returns the <code>ClientRegistry</code> of this <code>Bus</code>.
      * 
      * @return ClientRegistry the client registry of this <code>Bus</code>.
@@ -141,14 +136,25 @@ public class CeltixBus extends Bus {
      */
     @Override
     public PluginManager getPluginManager() {
-        // TODO Auto-generated method stub
         return pluginManager;
     }
-
-    /**
+    
+    /** 
+     * Returns the <code>EndpointRegistry</code> of this <code>Bus</code>.
      * 
+     * @return EndpointRegistry the endpoint registry of this <code>Bus</code>.
      */
-    public String toString() {
-        return null;
+    Object getEndpointRegistry() {
+        return endpointRegistry;
     }
+
+    /* (non-Javadoc)
+     * @see org.objectweb.celtix.Bus#getLifeCycleManager()
+     */
+    @Override
+    public BusLifeCycleManager getLifeCycleManager() {
+        return lifeCycleManager;
+    }
+    
+    
 }

@@ -1,49 +1,51 @@
 package org.objectweb.celtix.common.i18n;
 
-import java.text.MessageFormat;
-import java.util.ResourceBundle;
+
 
 public abstract class Exception extends java.lang.Exception {
     
-    private Object[] args;
+    private Message message;
+    
+    public Exception(Message msg) {
+        message = msg;
+    }
+    
+    public Exception(String msg, Object... params) {   
+        message = createMessage(msg, params);
+    }
     
     public Exception(String msg) {   
-        super(msg);
-        args = null;
+        message = createMessage(msg);
     }
     
-    public Exception(String msg, Object... objects) {
-        super(msg);
-        args = objects;  
-    }
-
     public Exception(String msg, Throwable cause) {
-        super(msg, cause);
-        args = null;
+        super(cause);
+        message = createMessage(msg);
     }
      
     public Exception(String msg, Throwable cause, Object... params) {
-        super(MessageFormat.format(msg, params), cause);
-        args = params;
+        super(cause);
+        message = createMessage(msg, params);
     }
 
     public Exception(Throwable cause) {
         super(cause);
-        args = null;
+        message = null;
     }
     
     public String getCode() {
-        return super.getMessage();
+        if (null != message) {
+            return message.getCode();
+        }
+        return null;
     }
     
     public String getMessage() {
-        String msg = super.getMessage();
-        if (null != msg) {
-            msg = MessageFormat.format(msg, args);
+        if (null != message) {
+            return message.toString();
         }
-        return msg;
+        return null;
     }
     
-    protected abstract ResourceBundle getResourceBundle();
-
+    protected abstract Message createMessage(String code, Object...params);
 }

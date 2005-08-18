@@ -1,13 +1,11 @@
 package org.objectweb.celtix.plugins;
 
-import java.util.ResourceBundle;
-
 import org.objectweb.celtix.common.i18n.Exception;
+import org.objectweb.celtix.common.i18n.Message;
 
 public class PluginException extends Exception {
    
     private static final long serialVersionUID = 1L;
-    private static ResourceBundle resourceBundle;
 
     public PluginException(String msg, Object...objects) {
         super(msg, objects);
@@ -22,17 +20,10 @@ public class PluginException extends Exception {
     }
 
     /* (non-Javadoc)
-     * @see org.objectweb.celtix.common.i18n.Exception#getResourceBundle()
+     * @see org.objectweb.celtix.common.i18n.Exception#createMessage(java.lang.String, java.lang.Object...)
      */
     @Override
-    protected ResourceBundle getResourceBundle() {
-        if (null == resourceBundle) {
-            resourceBundle = ResourceBundle.getBundle(PluginException.class.getName() + ".properties");
-        }
-        return resourceBundle;
+    protected Message createMessage(String code, Object... params) {
+        return new PluginMessage(code, params);
     }
-    
-    
-    
-    
 }

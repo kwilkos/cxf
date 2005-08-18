@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.celtix.configuration.CommandLineOption;
@@ -15,25 +13,18 @@ import org.objectweb.celtix.configuration.CommandLineOption;
  * Manages the <code>Bus</code> instances in a process.
  */
 final class BusFactory {
-    static final String BUS_ID_PROPERTY = "org.objectweb.celtix.Bus";
+
     static final String BUS_CLASS_PROPERTY = "org.objectweb.celtix.BusClass";
 
-    private static final MessageFormat BUS_ID_FMT = new MessageFormat("_bus_id_{0}_");
-    private static final CommandLineOption BUS_ID_OPT;
     private static final CommandLineOption BUS_CLASS_OPT;
     private static final String DEFAULT_BUS_CLASSNAME = "org.objectweb.celtix.bus.CeltixBus";
-    private static int lastId;
     private static BusFactory theInstance;
     
     static {
-        BUS_ID_OPT = new CommandLineOption("-BUSid");
         BUS_CLASS_OPT = new CommandLineOption("-BUSclass");
     }
     
-    private Map<String, Bus> busses;
-    
     private BusFactory() {
-        busses = new HashMap<String, Bus>();
     }
     
     static BusFactory getInstance() {
@@ -45,30 +36,19 @@ final class BusFactory {
     
     Bus getBus(String[] args, Map<String, Object> properties, ClassLoader classLoader) throws BusException {
         
-        // check command line options and properties to 
-        // determine bus identifier and check if a bus with the same
-        // id already exists
-        
-        String busId = getBusId(args, properties);
-        Bus bus = busses.get(busId);
-        if (null != bus) {
-            return bus;
-        }
-        
+        // check command line options and properties to
         // determine bus class 
         
         String busClass = getBusClass(args, properties, classLoader);
         
         // create the bus
        
-        bus = createBus(busClass, classLoader, busId, args, properties);
-        busses.put(busId, bus);
+        Bus bus = createBus(busClass, classLoader, args, properties);
         return bus;    
     }
     
     private static Bus createBus(String className,
             ClassLoader classLoader,
-            String id,
             String[] args,
             Map<String, Object> properties) throws BusException {
 
@@ -87,41 +67,13 @@ final class BusFactory {
 
         try {
             Bus bus = busClass.newInstance();
-            bus.initialize(id, args, properties);
+            bus.initialize(args, properties);
             return bus;
         } catch (IllegalAccessException ex) {
             throw new BusException(ex);
         } catch (InstantiationException ex) {
             throw new BusException(ex);
         }
-    }
-    
-    String getBusId(String[] args, Map<String, Object> properties) {
-        
-        String id = null;
-   
-        // first check command line arguments
-        BUS_ID_OPT.initialize(args);
-        id = (String)BUS_ID_OPT.getValue();
-        if (null != id && !"".equals(id)) {
-            return id;
-        }
-    
-        // next check properties    
-        id = (String)properties.get(BUS_ID_PROPERTY);
-        if (null != id && !"".equals(id)) {
-            return id;
-        }
-        
-        // next check system properties
-        id = System.getProperty(BUS_ID_PROPERTY);
-        if (null != id && !"".equals(id)) {
-            return id;
-        }
-    
-        // otherwise generate id   
-        id = generateBusId();
-        return id;
     }
     
     String getBusClass(String[] args, Map<String, Object> properties, ClassLoader classLoader)
@@ -183,20 +135,5 @@ final class BusFactory {
         // otherwise use default  
         busClass = DEFAULT_BUS_CLASSNAME;
         return busClass;
-    }
-    
-    /** 
-     * Determines a unique bus identifier for this process. 
-     * 
-     * @return String a unique <code>Bus</code> identifier for this process.
-     */
-    String generateBusId() {
-        String tmpId;
-        do {
-            lastId++;
-            tmpId = BUS_ID_FMT.format(new Object[] {new Integer(lastId)});
-        } while(busses.get(tmpId) != null);
-        return tmpId;        
-    }    
- 
+    } 
 }

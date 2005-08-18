@@ -1,14 +1,12 @@
 package org.objectweb.celtix;
 
-import java.util.ResourceBundle;
+import org.objectweb.celtix.common.i18n.Message;
 
 
 public class BusException extends org.objectweb.celtix.common.i18n.Exception {
 
     private static final long serialVersionUID = 1L;
-    private static ResourceBundle resourceBundle;
         
-
     public BusException(String msg) {
         super(msg);
     }
@@ -18,17 +16,11 @@ public class BusException extends org.objectweb.celtix.common.i18n.Exception {
     public BusException(Throwable cause) {
         super(cause);
     }
-    
     /* (non-Javadoc)
-     * @see org.objectweb.celtix.common.i18n.Exception#getBundle()
+     * @see org.objectweb.celtix.common.i18n.Exception#createMessage(java.lang.String, java.lang.Object...)
      */
     @Override
-    protected ResourceBundle getResourceBundle() {
-        if (null == resourceBundle) {
-            resourceBundle = ResourceBundle.getBundle(BusException.class.getName() + ".properties");
-        }
-        return resourceBundle;
-    }
-    
-    
+    protected Message createMessage(String code, Object... params) {
+        return new BusMessage(code, params);
+    } 
 }

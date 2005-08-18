@@ -3,6 +3,7 @@ package org.objectweb.celtix;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
 import org.objectweb.celtix.plugins.PluginManager;
@@ -12,14 +13,23 @@ import org.objectweb.celtix.wsdl.WSDLManager;
 public abstract class Bus {
     
     private static ThreadLocal<Bus> current;
+    
+    /**
+     * Returns a newly created and fully initialised <code>Bus</code>.
+     * 
+     * @return Bus the newly created <code<Bus</code>.
+     * @throws BusException If there is an error initializing <code>Bus</code>.
+     */
+    public static synchronized Bus init() throws BusException {
+        return init(new String[0]);
+    }
 
     /**
-     * Returns a newly created and fully initialised <code>Bus</code>
-     * or an existing bus if one with the same id already exists.
+     * Returns a newly created and fully initialised <code>Bus</code>.
      * 
-     * @param args any args, such as bus identifier, bus class, and other configuration
-     * options that can be used to identify and initialize this <code>Bus</code>.
-     * @return Bus the newly created or existing <code<Bus</code>.
+     * @param args any args, such as domain name, bus class, and other configuration
+     * options that can be used to initialize this <code>Bus</code>.
+     * @return Bus the newly created <code<Bus</code>.
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
     public static synchronized Bus init(String[] args) throws BusException {
@@ -27,16 +37,15 @@ public abstract class Bus {
     }
     
     /**
-     * Returns a newly created and fully initialised <code>Bus</code>
-     * or an existing bus if one with the same id already exists.
+     * Returns a newly created and fully initialised <code>Bus</code>.
      * 
-     * @param args any args, such as bus identifier, bus class, and other configuration
-     * options that can be used to identify and initialize this <code>Bus</code>.
+     * @param args any args, such as domain name, bus class, and other configuration
+     * options that can be used to initialize this <code>Bus</code>.
      * @param properties any properties, such as bus identifier, bus class, and other configuration
      * options that can be used to identify and initialize this <code>Bus</code>. 
      * The properties are superceded by the settings in the <code>args</code> parameter,
      * and they in turn supercede system properties.
-     * @return Bus the newly created or existing <code<Bus</code>.
+     * @return Bus the newly created <code<Bus</code>.
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
     public static synchronized Bus init(String[] args, Map<String, Object> properties) throws BusException {
@@ -44,18 +53,17 @@ public abstract class Bus {
     }
     
     /**
-     * Returns a newly created and fully initialised <code>Bus</code>
-     * or an existing bus if one with the same id already exists.
+     * Returns a newly created and fully initialised <code>Bus</code>.
      * 
-     * @param args any args, such as bus identifier, bus class, and other configuration
-     * options that can be used to identify and initialize this <code>Bus</code>.
-     * @param properties any properties, such as bus identifier, bus class, and other configuration
-     * options that can be used to identify and initialize this <code>Bus</code>. 
+     * @param args any args, such as domain name, bus class, and other configuration
+     * options that can be used to initialize this <code>Bus</code>.
+     * @param properties any properties, such as domain name, bus class, and other configuration
+     * options that can be used to initialize this <code>Bus</code>. 
      * The properties are superceded by the settings in the <code>args</code> parameter,
      * and they in turn supercede system properties.
      * @param classLoader an optional classloader to use when instantiating a <code>Bus</code>
      * needs to be instantiated (defaults to the current thread's context classloader).
-     * @return Bus the newly created or existing <code<Bus</code>.
+     * @return Bus the newly created <code<Bus</code>.
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
     public static synchronized Bus init(String[] args, 
@@ -95,18 +103,17 @@ public abstract class Bus {
         }
         current.set(bus);
     }
+    
 
     public abstract void shutdown(boolean wait) throws BusException;
     public abstract Configuration getConfiguration();
     public abstract HandlerFactoryManager getHandlerFactoryManager();
     public abstract TransportFactoryManager getTransportFactoryManager();
     public abstract WSDLManager getWSDLManager();
-    public abstract Object getServantRegistry();
-    public abstract Object getClientRegistry();
     public abstract PluginManager getPluginManager();
+    public abstract BusLifeCycleManager getLifeCycleManager();
     
-    protected abstract void initialize(String id, 
-            String[] args,
+    protected abstract void initialize(String[] args,
             Map<String, Object> properties) throws BusException;
 
 
