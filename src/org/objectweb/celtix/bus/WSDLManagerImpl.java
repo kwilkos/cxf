@@ -9,6 +9,8 @@ import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 
+import org.w3c.dom.Element;
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.wsdl.WSDLManager;
@@ -71,6 +73,24 @@ class WSDLManagerImpl implements WSDLManager {
         }
         return loadDefinition(url);
     }
+    
+
+    public Definition getDefinition(Element el) throws WSDLException {
+        synchronized (definitionsMap) {
+            if (definitionsMap.containsKey(el)) {
+                return definitionsMap.get(el);
+            }
+        }
+        WSDLReader reader = factory.newWSDLReader();
+        reader.setFeature("javax.wsdl.verbose", false);
+        reader.setExtensionRegistry(registry);
+        Definition def = reader.readWSDL(null, el);
+        synchronized (definitionsMap) {
+            definitionsMap.put(el, def);
+        }
+        return def;
+    }
+    
     
     private Definition loadDefinition(String url) throws WSDLException {
         WSDLReader reader = factory.newWSDLReader();

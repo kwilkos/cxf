@@ -28,6 +28,42 @@
     <!-- TODO: need to setup classpaths and such for the dependent libs -->
     <target name="src.compile" depends="src.checkstyle,schemas.codegen" description="Compile the source">
         <mkdir dir="${basedir}/build/classes"/>
+    	<!--ObjectFactory objects are known to have an unchecked issue, don't run with -Xlint -->
+        <javac
+            destdir="${basedir}/build/classes"
+            debug="true"
+            target="1.5"
+            source="1.5"
+        	sourcepath=""
+            fork="true"
+			includeAntRuntime="false">
+        	
+            <src path="${basedir}/src"/>
+            <src path="${basedir}/build/src"/>
+			<include name="**/TExtensibilityElement*.java"/>
+
+            <classpath>
+                <path refid="src.compile.classpath"/>
+            	<pathelement location="${basedir}/build/classes"/>
+            </classpath>
+        </javac>
+        <javac
+            destdir="${basedir}/build/classes"
+            debug="true"
+            target="1.5"
+            source="1.5"
+        	sourcepath=""
+            fork="true"
+			includeAntRuntime="false">
+        	
+            <src path="${basedir}/build/src"/>
+			<include name="**/*.java"/>
+
+            <classpath>
+                <path refid="src.compile.classpath"/>
+            	<pathelement location="${basedir}/build/classes"/>
+            </classpath>
+        </javac>
         <javac
             destdir="${basedir}/build/classes"
             debug="true"
@@ -43,24 +79,7 @@
 			<exclude name="**/ObjectFactory.java"/>
             <classpath>
                 <path refid="src.compile.classpath"/>
-            </classpath>
-        </javac>
-    	<!--ObjectFactory objects are known to have an unchecked issue, don't run with -Xlint -->
-        <javac
-            destdir="${basedir}/build/classes"
-            debug="true"
-            target="1.5"
-            source="1.5"
-        	sourcepath=""
-            fork="true"
-			includeAntRuntime="false">
-        	
-            <src path="${basedir}/src"/>
-            <src path="${basedir}/build/src"/>
-			<include name="**/ObjectFactory.java"/>
-
-            <classpath>
-                <path refid="src.compile.classpath"/>
+            	<pathelement location="${basedir}/build/classes"/>
             </classpath>
         </javac>
     </target>

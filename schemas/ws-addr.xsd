@@ -4,11 +4,11 @@
     W3C XML Schema defined in the Web Services Addressing 1.0 specification
     http://www.w3.org/TR/ws-addr-core
 
-   Copyright © 2005 World Wide Web Consortium,
+   Copyright ?? 2005 World Wide Web Consortium,
 
    (Massachusetts Institute of Technology, European Research Consortium for
    Informatics and Mathematics, Keio University). All Rights Reserved. This
-   work is distributed under the W3C® Software License [1] in the hope that
+   work is distributed under the W3C?? Software License [1] in the hope that
    it will be useful, but WITHOUT ANY WARRANTY; without even the implied
    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -17,7 +17,16 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:tns="http://www.w3.org/2005/03/addressing"
 	targetNamespace="http://www.w3.org/2005/03/addressing" blockDefault="#all"
-	elementFormDefault="qualified">
+	elementFormDefault="qualified"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	jaxb:version="2.0">
+
+    <xs:annotation>
+        <xs:appinfo>
+            <jaxb:globalBindings generateElementClass="true">
+            </jaxb:globalBindings>
+        </xs:appinfo>
+    </xs:annotation>
 	
 	<!-- Constructs from the WS-Addressing Core -->
 

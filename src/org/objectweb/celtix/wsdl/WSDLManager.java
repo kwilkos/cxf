@@ -7,6 +7,8 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.factory.WSDLFactory;
 
+import org.w3c.dom.Element;
+
 /**
  * WSDLManager
  *
@@ -44,5 +46,14 @@ public interface WSDLManager {
      * @param url - the location of the WSDL to load 
      * @return the wsdl definition
      */
-    Definition getDefinition(String url) throws WSDLException; 
+    Definition getDefinition(String url) throws WSDLException;
+    
+    /**
+     * Get the WSDL definition for the given Element.  Implementations
+     * may return a copy from a local cache or load a new copy 
+     * from the Element.
+     * @param element - the root element of the wsdl 
+     * @return the wsdl definition
+     */
+    Definition getDefinition(Element element) throws WSDLException;   
 }

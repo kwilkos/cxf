@@ -1,6 +1,6 @@
 package org.objectweb.celtix.transports;
 
-import org.objectweb.celtix.context.StreamMessageContext;
+import org.objectweb.celtix.context.InputStreamMessageContext;
 
 /**
  * ServerTransportCallback
@@ -14,7 +14,7 @@ public interface ServerTransportCallback {
      *
      * @param ctx The MessageContext associated with the call.
      */
-    void dispatch(StreamMessageContext ctx);
+    void dispatch(InputStreamMessageContext ctx);
     
     /**
      * A factory method for obtaining contexts that will be supplied
@@ -22,5 +22,5 @@ public interface ServerTransportCallback {
      *
      * @return context The <code>MessageContext</code> associated with the call.
      */
-    StreamMessageContext getDispatchContext();
+    InputStreamMessageContext getDispatchContext();
 }

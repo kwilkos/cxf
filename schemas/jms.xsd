@@ -5,9 +5,13 @@
            xmlns:jms="http://celtix.objectweb.org/transports/jms"
            xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
            elementFormDefault="qualified"
-           attributeFormDefault="unqualified">
+           attributeFormDefault="unqualified"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+		   jaxb:version="2.0">
 
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
+
+
 
     <xs:complexType name="addressType">
         <xs:annotation>

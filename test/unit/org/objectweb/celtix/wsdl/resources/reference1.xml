@@ -1,0 +1,16 @@
+<wsa:EndpointReference
+     xmlns:wsa="http://www.w3.org/2005/03/addressing"
+     xmlns:fabrikam="http://example.com/fabrikam"
+     xmlns:wsdli="http://www.w3.org/2004/08/wsdl-instance"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:wsaw="http://www.w3.org/2005/02/addressing/wsdl"
+     xmlns:target="http://www.iona.com/hello_world_soap_http">
+   <wsa:Address>http://example.com/fabrikam/acct</wsa:Address>
+   <wsa:Metadata wsdli:wsdlLocation="http://example.com/fabrikam/fabrikam.wsdl">
+   		<wsaw:ServiceName EndpointName="SoapPort">target:SOAPService</wsaw:ServiceName>
+   </wsa:Metadata>
+   <wsa:ReferenceParameters>
+       <fabrikam:CustomerKey>123456789</fabrikam:CustomerKey>
+       <fabrikam:ShoppingCart>ABCDEFG</fabrikam:ShoppingCart>
+   </wsa:ReferenceParameters>
+</wsa:EndpointReference>
