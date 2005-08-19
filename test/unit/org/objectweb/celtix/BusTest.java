@@ -7,7 +7,6 @@ import org.objectweb.celtix.bus.CeltixBus;
 
 public class BusTest extends TestCase {
 
-
     public void testBusInit() throws Exception {
         Bus bus = Bus.init(null, new HashMap<String, Object>());
         assertNotNull(bus);
