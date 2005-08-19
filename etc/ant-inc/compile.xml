@@ -2,6 +2,10 @@
 <project name="celtix-compile" basedir="../..">
     <!-- Targets for compiling the codebase -->
 
+    <!-- Load the codegen targets -->
+    <import file="codegen.xml"/>
+    
+    
 	<property name="xlint.args" value=":unchecked,deprecation,fallthrough,serial,finally"/>
 	
     <!-- The entire codebase will be checkstyled automatically as part

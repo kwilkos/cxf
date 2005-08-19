@@ -2,6 +2,10 @@
 <project name="celtix-unittests" basedir="../..">
     <!-- Targets for running the unittests -->
 
+    <!-- Load the compile targets -->
+    <import file="compile.xml"/>
+    
+    
     <target name="unit.test" description="Run the unit tests" depends="src.compile,unittest.compile">
         <mkdir dir="${basedir}/build/testresults/unit"/>
         <junit fork="yes" haltonfailure="false"
