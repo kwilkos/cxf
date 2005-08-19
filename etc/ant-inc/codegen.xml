@@ -92,4 +92,5 @@
         <antcall target="testwsdl.codegen.internal"/>
     </target>
 
+    <target name="codegen" depends="schemas.codegen,testwsdl.codegen" description="Generate all generated code"/>
 </project>
