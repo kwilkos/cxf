@@ -1,8 +1,6 @@
 package org.objectweb.celtix.bus;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import javax.xml.namespace.QName;
@@ -10,18 +8,12 @@ import javax.xml.ws.Service;
 import javax.xml.ws.ServiceFactory;
 import javax.xml.ws.WebServiceException;
 
+import org.objectweb.celtix.Bus;
+
 public class ServiceFactoryImpl extends ServiceFactory {
-    private Class<? extends Service> serviceClazz = null;
 
     public ServiceFactoryImpl() throws WebServiceException {
-        try {
-            ClassLoader loader = getClass().getClassLoader();
-
-            serviceClazz = Class.forName("org.objectweb.celtix.bus.ServiceImpl", true, loader)
-                .asSubclass(Service.class);
-        } catch (ClassNotFoundException cnfex) {
-            throw new WebServiceException(cnfex);
-        }
+        //Complete
     }
 
     /**
@@ -79,16 +71,7 @@ public class ServiceFactoryImpl extends ServiceFactory {
     private Service createProxyService(URL url, QName serviceName,
             Class<? extends Service> serviceInterface) {
         
-        Service service = null;
-        try {
-            Constructor<? extends Service> constructor =
-                serviceClazz.getConstructor(QName.class, URL.class);
-            service = constructor.newInstance(serviceName, url);
-        } catch (InvocationTargetException ite) {
-            throw new WebServiceException(ite.getCause());
-        } catch (Exception ex) {
-            throw new WebServiceException(ex);
-        }
+        Service service = new ServiceImpl(Bus.getCurrent(), url, serviceName, serviceInterface);
         
         //Create a instance of a dynamic class that implements serviceInterface 
         if (serviceInterface != null) {

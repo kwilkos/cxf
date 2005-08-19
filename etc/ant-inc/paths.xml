@@ -22,6 +22,7 @@
     </path>
     <path id="unit.test.compile.classpath">
         <pathelement location="${basedir}/build/classes"/>
+        <pathelement location="${basedir}/build/classes-tests/wsdl"/>
         <path refid="src.compile.classpath"/>
     </path>
     <path id="unit.test.classpath">

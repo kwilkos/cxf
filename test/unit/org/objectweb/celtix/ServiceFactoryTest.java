@@ -1,9 +1,12 @@
 package org.objectweb.celtix;
 
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.ServiceFactory;
+
+import com.iona.hello_world_soap_http.SOAPService;
 import junit.framework.TestCase;
 
 public class ServiceFactoryTest extends TestCase {
@@ -33,7 +36,7 @@ public class ServiceFactoryTest extends TestCase {
     /*
      * Test method for 'org.objectweb.celtix.bus.ServiceFactoryImpl.createService(URL,Class)'
      */
-    public void testCreateServiceWithURLClass() throws Exception {
+    public void testCreateServiceWithURLClassInvalidData() throws Exception {
         Bus bus = Bus.init();
         ServiceFactory sf = ServiceFactory.newInstance();
         
@@ -50,7 +53,28 @@ public class ServiceFactoryTest extends TestCase {
             bus.shutdown(true);
         }
     }
-    
+
+    /*
+     * Test method for 'org.objectweb.celtix.bus.ServiceFactoryImpl.createService(URL,Class)'
+     */
+    public void testCreateServiceWithURLClassValidData() throws Exception {
+        Bus bus = Bus.init();
+        ServiceFactory sf = ServiceFactory.newInstance();
+        
+        URL url = getClass().getResource("resources/hello_world.wsdl");
+        try {
+            SOAPService hwService = sf.createService(url, SOAPService.class);
+            assertNotNull(hwService);
+
+            assertTrue("Should be a proxy class.", Proxy.isProxyClass(hwService.getClass()));            
+            //Bug in wsImport CodeGen , WebService Annotation Missing on ServiceInterface
+            assertNull(hwService.getServiceName());
+            assertNull(hwService.getWSDLDocumentLocation());
+        } finally {
+            bus.shutdown(true);
+        }
+    }
+
     /*
      * Test method for 'org.objectweb.celtix.bus.ServiceFactoryImpl.createService(QName)'
      */

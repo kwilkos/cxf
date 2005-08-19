@@ -5,92 +5,62 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.net.URL;
+import java.rmi.Remote;
 import java.util.*;
+
 import javax.jws.WebService;
+
+import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.WSDLException;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
+//import javax.xml.ws.WebEndpoint;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.HandlerRegistry;
 import javax.xml.ws.security.SecurityConfiguration;
+
+import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class ServiceImpl implements Service, InvocationHandler {
 
     private URL wsdlLocation;
     private QName serviceName;
     private Vector<QName> endpointList;
+    private final Bus bus;
+    private final Class<? extends Service> serviceInterface;
     
     /**
      * Create a new Service.
      * @throws WebServiceException If there is an exception creating Service.
      */
-    public ServiceImpl(QName name, URL location) throws WebServiceException {
+    public ServiceImpl(Bus b, URL location, QName name, 
+            Class<? extends Service> si) throws WebServiceException {
+        bus = b;
         wsdlLocation = location;
         serviceName = name;
+        serviceInterface = si;
         endpointList = new Vector<QName>();
     }
     
-    public void addPort(QName portName, URI bindingId, String endpointAddress) throws WebServiceException {
+    public void createPort(QName portName, URI bindingId, String endpointAddress) throws WebServiceException {
         throw new UnsupportedOperationException("addPort not yet supported");        
     }   
     
     public <T> T getPort(QName portName, Class<T> serviceEndpointInterface) throws WebServiceException {
-        //Assuming Annotation is Present
-        javax.jws.WebService wsAnnotation = 
-                (WebService) serviceEndpointInterface.getAnnotation(WebService.class);
-
-        if (wsdlLocation == null) {
-            wsdlLocation = getWsdlLocation(wsAnnotation);
-        }
-
-        if (wsdlLocation == null) {
-            throw new WebServiceException("No wsdl url specified");
-        }
-        
-        if (serviceName == null) {
-            serviceName = getServiceName(wsAnnotation);
-        }
-        
         if (portName == null) {
-            portName = getPortName(wsAnnotation);
-        } else if (portName.getNamespaceURI() == null) {
-            portName = new QName(wsAnnotation.targetNamespace(), portName.getLocalPart());  
+            throw new WebServiceException("No endpoint specified.");
         }
         
-        //Parse WSDL 
-        
-        //Create Binding,Tranpsort and finally PortTypeProxy
-
-        endpointList.add(portName);
-       
-        return null;
+        return createPort(portName, serviceEndpointInterface);
     }
 
     public <T> T getPort(Class<T> serviceEndpointInterface) throws WebServiceException {
-        javax.jws.WebService wsAnnotation = 
-                (WebService) serviceEndpointInterface.getAnnotation(WebService.class);
-
-        if (wsdlLocation == null) {
-            wsdlLocation = getWsdlLocation(wsAnnotation);
-        }
-
-        if (wsdlLocation == null) {
-            throw new WebServiceException("No wsdl url specified");
-        }
-        
-        if (serviceName == null) {
-            serviceName = getServiceName(wsAnnotation);
-        }
-        
-        QName portName = getPortName(wsAnnotation);       
-        endpointList.add(portName);
-        
-        return null;
-    }
-
-    public void createPort(QName portName, URI bindingId, String endpointAddress) throws WebServiceException {
-        
+        return createPort(null, serviceEndpointInterface);
     }
 
     public <T> Dispatch<T> createDispatch(QName portName, Class<T> serviceEndpointInterface, 
@@ -124,12 +94,12 @@ public class ServiceImpl implements Service, InvocationHandler {
     
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        if (Proxy.isProxyClass(proxy.getClass())) {
+        if (serviceInterface.equals(method.getDeclaringClass())) {
             
             Class<?> returnType = method.getReturnType();
             
             if (returnType != null) {
-                String endpointName = getEndpointName(method.getName());
+                String endpointName = getEndpointName(method);
 
                 return getPort(new QName("", endpointName), returnType);
             } else {
@@ -138,17 +108,69 @@ public class ServiceImpl implements Service, InvocationHandler {
                 throw new WebServiceException(str.toString());
             }
         } else {
-            method.invoke(proxy, args);
+            method.invoke(this, args);
         }
         
         return null;       
     }
 
-    private String getEndpointName(String endpointName) {
+    protected <T> T createPort(QName portName, 
+                Class<T> serviceEndpointInterface) throws WebServiceException {
+
+        Class <? extends Remote> clazz = null;
+        try {
+            clazz = serviceEndpointInterface.asSubclass(Remote.class);
+        } catch (ClassCastException cce) {
+            throw new WebServiceException("Invalid Interface Specified", cce);
+        }
+        
+        //Assuming Annotation is Present
+        javax.jws.WebService wsAnnotation = 
+                (WebService) serviceEndpointInterface.getAnnotation(WebService.class);
+
+        if (wsdlLocation == null) {
+            wsdlLocation = getWsdlLocation(wsAnnotation);
+        }
+
+        if (wsdlLocation == null) {
+            throw new WebServiceException("No wsdl url specified");
+        }
+        
+        if (serviceName == null) {
+            serviceName = getServiceName(wsAnnotation);
+        }
+        
+        Port port = getWSDLPort(wsdlLocation, serviceName, portName);
+
+        EndpointInvocationHandler endpointHandler = 
+                new EndpointInvocationHandler(bus, port, clazz);
+        
+        Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(),
+                                            new Class[] {serviceEndpointInterface, Remote.class},
+                                            (InvocationHandler) endpointHandler);
+        
+        endpointList.add(portName);
+        
+        return serviceEndpointInterface.cast(obj);
+    }
+    
+    private String getEndpointName(Method method) {
+        //Order of Search
+        //a. Look for WebEndpoint Annotation on the method.
+        //b. Get the endpoint name from the Method name
+        String endpointName = null;
+        
+        //if (method.isAnnotationPresent(WebEndpoint.class)) {
+        //    WebEndpoint wepAnnotation = 
+        //        (WebEndpoint) method.getAnnotation(WebEndpoint.class);
+        //    endpointName = wepAnnotation.name();
+        //} else {
+        endpointName = method.getName();
         if (endpointName.startsWith("get")) {
             return endpointName.substring(3);
         }
-        return endpointName;        
+        //}
+        return endpointName;
     }
     
     private URL getWsdlLocation(WebService wsAnnotation) {
@@ -175,13 +197,20 @@ public class ServiceImpl implements Service, InvocationHandler {
         return serviceQName;
     }
     
-    private QName getPortName(WebService wsAnnotation) {
+    private Port getWSDLPort(URL wsdlUrl, QName service, QName endpointName) {
 
-        QName portName = null;
-        if (wsAnnotation != null) {
-            portName = new QName(wsAnnotation.targetNamespace(), wsAnnotation.name());
+        WSDLManager wsdlManager = bus.getWSDLManager();
+        Definition defs = null;
+
+        try {
+            defs = wsdlManager.getDefinition(wsdlUrl);
+        } catch (WSDLException wex) {
+            throw new WebServiceException(wex);
         }
         
-        return portName;
+        javax.wsdl.Service wsdlService = defs.getService(service);
+        return wsdlService.getPort(endpointName.getLocalPart());
     }
+    
 }
+
