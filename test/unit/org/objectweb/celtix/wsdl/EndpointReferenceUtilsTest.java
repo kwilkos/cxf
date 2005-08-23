@@ -1,5 +1,6 @@
 package org.objectweb.celtix.wsdl;
 
+import java.net.URL;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.xml.bind.JAXBContext;
@@ -80,4 +81,20 @@ public class EndpointReferenceUtilsTest extends TestCase {
         assertNotNull("Could not find port", port);             
     }    
 
+    public void testGetEndpointReference() throws Exception  {
+        Bus bus = Bus.init(new String[0]);
+        URL url = getClass().getResource("../resources/hello_world.wsdl");
+        QName serviceName = new QName("http://www.iona.com/hello_world_soap_http", "SOAPService_Test1");
+        String portName = new String("SoapPort_Test2");
+
+        EndpointReferenceType ref = 
+                EndpointReferenceUtils.getEndpointReference(url, serviceName, portName);
+        
+        assertNotNull("Could not create endpoint reference", ref);
+        
+        Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+        
+        assertNotNull("Could not find port", port);        
+        assertEquals(portName, port.getName());
+    }    
 }

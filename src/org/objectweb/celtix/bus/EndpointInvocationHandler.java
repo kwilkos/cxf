@@ -22,6 +22,9 @@ import org.objectweb.celtix.bindings.BindingFactory;
 //import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+import org.objectweb.celtix.wsdl.WSDLManager;
+
 
 public class EndpointInvocationHandler implements BindingProvider, InvocationHandler
 {
@@ -30,14 +33,15 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
     protected Map<String, Object> responseContext;
     
     private final Class<? extends Remote> portTypeInterface;
-    private final Port wsdlPort;
+    private final EndpointReferenceType endpointRef;
     private final Bus bus;
     
-    public EndpointInvocationHandler(Bus b, Port port, Class<? extends Remote> portSEI) {
+    public EndpointInvocationHandler(Bus b, EndpointReferenceType reference,
+            Class<? extends Remote> portSEI) {
         bus = b;
         portTypeInterface = portSEI;
-        wsdlPort = port;
-        clientBinding = createBinding(wsdlPort);
+        endpointRef = reference;
+        clientBinding = createBinding(reference);
     }
 
     public Object invoke(Object proxy, Method method, Object args[])
@@ -51,9 +55,6 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
     }
 
     public Binding getBinding() {
-        if (clientBinding == null) {
-            clientBinding = createBinding(wsdlPort);
-        }
         return (Binding) clientBinding;
     }
     
@@ -91,8 +92,15 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         return null;
     }
     
-    private ClientBinding createBinding(Port endpoint) {
-        //REVISIT Build The Handler Chain by this time using HandleRegistry Interface
+    protected ClientBinding createBinding(EndpointReferenceType ref) {
+
+        WSDLManager wsdlManager = bus.getWSDLManager();
+        Port endpoint = null;
+        try {
+            endpoint = EndpointReferenceUtils.getPort(wsdlManager, ref);
+        } catch (Exception we) {
+            //TODO 
+        }
         
         javax.wsdl.Binding wsdlBinding = endpoint.getBinding();
         String bindingId = getExtessionElementURI(wsdlBinding.getExtensibilityElements());
@@ -107,8 +115,7 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         }
 */
         //Binding API Broken , EPR needs to be created for Binding.
-        EndpointReferenceType reference = new EndpointReferenceType();
-        ClientBinding bindingImpl = factory.createClientBinding(reference);
+        ClientBinding bindingImpl = factory.createClientBinding(ref);
 
         //Set the handle Chain on Binding
         return bindingImpl;

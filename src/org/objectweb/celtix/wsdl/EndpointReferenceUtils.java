@@ -1,5 +1,7 @@
 package org.objectweb.celtix.wsdl;
 
+import java.net.URL;
+import java.util.Map;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
@@ -19,6 +21,18 @@ import org.objectweb.celtix.addressing.wsdl.ServiceNameType;
 
 public final class EndpointReferenceUtils {
 
+    private static final QName WSDL_LOCATION = 
+            new QName("http://www.w3.org/2004/08/wsdl-instance", "wsdlLocation");
+    private static final QName SERVICE_NAME = new QName("http://www.w3.org/2004/08/wsdl", "service");
+    private static final QName PORT_NAME = new QName("http://www.w3.org/2004/08/wsdl", "port");
+
+/*    
+    static {
+        WSDL_LOCATION = new QName("http://www.w3.org/2004/08/wsdl-instance", "wsdlLocation");
+        SERVICE_NAME = new QName("http://www.w3.org/2004/08/wsdl", "service");
+        PORT_NAME = new QName("http://www.w3.org/2004/08/wsdl", "port");
+    }
+*/    
     private EndpointReferenceUtils() {
         //Utility class - never constructed
     }
@@ -77,7 +91,30 @@ public final class EndpointReferenceUtils {
             }
         }
 
+        Map<QName, String> attribMap = metadata.getOtherAttributes();
+        String value = attribMap.get(SERVICE_NAME);
+        if (null != value) {
+            QName serviceName = QName.valueOf(value);
+            Service service = def.getService(serviceName);
+            String str = attribMap.get(PORT_NAME);
+            //return service.getPort(str);
+            return service.getPort(str);
+        }
+ 
         return null;
     } 
 
+    public static EndpointReferenceType getEndpointReference(URL wsdlUrl, 
+            QName serviceName, String portName) {
+
+        EndpointReferenceType reference = new EndpointReferenceType();
+        reference.setMetadata(new MetadataType());
+        Map<QName, String> attribMap = reference.getMetadata().getOtherAttributes();
+        
+        attribMap.put(WSDL_LOCATION, wsdlUrl.toString());
+        attribMap.put(SERVICE_NAME, serviceName.toString());
+        attribMap.put(PORT_NAME, portName);
+        
+        return reference;
+    }
 }

@@ -10,10 +10,6 @@ import java.util.*;
 
 import javax.jws.WebService;
 
-import javax.wsdl.Definition;
-import javax.wsdl.Port;
-import javax.wsdl.WSDLException;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Dispatch;
@@ -24,7 +20,8 @@ import javax.xml.ws.handler.HandlerRegistry;
 import javax.xml.ws.security.SecurityConfiguration;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.wsdl.WSDLManager;
+import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class ServiceImpl implements Service, InvocationHandler {
 
@@ -140,10 +137,11 @@ public class ServiceImpl implements Service, InvocationHandler {
             serviceName = getServiceName(wsAnnotation);
         }
         
-        Port port = getWSDLPort(wsdlLocation, serviceName, portName);
-
+        EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlLocation, 
+                serviceName, portName.getLocalPart());
+        
         EndpointInvocationHandler endpointHandler = 
-                new EndpointInvocationHandler(bus, port, clazz);
+                new EndpointInvocationHandler(bus, ref, clazz);
         
         Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(),
                                             new Class[] {serviceEndpointInterface, Remote.class},
@@ -196,21 +194,6 @@ public class ServiceImpl implements Service, InvocationHandler {
         
         return serviceQName;
     }
-    
-    private Port getWSDLPort(URL wsdlUrl, QName service, QName endpointName) {
-
-        WSDLManager wsdlManager = bus.getWSDLManager();
-        Definition defs = null;
-
-        try {
-            defs = wsdlManager.getDefinition(wsdlUrl);
-        } catch (WSDLException wex) {
-            throw new WebServiceException(wex);
-        }
-        
-        javax.wsdl.Service wsdlService = defs.getService(service);
-        return wsdlService.getPort(endpointName.getLocalPart());
-    }
-    
+   
 }
 

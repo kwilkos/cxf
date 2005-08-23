@@ -61,4 +61,17 @@
             <http-conf:server/>
         </wsdl:port>
     </wsdl:service>
+    <wsdl:service name="SOAPService_Test1">
+        <wsdl:port binding="tns:Greeter_SOAPBinding" name="SoapPort_Test1">
+            <soap:address location="http://localhost:9100"/>
+            <http-conf:client/>
+            <http-conf:server/>
+        </wsdl:port>
+        <wsdl:port binding="tns:Greeter_SOAPBinding" name="SoapPort_Test2">
+            <soap:address location="http://localhost:9101"/>
+            <http-conf:client/>
+            <http-conf:server/>
+        </wsdl:port>
+    </wsdl:service>
+
 </wsdl:definitions>
