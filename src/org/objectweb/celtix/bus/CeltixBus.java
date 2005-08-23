@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
@@ -14,7 +15,7 @@ import org.objectweb.celtix.wsdl.WSDLManager;
 public class CeltixBus extends Bus {
     
     private Configuration configuration;
-    //private Object bindingManager;
+    private BindingManager bindingManager;
     private Object clientRegistry;
     private HandlerFactoryManager handlerFactoryManager;
     private EndpointRegistry endpointRegistry;
@@ -37,10 +38,9 @@ public class CeltixBus extends Bus {
         wsdlManager = new WSDLManagerImpl(this);
         handlerFactoryManager = new HandlerFactoryManagerImpl(this);
         transportFactoryManager = new TransportFactoryManagerImpl(this);
+        bindingManager = new BindingManagerImpl(this);
         
         // create and initialise the remaining objects:
-        
-        // bindingManager = new BindingManager(this);
         // clientRegistry = new ClientRegistry(this);
         
         endpointRegistry = new EndpointRegistry(this);
@@ -107,6 +107,15 @@ public class CeltixBus extends Bus {
     public HandlerFactoryManager getHandlerFactoryManager() {
         return handlerFactoryManager;
     }
+
+    /** 
+     * Returns the <code>BindingManager</code> of this <code>Bus</code>.
+     * 
+     * @return BindingManager of this <code>Bus</code>.
+     */
+    public BindingManager getBindingManager() {
+        return bindingManager;
+    }
     
     /** 
      * Returns the <code>TransportRegistry</code> of this <code>Bus</code>.
@@ -155,6 +164,4 @@ public class CeltixBus extends Bus {
     public BusLifeCycleManager getLifeCycleManager() {
         return lifeCycleManager;
     }
-    
-    
 }

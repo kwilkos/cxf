@@ -3,6 +3,7 @@ package org.objectweb.celtix;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
@@ -109,6 +110,7 @@ public abstract class Bus {
     public abstract Configuration getConfiguration();
     public abstract HandlerFactoryManager getHandlerFactoryManager();
     public abstract TransportFactoryManager getTransportFactoryManager();
+    public abstract BindingManager getBindingManager();
     public abstract WSDLManager getWSDLManager();
     public abstract PluginManager getPluginManager();
     public abstract BusLifeCycleManager getLifeCycleManager();

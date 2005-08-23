@@ -26,13 +26,6 @@ public final class EndpointReferenceUtils {
     private static final QName SERVICE_NAME = new QName("http://www.w3.org/2004/08/wsdl", "service");
     private static final QName PORT_NAME = new QName("http://www.w3.org/2004/08/wsdl", "port");
 
-/*    
-    static {
-        WSDL_LOCATION = new QName("http://www.w3.org/2004/08/wsdl-instance", "wsdlLocation");
-        SERVICE_NAME = new QName("http://www.w3.org/2004/08/wsdl", "service");
-        PORT_NAME = new QName("http://www.w3.org/2004/08/wsdl", "port");
-    }
-*/    
     private EndpointReferenceUtils() {
         //Utility class - never constructed
     }
