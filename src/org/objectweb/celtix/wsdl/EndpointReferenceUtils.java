@@ -41,8 +41,7 @@ public final class EndpointReferenceUtils {
     public static Definition getWSDLDefinition(WSDLManager manager, EndpointReferenceType ref)
         throws WSDLException {
         MetadataType metadata = ref.getMetadata();
-        String location = (String)metadata.getOtherAttributes().get(
-                        new QName("http://www.w3.org/2004/08/wsdl-instance", "wsdlLocation"));
+        String location = (String)metadata.getOtherAttributes().get(WSDL_LOCATION);
         
         if (null != location) {
             return manager.getDefinition(location);
@@ -60,7 +59,7 @@ public final class EndpointReferenceUtils {
     }
 
     public static Port getPort(WSDLManager manager, EndpointReferenceType ref)
-        throws WSDLException, JAXBException {
+        throws WSDLException {
 
         Definition def = getWSDLDefinition(manager, ref);
         MetadataType metadata = ref.getMetadata();
@@ -68,9 +67,15 @@ public final class EndpointReferenceUtils {
             if (obj instanceof Element) {
                 Element el = (Element)obj;
                 if ("http://www.w3.org/2005/02/addressing/wsdl".equals(el.getNamespaceURI())) {
-                    JAXBContext context = JAXBContext.newInstance(new Class[] {ObjectFactory.class});
-                    Unmarshaller u = context.createUnmarshaller();
-                    obj = u.unmarshal(el);
+                    try {
+                        JAXBContext context = JAXBContext.newInstance(new Class[] {ObjectFactory.class});
+                        Unmarshaller u = context.createUnmarshaller();
+                        obj = u.unmarshal(el);
+                    } catch (JAXBException jaxbex) {
+                        throw new WSDLException(WSDLException.PARSER_ERROR,
+                                                "Problem parsing WSDL",
+                                                jaxbex);
+                    }
                 }
             }
             if (obj instanceof JAXBElement) {

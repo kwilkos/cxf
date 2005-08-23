@@ -10,37 +10,68 @@ import org.objectweb.celtix.transports.TransportFactoryManager;
 
 public class TransportFactoryManagerImpl implements TransportFactoryManager {
 
-    private Map<String, TransportFactory> transportFactories;
+    private final Map<String, TransportFactory> transportFactories;
+    private final Bus bus;
       
-    TransportFactoryManagerImpl(Bus bus) {
+    TransportFactoryManagerImpl(Bus b) throws BusException {
         transportFactories = new HashMap<String, TransportFactory>();
+        bus = b;
+        
+        // TODO - config instead of hard coded
+        loadTransportFactory("org.objectweb.celtix.bus.transports.http.HTTPTransportFactory",
+                             "http://schemas.xmlsoap.org/wsdl/soap/",
+                             "http://celtix.objectweb.org/transports/http/configuration");
+        
     }
+    
+    public void loadTransportFactory(String classname, String ... namespaces) throws BusException {
+        try {
+            Class<? extends TransportFactory> clazz =
+                Class.forName(classname).asSubclass(TransportFactory.class);
+            
+            TransportFactory factory = clazz.newInstance();
+            factory.init(bus);
+            for (String namespace : namespaces) {
+                registerTransportFactory(namespace, factory);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new BusException(e);
+        } catch (InstantiationException e) {
+            throw new BusException(e);
+        } catch (IllegalAccessException e) {
+            throw new BusException(e);
+        }
+    }
+    
 
     /* (non-Javadoc)
      * @see org.objectweb.celtix.bus.TransportFactoryManager#registerTransportFactory(java.lang.String, 
      * org.objectweb.celtix.transports.TransportFactory)
      */
-    public void registerTransportFactory(String name, TransportFactory factory) throws BusException {
-        synchronized (this) {
-            transportFactories.put(name, factory);
+    public void registerTransportFactory(String namespace, TransportFactory factory) throws BusException {
+        synchronized (transportFactories) {
+            transportFactories.put(namespace, factory);
         }
-        // register wsdl extensions with factory ? 
     }
     
     /* (non-Javadoc)
      * @see org.objectweb.celtix.bus.TransportFactoryManager#deregisterTransportFactory(java.lang.String)
      */
-    public void deregisterTransportFactory(String name)
+    public void deregisterTransportFactory(String namespace)
         throws BusException {
-    
+        synchronized (transportFactories) {
+            transportFactories.remove(namespace);
+        }
+        
     }
 
     /* (non-Javadoc)
      * @see org.objectweb.celtix.bus.TransportFactoryManager#TransportFactory(java.lang.String)
      */
-    public TransportFactory getTransportFactory(String name) throws BusException {
-        // TODO Auto-generated method stub
-        return null;
+    public TransportFactory getTransportFactory(String namespace) throws BusException {
+        synchronized (transportFactories) {
+            return transportFactories.get(namespace);
+        }
     }
     
     

@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bindings;
 
+import java.io.IOException;
 import java.util.concurrent.Future;
 
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -15,9 +16,9 @@ public interface ClientBinding {
 
 
 
-    void invokeOneWay(ObjectMessageContext context);
+    void invokeOneWay(ObjectMessageContext context) throws IOException;
 
-    ObjectMessageContext invoke(ObjectMessageContext context);
+    ObjectMessageContext invoke(ObjectMessageContext context) throws IOException;
 
-    Future<ObjectMessageContext> invokeAsync(ObjectMessageContext context);
+    Future<ObjectMessageContext> invokeAsync(ObjectMessageContext context) throws IOException;
 }

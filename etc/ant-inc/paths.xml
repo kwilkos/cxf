@@ -15,10 +15,17 @@
         </fileset>
     </path>
     
+    <path id="embedded.tomcat.classpath">
+    	<fileset dir="${tools.dir}/tomcat/5.5.9/server/lib">
+            <include name="*.jar"/>    	
+    	</fileset>
+    </path>
+    
   
     <path id="src.compile.classpath">
         <path refid="wsdl4j.classpath"/>
     	<path refid="jaxws.classpath"/>
+    	<path refid="embedded.tomcat.classpath"/>
     </path>
     <path id="unit.test.compile.classpath">
         <pathelement location="${basedir}/build/classes"/>

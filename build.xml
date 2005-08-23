@@ -3,7 +3,7 @@
 
     <target name="build" depends="src.compile,unittest.compile,unit.test" description="Main build target"/>
 
-    <target name="cruisecontrol.build" depends="clean,build" description="Main target for cruisecontrol"/>
+    <target name="cruisecontrol.build" depends="very.clean,build" description="Main target for cruisecontrol"/>
 
     <property environment="env"/>
     <fail unless="env.JAXWS_HOME">.
@@ -32,7 +32,19 @@
 
     <!-- Target to clean the build dir -->
     <target name="clean" description="Clean the build artifacts">
-        <delete dir="${basedir}/build" quiet="true"/>
+        <delete quiet="true" includeemptydirs="true">
+            <fileset dir="build">
+                 <include name="classes/**/*"/>
+                 <include name="classes-tests/wsdl/**/*"/>
+                 <include name="classes-tests/unit/**/*"/>
+                 <include name="src/**/*"/>
+                 <include name="test-src/**/*"/>
+            </fileset>
+        </delete>
+        <delete quiet="true" dir="build/testresults"/>
+    </target>
+    <target name="very.clean" description="Clean the build artifacts and directories">
+        <delete quiet="true" dir="build"/>
     </target>
 
 </project>

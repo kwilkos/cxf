@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bindings;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -60,7 +61,7 @@ public abstract class GenericClientBinding implements ClientBinding {
 
     abstract void read(InputStreamMessageContext inCtx, MessageContext context);
     
-    public ObjectMessageContext invoke(ObjectMessageContext context) {
+    public ObjectMessageContext invoke(ObjectMessageContext context) throws IOException {
         // TODO - invoke ObjectMessageContext handlers
         MessageContext bindingContext = createBindingMessageContext();
         

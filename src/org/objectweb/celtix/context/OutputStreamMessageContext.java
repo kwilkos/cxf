@@ -9,7 +9,7 @@ public interface OutputStreamMessageContext extends MessageContext {
 
     OutputStream getOutputStream();
     
-    void setOutputStream(OutputStream ins);
+    void setOutputStream(OutputStream out);
       
     
 }

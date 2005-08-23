@@ -2,6 +2,7 @@ package org.objectweb.celtix.transports;
 
 
 
+import java.io.IOException;
 import java.util.concurrent.Future;
 
 import javax.xml.ws.handler.MessageContext;
@@ -20,20 +21,22 @@ public interface ClientTransport extends Transport {
      * @param context The associated MessageContext.
      * @return the context that will be used to obtain the OutputStream
      */
-    OutputStreamMessageContext createOutputStreamContext(MessageContext context);
+    OutputStreamMessageContext createOutputStreamContext(MessageContext context)
+        throws IOException;
     
     /**
      * @param context The associated MessageContext.
      * @return the context that will be used to obtain the OutputStream
      */
-    void finalPrepareOutputStreamContext(OutputStreamMessageContext context);
+    void finalPrepareOutputStreamContext(OutputStreamMessageContext context)
+        throws IOException;
 
 
     /**
      * invoke on a oneway operation on a remote service.
      * @param context 
      */
-    void invokeOneway(OutputStreamMessageContext context);
+    void invokeOneway(OutputStreamMessageContext context) throws IOException;
 
     /**
      * invoke on a two-way operation on the remote service.   The transport
@@ -41,7 +44,8 @@ public interface ClientTransport extends Transport {
      * @param context
      * @return the context containing the InputStream response payload
      */        
-    InputStreamMessageContext invoke(OutputStreamMessageContext context);
+    InputStreamMessageContext invoke(OutputStreamMessageContext context)
+        throws IOException;
 
     /**
      * invoke on a two-way operation on the remote service asyncronously.
@@ -49,6 +53,7 @@ public interface ClientTransport extends Transport {
      * @param context
      * @return the context containing the InputStream response payload
      */        
-    Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context);
+    Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context)
+        throws IOException;
 
 }
