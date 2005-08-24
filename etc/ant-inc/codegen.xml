@@ -21,7 +21,7 @@
                     <fileset dir="${env.JAXWS_HOME}/lib">
                         <include name="*.jar"/>
                     </fileset>
-                    <pathelement location="${env.JAVA_HOME}/lib/tools.jar"/>
+		    <path refid="jdk.tools.classpath"/>
                 </classpath>
                 <arg line="${package.arg.@{file}}"/>
                 <arg value="-keep"/>
@@ -51,7 +51,7 @@
                     <fileset dir="${env.JAXWS_HOME}/lib">
                         <include name="*.jar"/>
                     </fileset>
-                    <pathelement location="${env.JAVA_HOME}/lib/tools.jar"/>
+		    <path refid="jdk.tools.classpath"/>
                 </classpath>
                 <arg line="${package.arg.@{file}}"/>
                 <arg value="-quiet"/>

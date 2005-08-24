@@ -2,11 +2,19 @@
 <project name="celtix-paths" basedir="../..">
     <!-- Path definitions -->
 
+    <!-- on darwin, tools.jar does not exist -->
+    <available property="tools.jar" value="${env.JAVA_HOME}/lib/tools.jar"
+	       file="${env.JAVA_HOME}/lib/tools.jar"/>
+
+    <path id="jdk.tools.classpath">
+      <pathelement location="${tools.jar}"/>
+    </path>
+
     <path id="jaxws.classpath">
         <fileset dir="${env.JAXWS_HOME}/lib">
             <include name="*.jar"/>
         </fileset>
-        <pathelement location="${env.JAVA_HOME}/lib/tools.jar"/>
+        <pathelement location="${tools.jar}"/>
     </path>
     
     <path id="wsdl4j.classpath">
