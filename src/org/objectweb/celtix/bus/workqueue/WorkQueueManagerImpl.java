@@ -49,12 +49,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
      */
     public void shutdown(boolean processRemainingTasks) {
         if (null != autoQueue) {
-            // REVISIT: asmyth
-            // should we extend the Executor interface after all?
-            if (autoQueue instanceof AutomaticWorkQueueImpl) {
-                AutomaticWorkQueueImpl aq = (AutomaticWorkQueueImpl)autoQueue;
-                aq.shutdown(processRemainingTasks);
-            }
+            autoQueue.shutdown(processRemainingTasks);
         }
     }
 
@@ -64,7 +59,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
         // (which will be able to perform work straight away)
         createAutomaticExecutor();
     }
-    
+
     private void createAutomaticExecutor() {
 
         // Configuration configuration = bus.getConfiguration();
