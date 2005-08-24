@@ -1,15 +1,13 @@
 package org.objectweb.celtix.workqueue;
 
 public interface AutomaticWorkQueue extends WorkQueue {
-    
-    int getHighWaterMark();
-    void setHighWaterMark(int hwm);
-    
-    int getLowWaterMark();
-    void setLowWaterMark(int lwm);
-    
-    int getThreadCount();
-    int getWorkingThreadCount();
-
+    /**
+     * Initiates an orderly shutdown. 
+     * If <code>processRemainingWorkItems</code>
+     * is true, waits for all active items to finish execution before returning, otherwise returns 
+     * immediately after removing all non active items from the queue.
+     * 
+     * @param processRemainingWorkItems
+     */
     void shutdown(boolean processRemainingWorkItems);
 }

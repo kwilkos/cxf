@@ -1,8 +1,8 @@
 package org.objectweb.celtix.bus.workqueue;
 
-import junit.framework.TestCase;
+import java.util.concurrent.RejectedExecutionException;
 
-import org.objectweb.celtix.workqueue.WorkItem;
+import junit.framework.TestCase;
 
 public class AutomaticWorkQueueTest extends TestCase {
 
@@ -49,18 +49,18 @@ public class AutomaticWorkQueueTest extends TestCase {
         try {
             Thread.sleep(100);
         } catch (Exception e) {
-            // ignore 
+            // ignore
         }
 
         // We haven't enqueued anything yet, so should be zero
         assertEquals(0, workqueue.getSize());
-        assertEquals(INITIAL_SIZE, workqueue.getThreadCount());
+        assertEquals(INITIAL_SIZE, workqueue.getPoolSize());
 
         // Check that no threads are working yet, as we haven't enqueued
         // anything yet.
-        assertEquals(0, workqueue.getWorkingThreadCount());
+        assertEquals(0, workqueue.getActiveCount());
 
-        assertTrue(workqueue.enqueue(new TestWorkItem(), TIMEOUT));
+        workqueue.execute(new TestWorkItem(), TIMEOUT);
 
         // Give threads a chance to dequeue (5sec max)
         int i = 0;
@@ -73,7 +73,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         }
         assertEquals(0, workqueue.getSize());
     }
-    
+
     public void testEnqueueImmediate() {
         AutomaticWorkQueueImpl workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
                                                                       DEFAULT_HIGH_WATER_MARK,
@@ -91,55 +91,63 @@ public class AutomaticWorkQueueTest extends TestCase {
         // initial size and no threads should be working
         //
         assertEquals(0, workqueue.getSize());
-        assertEquals(INITIAL_SIZE, workqueue.getThreadCount());
-        assertEquals(0, workqueue.getWorkingThreadCount());
+        assertEquals(INITIAL_SIZE, workqueue.getPoolSize());
+        assertEquals(0, workqueue.getActiveCount());
 
         BlockingWorkItem[] workItems = new BlockingWorkItem[DEFAULT_HIGH_WATER_MARK];
         BlockingWorkItem[] fillers = new BlockingWorkItem[DEFAULT_MAX_QUEUE_SIZE];
-        
+
         try {
             // fill up the queue, then exhaust the thread pool
             //
             for (int i = 0; i < DEFAULT_HIGH_WATER_MARK; i++) {
                 workItems[i] = new BlockingWorkItem();
-                assertTrue(workqueue.toString(), workqueue.enqueueImmediate(workItems[i]));
+                workqueue.execute(workItems[i]);
             }
-             
+
             for (int i = 0; i < DEFAULT_MAX_QUEUE_SIZE; i++) {
                 fillers[i] = new BlockingWorkItem();
-                assertTrue(workqueue.toString(), workqueue.enqueueImmediate(fillers[i]));
+                workqueue.execute(fillers[i]);
             }
-            
+
             // give threads a chance to start executing the work items
             try {
                 Thread.sleep(250);
             } catch (InterruptedException ex) {
                 // ignore
-            }            
-            
+            }
+
             assertTrue(workqueue.toString(), workqueue.isFull());
-            assertEquals(workqueue.toString(), DEFAULT_HIGH_WATER_MARK, workqueue.getThreadCount());
-            assertEquals(workqueue.toString(), DEFAULT_HIGH_WATER_MARK, workqueue.getWorkingThreadCount());
-            
-            // this attempt should now fail
+            assertEquals(workqueue.toString(), DEFAULT_HIGH_WATER_MARK, workqueue.getPoolSize());
+            assertEquals(workqueue.toString(), DEFAULT_HIGH_WATER_MARK, workqueue.getActiveCount());
 
-            assertTrue(!workqueue.enqueueImmediate(new BlockingWorkItem()));
+            try {
+                workqueue.execute(new BlockingWorkItem());
+                fail("workitem should not have been accepted.");
+            } catch (RejectedExecutionException ex) {
+                // ignore
+            }
 
-            // unblock one work item and allow thread to dequeue next item 
-            
+            // unblock one work item and allow thread to dequeue next item
+
             workItems[0].unblock();
-            boolean enqueued = false;
+            boolean accepted = false;
             workItems[0] = new BlockingWorkItem();
-            
-            for (int i = 0; i < 20 && !enqueued; i++) {
+
+            for (int i = 0; i < 20 && !accepted; i++) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException ex) {
                     // ignore
                 }
-                enqueued = workqueue.enqueueImmediate(workItems[0]);  
+                try {
+                    workqueue.execute(workItems[0]);
+                    accepted = true;
+                } catch (RejectedExecutionException ex) {
+                    // ignore
+                }
             }
-            assertTrue(enqueued);
+            assertTrue(accepted);
         } finally {
             for (int i = 0; i < DEFAULT_HIGH_WATER_MARK; i++) {
                 if (workItems[i] != null) {
@@ -153,28 +161,28 @@ public class AutomaticWorkQueueTest extends TestCase {
             }
         }
     }
-    
+
     public void testDeadLockEnqueueLoads() {
-        DeadLockThread dead = 
-            new DeadLockThread(new AutomaticWorkQueueImpl(500, 1, 2, 2, 
-                                                          DEFAULT_DEQUEUE_TIMEOUT), 200, 10L);
+        DeadLockThread dead = new DeadLockThread(new AutomaticWorkQueueImpl(500, 1, 2, 2,
+                                                                            DEFAULT_DEQUEUE_TIMEOUT), 200,
+                                                 10L);
 
         assertTrue(checkDeadLock(dead));
     }
 
     public void testNonDeadLockEnqueueLoads() {
-        DeadLockThread dead = 
-            new DeadLockThread(new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE,
-                                                          INITIAL_SIZE, UNBOUNDED_HIGH_WATER_MARK,
-                                                          UNBOUNDED_LOW_WATER_MARK,
-                                                          DEFAULT_DEQUEUE_TIMEOUT), 200);
+        DeadLockThread dead = new DeadLockThread(new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE,
+                                                                            INITIAL_SIZE,
+                                                                            UNBOUNDED_HIGH_WATER_MARK,
+                                                                            UNBOUNDED_LOW_WATER_MARK,
+                                                                            DEFAULT_DEQUEUE_TIMEOUT), 200);
 
         assertTrue(checkDeadLock(dead));
     }
 
     public void testThreadPoolShrink() {
-        AutomaticWorkQueueImpl workqueue = 
-            new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, 20, 20, 10, 100L);
+        AutomaticWorkQueueImpl workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, 20, 20, 10,
+                                                                      100L);
 
         DeadLockThread dead = new DeadLockThread(workqueue, 1000, 5L);
 
@@ -182,14 +190,14 @@ public class AutomaticWorkQueueTest extends TestCase {
 
         // Give threads a chance to dequeue (5sec max)
         int i = 0;
-        while (workqueue.getThreadCount() != 10 && i++ < 50) {
+        while (workqueue.getPoolSize() != 10 && i++ < 50) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ie) {
                 // ignore
             }
         }
-        assertEquals(workqueue.getLowWaterMark(), workqueue.getThreadCount());
+        assertEquals(workqueue.getLowWaterMark(), workqueue.getPoolSize());
     }
 
     public void testThreadPoolShrinkUnbounded() {
@@ -202,20 +210,19 @@ public class AutomaticWorkQueueTest extends TestCase {
 
         // Give threads a chance to dequeue (5sec max)
         int i = 0;
-        while (workqueue.getThreadCount() != 0 && i++ < 50) {
+        while (workqueue.getPoolSize() != 0 && i++ < 50) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ie) {
                 // ignore
             }
         }
-        assertEquals("threads_total()", 0, workqueue.getThreadCount());
+        assertEquals("threads_total()", 0, workqueue.getPoolSize());
     }
 
     public void testShutdown() {
         AutomaticWorkQueueImpl workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
-                                                                      INITIAL_SIZE, INITIAL_SIZE,
-                                                                      250);
+                                                                      INITIAL_SIZE, INITIAL_SIZE, 250);
 
         assertEquals(0, workqueue.getSize());
         DeadLockThread dead = new DeadLockThread(workqueue, 100, 5L);
@@ -225,7 +232,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         workqueue.shutdown(true);
 
         // Give threads a chance to shutdown (1 sec max)
-        for (int i = 0; i < 20 && (workqueue.getSize() > 0 || workqueue.getThreadCount() > 0); i++) {
+        for (int i = 0; i < 20 && (workqueue.getSize() > 0 || workqueue.getPoolSize() > 0); i++) {
             try {
                 Thread.sleep(250);
             } catch (InterruptedException ie) {
@@ -233,7 +240,7 @@ public class AutomaticWorkQueueTest extends TestCase {
             }
         }
         assertEquals(0, workqueue.getSize());
-        assertEquals(0, workqueue.getThreadCount());
+        assertEquals(0, workqueue.getPoolSize());
     }
 
     private boolean checkCompleted(DeadLockThread dead) {
@@ -269,7 +276,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         return checkCompleted(dead);
     }
 
-    public class TestWorkItem implements WorkItem {
+    public class TestWorkItem implements Runnable {
         String name;
         long worktime;
         Callback callback;
@@ -292,14 +299,14 @@ public class AutomaticWorkQueueTest extends TestCase {
             callback = c;
         }
 
-        public WorkItemStatus execute() {
+        public void run() {
             try {
                 try {
                     Thread.sleep(worktime);
                 } catch (InterruptedException ie) {
                     // ignore
+                    return;
                 }
-                return WorkItemStatus.CONTINUE_WORKING;
             } finally {
                 if (callback != null) {
                     callback.workItemCompleted(name);
@@ -307,18 +314,15 @@ public class AutomaticWorkQueueTest extends TestCase {
             }
         }
 
-        public void destroy() {
-        }
-
         public String toString() {
             return "[TestWorkItem:name=" + name + "]";
         }
     }
 
-    public class BlockingWorkItem implements WorkItem {
+    public class BlockingWorkItem implements Runnable {
         private boolean unblocked;
 
-        public WorkItemStatus execute() {
+        public void run() {
             synchronized (this) {
                 while (!unblocked) {
                     try {
@@ -328,10 +332,6 @@ public class AutomaticWorkQueueTest extends TestCase {
                     }
                 }
             }
-            return WorkItemStatus.CONTINUE_WORKING;
-        }
-
-        public void destroy() {
         }
 
         void unblock() {
@@ -406,7 +406,11 @@ public class AutomaticWorkQueueTest extends TestCase {
             startTime = System.currentTimeMillis();
 
             for (int i = 0; i < nWorkItems; i++) {
-                workqueue.enqueue(new TestWorkItem(String.valueOf(i), worktime, this), TIMEOUT);
+                try {
+                    workqueue.execute(new TestWorkItem(String.valueOf(i), worktime, this), TIMEOUT);
+                } catch (RejectedExecutionException ex) {
+                    // ignore
+                }
             }
             while (!isFinished()) {
                 try {

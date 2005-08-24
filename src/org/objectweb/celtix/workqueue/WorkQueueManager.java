@@ -8,11 +8,11 @@ public interface WorkQueueManager {
 
     AutomaticWorkQueue getAutomaticWorkQueue();
 
-    ManualWorkQueue getManualWorkQueue();
-
     ThreadingModel getThreadingModel();
 
     void setThreadingModel(ThreadingModel model);
     
     void shutdown(boolean processRemainingTasks);
+    
+    void start();
 }

@@ -115,6 +115,13 @@ public abstract class Bus {
     public abstract PluginManager getPluginManager();
     public abstract BusLifeCycleManager getLifeCycleManager();
     
+    /**
+     * Starts processing bus events, and returns only after the <code>Bus</code> has been shut down
+     * (from another thread).
+     *
+     */
+    public abstract void run();
+    
     protected abstract void initialize(String[] args,
             Map<String, Object> properties) throws BusException;
 

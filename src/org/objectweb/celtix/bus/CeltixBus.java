@@ -5,11 +5,13 @@ import java.util.Map;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingManager;
+import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
 import org.objectweb.celtix.plugins.PluginManager;
 import org.objectweb.celtix.transports.TransportFactoryManager;
+import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class CeltixBus extends Bus {
@@ -23,6 +25,7 @@ public class CeltixBus extends Bus {
     private WSDLManager wsdlManager;
     private PluginManager pluginManager;
     private CeltixBusLifeCycleManager lifeCycleManager;
+    private WorkQueueManager workQueueManager;
     
     /**
      * Protected constructor used by the <code>BusManager</code> to create a new bus.
@@ -39,6 +42,7 @@ public class CeltixBus extends Bus {
         handlerFactoryManager = new HandlerFactoryManagerImpl(this);
         transportFactoryManager = new TransportFactoryManagerImpl(this);
         bindingManager = new BindingManagerImpl(this);
+        workQueueManager = new WorkQueueManagerImpl(this);
         
         // create and initialise the remaining objects:
         // clientRegistry = new ClientRegistry(this);
@@ -86,10 +90,20 @@ public class CeltixBus extends Bus {
         // clientRegistry.shutdown(wait);
         // bindingManager.shutdown(wait);        
         // configuration.shutdown();
+        
+        workQueueManager.shutdown(wait);
 
         lifeCycleManager.postShutdown();
-    }
+    }   
     
+    /* (non-Javadoc)
+     * @see org.objectweb.celtix.Bus#run()
+     */
+    @Override
+    public void run() {
+        workQueueManager.start();
+    }
+
     /** 
      * Returns the <code>Configuration</code> of this <code>Bus</code>.
      * 
