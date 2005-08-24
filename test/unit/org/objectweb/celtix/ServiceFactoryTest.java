@@ -69,7 +69,7 @@ public class ServiceFactoryTest extends TestCase {
             assertTrue("Should be a proxy class.", Proxy.isProxyClass(hwService.getClass()));            
             //Bug in wsImport CodeGen , WebService Annotation Missing on ServiceInterface
             assertNull(hwService.getServiceName());
-            assertNull(hwService.getWSDLDocumentLocation());
+            assertNotNull(hwService.getWSDLDocumentLocation());
         } finally {
             bus.shutdown(true);
         }

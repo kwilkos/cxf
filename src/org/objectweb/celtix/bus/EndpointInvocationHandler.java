@@ -15,11 +15,10 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.Bus;
-//import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.BusException;
 
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
-//import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -79,7 +78,7 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
 
         //REVISIT Creation of MesgContext
         ObjectMessageContext objMsgContext = clientBinding.createObjectContext();
-        
+
         boolean isOneway = (method.getAnnotation(Oneway.class) != null) ? true : false;
 
         if (isOneway) {
@@ -87,7 +86,7 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         } else {
             objMsgContext = clientBinding.invoke(objMsgContext);
         }
-        
+
         //Retrieve the return type obj from Context and send it out.
         return null;
     }
@@ -102,33 +101,26 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
             //TODO 
         }
         
-        javax.wsdl.Binding wsdlBinding = endpoint.getBinding();
-        String bindingId = getExtessionElementURI(wsdlBinding.getExtensibilityElements());
-
-        //BindingFactoryManager bindingFactoryMgr = bus.getBindingFactoryManager();
+        String bindingId = getBindingId(endpoint.getBinding());
         BindingFactory factory = null;
-/*
         try {
-            factory = transportFactoryMgr.getBindingFactory(bindingId);
+            factory = bus.getBindingManager().getBindingFactory(bindingId);
         } catch (BusException be) {
             throw new WebServiceException(be);
         }
-*/
-        //Binding API Broken , EPR needs to be created for Binding.
-        ClientBinding bindingImpl = factory.createClientBinding(ref);
 
-        //Set the handle Chain on Binding
-        return bindingImpl;
+        return factory.createClientBinding(ref);
     }
     
-    private String getExtessionElementURI(List extensionElementList) {
+    private String getBindingId(javax.wsdl.Binding binding) {
         String id = null;
+        List list = binding.getExtensibilityElements();
         
-        if (extensionElementList.isEmpty()) {
+        if (list.isEmpty()) {
             throw new WebServiceException("Could not get the extension element URI");
         }
-        
-        ExtensibilityElement extElement = (ExtensibilityElement) extensionElementList.get(0);
+
+        ExtensibilityElement extElement = (ExtensibilityElement) list.get(0);
         id = extElement.getElementType().getNamespaceURI();
         
         return id;

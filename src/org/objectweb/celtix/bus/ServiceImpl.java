@@ -105,10 +105,8 @@ public class ServiceImpl implements Service, InvocationHandler {
                 throw new WebServiceException(str.toString());
             }
         } else {
-            method.invoke(this, args);
+            return method.invoke(this, args);
         }
-        
-        return null;       
     }
 
     protected <T> T createPort(QName portName, 

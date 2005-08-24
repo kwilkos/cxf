@@ -3,6 +3,8 @@ package org.objectweb.celtix;
 import java.util.HashMap;
 import junit.framework.*;
 
+import org.objectweb.celtix.bindings.BindingFactory;
+import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bus.CeltixBus;
 
 public class BusTest extends TestCase {
@@ -44,6 +46,23 @@ public class BusTest extends TestCase {
         bus1.shutdown(true);
         bus2.shutdown(true);
     }    
+    
+    /*
+     * Test method for 'org.objectweb.celtix.Bus.getCurrent()'
+     */    
+    public void testBusGetBindingManager() throws Exception {
+        Bus bus = Bus.init(null, new HashMap<String, Object>());
+        assertNotNull(bus);
+
+        BindingManager bindingManager = bus.getBindingManager();
+        assertNotNull(bindingManager);
+        
+        BindingFactory factory = bindingManager.getBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/");
+        assertNotNull(factory);
+        //Last Created bus should always be returned.
+        bus.shutdown(true);
+    }    
+    
 }
 
 
