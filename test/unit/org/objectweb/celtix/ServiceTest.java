@@ -7,9 +7,10 @@ import java.util.Iterator;
 import javax.xml.namespace.QName;
 import javax.xml.ws.ServiceFactory;
 
-import com.iona.hello_world_soap_http.Greeter;
-import com.iona.hello_world_soap_http.SOAPService;
 import junit.framework.TestCase;
+
+import org.objectweb.hello_world_soap_http.Greeter;
+import org.objectweb.hello_world_soap_http.SOAPService;
 
 public class ServiceTest extends TestCase {
 

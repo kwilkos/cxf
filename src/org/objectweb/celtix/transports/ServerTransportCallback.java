@@ -14,13 +14,6 @@ public interface ServerTransportCallback {
      *
      * @param ctx The MessageContext associated with the call.
      */
-    void dispatch(InputStreamMessageContext ctx);
+    void dispatch(InputStreamMessageContext ctx, ServerTransport transport);
     
-    /**
-     * A factory method for obtaining contexts that will be supplied
-     * with a call to <code>dispatch</code>.
-     *
-     * @return context The <code>MessageContext</code> associated with the call.
-     */
-    InputStreamMessageContext getDispatchContext();
 }

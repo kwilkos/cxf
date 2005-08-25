@@ -1,7 +1,7 @@
 package org.objectweb.celtix.bus;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
@@ -14,7 +14,7 @@ public class TransportFactoryManagerImpl implements TransportFactoryManager {
     private final Bus bus;
       
     TransportFactoryManagerImpl(Bus b) throws BusException {
-        transportFactories = new HashMap<String, TransportFactory>();
+        transportFactories = new ConcurrentHashMap<String, TransportFactory>();
         bus = b;
         
         // TODO - config instead of hard coded
@@ -49,9 +49,7 @@ public class TransportFactoryManagerImpl implements TransportFactoryManager {
      * org.objectweb.celtix.transports.TransportFactory)
      */
     public void registerTransportFactory(String namespace, TransportFactory factory) throws BusException {
-        synchronized (transportFactories) {
-            transportFactories.put(namespace, factory);
-        }
+        transportFactories.put(namespace, factory);
     }
     
     /* (non-Javadoc)
@@ -59,19 +57,14 @@ public class TransportFactoryManagerImpl implements TransportFactoryManager {
      */
     public void deregisterTransportFactory(String namespace)
         throws BusException {
-        synchronized (transportFactories) {
-            transportFactories.remove(namespace);
-        }
-        
+        transportFactories.remove(namespace);
     }
 
     /* (non-Javadoc)
      * @see org.objectweb.celtix.bus.TransportFactoryManager#TransportFactory(java.lang.String)
      */
     public TransportFactory getTransportFactory(String namespace) throws BusException {
-        synchronized (transportFactories) {
-            return transportFactories.get(namespace);
-        }
+        return transportFactories.get(namespace);
     }
     
     

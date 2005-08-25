@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <project name="celtix" default="build" basedir=".">
-
+    <property file="build.properties"/>
+    
     <target name="build" depends="src.compile,unittest.compile,unit.test" description="Main build target"/>
 
     <target name="cruisecontrol.build" depends="very.clean,build" description="Main target for cruisecontrol"/>
@@ -39,12 +40,15 @@
                  <include name="classes-tests/unit/**/*"/>
                  <include name="src/**/*"/>
                  <include name="test-src/**/*"/>
+                 <include name="set_env*"/>
             </fileset>
         </delete>
         <delete quiet="true" dir="build/testresults"/>
+        <delete quiet="true" dir="${tools.dir}/tomcat/5.5.9/server/work"/>
     </target>
     <target name="very.clean" description="Clean the build artifacts and directories">
         <delete quiet="true" dir="build"/>
+        <delete quiet="true" dir="${tools.dir}/tomcat/5.5.9/server/work"/>
     </target>
 
 </project>

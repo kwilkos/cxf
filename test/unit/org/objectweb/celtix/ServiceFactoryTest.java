@@ -6,8 +6,8 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.ServiceFactory;
 
-import com.iona.hello_world_soap_http.SOAPService;
 import junit.framework.TestCase;
+import org.objectweb.hello_world_soap_http.SOAPService;
 
 public class ServiceFactoryTest extends TestCase {
     

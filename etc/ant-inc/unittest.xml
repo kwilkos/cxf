@@ -6,8 +6,25 @@
     <import file="compile.xml"/>
     
     
-    <target name="unit.test" description="Run the unit tests" depends="src.compile,unittest.compile">
+    <target name="unit.test" description="Run the unit tests" depends="src.compile,unittest.compile,unit.test.nodeps"/>
+        
+        
+    <target name="unit.test.nodeps" description="Run the unit tests">
         <mkdir dir="${basedir}/build/testresults/unit"/>
+
+        <condition property="tests.filters" value="**/*Test.class">
+            <not>
+                <and>
+                    <isset property="test.class"/>
+                    <available classname="${test.class}" classpathref="unit.test.classpath"/>
+                </and>
+            </not>
+        </condition>
+        <condition property="unit.test.real.class" value="${test.class}">
+                <isset property="test.class"/>
+        </condition>
+        <property name="unit.test.real.class" value="org.objectweb.celtix.testutils.NoTestTestcase"/>
+
         <junit fork="yes" haltonfailure="false"
         	failureproperty="unit.test.failed"
         	dir="${basedir}/build/classes-tests/unit"
@@ -21,10 +38,11 @@
 
             <sysproperty key="java.util.logging.config.file" value="${basedir}/build/classes-tests/unit/logging.properties"/>
 
+            
+            <test name="${unit.test.real.class}" todir="${basedir}/build/testresults/unit" outfile="unittest-results" />
             <batchtest todir="${basedir}/build/testresults/unit">
                 <fileset dir="${basedir}/build/classes-tests/unit">
-                    <include name="**/*Test.class"/>
-                    <include name="**/*Tests.class"/>
+                    <include name="${tests.filters}"/>
                 </fileset>
             </batchtest>
         </junit>

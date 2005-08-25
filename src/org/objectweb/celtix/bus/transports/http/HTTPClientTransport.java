@@ -104,18 +104,23 @@ public class HTTPClientTransport implements ClientTransport {
         
         void flushHeaders() throws IOException {
             Map<?, ?> headers = (Map<?, ?>)super.get(HTTP_REQUEST_HEADERS);
-            for (Iterator<?> iter = headers.keySet().iterator(); iter.hasNext();) {
-                String header = (String)iter.next();
-                List<?> headerList = (List<?>)headers.get(header);
-                for (Object string : headerList) {
-                    connection.addRequestProperty(header, (String)string);
-                }
+            if (null != headers) {
+                for (Iterator<?> iter = headers.keySet().iterator(); iter.hasNext();) {
+                    String header = (String)iter.next();
+                    List<?> headerList = (List<?>)headers.get(header);
+                    for (Object string : headerList) {
+                        connection.addRequestProperty(header, (String)string);
+                    }
+                } 
             }
             origOut.resetOut(connection.getOutputStream());
         }
-        
-        InputStreamMessageContext createInputStreamContext() {
-            return null;
+        public void setFault(boolean isFault) {
+            //nothing to do
+        }
+
+        public boolean isFault() {
+            return false;
         }
         
         public OutputStream getOutputStream() {
@@ -125,7 +130,10 @@ public class HTTPClientTransport implements ClientTransport {
         public void setOutputStream(OutputStream o) {
             out = o;
         }
-        
+
+        public InputStreamMessageContext createInputStreamContext() throws IOException {
+            return new HTTPClientInputStreamContext(connection);
+        }
         
         private static class WrappedOutputStream extends FilterOutputStream {
             WrappedOutputStream() {

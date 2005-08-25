@@ -24,9 +24,16 @@
     </path>
     
     <path id="embedded.tomcat.classpath">
+        <pathelement location="${tomcat.local.classes}"/>
     	<fileset dir="${tools.dir}/tomcat/5.5.9/server/lib">
             <include name="*.jar"/>    	
     	</fileset>
+        <fileset dir="${tools.dir}/tomcat/5.5.9/bin">
+            <include name="*.jar"/>     
+        </fileset>
+        <fileset dir="${tools.dir}/tomcat/5.5.9/common/lib">
+            <include name="*.jar"/>     
+        </fileset>
     </path>
     
   
@@ -44,5 +51,19 @@
         <pathelement location="${basedir}/build/classes-tests/unit"/>
     	<path refid="unit.test.compile.classpath"/>
     </path>
+    
+    <target name="create.set_env">
+    	<property name="unit.test.classpath" refid="unit.test.classpath"/>
+    	<condition property="envmessage" value="set CLASSPATH=${unit.test.classpath};%CLASSPATH%">
+    		<os family="windows"/>
+    	</condition>
+    	<condition property="envext" value=".bat">
+    		<os family="windows"/>
+    	</condition>
+    	<property name="envmessage" value="export CLASSPATH=${unit.test.classpath}:$$CLASSPATH"/>
+    	<property name="envext" value=".sh"/>
+    	<echo file="build/set_env${envext}">${envmessage}   
+        </echo>
+    </target>
 
 </project>

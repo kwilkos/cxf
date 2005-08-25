@@ -84,7 +84,8 @@ public class EndpointReferenceUtilsTest extends TestCase {
     public void testGetEndpointReference() throws Exception  {
         Bus bus = Bus.init(new String[0]);
         URL url = getClass().getResource("../resources/hello_world.wsdl");
-        QName serviceName = new QName("http://www.iona.com/hello_world_soap_http", "SOAPService_Test1");
+        assertNotNull(url);
+        QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService_Test1");
         String portName = new String("SoapPort_Test2");
 
         EndpointReferenceType ref = 

@@ -11,5 +11,7 @@ public interface OutputStreamMessageContext extends MessageContext {
     
     void setOutputStream(OutputStream out);
       
-    
+    void setFault(boolean isFault);
+
+    boolean isFault();
 }

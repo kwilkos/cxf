@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions name="HelloWorld" targetNamespace="http://www.iona.com/hello_world_soap_http" 
+<wsdl:definitions name="HelloWorld" targetNamespace="http://objectweb.org/hello_world_soap_http" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:http-conf="http://schemas.iona.com/transports/http/configuration" 
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://www.iona.com/hello_world_soap_http" 
+    xmlns:tns="http://objectweb.org/hello_world_soap_http" 
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <wsdl:types>
-        <schema targetNamespace="http://www.iona.com/hello_world_soap_http" 
+        <schema targetNamespace="http://objectweb.org/hello_world_soap_http" 
             xmlns="http://www.w3.org/2001/XMLSchema">
             <element name="responseType" type="xsd:string"/>
             <element name="requestType" type="xsd:string"/>
