@@ -18,7 +18,7 @@ public class SOAPBindingFactory implements BindingFactory {
     }
     
     public ClientBinding createClientBinding(EndpointReferenceType reference) {        
-        return null;
+        return new SOAPClientBinding(bus, reference);
     }
 
     public ServerBinding createServerBinding(EndpointReferenceType reference) {

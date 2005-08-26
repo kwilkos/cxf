@@ -47,7 +47,7 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         throws Throwable {
         
         if (portTypeInterface.equals(method.getDeclaringClass())) {
-            return invokeSEIMethod(method, args);
+            return invokeSEIMethod(proxy, method, args);
         } else {
             return method.invoke(this, args);
         }
@@ -73,11 +73,20 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         return responseContext;
     }
     
-    private Object invokeSEIMethod(Method method, Object parameters[])
+    private Object invokeSEIMethod(Object proxy, Method method, Object parameters[])
         throws Throwable {
 
-        //REVISIT Creation of MesgContext
         ObjectMessageContext objMsgContext = clientBinding.createObjectContext();
+        //TODO
+        //RequestConetxts needed to be populated based on JAX-WS mandatory properties
+        //Further copied into ObjectMessageContext so as to decouple context across invocations
+        objMsgContext.put("org.objectweb.celtix.context.request", getRequestContext());
+        
+        //REVISIT this property could be part of the requqest context.
+        objMsgContext.put("org.objectweb.celtix.handle", proxy);
+        
+        objMsgContext.put("org.objectweb.celtix.method", method);
+        objMsgContext.put("org.objectweb.celtix.parameter", (Object)parameters);
 
         boolean isOneway = (method.getAnnotation(Oneway.class) != null) ? true : false;
 

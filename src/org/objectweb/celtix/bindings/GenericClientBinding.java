@@ -18,7 +18,6 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
-
 public abstract class GenericClientBinding implements ClientBinding {
     protected final Bus bus;
     protected final EndpointReferenceType reference;
@@ -51,15 +50,15 @@ public abstract class GenericClientBinding implements ClientBinding {
         return new GenericObjectContext();
     }
 
-    abstract MessageContext createBindingMessageContext();
+    protected abstract  MessageContext createBindingMessageContext();
     
-    abstract void marshal(ObjectMessageContext objContext, MessageContext context);
+    protected abstract void marshal(ObjectMessageContext objContext, MessageContext context);
 
-    abstract void unmarshal(MessageContext context, ObjectMessageContext objContext);
+    protected abstract void unmarshal(MessageContext context, ObjectMessageContext objContext);
 
-    abstract void write(MessageContext context, OutputStreamMessageContext outCtx);
+    protected abstract void write(MessageContext context, OutputStreamMessageContext outCtx);
 
-    abstract void read(InputStreamMessageContext inCtx, MessageContext context);
+    protected abstract void read(InputStreamMessageContext inCtx, MessageContext context);
     
     public ObjectMessageContext invoke(ObjectMessageContext context) throws IOException {
         // TODO - invoke ObjectMessageContext handlers
@@ -127,7 +126,6 @@ public abstract class GenericClientBinding implements ClientBinding {
 
         public void setScope(String name, MessageContext.Scope scope) {
             put(name + ".Scope", scope);
-        }
-        
+        }        
     }
 }
