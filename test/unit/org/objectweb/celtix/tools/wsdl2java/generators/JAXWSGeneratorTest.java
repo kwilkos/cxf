@@ -13,3 +13,4 @@ public class JAXWSGeneratorTest extends TestCase {
         assertEquals(JAXWSCodeGenerator.DEFAULT_TOOL_NAME, ((ToolWrapperGenerator)gen).getToolClassName());
     }
 }
+

@@ -15,6 +15,12 @@ public class ToolWrapperGeneratorTest extends ToolTestBase {
         super.tearDown();
     }
     
+
+    public void testGeneratorUsingDefaultClassLoader() { 
+    
+        ToolWrapperGenerator g = new ToolWrapperGenerator(ToolDummy.class.getName());
+    }
+    
     
     public void testGeneratorDelegatesToExternalClass() { 
     
@@ -64,5 +70,4 @@ public class ToolWrapperGeneratorTest extends ToolTestBase {
     
     
 }
-
 

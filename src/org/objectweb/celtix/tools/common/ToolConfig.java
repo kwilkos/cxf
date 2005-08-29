@@ -33,3 +33,4 @@ public class ToolConfig extends AbstractCommandLineConfiguration {
     }
 
 }
+

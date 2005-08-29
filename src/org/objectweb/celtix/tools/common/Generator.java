@@ -12,3 +12,4 @@ public interface Generator {
     void setConfiguration(Configuration config);
     void generate();
 }
+

@@ -41,3 +41,4 @@ public final class Java2Wsdl extends ToolBase {
         }       
     }
 }
+

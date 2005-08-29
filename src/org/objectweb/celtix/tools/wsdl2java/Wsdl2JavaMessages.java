@@ -8,3 +8,4 @@ public final class Wsdl2JavaMessages {
         // complete
     }
 }
+

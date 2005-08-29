@@ -12,3 +12,4 @@ public class Java2WsdlTest extends DelegatingToolTestBase {
     }
 
 }
+

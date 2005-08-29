@@ -22,3 +22,4 @@ public class JAXWSCodeGenerator extends ToolWrapperGenerator {
         super(theToolClassName);
     }
 }
+

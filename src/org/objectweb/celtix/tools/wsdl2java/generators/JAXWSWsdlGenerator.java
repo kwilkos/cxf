@@ -22,3 +22,4 @@ public class JAXWSWsdlGenerator extends ToolWrapperGenerator {
     }
 
 }
+

@@ -16,7 +16,12 @@ public class ToolWrapperGenerator implements Generator {
     protected final String toolClassName;
     private Configuration config;
 
-    public ToolWrapperGenerator(String theToolClassName) {
+    /**
+     * construct a generator which delegates to the tool specified by 
+     * the class <code>theToolClassName<code>
+     * @param theToolClassName class name of the tool to delegate to
+     */
+    protected ToolWrapperGenerator(String theToolClassName) {
         super();
         this.toolClassName = theToolClassName;
     }
@@ -61,3 +66,4 @@ public class ToolWrapperGenerator implements Generator {
     }
 
 }
+
