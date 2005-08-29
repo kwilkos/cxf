@@ -42,14 +42,17 @@
     	<path refid="jaxws.classpath"/>
     	<path refid="embedded.tomcat.classpath"/>
     </path>
+ 
     <path id="unit.test.compile.classpath">
         <pathelement location="${basedir}/build/classes"/>
         <pathelement location="${basedir}/build/classes-tests/wsdl"/>
         <path refid="src.compile.classpath"/>
+        <pathelement location="${tools.dir}/easymock/2.0/easymock.jar"/>
     </path>
+ 
     <path id="unit.test.classpath">
         <pathelement location="${basedir}/build/classes-tests/unit"/>
-    	<path refid="unit.test.compile.classpath"/>
+ 	    <path refid="unit.test.compile.classpath"/>
     </path>
     
     <target name="create.set_env">
