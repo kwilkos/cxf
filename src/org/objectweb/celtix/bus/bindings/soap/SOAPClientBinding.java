@@ -1,5 +1,8 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+import java.net.URL;
+
+import javax.xml.ws.Binding;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
@@ -16,6 +19,15 @@ public class SOAPClientBinding extends GenericClientBinding {
     public SOAPClientBinding(Bus b, EndpointReferenceType ref) {
         super(b, ref);
         soapBinding = new SOAPBindingImpl();
+    }
+    
+    public Binding getBinding() {
+        return soapBinding;
+    }
+    
+    public boolean isCompatibleWithAddress(URL address) {
+        String protocol = address.getProtocol();
+        return "http".equals(protocol) || "https".equals(protocol);
     }
 
     protected MessageContext createBindingMessageContext() {

@@ -101,7 +101,7 @@ public class CeltixBus extends Bus {
      */
     @Override
     public void run() {
-        workQueueManager.start();
+        workQueueManager.run();
     }
 
     /** 

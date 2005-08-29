@@ -1,10 +1,14 @@
 package org.objectweb.celtix.bus.workqueue;
 
+import java.util.logging.Logger;
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.workqueue.AutomaticWorkQueue;
 import org.objectweb.celtix.workqueue.WorkQueueManager;
 
 public class WorkQueueManagerImpl implements WorkQueueManager {
+
+    private static Logger logger = Logger.getLogger(WorkQueueManagerImpl.class.getPackage().getName());
 
     ThreadingModel threadingModel = ThreadingModel.MULTI_THREADED;
     AutomaticWorkQueue autoQueue;
@@ -50,17 +54,32 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
     public void shutdown(boolean processRemainingTasks) {
         if (null != autoQueue) {
             autoQueue.shutdown(processRemainingTasks);
+            synchronized (this) {
+                notifyAll();
+            }
         }
     }
 
-    public void start() {
+    public void run() {
         // what we do here will probably depend on the
-        // the thread model - for now just create the automatic qork queue
+        // the thread model - for now just create the automatic work queue
         // (which will be able to perform work straight away)
-        createAutomaticExecutor();
+        autoQueue = createAutomaticWorkQueue();
+        synchronized (this) {
+            while (!autoQueue.isShutdown()) {
+                try {            
+                    wait();
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+        }
+        for (java.util.logging.Handler h : logger.getHandlers())  {
+            h.flush();
+        }
     }
 
-    private void createAutomaticExecutor() {
+    private AutomaticWorkQueue createAutomaticWorkQueue() {
 
         // Configuration configuration = bus.getConfiguration();
 
@@ -84,7 +103,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
         // configuration.getInteger("threadpool:dequeue_timeout");
         long dequeueTimeout = 2 * 60 * 1000L;
 
-        autoQueue = new AutomaticWorkQueueImpl(maxQueueSize, initialThreads, hwm, lwm, dequeueTimeout);
+        return new AutomaticWorkQueueImpl(maxQueueSize, initialThreads, hwm, lwm, dequeueTimeout);
     }
 
 }

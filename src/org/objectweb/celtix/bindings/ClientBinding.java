@@ -10,7 +10,7 @@ import org.objectweb.celtix.context.ObjectMessageContext;
  * @author dkulp
  *
  */
-public interface ClientBinding {
+public interface ClientBinding extends BindingBase {
 
     ObjectMessageContext createObjectContext();
 

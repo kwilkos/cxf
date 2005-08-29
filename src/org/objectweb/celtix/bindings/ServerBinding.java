@@ -1,5 +1,5 @@
 package org.objectweb.celtix.bindings;
 
-public interface ServerBinding {
+public interface ServerBinding extends BindingBase {
 
 }

@@ -1,15 +1,15 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
 import java.net.URI;
-import java.util.List;
+import java.net.URL;
 import java.util.Set;
 
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.Handler;
-import javax.xml.ws.security.SecurityConfiguration;
 import javax.xml.ws.soap.SOAPBinding;
 
-public class SOAPBindingImpl implements SOAPBinding {
+import org.objectweb.celtix.bus.bindings.BindingImpl;
+
+public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
 
     public SOAPBindingImpl() {
         //TODO
@@ -31,15 +31,13 @@ public class SOAPBindingImpl implements SOAPBinding {
         throw new WebServiceException("MTOM is not supported");
     }
 
-    public List<Handler> getHandlerChain() {
-        return null;
+    public boolean isCompatibleWithAddress(URL address) {
+        String protocol = address.getProtocol();
+        if ("http".equals(protocol) || "https".equals(protocol)) {
+            return true;
+        }
+        return false;
     }
-
-    public void setHandlerChain(List<Handler> list) {
-        throw new UnsupportedOperationException("setHandlerChain is not supported");
-    }
-
-    public SecurityConfiguration getSecurityConfiguration() {
-        throw new UnsupportedOperationException("getSecurityConfiguration is not supported");
-    }
+    
+    
 }

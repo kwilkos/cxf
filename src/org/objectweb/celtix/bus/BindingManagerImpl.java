@@ -3,6 +3,8 @@ package org.objectweb.celtix.bus;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.ws.soap.SOAPBinding;
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactory;
@@ -19,7 +21,8 @@ public class BindingManagerImpl implements BindingManager {
         
         // TODO - config instead of hard coded
         loadBindingFactory("org.objectweb.celtix.bus.bindings.soap.SOAPBindingFactory",
-                             "http://schemas.xmlsoap.org/wsdl/soap/");        
+                             "http://schemas.xmlsoap.org/wsdl/soap/",
+                             SOAPBinding.SOAP11HTTP_BINDING);        
     }
     
     private void loadBindingFactory(String className, String ...namespaceURIs) throws BusException {

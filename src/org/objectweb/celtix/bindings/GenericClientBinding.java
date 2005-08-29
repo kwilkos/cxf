@@ -28,7 +28,7 @@ public abstract class GenericClientBinding implements ClientBinding {
         reference = ref;
         transport = createTransport();
     }
-    
+
     protected ClientTransport createTransport() {
         try {
             Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), reference);

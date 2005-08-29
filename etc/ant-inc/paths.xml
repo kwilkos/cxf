@@ -23,6 +23,13 @@
         </fileset>
     </path>
     
+    <property name="junit.jar" value="${tools.dir}/junit/3.8.1/junit.jar"/>
+    <path id="junit.classpath">
+        <fileset dir="${tools.dir}/junit/3.8.1">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
     <path id="embedded.tomcat.classpath">
         <pathelement location="${tomcat.local.classes}"/>
     	<fileset dir="${tools.dir}/tomcat/5.5.9/server/lib">
@@ -51,8 +58,8 @@
     </path>
  
     <path id="unit.test.classpath">
-        <pathelement location="${basedir}/build/classes-tests/unit"/>
- 	    <path refid="unit.test.compile.classpath"/>
+        <pathelement location="${basedir}/build/classes-tests"/>
+        <path refid="unit.test.compile.classpath"/>
     </path>
     
     <target name="create.set_env">
@@ -67,6 +74,11 @@
     	<property name="envext" value=".sh"/>
     	<echo file="build/set_env${envext}">${envmessage}   
         </echo>
+    </target>
+
+    <target name="echo.path">
+       <pathconvert refid="${echo.path.refid}" property="path.string"/>
+       <echo message="${path.string}"/>
     </target>
 
 </project>

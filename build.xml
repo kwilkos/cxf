@@ -31,6 +31,9 @@
     <!-- Load the unit test targets -->
     <import file="etc/ant-inc/unittest.xml"/>
 
+    <!-- Load the eclipse targets -->
+    <import file="etc/ant-inc/eclipse.xml"/>
+
     <!-- Target to clean the build dir -->
     <target name="clean" description="Clean the build artifacts">
         <delete quiet="true" includeemptydirs="true">

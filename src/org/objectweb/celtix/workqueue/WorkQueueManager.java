@@ -14,5 +14,9 @@ public interface WorkQueueManager {
     
     void shutdown(boolean processRemainingTasks);
     
-    void start();
+    /**
+     * Only returns after workqueue has been shutdown.
+     *
+     */
+    void run();
 }

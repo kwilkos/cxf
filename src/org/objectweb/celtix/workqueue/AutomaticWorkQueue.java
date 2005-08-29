@@ -10,4 +10,10 @@ public interface AutomaticWorkQueue extends WorkQueue {
      * @param processRemainingWorkItems
      */
     void shutdown(boolean processRemainingWorkItems);
+    
+    /**
+     * Returns true if this object has been shut down.
+     * @return true if this object has been shut down.
+     */
+    boolean isShutdown();
 }
