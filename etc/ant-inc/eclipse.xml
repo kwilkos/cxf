@@ -41,10 +41,12 @@
         <property name="classpath.entry.prefix" value="        &lt;classpathentry kind=&quot;lib&quot; path=&quot;"/>
         <property name="classpath.entry.suffix" value="&quot;/&gt;${line.separator}"/>
         
-        <pathconvert refid="unit.test.compile.classpath" property="classpath.entries" 
-            pathsep="${classpath.entry.suffix}${classpath.entry.prefix}" dirsep="/"/>
+        <pathconvert refid="unit.test.classpath" property="classpath.entries" 
+            pathsep="${classpath.entry.suffix}${classpath.entry.prefix}" dirsep="/">
+            <mapper type="glob" from="*.jar" to="*.jar"/>
+        </pathconvert>
         <echo file="${eclipse.project.workspace}/${eclipse.project.name}/.classpath" append="false"
-             message="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;${line.separator}&lt;classpath&gt;${line.separator}        &lt;classpathentry sourcepath=&quot;JRE_SRC&quot; kind=&quot;var&quot; path=&quot;JRE_LIB&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes&quot; kind=&quot;src&quot; path=&quot;src&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes&quot; kind=&quot;src&quot; path=&quot;buildsrc&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes-tests&quot; kind=&quot;src&quot; path=&quot;testsrc&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes-tests&quot; kind=&quot;src&quot; path=&quot;testunit&quot;/&gt;${line.separator}        &lt;classpathentry kind=&quot;src&quot; path=&quot;etc&quot;/&gt;${line.separator}        &lt;classpathentry kind=&quot;src&quot; path=&quot;schemas&quot;/&gt;${line.separator}${classpath.entry.prefix}${classpath.entries}${classpath.entry.suffix}        &lt;classpathentry kind=&quot;lib&quot; path=&quot;${junit.jar}&quot;/&gt;${line.separator}&lt;/classpath&gt;${line.separator}"/>
+             message="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;${line.separator}&lt;classpath&gt;${line.separator}        &lt;classpathentry sourcepath=&quot;JRE_SRC&quot; kind=&quot;var&quot; path=&quot;JRE_LIB&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes&quot; kind=&quot;src&quot; path=&quot;src&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes&quot; kind=&quot;src&quot; path=&quot;buildsrc&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes-tests/wsdl&quot; kind=&quot;src&quot; path=&quot;testsrc&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes-tests/unit&quot; kind=&quot;src&quot; path=&quot;testunit&quot;/&gt;${line.separator}        &lt;classpathentry kind=&quot;src&quot; path=&quot;etc&quot;/&gt;${line.separator}        &lt;classpathentry kind=&quot;src&quot; path=&quot;schemas&quot;/&gt;${line.separator}${classpath.entry.prefix}${classpath.entries}${classpath.entry.suffix}        &lt;classpathentry kind=&quot;lib&quot; path=&quot;${junit.jar}&quot;/&gt;${line.separator}&lt;/classpath&gt;${line.separator}"/>
     </target>
 
     <target name="generate.eclipse.project.project">
