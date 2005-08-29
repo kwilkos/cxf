@@ -59,6 +59,7 @@
  
     <path id="unit.test.classpath">
         <pathelement location="${basedir}/build/classes-tests"/>
+        <pathelement location="${basedir}/build/classes-tests/unit"/>
         <path refid="unit.test.compile.classpath"/>
     </path>
     
