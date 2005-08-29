@@ -31,7 +31,7 @@ public class SOAPClientBinding extends GenericClientBinding {
     }
 
     protected MessageContext createBindingMessageContext() {
-        return null;
+        return new SOAPMessageContextImpl();
     }
 
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {

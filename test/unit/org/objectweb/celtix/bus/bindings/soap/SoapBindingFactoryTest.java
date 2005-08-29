@@ -46,6 +46,7 @@ public class SoapBindingFactoryTest extends TestCase {
         
         ClientBinding clientBinding = factory.createClientBinding(address);
         assertNotNull(clientBinding);
+        assertTrue(SOAPClientBinding.class.isInstance(clientBinding));
         
         bus.shutdown(true);       
     }
