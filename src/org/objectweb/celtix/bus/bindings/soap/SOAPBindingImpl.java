@@ -4,15 +4,27 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Set;
 
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.objectweb.celtix.bus.bindings.BindingImpl;
 
 public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
+    protected final MessageFactory msgFactory;
 
     public SOAPBindingImpl() {
-        //TODO
+        try {
+            msgFactory = MessageFactory.newInstance();
+        } catch (SOAPException se) {
+            throw new WebServiceException(se.getMessage());
+        }        
     }
 
     public Set<URI> getRoles() {
@@ -39,5 +51,18 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
         return false;
     }
     
-    
+    public SOAPMessage buildSoapMessage(MessageContext msgCtx) throws SOAPException {
+        SOAPMessage msg = msgFactory.createMessage();
+        //msg.setProperty(msg.WRITE_XML_DECLARATION,  new Boolean(true));
+        //msg.getProperty(SOAPMessage.WRITE_XML_DECLARATION) = true;
+        SOAPMessageInfo messageInfo = new SOAPMessageInfo(msgCtx);
+
+        SOAPEnvelope envelope = msg.getSOAPPart().getEnvelope();
+        //REVISIT Populate The NameSpace Map at Envelope node.            
+
+        SOAPBody body = envelope.getBody();
+        //Populate The Obejcts into SAAJ Model based on SoapMessageInfo
+            
+        return msg;
+    }
 }

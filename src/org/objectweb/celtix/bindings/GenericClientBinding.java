@@ -56,9 +56,11 @@ public abstract class GenericClientBinding implements ClientBinding {
 
     protected abstract void unmarshal(MessageContext context, ObjectMessageContext objContext);
 
-    protected abstract void write(MessageContext context, OutputStreamMessageContext outCtx);
+    protected abstract void write(MessageContext context, 
+            OutputStreamMessageContext outCtx) throws IOException;
 
-    protected abstract void read(InputStreamMessageContext inCtx, MessageContext context);
+    protected abstract void read(InputStreamMessageContext inCtx, 
+            MessageContext context) throws IOException;
     
     public ObjectMessageContext invoke(ObjectMessageContext context) throws IOException {
         // TODO - invoke ObjectMessageContext handlers
