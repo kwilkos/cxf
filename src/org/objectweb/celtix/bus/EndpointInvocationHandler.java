@@ -83,7 +83,7 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         objMsgContext.put("org.objectweb.celtix.context.request", getRequestContext());
         
         //REVISIT this property could be part of the requqest context.
-        objMsgContext.put("org.objectweb.celtix.handle", proxy);
+        objMsgContext.put("org.objectweb.celtix.proxy", proxy);
         
         objMsgContext.put("org.objectweb.celtix.method", method);
         objMsgContext.put("org.objectweb.celtix.parameter", (Object)parameters);
