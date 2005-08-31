@@ -1,12 +1,14 @@
 package org.objectweb.celtix.bus;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.jws.WebService;
+import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
@@ -29,16 +31,23 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
     private final Bus bus;
     private final Configuration configuration;
     private Object implementor;
+    private EndpointReferenceType reference;
     private ServerBinding serverBinding;
     private boolean published;
     private List<Handler> handlers;
     private List<Source> metadata;
+    private Executor executor;
 
     EndpointImpl(Bus b, Object impl, URI bindingId) throws BusException {
         bus = b;
         implementor = impl;
         configuration = null; // new EndpointConfiguration(Bus, this);
         serverBinding = createServerBinding(bindingId);
+        reference = EndpointReferenceUtils.getEndpointReference(getWsdlLocation(),
+                                                                getServiceName(),     
+                                                                getPortName().getLocalPart());
+        executor = bus.getWorkQueueManager().getAutomaticWorkQueue();
+        assert null != executor;
     }
 
     /*
@@ -79,6 +88,14 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
     public List<Source> getMetadata() {
         return metadata;
     }
+    
+    /**
+     * documented but not yet implemented in RI
+     */
+    
+    public Executor getExecutor() {
+        return executor;
+    }
 
     /*
      * (non-Javadoc)
@@ -113,16 +130,9 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
      * 
      * @see javax.xml.ws.Endpoint#publish(java.lang.String)
      */
-    public void publish(String a) {
+    public void publish(String address) {
         if (isPublished()) {
             logger.warning("Endpoint is already published");
-        }
-
-        URL address = null;
-        try {
-            address = new URL(a);
-        } catch (MalformedURLException ex) {
-            throw new IllegalArgumentException(ex);
         }
         if (!serverBinding.isCompatibleWithAddress(address)) {
             throw new IllegalArgumentException(new BusMessage("BINDING_INCOMPATIBLE_ADDRESS").toString());
@@ -146,6 +156,13 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
      */
     public void setMetadata(List<Source> m) {
         metadata = m;
+    }
+    
+    /**
+     * documented but not yet implemented in RI
+     */
+    public void setExecutor(Executor ex) {
+        executor = ex;
     }
 
     /*
@@ -198,7 +215,7 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
         BindingManager bm = bus.getBindingManager();
         logger.info("Getting binding factory for namespace URI " + bindingId.toString());
         BindingFactory factory = bm.getBindingFactory(bindingId.toString()); 
-        ServerBinding bindingImpl = factory.createServerBinding(ref);
+        ServerBinding bindingImpl = factory.createServerBinding(ref, this);
         assert null != bindingImpl;
         return bindingImpl;
 
@@ -212,9 +229,19 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
         return true;
     }
 
-    void doPublish(URL address) {
-        // initialise ...
-        published = true;
+    void doPublish(String address) {
+        
+        EndpointReferenceUtils.setAddress(reference, address);
+        try {
+            serverBinding.activate();
+            published = true; 
+        } catch (WSDLException ex) {
+            logger.severe("Failed to publish endpoint - server binding could not be activated:\n"
+                          + ex.getMessage());
+        } catch (IOException ex) {
+            logger.severe("Failed to publish endpoint - server binding could not be activated:\n"
+                          + ex.getMessage());
+        }      
     }
 
     /*

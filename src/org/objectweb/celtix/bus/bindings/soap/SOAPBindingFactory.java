@@ -1,5 +1,7 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+import javax.xml.ws.Endpoint;
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
@@ -21,7 +23,7 @@ public class SOAPBindingFactory implements BindingFactory {
         return new SOAPClientBinding(bus, reference);
     }
 
-    public ServerBinding createServerBinding(EndpointReferenceType reference) {
-        return null;
+    public ServerBinding createServerBinding(EndpointReferenceType reference, Endpoint ep) {
+        return new SOAPServerBinding(bus, reference, ep);
     }
 }

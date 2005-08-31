@@ -97,5 +97,26 @@ public class EndpointReferenceUtilsTest extends TestCase {
         
         assertNotNull("Could not find port", port);        
         assertEquals(portName, port.getName());
-    }    
+    }  
+    
+    public void testGetAddress() throws Exception {
+        URL url = getClass().getResource("../resources/hello_world.wsdl");
+        QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService_Test1");
+        String portName = new String("SoapPort_Test2");
+        
+        EndpointReferenceType ref = 
+            EndpointReferenceUtils.getEndpointReference(url, serviceName, portName);
+        
+        String address = EndpointReferenceUtils.getAddress(ref);
+        assertNull(address);
+        // only when getAddress implements search in wsdl
+        // assertEquals("http://localhost:9101", address);
+        
+        address = "http://localhost:8080/hello_world_soap_http";
+        EndpointReferenceUtils.setAddress(ref, address);
+        assertEquals(address, EndpointReferenceUtils.getAddress(ref));
+        
+        EndpointReferenceUtils.setAddress(ref, null);
+        assertNull(EndpointReferenceUtils.getAddress(ref));
+    }
 }

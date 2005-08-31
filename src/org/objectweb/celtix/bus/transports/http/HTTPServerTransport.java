@@ -48,15 +48,25 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
     
     public HTTPServerTransport(Bus bus, EndpointReferenceType ref) throws WSDLException, IOException {
         reference = ref;
-        Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
-        List<?> list = port.getExtensibilityElements();
-        for (Object ep : list) {
-            ExtensibilityElement ext = (ExtensibilityElement)ep;
-            if (ext instanceof SOAPAddress) {
-                SOAPAddress ad = (SOAPAddress)ext;
-                url = ad.getLocationURI();
+        
+        // first try to get url (publish address) from endpoint reference
+        url = EndpointReferenceUtils.getAddress(ref);
+        
+        // if that fails, check the wsdl model 
+        
+        if (url == null) {
+            reference = ref;
+            Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+            List<?> list = port.getExtensibilityElements();
+            for (Object ep : list) {
+                ExtensibilityElement ext = (ExtensibilityElement)ep;
+                if (ext instanceof SOAPAddress) {
+                    SOAPAddress ad = (SOAPAddress)ext;
+                    url = ad.getLocationURI();
+                }
             }
         }
+        
         URL nurl = new URL(url);
         name = nurl.getPath();
         engine = HTTPServerEngine.getForPort(nurl.getProtocol(), nurl.getPort());

@@ -9,6 +9,7 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
 import org.objectweb.celtix.plugins.PluginManager;
 import org.objectweb.celtix.transports.TransportFactoryManager;
+import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 public abstract class Bus {
@@ -114,6 +115,7 @@ public abstract class Bus {
     public abstract WSDLManager getWSDLManager();
     public abstract PluginManager getPluginManager();
     public abstract BusLifeCycleManager getLifeCycleManager();
+    public abstract WorkQueueManager getWorkQueueManager();
     
     /**
      * Starts processing bus events, and returns only after the <code>Bus</code> has been shut down

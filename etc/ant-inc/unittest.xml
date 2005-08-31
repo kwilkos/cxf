@@ -50,4 +50,15 @@
     	<fail message="JUnit test failure." if="unit.test.failed"/>
     </target>
 
+    <target name="run.standalone">
+        <java fork="yes" classname="${standalone.class}">
+            <classpath>
+                <path refid="unit.test.classpath"/>
+            </classpath>
+            <sysproperty key="java.util.logging.config.file" value="${basedir}/build/classes-tests/unit/logging.properties"/>
+            <sysproperty key="javax.xml.ws.EndpointFactory" value="org.objectweb.celtix.bus.EndpointFactoryImpl"/>
+            <sysproperty key="javax.xml.ws.ServiceFactory" value="org.objectweb.celtix.bus.ServiceFactoryImpl"/>
+        </java>
+    </target>
+
 </project>

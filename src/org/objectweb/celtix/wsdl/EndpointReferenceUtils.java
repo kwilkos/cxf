@@ -14,9 +14,10 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
+import org.objectweb.celtix.addressing.AttributedURIType;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.addressing.MetadataType;
-import org.objectweb.celtix.addressing.wsdl.ObjectFactory;
+import org.objectweb.celtix.addressing.ObjectFactory;
 import org.objectweb.celtix.addressing.wsdl.ServiceNameType;
 
 public final class EndpointReferenceUtils {
@@ -94,13 +95,27 @@ public final class EndpointReferenceUtils {
         if (null != value) {
             QName serviceName = QName.valueOf(value);
             Service service = def.getService(serviceName);
-            String str = attribMap.get(PORT_NAME);
-            //return service.getPort(str);
+            String str = attribMap.get(PORT_NAME);            //return service.getPort(str);
             return service.getPort(str);
         }
  
         return null;
     } 
+    
+    public static String getAddress(EndpointReferenceType ref) {
+        AttributedURIType a = ref.getAddress();
+        if (null != a) {
+            return a.getValue();
+        }
+        // should wsdl be parsed for an address now?
+        return null;
+    }
+    
+    public static void setAddress(EndpointReferenceType ref, String address) {
+        AttributedURIType a = new ObjectFactory().createAttributedURIType(); 
+        a.setValue(address);
+        ref.setAddress(a);
+    }
 
     public static EndpointReferenceType getEndpointReference(URL wsdlUrl, 
             QName serviceName, String portName) {
@@ -111,7 +126,7 @@ public final class EndpointReferenceUtils {
         
         attribMap.put(WSDL_LOCATION, wsdlUrl.toString());
         attribMap.put(SERVICE_NAME, serviceName.toString());
-        attribMap.put(PORT_NAME, portName);
+        attribMap.put(PORT_NAME, portName);      
         
         return reference;
     }

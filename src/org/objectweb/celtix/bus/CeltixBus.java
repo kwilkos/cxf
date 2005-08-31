@@ -178,4 +178,16 @@ public class CeltixBus extends Bus {
     public BusLifeCycleManager getLifeCycleManager() {
         return lifeCycleManager;
     }
+
+    /* (non-Javadoc)
+     * @see org.objectweb.celtix.Bus#getWorkQueueManager()
+     */
+    @Override
+    public WorkQueueManager getWorkQueueManager() {
+        return workQueueManager;
+    }
+
+    
+    
+    
 }
