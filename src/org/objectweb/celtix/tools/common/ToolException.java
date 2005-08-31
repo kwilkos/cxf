@@ -2,6 +2,9 @@ package org.objectweb.celtix.tools.common;
 
 public class ToolException extends RuntimeException {
 
+    
+    private static final long serialVersionUID = -4418907917249006910L;
+
     public ToolException() {
         super();
     }

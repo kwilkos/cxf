@@ -1,4 +1,4 @@
-package org.objectweb.celtix.tools.wsdl2java.generators;
+package org.objectweb.celtix.tools.common.generators;
 
 
 import org.objectweb.celtix.tools.common.ToolWrapperGenerator;
@@ -15,11 +15,14 @@ public class JAXWSCodeGenerator extends ToolWrapperGenerator {
     static final String DEFAULT_TOOL_NAME = "com.sun.tools.ws.WsImport";
     
     public JAXWSCodeGenerator() {
-        this(DEFAULT_TOOL_NAME);
+        this(JAXWSCodeGenerator.class.getClassLoader());
+    }
+    public JAXWSCodeGenerator(ClassLoader loader) {
+        this(DEFAULT_TOOL_NAME, loader);
     }
     
-    public JAXWSCodeGenerator(String theToolClassName) {
-        super(theToolClassName);
+    public JAXWSCodeGenerator(String theToolClassName, ClassLoader loader) {
+        super(theToolClassName, loader);
     }
 }
 

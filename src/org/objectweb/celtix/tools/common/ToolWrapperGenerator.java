@@ -14,30 +14,46 @@ import org.objectweb.celtix.configuration.Configuration;
 public class ToolWrapperGenerator implements Generator {
 
     protected final String toolClassName;
+    private final ClassLoader classLoader; 
     private Configuration config;
 
     /**
      * construct a generator which delegates to the tool specified by 
      * the class <code>theToolClassName<code>
+     *
      * @param theToolClassName class name of the tool to delegate to
      */
     protected ToolWrapperGenerator(String theToolClassName) {
-        super();
-        this.toolClassName = theToolClassName;
+        this(theToolClassName, ToolWrapperGenerator.class.getClassLoader());
     }
 
+    /**
+     * construct a generator which delegates to the tool specified by 
+     * the class <code>theToolClassName<code> and the tool class is
+     * loaded via the specified classloader
+     *
+     * @param theToolClassName class name of the tool to delegate to
+     * @param theClassLoader the classloader to load the tool class 
+     */
+    protected ToolWrapperGenerator(String theToolClassName, ClassLoader theClassLoader) {
+        classLoader = theClassLoader;
+        toolClassName = theToolClassName;
+    }
+    
     /** invoked main method of tool class, passing in required arguments
      * 
      */
     public void generate() {
         try {
-            Class<?> toolClass = getClass().getClassLoader().loadClass(toolClassName);
+            Class<?> toolClass = Class.forName(toolClassName, true, classLoader);
             Method mainMethod = toolClass.getMethod("main", String[].class);
             mainMethod.invoke(null, (Object)getToolArguments());
         } catch (IllegalAccessException ex) {
             ex.printStackTrace();
         } catch (InvocationTargetException ex) {
-            ex.printStackTrace();
+            if (ex.getTargetException() != null) { 
+                ex.getTargetException().printStackTrace();
+            }
         } catch (NoSuchMethodException ex) {
             ex.printStackTrace();
         } catch (ClassNotFoundException ex) {

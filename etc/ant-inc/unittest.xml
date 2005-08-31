@@ -28,8 +28,9 @@
         <junit fork="yes" haltonfailure="false"
         	failureproperty="unit.test.failed"
         	dir="${basedir}/build/classes-tests/unit"
-        	timeout="100000"
+        	timeout="100000"        
         	>
+         	<jvmarg value="-Djaxws.home=${env.JAXWS_HOME}"/>        			
             <formatter type="brief" useFile="false"/>
             <formatter type="xml"/>
             <classpath>

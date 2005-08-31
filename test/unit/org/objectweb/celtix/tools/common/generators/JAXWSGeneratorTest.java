@@ -1,4 +1,4 @@
-package org.objectweb.celtix.tools.wsdl2java.generators;
+package org.objectweb.celtix.tools.common.generators;
 
 
 import junit.framework.TestCase;
