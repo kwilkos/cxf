@@ -95,9 +95,8 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         } else {
             objMsgContext = clientBinding.invoke(objMsgContext);
         }
-
-        //Retrieve the return type obj from Context and send it out.
-        return null;
+        
+        return objMsgContext.get("org.objectweb.celtix.return");
     }
     
     protected ClientBinding createBinding(EndpointReferenceType ref) {

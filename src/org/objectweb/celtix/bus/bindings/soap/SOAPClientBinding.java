@@ -51,7 +51,7 @@ public class SOAPClientBinding extends GenericClientBinding {
         //TODO Marshall Objects to SAAJ using JAXB
         //Create a SOAP Message
         try {
-            SOAPMessage msg = soapBinding.buildSoapMessage(objContext);
+            SOAPMessage msg = soapBinding.buildSoapInputMessage(objContext);
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
             //TODO
@@ -66,7 +66,7 @@ public class SOAPClientBinding extends GenericClientBinding {
             OutputStreamMessageContext outCtx) throws IOException {
         SOAPMessageContext soapCtx = (SOAPMessageContext)context;
         try {
-            soapCtx.getMessage().writeTo(outCtx.getOutputStream());        
+            soapCtx.getMessage().writeTo(outCtx.getOutputStream());
         } catch (SOAPException se) {
             throw new IOException(se.getMessage());
         }
