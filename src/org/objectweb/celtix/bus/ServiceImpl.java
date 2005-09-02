@@ -7,6 +7,8 @@ import java.net.URI;
 import java.net.URL;
 import java.rmi.Remote;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.jws.WebService;
 
@@ -25,6 +27,8 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class ServiceImpl implements Service, InvocationHandler {
 
+    private static final Logger LOG = Logger.getLogger(ServiceImpl.class.getName());
+    
     private URL wsdlLocation;
     private QName serviceName;
     private Vector<QName> endpointList;
@@ -112,6 +116,9 @@ public class ServiceImpl implements Service, InvocationHandler {
     protected <T> T createPort(QName portName, 
                 Class<T> serviceEndpointInterface) throws WebServiceException {
 
+        LOG.log(Level.FINE, "creating port for portName", portName);
+        LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
+        
         Class <? extends Remote> clazz = null;
         try {
             clazz = serviceEndpointInterface.asSubclass(Remote.class);
@@ -145,6 +152,8 @@ public class ServiceImpl implements Service, InvocationHandler {
                                             new Class[] {serviceEndpointInterface, Remote.class},
                                             (InvocationHandler) endpointHandler);
         
+        LOG.log(Level.FINE, "created proxy", obj);
+                
         endpointList.add(portName);
         
         return serviceEndpointInterface.cast(obj);

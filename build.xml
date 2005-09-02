@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <project name="celtix" default="build" basedir=".">
     <property file="build.properties"/>
-    
-    <target name="build" depends="src.compile,unittest.compile,unit.test" description="Main build target"/>
+
+    <target name="build" depends="src.compile,unittest.compile,unit.test,release" description="Main build target"/>
 
     <target name="cruisecontrol.build" depends="very.clean,build" description="Main target for cruisecontrol"/>
+	
 
     <property environment="env"/>
     <fail unless="env.JAXWS_HOME">.
@@ -34,7 +35,10 @@
     <!-- Load the eclipse targets -->
     <import file="etc/ant-inc/eclipse.xml"/>
 
-    <!-- Target to clean the build dir -->
+    <!-- Load the release targets -->
+    <import file="etc/ant-inc/release.xml"/>
+	
+	<!-- Target to clean the build dir -->
     <target name="clean" description="Clean the build artifacts">
         <delete quiet="true" includeemptydirs="true">
             <fileset dir="build">

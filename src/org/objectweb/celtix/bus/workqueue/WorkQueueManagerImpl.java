@@ -11,7 +11,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
     private static Logger logger = Logger.getLogger(WorkQueueManagerImpl.class.getPackage().getName());
 
     ThreadingModel threadingModel = ThreadingModel.MULTI_THREADED;
-    AutomaticWorkQueue autoQueue;
+    AutomaticWorkQueue autoQueue = createAutomaticWorkQueue();
     Bus bus;
 
     public WorkQueueManagerImpl(Bus b) {
@@ -64,7 +64,6 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
         // what we do here will probably depend on the
         // the thread model - for now just create the automatic work queue
         // (which will be able to perform work straight away)
-        autoQueue = createAutomaticWorkQueue();
         synchronized (this) {
             while (!autoQueue.isShutdown()) {
                 try {            

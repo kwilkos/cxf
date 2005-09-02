@@ -6,7 +6,12 @@
     <available property="tools.jar" value="${env.JAVA_HOME}/lib/tools.jar"
 	       file="${env.JAVA_HOME}/lib/tools.jar"/>
 
-    <path id="jdk.tools.classpath">
+	<property name="build.dir" value="${basedir}/build"/>
+	<property name="build.classes.dir" location="${build.dir}/classes"/>
+	<property name="build.lib.dir" location="${build.dir}/lib"/>
+	<property name="celtix.jar" location="${build.lib.dir}/celtix.jar"/>
+
+	<path id="jdk.tools.classpath">
       <pathelement location="${tools.jar}"/>
     </path>
 

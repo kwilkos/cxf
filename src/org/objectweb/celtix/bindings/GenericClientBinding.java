@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.wsdl.Port;
 import javax.wsdl.extensions.ExtensibilityElement;
@@ -15,10 +17,13 @@ import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
+import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
 public abstract class GenericClientBinding implements ClientBinding {
+    private static final Logger LOG = Logger.getLogger(GenericClientBinding.class.getName());
+
     protected final Bus bus;
     protected final EndpointReferenceType reference;
     protected ClientTransport transport;
@@ -30,19 +35,24 @@ public abstract class GenericClientBinding implements ClientBinding {
     }
 
     protected ClientTransport createTransport() {
+        ClientTransport ret = null;
         try {
+            LOG.info("creating client transport for " + reference);
+
             Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), reference);
             List<?> exts = port.getExtensibilityElements();
-            if (exts.size() > 0) {
+            if (exts.size() > 0) {                
                 ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
-                transport = bus.getTransportFactoryManager()
-                    .getTransportFactory(el.getElementType().getNamespaceURI())
-                    .createClientTransport(reference);
+                TransportFactory factory = bus.getTransportFactoryManager().
+                        getTransportFactory(el.getElementType().getNamespaceURI()); 
+                ret = factory.createClientTransport(reference);
             }
         } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "error creating client transport", ex);
             // TODO - exception handling
         }
-        return null;
+        assert ret != null; 
+        return ret;
     }
 
 
@@ -72,6 +82,8 @@ public abstract class GenericClientBinding implements ClientBinding {
             bindingContext = context;
         }
 
+        assert transport != null : "transport is null"; 
+        
         OutputStreamMessageContext ostreamContext = transport.createOutputStreamContext(bindingContext);
         // TODO - invoke output stream handlers
         transport.finalPrepareOutputStreamContext(ostreamContext);

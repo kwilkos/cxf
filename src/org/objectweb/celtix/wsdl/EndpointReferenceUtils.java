@@ -2,6 +2,9 @@ package org.objectweb.celtix.wsdl;
 
 import java.net.URL;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
@@ -22,6 +25,8 @@ import org.objectweb.celtix.addressing.wsdl.ServiceNameType;
 
 public final class EndpointReferenceUtils {
 
+    private static final Logger LOG = Logger.getLogger(EndpointReferenceUtils.class.getName());
+    
     private static final QName WSDL_LOCATION = 
             new QName("http://www.w3.org/2004/08/wsdl-instance", "wsdlLocation");
     private static final QName SERVICE_NAME = new QName("http://www.w3.org/2004/08/wsdl", "service");
@@ -56,6 +61,8 @@ public final class EndpointReferenceUtils {
         throws WSDLException {
 
         Definition def = getWSDLDefinition(manager, ref);
+        assert def != null : "unable to find definition for reference " + ref;
+        
         MetadataType metadata = ref.getMetadata();
         for (Object obj : metadata.getAny()) {
             if (obj instanceof Element) {
@@ -78,11 +85,12 @@ public final class EndpointReferenceUtils {
 
             if (obj instanceof ServiceNameType) {
                 ServiceNameType snt = (ServiceNameType)obj;
-
+                LOG.log(Level.FINEST, "found service name ", snt.getEndpointName());
                 Service service = def.getService(snt.getValue());
                 return service.getPort(snt.getEndpointName());
             }
         }
+
         if (def.getServices().size() == 1) {
             Service service = (Service)def.getServices().values().iterator().next();
             if (service.getPorts().size() == 1) {
@@ -95,10 +103,18 @@ public final class EndpointReferenceUtils {
         if (null != value) {
             QName serviceName = QName.valueOf(value);
             Service service = def.getService(serviceName);
+            if (service == null) {
+                throw new WSDLException(WSDLException.OTHER_ERROR, "Cannot find service for " + serviceName);
+            }
             String str = attribMap.get(PORT_NAME);            //return service.getPort(str);
-            return service.getPort(str);
+            LOG.log(Level.FINE, "getting port " + str + " from service " + service.getQName());
+            Port port = service.getPort(str);
+            if (port == null) {
+                throw new WSDLException(WSDLException.OTHER_ERROR, "unable to find port " + str);
+            }
+            return port;
         }
- 
+        // TODO : throw exception here
         return null;
     } 
     

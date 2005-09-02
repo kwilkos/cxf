@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<project name="celtix-release" basedir="../../">
+	
+	<target name="release" depends="celtix.jar"/>
+	
+	<target name="celtix.jar" description="build the celtix jar">
+		<mkdir dir="${build.lib.dir}"/>
+		<jar destfile="${celtix.jar}" 
+			 basedir="${build.classes.dir}">
+			<metainf dir="${basedir}/etc/metainf"/>
+		</jar>	
+	</target>
+</project>

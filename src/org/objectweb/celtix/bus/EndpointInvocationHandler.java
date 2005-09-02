@@ -105,7 +105,9 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         Port endpoint = null;
         try {
             endpoint = EndpointReferenceUtils.getPort(wsdlManager, ref);
+            assert endpoint != null : "unable to find endpoint for " + ref;
         } catch (Exception we) {
+            we.printStackTrace();    
             //TODO 
         }
         

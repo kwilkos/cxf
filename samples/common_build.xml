@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!-- common build targets for Celtix demos -->
+<project name="celtix-demo-common" basedir="../..">
+	<macrodef name="celtixrun">
+	  <attribute name="classname"/>
+	  <attribute name="wsdl"/>
+	  <sequential>
+		<java classname="@{classname}" fork="yes">
+			<classpath>
+				<path refid="celtix.runtime.classpath"/>
+			</classpath>
+			<arg value="@{wsdl}"/>
+			<assertions>
+			  <enable package="org.objectweb.celtix"/>
+			</assertions>
+		</java>
+	  </sequential>
+	</macrodef>
+</project>
