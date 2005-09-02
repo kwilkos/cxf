@@ -1,6 +1,7 @@
 package org.objectweb.celtix.common.i18n;
 
 import java.text.MessageFormat;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public abstract class Message {
@@ -13,7 +14,12 @@ public abstract class Message {
     }
     
     public String toString() {
-        String fmt = getResourceBundle().getString(code);
+        String fmt = null;
+        try {
+            fmt = getResourceBundle().getString(code);  
+        } catch (MissingResourceException ex) {
+            return code;
+        }
         return MessageFormat.format(fmt, parameters);
     }
     

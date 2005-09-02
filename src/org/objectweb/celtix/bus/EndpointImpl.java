@@ -16,7 +16,6 @@ import javax.xml.ws.handler.Handler;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.BusMessage;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.BindingManager;
@@ -42,10 +41,9 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
         bus = b;
         implementor = impl;
         configuration = null; // new EndpointConfiguration(Bus, this);
-        serverBinding = createServerBinding(bindingId);
-        reference = EndpointReferenceUtils.getEndpointReference(getWsdlLocation(),
-                                                                getServiceName(),     
+        reference = EndpointReferenceUtils.getEndpointReference(getWsdlLocation(), getServiceName(),
                                                                 getPortName().getLocalPart());
+        serverBinding = createServerBinding(bindingId);
         executor = bus.getWorkQueueManager().getAutomaticWorkQueue();
         assert null != executor;
     }
@@ -88,11 +86,11 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
     public List<Source> getMetadata() {
         return metadata;
     }
-    
+
     /**
      * documented but not yet implemented in RI
      */
-    
+
     public Executor getExecutor() {
         return executor;
     }
@@ -116,7 +114,7 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
             logger.warning("Endpoint is already published");
         }
         if (!isContextBindingCompatible(serverContext)) {
-            throw new IllegalArgumentException(new BusMessage("BINDING_INCOMPATIBLE_CONTEXT").toString());
+            throw new IllegalArgumentException(new BusException("BINDING_INCOMPATIBLE_CONTEXT"));
         }
 
         // apply all changes to configuration and metadata and (re-)activate
@@ -135,7 +133,7 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
             logger.warning("Endpoint is already published");
         }
         if (!serverBinding.isCompatibleWithAddress(address)) {
-            throw new IllegalArgumentException(new BusMessage("BINDING_INCOMPATIBLE_ADDRESS").toString());
+            throw new IllegalArgumentException(new BusException("BINDING_INCOMPATIBLE_ADDRESS"));
         }
         doPublish(address);
     }
@@ -157,7 +155,7 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
     public void setMetadata(List<Source> m) {
         metadata = m;
     }
-    
+
     /**
      * documented but not yet implemented in RI
      */
@@ -179,6 +177,14 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
 
     public Bus getBus() {
         return bus;
+    }
+    
+    public ServerBinding getServerBinding() {
+        return serverBinding;
+    }
+    
+    public EndpointReferenceType getEndpointReferenceType() {
+        return reference;
     }
 
     javax.jws.WebService getWebServiceAnnotation() {
@@ -209,13 +215,9 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
     }
 
     ServerBinding createServerBinding(URI bindingId) throws BusException {
-        EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(getWsdlLocation(),
-                                                                                getServiceName(),     
-                                                                                getPortName().getLocalPart());
         BindingManager bm = bus.getBindingManager();
-        logger.info("Getting binding factory for namespace URI " + bindingId.toString());
-        BindingFactory factory = bm.getBindingFactory(bindingId.toString()); 
-        ServerBinding bindingImpl = factory.createServerBinding(ref, this);
+        BindingFactory factory = bm.getBindingFactory(bindingId.toString());
+        ServerBinding bindingImpl = factory.createServerBinding(reference, this);
         assert null != bindingImpl;
         return bindingImpl;
 
@@ -230,18 +232,17 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
     }
 
     void doPublish(String address) {
-        
         EndpointReferenceUtils.setAddress(reference, address);
         try {
             serverBinding.activate();
-            published = true; 
+            published = true;
         } catch (WSDLException ex) {
             logger.severe("Failed to publish endpoint - server binding could not be activated:\n"
                           + ex.getMessage());
         } catch (IOException ex) {
             logger.severe("Failed to publish endpoint - server binding could not be activated:\n"
                           + ex.getMessage());
-        }      
+        }
     }
 
     /*

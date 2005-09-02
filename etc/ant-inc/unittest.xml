@@ -36,6 +36,7 @@
             <classpath>
                 <path refid="unit.test.classpath"/>
             </classpath>
+            <jvmarg value="-ea"/>
 
             <sysproperty key="java.util.logging.config.file" value="${basedir}/build/classes-tests/unit/logging.properties"/>
 

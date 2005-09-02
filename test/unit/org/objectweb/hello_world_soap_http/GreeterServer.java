@@ -20,7 +20,7 @@ public class GreeterServer implements Runnable {
         bus = Bus.init(args);
         EndpointFactory epf = EndpointFactory.newInstance();
         Object implementor = new CorrectlyAnnotatedGreeterImpl();
-        String address = "http://localhost:8080/hello_world_soap_http";
+        String address = "http://localhost:9000/SoapContext/SoapPort";
         epf.publish(address, implementor);
     }
     

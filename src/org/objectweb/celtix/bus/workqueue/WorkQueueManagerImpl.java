@@ -16,6 +16,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
 
     public WorkQueueManagerImpl(Bus b) {
         bus = b;
+        autoQueue = createAutomaticWorkQueue();
     }
 
     /*
@@ -61,9 +62,6 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
     }
 
     public void run() {
-        // what we do here will probably depend on the
-        // the thread model - for now just create the automatic work queue
-        // (which will be able to perform work straight away)
         synchronized (this) {
             while (!autoQueue.isShutdown()) {
                 try {            

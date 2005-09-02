@@ -56,20 +56,5 @@ public class EndpointFactoryImplTest extends TestCase {
         Endpoint ep = epf.createEndpoint(new URI(SOAPBinding.SOAP11HTTP_BINDING), implementor);     
         assertNotNull(ep);
     }
-    
-    public void testPublish() throws Exception {
-        EndpointFactory epf = EndpointFactory.newInstance();
-        Object implementor = new CorrectlyAnnotatedGreeterImpl(); 
-        /*
-        Endpoint ep = epf.publish("http://loalhost:8080/test", implementor);  
-        assertNotNull(ep);
-        assertTrue(ep.isPublished());
-        ep.publish("http://loalhost:8080/test");
-        assertTrue(ep.isPublished());
-        ep.stop();
-        assertTrue(!ep.isPublished());
-        ep.stop();
-        assertTrue(!ep.isPublished());
-        */
-    }
+   
 }

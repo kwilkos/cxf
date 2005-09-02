@@ -20,7 +20,7 @@ public class BusMessage extends Message {
     @Override
     protected ResourceBundle getResourceBundle() {
         if (null == resourceBundle) {
-            resourceBundle = ResourceBundle.getBundle(BusMessage.class.getName() + ".properties");
+            resourceBundle = ResourceBundle.getBundle(BusMessage.class.getName());
         }
         return resourceBundle;
     }

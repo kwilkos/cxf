@@ -86,6 +86,9 @@
             	<pathelement location="${basedir}/build/classes"/>
             </classpath>
         </javac>
+    	<copy todir="${basedir}/build/classes">
+    		<fileset dir="${basedir}/src" includes="**/*.properties"/>
+    	</copy>
     </target>
 
     <target name="unittest.compile" depends="unittest.checkstyle,testwsdl.codegen" description="Compile the unit tests">

@@ -20,7 +20,7 @@ public class PluginMessage extends Message {
     @Override
     protected ResourceBundle getResourceBundle() {
         if (null == resourceBundle) {
-            resourceBundle = ResourceBundle.getBundle(PluginMessage.class.getName() + ".properties");
+            resourceBundle = ResourceBundle.getBundle(PluginMessage.class.getName());
         }
         return resourceBundle;
     }
