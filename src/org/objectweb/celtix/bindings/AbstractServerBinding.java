@@ -14,7 +14,6 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.bindings.GenericClientBinding.GenericObjectContext;
 import org.objectweb.celtix.bus.EndpointImpl;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -23,6 +22,7 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+
 
 public abstract class AbstractServerBinding implements ServerBinding {
 
@@ -39,6 +39,10 @@ public abstract class AbstractServerBinding implements ServerBinding {
         endpoint = ep;
     }
 
+    public ObjectMessageContext createObjectContext() {
+        return new ObjectMessageContextImpl();
+    }
+    
     public Endpoint getEndpoint() {
         return endpoint;
     }
@@ -106,12 +110,12 @@ public abstract class AbstractServerBinding implements ServerBinding {
         // operationName
         // from the message context into the object context
 
-        ObjectMessageContext context = createObjectContext();
-        unmarshal(bindingContext, context);
+        ObjectMessageContext objContext = createObjectContext();
+        unmarshal(bindingContext, objContext);
 
         // get parameters from object context
 
-        Object args[] = (Object[])context.get("org.objectweb.celtix.parameter");
+        Object args[] = (Object[])objContext.getMessageObjects();
         
         // REVISIT: check for correct number and type
         
@@ -128,34 +132,42 @@ public abstract class AbstractServerBinding implements ServerBinding {
                           + ex.getMessage());
         }
 
+        objContext.put("org.objectweb.celtix.return", result);
+        
+        bindingContext = createBindingMessageContext();
         // marshal objects into new SSAJ model (new model for response)
-        // insert this model into Message
-        // write message to transport
+        marshal(objContext, bindingContext);
+        try {
+            OutputStreamMessageContext ostreamContext = transport.createOutputStreamContext(bindingContext);
+            transport.finalPrepareOutputStreamContext(ostreamContext);
+
+            write(bindingContext, ostreamContext);
+        } catch (IOException ioe) {
+            logger.severe("Failed to write response for " + method.getName() + "\n"
+                          + ioe.getMessage());            
+        }
     }
 
     public void deactivate() throws IOException {
         transport.deactivate();
     }
 
-    public ObjectMessageContext createObjectContext() {
-        return new GenericObjectContext();
-    }
-
     protected abstract TransportFactory getDefaultTransportFactory(String address);
 
     protected abstract MessageContext createBindingMessageContext();
 
-    protected abstract void marshal(ObjectMessageContext objContext, MessageContext context);
+    protected abstract void read(InputStreamMessageContext inCtx, 
+                                 MessageContext context) throws IOException;
 
     protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
         QName operationName = getOperationName(context);
         objContext.put(MessageContext.WSDL_OPERATION, operationName);
     }
+    
+    protected abstract void marshal(ObjectMessageContext objContext, MessageContext context);
 
     protected abstract void write(MessageContext context, OutputStreamMessageContext outCtx)
         throws IOException;
-
-    protected abstract void read(InputStreamMessageContext inCtx, MessageContext context) throws IOException;
 
     private QName getOperationName(MessageContext ctx) {
         return (QName)ctx.get(MessageContext.WSDL_OPERATION);
@@ -182,5 +194,4 @@ public abstract class AbstractServerBinding implements ServerBinding {
         return method;
 
     }
-
 }

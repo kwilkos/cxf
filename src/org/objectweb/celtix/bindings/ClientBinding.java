@@ -12,10 +12,6 @@ import org.objectweb.celtix.context.ObjectMessageContext;
  */
 public interface ClientBinding extends BindingBase {
 
-    ObjectMessageContext createObjectContext();
-
-
-
     void invokeOneWay(ObjectMessageContext context) throws IOException;
 
     ObjectMessageContext invoke(ObjectMessageContext context) throws IOException;

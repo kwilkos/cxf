@@ -8,7 +8,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.soap.SOAPBinding;
 import javax.xml.namespace.QName;
-import javax.xml.ws.handler.MessageContext;
+import org.objectweb.celtix.context.ObjectMessageContext;
 
 public class SOAPMessageInfo {
     private SOAPBinding soapBindAnnotation;
@@ -16,12 +16,12 @@ public class SOAPMessageInfo {
     private WebResult webResultAnnotation;
     private Annotation[][] paramAnnotations;
     
-    public SOAPMessageInfo(MessageContext msgCtx) {
+    public SOAPMessageInfo(ObjectMessageContext msgCtx) {
         init(msgCtx);
     }
     
-    private void init(MessageContext msgCtx) {
-        Method method = (Method) msgCtx.get("org.objectweb.celtix.method");
+    private void init(ObjectMessageContext msgCtx) {
+        Method method = msgCtx.getMethod();
         //Get SOAP Style, Use, 
         soapBindAnnotation = method.getDeclaringClass().getAnnotation(SOAPBinding.class);
         //Get Operation,Action Info

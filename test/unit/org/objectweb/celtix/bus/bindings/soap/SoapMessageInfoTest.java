@@ -8,7 +8,7 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.context.GenericMessageContext;
+import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
 import org.objectweb.hello_world_soap_http.Greeter;
 
 public class SoapMessageInfoTest extends TestCase {
@@ -25,11 +25,11 @@ public class SoapMessageInfoTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         
-        GenericMessageContext msgContext = new GenericMessageContext();
+        ObjectMessageContextImpl msgContext = new ObjectMessageContextImpl();
         Method[] declMethods = Greeter.class.getDeclaredMethods();
         for (Method method : declMethods) {
             if (method.getName().equals("greetMe")) {
-                msgContext.put("org.objectweb.celtix.method", method);
+                msgContext.put(ObjectMessageContextImpl.METHOD_INVOKED, method);
             }
         }
         

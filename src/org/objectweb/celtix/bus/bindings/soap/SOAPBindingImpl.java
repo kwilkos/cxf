@@ -19,10 +19,10 @@ import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPMessage;
 
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.objectweb.celtix.bus.bindings.BindingImpl;
+import org.objectweb.celtix.context.ObjectMessageContext;
 
 public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
     protected final MessageFactory msgFactory;
@@ -61,7 +61,7 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
         return false;
     }
     
-    public SOAPMessage buildSoapInputMessage(MessageContext msgCtx) 
+    public SOAPMessage buildSoapInputMessage(ObjectMessageContext msgCtx) 
         throws SOAPException {
         SOAPMessageInfo messageInfo = new SOAPMessageInfo(msgCtx);
         
@@ -85,7 +85,7 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
         return msg;
     }
 
-    public SOAPMessage buildSoapOutputMessage(MessageContext msgCtx) 
+    public SOAPMessage buildSoapOutputMessage(ObjectMessageContext msgCtx) 
         throws SOAPException {
         SOAPMessage msg = msgFactory.createMessage();
         msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION,  "true");
@@ -120,13 +120,13 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
     }
 
     private void addInputParam(SOAPElement soapElement ,
-            SOAPMessageInfo messageInfo, MessageContext msgCtx) throws SOAPException {
+            SOAPMessageInfo messageInfo, ObjectMessageContext msgCtx) throws SOAPException {
 
         SOAPElement childNode = null;
         WebParam param = messageInfo.getWebParam(0);
         if (param.mode() != WebParam.Mode.OUT) {
-            Object[] params = (Object[])msgCtx.get("org.objectweb.celtix.parameter");
-            Method method = (Method) msgCtx.get("org.objectweb.celtix.method");
+            Object[] params = (Object[])msgCtx.getMessageObjects();
+            Method method = (Method) msgCtx.getMethod();
 
             JAXBEncoderDecoder encoder = 
                     new JAXBEncoderDecoder(method.getDeclaringClass().getPackage().getName());
@@ -138,14 +138,14 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
         
     
     private void addOutputParam(SOAPElement soapElement ,
-            SOAPMessageInfo messageInfo, MessageContext msgCtx) throws SOAPException {
+            SOAPMessageInfo messageInfo, ObjectMessageContext msgCtx) throws SOAPException {
         SOAPElement childNode = null;
         WebParam param = messageInfo.getWebParam(0);
         if (param.mode() != WebParam.Mode.IN) {
             childNode = soapElement.addChildElement(param.name(), "", param.targetNamespace());
 
-            Object[] params = (Object[])msgCtx.get("org.objectweb.celtix.parameter");
-            Method method = (Method) msgCtx.get("org.objectweb.celtix.method");
+            Object[] params = (Object[])msgCtx.getMessageObjects();
+            Method method = (Method) msgCtx.getMethod();
 
             JAXBEncoderDecoder encoder = 
                     new JAXBEncoderDecoder(method.getDeclaringClass().getPackage().getName());
@@ -154,13 +154,13 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
     }    
     
     private void addReturn(SOAPElement soapElement ,
-            SOAPMessageInfo messageInfo, MessageContext msgCtx) throws SOAPException {
+            SOAPMessageInfo messageInfo, ObjectMessageContext msgCtx) throws SOAPException {
         QName name = messageInfo.getWebResult();
         SOAPElement childNode = soapElement.addChildElement(name.getLocalPart(), "", name.getNamespaceURI());
         
         Object retVal = msgCtx.get("org.objectweb.celtix.return");
-        Method method = (Method) msgCtx.get("org.objectweb.celtix.method");
-        
+        Method method = (Method) msgCtx.getMethod();
+       
         JAXBEncoderDecoder encoder = 
                 new JAXBEncoderDecoder(method.getDeclaringClass().getPackage().getName());
         encoder.marshall(retVal, messageInfo.getWebResult(), childNode);        

@@ -85,8 +85,8 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         //REVISIT this property could be part of the requqest context.
         objMsgContext.put("org.objectweb.celtix.proxy", proxy);
         
-        objMsgContext.put("org.objectweb.celtix.method", method);
-        objMsgContext.put("org.objectweb.celtix.parameter", (Object)parameters);
+        objMsgContext.setMethod(method);
+        objMsgContext.setMessageObjects(parameters);
 
         boolean isOneway = (method.getAnnotation(Oneway.class) != null) ? true : false;
 

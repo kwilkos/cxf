@@ -7,25 +7,27 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.objectweb.celtix.context.GenericMessageContext;
 
 class SOAPMessageContextImpl extends GenericMessageContext implements SOAPMessageContext {
     private static final long serialVersionUID = 1L;
+    private static final String SOAP_MESSAGE = "org.objectweb.celtix.bindings.soap.message";
     private Set<URI> soapRoles;
-    private SOAPMessage soapMessage;
     
     public SOAPMessageContextImpl() {
         //Complete
     }
     
     public SOAPMessage getMessage() {
-        return soapMessage;
+        return (SOAPMessage)get(SOAP_MESSAGE);
     }
 
     public void setMessage(SOAPMessage soapMsg) {
-        soapMessage = soapMsg;
+        put(SOAP_MESSAGE, soapMsg);
+        setScope(SOAP_MESSAGE, MessageContext.Scope.HANDLER);        
     }
 
     public Object[] getHeaders(QName header, JAXBContext jaxbContext, boolean allRoles) {

@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -57,7 +56,7 @@ public abstract class GenericClientBinding implements ClientBinding {
 
 
     public ObjectMessageContext createObjectContext() {
-        return new GenericObjectContext();
+        return new ObjectMessageContextImpl();
     }
 
     protected abstract  MessageContext createBindingMessageContext();
@@ -92,7 +91,6 @@ public abstract class GenericClientBinding implements ClientBinding {
 
         InputStreamMessageContext ins = transport.invoke(ostreamContext);
        
-        context = createObjectContext();
         bindingContext = createBindingMessageContext();
         if (null == bindingContext) {
             bindingContext = context;
@@ -102,6 +100,7 @@ public abstract class GenericClientBinding implements ClientBinding {
         read(ins, bindingContext);
         
         // TODO - invoke binding handlers
+        context = createObjectContext();        
         unmarshal(bindingContext, context);
         
         // TODO - invoke object handlers
@@ -118,28 +117,5 @@ public abstract class GenericClientBinding implements ClientBinding {
     public Future<ObjectMessageContext> invokeAsync(ObjectMessageContext context) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    
-    static class GenericObjectContext extends HashMap<String, Object> implements ObjectMessageContext {
-        static final String OBJECT_KEY = GenericObjectContext.class.getName();
-        private static final long serialVersionUID = 401275179632507389L;
-
-        
-        public Object[] getMessageObjects() {
-            return (Object[])get(OBJECT_KEY);
-        }
-
-        public void setMessageObjects(Object... objects) {
-            put(OBJECT_KEY, (Object)objects);
-        }
-
-        public Scope getScope(String name) {
-            return (Scope)get(OBJECT_KEY + ".Scope");
-        }
-
-        public void setScope(String name, MessageContext.Scope scope) {
-            put(name + ".Scope", scope);
-        }        
     }
 }
