@@ -24,7 +24,12 @@
             <fileset dir="${basedir}/test/unit" includes="**/*.java"/>
         </checkstyle>
     </target>
-    <target name="checkstyle" depends="src.checkstyle,unittest.checkstyle" description="Checkstyle the entire codebase"/>
+    <target name="systemtest.checkstyle" unless="no.checkstyle">
+        <checkstyle config="${basedir}/etc/checkstyle.xml">
+            <fileset dir="${basedir}/test/system" includes="**/*.java"/>
+        </checkstyle>
+    </target>
+    <target name="checkstyle" depends="src.checkstyle,unittest.checkstyle,systemtest.checkstyle" description="Checkstyle the entire codebase"/>
 
 
 
@@ -113,4 +118,25 @@
     	</copy>
     </target>
 
+	   <target name="systest.compile" depends="testwsdl.codegen" description="Compile the system tests">
+	        <mkdir dir="${basedir}/build/classes-tests/system"/>
+	        <javac srcdir="${basedir}/test/system"
+	            destdir="${basedir}/build/classes-tests/system"
+	            debug="true"
+	            target="1.5"
+	            source="1.5"
+	        	sourcepath=""
+	            fork="true">
+	        	<compilerarg value="-Xlint${xlint.args}"/>
+	            <classpath>
+	                <path refid="system.test.compile.classpath"/>
+	            </classpath>
+	        </javac>
+	    	<copy todir="${basedir}/build/classes-tests/system">
+	    		<fileset dir="${basedir}/test/system" includes="**/resource/**/*"/>
+	    	</copy>
+	    	<copy todir="${basedir}/build/classes-tests/system">
+	    		<fileset dir="${basedir}/etc" includes="logging.properties"/>
+	    	</copy>
+	    </target>	
 </project>

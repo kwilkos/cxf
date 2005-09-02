@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- common tests and defintions for running tests -->
+
+<project name="celtix-common-test" basedir="../..">
+
+  <!-- run a suite of JUnit based tests -->
+  <!-- type attribute selects either unit or system --> 
+  <!-- tests to be run --> 
+  <macrodef name="runjunittest">
+    <attribute name="type"/>
+    <sequential>
+      <mkdir dir="${basedir}/build/testresults/@{type}"/>
+
+      <condition property="tests.filters" value="**/*Test.class">
+	<not>
+	  <and>
+	    <isset property="test.class"/>
+	    <available classname="${test.class}" classpathref="@{type}.test.classpath"/>
+	  </and>
+	</not>
+      </condition>
+      
+      <condition property="test.real.class" value="${test.class}">
+	<isset property="test.class"/>
+      </condition>
+      <property name="test.real.class" value="org.objectweb.celtix.testutils.NoTestTestcase"/>
+
+      <junit fork="yes" haltonfailure="false"
+	     failureproperty="@{type}.test.failed"
+	     dir="${basedir}/build/classes-tests/@{type}"
+	     timeout="100000"        
+	     >
+	<jvmarg value="-Djaxws.home=${env.JAXWS_HOME}"/>        			
+	<formatter type="brief" useFile="false"/>
+	<formatter type="xml"/>
+	<classpath>
+	  <path refid="@{type}.test.classpath"/>
+	</classpath>
+	<jvmarg value="-ea"/>
+
+	<sysproperty key="java.util.logging.config.file" value="${basedir}/build/classes-tests/system/logging.properties"/>
+
+	
+	<test name="${test.real.class}" todir="${basedir}/build/testresults/@{type}" outfile="@{type}test-results" />
+	<batchtest todir="${basedir}/build/testresults/@{type}">
+	  <fileset dir="${basedir}/build/classes-tests/@{type}">
+	    <include name="${tests.filters}"/>
+	  </fileset>
+	</batchtest>
+      </junit>
+      <fail message="JUnit @{type} test failure." if="@{type}.test.failed"/>
+    </sequential>	
+  </macrodef>
+
+</project>

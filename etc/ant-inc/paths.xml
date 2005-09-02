@@ -68,7 +68,20 @@
         <path refid="unit.test.compile.classpath"/>
     </path>
     
-    <target name="create.set_env">
+    <path id="system.test.compile.classpath">
+		<pathelement location="${basedir}/build/classes"/>
+	    <pathelement location="${basedir}/build/classes-tests/wsdl"/>
+	    <path refid="src.compile.classpath"/>
+	    <pathelement location="${tools.dir}/easymock/2.0/easymock.jar"/>
+	</path>
+	 
+    <path id="system.test.classpath">
+	    <path refid="system.test.compile.classpath"/>
+        <pathelement location="${basedir}/build/classes-tests/unit"/>
+	    <pathelement location="${basedir}/build/classes-tests/system"/>
+	</path>
+
+	<target name="create.set_env">
     	<property name="unit.test.classpath" refid="unit.test.classpath"/>
     	<condition property="envmessage" value="set CLASSPATH=${unit.test.classpath};%CLASSPATH%">
     		<os family="windows"/>

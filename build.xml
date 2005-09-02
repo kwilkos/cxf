@@ -2,8 +2,9 @@
 <project name="celtix" default="build" basedir=".">
     <property file="build.properties"/>
 
-    <target name="build" depends="src.compile,unittest.compile,unit.test,release" description="Main build target"/>
-
+    <target name="build" depends="src.compile,unittest.compile,systest.compile,unit.test,release" description="Main build target"/>
+	<target name="test" depends="unit.test,system.test" description="Run unit andn system tests"/>
+	
     <target name="cruisecontrol.build" depends="very.clean,build" description="Main target for cruisecontrol"/>
 	
 
@@ -32,7 +33,11 @@
     <!-- Load the unit test targets -->
     <import file="etc/ant-inc/unittest.xml"/>
 
-    <!-- Load the eclipse targets -->
+    <!-- Load the system test targets -->
+    <import file="etc/ant-inc/systest.xml"/>
+
+	
+	<!-- Load the eclipse targets -->
     <import file="etc/ant-inc/eclipse.xml"/>
 
     <!-- Load the release targets -->
@@ -45,6 +50,7 @@
                  <include name="classes/**/*"/>
                  <include name="classes-tests/wsdl/**/*"/>
                  <include name="classes-tests/unit/**/*"/>
+                <include name="classes-tests/system/**/*"/>
                  <include name="src/**/*"/>
                  <include name="test-src/**/*"/>
                  <include name="set_env*"/>

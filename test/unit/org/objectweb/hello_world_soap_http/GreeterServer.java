@@ -34,7 +34,7 @@ public class GreeterServer implements Runnable {
             // ignore
         }
         System.out.print("Press any key to terminate the server ...");
-        int c = System.in.read();
+        System.in.read();
         
         server.shutdown(true);
         

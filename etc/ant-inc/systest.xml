@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<project name="celtix-systests" basedir="../..">
+
+  <import file="./common_test.xml"/>
+  <import file="./compile.xml"/>
+  
+  <target name="system.test" description="Run the system tests" depends="src.compile,systest.compile,system.test.nodeps"/>
+   
+  <target name="system.test.nodeps">
+    <runjunittest type="system"/>
+
+  </target>
+</project>
