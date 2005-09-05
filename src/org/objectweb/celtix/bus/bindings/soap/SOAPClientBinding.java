@@ -39,10 +39,8 @@ public class SOAPClientBinding extends GenericClientBinding {
     }
 
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {
-        //TODO Marshall Objects to SAAJ using JAXB
-        //Create a SOAP Message
         try {
-            SOAPMessage msg = soapBinding.buildSoapInputMessage(objContext);
+            SOAPMessage msg = soapBinding.marhsalMessage(objContext, context);
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
             //TODO

@@ -8,6 +8,7 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 public class ObjectMessageContextImpl extends GenericMessageContext implements ObjectMessageContext {
     public static final String METHOD_INVOKED = "org.objectweb.celtix.method";
     public static final String METHOD_PARAMETERS = "org.objectweb.celtix.parameters";
+    public static final String METHOD_RETURN = "org.objectweb.celtix.return";
     private static final long serialVersionUID = 401275179632507389L;
 
     public Object[] getMessageObjects() {
@@ -19,6 +20,15 @@ public class ObjectMessageContextImpl extends GenericMessageContext implements O
         setScope(METHOD_PARAMETERS, MessageContext.Scope.HANDLER);
     }
 
+    public void setReturn(Object retVal) {
+        put(METHOD_RETURN, retVal);
+        setScope(METHOD_RETURN, MessageContext.Scope.HANDLER);
+    }
+
+    public Object getReturn() {
+        return get(METHOD_RETURN);
+    }
+    
     public void setMethod(Method method) {
         put(METHOD_INVOKED, method);
         setScope(METHOD_INVOKED, MessageContext.Scope.HANDLER);

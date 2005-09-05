@@ -1,9 +1,12 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -12,16 +15,19 @@ import javax.jws.soap.SOAPBinding.Style;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPBody;
+//import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
+//import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPMessage;
 
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPBinding;
+
+import org.w3c.dom.Node;
 
 import org.objectweb.celtix.bus.bindings.BindingImpl;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -66,49 +72,29 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
         String protocol = url.getProtocol();
         return "http".equals(protocol) || "https".equals(protocol);
     }
-    
-    public SOAPMessage buildSoapInputMessage(ObjectMessageContext msgCtx) 
-        throws SOAPException {
-        SOAPMessageInfo messageInfo = new SOAPMessageInfo(msgCtx);
-        
-        SOAPMessage msg = msgFactory.createMessage();
-        msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION,  "true");
-        SOAPEnvelope envelope = msg.getSOAPPart().getEnvelope();
-        //SOAPHeaders are NOT supported
-        envelope.getHeader().detachNode();
-        
-        //REVISIT Populate The NameSpace Map at Envelope node.            
-        SOAPBody body = envelope.getBody();
-        SOAPElement soapElement = addOperationNode(body, messageInfo);
-        
-        //add in and inout params
-        addInputParam(soapElement, messageInfo, msgCtx);
 
-        if (msg.saveRequired()) {
-            msg.saveChanges();
-        }
-        
-        return msg;
+    public MessageFactory getMessageFactory() {
+        return msgFactory;
     }
-
-    public SOAPMessage buildSoapOutputMessage(ObjectMessageContext msgCtx) 
+    
+    public SOAPMessage marhsalMessage(ObjectMessageContext objContext, MessageContext mc) 
         throws SOAPException {
+
+        boolean isInputMsg = (Boolean)mc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        
         SOAPMessage msg = msgFactory.createMessage();
         msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION,  "true");
-        SOAPMessageInfo messageInfo = new SOAPMessageInfo(msgCtx);
+        SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
 
-        SOAPEnvelope envelope = msg.getSOAPPart().getEnvelope();
-        //SOAPHeaders are NOT supported
-        envelope.getHeader().detachNode();
+        //SOAPHeaders, SwA are NOT supported
+        msg.getSOAPHeader().detachNode();
         
         //REVISIT Populate The NameSpace Map at Envelope node.
         
-        SOAPBody body = envelope.getBody();
-        SOAPElement soapElement = addOperationNode(body, messageInfo);
+        SOAPElement soapElement = addOperationNode(msg.getSOAPBody(), messageInfo);
         
-        addReturn(soapElement, messageInfo, msgCtx);
         //add out and inout params
-        addOutputParam(soapElement, messageInfo, msgCtx);
+        addParts(soapElement, messageInfo, objContext, isInputMsg);
 
         if (msg.saveRequired()) {
             msg.saveChanges();
@@ -116,60 +102,122 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
         return msg;
     }
     
-    private SOAPElement addOperationNode(SOAPBody body, SOAPMessageInfo messageInfo) throws SOAPException {
+    public void unmarshalMessage(MessageContext mc, ObjectMessageContext objContext) 
+        throws SOAPException {
+        
+        boolean isOutputMsg = (Boolean)mc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        if (!SOAPMessageContext.class.isInstance(mc)) {
+            throw new SOAPException("SOAPMessageContext not available");
+        }
+
+        SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
+        SOAPMessage soapMessage = soapContext.getMessage();
+        
+        //Assuming No Headers are inserted.
+        Node soapEl = soapMessage.getSOAPBody();
+        
+        SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
+        
+        if (messageInfo.getSOAPStyle() == Style.RPC) {
+            soapEl = soapEl.getFirstChild();
+        }
+
+        getParts(soapEl, messageInfo, objContext, isOutputMsg);
+    }
+
+    public void parseInputMessage(InputStream in, MessageContext mc) 
+        throws SOAPException, IOException {
+
+        if (!SOAPMessageContext.class.isInstance(mc)) {
+            throw new SOAPException("SOAPMessageContext not available");
+        }
+
+        SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
+        SOAPMessage soapMessage = 
+                getMessageFactory().createMessage(null, in);
+        soapContext.setMessage(soapMessage);
+
+        QName opName = getOperationName(soapMessage);
+
+        mc.put(MessageContext.WSDL_OPERATION, opName);
+    }
+
+    private QName getOperationName(SOAPMessage soapMessage) {
+        QName opName = null;
+
+        return opName;
+    }
+
+    private SOAPElement addOperationNode(SOAPElement body, SOAPMessageInfo messageInfo) throws SOAPException {
         if (messageInfo.getSOAPStyle() == Style.RPC) {
             // REVISIT This should be QName.
-            Name opName = soapFactory.createName(messageInfo.getOperationName());
-            return body.addBodyElement(opName);
+            return body.addChildElement(messageInfo.getOperationName());
         }
         return body;
     }
 
-    private void addInputParam(SOAPElement soapElement ,
-            SOAPMessageInfo messageInfo, ObjectMessageContext msgCtx) throws SOAPException {
+    private void getParts(Node xmlNode , SOAPMessageInfo messageInfo,
+                              ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
 
-        SOAPElement childNode = null;
-        WebParam param = messageInfo.getWebParam(0);
-        if (param.mode() != WebParam.Mode.OUT) {
-            Object[] params = (Object[])msgCtx.getMessageObjects();
-            Method method = (Method) msgCtx.getMethod();
+        Method method = messageInfo.getMethod();
+        JAXBEncoderDecoder decoder = 
+            new JAXBEncoderDecoder(method.getDeclaringClass().getPackage().getName());
 
-            JAXBEncoderDecoder encoder = 
-                    new JAXBEncoderDecoder(method.getDeclaringClass().getPackage().getName());
-            encoder.marshall(params[0], 
-                             new QName(param.targetNamespace(), param.name()), 
-                             soapElement);            
-        }
-    }    
+        Node childNode = xmlNode.getFirstChild();
         
-    
-    private void addOutputParam(SOAPElement soapElement ,
-            SOAPMessageInfo messageInfo, ObjectMessageContext msgCtx) throws SOAPException {
-        SOAPElement childNode = null;
-        WebParam param = messageInfo.getWebParam(0);
-        if (param.mode() != WebParam.Mode.IN) {
-            childNode = soapElement.addChildElement(param.name(), "", param.targetNamespace());
-
-            Object[] params = (Object[])msgCtx.getMessageObjects();
-            Method method = (Method) msgCtx.getMethod();
-
-            JAXBEncoderDecoder encoder = 
-                    new JAXBEncoderDecoder(method.getDeclaringClass().getPackage().getName());
-            encoder.marshall(params[0], new QName(param.targetNamespace(), param.name()) , childNode);
+        Object retVal = null;
+        if (isOutBound && !"void".equals(method.getReturnType().getName())) {
+            retVal = decoder.unmarshall(childNode, messageInfo.getWebResult());
+            childNode = childNode.getNextSibling();
         }
-    }    
-    
-    private void addReturn(SOAPElement soapElement ,
-            SOAPMessageInfo messageInfo, ObjectMessageContext msgCtx) throws SOAPException {
-        QName name = messageInfo.getWebResult();
-        SOAPElement childNode = soapElement.addChildElement(name.getLocalPart(), "", name.getNamespaceURI());
+
+        WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;                
+        int noArgs = method.getParameterTypes().length;
+        ArrayList<Object> replyParamList = new ArrayList<Object>();
+        int argsCnt = 0;
         
-        Object retVal = msgCtx.get("org.objectweb.celtix.return");
-        Method method = (Method) msgCtx.getMethod();
-       
+        //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
+        for (int idx = 0; idx < noArgs; idx++) {
+            WebParam param = messageInfo.getWebParam(idx);
+            if ((param.mode() != ignoreParamMode) && !param.header()) {
+                Object obj = decoder.unmarshall(
+                                childNode,
+                                new QName(param.targetNamespace(), param.name()));
+                replyParamList.add(obj);
+                childNode = childNode.getNextSibling();
+                ++argsCnt;
+            }
+        }
+        
+        objCtx.setReturn(retVal);
+        objCtx.setMessageObjects(replyParamList.toArray());
+    }    
+
+    private void addParts(Node xmlNode , SOAPMessageInfo messageInfo, 
+                          ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
+
+        Method method = messageInfo.getMethod();
         JAXBEncoderDecoder encoder = 
-                new JAXBEncoderDecoder(method.getDeclaringClass().getPackage().getName());
-        encoder.marshall(retVal, messageInfo.getWebResult(), childNode);        
+            new JAXBEncoderDecoder(method.getDeclaringClass().getPackage().getName());
+
+        if (isOutBound && !"void".equals(method.getReturnType().getName())) {
+            Object retVal = objCtx.getReturn();
+            encoder.marshall(retVal, messageInfo.getWebResult(), xmlNode);            
+        }
+
+        WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;                
+        int noArgs = method.getParameterTypes().length;
+        Object[] args = objCtx.getMessageObjects();
+        
+        //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
+        for (int idx = 0; idx < noArgs; idx++) {
+            WebParam param = messageInfo.getWebParam(idx);
+            if ((param.mode() != ignoreParamMode) && !param.header()) {
+                encoder.marshall(args[idx], 
+                                new QName(param.targetNamespace(), param.name()),
+                                xmlNode);
+            }
+        }
     }    
 }
 

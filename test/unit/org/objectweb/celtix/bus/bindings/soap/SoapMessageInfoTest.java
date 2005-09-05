@@ -33,7 +33,7 @@ public class SoapMessageInfoTest extends TestCase {
             }
         }
         
-        msgInfo = new SOAPMessageInfo(msgContext);
+        msgInfo = new SOAPMessageInfo(msgContext.getMethod());
     }
 
     protected void tearDown() throws Exception {
@@ -58,7 +58,7 @@ public class SoapMessageInfoTest extends TestCase {
     public void testGetWebResult() throws Exception {
         QName returnType = msgInfo.getWebResult();
         assertEquals(
-                new QName("responseType", "http://objectweb.org/hello_world_soap_http"), 
+                new QName("http://objectweb.org/hello_world_soap_http", "responseType"), 
                 returnType);        
     }
 

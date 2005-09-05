@@ -68,7 +68,7 @@ public class TestServerBinding extends AbstractServerBinding {
         // name
         if (currentOperation.equals("greetMe")) {
             String name = System.getProperty("user.name");
-            objContext.put("org.objectweb.celtix.parameter", (Object)new String[] {name});
+            objContext.setMessageObjects(name);
         }
     }
 

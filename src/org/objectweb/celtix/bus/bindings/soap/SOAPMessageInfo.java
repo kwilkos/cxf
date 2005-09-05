@@ -8,20 +8,20 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.soap.SOAPBinding;
 import javax.xml.namespace.QName;
-import org.objectweb.celtix.context.ObjectMessageContext;
 
 public class SOAPMessageInfo {
     private SOAPBinding soapBindAnnotation;
     private WebMethod webMethodAnnotation;
     private WebResult webResultAnnotation;
     private Annotation[][] paramAnnotations;
+    private Method method;
     
-    public SOAPMessageInfo(ObjectMessageContext msgCtx) {
-        init(msgCtx);
+    public SOAPMessageInfo(Method m) {
+        method = m;
+        init();
     }
     
-    private void init(ObjectMessageContext msgCtx) {
-        Method method = msgCtx.getMethod();
+    private void init() {
         //Get SOAP Style, Use, 
         soapBindAnnotation = method.getDeclaringClass().getAnnotation(SOAPBinding.class);
         //Get Operation,Action Info
@@ -69,8 +69,8 @@ public class SOAPMessageInfo {
     
     public QName getWebResult() {
         if (null != webResultAnnotation) {
-            return new QName(webResultAnnotation.name(), 
-                     webResultAnnotation.targetNamespace());
+            return new QName(webResultAnnotation.targetNamespace(),
+                             webResultAnnotation.name());
         }
         return SOAPConstants.EMPTY_QNAME;
     }
@@ -85,4 +85,8 @@ public class SOAPMessageInfo {
         }
         return null;
     }
+    
+    public Method getMethod() {
+        return method;
+    }    
 }

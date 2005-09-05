@@ -113,10 +113,11 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
         MessageContext requestCtx = createBindingMessageContext();
 
-        // use concrete ServerBinding to read into binding message context, e.g.
-        // in case of a SOAPBinding read the SSAJ model and insert it into
-        // a SOAPMessageContext
-
+        //Input Message
+        requestCtx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, Boolean.FALSE);
+        // use ServerBinding to read the SAAJ model and insert it into a
+        // SOAPMessageContext
+        
         try {
             read(inCtx, requestCtx);
         } catch (IOException ex) {
@@ -152,36 +153,37 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
     private MessageContext invokeOnMethod(MessageContext requestCtx) {
 
-        MessageContext replyCtx = createBindingMessageContext();
-
         // get operation name from message context and identify method
         // in implementor
-
+        //REVISIT replyCtx should be created once the method is invoked
+        MessageContext replyCtx = createBindingMessageContext();
+        
         QName operationName = getOperationName(requestCtx);
 
         if (null == operationName) {
             logger.severe("Request Context does not include operation name.");
             return replyCtx;
         }
-
-        // unmarshal arguments for method call - includes transferring the
-        // operationName from the message context into the object context
-
-        ObjectMessageContext context = createObjectContext();
-        unmarshal(requestCtx, context);
-
+        
         // get implementing method
-
         Method method = EndpointUtils.getMethod(endpoint, operationName);
         if (method == null) {
             logger.severe("Web method: " + getOperationName(requestCtx) + " not found in implementor.");
             return replyCtx;
         }
 
+        // unmarshal arguments for method call - includes transferring the
+        // operationName from the message context into the object context
+
+        ObjectMessageContext objContext = createObjectContext();
+        objContext.setMethod(method);
+       
+        unmarshal(requestCtx, objContext);
+        
         // get parameters from object context and invoke on implementor
 
         Object result = null;
-        Object params[] = (Object[])context.get("org.objectweb.celtix.parameter");
+        Object params[] = (Object[])objContext.getMessageObjects();
 
         try {
             result = method.invoke(getEndpoint().getImplementor(), params);
@@ -191,12 +193,16 @@ public abstract class AbstractServerBinding implements ServerBinding {
             logger.log(Level.SEVERE, "Failed to invoke method " + method.getName() + " on implementor.", ex);
         }
 
+
+        replyCtx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, Boolean.TRUE);
+        // marshal objects into new SSAJ model (new model for response)
+        marshal(objContext, replyCtx);
+        
         // marshal objects into response object context: parameters whose type
         // is a
         // parametrized javax.xml.ws.Holder<T> are classified as in/out or out.
-
-        context = createObjectContext();
-        context.put("org.objectweb.celtix.return", result);
+        objContext = createObjectContext();
+        objContext.setReturn(result);
         ArrayList<Object> replyParamList = new ArrayList<Object>();
         if (params != null) {
             for (Object p : params) {
@@ -205,15 +211,14 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 }
             }
         }
+        
         if (replyParamList.size() > 0) {
             Object[] replyParams = replyParamList.toArray();
-            context.put("org.objectweb.celtix.parameter", (Object)replyParams);
+            objContext.setMessageObjects(replyParams);
         }
-
-        // marshal into binding context
-
+        
         if (null != replyCtx) {
-            marshal(context, replyCtx);
+            marshal(objContext, replyCtx);
         }
 
         return replyCtx;

@@ -12,4 +12,10 @@ public interface ObjectMessageContext extends MessageContext {
     void setMethod(Method method);
     
     Method getMethod();
+    
+    void setReturn(Object retVal);
+    
+    Object getReturn();
 }
+
+

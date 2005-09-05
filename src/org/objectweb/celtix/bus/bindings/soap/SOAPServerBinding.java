@@ -67,10 +67,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
     }
 
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {
-        // TODO Marshall Objects to SAAJ using JAXB
-        // Create a SOAP Message
         try {
-            SOAPMessage msg = soapBinding.buildSoapOutputMessage(objContext);
+            SOAPMessage msg = soapBinding.marhsalMessage(objContext, context);
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
             // TODO
@@ -78,11 +76,16 @@ public class SOAPServerBinding extends AbstractServerBinding {
     }
 
     protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
-        super.unmarshal(context, objContext);
-        // TODO UnMarshall SAAJ to Objects using JAXB
+        super.unmarshal(context,  objContext);
+        try {
+            soapBinding.unmarshalMessage(context, objContext);
+        } catch (SOAPException se) {
+            //TODO
+        }
     }
 
     protected void write(MessageContext context, OutputStreamMessageContext outCtx) throws IOException {
+
         SOAPMessageContext soapCtx = (SOAPMessageContext)context;
         try {
             soapCtx.getMessage().writeTo(outCtx.getOutputStream());
@@ -92,7 +95,12 @@ public class SOAPServerBinding extends AbstractServerBinding {
     }
 
     protected void read(InputStreamMessageContext instr, MessageContext mc) throws IOException {
-        // TODO Read Stream into SOAP Message using SAAJ API
+        //REVISIT InputStreamMessageContext should be copied to MessageContext
+        try {
+            soapBinding.parseInputMessage(instr.getInputStream(), mc);
+        } catch (SOAPException se) {
+            throw new IOException(se.getMessage());
+        }          
     }
 
     protected MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode)
