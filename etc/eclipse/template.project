@@ -27,6 +27,11 @@
 			<location>@TEST_UNIT_DIR@</location>
 		</link>
 		<link>
+			<name>testsys</name>
+			<type>2</type>
+			<location>@TEST_SYS_DIR@</location>
+		</link>
+		<link>
 			<name>schemas</name>
 			<type>2</type>
 			<location>@SCHEMAS_DIR@</location>

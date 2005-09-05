@@ -46,7 +46,7 @@
             <mapper type="glob" from="*.jar" to="*.jar"/>
         </pathconvert>
         <echo file="${eclipse.project.workspace}/${eclipse.project.name}/.classpath" append="false"
-             message="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;${line.separator}&lt;classpath&gt;${line.separator}        &lt;classpathentry sourcepath=&quot;JRE_SRC&quot; kind=&quot;var&quot; path=&quot;JRE_LIB&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes&quot; kind=&quot;src&quot; path=&quot;src&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes&quot; kind=&quot;src&quot; path=&quot;buildsrc&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes-tests/wsdl&quot; kind=&quot;src&quot; path=&quot;testsrc&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes-tests/unit&quot; kind=&quot;src&quot; path=&quot;testunit&quot;/&gt;${line.separator}        &lt;classpathentry kind=&quot;src&quot; path=&quot;etc&quot;/&gt;${line.separator}        &lt;classpathentry kind=&quot;src&quot; path=&quot;schemas&quot;/&gt;${line.separator}${classpath.entry.prefix}${classpath.entries}${classpath.entry.suffix}        &lt;classpathentry kind=&quot;lib&quot; path=&quot;${junit.jar}&quot;/&gt;${line.separator}&lt;/classpath&gt;${line.separator}"/>
+             message="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;${line.separator}&lt;classpath&gt;${line.separator}        &lt;classpathentry sourcepath=&quot;JRE_SRC&quot; kind=&quot;var&quot; path=&quot;JRE_LIB&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes&quot; kind=&quot;src&quot; path=&quot;src&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes&quot; kind=&quot;src&quot; path=&quot;buildsrc&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes-tests/wsdl&quot; kind=&quot;src&quot; path=&quot;testsrc&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes-tests/unit&quot; kind=&quot;src&quot; path=&quot;testunit&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes-tests/system&quot; kind=&quot;src&quot; path=&quot;testsys&quot;/&gt;${line.separator}        &lt;classpathentry kind=&quot;src&quot; path=&quot;etc&quot;/&gt;${line.separator}        &lt;classpathentry kind=&quot;src&quot; path=&quot;schemas&quot;/&gt;${line.separator}${classpath.entry.prefix}${classpath.entries}${classpath.entry.suffix}        &lt;classpathentry kind=&quot;lib&quot; path=&quot;${junit.jar}&quot;/&gt;${line.separator}&lt;/classpath&gt;${line.separator}"/>
     </target>
 
     <target name="generate.eclipse.project.project">
@@ -58,6 +58,7 @@
         <filterset id="eclipse.project.filterset">
             <filter token="PROJECT_NAME" value="${eclipse.project.name}"/>
             <filter token="TEST_UNIT_DIR" value="${base.dir}/test/unit"/>
+            <filter token="TEST_SYS_DIR" value="${base.dir}/test/system"/>
             <filter token="SCHEMAS_DIR" value="${base.dir}/schemas"/>
             <filter token="BUILD_SRC_DIR" value="${base.dir}/build/src"/>
             <filter token="ETC_DIR" value="${base.dir}/etc"/>
