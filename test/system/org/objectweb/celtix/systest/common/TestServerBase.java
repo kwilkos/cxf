@@ -1,4 +1,4 @@
-package org.objectweb.celtix.systest.basic;
+package org.objectweb.celtix.systest.common;
 
 import java.util.logging.Logger;
 

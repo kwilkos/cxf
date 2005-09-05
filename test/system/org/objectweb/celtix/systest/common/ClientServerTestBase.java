@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common;
+package org.objectweb.celtix.systest.common;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -11,8 +11,6 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.systest.basic.TestServerBase;
-
 
 public abstract class ClientServerTestBase extends TestCase {
 

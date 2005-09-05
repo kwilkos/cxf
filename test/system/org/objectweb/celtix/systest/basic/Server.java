@@ -4,6 +4,7 @@ import javax.xml.ws.EndpointFactory;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.systest.common.TestServerBase;
 
 public class Server extends TestServerBase {
 

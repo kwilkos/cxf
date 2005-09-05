@@ -9,7 +9,7 @@ import javax.xml.ws.ServiceFactory;
 
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.ServiceFactoryImpl;
-import org.objectweb.celtix.common.ClientServerTestBase;
+import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.hello_world_soap_http.Greeter;
 
 public class ClientServerTest extends ClientServerTestBase {
