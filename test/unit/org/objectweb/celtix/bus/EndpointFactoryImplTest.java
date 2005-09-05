@@ -10,7 +10,7 @@ import javax.xml.ws.soap.SOAPBinding;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.hello_world_soap_http.CorrectlyAnnotatedGreeterImpl;
+import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 import org.objectweb.hello_world_soap_http.NotAnnotatedGreeterImpl;
 
 public class EndpointFactoryImplTest extends TestCase {
@@ -52,7 +52,7 @@ public class EndpointFactoryImplTest extends TestCase {
     
     public void testCreateWithCorrectlyAnnotatedImplementor() throws Exception {
         EndpointFactory epf = EndpointFactory.newInstance();
-        Object implementor = new CorrectlyAnnotatedGreeterImpl(); 
+        Object implementor = new AnnotatedGreeterImpl(); 
         Endpoint ep = epf.createEndpoint(new URI(SOAPBinding.SOAP11HTTP_BINDING), implementor);     
         assertNotNull(ep);
     }

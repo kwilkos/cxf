@@ -1,9 +1,11 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.jws.WebParam;
 import javax.jws.soap.SOAPBinding.Style;
@@ -25,6 +27,7 @@ import org.objectweb.celtix.bus.bindings.BindingImpl;
 import org.objectweb.celtix.context.ObjectMessageContext;
 
 public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
+    private static Logger logger = Logger.getLogger(SOAPClientBinding.class.getName());
     protected final MessageFactory msgFactory;
     protected final SOAPFactory soapFactory;
 
@@ -53,12 +56,15 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
         throw new WebServiceException("MTOM is not supported");
     }
 
-    public boolean isCompatibleWithAddress(URL address) {
-        String protocol = address.getProtocol();
-        if ("http".equals(protocol) || "https".equals(protocol)) {
-            return true;
+    public boolean isCompatibleWithAddress(String address) {
+        URL url = null;
+        try {
+            url = new URL(address);
+        } catch (MalformedURLException ex) {
+            logger.severe("Invalid address:\n" + ex.getMessage());
         }
-        return false;
+        String protocol = url.getProtocol();
+        return "http".equals(protocol) || "https".equals(protocol);
     }
     
     public SOAPMessage buildSoapInputMessage(ObjectMessageContext msgCtx) 

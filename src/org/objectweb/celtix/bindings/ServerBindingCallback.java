@@ -16,9 +16,7 @@ public class ServerBindingCallback implements Runnable {
     }
 
     public void run() {
-        
         binding.dispatch(context, transport);
-        
     }
 
 }

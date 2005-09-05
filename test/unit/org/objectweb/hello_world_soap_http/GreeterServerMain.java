@@ -21,7 +21,7 @@ public class GreeterServerMain {
         Runtime.getRuntime().addShutdownHook(
             new Thread(new GreeterServerMain().new TerminationHandler(bus, true)));
         EndpointFactory epf = EndpointFactory.newInstance();
-        Object implementor = new CorrectlyAnnotatedGreeterImpl();
+        Object implementor = new AnnotatedGreeterImpl();
         String address = "http://loalhost:8080/hello_world_soap_http";
         epf.publish(address, implementor);
         bus.run();

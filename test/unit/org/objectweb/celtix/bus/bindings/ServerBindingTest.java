@@ -17,14 +17,14 @@ import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bus.EndpointImpl;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
-import org.objectweb.hello_world_soap_http.CorrectlyAnnotatedGreeterImpl;
+import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 
 public class ServerBindingTest extends TestCase {
 
     private String epfClassName;
     private Bus bus;
     private EndpointImpl ei;
-    private CorrectlyAnnotatedGreeterImpl implementor;
+    private AnnotatedGreeterImpl implementor;
 
     public void setUp() throws Exception {
         epfClassName = System.getProperty(EndpointFactory.ENDPOINTFACTORY_PROPERTY);
@@ -34,7 +34,7 @@ public class ServerBindingTest extends TestCase {
         BindingManager bm = bus.getBindingManager();
         bm.registerBinding("http://celtix.objectweb.org/bindings/test", new TestBindingFactory(bus));
         EndpointFactory epf = EndpointFactory.newInstance();
-        implementor = new CorrectlyAnnotatedGreeterImpl();
+        implementor = new AnnotatedGreeterImpl();
         Endpoint ep = epf.createEndpoint(new URI(TestBinding.TEST_BINDING), implementor);
         ei = (EndpointImpl)ep;
     }
@@ -97,15 +97,26 @@ public class ServerBindingTest extends TestCase {
         // simulate transport events
         // REVISIT: exception handling, see comment in AbstractServerBinding
 
+        // method nor defined at all 
+        
         tsb.triggerTransport(); 
         assertEquals(0, implementor.getInvocationCount("sayHi"));
+        assertEquals(0, implementor.getInvocationCount("overloadedSayHi"));
         assertEquals(0, implementor.getInvocationCount("greetMe"));
         
+        // method without annotation
         tsb.currentOperation = "sayHi";
         tsb.triggerTransport();
         assertEquals(1, implementor.getInvocationCount("sayHi"));
+        assertEquals(0, implementor.getInvocationCount("overloadedSayHi"));
         assertEquals(0, implementor.getInvocationCount("greetMe"));
-
+       
+        // method with parameter
+        tsb.currentOperation = "greetMe";
+        tsb.triggerTransport();
+        assertEquals(1, implementor.getInvocationCount("sayHi"));
+        assertEquals(0, implementor.getInvocationCount("overloadedSayHi"));
+        assertEquals(1, implementor.getInvocationCount("greetMe")); 
     }
 
 }

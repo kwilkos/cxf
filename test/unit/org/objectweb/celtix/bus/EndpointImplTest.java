@@ -13,7 +13,7 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bus.bindings.TestBinding;
 import org.objectweb.celtix.bus.bindings.TestBindingFactory;
-import org.objectweb.hello_world_soap_http.CorrectlyAnnotatedGreeterImpl;
+import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 
 public class EndpointImplTest extends TestCase {
     private String epfClassName;
@@ -28,7 +28,7 @@ public class EndpointImplTest extends TestCase {
         BindingManager bm = bus.getBindingManager();
         bm.registerBinding(TestBinding.TEST_BINDING, new TestBindingFactory(bus));
         EndpointFactory epf = EndpointFactory.newInstance();
-        endpoint = epf.createEndpoint(new URI(TestBinding.TEST_BINDING), new CorrectlyAnnotatedGreeterImpl());
+        endpoint = epf.createEndpoint(new URI(TestBinding.TEST_BINDING), new AnnotatedGreeterImpl());
 
     }
 

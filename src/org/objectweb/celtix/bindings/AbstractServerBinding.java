@@ -3,18 +3,23 @@ package org.objectweb.celtix.bindings;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.jws.WebMethod;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.Holder;
+import javax.xml.ws.ServiceMode;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.EndpointImpl;
+import org.objectweb.celtix.bus.EndpointUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -38,10 +43,6 @@ public abstract class AbstractServerBinding implements ServerBinding {
         reference = ref;
         endpoint = ep;
     }
-
-    public ObjectMessageContext createObjectContext() {
-        return new ObjectMessageContextImpl();
-    }
     
     public Endpoint getEndpoint() {
         return endpoint;
@@ -56,6 +57,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         transport.activate(new ServerTransportCallback() {
 
             public void dispatch(InputStreamMessageContext ctx, ServerTransport t) {
+                logger.info("Constructing ServerBindingCallback with transport: " + t);
                 Runnable r = new ServerBindingCallback(ctx, t, AbstractServerBinding.this);
                 // wait for documentation and implementation of JAX-WS RI to
                 // sync up
@@ -80,15 +82,43 @@ public abstract class AbstractServerBinding implements ServerBinding {
         });
     }
 
-    void dispatch(InputStreamMessageContext ictx, ServerTransport t) {
-   
-        MessageContext bindingContext = createBindingMessageContext();
-        
-        // use ServerBinding to read the SAAJ model and insert it into a
-        // SOAPMessageContext
+    public void deactivate() throws IOException {
+        transport.deactivate();
+    }
+
+    public ObjectMessageContext createObjectContext() {
+        return new ObjectMessageContextImpl();
+    }
+
+    protected abstract TransportFactory getDefaultTransportFactory(String address);
+
+    protected abstract MessageContext createBindingMessageContext();
+
+    protected abstract void marshal(ObjectMessageContext objCtx, MessageContext replyCtx);
+
+    protected void unmarshal(MessageContext requestCtx, ObjectMessageContext objCtx) {
+        QName operationName = getOperationName(requestCtx);
+        objCtx.put(MessageContext.WSDL_OPERATION, operationName);
+    }
+
+    protected abstract void write(MessageContext replyCtx, OutputStreamMessageContext outCtx)
+        throws IOException;
+
+    protected abstract void read(InputStreamMessageContext inCtx, MessageContext context) throws IOException;
+
+    protected abstract MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode)
+        throws RemoteException;
+
+    void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
+
+        MessageContext requestCtx = createBindingMessageContext();
+
+        // use concrete ServerBinding to read into binding message context, e.g.
+        // in case of a SOAPBinding read the SSAJ model and insert it into
+        // a SOAPMessageContext
 
         try {
-            read(ictx, bindingContext);
+            read(inCtx, requestCtx);
         } catch (IOException ex) {
             ex.printStackTrace();
             return;
@@ -96,102 +126,101 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
         // invoke handlers
 
+        MessageContext replyCtx = null;
+
+        ServiceMode mode = EndpointUtils.getServiceMode(endpoint);
+        try {
+            if (null != mode) {
+                replyCtx = invokeOnProvider(requestCtx, mode);
+            } else {
+                replyCtx = invokeOnMethod(requestCtx);
+            }
+        } catch (RemoteException ex) {
+            logger.log(Level.SEVERE, "Failed to invoke on provider.", ex);
+        }
+
+        try {
+            OutputStreamMessageContext outCtx = t.createOutputStreamContext(replyCtx);
+            // TODO - invoke output stream handlers
+            t.finalPrepareOutputStreamContext(outCtx);
+
+            write(replyCtx, outCtx);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, "Failed to write response.", ex);
+        }
+    }
+
+    private MessageContext invokeOnMethod(MessageContext requestCtx) {
+
+        MessageContext replyCtx = createBindingMessageContext();
+
         // get operation name from message context and identify method
         // in implementor
 
-        Method method = getMethod(bindingContext);
-        if (method == null) {
-            logger.severe("Web method: " + getOperationName(bindingContext)
-                          + " not found in implementor.");
-            return;
+        QName operationName = getOperationName(requestCtx);
+
+        if (null == operationName) {
+            logger.severe("Request Context does not include operation name.");
+            return replyCtx;
         }
 
         // unmarshal arguments for method call - includes transferring the
-        // operationName
-        // from the message context into the object context
+        // operationName from the message context into the object context
 
-        ObjectMessageContext objContext = createObjectContext();
-        unmarshal(bindingContext, objContext);
+        ObjectMessageContext context = createObjectContext();
+        unmarshal(requestCtx, context);
 
-        // get parameters from object context
+        // get implementing method
 
-        Object args[] = (Object[])objContext.getMessageObjects();
-        
-        // REVISIT: check for correct number and type
-        
-        // invoke on implementor
+        Method method = EndpointUtils.getMethod(endpoint, operationName);
+        if (method == null) {
+            logger.severe("Web method: " + getOperationName(requestCtx) + " not found in implementor.");
+            return replyCtx;
+        }
+
+        // get parameters from object context and invoke on implementor
 
         Object result = null;
+        Object params[] = (Object[])context.get("org.objectweb.celtix.parameter");
+
         try {
-            result = method.invoke(getEndpoint().getImplementor(), args);
+            result = method.invoke(getEndpoint().getImplementor(), params);
         } catch (IllegalAccessException ex) {
-            logger.severe("Failed to invoke method " + method.getName() + " on implementor:\n"
-                          + ex.getMessage());
+            logger.log(Level.SEVERE, "Failed to invoke method " + method.getName() + " on implementor.", ex);
         } catch (InvocationTargetException ex) {
-            logger.severe("Failed to invoke method " + method.getName() + " on implementor:\n"
-                          + ex.getMessage());
+            logger.log(Level.SEVERE, "Failed to invoke method " + method.getName() + " on implementor.", ex);
         }
 
-        objContext.put("org.objectweb.celtix.return", result);
-        
-        bindingContext = createBindingMessageContext();
-        // marshal objects into new SSAJ model (new model for response)
-        marshal(objContext, bindingContext);
-        try {
-            OutputStreamMessageContext ostreamContext = transport.createOutputStreamContext(bindingContext);
-            transport.finalPrepareOutputStreamContext(ostreamContext);
+        // marshal objects into response object context: parameters whose type
+        // is a
+        // parametrized javax.xml.ws.Holder<T> are classified as in/out or out.
 
-            write(bindingContext, ostreamContext);
-        } catch (IOException ioe) {
-            logger.severe("Failed to write response for " + method.getName() + "\n"
-                          + ioe.getMessage());            
+        context = createObjectContext();
+        context.put("org.objectweb.celtix.return", result);
+        ArrayList<Object> replyParamList = new ArrayList<Object>();
+        if (params != null) {
+            for (Object p : params) {
+                if (p instanceof Holder) {
+                    replyParamList.add(p);
+                }
+            }
         }
-    }
+        if (replyParamList.size() > 0) {
+            Object[] replyParams = replyParamList.toArray();
+            context.put("org.objectweb.celtix.parameter", (Object)replyParams);
+        }
 
-    public void deactivate() throws IOException {
-        transport.deactivate();
-    }
+        // marshal into binding context
 
-    protected abstract TransportFactory getDefaultTransportFactory(String address);
+        if (null != replyCtx) {
+            marshal(context, replyCtx);
+        }
 
-    protected abstract MessageContext createBindingMessageContext();
-
-    protected abstract void read(InputStreamMessageContext inCtx, 
-                                 MessageContext context) throws IOException;
-
-    protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
-        QName operationName = getOperationName(context);
-        objContext.put(MessageContext.WSDL_OPERATION, operationName);
+        return replyCtx;
     }
     
-    protected abstract void marshal(ObjectMessageContext objContext, MessageContext context);
-
-    protected abstract void write(MessageContext context, OutputStreamMessageContext outCtx)
-        throws IOException;
-
     private QName getOperationName(MessageContext ctx) {
         return (QName)ctx.get(MessageContext.WSDL_OPERATION);
     }
 
-    private Method getMethod(MessageContext ctx) {
-        QName operation = getOperationName(ctx);
-        String operationName = operation.getLocalPart();
-        Method method = null;
-        Object implementor = getEndpoint().getImplementor();
-        Method[] methods = implementor.getClass().getMethods();
-        for (Method m : methods) {
-            if (m.getName().equals(operationName)) {
-                method = m;
-                WebMethod wm = (WebMethod)m.getAnnotation(WebMethod.class);
-                if (wm != null && wm.operationName().equals(operation)) {
-                    break;
-                }
-                // assume this is an overloaded version of the method we are
-                // looking for
-                // continue searching for a better match
-            }
-        }
-        return method;
-
-    }
 }

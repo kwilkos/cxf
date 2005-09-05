@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.Provider;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.objectweb.celtix.Bus;
@@ -27,14 +26,7 @@ public class EndpointFactoryImpl extends javax.xml.ws.EndpointFactory {
     @Override
     public Endpoint createEndpoint(URI bindingId, Object implementor) {
         Endpoint ep = null;
-        if (implementor instanceof Provider) {
-            // should use different Endpoint implementation for provider based
-            // endpoints
-            // for now, support only Java SEIs
-            return null;
-        }
-        // implementor must be a class annotated with the WebService annotation
-        if (checkAnnotations(implementor)) {
+        if (EndpointUtils.isValidImplementor(implementor)) {
             try {
                 ep = new EndpointImpl(Bus.getCurrent(), implementor, bindingId);
             } catch (BusException ex) {
@@ -46,7 +38,6 @@ public class EndpointFactoryImpl extends javax.xml.ws.EndpointFactory {
                       + " and does not implement the Provider interface.");
         return null;
     }
-
     /*
      * (non-Javadoc)
      * 

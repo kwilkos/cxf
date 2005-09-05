@@ -1,12 +1,14 @@
 package org.objectweb.celtix.bus.bindings;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.logging.Logger;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.ServiceMode;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
@@ -64,6 +66,10 @@ public class TestServerBinding extends AbstractServerBinding {
         super.unmarshal(context, objContext);
         // populate object context with test data depending on current operation
         // name
+        if (currentOperation.equals("greetMe")) {
+            String name = System.getProperty("user.name");
+            objContext.put("org.objectweb.celtix.parameter", (Object)new String[] {name});
+        }
     }
 
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {
@@ -82,6 +88,11 @@ public class TestServerBinding extends AbstractServerBinding {
 
     public boolean isCompatibleWithAddress(String address) {
         return null != address && address.startsWith(schemeName);
+    }
+    
+    protected MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode) 
+        throws RemoteException {
+        return null;
     }
 
     ServerTransport getTransport() {
@@ -139,7 +150,7 @@ public class TestServerBinding extends AbstractServerBinding {
         }
 
         public void fire() {
-            callback.dispatch(null, null);
+            callback.dispatch(null, this);
         }
     }
 }

@@ -1,8 +1,6 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.logging.Logger;
 
 import javax.xml.soap.SOAPException;
@@ -33,14 +31,7 @@ public class SOAPClientBinding extends GenericClientBinding {
     }
     
     public boolean isCompatibleWithAddress(String address) {
-        URL url = null;
-        try {
-            url = new URL(address);
-        } catch (MalformedURLException ex) {
-            logger.severe("Invalid address:\n" + ex.getMessage());
-        }
-        String protocol = url.getProtocol();
-        return "http".equals(protocol) || "https".equals(protocol);
+        return soapBinding.isCompatibleWithAddress(address);
     }
 
     protected MessageContext createBindingMessageContext() {
