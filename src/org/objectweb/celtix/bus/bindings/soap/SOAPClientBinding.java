@@ -40,7 +40,7 @@ public class SOAPClientBinding extends GenericClientBinding {
 
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {
         try {
-            SOAPMessage msg = soapBinding.marhsalMessage(objContext, context);
+            SOAPMessage msg = soapBinding.marshalMessage(objContext, context);
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
             //TODO
@@ -48,7 +48,11 @@ public class SOAPClientBinding extends GenericClientBinding {
     }
 
     protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
-        //TODO UnMarshall SAAJ to Objects using JAXB
+        try {
+            soapBinding.unmarshalMessage(context, objContext);
+        } catch (SOAPException se) {
+            // TODO - handle exceptions
+        }
     }
 
     protected void write(MessageContext context, 
@@ -61,8 +65,12 @@ public class SOAPClientBinding extends GenericClientBinding {
         }
     }
 
-    protected void read(InputStreamMessageContext instr, 
-            MessageContext mc) throws IOException {
-        //TODO Read Stream into SOAP Message using SAAJ API
+    protected void read(InputStreamMessageContext inCtx,
+            MessageContext context) throws IOException {
+        try {
+            soapBinding.parseInputMessage(inCtx.getInputStream(), context);
+        } catch (SOAPException se) {
+            throw new IOException(se.getMessage());
+        }
     }
 }

@@ -51,7 +51,7 @@ public class SoapBindingImplTest extends TestCase {
         String arg0 = new String("TestSOAPInputPMessage");
         objContext.setMessageObjects(arg0);
 
-        SOAPMessage msg = binding.marhsalMessage(objContext, soapContext);
+        SOAPMessage msg = binding.marshalMessage(objContext, soapContext);
         soapContext.setMessage(msg);
         assertNotNull(msg);
         assertTrue(msg.getSOAPBody().hasChildNodes());
@@ -67,7 +67,7 @@ public class SoapBindingImplTest extends TestCase {
         String arg0 = new String("TestSOAPOutputMessage");
         objContext.setReturn(arg0);
         
-        SOAPMessage msg = binding.marhsalMessage(objContext, soapContext);
+        SOAPMessage msg = binding.marshalMessage(objContext, soapContext);
         soapContext.setMessage(msg);
         assertNotNull(msg);
         assertTrue(msg.getSOAPBody().hasChildNodes());

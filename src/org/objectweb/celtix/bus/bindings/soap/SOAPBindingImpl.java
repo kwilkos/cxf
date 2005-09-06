@@ -77,7 +77,7 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
         return msgFactory;
     }
     
-    public SOAPMessage marhsalMessage(ObjectMessageContext objContext, MessageContext mc) 
+    public SOAPMessage marshalMessage(ObjectMessageContext objContext, MessageContext mc) 
         throws SOAPException {
 
         boolean isInputMsg = (Boolean)mc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);

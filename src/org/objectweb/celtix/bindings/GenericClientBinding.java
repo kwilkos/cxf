@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -104,7 +105,9 @@ public abstract class GenericClientBinding implements ClientBinding {
         read(ins, bindingContext);
         
         // TODO - invoke binding handlers
-        context = createObjectContext();        
+        Method m = context.getMethod();
+        context = createObjectContext();
+        context.setMethod(m);
         unmarshal(bindingContext, context);
         
         // TODO - invoke object handlers

@@ -68,7 +68,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
 
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {
         try {
-            SOAPMessage msg = soapBinding.marhsalMessage(objContext, context);
+            SOAPMessage msg = soapBinding.marshalMessage(objContext, context);
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
             // TODO

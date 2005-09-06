@@ -60,7 +60,7 @@ public class ProviderMessageContext implements Map<String, Object> {
     }
 
     public boolean isEmpty() {
-        return size() > 0;
+        return size() == 0;
     }
 
     public Set<String> keySet() {
