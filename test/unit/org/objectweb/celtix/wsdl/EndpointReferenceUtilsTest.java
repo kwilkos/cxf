@@ -14,7 +14,6 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.addressing.ObjectFactory;
-import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 
 public class EndpointReferenceUtilsTest extends TestCase {
 
@@ -84,6 +83,7 @@ public class EndpointReferenceUtilsTest extends TestCase {
         assertNotNull("Could not find port", port);             
     } 
     
+    /*
     public void testGetWSDLDefinitionFromImplementation() throws Exception {
         Bus bus = Bus.init();
         Object implementor = new AnnotatedGreeterImpl();
@@ -97,6 +97,7 @@ public class EndpointReferenceUtilsTest extends TestCase {
         // WSDLWriter writer = manager.getWSDLFactory().newWSDLWriter();
         // writer.writeWSDL(def, System.out);     
     }
+    */
 
     public void testGetEndpointReference() throws Exception  {
         Bus bus = Bus.init(new String[0]);
