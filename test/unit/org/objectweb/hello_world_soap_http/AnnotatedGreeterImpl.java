@@ -13,9 +13,9 @@ public class AnnotatedGreeterImpl implements Greeter {
     private HashMap<String, Integer> invocationCount = new HashMap<String, Integer>();
 
     public AnnotatedGreeterImpl() {
-        invocationCount.put("sayHi", new Integer(0));
-        invocationCount.put("greetMe", new Integer(0));
-        invocationCount.put("overloadedSayHi", new Integer(0));
+        invocationCount.put("sayHi", 0);
+        invocationCount.put("greetMe", 0);
+        invocationCount.put("overloadedSayHi", 0);
     }
 
     public int getInvocationCount(String method) {
@@ -52,8 +52,8 @@ public class AnnotatedGreeterImpl implements Greeter {
 
     private void incrementInvocationCount(String method) {
         logger.info("Executing " + method);
-        int n = invocationCount.get(method).intValue();
-        invocationCount.put(method, new Integer(n + 1));
+        int n = invocationCount.get(method);
+        invocationCount.put(method, n + 1);
     }
 
 }

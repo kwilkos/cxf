@@ -4,18 +4,45 @@ import java.util.logging.Logger;
 
 import junit.framework.Assert;
 
-public abstract class TestServerBase extends Assert implements Runnable {
-        
-    private static final Logger LOG = Logger.getLogger(TestServerBase.class.getName());
-    
-    private static final long DEFAULT_STARTUP_TIMEOUT = 30 * 1000;
-    private static final long DEFAULT_SERVER_TIMEOUT = 3 * 60 * 1000;
-    
-    private final Mutex readyMutex = new Mutex();
-    private final Mutex runningMutex = new Mutex();
+import org.objectweb.celtix.Bus;
 
-    private boolean serverIsReady;
-    private boolean serverIsRunning;
+public abstract class TestServerBase extends Assert{
+    
+    private static final Logger LOG = Logger.getLogger(TestServerBase.class.getName());
+    private Bus bus;
+    
+    /** 
+     * template method implemented by test servers.  Initialise 
+     * servants and publish endpoints etc.
+     *
+     */
+    protected abstract void run(); 
+    
+    
+    public void start() {
+        try { 
+            LOG.info("initialise bus");
+            bus = Bus.init();
+            LOG.info("creating monitor thread");
+            createShutdownMonitorThread();
+            LOG.info("running server");
+            run();
+            System.out.println("server ready");
+            LOG.info("running bus");
+            bus.run();
+            
+        } catch(Exception ex) {
+            ex.printStackTrace();
+            startFailed();
+        } finally { 
+            LOG.info("server stopped");
+        }
+    }
+    
+    public Bus getBus() {
+        return bus; 
+    }
+    
     
     public void setUp() throws Exception {
         // emtpy
@@ -26,81 +53,30 @@ public abstract class TestServerBase extends Assert implements Runnable {
     }
     
     protected void ready() {
-        synchronized (readyMutex) {
-            LOG.info("server is ready");
-            serverIsReady = true;
-            readyMutex.notifyAll();
-        }
-        synchronized (runningMutex) {
-            serverIsRunning = true;
-            TimeoutCounter tc = new TimeoutCounter(DEFAULT_SERVER_TIMEOUT);
-            do { 
-                try { 
-                    runningMutex.wait(DEFAULT_SERVER_TIMEOUT);
-                    if (tc.isTimeoutExpired()) {
-                        LOG.info("server timeout expired");
-                        break;
-                    }
-                } catch (InterruptedException ex) { 
-                    // emtpy
-                }
-            } while (serverIsRunning);
-            LOG.info("server shutting down");
-        }
+        System.out.println("server is ready");
     }
     
-   
+    
     protected void startFailed() {
-        synchronized (readyMutex) {
-            LOG.info("server startup failed");
-            serverIsReady = false; 
-            readyMutex.notifyAll();
-        }
+        System.out.println("server startup failed");
+        System.exit(-1);        
     }
     
-   
-    public void stopServer() { 
-        synchronized (runningMutex) {
-            LOG.info("stopping server");
-            serverIsRunning = false; 
-            runningMutex.notifyAll();
-        }
-    }
-    
-    
-    public boolean waitForReady() {
-        LOG.info("waiting for server");
-
-        synchronized (readyMutex) {
-            TimeoutCounter tc = new TimeoutCounter(DEFAULT_STARTUP_TIMEOUT);        
-            do { 
-                try {            
-                    readyMutex.wait(DEFAULT_STARTUP_TIMEOUT);
-                    if (tc.isTimeoutExpired()) {
-                        break;
-                    }
-                } catch (InterruptedException e) {
-                    // emtpy
+    private void createShutdownMonitorThread() { 
+        Thread t = new Thread() { 
+            public void run() {
+                try { 
+                    // wait for a key press then shut 
+                    // down the server
+                    //
+                    System.in.read(); 
+                    LOG.info("stopping bus");
+                    bus.shutdown(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
-            } while (!serverIsReady);
-            LOG.info("server has started: " + serverIsReady);
-            return serverIsReady; 
-        }
-    }
-    
-    static class TimeoutCounter {
-        private final long expectedEndTime; 
-        
-        public TimeoutCounter(long theExpectedTimeout) { 
-            expectedEndTime = System.currentTimeMillis() + theExpectedTimeout;
-        }
-        
-        public boolean isTimeoutExpired() {
-            return System.currentTimeMillis() > expectedEndTime;
-        }
-    }
-    
-    class Mutex {
-        // emtpy
+            }
+        };
+        t.start();
     }
 }
