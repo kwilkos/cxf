@@ -1,6 +1,7 @@
 package org.objectweb.celtix.wsdl;
 
 import java.net.URL;
+
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.xml.bind.JAXBContext;
@@ -13,6 +14,7 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.addressing.ObjectFactory;
+import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 
 public class EndpointReferenceUtilsTest extends TestCase {
 
@@ -59,6 +61,7 @@ public class EndpointReferenceUtilsTest extends TestCase {
         Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
         assertNotNull("Could not find port", port);             
     }
+    
     public void testGetWSDLDefinitionEmbeddedWsdl() throws Exception  {
         Bus bus = Bus.init(new String[0]);
         
@@ -79,7 +82,21 @@ public class EndpointReferenceUtilsTest extends TestCase {
                          
         Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
         assertNotNull("Could not find port", port);             
-    }    
+    } 
+    
+    public void testGetWSDLDefinitionFromImplementation() throws Exception {
+        Bus bus = Bus.init();
+        Object implementor = new AnnotatedGreeterImpl();
+        WSDLManager manager = bus.getWSDLManager();
+        EndpointReferenceType ref = 
+            EndpointReferenceUtils.getEndpointReference(manager, implementor);
+        Definition def = EndpointReferenceUtils.getWSDLDefinition(manager, ref);
+        assertNotNull("Could not load wsdl", def);
+        Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+        assertNotNull("Could not find port", port);
+        // WSDLWriter writer = manager.getWSDLFactory().newWSDLWriter();
+        // writer.writeWSDL(def, System.out);     
+    }
 
     public void testGetEndpointReference() throws Exception  {
         Bus bus = Bus.init(new String[0]);

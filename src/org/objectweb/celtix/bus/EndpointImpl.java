@@ -2,14 +2,11 @@ package org.objectweb.celtix.bus;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import javax.jws.WebService;
 import javax.wsdl.WSDLException;
-import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
@@ -41,8 +38,7 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
         bus = b;
         implementor = impl;
         configuration = null; // new EndpointConfiguration(Bus, this);
-        reference = EndpointReferenceUtils.getEndpointReference(getWsdlLocation(), getServiceName(),
-                                                                getPortName().getLocalPart());
+        reference = EndpointReferenceUtils.getEndpointReference(bus.getWSDLManager(), implementor);
         serverBinding = createServerBinding(bindingId);
         executor = bus.getWorkQueueManager().getAutomaticWorkQueue();
         assert null != executor;
@@ -187,33 +183,6 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
         return reference;
     }
 
-    javax.jws.WebService getWebServiceAnnotation() {
-        return (WebService)implementor.getClass().getAnnotation(WebService.class);
-    }
-
-    QName getServiceName() {
-        javax.jws.WebService wsAnnotation = getWebServiceAnnotation();
-        return new QName(wsAnnotation.targetNamespace(), wsAnnotation.serviceName());
-    }
-
-    QName getPortName() {
-        javax.jws.WebService wsAnnotation = getWebServiceAnnotation();
-        return new QName(wsAnnotation.targetNamespace(), wsAnnotation.endpointInterface());
-    }
-
-    URL getWsdlLocation() {
-        javax.jws.WebService wsAnnotation = getWebServiceAnnotation();
-        URL url = null;
-
-        try {
-            url = new URL(wsAnnotation.wsdlLocation());
-        } catch (java.net.MalformedURLException mue) {
-            logger.severe("Could not create URL from annotated wsdl location:\n" + mue);
-        }
-
-        return url;
-    }
-
     ServerBinding createServerBinding(URI bindingId) throws BusException {
         BindingManager bm = bus.getBindingManager();
         BindingFactory factory = bm.getBindingFactory(bindingId.toString());
@@ -244,10 +213,5 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
                           + ex.getMessage());
         }
     }
-
-    /*
-     * boolean isProvider() { return this instanceof
-     * javax.xml.ws.server.Provider; }
-     */
 
 }

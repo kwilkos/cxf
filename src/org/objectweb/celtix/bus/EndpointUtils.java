@@ -33,9 +33,8 @@ public final class EndpointUtils {
      * implements the specified operation. This assumes that the
      * <code>Endpoint</code>'s implementor is annotated with the
      * <code>WebService</code> annotation. The implementor's (public) methods
-     * need not necessarily be annotated. 
-     * REVISIT: Does the implementor have to implement an SEI, or does it even
-     * have to implement the Remote interface?
+     * need not necessarily be annotated. REVISIT: Does the implementor have to
+     * implement an SEI, or does it even have to implement the Remote interface?
      * 
      * @param endpoint
      * @param operationName
@@ -116,21 +115,18 @@ public final class EndpointUtils {
 
     public static boolean isValidImplementor(Object implementor) {
         if (implementor instanceof Provider) {
-            return true;          
+            return true;
         }
-        
-        // implementor MUST be an instance of a class with a WebService annotation 
-        // (that implements an SEI) OR a Provider
-        
-        WebService iws = (WebService)implementor.getClass().getAnnotation(WebService.class);
 
-        if (null == iws) {
+        // implementor MUST be an instance of a class with a WebService
+        // annotation
+        // (that implements an SEI) OR a Provider
+
+        if (null == implementor.getClass().getAnnotation(WebService.class)) {
             logger.info("Implementor is not annotated with WebService annotation.");
             return false;
         }
-        
-        return true;
-         
-    }
 
+        return true;
+    }
 }

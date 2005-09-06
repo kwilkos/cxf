@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
 
-import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.soap.SOAPBinding;
 
@@ -73,12 +72,4 @@ public class EndpointFactoryImpl extends javax.xml.ws.EndpointFactory {
         }
         return null;
     }
-
-    boolean checkAnnotations(Object implementor) {
-        javax.jws.WebService wsAnnotation = (WebService)implementor.getClass()
-            .getAnnotation(WebService.class);
-
-        return null != wsAnnotation;
-    }
-
 }

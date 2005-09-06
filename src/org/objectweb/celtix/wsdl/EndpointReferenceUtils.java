@@ -1,10 +1,12 @@
 package org.objectweb.celtix.wsdl;
 
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.jws.WebService;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
@@ -26,22 +28,22 @@ import org.objectweb.celtix.addressing.wsdl.ServiceNameType;
 public final class EndpointReferenceUtils {
 
     private static final Logger LOG = Logger.getLogger(EndpointReferenceUtils.class.getName());
-    
-    private static final QName WSDL_LOCATION = 
-            new QName("http://www.w3.org/2004/08/wsdl-instance", "wsdlLocation");
+
+    private static final QName WSDL_LOCATION = new QName("http://www.w3.org/2004/08/wsdl-instance",
+                                                         "wsdlLocation");
+    private static final QName SEI = new QName("http://www.w3.org/2004/08/wsdl-instance", "sei");
     private static final QName SERVICE_NAME = new QName("http://www.w3.org/2004/08/wsdl", "service");
     private static final QName PORT_NAME = new QName("http://www.w3.org/2004/08/wsdl", "port");
 
     private EndpointReferenceUtils() {
-        //Utility class - never constructed
+        // Utility class - never constructed
     }
-
 
     public static Definition getWSDLDefinition(WSDLManager manager, EndpointReferenceType ref)
         throws WSDLException {
         MetadataType metadata = ref.getMetadata();
         String location = (String)metadata.getOtherAttributes().get(WSDL_LOCATION);
-        
+
         if (null != location) {
             return manager.getDefinition(location);
         }
@@ -54,15 +56,28 @@ public final class EndpointReferenceUtils {
                 }
             }
         }
+
+        Map<QName, String> attribMap = metadata.getOtherAttributes();
+        String className = attribMap.get(SEI);
+        if (null != className) {
+            Class sei = null;
+            try {
+                sei = Class.forName(className, true, manager.getClass().getClassLoader());
+            } catch (ClassNotFoundException ex) {
+                LOG.log(Level.SEVERE, "Could not load Webservice SEI", ex);
+                return null;
+            }
+            return manager.getDefinition(sei);
+        }
+
         return null;
     }
 
-    public static Port getPort(WSDLManager manager, EndpointReferenceType ref)
-        throws WSDLException {
+    public static Port getPort(WSDLManager manager, EndpointReferenceType ref) throws WSDLException {
 
         Definition def = getWSDLDefinition(manager, ref);
         assert def != null : "unable to find definition for reference " + ref;
-        
+
         MetadataType metadata = ref.getMetadata();
         for (Object obj : metadata.getAny()) {
             if (obj instanceof Element) {
@@ -73,9 +88,7 @@ public final class EndpointReferenceUtils {
                         Unmarshaller u = context.createUnmarshaller();
                         obj = u.unmarshal(el);
                     } catch (JAXBException jaxbex) {
-                        throw new WSDLException(WSDLException.PARSER_ERROR,
-                                                "Problem parsing WSDL",
-                                                jaxbex);
+                        throw new WSDLException(WSDLException.PARSER_ERROR, "Problem parsing WSDL", jaxbex);
                     }
                 }
             }
@@ -106,7 +119,8 @@ public final class EndpointReferenceUtils {
             if (service == null) {
                 throw new WSDLException(WSDLException.OTHER_ERROR, "Cannot find service for " + serviceName);
             }
-            String str = attribMap.get(PORT_NAME);            //return service.getPort(str);
+            String str = attribMap.get(PORT_NAME); // return
+            // service.getPort(str);
             LOG.log(Level.FINE, "getting port " + str + " from service " + service.getQName());
             Port port = service.getPort(str);
             if (port == null) {
@@ -116,8 +130,8 @@ public final class EndpointReferenceUtils {
         }
         // TODO : throw exception here
         return null;
-    } 
-    
+    }
+
     public static String getAddress(EndpointReferenceType ref) {
         AttributedURIType a = ref.getAddress();
         if (null != a) {
@@ -126,9 +140,9 @@ public final class EndpointReferenceUtils {
         // should wsdl be parsed for an address now?
         return null;
     }
-    
+
     public static void setAddress(EndpointReferenceType ref, String address) {
-        AttributedURIType a = new ObjectFactory().createAttributedURIType(); 
+        AttributedURIType a = new ObjectFactory().createAttributedURIType();
         a.setValue(address);
         ref.setAddress(a);
     }
@@ -139,11 +153,57 @@ public final class EndpointReferenceUtils {
         EndpointReferenceType reference = new EndpointReferenceType();
         reference.setMetadata(new MetadataType());
         Map<QName, String> attribMap = reference.getMetadata().getOtherAttributes();
-        
+
         attribMap.put(WSDL_LOCATION, wsdlUrl.toString());
         attribMap.put(SERVICE_NAME, serviceName.toString());
-        attribMap.put(PORT_NAME, portName);      
-        
+        attribMap.put(PORT_NAME, portName);
+
+        return reference;
+    }
+
+    public static EndpointReferenceType getEndpointReference(WSDLManager manager, Object implementor) {
+
+        WebService ws = (WebService)implementor.getClass().getAnnotation(WebService.class);
+        if (null == ws) {
+            return null;
+        }
+
+        EndpointReferenceType reference = new EndpointReferenceType();
+        reference.setMetadata(new MetadataType());
+        Map<QName, String> attribMap = reference.getMetadata().getOtherAttributes();
+
+        String serviceName = ws.serviceName();
+        if (null == serviceName || "".equals(serviceName)) {
+            serviceName = implementor.getClass().getSimpleName() + "Service";
+        }
+
+        attribMap.put(SERVICE_NAME, serviceName.toString());
+
+        String url = ws.wsdlLocation();
+        if (null != url) {
+            attribMap.put(WSDL_LOCATION, url);
+        } else {
+            String className = ws.endpointInterface();
+
+            if (null == className) {
+                Class[] interfaces = implementor.getClass().getInterfaces();
+                for (Class c : interfaces) {
+                    Annotation[] as = c.getAnnotations();
+                    for (Annotation a : as) {
+                        if (a instanceof WebService) {
+                            className = c.getName();
+                            break;
+                        }
+                    }
+                }
+                if (null == className) {
+                    className = implementor.getClass().getName();
+                }
+            }
+
+            attribMap.put(SEI, className);
+        }
+
         return reference;
     }
 }
