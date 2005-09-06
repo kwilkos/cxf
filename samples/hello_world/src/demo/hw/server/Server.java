@@ -26,19 +26,7 @@ public class Server implements Runnable {
     
     public static void main(String args[]) throws Exception {
         Server server = new Server(args);
-        Thread t = new Thread(server);
-        t.start();
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException ex) {
-            // ignore
-        }
-        System.out.print("Press any key to terminate the server ...");
-        int c = System.in.read();
-        
-        server.shutdown(true);
-        
-        t.join();  
+	server.run();
     }
     
     public void run() {

@@ -24,6 +24,7 @@
 	<property name="jaxws.lib.dir" location="${env.JAXWS_HOME}/lib"/>
 
 	<path id="celtix.build.classpath">	
+		<pathelement location="${basedir}/../../build/classes"/>
 		<pathelement location="${basedir}/../../build/lib/celtix.jar"/>
 		<pathelement location="${basedir}/build/classes"/>
 		<fileset dir="${jaxws.lib.dir}">

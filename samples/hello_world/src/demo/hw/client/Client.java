@@ -37,7 +37,7 @@ public class Client {
 			
 			Service service = factory.createService(wsdl.toURL(), serviceName);
                         Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
-                        String greeting = greeter.sayHi();
+                        String greeting = greeter.greetMe("blah");
                         System.out.println("response from service: " +  greeting);
                         
 		} catch(Exception ex) {
