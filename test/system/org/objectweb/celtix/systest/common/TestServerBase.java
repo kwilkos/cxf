@@ -6,7 +6,7 @@ import junit.framework.Assert;
 
 import org.objectweb.celtix.Bus;
 
-public abstract class TestServerBase extends Assert{
+public abstract class TestServerBase extends Assert {
     
     private static final Logger LOG = Logger.getLogger(TestServerBase.class.getName());
     private Bus bus;
@@ -31,7 +31,7 @@ public abstract class TestServerBase extends Assert{
             LOG.info("running bus");
             bus.run();
             
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             startFailed();
         } finally { 

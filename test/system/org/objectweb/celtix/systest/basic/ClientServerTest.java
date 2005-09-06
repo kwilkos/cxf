@@ -16,17 +16,17 @@ import org.objectweb.hello_world_soap_http.Greeter;
 
 public class ClientServerTest extends ClientServerTestBase {
     
+    ServerLauncher sl = new ServerLauncher(Server.class.getName());
+    
     private QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");    
     private QName portName = new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
     
-    
-    ServerLauncher sl = new ServerLauncher(Server.class.getName());
-    
+     
     public void setUp() throws BusException {
         try { 
             super.setUp();
             assertTrue("server launch failed", sl.launchServer());
-        } catch(IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
             fail(ex.toString());
         }
