@@ -26,7 +26,7 @@ public class ClientServerTest extends ClientServerTestBase {
         
     public void testBasicConnection() throws RemoteException {
         
-        URL wsdl = getClass().getResource("resources/hello_world.wsdl");
+        URL wsdl = getClass().getResource("../resource/hello_world.wsdl");
         ServiceFactory factory = ServiceFactory.newInstance();
         assertNotNull(factory);
         assertTrue(factory.getClass().getName(), factory instanceof ServiceFactoryImpl);
@@ -35,12 +35,11 @@ public class ClientServerTest extends ClientServerTestBase {
         assertNotNull(service);
         
         Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
-        String greeting = greeter.sayHi();
+        String greeting = greeter.greetMe("Hello-Milestone");
         assertNotNull("no response received from service", greeting);
         System.out.println("response from service: " +  greeting);
     } 
-    
-    
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ClientServerTest.class);
     }

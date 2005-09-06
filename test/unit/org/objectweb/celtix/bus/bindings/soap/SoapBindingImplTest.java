@@ -78,27 +78,20 @@ public class SoapBindingImplTest extends TestCase {
     
     public void testParseDocLiteralInputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation
-        StringBuffer str = new StringBuffer();
-        str.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        str.append("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">");
-        str.append("<SOAP-ENV:Body>");
-        str.append("<requestType xmlns=\"http://objectweb.org/hello_world_soap_http\">");
-        str.append("TestSOAPInputPMessage");
-        str.append("</requestType>");
-        str.append("</SOAP-ENV:Body>");
-        str.append("</SOAP-ENV:Envelope>");
-
-        ByteArrayInputStream in = new ByteArrayInputStream(str.toString().getBytes());
+        QName elName = new QName("http://objectweb.org/hello_world_soap_http", "requestType");
+        String data = new String("TestSOAPInputMessage");
+        String str = createSOAPMessage(elName, data);        
+        
+        ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
         binding.parseInputMessage(in, soapContext);
 
         SOAPMessage msg = soapContext.getMessage();
         assertNotNull(msg);
         assertTrue(msg.getSOAPBody().hasChildNodes());
         NodeList list = msg.getSOAPBody().getChildNodes();
+
         assertEquals(1, list.getLength());
-        
-        String arg0 = new String("TestSOAPInputPMessage");
-        assertEquals(arg0, list.item(0).getFirstChild().getNodeValue());
+        assertEquals(data, list.item(0).getFirstChild().getNodeValue());
     }
     
     public void testUnmarshalDocLiteralInputMessage() throws Exception {
@@ -107,7 +100,7 @@ public class SoapBindingImplTest extends TestCase {
         String data = new String("TestSOAPInputMessage");
         String str = createSOAPMessage(elName, data);        
         
-        ByteArrayInputStream in = new ByteArrayInputStream(str.toString().getBytes());
+        ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
         soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, false);
 
         assertNotNull(binding.getMessageFactory());
@@ -128,7 +121,7 @@ public class SoapBindingImplTest extends TestCase {
         QName elName = new QName("http://objectweb.org/hello_world_soap_http", "responseType");
         String data = new String("TestSOAPOutputMessage");
         String str = createSOAPMessage(elName, data);
-        ByteArrayInputStream in = new ByteArrayInputStream(str.toString().getBytes());
+        ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
 
         soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, true);        
         assertNotNull(binding.getMessageFactory());
