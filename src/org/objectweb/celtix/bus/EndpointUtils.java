@@ -38,7 +38,7 @@ public final class EndpointUtils {
      * 
      * @param endpoint
      * @param operationName
-     * @return
+     * @return the <code>Method</code> in the <code>Endpoint</code>'s implementor.
      */
 
     public static Method getMethod(Endpoint endpoint, QName operationName) {

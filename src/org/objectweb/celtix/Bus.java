@@ -19,7 +19,7 @@ public abstract class Bus {
     /**
      * Returns a newly created and fully initialised <code>Bus</code>.
      * 
-     * @return Bus the newly created <code<Bus</code>.
+     * @return Bus the newly created <code>Bus</code>.
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
     public static synchronized Bus init() throws BusException {
@@ -31,7 +31,7 @@ public abstract class Bus {
      * 
      * @param args any args, such as domain name, bus class, and other configuration
      * options that can be used to initialize this <code>Bus</code>.
-     * @return Bus the newly created <code<Bus</code>.
+     * @return Bus the newly created <code>Bus</code>.
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
     public static synchronized Bus init(String[] args) throws BusException {
@@ -47,7 +47,7 @@ public abstract class Bus {
      * options that can be used to identify and initialize this <code>Bus</code>. 
      * The properties are superceded by the settings in the <code>args</code> parameter,
      * and they in turn supercede system properties.
-     * @return Bus the newly created <code<Bus</code>.
+     * @return Bus the newly created <code>Bus</code>.
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
     public static synchronized Bus init(String[] args, Map<String, Object> properties) throws BusException {
@@ -65,7 +65,7 @@ public abstract class Bus {
      * and they in turn supercede system properties.
      * @param classLoader an optional classloader to use when instantiating a <code>Bus</code>
      * needs to be instantiated (defaults to the current thread's context classloader).
-     * @return Bus the newly created <code<Bus</code>.
+     * @return Bus the newly created <code>Bus</code>.
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
     public static synchronized Bus init(String[] args, 

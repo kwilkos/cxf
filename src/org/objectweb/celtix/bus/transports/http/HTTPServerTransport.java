@@ -116,8 +116,7 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
     }
     
     /**
-     * @param context The associated MessageContext.
-     * @return the context that will be used to obtain the OutputStream
+     * @param context The <code>OutputStreamMessageContext</code> to prepare.
      */
     public void finalPrepareOutputStreamContext(OutputStreamMessageContext context)
         throws IOException {

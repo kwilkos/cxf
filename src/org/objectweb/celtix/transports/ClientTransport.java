@@ -25,8 +25,7 @@ public interface ClientTransport extends Transport {
         throws IOException;
     
     /**
-     * @param context The associated MessageContext.
-     * @return the context that will be used to obtain the OutputStream
+     * @param context The <code>OutputStreamMessageContext</code> to prepare.
      */
     void finalPrepareOutputStreamContext(OutputStreamMessageContext context)
         throws IOException;

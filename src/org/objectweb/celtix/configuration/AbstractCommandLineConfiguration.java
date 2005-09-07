@@ -28,11 +28,8 @@ public abstract class AbstractCommandLineConfiguration implements Configuration 
      * Parses the arguments and initialises the options. 
      * 
      * @param args the command line arguments
-     * @param consume specifies whether the command line options and their arguments
-     * should be removed from the command line after processing.
-     * @return boolean returns false if an unrecognised command line argument 
-     * was found or no vaue or an in correct value was specified for an option
-     * that requires arguments.
+     * @param consume specifies whether the command line options and their
+     * arguments should be removed from the command line after processing.
      */
     protected void parseCommandLine(String[] args, boolean consume) {
     }

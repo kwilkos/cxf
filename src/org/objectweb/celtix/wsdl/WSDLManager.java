@@ -61,8 +61,8 @@ public interface WSDLManager {
      * Get the WSDL definition for the given class.  Implementations
      * may return a copy from a local cache or load a new copy 
      * from the class.
-     * @param class - the class annotated with a WebService annotation 
-     * @return the wsdl definition
+     * @param sei - the Class annotated with a WebService annotation 
+     * @return the wsdl Definition
      */
     Definition getDefinition(Class sei) throws WSDLException;
 }

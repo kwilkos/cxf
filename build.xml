@@ -36,8 +36,10 @@
     <!-- Load the system test targets -->
     <import file="etc/ant-inc/systest.xml"/>
 
-	
-	<!-- Load the eclipse targets -->
+    <!-- Load the javadoc targets -->
+    <import file="etc/ant-inc/javadoc.xml"/>
+
+    <!-- Load the eclipse targets -->
     <import file="etc/ant-inc/eclipse.xml"/>
 
     <!-- Load the release targets -->

@@ -30,7 +30,7 @@ public class CeltixBus extends Bus {
     /**
      * Protected constructor used by the <code>BusManager</code> to create a new bus.
      * 
-     * @param busArgs the command line configuration of this <code>Bus</code>.
+     * @param args the command line configuration of this <code>Bus</code>.
      */
     protected void initialize(String[] args, Map<String, Object> properties)
         throws BusException {

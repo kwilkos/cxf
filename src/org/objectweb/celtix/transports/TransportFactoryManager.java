@@ -30,7 +30,7 @@ public interface TransportFactoryManager {
      * loading the appropriate plugin if necessary.
      * 
      * @param name
-     * @return
+     * @return the registered <code>TransportFactory</code>
      * @throws BusException
      */
     TransportFactory getTransportFactory(String name) throws BusException;

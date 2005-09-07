@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<project name="celtix-javadoc" basedir="../..">
+<!-- Targets for generating the javadoc -->
+
+<target name="javadoc">
+    <mkdir dir="${basedir}/build/javadoc" />
+    <delete dir="${basedir}/build/javadoc" />
+    <mkdir dir="${basedir}/build/javadoc" />
+
+    <tstamp>
+        <format property="doc.build.time" pattern="EEE MMM dd HH:mm:ss  yyyy" />
+    </tstamp>
+    <javadoc destdir="${basedir}/build/javadoc"
+             sourcepath="${basedir}/src"
+             maxmemory="128m"
+             author="true"
+             packagenames="org.objectweb.celtix.*"
+             footer="Documentation built [${doc.build.time}]." >
+        <classpath>
+            <path refid="src.compile.classpath"/>
+            <pathelement location="${basedir}/build/classes"/>
+        </classpath>
+    </javadoc>
+</target>
+
+<target name="publicapi.javadoc">
+    <mkdir dir="${basedir}/build/javadoc/api"/>
+    <mkdir dir="${build.lib.dir}"/>
+
+    <javadoc
+        sourcepath="${basedir}/src"
+        destdir="${basedir}/build/javadoc/api"
+        author="false"
+        version="true"
+        use="true"
+        nodeprecatedlist="true"
+        windowtitle="ObjectWeb Celtix ESB - User APIs"
+        doctitle="ObjectWeb Celtix ESB - User APIs"
+        header="Celtix User APIs"
+        footer="Celtix User APIs" >
+        <link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
+        <link href="http://java.sun.com/webservices/docs/1.5/api/"/>
+        <link href="https://jaxb.dev.java.net/nonav/jaxb20-pr/api/"/>
+        <classpath>
+            <path refid="src.compile.classpath"/>
+            <pathelement location="${basedir}/build/classes"/>
+        </classpath>
+
+        <package name="org.objectweb.celtix"/>
+        <package name="org.objectweb.celtix.application"/>
+        <package name="org.objectweb.celtix.bindings"/>
+        <package name="org.objectweb.celtix.bus"/>
+        <package name="org.objectweb.celtix.buslifecycle"/>
+        <package name="org.objectweb.celtix.common.i18n"/>
+        <package name="org.objectweb.celtix.configuration"/>
+        <package name="org.objectweb.celtix.context"/>
+        <package name="org.objectweb.celtix.endpoints"/>
+        <package name="org.objectweb.celtix.handlers"/>
+        <package name="org.objectweb.celtix.plugins"/>
+        <package name="org.objectweb.celtix.tools"/>
+        <package name="org.objectweb.celtix.transports"/>
+        <package name="org.objectweb.celtix.workqueue"/>
+        <package name="org.objectweb.celtix.wsdl"/>
+    </javadoc>
+
+    <delete file="${build.lib.dir}/celtix_api_javadoc.jar"/>
+    <jar jarfile="${build.lib.dir}/celtix_api_javadoc.jar">
+        <fileset dir="${basedir}/build/javadoc/api">
+            <include name="**/*" />
+        </fileset>
+    </jar>
+
+</target>
+
+</project>
