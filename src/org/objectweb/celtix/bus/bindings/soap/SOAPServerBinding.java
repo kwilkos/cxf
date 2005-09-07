@@ -127,6 +127,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         return new ProviderMessageContext((SOAPMessageContextImpl)soapCtx);
     }
 
+    @SuppressWarnings("unchecked")
     MessageContext invokeOnProvider(SOAPMessage msg, Map<String, Object> providerCtx) throws RemoteException {
         Provider<SOAPMessage> provider = (Provider<SOAPMessage>)getEndpoint().getImplementor();
         SOAPMessage replyMsg = provider.invoke(msg, providerCtx);
@@ -135,6 +136,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         return replyCtx;
     }
 
+    @SuppressWarnings("unchecked")
     MessageContext invokeOnProvider(SOAPBody body, Map<String, Object> providerCtx) throws RemoteException {
 
         try {
