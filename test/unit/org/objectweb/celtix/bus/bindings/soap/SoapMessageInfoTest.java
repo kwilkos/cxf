@@ -58,17 +58,40 @@ public class SoapMessageInfoTest extends TestCase {
     public void testGetWebResult() throws Exception {
         QName returnType = msgInfo.getWebResult();
         assertEquals(
-                new QName("http://objectweb.org/hello_world_soap_http", "responseType"), 
+                new QName("http://objectweb.org/hello_world_soap_http/types", "responseType"), 
                 returnType);        
     }
 
     public void testGetWebParam() throws Exception {
         WebParam inParam = msgInfo.getWebParam(0);
         assertEquals(
-                new QName("requestType", "http://objectweb.org/hello_world_soap_http"), 
-                new QName(inParam.name(), inParam.targetNamespace()));
+                new QName("http://objectweb.org/hello_world_soap_http/types", "requestType"), 
+                new QName(inParam.targetNamespace(), inParam.name()));
         assertEquals(WebParam.Mode.IN, inParam.mode());
         assertFalse(inParam.header());        
     }
+
+    public void testGetRequestWrapperQName() throws Exception {
+        QName reqWrapper = msgInfo.getRequestWrapperQName();
+        assertNotNull(reqWrapper);
+        assertEquals(
+                new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe"), 
+                reqWrapper);
+    }
     
+    public void testGetResponseWrapperQName() throws Exception {
+        QName respWrapper = msgInfo.getResponseWrapperQName();
+        assertNotNull(respWrapper);
+        assertEquals(
+                new QName("http://objectweb.org/hello_world_soap_http/types", "greetMeResponse"), 
+                respWrapper);
+    }
+    
+    public void testGetResponseWrapperType() throws Exception {
+        String respWrapperType = msgInfo.getResponseWrapperType();
+        assertNotNull(respWrapperType);
+        assertEquals(
+                "org.objectweb.hello_world_soap_http.types.GreetMeResponse", 
+                respWrapperType);
+    }    
 }

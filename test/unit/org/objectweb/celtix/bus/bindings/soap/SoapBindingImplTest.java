@@ -6,7 +6,9 @@ import java.lang.reflect.Method;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 
 import junit.framework.TestCase;
 
@@ -44,7 +46,7 @@ public class SoapBindingImplTest extends TestCase {
         super.tearDown();
     }
 
-    public void testMarshalDocLiteralInputMessage() throws Exception {
+    public void testMarshalWrapDocLitInputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation
         soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, false);
 
@@ -57,10 +59,12 @@ public class SoapBindingImplTest extends TestCase {
         assertTrue(msg.getSOAPBody().hasChildNodes());
         NodeList list = msg.getSOAPBody().getChildNodes();
         assertEquals(1, list.getLength());
-        assertEquals(arg0, list.item(0).getFirstChild().getNodeValue());
+        Node wrappedNode = list.item(0).getFirstChild();
+        assertTrue(wrappedNode.hasChildNodes());
+        assertEquals(arg0, wrappedNode.getFirstChild().getNodeValue());
     }
-    
-    public void testMarshalDocLiteralOutputMessage() throws Exception {
+
+    public void testMarshalWrapDocLitOutputMessage() throws Exception {
         //Test The Output of GreetMe Operation
         soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, true);
 
@@ -73,14 +77,20 @@ public class SoapBindingImplTest extends TestCase {
         assertTrue(msg.getSOAPBody().hasChildNodes());
         NodeList list = msg.getSOAPBody().getChildNodes();
         assertEquals(1, list.getLength());
-        assertEquals(arg0, list.item(0).getFirstChild().getNodeValue());
+        Node wrappedNode = list.item(0).getFirstChild();
+        assertTrue(wrappedNode.hasChildNodes());
+        assertEquals(arg0, wrappedNode.getFirstChild().getNodeValue());
     }
-    
-    public void testParseDocLiteralInputMessage() throws Exception {
+
+    public void testParseWrapDocLitInputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation
-        QName elName = new QName("http://objectweb.org/hello_world_soap_http", "requestType");
+        //Assumption the Wrapper element and the inner element are in the same namespace
+        //elementFormDefault is qualified
+        
+        QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");
+        QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "requestType");
         String data = new String("TestSOAPInputMessage");
-        String str = createSOAPMessage(elName, data);        
+        String str = createWrapDocLitSOAPMessage(wrapName, elName, data);        
         
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
         binding.parseInputMessage(in, soapContext);
@@ -91,14 +101,17 @@ public class SoapBindingImplTest extends TestCase {
         NodeList list = msg.getSOAPBody().getChildNodes();
 
         assertEquals(1, list.getLength());
-        assertEquals(data, list.item(0).getFirstChild().getNodeValue());
+        Node wrappedNode = list.item(0).getFirstChild();
+        assertTrue(wrappedNode.hasChildNodes());
+        assertEquals(data, wrappedNode.getFirstChild().getNodeValue());
     }
-    
-    public void testUnmarshalDocLiteralInputMessage() throws Exception {
+
+    public void testUnmarshalWrapDocLitInputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation
-        QName elName = new QName("http://objectweb.org/hello_world_soap_http", "requestType");
+        QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");        
+        QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "requestType");
         String data = new String("TestSOAPInputMessage");
-        String str = createSOAPMessage(elName, data);        
+        String str = createWrapDocLitSOAPMessage(wrapName, elName, data);
         
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
         soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, false);
@@ -118,9 +131,10 @@ public class SoapBindingImplTest extends TestCase {
 
     public void testUnmarshalDocLiteralOutputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation
-        QName elName = new QName("http://objectweb.org/hello_world_soap_http", "responseType");
+        QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");        
+        QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "requestType");
         String data = new String("TestSOAPOutputMessage");
-        String str = createSOAPMessage(elName, data);
+        String str = createWrapDocLitSOAPMessage(wrapName, elName, data);
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
 
         soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, true);        
@@ -137,17 +151,19 @@ public class SoapBindingImplTest extends TestCase {
         assertNotNull(objContext.getReturn());
         assertEquals(data, (String)objContext.getReturn());
     }    
-    
-    private String createSOAPMessage(QName elementName, String data) {
+
+    private String createWrapDocLitSOAPMessage(QName wrapName, QName elName, String data) {
         StringBuffer str = new StringBuffer();
         
         str.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         str.append("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">");
         str.append("<SOAP-ENV:Body>");
-        
-        str.append("<" + elementName.getLocalPart() + " xmlns=\"" + elementName.getNamespaceURI() + "\">");
+
+        str.append("<" + wrapName.getLocalPart() + " xmlns=\"" + wrapName.getNamespaceURI() + "\">");
+        str.append("<" + elName.getLocalPart() + ">");
         str.append(data);
-        str.append("</" + elementName.getLocalPart() + ">");
+        str.append("</" + elName.getLocalPart() + ">");
+        str.append("</" + wrapName.getLocalPart() + ">");
         
         str.append("</SOAP-ENV:Body>");
         str.append("</SOAP-ENV:Envelope>");

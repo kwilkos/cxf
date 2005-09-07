@@ -9,11 +9,16 @@ import javax.jws.WebResult;
 import javax.jws.soap.SOAPBinding;
 import javax.xml.namespace.QName;
 
+import com.sun.xml.ws.RequestWrapper;
+import com.sun.xml.ws.ResponseWrapper;
+
 public class SOAPMessageInfo {
     private SOAPBinding soapBindAnnotation;
     private WebMethod webMethodAnnotation;
     private WebResult webResultAnnotation;
     private Annotation[][] paramAnnotations;
+    private RequestWrapper reqWrapper;
+    private ResponseWrapper respWrapper;
     private Method method;
     
     public SOAPMessageInfo(Method m) {
@@ -30,6 +35,10 @@ public class SOAPMessageInfo {
         paramAnnotations = method.getParameterAnnotations();
         //Get Return Type Info
         webResultAnnotation = method.getAnnotation(WebResult.class);
+        //Get the RequestWrapper
+        reqWrapper = method.getAnnotation(RequestWrapper.class);
+        //Get the RequestWrapper
+        respWrapper = method.getAnnotation(ResponseWrapper.class);
     }
     
     public SOAPBinding.Style getSOAPStyle() {
@@ -85,8 +94,36 @@ public class SOAPMessageInfo {
         }
         return null;
     }
+
+    public QName getRequestWrapperQName() {
+        if (null != reqWrapper) {
+            return new QName(reqWrapper.namespace(), reqWrapper.name());
+        }
+        return SOAPConstants.EMPTY_QNAME;
+    }
+
+    public String getRequestWrapperType() {
+        if (null != reqWrapper) {
+            return reqWrapper.type();
+        }
+        return "";
+    }
+    
+    public QName getResponseWrapperQName() {
+        if (null != respWrapper) {
+            return new QName(respWrapper.namespace(), respWrapper.name());
+        }
+        return SOAPConstants.EMPTY_QNAME;
+    }
+
+    public String getResponseWrapperType() {
+        if (null != respWrapper) {
+            return respWrapper.type();
+        }
+        return "";
+    }
     
     public Method getMethod() {
         return method;
-    }    
+    }
 }

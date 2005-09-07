@@ -53,21 +53,22 @@ public class JAXBEncoderDecoder {
                                                 elValue);                        
                         }
                     }
-                }
+                } 
             }
             u.marshal(mObj, destNode);
         } catch (Exception ex) {
             throw new SOAPException("Marshalling Error", ex);
         }
     }
-        
+
     public Object unmarshall(Node srcNode, QName elName) throws SOAPException {
+        Object obj = null;
         try {
             Unmarshaller u = context.createUnmarshaller();
         
-            Object o = u.unmarshal(srcNode);
-            if (o instanceof JAXBElement<?>) {
-                JAXBElement<?> el = (JAXBElement<?>)o;
+            obj = u.unmarshal(srcNode);
+            if (obj instanceof JAXBElement<?>) {
+                JAXBElement<?> el = (JAXBElement<?>)obj;
                 if (el.getName().equals(elName)) {
                     return el.getValue();
                 }
@@ -75,6 +76,6 @@ public class JAXBEncoderDecoder {
         } catch (Exception ex) {
             throw new SOAPException("Unmarshalling error", ex);
         }
-        return null;
+        return obj;
     }
 }

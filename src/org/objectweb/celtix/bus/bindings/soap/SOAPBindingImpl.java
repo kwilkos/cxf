@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.jws.WebParam;
+import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
 
 import javax.xml.namespace.QName;
@@ -161,36 +162,56 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
 
         Method method = messageInfo.getMethod();
         JAXBEncoderDecoder decoder = 
-            new JAXBEncoderDecoder(method.getDeclaringClass().getPackage().getName());
+            new JAXBEncoderDecoder(getPackageList(messageInfo, isOutBound));
 
         Node childNode = xmlNode.getFirstChild();
-        
-        Object retVal = null;
-        if (isOutBound && !"void".equals(method.getReturnType().getName())) {
-            retVal = decoder.unmarshall(childNode, messageInfo.getWebResult());
-            childNode = childNode.getNextSibling();
-        }
 
-        WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;                
-        int noArgs = method.getParameterTypes().length;
-        ArrayList<Object> replyParamList = new ArrayList<Object>();
-        int argsCnt = 0;
-        
-        //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
-        for (int idx = 0; idx < noArgs; idx++) {
-            WebParam param = messageInfo.getWebParam(idx);
-            if ((param.mode() != ignoreParamMode) && !param.header()) {
-                Object obj = decoder.unmarshall(
-                                childNode,
-                                new QName(param.targetNamespace(), param.name()));
-                replyParamList.add(obj);
+        Object retVal = null;
+        ArrayList<Object> paramList = new ArrayList<Object>();
+
+        if (messageInfo.getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
+            QName elName = isOutBound ? messageInfo.getResponseWrapperQName() 
+                                      : messageInfo.getRequestWrapperQName();
+            
+            Object obj = decoder.unmarshall(childNode, elName);
+
+            if (isOutBound && !"void".equals(method.getReturnType().getName())) {
+                retVal = getWrappedPart(obj, method.getReturnType());
+            }
+            
+            WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;      
+            int noArgs = method.getParameterTypes().length;            
+            for (int idx = 0; idx < noArgs; idx++) {
+                WebParam param = messageInfo.getWebParam(idx);
+                if ((param.mode() != ignoreParamMode) && !param.header()) {
+                    paramList.add(getWrappedPart(obj, method.getParameterTypes()[idx]));
+                }
+            }
+        } else {
+
+            if (isOutBound && !"void".equals(method.getReturnType().getName())) {
+                retVal = decoder.unmarshall(childNode, messageInfo.getWebResult());
                 childNode = childNode.getNextSibling();
-                ++argsCnt;
+            }
+
+            WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;                
+            int noArgs = method.getParameterTypes().length;
+
+            //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
+            for (int idx = 0; idx < noArgs; idx++) {
+                WebParam param = messageInfo.getWebParam(idx);
+                if ((param.mode() != ignoreParamMode) && !param.header()) {
+                    Object obj = decoder.unmarshall(
+                                    childNode,
+                                    new QName(param.targetNamespace(), param.name()));
+                    paramList.add(obj);
+                    childNode = childNode.getNextSibling();
+                }
             }
         }
-        
+            
         objCtx.setReturn(retVal);
-        objCtx.setMessageObjects(replyParamList.toArray());
+        objCtx.setMessageObjects(paramList.toArray());        
     }    
 
     private void addParts(Node xmlNode , SOAPMessageInfo messageInfo, 
@@ -198,26 +219,105 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
 
         Method method = messageInfo.getMethod();
         JAXBEncoderDecoder encoder = 
-            new JAXBEncoderDecoder(method.getDeclaringClass().getPackage().getName());
-
-        if (isOutBound && !"void".equals(method.getReturnType().getName())) {
-            Object retVal = objCtx.getReturn();
-            encoder.marshall(retVal, messageInfo.getWebResult(), xmlNode);            
-        }
-
-        WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;                
-        int noArgs = method.getParameterTypes().length;
+            new JAXBEncoderDecoder(getPackageList(messageInfo, isOutBound));
         Object[] args = objCtx.getMessageObjects();
         
-        //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
-        for (int idx = 0; idx < noArgs; idx++) {
-            WebParam param = messageInfo.getWebParam(idx);
-            if ((param.mode() != ignoreParamMode) && !param.header()) {
-                encoder.marshall(args[idx], 
-                                new QName(param.targetNamespace(), param.name()),
-                                xmlNode);
+        if (messageInfo.getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
+            String wrapperType = isOutBound ? messageInfo.getResponseWrapperType() 
+                                            : messageInfo.getRequestWrapperType();
+
+            Object wrapperObj = null;
+            try {
+                wrapperObj = Class.forName(wrapperType).newInstance();
+            } catch (Exception ex) {
+                throw new SOAPException("Could not create the wrapper element", ex);
+            }
+
+            if (isOutBound && !"void".equals(method.getReturnType().getName())) {
+                Object retVal = objCtx.getReturn();
+                setWrappedPart(wrapperObj, objCtx.getReturn());
+            }
+            
+            //Add the in,inout,out args depend on the inputMode
+            WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;                
+            int noArgs = method.getParameterTypes().length;
+
+            //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
+            for (int idx = 0; idx < noArgs; idx++) {
+                WebParam param = messageInfo.getWebParam(idx);
+                if ((param.mode() != ignoreParamMode) && !param.header()) {
+                    setWrappedPart(wrapperObj, args[idx]);
+                }
+            }
+
+            QName elName = isOutBound ? messageInfo.getResponseWrapperQName() 
+                                      : messageInfo.getRequestWrapperQName();
+            
+            encoder.marshall(wrapperObj, elName, xmlNode);
+
+        } else {
+            //Add the Return Type
+            if (isOutBound && !"void".equals(method.getReturnType().getName())) {
+                Object retVal = objCtx.getReturn();
+                encoder.marshall(retVal, messageInfo.getWebResult(), xmlNode);            
+            }
+            
+            //Add the in,inout,out args depend on the inputMode
+            WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;                
+            int noArgs = method.getParameterTypes().length;
+
+            //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
+            for (int idx = 0; idx < noArgs; idx++) {
+                WebParam param = messageInfo.getWebParam(idx);
+                if ((param.mode() != ignoreParamMode) && !param.header()) {
+                    encoder.marshall(args[idx], 
+                                    new QName(param.targetNamespace(), param.name()),
+                                    xmlNode);
+                }
             }
         }
-    }    
+    }  
+    
+    private String getPackageList(SOAPMessageInfo messageInfo, boolean isInput) {
+        //REVISIT Package of all WebParam may be needed as well.
+        String str = isInput ? messageInfo.getRequestWrapperType() 
+                             : messageInfo.getResponseWrapperType();
+
+        if (str == null) {
+            return messageInfo.getMethod().getDeclaringClass().getPackage().getName();
+        }
+        
+        return str.substring(0, str.lastIndexOf('.'));
+    }
+    
+    private void setWrappedPart(Object wrapperType, Object part) throws SOAPException {
+        try {
+            Method elMethods[] = wrapperType.getClass().getMethods();
+            for (Method method : elMethods) {
+                if (method.getParameterTypes().length == 1
+                    && method.getParameterTypes()[0].equals(part.getClass())) {
+                    method.invoke(wrapperType, part);
+                }
+            }
+        } catch (Exception ex) {
+            throw new SOAPException("Could not set parts into wrapper element", ex);
+        }
+    }
+    
+    private Object getWrappedPart(Object wrapperType, Class<?> part) throws SOAPException {
+        try {
+            Method elMethods[] = wrapperType.getClass().getMethods();
+            for (Method method : elMethods) {
+                if (method.getParameterTypes().length == 0
+                    && method.getReturnType().equals(part)) {
+                    return method.invoke(wrapperType);
+                }
+            }
+        } catch (Exception ex) {
+            throw new SOAPException("Could not get part out of wrapper element", ex);
+        }
+        return null;
+    }
+    
 }
 
