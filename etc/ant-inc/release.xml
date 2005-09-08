@@ -34,13 +34,13 @@
 
         <delete dir="${build.package.dir}" quiet="true"/>   
 		<mkdir dir="${build.package.dir}"/>
-        <zip destfile="${build.package.dir}/celtix-bin.zip">
+        <zip destfile="${build.package.dir}/celtix-${celtix.version}-bin.zip">
             <zipfileset prefix="celtix" dir="${build.release.dir}">
                 <include name="**/*"/>
                 <exclude name="**/tomcat/**/work/**/*"/>
             </zipfileset>
         </zip>   
-        <zip destfile="${build.package.dir}/celtix-src.zip">
+        <zip destfile="${build.package.dir}/celtix-${celtix.version}-src.zip">
             <zipfileset prefix="celtix" dir="${basedir}">
                 <include name="**/*"/>
                 <exclude name="build"/>

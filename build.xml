@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <project name="celtix" default="build" basedir=".">
     <property file="build.properties"/>
+    <property file="etc/celtix.version"/>
 
     <target name="build" depends="src.compile,unittest.compile,systest.compile,unit.test,release" description="Main build target"/>
 	<target name="test" depends="unit.test,system.test" description="Run unit andn system tests"/>
