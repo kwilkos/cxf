@@ -34,7 +34,7 @@ import org.objectweb.celtix.transports.TransportFactoryManager;
 
 public class SOAPServerBinding extends AbstractServerBinding {
 
-    private static Logger logger = Logger.getLogger(SOAPServerBinding.class.getName());
+    private static final Logger LOG = Logger.getLogger(SOAPServerBinding.class.getName());
 
     protected final SOAPBindingImpl soapBinding;
 
@@ -57,7 +57,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         try {
             return tfm.getTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/");
         } catch (BusException ex) {
-            logger.severe("Failed to get default transport factory for SOAP server binding.");
+            LOG.severe("Failed to get default transport factory for SOAP server binding.");
         }
         return null;
     }
@@ -118,7 +118,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         try {
             body = msg.getSOAPBody();
         } catch (SOAPException ex) {
-            logger.log(Level.SEVERE, "Failed to obtain SOAP body.", ex);
+            LOG.log(Level.SEVERE, "Failed to obtain SOAP body.", ex);
         }
         return invokeOnProvider(body, createProviderContext(soapCtx));
     }
@@ -150,7 +150,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
 
             // ...
         } catch (SOAPException ex) {
-            logger.log(Level.SEVERE, "Failed to pass SOAPBody to/from provider.", ex);
+            LOG.log(Level.SEVERE, "Failed to pass SOAPBody to/from provider.", ex);
         }
 
         return null;

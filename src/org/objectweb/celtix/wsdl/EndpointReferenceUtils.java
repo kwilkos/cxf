@@ -148,7 +148,8 @@ public final class EndpointReferenceUtils {
     }
 
     public static EndpointReferenceType getEndpointReference(URL wsdlUrl, 
-            QName serviceName, String portName) {
+                                                             QName serviceName, 
+                                                             String portName) {
 
         EndpointReferenceType reference = new EndpointReferenceType();
         reference.setMetadata(new MetadataType());
@@ -180,28 +181,39 @@ public final class EndpointReferenceUtils {
         attribMap.put(SERVICE_NAME, serviceName.toString());
 
         String url = ws.wsdlLocation();
-        if (null != url) {
+        if (null != url && url.length() > 0) {
             attribMap.put(WSDL_LOCATION, url);
         } else {
             String className = ws.endpointInterface();
 
-            if (null == className) {
+            if (null == className || "".equals(className)) {
                 Class[] interfaces = implementor.getClass().getInterfaces();
                 for (Class c : interfaces) {
                     Annotation[] as = c.getAnnotations();
                     for (Annotation a : as) {
                         if (a instanceof WebService) {
                             className = c.getName();
+                            url = ((WebService)a).wsdlLocation();
                             break;
                         }
                     }
                 }
-                if (null == className) {
+                if (null == className || "".equals(className)) {
                     className = implementor.getClass().getName();
                 }
             }
+            if (null != url && url.length() > 0) {
+                attribMap.put(WSDL_LOCATION, url);
+            } else {
+                attribMap.put(SEI, className);
+            }
+        }
 
-            attribMap.put(SEI, className);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("created endpoint reference with");
+            LOG.fine("    service name: " + attribMap.get(SERVICE_NAME));
+            LOG.fine("    wsdl location: " + attribMap.get(WSDL_LOCATION));
+            LOG.fine("    sei class: " + attribMap.get(SEI));
         }
 
         return reference;

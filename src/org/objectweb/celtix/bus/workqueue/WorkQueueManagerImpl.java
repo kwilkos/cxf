@@ -8,7 +8,8 @@ import org.objectweb.celtix.workqueue.WorkQueueManager;
 
 public class WorkQueueManagerImpl implements WorkQueueManager {
 
-    private static Logger logger = Logger.getLogger(WorkQueueManagerImpl.class.getPackage().getName());
+    private static final Logger LOG = 
+        Logger.getLogger(WorkQueueManagerImpl.class.getName());
 
     ThreadingModel threadingModel = ThreadingModel.MULTI_THREADED;
     AutomaticWorkQueue autoQueue = createAutomaticWorkQueue();
@@ -71,7 +72,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
                 }
             }
         }
-        for (java.util.logging.Handler h : logger.getHandlers())  {
+        for (java.util.logging.Handler h : LOG.getHandlers())  {
             h.flush();
         }
     }

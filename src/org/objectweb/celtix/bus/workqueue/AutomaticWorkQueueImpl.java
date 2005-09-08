@@ -11,7 +11,8 @@ import org.objectweb.celtix.workqueue.AutomaticWorkQueue;
 public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements AutomaticWorkQueue {
 
     static final int DEFAULT_MAX_QUEUE_SIZE = 128;
-    private static Logger logger = Logger.getLogger(AutomaticWorkQueueImpl.class.getPackage().getName());
+    private static final Logger LOG = 
+        Logger.getLogger(AutomaticWorkQueueImpl.class.getName());
     
     int maxQueueSize;
 
@@ -32,7 +33,7 @@ public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements Automa
         buf.append("initialThreads: " + initialThreads + "\n");
         buf.append("lowWaterMark: " + lowWaterMark + "\n");
         buf.append("highWaterMark: " + highWaterMark + "\n");
-        logger.info(buf.toString());
+        LOG.info(buf.toString());
 
         if (initialThreads > highWaterMark) {
             initialThreads = highWaterMark;
@@ -47,7 +48,7 @@ public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements Automa
             setCorePoolSize(initialThreads);
             int started = prestartAllCoreThreads();
             if (started < initialThreads) {
-                logger.warning("Could not start required number of initial threads (only started " + started
+                LOG.warning("Could not start required number of initial threads (only started " + started
                                + " out of " + initialThreads + ").");
             }
             setCorePoolSize(lowWaterMark);

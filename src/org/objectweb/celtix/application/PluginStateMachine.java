@@ -7,7 +7,7 @@ import org.objectweb.celtix.plugins.PluginException;
 
 public class PluginStateMachine {
     
-    private static Logger logger = Logger.getLogger(PluginStateMachine.class/*.getPackage()*/.getName());
+    private static final Logger LOG = Logger.getLogger(PluginStateMachine.class/*.getPackage()*/.getName());
     
     public enum PluginState { UNLOADED, LOADING, LOADED };
 
@@ -29,7 +29,7 @@ public class PluginStateMachine {
         if ((state == PluginState.UNLOADED && nextState == PluginState.LOADING)
             || (state == PluginState.LOADING && nextState == PluginState.LOADED)
             || (state == PluginState.LOADED && nextState == PluginState.UNLOADED)) {
-            logger.fine("changing state from " + state + " to " + nextState);
+            LOG.fine("changing state from " + state + " to " + nextState);
             state = nextState;
         } else {
             throw new PluginException("INVALID_STATE_TRANSITION", state, nextState);
@@ -39,7 +39,7 @@ public class PluginStateMachine {
     
     synchronized void waitForState(PluginState awaitedState) {
         while (state != awaitedState) {
-            logger.fine("waiting for state so change from " + state + " to " + awaitedState);
+            LOG.fine("waiting for state so change from " + state + " to " + awaitedState);
             try {
                 wait();
             } catch (InterruptedException ex) {

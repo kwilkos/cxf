@@ -20,7 +20,7 @@ import org.objectweb.celtix.plugins.PluginManager;
  */
 public class ApplicationPluginManager implements PluginManager {
 
-    private static Logger logger = Logger.getLogger(ApplicationPluginManager.class.getPackage().getName());
+    private static final Logger LOG = Logger.getLogger(ApplicationPluginManager.class.getName());
     
     private static final MessageFormat PLUGINS_CLASSNAME_FMT = 
         new MessageFormat("plugins:{0}:className");
@@ -121,7 +121,7 @@ public class ApplicationPluginManager implements PluginManager {
     }
 
     Object getPlugin(String pluginName, String pluginClassName, PluginInfo dependent) throws PluginException {
-        logger.entering(getClass().getName(), "getPlugin");
+        LOG.entering(getClass().getName(), "getPlugin");
         PluginInfo info = null;
         PluginStateMachine state = null;
         synchronized (this) {
@@ -133,10 +133,10 @@ public class ApplicationPluginManager implements PluginManager {
             state = info.getState();
             if (PluginStateMachine.PluginState.LOADING == state.getCurrentState()) {
                 state.waitForState(PluginStateMachine.PluginState.LOADED);
-                logger.exiting(getClass().getName(), "getPlugin", "object currently being loaded");
+                LOG.exiting(getClass().getName(), "getPlugin", "object currently being loaded");
                 return info.getPlugin();
             } else if (PluginStateMachine.PluginState.LOADED == state.getCurrentState()) {
-                logger.exiting(getClass().getName(), "getPlugin", "object already loaded");
+                LOG.exiting(getClass().getName(), "getPlugin", "object already loaded");
                 return info.getPlugin();
             }
             state.setNextState(PluginStateMachine.PluginState.LOADING);
@@ -167,7 +167,7 @@ public class ApplicationPluginManager implements PluginManager {
         Object plugin = createPlugin(pluginClassName);
         info.setPlugin(plugin);
         state.setNextState(PluginStateMachine.PluginState.LOADED);
-        logger.exiting(getClass().getName(), "getPlugin", "object newly created");
+        LOG.exiting(getClass().getName(), "getPlugin", "object newly created");
         return plugin;
     }
 
@@ -179,7 +179,7 @@ public class ApplicationPluginManager implements PluginManager {
             Class pluginClass = Class.forName(pluginClassName, true, cl);
             plugin = pluginClass.newInstance();
         } catch (Exception ex) {
-            logger.severe("Failed to load " + pluginClassName + ": " + ex.getMessage());
+            LOG.severe("Failed to load " + pluginClassName + ": " + ex.getMessage());
             throw new PluginException("LOAD_FAILED", ex, pluginClassName);
         }
         return plugin;
@@ -192,7 +192,7 @@ public class ApplicationPluginManager implements PluginManager {
                 return info;
             }
         }
-        logger.info("Could not find plugin info for class " + className);
+        LOG.info("Could not find plugin info for class " + className);
         return null;
     }
     
@@ -203,7 +203,7 @@ public class ApplicationPluginManager implements PluginManager {
                 return info;
             }
         }  
-        logger.info("Could not find plugin info for plugin " + plugin);
+        LOG.info("Could not find plugin info for plugin " + plugin);
         return null;
     }
 }

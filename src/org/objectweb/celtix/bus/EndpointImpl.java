@@ -22,7 +22,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class EndpointImpl implements javax.xml.ws.Endpoint {
 
-    private static Logger logger = Logger.getLogger(EndpointImpl.class.getName());
+    private static final Logger LOG = Logger.getLogger(EndpointImpl.class.getName());
 
     private final Bus bus;
     private final Configuration configuration;
@@ -107,7 +107,7 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
      */
     public void publish(Object serverContext) {
         if (isPublished()) {
-            logger.warning("Endpoint is already published");
+            LOG.warning("Endpoint is already published");
         }
         if (!isContextBindingCompatible(serverContext)) {
             throw new IllegalArgumentException(new BusException("BINDING_INCOMPATIBLE_CONTEXT"));
@@ -126,7 +126,7 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
      */
     public void publish(String address) {
         if (isPublished()) {
-            logger.warning("Endpoint is already published");
+            LOG.warning("Endpoint is already published");
         }
         if (!serverBinding.isCompatibleWithAddress(address)) {
             throw new IllegalArgumentException(new BusException("BINDING_INCOMPATIBLE_ADDRESS"));
@@ -166,7 +166,7 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
      */
     public void stop() {
         if (!isPublished()) {
-            logger.warning("Endpoint is not active.");
+            LOG.warning("Endpoint is not active.");
         }
         published = false;
     }
@@ -206,10 +206,10 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
             serverBinding.activate();
             published = true;
         } catch (WSDLException ex) {
-            logger.severe("Failed to publish endpoint - server binding could not be activated:\n"
+            LOG.severe("Failed to publish endpoint - server binding could not be activated:\n"
                           + ex.getMessage());
         } catch (IOException ex) {
-            logger.severe("Failed to publish endpoint - server binding could not be activated:\n"
+            LOG.severe("Failed to publish endpoint - server binding could not be activated:\n"
                           + ex.getMessage());
         }
     }

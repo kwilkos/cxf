@@ -27,7 +27,7 @@ import org.objectweb.celtix.transports.TransportFactoryManager;
 
 public class TestServerBinding extends AbstractServerBinding {
 
-    private static Logger logger = Logger.getLogger(AbstractServerBinding.class.getName());
+    private static final Logger LOG = Logger.getLogger(AbstractServerBinding.class.getName());
     protected final BindingImpl binding;
     String currentOperation = "undeclared";
     String schemeName = "test";

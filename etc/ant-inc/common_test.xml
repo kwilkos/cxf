@@ -38,7 +38,7 @@
 	</classpath>
 	<jvmarg value="-ea"/>
 
-	<sysproperty key="java.util.logging.config.file" value="${basedir}/build/classes-tests/system/logging.properties"/>
+	<sysproperty key="java.util.logging.config.file" value="${basedir}/build/classes-tests/@{type}/logging.properties"/>
 
 	
 	<test name="${test.real.class}" todir="${basedir}/build/testresults/@{type}" outfile="@{type}test-results" />

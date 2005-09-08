@@ -17,46 +17,49 @@ import org.w3c.dom.Element;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.tools.common.ToolConfig;
-import org.objectweb.celtix.tools.common.generators.JAXWSWsdlGenerator;
+import org.objectweb.celtix.common.commands.ForkedCommand;
+import org.objectweb.celtix.common.commands.ForkedCommandException;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 /**
  * WSDLManagerImpl
+ * 
  * @author dkulp
- *
  */
 class WSDLManagerImpl implements WSDLManager {
-    
-    private static Logger logger = Logger.getLogger(WSDLManagerImpl.class.getName());
-    
+
+    private static final Logger LOG = Logger.getLogger(WSDLManagerImpl.class.getName());
+
     final ExtensionRegistry registry;
     final WSDLFactory factory;
     final WeakHashMap<Object, Definition> definitionsMap;
-    
-    
+
     WSDLManagerImpl(Bus bus) throws BusException {
         try {
             factory = WSDLFactory.newInstance();
-            registry = factory.newPopulatedExtensionRegistry();            
+            registry = factory.newPopulatedExtensionRegistry();
         } catch (WSDLException e) {
             throw new BusException(e);
         }
-        definitionsMap = new WeakHashMap<Object, Definition>();        
+        definitionsMap = new WeakHashMap<Object, Definition>();
     }
 
     public WSDLFactory getWSDLFactory() {
         return factory;
     }
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.objectweb.celtix.wsdl.WSDLManager#getExtenstionRegistry()
      */
     public ExtensionRegistry getExtenstionRegistry() {
         return registry;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.objectweb.celtix.wsdl.WSDLManager#getDefinition(java.net.URL)
      */
     public Definition getDefinition(URL url) throws WSDLException {
@@ -72,7 +75,9 @@ class WSDLManagerImpl implements WSDLManager {
         return def;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.objectweb.celtix.wsdl.WSDLManager#getDefinition(java.net.URL)
      */
     public Definition getDefinition(String url) throws WSDLException {
@@ -83,7 +88,6 @@ class WSDLManagerImpl implements WSDLManager {
         }
         return loadDefinition(url);
     }
-    
 
     public Definition getDefinition(Element el) throws WSDLException {
         synchronized (definitionsMap) {
@@ -100,22 +104,21 @@ class WSDLManagerImpl implements WSDLManager {
         }
         return def;
     }
-    
+
     public Definition getDefinition(Class sei) throws WSDLException {
         synchronized (definitionsMap) {
             if (definitionsMap.containsKey(sei)) {
                 return definitionsMap.get(sei);
             }
         }
-       
+
         Definition def = createDefinition(sei);
         synchronized (definitionsMap) {
             definitionsMap.put(sei, def);
         }
         return def;
     }
-    
-    
+
     private Definition loadDefinition(String url) throws WSDLException {
         WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
@@ -126,21 +129,49 @@ class WSDLManagerImpl implements WSDLManager {
         }
         return def;
     }
-    
-    private Definition createDefinition(Class sei) {          
+
+    private Definition createDefinition(Class sei) {
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("createDefinition for class: " + sei.getName());
+        }
         File tmp = null;
         try {
             tmp = File.createTempFile("tmp", ".wsdl");
             tmp.delete();
             tmp.mkdir();
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, "Could not create tmp directory in which to generate WSDL.", ex);
+            LOG.log(Level.SEVERE, "Could not create tmp directory in which to generate WSDL.", ex);
             return null;
         }
-        JAXWSWsdlGenerator generator = new JAXWSWsdlGenerator(sei.getName(), sei.getClassLoader());
-        Configuration config = new ToolConfig(new String[] {"-wsdl", "-d", tmp.getPath()});
-        generator.setConfiguration(config);
-        generator.generate();
+        /*
+         * JAXWSWsdlGenerator generator = new JAXWSWsdlGenerator(sei.getName(),
+         * sei.getClassLoader()); Configuration config = new ToolConfig(new
+         * String[] {"-wsdl", "-d", tmp.getPath()});
+         * generator.setConfiguration(config); generator.generate();
+         */
+        
+        String [] args = new String[] {
+            "java" + ForkedCommand.EXE_SUFFIX,
+            "-cp",
+            System.getProperty("java.class.path"),
+            "com.sun.tools.ws.WsGen", 
+            "-d",
+            tmp.getPath(),
+            "-wsdl",
+            sei.getName(),
+        };
+        ForkedCommand fc = new ForkedCommand(args);
+        int result = 0;
+        try {
+            result = fc.execute(120);
+        } catch (ForkedCommandException ex) {
+            LOG.log(Level.SEVERE, "Could not generate WSDL.", ex);
+            return null;
+        }
+        if (0 != result) {
+            LOG.log(Level.SEVERE, "Generator returned with exit value: " + result);
+            return null; 
+        }
 
         // schema and WSDL file should have been created in tmp directory
 
@@ -160,8 +191,10 @@ class WSDLManagerImpl implements WSDLManager {
             }
         }
         if (null == wsdl || null == schema) {
-            logger.severe("Wsdl and/or schema files could not be generated.");
+            LOG.severe("Wsdl and/or schema files could not be generated.");
             return null;
+        } else if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("Generated " + wsdl.getPath() + " and " + schema.getPath());
         }
 
         WSDLFactory wf = getWSDLFactory();
@@ -178,16 +211,15 @@ class WSDLManagerImpl implements WSDLManager {
                     if (f.isDirectory()) {
                         Directory d = new Directory(f);
                         d.delete();
-                    } else {
-                        f.delete();
-                    }
+                    } 
+                    f.delete();
                 }
             }
         }
         try {
             definition = wf.newWSDLReader().readWSDL(wsdl.getPath());
         } catch (WSDLException ex) {
-            logger.log(Level.SEVERE, "Could not read generated wsdl.", ex);
+            LOG.log(Level.SEVERE, "Could not read generated wsdl.", ex);
         }
         
         Directory dir = new Directory(tmp);

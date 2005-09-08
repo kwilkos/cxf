@@ -10,7 +10,7 @@ import org.objectweb.celtix.Bus;
 
 public class EndpointRegistry {
 
-    private static Logger logger = Logger.getLogger(EndpointRegistry.class.getName());
+    private static final Logger LOG = Logger.getLogger(EndpointRegistry.class.getName());
     private Bus bus;
     private List<EndpointImpl> endpoints;
 
@@ -22,7 +22,7 @@ public class EndpointRegistry {
     public void registerEndpoint(EndpointImpl ep) {
         assert ep.getBus() == bus;
         if (endpoints.contains(ep)) {
-            logger.warning("Endpoint is already registered");
+            LOG.warning("Endpoint is already registered");
         } else {
             endpoints.add(ep);
         }
@@ -30,7 +30,7 @@ public class EndpointRegistry {
 
     public void unregisterEndpoint(Endpoint ep) {
         if (ep.isPublished()) {
-            logger.warning("Can't unregister active endpoint");
+            LOG.warning("Can't unregister active endpoint");
         }
         endpoints.remove(ep);
     }

@@ -14,7 +14,8 @@ import org.objectweb.celtix.BusException;
 
 public class EndpointFactoryImpl extends javax.xml.ws.EndpointFactory {
 
-    private static Logger logger = Logger.getLogger(EndpointFactoryImpl.class.getPackage().getName());
+    private static final Logger LOG = 
+        Logger.getLogger(EndpointFactoryImpl.class.getName());
 
     /*
      * (non-Javadoc)
@@ -29,11 +30,11 @@ public class EndpointFactoryImpl extends javax.xml.ws.EndpointFactory {
             try {
                 ep = new EndpointImpl(Bus.getCurrent(), implementor, bindingId);
             } catch (BusException ex) {
-                logger.severe("Failed to create endpoint:\n" + ex.getMessage());
+                LOG.severe("Failed to create endpoint:\n" + ex.getMessage());
             }
             return ep;
         }
-        logger.severe("Cannot create Endpoint for implementor that does not have a WebService annotation\n"
+        LOG.severe("Cannot create Endpoint for implementor that does not have a WebService annotation\n"
                       + " and does not implement the Provider interface.");
         return null;
     }
@@ -58,7 +59,7 @@ public class EndpointFactoryImpl extends javax.xml.ws.EndpointFactory {
         try {
             address = new URL(a);
         } catch (MalformedURLException ex) {
-            logger.severe("Could not obtain default endpoint binding for address " + a + "\n"
+            LOG.severe("Could not obtain default endpoint binding for address " + a + "\n"
                           + ex.getMessage());
         }
         String protocol = address.getProtocol();

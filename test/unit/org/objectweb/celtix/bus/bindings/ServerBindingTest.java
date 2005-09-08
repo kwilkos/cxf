@@ -17,14 +17,14 @@ import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bus.EndpointImpl;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
-import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
+import org.objectweb.hello_world_soap_http.DerivedGreeterImpl;
 
 public class ServerBindingTest extends TestCase {
 
     private String epfClassName;
     private Bus bus;
     private EndpointImpl ei;
-    private AnnotatedGreeterImpl implementor;
+    private DerivedGreeterImpl implementor;
 
     public void setUp() throws Exception {
         epfClassName = System.getProperty(EndpointFactory.ENDPOINTFACTORY_PROPERTY);
@@ -34,7 +34,7 @@ public class ServerBindingTest extends TestCase {
         BindingManager bm = bus.getBindingManager();
         bm.registerBinding("http://celtix.objectweb.org/bindings/test", new TestBindingFactory(bus));
         EndpointFactory epf = EndpointFactory.newInstance();
-        implementor = new AnnotatedGreeterImpl();
+        implementor = new DerivedGreeterImpl();
         Endpoint ep = epf.createEndpoint(new URI(TestBinding.TEST_BINDING), implementor);
         ei = (EndpointImpl)ep;
     }

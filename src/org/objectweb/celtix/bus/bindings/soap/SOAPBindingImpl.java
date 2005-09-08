@@ -34,7 +34,7 @@ import org.objectweb.celtix.bus.bindings.BindingImpl;
 import org.objectweb.celtix.context.ObjectMessageContext;
 
 public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
-    private static Logger logger = Logger.getLogger(SOAPClientBinding.class.getName());
+    private static final Logger LOG = Logger.getLogger(SOAPClientBinding.class.getName());
     protected final MessageFactory msgFactory;
     protected final SOAPFactory soapFactory;
 
@@ -68,7 +68,7 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
         try {
             url = new URL(address);
         } catch (MalformedURLException ex) {
-            logger.severe("Invalid address:\n" + ex.getMessage());
+            LOG.severe("Invalid address:\n" + ex.getMessage());
         }
         String protocol = url.getProtocol();
         return "http".equals(protocol) || "https".equals(protocol);

@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 @javax.jws.WebService(name = "Greeter", serviceName = "SOAPService", 
-                      targetNamespace = "http://objectweb.org/hello_world_soap_http", 
-                      wsdlLocation = "file:/C:/celtix/views/bus-api/trunk/test/wsdl/hello_world.wsdl")
-public class AnnotatedGreeterImpl implements Greeter {
+                      targetNamespace = "http://objectweb.org/hello_world_soap_http")
+public class AnnotatedGreeterImpl {
 
-    private static Logger logger = Logger.getLogger(AnnotatedGreeterImpl.class.getPackage().getName());
+    private static final Logger LOG = 
+        Logger.getLogger(AnnotatedGreeterImpl.class.getName());
     private HashMap<String, Integer> invocationCount = new HashMap<String, Integer>();
 
     public AnnotatedGreeterImpl() {
@@ -51,7 +51,7 @@ public class AnnotatedGreeterImpl implements Greeter {
     }
 
     private void incrementInvocationCount(String method) {
-        logger.info("Executing " + method);
+        LOG.info("Executing " + method);
         int n = invocationCount.get(method);
         invocationCount.put(method, n + 1);
     }

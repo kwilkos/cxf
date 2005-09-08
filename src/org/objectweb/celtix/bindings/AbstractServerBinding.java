@@ -31,7 +31,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public abstract class AbstractServerBinding implements ServerBinding {
 
-    private static Logger logger = Logger.getLogger(AbstractServerBinding.class.getName());
+    private static final Logger LOG = Logger.getLogger(AbstractServerBinding.class.getName());
 
     protected final Bus bus;
     protected final EndpointReferenceType reference;
@@ -57,7 +57,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         transport.activate(new ServerTransportCallback() {
 
             public void dispatch(InputStreamMessageContext ctx, ServerTransport t) {
-                logger.info("Constructing ServerBindingCallback with transport: " + t);
+                LOG.info("Constructing ServerBindingCallback with transport: " + t);
                 Runnable r = new ServerBindingCallback(ctx, t, AbstractServerBinding.this);
                 // wait for documentation and implementation of JAX-WS RI to
                 // sync up
@@ -137,7 +137,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 replyCtx = invokeOnMethod(requestCtx);
             }
         } catch (RemoteException ex) {
-            logger.log(Level.SEVERE, "Failed to invoke on provider.", ex);
+            LOG.log(Level.SEVERE, "Failed to invoke on provider.", ex);
         }
 
         try {
@@ -147,7 +147,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
             write(replyCtx, outCtx);
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, "Failed to write response.", ex);
+            LOG.log(Level.SEVERE, "Failed to write response.", ex);
         }
     }
 
@@ -161,14 +161,14 @@ public abstract class AbstractServerBinding implements ServerBinding {
         QName operationName = getOperationName(requestCtx);
 
         if (null == operationName) {
-            logger.severe("Request Context does not include operation name.");
+            LOG.severe("Request Context does not include operation name.");
             return replyCtx;
         }
         
         // get implementing method
         Method method = EndpointUtils.getMethod(endpoint, operationName);
         if (method == null) {
-            logger.severe("Web method: " + getOperationName(requestCtx) + " not found in implementor.");
+            LOG.severe("Web method: " + getOperationName(requestCtx) + " not found in implementor.");
             return replyCtx;
         }
 
@@ -188,9 +188,9 @@ public abstract class AbstractServerBinding implements ServerBinding {
         try {
             result = method.invoke(getEndpoint().getImplementor(), params);
         } catch (IllegalAccessException ex) {
-            logger.log(Level.SEVERE, "Failed to invoke method " + method.getName() + " on implementor.", ex);
+            LOG.log(Level.SEVERE, "Failed to invoke method " + method.getName() + " on implementor.", ex);
         } catch (InvocationTargetException ex) {
-            logger.log(Level.SEVERE, "Failed to invoke method " + method.getName() + " on implementor.", ex);
+            LOG.log(Level.SEVERE, "Failed to invoke method " + method.getName() + " on implementor.", ex);
         }
 
 

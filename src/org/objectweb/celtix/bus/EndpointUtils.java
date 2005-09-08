@@ -13,7 +13,7 @@ import javax.xml.ws.ServiceMode;
 
 public final class EndpointUtils {
 
-    private static Logger logger = Logger.getLogger(EndpointUtils.class.getName());
+    private static final Logger LOG = Logger.getLogger(EndpointUtils.class.getName());
 
     private EndpointUtils() {
         // Utility class - never constructed
@@ -47,7 +47,7 @@ public final class EndpointUtils {
         WebService iws = (WebService)implementor.getClass().getAnnotation(WebService.class);
 
         if (null == iws) {
-            logger.severe("Implementor is not annotated with WebService annotation.");
+            LOG.severe("Implementor is not annotated with WebService annotation.");
             return null;
         }
 
@@ -65,7 +65,7 @@ public final class EndpointUtils {
             }
         }
         if (null == sei) {
-            logger.severe("Implementor does not implement required SEI.");
+            LOG.severe("Implementor does not implement required SEI.");
             return null;
         }
 
@@ -89,7 +89,7 @@ public final class EndpointUtils {
         }
 
         if (null == iMethod) {
-            logger.severe("Method " + methodName + " is not defined in SEI.");
+            LOG.severe("Method " + methodName + " is not defined in SEI.");
             return null;
         }
 
@@ -106,7 +106,7 @@ public final class EndpointUtils {
         }
 
         if (null == method) {
-            logger.severe("Implementor does not implement method " + methodName + ".");
+            LOG.severe("Implementor does not implement method " + methodName + ".");
             return null;
         }
 
@@ -123,7 +123,7 @@ public final class EndpointUtils {
         // (that implements an SEI) OR a Provider
 
         if (null == implementor.getClass().getAnnotation(WebService.class)) {
-            logger.info("Implementor is not annotated with WebService annotation.");
+            LOG.info("Implementor is not annotated with WebService annotation.");
             return false;
         }
 

@@ -18,7 +18,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 
 
 public class SOAPClientBinding extends GenericClientBinding {
-    private static Logger logger = Logger.getLogger(SOAPClientBinding.class.getName());
+    private static final Logger LOG = Logger.getLogger(SOAPClientBinding.class.getName());
     protected final SOAPBindingImpl soapBinding;
     
     public SOAPClientBinding(Bus b, EndpointReferenceType ref) {
