@@ -107,7 +107,7 @@ public class ServerLauncher {
             public void run() {
 
                 try {
-                    FileOutputStream fos = new FileOutputStream("/tmp/server.out");
+                    FileOutputStream fos = new FileOutputStream("server.out");
                     PrintStream ps = new PrintStream(fos);
 
                     int ch = -1;

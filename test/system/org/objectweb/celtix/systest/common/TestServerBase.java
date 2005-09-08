@@ -30,7 +30,6 @@ public abstract class TestServerBase extends Assert {
             System.out.println("server ready");
             LOG.info("running bus");
             bus.run();
-            
         } catch (Exception ex) {
             ex.printStackTrace();
             startFailed();
@@ -53,7 +52,7 @@ public abstract class TestServerBase extends Assert {
     }
     
     protected void ready() {
-        System.out.println("server is ready");
+        System.out.println("server ready");
     }
     
     
