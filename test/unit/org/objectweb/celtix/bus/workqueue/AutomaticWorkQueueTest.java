@@ -203,7 +203,7 @@ public class AutomaticWorkQueueTest extends TestCase {
     public void testThreadPoolShrinkUnbounded() {
         AutomaticWorkQueueImpl workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, INITIAL_SIZE,
                                                                       UNBOUNDED_HIGH_WATER_MARK,
-                                                                      UNBOUNDED_LOW_WATER_MARK, 100L);
+                                                                      DEFAULT_LOW_WATER_MARK, 100L);
 
         DeadLockThread dead = new DeadLockThread(workqueue, 1000, 5L);
         assertTrue("Should be finished, probably deadlocked", checkDeadLock(dead));
@@ -217,7 +217,7 @@ public class AutomaticWorkQueueTest extends TestCase {
                 // ignore
             }
         }
-        assertEquals("threads_total()", 0, workqueue.getPoolSize());
+        assertEquals("threads_total()", DEFAULT_LOW_WATER_MARK, workqueue.getPoolSize());
     }
 
     public void testShutdown() {

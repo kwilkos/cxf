@@ -12,7 +12,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
         Logger.getLogger(WorkQueueManagerImpl.class.getName());
 
     ThreadingModel threadingModel = ThreadingModel.MULTI_THREADED;
-    AutomaticWorkQueue autoQueue = createAutomaticWorkQueue();
+    AutomaticWorkQueue autoQueue;
     Bus bus;
 
     public WorkQueueManagerImpl(Bus b) {
@@ -81,22 +81,17 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
 
         // Configuration configuration = bus.getConfiguration();
 
+        // configuration.getInteger("threadpool:initial_threads");
+        int initialThreads = 1;
+        
         // int lwm = configuration.getInteger("threadpool:low_water_mark");
-        int lwm = -1;
+        int lwm = 5;
 
         // int hwm = configuration.getInteger("threadpool:high_water_mark");
-        int hwm = -1;
+        int hwm = 25;
 
-        // int initialThreads =
-        // configuration.getInteger("threadpool:initial_threads");
-        int initialThreads = 5;
-        if (initialThreads > hwm) {
-            initialThreads = hwm;
-        }
-
-        // int maxSize =
         // configuration.getInteger("threadpool:max_queue_size");
-        int maxQueueSize = -1;
+        int maxQueueSize = 10 * hwm;
 
         // configuration.getInteger("threadpool:dequeue_timeout");
         long dequeueTimeout = 2 * 60 * 1000L;

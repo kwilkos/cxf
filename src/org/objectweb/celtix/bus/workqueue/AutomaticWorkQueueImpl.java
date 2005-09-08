@@ -19,13 +19,15 @@ public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements Automa
     AutomaticWorkQueueImpl(int mqs, int initialThreads, int highWaterMark, int lowWaterMark,
                            long dequeueTimeout) {
         
-        super(-1 == lowWaterMark ? 0 : lowWaterMark, 
+        super(-1 == lowWaterMark ? Integer.MAX_VALUE : lowWaterMark, 
             -1 == highWaterMark ? Integer.MAX_VALUE : highWaterMark,
-                dequeueTimeout, TimeUnit.MILLISECONDS, 
+                TimeUnit.MILLISECONDS.toMillis(dequeueTimeout), TimeUnit.MILLISECONDS, 
                 mqs == -1 ? new ArrayBlockingQueue<Runnable>(DEFAULT_MAX_QUEUE_SIZE)
                     : new ArrayBlockingQueue<Runnable>(mqs));
         
         maxQueueSize = mqs == -1 ? DEFAULT_MAX_QUEUE_SIZE : mqs;
+        lowWaterMark = -1 == lowWaterMark ? Integer.MAX_VALUE : lowWaterMark;
+        highWaterMark = -1 == highWaterMark ? Integer.MAX_VALUE : highWaterMark;
                 
         StringBuffer buf = new StringBuffer();
         buf.append("Constructing automatic work queue with:\n");
@@ -43,7 +45,6 @@ public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements Automa
         // change the corePoolSize to the number of initial threads
         // this is important as otherwise these threads will be created only when the queue has filled up, 
         // potentially causing problems with starting up under heavy load
-        
         if (initialThreads < Integer.MAX_VALUE && initialThreads > 0) {
             setCorePoolSize(initialThreads);
             int started = prestartAllCoreThreads();
@@ -134,7 +135,7 @@ public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements Automa
 
     int getLowWaterMark() {
         int lwm = getCorePoolSize();
-        return lwm == 0 ? -1 : lwm;
+        return lwm == Integer.MAX_VALUE ? -1 : lwm;
     }
 
     void setHighWaterMark(int hwm) {
