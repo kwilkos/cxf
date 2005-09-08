@@ -1,13 +1,65 @@
 <?xml version="1.0"?>
 <project name="celtix-release" basedir="../../">
-	
-	<target name="release" depends="celtix.jar"/>
-	
-	<target name="celtix.jar" description="build the celtix jar">
+    <import file="compile.xml"/>
+    <import file="javadoc.xml"/>
+
+	<target name="release" depends="celtix.jar,publicapi.javadoc"
+		description="Build a release kit">
+
+		<mkdir dir="${build.release.dir}"/>
+		<mkdir dir="${build.release.dir}/samples"/>
+    	<copy includeEmptyDirs="false" todir="${build.release.dir}/samples">
+    		<fileset dir="${basedir}/samples">
+    			<include name="**/*"/>
+    			<exclude name="**/build/**/*"/>
+    			<exclude name="**/build"/>
+    		</fileset>
+    	</copy>
+		<copy todir="${build.release.dir}/lib">
+    		<fileset dir="${build.lib.dir}">
+    			<include name="**/*"/>
+    		</fileset>
+		</copy>
+		<copy todir="${build.release.dir}/lib">
+    		<fileset dir="${tools.dir}">
+    			<include name="wsdl4j/**/*"/>
+    			<include name="tomcat/**/*"/>
+    		</fileset>
+		</copy>
+		<copy todir="${build.release.dir}/docs/api">
+    		<fileset dir="${basedir}/build/javadoc/api">
+    			<include name="**/*"/>
+    		</fileset>
+		</copy>
+
+        <delete dir="${build.package.dir}" quiet="true"/>   
+		<mkdir dir="${build.package.dir}"/>
+        <zip destfile="${build.package.dir}/celtix-bin.zip">
+            <zipfileset prefix="celtix" dir="${build.release.dir}">
+                <include name="**/*"/>
+                <exclude name="**/tomcat/**/work/**/*"/>
+            </zipfileset>
+        </zip>   
+        <zip destfile="${build.package.dir}/celtix-src.zip">
+            <zipfileset prefix="celtix" dir="${basedir}">
+                <include name="**/*"/>
+                <exclude name="build"/>
+                <exclude name="build/**/*"/>
+                <exclude name="**/.*"/>
+            </zipfileset>
+
+            <zipfileset prefix="celtix" dir="${basedir}/..">
+                <include name="tools/**/*"/>
+                <exclude name="**/tomcat/**/work/**/*"/>
+            </zipfileset>
+        </zip>    
+	</target>
+
+	<target name="celtix.jar" depends="src.compile" description="build the celtix jar">
 		<mkdir dir="${build.lib.dir}"/>
-		<jar destfile="${celtix.jar}" 
+		<jar destfile="${celtix.jar}"
 			 basedir="${build.classes.dir}">
 			<metainf dir="${basedir}/etc/metainf"/>
-		</jar>	
+		</jar>
 	</target>
 </project>

@@ -8,6 +8,8 @@
 
 	<property name="build.dir" value="${basedir}/build"/>
 	<property name="build.classes.dir" location="${build.dir}/classes"/>
+	<property name="build.release.dir" location="${build.dir}/release"/>
+	<property name="build.package.dir" location="${build.dir}/package"/>
 	<property name="build.lib.dir" location="${build.dir}/lib"/>
 	<property name="celtix.jar" location="${build.lib.dir}/celtix.jar"/>
 
@@ -35,6 +37,7 @@
         </fileset>
     </path>
 
+	<property name="tomcat.local.classes" value=""/>
     <path id="embedded.tomcat.classpath">
         <pathelement location="${tomcat.local.classes}"/>
     	<fileset dir="${tools.dir}/tomcat/5.5.9/server/lib">
@@ -60,6 +63,7 @@
         <pathelement location="${basedir}/build/classes-tests/wsdl"/>
         <path refid="src.compile.classpath"/>
         <pathelement location="${tools.dir}/easymock/2.0/easymock.jar"/>
+    	<path refid="junit.classpath"/>
     </path>
  
     <path id="unit.test.classpath">

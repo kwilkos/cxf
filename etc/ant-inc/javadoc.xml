@@ -63,13 +63,6 @@
         <package name="org.objectweb.celtix.wsdl"/>
     </javadoc>
 
-    <delete file="${build.lib.dir}/celtix_api_javadoc.jar"/>
-    <jar jarfile="${build.lib.dir}/celtix_api_javadoc.jar">
-        <fileset dir="${basedir}/build/javadoc/api">
-            <include name="**/*" />
-        </fileset>
-    </jar>
-
 </target>
 
 </project>

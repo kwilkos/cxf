@@ -251,6 +251,7 @@ public class AutomaticWorkQueueTest extends TestCase {
             newCompleted = dead.getWorkItemCompletedCount();
             if (newCompleted > oldCompleted) {
                 oldCompleted = newCompleted;
+                noProgressCount = 0;
             } else {
                 // No reduction in the completion count so it may be deadlocked,
                 // allow thread to make no progress for 5 time-slices before

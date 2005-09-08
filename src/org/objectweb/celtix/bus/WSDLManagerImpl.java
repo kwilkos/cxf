@@ -217,7 +217,10 @@ class WSDLManagerImpl implements WSDLManager {
             }
         }
         try {
-            definition = wf.newWSDLReader().readWSDL(wsdl.getPath());
+            WSDLReader reader = wf.newWSDLReader();
+            reader.setFeature("javax.wsdl.verbose", false);
+            reader.setExtensionRegistry(registry);
+            definition = reader.readWSDL(wsdl.getPath());
         } catch (WSDLException ex) {
             LOG.log(Level.SEVERE, "Could not read generated wsdl.", ex);
         }

@@ -54,8 +54,30 @@
 
     <property name="command.classpath.refid" value="unit.test.classpath"/>
     <target name="generate.command.script">
+    	<condition property="script.extension" value=".bat">
+    		<os family="windows"/>
+    	</condition>
+    	<condition property="java.extension" value=".exe">
+    		<os family="windows"/>
+    	</condition>
+    	<condition property="all.parameters.flag" value="%*">
+    		<os family="windows"/>
+    	</condition>
+    	<condition property="classpath.flag" value="%CP%">
+    		<os family="windows"/>
+    	</condition>
+    	<condition property="set.env.command" value="set ">
+    		<os family="windows"/>
+    	</condition>
+    	<property name="script.extension" value=""/>
+    	<property name="java.extension" value=""/>
+     	<property name="all.parameters.flag" value="$@"/>
+       	<property name="classpath.flag" value="$CP"/>
+       	<property name="set.env.command" value="#!/bin/sh${line.separator}"/>
+    	
         <pathconvert property="path.id.string" refid="${command.classpath.refid}"/>
-        <echo file="run.bat" append="false" message="set CP=${path.id.string}${line.separator}java.exe -Djava.util.logging.config.file=${basedir}/build/classes-tests/unit/logging.properties -Djavax.xml.ws.EndpointFactory=org.objectweb.celtix.bus.EndpointFactoryImpl -Djavax.xml.ws.ServiceFactory=org.objectweb.celtix.bus.ServiceFactoryImpl -classpath &quot;%CP%&quot; %*${line.separator}"/>
+        <echo file="run${script.extension}" append="false" message="${set.env.command}CP=${path.id.string}${line.separator}java${java.extension} -Djava.util.logging.config.file=${basedir}/build/classes-tests/unit/logging.properties -Djavax.xml.ws.EndpointFactory=org.objectweb.celtix.bus.EndpointFactoryImpl -Djavax.xml.ws.ServiceFactory=org.objectweb.celtix.bus.ServiceFactoryImpl -classpath &quot;${classpath.flag}&quot; ${all.parameters.flag}${line.separator}"/>
+    	<chmod file="run${script.extension}" perm="ugo+x"/>
     </target>
 
 </project>
