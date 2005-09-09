@@ -23,7 +23,7 @@
     </javadoc>
 </target>
 
-<target name="publicapi.javadoc">
+<target name="publicapi.javadoc" description="Generate javadoc for the user api">
     <mkdir dir="${basedir}/build/javadoc/api"/>
     <mkdir dir="${build.lib.dir}"/>
 
@@ -49,7 +49,6 @@
         <package name="org.objectweb.celtix"/>
         <package name="org.objectweb.celtix.application"/>
         <package name="org.objectweb.celtix.bindings"/>
-        <package name="org.objectweb.celtix.bus"/>
         <package name="org.objectweb.celtix.buslifecycle"/>
         <package name="org.objectweb.celtix.common.i18n"/>
         <package name="org.objectweb.celtix.configuration"/>
@@ -57,7 +56,6 @@
         <package name="org.objectweb.celtix.endpoints"/>
         <package name="org.objectweb.celtix.handlers"/>
         <package name="org.objectweb.celtix.plugins"/>
-        <package name="org.objectweb.celtix.tools"/>
         <package name="org.objectweb.celtix.transports"/>
         <package name="org.objectweb.celtix.workqueue"/>
         <package name="org.objectweb.celtix.wsdl"/>

@@ -43,6 +43,13 @@ fi
 
 CELTIX_ENV_SET=true
 #
+# add the jdk's tools.jar to the classpath
+#
+if [ -e "${JAVA_HOME}/lib/tools.jar" ]; then
+    CLASSPATH=${JAVA_HOME}/lib/tools.jar:$CLASSPATH
+fi
+
+#
 # add the core celtix jar to the classpath
 #
 CLASSPATH=$CELTIX_HOME/lib/celtix.jar:${CLASSPATH-""}
