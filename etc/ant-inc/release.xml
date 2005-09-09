@@ -9,6 +9,11 @@
 		<mkdir dir="${build.release.dir}"/>
 		<mkdir dir="${build.release.dir}/bin"/>
 		<mkdir dir="${build.release.dir}/samples"/>
+		<copy todir="${build.release.dir}">
+		  <fileset dir="${basedir}/..">
+    			<include name="LICENSE"/>
+		  </fileset>
+		</copy>		
 		<copy includeEmptyDirs="false" todir="${build.release.dir}/bin">
 		  <fileset dir="${basedir}/bin">
     			<include name="**/*"/>
@@ -60,6 +65,9 @@
 		    <include name="tools/**/*"/>
 		    <exclude name="**/tomcat/**/work/**/*"/>
 		  </zipfileset>
+		  <zipfileset prefix="celtix" dir="${basedir}/..">
+			<include name="LICENSE"/>
+		  </zipfileset>	
 		</zip>    
 	</target>
 	
