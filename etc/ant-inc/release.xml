@@ -13,6 +13,7 @@
     			<include name="**/*"/>
     			<exclude name="**/build/**/*"/>
     			<exclude name="**/build"/>
+    			<exclude name="celtix.build.properties.wc"/>
     		</fileset>
     	</copy>
 		<copy todir="${build.release.dir}/lib">
@@ -38,6 +39,7 @@
             <zipfileset prefix="celtix" dir="${build.release.dir}">
                 <include name="**/*"/>
                 <exclude name="**/tomcat/**/work/**/*"/>
+		<exclude name="**/*.wc"/>
             </zipfileset>
         </zip>   
         <zip destfile="${build.package.dir}/celtix-${celtix.version}-src.zip">
