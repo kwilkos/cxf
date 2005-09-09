@@ -224,8 +224,5 @@ public abstract class AbstractServerBinding implements ServerBinding {
         return replyCtx;
     }
     
-    private QName getOperationName(MessageContext ctx) {
-        return (QName)ctx.get(MessageContext.WSDL_OPERATION);
-    }
-
+    protected abstract QName getOperationName(MessageContext ctx);
 }

@@ -106,6 +106,10 @@ public class TestServerBinding extends AbstractServerBinding {
         }
     }
 
+    protected QName getOperationName(MessageContext ctx) {
+        return new QName("blah", currentOperation);
+    }
+    
     class TestTransportFactory implements TransportFactory {
 
         public ClientTransport createClientTransport(EndpointReferenceType address) throws WSDLException,
