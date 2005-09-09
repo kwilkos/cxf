@@ -1,9 +1,6 @@
 <?xml version="1.0"?>
 <project name="hello world demo" default="build" basedir=".">
 
-    <target name="build"  depends="generate.code,compile" description="build demo client and server"/>
-
-	
     <property environment="env"/>
     <fail unless="env.JAXWS_HOME">.
             The JAXWS_HOME  environment variable is unset.  We use the
@@ -13,72 +10,17 @@
             the JAXWS_HOME environment variable to the installation
             directory.
     </fail>
-	
-    <import file="../../etc/ant-inc/paths.xml"/>
-    <import file="../../etc/ant-inc/codegen.xml"/>
+
     <import file="../common_build.xml"/>
 
-    <property name="build.dir" location ="${basedir}/build"/>
-    <property name="build.classes.dir" location ="${build.dir}/classes"/>
-    <property name="build.src.dir" location ="${build.dir}/src"/>
-	<property name="jaxws.lib.dir" location="${env.JAXWS_HOME}/lib"/>
+    <property name="wsdl.dir" location="${basedir}/wsdl"/>
+    <property name="wsdl.file" value="hello_world.wsdl"/>
 
-	<path id="celtix.build.classpath">	
-		<pathelement location="${basedir}/../../build/classes"/>
-		<pathelement location="${basedir}/../../build/lib/celtix.jar"/>
-		<pathelement location="${basedir}/build/classes"/>
-		<fileset dir="${jaxws.lib.dir}">
-		    <include name="*.jar"/>
-		</fileset>
-	</path>
-	
-	<path id="celtix.runtime.classpath">
-		<path refid="celtix.build.classpath"/>
-		<pathelement location="../../../tools/wsdl4j/1.5.1/wsdl4j.jar"/>
-		<fileset dir="../../../tools/tomcat/5.5.9">
-		  <include name="server/lib/*.jar"/>
-		  <include name="common/lib/*.jar"/>
-		  <include name="bin/*.jar"/>
-		</fileset>
-	</path>
-			
-    <target name="init">
-      <mkdir dir="${build.classes.dir}"/>
-      <mkdir dir="${build.src.dir}"/>
-    </target>
-
-
-    <target name="generate.code" depends="init">
-      <uptodate property="codegen.notrequired" value="true">
-	<srcfiles dir="wsdl" includes="*"/>
-	<mapper type="merge" to="${build.src.dir}/.CODEGEN.DONE"/>
-      </uptodate>
-      <antcall target="codegen.internal"/>
-    </target>
-
-    <target name="codegen.internal" unless="codegen.notrequired">
-        <wsdltojava file="wsdl/hello_world.wsdl" destdir="${build.classes.dir}" srcdestdir="${build.src.dir}"/>
-        <touch file="${build.src.dir}/.CODEGEN.DONE"/>
-    </target>
-
-	<target name="compile" depends="generate.code">
-		<javac srcdir="${basedir}/src" destdir="${basedir}/build/classes"
-		           debug="true">
-			<classpath refid="celtix.build.classpath"/>
-		</javac>
-	</target>
-	
-
-	<target name="client" description="run demo client">
-	  <celtixrun classname="demo.hw.client.Client" wsdl="${basedir}/wsdl/hello_world.wsdl"/>
-	</target>	
-
-	<target name="server" description="run demo server">
-	  <celtixrun classname="demo.hw.server.Server" wsdl="${basedir}/wsdl/hello_world.wsdl"/>
-	</target>	
-
-
-	<target name="clean">
-	  <delete dir="${build.dir}"/>
-	</target>
+    <target name="client" description="run demo client">
+      <celtixrun classname="demo.hw.client.Client" wsdl="${basedir}/wsdl/hello_world.wsdl"/>
+    </target>	
+    
+    <target name="server" description="run demo server">
+      <celtixrun classname="demo.hw.server.Server" wsdl="${basedir}/wsdl/hello_world.wsdl"/>
+    </target>	
 </project>

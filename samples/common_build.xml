@@ -1,19 +1,127 @@
 <?xml version="1.0"?>
 <!-- common build targets for Celtix demos -->
-<project name="celtix-demo-common" basedir="../..">
-	<macrodef name="celtixrun">
-	  <attribute name="classname"/>
-	  <attribute name="wsdl"/>
-	  <sequential>
-		<java classname="@{classname}" fork="yes">
-			<classpath>
-				<path refid="celtix.runtime.classpath"/>
-			</classpath>
-			<arg value="@{wsdl}"/>
-			<assertions>
-			  <enable package="org.objectweb.celtix"/>
-			</assertions>
-		</java>
-	  </sequential>
-	</macrodef>
+<project name="celtix-demo-common">
+
+    <property name="build.dir" location ="${basedir}/build"/>
+    <property name="build.classes.dir" location ="${build.dir}/classes"/>
+    <property name="build.src.dir" location ="${build.dir}/src"/>
+    <property name="jaxws.lib.dir" location="${env.JAXWS_HOME}/lib"/>
+
+    <!-- find the tools jar, which on darwin, tools.jar does not exist -->
+    <available property="tools.jar" value="${env.JAVA_HOME}/lib/tools.jar"
+	       file="${env.JAVA_HOME}/lib/tools.jar"/>
+    <path id="jdk.tools.classpath">
+      <pathelement location="${tools.jar}"/>
+    </path>
+
+    <!-- 
+	 find the properties file with the path definitions.  This is different 
+	 if we are in a working copy or in a release
+    -->
+    <condition property="props.file.name" value="celtix.build.properties.wc">
+      <available file="${basedir}/../celtix.build.properties.wc"/>
+    </condition>
+    <property name="props.file.name" value="celtix.build.properties"/>
+    <property file="${basedir}/../${props.file.name}"/>
+
+    <target name="build"  depends="generate.code,compile" description="build demo client and server"/>
+
+    <path id="celtix.build.classpath">	
+      <pathelement location="${celtix.home.dir}/lib/celtix.jar"/>
+      <pathelement location="${basedir}/build/classes"/>
+      <fileset dir="${jaxws.lib.dir}">
+	<include name="*.jar"/>
+      </fileset>
+    </path>
+	
+    <path id="celtix.runtime.classpath">
+      <path refid="celtix.build.classpath"/>
+      <pathelement location="${thirdparty.tools.dir}/wsdl4j/1.5.1/wsdl4j.jar"/>
+      <fileset dir="${thirdparty.tools.dir}/tomcat/5.5.9">
+	<include name="server/lib/*.jar"/>
+	<include name="common/lib/*.jar"/>
+	<include name="bin/*.jar"/>
+      </fileset>
+    </path>
+
+    <macrodef name="celtixrun">
+      <attribute name="classname"/>
+      <attribute name="wsdl"/>
+      <sequential>
+	<java classname="@{classname}" fork="yes">
+	  <classpath>
+	    <path refid="celtix.runtime.classpath"/>
+	  </classpath>
+	  <arg value="@{wsdl}"/>
+	  <assertions>
+	    <enable package="org.objectweb.celtix"/>
+	  </assertions>
+	</java>
+      </sequential>
+    </macrodef>
+
+    <target name="init">
+      <mkdir dir="${build.classes.dir}"/>
+      <mkdir dir="${build.src.dir}"/>
+    </target>
+
+    <target name="compile" depends="generate.code">
+      <javac srcdir="${basedir}/src" destdir="${basedir}/build/classes"
+	     debug="true">
+	<classpath refid="celtix.build.classpath"/>
+      </javac>
+    </target>
+
+    <target name="generate.code" depends="init">
+      <uptodate property="codegen.notrequired" value="true">
+	<srcfiles dir="${wsdl.dir}" includes="*"/>
+	<mapper type="merge" to="${build.src.dir}/.CODEGEN.DONE"/>
+      </uptodate>
+      <antcall target="codegen.internal"/>
+    </target>
+
+    <target name="codegen.internal" unless="codegen.notrequired">
+      <wsdltojava file="${wsdl.dir}/${wsdl.file}" destdir="${build.classes.dir}" 
+		  srcdestdir="${build.src.dir}"/>
+      <touch file="${build.src.dir}/.CODEGEN.DONE"/>
+    </target>
+    
+    <target name="clean">
+      <delete dir="${build.dir}"/>
+    </target>
+
+
+    <!-- targets and tasks for code generation -->
+
+    <macrodef name="wsdltojava">
+        <attribute name="srcdestdir"/>
+        <attribute name="destdir"/>
+        <attribute name="file"/>
+        <attribute name="package" default="NOT_SPECIFIED"/>
+        <sequential>
+            <mkdir dir="@{destdir}"/>
+            <mkdir dir="@{srcdestdir}"/>
+            <condition property="package.arg.@{file}" value="-p @{package}">
+                <not>
+                    <equals arg1="@{package}" arg2="NOT_SPECIFIED"/>
+                </not>
+            </condition>
+            <property name="package.arg.@{file}" value=""/>
+            <java failonerror="true" classname="com.sun.tools.ws.WsImport" fork="yes">
+                <classpath>
+                    <fileset dir="${env.JAXWS_HOME}/lib">
+                        <include name="*.jar"/>
+                    </fileset>
+		    <path refid="jdk.tools.classpath"/>
+                </classpath>
+                <arg line="${package.arg.@{file}}"/>
+                <arg value="-keep"/>
+                <arg value="-s"/>
+                <arg value="@{srcdestdir}"/>
+                <arg value="-d"/>
+                <arg value="@{destdir}"/>
+                <arg value="@{file}"/>
+            </java>
+        </sequential>
+    </macrodef>
 </project>

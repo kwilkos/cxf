@@ -1,0 +1,6 @@
+#
+# paths to files in a working-copy 
+#
+celtix.home.dir=${basedir}/../../build
+thirdparty.tools.dir=../../../tools/
+ 
