@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bus;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 import javax.jws.WebMethod;
@@ -93,24 +92,7 @@ public final class EndpointUtils {
             return null;
         }
 
-        // get corresponding method in implementor
-
-        Method method = null;
-        Method[] methods = iClass.getMethods();
-        for (Method m : methods) {
-            if (m.getName().equals(iMethod.getName())
-                && Arrays.equals(m.getParameterTypes(), iMethod.getParameterTypes())) {
-                method = m;
-                break;
-            }
-        }
-
-        if (null == method) {
-            LOG.severe("Implementor does not implement method " + methodName + ".");
-            return null;
-        }
-
-        return method;
+        return iMethod;
     }
 
     public static boolean isValidImplementor(Object implementor) {

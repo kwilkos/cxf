@@ -76,16 +76,16 @@ public class SOAPServerBinding extends AbstractServerBinding {
             SOAPMessage msg = soapBinding.marshalMessage(objContext, context);
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
-            // TODO
+            LOG.log(Level.SEVERE, "Error in marshall of SOAP Message", se);
         }
     }
     
     protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
-        super.unmarshal(context,  objContext);
+        //super.unmarshal(context,  objContext);
         try {
             soapBinding.unmarshalMessage(context, objContext);
         } catch (SOAPException se) {
-            //TODO
+            LOG.log(Level.SEVERE, "error in unmarshall of SOAP Message", se);
         }
     }
     
@@ -95,6 +95,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         try {
             soapCtx.getMessage().writeTo(outCtx.getOutputStream());
         } catch (SOAPException se) {
+            LOG.log(Level.SEVERE, "error in unmarshall of SOAP Message", se);
             throw new IOException(se.getMessage());
         }
     }
@@ -185,9 +186,9 @@ public class SOAPServerBinding extends AbstractServerBinding {
             } else { 
                 LOG.severe("attempting to get operation name from soap message I do not understand");
             }
-        } catch (SOAPException ex) { 
+        } catch (SOAPException ex) {
             LOG.log(Level.SEVERE, "error getting operation name from soap message", ex);
-        }        
+        }
         System.err.println("retrieved operation name from soap message:" + ret);
         return ret;
     }

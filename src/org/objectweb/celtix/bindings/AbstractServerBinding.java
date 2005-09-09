@@ -74,11 +74,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 // Even then the executor may be one set by the application in
                 // which case we cannot
                 // do anything about these exceptions.
-
                 ex.execute(r);
-
             }
-
         });
     }
 
@@ -110,7 +107,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         throws RemoteException;
 
     void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
-
+        LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
         MessageContext requestCtx = createBindingMessageContext();
 
         //Input Message
@@ -168,7 +165,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         // get implementing method
         Method method = EndpointUtils.getMethod(endpoint, operationName);
         if (method == null) {
-            LOG.severe("Web method: " + getOperationName(requestCtx) + " not found in implementor.");
+            LOG.severe("Web method: " + operationName + " not found in implementor.");
             return replyCtx;
         }
 
@@ -192,17 +189,11 @@ public abstract class AbstractServerBinding implements ServerBinding {
         } catch (InvocationTargetException ex) {
             LOG.log(Level.SEVERE, "Failed to invoke method " + method.getName() + " on implementor.", ex);
         }
-
-
-        replyCtx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, Boolean.TRUE);
-        // marshal objects into new SSAJ model (new model for response)
-        marshal(objContext, replyCtx);
+        objContext.setReturn(result);        
         
         // marshal objects into response object context: parameters whose type
         // is a
         // parametrized javax.xml.ws.Holder<T> are classified as in/out or out.
-        objContext = createObjectContext();
-        objContext.setReturn(result);
         ArrayList<Object> replyParamList = new ArrayList<Object>();
         if (params != null) {
             for (Object p : params) {
@@ -217,6 +208,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             objContext.setMessageObjects(replyParams);
         }
         
+        replyCtx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, Boolean.TRUE);                
         if (null != replyCtx) {
             marshal(objContext, replyCtx);
         }
@@ -225,4 +217,5 @@ public abstract class AbstractServerBinding implements ServerBinding {
     }
     
     protected abstract QName getOperationName(MessageContext ctx);
+
 }

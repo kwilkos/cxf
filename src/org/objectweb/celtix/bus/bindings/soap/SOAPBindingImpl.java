@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -8,6 +9,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.WebParam;
@@ -43,6 +45,7 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
             msgFactory = MessageFactory.newInstance();
             soapFactory = SOAPFactory.newInstance();
         } catch (SOAPException se) {
+            LOG.log(Level.SEVERE, "Exception in creating SAAJ Message Factory.", se);
             throw new WebServiceException(se.getMessage());
         }
     }
@@ -133,20 +136,20 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
             throw new SOAPException("SOAPMessageContext not available");
         }
 
+        //REVISIT The Transport Streams has some problem due to which the
+        //below code needs to be added
+        byte bytes[] = new byte[1024];
+        int len = in.read(bytes);
+        ByteArrayInputStream bis = new ByteArrayInputStream(bytes, 0, len);
+
         SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
-        SOAPMessage soapMessage = 
-                getMessageFactory().createMessage(null, in);
+        SOAPMessage soapMessage = null;
+        try {
+            soapMessage = msgFactory.createMessage(null, bis);
+        } catch (Exception ex) {
+            LOG.log(Level.INFO, "error in creating soap message", ex);
+        }
         soapContext.setMessage(soapMessage);
-
-        QName opName = getOperationName(soapMessage);
-
-        mc.put(MessageContext.WSDL_OPERATION, opName);
-    }
-
-    private QName getOperationName(SOAPMessage soapMessage) {
-        QName opName = null;
-
-        return opName;
     }
 
     private SOAPElement addOperationNode(SOAPElement body, SOAPMessageInfo messageInfo) throws SOAPException {
@@ -278,15 +281,14 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
         }
     }  
     
-    private String getPackageList(SOAPMessageInfo messageInfo, boolean isInput) {
+    private String getPackageList(SOAPMessageInfo messageInfo, boolean isOutBound) {
         //REVISIT Package of all WebParam may be needed as well.
-        String str = isInput ? messageInfo.getRequestWrapperType() 
-                             : messageInfo.getResponseWrapperType();
+        String str = isOutBound ? messageInfo.getResponseWrapperType() 
+                                : messageInfo.getRequestWrapperType();
 
         if (str == null) {
             return messageInfo.getMethod().getDeclaringClass().getPackage().getName();
         }
-        
         return str.substring(0, str.lastIndexOf('.'));
     }
     
@@ -314,6 +316,7 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
                 }
             }
         } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "Could not get part out of wrapper element", ex);
             throw new SOAPException("Could not get part out of wrapper element", ex);
         }
         return null;
