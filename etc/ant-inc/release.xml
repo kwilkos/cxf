@@ -7,61 +7,67 @@
 		description="Build a release kit">
 
 		<mkdir dir="${build.release.dir}"/>
+		<mkdir dir="${build.release.dir}/bin"/>
 		<mkdir dir="${build.release.dir}/samples"/>
-    	<copy includeEmptyDirs="false" todir="${build.release.dir}/samples">
-    		<fileset dir="${basedir}/samples">
+		<copy includeEmptyDirs="false" todir="${build.release.dir}/bin">
+		  <fileset dir="${basedir}/bin">
+    			<include name="**/*"/>
+		  </fileset>
+		</copy>
+		<copy includeEmptyDirs="false" todir="${build.release.dir}/samples">
+		  <fileset dir="${basedir}/samples">
     			<include name="**/*"/>
     			<exclude name="**/build/**/*"/>
     			<exclude name="**/build"/>
     			<exclude name="celtix.build.properties.wc"/>
-    		</fileset>
-    	</copy>
-		<copy todir="${build.release.dir}/lib">
-    		<fileset dir="${build.lib.dir}">
-    			<include name="**/*"/>
-    		</fileset>
+		  </fileset>
 		</copy>
 		<copy todir="${build.release.dir}/lib">
-    		<fileset dir="${tools.dir}">
-    			<include name="wsdl4j/**/*"/>
-    			<include name="tomcat/**/*"/>
-    		</fileset>
+		  <fileset dir="${build.lib.dir}">
+    			<include name="**/*"/>
+		  </fileset>
+		</copy>
+		<copy todir="${build.release.dir}/lib">
+		  <fileset dir="${tools.dir}">
+		    <include name="wsdl4j/**/*"/>
+		    <include name="tomcat/**/*"/>
+		  </fileset>
 		</copy>
 		<copy todir="${build.release.dir}/docs/api">
-    		<fileset dir="${basedir}/build/javadoc/api">
-    			<include name="**/*"/>
-    		</fileset>
+		  <fileset dir="${basedir}/build/javadoc/api">
+		    <include name="**/*"/>
+		  </fileset>
 		</copy>
-
-        <delete dir="${build.package.dir}" quiet="true"/>   
+		
+		<delete dir="${build.package.dir}" quiet="true"/>   
 		<mkdir dir="${build.package.dir}"/>
-        <zip destfile="${build.package.dir}/celtix-${celtix.version}-bin.zip">
-            <zipfileset prefix="celtix" dir="${build.release.dir}">
-                <include name="**/*"/>
-                <exclude name="**/tomcat/**/work/**/*"/>
-		<exclude name="**/*.wc"/>
-            </zipfileset>
-        </zip>   
-        <zip destfile="${build.package.dir}/celtix-${celtix.version}-src.zip">
-            <zipfileset prefix="celtix" dir="${basedir}">
-                <include name="**/*"/>
-                <exclude name="build"/>
-                <exclude name="build/**/*"/>
-                <exclude name="**/.*"/>
-            </zipfileset>
-
-            <zipfileset prefix="celtix" dir="${basedir}/..">
-                <include name="tools/**/*"/>
-                <exclude name="**/tomcat/**/work/**/*"/>
-            </zipfileset>
-        </zip>    
+		<zip destfile="${build.package.dir}/celtix-${celtix.version}-bin.zip">
+		  <zipfileset prefix="celtix" dir="${build.release.dir}">
+		    <include name="**/*"/>
+		    <exclude name="**/tomcat/**/work/**/*"/>
+		    <exclude name="**/*.wc"/>
+		  </zipfileset>
+		</zip>   
+		<zip destfile="${build.package.dir}/celtix-${celtix.version}-src.zip">
+		  <zipfileset prefix="celtix" dir="${basedir}">
+		    <include name="**/*"/>
+		    <exclude name="build"/>
+		    <exclude name="build/**/*"/>
+		    <exclude name="**/.*"/>
+		  </zipfileset>
+		  
+		  <zipfileset prefix="celtix" dir="${basedir}/..">
+		    <include name="tools/**/*"/>
+		    <exclude name="**/tomcat/**/work/**/*"/>
+		  </zipfileset>
+		</zip>    
 	</target>
-
+	
 	<target name="celtix.jar" depends="src.compile" description="build the celtix jar">
-		<mkdir dir="${build.lib.dir}"/>
-		<jar destfile="${celtix.jar}"
-			 basedir="${build.classes.dir}">
-			<metainf dir="${basedir}/etc/metainf"/>
-		</jar>
+	  <mkdir dir="${build.lib.dir}"/>
+	  <jar destfile="${celtix.jar}"
+	       basedir="${build.classes.dir}">
+	    <metainf dir="${basedir}/etc/metainf"/>
+	  </jar>
 	</target>
 </project>
