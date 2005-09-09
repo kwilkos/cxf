@@ -138,7 +138,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         }
 
         try {
-            OutputStreamMessageContext outCtx = t.createOutputStreamContext(replyCtx);
+            OutputStreamMessageContext outCtx = t.createOutputStreamContext(inCtx);
             // TODO - invoke output stream handlers
             t.finalPrepareOutputStreamContext(outCtx);
 
@@ -146,6 +146,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, "Failed to write response.", ex);
         }
+        
+        LOG.info("Dispatch complete on thread : " + Thread.currentThread());
     }
 
     private MessageContext invokeOnMethod(MessageContext requestCtx) {
