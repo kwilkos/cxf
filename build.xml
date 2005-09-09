@@ -4,7 +4,7 @@
     <property file="etc/celtix.version"/>
 
     <target name="build" depends="src.compile,unittest.compile,systest.compile,unit.test,release" description="Main build target"/>
-	<target name="test" depends="unit.test,system.test" description="Run unit andn system tests"/>
+	<target name="test" depends="unit.test,system.test" description="Run unit and system tests"/>
 	
     <target name="cruisecontrol.build" depends="very.clean,build" description="Main target for cruisecontrol"/>
 	
@@ -68,7 +68,7 @@
         <delete quiet="true" file="run"/>
         <delete quiet="true" file="run.bat"/>
     </target>
-    <target name="very.clean" description="Clean the build artifacts and directories">
+    <target name="very.clean" description="Clean the build artifacts, generated artifacts and directories">
         <delete quiet="true" dir="build"/>
         <delete quiet="true" dir="${tools.dir}/tomcat/5.5.9/server/work"/>
     </target>
