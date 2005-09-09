@@ -10,15 +10,15 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.objectweb.celtix.context.GenericMessageContext;
+import org.objectweb.celtix.context.MessageContextWrapper;;
 
-class SOAPMessageContextImpl extends GenericMessageContext implements SOAPMessageContext {
+class SOAPMessageContextImpl extends MessageContextWrapper implements SOAPMessageContext {
     private static final long serialVersionUID = 1L;
     private static final String SOAP_MESSAGE = "org.objectweb.celtix.bindings.soap.message";
     private Set<URI> soapRoles;
     
-    public SOAPMessageContextImpl() {
-        //Complete
+    public SOAPMessageContextImpl(MessageContext ctx) {
+        super(ctx);
     }
     
     public SOAPMessage getMessage() {

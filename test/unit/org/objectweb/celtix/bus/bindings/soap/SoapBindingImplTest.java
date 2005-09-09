@@ -13,6 +13,7 @@ import org.w3c.dom.NodeList;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
+import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.hello_world_soap_http.Greeter;
 
 public class SoapBindingImplTest extends TestCase {
@@ -32,7 +33,7 @@ public class SoapBindingImplTest extends TestCase {
         
         binding = new SOAPBindingImpl();
         objContext = new ObjectMessageContextImpl();
-        soapContext = new SOAPMessageContextImpl();
+        soapContext = new SOAPMessageContextImpl(new GenericMessageContext());
         
         Method[] declMethods = Greeter.class.getDeclaredMethods();
         for (Method method : declMethods) {

@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -8,6 +7,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,9 +19,8 @@ import javax.jws.soap.SOAPBinding.Style;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
-//import javax.xml.soap.SOAPBody;
+import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPElement;
-//import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPMessage;
@@ -136,16 +136,28 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
             throw new SOAPException("SOAPMessageContext not available");
         }
 
-        //REVISIT The Transport Streams has some problem due to which the
-        //below code needs to be added
-        byte bytes[] = new byte[1024];
-        int len = in.read(bytes);
-        ByteArrayInputStream bis = new ByteArrayInputStream(bytes, 0, len);
 
         SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
         SOAPMessage soapMessage = null;
         try {
-            soapMessage = msgFactory.createMessage(null, bis);
+            MimeHeaders headers = new MimeHeaders();
+            Map<?, ?> httpHeaders = (Map<?, ?>)mc.get(MessageContext.HTTP_REQUEST_HEADERS);
+
+            if (httpHeaders == null) {
+                httpHeaders = (Map<?, ?>)mc.get(MessageContext.HTTP_RESPONSE_HEADERS);
+            }
+            if (httpHeaders != null) {
+                for (Object key : httpHeaders.keySet()) {
+                    if (null != key) {
+                        List<?> values = (List<?>)httpHeaders.get(key);
+                        for (Object value : values) {
+                            headers.addHeader(key.toString(),
+                                value == null ? null : value.toString());
+                        }
+                    }
+                }
+            }            
+            soapMessage = msgFactory.createMessage(headers, in);
         } catch (Exception ex) {
             LOG.log(Level.INFO, "error in creating soap message", ex);
         }

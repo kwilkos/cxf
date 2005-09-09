@@ -13,6 +13,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ClientBinding;
+import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class SoapBindingFactoryTest extends TestCase {
@@ -51,7 +52,8 @@ public class SoapBindingFactoryTest extends TestCase {
         assertTrue(SOAPClientBinding.class.isInstance(clientBinding));
         
         SOAPClientBinding soapClientBinding = (SOAPClientBinding)clientBinding;
-        MessageContext msgCtx = soapClientBinding.createBindingMessageContext();
+        MessageContext msgCtx = soapClientBinding.createBindingMessageContext(
+            new GenericMessageContext());
         assertNotNull(msgCtx);
         assertTrue(SOAPMessageContext.class.isInstance(msgCtx));
         

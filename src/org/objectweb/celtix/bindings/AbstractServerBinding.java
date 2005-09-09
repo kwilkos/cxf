@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.concurrent.Executor;
+//import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,8 +18,9 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.bus.EndpointImpl;
+//import org.objectweb.celtix.bus.EndpointImpl;
 import org.objectweb.celtix.bus.EndpointUtils;
+import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -59,6 +60,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
             public void dispatch(InputStreamMessageContext ctx, ServerTransport t) {
                 LOG.info("Constructing ServerBindingCallback with transport: " + t);
                 Runnable r = new ServerBindingCallback(ctx, t, AbstractServerBinding.this);
+                r.run();
+                /*
                 // wait for documentation and implementation of JAX-WS RI to
                 // sync up
                 Endpoint ep = AbstractServerBinding.this.getEndpoint();
@@ -75,6 +78,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 // which case we cannot
                 // do anything about these exceptions.
                 ex.execute(r);
+                */
             }
         });
     }
@@ -89,7 +93,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
     protected abstract TransportFactory getDefaultTransportFactory(String address);
 
-    protected abstract MessageContext createBindingMessageContext();
+    protected abstract MessageContext createBindingMessageContext(MessageContext orig);
 
     protected abstract void marshal(ObjectMessageContext objCtx, MessageContext replyCtx);
 
@@ -108,7 +112,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
     void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
         LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
-        MessageContext requestCtx = createBindingMessageContext();
+        MessageContext requestCtx = createBindingMessageContext(inCtx);
 
         //Input Message
         requestCtx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, Boolean.FALSE);
@@ -155,7 +159,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         // get operation name from message context and identify method
         // in implementor
         //REVISIT replyCtx should be created once the method is invoked
-        MessageContext replyCtx = createBindingMessageContext();
+        MessageContext replyCtx = createBindingMessageContext(new GenericMessageContext());
         
         QName operationName = getOperationName(requestCtx);
 

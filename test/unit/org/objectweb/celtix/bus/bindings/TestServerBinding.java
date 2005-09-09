@@ -37,7 +37,7 @@ public class TestServerBinding extends AbstractServerBinding {
         binding = new TestBinding();
     }
 
-    protected MessageContext createBindingMessageContext() {
+    protected MessageContext createBindingMessageContext(MessageContext ctx) {
         return new GenericMessageContext();
     }
 

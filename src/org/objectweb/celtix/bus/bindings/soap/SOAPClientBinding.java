@@ -34,8 +34,8 @@ public class SOAPClientBinding extends GenericClientBinding {
         return soapBinding.isCompatibleWithAddress(address);
     }
 
-    protected MessageContext createBindingMessageContext() {
-        return new SOAPMessageContextImpl();
+    protected MessageContext createBindingMessageContext(MessageContext ctx) {
+        return new SOAPMessageContextImpl(ctx);
     }
 
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {

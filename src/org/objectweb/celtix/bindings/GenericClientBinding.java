@@ -60,7 +60,7 @@ public abstract class GenericClientBinding implements ClientBinding {
         return new ObjectMessageContextImpl();
     }
 
-    protected abstract  MessageContext createBindingMessageContext();
+    protected abstract  MessageContext createBindingMessageContext(MessageContext orig);
     
     protected abstract void marshal(ObjectMessageContext objContext, MessageContext context);
 
@@ -74,7 +74,7 @@ public abstract class GenericClientBinding implements ClientBinding {
     
     public ObjectMessageContext invoke(ObjectMessageContext context) throws IOException {
         // TODO - invoke ObjectMessageContext handlers
-        MessageContext bindingContext = createBindingMessageContext();
+        MessageContext bindingContext = createBindingMessageContext(context);
         //Input Message For Client
         bindingContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, Boolean.FALSE);
         
@@ -94,9 +94,9 @@ public abstract class GenericClientBinding implements ClientBinding {
 
         InputStreamMessageContext ins = transport.invoke(ostreamContext);
        
-        bindingContext = createBindingMessageContext();
+        bindingContext = createBindingMessageContext(ins);
         if (null == bindingContext) {
-            bindingContext = context;
+            bindingContext = ins;
         }
         
         //Output Message For Client

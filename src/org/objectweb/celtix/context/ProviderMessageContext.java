@@ -7,14 +7,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.MessageContext.Scope;
 
 public class ProviderMessageContext implements Map<String, Object> {
 
     private static final long serialVersionUID = 1L;
-    private GenericMessageContext context;
+    private MessageContext context;
 
-    public ProviderMessageContext(GenericMessageContext ctx) {
+    public ProviderMessageContext(MessageContext ctx) {
         context = ctx;
     }
 

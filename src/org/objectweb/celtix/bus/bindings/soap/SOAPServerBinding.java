@@ -67,8 +67,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
         return null;
     }
     
-    protected MessageContext createBindingMessageContext() {
-        return new SOAPMessageContextImpl();
+    protected MessageContext createBindingMessageContext(MessageContext orig) {
+        return new SOAPMessageContextImpl(orig);
     }
     
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {
@@ -117,8 +117,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         
         Object implementor = endpoint.getImplementor();
         if (Service.Mode.MESSAGE == mode.value()) {
-            
-            return invokeOnProvider(msg, createProviderContext(soapCtx));
+            return invokeOnProvider(msg, soapCtx);
         }
         
         SOAPBody body = null;
@@ -127,7 +126,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         } catch (SOAPException ex) {
             LOG.log(Level.SEVERE, "Failed to obtain SOAP body.", ex);
         }
-        return invokeOnProvider(body, createProviderContext(soapCtx));
+        return invokeOnProvider(body, soapCtx);
     }
     
     Map<String, Object> createProviderContext(SOAPMessageContext soapCtx) {
@@ -135,25 +134,25 @@ public class SOAPServerBinding extends AbstractServerBinding {
     }
     
     @SuppressWarnings("unchecked")
-    MessageContext invokeOnProvider(SOAPMessage msg, Map<String, Object> providerCtx) throws RemoteException {
+    MessageContext invokeOnProvider(SOAPMessage msg, SOAPMessageContext soapCtx) throws RemoteException {
         Provider<SOAPMessage> provider = (Provider<SOAPMessage>)getEndpoint().getImplementor();
-        SOAPMessage replyMsg = provider.invoke(msg, providerCtx);
-        SOAPMessageContextImpl replyCtx = new SOAPMessageContextImpl();
+        SOAPMessage replyMsg = provider.invoke(msg, createProviderContext(soapCtx));
+        SOAPMessageContextImpl replyCtx = new SOAPMessageContextImpl(soapCtx);
         replyCtx.setMessage(replyMsg);
         return replyCtx;
     }
     
     @SuppressWarnings("unchecked")
-    MessageContext invokeOnProvider(SOAPBody body, Map<String, Object> providerCtx) throws RemoteException {
+    MessageContext invokeOnProvider(SOAPBody body, SOAPMessageContext soapCtx) throws RemoteException {
         
         try {
             Document document = body.extractContentAsDocument();
             Source request = new DOMSource(document);
             
             Provider<Source> provider = (Provider<Source>)getEndpoint().getImplementor();
-            Source reply = provider.invoke(request, providerCtx);
+            Source reply = provider.invoke(request, createProviderContext(soapCtx));
             
-            SOAPMessageContext replyCtx = new SOAPMessageContextImpl();
+            SOAPMessageContext replyCtx = new SOAPMessageContextImpl(soapCtx);
             
             // ...
         } catch (SOAPException ex) {
