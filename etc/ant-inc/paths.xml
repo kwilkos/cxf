@@ -66,10 +66,20 @@
     	<path refid="junit.classpath"/>
     </path>
  
+    
+    <path id="emma.lib" >
+      <pathelement location="${tools.dir}/emma/2.0.5312/emma.jar" />
+      <pathelement location="${tools.dir}/emma/2.0.5312/emma_ant.jar"/>
+    </path>
+
+    <taskdef resource="emma_ant.properties" classpathref="emma.lib" />
+    
     <path id="unit.test.classpath">
+        <pathelement location="${basedir}/build/classes-instrumented"/>
         <pathelement location="${basedir}/build/classes-tests"/>
         <pathelement location="${basedir}/build/classes-tests/unit"/>
         <path refid="unit.test.compile.classpath"/>
+        <path refid="emma.lib"/>
     </path>
     
     <path id="system.test.compile.classpath">

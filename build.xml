@@ -37,6 +37,9 @@
     <!-- Load the system test targets -->
     <import file="etc/ant-inc/systest.xml"/>
 
+    <!-- Load the coverage targets -->
+    <import file="etc/ant-inc/coverage.xml"/>
+
     <!-- Load the javadoc targets -->
     <import file="etc/ant-inc/javadoc.xml"/>
 
@@ -59,6 +62,8 @@
                  <include name="set_env*"/>
             </fileset>
         </delete>
+        <delete quiet="true" dir="build/coverage"/>
+        <delete quiet="true" dir="build/classes-instrumented"/>
         <delete quiet="true" dir="build/testresults"/>
         <delete quiet="true" dir="${build.release.dir}"/>
         <delete quiet="true" dir="${build.lib.dir}"/>

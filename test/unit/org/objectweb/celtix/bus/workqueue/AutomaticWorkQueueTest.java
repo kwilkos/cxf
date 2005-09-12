@@ -222,7 +222,7 @@ public class AutomaticWorkQueueTest extends TestCase {
                 // ignore
             }
         }
-        assertEquals("threads_total()", DEFAULT_LOW_WATER_MARK, workqueue.getPoolSize());
+        assertTrue("threads_total()", workqueue.getPoolSize() <= DEFAULT_LOW_WATER_MARK);
     }
 
     public void testShutdown() {
