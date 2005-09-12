@@ -3,7 +3,7 @@
     <property file="build.properties"/>
     <property file="etc/celtix.version"/>
 
-    <target name="build" depends="src.compile,unittest.compile,systest.compile,unit.test,release" description="Main build target"/>
+    <target name="build" depends="src.compile,unittest.compile,systest.compile,unit.test,system.test,release" description="Main build target"/>
 	<target name="test" depends="unit.test,system.test" description="Run unit and system tests"/>
 	
     <target name="cruisecontrol.build" depends="very.clean,build" description="Main target for cruisecontrol"/>

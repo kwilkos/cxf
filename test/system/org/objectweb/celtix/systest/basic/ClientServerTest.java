@@ -39,11 +39,22 @@ public class ClientServerTest extends ClientServerTestBase {
         Service service = factory.createService(wsdl, serviceName);
         assertNotNull(service);
 
+        String response1 = new String("Hello Milestone-");
+        String response2 = new String("Bonjour");
         try { 
             Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
-            String greeting = greeter.greetMe("Hello-Milestone");
-            assertNotNull("no response received from service", greeting);
-            System.out.println("response from service: " +  greeting);
+            for (int idx = 0; idx < 20 ; idx++) {
+                String greeting = greeter.greetMe("Milestone-" + idx);
+                assertNotNull("no response received from service", greeting);
+                String exResponse = response1 + idx;
+                assertEquals(exResponse, greeting);
+                
+                String reply = greeter.sayHi();
+                assertNotNull("no response received from service", reply);
+                assertEquals(response2, reply);
+                
+                //System.out.println("response from service: " +  greeting);
+            }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
         }
