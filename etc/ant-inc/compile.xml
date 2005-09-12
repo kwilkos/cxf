@@ -118,7 +118,7 @@
     	</copy>
     </target>
 
-	   <target name="systest.compile" depends="testwsdl.codegen" description="Compile the system tests">
+	   <target name="systest.compile" depends="systemtest.checkstyle,testwsdl.codegen" description="Compile the system tests">
 	        <mkdir dir="${basedir}/build/classes-tests/system"/>
 	        <javac srcdir="${basedir}/test/system"
 	            destdir="${basedir}/build/classes-tests/system"

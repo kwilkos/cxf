@@ -43,7 +43,7 @@ public class ClientServerTest extends ClientServerTestBase {
         String response2 = new String("Bonjour");
         try { 
             Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
-            for (int idx = 0; idx < 20 ; idx++) {
+            for (int idx = 0; idx < 20; idx++) {
                 String greeting = greeter.greetMe("Milestone-" + idx);
                 assertNotNull("no response received from service", greeting);
                 String exResponse = response1 + idx;

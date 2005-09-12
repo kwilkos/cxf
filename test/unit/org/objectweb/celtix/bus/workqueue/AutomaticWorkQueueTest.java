@@ -210,7 +210,12 @@ public class AutomaticWorkQueueTest extends TestCase {
 
         // Give threads a chance to dequeue (5sec max)
         int i = 0;
-        while (workqueue.getPoolSize() != 0 && i++ < 50) {
+        int last = workqueue.getPoolSize();
+        while (workqueue.getPoolSize() != DEFAULT_LOW_WATER_MARK && i++ < 50) {
+            if (last != workqueue.getPoolSize()) {
+                last = workqueue.getPoolSize();
+                i = 0;
+            }
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ie) {
@@ -415,7 +420,7 @@ public class AutomaticWorkQueueTest extends TestCase {
             }
             while (!isFinished()) {
                 try {
-                    Thread.sleep((nWorkItems * worktime) + 50);
+                    Thread.sleep(worktime);
                 } catch (InterruptedException ie) {
                     // ignore
                 }
