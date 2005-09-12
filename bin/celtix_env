@@ -58,10 +58,8 @@ CLASSPATH=$CELTIX_HOME/lib/celtix.jar:${CLASSPATH-""}
 # add all of the jars needed by the runtime to the 
 # classpath
 #
-add_jars_to_classpath $CELTIX_HOME/lib/wsdl4j/1.5.1
-add_jars_to_classpath $CELTIX_HOME/lib/tomcat/5.5.9/server/lib
-add_jars_to_classpath $CELTIX_HOME/lib/tomcat/5.5.9/common/lib
-add_jars_to_classpath $CELTIX_HOME/lib/tomcat/5.5.9/bin
 add_jars_to_classpath $JAXWS_HOME/lib
+
+export PATH=$CELTIX_HOME/bin:$PATH 
 
 export CLASSPATH CELTIX_ENV_SET

@@ -20,6 +20,7 @@ rem set jaxws classpath
 for %%i in (%JAXWS_HOME%\lib\*.jar) do call %$CELTIX_HOME%\bin\cp.bat %%i 
 for %%i in (%CELTIX_HOME%\lib\wsdl4j\1.5.1\*.jar) do call %CELTIX_HOME%\bin\cp.bat %%i 
 
+set PATH=%CELTIX_HOME%\bin;%PATH% 
 
 rem all done
 goto end 
