@@ -1,4 +1,4 @@
-rem @echo off
+@echo off
 rem Helper bat file for appending values to classpath
 rem 
 
@@ -8,6 +8,6 @@ set CLASSPATH=%CLASSPATH%;%1
 goto end 
 
 :usage
-echo cp env-var old-path new-value
+echo cp new-value
 
 :end
