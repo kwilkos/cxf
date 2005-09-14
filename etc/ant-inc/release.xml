@@ -38,6 +38,11 @@
 		    <include name="tomcat/**/*"/>
 		  </fileset>
 		</copy>
+        <copy todir="${build.release.dir}/docs">
+          <fileset dir="${basedir}/docs">
+            <include name="**/*"/>
+          </fileset>
+        </copy>
 		<copy todir="${build.release.dir}/docs/api">
 		  <fileset dir="${basedir}/build/javadoc/api">
 		    <include name="**/*"/>
