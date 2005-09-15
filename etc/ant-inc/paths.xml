@@ -3,8 +3,17 @@
     <!-- Path definitions -->
 
     <!-- on darwin, tools.jar does not exist -->
+
     <available property="tools.jar" value="${env.JAVA_HOME}/lib/tools.jar"
 	       file="${env.JAVA_HOME}/lib/tools.jar"/>
+    <condition property="tools.jar" value="${java.home}/../lib/tools.jar">
+        <and>
+            <not>
+                <isset property="tools.jar"/>
+            </not>
+            <available filepath="${java.home}/../lib/" file="tools.jar" type="file"/>
+        </and>
+    </condition>
 
 	<property name="build.dir" value="${basedir}/build"/>
 	<property name="build.classes.dir" location="${build.dir}/classes"/>

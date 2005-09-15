@@ -24,7 +24,6 @@
     			<include name="**/*"/>
     			<exclude name="**/build/**/*"/>
     			<exclude name="**/build"/>
-    			<exclude name="celtix.build.properties.wc"/>
 		  </fileset>
 		</copy>
 		<copy todir="${build.release.dir}/lib">

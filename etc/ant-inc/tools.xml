@@ -29,7 +29,7 @@
             <not>
                 <isset property="tools.dir.property"/>
             </not>
-            <available file="../tools"/>
+            <available filepath="../" file="tools" type="dir"/>
         </and>
     </condition>
 
@@ -38,7 +38,7 @@
             <not>
                 <isset property="tools.dir.property"/>
             </not>
-            <available file="../../tools"/>
+            <available filepath="../../" file="tools" type="dir"/>
         </and>
     </condition>
 

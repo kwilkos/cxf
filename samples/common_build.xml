@@ -15,20 +15,37 @@
     </path>
 
     <!-- 
-	 find the properties file with the path definitions.  This is different 
-	 if we are in a working copy or in a release
+        First assume we are either in a working copy or in a source
+        distribution, and expect third party libraries in the ../../../tools 
+        or ../../tools directory respectively.
+        If neither directory exists assume we are in a binary distribution
+        in which case third party tools are located in the ../../lib directory.
     -->
-    <condition property="props.file.name" value="celtix.build.properties.wc">
-      <available file="${basedir}/../celtix.build.properties.wc"/>
+    
+    <available property="thirdparty.tools.dir" value="${basedir}/../../../tools/" file="tools" filepath="${basedir}/../../.." type="dir"/>
+    <condition property="thirdparty.tools.dir" value="${basedir}/../../tools">
+        <and>
+            <not>
+                <isset property="thirdparty.tools.dir"/>
+            </not>
+            <available filepath="${basedir}/../.." file="tools" type="dir"/>
+        </and>
     </condition>
-    <property name="props.file.name" value="celtix.build.properties"/>
-    <property file="${basedir}/../${props.file.name}"/>
+    <condition property="thirdparty.tools.dir" value="${basedir}/../../lib">
+        <and>
+            <not>
+                <isset property="thirdparty.tools.dir"/>
+            </not>
+            <available filepath="${basedir}/../.." file="lib" type="dir"/>
+        </and>
+    </condition>
 
     <target name="build"  depends="generate.code,compile" description="build demo client and server"/>
 
     <path id="celtix.build.classpath">	
-      <pathelement location="${celtix.home.dir}/lib/celtix.jar"/>
       <pathelement location="${basedir}/build/classes"/>
+      <pathelement location="${basedir}/../../lib/celtix.jar"/>
+      <pathelement location="${basedir}/../../build/lib/celtix.jar"/>
       <fileset dir="${jaxws.lib.dir}">
 	<include name="*.jar"/>
       </fileset>
