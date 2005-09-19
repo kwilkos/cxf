@@ -65,6 +65,9 @@
                 <exclude name="build"/>
                 <exclude name="build/**/*"/>
                 <exclude name="**/.*"/>
+                <exclude name="LICENSE"/>
+                <exclude name="NOTICE"/>
+                <exclude name="NOTICE.source"/>
             </zipfileset>
 		  
 
@@ -74,7 +77,9 @@
             </zipfileset>
             <zipfileset prefix="celtix" dir="${basedir}">
                 <include name="LICENSE"/>
-                <include name="NOTICE"/>
+            </zipfileset>
+            <zipfileset dir="${basedir}" fullpath="celtix/NOTICE">
+                <include name="NOTICE.source"/>
             </zipfileset>
         </zip>
     </target>
