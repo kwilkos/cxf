@@ -12,6 +12,7 @@
 		<copy todir="${build.release.dir}">
 		  <fileset dir="${basedir}/..">
     			<include name="LICENSE"/>
+		  	    <include name="NOTICE"/>
 		  </fileset>
 		</copy>		
 		<copy includeEmptyDirs="false" todir="${build.release.dir}/bin">
@@ -71,6 +72,7 @@
 		  </zipfileset>
 		  <zipfileset prefix="celtix" dir="${basedir}/..">
 			<include name="LICENSE"/>
+		  	<include name="NOTICE"/>
 		  </zipfileset>	
 		</zip>    
 	</target>
