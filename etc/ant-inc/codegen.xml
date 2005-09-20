@@ -16,7 +16,7 @@
                 </not>
             </condition>
             <property name="package.arg.@{file}" value=""/>
-            <java failonerror="true" classname="com.sun.tools.ws.WsImport" fork="yes">
+            <java failonerror="true" classname="com.sun.tools.ws.WsImport" fork="true" newenvironment="true">
                 <classpath>
                     <fileset dir="${env.JAXWS_HOME}/lib">
                         <include name="*.jar"/>
@@ -46,13 +46,13 @@
             </condition>
             <property name="package.arg.@{file}" value=""/>
             <mkdir dir="@{destdir}"/>
-            <java failonerror="true" classname="com.sun.tools.xjc.Driver" fork="yes">
+            <java failonerror="true" classname="com.sun.tools.xjc.Driver" fork="true" newenvironment="true">
                 <classpath>
                     <fileset dir="${env.JAXWS_HOME}/lib">
                         <include name="*.jar"/>
                     </fileset>
-		    <path refid="jdk.tools.classpath"/>
-                </classpath>
+					<path refid="jdk.tools.classpath"/>
+              	</classpath>
                 <arg line="${package.arg.@{file}}"/>
                 <arg value="-quiet"/>
                 <arg value="-d"/>
@@ -63,9 +63,9 @@
     </macrodef>
 
     <target name="schemas.codegen.internal" unless="schema.codegen.notrequired">
-        <xsdtojava file="schemas/ws-addr.xsd" destdir="build/src" package="org.objectweb.celtix.addressing"/>
-        <xsdtojava file="schemas/ws-addr-wsdl.xsd" destdir="build/src" package="org.objectweb.celtix.addressing.wsdl"/>
-        <xsdtojava file="schemas/wsdl.xsd" destdir="build/src"/>
+        <xsdtojava file="schemas/ws-addr.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing"/>
+        <xsdtojava file="schemas/ws-addr-wsdl.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing.wsdl"/>
+        <xsdtojava file="schemas/wsdl.xsd" destdir="${basedir}/build/src"/>
         <touch file="${basedir}/build/src/.SCHEMA.CODEGEN.DONE"/>
     </target>
 
