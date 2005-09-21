@@ -357,11 +357,11 @@ public class AutomaticWorkQueueTest extends TestCase {
         public static final int DEFAULT_WORK_ITEMS = 200;
 
         AutomaticWorkQueueImpl workqueue;
-        int nWorkItems = 0;
-        int nWorkItemsCompleted = 0;
-        long worktime = 0L;
-        long finishTime = 0L;
-        long startTime = 0L;
+        int nWorkItems;
+        int nWorkItemsCompleted;
+        long worktime;
+        long finishTime;
+        long startTime;
 
         public DeadLockThread(AutomaticWorkQueueImpl wq) {
             this(wq, DEFAULT_WORK_ITEMS, DEFAULT_WORK_TIME);

@@ -2,6 +2,8 @@
 <project name="celtix-paths" basedir="../..">
     <!-- Path definitions -->
 
+	<property name="tools.dir" location="${basedir}/tools"/>
+	
     <!-- on darwin, tools.jar does not exist -->
 
     <available property="tools.jar" value="${env.JAVA_HOME}/lib/tools.jar"

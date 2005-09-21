@@ -32,10 +32,10 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import org.w3c.dom.Node;
 
-import org.objectweb.celtix.bus.bindings.BindingImpl;
+import org.objectweb.celtix.bus.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.context.ObjectMessageContext;
 
-public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
+public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding {
     private static final Logger LOG = Logger.getLogger(SOAPClientBinding.class.getName());
     protected final MessageFactory msgFactory;
     protected final SOAPFactory soapFactory;
@@ -182,7 +182,7 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
         Node childNode = xmlNode.getFirstChild();
 
         Object retVal = null;
-        ArrayList<Object> paramList = new ArrayList<Object>();
+        List<Object> paramList = new ArrayList<Object>();
 
         if (messageInfo.getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
             QName elName = isOutBound ? messageInfo.getResponseWrapperQName() 

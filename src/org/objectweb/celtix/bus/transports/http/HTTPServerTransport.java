@@ -41,7 +41,7 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
     
     EndpointReferenceType reference;
     String url;
-    HTTPServerEngine engine = null;
+    HTTPServerEngine engine;
     String name;
     Servlet servlet = new HTTPServlet(this);
     ServerTransportCallback callback;

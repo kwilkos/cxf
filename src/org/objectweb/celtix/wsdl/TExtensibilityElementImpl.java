@@ -5,7 +5,7 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.namespace.QName;
 
-public abstract class TExtensibilityElementImpl
+public class TExtensibilityElementImpl
     extends TExtensibilityElement
     implements ExtensibilityElement {
 

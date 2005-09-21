@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.tools.Wsdl2Java;
@@ -142,7 +143,7 @@ public final class JAXWSToolHelper {
         
         File jaxwsLib = new File(jaxwsHome, "lib/");
         
-        ArrayList<URL> jars = new ArrayList<URL>();
+        List<URL> jars = new ArrayList<URL>();
         if (jaxwsLib.exists() && jaxwsLib.isDirectory()) {
             File[] files = jaxwsLib.listFiles();
             for (int i = 0; i < files.length; i++) {

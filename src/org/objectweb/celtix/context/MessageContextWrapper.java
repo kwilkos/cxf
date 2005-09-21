@@ -6,7 +6,7 @@ import java.util.Set;
 
 import javax.xml.ws.handler.MessageContext;
 
-public abstract class MessageContextWrapper implements MessageContext {
+public class MessageContextWrapper implements MessageContext {
     protected MessageContext context;
     
     public MessageContextWrapper(MessageContext ctx) {

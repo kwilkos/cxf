@@ -21,14 +21,14 @@ import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
-public abstract class GenericClientBinding implements ClientBinding {
-    private static final Logger LOG = Logger.getLogger(GenericClientBinding.class.getName());
+public abstract class AbstractClientBinding implements ClientBinding {
+    private static final Logger LOG = Logger.getLogger(AbstractClientBinding.class.getName());
 
     protected final Bus bus;
     protected final EndpointReferenceType reference;
     protected ClientTransport transport;
     
-    public GenericClientBinding(Bus b, EndpointReferenceType ref) {
+    public AbstractClientBinding(Bus b, EndpointReferenceType ref) {
         bus = b;
         reference = ref;
         transport = createTransport();

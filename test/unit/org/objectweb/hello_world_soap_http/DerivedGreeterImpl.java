@@ -2,6 +2,7 @@ package org.objectweb.hello_world_soap_http;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @javax.jws.WebService(name = "Greeter", serviceName = "SOAPService", 
@@ -10,7 +11,7 @@ public class DerivedGreeterImpl implements Greeter {
 
     private static final Logger LOG = 
         Logger.getLogger(DerivedGreeterImpl.class.getName());
-    private HashMap<String, Integer> invocationCount = new HashMap<String, Integer>();
+    private Map<String, Integer> invocationCount = new HashMap<String, Integer>();
 
     public DerivedGreeterImpl() {
         invocationCount.put("sayHi", 0);

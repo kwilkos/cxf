@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 
@@ -21,12 +22,12 @@ import org.apache.catalina.startup.Embedded;
 final class HTTPServerEngine {
     private static final long serialVersionUID = 1L;
     
-    private static HashMap<Integer, WeakReference<HTTPServerEngine>> portMap =
+    private static Map<Integer, WeakReference<HTTPServerEngine>> portMap =
         new HashMap<Integer, WeakReference<HTTPServerEngine>>();
     private static Embedded embeddedTomcat;
 
     Connector connector;
-    int servantCount = 0;
+    int servantCount;
     ServletContext context;
     
     Context ctx;

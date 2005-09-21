@@ -79,7 +79,8 @@ public final class EndpointReferenceUtils {
         assert def != null : "unable to find definition for reference " + ref;
 
         MetadataType metadata = ref.getMetadata();
-        for (Object obj : metadata.getAny()) {
+        for (Object objMeta : metadata.getAny()) {
+            Object obj = objMeta;
             if (obj instanceof Element) {
                 Element el = (Element)obj;
                 if ("http://www.w3.org/2005/02/addressing/wsdl".equals(el.getNamespaceURI())) {
@@ -119,7 +120,7 @@ public final class EndpointReferenceUtils {
             if (service == null) {
                 throw new WSDLException(WSDLException.OTHER_ERROR, "Cannot find service for " + serviceName);
             }
-            String str = attribMap.get(PORT_NAME); // return
+            String str = attribMap.get(PORT_NAME);
             // service.getPort(str);
             LOG.log(Level.FINE, "getting port " + str + " from service " + service.getQName());
             Port port = service.getPort(str);

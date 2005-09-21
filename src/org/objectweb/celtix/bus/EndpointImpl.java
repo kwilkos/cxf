@@ -37,7 +37,8 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
     EndpointImpl(Bus b, Object impl, URI bindingId) throws BusException {
         bus = b;
         implementor = impl;
-        configuration = null; // new EndpointConfiguration(Bus, this);
+        configuration = null;
+        // configuration = new EndpointConfiguration(Bus, this);
         reference = EndpointReferenceUtils.getEndpointReference(bus.getWSDLManager(), implementor);
         serverBinding = createServerBinding(bindingId);
         executor = bus.getWorkQueueManager().getAutomaticWorkQueue();

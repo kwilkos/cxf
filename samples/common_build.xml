@@ -16,21 +16,12 @@
 
     <!-- 
         First assume we are either in a working copy or in a source
-        distribution, and expect third party libraries in the ../../../tools 
-        or ../../tools directory respectively.
+        distribution, and expect third party libraries in the ../../tools directory.
         If neither directory exists assume we are in a binary distribution
         in which case third party tools are located in the ../../lib directory.
     -->
     
-    <available property="thirdparty.tools.dir" value="${basedir}/../../../tools/" file="tools" filepath="${basedir}/../../.." type="dir"/>
-    <condition property="thirdparty.tools.dir" value="${basedir}/../../tools">
-        <and>
-            <not>
-                <isset property="thirdparty.tools.dir"/>
-            </not>
-            <available filepath="${basedir}/../.." file="tools" type="dir"/>
-        </and>
-    </condition>
+    <available property="thirdparty.tools.dir" value="${basedir}/../../tools/" file="tools" filepath="${basedir}/../.." type="dir"/>
     <condition property="thirdparty.tools.dir" value="${basedir}/../../lib">
         <and>
             <not>

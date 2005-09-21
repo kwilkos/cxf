@@ -1,6 +1,8 @@
 package org.objectweb.celtix;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import junit.framework.*;
 
 import org.objectweb.celtix.bindings.BindingFactory;
@@ -14,7 +16,7 @@ public class BusTest extends TestCase {
         assertNotNull(bus);
         assertTrue("Bus not a Celtix bus", bus instanceof CeltixBus);
 
-        HashMap<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put(BusFactory.BUS_CLASS_PROPERTY, "com.foo.bar.Bus");
         try {
             bus = Bus.init(null, map);            

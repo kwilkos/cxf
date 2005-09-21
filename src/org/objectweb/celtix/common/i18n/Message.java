@@ -4,7 +4,7 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-public abstract class Message {
+public class Message {
     String code;
     Object[] parameters;
     
@@ -16,7 +16,11 @@ public abstract class Message {
     public String toString() {
         String fmt = null;
         try {
-            fmt = getResourceBundle().getString(code);  
+            ResourceBundle bundle = getResourceBundle();
+            if (null == bundle) {
+                return code;
+            }
+            fmt = bundle.getString(code);  
         } catch (MissingResourceException ex) {
             return code;
         }
@@ -32,5 +36,7 @@ public abstract class Message {
         
     }
     
-    protected abstract ResourceBundle getResourceBundle();
+    protected ResourceBundle getResourceBundle() {
+        return null;
+    }
 }

@@ -3,7 +3,7 @@ package org.objectweb.celtix.common.commands;
 public class ForkedCommandException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
-    private ForkedCommand cmd;
+    private final ForkedCommand cmd;
 
     public ForkedCommandException(ForkedCommand proc, Throwable t) {
         this(proc, t.getMessage());

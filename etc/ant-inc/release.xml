@@ -65,21 +65,8 @@
                 <exclude name="build"/>
                 <exclude name="build/**/*"/>
                 <exclude name="**/.*"/>
-                <exclude name="LICENSE"/>
                 <exclude name="NOTICE"/>
-                <exclude name="NOTICE.source"/>
-            </zipfileset>
-		  
-
-            <zipfileset prefix="celtix" dir="${basedir}/..">
-                <include name="tools/**/*"/>
                 <exclude name="**/tomcat/**/work/**/*"/>
-            </zipfileset>
-            <zipfileset prefix="celtix" dir="${basedir}">
-                <include name="LICENSE"/>
-            </zipfileset>
-            <zipfileset dir="${basedir}" fullpath="celtix/NOTICE">
-                <include name="NOTICE.source"/>
             </zipfileset>
         </zip>
     </target>

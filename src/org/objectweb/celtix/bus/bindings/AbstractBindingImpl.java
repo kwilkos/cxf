@@ -6,7 +6,7 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.security.SecurityConfiguration;
 
-public abstract class BindingImpl implements Binding {
+public abstract class AbstractBindingImpl implements Binding {
 
     /* (non-Javadoc)
      * @see javax.xml.ws.Binding#getHandlerChain()

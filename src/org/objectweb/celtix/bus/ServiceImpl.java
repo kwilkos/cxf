@@ -31,7 +31,7 @@ public class ServiceImpl implements Service, InvocationHandler {
     
     private URL wsdlLocation;
     private QName serviceName;
-    private Vector<QName> endpointList;
+    private List<QName> endpointList;
     private final Bus bus;
     private final Class<? extends Service> serviceInterface;
     

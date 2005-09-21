@@ -104,10 +104,12 @@ final class BusFactory {
         String serviceId = "META-INF/services/" + BUS_CLASS_PROPERTY;
         InputStream is = null;
         
-        try {
-            classLoader = Thread.currentThread().getContextClassLoader();
-        } catch (Exception ex) {
-            throw new BusException(ex);
+        if (classLoader == null) {
+            try {
+                classLoader = Thread.currentThread().getContextClassLoader();
+            } catch (Exception ex) {
+                throw new BusException(ex);
+            }
         }
         
         if (classLoader == null) {

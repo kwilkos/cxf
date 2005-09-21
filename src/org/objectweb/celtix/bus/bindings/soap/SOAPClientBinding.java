@@ -11,13 +11,13 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.bindings.GenericClientBinding;
+import org.objectweb.celtix.bindings.AbstractClientBinding;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 
 
-public class SOAPClientBinding extends GenericClientBinding {
+public class SOAPClientBinding extends AbstractClientBinding {
     private static final Logger LOG = Logger.getLogger(SOAPClientBinding.class.getName());
     protected final SOAPBindingImpl soapBinding;
     

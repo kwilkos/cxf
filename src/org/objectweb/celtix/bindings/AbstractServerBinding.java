@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 //import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -200,7 +201,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         // marshal objects into response object context: parameters whose type
         // is a
         // parametrized javax.xml.ws.Holder<T> are classified as in/out or out.
-        ArrayList<Object> replyParamList = new ArrayList<Object>();
+        List<Object> replyParamList = new ArrayList<Object>();
         if (params != null) {
             for (Object p : params) {
                 if (p instanceof Holder) {

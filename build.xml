@@ -19,9 +19,6 @@
             directory.
     </fail>
 
-    <!-- Find the location of the tools directory -->
-    <import file="etc/ant-inc/tools.xml"/>
-
     <!-- Load the path definitions -->
     <import file="etc/ant-inc/paths.xml"/>
 

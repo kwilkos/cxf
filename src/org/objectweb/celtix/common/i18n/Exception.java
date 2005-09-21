@@ -4,7 +4,7 @@ package org.objectweb.celtix.common.i18n;
 
 public abstract class Exception extends java.lang.Exception {
     
-    private Message message;
+    private final Message message;
     
     public Exception(Message msg) {
         message = msg;
