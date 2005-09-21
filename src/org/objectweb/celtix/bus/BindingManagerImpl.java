@@ -1,7 +1,7 @@
 package org.objectweb.celtix.bus;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.ws.soap.SOAPBinding;
 
@@ -16,7 +16,7 @@ public class BindingManagerImpl implements BindingManager {
     private final Bus bus;
     
     BindingManagerImpl(Bus b) throws BusException {
-        bindingFactories = new HashMap<String, BindingFactory>();
+        bindingFactories = new ConcurrentHashMap<String, BindingFactory>();
         bus = b;
         
         // TODO - config instead of hard coded
@@ -47,21 +47,15 @@ public class BindingManagerImpl implements BindingManager {
     
     public void registerBinding(String name,
         BindingFactory factory) throws BusException {
-        synchronized (this) {
-            bindingFactories.put(name, factory);
-        }        
+        bindingFactories.put(name, factory);
     }
     
     public void deregisterBinding(String name) throws BusException {
-        synchronized (this) {
-            bindingFactories.remove(name);
-        }
+        bindingFactories.remove(name);
     }
     
     public BindingFactory getBindingFactory(String name) throws BusException {
-        synchronized (this) {
-            return bindingFactories.get(name);
-        }
+        return bindingFactories.get(name);
     }
         
 }

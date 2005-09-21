@@ -2,7 +2,6 @@ package org.objectweb.celtix.tools.jaxws;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -61,11 +60,9 @@ public final class JAXWSToolHelper {
             // build the classpath for the tool
             setSystemClassPath();
 
-            Constructor ctor = toolClass.getConstructor(String[].class);
-            Object tool = ctor.newInstance((Object)args);
-            Method runMethod = toolClass.getMethod("run");
-            runMethod.invoke(tool);
-            
+            Constructor<? extends ToolBase> ctor = toolClass.getConstructor(String[].class);
+            ToolBase tool = ctor.newInstance((Object)args);
+            tool.run();            
         } catch (ToolException ex) {
             ToolBase.reportError(ex.getMessage());
         } catch (Exception ex) {

@@ -21,7 +21,7 @@ public final class EndpointUtils {
     public static ServiceMode getServiceMode(Endpoint endpoint) {
         Object implementor = endpoint.getImplementor();
         if (implementor instanceof Provider) {
-            ServiceMode mode = (ServiceMode)implementor.getClass().getAnnotation(ServiceMode.class);
+            ServiceMode mode = implementor.getClass().getAnnotation(ServiceMode.class);
             return mode;
         }
         return null;
@@ -42,8 +42,8 @@ public final class EndpointUtils {
 
     public static Method getMethod(Endpoint endpoint, QName operationName) {
         Object implementor = endpoint.getImplementor();
-        Class iClass = implementor.getClass();
-        WebService iws = (WebService)implementor.getClass().getAnnotation(WebService.class);
+        Class<?> iClass = implementor.getClass();
+        WebService iws = iClass.getAnnotation(WebService.class);
 
         if (null == iws) {
             LOG.severe("Implementor is not annotated with WebService annotation.");
@@ -77,7 +77,7 @@ public final class EndpointUtils {
         for (Method m : iMethods) {
             if (m.getName().equals(methodName)) {
                 iMethod = m;
-                WebMethod wm = (WebMethod)m.getAnnotation(WebMethod.class);
+                WebMethod wm = m.getAnnotation(WebMethod.class);
                 if (wm != null && wm.operationName().equals(methodName)) {
                     break;
                 }

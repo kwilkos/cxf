@@ -1,7 +1,7 @@
 package org.objectweb.celtix.bus;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.logging.Logger;
 
 import javax.xml.ws.Endpoint;
@@ -16,7 +16,7 @@ public class EndpointRegistry {
 
     EndpointRegistry(Bus b) {
         bus = b;
-        endpoints = new ArrayList<EndpointImpl>();
+        endpoints = new Vector<EndpointImpl>();
     }
 
     public void registerEndpoint(EndpointImpl ep) {

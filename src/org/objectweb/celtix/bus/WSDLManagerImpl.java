@@ -105,7 +105,7 @@ class WSDLManagerImpl implements WSDLManager {
         return def;
     }
 
-    public Definition getDefinition(Class sei) throws WSDLException {
+    public Definition getDefinition(Class<?> sei) throws WSDLException {
         synchronized (definitionsMap) {
             if (definitionsMap.containsKey(sei)) {
                 return definitionsMap.get(sei);
@@ -130,7 +130,7 @@ class WSDLManagerImpl implements WSDLManager {
         return def;
     }
 
-    private Definition createDefinition(Class sei) {
+    private Definition createDefinition(Class<?> sei) {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("createDefinition for class: " + sei.getName());
         }

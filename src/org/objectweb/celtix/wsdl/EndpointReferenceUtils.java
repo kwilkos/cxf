@@ -1,6 +1,5 @@
 package org.objectweb.celtix.wsdl;
 
-import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.Map;
 import java.util.logging.Level;
@@ -60,7 +59,7 @@ public final class EndpointReferenceUtils {
         Map<QName, String> attribMap = metadata.getOtherAttributes();
         String className = attribMap.get(SEI);
         if (null != className) {
-            Class sei = null;
+            Class<?> sei = null;
             try {
                 sei = Class.forName(className, true, manager.getClass().getClassLoader());
             } catch (ClassNotFoundException ex) {
@@ -107,7 +106,7 @@ public final class EndpointReferenceUtils {
 
         if (def.getServices().size() == 1) {
             Service service = (Service)def.getServices().values().iterator().next();
-            if (service.getPorts().size() == 1) {
+            if (service.getPorts().size() == 1) {                
                 return (Port)service.getPorts().values().iterator().next();
             }
         }
@@ -165,7 +164,7 @@ public final class EndpointReferenceUtils {
 
     public static EndpointReferenceType getEndpointReference(WSDLManager manager, Object implementor) {
 
-        WebService ws = (WebService)implementor.getClass().getAnnotation(WebService.class);
+        WebService ws = implementor.getClass().getAnnotation(WebService.class);
         if (null == ws) {
             return null;
         }
@@ -188,15 +187,13 @@ public final class EndpointReferenceUtils {
             String className = ws.endpointInterface();
 
             if (null == className || "".equals(className)) {
-                Class[] interfaces = implementor.getClass().getInterfaces();
-                for (Class c : interfaces) {
-                    Annotation[] as = c.getAnnotations();
-                    for (Annotation a : as) {
-                        if (a instanceof WebService) {
-                            className = c.getName();
-                            url = ((WebService)a).wsdlLocation();
-                            break;
-                        }
+                Class<?>[] interfaces = implementor.getClass().getInterfaces();
+                for (Class<?> c : interfaces) {
+                    WebService a = c.getAnnotation(WebService.class);
+                    if (null != a) {
+                        className = c.getName();
+                        url = a.wsdlLocation();
+                        break;
                     }
                 }
                 if (null == className || "".equals(className)) {

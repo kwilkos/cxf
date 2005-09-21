@@ -119,7 +119,7 @@ public class ServiceImpl implements Service, InvocationHandler {
         LOG.log(Level.FINE, "creating port for portName", portName);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
         
-        Class <? extends Remote> clazz = null;
+        Class<? extends Remote> clazz = null;
         try {
             clazz = serviceEndpointInterface.asSubclass(Remote.class);
         } catch (ClassCastException cce) {
@@ -127,8 +127,7 @@ public class ServiceImpl implements Service, InvocationHandler {
         }
         
         //Assuming Annotation is Present
-        javax.jws.WebService wsAnnotation = 
-                (WebService) serviceEndpointInterface.getAnnotation(WebService.class);
+        javax.jws.WebService wsAnnotation = serviceEndpointInterface.getAnnotation(WebService.class);
 
         if (wsdlLocation == null) {
             wsdlLocation = getWsdlLocation(wsAnnotation);
@@ -166,8 +165,7 @@ public class ServiceImpl implements Service, InvocationHandler {
         String endpointName = null;
         
         //if (method.isAnnotationPresent(WebEndpoint.class)) {
-        //    WebEndpoint wepAnnotation = 
-        //        (WebEndpoint) method.getAnnotation(WebEndpoint.class);
+        //    WebEndpoint wepAnnotation = method.getAnnotation(WebEndpoint.class);
         //    endpointName = wepAnnotation.name();
         //} else {
         endpointName = method.getName();

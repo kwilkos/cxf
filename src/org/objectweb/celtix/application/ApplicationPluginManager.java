@@ -176,7 +176,7 @@ public class ApplicationPluginManager implements PluginManager {
         ClassLoader cl = getPluginClassLoader();
         Object plugin = null;
         try {
-            Class pluginClass = Class.forName(pluginClassName, true, cl);
+            Class<?> pluginClass = Class.forName(pluginClassName, true, cl);
             plugin = pluginClass.newInstance();
         } catch (Exception ex) {
             LOG.severe("Failed to load " + pluginClassName + ": " + ex.getMessage());
