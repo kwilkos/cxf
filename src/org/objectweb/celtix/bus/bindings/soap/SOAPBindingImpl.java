@@ -249,7 +249,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
 
             if (isOutBound && !"void".equals(method.getReturnType().getName())) {
-                Object retVal = objCtx.getReturn();
                 setWrappedPart(wrapperObj, objCtx.getReturn());
             }
             

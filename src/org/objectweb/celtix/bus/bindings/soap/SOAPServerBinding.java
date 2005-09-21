@@ -115,7 +115,6 @@ public class SOAPServerBinding extends AbstractServerBinding {
         SOAPMessageContext soapCtx = (SOAPMessageContext)requestCtx;
         SOAPMessage msg = soapCtx.getMessage();
         
-        Object implementor = endpoint.getImplementor();
         if (Service.Mode.MESSAGE == mode.value()) {
             return invokeOnProvider(msg, soapCtx);
         }
@@ -151,8 +150,9 @@ public class SOAPServerBinding extends AbstractServerBinding {
             
             Provider<Source> provider = (Provider<Source>)getEndpoint().getImplementor();
             Source reply = provider.invoke(request, createProviderContext(soapCtx));
-            
+            assert null != reply;
             SOAPMessageContext replyCtx = new SOAPMessageContextImpl(soapCtx);
+            assert null != replyCtx;
             
             // ...
         } catch (SOAPException ex) {

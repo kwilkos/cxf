@@ -17,7 +17,7 @@ import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bindings.ServerBinding;
-import org.objectweb.celtix.configuration.Configuration;
+//import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class EndpointImpl implements javax.xml.ws.Endpoint {
@@ -25,7 +25,8 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
     private static final Logger LOG = Logger.getLogger(EndpointImpl.class.getName());
 
     private final Bus bus;
-    private final Configuration configuration;
+    //private final Configuration configuration;
+    
     private Object implementor;
     private EndpointReferenceType reference;
     private ServerBinding serverBinding;
@@ -37,7 +38,6 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
     EndpointImpl(Bus b, Object impl, URI bindingId) throws BusException {
         bus = b;
         implementor = impl;
-        configuration = null;
         // configuration = new EndpointConfiguration(Bus, this);
         reference = EndpointReferenceUtils.getEndpointReference(bus.getWSDLManager(), implementor);
         serverBinding = createServerBinding(bindingId);
@@ -60,8 +60,8 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
      * @see javax.xml.ws.Endpoint#getHandlerChain()
      */
     public List<Handler> getHandlerChain() {
-        // create a copy of handler chain
-        return null;
+        // TODO - create a copy of handler chain?  Maybe unmodifiable list?
+        return handlers;
     }
 
     /*

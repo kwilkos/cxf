@@ -32,14 +32,12 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
     protected Map<String, Object> responseContext;
     
     private final Class<? extends Remote> portTypeInterface;
-    private final EndpointReferenceType endpointRef;
     private final Bus bus;
     
     public EndpointInvocationHandler(Bus b, EndpointReferenceType reference,
             Class<? extends Remote> portSEI) {
         bus = b;
         portTypeInterface = portSEI;
-        endpointRef = reference;
         clientBinding = createBinding(reference);
     }
 

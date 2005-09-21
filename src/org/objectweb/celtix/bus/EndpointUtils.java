@@ -52,11 +52,11 @@ public final class EndpointUtils {
 
         // determine the (fully annoated) SEI
 
-        Class[] interfaces = iClass.getInterfaces();
+        Class<?>[] interfaces = iClass.getInterfaces();
 
-        Class sei = null;
-        for (Class c : interfaces) {
-            WebService ws = (WebService)c.getAnnotation(WebService.class);
+        Class<?> sei = null;
+        for (Class<?> c : interfaces) {
+            WebService ws = c.getAnnotation(WebService.class);
             // REVISIT: check for equality of targetNamespace also
             if (null != ws && ws.name().equals(iws.name())) {
                 sei = c;

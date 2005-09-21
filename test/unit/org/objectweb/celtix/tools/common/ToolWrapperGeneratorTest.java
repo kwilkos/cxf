@@ -16,9 +16,9 @@ public class ToolWrapperGeneratorTest extends ToolTestBase {
     }
     
 
-    public void testGeneratorUsingDefaultClassLoader() { 
-    
+    public void testGeneratorUsingDefaultClassLoader() {     
         ToolWrapperGenerator g = new ToolWrapperGenerator(ToolDummy.class.getName());
+        assertNotNull(g);
     }
     
     

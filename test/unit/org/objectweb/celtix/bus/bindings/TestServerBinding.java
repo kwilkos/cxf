@@ -2,7 +2,6 @@ package org.objectweb.celtix.bus.bindings;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.logging.Logger;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
@@ -27,7 +26,6 @@ import org.objectweb.celtix.transports.TransportFactoryManager;
 
 public class TestServerBinding extends AbstractServerBinding {
 
-    private static final Logger LOG = Logger.getLogger(AbstractServerBinding.class.getName());
     protected final AbstractBindingImpl binding;
     String currentOperation = "undeclared";
     String schemeName = "test";

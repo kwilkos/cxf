@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.soap.SOAPException;
@@ -44,6 +45,7 @@ public class SOAPClientBinding extends AbstractClientBinding {
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
             //TODO
+            LOG.log(Level.INFO, se.getMessage(), se);
         }
     }
 
@@ -52,6 +54,7 @@ public class SOAPClientBinding extends AbstractClientBinding {
             soapBinding.unmarshalMessage(context, objContext);
         } catch (SOAPException se) {
             // TODO - handle exceptions
+            LOG.log(Level.INFO, se.getMessage(), se);
         }
     }
 

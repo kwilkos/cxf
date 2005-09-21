@@ -52,6 +52,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         try {
             JAXBEncoderDecoder test = new JAXBEncoderDecoder(null);
             fail("Should have thrown a exception");
+            assert test == null;
         } catch (SOAPException ex) {
             //Expected Exception
         }
