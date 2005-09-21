@@ -17,6 +17,16 @@
     </target>
 
     <target name="generate.eclipse.workspace.settings">
+        <pathconvert property="eclipse.tools.dir" targetos="unix">
+            <path>
+                <pathelement location="${tools.dir}"/>
+            </path>
+        </pathconvert>
+        <pathconvert property="eclipse.jaxws.home" targetos="unix">
+            <path>
+                <pathelement location="${env.JAXWS_HOME}"/>
+            </path>
+        </pathconvert>
         <copy file="${basedir}/etc/eclipse/template.checkstyle-config.xml"
             tofile="${eclipse.project.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml"
             overwrite="yes">
@@ -28,8 +38,8 @@
             tofile="${eclipse.project.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs"
             overwrite="yes">
             <filterset>
-                <filter token="TOOLS_DIR" value="${tools.dir}"/>
-                <filter token="JAXWS_HOME" value="${env.JAXWS_HOME}"/>
+                <filter token="TOOLS_DIR" value="${eclipse.tools.dir}"/>
+                <filter token="JAXWS_HOME" value="${eclipse.jaxws.home}"/>
             </filterset>
         </copy>
     </target>
