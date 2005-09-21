@@ -9,7 +9,7 @@
         </modificationset>
 
         <schedule interval="120">
-            <ant antscript="/x1/celtix_cruisecontrol/celtix/tools/ant/1.6.5/bin/ant"
+            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/tools/ant/1.6.5/bin/ant"
                  buildfile="build.xml" target="cruisecontrol.build"
                  antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true">
             </ant>
