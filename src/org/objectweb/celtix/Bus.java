@@ -14,7 +14,7 @@ import org.objectweb.celtix.wsdl.WSDLManager;
 
 public abstract class Bus {
     
-    private static ThreadLocal<Bus> current;
+    private static ThreadLocal<Bus> current = new ThreadLocal<Bus>();
     
     /**
      * Returns a newly created and fully initialised <code>Bus</code>.
@@ -82,7 +82,7 @@ public abstract class Bus {
     * 
     * @return the current <code>Bus</code> on this thread.
     */
-    public static Bus getCurrent() {
+    public static Bus getCurrent() {        
         return current.get();
     }
    
@@ -100,9 +100,6 @@ public abstract class Bus {
     * @param bus The <code>Bus</code> designated to be the current one on this thread.
     */
     public static void setCurrent(Bus bus) {
-        if (current == null) {
-            current = new ThreadLocal<Bus>();
-        }
         current.set(bus);
     }
     
