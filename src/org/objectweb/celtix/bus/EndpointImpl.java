@@ -13,6 +13,7 @@ import javax.xml.ws.handler.Handler;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.BusMessage;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.BindingManager;
@@ -111,7 +112,8 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
             LOG.warning("Endpoint is already published");
         }
         if (!isContextBindingCompatible(serverContext)) {
-            throw new IllegalArgumentException(new BusException("BINDING_INCOMPATIBLE_CONTEXT"));
+            throw new IllegalArgumentException(
+                new BusException(new BusMessage("BINDING_INCOMPATIBLE_CONTEXT")));
         }
 
         // apply all changes to configuration and metadata and (re-)activate
@@ -130,7 +132,8 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
             LOG.warning("Endpoint is already published");
         }
         if (!serverBinding.isCompatibleWithAddress(address)) {
-            throw new IllegalArgumentException(new BusException("BINDING_INCOMPATIBLE_ADDRESS"));
+            throw new IllegalArgumentException(
+                new BusException(new BusMessage("BINDING_INCOMPATIBLE_ADDRESS")));
         }
         doPublish(address);
     }

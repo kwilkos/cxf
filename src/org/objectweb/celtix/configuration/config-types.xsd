@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:tns="http://celtix.objectweb.org/config-types"
+    targetNamespace="http://celtix.objectweb.org/config-types"
+    elementFormDefault="qualified">
+    <!--
+        Standard configuration types
+    -->
+	<xs:simpleType name="booleanType">
+	    <xs:restriction base="xs:boolean"/>
+	</xs:simpleType>
+	<xs:simpleType name="integerType">
+	    <xs:restriction base="xs:integer"/>
+	</xs:simpleType>
+	<xs:simpleType name="longType">
+	    <xs:restriction base="xs:long"/>
+	</xs:simpleType>
+	<xs:simpleType name="doubleType">
+	    <xs:restriction base="xs:double"/>
+	</xs:simpleType>
+	<xs:simpleType name="stringType">
+	    <xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:complexType name="stringListType">
+		<xs:sequence>
+			<xs:element name="items" type="tns:stringType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

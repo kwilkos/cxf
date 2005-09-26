@@ -3,6 +3,7 @@ package org.objectweb.celtix.application;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.plugins.PluginException;
+import org.objectweb.celtix.plugins.PluginMessage;
 
 
 public class PluginStateMachine {
@@ -32,7 +33,7 @@ public class PluginStateMachine {
             LOG.fine("changing state from " + state + " to " + nextState);
             state = nextState;
         } else {
-            throw new PluginException("INVALID_STATE_TRANSITION", state, nextState);
+            throw new PluginException(new PluginMessage("INVALID_STATE_TRANSITION", state, nextState));
         }
         notifyAll();
     }

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config 
+    xmlns="http://celtix.objectweb.org/config-metadata" 
+    xmlns:ct="http://celtix.objectweb.org/config-types" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://celtix.objectweb.org/config-metadata 
+    http://celtix.objectweb.org/config-metadata.xsd">
+    
+    <configImport location="../../../../../../../../classes/org/objectweb/celtix/configuration/config-types.xsd" namespace="http://celtix.objectweb.org/config-types"/>
+    
+    <!-- standard types, no description and no default -->
+    
+    <configItem>
+		<name>booleanItem</name>
+		<type>ct:booleanType</type>
+	</configItem>
+	
+	<configItem>
+		<name>integerItem</name>
+		<type>ct:integerType</type>
+	</configItem>
+	
+	<configItem>
+		<name>longItem</name>
+		<type>ct:longType</type>
+	</configItem>
+	
+	<configItem>
+		<name>doubleItem</name>
+		<type>ct:doubleType</type>
+	</configItem>
+	
+	<configItem>
+		<name>stringItem</name>
+		<type>ct:stringType</type>
+	</configItem>
+	
+	<configItem>
+		<name>stringListItem</name>
+		<type>ct:stringListType</type>
+	</configItem>
+	
+	<!--  standard types, without default but with other optional attributes  -->
+   
+    <configItem>
+		<name>otherBooleanItem</name>
+		<type>ct:booleanType</type>
+		<description></description>
+		<lifecyclePolicy>static</lifecyclePolicy>
+	</configItem>
+	
+	<configItem>
+		<name>otherIntegerItem</name>
+		<type>ct:integerType</type>
+		<description> </description>
+		<lifecyclePolicy>process</lifecyclePolicy>
+	</configItem>
+	
+	<configItem>
+		<name>otherLongItem</name>
+		<type>ct:longType</type>
+		<description>otherLongItem description</description>
+		<lifecyclePolicy>bus</lifecyclePolicy>
+	</configItem>
+	
+	<configItem>
+		<name>otherDoubleItem</name>
+		<type>ct:doubleType</type>
+		<description>otherDoubleItem description</description>
+		<lifecyclePolicy>dynamic</lifecyclePolicy>
+	</configItem>
+	
+	<configItem>
+		<name>otherStringItem</name>
+		<type>ct:stringType</type>
+		<description>otherStringItem description</description>
+	</configItem>
+	
+	<configItem>
+		<name>otherStringListItem</name>
+		<type>ct:stringListType</type>
+		<description>otherStringListItem description</description>
+	</configItem>    
+	
+</config>
