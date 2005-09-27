@@ -8,9 +8,8 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.soap.SOAPBinding;
 import javax.xml.namespace.QName;
-
-import com.sun.xml.ws.RequestWrapper;
-import com.sun.xml.ws.ResponseWrapper;
+import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.ResponseWrapper;
 
 public class SOAPMessageInfo {
     private SOAPBinding soapBindAnnotation;
@@ -97,28 +96,30 @@ public class SOAPMessageInfo {
 
     public QName getRequestWrapperQName() {
         if (null != reqWrapper) {
-            return new QName(reqWrapper.namespace(), reqWrapper.name());
+            return new QName(reqWrapper.targetNamespace(),
+                             reqWrapper.localName());
         }
         return SOAPConstants.EMPTY_QNAME;
     }
 
     public String getRequestWrapperType() {
         if (null != reqWrapper) {
-            return reqWrapper.type();
+            return reqWrapper.className();
         }
         return "";
     }
     
     public QName getResponseWrapperQName() {
         if (null != respWrapper) {
-            return new QName(respWrapper.namespace(), respWrapper.name());
+            return new QName(respWrapper.targetNamespace(),
+                             respWrapper.localName());
         }
         return SOAPConstants.EMPTY_QNAME;
     }
 
     public String getResponseWrapperType() {
         if (null != respWrapper) {
-            return respWrapper.type();
+            return respWrapper.className();
         }
         return "";
     }

@@ -1,12 +1,14 @@
 package org.objectweb.celtix.bus;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
@@ -20,7 +22,7 @@ import org.objectweb.celtix.bindings.ServerBinding;
 //import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-public class EndpointImpl implements javax.xml.ws.Endpoint {
+public class EndpointImpl extends javax.xml.ws.Endpoint {
 
     private static final Logger LOG = Logger.getLogger(EndpointImpl.class.getName());
 
@@ -35,11 +37,24 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
     private List<Source> metadata;
     private Executor executor;
 
-    EndpointImpl(Bus b, Object impl, URI bindingId) throws BusException, WSDLException, IOException {
+
+    public EndpointImpl(Bus b, Object impl, String bindingId)
+        throws BusException, WSDLException, IOException {
+
         bus = b;
         implementor = impl;
         // configuration = new EndpointConfiguration(Bus, this);
         reference = EndpointReferenceUtils.getEndpointReference(bus.getWSDLManager(), implementor);
+        if (null == bindingId) {
+            try {
+                Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), reference);
+                ExtensibilityElement el = (ExtensibilityElement)port.getExtensibilityElements().get(0);
+                bindingId = el.getElementType().getNamespaceURI();
+            } catch (WSDLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         serverBinding = createServerBinding(bindingId);
         executor = bus.getWorkQueueManager().getAutomaticWorkQueue();
         assert null != executor;
@@ -185,10 +200,12 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
     public EndpointReferenceType getEndpointReferenceType() {
         return reference;
     }
+    ServerBinding createServerBinding(String bindingId) throws BusException, WSDLException, IOException {
 
-    ServerBinding createServerBinding(URI bindingId) throws BusException, WSDLException, IOException {
-
-        BindingFactory factory = bus.getBindingManager().getBindingFactory(bindingId.toString());
+        BindingFactory factory = bus.getBindingManager().getBindingFactory(bindingId);
+        if (null == factory) {
+            throw new BusException(new BusMessage("BINDING_FACTORY_MISSING", bindingId));
+        }
         ServerBinding bindingImpl = factory.createServerBinding(reference, this);
         assert null != bindingImpl;
         return bindingImpl;
@@ -215,6 +232,18 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
             LOG.severe("Failed to publish endpoint - server binding could not be activated:\n"
                           + ex.getMessage());
         }
+    }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setProperties(Map<String, Object> arg0) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

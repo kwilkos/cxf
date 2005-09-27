@@ -9,16 +9,6 @@
     <target name="cruisecontrol.build" depends="very.clean,build" description="Main target for cruisecontrol"/>
 	
 
-    <property environment="env"/>
-    <fail unless="env.JAXWS_HOME">.
-            The JAXWS_HOME  environment variable is unset.  We use the
-            JAX-WS interfaces and the JAXB jars that are included in the
-            JAX-WS 2.0 Early Access release.   You need to download that from
-            https://jax-rpc.dev.java.net/jaxws20-ea2/, install it, and set
-            the JAXWS_HOME environment variable to the installation
-            directory.
-    </fail>
-
     <!-- Load the path definitions -->
     <import file="etc/ant-inc/paths.xml"/>
 

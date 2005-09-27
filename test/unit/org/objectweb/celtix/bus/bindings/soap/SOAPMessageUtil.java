@@ -11,15 +11,15 @@ public final class SOAPMessageUtil {
     public static String createWrapDocLitSOAPMessage(QName wrapName, QName elName, String data) {
         StringBuffer str = new StringBuffer();
         
-        str.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+        str.append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
         str.append("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">");
         str.append("<SOAP-ENV:Body>");
 
-        str.append("<" + wrapName.getLocalPart() + " xmlns=\"" + wrapName.getNamespaceURI() + "\">");
-        str.append("<" + elName.getLocalPart() + ">");
+        str.append("<ns2:" + wrapName.getLocalPart() + " xmlns:ns2=\"" + wrapName.getNamespaceURI() + "\">");
+        str.append("<ns2:" + elName.getLocalPart() + ">");
         str.append(data);
-        str.append("</" + elName.getLocalPart() + ">");
-        str.append("</" + wrapName.getLocalPart() + ">");
+        str.append("</ns2:" + elName.getLocalPart() + ">");
+        str.append("</ns2:" + wrapName.getLocalPart() + ">");
         
         str.append("</SOAP-ENV:Body>");
         str.append("</SOAP-ENV:Envelope>");

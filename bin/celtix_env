@@ -13,17 +13,8 @@ add_jars_to_classpath() {
 }
 
 #
-# check that the two required environment variables are set
+# check that the required environment variables are set
 #
-if [ ${JAXWS_HOME-"x"} == "x" ]; then
-    echo "The JAXWS_HOME  environment variable is unset.  We use the"
-    echo "JAX-WS interfaces and the JAXB jars that are included in the"
-    echo "JAX-WS 2.0 Early Access release.   You need to download that from"
-    echo "https://jax-rpc.dev.java.net/jaxws20-ea2/, install it, and set"
-    echo "the JAXWS_HOME environment variable to the installation"
-    echo "directory."
-    return 1
-fi
 
 if [ ${CELTIX_HOME-"x"} == "x" ]; then
     echo "The CELTIX_HOME environment variable is unset.  Please set CELTIX_HOME"
@@ -42,6 +33,12 @@ then
 fi
 
 CELTIX_ENV_SET=true
+
+if [ ${JAXWS_HOME-"x"} == "x" ]; then
+	export JAXWS_HOME=${CELTIX_HOME}/lib/jaxws-ri/20050923
+fi
+
+
 #
 # add the jdk's tools.jar to the classpath
 #

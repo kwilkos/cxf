@@ -18,7 +18,7 @@
             <property name="package.arg.@{file}" value=""/>
             <java failonerror="true" classname="com.sun.tools.ws.WsImport" fork="true" newenvironment="true">
                 <classpath>
-                    <fileset dir="${env.JAXWS_HOME}/lib">
+                    <fileset dir="${jaxws.home}/lib">
                         <include name="*.jar"/>
                     </fileset>
 		    <path refid="jdk.tools.classpath"/>
@@ -48,7 +48,7 @@
             <mkdir dir="@{destdir}"/>
             <java failonerror="true" classname="com.sun.tools.xjc.Driver" fork="true" newenvironment="true">
                 <classpath>
-                    <fileset dir="${env.JAXWS_HOME}/lib">
+                    <fileset dir="${jaxws.home}/lib">
                         <include name="*.jar"/>
                     </fileset>
 					<path refid="jdk.tools.classpath"/>
@@ -63,9 +63,9 @@
     </macrodef>
 
     <target name="schemas.codegen.internal" unless="schema.codegen.notrequired">
-        <xsdtojava file="schemas/ws-addr.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing"/>
-        <xsdtojava file="schemas/ws-addr-wsdl.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing.wsdl"/>
-        <xsdtojava file="schemas/wsdl.xsd" destdir="${basedir}/build/src"/>
+        <xsdtojava file="${basedir}/schemas/ws-addr.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing"/>
+        <xsdtojava file="${basedir}/schemas/ws-addr-wsdl.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing.wsdl"/>
+        <xsdtojava file="${basedir}/schemas/wsdl.xsd" destdir="${basedir}/build/src"/>
         <touch file="${basedir}/build/src/.SCHEMA.CODEGEN.DONE"/>
     </target>
 
@@ -79,7 +79,7 @@
     </target>
 
     <target name="testwsdl.codegen.internal" unless="testwsdl.codegen.notrequired">
-        <wsdltojava file="test/wsdl/hello_world.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
+        <wsdltojava file="${basedir}/test/wsdl/hello_world.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
         <touch file="${basedir}/build/test-src/.TESTWSDL.CODEGEN.DONE"/>
     </target>
 

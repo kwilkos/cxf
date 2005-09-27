@@ -24,7 +24,7 @@
         </pathconvert>
         <pathconvert property="eclipse.jaxws.home" targetos="unix">
             <path>
-                <pathelement location="${env.JAXWS_HOME}"/>
+                <pathelement location="${jaxws.home}"/>
             </path>
         </pathconvert>
         <copy file="${basedir}/etc/eclipse/template.checkstyle-config.xml"

@@ -16,12 +16,7 @@ public class GreeterImpl implements Greeter {
     /* (non-Javadoc)
      * @see org.objectweb.hello_world_soap_http.Greeter#greetMe(java.lang.String)
      */
-    
-    /*
-    @javax.jws.WebMethod(operationName="sayHi")
-    @javax.jws.WebResult(name="responseType", targetNamespace="http://objectweb.org/hello_world_soap_http")
-    */
-    public String greetMe(String me) throws RemoteException {
+    public String greetMe(String me) {
         logger.info("Executing operation sayHi");
         return "Hello " + me;
     }
@@ -29,11 +24,7 @@ public class GreeterImpl implements Greeter {
     /* (non-Javadoc)
      * @see org.objectweb.hello_world_soap_http.Greeter#sayHi()
      */
-    /*
-    @javax.jws.WebMethod(operationName="greetMe")
-    @javax.jws.WebResult(name="responseType", targetNamespace="http://objectweb.org/hello_world_soap_http")
-    */
-    public String sayHi() throws RemoteException {
+    public String sayHi() {
         logger.info("Executing operation greetMe");
         return "Bonjour";
     }

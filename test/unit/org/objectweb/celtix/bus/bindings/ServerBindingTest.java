@@ -1,12 +1,11 @@
 package org.objectweb.celtix.bus.bindings;
 
-import java.net.URI;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
 import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.EndpointFactory;
+import javax.xml.ws.spi.Provider;
 
 import junit.framework.TestCase;
 
@@ -27,15 +26,14 @@ public class ServerBindingTest extends TestCase {
     private DerivedGreeterImpl implementor;
 
     public void setUp() throws Exception {
-        epfClassName = System.getProperty(EndpointFactory.ENDPOINTFACTORY_PROPERTY);
-        System.setProperty(EndpointFactory.ENDPOINTFACTORY_PROPERTY, 
-                           "org.objectweb.celtix.bus.EndpointFactoryImpl");
+        epfClassName = System.getProperty(Provider.JAXWSPROVIDER_PROPERTY);
+        System.setProperty(Provider.JAXWSPROVIDER_PROPERTY, 
+                           "org.objectweb.celtix.bus.jaxws.spi.ProviderImpl");
         bus = Bus.init();
         BindingManager bm = bus.getBindingManager();
         bm.registerBinding("http://celtix.objectweb.org/bindings/test", new TestBindingFactory(bus));
-        EndpointFactory epf = EndpointFactory.newInstance();
         implementor = new DerivedGreeterImpl();
-        Endpoint ep = epf.createEndpoint(new URI(TestBinding.TEST_BINDING), implementor);
+        Endpoint ep = Endpoint.create(TestBinding.TEST_BINDING, implementor);
         ei = (EndpointImpl)ep;
     }
 
@@ -43,10 +41,10 @@ public class ServerBindingTest extends TestCase {
         bus.shutdown(true);
         if (null == epfClassName) {
             Properties properties = System.getProperties();
-            properties.remove(EndpointFactory.ENDPOINTFACTORY_PROPERTY);
+            properties.remove(Provider.JAXWSPROVIDER_PROPERTY);
             System.setProperties(properties);
         } else {
-            System.setProperty(EndpointFactory.ENDPOINTFACTORY_PROPERTY, epfClassName);
+            System.setProperty(Provider.JAXWSPROVIDER_PROPERTY, epfClassName);
         }
     }
 

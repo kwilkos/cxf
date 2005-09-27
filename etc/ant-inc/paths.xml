@@ -3,6 +3,7 @@
     <!-- Path definitions -->
 
 	<property name="tools.dir" location="${basedir}/tools"/>
+	<property name="jaxws.home" location="${tools.dir}/jaxws-ri/20050923"/>
 	
     <!-- on darwin, tools.jar does not exist -->
 
@@ -29,7 +30,7 @@
     </path>
 
     <path id="jaxws.classpath">
-        <fileset dir="${env.JAXWS_HOME}/lib">
+        <fileset dir="${jaxws.home}/lib">
             <include name="*.jar"/>
         </fileset>
         <pathelement location="${tools.jar}"/>

@@ -8,12 +8,12 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.jaxws.spi.ProviderImpl;
 
 public abstract class ClientServerTestBase extends TestCase {
     
     static { 
-        System.setProperty("javax.xml.ws.EndpointFactory", "org.objectweb.celtix.bus.EndpointFactoryImpl");
-        System.setProperty("javax.xml.ws.ServiceFactory", "org.objectweb.celtix.bus.ServiceFactoryImpl");
+        System.setProperty(ProviderImpl.JAXWSPROVIDER_PROPERTY, ProviderImpl.JAXWS_PROVIDER);
     }
     
     
@@ -32,7 +32,7 @@ public abstract class ClientServerTestBase extends TestCase {
     }
     
     protected void stopAllServers() {
-        for    (ServerLauncher sl : launchers) {
+        for (ServerLauncher sl : launchers) {
             try { 
                 sl.stopServer(); 
             } catch (IOException ex) {

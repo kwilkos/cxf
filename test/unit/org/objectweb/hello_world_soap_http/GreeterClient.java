@@ -2,7 +2,7 @@ package org.objectweb.hello_world_soap_http;
 
 import java.net.URL;
 
-import javax.xml.ws.ServiceFactory;
+import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.Bus;
 
@@ -31,17 +31,12 @@ public class GreeterClient {
         System.out.println();
         
         Bus bus = Bus.init();
-        ServiceFactory sf = ServiceFactory.newInstance();
         
         URL url = GreeterClient.class.getResource("resources/hello_world.wsdl");
         assert null != url;
         
-        /*
-        QName serviceName = new QName("http://www.iona.com/hello_world_soap_http", "SOAPService");
-        Service s  = sf.createService(url, serviceName);
-        Greeter proxy = s.getPort(Greeter.class);
-        */
-        SOAPService ss = sf.createService(url, SOAPService.class);
+        QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
+        SOAPService ss = new SOAPService(url, serviceName);
         Greeter port = ss.getSoapPort();
         
         if ("sayHi".equals(operationName)) {

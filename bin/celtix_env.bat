@@ -7,13 +7,16 @@ rem check we have all we need to configure the
 rem environment 
 
 if defined CELTIX_ENV_SET goto celtix_env_already_set 
-if not defined JAXWS_HOME goto no_jaxws_home
 if not defined JAVA_HOME goto no_java_home 
 
 rem figure out celtix home 
 rem 
 if not defined CELTIX_HOME (
 	set CELTIX_HOME=%~dp0..
+)
+
+if not defined JAXWS_HOME (
+    set JAXWS_HOME=%CELTIX_HOME%\lib\jaxws-ri\20050923
 )
 
 rem add the celtix jar to the class path
@@ -53,16 +56,6 @@ goto end
     echo and set the JAVA_HOME environment variable
 goto end
 
-
-
-:no_jaxws_home
-    echo The JAXWS_HOME  environment variable is unset.  We use the
-    echo JAX-WS interfaces and the JAXB jars that are included in the
-    echo JAX-WS 2.0 Early Access release.   You need to download that from
-    echo https:\\jax-rpc.dev.java.net\jaxws20-ea2\, install it, and set
-    echo the JAXWS_HOME environment variable to the installation
-    echo directory.
-goto end
 
 :end 
 

@@ -10,6 +10,8 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Provider;
 import javax.xml.ws.ServiceMode;
 
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+
 public final class EndpointUtils {
 
     private static final Logger LOG = Logger.getLogger(EndpointUtils.class.getName());
@@ -44,7 +46,7 @@ public final class EndpointUtils {
     public static Method getMethod(Endpoint endpoint, QName operationName) {
         Object implementor = endpoint.getImplementor();
         Class<?> iClass = implementor.getClass();
-        WebService iws = iClass.getAnnotation(WebService.class);
+        WebService iws = EndpointReferenceUtils.getWebServiceAnnotation(iClass);
 
         // determine the (fully annoated) SEI
 
@@ -100,6 +102,21 @@ public final class EndpointUtils {
         return iMethod;
     }
 
+    private static boolean hasWebServiceAnnotation(Class<?> cls) {
+        if (cls == null) {
+            return false;
+        }
+        if (null != cls.getAnnotation(WebService.class)) {
+            return true;
+        }
+        for (Class<?> inf : cls.getInterfaces()) {
+            if (null != inf.getAnnotation(WebService.class)) {
+                return true;
+            }
+        }
+        
+        return hasWebServiceAnnotation(cls.getSuperclass());
+    }
     public static boolean isValidImplementor(Object implementor) {
         if (implementor instanceof Provider) {
             return true;
@@ -109,11 +126,11 @@ public final class EndpointUtils {
         // annotation
         // (that implements an SEI) OR a Provider
 
-        if (null == implementor.getClass().getAnnotation(WebService.class)) {
-            LOG.info("Implementor is not annotated with WebService annotation.");
-            return false;
+        if (hasWebServiceAnnotation(implementor.getClass())) {
+            return true;
         }
 
-        return true;
+        LOG.info("Implementor is not annotated with WebService annotation.");
+        return false;
     }
 }

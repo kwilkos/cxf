@@ -1,6 +1,6 @@
 package org.objectweb.hello_world_soap_http;
 
-import javax.xml.ws.EndpointFactory;
+import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.Bus;
 
@@ -20,10 +20,9 @@ public class GreeterServerMain {
         Bus bus = Bus.init(args);
         Runtime.getRuntime().addShutdownHook(
             new Thread(new GreeterServerMain().new TerminationHandler(bus, true)));
-        EndpointFactory epf = EndpointFactory.newInstance();
         Object implementor = new AnnotatedGreeterImpl();
         String address = "http://loalhost:8080/hello_world_soap_http";
-        epf.publish(address, implementor);
+        Endpoint.publish(address, implementor);
         bus.run();
     }
 

@@ -2,7 +2,6 @@ package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,7 +33,6 @@ import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
-import org.objectweb.celtix.context.ProviderMessageContext;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
 
@@ -98,7 +96,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         try {
             soapCtx.getMessage().writeTo(outCtx.getOutputStream());
         } catch (SOAPException se) {
-            LOG.log(Level.SEVERE, "error in unmarshall of SOAP Message", se);
+            LOG.log(Level.SEVERE, "error in marshall of SOAP Message", se);
             throw new IOException(se.getMessage());
         }
     }
@@ -131,14 +129,11 @@ public class SOAPServerBinding extends AbstractServerBinding {
         return invokeOnProvider(body, soapCtx);
     }
     
-    Map<String, Object> createProviderContext(SOAPMessageContext soapCtx) {
-        return new ProviderMessageContext((SOAPMessageContextImpl)soapCtx);
-    }
     
     @SuppressWarnings("unchecked")
     MessageContext invokeOnProvider(SOAPMessage msg, SOAPMessageContext soapCtx) throws RemoteException {
         Provider<SOAPMessage> provider = (Provider<SOAPMessage>)getEndpoint().getImplementor();
-        SOAPMessage replyMsg = provider.invoke(msg, createProviderContext(soapCtx));
+        SOAPMessage replyMsg = provider.invoke(msg);
         SOAPMessageContextImpl replyCtx = new SOAPMessageContextImpl(soapCtx);
         replyCtx.setMessage(replyMsg);
         return replyCtx;
@@ -152,7 +147,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
             Source request = new DOMSource(document);
             
             Provider<Source> provider = (Provider<Source>)getEndpoint().getImplementor();
-            Source reply = provider.invoke(request, createProviderContext(soapCtx));
+            Source reply = provider.invoke(request);
             assert null != reply;
             SOAPMessageContext replyCtx = new SOAPMessageContextImpl(soapCtx);
             assert null != replyCtx;
@@ -173,13 +168,10 @@ public class SOAPServerBinding extends AbstractServerBinding {
             Class<?> implementorClass = endpoint.getImplementor().getClass(); 
             SOAPBinding binding = getBindingAnnotationFromClass(implementorClass);
             
-            if (binding == null) {
-                LOG.severe("binding annotoation not available on implementing class: " + implementorClass);
-                return null;
-            }
             
-            if (binding.style() == Style.DOCUMENT && binding.parameterStyle() == ParameterStyle.WRAPPED
-                && binding.use() == SOAPBinding.Use.LITERAL) {
+            if (null == binding
+                || (binding.style() == Style.DOCUMENT && binding.parameterStyle() == ParameterStyle.WRAPPED
+                && binding.use() == SOAPBinding.Use.LITERAL)) {
                 
                 SOAPMessageContext soapContext = SOAPMessageContext.class.cast(ctx);
                 SOAPMessage msg = soapContext.getMessage();

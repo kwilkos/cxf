@@ -1,9 +1,13 @@
 package org.objectweb.hello_world_soap_http;
 
-import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import javax.jws.WebMethod;
+import javax.jws.WebResult;
+import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.ResponseWrapper;
 
 @javax.jws.WebService(name = "Greeter", serviceName = "SOAPService", 
                       targetNamespace = "http://objectweb.org/hello_world_soap_http")
@@ -31,22 +35,43 @@ public class AnnotatedGreeterImpl {
     /**
      * overloaded method - present for test purposes
      */
-    public String sayHi(String me) throws RemoteException {
+    @WebMethod(operationName = "sayHiOverloaded")
+    @WebResult(name = "responseType2", targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+    @RequestWrapper(className = "org.objectweb.hello_world_soap_http.types.SayHi2",
+                    localName = "sayHi2",
+                    targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+    @ResponseWrapper(className = "org.objectweb.hello_world_soap_http.types.SayHiResponse2",
+                     localName = "sayHiResponse2",
+                     targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+    public String sayHi(String me) {
         incrementInvocationCount("overloadedSayHi");
         return "Hi " + me + "!";
     }
 
-    @javax.jws.WebMethod(operationName = "sayHi")
-    /*
-     * @javax.jws.WebResult(name="responseType",
-     * targetNamespace="http://objectweb.org/hello_world_soap_http")
-     */
-    public String sayHi() throws RemoteException {
+    @WebMethod
+    @WebResult(name = "responseType",
+               targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+    @RequestWrapper(className = "org.objectweb.hello_world_soap_http.types.SayHi",
+                    localName = "sayHi",
+                    targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+    @ResponseWrapper(className = "org.objectweb.hello_world_soap_http.types.SayHiResponse",
+                     localName = "sayHiResponse",
+                     targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+    public String sayHi() {
         incrementInvocationCount("sayHi");
         return "Hi";
     }
 
-    public String greetMe(String me) throws RemoteException {
+    @WebMethod
+    @WebResult(name = "responseType",
+               targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+    @RequestWrapper(className = "org.objectweb.hello_world_soap_http.types.GreetMe",
+                    localName = "greetMe",
+                    targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+    @ResponseWrapper(className = "org.objectweb.hello_world_soap_http.types.GreetMeResponse",
+                     localName = "greetMeResponse",
+                     targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+    public String greetMe(String me) {
         incrementInvocationCount("greetMe");
         return "Bonjour " + me + "!";
     }

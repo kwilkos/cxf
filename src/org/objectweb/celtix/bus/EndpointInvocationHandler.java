@@ -2,7 +2,6 @@ package org.objectweb.celtix.bus;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.rmi.Remote;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +29,11 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
     protected Map<String, Object> requestContext;
     protected Map<String, Object> responseContext;
     
-    private final Class<? extends Remote> portTypeInterface;
+    private final Class<?> portTypeInterface;
     private final Bus bus;
     
     public EndpointInvocationHandler(Bus b, EndpointReferenceType reference,
-            Class<? extends Remote> portSEI) {
+            Class<?> portSEI) {
         bus = b;
         portTypeInterface = portSEI;
         clientBinding = createBinding(reference);

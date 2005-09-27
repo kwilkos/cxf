@@ -332,6 +332,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
         return null;
     }
+
+    public SOAPFactory getSOAPFactory() {
+        // TODO Auto-generated method stub
+        return null;
+    }
     
 }
 

@@ -36,6 +36,7 @@
             <fileset dir="${tools.dir}">
                 <include name="wsdl4j/**/*"/>
                 <include name="tomcat/**/*"/>
+                <include name="jaxws-ri/**/*"/>
             </fileset>
         </copy>
         <copy todir="${build.release.dir}/docs">

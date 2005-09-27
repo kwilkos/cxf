@@ -4,13 +4,11 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.Service;
-import javax.xml.ws.ServiceFactory;
 
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.bus.ServiceFactoryImpl;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.hello_world_soap_http.Greeter;
+import org.objectweb.hello_world_soap_http.SOAPService;
 
 public class ClientServerTest extends ClientServerTestBase {
     
@@ -32,11 +30,8 @@ public class ClientServerTest extends ClientServerTestBase {
     public void testBasicConnection() throws Exception {
                 
         URL wsdl = getClass().getResource("../resource/hello_world.wsdl");
-        ServiceFactory factory = ServiceFactory.newInstance();
-        assertNotNull(factory);
-        assertTrue(factory.getClass().getName(), factory instanceof ServiceFactoryImpl);
         
-        Service service = factory.createService(wsdl, serviceName);
+        SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);
 
         String response1 = new String("Hello Milestone-");

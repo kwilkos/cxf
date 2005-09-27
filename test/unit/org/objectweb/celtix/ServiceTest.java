@@ -1,14 +1,14 @@
 package org.objectweb.celtix;
 
 import java.lang.reflect.Proxy;
-import java.net.URL;
 import java.util.Iterator;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.ServiceFactory;
+import javax.xml.ws.spi.Provider;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.bus.jaxws.spi.ProviderImpl;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.SOAPService;
 
@@ -16,8 +16,8 @@ public class ServiceTest extends TestCase {
 
     public ServiceTest(String arg0) {
         super(arg0);
-        System.setProperty(ServiceFactory.SERVICEFACTORY_PROPERTY,
-                "org.objectweb.celtix.bus.ServiceFactoryImpl");
+        System.setProperty(Provider.JAXWSPROVIDER_PROPERTY, 
+            ProviderImpl.JAXWS_PROVIDER);
     }
 
     public static void main(String[] args) {
@@ -29,19 +29,20 @@ public class ServiceTest extends TestCase {
      */
     public void testGetPorts() throws Exception {
         Bus bus = Bus.init();
-        ServiceFactory sf = ServiceFactory.newInstance();
-        QName endpoint = new QName("", "SoapPort"); 
+        QName endpoint = new QName("http://objectweb.org/hello_world_soap_http",
+                                   "SoapPort"); 
         
-        URL url = getClass().getResource("resources/hello_world.wsdl");
         try {
-            SOAPService hwService = sf.createService(url, SOAPService.class);
+            SOAPService hwService = new SOAPService();
             assertNotNull(hwService);
-            assertTrue("Should be a proxy class.", Proxy.isProxyClass(hwService.getClass()));
             Iterator iter = hwService.getPorts();
             assertFalse("Should have no element", iter.hasNext());
 
             Greeter port = hwService.getSoapPort();
             assertNotNull(port);
+            assertTrue("Should be a proxy class. "
+                        + port.getClass().getName(),
+                        Proxy.isProxyClass(port.getClass()));
             
             iter = hwService.getPorts();
             assertTrue("Should have one element", iter.hasNext());            

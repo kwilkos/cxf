@@ -30,7 +30,7 @@
 	     dir="${basedir}/build/classes-tests/@{type}"
 	     timeout="100000"        
 	     >
-	<jvmarg value="-Djaxws.home=${env.JAXWS_HOME}"/>        			
+	<jvmarg value="-Djaxws.home=${jaxws.home}"/>        			
 	<formatter type="brief" useFile="false"/>
 	<formatter type="xml"/>
 	<classpath>

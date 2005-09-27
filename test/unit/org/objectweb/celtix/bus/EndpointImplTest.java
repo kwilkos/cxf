@@ -1,10 +1,9 @@
 package org.objectweb.celtix.bus;
 
-import java.net.URI;
 import java.util.Properties;
 
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.EndpointFactory;
+import javax.xml.ws.spi.Provider;
 
 import junit.framework.TestCase;
 
@@ -13,6 +12,7 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bus.bindings.TestBinding;
 import org.objectweb.celtix.bus.bindings.TestBindingFactory;
+import org.objectweb.celtix.bus.jaxws.spi.ProviderImpl;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 
 public class EndpointImplTest extends TestCase {
@@ -21,14 +21,13 @@ public class EndpointImplTest extends TestCase {
     private Endpoint endpoint;
 
     public void setUp() throws Exception {
-        epfClassName = System.getProperty(EndpointFactory.ENDPOINTFACTORY_PROPERTY);
-        System.setProperty(EndpointFactory.ENDPOINTFACTORY_PROPERTY,
-                           "org.objectweb.celtix.bus.EndpointFactoryImpl");
+        epfClassName = System.getProperty(Provider.JAXWSPROVIDER_PROPERTY);
+        System.setProperty(Provider.JAXWSPROVIDER_PROPERTY,
+                           ProviderImpl.JAXWS_PROVIDER);
         bus = Bus.init();
         BindingManager bm = bus.getBindingManager();
         bm.registerBinding(TestBinding.TEST_BINDING, new TestBindingFactory(bus));
-        EndpointFactory epf = EndpointFactory.newInstance();
-        endpoint = epf.createEndpoint(new URI(TestBinding.TEST_BINDING), new AnnotatedGreeterImpl());
+        endpoint = Endpoint.create(TestBinding.TEST_BINDING, new AnnotatedGreeterImpl());
 
     }
 
@@ -36,10 +35,10 @@ public class EndpointImplTest extends TestCase {
         bus.shutdown(true);
         if (null == epfClassName) {
             Properties properties = System.getProperties();
-            properties.remove(EndpointFactory.ENDPOINTFACTORY_PROPERTY);
+            properties.remove(Provider.JAXWSPROVIDER_PROPERTY);
             System.setProperties(properties);
         } else {
-            System.setProperty(EndpointFactory.ENDPOINTFACTORY_PROPERTY, epfClassName);
+            System.setProperty(Provider.JAXWSPROVIDER_PROPERTY, epfClassName);
         }
     }
 

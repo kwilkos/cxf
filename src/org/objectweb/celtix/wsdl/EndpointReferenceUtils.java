@@ -40,6 +40,7 @@ public final class EndpointReferenceUtils {
 
     public static Definition getWSDLDefinition(WSDLManager manager, EndpointReferenceType ref)
         throws WSDLException {
+        
         MetadataType metadata = ref.getMetadata();
         String location = (String)metadata.getOtherAttributes().get(WSDL_LOCATION);
 
@@ -162,9 +163,28 @@ public final class EndpointReferenceUtils {
         return reference;
     }
 
+    public static WebService getWebServiceAnnotation(Class<?> cls) {
+        if (cls == null) {
+            return null;
+        }
+        WebService ws = cls.getAnnotation(WebService.class); 
+        if (null != ws) {
+            return ws;
+        }
+        for (Class<?> inf : cls.getInterfaces()) {
+            ws = getWebServiceAnnotation(inf);
+            if (null != ws) {
+                return ws;
+            }
+        }
+        
+        return getWebServiceAnnotation(cls.getSuperclass());
+    }
+    
+    
     public static EndpointReferenceType getEndpointReference(WSDLManager manager, Object implementor) {
 
-        WebService ws = implementor.getClass().getAnnotation(WebService.class);
+        WebService ws = getWebServiceAnnotation(implementor.getClass());
         if (null == ws) {
             return null;
         }

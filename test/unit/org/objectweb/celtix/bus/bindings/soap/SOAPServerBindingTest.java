@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
@@ -133,7 +134,7 @@ public class SOAPServerBindingTest extends TestCase {
         }
     }
     
-    class TestEndpointImpl implements javax.xml.ws.Endpoint {
+    class TestEndpointImpl extends javax.xml.ws.Endpoint {
 
         private Object implementor;
 
@@ -179,6 +180,18 @@ public class SOAPServerBindingTest extends TestCase {
         }
 
         public void stop() { }
+
+        @Override
+        public Map<String, Object> getProperties() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void setProperties(Map<String, Object> arg0) {
+            // TODO Auto-generated method stub
+            
+        }
     }
     
 }

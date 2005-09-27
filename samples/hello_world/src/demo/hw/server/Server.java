@@ -1,6 +1,6 @@
 package demo.hw.server;
 
-import javax.xml.ws.EndpointFactory;
+import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
@@ -18,10 +18,9 @@ public class Server implements Runnable {
          */
 
         bus = Bus.init(args);
-        EndpointFactory epf = EndpointFactory.newInstance();
         Object implementor = new GreeterImpl();
         String address = "http://localhost:9000/SoapContext/SoapPort";
-        epf.publish(address, implementor);
+        Endpoint.publish(address, implementor);
     }
     
     public static void main(String args[]) throws Exception {

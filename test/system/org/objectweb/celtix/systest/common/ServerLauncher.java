@@ -55,7 +55,7 @@ public class ServerLauncher {
             process.getOutputStream().write('q');
             process.getOutputStream().write('\n');
             process.getOutputStream().flush();
-            System.out.println("stopping server");
+            //System.out.println("stopping server");
             waitForServerToStop();
             process.destroy();
         }
@@ -169,8 +169,7 @@ public class ServerLauncher {
         cmd.add(javaExe);
         cmd.add("-classpath");
         cmd.add(System.getProperty("java.class.path"));
-        cmd.add("-Djavax.xml.ws.EndpointFactory=org.objectweb.celtix.bus.EndpointFactoryImpl");
-        cmd.add("-Djavax.xml.ws.ServiceFactory=org.objectweb.celtix.bus.ServiceFactoryImpl");
+        cmd.add("-Djavax.xml.ws.spi.Provider=org.objectweb.celtix.bus.jaxws.spi.ProviderImpl");
         cmd.add(className);
 
         return cmd;

@@ -41,12 +41,12 @@ public class DerivedGreeterImpl implements Greeter {
      * @javax.jws.WebResult(name="responseType",
      * targetNamespace="http://objectweb.org/hello_world_soap_http")
      */
-    public String sayHi() throws RemoteException {
+    public String sayHi() {
         incrementInvocationCount("sayHi");
         return "Hi";
     }
 
-    public String greetMe(String me) throws RemoteException {
+    public String greetMe(String me) {
         incrementInvocationCount("greetMe");
         return "Bonjour " + me + "!";
     }

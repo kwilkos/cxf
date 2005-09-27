@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
-import javax.xml.ws.security.SecurityConfiguration;
 
 public abstract class AbstractBindingImpl implements Binding {
 
@@ -16,13 +15,6 @@ public abstract class AbstractBindingImpl implements Binding {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see javax.xml.ws.Binding#getSecurityConfiguration()
-     */
-    public SecurityConfiguration getSecurityConfiguration() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     /* (non-Javadoc)
      * @see javax.xml.ws.Binding#setHandlerChain(java.util.List)

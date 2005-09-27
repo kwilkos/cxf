@@ -1,7 +1,5 @@
 package demo.hw.client;
 
-import javax.xml.ws.ServiceFactory;
-import javax.xml.ws.Service;
 import javax.xml.namespace.QName;
 import java.net.MalformedURLException;
 import java.io.File;
@@ -9,6 +7,7 @@ import javax.xml.ws.WebServiceException;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.hello_world_soap_http.Greeter;
+import org.objectweb.hello_world_soap_http.SOAPService;
 import java.rmi.RemoteException;
 
 public class Client {
@@ -31,11 +30,8 @@ public class Client {
 			File wsdl = new File(args[0]);
 			
                         bus = Bus.init();
-			ServiceFactory factory = ServiceFactory.newInstance();
-			System.out.println("service factory: " + factory);
-
 			
-			Service service = factory.createService(wsdl.toURL(), serviceName);
+			SOAPService service = new SOAPService(wsdl.toURL(), serviceName);
                         Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
                         String greeting = greeter.greetMe("blah");
                         System.out.println("response from service: " +  greeting);

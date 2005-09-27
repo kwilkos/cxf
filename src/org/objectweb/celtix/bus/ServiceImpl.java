@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.URL;
 import java.rmi.Remote;
 import java.util.*;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,14 +19,14 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
 //import javax.xml.ws.WebEndpoint;
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.HandlerRegistry;
-import javax.xml.ws.security.SecurityConfiguration;
+import javax.xml.ws.handler.HandlerResolver;
+import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-public class ServiceImpl implements Service, InvocationHandler {
+public class ServiceImpl extends ServiceDelegate implements InvocationHandler {
 
     private static final Logger LOG = Logger.getLogger(ServiceImpl.class.getName());
     
@@ -33,14 +34,14 @@ public class ServiceImpl implements Service, InvocationHandler {
     private QName serviceName;
     private List<QName> endpointList;
     private final Bus bus;
-    private final Class<? extends Service> serviceInterface;
+    private final Class<?> serviceInterface;
     
     /**
      * Create a new Service.
      * @throws WebServiceException If there is an exception creating Service.
      */
     public ServiceImpl(Bus b, URL location, QName name, 
-            Class<? extends Service> si) throws WebServiceException {
+            Class<?> si) throws WebServiceException {
         bus = b;
         wsdlLocation = location;
         serviceName = name;
@@ -65,11 +66,11 @@ public class ServiceImpl implements Service, InvocationHandler {
     }
 
     public <T> Dispatch<T> createDispatch(QName portName, Class<T> serviceEndpointInterface, 
-                                    Mode mode) throws WebServiceException {
+                                    Service.Mode mode) throws WebServiceException {
         return null;
     }
 
-    public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Mode mode) {
+    public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Service.Mode mode) {
         return null;
     }
 
@@ -85,14 +86,6 @@ public class ServiceImpl implements Service, InvocationHandler {
         return wsdlLocation;
     }
 
-    public SecurityConfiguration getSecurityConfiguration() {
-        throw new UnsupportedOperationException("SecurityConfiguration not yet supported");
-    }
-
-    public HandlerRegistry getHandlerRegistry() {
-        throw new UnsupportedOperationException("HandlerRegistry not yet supported");
-    }
-    
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
         if (serviceInterface.equals(method.getDeclaringClass())) {
@@ -118,14 +111,7 @@ public class ServiceImpl implements Service, InvocationHandler {
 
         LOG.log(Level.FINE, "creating port for portName", portName);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
-        
-        Class<? extends Remote> clazz = null;
-        try {
-            clazz = serviceEndpointInterface.asSubclass(Remote.class);
-        } catch (ClassCastException cce) {
-            throw new WebServiceException("Invalid Interface Specified", cce);
-        }
-        
+                
         //Assuming Annotation is Present
         javax.jws.WebService wsAnnotation = serviceEndpointInterface.getAnnotation(WebService.class);
 
@@ -145,7 +131,7 @@ public class ServiceImpl implements Service, InvocationHandler {
                 serviceName, portName.getLocalPart());
         
         EndpointInvocationHandler endpointHandler = 
-                new EndpointInvocationHandler(bus, ref, clazz);
+                new EndpointInvocationHandler(bus, ref, serviceEndpointInterface);
         
         Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(),
                                             new Class[] {serviceEndpointInterface, Remote.class},
@@ -198,6 +184,36 @@ public class ServiceImpl implements Service, InvocationHandler {
         }
         
         return serviceQName;
+    }
+
+    @Override
+    public void addPort(QName arg0, URI arg1, String arg2) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public HandlerResolver getHandlerResolver() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setHandlerResolver(HandlerResolver arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Executor getExecutor() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setExecutor(Executor arg0) {
+        // TODO Auto-generated method stub
+        
     }
    
 }
