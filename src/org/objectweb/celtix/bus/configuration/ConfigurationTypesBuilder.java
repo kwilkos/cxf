@@ -4,34 +4,37 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.logging.Logger;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import org.apache.xerces.parsers.SAXParser;
+
+// import org.apache.xerces.parsers.SAXParser;
 
 class ConfigurationTypesBuilder extends DefaultHandler {
 
     private static final Logger LOG = Logger.getLogger(ConfigurationMetadataBuilder.class.getName());
     
     private Collection<String> types;
+    private String schemaPrefix;
 
-    protected void build(Collection<String> t, InputSource is) throws SAXException, IOException {
+    protected void build(Collection<String> t, InputSource is) throws SAXException, 
+        IOException, ParserConfigurationException {
         types = t;
         parseXML(is);
     }
+    
 
     // ContentHandler interface
 
     public void startElement(String uri, String localName, String qName, Attributes attributes) 
         throws SAXException {
         super.startElement(uri, localName, qName, attributes);
-        /*
-        System.out.println("startElement uri: " + uri + ", localName: " + localName
-                           + ", qName: " + qName + ", #attributes: " + attributes.getLength());
-                          */
         String typeName = attributes.getValue("name");
         if (null != typeName) {
             if ("complexType".equals(localName)) {
@@ -44,21 +47,14 @@ class ConfigurationTypesBuilder extends DefaultHandler {
 
     // ErrorHandler interface
 
-    private void parseXML(InputSource is) throws SAXException, IOException {
-        SAXParser parser = new SAXParser();
-        parser.setContentHandler(this);
-        parser.setErrorHandler(this);
+    private void parseXML(InputSource is) throws SAXException, IOException, 
+        ParserConfigurationException {
 
-        if (parser instanceof XMLReader) {
-            ((XMLReader)parser).setFeature("http://xml.org/sax/features/validation", false);
-            ((XMLReader)parser).setFeature("http://xml.org/sax/features/namespaces", true);
-            ((XMLReader)parser).setFeature("http://apache.org/xml/features/validation/schema", true);
-            ((XMLReader)parser).setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                                           true);
-            ((XMLReader)parser).setFeature("http://apache.org/xml/features/validation/schema-full-checking",
-                                           false);
-        }
-        parser.parse(is);
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setFeature("http://xml.org/sax/features/namespaces", true);
+        SAXParser parser = factory.newSAXParser();
+
+        parser.parse(is, this);
     }
 
 }

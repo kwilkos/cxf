@@ -8,20 +8,21 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import org.apache.xerces.parsers.SAXParser;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata.LifecyclePolicy;
@@ -43,23 +44,9 @@ class ConfigurationMetadataBuilder extends DefaultHandler {
     private int valueStart;
     private int valueLength;
     
-    private List<String[]> schemaLocations;
+    private com.sun.org.apache.xerces.internal.impl.dtd.XMLDTDValidator dtdValidator;
+    private com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaValidator xsdValidator;
     
-    public ConfigurationMetadataBuilder() {
-        prefixMappings = new HashMap<String, String>();
-        schemaLocations = new ArrayList<String[]>();    
-        
-   
-        
-        URL u = ConfigurationException.class.getResource("config-metadata.xsd");
-        if (null != u) {
-            addSchemaLocation("http://celtix.objectweb.org/config-metadata",
-                              u.toString());
-        } else {
-            LOG.severe("Could not find configuration metadata schema resource");
-        }
-        
-    }
 
     public void build(ConfigurationMetadataImpl m, URL u) throws ConfigurationException {
         model = m;
@@ -82,10 +69,27 @@ class ConfigurationMetadataBuilder extends DefaultHandler {
         parseXML(is);
     }
     
-    public void addSchemaLocation(String namespace, String location) {
-        schemaLocations.add(new String[] {namespace, location });        
-    }
+    // EntityResolver interface
+    
+    /*
+    public InputSource resolveEntity(String publicId, String systemId) throws IOException, SAXException {
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Resolving entity, publicId: " + publicId + ", systemId: " + systemId);
+        }
+        
+        // REVISIT asmyth - is there a better way to check when we should replace the location
+        // by the resource URL for the metadata schema file?
+       
+        if (systemId.endsWith("config-metadata.xsd")) {
+            InputSource is = new InputSource(new FileInputStream(getSchemaLocation()));
+            return is;
+        } 
 
+        return super.resolveEntity(publicId, systemId);
+    }
+    */
+
+   
     // ContentHandler interface
 
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
@@ -199,42 +203,50 @@ class ConfigurationMetadataBuilder extends DefaultHandler {
         return str.toString();
     }
 
+    /**
+      *  The only approach that seems to solve the problem of specifying the actual schema file
+      * programatically seems to be setting the external-schemaLocation property.
+      * Alternative are to 
+      * a)  create a Schema object using the SchemaFactory and associate it with the 
+      *     Parserfactory before creating the parser.
+      * b) to set the schemaLanguage and schemaSource properties on the parser.
+      *    I could not get any of them to work yet.         
+      */
     private void parseXML(InputSource is) throws ConfigurationException, IOException {
-        SAXException exception = null;
+        
+        Exception exception = null;
         try {
-            SAXParser parser = new SAXParser();
-            parser.setContentHandler(this);
-            parser.setErrorHandler(this);
-            /*
-             * String parserName = "org.apache.xerces.parsers.SAXParser";
-             * SAXParser parser =
-             * (SAXParser)ParserFactory.makeParser(parserName);
-             * System.out.println("Using SAX parser of type: " +
-             * parser.getClass().getName()); parser.setContentHandler(handler);
-             * parser.setErrorHandler(errorHandler);
-             */
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            
+            String externalSchemaLocation = getSchemaLocation();
+            assert null != externalSchemaLocation;
 
-            if (parser instanceof XMLReader) {
-                ((XMLReader)parser).setFeature("http://xml.org/sax/features/validation", true);
-                ((XMLReader)parser).setFeature("http://xml.org/sax/features/namespaces", true);
-                ((XMLReader)parser).setFeature("http://apache.org/xml/features/validation/schema", true);
-                ((XMLReader)parser)
-                    .setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", true);
-                ((XMLReader)parser)
-                    .setFeature("http://apache.org/xml/features/validation/schema-full-checking", true);
-            }
-            String externalSchemaLocations = getExternalSchemaLocations();
-            if (null != externalSchemaLocations) {
-                parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    externalSchemaLocations);
+            factory.setFeature("http://xml.org/sax/features/validation", true);
+            factory.setFeature("http://xml.org/sax/features/namespaces", true);
+            factory.setFeature("http://apache.org/xml/features/validation/schema", true);
+            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", true);
+            factory.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true);
+            
+            SAXParser parser = factory.newSAXParser();
+            
+            if (null != externalSchemaLocation) {
+                parser.setProperty(
+                    "http://apache.org/xml/properties/schema/external-schemaLocation",
+                    "http://celtix.objectweb.org/config-metadata file://"
+                    + externalSchemaLocation);
                 LOG.fine("Using external schema locations:\n"
-                                   + externalSchemaLocations);
+                    + parser.getProperty("http://apache.org/xml/properties/schema/external-schemaLocation"));
             } else {
                 LOG.fine("Using schema location hints in document.");
             }
-            parser.parse(is);
+            
+            parser.parse(is, this);
+
         } catch (SAXException ex) {
             exception = ex;
+        } catch (ParserConfigurationException ex) {
+            throw new ConfigurationException(new ConfigurationMessage("PARSER_CONFIGURATION_ERROR", 
+                                                            url.toString()), ex);
         }
         if (null != firstError) {
             exception = firstError;
@@ -245,13 +257,15 @@ class ConfigurationMetadataBuilder extends DefaultHandler {
         if (null != firstWarning) {
             LOG.warning(exception.getMessage());
         }
-
+    
         // dump();
     }
 
     private void importTypes(String location, String namespace) throws SAXException {
-
-        LOG.fine("importing types from: " + location + ", using namespace: " + namespace);
+        
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("importing types from: " + location + ", using namespace: " + namespace);
+        }
 
         if (!prefixMappings.containsValue(namespace)) {
             throw new SAXException(new ConfigurationMessage("MISSING_PREFIX", namespace).toString());
@@ -271,7 +285,9 @@ class ConfigurationMetadataBuilder extends DefaultHandler {
             } catch (URISyntaxException ex) {
                 throw new SAXException(new ConfigurationMessage("TYPES_URI_ERROR").toString(), ex);
             }
-            LOG.fine("Effective import location: " + typesURI.toString());
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Effective import location: " + typesURI.toString());
+            }
         }
 
         Collection<String> types = new ArrayList<String>();
@@ -280,11 +296,15 @@ class ConfigurationMetadataBuilder extends DefaultHandler {
             InputSource is = new InputSource(new FileInputStream(typesURI.getPath()));
             ctBuilder.build(types, is);
         } catch (IOException ex) {
-            throw new SAXException(new ConfigurationMessage("IO_ERROR", typesURI.toString()).toString());
+            throw new SAXException(new ConfigurationMessage("IO_ERROR", 
+                                                            typesURI.toString()).toString());
+        } catch (ParserConfigurationException ex) {
+            throw new SAXException(new ConfigurationMessage("PARSER_CONFIGURATION_ERROR", 
+                                                            typesURI.toString()).toString(), ex);
         }
 
         for (String type : types) {
-            model.getTypes().add(new QName(namespace, type));
+            model.getTypes().add(new QName(namespace, type)); 
         }
     }
 
@@ -329,22 +349,12 @@ class ConfigurationMetadataBuilder extends DefaultHandler {
         return new QName(uri, localPart); 
     }
     
-    private String getExternalSchemaLocations() {
-        if (0 == schemaLocations.size()) {
-            return null;
-        }
-
-        StringBuffer buf = new StringBuffer();
-        for (String[] locationPairs : schemaLocations) {
-            if (buf.length() > 0) {
-                buf.append(" ");
-            }
-            buf.append(locationPairs[0]);
-            buf.append(" ");
-            buf.append(locationPairs[1]);
-        }
-
-        return buf.toString();
+    private String getSchemaLocation() {
+        URL u = ConfigurationException.class.getResource("config-metadata.xsd");
+        if (null != u) {
+            return u.getFile();
+        } 
+        LOG.severe("Could not find configuration metadata schema resource");
+        return  null;
     }
-
 }
