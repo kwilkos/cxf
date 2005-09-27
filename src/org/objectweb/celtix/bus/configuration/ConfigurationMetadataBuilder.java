@@ -24,7 +24,6 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import org.objectweb.celtix.configuration.ConfigurationException;
-import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata.LifecyclePolicy;
 
 class ConfigurationMetadataBuilder extends DefaultHandler {
@@ -43,9 +42,6 @@ class ConfigurationMetadataBuilder extends DefaultHandler {
     private char[] valueChars;
     private int valueStart;
     private int valueLength;
-    
-    private com.sun.org.apache.xerces.internal.impl.dtd.XMLDTDValidator dtdValidator;
-    private com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaValidator xsdValidator;
     
 
     public void build(ConfigurationMetadataImpl m, URL u) throws ConfigurationException {
@@ -184,24 +180,6 @@ class ConfigurationMetadataBuilder extends DefaultHandler {
         throw ex;
     }
 
-    private String getLocationString(SAXParseException ex) {
-        StringBuffer str = new StringBuffer();
-
-        String systemId = ex.getSystemId();
-        if (systemId != null) {
-            int index = systemId.lastIndexOf('/');
-            if (index != -1) {
-                systemId = systemId.substring(index + 1);
-            }
-            str.append(systemId);
-        }
-        str.append(':');
-        str.append(ex.getLineNumber());
-        str.append(':');
-        str.append(ex.getColumnNumber());
-
-        return str.toString();
-    }
 
     /**
       *  The only approach that seems to solve the problem of specifying the actual schema file
@@ -312,6 +290,25 @@ class ConfigurationMetadataBuilder extends DefaultHandler {
         return new String(valueChars, valueStart, valueLength);
     }
 
+    /*
+    private String getLocationString(SAXParseException ex) {
+        StringBuffer str = new StringBuffer();
+
+        String systemId = ex.getSystemId();
+        if (systemId != null) {
+            int index = systemId.lastIndexOf('/');
+            if (index != -1) {
+                systemId = systemId.substring(index + 1);
+            }
+            str.append(systemId);
+        }
+        str.append(':');
+        str.append(ex.getLineNumber());
+        str.append(':');
+        str.append(ex.getColumnNumber());
+
+        return str.toString();
+    }
     private void dump() {
 
         System.out.println("Types list:");
@@ -328,6 +325,7 @@ class ConfigurationMetadataBuilder extends DefaultHandler {
             System.out.println("     description:" + item.getDescription());
         }
     }
+    */
     
     private QName stringToQName(String s) throws SAXException {
         

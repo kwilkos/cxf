@@ -2,7 +2,6 @@ package org.objectweb.celtix.bus.configuration;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -17,11 +16,9 @@ import org.xml.sax.helpers.DefaultHandler;
 // import org.apache.xerces.parsers.SAXParser;
 
 class ConfigurationTypesBuilder extends DefaultHandler {
-
-    private static final Logger LOG = Logger.getLogger(ConfigurationMetadataBuilder.class.getName());
     
     private Collection<String> types;
-    private String schemaPrefix;
+
 
     protected void build(Collection<String> t, InputSource is) throws SAXException, 
         IOException, ParserConfigurationException {
