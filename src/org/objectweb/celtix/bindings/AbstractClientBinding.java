@@ -4,14 +4,15 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.Port;
+import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -28,28 +29,27 @@ public abstract class AbstractClientBinding implements ClientBinding {
     protected final EndpointReferenceType reference;
     protected ClientTransport transport;
     
-    public AbstractClientBinding(Bus b, EndpointReferenceType ref) {
+    public AbstractClientBinding(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
         bus = b;
         reference = ref;
-        transport = createTransport();
+        transport = createTransport(reference);
     }
 
-    protected ClientTransport createTransport() {
+    protected ClientTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
         ClientTransport ret = null;
         try {
-            LOG.info("creating client transport for " + reference);
+            LOG.info("creating client transport for " + ref);
 
-            Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), reference);
+            Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
             List<?> exts = port.getExtensibilityElements();
             if (exts.size() > 0) {                
                 ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
                 TransportFactory factory = bus.getTransportFactoryManager().
                         getTransportFactory(el.getElementType().getNamespaceURI()); 
-                ret = factory.createClientTransport(reference);
+                ret = factory.createClientTransport(ref);
             }
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "error creating client transport", ex);
-            // TODO - exception handling
+        } catch (BusException ex) {
+            LOG.severe("Error in getting transport factory");
         }
         assert ret != null; 
         return ret;

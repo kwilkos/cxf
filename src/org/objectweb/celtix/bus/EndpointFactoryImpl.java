@@ -10,7 +10,6 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.BusException;
 
 public class EndpointFactoryImpl extends javax.xml.ws.EndpointFactory {
 
@@ -29,7 +28,7 @@ public class EndpointFactoryImpl extends javax.xml.ws.EndpointFactory {
         if (EndpointUtils.isValidImplementor(implementor)) {
             try {
                 ep = new EndpointImpl(Bus.getCurrent(), implementor, bindingId);
-            } catch (BusException ex) {
+            } catch (Exception ex) {
                 LOG.severe("Failed to create endpoint:\n" + ex.getMessage());
             }
             return ep;

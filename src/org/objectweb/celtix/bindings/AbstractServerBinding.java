@@ -27,8 +27,6 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
-import org.objectweb.celtix.transports.TransportFactory;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
 public abstract class AbstractServerBinding implements ServerBinding {
@@ -51,11 +49,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
     }
 
     public void activate() throws WSDLException, IOException {
-        String address = EndpointReferenceUtils.getAddress(reference);
-
-        TransportFactory tf = getDefaultTransportFactory(address);
-        transport = tf.createServerTransport(reference);
-
+        transport = createTransport(reference);
         transport.activate(new ServerTransportCallback() {
 
             public void dispatch(InputStreamMessageContext ctx, ServerTransport t) {
@@ -92,7 +86,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
         return new ObjectMessageContextImpl();
     }
 
-    protected abstract TransportFactory getDefaultTransportFactory(String address);
+    protected abstract ServerTransport createTransport(EndpointReferenceType ref) 
+        throws WSDLException, IOException;
 
     protected abstract MessageContext createBindingMessageContext(MessageContext orig);
 
@@ -111,7 +106,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
     protected abstract MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode)
         throws RemoteException;
 
-    void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
+    protected void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
         LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
         MessageContext requestCtx = createBindingMessageContext(inCtx);
 
@@ -209,7 +204,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 }
             }
         }
-        
+
         if (replyParamList.size() > 0) {
             Object[] replyParams = replyParamList.toArray();
             objContext.setMessageObjects(replyParams);

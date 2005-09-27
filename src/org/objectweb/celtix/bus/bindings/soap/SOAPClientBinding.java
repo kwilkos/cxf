@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.wsdl.WSDLException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Binding;
@@ -22,7 +23,7 @@ public class SOAPClientBinding extends AbstractClientBinding {
     private static final Logger LOG = Logger.getLogger(SOAPClientBinding.class.getName());
     protected final SOAPBindingImpl soapBinding;
     
-    public SOAPClientBinding(Bus b, EndpointReferenceType ref) {
+    public SOAPClientBinding(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
         super(b, ref);
         soapBinding = new SOAPBindingImpl();
     }

@@ -9,12 +9,12 @@ public class NotAnnotatedGreeterImpl implements Greeter {
         Logger.getLogger(NotAnnotatedGreeterImpl.class.getName());
     
     public String greetMe(String me) throws RemoteException {
-        LOG.info("Executing operation sayHi");
-        return null;
+        LOG.info("Executing operation greetMe");
+        return me;
     }
   
     public String sayHi() throws RemoteException {
-        LOG.info("Executing operation greetMe");
+        LOG.info("Executing operation sayHi");
         return "Bonjour";
     }
 

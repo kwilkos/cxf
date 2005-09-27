@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
+import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
@@ -34,8 +35,8 @@ import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.context.ProviderMessageContext;
+import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
-import org.objectweb.celtix.transports.TransportFactoryManager;
 
 public class SOAPServerBinding extends AbstractServerBinding {
     
@@ -56,11 +57,13 @@ public class SOAPServerBinding extends AbstractServerBinding {
         return soapBinding.isCompatibleWithAddress(address);
     }
     
-    protected TransportFactory getDefaultTransportFactory(String address) {
+    protected ServerTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
         // TODO get from configuration
-        TransportFactoryManager tfm = bus.getTransportFactoryManager();
+        // TODO get from reference bindingID
         try {
-            return tfm.getTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/");
+            TransportFactory tf = 
+                    bus.getTransportFactoryManager().getTransportFactory(SOAPConstants.SOAP_URI);
+            return tf.createServerTransport(ref);
         } catch (BusException ex) {
             LOG.severe("Failed to get default transport factory for SOAP server binding.");
         }
@@ -188,7 +191,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
         } catch (SOAPException ex) {
             LOG.log(Level.SEVERE, "error getting operation name from soap message", ex);
         }
-        System.err.println("retrieved operation name from soap message:" + ret);
+        
+        LOG.info("retrieved operation name from soap message:" + ret);
         return ret;
     }
     

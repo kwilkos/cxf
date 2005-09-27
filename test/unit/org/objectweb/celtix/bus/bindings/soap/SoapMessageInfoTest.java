@@ -8,7 +8,6 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
 import org.objectweb.hello_world_soap_http.Greeter;
 
 public class SoapMessageInfoTest extends TestCase {
@@ -25,15 +24,13 @@ public class SoapMessageInfoTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         
-        ObjectMessageContextImpl msgContext = new ObjectMessageContextImpl();
         Method[] declMethods = Greeter.class.getDeclaredMethods();
         for (Method method : declMethods) {
             if (method.getName().equals("greetMe")) {
-                msgContext.put(ObjectMessageContextImpl.METHOD_INVOKED, method);
+                msgInfo = new SOAPMessageInfo(method);
+                break;
             }
         }
-        
-        msgInfo = new SOAPMessageInfo(msgContext.getMethod());
     }
 
     protected void tearDown() throws Exception {
@@ -94,4 +91,29 @@ public class SoapMessageInfoTest extends TestCase {
                 "org.objectweb.hello_world_soap_http.types.GreetMeResponse", 
                 respWrapperType);
     }    
+    
+    public void testDefaults() throws Exception {
+        SOAPMessageInfo info = null;
+        
+        Method[] declMethods = String.class.getDeclaredMethods();
+        for (Method method : declMethods) {
+            if (method.getName().equals("length")) {
+                info = new SOAPMessageInfo(method);
+                break;
+            }
+        }
+        
+        assertNotNull(info);
+        assertEquals(SOAPBinding.Style.DOCUMENT, info.getSOAPStyle());
+        assertEquals(SOAPBinding.Use.LITERAL, info.getSOAPUse());
+        assertEquals(SOAPBinding.ParameterStyle.WRAPPED, info.getSOAPParameterStyle());
+        assertEquals("", info.getOperationName());        
+        assertEquals("", info.getSOAPAction());
+        assertEquals(SOAPConstants.EMPTY_QNAME, info.getWebResult());
+        assertNull(info.getWebParam(1));
+        assertEquals(SOAPConstants.EMPTY_QNAME, info.getRequestWrapperQName());
+        assertEquals(SOAPConstants.EMPTY_QNAME, info.getResponseWrapperQName());
+        assertEquals("", info.getRequestWrapperType());
+        assertEquals("", info.getResponseWrapperType());
+    }
 }

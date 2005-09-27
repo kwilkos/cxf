@@ -16,7 +16,6 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.BusMessage;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
-import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bindings.ServerBinding;
 //import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -36,7 +35,7 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
     private List<Source> metadata;
     private Executor executor;
 
-    EndpointImpl(Bus b, Object impl, URI bindingId) throws BusException {
+    EndpointImpl(Bus b, Object impl, URI bindingId) throws BusException, WSDLException, IOException {
         bus = b;
         implementor = impl;
         // configuration = new EndpointConfiguration(Bus, this);
@@ -187,9 +186,9 @@ public class EndpointImpl implements javax.xml.ws.Endpoint {
         return reference;
     }
 
-    ServerBinding createServerBinding(URI bindingId) throws BusException {
-        BindingManager bm = bus.getBindingManager();
-        BindingFactory factory = bm.getBindingFactory(bindingId.toString());
+    ServerBinding createServerBinding(URI bindingId) throws BusException, WSDLException, IOException {
+
+        BindingFactory factory = bus.getBindingManager().getBindingFactory(bindingId.toString());
         ServerBinding bindingImpl = factory.createServerBinding(reference, this);
         assert null != bindingImpl;
         return bindingImpl;

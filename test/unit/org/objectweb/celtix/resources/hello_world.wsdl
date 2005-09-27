@@ -3,25 +3,50 @@
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:http-conf="http://schemas.iona.com/transports/http/configuration" 
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://objectweb.org/hello_world_soap_http" 
+    xmlns:tns="http://objectweb.org/hello_world_soap_http"
+    xmlns:x1="http://objectweb.org/hello_world_soap_http/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <wsdl:types>
-        <schema targetNamespace="http://objectweb.org/hello_world_soap_http" 
-            xmlns="http://www.w3.org/2001/XMLSchema">
-            <element name="responseType" type="xsd:string"/>
-            <element name="requestType" type="xsd:string"/>
+        <schema targetNamespace="http://objectweb.org/hello_world_soap_http/types" 
+            xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+            <element name="sayHi">
+                <complexType/>
+            </element>
+            <element name="sayHiResponse">
+                <complexType>
+                    <sequence>
+                        <element name="responseType" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
+            <element name="greetMe">
+                <complexType>
+                    <sequence>
+                        <element name="requestType" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
+            <element name="greetMeResponse">
+                <complexType>
+                    <sequence>
+                        <element name="responseType" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
         </schema>
     </wsdl:types>
-    <wsdl:message name="sayHiRequest"/>
+    <wsdl:message name="sayHiRequest">
+        <wsdl:part element="x1:sayHi" name="in"/>
+    </wsdl:message>
     <wsdl:message name="sayHiResponse">
-        <wsdl:part element="tns:responseType" name="theResponse"/>
+        <wsdl:part element="x1:sayHiResponse" name="out"/>
     </wsdl:message>
     <wsdl:message name="greetMeRequest">
-        <wsdl:part element="tns:requestType" name="me"/>
+        <wsdl:part element="x1:greetMe" name="in"/>
     </wsdl:message>
     <wsdl:message name="greetMeResponse">
-        <wsdl:part element="tns:responseType" name="theResponse"/>
+        <wsdl:part element="x1:greetMeResponse" name="out"/>
     </wsdl:message>
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
@@ -73,5 +98,4 @@
             <http-conf:server/>
         </wsdl:port>
     </wsdl:service>
-
 </wsdl:definitions>

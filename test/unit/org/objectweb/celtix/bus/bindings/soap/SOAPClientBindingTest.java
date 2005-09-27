@@ -1,13 +1,16 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+//import java.io.ByteArrayInputStream;
+//import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+//import java.io.InputStream;
+//import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.concurrent.Future;
+
+import javax.wsdl.WSDLException;
+
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 
@@ -15,9 +18,9 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.context.GenericMessageContext;
+//import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
-import org.objectweb.celtix.context.MessageContextWrapper;
+//import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
@@ -81,12 +84,14 @@ public class SOAPClientBindingTest extends TestCase {
 
     class TestClientBinding extends SOAPClientBinding {
 
-        public TestClientBinding(Bus b, EndpointReferenceType ref) {
+        public TestClientBinding(Bus b, EndpointReferenceType ref) 
+            throws WSDLException, IOException {
             super(b, ref);
         }
 
-        protected ClientTransport createTransport() {
-            return new TestClientTransport(bus, reference);
+        protected ClientTransport createTransport(EndpointReferenceType ref)
+            throws WSDLException, IOException {
+            return new TestClientTransport(bus, ref);
         }
     }
 
@@ -121,56 +126,5 @@ public class SOAPClientBindingTest extends TestCase {
         }
     }
     
-    class TestOutputStreamContext
-        extends MessageContextWrapper
-        implements OutputStreamMessageContext {
-        ByteArrayOutputStream baos;
-        
-        public TestOutputStreamContext(URL url, MessageContext ctx) throws IOException {
-            super(ctx);
-        }
-        
-        void flushHeaders() throws IOException { }
-
-        public void setFault(boolean isFault) { }
-
-        public boolean isFault() {
-            return false;
-        }
-        
-        public OutputStream getOutputStream() {
-            if (baos == null) {
-                baos = new ByteArrayOutputStream();
-            }
-            try {
-                baos.flush(); 
-            } catch (IOException ioe) {
-                //to do nothing
-            }
-            return baos;
-        }
-
-        public void setOutputStream(OutputStream o) { }
-
-        public InputStreamMessageContext createInputStreamContext() throws IOException {
-            return new TestInputStreamContext(baos.toByteArray());
-        }
-    }
     
-    class TestInputStreamContext
-        extends GenericMessageContext
-        implements InputStreamMessageContext {
-
-        private static final long serialVersionUID = 1L;
-        private byte[] byteArray;
-        public TestInputStreamContext(byte[] bArray) throws IOException {
-            byteArray = bArray;
-        }
-
-        public InputStream getInputStream() {
-            return new ByteArrayInputStream(byteArray);
-        }
-
-        public void setInputStream(InputStream ins) { }
-    }
 }

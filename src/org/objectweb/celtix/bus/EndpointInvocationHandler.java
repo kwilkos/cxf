@@ -15,7 +15,6 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.BusException;
 
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
@@ -52,7 +51,7 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
     }
 
     public Binding getBinding() {
-        return (Binding) clientBinding;
+        return clientBinding.getBinding();
     }
     
     public Map<String, Object> getRequestContext() {
@@ -94,34 +93,30 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
             objMsgContext = clientBinding.invoke(objMsgContext);
         }
         
-        return objMsgContext.get("org.objectweb.celtix.return");
+        return objMsgContext.getReturn();
     }
     
     protected ClientBinding createBinding(EndpointReferenceType ref) {
 
         WSDLManager wsdlManager = bus.getWSDLManager();
-        Port endpoint = null;
+        ClientBinding binding = null;
         try {
-            endpoint = EndpointReferenceUtils.getPort(wsdlManager, ref);
+            Port endpoint = EndpointReferenceUtils.getPort(wsdlManager, ref);
+            
             assert endpoint != null : "unable to find endpoint for " + ref;
-        } catch (Exception we) {
-            we.printStackTrace();    
-            //TODO 
-        }
-        
-        String bindingId = getBindingId(endpoint.getBinding());
-        BindingFactory factory = null;
-        try {
-            factory = bus.getBindingManager().getBindingFactory(bindingId);
-        } catch (BusException be) {
-            throw new WebServiceException(be);
-        }
+            String bindingId = getBindingId(endpoint.getBinding());
 
-        return factory.createClientBinding(ref);
+            BindingFactory factory = bus.getBindingManager().getBindingFactory(bindingId);
+            assert factory != null : "unable to find binding factory for " + ref;
+            binding = factory.createClientBinding(ref);
+        } catch (Exception ex) {
+            throw new WebServiceException(ex);
+        }
+        return binding;
     }
-    
+
     private String getBindingId(javax.wsdl.Binding binding) {
-        String id = null;
+
         List list = binding.getExtensibilityElements();
         
         if (list.isEmpty()) {
@@ -129,8 +124,7 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         }
 
         ExtensibilityElement extElement = (ExtensibilityElement) list.get(0);
-        id = extElement.getElementType().getNamespaceURI();
         
-        return id;
+        return extElement.getElementType().getNamespaceURI();
     }
 }

@@ -19,6 +19,7 @@ public final class EndpointUtils {
     }
 
     public static ServiceMode getServiceMode(Endpoint endpoint) {
+        assert null != endpoint;
         Object implementor = endpoint.getImplementor();
         if (implementor instanceof Provider) {
             ServiceMode mode = implementor.getClass().getAnnotation(ServiceMode.class);
@@ -45,11 +46,6 @@ public final class EndpointUtils {
         Class<?> iClass = implementor.getClass();
         WebService iws = iClass.getAnnotation(WebService.class);
 
-        if (null == iws) {
-            LOG.severe("Implementor is not annotated with WebService annotation.");
-            return null;
-        }
-
         // determine the (fully annoated) SEI
 
         Class<?>[] interfaces = iClass.getInterfaces();
@@ -58,11 +54,20 @@ public final class EndpointUtils {
         for (Class<?> c : interfaces) {
             WebService ws = c.getAnnotation(WebService.class);
             // REVISIT: check for equality of targetNamespace also
-            if (null != ws && ws.name().equals(iws.name())) {
+            if (null != ws) {                
                 sei = c;
+                if (null == iws) {
+                    iws = ws;
+                }
                 break;
             }
         }
+        
+        if (null == iws) {
+            LOG.severe("Implementor or SEI is not annotated with WebService annotation.");
+            return null;
+        }
+        
         if (null == sei) {
             LOG.severe("Implementor does not implement required SEI.");
             return null;

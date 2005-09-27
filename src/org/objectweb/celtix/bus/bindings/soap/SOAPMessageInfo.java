@@ -85,7 +85,7 @@ public class SOAPMessageInfo {
     }
     
     public WebParam getWebParam(int index) {
-        if (null != paramAnnotations) {
+        if (null != paramAnnotations && index < paramAnnotations.length) {
             for (Annotation annotation : paramAnnotations[index]) {
                 if (WebParam.class.equals(annotation.annotationType())) {
                     return (WebParam) annotation;

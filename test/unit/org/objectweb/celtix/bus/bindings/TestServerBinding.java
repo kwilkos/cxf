@@ -39,7 +39,8 @@ public class TestServerBinding extends AbstractServerBinding {
         return new GenericMessageContext();
     }
 
-    protected TransportFactory getDefaultTransportFactory(String address) {
+    protected ServerTransport createTransport(EndpointReferenceType ref) 
+        throws WSDLException, IOException {
         TransportFactoryManager tfm = bus.getTransportFactoryManager();
         String name = "http://celtix.objectweb.org/transports/test";
         TransportFactory tf = null;
@@ -57,7 +58,7 @@ public class TestServerBinding extends AbstractServerBinding {
                 return null;
             }
         }
-        return tf;
+        return tf.createServerTransport(ref);
     }
 
     protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {

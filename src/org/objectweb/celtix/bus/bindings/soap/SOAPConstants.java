@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.bindings.soap;
 import javax.xml.namespace.QName;
 
 public final class SOAPConstants {
+    public static final String SOAP_URI = "http://schemas.xmlsoap.org/wsdl/soap/";
     public static final String SOAP_ENV_URI = "http://schemas.xmlsoap.org/soap/envelope/";
     public static final QName  EMPTY_QNAME = new QName("", "");    
     public static final QName  SOAP_ENV_ENCSTYLE = 

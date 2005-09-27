@@ -91,7 +91,7 @@ public class SoapBindingImplTest extends TestCase {
         QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");
         QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "requestType");
         String data = new String("TestSOAPInputMessage");
-        String str = createWrapDocLitSOAPMessage(wrapName, elName, data);        
+        String str = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data);        
         
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
         binding.parseInputMessage(in, soapContext);
@@ -112,7 +112,7 @@ public class SoapBindingImplTest extends TestCase {
         QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");        
         QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "requestType");
         String data = new String("TestSOAPInputMessage");
-        String str = createWrapDocLitSOAPMessage(wrapName, elName, data);
+        String str = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data);
         
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
         soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, false);
@@ -135,7 +135,7 @@ public class SoapBindingImplTest extends TestCase {
         QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");        
         QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "requestType");
         String data = new String("TestSOAPOutputMessage");
-        String str = createWrapDocLitSOAPMessage(wrapName, elName, data);
+        String str = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data);
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
 
         soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, true);        
@@ -152,23 +152,4 @@ public class SoapBindingImplTest extends TestCase {
         assertNotNull(objContext.getReturn());
         assertEquals(data, (String)objContext.getReturn());
     }    
-
-    private String createWrapDocLitSOAPMessage(QName wrapName, QName elName, String data) {
-        StringBuffer str = new StringBuffer();
-        
-        str.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        str.append("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">");
-        str.append("<SOAP-ENV:Body>");
-
-        str.append("<" + wrapName.getLocalPart() + " xmlns=\"" + wrapName.getNamespaceURI() + "\">");
-        str.append("<" + elName.getLocalPart() + ">");
-        str.append(data);
-        str.append("</" + elName.getLocalPart() + ">");
-        str.append("</" + wrapName.getLocalPart() + ">");
-        
-        str.append("</SOAP-ENV:Body>");
-        str.append("</SOAP-ENV:Envelope>");
-        
-        return str.toString();
-    }
 }
