@@ -17,16 +17,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:tns="http://www.w3.org/2005/03/addressing"
 	targetNamespace="http://www.w3.org/2005/03/addressing" blockDefault="#all"
-	elementFormDefault="qualified"
-	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-	jaxb:version="2.0">
-
-    <xs:annotation>
-        <xs:appinfo>
-            <jaxb:globalBindings generateElementClass="true">
-            </jaxb:globalBindings>
-        </xs:appinfo>
-    </xs:annotation>
+	elementFormDefault="qualified">
 	
 	<!-- Constructs from the WS-Addressing Core -->
 

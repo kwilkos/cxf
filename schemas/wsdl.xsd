@@ -11,8 +11,6 @@
 
     <xs:annotation>
         <xs:appinfo>
-            <jaxb:globalBindings generateElementClass="true">
-            </jaxb:globalBindings>
             <jaxb:schemaBindings>
                 <jaxb:package name="org.objectweb.celtix.wsdl"/>
             </jaxb:schemaBindings>

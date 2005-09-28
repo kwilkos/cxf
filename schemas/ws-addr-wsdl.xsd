@@ -18,18 +18,9 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:tns="http://www.w3.org/2005/02/addressing/wsdl"
 	targetNamespace="http://www.w3.org/2005/02/addressing/wsdl" blockDefault="#all"
-	elementFormDefault="qualified"
-	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-	jaxb:version="2.0">
+	elementFormDefault="qualified">
 
-    <xs:annotation>
-        <xs:appinfo>
-            <jaxb:globalBindings generateElementClass="true">
-            </jaxb:globalBindings>
-        </xs:appinfo>
-    </xs:annotation>
 
-	
 	<xs:element name="ServiceName" type="tns:ServiceNameType"/>
 	<xs:complexType name="ServiceNameType">
 		<xs:simpleContent>
