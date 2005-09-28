@@ -32,7 +32,6 @@ public class ServiceImpl extends ServiceDelegate {
     private QName serviceName;
     private List<QName> endpointList;
     private final Bus bus;
-    private final Class<?> serviceInterface;
     
     /**
      * Create a new Service.
@@ -43,7 +42,6 @@ public class ServiceImpl extends ServiceDelegate {
         bus = b;
         wsdlLocation = location;
         serviceName = name;
-        serviceInterface = si;
         endpointList = new Vector<QName>();
     }
     
