@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bus;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.net.URL;
@@ -17,7 +16,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
-//import javax.xml.ws.WebEndpoint;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.spi.ServiceDelegate;
@@ -26,7 +24,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-public class ServiceImpl extends ServiceDelegate implements InvocationHandler {
+public class ServiceImpl extends ServiceDelegate {
 
     private static final Logger LOG = Logger.getLogger(ServiceImpl.class.getName());
     
@@ -86,26 +84,6 @@ public class ServiceImpl extends ServiceDelegate implements InvocationHandler {
         return wsdlLocation;
     }
 
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
-        if (serviceInterface.equals(method.getDeclaringClass())) {
-            
-            Class<?> returnType = method.getReturnType();
-            
-            if (returnType != null) {
-                String endpointName = getEndpointName(method);
-
-                return getPort(new QName("", endpointName), returnType);
-            } else {
-                StringBuilder str = new StringBuilder(method.getName());
-                str.append(" must have a Return Type");
-                throw new WebServiceException(str.toString());
-            }
-        } else {
-            return method.invoke(this, args);
-        }
-    }
-
     protected <T> T createPort(QName portName, 
                 Class<T> serviceEndpointInterface) throws WebServiceException {
 
@@ -142,24 +120,6 @@ public class ServiceImpl extends ServiceDelegate implements InvocationHandler {
         endpointList.add(portName);
         
         return serviceEndpointInterface.cast(obj);
-    }
-    
-    private String getEndpointName(Method method) {
-        //Order of Search
-        //a. Look for WebEndpoint Annotation on the method.
-        //b. Get the endpoint name from the Method name
-        String endpointName = null;
-        
-        //if (method.isAnnotationPresent(WebEndpoint.class)) {
-        //    WebEndpoint wepAnnotation = method.getAnnotation(WebEndpoint.class);
-        //    endpointName = wepAnnotation.name();
-        //} else {
-        endpointName = method.getName();
-        if (endpointName.startsWith("get")) {
-            return endpointName.substring(3);
-        }
-        //}
-        return endpointName;
     }
     
     private URL getWsdlLocation(WebService wsAnnotation) {
