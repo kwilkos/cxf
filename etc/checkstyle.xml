@@ -152,7 +152,6 @@ lengths, if/try depths, etc...
         <!--<module name="MagicNumber"/>-->
         <module name="MissingSwitchDefault"/>
         <module name="ModifiedControlVariable"/>
-        <!--<module name="RedundantThrows"/>-->
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
         <module name="StringLiteralEquality"/>
@@ -165,7 +164,8 @@ lengths, if/try depths, etc...
         <module name="SuperClone"/>
         <module name="SuperFinalize"/>
         <!--<module name="IllegalCatch"/>-->
-        <!--<module name="IllegalThrows"/>-->
+        <module name="IllegalThrows"/>
+        <module name="RedundantThrows"/>
         <module name="PackageDeclaration"/>
         <module name="JUnitTestCase"/>
         <module name="ReturnCount">

@@ -1,7 +1,6 @@
 package org.objectweb.celtix.workqueue;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 
 public interface WorkQueue extends Executor {
     /**
@@ -14,5 +13,5 @@ public interface WorkQueue extends Executor {
      * @throws <code>RejectedExecutionException</code> if this work item cannot be accepted for execution.
      * @throws <code>NullPointerException</code> if work item is null.
      */
-    void execute(Runnable work, long timeout) throws RejectedExecutionException;
+    void execute(Runnable work, long timeout);
 }

@@ -73,7 +73,7 @@ public class ForkedCommand extends Thread {
         this.joinErrOut = flag;
     }
 
-    public int execute() throws ForkedCommandException {
+    public int execute() {
         return execute(DEFAULT_TIMEOUT);
     }
 
@@ -85,7 +85,7 @@ public class ForkedCommand extends Thread {
      * @throws ForkedCommandException if process execution fails for some reason
      *             or if the timeout has expired and the process was killed
      */
-    public int execute(int timeout) throws ForkedCommandException {
+    public int execute(int timeout) {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Executing command: " + this);
         }

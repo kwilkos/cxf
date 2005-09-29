@@ -80,7 +80,7 @@ public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements Automa
     /* (non-Javadoc)
      * @see org.objectweb.celtix.workqueue.WorkQueue#execute(java.lang.Runnable, long)
      */
-    public void execute(Runnable work, long timeout) throws RejectedExecutionException {
+    public void execute(Runnable work, long timeout) {
         try {
             execute(work);
         } catch (RejectedExecutionException ree) {

@@ -1,6 +1,8 @@
 package org.objectweb.celtix.bus;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +42,7 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
     }
 
     public Object invoke(Object proxy, Method method, Object args[])
-        throws Throwable {
+        throws IOException, IllegalAccessException, InvocationTargetException {
         
         if (portTypeInterface.equals(method.getDeclaringClass())) {
             return invokeSEIMethod(proxy, method, args);
@@ -70,7 +72,7 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
     }
     
     private Object invokeSEIMethod(Object proxy, Method method, Object parameters[])
-        throws Throwable {
+        throws IOException {
 
         ObjectMessageContext objMsgContext = clientBinding.createObjectContext();
         //TODO

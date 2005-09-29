@@ -4,9 +4,8 @@
 
     <!-- Load the codegen targets -->
     <import file="codegen.xml"/>
-    
-    
-	<property name="xlint.args" value=":unchecked,deprecation,fallthrough,serial,finally"/>
+
+    <property name="xlint.args" value=":unchecked,deprecation,fallthrough,serial,finally"/>
 	
     <!-- The entire codebase will be checkstyled automatically as part
     of the compile process.   If the code does not meet the style standards,
@@ -17,16 +16,26 @@
     <target name="src.checkstyle" unless="no.checkstyle">
         <checkstyle config="${basedir}/etc/checkstyle.xml">
             <fileset dir="src" includes="**/*.java"/>
+            <classpath>
+                <path refid="src.compile.classpath"/>
+                <pathelement location="${basedir}/build/classes"/>
+            </classpath>
         </checkstyle>
     </target>
     <target name="unittest.checkstyle" unless="no.checkstyle">
         <checkstyle config="${basedir}/etc/checkstyle.xml">
             <fileset dir="${basedir}/test/unit" includes="**/*.java"/>
+            <classpath>
+                <path refid="unit.test.compile.classpath"/>
+            </classpath>
         </checkstyle>
     </target>
     <target name="systemtest.checkstyle" unless="no.checkstyle">
         <checkstyle config="${basedir}/etc/checkstyle.xml">
             <fileset dir="${basedir}/test/system" includes="**/*.java"/>
+            <classpath>
+                <path refid="system.test.compile.classpath"/>
+            </classpath>
         </checkstyle>
     </target>
     <target name="checkstyle" depends="src.checkstyle,unittest.checkstyle,systemtest.checkstyle" description="Checkstyle the entire codebase"/>
@@ -35,109 +44,75 @@
 
     <!--  Targets to compile the code -->
     <!-- TODO: need to setup classpaths and such for the dependent libs -->
-    <target name="src.compile" depends="src.checkstyle,schemas.codegen" description="Compile the source">
+    <target name="src.compile" depends="schemas.codegen" description="Compile the source">
         <mkdir dir="${basedir}/build/classes"/>
-    	<!--ObjectFactory objects are known to have an unchecked issue, don't run with -Xlint -->
+
         <javac
             destdir="${basedir}/build/classes"
             debug="true"
             target="1.5"
             source="1.5"
-        	sourcepath=""
             fork="true"
-			includeAntRuntime="false">
-        	
+            sourcepath=""
+            includeAntRuntime="false">
+            <compilerarg line="-Xlint${xlint.args}"/>
             <src path="${basedir}/src"/>
             <src path="${basedir}/build/src"/>
-			<include name="**/TExtensibilityElement*.java"/>
-
             <classpath>
                 <path refid="src.compile.classpath"/>
-            	<pathelement location="${basedir}/build/classes"/>
+                <pathelement location="${basedir}/build/classes"/>
             </classpath>
         </javac>
-        <javac
-            destdir="${basedir}/build/classes"
-            debug="true"
-            target="1.5"
-            source="1.5"
-        	sourcepath=""
-            fork="true"
-			includeAntRuntime="false">
-        	
-            <src path="${basedir}/build/src"/>
-			<include name="**/*.java"/>
-
-            <classpath>
-                <path refid="src.compile.classpath"/>
-            	<pathelement location="${basedir}/build/classes"/>
-            </classpath>
-        </javac>
-        <javac
-            destdir="${basedir}/build/classes"
-            debug="true"
-            target="1.5"
-            source="1.5"
-            fork="true"
-        	sourcepath=""
-			includeAntRuntime="false">        	
-        	<compilerarg line="-Xlint${xlint.args}"/>
-        	
-            <src path="${basedir}/src"/>
-            <src path="${basedir}/build/src"/>
-			<exclude name="**/ObjectFactory.java"/>
-            <classpath>
-                <path refid="src.compile.classpath"/>
-            	<pathelement location="${basedir}/build/classes"/>
-            </classpath>
-        </javac>
-    	<copy todir="${basedir}/build/classes">
-    		<fileset dir="${basedir}/src" includes="**/*.properties"/>
-    		<fileset dir="${basedir}/src" includes="**/*.xsd"/>
-    	</copy>
+        <copy todir="${basedir}/build/classes">
+            <fileset dir="${basedir}/src" includes="**/*.properties"/>
+            <fileset dir="${basedir}/src" includes="**/*.xsd"/>
+        </copy>
+        <antcall target="src.checkstyle"/>
     </target>
 
-    <target name="unittest.compile" depends="unittest.checkstyle,testwsdl.codegen" description="Compile the unit tests">
+    <target name="unittest.compile" depends="testwsdl.codegen" description="Compile the unit tests">
         <mkdir dir="${basedir}/build/classes-tests/unit"/>
         <javac srcdir="${basedir}/test/unit"
             destdir="${basedir}/build/classes-tests/unit"
             debug="true"
             target="1.5"
             source="1.5"
-        	sourcepath=""
+            sourcepath=""
             fork="true">
-        	<compilerarg value="-Xlint${xlint.args}"/>
+            <compilerarg value="-Xlint${xlint.args}"/>
             <classpath>
                 <path refid="unit.test.compile.classpath"/>
             </classpath>
         </javac>
-    	<copy todir="${basedir}/build/classes-tests/unit">
-    		<fileset dir="${basedir}/test/unit" includes="**/resources/**/*"/>
-    	</copy>
-    	<copy todir="${basedir}/build/classes-tests/unit">
-    		<fileset dir="${basedir}/etc" includes="logging.properties"/>
-    	</copy>
+        <copy todir="${basedir}/build/classes-tests/unit">
+            <fileset dir="${basedir}/test/unit" includes="**/resources/**/*"/>
+        </copy>
+        <copy todir="${basedir}/build/classes-tests/unit">
+            <fileset dir="${basedir}/etc" includes="logging.properties"/>
+        </copy>
+        <antcall target="unittest.checkstyle"/>
     </target>
 
-	   <target name="systest.compile" depends="systemtest.checkstyle,testwsdl.codegen" description="Compile the system tests">
-	        <mkdir dir="${basedir}/build/classes-tests/system"/>
-	        <javac srcdir="${basedir}/test/system"
-	            destdir="${basedir}/build/classes-tests/system"
-	            debug="true"
-	            target="1.5"
-	            source="1.5"
-	        	sourcepath=""
-	            fork="true">
-	        	<compilerarg value="-Xlint${xlint.args}"/>
-	            <classpath>
-	                <path refid="system.test.compile.classpath"/>
-	            </classpath>
-	        </javac>
-	    	<copy todir="${basedir}/build/classes-tests/system">
-	    		<fileset dir="${basedir}/test/system" includes="**/resource/**/*"/>
-	    	</copy>
-	    	<copy todir="${basedir}/build/classes-tests/system">
-	    		<fileset dir="${basedir}/etc" includes="logging.properties"/>
-	    	</copy>
-	    </target>	
+    <target name="systest.compile" depends="testwsdl.codegen" description="Compile the system tests">
+        <mkdir dir="${basedir}/build/classes-tests/system"/>
+        <javac srcdir="${basedir}/test/system"
+               destdir="${basedir}/build/classes-tests/system"
+               debug="true"
+               target="1.5"
+               source="1.5"
+               sourcepath=""
+               fork="true">
+            <compilerarg value="-Xlint${xlint.args}"/>
+            <classpath>
+                <path refid="system.test.compile.classpath"/>
+            </classpath>
+        </javac>
+        <copy todir="${basedir}/build/classes-tests/system">
+            <fileset dir="${basedir}/test/system" includes="**/resource/**/*"/>
+        </copy>
+        <copy todir="${basedir}/build/classes-tests/system">
+            <fileset dir="${basedir}/etc" includes="logging.properties"/>
+        </copy>
+        <antcall target="systemtest.checkstyle"/>
+    </target>
 </project>

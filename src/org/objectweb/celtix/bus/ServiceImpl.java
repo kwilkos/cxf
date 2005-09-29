@@ -37,19 +37,18 @@ public class ServiceImpl extends ServiceDelegate {
      * Create a new Service.
      * @throws WebServiceException If there is an exception creating Service.
      */
-    public ServiceImpl(Bus b, URL location, QName name, 
-            Class<?> si) throws WebServiceException {
+    public ServiceImpl(Bus b, URL location, QName name, Class<?> si) {
         bus = b;
         wsdlLocation = location;
         serviceName = name;
         endpointList = new Vector<QName>();
     }
     
-    public void createPort(QName portName, URI bindingId, String endpointAddress) throws WebServiceException {
+    public void createPort(QName portName, URI bindingId, String endpointAddress) {
         throw new UnsupportedOperationException("addPort not yet supported");        
     }   
     
-    public <T> T getPort(QName portName, Class<T> serviceEndpointInterface) throws WebServiceException {
+    public <T> T getPort(QName portName, Class<T> serviceEndpointInterface) {
         if (portName == null) {
             throw new WebServiceException("No endpoint specified.");
         }
@@ -57,12 +56,12 @@ public class ServiceImpl extends ServiceDelegate {
         return createPort(portName, serviceEndpointInterface);
     }
 
-    public <T> T getPort(Class<T> serviceEndpointInterface) throws WebServiceException {
+    public <T> T getPort(Class<T> serviceEndpointInterface) {
         return createPort(null, serviceEndpointInterface);
     }
 
     public <T> Dispatch<T> createDispatch(QName portName, Class<T> serviceEndpointInterface, 
-                                    Service.Mode mode) throws WebServiceException {
+                                    Service.Mode mode) {
         return null;
     }
 
@@ -74,7 +73,7 @@ public class ServiceImpl extends ServiceDelegate {
         return serviceName;
     }
 
-    public Iterator<QName> getPorts() throws WebServiceException {
+    public Iterator<QName> getPorts() {
         return endpointList.iterator();
     }
 
@@ -82,8 +81,7 @@ public class ServiceImpl extends ServiceDelegate {
         return wsdlLocation;
     }
 
-    protected <T> T createPort(QName portName, 
-                Class<T> serviceEndpointInterface) throws WebServiceException {
+    protected <T> T createPort(QName portName, Class<T> serviceEndpointInterface) {
 
         LOG.log(Level.FINE, "creating port for portName", portName);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
