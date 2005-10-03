@@ -31,7 +31,7 @@
             <available filepath="${basedir}/../.." file="lib" type="dir"/>
         </and>
     </condition>
-    <property name="jaxws.lib.dir" location="${thirdparty.tools.dir}/jaxws-ri/20050923/lib"/>
+    <property name="jaxws.lib.dir" location="${thirdparty.tools.dir}/jaxws-ri/20050929/lib"/>
 
     <target name="build"  depends="generate.code,compile" description="build demo client and server"/>
 

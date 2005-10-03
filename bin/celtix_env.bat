@@ -16,7 +16,7 @@ if not defined CELTIX_HOME (
 )
 
 if not defined JAXWS_HOME (
-    set JAXWS_HOME=%CELTIX_HOME%\lib\jaxws-ri\20050923
+    set JAXWS_HOME=%CELTIX_HOME%\lib\jaxws-ri\20050929
 )
 
 rem add the celtix jar to the class path

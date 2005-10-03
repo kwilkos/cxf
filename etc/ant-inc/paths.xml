@@ -3,7 +3,7 @@
     <!-- Path definitions -->
 
 	<property name="tools.dir" location="${basedir}/tools"/>
-	<property name="jaxws.home" location="${tools.dir}/jaxws-ri/20050923"/>
+	<property name="jaxws.home" location="${tools.dir}/jaxws-ri/20050929"/>
 	
     <!-- on darwin, tools.jar does not exist -->
 

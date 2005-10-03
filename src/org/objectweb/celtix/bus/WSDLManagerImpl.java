@@ -1,7 +1,9 @@
 package org.objectweb.celtix.bus;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
@@ -161,12 +163,19 @@ class WSDLManagerImpl implements WSDLManager {
             sei.getName(),
         };
         ForkedCommand fc = new ForkedCommand(args);
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(bout);
+        fc.setOutputStream(ps);
         int result = 0;
         try {
             result = fc.execute(120);
         } catch (ForkedCommandException ex) {
             LOG.log(Level.SEVERE, "Could not generate WSDL.", ex);
             return null;
+        }
+        ps.flush();
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("Generator output:\n" + new String(bout.toByteArray()));
         }
         if (0 != result) {
             LOG.log(Level.SEVERE, "Generator returned with exit value: " + result);

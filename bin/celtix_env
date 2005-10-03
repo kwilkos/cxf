@@ -35,7 +35,7 @@ fi
 CELTIX_ENV_SET=true
 
 if [ ${JAXWS_HOME-"x"} == "x" ]; then
-	export JAXWS_HOME=${CELTIX_HOME}/lib/jaxws-ri/20050923
+	export JAXWS_HOME=${CELTIX_HOME}/lib/jaxws-ri/20050929
 fi
 
 
