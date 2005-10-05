@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.concurrent.Executor;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,7 +19,6 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-//import org.objectweb.celtix.bus.EndpointImpl;
 import org.objectweb.celtix.bus.EndpointUtils;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -50,32 +49,20 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
     public void activate() throws WSDLException, IOException {
         transport = createTransport(reference);
-        transport.activate(new ServerTransportCallback() {
+        
+        ServerTransportCallback tc = new ServerTransportCallback() {
 
             public void dispatch(InputStreamMessageContext ctx, ServerTransport t) {
-                LOG.info("Constructing ServerBindingCallback with transport: " + t);
-                Runnable r = new ServerBindingCallback(ctx, t, AbstractServerBinding.this);
-                r.run();
-                /*
-                // wait for documentation and implementation of JAX-WS RI to
-                // sync up
-                Endpoint ep = AbstractServerBinding.this.getEndpoint();
-                EndpointImpl epi = (EndpointImpl)ep;
-                Executor ex = epi.getExecutor();
-
-                // REVISIT: exceptions thrown on the thread executing the
-                // Runnable
-                // may go unreported.
-                // Probably need to add something similar to
-                // ThreadPoolExecutor.afterExecute()
-                // to the AutomaticWorkQueueInterface.
-                // Even then the executor may be one set by the application in
-                // which case we cannot
-                // do anything about these exceptions.
-                ex.execute(r);
-                */
+                AbstractServerBinding.this.dispatch(ctx, t);               
             }
-        });
+
+            public Executor getExecutor() {
+                return AbstractServerBinding.this.getEndpoint().getExecutor();
+            }
+            
+        };
+        
+        transport.activate(tc);
     }
 
     public void deactivate() throws IOException {

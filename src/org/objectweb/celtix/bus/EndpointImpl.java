@@ -19,7 +19,6 @@ import org.objectweb.celtix.BusMessage;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ServerBinding;
-//import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
@@ -56,8 +55,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             }
         }
         serverBinding = createServerBinding(bindingId);
-        executor = bus.getWorkQueueManager().getAutomaticWorkQueue();
-        assert null != executor;
     }
 
     /*

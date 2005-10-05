@@ -1,5 +1,7 @@
 package org.objectweb.celtix.transports;
 
+import java.util.concurrent.Executor;
+
 import org.objectweb.celtix.context.InputStreamMessageContext;
 
 /**
@@ -16,4 +18,5 @@ public interface ServerTransportCallback {
      */
     void dispatch(InputStreamMessageContext ctx, ServerTransport transport);
     
+    Executor getExecutor();
 }

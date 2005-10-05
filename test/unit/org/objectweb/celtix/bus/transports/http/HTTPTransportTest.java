@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.transports.http;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.Executor;
 
 import javax.xml.namespace.QName;
 
@@ -36,9 +37,17 @@ public class HTTPTransportTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-
+    
     public void testHTTPTransport() throws Exception {
-        Bus bus = Bus.init(new String[0]);
+        doTestHTTPTransport(false);
+    }
+    
+    public void testHTTPTransportUsingAutomaticWorkQueue() throws Exception {
+        doTestHTTPTransport(true);
+    }
+
+    public void doTestHTTPTransport(final boolean useAutomaticWorkQueue) throws Exception {
+        final Bus bus = Bus.init();
         TransportFactory factory = 
             bus.getTransportFactoryManager().getTransportFactory(
                 "http://celtix.objectweb.org/transports/http/configuration");
@@ -64,6 +73,14 @@ public class HTTPTransportTest extends TestCase {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+            }
+            public Executor getExecutor() {
+                if (useAutomaticWorkQueue) {
+                    return bus.getWorkQueueManager().getAutomaticWorkQueue();
+                } else {
+                    return null;
+                }
+                
             }
         };
         server.activate(callback);
@@ -105,5 +122,4 @@ public class HTTPTransportTest extends TestCase {
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
     }
-    
 }
