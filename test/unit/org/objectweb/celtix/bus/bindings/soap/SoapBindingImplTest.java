@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.handler.MessageContext;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -49,7 +48,7 @@ public class SoapBindingImplTest extends TestCase {
 
     public void testMarshalWrapDocLitInputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation
-        soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, false);
+        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
 
         String arg0 = new String("TestSOAPInputPMessage");
         objContext.setMessageObjects(arg0);
@@ -67,7 +66,7 @@ public class SoapBindingImplTest extends TestCase {
 
     public void testMarshalWrapDocLitOutputMessage() throws Exception {
         //Test The Output of GreetMe Operation
-        soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, true);
+        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
 
         String arg0 = new String("TestSOAPOutputMessage");
         objContext.setReturn(arg0);
@@ -115,7 +114,7 @@ public class SoapBindingImplTest extends TestCase {
         String str = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data);
         
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
-        soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, false);
+        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
 
         assertNotNull(binding.getMessageFactory());
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
@@ -138,7 +137,7 @@ public class SoapBindingImplTest extends TestCase {
         String str = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data);
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
 
-        soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, true);        
+        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);        
         assertNotNull(binding.getMessageFactory());
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
         soapContext.setMessage(soapMessage);

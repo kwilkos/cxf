@@ -84,7 +84,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     public SOAPMessage marshalMessage(ObjectMessageContext objContext, MessageContext mc) 
         throws SOAPException {
 
-        boolean isInputMsg = (Boolean)mc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        boolean isInputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
         
         SOAPMessage msg = msgFactory.createMessage();
         msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION,  "true");
@@ -109,7 +109,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     public void unmarshalMessage(MessageContext mc, ObjectMessageContext objContext) 
         throws SOAPException {
         
-        boolean isOutputMsg = (Boolean)mc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        boolean isOutputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
         if (!SOAPMessageContext.class.isInstance(mc)) {
             throw new SOAPException("SOAPMessageContext not available");
         }

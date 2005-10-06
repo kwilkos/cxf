@@ -24,6 +24,7 @@ import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -161,7 +162,7 @@ public class HTTPClientTransport implements ClientTransport {
         
         public HTTPClientInputStreamContext(URLConnection con) throws IOException {
             connection = con;
-            put(MESSAGE_OUTBOUND_PROPERTY, false);
+            put(ObjectMessageContext.MESSAGE_INPUT, false);
             put(HTTP_RESPONSE_HEADERS, connection.getHeaderFields());
             if (connection instanceof HttpURLConnection) {
                 HttpURLConnection hc = (HttpURLConnection)con;

@@ -76,7 +76,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
         // TODO - invoke ObjectMessageContext handlers
         MessageContext bindingContext = createBindingMessageContext(context);
         //Input Message For Client
-        bindingContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, Boolean.FALSE);
+        bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
         
         if (null != bindingContext) {
             marshal(context, bindingContext);
@@ -100,7 +100,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
         }
         
         //Output Message For Client
-        bindingContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, Boolean.TRUE);   
+        bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
         // TODO - invoke input stream handlers
         read(ins, bindingContext);
         

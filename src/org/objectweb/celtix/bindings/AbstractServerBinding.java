@@ -98,7 +98,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         MessageContext requestCtx = createBindingMessageContext(inCtx);
 
         //Input Message
-        requestCtx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, Boolean.FALSE);
+        requestCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
         // use ServerBinding to read the SAAJ model and insert it into a
         // SOAPMessageContext
         
@@ -197,7 +197,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             objContext.setMessageObjects(replyParams);
         }
         
-        replyCtx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, Boolean.TRUE);                
+        replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);                
         if (null != replyCtx) {
             marshal(objContext, replyCtx);
         }

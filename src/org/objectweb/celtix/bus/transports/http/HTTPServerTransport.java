@@ -32,6 +32,7 @@ import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
@@ -144,7 +145,7 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
             throws IOException {
             
             request = req;
-            put(MESSAGE_OUTBOUND_PROPERTY, false);
+            put(ObjectMessageContext.MESSAGE_INPUT, false);
             Map<String, List<String>> headers = new HashMap<String, List<String>>();
             for (Object nameObject : req.getParameterMap().keySet()) {
                 String name = (String)nameObject;

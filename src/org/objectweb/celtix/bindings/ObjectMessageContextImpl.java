@@ -9,6 +9,7 @@ public class ObjectMessageContextImpl extends GenericMessageContext implements O
     public static final String METHOD_INVOKED = "org.objectweb.celtix.method";
     public static final String METHOD_PARAMETERS = "org.objectweb.celtix.parameters";
     public static final String METHOD_RETURN = "org.objectweb.celtix.return";
+
     private static final long serialVersionUID = 401275179632507389L;
 
     public Object[] getMessageObjects() {
