@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="HelloWorld" targetNamespace="http://objectweb.org/hello_world_soap_http" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:http-conf="http://schemas.iona.com/transports/http/configuration" 
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
     xmlns:tns="http://objectweb.org/hello_world_soap_http"
     xmlns:x1="http://objectweb.org/hello_world_soap_http/types"
@@ -133,7 +134,21 @@
     </wsdl:binding>
     <wsdl:service name="SOAPService">
         <wsdl:port binding="tns:Greeter_SOAPBinding" name="SoapPort">
-            <soap:address location="http://localhost:9000"/>
+            <soap:address location="http://localhost:9000/SoapContext/SoapPort"/>
+            <http-conf:client/>
+            <http-conf:server/>
+        </wsdl:port>
+    </wsdl:service>
+    <wsdl:service name="SOAPService_Test1">
+        <wsdl:port binding="tns:Greeter_SOAPBinding" name="SoapPort_Test1">
+            <soap:address location="http://localhost:9100"/>
+            <http-conf:client/>
+            <http-conf:server/>
+        </wsdl:port>
+        <wsdl:port binding="tns:Greeter_SOAPBinding" name="SoapPort_Test2">
+            <soap:address location="http://localhost:9101"/>
+            <http-conf:client/>
+            <http-conf:server/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

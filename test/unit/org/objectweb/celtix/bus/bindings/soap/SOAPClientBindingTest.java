@@ -45,7 +45,7 @@ public class SOAPClientBindingTest extends TestCase {
         bus = Bus.init();
         epr = new EndpointReferenceType();
         
-        URL wsdlUrl = getClass().getResource("/org/objectweb/celtix/resources/hello_world.wsdl");
+        URL wsdlUrl = getClass().getResource("/wsdl/hello_world.wsdl");
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
         epr = EndpointReferenceUtils.getEndpointReference(wsdlUrl, serviceName, "SoapPort");        
     }

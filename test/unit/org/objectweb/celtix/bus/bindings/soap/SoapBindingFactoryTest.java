@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
-//import java.io.IOException;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
@@ -41,7 +40,7 @@ public class SoapBindingFactoryTest extends TestCase {
                 "http://schemas.xmlsoap.org/wsdl/soap/");
         assertNotNull(factory);
         
-        URL wsdlUrl = getClass().getResource("/org/objectweb/celtix/resources/hello_world.wsdl");
+        URL wsdlUrl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdlUrl);
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
         EndpointReferenceType address = EndpointReferenceUtils

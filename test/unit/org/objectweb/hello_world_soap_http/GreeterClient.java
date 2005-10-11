@@ -32,7 +32,7 @@ public class GreeterClient {
         
         Bus bus = Bus.init();
         
-        URL url = GreeterClient.class.getResource("resources/hello_world.wsdl");
+        URL url = GreeterClient.class.getResource("/wsdl/hello_world.wsdl");
         assert null != url;
         
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");

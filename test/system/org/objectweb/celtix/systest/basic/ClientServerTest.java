@@ -28,15 +28,15 @@ public class ClientServerTest extends ClientServerTestBase {
     
     
     public void testBasicConnection() throws Exception {
-                
-        URL wsdl = getClass().getResource("../resource/hello_world.wsdl");
+        URL wsdl = getClass().getResource("/hello_world.wsdl");
+        assertNotNull(wsdl);
         
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);
 
         String response1 = new String("Hello Milestone-");
         String response2 = new String("Bonjour");
-        try { 
+        try {
             Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
             for (int idx = 0; idx < 20; idx++) {
                 String greeting = greeter.greetMe("Milestone-" + idx);

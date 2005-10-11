@@ -33,9 +33,9 @@ public class WSDLManagerTest extends TestCase {
      * Test method for 'org.objectweb.celtix.bus.WSDLManagerImpl.getDefinition(URL)'
      */
     public void testGetDefinitionURL() throws Exception {
-        URL url = getClass().getResource("resources/hello_world.wsdl");
+        URL url = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull("Could not find WSDL", url);
-        
+
         Bus bus = Bus.init(new String[0]);
         try {
             Definition def = bus.getWSDLManager().getDefinition(url);
@@ -47,7 +47,7 @@ public class WSDLManagerTest extends TestCase {
             url = null;
             System.gc();
             System.gc();
-            url = getClass().getResource("resources/hello_world.wsdl");
+            url = getClass().getResource("/wsdl/hello_world.wsdl");
             Definition def3 = bus.getWSDLManager().getDefinition(url);
             assertTrue(def != def3);
         } finally {
@@ -59,10 +59,9 @@ public class WSDLManagerTest extends TestCase {
      * Test method for 'org.objectweb.celtix.bus.WSDLManagerImpl.getDefinition(String)'
      */
     public void testGetDefinitionString() throws Exception {
-        URL neturl = getClass().getResource("resources/hello_world.wsdl");
+        URL neturl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull("Could not find WSDL", neturl);
         String url = neturl.toString();
-        
         
         Bus bus = Bus.init(new String[0]);
         try {
@@ -75,7 +74,7 @@ public class WSDLManagerTest extends TestCase {
             url = null;
             System.gc();
             System.gc();
-            url = getClass().getResource("resources/hello_world.wsdl").toString();
+            url = getClass().getResource("/wsdl/hello_world.wsdl").toString();
             Definition def3 = bus.getWSDLManager().getDefinition(url);
             assertTrue(def != def3);
         } finally {
@@ -85,7 +84,7 @@ public class WSDLManagerTest extends TestCase {
     
 
     public void testExtensions() throws Exception {
-        URL neturl = getClass().getResource("resources/jms_test.wsdl");
+        URL neturl = getClass().getResource("/wsdl/jms_test.wsdl");
         assertNotNull("Could not find WSDL", neturl);
         String url = neturl.toString();
         

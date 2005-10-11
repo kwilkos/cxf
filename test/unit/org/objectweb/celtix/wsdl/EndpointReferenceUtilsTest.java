@@ -48,10 +48,10 @@ public class EndpointReferenceUtilsTest extends TestCase {
         EndpointReferenceType ref = (EndpointReferenceType) 
             ((JAXBElement<?>)u.unmarshal(
                     getClass().getResource("resources/reference1.xml"))).getValue();
-        
+
         ref.getMetadata().getOtherAttributes().put(
             new QName("http://www.w3.org/2004/08/wsdl-instance", "wsdlLocation"),
-            getClass().getResource("/org/objectweb/celtix/resources/hello_world.wsdl").toString());
+            getClass().getResource("/wsdl/hello_world.wsdl").toString());
         
         
         Definition def = EndpointReferenceUtils.getWSDLDefinition(bus.getWSDLManager(),
@@ -118,7 +118,7 @@ public class EndpointReferenceUtilsTest extends TestCase {
 
     public void testGetEndpointReference() throws Exception  {
         Bus bus = Bus.init(new String[0]);
-        URL url = getClass().getResource("../resources/hello_world.wsdl");
+        URL url = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(url);
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService_Test1");
         String portName = new String("SoapPort_Test2");
@@ -135,7 +135,7 @@ public class EndpointReferenceUtilsTest extends TestCase {
     }  
     
     public void testGetAddress() throws Exception {
-        URL url = getClass().getResource("../resources/hello_world.wsdl");
+        URL url = getClass().getResource("/wsdl/hello_world.wsdl");
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService_Test1");
         String portName = new String("SoapPort_Test2");
         

@@ -107,7 +107,7 @@ public final class EndpointReferenceUtils {
 
         if (def.getServices().size() == 1) {
             Service service = (Service)def.getServices().values().iterator().next();
-            if (service.getPorts().size() == 1) {                
+            if (service.getPorts().size() == 1) { 
                 return (Port)service.getPorts().values().iterator().next();
             }
         }
@@ -120,8 +120,10 @@ public final class EndpointReferenceUtils {
             if (service == null) {
                 throw new WSDLException(WSDLException.OTHER_ERROR, "Cannot find service for " + serviceName);
             }
+            if (service.getPorts().size() == 1) { 
+                return (Port)service.getPorts().values().iterator().next();
+            }
             String str = attribMap.get(PORT_NAME);
-            // service.getPort(str);
             LOG.log(Level.FINE, "getting port " + str + " from service " + service.getQName());
             Port port = service.getPort(str);
             if (port == null) {
@@ -197,8 +199,17 @@ public final class EndpointReferenceUtils {
         if (null == serviceName || "".equals(serviceName)) {
             serviceName = implementor.getClass().getSimpleName() + "Service";
         }
+        String targetNamespace = ws.targetNamespace();
+        if (null != targetNamespace) {
+            serviceName = "{" + targetNamespace + "}" + serviceName;
+        }
 
         attribMap.put(SERVICE_NAME, serviceName.toString());
+
+        String portName = ws.portName();
+        if (null != portName) {
+            attribMap.put(PORT_NAME, portName);
+        }
 
         String url = ws.wsdlLocation();
         if (null != url && url.length() > 0) {

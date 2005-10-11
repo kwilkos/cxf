@@ -23,7 +23,7 @@ public abstract class ToolTestBase extends TestCase {
         System.setErr(new PrintStream(errOut));
         System.setOut(new PrintStream(stdOut));
         
-        wsdlLocation = ToolTestBase.class.getResource("/org/objectweb/celtix/resources/hello_world.wsdl");
+        wsdlLocation = ToolTestBase.class.getResource("/wsdl/hello_world.wsdl");
     }
     
     public void tearDown() { 

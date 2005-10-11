@@ -80,6 +80,9 @@
 
     <target name="testwsdl.codegen.internal" unless="testwsdl.codegen.notrequired">
         <wsdltojava file="${basedir}/test/wsdl/hello_world.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
+        <copy todir="build/classes-tests/wsdl">
+            <fileset dir="${basedir}/test/wsdl" includes="**/*.wsdl"/>
+        </copy>
         <touch file="${basedir}/build/test-src/.TESTWSDL.CODEGEN.DONE"/>
     </target>
 

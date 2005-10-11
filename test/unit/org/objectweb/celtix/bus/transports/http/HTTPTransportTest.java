@@ -52,7 +52,7 @@ public class HTTPTransportTest extends TestCase {
             bus.getTransportFactoryManager().getTransportFactory(
                 "http://celtix.objectweb.org/transports/http/configuration");
         
-        URL wsdlUrl = getClass().getResource("/org/objectweb/celtix/resources/hello_world.wsdl");
+        URL wsdlUrl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdlUrl);
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
         EndpointReferenceType address = EndpointReferenceUtils
