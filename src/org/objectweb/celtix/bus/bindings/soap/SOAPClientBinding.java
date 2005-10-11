@@ -72,7 +72,7 @@ public class SOAPClientBinding extends AbstractClientBinding {
     protected void read(InputStreamMessageContext inCtx,
             MessageContext context) throws IOException {
         try {
-            soapBinding.parseInputMessage(inCtx.getInputStream(), context);
+            soapBinding.parseMessage(inCtx.getInputStream(), context);
         } catch (SOAPException se) {
             throw new IOException(se.getMessage());
         }

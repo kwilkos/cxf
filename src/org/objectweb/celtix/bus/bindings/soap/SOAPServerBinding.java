@@ -71,7 +71,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
     protected MessageContext createBindingMessageContext(MessageContext orig) {
         return new SOAPMessageContextImpl(orig);
     }
-    
+
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {
         try {
             SOAPMessage msg = soapBinding.marshalMessage(objContext, context);
@@ -80,9 +80,13 @@ public class SOAPServerBinding extends AbstractServerBinding {
             LOG.log(Level.SEVERE, "Error in marshall of SOAP Message", se);
         }
     }
+
+    protected void marshalFault(ObjectMessageContext objContext, MessageContext context) {
+        SOAPMessage msg = soapBinding.marshalFault(objContext, context);
+        ((SOAPMessageContext)context).setMessage(msg);
+    }
     
     protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
-        //super.unmarshal(context,  objContext);
         try {
             soapBinding.unmarshalMessage(context, objContext);
         } catch (SOAPException se) {
@@ -104,7 +108,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
     protected void read(InputStreamMessageContext instr, MessageContext mc) throws IOException {
         //REVISIT InputStreamMessageContext should be copied to MessageContext
         try {
-            soapBinding.parseInputMessage(instr.getInputStream(), mc);
+            soapBinding.parseMessage(instr.getInputStream(), mc);
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "error while parsing input message", se);
             throw new IOException(se.getMessage());
@@ -159,7 +163,6 @@ public class SOAPServerBinding extends AbstractServerBinding {
         
         return null;
     }
-    
     
     protected QName getOperationName(MessageContext ctx) {
         

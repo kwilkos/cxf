@@ -46,6 +46,10 @@ public class DerivedGreeterImpl implements Greeter {
         return "Hi";
     }
 
+    public void testDocLitFault()  throws LiteralException {        
+    }
+
+    
     public String greetMe(String me) {
         incrementInvocationCount("greetMe");
         return "Bonjour " + me + "!";

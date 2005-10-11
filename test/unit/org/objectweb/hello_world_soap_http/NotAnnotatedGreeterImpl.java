@@ -1,6 +1,9 @@
 package org.objectweb.hello_world_soap_http;
 
 import java.util.logging.Logger;
+
+import org.objectweb.hello_world_soap_http.types.ErrorCode;
+import org.objectweb.hello_world_soap_http.types.NoSuchCodeLit;
                 
 public class NotAnnotatedGreeterImpl implements Greeter {
 
@@ -17,4 +20,13 @@ public class NotAnnotatedGreeterImpl implements Greeter {
         return "Bonjour";
     }
 
+    public void testDocLitFault()  throws LiteralException {
+        ErrorCode ec = new ErrorCode();
+        ec.setMajor((short)1);
+        ec.setMinor((short)1);
+        NoSuchCodeLit nscl = new NoSuchCodeLit();
+        nscl.setCode(ec);
+        
+        throw new LiteralException("TestException", nscl);
+    }    
 }

@@ -4,7 +4,11 @@ import java.io.ByteArrayInputStream;
 import java.lang.reflect.Method;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.Detail;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.WebFault;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -14,6 +18,9 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.hello_world_soap_http.Greeter;
+import org.objectweb.hello_world_soap_http.LiteralException;
+import org.objectweb.hello_world_soap_http.types.ErrorCode;
+import org.objectweb.hello_world_soap_http.types.NoSuchCodeLit;
 
 public class SoapBindingImplTest extends TestCase {
     private SOAPBindingImpl binding;
@@ -46,6 +53,21 @@ public class SoapBindingImplTest extends TestCase {
         super.tearDown();
     }
 
+    public void testGetMessageFactory() throws Exception {
+        assertNotNull(binding.getSOAPFactory());
+    }
+
+    public void testIsCompatibleWithAddress() throws Exception {
+        String address = new String("http:\\www.iona.com\\soap");
+        assertTrue(binding.isCompatibleWithAddress(address));
+        
+        address = new String("https:\\www.iona.com\\soap");
+        assertTrue(binding.isCompatibleWithAddress(address));
+
+        address = new String("12343254");
+        assertFalse(binding.isCompatibleWithAddress(address));        
+    }
+    
     public void testMarshalWrapDocLitInputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation
         soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
@@ -93,7 +115,7 @@ public class SoapBindingImplTest extends TestCase {
         String str = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data);        
         
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
-        binding.parseInputMessage(in, soapContext);
+        binding.parseMessage(in, soapContext);
 
         SOAPMessage msg = soapContext.getMessage();
         assertNotNull(msg);
@@ -151,4 +173,58 @@ public class SoapBindingImplTest extends TestCase {
         assertNotNull(objContext.getReturn());
         assertEquals(data, (String)objContext.getReturn());
     }    
+    
+    public void testMarshalDocLiteralUserFaults() throws Exception {
+        //Test The InputMessage of GreetMe Operation
+        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+
+        String exMessage = new String("Test Exception");
+        ErrorCode ec = new ErrorCode();
+        ec.setMajor((short)1);
+        ec.setMinor((short)1);
+        NoSuchCodeLit nscl = new NoSuchCodeLit();
+        nscl.setCode(ec);
+        LiteralException ex = new LiteralException(exMessage, nscl);
+        objContext.setException(ex);
+
+        SOAPMessage msg = binding.marshalFault(objContext, soapContext);
+        soapContext.setMessage(msg);
+        
+        assertNotNull(msg);
+        assertTrue(msg.getSOAPBody().hasFault());
+        SOAPFault fault = msg.getSOAPBody().getFault();
+        assertNotNull(fault);
+        assertEquals(exMessage, fault.getFaultString());
+        assertTrue(fault.hasChildNodes());
+        Detail detail = fault.getDetail();
+        assertNotNull(detail);
+        
+        NodeList list = detail.getChildNodes();
+        assertEquals(1, list.getLength()); 
+        
+        WebFault wfAnnotation = ex.getClass().getAnnotation(WebFault.class);
+        assertEquals(wfAnnotation.targetNamespace(), list.item(0).getNamespaceURI());
+        assertEquals(wfAnnotation.name(), list.item(0).getLocalName());
+    }    
+    
+    public void testMarshalSystemFaults() throws Exception {
+        //Test The InputMessage of GreetMe Operation
+        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+
+        SOAPException se = new SOAPException("SAAJ Exception");
+        objContext.setException(se);
+
+        SOAPMessage msg = binding.marshalFault(objContext, soapContext);
+        soapContext.setMessage(msg);
+        
+        assertNotNull(msg);
+        assertTrue(msg.getSOAPBody().hasFault());
+        SOAPFault fault = msg.getSOAPBody().getFault();
+        assertNotNull(fault);
+        assertEquals(se.getMessage(), fault.getFaultString());
+        assertTrue(fault.hasChildNodes());
+        NodeList list = fault.getChildNodes();
+        assertEquals(2, list.getLength());         
+    }
+    
 }

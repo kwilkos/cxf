@@ -18,6 +18,10 @@ public interface ObjectMessageContext extends MessageContext {
     void setReturn(Object retVal);
     
     Object getReturn();
+    
+    void setException(Object retVal);
+    
+    Object getException();
 }
 
 

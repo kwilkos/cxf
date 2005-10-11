@@ -16,4 +16,14 @@ public final class SOAPConstants {
             new QName("http://schemas.xmlsoap.org/soap/envelope/", "Body");
     public static final QName  SOAP_FAULT = 
             new QName("http://schemas.xmlsoap.org/soap/envelope/", "Fault");
+    //SOAP1.1 FaultCodes
+    public static final QName  FAULTCODE_VERSIONMISMATCH = 
+            new QName(SOAP_ENV_URI, "VersionMismatch");
+    public static final QName  FAULTCODE_MUSTUNDERSTAND = 
+            new QName(SOAP_ENV_URI, "MustUnderstand");
+    public static final QName  FAULTCODE_CLIENT = 
+            new QName(SOAP_ENV_URI, "Client");
+    public static final QName  FAULTCODE_SERVER = 
+            new QName(SOAP_ENV_URI, "Server");
+    
 }

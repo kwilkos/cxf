@@ -40,6 +40,10 @@ class TestOutputStreamContext
         return baos;
     }
 
+    public byte[] getOutputStreamBytes() {
+        return baos.toByteArray();
+    }
+    
     public void setOutputStream(OutputStream o) { }
 
     public InputStreamMessageContext createInputStreamContext() throws IOException {

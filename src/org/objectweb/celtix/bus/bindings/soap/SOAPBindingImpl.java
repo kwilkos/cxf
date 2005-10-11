@@ -23,8 +23,10 @@ import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
 
+import javax.xml.ws.WebFault;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
@@ -72,6 +74,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             url = new URL(address);
         } catch (MalformedURLException ex) {
             LOG.severe("Invalid address:\n" + ex.getMessage());
+            return false;
         }
         String protocol = url.getProtocol();
         return "http".equals(protocol) || "https".equals(protocol);
@@ -105,6 +108,42 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
         return msg;
     }
+
+    public SOAPMessage marshalFault(ObjectMessageContext objContext, MessageContext mc) {
+
+        SOAPMessage msg = null;
+        try {
+            msg = msgFactory.createMessage();
+            msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION,  "true");
+            //SOAP Headers not supported
+            msg.getSOAPHeader().detachNode();
+            
+            SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
+            Throwable t = (Throwable) objContext.getException();
+            WebFault wfAnnotation = t.getClass().getAnnotation(WebFault.class);
+            
+            SOAPFault fault = msg.getSOAPBody().addFault();
+            //REVIST FaultCode to handle other codes.
+            fault.setFaultCode(SOAPConstants.FAULTCODE_SERVER);
+            fault.setFaultString(t.getMessage());
+            
+            if (null != wfAnnotation) {                
+                Object faultInfo = getFaultInfo(t);
+                JAXBEncoderDecoder encoder = 
+                    new JAXBEncoderDecoder(getPackageList(messageInfo, true));
+                encoder.marshall(faultInfo, null, fault.addDetail());                
+            }
+
+            if (msg.saveRequired()) {
+                msg.saveChanges();
+            }
+        } catch (SOAPException se) {
+            LOG.log(Level.SEVERE, "Serializing of user fault got an exception", se.getMessage());
+            //Handle UnChecked Exception, Runtime Exception.
+        }
+
+        return msg;
+    }
     
     public void unmarshalMessage(MessageContext mc, ObjectMessageContext objContext) 
         throws SOAPException {
@@ -129,13 +168,12 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         getParts(soapEl, messageInfo, objContext, isOutputMsg);
     }
 
-    public void parseInputMessage(InputStream in, MessageContext mc) 
+    public void parseMessage(InputStream in, MessageContext mc) 
         throws SOAPException, IOException {
 
         if (!SOAPMessageContext.class.isInstance(mc)) {
             throw new SOAPException("SOAPMessageContext not available");
         }
-
 
         SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
         SOAPMessage soapMessage = null;
@@ -195,7 +233,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
             
             WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;      
-            int noArgs = method.getParameterTypes().length;            
+            int noArgs = method.getParameterTypes().length;
             for (int idx = 0; idx < noArgs; idx++) {
                 WebParam param = messageInfo.getWebParam(idx);
                 if ((param.mode() != ignoreParamMode) && !param.header()) {
@@ -332,10 +370,23 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
         return null;
     }
+    
+    private Object getFaultInfo(Throwable fault) throws SOAPException {
+        try {
+            Method faultInfoMethod = fault.getClass().getMethod("getFaultInfo");
+            if (faultInfoMethod != null) {
+                return faultInfoMethod.invoke(fault);
+            }
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "Could not get faultInfo out of Exception", ex);
+            throw new SOAPException("Could not get faultInfo out of Exception", ex);
+        }
+ 
+        return null;
+    }
 
     public SOAPFactory getSOAPFactory() {
-        // TODO Auto-generated method stub
-        return null;
+        return soapFactory;
     }
     
 }

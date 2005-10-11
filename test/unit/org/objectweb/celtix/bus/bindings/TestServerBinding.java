@@ -74,6 +74,9 @@ public class TestServerBinding extends AbstractServerBinding {
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {
     }
 
+    protected void marshalFault(ObjectMessageContext objContext, MessageContext context) {
+    }
+    
     protected void read(InputStreamMessageContext inCtx, MessageContext context) throws IOException {
         context.put(MessageContext.WSDL_OPERATION, new QName(currentOperation));
     }

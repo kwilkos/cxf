@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -7,12 +8,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import javax.xml.namespace.QName;
-import javax.xml.transform.Source;
 
+import javax.xml.soap.Detail;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPFault;
+import javax.xml.soap.SOAPMessage;
+
+import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.WebFault;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
+
+import org.w3c.dom.NodeList;
 
 import junit.framework.TestCase;
 
@@ -24,6 +33,7 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
+import org.objectweb.hello_world_soap_http.LiteralException;
 import org.objectweb.hello_world_soap_http.NotAnnotatedGreeterImpl;
 
 
@@ -64,6 +74,11 @@ public class SOAPServerBindingTest extends TestCase {
         TestInputStreamContext inCtx = new TestInputStreamContext(bArray);
         assertNotNull(serverBinding.createBindingMessageContext(inCtx));
     }
+
+    public void testCreateTransport() throws Exception {
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, null);
+        assertNotNull(serverBinding.getTransport(epr));
+    }
     
     public void testDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
@@ -91,15 +106,58 @@ public class SOAPServerBindingTest extends TestCase {
         assertEquals(ref, os.toString());
     }
 
+    public void testFaultDispatch() throws Exception {
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint);        
+        TestServerTransport serverTransport = new TestServerTransport(bus, epr);
+
+        QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "testDocLitFault");
+       
+        byte[] bArray = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, null, null).getBytes();
+        
+        TestInputStreamContext inCtx = new TestInputStreamContext(bArray);
+        serverBinding.testDispatch(inCtx, serverTransport);
+
+        assertNotNull(serverTransport.getOutputStreamContext());  
+
+        TestOutputStreamContext osc = (TestOutputStreamContext) serverTransport.getOutputStreamContext();
+        ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
+        
+        checkFaultMessage(bais, LiteralException.class, "TestException");
+    }
+    
+    private void checkFaultMessage(ByteArrayInputStream bais, 
+                              Class<? extends Exception> clazz,
+                              String faultString) throws Exception {
+        
+        SOAPMessage msg = MessageFactory.newInstance().createMessage(null,  bais);
+        assertNotNull(msg);
+        assertTrue(msg.getSOAPBody().hasFault());
+        SOAPFault fault = msg.getSOAPBody().getFault();
+        assertNotNull(fault);
+        
+        assertEquals(faultString, fault.getFaultString());
+        assertTrue(fault.hasChildNodes());
+        Detail detail = fault.getDetail();
+        assertNotNull(detail);
+        
+        NodeList list = detail.getChildNodes();
+        assertEquals(1, list.getLength()); 
+        
+        WebFault wfAnnotation = clazz.getAnnotation(WebFault.class);
+        assertNotNull(wfAnnotation);
+        assertEquals(wfAnnotation.targetNamespace(), list.item(0).getNamespaceURI());
+        assertEquals(wfAnnotation.name(), list.item(0).getLocalName());
+    }
+    
     class TestServerBinding extends SOAPServerBinding {
 
         public TestServerBinding(Bus b, EndpointReferenceType ref, Endpoint ep) {
             super(b, ref, ep);
         }
 
-        protected ServerTransport createTransport() {
-            //return new TestServerTransport(bus, reference);
-            return null;
+        public ServerTransport getTransport(EndpointReferenceType ref) throws Exception {            
+            return createTransport(ref);
         }
 
         public void testDispatch(InputStreamMessageContext inCtx, ServerTransport t) {

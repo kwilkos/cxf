@@ -8,7 +8,8 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <wsdl:types>
         <schema targetNamespace="http://objectweb.org/hello_world_soap_http/types" 
-            xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+            xmlns="http://www.w3.org/2001/XMLSchema" 
+            xmlns:x1="http://objectweb.org/hello_world_soap_http/types" elementFormDefault="qualified">
             <element name="sayHi">
                 <complexType/>
             </element>
@@ -33,6 +34,32 @@
                     </sequence>
                 </complexType>
             </element>
+
+            <element name="testDocLitFault">
+                <complexType>
+                    <sequence/>
+                </complexType>
+            </element>
+            <element name="testDocLitFaultResponse">
+                <complexType>
+                    <sequence/>
+                </complexType>
+            </element>
+
+            <complexType name="ErrorCode">
+                <sequence>
+                    <element name="minor" type="xsd:short"/>
+                    <element name="major" type="xsd:short"/>
+                </sequence>
+            </complexType>
+
+            <element name="NoSuchCodeLit">
+                <complexType>
+                    <sequence>
+                        <element name="code" type="x1:ErrorCode"/>
+                    </sequence>
+                </complexType>
+            </element>
         </schema>
     </wsdl:types>
     <wsdl:message name="sayHiRequest">
@@ -47,6 +74,15 @@
     <wsdl:message name="greetMeResponse">
         <wsdl:part element="x1:greetMeResponse" name="out"/>
     </wsdl:message>
+    <wsdl:message name="testDocLitFaultRequest">
+        <wsdl:part element="x1:testDocLitFault" name="in"/>
+    </wsdl:message>
+    <wsdl:message name="testDocLitFaultResponse">
+        <wsdl:part element="x1:testDocLitFaultResponse" name="out"/>
+    </wsdl:message>
+    <wsdl:message name="LiteralException">
+        <wsdl:part element="x1:NoSuchCodeLit" name="NoSuchCodeLit"/>
+    </wsdl:message>
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
             <wsdl:input message="tns:sayHiRequest" name="sayHiRequest"/>
@@ -55,6 +91,11 @@
         <wsdl:operation name="greetMe">
             <wsdl:input message="tns:greetMeRequest" name="greetMeRequest"/>
             <wsdl:output message="tns:greetMeResponse" name="greetMeResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="testDocLitFault">
+            <wsdl:input message="tns:testDocLitFaultRequest" name="testDocLitFaultRequest"/>
+            <wsdl:output message="tns:testDocLitFaultResponse" name="testDocLitFaultResponse"/>
+            <wsdl:fault  message="tns:LiteralException" name="LiteralException"/>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="Greeter_SOAPBinding" type="tns:Greeter">
@@ -76,6 +117,18 @@
             <wsdl:output name="greetMeResponse">
                 <soap:body use="literal"/>
             </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="testDocLitFault">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="testDocLitFaultRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="testDocLitFaultResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="LiteralException">
+                <soap:fault name="LiteralException" use="literal" /> 
+            </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>
     <wsdl:service name="SOAPService">

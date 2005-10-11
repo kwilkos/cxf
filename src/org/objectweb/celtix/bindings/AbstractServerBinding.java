@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,7 +11,6 @@ import java.util.logging.Logger;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.Holder;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.handler.MessageContext;
 
@@ -59,7 +56,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             public Executor getExecutor() {
                 return AbstractServerBinding.this.getEndpoint().getExecutor();
             }
-            
+
         };
         
         transport.activate(tc);
@@ -79,6 +76,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
     protected abstract MessageContext createBindingMessageContext(MessageContext orig);
 
     protected abstract void marshal(ObjectMessageContext objCtx, MessageContext replyCtx);
+    
+    protected abstract void marshalFault(ObjectMessageContext objCtx, MessageContext replyCtx);
 
     protected void unmarshal(MessageContext requestCtx, ObjectMessageContext objCtx) {
         QName operationName = getOperationName(requestCtx);
@@ -105,7 +104,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         try {
             read(inCtx, requestCtx);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LOG.log(Level.SEVERE, "Failed to read request.", ex);
             return;
         }
 
@@ -143,6 +142,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         // in implementor
         //REVISIT replyCtx should be created once the method is invoked
         MessageContext replyCtx = createBindingMessageContext(new GenericMessageContext());
+        assert replyCtx != null;
         
         QName operationName = getOperationName(requestCtx);
 
@@ -173,35 +173,28 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
         try {
             result = method.invoke(getEndpoint().getImplementor(), params);
+            objContext.setReturn(result);
+
+            replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
+            if (null != replyCtx) {
+                marshal(objContext, replyCtx);
+            }
         } catch (IllegalAccessException ex) {
             LOG.log(Level.SEVERE, "Failed to invoke method " + method.getName() + " on implementor.", ex);
+            objContext.setException(ex);
         } catch (InvocationTargetException ex) {
-            LOG.log(Level.SEVERE, "Failed to invoke method " + method.getName() + " on implementor.", ex);
-        }
-        objContext.setReturn(result);        
-        
-        // marshal objects into response object context: parameters whose type
-        // is a
-        // parametrized javax.xml.ws.Holder<T> are classified as in/out or out.
-        List<Object> replyParamList = new ArrayList<Object>();
-        if (params != null) {
-            for (Object p : params) {
-                if (p instanceof Holder) {
-                    replyParamList.add(p);
-                }
+            LOG.log(Level.SEVERE, method.getName() + " method on implementor throws exception.", ex);
+            Throwable cause = ex.getCause();
+            if (cause != null) {
+                objContext.setException(cause);
+            } else {
+                objContext.setException(ex);
+            }            
+        } finally {
+            if (null != objContext.getException()) {
+                marshalFault(objContext, replyCtx);
             }
         }
-
-        if (replyParamList.size() > 0) {
-            Object[] replyParams = replyParamList.toArray();
-            objContext.setMessageObjects(replyParams);
-        }
-        
-        replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);                
-        if (null != replyCtx) {
-            marshal(objContext, replyCtx);
-        }
-
         return replyCtx;
     }
     

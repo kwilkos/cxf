@@ -76,6 +76,9 @@ public class AnnotatedGreeterImpl {
         return "Bonjour " + me + "!";
     }
 
+    public void testDocLitFault()  throws LiteralException {        
+    }
+    
     private void incrementInvocationCount(String method) {
         LOG.info("Executing " + method);
         int n = invocationCount.get(method);

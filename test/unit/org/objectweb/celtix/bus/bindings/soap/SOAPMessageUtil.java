@@ -16,9 +16,11 @@ public final class SOAPMessageUtil {
         str.append("<SOAP-ENV:Body>");
 
         str.append("<ns2:" + wrapName.getLocalPart() + " xmlns:ns2=\"" + wrapName.getNamespaceURI() + "\">");
-        str.append("<ns2:" + elName.getLocalPart() + ">");
-        str.append(data);
-        str.append("</ns2:" + elName.getLocalPart() + ">");
+        if (elName != null) {
+            str.append("<ns2:" + elName.getLocalPart() + ">");
+            str.append(data);
+            str.append("</ns2:" + elName.getLocalPart() + ">");
+        }
         str.append("</ns2:" + wrapName.getLocalPart() + ">");
         
         str.append("</SOAP-ENV:Body>");
