@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config 
+    xmlns:cm="http://celtix.objectweb.org/config-metadata" 
+    xmlns:ct="http://celtix.objectweb.org/config-types" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://celtix.objectweb.org/config-metadata
+    c:/celtix/snapshots/andrea/trunk/src/org/objectweb/celtix/configuration/config-metadata.xsd">
+
+   <!-- default values for all standard types  -->
+   
+    <cm:configImport location="/org/objectweb/celtix/configuration/config-types.xsd" namespace="http://celtix.objectweb.org/config-types"/>
+    
+    <cm:configItem>
+		<cm:name>booleanItem</cm:name>
+		<cm:type>ct:boolean</cm:type>
+		<ct:boolean>true</ct:boolean>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>integerItem</cm:name>
+		<cm:type>ct:integer</cm:type>
+		<ct:integer>44959</ct:integer>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>longItem</cm:name>
+		<cm:type>ct:long</cm:type>
+		<ct:long>-99</ct:long>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>doubleItem</cm:name>
+		<cm:type>ct:double</cm:type>
+		<ct:double>1234.5678</ct:double>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>stringItem</cm:name>
+		<cm:type>ct:string</cm:type>
+		<ct:string>"Hello World!"</ct:string>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>stringListItem</cm:name>
+		<cm:type>ct:stringList</cm:type>
+		<ct:stringList>
+		    <ct:item>a</ct:item>
+		    <ct:item>b</ct:item>
+		    <ct:item>c</ct:item>
+		</ct:stringList>		
+	</cm:configItem>
+	
+</cm:config>

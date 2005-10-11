@@ -66,12 +66,14 @@
         <xsdtojava file="${basedir}/schemas/ws-addr.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing"/>
         <xsdtojava file="${basedir}/schemas/ws-addr-wsdl.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing.wsdl"/>
         <xsdtojava file="${basedir}/schemas/wsdl.xsd" destdir="${basedir}/build/src"/>
+    	<xsdtojava file="${basedir}/src/org/objectweb/celtix/configuration/config-types.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.configuration"/>
         <touch file="${basedir}/build/src/.SCHEMA.CODEGEN.DONE"/>
     </target>
 
     <target name="schemas.codegen">
         <uptodate property="schema.codegen.notrequired" value="true">
             <srcfiles dir="schemas" includes="*"/>
+        	<srcfiles dir="src/org/objectweb/celtix/configuration" includes="config-types.xsd"/>
             <srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
             <mapper type="merge" to="${basedir}/build/src/.SCHEMA.CODEGEN.DONE"/>
         </uptodate>

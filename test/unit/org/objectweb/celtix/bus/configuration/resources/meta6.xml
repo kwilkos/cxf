@@ -5,11 +5,14 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://celtix.objectweb.org/config-metadata config-metadata.xsd">
 
-   <!-- unknown type -->
+   <!-- default value types does not match type  -->
    
+    <cm:configImport location="/org/objectweb/celtix/configuration/config-types.xsd" namespace="http://celtix.objectweb.org/config-types"/>
+    
     <cm:configItem>
 		<cm:name>stringItem</cm:name>
-		<cm:type>ct:undefined</cm:type>
+		<cm:type>ct:string</cm:type>
+		<ct:boolean>true</ct:boolean>
 	</cm:configItem>
 	
 </cm:config>

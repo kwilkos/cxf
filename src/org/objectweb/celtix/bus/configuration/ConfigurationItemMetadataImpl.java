@@ -11,6 +11,7 @@ public class ConfigurationItemMetadataImpl implements ConfigurationItemMetadata 
     private QName type;
     private String description;
     private Object defaultValue;
+    private String packageName;
     
     public String getName() {
         return name;
@@ -19,9 +20,7 @@ public class ConfigurationItemMetadataImpl implements ConfigurationItemMetadata 
     public QName getType() {
         return type;
     }
-    
-    
-    
+        
     public LifecyclePolicy getLifecyclePolicy() {
         return lifecyclePolicy;
     }
@@ -34,6 +33,10 @@ public class ConfigurationItemMetadataImpl implements ConfigurationItemMetadata 
         return defaultValue;
     }
     
+    public String getTypePackageName() {
+        return packageName;
+    }
+    
     protected void setName(String n) {
         name = n;
     }
@@ -42,16 +45,20 @@ public class ConfigurationItemMetadataImpl implements ConfigurationItemMetadata 
         type = t;
     }
     
-    public void setLifecyclePolicy(LifecyclePolicy policy) {
+    protected void setLifecyclePolicy(LifecyclePolicy policy) {
         lifecyclePolicy = policy;
     }
     
-    void setDescription(String d) {
+    protected void setDescription(String d) {
         description = d;
     }
     
     
-    public void setDefaultValue(Object v) {
+    protected void setDefaultValue(Object v) {
         defaultValue = v;
+    }
+    
+    protected void setTypePackageName(String p) {
+        packageName = p;
     }
 }

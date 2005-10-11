@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config 
+    xmlns:cm="http://celtix.objectweb.org/config-metadata" 
+    xmlns:ct="http://celtix.objectweb.org/config-types" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://celtix.objectweb.org/config-metadata
+    c:/celtix/snapshots/andrea/trunk/src/org/objectweb/celtix/configuration/config-metadata.xsd">
+
+   <!-- default values for all standard data types  -->
+   
+    <cm:configImport location="/org/objectweb/celtix/configuration/config-types.xsd" namespace="http://celtix.objectweb.org/config-types"/>
+    
+    <cm:configItem>
+		<cm:name>stringItem</cm:name>
+		<cm:type>ct:boolean</cm:type>
+		<ct:boolean>rubbish</ct:boolean>
+	</cm:configItem>
+	
+</cm:config>
