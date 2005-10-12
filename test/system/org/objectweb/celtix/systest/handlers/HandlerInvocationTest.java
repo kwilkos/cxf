@@ -55,12 +55,12 @@ public class HandlerInvocationTest extends ClientServerTestBase {
         
         // send message and receive response
         String resp = greeter.greetMe("test handler");
-        // need to add support for setting the payload 
-        // once that is done a 
         assertNotNull(resp);      
         
         assertTrue("handle message was not invoked", handler1.isHandleMessageInvoked());
         assertTrue("handle message was not invoked", handler2.isHandleMessageInvoked());
+        assertTrue("close must be  called", handler1.isCloseInvoked());
+        assertTrue("close must be  called", handler2.isCloseInvoked());
     }
     
 
@@ -100,6 +100,8 @@ public class HandlerInvocationTest extends ClientServerTestBase {
         assertEquals("handler must be invoked for inbound and outbound message", 
                      2, handler1.getHandleMessageInvoked());
         assertTrue("second handler should not be invoked", !handler2.isHandleMessageInvoked());
+        assertTrue("close must be  called", handler1.isCloseInvoked());
+        assertTrue("second handler must not be closed", !handler2.isCloseInvoked());
     }
     
     private void addHandlersToChain(BindingProvider bp, Handler...handlers) { 

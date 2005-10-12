@@ -26,6 +26,8 @@ public class HandlerChainInvokerTest extends TestCase {
     TestProtocolHandler[] protocolHandlers = new TestProtocolHandler[HANDLER_COUNT];
     
     public void setUp() {
+        AbstractHandlerBase.clear(); 
+
         List<Handler> handlers = new ArrayList<Handler>();
         for (int i = 0; i < logicalHandlers.length; i++) {
             logicalHandlers[i] = new TestLogicalHandler();
@@ -128,6 +130,27 @@ public class HandlerChainInvokerTest extends TestCase {
     }
 
     
+    public void testMEPComplete() { 
+
+        invoker.invokeLogicalHandlers(ctx); 
+        invoker.invokeProtocolHandlers(ctx); 
+        assertEquals(4, invoker.getInvokedHandlers().size()); 
+
+        invoker.mepComplete(ctx); 
+
+        assertTrue("close not invoked on logicalHandlers", logicalHandlers[0].isCloseInvoked()); 
+        assertTrue("close not invoked on logicalHandlers", logicalHandlers[1].isCloseInvoked()); 
+        assertTrue("close not invoked on protocolHandlers", protocolHandlers[0].isCloseInvoked());
+        assertTrue("close not invoked on protocolHandlers", protocolHandlers[1].isCloseInvoked());
+
+        assertTrue("incorrect invocation order of close", protocolHandlers[1].getInvokedOrder() 
+                   < protocolHandlers[0].getInvokedOrder());
+        assertTrue("incorrect invocation order of close", protocolHandlers[0].getInvokedOrder() 
+                   < logicalHandlers[1].getInvokedOrder());
+        assertTrue("incorrect invocation order of close", logicalHandlers[1].getInvokedOrder() 
+                   < logicalHandlers[0].getInvokedOrder());
+    } 
+
     
     protected void checkLogicalHandlersInvoked(boolean outboundProperty) { 
 
@@ -151,7 +174,7 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[1])); 
     }
     
-    
+   
     
     static class TestProtocolHandler extends AbstractHandlerBase {
         
@@ -167,12 +190,16 @@ public class HandlerChainInvokerTest extends TestCase {
     static class AbstractHandlerBase<T extends MessageContext> implements Handler<T> {
         
         private static int sinvokedOrder; 
+        private static int sid; 
         
         private int invokeOrder; 
+        private int id = ++sid; 
         
         private int handleMessageInvoked;
         private boolean handleMessageRet = true; 
-        
+
+        private int closeInvoked; 
+
         public void reset() {
             handleMessageInvoked = 0; 
             handleMessageRet = true; 
@@ -191,8 +218,8 @@ public class HandlerChainInvokerTest extends TestCase {
         }
 
         public void close(MessageContext arg0) {
-            // TODO Auto-generated method stub
-            
+            invokeOrder = ++sinvokedOrder; 
+            closeInvoked++;
         }
 
         
@@ -215,6 +242,14 @@ public class HandlerChainInvokerTest extends TestCase {
             return handleMessageInvoked > 0;
         }
 
+        public boolean isCloseInvoked() { 
+            return closeInvoked > 0; 
+        } 
+
+        public int getCloseCount() { 
+            return closeInvoked;
+        } 
+
         public int getInvokedOrder() {
             return invokeOrder;            
         }
@@ -222,6 +257,14 @@ public class HandlerChainInvokerTest extends TestCase {
         public void setHandleMessageRet(boolean ret) {
             handleMessageRet = ret; 
         }
-       
+        
+        public String toString() { 
+            return "[" + super.toString() + " id: " + id + " invoke order: " + invokeOrder + "]";
+        }
+
+        public static void clear() { 
+            sinvokedOrder = 0; 
+            sid = 0; 
+        } 
     }
 }

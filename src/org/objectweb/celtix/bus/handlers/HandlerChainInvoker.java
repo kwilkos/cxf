@@ -89,14 +89,36 @@ public class HandlerChainInvoker {
         outbound = false;
     }
 
-    public void mepComplete() {
-        // TODO Auto-generated method stub
+    public void mepComplete(MessageContext ctx) {
+
+        LOG.log(Level.FINE, "closing protocol handlers - handler count:", invokedHandlers.size());
+        //invokeClose(reverseHandlerChain(streamHandlers));
+        // the handlers must be invoked in the reverse order that they
+        // appear in the handler chain.  On the server side this will
+        // not be the reverse order in which they were invoked so use
+        // the handler chain directly and not simply the
+        // invokedHandler list.
+        //
+        invokeClose(reverseHandlerChain(protocolHandlers), ctx);
+        invokeClose(reverseHandlerChain(logicalHandlers), ctx);
     }
+
 
     List getInvokedHandlers() { 
         return Collections.unmodifiableList(invokedHandlers);
     }
+
     
+    private void invokeClose(List<Handler> handlers, MessageContext ctx) {
+
+        for (Handler h : handlers) {
+            if (invokedHandlers.contains(h)) {
+                h.close(ctx);
+            }
+        }
+    }
+
+
     private  boolean invokeHandlerChain(List<Handler> handlerChain, MessageContext ctx) { 
         if (handlerChain.isEmpty()) {
             LOG.log(Level.FINEST, "no handlers registered");        
@@ -133,10 +155,6 @@ public class HandlerChainInvoker {
     private <T extends MessageContext> void setMessageOutboundProperty(T ctx) {
         
         Boolean outboundProp = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-        if (outboundProp != null && outboundProp != outbound) {
-            LOG.log(Level.WARNING, MessageContext.MESSAGE_OUTBOUND_PROPERTY + " incorrect, setting to " 
-                    + outbound);
-        }
         ctx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
     }
 

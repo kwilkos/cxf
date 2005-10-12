@@ -123,7 +123,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
             }
             handlerInvoker.invokeLogicalHandlers(lmctx);
         } finally { 
-            handlerInvoker.mepComplete();
+            handlerInvoker.mepComplete(context);
         }
         return context;
     }
