@@ -3,8 +3,10 @@ package org.objectweb.celtix.application;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.plugins.PluginException;
 import org.objectweb.celtix.plugins.PluginManager;
@@ -21,7 +23,7 @@ import org.objectweb.celtix.plugins.PluginMessage;
  */
 public class ApplicationPluginManager implements PluginManager {
 
-    private static final Logger LOG = Logger.getLogger(ApplicationPluginManager.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ApplicationPluginManager.class);
     
     private static final MessageFormat PLUGINS_CLASSNAME_FMT = 
         new MessageFormat("plugins:{0}:className");
@@ -180,7 +182,7 @@ public class ApplicationPluginManager implements PluginManager {
             Class<?> pluginClass = Class.forName(pluginClassName, true, cl);
             plugin = pluginClass.newInstance();
         } catch (Exception ex) {
-            LOG.severe("Failed to load " + pluginClassName + ": " + ex.getMessage());
+            LogUtils.log(LOG, Level.SEVERE, "PLUGIN_LOAD_FAILURE_MSG", ex, pluginClassName);
             throw new PluginException(new PluginMessage("LOAD_FAILED", pluginClassName), ex);
         }
         return plugin;

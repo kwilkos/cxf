@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus;
 
 import java.lang.reflect.Method;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.WebMethod;
@@ -10,11 +11,12 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Provider;
 import javax.xml.ws.ServiceMode;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public final class EndpointUtils {
 
-    private static final Logger LOG = Logger.getLogger(EndpointUtils.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(EndpointUtils.class);
 
     private EndpointUtils() {
         // Utility class - never constructed
@@ -66,12 +68,12 @@ public final class EndpointUtils {
         }
         
         if (null == iws) {
-            LOG.severe("Implementor or SEI is not annotated with WebService annotation.");
+            LOG.severe("WEBSERVICE_ANNOTATION_NOT_PRESENT_MSG");
             return null;
         }
         
         if (null == sei) {
-            LOG.severe("Implementor does not implement required SEI.");
+            LOG.severe("SEI_NOT_IMPLEMENTED_MSG");
             return null;
         }
 
@@ -95,7 +97,7 @@ public final class EndpointUtils {
         }
 
         if (null == iMethod) {
-            LOG.severe("Method " + methodName + " is not defined in SEI.");
+            LOG.log(Level.SEVERE, "METHOD_NOT_DEFINED_MSG", methodName);
             return null;
         }
 

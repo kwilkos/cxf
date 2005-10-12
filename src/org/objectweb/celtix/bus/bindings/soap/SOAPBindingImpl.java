@@ -35,10 +35,11 @@ import javax.xml.ws.soap.SOAPBinding;
 import org.w3c.dom.Node;
 
 import org.objectweb.celtix.bus.bindings.AbstractBindingImpl;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 
 public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding {
-    private static final Logger LOG = Logger.getLogger(SOAPClientBinding.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(SOAPBindingImpl.class);
     protected final MessageFactory msgFactory;
     protected final SOAPFactory soapFactory;
 
@@ -47,7 +48,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             msgFactory = MessageFactory.newInstance();
             soapFactory = SOAPFactory.newInstance();
         } catch (SOAPException se) {
-            LOG.log(Level.SEVERE, "Exception in creating SAAJ Message Factory.", se);
+            LOG.log(Level.SEVERE, "SAAJ_FACTORY_CREATION_FAILURE_MSG", se);
             throw new WebServiceException(se.getMessage());
         }
     }
@@ -73,7 +74,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         try {
             url = new URL(address);
         } catch (MalformedURLException ex) {
-            LOG.severe("Invalid address:\n" + ex.getMessage());
+            LOG.log(Level.SEVERE, "INVALID_ADDRESS_MSG", ex);
             return false;
         }
         String protocol = url.getProtocol();
@@ -129,7 +130,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 msg.saveChanges();
             }
         } catch (SOAPException se) {
-            LOG.log(Level.SEVERE, "Serializing of user fault got an exception", se.getMessage());
+            LOG.log(Level.SEVERE, "FAULT_SERIALIZATION_FAILURE_MSG", se);
             //Handle UnChecked Exception, Runtime Exception.
         }
 
@@ -357,7 +358,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 }
             }
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "Could not get part out of wrapper element", ex);
+            LOG.log(Level.SEVERE, "PART_RETREIVAL_FAILURE_MSG", ex);
             throw new SOAPException("Could not get part out of wrapper element", ex);
         }
         return null;
@@ -370,7 +371,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 return faultInfoMethod.invoke(fault);
             }
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "Could not get faultInfo out of Exception", ex);
+            LOG.log(Level.SEVERE, "FAULT_INFO_RETREIVAL_FAILURE_MSG", ex);
             throw new SOAPException("Could not get faultInfo out of Exception", ex);
         }
  

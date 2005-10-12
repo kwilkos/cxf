@@ -12,12 +12,12 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.EndpointImpl;
 import org.objectweb.celtix.bus.EndpointUtils;
 import org.objectweb.celtix.bus.ServiceImpl;
+import org.objectweb.celtix.common.logging.LogUtils;
 
 public class ProviderImpl extends javax.xml.ws.spi.Provider {
     public static final String JAXWS_PROVIDER = ProviderImpl.class.getName();
     
-    private static final Logger LOG = 
-        Logger.getLogger(ProviderImpl.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ProviderImpl.class);
 
     @Override
     public ServiceDelegate createServiceDelegate(URL url,
@@ -33,12 +33,11 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
             try {
                 ep = new EndpointImpl(Bus.getCurrent(), implementor, bindingId);
             } catch (Exception ex) {
-                LOG.log(Level.SEVERE, "Failed to create endpoint", ex);
+                LOG.log(Level.SEVERE, "ENDPOINT_CREATION_FAILED_MSG", ex);
             }
             return ep;
         }
-        LOG.severe("Cannot create Endpoint for implementor that does not have a WebService annotation\n"
-                      + " and does not implement the Provider interface.");
+        LOG.severe("INVALID_IMPLEMENTOR_MSG");
         return null;
     }
 

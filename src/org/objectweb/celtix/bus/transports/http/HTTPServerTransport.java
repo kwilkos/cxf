@@ -29,6 +29,7 @@ import javax.xml.ws.handler.MessageContext;
 import org.apache.catalina.core.StandardWrapper;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
@@ -40,7 +41,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class HTTPServerTransport extends StandardWrapper implements ServerTransport {
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(HTTPServerTransport.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(HTTPServerTransport.class);
 
     EndpointReferenceType reference;
     String url;
@@ -265,7 +266,7 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
                         doService(request, response);                        
                     } catch (IOException ex) {                        
                         // TODO handle exception
-                        LOG.severe(ex.getMessage());
+                        LOG.log(Level.SEVERE, "DISPATCH_FAILURE_MSG", ex);
                     } finally {
                         complete = true;
                         synchronized (this) {

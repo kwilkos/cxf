@@ -16,6 +16,7 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -25,7 +26,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
 public abstract class AbstractClientBinding implements ClientBinding {
-    private static final Logger LOG = Logger.getLogger(AbstractClientBinding.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractClientBinding.class);
 
     protected final Bus bus;
     protected final EndpointReferenceType reference;
@@ -51,7 +52,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 ret = factory.createClientTransport(ref);
             }
         } catch (BusException ex) {
-            LOG.severe("Error in getting transport factory");
+            LOG.severe("TRANSPORT_FACTORY_RETREIVAL_FAILURE_MSG");
         }
         assert ret != null; 
         return ret;

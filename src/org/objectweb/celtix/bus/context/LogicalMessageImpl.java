@@ -19,11 +19,12 @@ import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.handler.LogicalMessageContext;
 
 import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 
 public class LogicalMessageImpl implements LogicalMessage {
 
-    private static final Logger LOG = Logger.getLogger(LogicalMessageImpl.class.getName()); 
+    private static final Logger LOG = LogUtils.getL7dLogger(LogicalMessageImpl.class); 
 
     private final LogicalMessageContext msgContext;
     
@@ -124,11 +125,11 @@ public class LogicalMessageImpl implements LogicalMessage {
                                                   LogicalMessageContextImpl.class.getClassLoader());
             return wrapperClass.newInstance();
         } catch (IllegalAccessException ex) {
-            LOG.log(Level.SEVERE, "default constructor not visible on wrapper class", ex); 
+            LOG.log(Level.SEVERE, "WRAPPER_MISSING_DEFAULT_CTOR_MSG", ex); 
         } catch (InstantiationException ex) {
-            LOG.log(Level.SEVERE, "unable to instantiate wrapper class", ex); 
+            LOG.log(Level.SEVERE, "WRAPPER_INSTANTIATION_FAILURE_MSG", ex); 
         } catch (ClassNotFoundException ex) {
-            LOG.log(Level.SEVERE, "unable to load wrapper class", ex); 
+            LOG.log(Level.SEVERE, "WRAPPER_LOAD_FAILURE_MSG", ex); 
         }
         // should never get here, I think
         assert false : "unable to create wrappper " + className;

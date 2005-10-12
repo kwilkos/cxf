@@ -38,13 +38,14 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata.LifecyclePolicy;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
 
 class ConfigurationMetadataBuilder  {
 
-    private static final Logger LOG = Logger.getLogger(ConfigurationMetadataBuilder.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationMetadataBuilder.class);
     private static final String MEATADATA_NAMESPACE_URI = "http://celtix.objectweb.org/config-metadata";
     private static Validator metadataValidator;
     private static Map<String, Validator> typeValidators;
@@ -412,7 +413,7 @@ class ConfigurationMetadataBuilder  {
         if (null != u) {
             return u.getFile();
         }
-        LOG.severe("Could not find configuration metadata schema resource");
+        LOG.severe("CANNOT_FIND_CONFIG_METADATA_SCHEMA_MSG");
         return null;
     }
 
@@ -423,7 +424,7 @@ class ConfigurationMetadataBuilder  {
                 metadataSchema = getSchema(path);
             } catch (ConfigurationException ex) {
                 // should never happen as metadata schema is immutable
-                LOG.log(Level.SEVERE, "Could not create configuration metadata schema.", ex);
+                LOG.log(Level.SEVERE, "CANNOT_CREATE_CONFIG_METADATA_SCHEMA_MSG", ex);
             }
         }
         return metadataSchema;

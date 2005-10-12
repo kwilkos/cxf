@@ -4,6 +4,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.workqueue.AutomaticWorkQueue;
@@ -49,8 +50,7 @@ public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements Automa
             setCorePoolSize(initialThreads);
             int started = prestartAllCoreThreads();
             if (started < initialThreads) {
-                LOG.warning("Could not start required number of initial threads (only started " + started
-                               + " out of " + initialThreads + ").");
+                LOG.log(Level.WARNING, "THREAD_START_FAILURE_MSG", new Object[] {started, initialThreads});
             }
             setCorePoolSize(lowWaterMark);
         }

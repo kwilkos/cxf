@@ -23,10 +23,11 @@ import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.addressing.MetadataType;
 import org.objectweb.celtix.addressing.ObjectFactory;
 import org.objectweb.celtix.addressing.wsdl.ServiceNameType;
+import org.objectweb.celtix.common.logging.LogUtils;
 
 public final class EndpointReferenceUtils {
 
-    private static final Logger LOG = Logger.getLogger(EndpointReferenceUtils.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(EndpointReferenceUtils.class);
 
     private static final QName WSDL_LOCATION = new QName("http://www.w3.org/2004/08/wsdl-instance",
                                                          "wsdlLocation");
@@ -64,7 +65,7 @@ public final class EndpointReferenceUtils {
             try {
                 sei = Class.forName(className, true, manager.getClass().getClassLoader());
             } catch (ClassNotFoundException ex) {
-                LOG.log(Level.SEVERE, "Could not load Webservice SEI", ex);
+                LOG.log(Level.SEVERE, "SEI_LOAD_FAILURE_MSG", ex);
                 return null;
             }
             return manager.getDefinition(sei);

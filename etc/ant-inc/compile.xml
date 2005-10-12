@@ -86,6 +86,7 @@
         </javac>
         <copy todir="${basedir}/build/classes-tests/unit">
             <fileset dir="${basedir}/test/unit" includes="**/resources/**/*"/>
+            <fileset dir="${basedir}/test/unit" includes="**/*.properties"/>
         </copy>
         <copy todir="${basedir}/build/classes-tests/unit">
             <fileset dir="${basedir}/etc" includes="logging.properties"/>

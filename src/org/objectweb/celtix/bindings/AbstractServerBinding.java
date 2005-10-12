@@ -17,6 +17,7 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.EndpointUtils;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -27,7 +28,7 @@ import org.objectweb.celtix.transports.ServerTransportCallback;
 
 public abstract class AbstractServerBinding implements ServerBinding {
 
-    private static final Logger LOG = Logger.getLogger(AbstractServerBinding.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractServerBinding.class);
 
     protected final Bus bus;
     protected final EndpointReferenceType reference;
@@ -104,7 +105,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         try {
             read(inCtx, requestCtx);
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "Failed to read request.", ex);
+            LOG.log(Level.SEVERE, "REQUEST_UNREADABLE_MSG", ex);
             return;
         }
 
@@ -120,7 +121,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 replyCtx = invokeOnMethod(requestCtx);
             }
         } catch (RemoteException ex) {
-            LOG.log(Level.SEVERE, "Failed to invoke on provider.", ex);
+            LOG.log(Level.SEVERE, "PROVIDER_INVOCATION_FAILURE_MSG", ex);
         }
 
         try {
@@ -130,7 +131,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
             write(replyCtx, outCtx);
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "Failed to write response.", ex);
+            LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
         }
         
         LOG.info("Dispatch complete on thread : " + Thread.currentThread());
@@ -147,14 +148,14 @@ public abstract class AbstractServerBinding implements ServerBinding {
         QName operationName = getOperationName(requestCtx);
 
         if (null == operationName) {
-            LOG.severe("Request Context does not include operation name.");
+            LOG.severe("CONTEXT_MISSING_OPERATION_NAME_MSG");
             return replyCtx;
         }
         
         // get implementing method
         Method method = EndpointUtils.getMethod(endpoint, operationName);
         if (method == null) {
-            LOG.severe("Web method: " + operationName + " not found in implementor.");
+            LOG.log(Level.SEVERE, "IMPLEMENTOR_MISSING_METHOD_MSG", operationName);
             return replyCtx;
         }
 
@@ -180,10 +181,10 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 marshal(objContext, replyCtx);
             }
         } catch (IllegalAccessException ex) {
-            LOG.log(Level.SEVERE, "Failed to invoke method " + method.getName() + " on implementor.", ex);
+            LogUtils.log(LOG, Level.SEVERE, "IMPLEMENTOR_INVOCATION_FAILURE_MSG", ex, method.getName());
             objContext.setException(ex);
         } catch (InvocationTargetException ex) {
-            LOG.log(Level.SEVERE, method.getName() + " method on implementor throws exception.", ex);
+            LogUtils.log(LOG, Level.SEVERE, "IMPLEMENTOR_INVOCATION_EXCEPTION_MSG", ex, method.getName());
             Throwable cause = ex.getCause();
             if (cause != null) {
                 objContext.setException(cause);

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.Port;
@@ -120,7 +121,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
      */
     public void publish(Object serverContext) {
         if (isPublished()) {
-            LOG.warning("Endpoint is already published");
+            LOG.warning("ENDPOINT_ALREADY_PUBLISHED_MSG");
         }
         if (!isContextBindingCompatible(serverContext)) {
             throw new IllegalArgumentException(
@@ -140,7 +141,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
      */
     public void publish(String address) {
         if (isPublished()) {
-            LOG.warning("Endpoint is already published");
+            LOG.warning("ENDPOINT_ALREADY_PUBLISHED_MSG");
         }
         if (!serverBinding.isCompatibleWithAddress(address)) {
             throw new IllegalArgumentException(
@@ -181,7 +182,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
      */
     public void stop() {
         if (!isPublished()) {
-            LOG.warning("Endpoint is not active.");
+            LOG.warning("ENDPOINT_INACTIVE_MSG");
         }
         published = false;
     }
@@ -223,11 +224,9 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             serverBinding.activate();
             published = true;
         } catch (WSDLException ex) {
-            LOG.severe("Failed to publish endpoint - server binding could not be activated:\n"
-                          + ex.getMessage());
+            LOG.log(Level.SEVERE, "SERVER_BINDING_ACTIVATION_FAILURE_MSG", ex);
         } catch (IOException ex) {
-            LOG.severe("Failed to publish endpoint - server binding could not be activated:\n"
-                          + ex.getMessage());
+            LOG.log(Level.SEVERE, "SERVER_BINDING_ACTIVATION_FAILURE_MSG", ex);
         }
     }
 

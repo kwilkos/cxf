@@ -75,6 +75,8 @@
         <pathelement location="${basedir}/build/classes-tests/wsdl"/>
         <path refid="src.compile.classpath"/>
         <pathelement location="${tools.dir}/easymock/2.0/easymock.jar"/>
+        <pathelement location="${tools.dir}/easymock/2.0/classextension/easymockclassextension.jar"/>
+        <pathelement location="${tools.dir}/cglib/2.1.2/cglib-nodep.jar"/>
     	<path refid="junit.classpath"/>
     </path>
  
@@ -99,6 +101,8 @@
 	    <pathelement location="${basedir}/build/classes-tests/wsdl"/>
 	    <path refid="src.compile.classpath"/>
 	    <pathelement location="${tools.dir}/easymock/2.0/easymock.jar"/>
+            <pathelement location="${tools.dir}/easymock/2.0/classextension/easymockclassextension.jar"/>
+            <pathelement location="${tools.dir}/cglib/2.1.2/cglib-nodep.jar"/>
 	</path>
 	 
     <path id="system.test.classpath">

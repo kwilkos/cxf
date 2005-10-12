@@ -30,6 +30,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -38,7 +39,7 @@ import org.objectweb.celtix.transports.TransportFactory;
 
 public class SOAPServerBinding extends AbstractServerBinding {
     
-    private static final Logger LOG = Logger.getLogger(SOAPServerBinding.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(SOAPServerBinding.class);
     
     protected final SOAPBindingImpl soapBinding;
     
@@ -63,7 +64,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
                     bus.getTransportFactoryManager().getTransportFactory(SOAPConstants.SOAP_URI);
             return tf.createServerTransport(ref);
         } catch (BusException ex) {
-            LOG.severe("Failed to get default transport factory for SOAP server binding.");
+            LOG.severe("TRANSPORT_FACTORY_RETREIVAL_FAILURE_MSG");
         }
         return null;
     }
@@ -77,7 +78,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
             SOAPMessage msg = soapBinding.marshalMessage(objContext, context);
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
-            LOG.log(Level.SEVERE, "Error in marshall of SOAP Message", se);
+            LOG.log(Level.SEVERE, "SOAP_MARSHALLING_FAILURE_MSG", se);
         }
     }
 
@@ -90,7 +91,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         try {
             soapBinding.unmarshalMessage(context, objContext);
         } catch (SOAPException se) {
-            LOG.log(Level.SEVERE, "error in unmarshall of SOAP Message", se);
+            LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
         }
     }
     
@@ -100,7 +101,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         try {
             soapCtx.getMessage().writeTo(outCtx.getOutputStream());
         } catch (SOAPException se) {
-            LOG.log(Level.SEVERE, "error in marshall of SOAP Message", se);
+            LOG.log(Level.SEVERE, "SOAP_WRITE_FAILURE_MSG", se);
             throw new IOException(se.getMessage());
         }
     }
@@ -110,7 +111,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         try {
             soapBinding.parseMessage(instr.getInputStream(), mc);
         } catch (SOAPException se) {
-            LOG.log(Level.SEVERE, "error while parsing input message", se);
+            LOG.log(Level.SEVERE, "SOAP_PARSING_FAILURE_MSG", se);
             throw new IOException(se.getMessage());
         }          
     }
@@ -128,7 +129,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         try {
             body = msg.getSOAPBody();
         } catch (SOAPException ex) {
-            LOG.log(Level.SEVERE, "Failed to obtain SOAP body.", ex);
+            LOG.log(Level.SEVERE, "SOAP_BODY_RETREIVAL_FAILURE_MSG", ex);
         }
         return invokeOnProvider(body, soapCtx);
     }
@@ -158,7 +159,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
             
             // ...
         } catch (SOAPException ex) {
-            LOG.log(Level.SEVERE, "Failed to pass SOAPBody to/from provider.", ex);
+            LOG.log(Level.SEVERE, "SOAP_BODY_PROVIDER_FAILURE_MSG", ex);
         }
         
         return null;
@@ -181,10 +182,10 @@ public class SOAPServerBinding extends AbstractServerBinding {
                 Node node = msg.getSOAPBody().getFirstChild();
                 ret = new QName(node.getNamespaceURI(), node.getLocalName());
             } else { 
-                LOG.severe("attempting to get operation name from soap message I do not understand");
+                LOG.severe("OPERATION_NAME_RETREIVAL_FAILURE_MSG");
             }
         } catch (SOAPException ex) {
-            LOG.log(Level.SEVERE, "error getting operation name from soap message", ex);
+            LOG.log(Level.SEVERE, "OPERATION_NAME_RETREIVAL_FAILURE_MSG", ex);
         }
         
         LOG.info("retrieved operation name from soap message:" + ret);

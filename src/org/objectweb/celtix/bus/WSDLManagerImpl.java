@@ -142,7 +142,7 @@ class WSDLManagerImpl implements WSDLManager {
             tmp.delete();
             tmp.mkdir();
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "Could not create tmp directory in which to generate WSDL.", ex);
+            LOG.log(Level.SEVERE, "WSDL_GENERATION_TMP_DIR_MSG", ex);
             return null;
         }
         /*
@@ -170,7 +170,7 @@ class WSDLManagerImpl implements WSDLManager {
         try {
             result = fc.execute(120);
         } catch (ForkedCommandException ex) {
-            LOG.log(Level.SEVERE, "Could not generate WSDL.", ex);
+            LOG.log(Level.SEVERE, "WSDL_GENERATION_FAILURE_MSG", ex);
             return null;
         }
         ps.flush();
@@ -178,7 +178,7 @@ class WSDLManagerImpl implements WSDLManager {
             LOG.info("Generator output:\n" + new String(bout.toByteArray()));
         }
         if (0 != result) {
-            LOG.log(Level.SEVERE, "Generator returned with exit value: " + result);
+            LOG.log(Level.SEVERE, "WSDL_GENERATION_BAD_RESULT_MSG", result);
             return null; 
         }
 
@@ -200,7 +200,7 @@ class WSDLManagerImpl implements WSDLManager {
             }
         }
         if (null == wsdl || null == schema) {
-            LOG.severe("Wsdl and/or schema files could not be generated.");
+            LOG.severe("WSDL_SCHEMA_GENERATION_FAILURE_MSG");
             return null;
         } else if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Generated " + wsdl.getPath() + " and " + schema.getPath());
@@ -231,7 +231,7 @@ class WSDLManagerImpl implements WSDLManager {
             reader.setExtensionRegistry(registry);
             definition = reader.readWSDL(wsdl.getPath());
         } catch (WSDLException ex) {
-            LOG.log(Level.SEVERE, "Could not read generated wsdl.", ex);
+            LOG.log(Level.SEVERE, "WSDL_UNREADABLE_MSG", ex);
         }
         
         Directory dir = new Directory(tmp);
