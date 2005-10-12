@@ -40,6 +40,7 @@ public abstract class ClientServerTestBase extends TestCase {
             }
         }
     }
+    
     protected void launchServer(Class<?> clz) {
         try { 
             ServerLauncher sl = new ServerLauncher(clz.getName());

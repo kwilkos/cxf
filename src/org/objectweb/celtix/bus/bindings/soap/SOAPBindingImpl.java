@@ -155,7 +155,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         if (messageInfo.getSOAPStyle() == Style.RPC) {
             soapEl = soapEl.getFirstChild();
         }
-
+        
         getParts(soapEl, messageInfo, objContext, isOutputMsg);
     }
 
@@ -181,7 +181,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                         List<?> values = (List<?>)httpHeaders.get(key);
                         for (Object value : values) {
                             headers.addHeader(key.toString(),
-                                value == null ? null : value.toString());
+                                              value == null ? null : value.toString());
                         }
                     }
                 }
@@ -202,7 +202,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
 
     private void getParts(Node xmlNode , SOAPMessageInfo messageInfo,
-                              ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
+                          ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
 
         Method method = messageInfo.getMethod();
         JAXBEncoderDecoder decoder = 
@@ -213,9 +213,10 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         Object retVal = null;
         List<Object> paramList = new ArrayList<Object>();
 
+            
         if (messageInfo.getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
             QName elName = isOutBound ? messageInfo.getResponseWrapperQName() 
-                                      : messageInfo.getRequestWrapperQName();
+                : messageInfo.getRequestWrapperQName();
             
             Object obj = decoder.unmarshall(childNode, elName);
 
@@ -246,8 +247,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 WebParam param = messageInfo.getWebParam(idx);
                 if ((param.mode() != ignoreParamMode) && !param.header()) {
                     Object obj = decoder.unmarshall(
-                                    childNode,
-                                    new QName(param.targetNamespace(), param.name()));
+                                                    childNode,
+                                                    new QName(param.targetNamespace(), param.name()));
                     paramList.add(obj);
                     childNode = childNode.getNextSibling();
                 }
@@ -268,7 +269,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         
         if (messageInfo.getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
             String wrapperType = isOutBound ? messageInfo.getResponseWrapperType() 
-                                            : messageInfo.getRequestWrapperType();
+                : messageInfo.getRequestWrapperType();
 
             Object wrapperObj = null;
             try {
@@ -294,7 +295,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
 
             QName elName = isOutBound ? messageInfo.getResponseWrapperQName() 
-                                      : messageInfo.getRequestWrapperQName();
+                : messageInfo.getRequestWrapperQName();
 
             encoder.marshall(wrapperObj, elName, xmlNode);
 
@@ -314,8 +315,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 WebParam param = messageInfo.getWebParam(idx);
                 if ((param.mode() != ignoreParamMode) && !param.header()) {
                     encoder.marshall(args[idx], 
-                                    new QName(param.targetNamespace(), param.name()),
-                                    xmlNode);
+                                     new QName(param.targetNamespace(), param.name()),
+                                     xmlNode);
                 }
             }
         }
@@ -324,7 +325,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     private String getPackageList(SOAPMessageInfo messageInfo, boolean isOutBound) {
         //REVISIT Package of all WebParam may be needed as well.
         String str = isOutBound ? messageInfo.getResponseWrapperType() 
-                                : messageInfo.getRequestWrapperType();
+            : messageInfo.getRequestWrapperType();
 
         if (str == null) {
             return messageInfo.getMethod().getDeclaringClass().getPackage().getName();

@@ -14,14 +14,20 @@ import javax.jws.WebService;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Binding;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.bus.handlers.HandlerChainBuilder;
+import org.objectweb.celtix.bus.handlers.HandlerResolverImpl;
+import org.objectweb.celtix.bus.handlers.PortInfoImpl;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class ServiceImpl extends ServiceDelegate {
@@ -32,6 +38,7 @@ public class ServiceImpl extends ServiceDelegate {
     private QName serviceName;
     private List<QName> endpointList;
     private final Bus bus;
+    private HandlerResolver handlerResolver; 
     
     /**
      * Create a new Service.
@@ -42,6 +49,7 @@ public class ServiceImpl extends ServiceDelegate {
         wsdlLocation = location;
         serviceName = name;
         endpointList = new Vector<QName>();
+        handlerResolver = new HandlerResolverImpl();
     }
     
     public void createPort(QName portName, URI bindingId, String endpointAddress) {
@@ -107,8 +115,11 @@ public class ServiceImpl extends ServiceDelegate {
         EndpointInvocationHandler endpointHandler = 
                 new EndpointInvocationHandler(bus, ref, serviceEndpointInterface);
         
+        createHandlerChainForBinding(portName, endpointHandler.getBinding());
+        
         Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(),
-                                            new Class[] {serviceEndpointInterface, Remote.class},
+                                            new Class[] {serviceEndpointInterface, Remote.class, 
+                                                         BindingProvider.class},
                                             (InvocationHandler) endpointHandler);
         
         LOG.log(Level.FINE, "created proxy", obj);
@@ -116,6 +127,17 @@ public class ServiceImpl extends ServiceDelegate {
         endpointList.add(portName);
         
         return serviceEndpointInterface.cast(obj);
+    }
+
+    
+    private void createHandlerChainForBinding(QName portName, Binding binding) {
+
+        assert handlerResolver != null; 
+        PortInfoImpl portInfo = new PortInfoImpl(serviceName, portName, null);
+        List<Handler> handlers = handlerResolver.getHandlerChain(portInfo);
+        HandlerChainBuilder handlerChainBuilder = new HandlerChainBuilder(); 
+        handlers = handlerChainBuilder.sortHandlers(handlers);
+        binding.setHandlerChain(handlers);
     }
     
     private URL getWsdlLocation(WebService wsAnnotation) {
@@ -150,14 +172,12 @@ public class ServiceImpl extends ServiceDelegate {
 
     @Override
     public HandlerResolver getHandlerResolver() {
-        // TODO Auto-generated method stub
-        return null;
+        return handlerResolver;
     }
 
     @Override
-    public void setHandlerResolver(HandlerResolver arg0) {
-        // TODO Auto-generated method stub
-        
+    public void setHandlerResolver(HandlerResolver hr) {
+        handlerResolver = hr;
     }
 
     @Override

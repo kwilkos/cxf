@@ -18,8 +18,13 @@ public class GenericMessageContext extends HashMap<String, Object> implements Me
     }
 
     public Scope getScope(String arg0) {
-        if (scopes.containsKey(arg0)) {
-            return scopes.get(arg0);
+        
+        if (containsKey(arg0)) {
+            if (scopes.containsKey(arg0)) {
+                return scopes.get(arg0);
+            } else {
+                return Scope.HANDLER;
+            }
         }
         throw new IllegalArgumentException("non-existant property-" + arg0 + "is specified");
     }

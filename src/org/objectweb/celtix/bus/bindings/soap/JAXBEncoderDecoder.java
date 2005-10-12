@@ -55,7 +55,7 @@ public class JAXBEncoderDecoder {
                     }
                 } 
             }
-            u.marshal(mObj, destNode);
+            u.marshal(mObj, destNode);           
         } catch (Exception ex) {
             throw new SOAPException("Marshalling Error", ex);
         }

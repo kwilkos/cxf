@@ -1,16 +1,11 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
-//import java.io.ByteArrayInputStream;
-//import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-//import java.io.InputStream;
-//import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.concurrent.Future;
 
 import javax.wsdl.WSDLException;
-
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 
@@ -18,14 +13,11 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-//import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
-//import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
-
 import org.objectweb.hello_world_soap_http.Greeter;
 
 public class SOAPClientBindingTest extends TestCase {

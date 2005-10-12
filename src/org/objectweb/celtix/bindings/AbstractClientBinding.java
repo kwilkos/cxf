@@ -14,6 +14,8 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
+import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -73,45 +75,56 @@ public abstract class AbstractClientBinding implements ClientBinding {
             MessageContext context) throws IOException;
     
     public ObjectMessageContext invoke(ObjectMessageContext context) throws IOException {
-        // TODO - invoke ObjectMessageContext handlers
-        MessageContext bindingContext = createBindingMessageContext(context);
-        //Input Message For Client
-        bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
         
-        if (null != bindingContext) {
-            marshal(context, bindingContext);
-        } else {
-            bindingContext = context;
-        }
+        HandlerChainInvoker handlerInvoker = new HandlerChainInvoker(getBinding().getHandlerChain());
 
-        assert transport != null : "transport is null"; 
-        
-        OutputStreamMessageContext ostreamContext = transport.createOutputStreamContext(bindingContext);
-        // TODO - invoke output stream handlers
-        transport.finalPrepareOutputStreamContext(ostreamContext);
-        
-        write(bindingContext, ostreamContext);
+        try { 
+            MessageContext bindingContext = createBindingMessageContext(context);
+            LogicalMessageContextImpl lmctx = new LogicalMessageContextImpl(bindingContext);
+            boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(lmctx);
+            if (continueProcessing) {  
+                //Input Message For Client
+                bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
+                
+                if (null != bindingContext) {
+                    marshal(context, bindingContext);
+                } else {
+                    bindingContext = context;
+                }
+                
+                assert transport != null : "transport is null"; 
+                
+                OutputStreamMessageContext ostreamContext = 
+                    transport.createOutputStreamContext(bindingContext);
+                
+                // TODO - invoke output stream handlers
+                transport.finalPrepareOutputStreamContext(ostreamContext);
+                
+                write(bindingContext, ostreamContext);
+                
+                InputStreamMessageContext ins = transport.invoke(ostreamContext);
+                
+                bindingContext = createBindingMessageContext(ins);
+                if (null == bindingContext) {
+                    bindingContext = ins;
+                }
+                
+                //Output Message For Client
+                bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
+                // TODO - invoke input stream handlers
+                read(ins, bindingContext);
+                
+                // TODO - invoke binding handlers
+                Method m = context.getMethod();
+                context = createObjectContext();
+                context.setMethod(m);
 
-        InputStreamMessageContext ins = transport.invoke(ostreamContext);
-       
-        bindingContext = createBindingMessageContext(ins);
-        if (null == bindingContext) {
-            bindingContext = ins;
+                unmarshal(bindingContext, context);
+            }
+            handlerInvoker.invokeLogicalHandlers(lmctx);
+        } finally { 
+            handlerInvoker.mepComplete();
         }
-        
-        //Output Message For Client
-        bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
-        // TODO - invoke input stream handlers
-        read(ins, bindingContext);
-        
-        // TODO - invoke binding handlers
-        Method m = context.getMethod();
-        context = createObjectContext();
-        context.setMethod(m);
-        unmarshal(bindingContext, context);
-        
-        // TODO - invoke object handlers
-        
         return context;
     }
 
