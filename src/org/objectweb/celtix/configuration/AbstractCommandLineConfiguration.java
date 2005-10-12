@@ -3,7 +3,7 @@ package org.objectweb.celtix.configuration;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public abstract class AbstractCommandLineConfiguration implements Configuration {
+public abstract class AbstractCommandLineConfiguration implements CommandlineConfiguration {
 
     Collection<CommandLineOption> options;
     

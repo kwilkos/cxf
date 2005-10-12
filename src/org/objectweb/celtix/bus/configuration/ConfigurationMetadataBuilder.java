@@ -68,7 +68,7 @@ class ConfigurationMetadataBuilder  {
         typeSchemaPackages = new HashMap<String, String>();
     }
 
-    public ConfigurationMetadata build(URL u) throws ConfigurationException {
+    public ConfigurationMetadata build(URL u) {
         url = u;
         String path = url.getFile();
         if (null == path) {
@@ -82,12 +82,12 @@ class ConfigurationMetadataBuilder  {
         return model;
     }
 
-    public ConfigurationMetadata build(InputSource is) throws ConfigurationException, IOException {
+    public ConfigurationMetadata build(InputSource is) throws IOException {
         parseXML(is);
         return model;
     }
 
-    private void parseXML(InputSource is) throws ConfigurationException, IOException {
+    private void parseXML(InputSource is) throws IOException {
 
         // parse
         Document document = null;
@@ -120,7 +120,7 @@ class ConfigurationMetadataBuilder  {
         deserializeConfigItems(document);
     }
 
-    private void deserializeImports(Document document) throws ConfigurationException {
+    private void deserializeImports(Document document) {
     
         for (Node nd = document.getDocumentElement().getFirstChild(); nd != null; nd = nd.getNextSibling()) {
             if (Node.ELEMENT_NODE == nd.getNodeType()
@@ -136,7 +136,7 @@ class ConfigurationMetadataBuilder  {
         } 
     }
 
-    private void deserializeConfigItems(Document document) throws ConfigurationException {
+    private void deserializeConfigItems(Document document) {
         for (Node nd = document.getDocumentElement().getFirstChild(); nd != null; nd = nd.getNextSibling()) {
             if (Node.ELEMENT_NODE == nd.getNodeType()
                 && "configItem".equals(nd.getLocalName())
@@ -147,7 +147,7 @@ class ConfigurationMetadataBuilder  {
         }
     }
 
-    private void deserializeConfigItem(Element configItemElement) throws ConfigurationException {
+    private void deserializeConfigItem(Element configItemElement) {
         
         ConfigurationItemMetadataImpl item = new ConfigurationItemMetadataImpl();
 
@@ -163,7 +163,7 @@ class ConfigurationMetadataBuilder  {
                 String packageName = typeSchemaPackages.get(type.getNamespaceURI());
                 item.setTypePackageName(packageName);
             } else if ("description".equals(nd.getLocalName())) {
-                item.setDescription(getElementValue(nd));
+                // item.setDescription(getElementValue(nd));
             } else if ("lifecyclePolicy".equals(nd.getLocalName())) {
                 String value = getElementValue(nd);
                 if (null != value) {
@@ -186,8 +186,7 @@ class ConfigurationMetadataBuilder  {
         model.addItem(item);
     }   
     
-    private void deserializeDefaultValue(ConfigurationItemMetadataImpl item, Element data)
-        throws ConfigurationException {
+    private void deserializeDefaultValue(ConfigurationItemMetadataImpl item, Element data) {
         
         String localName = data.getLocalName();
         String namespaceURI = data.getNamespaceURI();
@@ -212,8 +211,7 @@ class ConfigurationMetadataBuilder  {
         unmarshalDefaultValue(item, data);
     }
     
-    private void unmarshalDefaultValue(ConfigurationItemMetadataImpl item, Element data) 
-        throws ConfigurationException {
+    private void unmarshalDefaultValue(ConfigurationItemMetadataImpl item, Element data) {
         JAXBContext context = null;
         String packageName = item.getTypePackageName();
         // assert null != packageName : "text";
@@ -241,7 +239,7 @@ class ConfigurationMetadataBuilder  {
         }
     }
 
-    private QName stringToQName(Document document, String s) throws ConfigurationException {
+    private QName stringToQName(Document document, String s) {
         int index = s.indexOf(":");
         if (index < 0) {
             return new QName(s);
@@ -266,8 +264,7 @@ class ConfigurationMetadataBuilder  {
         return new QName(uri, localPart);
     }
     
-    private QName stringToQName(Element rootElement, Element element, String s)
-        throws ConfigurationException {
+    private QName stringToQName(Element rootElement, Element element, String s) {
         int index = s.indexOf(":");
         if (index < 0) {
             return new QName(s);
@@ -291,7 +288,7 @@ class ConfigurationMetadataBuilder  {
         return type;
     }
     
-    private Document getMetadataSchemaDocument() throws ConfigurationException {
+    private Document getMetadataSchemaDocument() {
         if (null == metadataSchemaDocument) {
             String path = getSchemaLocation();  
             metadataSchemaDocument = getSchemaDocument(path);
@@ -299,7 +296,7 @@ class ConfigurationMetadataBuilder  {
         return metadataSchemaDocument;
     }
     
-    private Document getTypeSchemaDocument(String namespaceURI) throws ConfigurationException {
+    private Document getTypeSchemaDocument(String namespaceURI) {
         if (null == typeSchemaDocuments) {
             typeSchemaDocuments = new HashMap<String, Document>();
         }
@@ -340,7 +337,7 @@ class ConfigurationMetadataBuilder  {
         return document;
     }
     
-    private Document getSchemaDocument(String path) throws ConfigurationException {
+    private Document getSchemaDocument(String path) {
         Document document = null;
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -358,7 +355,7 @@ class ConfigurationMetadataBuilder  {
         return document;
     }
     
-    private Source getMetadataSchemaSource() throws ConfigurationException {
+    private Source getMetadataSchemaSource() {
         Document document = getMetadataSchemaDocument();
         // assert null != document;
         return new DOMSource(document);
@@ -371,7 +368,7 @@ class ConfigurationMetadataBuilder  {
         */     
     }
     
-    private Source getTypeSchemaSource(String namespaceURI) throws ConfigurationException {
+    private Source getTypeSchemaSource(String namespaceURI) {
         Document document = getTypeSchemaDocument(namespaceURI);
         // assert null != document;
         return new DOMSource(document);
@@ -430,7 +427,7 @@ class ConfigurationMetadataBuilder  {
         return metadataSchema;
     }
 
-    private Schema getTypeSchema(String namespaceURI) throws ConfigurationException {
+    private Schema getTypeSchema(String namespaceURI) {
         if (null == typeSchemas) {
             typeSchemas = new HashMap<String, Schema>();
         }
@@ -471,7 +468,7 @@ class ConfigurationMetadataBuilder  {
         return schema;
     }
 
-    private Schema getSchema(String path) throws ConfigurationException {
+    private Schema getSchema(String path) {
         Source schemaFile = new StreamSource(new File(path));
         
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -498,7 +495,7 @@ class ConfigurationMetadataBuilder  {
         return metadataValidator;
     }
 
-    private Validator getTypeValidator(QName type) throws ConfigurationException {
+    private Validator getTypeValidator(QName type) {
         if (null == typeValidators) {
             typeValidators = new HashMap<String, Validator>();
         }
@@ -543,7 +540,7 @@ class ConfigurationMetadataBuilder  {
 
     }
     
-    private void addGlobalTypes(String namespaceURI) throws ConfigurationException {
+    private void addGlobalTypes(String namespaceURI) {
         Document document = getTypeSchemaDocument(namespaceURI);
         Element root = document.getDocumentElement();
         for (Node nd = root.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
@@ -559,7 +556,7 @@ class ConfigurationMetadataBuilder  {
         }       
     }
     
-    private void addPackageType(String namespaceURI) throws ConfigurationException {
+    private void addPackageType(String namespaceURI) {
         Document document = getTypeSchemaDocument(namespaceURI);
         Element root = document.getDocumentElement();
         Element annotationElement = null;
@@ -609,7 +606,7 @@ class ConfigurationMetadataBuilder  {
         typeSchemaPackages.put(namespaceURI, packageName);    
     }
     
-    private void validateAll(Document document) throws ConfigurationException, IOException {
+    private void validateAll(Document document) throws IOException {
         try {
             Source[] schemaSources = new Source[typeSchemaLocations.size() + 1];
             int i = 0;

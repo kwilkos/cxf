@@ -2,7 +2,7 @@ package org.objectweb.celtix.tools.common;
 
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
-import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.CommandlineConfiguration;
 
 public abstract class DelegatingToolTestBase extends ToolTestBase {
     
@@ -23,7 +23,7 @@ public abstract class DelegatingToolTestBase extends ToolTestBase {
     public void testMainDelegatesToGenerator() { 
         
         mockGenerator = EasyMock.createMock(Generator.class);
-        mockGenerator.setConfiguration((Configuration)EasyMock.notNull());    
+        mockGenerator.setConfiguration((CommandlineConfiguration)EasyMock.notNull());    
         mockGenerator.generate();    
         EasyMock.replay(mockGenerator); 
         

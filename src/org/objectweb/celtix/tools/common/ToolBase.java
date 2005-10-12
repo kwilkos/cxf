@@ -1,6 +1,6 @@
 package org.objectweb.celtix.tools.common;
 
-import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.CommandlineConfiguration;
 
 /**
  * Base class for Celtix tools
@@ -27,7 +27,7 @@ public abstract class ToolBase {
         toolConfig = new ToolConfig(args);
     }
     
-    public Configuration getConfiguration() {    
+    public CommandlineConfiguration getConfiguration() {    
         return toolConfig;
     }
     

@@ -3,7 +3,7 @@ package org.objectweb.celtix.tools.common;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.CommandlineConfiguration;
 
 /**
  * A generator which wraps external tools.  
@@ -15,7 +15,7 @@ public class ToolWrapperGenerator implements Generator {
 
     protected final String toolClassName;
     private final ClassLoader classLoader; 
-    private Configuration config;
+    private CommandlineConfiguration config;
 
     /**
      * construct a generator which delegates to the tool specified by 
@@ -77,7 +77,7 @@ public class ToolWrapperGenerator implements Generator {
         }
     }
 
-    public void setConfiguration(Configuration newConfig) {
+    public void setConfiguration(CommandlineConfiguration newConfig) {
         this.config = newConfig;        
     }
 

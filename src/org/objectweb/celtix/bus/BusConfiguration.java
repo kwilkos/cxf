@@ -2,21 +2,11 @@ package org.objectweb.celtix.bus;
 
 import java.util.Map;
 
-import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.bus.configuration.AbstractConfigurationImpl;
 
-public class BusConfiguration implements Configuration {
-
-    
+public class BusConfiguration extends AbstractConfigurationImpl {
+   
     BusConfiguration(String[] args, Map<String, Object> properties) {
-        
-    }
-
-    /* (non-Javadoc)
-     * @see org.objectweb.celtix.configuration.Configuration#getObject(java.lang.String)
-     */
-    public Object getObject(String name) {
-        return null;
-    }
-    
-    
+        super(null);
+    }   
 }

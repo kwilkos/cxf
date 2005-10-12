@@ -9,7 +9,6 @@ public class ConfigurationItemMetadataImpl implements ConfigurationItemMetadata 
     private String name;
     private LifecyclePolicy lifecyclePolicy = LifecyclePolicy.STATIC;
     private QName type;
-    private String description;
     private Object defaultValue;
     private String packageName;
     
@@ -23,10 +22,6 @@ public class ConfigurationItemMetadataImpl implements ConfigurationItemMetadata 
         
     public LifecyclePolicy getLifecyclePolicy() {
         return lifecyclePolicy;
-    }
-    
-    public String getDescription() {
-        return description;
     }
     
     public Object getDefaultValue() {
@@ -48,12 +43,7 @@ public class ConfigurationItemMetadataImpl implements ConfigurationItemMetadata 
     protected void setLifecyclePolicy(LifecyclePolicy policy) {
         lifecyclePolicy = policy;
     }
-    
-    protected void setDescription(String d) {
-        description = d;
-    }
-    
-    
+        
     protected void setDefaultValue(Object v) {
         defaultValue = v;
     }

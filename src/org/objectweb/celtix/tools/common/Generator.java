@@ -1,6 +1,6 @@
 package org.objectweb.celtix.tools.common;
 
-import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.CommandlineConfiguration;
 
 /**
  * Interface for code generators used by the tools
@@ -9,7 +9,7 @@ import org.objectweb.celtix.configuration.Configuration;
  */
 public interface Generator {
 
-    void setConfiguration(Configuration config);
+    void setConfiguration(CommandlineConfiguration config);
     void generate();
 }
 
