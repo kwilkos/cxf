@@ -89,15 +89,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         boolean isInputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
         
-        SOAPMessage msg = msgFactory.createMessage();
-        msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION,  "true");
+        SOAPMessage msg = initSOAPMessage();
         SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
 
-        //SOAPHeaders, SwA are NOT supported
-        msg.getSOAPHeader().detachNode();
-        
-        //REVISIT Populate The NameSpace Map at Envelope node.
-        
         SOAPElement soapElement = addOperationNode(msg.getSOAPBody(), messageInfo);
         
         //add out and inout params
@@ -112,13 +106,10 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     public SOAPMessage marshalFault(ObjectMessageContext objContext, MessageContext mc) {
 
         SOAPMessage msg = null;
-        try {
-            msg = msgFactory.createMessage();
-            msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION,  "true");
-            //SOAP Headers not supported
-            msg.getSOAPHeader().detachNode();
-            
+        try {            
+            msg = initSOAPMessage();            
             SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
+            
             Throwable t = (Throwable) objContext.getException();
             WebFault wfAnnotation = t.getClass().getAnnotation(WebFault.class);
             
@@ -131,7 +122,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 Object faultInfo = getFaultInfo(t);
                 JAXBEncoderDecoder encoder = 
                     new JAXBEncoderDecoder(getPackageList(messageInfo, true));
-                encoder.marshall(faultInfo, null, fault.addDetail());                
+                encoder.marshall(faultInfo, null, fault.addDetail());
             }
 
             if (msg.saveRequired()) {
@@ -262,9 +253,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 }
             }
         }
-            
+
         objCtx.setReturn(retVal);
-        objCtx.setMessageObjects(paramList.toArray());        
+        objCtx.setMessageObjects(paramList.toArray());
     }    
 
     private void addParts(Node xmlNode , SOAPMessageInfo messageInfo, 
@@ -304,7 +295,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
             QName elName = isOutBound ? messageInfo.getResponseWrapperQName() 
                                       : messageInfo.getRequestWrapperQName();
-            
+
             encoder.marshall(wrapperObj, elName, xmlNode);
 
         } else {
@@ -389,5 +380,20 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         return soapFactory;
     }
     
+    private SOAPMessage initSOAPMessage() throws SOAPException {
+
+        SOAPMessage msg = msgFactory.createMessage();
+        msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION,  "true");
+        msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(
+                            W3CConstants.NP_SCHEMA_XSD, 
+                            W3CConstants.NU_SCHEMA_XSD);
+        msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(
+                            W3CConstants.NP_SCHEMA_XSI, 
+                            W3CConstants.NU_SCHEMA_XSI);
+
+        //SOAP Headers not supported
+        msg.getSOAPHeader().detachNode(); 
+        return msg;
+    }
 }
 
