@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 import org.easymock.IArgumentMatcher;
 import org.easymock.classextension.EasyMock;
 
-import org.objectweb.celtix.common.bundle.BundleUtils;
+import org.objectweb.celtix.common.i18n.BundleUtils;
 
 
 public class LogUtilsTest extends TestCase {

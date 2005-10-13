@@ -1,4 +1,6 @@
-package org.objectweb.celtix.common.bundle;
+package org.objectweb.celtix.common.i18n;
+
+import java.util.ResourceBundle;
 
 
 /**
@@ -21,9 +23,19 @@ public final class BundleUtils {
      * Encapsulates the logic related to naming a resource bundle. 
      *
      * @param cls the Class requiring the bundle
-     * @return an appropriate ResourceBundle
+     * @return an appropriate ResourceBundle name
      */
     public static String getBundleName(Class cls) {
         return cls.getPackage().getName() + MESSAGE_BUNDLE;
+    }
+
+    /**
+     * Encapsulates the logic related to locating a resource bundle. 
+     *
+     * @param cls the Class requiring the bundle
+     * @return an appropriate ResourceBundle
+     */
+    public static ResourceBundle getBundle(Class cls) {
+        return ResourceBundle.getBundle(getBundleName(cls));
     }
 }

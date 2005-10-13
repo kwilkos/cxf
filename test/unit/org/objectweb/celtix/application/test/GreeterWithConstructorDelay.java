@@ -4,11 +4,14 @@ public class GreeterWithConstructorDelay {
     private static int delay;
 
     public GreeterWithConstructorDelay() {
-        delay = (delay + 250) % 500;
         try {
-            Thread.sleep(delay);
+            Thread.sleep(getDelay());
         } catch (InterruptedException ex) {
             // ignore
         }
+    }
+
+    private synchronized int getDelay() {
+        return delay = (delay + 250) % 500;
     }
 }

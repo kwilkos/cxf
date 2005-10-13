@@ -5,7 +5,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.objectweb.celtix.common.bundle.BundleUtils;
+import org.objectweb.celtix.common.i18n.BundleUtils;
 
 
 /**

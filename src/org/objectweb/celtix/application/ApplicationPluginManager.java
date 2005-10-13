@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.plugins.PluginException;
 import org.objectweb.celtix.plugins.PluginManager;
-import org.objectweb.celtix.plugins.PluginMessage;
 
 /**
  * @author asmyth The ApplicationPluginManager manages objects loaded on demand
@@ -63,7 +63,7 @@ public class ApplicationPluginManager implements PluginManager {
     public synchronized void registerPlugin(Object plugin) throws PluginException {
         PluginInfo info = findPluginInfo(plugin); 
         if (info.isRegisteredWith(this)) {
-            throw new PluginException(new PluginMessage("ALREADY_REGISTERED", info.getClassName()));
+            throw new PluginException(new Message("ALREADY_REGISTERED_EXC", LOG, info.getClassName()));
         } else {
             info.register(this);
         }
@@ -77,7 +77,7 @@ public class ApplicationPluginManager implements PluginManager {
     public synchronized void unloadPlugin(Object plugin) throws PluginException {
         PluginInfo info = findPluginInfo(plugin);
         if (info.isRegistered()) {
-            throw new PluginException(new PluginMessage("STILL_REGISTERED", info.getClassName()));
+            throw new PluginException(new Message("STILL_REGISTERED_EXC", LOG, info.getClassName()));
         } else {
             plugins.remove(plugin);
             info = null;
@@ -95,7 +95,7 @@ public class ApplicationPluginManager implements PluginManager {
         if (info.isRegisteredWith(this)) {
             info.unregister(this);
         } else {
-            throw new PluginException(new PluginMessage("NOT_REGISTERED", info.getClassName()));
+            throw new PluginException(new Message("NOT_REGISTERED_EXC", LOG, info.getClassName()));
         }
     }
 
@@ -150,7 +150,7 @@ public class ApplicationPluginManager implements PluginManager {
         if (dependent != null) {
             info.setRequiredFor(dependent);
             if (info.isCircularDependency()) {
-                throw new PluginException(new PluginMessage("CIRCULAR_DEPENDENCY", pluginClassName));
+                throw new PluginException(new Message("CIRCULAR_DEPENDENCY_EXC", LOG, pluginClassName));
             }
         }
 
@@ -183,7 +183,7 @@ public class ApplicationPluginManager implements PluginManager {
             plugin = pluginClass.newInstance();
         } catch (Exception ex) {
             LogUtils.log(LOG, Level.SEVERE, "PLUGIN_LOAD_FAILURE_MSG", ex, pluginClassName);
-            throw new PluginException(new PluginMessage("LOAD_FAILED", pluginClassName), ex);
+            throw new PluginException(new Message("LOAD_FAILED_EXC", LOG, pluginClassName), ex);
         }
         return plugin;
     }

@@ -21,6 +21,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.common.commands.ForkedCommand;
 import org.objectweb.celtix.common.commands.ForkedCommandException;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 /**
@@ -30,7 +31,7 @@ import org.objectweb.celtix.wsdl.WSDLManager;
  */
 class WSDLManagerImpl implements WSDLManager {
 
-    private static final Logger LOG = Logger.getLogger(WSDLManagerImpl.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(WSDLManagerImpl.class);
 
     final ExtensionRegistry registry;
     final WSDLFactory factory;

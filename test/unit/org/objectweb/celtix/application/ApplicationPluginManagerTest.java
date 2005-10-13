@@ -13,7 +13,7 @@ public class ApplicationPluginManagerTest extends TestCase {
             apm.getPlugin("org.objectweb.celtix.application.test.Greater");
             fail("Expected PluginException not thrown");
         } catch (PluginException ex) {
-            assertEquals("LOAD_FAILED", ex.getCode());
+            assertEquals("LOAD_FAILED_EXC", ex.getCode());
             assertTrue(ex.getCause() instanceof ClassNotFoundException);
         }
     }
@@ -24,7 +24,7 @@ public class ApplicationPluginManagerTest extends TestCase {
             apm.getPlugin("org.objectweb.celtix.application.test.ProtectedConstructorGreeter");
             fail("Expected PluginException not thrown");
         } catch (PluginException ex) {
-            assertEquals("LOAD_FAILED", ex.getCode());
+            assertEquals("LOAD_FAILED_EXC", ex.getCode());
             assertTrue("Unexepcted cause: " + ex.getCause().getClass().getName(),
                        ex.getCause() instanceof IllegalAccessException);
         }
@@ -36,7 +36,7 @@ public class ApplicationPluginManagerTest extends TestCase {
             apm.getPlugin("org.objectweb.celtix.application.test.PersonalGreeter");
             fail("Expected PluginException not thrown");
         } catch (PluginException ex) {
-            assertEquals("LOAD_FAILED", ex.getCode());
+            assertEquals("LOAD_FAILED_EXC", ex.getCode());
             assertTrue(ex.getCause() instanceof InstantiationException);
         }
     }

@@ -50,7 +50,7 @@ public class EndpointImplTest extends TestCase {
             endpoint.publish(address);
         } catch (IllegalArgumentException ex) {
             assertTrue(ex.getCause() instanceof BusException);
-            assertEquals("BINDING_INCOMPATIBLE_ADDRESS", ((BusException)ex.getCause()).getCode());
+            assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
         }
         address = "test://localhost:7777/test";
         endpoint.publish(address);

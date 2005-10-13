@@ -16,15 +16,16 @@ import javax.xml.ws.handler.Handler;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.BusMessage;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ServerBinding;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
 
-    private static final Logger LOG = Logger.getLogger(EndpointImpl.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
 
     private final Bus bus;
     //private final Configuration configuration;
@@ -125,7 +126,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         }
         if (!isContextBindingCompatible(serverContext)) {
             throw new IllegalArgumentException(
-                new BusException(new BusMessage("BINDING_INCOMPATIBLE_CONTEXT")));
+                new BusException(new Message("BINDING_INCOMPATIBLE_CONTEXT_EXC", LOG)));
         }
 
         // apply all changes to configuration and metadata and (re-)activate
@@ -145,7 +146,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         }
         if (!serverBinding.isCompatibleWithAddress(address)) {
             throw new IllegalArgumentException(
-                new BusException(new BusMessage("BINDING_INCOMPATIBLE_ADDRESS")));
+                new BusException(new Message("BINDING_INCOMPATIBLE_ADDRESS_EXC", LOG)));
         }
         doPublish(address);
     }
@@ -202,7 +203,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
 
         BindingFactory factory = bus.getBindingManager().getBindingFactory(bindingId);
         if (null == factory) {
-            throw new BusException(new BusMessage("BINDING_FACTORY_MISSING", bindingId));
+            throw new BusException(new Message("BINDING_FACTORY_MISSING_EXC", LOG, bindingId));
         }
         ServerBinding bindingImpl = factory.createServerBinding(reference, this);
         assert null != bindingImpl;

@@ -28,8 +28,10 @@ final class BusFactory {
     }
     
     static BusFactory getInstance() {
-        if (null == theInstance) {
-            theInstance = new BusFactory();
+        synchronized (BusFactory.class) {
+            if (null == theInstance) {
+                theInstance = new BusFactory();
+            }
         }
         return theInstance;
     }

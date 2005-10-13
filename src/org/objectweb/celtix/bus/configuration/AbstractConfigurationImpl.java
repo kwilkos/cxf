@@ -5,9 +5,12 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.common.i18n.BundleUtils;
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationItem;
@@ -18,6 +21,7 @@ import org.objectweb.celtix.configuration.StringListType;
 
 public abstract class AbstractConfigurationImpl implements Configuration {
 
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AbstractConfigurationImpl.class);
     private Configurator configurator;
     private ConfigurationMetadata model;
     private Map<String, ConfigurationItem> items;
@@ -53,7 +57,7 @@ public abstract class AbstractConfigurationImpl implements Configuration {
 
         ConfigurationItemMetadata definition = model.getDefinition(name);
         if (null == definition) {
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_NOT_DEFINED", name));
+            throw new ConfigurationException(new Message("ITEM_NOT_DEFINED_EXC", BUNDLE, name));
         }
 
         Configuration holder = this;
@@ -79,26 +83,26 @@ public abstract class AbstractConfigurationImpl implements Configuration {
     public boolean getBoolean(String name) {
         Object obj = getObject(name);
         if (null == obj) {
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_NO_VALUE", name));
+            throw new ConfigurationException(new Message("ITEM_NO_VALUE_EXC", BUNDLE, name));
         }
         try {
             return ((Boolean)obj).booleanValue();
         } catch (ClassCastException ex) {
             QName type = model.getDefinition(name).getType();
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_TYPE_MISMATCH", name, type));
+            throw new ConfigurationException(new Message("ITEM_TYPE_MISMATCH_EXC", BUNDLE, name, type));
         }
     }
 
     public double getDouble(String name) {
         Object obj = getObject(name);
         if (null == obj) {
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_NO_VALUE", name));
+            throw new ConfigurationException(new Message("ITEM_NO_VALUE_EXC", BUNDLE, name));
         }
         try {
             return ((Double)obj).doubleValue();
         } catch (ClassCastException ex) {
             QName type = model.getDefinition(name).getType();
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_TYPE_MISMATCH", name, type));
+            throw new ConfigurationException(new Message("ITEM_TYPE_MISMATCH_EXC", BUNDLE, name, type));
         }
         
     }
@@ -106,37 +110,37 @@ public abstract class AbstractConfigurationImpl implements Configuration {
     public int getInteger(String name) {
         Object obj = getObject(name);
         if (null == obj) {
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_NO_VALUE", name));
+            throw new ConfigurationException(new Message("ITEM_NO_VALUE_EXC", BUNDLE, name));
         }
         try {
             return ((BigInteger)obj).intValue();
         } catch (ClassCastException ex) {
             QName type = model.getDefinition(name).getType();
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_TYPE_MISMATCH", name, type));
+            throw new ConfigurationException(new Message("ITEM_TYPE_MISMATCH_EXC", BUNDLE, name, type));
         }
     }
 
     public long getLong(String name) {
         Object obj = getObject(name);
         if (null == obj) {
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_NO_VALUE", name));
+            throw new ConfigurationException(new Message("ITEM_NO_VALUE_EXC", BUNDLE, name));
         }
         try {
             return ((Long)obj).longValue();
         } catch (ClassCastException ex) {
             QName type = model.getDefinition(name).getType();
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_TYPE_MISMATCH", name, type));
+            throw new ConfigurationException(new Message("ITEM_TYPE_MISMATCH_EXC", BUNDLE, name, type));
         }
     }
 
     public String getString(String name) {
         Object obj = getObject(name);
         if (null == obj) {
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_NO_VALUE", name));
+            throw new ConfigurationException(new Message("ITEM_NO_VALUE_EXC", BUNDLE, name));
         }
         if (!(obj instanceof String)) {
             QName type = model.getDefinition(name).getType();
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_TYPE_MISMATCH", name, type));
+            throw new ConfigurationException(new Message("ITEM_TYPE_MISMATCH_EXC", BUNDLE, name, type));
         }
         return (String)obj;
     }
@@ -144,13 +148,13 @@ public abstract class AbstractConfigurationImpl implements Configuration {
     public List<String> getStringList(String name) {
         Object obj = getObject(name);
         if (null == obj) {
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_NO_VALUE", name));
+            throw new ConfigurationException(new Message("ITEM_NO_VALUE_EXC", BUNDLE, name));
         }
         try {
             return ((StringListType)obj).getItem();
         } catch (ClassCastException ex) {
             QName type = model.getDefinition(name).getType();
-            throw new ConfigurationException(new ConfigurationMessage("ITEM_TYPE_MISMATCH", name, type));
+            throw new ConfigurationException(new Message("ITEM_TYPE_MISMATCH_EXC", BUNDLE, name, type));
         }
     }
     

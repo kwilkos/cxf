@@ -59,7 +59,7 @@ public class ConfigurationTest extends TestCase {
         try {
             top.getObject("undefinedStringItem");
         } catch (ConfigurationException ex) {
-            assertEquals("ITEM_NOT_DEFINED", ex.getCode());
+            assertEquals("ITEM_NOT_DEFINED_EXC", ex.getCode());
         }
     }
     
@@ -70,31 +70,31 @@ public class ConfigurationTest extends TestCase {
         try {
             top.getBoolean("booleanItemNoDefault");
         } catch (ConfigurationException ex) {
-            assertEquals("ITEM_NO_VALUE", ex.getCode());
+            assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
         assertNull(top.getObject("integerItemNoDefault"));
         try {
             top.getInteger("integerItemNoDefault");
         } catch (ConfigurationException ex) {
-            assertEquals("ITEM_NO_VALUE", ex.getCode());
+            assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
         assertNull(top.getObject("longItemNoDefault"));
         try {
             top.getLong("longItemNoDefault");
         } catch (ConfigurationException ex) {
-            assertEquals("ITEM_NO_VALUE", ex.getCode());
+            assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
         assertNull(top.getObject("doubleItemNoDefault"));
         try {
             top.getDouble("doubleItemNoDefault");
         } catch (ConfigurationException ex) {
-            assertEquals("ITEM_NO_VALUE", ex.getCode());
+            assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
         assertNull(top.getObject("stringItemNoDefault"));
         try {
             top.getObject("stringItemNoDefault");
         } catch (ConfigurationException ex) {
-            assertEquals("ITEM_NO_VALUE", ex.getCode());
+            assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
         assertNull(top.getObject("stringListItemNoDefault"));
     }
@@ -124,32 +124,32 @@ public class ConfigurationTest extends TestCase {
         try {
             top.getStringList("booleanItem");
         } catch (ConfigurationException ex) {
-            assertEquals("ITEM_TYPE_MISMATCH", ex.getCode());
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
             top.getBoolean("integerItem");
         } catch (ConfigurationException ex) {
-            assertEquals("ITEM_TYPE_MISMATCH", ex.getCode());
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
             top.getInteger("longItem");
         } catch (ConfigurationException ex) {
-            assertEquals("ITEM_TYPE_MISMATCH", ex.getCode());
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
             top.getLong("doubleItem");
         } catch (ConfigurationException ex) {
-            assertEquals("ITEM_TYPE_MISMATCH", ex.getCode());
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
             top.getDouble("stringItem");
         } catch (ConfigurationException ex) {
-            assertEquals("ITEM_TYPE_MISMATCH", ex.getCode());
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
             top.getString("stringListItem");
         } catch (ConfigurationException ex) {
-            assertEquals("ITEM_TYPE_MISMATCH", ex.getCode());
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
     }
     

@@ -1,15 +1,18 @@
 package org.objectweb.celtix.application;
 
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
+import org.objectweb.celtix.common.i18n.BundleUtils;
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.plugins.PluginException;
-import org.objectweb.celtix.plugins.PluginMessage;
 
 
 public class PluginStateMachine {
     
-    private static final Logger LOG = Logger.getLogger(PluginStateMachine.class/*.getPackage()*/.getName());
-    
+    private static final Logger LOG = Logger.getLogger(PluginStateMachine.class.getName());
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(PluginStateMachine.class);
+
     public enum PluginState { UNLOADED, LOADING, LOADED };
 
     private PluginState state;
@@ -33,7 +36,8 @@ public class PluginStateMachine {
             LOG.fine("changing state from " + state + " to " + nextState);
             state = nextState;
         } else {
-            throw new PluginException(new PluginMessage("INVALID_STATE_TRANSITION", state, nextState));
+            Message msg = new Message("INVALID_STATE_TRANSITION_EXC", BUNDLE, state, nextState);
+            throw new PluginException(msg);
         }
         notifyAll();
     }

@@ -70,7 +70,7 @@ public class ConfigurationMetadataTest extends TestCase {
             buildMetadata("meta2.xml");
             fail("Expected ConfigurationException not thrown.");
         } catch (ConfigurationException ex) { 
-            assertEquals("ILLEGAL_QNAME", ex.getCode());
+            assertEquals("ILLEGAL_QNAME_EXC", ex.getCode());
         }
     }
 
@@ -79,7 +79,7 @@ public class ConfigurationMetadataTest extends TestCase {
             buildMetadata("meta3.xml");
             fail("Expected ConfigurationException not thrown.");
         } catch (ConfigurationException ex) {
-            assertEquals("ILLEGAL_PREFIX", ex.getCode());
+            assertEquals("ILLEGAL_PREFIX_EXC", ex.getCode());
         }
     }
     
@@ -88,7 +88,7 @@ public class ConfigurationMetadataTest extends TestCase {
             buildMetadata("meta4.xml");
             fail("Expected ConfigurationException not thrown.");
         } catch (ConfigurationException ex) {
-            assertEquals("UNKNOWN_TYPE", ex.getCode()); 
+            assertEquals("UNKNOWN_TYPE_EXC", ex.getCode()); 
         }
     }
 
@@ -97,7 +97,7 @@ public class ConfigurationMetadataTest extends TestCase {
             buildMetadata("meta5.xml");
             fail("Expected ConfigurationException not thrown.");
         } catch (ConfigurationException ex) {
-            assertEquals("METADATA_VALIDATION_ERROR", ex.getCode()); 
+            assertEquals("METADATA_VALIDATION_ERROR_EXC", ex.getCode()); 
         }
     }
 
@@ -107,7 +107,7 @@ public class ConfigurationMetadataTest extends TestCase {
             buildMetadata("meta6.xml");
             fail("Expected ConfigurationException not thrown.");
         } catch (ConfigurationException ex) {
-            assertEquals("INVALID_TYPE_FOR_DEFAULT_VALUE", ex.getCode()); 
+            assertEquals("INVALID_TYPE_FOR_DEFAULT_VALUE_EXC", ex.getCode()); 
         }
     }
 
@@ -117,7 +117,7 @@ public class ConfigurationMetadataTest extends TestCase {
             buildMetadata("meta7.xml");
             fail("Expected ConfigurationException not thrown.");
         } catch (ConfigurationException ex) {
-            assertEquals("INVALID_DEFAULT_VALUE", ex.getCode());          
+            assertEquals("INVALID_DEFAULT_VALUE_EXC", ex.getCode());          
         }
     }
 

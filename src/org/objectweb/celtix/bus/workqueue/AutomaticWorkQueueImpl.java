@@ -7,13 +7,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.workqueue.AutomaticWorkQueue;
 
 public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements AutomaticWorkQueue {
 
     static final int DEFAULT_MAX_QUEUE_SIZE = 128;
-    private static final Logger LOG = 
-        Logger.getLogger(AutomaticWorkQueueImpl.class.getName());
+    private static final Logger LOG =
+        LogUtils.getL7dLogger(AutomaticWorkQueueImpl.class);
     
     int maxQueueSize;
 

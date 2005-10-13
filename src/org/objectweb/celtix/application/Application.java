@@ -16,8 +16,10 @@ public final class Application {
     }
     
     public static Application getInstance() {
-        if (null == theInstance) {
-            theInstance = new Application();
+        synchronized (Application.class) {
+            if (null == theInstance) {
+                theInstance = new Application();
+            }
         }
         return theInstance;
     }

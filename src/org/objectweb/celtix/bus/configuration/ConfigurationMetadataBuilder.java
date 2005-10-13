@@ -38,6 +38,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata.LifecyclePolicy;
@@ -72,12 +73,12 @@ class ConfigurationMetadataBuilder  {
         url = u;
         String path = url.getFile();
         if (null == path) {
-            throw new ConfigurationException(new ConfigurationMessage("IO_ERROR", url.toString()));
+            throw new ConfigurationException(new Message("IO_ERROR_EXC", LOG, url));
         }
         try {
             parseXML(new InputSource(new FileInputStream(path)));
         } catch (IOException ex) {
-            throw new ConfigurationException(new ConfigurationMessage("IO_ERROR", path));
+            throw new ConfigurationException(new Message("IO_ERROR_EXC", LOG, path));
         }
         return model;
     }
@@ -97,10 +98,9 @@ class ConfigurationMetadataBuilder  {
             DocumentBuilder parser = factory.newDocumentBuilder();
             document = parser.parse(is);
         } catch (ParserConfigurationException ex) {
-            throw new ConfigurationException(new ConfigurationMessage("PARSER_CONFIGURATION_ERROR", url
-                .toString()), ex);
+            throw new ConfigurationException(new Message("PARSER_CONFIGURATION_ERROR_EXC", LOG, url), ex);
         } catch (SAXException ex) {
-            throw new ConfigurationException(new ConfigurationMessage("PARSE_ERROR"), ex);
+            throw new ConfigurationException(new Message("PARSE_ERROR_EXC", LOG), ex);
         }
         
         if (validateAgainstComposite) {
@@ -112,8 +112,8 @@ class ConfigurationMetadataBuilder  {
                 Validator v = getMetadataValidator();
                 v.validate(new DOMSource(document));
             } catch (SAXException ex) {
-                throw new ConfigurationException(new ConfigurationMessage("METADATA_VALIDATION_ERROR", url
-                                                                          .toString()), ex);
+                Message msg = new Message("METADATA_VALIDATION_ERROR_EXC", LOG, url);
+                throw new ConfigurationException(msg, ex);
             }
             deserializeImports(document);
         }   
@@ -192,8 +192,8 @@ class ConfigurationMetadataBuilder  {
         String namespaceURI = data.getNamespaceURI();
         QName type = new QName(namespaceURI, localName);
         if (!type.equals(item.getType())) {
-            throw new ConfigurationException(new ConfigurationMessage("INVALID_TYPE_FOR_DEFAULT_VALUE",
-                                                                      item.getType()));
+            Message msg = new Message("INVALID_TYPE_FOR_DEFAULT_VALUE_EXC", LOG, item.getType());
+            throw new ConfigurationException(msg);
         }        
         
         if (!validateAgainstComposite) {        
@@ -201,10 +201,11 @@ class ConfigurationMetadataBuilder  {
             try {
                 validator.validate(new DOMSource(data));
             } catch (SAXException ex) {
-                throw new ConfigurationException(new ConfigurationMessage("INVALID_DEFAULT_VALUE"), ex);
+                Message msg = new Message("INVALID_DEFAULT_VALUE_EXC", LOG);
+                throw new ConfigurationException(msg, ex);
             } catch (IOException ex) {
-                throw new ConfigurationException(new ConfigurationMessage("PARSE_DEFAULT_VALUE_ERROR", item
-                    .getName()), ex);
+                Message msg = new Message("PARSE_DEFAULT_VALUE_ERROR_EXC", LOG, item.getName());
+                throw new ConfigurationException(msg, ex);
             }
         }  
         
@@ -227,8 +228,8 @@ class ConfigurationMetadataBuilder  {
                 }
             }    
         } catch (JAXBException ex) {
-            throw new ConfigurationException(new ConfigurationMessage("DEFAULE_VALUE_UNMARSHAL_ERROR",
-                                                                      item.getName()), ex);
+            Message msg = new Message("DEFAULT_VALUE_UNMARSHAL_ERROR_EXC", LOG, item.getName());
+            throw new ConfigurationException(msg, ex);
         }
         if (null != obj) {
             if (LOG.isLoggable(Level.FINE)) {
@@ -244,22 +245,22 @@ class ConfigurationMetadataBuilder  {
         if (index < 0) {
             return new QName(s);
         } else if (index == 0) {
-            throw new ConfigurationException(new ConfigurationMessage("ILLEGAL_QNAME", s));
+            throw new ConfigurationException(new Message("ILLEGAL_QNAME_EXC", LOG, s));
         }
         String prefix = s.substring(0, index);
         
         // TODO what if the namespace prefix was not declared on the root element 
         String uri = document.getDocumentElement().getAttribute("xmlns:" + prefix);
         if (null == uri || "".equals(uri)) {
-            throw new ConfigurationException(new ConfigurationMessage("ILLEGAL_PREFIX", s));
+            throw new ConfigurationException(new Message("ILLEGAL_PREFIX_EXC", LOG, s));
         }
         if (index >= (s.length() - 1)) {
-            throw new ConfigurationException(new ConfigurationMessage("ILLEGAL_QNAME", s));
+            throw new ConfigurationException(new Message("ILLEGAL_QNAME_EXC", LOG, s));
         }
         String localPart = s.substring(index + 1);
         QName type = new QName(uri, localPart);
         if (null == model.getType(type)) {            
-            throw new ConfigurationException(new ConfigurationMessage("UNKNOWN_TYPE", s));
+            throw new ConfigurationException(new Message("UNKNOWN_TYPE_EXC", LOG, s));
         }
         return new QName(uri, localPart);
     }
@@ -269,7 +270,7 @@ class ConfigurationMetadataBuilder  {
         if (index < 0) {
             return new QName(s);
         } else if (index == 0) {
-            throw new ConfigurationException(new ConfigurationMessage("ILLEGAL_QNAME", s));
+            throw new ConfigurationException(new Message("ILLEGAL_QNAME_EXC", LOG, s));
         }
         String prefix = s.substring(0, index);
 
@@ -278,10 +279,10 @@ class ConfigurationMetadataBuilder  {
             uri = rootElement.getAttribute("xmlns:" + prefix);
         }
         if (null == uri || "".equals(uri)) {
-            throw new ConfigurationException(new ConfigurationMessage("ILLEGAL_PREFIX", s));
+            throw new ConfigurationException(new Message("ILLEGAL_PREFIX_EXC", LOG, s));
         }
         if (index >= (s.length() - 1)) {
-            throw new ConfigurationException(new ConfigurationMessage("ILLEGAL_QNAME", s));
+            throw new ConfigurationException(new Message("ILLEGAL_QNAME_EXC", LOG, s));
         }
         String localPart = s.substring(index + 1);
         QName type = new QName(uri, localPart);
@@ -308,8 +309,8 @@ class ConfigurationMetadataBuilder  {
             try {
                 typesURI = new URI(location);
             } catch (URISyntaxException ex) {
-                throw new ConfigurationException(new ConfigurationMessage("SCHEMA_LOCATION_ERROR",
-                                                                          location), ex);
+                Message msg = new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location);
+                throw new ConfigurationException(msg, ex);
             } 
             
             URL typesURL = null;
@@ -318,15 +319,14 @@ class ConfigurationMetadataBuilder  {
                 try {
                     typesURL = typesURI.toURL();
                 } catch (MalformedURLException ex) {
-                    throw new ConfigurationException(new ConfigurationMessage("SCHEMA_LOCATION_ERROR",
-                                                                              location), ex);
+                    Message msg = new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location);
+                    throw new ConfigurationException(msg, ex);
                 }
             } else {
                 typesURL = getClass().getResource(typesURI.getPath());
             }
             if (null == typesURL) {
-                throw new ConfigurationException(new ConfigurationMessage("SCHEMA_LOCATION_ERROR",
-                                                                          location));
+                throw new ConfigurationException(new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location));
             }
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Effective location for schema: " + typesURL.getPath());
@@ -345,12 +345,11 @@ class ConfigurationMetadataBuilder  {
             DocumentBuilder parser = factory.newDocumentBuilder();
             document = parser.parse(new InputSource(new FileInputStream(path)));
         } catch (ParserConfigurationException ex) {
-            throw new ConfigurationException(new ConfigurationMessage("PARSER_CONFIGURATION_ERROR", 
-                                                                      path), ex);
+            throw new ConfigurationException(new Message("PARSER_CONFIGURATION_ERROR_EXC", LOG, path), ex);
         } catch (SAXException ex) {
-            throw new ConfigurationException(new ConfigurationMessage("PARSE_ERROR"), ex);
+            throw new ConfigurationException(new Message("PARSE_ERROR_EXC", LOG), ex);
         } catch (IOException ex) {
-            throw new ConfigurationException(new ConfigurationMessage("FILE_OPEN_ERROR", path), ex);
+            throw new ConfigurationException(new Message("FILE_OPEN_ERROR_EXC", LOG, path), ex);
         }
         return document;
     }
@@ -385,13 +384,13 @@ class ConfigurationMetadataBuilder  {
             try {
                 typesURI = new URI(location);
             } catch (URISyntaxException ex) {
-                throw new ConfigurationException(new ConfigurationMessage("TYPES_URI_ERROR"), ex);
+                throw new ConfigurationException(new Message("TYPES_URI_ERROR_EXC", LOG), ex);
             }
             if (!typesURI.isAbsolute()) {
                 try {
                     typesURI = url.toURI().resolve(typesURI);
                 } catch (URISyntaxException ex) {
-                    throw new ConfigurationException(new ConfigurationMessage("TYPES_URI_ERROR"), ex);
+                    throw new ConfigurationException(new Message("TYPES_URI_ERROR_EXC", LOG), ex);
                 }
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Effective import location for schema " + namespaceURI + ": "
@@ -438,22 +437,22 @@ class ConfigurationMetadataBuilder  {
             try {
                 typesURI = new URI(location);
             } catch (URISyntaxException ex) {
-                throw new ConfigurationException(new ConfigurationMessage("SCHEMA_CREATION_ERROR",
-                                                                          namespaceURI), ex);
+                Message msg = new Message("SCHEMA_CREATION_ERROR_EXC", LOG, namespaceURI);
+                throw new ConfigurationException(msg, ex);
             }
             URL typesURL =  null;
             if (typesURI.isAbsolute()) {
                 try {
                     typesURL = typesURI.toURL();
                 } catch (MalformedURLException ex) {
-                    throw new ConfigurationException(new ConfigurationMessage("SCHEMA_CREATION_ERROR",
-                                                                              namespaceURI), ex);
+                    Message msg = new Message("SCHEMA_CREATION_ERROR_EXC", LOG, namespaceURI);
+                    throw new ConfigurationException(msg, ex);
                 }
             } else {
                 typesURL = System.class.getResource(typesURI.getPath());
                 if (null == typesURI) {
-                    throw new ConfigurationException(new ConfigurationMessage("SCHEMA_CREATION_ERROR",
-                                                                              namespaceURI));   
+                    Message msg = new Message("SCHEMA_CREATION_ERROR_EXC", LOG, namespaceURI);   
+                    throw new ConfigurationException(msg);   
                 }
             }
             
@@ -476,7 +475,7 @@ class ConfigurationMetadataBuilder  {
         try {
             schema = factory.newSchema(schemaFile);
         } catch (SAXException ex) {
-            throw new ConfigurationException(new ConfigurationMessage("SCHEMA_CREATION_ERROR", path), ex);
+            throw new ConfigurationException(new Message("SCHEMA_CREATION_ERROR_EXC", LOG, path), ex);
         }
         return schema;
     }
@@ -601,7 +600,7 @@ class ConfigurationMetadataBuilder  {
         }
         
         if (null == packageName) {
-            throw new ConfigurationException(new ConfigurationMessage("MISSING_PACKAGE_NAME", namespaceURI));
+            throw new ConfigurationException(new Message("MISSING_PACKAGE_NAME_EXC", LOG, namespaceURI));
         }
         typeSchemaPackages.put(namespaceURI, packageName);    
     }
@@ -620,8 +619,8 @@ class ConfigurationMetadataBuilder  {
             try {
                 schema = factory.newSchema(schemaSources);
             } catch (SAXException ex) {
-                throw new ConfigurationException(new ConfigurationMessage("SCHEMA_CREATION_ERROR", 
-                                                                          getSchemaLocation()), ex);
+                Message msg = new Message("SCHEMA_CREATION_ERROR_EXC", LOG, getSchemaLocation());
+                throw new ConfigurationException(msg, ex);
             }
             Validator validator = schema.newValidator();
 
@@ -631,8 +630,7 @@ class ConfigurationMetadataBuilder  {
             
             validator.validate(new DOMSource(document));
         } catch (SAXException ex) {
-            throw new ConfigurationException(new ConfigurationMessage("METADATA_VALIDATION_ERROR", url
-                .toString()), ex);
+            throw new ConfigurationException(new Message("METADATA_VALIDATION_ERROR_EXC", LOG, url), ex);
         }
     }
     

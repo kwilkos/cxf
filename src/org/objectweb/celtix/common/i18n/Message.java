@@ -3,20 +3,40 @@ package org.objectweb.celtix.common.i18n;
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 public class Message {
     String code;
     Object[] parameters;
+    ResourceBundle bundle;
     
-    public Message(String key, Object...params) {
+    /**
+     * Constructor.
+     *
+     * @param key the message catalog (resource bundle) key
+     * @param logger a logger with an associated resource bundle
+     * @param params the message substitution parameters
+     */
+    public Message(String key, Logger logger, Object...params) {
+        this(key, logger.getResourceBundle(), params);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param key the message catalog (resource bundle) key
+     * @param catalog the resource bundle
+     * @param params the message substitution parameters
+     */
+    public Message(String key, ResourceBundle catalog, Object...params) {
         code = key;
+        bundle = catalog;
         parameters = params;
     }
     
     public String toString() {
         String fmt = null;
         try {
-            ResourceBundle bundle = getResourceBundle();
             if (null == bundle) {
                 return code;
             }
@@ -33,10 +53,5 @@ public class Message {
     
     public Object[] getParameters() {
         return parameters;
-        
-    }
-    
-    protected ResourceBundle getResourceBundle() {
-        return null;
     }
 }
