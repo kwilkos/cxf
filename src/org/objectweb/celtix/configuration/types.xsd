@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://celtix.objectweb.org/config-types" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" targetNamespace="http://celtix.objectweb.org/config-types" elementFormDefault="qualified" jaxb:version="2.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://celtix.objectweb.org/configuration/types" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" targetNamespace="http://celtix.objectweb.org/configuration/types" elementFormDefault="qualified" jaxb:version="2.0">
+    <!--
 	<xs:annotation>
 		<xs:appinfo>
 			<jaxb:schemaBindings>
@@ -7,6 +8,7 @@
 			</jaxb:schemaBindings>
 		</xs:appinfo>
 	</xs:annotation>
+    -->
 	<!-- 
         global elements 
             - can be referenced from other parts of this schema or from other schema documents
@@ -18,6 +20,7 @@
 	<xs:element name="double" type="tns:doubleType"/>
 	<xs:element name="string" type="tns:stringType"/>
 	<xs:element name="stringList" type="tns:stringListType"/>
+	<xs:element name="classNamespaceMappingList" type="tns:classNamespaceMappingListType"/>
 	<!--
         Standard configuration types
     -->
@@ -39,6 +42,19 @@
 	<xs:complexType name="stringListType">
 		<xs:sequence>
 			<xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="classNamespaceMappingType">
+		<xs:sequence>
+			<xs:element name="class" type="xs:string"/>
+			<xs:sequence>
+				<xs:element name="namespace" type="xs:anyURI" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="classNamespaceMappingListType">
+		<xs:sequence>
+			<xs:element name="map" type="tns:classNamespaceMappingType" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

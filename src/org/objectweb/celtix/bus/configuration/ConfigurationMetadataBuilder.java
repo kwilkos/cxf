@@ -9,7 +9,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,16 +37,19 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import org.objectweb.celtix.bus.jaxb.JAXBUtils;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata.LifecyclePolicy;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
 
+
 class ConfigurationMetadataBuilder  {
 
     private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationMetadataBuilder.class);
-    private static final String MEATADATA_NAMESPACE_URI = "http://celtix.objectweb.org/config-metadata";
+    private static final String MEATADATA_NAMESPACE_URI = 
+        "http://celtix.objectweb.org/configuration/metadata";
     private static Validator metadataValidator;
     private static Map<String, Validator> typeValidators;
     private static Schema metadataSchema;
@@ -196,6 +198,7 @@ class ConfigurationMetadataBuilder  {
             throw new ConfigurationException(msg);
         }        
         
+        /*
         if (!validateAgainstComposite) {        
             Validator validator = getTypeValidator(type);
             try {
@@ -207,7 +210,8 @@ class ConfigurationMetadataBuilder  {
                 Message msg = new Message("PARSE_DEFAULT_VALUE_ERROR_EXC", LOG, item.getName());
                 throw new ConfigurationException(msg, ex);
             }
-        }  
+        }
+        */  
         
         unmarshalDefaultValue(item, data);
     }
@@ -220,6 +224,7 @@ class ConfigurationMetadataBuilder  {
         try {
             context = JAXBContext.newInstance(packageName);
             Unmarshaller u = context.createUnmarshaller();
+            u.setSchema(getTypeSchema(data.getNamespaceURI()));
             obj = u.unmarshal(data);
             if (obj instanceof JAXBElement<?>) {
                 JAXBElement<?> el = (JAXBElement<?>)obj;
@@ -405,7 +410,7 @@ class ConfigurationMetadataBuilder  {
     }
 
     private String getSchemaLocation() {
-        URL u = ConfigurationException.class.getResource("config-metadata.xsd");
+        URL u = ConfigurationException.class.getResource("metadata.xsd");
         if (null != u) {
             return u.getFile();
         }
@@ -450,7 +455,8 @@ class ConfigurationMetadataBuilder  {
                 }
             } else {
                 typesURL = System.class.getResource(typesURI.getPath());
-                if (null == typesURI) {
+                if (null == typesURL) {
+                    System.out.println("Could not locate resource: " + typesURI.getPath());
                     Message msg = new Message("SCHEMA_CREATION_ERROR_EXC", LOG, namespaceURI);   
                     throw new ConfigurationException(msg);   
                 }
@@ -596,7 +602,7 @@ class ConfigurationMetadataBuilder  {
         if (null != packageElement) {
             packageName = packageElement.getAttribute("name");
         } else {
-            packageName = getTypeSchemaPackageName(namespaceURI);
+            packageName = JAXBUtils.namespaceURIToPackage(namespaceURI);
         }
         
         if (null == packageName) {
@@ -643,6 +649,7 @@ class ConfigurationMetadataBuilder  {
      * @return the jaxb schema binding package name or null if the property is not defined or does 
      * not contain the corresponding namespaceURI - packagename pair.
      */
+    /*
     private String getTypeSchemaPackageName(String namespaceURI) {
         String value = System.getProperty("org.objectweb.celtix.configuration.schemaBindings");
         if (value != null) {
@@ -656,4 +663,5 @@ class ConfigurationMetadataBuilder  {
         }
         return null;  
     }
+    */
 }

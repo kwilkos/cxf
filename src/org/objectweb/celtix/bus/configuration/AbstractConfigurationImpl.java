@@ -17,7 +17,7 @@ import org.objectweb.celtix.configuration.ConfigurationItem;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
 import org.objectweb.celtix.configuration.Configurator;
-import org.objectweb.celtix.configuration.StringListType;
+import org.objectweb.celtix.configuration.types.StringListType;
 
 public abstract class AbstractConfigurationImpl implements Configuration {
 

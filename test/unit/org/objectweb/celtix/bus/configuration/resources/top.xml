@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cm:config 
-    xmlns:cm="http://celtix.objectweb.org/config-metadata" 
-    xmlns:ct="http://celtix.objectweb.org/config-types" 
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://celtix.objectweb.org/config-metadata
-    c:/celtix/snapshots/andrea/trunk/src/org/objectweb/celtix/configuration/config-metadata.xsd">
+    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata
+    c:/celtix/snapshots/andrea/trunk/src/org/objectweb/celtix/configuration/metadata.xsd">
 
    <!-- configuration metadata for test component top  -->
    
-    <cm:configImport location="/org/objectweb/celtix/configuration/config-types.xsd" namespace="http://celtix.objectweb.org/config-types"/>
+    <cm:configImport location="/org/objectweb/celtix/configuration/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
     
     <!-- items with default values --> 
     

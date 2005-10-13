@@ -13,11 +13,14 @@ import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata.LifecyclePolicy;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
-import org.objectweb.celtix.configuration.StringListType;
+import org.objectweb.celtix.configuration.types.StringListType;
 
 
 public class ConfigurationMetadataTest extends TestCase {
 
+    private static final String TYPES_NAMESPACE_URI = 
+        "http://celtix.objectweb.org/configuration/types";
+    
     public void testStandardTypes() {
              
         ConfigurationMetadata model = buildMetadata("meta1.xml"); 
@@ -26,7 +29,7 @@ public class ConfigurationMetadataTest extends TestCase {
         ConfigurationItemMetadata definition = model.getDefinition("stringListItem");
         assertNotNull(definition);
         assertEquals("stringListItem", definition.getName());
-        assertEquals(new QName("http://celtix.objectweb.org/config-types", "stringList"),
+        assertEquals(new QName(TYPES_NAMESPACE_URI, "stringList"),
                      definition.getType());
         // assertNull(definition.getDescription());
         assertEquals(LifecyclePolicy.STATIC, definition.getLifecyclePolicy());
@@ -34,34 +37,34 @@ public class ConfigurationMetadataTest extends TestCase {
         
        
         definition = model.getDefinition("otherBooleanItem");
-        assertEquals(new QName("http://celtix.objectweb.org/config-types", "boolean"),
+        assertEquals(new QName(TYPES_NAMESPACE_URI, "boolean"),
                      definition.getType());
         // assertNull(definition.getDescription());
         // assertEquals("", definition.getDescription());
         
         definition = model.getDefinition("otherIntegerItem");
-        assertEquals(new QName("http://celtix.objectweb.org/config-types", "integer"),
+        assertEquals(new QName(TYPES_NAMESPACE_URI, "integer"),
                      definition.getType());
         // assertNotNull(definition.getDescription());
         // assertEquals(" ", definition.getDescription());
         assertEquals(LifecyclePolicy.PROCESS, definition.getLifecyclePolicy());
         
         definition = model.getDefinition("otherLongItem");
-        assertEquals(new QName("http://celtix.objectweb.org/config-types", "long"),
+        assertEquals(new QName(TYPES_NAMESPACE_URI, "long"),
                      definition.getType());
         // assertNotNull(definition.getDescription());
         // assertEquals(definition.getName() + " description", definition.getDescription());
         assertEquals(LifecyclePolicy.BUS, definition.getLifecyclePolicy());
         
         definition = model.getDefinition("otherDoubleItem");
-        assertEquals(new QName("http://celtix.objectweb.org/config-types", "double"),
+        assertEquals(new QName(TYPES_NAMESPACE_URI, "double"),
                      definition.getType());
         // assertNotNull(definition.getDescription());
         // assertEquals(definition.getName() + " description", definition.getDescription());
         assertEquals(LifecyclePolicy.DYNAMIC, definition.getLifecyclePolicy()); 
         
         definition = model.getDefinition("otherStringItem");
-        assertEquals(new QName("http://celtix.objectweb.org/config-types", "string"),
+        assertEquals(new QName(TYPES_NAMESPACE_URI, "string"),
                      definition.getType());
     }
 
@@ -117,10 +120,10 @@ public class ConfigurationMetadataTest extends TestCase {
             buildMetadata("meta7.xml");
             fail("Expected ConfigurationException not thrown.");
         } catch (ConfigurationException ex) {
-            assertEquals("INVALID_DEFAULT_VALUE_EXC", ex.getCode());          
+            // assertEquals("INVALID_DEFAULT_VALUE_EXC", ex.getCode());   
+            assertEquals("DEFAULT_VALUE_UNMARSHAL_ERROR_EXC", ex.getCode());
         }
     }
-
     
     public void testDefaultValue() {        
         ConfigurationMetadata model = buildMetadata("meta8.xml"); 
@@ -163,7 +166,9 @@ public class ConfigurationMetadataTest extends TestCase {
         definition = model.getDefinition("stringListItem");
         defaultValue = definition.getDefaultValue();
         assertNotNull(defaultValue);
-        assertEquals("org.objectweb.celtix.configuration.StringListType", defaultValue.getClass().getName());
+
+        assertEquals("org.objectweb.celtix.configuration.types.StringListType", 
+                     defaultValue.getClass().getName());
         List<String> l = ((StringListType)defaultValue).getItem();
         assertNotNull(l);
         assertEquals(3, l.size());
