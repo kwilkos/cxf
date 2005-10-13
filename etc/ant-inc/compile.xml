@@ -66,6 +66,7 @@
         <copy todir="${basedir}/build/classes">
             <fileset dir="${basedir}/src" includes="**/*.properties"/>
             <fileset dir="${basedir}/src" includes="**/*.xsd"/>
+        	<fileset dir="${basedir}/src" includes="**/*.xml"/>
         </copy>
         <antcall target="src.checkstyle"/>
     </target>

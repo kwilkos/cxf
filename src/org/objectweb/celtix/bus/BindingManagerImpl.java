@@ -1,14 +1,15 @@
 package org.objectweb.celtix.bus;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.xml.ws.soap.SOAPBinding;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.BindingManager;
+import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
+import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 
 public class BindingManagerImpl implements BindingManager {
 
@@ -20,9 +21,21 @@ public class BindingManagerImpl implements BindingManager {
         bus = b;
         
         // TODO - config instead of hard coded
+        /*
         loadBindingFactory("org.objectweb.celtix.bus.bindings.soap.SOAPBindingFactory",
                              "http://schemas.xmlsoap.org/wsdl/soap/",
-                             SOAPBinding.SOAP11HTTP_BINDING);        
+                             SOAPBinding.SOAP11HTTP_BINDING); 
+        */
+        Object obj = bus.getConfiguration().getObject("bindingFactories");
+        
+        List<ClassNamespaceMappingType> factoryMappings = ((ClassNamespaceMappingListType)obj).getMap();
+        for (ClassNamespaceMappingType mapping : factoryMappings) {
+            String classname = mapping.getClassname();
+            List<String> namespaceList = mapping.getNamespace();
+            String[] namespaces = new String[namespaceList.size()];
+            namespaceList.toArray(namespaces);
+            loadBindingFactory(classname, namespaces);
+        }
     }
     
     private void loadBindingFactory(String className, String ...namespaceURIs) throws BusException {

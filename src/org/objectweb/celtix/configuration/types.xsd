@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://celtix.objectweb.org/configuration/types" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" targetNamespace="http://celtix.objectweb.org/configuration/types" elementFormDefault="qualified" jaxb:version="2.0">
-    <!--
+	<!--
 	<xs:annotation>
 		<xs:appinfo>
 			<jaxb:schemaBindings>
@@ -46,14 +46,14 @@
 	</xs:complexType>
 	<xs:complexType name="classNamespaceMappingType">
 		<xs:sequence>
-			<xs:element name="class" type="xs:string"/>
+			<xs:element name="classname" type="xs:string"/>
 			<xs:sequence>
 				<xs:element name="namespace" type="xs:anyURI" maxOccurs="unbounded"/>
 			</xs:sequence>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="classNamespaceMappingListType">
-		<xs:sequence>
+		<xs:sequence id="mappings">
 			<xs:element name="map" type="tns:classNamespaceMappingType" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>

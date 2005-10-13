@@ -1,10 +1,13 @@
 package org.objectweb.celtix.bus;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
+import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.transports.TransportFactoryManager;
 
@@ -17,11 +20,21 @@ public class TransportFactoryManagerImpl implements TransportFactoryManager {
         transportFactories = new ConcurrentHashMap<String, TransportFactory>();
         bus = b;
         
-        // TODO - config instead of hard coded
+        /*
         loadTransportFactory("org.objectweb.celtix.bus.transports.http.HTTPTransportFactory",
                              "http://schemas.xmlsoap.org/wsdl/soap/",
                              "http://celtix.objectweb.org/transports/http/configuration");
+        */
+        Object obj = bus.getConfiguration().getObject("transportFactories");
         
+        List<ClassNamespaceMappingType> factoryMappings = ((ClassNamespaceMappingListType)obj).getMap();
+        for (ClassNamespaceMappingType mapping : factoryMappings) {
+            String classname = mapping.getClassname();
+            List<String> namespaceList = mapping.getNamespace();
+            String[] namespaces = new String[namespaceList.size()];
+            namespaceList.toArray(namespaces);
+            loadTransportFactory(classname, namespaces);
+        }
     }
     
     public void loadTransportFactory(String classname, String ... namespaces) throws BusException {
