@@ -7,7 +7,7 @@ import junit.framework.*;
 
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.BindingManager;
-import org.objectweb.celtix.bus.CeltixBus;
+import org.objectweb.celtix.bus.busimpl.CeltixBus;
 
 public class BusTest extends TestCase {
 
@@ -17,7 +17,7 @@ public class BusTest extends TestCase {
         assertTrue("Bus not a Celtix bus", bus instanceof CeltixBus);
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(BusFactory.BUS_CLASS_PROPERTY, "com.foo.bar.Bus");
+        map.put(Bus.BUS_CLASS_PROPERTY, "com.foo.bar.Bus");
         try {
             bus = Bus.init(null, map);            
             fail("Should have thrown an exception");

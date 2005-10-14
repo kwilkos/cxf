@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus;
+package org.objectweb.celtix.bus.jaxws;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;

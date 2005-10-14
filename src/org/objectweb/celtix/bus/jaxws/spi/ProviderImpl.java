@@ -9,9 +9,9 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.EndpointImpl;
-import org.objectweb.celtix.bus.EndpointUtils;
-import org.objectweb.celtix.bus.ServiceImpl;
+import org.objectweb.celtix.bus.jaxws.EndpointImpl;
+import org.objectweb.celtix.bus.jaxws.EndpointUtils;
+import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
 
 public class ProviderImpl extends javax.xml.ws.spi.Provider {

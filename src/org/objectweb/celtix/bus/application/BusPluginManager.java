@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus;
+package org.objectweb.celtix.bus.application;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.application.ApplicationPluginManager;

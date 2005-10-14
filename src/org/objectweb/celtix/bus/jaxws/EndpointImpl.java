@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus;
+package org.objectweb.celtix.bus.jaxws;
 
 import java.io.IOException;
 import java.util.List;

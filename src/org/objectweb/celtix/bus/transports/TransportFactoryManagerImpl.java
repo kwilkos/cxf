@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus;
+package org.objectweb.celtix.bus.transports;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +16,7 @@ public class TransportFactoryManagerImpl implements TransportFactoryManager {
     private final Map<String, TransportFactory> transportFactories;
     private final Bus bus;
       
-    TransportFactoryManagerImpl(Bus b) throws BusException {
+    public TransportFactoryManagerImpl(Bus b) throws BusException {
         transportFactories = new ConcurrentHashMap<String, TransportFactory>();
         bus = b;
         

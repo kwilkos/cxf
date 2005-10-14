@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus;
+package org.objectweb.celtix.bus.bindings;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +16,7 @@ public class BindingManagerImpl implements BindingManager {
     private final Map<String, BindingFactory> bindingFactories;
     private final Bus bus;
     
-    BindingManagerImpl(Bus b) throws BusException {
+    public BindingManagerImpl(Bus b) throws BusException {
         bindingFactories = new ConcurrentHashMap<String, BindingFactory>();
         bus = b;
         

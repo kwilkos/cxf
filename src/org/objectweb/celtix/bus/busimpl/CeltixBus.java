@@ -1,11 +1,16 @@
-package org.objectweb.celtix.bus;
+package org.objectweb.celtix.bus.busimpl;
 
 import java.util.Map;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingManager;
+import org.objectweb.celtix.bus.bindings.BindingManagerImpl;
+import org.objectweb.celtix.bus.handlers.HandlerFactoryManagerImpl;
+import org.objectweb.celtix.bus.jaxws.EndpointRegistry;
+import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
+import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
@@ -28,11 +33,11 @@ public class CeltixBus extends Bus {
     private WorkQueueManager workQueueManager;
     
     /**
-     * Protected constructor used by the <code>BusManager</code> to create a new bus.
+     * Used by the <code>BusFactory</code> to initialize a new bus.
      * 
      * @param args the command line configuration of this <code>Bus</code>.
      */
-    protected void initialize(String[] args, Map<String, Object> properties)
+    public void initialize(String[] args, Map<String, Object> properties)
         throws BusException {
 
         lifeCycleManager = new CeltixBusLifeCycleManager();

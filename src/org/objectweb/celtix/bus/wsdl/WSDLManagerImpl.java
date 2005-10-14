@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus;
+package org.objectweb.celtix.bus.wsdl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -29,7 +29,7 @@ import org.objectweb.celtix.wsdl.WSDLManager;
  * 
  * @author dkulp
  */
-class WSDLManagerImpl implements WSDLManager {
+public class WSDLManagerImpl implements WSDLManager {
 
     private static final Logger LOG = LogUtils.getL7dLogger(WSDLManagerImpl.class);
 
@@ -37,7 +37,7 @@ class WSDLManagerImpl implements WSDLManager {
     final WSDLFactory factory;
     final WeakHashMap<Object, Definition> definitionsMap;
 
-    WSDLManagerImpl(Bus bus) throws BusException {
+    public WSDLManagerImpl(Bus bus) throws BusException {
         try {
             factory = WSDLFactory.newInstance();
             registry = factory.newPopulatedExtensionRegistry();

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus;
+package org.objectweb.celtix.bus.handlers;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
@@ -8,7 +8,7 @@ import org.objectweb.celtix.handlers.HandlerFactoryManager;
 
 public class HandlerFactoryManagerImpl implements HandlerFactoryManager {
 
-    HandlerFactoryManagerImpl(Bus bus) {
+    public HandlerFactoryManagerImpl(Bus bus) {
     }
 
 

@@ -1,4 +1,4 @@
-package org.objectweb.celtix;
+package org.objectweb.celtix.bus.busimpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,17 +7,17 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
+import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.configuration.CommandLineOption;
 
 /**
  * Manages the <code>Bus</code> instances in a process.
  */
-final class BusFactory {
-
-    static final String BUS_CLASS_PROPERTY = "org.objectweb.celtix.BusClass";
+public final class BusFactory {
 
     private static final CommandLineOption BUS_CLASS_OPT;
-    private static final String DEFAULT_BUS_CLASSNAME = "org.objectweb.celtix.bus.CeltixBus";
+    private static final String DEFAULT_BUS_CLASSNAME = "org.objectweb.celtix.bus.busimpl.CeltixBus";
     private static BusFactory theInstance;
     
     static {
@@ -27,7 +27,7 @@ final class BusFactory {
     private BusFactory() {
     }
     
-    static BusFactory getInstance() {
+    public static BusFactory getInstance() {
         synchronized (BusFactory.class) {
             if (null == theInstance) {
                 theInstance = new BusFactory();
@@ -36,7 +36,9 @@ final class BusFactory {
         return theInstance;
     }
     
-    Bus getBus(String[] args, Map<String, Object> properties, ClassLoader classLoader) throws BusException {
+    public Bus getBus(String[] args, 
+                      Map<String, Object> properties, 
+                      ClassLoader classLoader) throws BusException {
         
         // check command line options and properties to
         // determine bus class 
@@ -91,19 +93,19 @@ final class BusFactory {
         }
         
         // next check properties    
-        busClass = (String)properties.get(BUS_CLASS_PROPERTY);
+        busClass = (String)properties.get(Bus.BUS_CLASS_PROPERTY);
         if (null != busClass && !"".equals(busClass)) {
             return busClass;
         }
         
         // next check system properties
-        busClass = System.getProperty(BUS_CLASS_PROPERTY);
+        busClass = System.getProperty(Bus.BUS_CLASS_PROPERTY);
         if (null != busClass && !"".equals(busClass)) {
             return busClass;
         }
     
         // next, check for the services stuff in the jar file
-        String serviceId = "META-INF/services/" + BUS_CLASS_PROPERTY;
+        String serviceId = "META-INF/services/" + Bus.BUS_CLASS_PROPERTY;
         InputStream is = null;
         
         if (classLoader == null) {

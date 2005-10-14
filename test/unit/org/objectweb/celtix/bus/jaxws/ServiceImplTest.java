@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus;
+package org.objectweb.celtix.bus.jaxws;
 
 import javax.xml.ws.handler.HandlerResolver;
 

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.celtix.bindings.BindingManager;
+import org.objectweb.celtix.bus.busimpl.BusFactory;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
@@ -14,6 +15,8 @@ import org.objectweb.celtix.wsdl.WSDLManager;
 
 public abstract class Bus {
     
+    public static final String BUS_CLASS_PROPERTY = "org.objectweb.celtix.BusClass";
+
     private static ThreadLocal<Bus> current = new ThreadLocal<Bus>();
     
     /**
@@ -121,7 +124,7 @@ public abstract class Bus {
      */
     public abstract void run();
     
-    protected abstract void initialize(String[] args,
+    public abstract void initialize(String[] args,
             Map<String, Object> properties) throws BusException;
 
 

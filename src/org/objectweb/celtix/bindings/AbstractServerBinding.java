@@ -16,7 +16,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.bus.EndpointUtils;
+import org.objectweb.celtix.bus.jaxws.EndpointUtils;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;

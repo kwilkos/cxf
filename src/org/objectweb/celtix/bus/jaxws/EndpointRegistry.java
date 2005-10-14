@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus;
+package org.objectweb.celtix.bus.jaxws;
 
 import java.util.List;
 import java.util.Vector;
@@ -15,7 +15,7 @@ public class EndpointRegistry {
     private Bus bus;
     private List<EndpointImpl> endpoints;
 
-    EndpointRegistry(Bus b) {
+    public EndpointRegistry(Bus b) {
         bus = b;
         endpoints = new Vector<EndpointImpl>();
     }
