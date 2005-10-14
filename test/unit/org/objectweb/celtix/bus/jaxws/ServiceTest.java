@@ -1,4 +1,4 @@
-package org.objectweb.celtix;
+package org.objectweb.celtix.bus.jaxws;
 
 import java.lang.reflect.Proxy;
 import java.util.Iterator;
@@ -8,6 +8,7 @@ import javax.xml.ws.spi.Provider;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.jaxws.spi.ProviderImpl;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.SOAPService;
@@ -16,12 +17,15 @@ public class ServiceTest extends TestCase {
 
     public ServiceTest(String arg0) {
         super(arg0);
-        System.setProperty(Provider.JAXWSPROVIDER_PROPERTY, 
-            ProviderImpl.JAXWS_PROVIDER);
     }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ServiceTest.class);
+    }
+
+    public void setUp() {
+        System.setProperty(Provider.JAXWSPROVIDER_PROPERTY, 
+            ProviderImpl.JAXWS_PROVIDER);
     }
 
     /*

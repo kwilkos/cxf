@@ -1,7 +1,6 @@
-package org.objectweb.celtix.tools.wsdl2java;
+package org.objectweb.celtix.tools;
 
 
-import org.objectweb.celtix.tools.Wsdl2Java;
 import org.objectweb.celtix.tools.common.DelegatingToolTestBase;
 import org.objectweb.celtix.tools.common.Generator;
 import org.objectweb.celtix.tools.common.ToolBase;
