@@ -102,12 +102,28 @@ public class AutomaticWorkQueueTest extends TestCase {
             //
             for (int i = 0; i < DEFAULT_HIGH_WATER_MARK; i++) {
                 workItems[i] = new BlockingWorkItem();
-                workqueue.execute(workItems[i]);
+                try {
+                    workqueue.execute(workItems[i]);
+                } catch (RejectedExecutionException ex) {
+                    fail("failed on item[" + i + "] with: " + ex);
+                }
+            }
+
+            while (workqueue.getActiveCount() < INITIAL_SIZE) {
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
             }
 
             for (int i = 0; i < DEFAULT_MAX_QUEUE_SIZE; i++) {
                 fillers[i] = new BlockingWorkItem();
-                workqueue.execute(fillers[i]);
+                try {
+                    workqueue.execute(fillers[i]);
+                } catch (RejectedExecutionException ex) {
+                    fail("failed on filler[" + i + "] with: " + ex);
+                }
             }
 
             // give threads a chance to start executing the work items

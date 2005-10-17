@@ -98,13 +98,13 @@ public class ServerBindingTest extends TestCase {
         // method nor defined at all 
         try {
             tsb.triggerTransport(); 
-            assertEquals(0, implementor.getInvocationCount("sayHi"));
-            assertEquals(0, implementor.getInvocationCount("overloadedSayHi"));
-            assertEquals(0, implementor.getInvocationCount("greetMe"));
-        } catch (Exception ex) {
+            fail("expected WebServiceException as currentOperation not set");
+        } catch (WebServiceException ex) {
             //expected WebServiceException as currentOperation not set
-            assertTrue(ex instanceof WebServiceException);
         }
+        assertEquals(0, implementor.getInvocationCount("sayHi"));
+        assertEquals(0, implementor.getInvocationCount("overloadedSayHi"));
+        assertEquals(0, implementor.getInvocationCount("greetMe"));
         
         // method without annotation
         tsb.currentOperation = "sayHi";
