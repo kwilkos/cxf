@@ -2,11 +2,12 @@ package org.objectweb.celtix.bus.jaxws;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.jws.Oneway;
 import javax.wsdl.Port;
@@ -20,6 +21,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ClientBinding;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.celtix.wsdl.WSDLManager;
@@ -27,6 +29,7 @@ import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class EndpointInvocationHandler implements BindingProvider, InvocationHandler
 {
+    private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
     protected ClientBinding clientBinding;
     protected Map<String, Object> requestContext;
     protected Map<String, Object> responseContext;
@@ -41,13 +44,16 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         clientBinding = createBinding(reference);
     }
 
-    public Object invoke(Object proxy, Method method, Object args[])
-        throws IOException, IllegalAccessException, InvocationTargetException {
-        
-        if (portTypeInterface.equals(method.getDeclaringClass())) {
-            return invokeSEIMethod(proxy, method, args);
-        } else {
-            return method.invoke(this, args);
+    public Object invoke(Object proxy, Method method, Object args[]) {
+        try {
+            if (portTypeInterface.equals(method.getDeclaringClass())) {
+                return invokeSEIMethod(proxy, method, args);
+            } else {
+                return method.invoke(this, args);
+            }
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "invoke failed", ex);
+            throw new WebServiceException(ex);          
         }
     }
 

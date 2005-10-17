@@ -5,6 +5,7 @@ import java.util.concurrent.Executor;
 
 import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.spi.Provider;
 
 import junit.framework.TestCase;
@@ -94,13 +95,16 @@ public class ServerBindingTest extends TestCase {
 
         // simulate transport events
         // REVISIT: exception handling, see comment in AbstractServerBinding
-
         // method nor defined at all 
-        
-        tsb.triggerTransport(); 
-        assertEquals(0, implementor.getInvocationCount("sayHi"));
-        assertEquals(0, implementor.getInvocationCount("overloadedSayHi"));
-        assertEquals(0, implementor.getInvocationCount("greetMe"));
+        try {
+            tsb.triggerTransport(); 
+            assertEquals(0, implementor.getInvocationCount("sayHi"));
+            assertEquals(0, implementor.getInvocationCount("overloadedSayHi"));
+            assertEquals(0, implementor.getInvocationCount("greetMe"));
+        } catch (Exception ex) {
+            //expected WebServiceException as currentOperation not set
+            assertTrue(ex instanceof WebServiceException);
+        }
         
         // method without annotation
         tsb.currentOperation = "sayHi";

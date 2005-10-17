@@ -12,7 +12,9 @@ import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.ServiceMode;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
+
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
@@ -106,7 +108,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             read(inCtx, requestCtx);
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, "REQUEST_UNREADABLE_MSG", ex);
-            return;
+            throw new WebServiceException(ex);
         }
 
         // invoke handlers
@@ -120,8 +122,9 @@ public abstract class AbstractServerBinding implements ServerBinding {
             } else {
                 replyCtx = invokeOnMethod(requestCtx);
             }
-        } catch (RemoteException ex) {
+        } catch (Exception ex) {
             LOG.log(Level.SEVERE, "PROVIDER_INVOCATION_FAILURE_MSG", ex);
+            throw new WebServiceException(ex);
         }
 
         try {
@@ -132,6 +135,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             write(replyCtx, outCtx);
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
+            throw new WebServiceException(ex);
         }
         
         LOG.info("Dispatch complete on thread : " + Thread.currentThread());
@@ -149,14 +153,14 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
         if (null == operationName) {
             LOG.severe("CONTEXT_MISSING_OPERATION_NAME_MSG");
-            return replyCtx;
+            throw new WebServiceException("Request Context does not include operation name");
         }
         
         // get implementing method
         Method method = EndpointUtils.getMethod(endpoint, operationName);
         if (method == null) {
             LOG.log(Level.SEVERE, "IMPLEMENTOR_MISSING_METHOD_MSG", operationName);
-            return replyCtx;
+            throw new WebServiceException("Web method: " + operationName + " not found in implementor.");
         }
 
         // unmarshal arguments for method call - includes transferring the
