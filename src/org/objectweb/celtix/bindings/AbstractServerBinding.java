@@ -15,9 +15,11 @@ import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
+import org.objectweb.celtix.bus.context.WebServiceContextImpl;
+import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.bus.jaxws.EndpointUtils;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.GenericMessageContext;
@@ -52,15 +54,15 @@ public abstract class AbstractServerBinding implements ServerBinding {
         
         ServerTransportCallback tc = new ServerTransportCallback() {
 
-            public void dispatch(InputStreamMessageContext ctx, ServerTransport t) {
-                AbstractServerBinding.this.dispatch(ctx, t);               
-            }
+                public void dispatch(InputStreamMessageContext ctx, ServerTransport t) {
+                    AbstractServerBinding.this.dispatch(ctx, t);               
+                }
 
-            public Executor getExecutor() {
-                return AbstractServerBinding.this.getEndpoint().getExecutor();
-            }
+                public Executor getExecutor() {
+                    return AbstractServerBinding.this.getEndpoint().getExecutor();
+                }
 
-        };
+            };
         
         transport.activate(tc);
     }
@@ -82,10 +84,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
     
     protected abstract void marshalFault(ObjectMessageContext objCtx, MessageContext replyCtx);
 
-    protected void unmarshal(MessageContext requestCtx, ObjectMessageContext objCtx) {
-        QName operationName = getOperationName(requestCtx);
-        objCtx.put(MessageContext.WSDL_OPERATION, operationName);
-    }
+    protected abstract void unmarshal(MessageContext requestCtx, ObjectMessageContext objCtx);
 
     protected abstract void write(MessageContext replyCtx, OutputStreamMessageContext outCtx)
         throws IOException;
@@ -98,6 +97,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
     protected void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
         LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
         MessageContext requestCtx = createBindingMessageContext(inCtx);
+            
 
         //Input Message
         requestCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
@@ -111,10 +111,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             throw new WebServiceException(ex);
         }
 
-        // invoke handlers
-
         MessageContext replyCtx = null;
-
         ServiceMode mode = EndpointUtils.getServiceMode(endpoint);
         try {
             if (null != mode) {
@@ -131,7 +128,6 @@ public abstract class AbstractServerBinding implements ServerBinding {
             OutputStreamMessageContext outCtx = t.createOutputStreamContext(inCtx);
             // TODO - invoke output stream handlers
             t.finalPrepareOutputStreamContext(outCtx);
-
             write(replyCtx, outCtx);
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
@@ -141,21 +137,33 @@ public abstract class AbstractServerBinding implements ServerBinding {
         LOG.info("Dispatch complete on thread : " + Thread.currentThread());
     }
 
+    private QName getOperationName(MessageContext requestCtx, ObjectMessageContext objContext) {
+
+        QName operationName = getOperationName(requestCtx);
+        if (null != operationName) {
+            objContext.put(MessageContext.WSDL_OPERATION, operationName);
+        } else {
+            LOG.severe("CONTEXT_MISSING_OPERATION_NAME_MSG");
+        }
+        return operationName;
+    }
+
+
     private MessageContext invokeOnMethod(MessageContext requestCtx) {
 
         // get operation name from message context and identify method
         // in implementor
         //REVISIT replyCtx should be created once the method is invoked
+        ObjectMessageContext objContext = createObjectContext();
         MessageContext replyCtx = createBindingMessageContext(new GenericMessageContext());
         assert replyCtx != null;
-        
-        QName operationName = getOperationName(requestCtx);
 
-        if (null == operationName) {
-            LOG.severe("CONTEXT_MISSING_OPERATION_NAME_MSG");
+        
+        QName operationName;
+        if ((operationName = getOperationName(requestCtx, objContext)) == null) {
             throw new WebServiceException("Request Context does not include operation name");
         }
-        
+
         // get implementing method
         Method method = EndpointUtils.getMethod(endpoint, operationName);
         if (method == null) {
@@ -166,24 +174,33 @@ public abstract class AbstractServerBinding implements ServerBinding {
         // unmarshal arguments for method call - includes transferring the
         // operationName from the message context into the object context
 
-        ObjectMessageContext objContext = createObjectContext();
         objContext.setMethod(method);
        
         unmarshal(requestCtx, objContext);
         
-        // get parameters from object context and invoke on implementor
+        new WebServiceContextImpl(objContext); 
+        HandlerChainInvoker invoker = new HandlerChainInvoker(getBinding().getHandlerChain(), false); 
+        LogicalMessageContextImpl lmctx = new LogicalMessageContextImpl(objContext);
+        objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
+        boolean continueProcessing = invoker.invokeLogicalHandlers(lmctx);
 
-        Object result = null;
-        Object params[] = (Object[])objContext.getMessageObjects();
-
+        
         try {
-            result = method.invoke(getEndpoint().getImplementor(), params);
-            objContext.setReturn(result);
-
-            replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
-            if (null != replyCtx) {
-                marshal(objContext, replyCtx);
+            if (continueProcessing) {
+                // get parameters from object context and invoke on implementor
+                Object params[] = (Object[])objContext.getMessageObjects();
+                Object result = method.invoke(getEndpoint().getImplementor(), params);
+                objContext.setReturn(result);
             }
+
+            objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
+            objContext.remove(ObjectMessageContext.MESSAGE_PAYLOAD);
+            objContext.setMessageObjects((Object[])null);
+            invoker.setOutbound(); 
+            invoker.invokeLogicalHandlers(lmctx);
+            replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
+            marshal(objContext, replyCtx);
+
         } catch (IllegalAccessException ex) {
             LogUtils.log(LOG, Level.SEVERE, "IMPLEMENTOR_INVOCATION_FAILURE_MSG", ex, method.getName());
             objContext.setException(ex);
@@ -199,7 +216,9 @@ public abstract class AbstractServerBinding implements ServerBinding {
             if (null != objContext.getException()) {
                 marshalFault(objContext, replyCtx);
             }
+            invoker.mepComplete(lmctx); 
         }
+
         return replyCtx;
     }
     

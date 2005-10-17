@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -16,7 +17,6 @@ import java.util.logging.Logger;
 import javax.jws.WebParam;
 import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
-
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
@@ -25,7 +25,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
-
 import javax.xml.ws.WebFault;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
@@ -37,6 +36,7 @@ import org.w3c.dom.Node;
 import org.objectweb.celtix.bus.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.helpers.WrapperHelper;
 
 public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(SOAPBindingImpl.class);
@@ -89,7 +89,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         throws SOAPException {
 
         boolean isInputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
-        
+
         SOAPMessage msg = initSOAPMessage();
         SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
 
@@ -101,6 +101,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         if (msg.saveRequired()) {
             msg.saveChanges();
         }
+        
         return msg;
     }
 
@@ -280,7 +281,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
 
             if (isOutBound && !"void".equals(method.getReturnType().getName())) {
-                setWrappedPart(wrapperObj, objCtx.getReturn());
+                setWrappedPart(messageInfo.getWebResult().getLocalPart(), wrapperObj, objCtx.getReturn());
             }
             
             //Add the in,inout,out args depend on the inputMode
@@ -291,7 +292,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             for (int idx = 0; idx < noArgs; idx++) {
                 WebParam param = messageInfo.getWebParam(idx);
                 if ((param.mode() != ignoreParamMode) && !param.header()) {
-                    setWrappedPart(wrapperObj, args[idx]);
+                    setWrappedPart(param.partName(), wrapperObj, args[idx]);
                 }
             }
 
@@ -334,21 +335,17 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         return str.substring(0, str.lastIndexOf('.'));
     }
     
-    private void setWrappedPart(Object wrapperType, Object part) throws SOAPException {
+    private void setWrappedPart(String name, Object wrapperType, Object part) throws SOAPException {
+
         try {
-            Method elMethods[] = wrapperType.getClass().getMethods();
-            for (Method method : elMethods) {
-                if (method.getParameterTypes().length == 1
-                    && method.getParameterTypes()[0].equals(part.getClass())) {
-                    method.invoke(wrapperType, part);
-                }
-            }
+            WrapperHelper.setWrappedPart(name, wrapperType, part);
         } catch (Exception ex) {
             throw new SOAPException("Could not set parts into wrapper element", ex);
         }
     }
     
-    private Object getWrappedPart(Object wrapperType, Class<?> part) throws SOAPException {
+
+    Object getWrappedPart(Object wrapperType, Class<?> part) throws SOAPException {
         try {
             Method elMethods[] = wrapperType.getClass().getMethods();
             for (Method method : elMethods) {
@@ -387,11 +384,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         SOAPMessage msg = msgFactory.createMessage();
         msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION,  "true");
         msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(
-                            W3CConstants.NP_SCHEMA_XSD, 
-                            W3CConstants.NU_SCHEMA_XSD);
+                                                                W3CConstants.NP_SCHEMA_XSD, 
+                                                                W3CConstants.NU_SCHEMA_XSD);
         msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(
-                            W3CConstants.NP_SCHEMA_XSI, 
-                            W3CConstants.NU_SCHEMA_XSI);
+                                                                W3CConstants.NP_SCHEMA_XSI, 
+                                                                W3CConstants.NU_SCHEMA_XSI);
 
         //SOAP Headers not supported
         msg.getSOAPHeader().detachNode(); 

@@ -28,6 +28,10 @@ public class HandlerChainInvoker {
     private boolean handlerProcessingAborted; 
     
     public HandlerChainInvoker(List<Handler> hc) {
+        this(hc, true);
+    } 
+
+    public HandlerChainInvoker(List<Handler> hc, boolean isOutbound) {
         LOG.log(Level.FINE, "invoker for chain size: ", hc != null ? hc.size() : 0);
         
         if (hc != null) { 
@@ -39,7 +43,7 @@ public class HandlerChainInvoker {
                 }
             }
         }
-        outbound = true;
+        outbound = isOutbound;
     }
 
     public <T extends MessageContext> boolean invokeLogicalHandlers(MessageContext ctx) {        
@@ -89,6 +93,11 @@ public class HandlerChainInvoker {
         outbound = false;
     }
 
+    public void setOutbound() {
+        outbound = true;
+    }
+
+
     public void mepComplete(MessageContext ctx) {
 
         LOG.log(Level.FINE, "closing protocol handlers - handler count:", invokedHandlers.size());
@@ -135,7 +144,9 @@ public class HandlerChainInvoker {
         boolean continueProcessing = true; 
         
         for (Handler h : handlerChain) {
-            invokedHandlers.add(h);
+            if (!invokedHandlers.contains(h)) { 
+                invokedHandlers.add(h);
+            }
             continueProcessing = h.handleMessage(ctx);
 
             if (!continueProcessing) {

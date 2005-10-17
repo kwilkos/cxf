@@ -78,6 +78,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
             SOAPMessage msg = soapBinding.marshalMessage(objContext, context);
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
+            se.printStackTrace();
             LOG.log(Level.SEVERE, "SOAP_MARSHALLING_FAILURE_MSG", se);
         }
     }

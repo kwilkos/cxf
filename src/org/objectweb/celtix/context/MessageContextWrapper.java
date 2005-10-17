@@ -69,4 +69,8 @@ public class MessageContextWrapper implements MessageContext {
         return context.entrySet();
     }
 
+
+    public MessageContext getWrappedContext() { 
+        return context;
+    }
 }

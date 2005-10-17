@@ -1,25 +1,28 @@
 package org.objectweb.celtix.bus.jaxws;
 
+
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ServerBinding;
+import org.objectweb.celtix.bus.context.WebServiceContextImpl;
 import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.injection.ResourceInjector;
+import org.objectweb.celtix.common.injection.ResourceResolver;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
@@ -57,6 +60,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             }
         }
         serverBinding = createServerBinding(bindingId);
+        injectResources();
     }
 
     /*
@@ -241,6 +245,18 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     public void setProperties(Map<String, Object> arg0) {
         // TODO Auto-generated method stub
         
+    }
+
+
+    private void injectResources() { 
+
+        ResourceInjector injector = new ResourceInjector(new ResourceResolver() { 
+                public Object resolve(String resourceName, Class<?> resourceType) {
+                    return new WebServiceContextImpl();
+                }
+            });
+
+        injector.inject(implementor);
     }
 
 }

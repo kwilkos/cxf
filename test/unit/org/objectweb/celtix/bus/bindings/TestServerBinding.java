@@ -62,7 +62,6 @@ public class TestServerBinding extends AbstractServerBinding {
     }
 
     protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
-        super.unmarshal(context, objContext);
         // populate object context with test data depending on current operation
         // name
         if (currentOperation.equals("greetMe")) {

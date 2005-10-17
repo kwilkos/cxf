@@ -81,11 +81,14 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
         try { 
             MessageContext bindingContext = createBindingMessageContext(context);
+
             LogicalMessageContextImpl lmctx = new LogicalMessageContextImpl(bindingContext);
+
+            //Input Message For Client
+            bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
             boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(lmctx);
+
             if (continueProcessing) {  
-                //Input Message For Client
-                bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
                 
                 if (null != bindingContext) {
                     marshal(context, bindingContext);
@@ -122,6 +125,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
                 unmarshal(bindingContext, context);
             }
+            handlerInvoker.setInbound();
             handlerInvoker.invokeLogicalHandlers(lmctx);
         } finally { 
             handlerInvoker.mepComplete(context);

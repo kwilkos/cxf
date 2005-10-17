@@ -1,12 +1,13 @@
 package org.objectweb.celtix.bus.jaxws;
 
+
+
+
 import java.util.Properties;
-
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.spi.Provider;
-
 import junit.framework.TestCase;
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingManager;
@@ -19,6 +20,7 @@ public class EndpointImplTest extends TestCase {
     private String epfClassName;
     private Bus bus;
     private Endpoint endpoint;
+    private AnnotatedGreeterImpl servant; 
 
     public void setUp() throws Exception {
         epfClassName = System.getProperty(Provider.JAXWSPROVIDER_PROPERTY);
@@ -27,7 +29,8 @@ public class EndpointImplTest extends TestCase {
         bus = Bus.init();
         BindingManager bm = bus.getBindingManager();
         bm.registerBinding(TestBinding.TEST_BINDING, new TestBindingFactory(bus));
-        endpoint = Endpoint.create(TestBinding.TEST_BINDING, new AnnotatedGreeterImpl());
+        servant = new AnnotatedGreeterImpl();
+        endpoint = Endpoint.create(TestBinding.TEST_BINDING, servant);
 
     }
 
@@ -63,6 +66,17 @@ public class EndpointImplTest extends TestCase {
 
     public void testPublishUsingContext() throws Exception {
         // TODO
+    }
+
+
+    public void testResourceInjectionApplicationContext() { 
+        
+     
+        // WebServiceContext is specified by a resource annotation.
+        // This should be inject when the endpoing is published.
+        //
+        WebServiceContext ctx = servant.getContext();
+        assertNotNull(ctx);
     }
 
 }

@@ -201,6 +201,10 @@ lengths, if/try depths, etc...
         <module name="VisibilityModifier">
             <property name="protectedAllowed" value="true"/>
             <property name="packageAllowed" value="true"/>
+	    <!-- this is needed for the resource injection unit tests.  It will removed 
+		 when private member inject is supported.
+	    -->
+	    <property name="publicMemberPattern" value="resource[12].*"/>
         </module>
 
 
@@ -231,7 +235,10 @@ lengths, if/try depths, etc...
             <property name="message" value="Line has trailing spaces."/>
         </module>
         -->
-        <module name="TodoComment"/>
+        <module name="TodoComment">
+	  <property name="format" value="WARNING"/>
+	</module>
+
         <module name="UpperEll"/>
         
         <!--Assert statement may have side effects:-->

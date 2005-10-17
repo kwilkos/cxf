@@ -2,13 +2,14 @@ package org.objectweb.celtix.bus.context;
 
 
 
+
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.xml.bind.JAXBContext;
@@ -16,19 +17,19 @@ import javax.xml.transform.Source;
 import javax.xml.ws.LogicalMessage;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
-import javax.xml.ws.handler.LogicalMessageContext;
-
+import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.helpers.WrapperHelper;
 
 public class LogicalMessageImpl implements LogicalMessage {
 
     private static final Logger LOG = LogUtils.getL7dLogger(LogicalMessageImpl.class); 
 
-    private final LogicalMessageContext msgContext;
+    private final LogicalMessageContextImpl msgContext;
     
-    public LogicalMessageImpl(LogicalMessageContext lmctx) {
+    public LogicalMessageImpl(LogicalMessageContextImpl lmctx) {
         msgContext = lmctx;
     }
 
@@ -58,10 +59,11 @@ public class LogicalMessageImpl implements LogicalMessage {
     private void buildMessagePayload() {
 
         Object payload = null; 
-        
-        if (isOutboundRequest()) { 
+
+        if (isRequest()) { 
             Object[] args = (Object[])msgContext.get(ObjectMessageContextImpl.METHOD_PARAMETERS);
             if (args == null || args.length == 0) {
+                
                 // no arguments expected in message, so leave payload as
                 // null and return
                 assert msgContext.get(ObjectMessageContext.MESSAGE_PAYLOAD) == null;
@@ -76,9 +78,7 @@ public class LogicalMessageImpl implements LogicalMessage {
 
 
     private Object buildPayloadFromResponse() { 
-        
         Method m = (Method)msgContext.get(ObjectMessageContextImpl.METHOD_OBJ);
-
         // TODO -- add support for 'out' params
         //
         if (!Void.TYPE.equals(m.getReturnType())) {
@@ -88,7 +88,7 @@ public class LogicalMessageImpl implements LogicalMessage {
             assert wr != null : "WebResult is null for method " + m; 
 
             Object returnVal = msgContext.get(ObjectMessageContextImpl.METHOD_RETURN);
-
+            
             // if a handler has aborted the processing sequence, the
             // return type may be null 
             if (returnVal != null) {
@@ -161,9 +161,7 @@ public class LogicalMessageImpl implements LogicalMessage {
 
     private void writePayloadToContext(Object payload) { 
 
-        Method m = getMethod();
-        
-        if (isOutboundRequest()) {
+        if (isRequestPayload(payload)) {
             writeRequestToContext(payload);
         } else {
             writeResponseToContext(payload);
@@ -171,7 +169,9 @@ public class LogicalMessageImpl implements LogicalMessage {
     }
 
     private Object getAttributeFromWrapper(Object wrapper, String name) {
-        
+        assert wrapper != null; 
+        assert name != null; 
+
         Object ret = null; 
         try {
             String getterName = "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
@@ -180,28 +180,45 @@ public class LogicalMessageImpl implements LogicalMessage {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        assert ret != null; 
+        assert ret != null :  "unable to get attribute: " + name + " from " + wrapper; 
         return ret;
     }
 
 
-    private boolean isOutboundRequest() { 
-        Boolean isInputMsg = (Boolean)msgContext.get(ObjectMessageContext.MESSAGE_INPUT); 
-        assert isInputMsg != null : "ObjectMessageContext.MESSAGE_INPUT must be set in context";
-        return !isInputMsg;
+    private boolean isRequestPayload(Object payload) { 
+        
+        Method m = getMethod();
+
+        RequestWrapper reqWrapper = m.getAnnotation(RequestWrapper.class);
+        ResponseWrapper respWrapper = m.getAnnotation(ResponseWrapper.class);
+        
+        if (reqWrapper != null) {
+            return payload.getClass().getName().equals(reqWrapper.className());
+        } else if (respWrapper != null) {
+            return !payload.getClass().getName().equals(respWrapper.className());
+        }
+        return true;
     } 
 
+    
+    private boolean isRequest() { 
+
+        Boolean isInputMsg = (Boolean)msgContext.get(ObjectMessageContext.MESSAGE_INPUT); 
+        Boolean isOutbound = (Boolean)msgContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY); 
+
+        assert isOutbound != null : "MessageContext.MESSAGE_OUTBOUND must be set in context";
+        assert isInputMsg != null : "ObjectMessageContext.MESSAGE_INPUT must be set in context";
+
+        return (isOutbound && !isInputMsg) || (!isOutbound && !isInputMsg);
+    } 
 
     private void setWrapperValue(Object wrapper, String name, Object value) { 
 
         try {
-            String setterName = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-            Method setter = wrapper.getClass().getMethod(setterName, value.getClass()); 
-            setter.invoke(wrapper, value);
+            WrapperHelper.setWrappedPart(name, wrapper, value);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
 
