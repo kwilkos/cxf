@@ -1,4 +1,4 @@
-package org.objectweb.celtix.busimpl;
+package org.objectweb.celtix.bus.busimpl;
 
 import org.objectweb.celtix.configuration.AbstractCommandLineConfiguration;
 import org.objectweb.celtix.configuration.CommandLineOption;
