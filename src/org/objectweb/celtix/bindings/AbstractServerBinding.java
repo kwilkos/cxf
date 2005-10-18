@@ -17,7 +17,6 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
 import org.objectweb.celtix.bus.context.WebServiceContextImpl;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.bus.jaxws.EndpointUtils;
@@ -179,10 +178,11 @@ public abstract class AbstractServerBinding implements ServerBinding {
         unmarshal(requestCtx, objContext);
         
         new WebServiceContextImpl(objContext); 
-        HandlerChainInvoker invoker = new HandlerChainInvoker(getBinding().getHandlerChain(), false); 
-        LogicalMessageContextImpl lmctx = new LogicalMessageContextImpl(objContext);
+        HandlerChainInvoker invoker = new HandlerChainInvoker(getBinding().getHandlerChain(), 
+                                                              objContext, false); 
+
         objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
-        boolean continueProcessing = invoker.invokeLogicalHandlers(lmctx);
+        boolean continueProcessing = invoker.invokeLogicalHandlers();
 
         
         try {
@@ -197,7 +197,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             objContext.remove(ObjectMessageContext.MESSAGE_PAYLOAD);
             objContext.setMessageObjects((Object[])null);
             invoker.setOutbound(); 
-            invoker.invokeLogicalHandlers(lmctx);
+            invoker.invokeLogicalHandlers();
             replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
             marshal(objContext, replyCtx);
 
@@ -216,7 +216,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             if (null != objContext.getException()) {
                 marshalFault(objContext, replyCtx);
             }
-            invoker.mepComplete(lmctx); 
+            invoker.mepComplete(); 
         }
 
         return replyCtx;

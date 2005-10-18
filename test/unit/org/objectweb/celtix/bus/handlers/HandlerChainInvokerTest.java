@@ -1,17 +1,17 @@
 package org.objectweb.celtix.bus.handlers;
 
+
+
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.MessageContext;
-
 import junit.framework.TestCase;
-
+import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
 import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
-import org.objectweb.celtix.context.GenericMessageContext;
 
 public class HandlerChainInvokerTest extends TestCase {
     
@@ -19,7 +19,7 @@ public class HandlerChainInvokerTest extends TestCase {
     
     HandlerChainInvoker invoker;
     
-    LogicalMessageContextImpl ctx = new LogicalMessageContextImpl(new GenericMessageContext());
+    ObjectMessageContextImpl ctx = new ObjectMessageContextImpl();
 
     
     TestLogicalHandler[] logicalHandlers = new TestLogicalHandler[HANDLER_COUNT];
@@ -37,14 +37,14 @@ public class HandlerChainInvokerTest extends TestCase {
             protocolHandlers[i] = new TestProtocolHandler();
             handlers.add(protocolHandlers[i]);
         }
-        invoker = new HandlerChainInvoker(handlers);
+        invoker = new HandlerChainInvoker(handlers, ctx);
     }
     
     public void testInvokeEmptyHandlerChain() {
-        invoker = new HandlerChainInvoker(new ArrayList<Handler>());
-        assertTrue(invoker.invokeLogicalHandlers(ctx));
-        assertTrue(invoker.invokeProtocolHandlers(ctx));
-        assertTrue(invoker.invokeStreamHandlers(ctx));
+        invoker = new HandlerChainInvoker(new ArrayList<Handler>(), ctx);
+        assertTrue(invoker.invokeLogicalHandlers());
+        assertTrue(invoker.invokeProtocolHandlers());
+        assertTrue(invoker.invokeStreamHandlers());
     }
     
     public void testInvokeHandlersOutbound() {
@@ -92,7 +92,7 @@ public class HandlerChainInvokerTest extends TestCase {
         // of handlers is stopped and message direction is  reversed.
         //
         logicalHandlers[0].setHandleMessageRet(false);        
-        boolean ret = invoker.invokeLogicalHandlers(ctx);
+        boolean ret = invoker.invokeLogicalHandlers();
                 
         assertEquals(false, ret); 
         assertEquals(1, logicalHandlers[0].getHandleMessageCount());
@@ -104,7 +104,7 @@ public class HandlerChainInvokerTest extends TestCase {
         // one on the list is actually invoked.
         logicalHandlers[0].setHandleMessageRet(true);        
         
-        ret = invoker.invokeLogicalHandlers(ctx);
+        ret = invoker.invokeLogicalHandlers();
         assertTrue(ret);
         assertEquals(2, logicalHandlers[0].getHandleMessageCount());
         assertEquals(0, logicalHandlers[1].getHandleMessageCount());
@@ -121,7 +121,7 @@ public class HandlerChainInvokerTest extends TestCase {
         invoker.responseExpected(true);
          
         logicalHandlers[1].setHandleMessageRet(false);        
-        boolean ret = invoker.invokeLogicalHandlers(ctx);
+        boolean ret = invoker.invokeLogicalHandlers();
                 
         assertEquals(false, ret); 
         assertEquals(0, logicalHandlers[0].getHandleMessageCount());
@@ -132,11 +132,11 @@ public class HandlerChainInvokerTest extends TestCase {
     
     public void testMEPComplete() { 
 
-        invoker.invokeLogicalHandlers(ctx); 
-        invoker.invokeProtocolHandlers(ctx); 
+        invoker.invokeLogicalHandlers(); 
+        invoker.invokeProtocolHandlers(); 
         assertEquals(4, invoker.getInvokedHandlers().size()); 
 
-        invoker.mepComplete(ctx); 
+        invoker.mepComplete(); 
 
         assertTrue("close not invoked on logicalHandlers", logicalHandlers[0].isCloseInvoked()); 
         assertTrue("close not invoked on logicalHandlers", logicalHandlers[1].isCloseInvoked()); 
@@ -154,7 +154,7 @@ public class HandlerChainInvokerTest extends TestCase {
     
     protected void checkLogicalHandlersInvoked(boolean outboundProperty) { 
 
-        invoker.invokeLogicalHandlers(ctx);
+        invoker.invokeLogicalHandlers();
 
         assertNotNull(ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY));
         assertEquals(outboundProperty, ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY));
@@ -162,16 +162,18 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue("handler not invoked", logicalHandlers[1].isHandleMessageInvoked());
         assertTrue(invoker.getInvokedHandlers().contains(logicalHandlers[0])); 
         assertTrue(invoker.getInvokedHandlers().contains(logicalHandlers[1])); 
+
     }
     
     protected void checkProtocolHandlersInvoked(boolean outboundProperty) { 
         
-        invoker.invokeProtocolHandlers(ctx);
+        invoker.invokeProtocolHandlers();
         
         assertTrue("handler not invoked", protocolHandlers[0].isHandleMessageInvoked());
         assertTrue("handler not invoked", protocolHandlers[1].isHandleMessageInvoked());
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[0])); 
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[1])); 
+
     }
     
    

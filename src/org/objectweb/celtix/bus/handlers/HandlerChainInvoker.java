@@ -9,6 +9,8 @@ import java.util.logging.Logger;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.MessageContext;
+import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
+import org.objectweb.celtix.bus.context.WebServiceContextImpl;
 import org.objectweb.celtix.context.ObjectMessageContext;
 
 /**
@@ -26,12 +28,13 @@ public class HandlerChainInvoker {
     private boolean outbound; 
     private boolean responseExpected; 
     private boolean handlerProcessingAborted; 
-    
-    public HandlerChainInvoker(List<Handler> hc) {
-        this(hc, true);
+    private final ObjectMessageContext context; 
+
+    public HandlerChainInvoker(List<Handler> hc, ObjectMessageContext ctx) {
+        this(hc, ctx, true);
     } 
 
-    public HandlerChainInvoker(List<Handler> hc, boolean isOutbound) {
+    public HandlerChainInvoker(List<Handler> hc, ObjectMessageContext ctx, boolean isOutbound) {
         LOG.log(Level.FINE, "invoker for chain size: ", hc != null ? hc.size() : 0);
         
         if (hc != null) { 
@@ -44,28 +47,32 @@ public class HandlerChainInvoker {
             }
         }
         outbound = isOutbound;
+        context = ctx;
     }
 
-    public <T extends MessageContext> boolean invokeLogicalHandlers(MessageContext ctx) {        
+    public boolean invokeLogicalHandlers() {        
         List<Handler> handlers = logicalHandlers; 
         // if the last time through, the handler processing was 
         // aborted, then just invoke the handlers that have already
         // been invoked.
         boolean ret = false; 
+        
+        LogicalMessageContextImpl logicalContext = new LogicalMessageContextImpl(context);
+
         if (handlerProcessingAborted) {
-            return invokeHandlerChain(invokedHandlers, ctx);
+            return invokeHandlerChain(invokedHandlers, logicalContext);
         } else {
-            return invokeHandlerChain(logicalHandlers, ctx);
+            return invokeHandlerChain(logicalHandlers, logicalContext);
         }
     }
         
-    public <T extends MessageContext> boolean invokeProtocolHandlers(T ctx) { 
+    public boolean invokeProtocolHandlers() { 
         
-        return invokeHandlerChain(protocolHandlers, ctx);
+        return invokeHandlerChain(protocolHandlers, context);
     }    
     
     
-    public boolean invokeStreamHandlers(MessageContext ctx) {
+    public boolean invokeStreamHandlers() {
         return true; 
     }
         
@@ -98,7 +105,7 @@ public class HandlerChainInvoker {
     }
 
 
-    public void mepComplete(MessageContext ctx) {
+    public void mepComplete() {
 
         LOG.log(Level.FINE, "closing protocol handlers - handler count:", invokedHandlers.size());
         //invokeClose(reverseHandlerChain(streamHandlers));
@@ -108,8 +115,8 @@ public class HandlerChainInvoker {
         // the handler chain directly and not simply the
         // invokedHandler list.
         //
-        invokeClose(reverseHandlerChain(protocolHandlers), ctx);
-        invokeClose(reverseHandlerChain(logicalHandlers), ctx);
+        invokeClose(reverseHandlerChain(protocolHandlers));
+        invokeClose(reverseHandlerChain(logicalHandlers));
     }
 
 
@@ -118,24 +125,24 @@ public class HandlerChainInvoker {
     }
 
     
-    private void invokeClose(List<Handler> handlers, MessageContext ctx) {
+    private void invokeClose(List<Handler> handlers) {
 
         for (Handler h : handlers) {
             if (invokedHandlers.contains(h)) {
-                h.close(ctx);
+                h.close(context);
             }
         }
     }
 
 
-    private  boolean invokeHandlerChain(List<Handler> handlerChain, MessageContext ctx) { 
+    private boolean invokeHandlerChain(List<Handler> handlerChain, MessageContext ctx) { 
         if (handlerChain.isEmpty()) {
             LOG.log(Level.FINEST, "no handlers registered");        
             return true;
         }
         
         LOG.log(Level.FINE, "invoking handlers, direction: ", outbound ? "outbound" : "inbound");        
-        setMessageOutboundProperty(ctx);
+        setMessageOutboundProperty();
 
         if (!outbound) {
             handlerChain = reverseHandlerChain(handlerChain);
@@ -143,6 +150,7 @@ public class HandlerChainInvoker {
         
         boolean continueProcessing = true; 
         
+        WebServiceContextImpl.setMessageContext(context); 
         for (Handler h : handlerChain) {
             if (!invokedHandlers.contains(h)) { 
                 invokedHandlers.add(h);
@@ -155,7 +163,7 @@ public class HandlerChainInvoker {
                 // invoke on the next set on handlers and they will be processing 
                 // in the correct direction.  It would be good refactor it and 
                 // control all of the processing here.
-                changeMessageDirection(ctx); 
+                changeMessageDirection(); 
                 handlerProcessingAborted = true;
                 break;
             }
@@ -163,17 +171,16 @@ public class HandlerChainInvoker {
         return continueProcessing;        
     }    
     
-    private <T extends MessageContext> void setMessageOutboundProperty(T ctx) {
+    private void setMessageOutboundProperty() {
         
-        Boolean outboundProp = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-        ctx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
+        Boolean outboundProp = (Boolean)context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
     }
 
-    private <T extends MessageContext> void changeMessageDirection(T ctx) { 
+    private void changeMessageDirection() { 
         outbound = !outbound;
-        setMessageOutboundProperty(ctx);
-        ctx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
-
+        setMessageOutboundProperty();
+        context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
     }
     
     private List<Handler> reverseHandlerChain(List<Handler> handlerChain) {
@@ -182,5 +189,5 @@ public class HandlerChainInvoker {
         Collections.reverse(reversedHandlerChain);
         return reversedHandlerChain;
     }
-
 }
+

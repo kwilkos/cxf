@@ -14,7 +14,6 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -77,16 +76,14 @@ public abstract class AbstractClientBinding implements ClientBinding {
     
     public ObjectMessageContext invoke(ObjectMessageContext context) throws IOException {
         
-        HandlerChainInvoker handlerInvoker = new HandlerChainInvoker(getBinding().getHandlerChain());
+        HandlerChainInvoker handlerInvoker = new HandlerChainInvoker(getBinding().getHandlerChain(), context);
 
         try { 
             MessageContext bindingContext = createBindingMessageContext(context);
 
-            LogicalMessageContextImpl lmctx = new LogicalMessageContextImpl(bindingContext);
-
             //Input Message For Client
             bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
-            boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(lmctx);
+            boolean continueProcessing = handlerInvoker.invokeLogicalHandlers();
 
             if (continueProcessing) {  
                 
@@ -126,9 +123,9 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 unmarshal(bindingContext, context);
             }
             handlerInvoker.setInbound();
-            handlerInvoker.invokeLogicalHandlers(lmctx);
+            handlerInvoker.invokeLogicalHandlers();
         } finally { 
-            handlerInvoker.mepComplete(context);
+            handlerInvoker.mepComplete();
         }
         return context;
     }
