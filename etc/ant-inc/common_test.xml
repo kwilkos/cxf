@@ -29,8 +29,10 @@
 	     failureproperty="@{type}.test.failed"
 	     dir="${basedir}/build/classes-tests/@{type}"
 	     timeout="100000"        
+	     showoutput="true"
 	     >
 	<jvmarg value="-Djaxws.home=${jaxws.home}"/>        			
+
 	<formatter type="brief" useFile="false"/>
 	<formatter type="xml"/>
 	<classpath>

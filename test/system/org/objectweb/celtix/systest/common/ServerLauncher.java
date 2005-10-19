@@ -31,31 +31,11 @@ public class ServerLauncher {
         javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
     }
 
-    private boolean waitForServerToStop() {
-        synchronized (mutex) {
-            while (!serverIsStopped) {
-                try {
-                    TimeoutCounter tc = new TimeoutCounter(DEFAULT_TIMEOUT);
-                    mutex.wait(DEFAULT_TIMEOUT);
-                    if (tc.isTimeoutExpired()) {
-                        System.out.println("destroying server process");
-                        process.destroy();
-                        break;
-                    }
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-        return serverIsStopped;
-    }
-
     public void stopServer() throws IOException {
         if (process != null) {
             process.getOutputStream().write('q');
             process.getOutputStream().write('\n');
             process.getOutputStream().flush();
-            //System.out.println("stopping server");
             waitForServerToStop();
             process.destroy();
         }
@@ -99,6 +79,25 @@ public class ServerLauncher {
             e.printStackTrace();
         }
         return ret;
+    }
+
+    private boolean waitForServerToStop() {
+        synchronized (mutex) {
+            while (!serverIsStopped) {
+                try {
+                    TimeoutCounter tc = new TimeoutCounter(DEFAULT_TIMEOUT);
+                    mutex.wait(DEFAULT_TIMEOUT);
+                    if (tc.isTimeoutExpired()) {
+                        System.out.println("destroying server process");
+                        process.destroy();
+                        break;
+                    }
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        return serverIsStopped;
     }
 
     private void launchOutputMonitorThread(final InputStream in, final PrintStream out) {
