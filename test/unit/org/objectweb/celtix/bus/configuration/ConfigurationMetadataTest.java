@@ -1,5 +1,7 @@
 package org.objectweb.celtix.bus.configuration;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.Collection;
@@ -21,6 +23,7 @@ public class ConfigurationMetadataTest extends TestCase {
     private static final String TYPES_NAMESPACE_URI = 
         "http://celtix.objectweb.org/configuration/types";
     
+
     public void testStandardTypes() {
              
         ConfigurationMetadata model = buildMetadata("meta1.xml"); 
@@ -96,15 +99,20 @@ public class ConfigurationMetadataTest extends TestCase {
     }
 
     public void testUniqueName() {
+        PrintStream perr = System.err;
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        PrintStream newPerr = new PrintStream(bout); 
+        System.setErr(newPerr);
         try {
             buildMetadata("meta5.xml");
             fail("Expected ConfigurationException not thrown.");
         } catch (ConfigurationException ex) {
             assertEquals("METADATA_VALIDATION_ERROR_EXC", ex.getCode()); 
+        } finally {
+            System.setErr(perr); 
         }
     }
 
-    
     public void testInvalidTypeInDefaultValue() {       
         try {
             buildMetadata("meta6.xml");
@@ -176,7 +184,7 @@ public class ConfigurationMetadataTest extends TestCase {
         assertEquals("b", l.get(1));
         assertEquals("c", l.get(2));
     }
-
+    
     private ConfigurationMetadata buildMetadata(String filename) {
         URL url = getClass().getResource("resources/" + filename);
         ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();

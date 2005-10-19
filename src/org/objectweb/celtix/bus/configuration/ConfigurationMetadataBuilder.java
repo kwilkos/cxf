@@ -198,8 +198,9 @@ class ConfigurationMetadataBuilder  {
             throw new ConfigurationException(msg);
         }        
         
-        /*
         if (!validateAgainstComposite) {        
+            getTypeValidator(type);
+            /*
             Validator validator = getTypeValidator(type);
             try {
                 validator.validate(new DOMSource(data));
@@ -210,8 +211,8 @@ class ConfigurationMetadataBuilder  {
                 Message msg = new Message("PARSE_DEFAULT_VALUE_ERROR_EXC", LOG, item.getName());
                 throw new ConfigurationException(msg, ex);
             }
+            */
         }
-        */  
         
         unmarshalDefaultValue(item, data);
     }

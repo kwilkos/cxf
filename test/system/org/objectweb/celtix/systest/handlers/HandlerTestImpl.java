@@ -46,8 +46,8 @@ public class HandlerTestImpl implements HandlerTest {
         context = ctx;
     }
 
+    @SuppressWarnings("unchecked")
     private List<String> getHandlersInfo(MessageContext ctx) { 
-
         List<String> ret = (List<String>)ctx.get("handler.info"); 
         if (ret == null) {
             ret = new ArrayList<String>(); 

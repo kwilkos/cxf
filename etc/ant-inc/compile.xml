@@ -85,13 +85,6 @@
                 <path refid="unit.test.compile.classpath"/>
             </classpath>
         </javac>
-        <copy todir="${basedir}/build/classes-tests/unit">
-            <fileset dir="${basedir}/test/unit" includes="**/resources/**/*"/>
-            <fileset dir="${basedir}/test/unit" includes="**/*.properties"/>
-        </copy>
-        <copy todir="${basedir}/build/classes-tests/unit">
-            <fileset dir="${basedir}/etc" includes="logging.properties"/>
-        </copy>
         <antcall target="unittest.checkstyle"/>
     </target>
 
@@ -109,12 +102,6 @@
                 <path refid="system.test.compile.classpath"/>
             </classpath>
         </javac>
-        <copy todir="${basedir}/build/classes-tests/system">
-            <fileset dir="${basedir}/test/system" includes="**/resource/**/*"/>
-        </copy>
-        <copy todir="${basedir}/build/classes-tests/system">
-            <fileset dir="${basedir}/etc" includes="logging.properties"/>
-        </copy>
         <antcall target="systemtest.checkstyle"/>
     </target>
 </project>

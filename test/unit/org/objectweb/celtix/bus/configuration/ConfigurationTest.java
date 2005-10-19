@@ -15,12 +15,10 @@ import org.objectweb.celtix.configuration.Configurator;
 public class ConfigurationTest extends TestCase {
 
     private Configuration top;
-    private Configuration leaf;
 
     public ConfigurationTest(String name) {
         super(name);
         top = new TopConfiguration();
-        leaf = new LeafConfiguration(top);
     }
     
     public void testConstruction() {

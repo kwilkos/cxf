@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<project name="celtix-clean" basedir="../..">
+
+    <target name="clean" description="Clean the build artifacts">
+        <delete quiet="true" includeemptydirs="true">
+            <fileset dir="build">
+                 <include name="classes/**/*"/>
+                 <include name="classes-tests/wsdl/**/*"/>
+                 <include name="classes-tests/unit/**/*"/>
+                 <include name="classes-tests/system/**/*"/>
+                 <include name="src/**/*"/>
+                 <include name="test-src/**/*"/>
+                 <include name="set_env*"/>
+            </fileset>
+        </delete>
+        <delete quiet="true" dir="build/coverage"/>
+        <delete quiet="true" dir="build/classes-instrumented"/>
+        <delete quiet="true" dir="build/testresults"/>
+        <delete quiet="true" dir="${build.release.dir}"/>
+        <delete quiet="true" dir="${build.lib.dir}"/>
+        <delete quiet="true" dir="${build.package.dir}"/>
+        <delete quiet="true" dir="${basedir}/build/javadoc"/>
+        <delete quiet="true" dir="${tools.dir}/tomcat/5.5.9/server/work"/>
+        <delete quiet="true" file="run"/>
+        <delete quiet="true" file="run.bat"/>
+    </target>
+    
+    <target name="very.clean" description="Clean the build artifacts, generated artifacts and directories">
+        <delete quiet="true" dir="build"/>
+        <delete quiet="true" dir="${tools.dir}/tomcat/5.5.9/server/work"/>
+    </target>
+</project>

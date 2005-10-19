@@ -22,7 +22,7 @@ public class HandlerChainInvoker {
     private static final Logger LOG = Logger.getLogger(HandlerChainInvoker.class.getPackage().getName());
     
     private final List<Handler> protocolHandlers = new ArrayList<Handler>(); 
-    private final List<Handler> logicalHandlers  = new ArrayList<Handler>(); 
+    private final List<LogicalHandler> logicalHandlers  = new ArrayList<LogicalHandler>(); 
     private final List<Handler> invokedHandlers  = new ArrayList<Handler>(); 
 
     private boolean outbound; 
@@ -35,12 +35,14 @@ public class HandlerChainInvoker {
     } 
 
     public HandlerChainInvoker(List<Handler> hc, ObjectMessageContext ctx, boolean isOutbound) {
-        LOG.log(Level.FINE, "invoker for chain size: ", hc != null ? hc.size() : 0);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "invoker for chain size: ", hc != null ? hc.size() : 0);
+        }
         
         if (hc != null) { 
             for (Handler h : hc) { 
                 if (h instanceof LogicalHandler) {                    
-                    logicalHandlers.add(h);
+                    logicalHandlers.add((LogicalHandler)h);
                 } else { 
                     protocolHandlers.add(h);
                 }
@@ -51,12 +53,9 @@ public class HandlerChainInvoker {
     }
 
     public boolean invokeLogicalHandlers() {        
-        List<Handler> handlers = logicalHandlers; 
         // if the last time through, the handler processing was 
         // aborted, then just invoke the handlers that have already
         // been invoked.
-        boolean ret = false; 
-        
         LogicalMessageContextImpl logicalContext = new LogicalMessageContextImpl(context);
 
         if (handlerProcessingAborted) {
@@ -106,8 +105,9 @@ public class HandlerChainInvoker {
 
 
     public void mepComplete() {
-
-        LOG.log(Level.FINE, "closing protocol handlers - handler count:", invokedHandlers.size());
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "closing protocol handlers - handler count:", invokedHandlers.size());
+        }
         //invokeClose(reverseHandlerChain(streamHandlers));
         // the handlers must be invoked in the reverse order that they
         // appear in the handler chain.  On the server side this will
@@ -125,7 +125,7 @@ public class HandlerChainInvoker {
     }
 
     
-    private void invokeClose(List<Handler> handlers) {
+    private <T extends Handler> void invokeClose(List<T> handlers) {
 
         for (Handler h : handlers) {
             if (invokedHandlers.contains(h)) {
@@ -134,8 +134,9 @@ public class HandlerChainInvoker {
         }
     }
 
-
-    private boolean invokeHandlerChain(List<Handler> handlerChain, MessageContext ctx) { 
+    @SuppressWarnings("unchecked")
+    private <T extends Handler>
+    boolean invokeHandlerChain(List<T> handlerChain, MessageContext ctx) { 
         if (handlerChain.isEmpty()) {
             LOG.log(Level.FINEST, "no handlers registered");        
             return true;
@@ -172,8 +173,6 @@ public class HandlerChainInvoker {
     }    
     
     private void setMessageOutboundProperty() {
-        
-        Boolean outboundProp = (Boolean)context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
     }
 
@@ -183,8 +182,8 @@ public class HandlerChainInvoker {
         context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
     }
     
-    private List<Handler> reverseHandlerChain(List<Handler> handlerChain) {
-        List<Handler> reversedHandlerChain = new ArrayList<Handler>();
+    private <T extends Handler> List<T> reverseHandlerChain(List<T> handlerChain) {
+        List<T> reversedHandlerChain = new ArrayList<T>();
         reversedHandlerChain.addAll(handlerChain);
         Collections.reverse(reversedHandlerChain);
         return reversedHandlerChain;

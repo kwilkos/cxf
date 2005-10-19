@@ -40,7 +40,8 @@ public class SoapBindingFactoryTest extends TestCase {
                 "http://schemas.xmlsoap.org/wsdl/soap/");
         assertNotNull(factory);
         
-        URL wsdlUrl = getClass().getResource("/wsdl/hello_world.wsdl");
+        URL url = getClass().getClassLoader().getResource(".");
+        URL wsdlUrl = new URL(url, "../classes-tests/wsdl/hello_world.wsdl");
         assertNotNull(wsdlUrl);
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
         EndpointReferenceType address = EndpointReferenceUtils

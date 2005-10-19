@@ -3,7 +3,12 @@
     <!-- Targets for generating an eclipse project -->
     <import file="paths.xml"/>
     <import file="compile.xml"/>
+    <import file="unittest.xml"/>
+    <import file="systest.xml"/>
+    <import file="clean.xml"/>
 
+    <target name="eclipse.clean" depends="clean,unit.test.resources,system.test.resources,codegen"/>
+    
     <property name="eclipse.project.workspace" value="${basedir}/../workspace"/>
 
     <target name="generate.eclipse.workspace" description="Generates an eclipse workspace"
