@@ -19,16 +19,14 @@ public class ClientServerTest extends ClientServerTestBase {
     
     public void setUp() throws BusException {
         super.setUp();
+        launchServer(Server.class);
     }
-
-    public void onetimeSetUp() { 
-        assertTrue("server did not launch correctly", launchServer(Server.class));
-    }
-
-    public void tearDown() throws Exception {
+    
+    public void tearDown() throws BusException {
         super.tearDown();
     }
-
+    
+    
     public void testBasicConnection() throws Exception {
         URL wsdl = getClass().getResource("/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -49,6 +47,8 @@ public class ClientServerTest extends ClientServerTestBase {
                 String reply = greeter.sayHi();
                 assertNotNull("no response received from service", reply);
                 assertEquals(response2, reply);
+                
+                //System.out.println("response from service: " +  greeting);
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
