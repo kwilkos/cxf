@@ -7,9 +7,9 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.soap.SOAPBinding;
-
+import javax.jws.soap.SOAPBinding.ParameterStyle;
+import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.namespace.QName;
-
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
@@ -22,14 +22,14 @@ public class SOAPMessageInfo {
     private RequestWrapper reqWrapper;
     private ResponseWrapper respWrapper;
     private Method method;
-    
+
     public SOAPMessageInfo(Method m) {
         method = m;
         init();
     }
-    
+
     private void init() {
-        //Get SOAP Style, Use, 
+        //Get SOAP Style, Use,
         soapBindAnnotation = method.getDeclaringClass().getAnnotation(SOAPBinding.class);
         //Get Operation,Action Info
         webMethodAnnotation = method.getAnnotation(WebMethod.class);
@@ -42,14 +42,14 @@ public class SOAPMessageInfo {
         //Get the RequestWrapper
         respWrapper = method.getAnnotation(ResponseWrapper.class);
     }
-    
+
     public SOAPBinding.Style getSOAPStyle() {
         if (null != soapBindAnnotation) {
             return soapBindAnnotation.style();
         }
         return SOAPBinding.Style.DOCUMENT;
     }
-    
+
     public SOAPBinding.Use getSOAPUse() {
         if (null != soapBindAnnotation) {
             return soapBindAnnotation.use();
@@ -58,17 +58,18 @@ public class SOAPMessageInfo {
     }
 
     public SOAPBinding.ParameterStyle getSOAPParameterStyle() {
-        if (null != soapBindAnnotation) {        
+        if (null != soapBindAnnotation) {
             return soapBindAnnotation.parameterStyle();
         }
         return SOAPBinding.ParameterStyle.WRAPPED;
     }
-    
+
     public String getOperationName() {
-        if (null != webMethodAnnotation) {
+
+        if (null != webMethodAnnotation &&  !"".equals(webMethodAnnotation.operationName())) {
             return webMethodAnnotation.operationName();
         }
-        return "";
+        return getMethod().getName();
     }
 
     public String getSOAPAction() {
@@ -77,15 +78,21 @@ public class SOAPMessageInfo {
         }
         return "";
     }
-    
+
     public QName getWebResult() {
         if (null != webResultAnnotation) {
-            return new QName(webResultAnnotation.targetNamespace(),
-                             webResultAnnotation.name());
+            if (getSOAPStyle() == Style.DOCUMENT && getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
+                return new QName(webResultAnnotation.targetNamespace(),
+                                 webResultAnnotation.name());
+            } else {
+                // RPC-Lit case.
+                //REVISIT : For spec. compliance with other types. 
+                return new QName("", webResultAnnotation.partName());
+            }
         }
         return SOAPConstants.EMPTY_QNAME;
     }
-    
+
     public WebParam getWebParam(int index) {
         if (null != paramAnnotations && index < paramAnnotations.length) {
             for (Annotation annotation : paramAnnotations[index]) {
@@ -111,7 +118,7 @@ public class SOAPMessageInfo {
         }
         return "";
     }
-    
+
     public QName getResponseWrapperQName() {
         if (null != respWrapper) {
             return new QName(respWrapper.targetNamespace(),
@@ -126,7 +133,7 @@ public class SOAPMessageInfo {
         }
         return "";
     }
-    
+
     public Method getMethod() {
         return method;
     }

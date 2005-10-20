@@ -2,17 +2,25 @@ package org.objectweb.celtix.bus.bindings.soap;
 
 import java.lang.reflect.Method;
 
+import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.jws.WebResult;
+import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
+import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 
 public class SoapMessageInfoTest extends TestCase {
     private SOAPMessageInfo msgInfo;
+    private SOAPMessageInfo rpcMsgInfo;
+    private String methodNameString = "greetMe";
+      
     
     public SoapMessageInfoTest(String arg0) {
         super(arg0);
@@ -25,6 +33,8 @@ public class SoapMessageInfoTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         msgInfo = new SOAPMessageInfo(SOAPMessageUtil.getMethod(Greeter.class, "greetMe"));
+        
+        rpcMsgInfo = new SOAPMessageInfo(SOAPMessageUtil.getMethod(GreeterRPCLit.class, "greetMe"));
     }
 
     protected void tearDown() throws Exception {
@@ -47,12 +57,18 @@ public class SoapMessageInfoTest extends TestCase {
     }
 
     public void testGetWebResult() throws Exception {
+       //Wrapped Doc-Lit. : Should consider Namespace.
         QName returnType = msgInfo.getWebResult();
         assertEquals(
                 new QName("http://objectweb.org/hello_world_soap_http/types", "responseType"), 
-                returnType);        
+                returnType); 
+         
+        // RPC-Lit Test if WebResult returns the partname with no namespce associated.
+        QName rpcReturnType = rpcMsgInfo.getWebResult();
+        assertEquals(new QName("", "out"), rpcReturnType);
+        
     }
-
+   
     public void testGetWebParam() throws Exception {
         WebParam inParam = msgInfo.getWebParam(0);
         assertEquals(
@@ -60,6 +76,35 @@ public class SoapMessageInfoTest extends TestCase {
                 new QName(inParam.targetNamespace(), inParam.name()));
         assertEquals(WebParam.Mode.IN, inParam.mode());
         assertFalse(inParam.header());        
+    }
+    
+    public void testGetOperationName() throws Exception {
+        //Wrapped Doc Lit. Case.
+        String opName = msgInfo.getOperationName();
+        assertEquals(opName, methodNameString);
+        
+        //RPC-Lit case without any customisation. 
+        //(It contains WebMethod annotation without any operationName 
+        //so should return method name)
+        String opNameRPC = rpcMsgInfo.getOperationName();
+        assertEquals(opNameRPC, methodNameString);
+    }
+    
+    public void testGetOperationNameCustomised() {
+    
+        SOAPMessageInfo customMsgInfo = null;
+        Method [] methodList = CustomAnnotationTestHelper.class.getDeclaredMethods();
+        
+        for (Method mt : methodList) {
+            if (mt.getName().equals(methodNameString)) {
+                customMsgInfo = new SOAPMessageInfo(mt);
+                break;
+            }
+        }
+        
+        String opNameRPC = customMsgInfo.getOperationName();
+        assertEquals(opNameRPC, "customGreetMe");
+        
     }
 
     public void testGetRequestWrapperQName() throws Exception {
@@ -101,7 +146,7 @@ public class SoapMessageInfoTest extends TestCase {
         assertEquals(SOAPBinding.Style.DOCUMENT, info.getSOAPStyle());
         assertEquals(SOAPBinding.Use.LITERAL, info.getSOAPUse());
         assertEquals(SOAPBinding.ParameterStyle.WRAPPED, info.getSOAPParameterStyle());
-        assertEquals("", info.getOperationName());        
+        assertEquals("length", info.getOperationName());        
         assertEquals("", info.getSOAPAction());
         assertEquals(SOAPConstants.EMPTY_QNAME, info.getWebResult());
         assertNull(info.getWebParam(1));
@@ -119,5 +164,19 @@ public class SoapMessageInfoTest extends TestCase {
         Class<?> clazz = msgInfo.getWebFault(faultName);
         assertNotNull(clazz);
         assertTrue(NoSuchCodeLitFault.class.isAssignableFrom(clazz));
+    }
+    
+    @WebService(name = "CustomAnnotationTestHelper", 
+                          targetNamespace = "http://objectweb.org/hello_world_rpclit", 
+                          wsdlLocation = "C:\\celtix\\rpc-lit\\trunk/test/wsdl/hello_world_rpc_lit.wsdl")
+    @SOAPBinding(style = Style.RPC)
+    public interface CustomAnnotationTestHelper {
+        @WebMethod(operationName = "customGreetMe")
+        @WebResult(name = "out", 
+                            targetNamespace = "http://objectweb.org/hello_world_rpclit", 
+                            partName = "out")
+        String greetMe(
+            @WebParam(name = "in", partName = "in")
+            String in);
     }
 }

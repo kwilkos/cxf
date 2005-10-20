@@ -8,6 +8,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import javax.xml.bind.annotation.XmlElementDecl;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 
@@ -30,32 +31,47 @@ public class JAXBEncoderDecoder {
         }
     }
     
-    public void marshall(Object elValue, QName elNname,  Node destNode) throws SOAPException {
+    public JAXBEncoderDecoder(Class cls) throws SOAPException {
+        contextPath = cls.getPackage().getName();
         try {
+            context = JAXBContext.newInstance(cls);
+        } catch (Exception ex) {
+            throw new SOAPException("Could not create JAXB Context", ex);
+        }
+    }
+    
+    public void marshall(Object elValue, QName elNname,  Node destNode) throws SOAPException {
+        
+        try {
+            Object mObj = elValue;
             Marshaller u = context.createMarshaller();
             u.setProperty(Marshaller.JAXB_ENCODING , "UTF-8");
             u.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             u.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+           
+            if (elValue.getClass().isAnnotationPresent(XmlRootElement.class)) {
+            
+                Class<?> objectFactory = Class.forName(contextPath + ".ObjectFactory");
+                Method methods[] = objectFactory.getDeclaredMethods();
+                for (Method method : methods) {
+                    if (method.getParameterTypes().length == 1
+                        && method.getParameterTypes()[0].equals(elValue.getClass())) {
 
-            Object mObj = elValue;
-
-            Class<?> objectFactory = Class.forName(contextPath + ".ObjectFactory");
-            Method methods[] = objectFactory.getDeclaredMethods();
-            for (Method method : methods) {
-                if (method.getParameterTypes().length == 1
-                    && method.getParameterTypes()[0].equals(elValue.getClass())) {
-
-                    XmlElementDecl elementDecl = method.getAnnotation(XmlElementDecl.class);
-                    if (null != elementDecl) {
-                        QName elementType = new QName(elementDecl.namespace(), elementDecl.name());
-                        if (elementType.equals(elNname)) {
-                            mObj = method.invoke(objectFactory.newInstance(),
-                                                elValue);                        
+                        XmlElementDecl elementDecl = method.getAnnotation(XmlElementDecl.class);
+                        if (null != elementDecl) {
+                            QName elementType = new QName(elementDecl.namespace(), elementDecl.name());
+                            if (elementType.equals(elNname)) {
+                                mObj = method.invoke(objectFactory.newInstance(),
+                                                    elValue);                        
+                            }
                         }
-                    }
-                } 
+                    } 
+                }
+            } else {
+                mObj = new JAXBElement(elNname, mObj.getClass(), mObj);
             }
-            u.marshal(mObj, destNode);           
+           
+            u.marshal(mObj, destNode);
         } catch (Exception ex) {
             throw new SOAPException("Marshalling Error", ex);
         }
