@@ -105,6 +105,28 @@ public class SOAPServerBindingTest extends TestCase {
        
         assertEquals(ref, os.toString());
     }
+    
+    public void testDispatchOneway() throws Exception {
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint);        
+        TestServerTransport serverTransport = new TestServerTransport(bus, epr);
+
+        QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMeOneWay");
+        QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "requestType");
+        String data = new String("TestSOAPInputMessage");
+       
+        byte[] bArray = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data).getBytes();
+        
+        TestInputStreamContext inCtx = new TestInputStreamContext(bArray);
+        serverBinding.testDispatch(inCtx, serverTransport);
+
+        assertNotNull(serverTransport.getOutputStreamContext());  
+        OutputStream os = serverTransport.getOutputStreamContext().getOutputStream();        
+        assertNotNull(os);
+        
+        assertEquals("", os.toString());
+
+    }
 
     public void testFaultDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());

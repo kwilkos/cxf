@@ -19,6 +19,10 @@ public class NotAnnotatedGreeterImpl implements Greeter {
         LOG.info("Executing operation sayHi");
         return "Bonjour";
     }
+    
+    public void greetMeOneWay(String me) {
+        LOG.info("Executing operation greetMeOneWay");
+    }
 
     public void testDocLitFault(String faultType)  throws BadRecordLitFault, NoSuchCodeLitFault {
         ErrorCode ec = new ErrorCode();

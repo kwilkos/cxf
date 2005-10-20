@@ -16,6 +16,7 @@ public class DerivedGreeterImpl implements Greeter {
     public DerivedGreeterImpl() {
         invocationCount.put("sayHi", 0);
         invocationCount.put("greetMe", 0);
+        invocationCount.put("greetMeOneWay", 0);
         invocationCount.put("overloadedSayHi", 0);
     }
 
@@ -53,6 +54,10 @@ public class DerivedGreeterImpl implements Greeter {
     public String greetMe(String me) {
         incrementInvocationCount("greetMe");
         return "Bonjour " + me + "!";
+    }
+    
+    public void greetMeOneWay(String me) {
+        incrementInvocationCount("greetMeOneWay");
     }
 
     private void incrementInvocationCount(String method) {

@@ -8,6 +8,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.jws.Oneway;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
@@ -108,6 +109,17 @@ public abstract class AbstractServerBinding implements ServerBinding {
         }
 
         MessageContext replyCtx = null;
+        Method method = getMethod(requestCtx);
+        if (isOneWay(method)) {
+            try {
+                OutputStreamMessageContext outCtx = t.createOutputStreamContext(inCtx);
+                t.finalPrepareOutputStreamContext(outCtx);
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
+                throw new WebServiceException(ex);
+            }
+        }
+
         ServiceMode mode = EndpointUtils.getServiceMode(endpoint);
         try {
             if (null != mode) {
@@ -119,15 +131,17 @@ public abstract class AbstractServerBinding implements ServerBinding {
             LOG.log(Level.SEVERE, "PROVIDER_INVOCATION_FAILURE_MSG", ex);
             throw new WebServiceException(ex);
         }
-
-        try {
-            OutputStreamMessageContext outCtx = t.createOutputStreamContext(replyCtx);
-            // TODO - invoke output stream handlers
-            t.finalPrepareOutputStreamContext(outCtx);
-            write(replyCtx, outCtx);
-        } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
-            throw new WebServiceException(ex);
+        
+        if (!isOneWay(method)) {
+            try {
+                OutputStreamMessageContext outCtx = t.createOutputStreamContext(inCtx);
+                // TODO - invoke output stream handlers
+                t.finalPrepareOutputStreamContext(outCtx);
+                write(replyCtx, outCtx);
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
+                throw new WebServiceException(ex);
+            }
         }
         
         LOG.info("Dispatch complete on thread : " + Thread.currentThread());
@@ -156,11 +170,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             throw new WebServiceException("Request Context does not include operation name");
         }
 
-        Method method = EndpointUtils.getMethod(endpoint, operationName);
-        if (method == null) {
-            LOG.log(Level.SEVERE, "IMPLEMENTOR_MISSING_METHOD_MSG", operationName);
-            throw new WebServiceException("Web method: " + operationName + " not found in implementor.");
-        }
+        Method method = getMethod(requestCtx); 
 
         objContext.setMethod(method);
        
@@ -180,14 +190,15 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 Object result = method.invoke(getEndpoint().getImplementor(), params);
                 objContext.setReturn(result);
             }
-
-            objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
-            objContext.remove(ObjectMessageContext.MESSAGE_PAYLOAD);
-            objContext.setMessageObjects((Object[])null);
-            invoker.setOutbound(); 
-            invoker.invokeLogicalHandlers();
-            replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
-            marshal(objContext, replyCtx);
+            if (!isOneWay(method)) {
+                objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
+                objContext.remove(ObjectMessageContext.MESSAGE_PAYLOAD);
+                objContext.setMessageObjects((Object[])null);
+                invoker.setOutbound(); 
+                invoker.invokeLogicalHandlers();
+                replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
+                marshal(objContext, replyCtx);
+            }
 
         } catch (IllegalAccessException ex) {
             LogUtils.log(LOG, Level.SEVERE, "IMPLEMENTOR_INVOCATION_FAILURE_MSG", ex, method.getName());
@@ -208,6 +219,24 @@ public abstract class AbstractServerBinding implements ServerBinding {
         }
 
         return replyCtx;
+    }
+    
+    private boolean isOneWay(Method method) {
+        return (method.getAnnotation(Oneway.class) != null) ? true : false; 
+    }
+    
+    private Method getMethod(MessageContext requestCtx) {
+        QName operationName = getOperationName(requestCtx);
+        if (null == operationName) {
+            LOG.severe("CONTEXT_MISSING_OPERATION_NAME_MSG");
+            throw new WebServiceException("Request Context does not include operation name");
+        }
+        Method method = EndpointUtils.getMethod(endpoint, operationName);
+        if (method == null) {
+            LOG.log(Level.SEVERE, "IMPLEMENTOR_MISSING_METHOD_MSG", operationName);
+            throw new WebServiceException("Web method: " + operationName + " not found in implementor.");
+        }
+        return method;       
     }
     
     protected abstract QName getOperationName(MessageContext ctx);

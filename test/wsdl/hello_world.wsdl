@@ -35,7 +35,13 @@
                     </sequence>
                 </complexType>
             </element>
-
+            <element name="greetMeOneWay">
+                <complexType>
+                    <sequence>
+                        <element name="requestType" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
             <element name="testDocLitFault">
                 <complexType>
                     <sequence>
@@ -87,6 +93,9 @@
     <wsdl:message name="greetMeResponse">
         <wsdl:part element="x1:greetMeResponse" name="out"/>
     </wsdl:message>
+    <wsdl:message name="greetMeOneWayRequest">
+        <wsdl:part element="x1:greetMeOneWay" name="in"/>
+    </wsdl:message>
     <wsdl:message name="testDocLitFaultRequest">
         <wsdl:part element="x1:testDocLitFault" name="in"/>
     </wsdl:message>
@@ -107,6 +116,9 @@
         <wsdl:operation name="greetMe">
             <wsdl:input message="tns:greetMeRequest" name="greetMeRequest"/>
             <wsdl:output message="tns:greetMeResponse" name="greetMeResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="greetMeOneWay">
+            <wsdl:input message="tns:greetMeOneWayRequest" name="greetMeOneWayRequest"/>
         </wsdl:operation>
         <wsdl:operation name="testDocLitFault">
             <wsdl:input message="tns:testDocLitFaultRequest" name="testDocLitFaultRequest"/>
@@ -134,6 +146,12 @@
             <wsdl:output name="greetMeResponse">
                 <soap:body use="literal"/>
             </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="greetMeOneWay">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="greetMeOneWayRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
         </wsdl:operation>
         <wsdl:operation name="testDocLitFault">
             <soap:operation soapAction="" style="document"/>
