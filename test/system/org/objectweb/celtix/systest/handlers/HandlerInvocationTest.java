@@ -1,9 +1,10 @@
 package org.objectweb.celtix.systest.handlers;
 
+
+
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
@@ -11,12 +12,13 @@ import javax.xml.ws.LogicalMessage;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
-
+import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.handler_test.HandlerTest;
 import org.objectweb.handler_test.HandlerTestService;
 import org.objectweb.handler_test.types.PingResponse;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
+
 
 public class HandlerInvocationTest extends ClientServerTestBase {
     
@@ -27,16 +29,19 @@ public class HandlerInvocationTest extends ClientServerTestBase {
     private URL wsdl;
     private HandlerTestService service;
     private HandlerTest handlerTest;
-    
-    public void setUp() {
+
+    protected void onetimeSetUp() { 
+        launchServer(Server.class);
+    } 
+
+
+    public void setUp() throws BusException {
         try { 
             super.setUp();
             
             wsdl = RegistrationTest.class.getResource("/handler_test.wsdl");
             service = new HandlerTestService(wsdl, serviceName);
             handlerTest = (HandlerTest) service.getPort(portName, HandlerTest.class);
-            
-            launchServer(Server.class);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -44,7 +49,18 @@ public class HandlerInvocationTest extends ClientServerTestBase {
         }
     }
 
-    
+
+    public void testLogicalHandlerInvoked2() { 
+        
+        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>();        
+        TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext> ();
+        
+        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
+        
+        List<String> resp = handlerTest.ping();
+        assertNotNull(resp);      
+    }
+
     public void testLogicalHandlerInvoked() { 
         
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>();        
@@ -127,6 +143,7 @@ public class HandlerInvocationTest extends ClientServerTestBase {
         assertEquals("handler2", resp.get(0));
     }
     
+
     private void addHandlersToChain(BindingProvider bp, Handler...handlers) { 
         List<Handler> handlerChain = bp.getBinding().getHandlerChain();
         assertNotNull(handlerChain);        

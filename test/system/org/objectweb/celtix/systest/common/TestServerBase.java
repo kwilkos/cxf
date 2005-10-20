@@ -23,13 +23,18 @@ public abstract class TestServerBase extends Assert {
         try { 
             LOG.info("initialise bus");
             bus = Bus.init();
-            LOG.info("creating monitor thread");
-            createShutdownMonitorThread();
+            runBus();
             LOG.info("running server");
             run();
-            System.out.println("server ready");
-            LOG.info("running bus");
-            bus.run();
+            LOG.info("signal ready");
+            ready();
+            
+            // wait for a key press then shut 
+            // down the server
+            //
+            System.in.read(); 
+            LOG.info("stopping bus");
+            bus.shutdown(true);
         } catch (Exception ex) {
             ex.printStackTrace();
             startFailed();
@@ -61,21 +66,13 @@ public abstract class TestServerBase extends Assert {
         System.exit(-1);        
     }
     
-    private void createShutdownMonitorThread() { 
+    private void runBus() { 
         Thread t = new Thread() { 
-            public void run() {
-                try { 
-                    // wait for a key press then shut 
-                    // down the server
-                    //
-                    System.in.read(); 
-                    LOG.info("stopping bus");
-                    bus.shutdown(true);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        };
+                public void run() { 
+                    LOG.info("running bus");
+                    bus.run();
+                } 
+            }; 
         t.start();
-    }
+    } 
 }

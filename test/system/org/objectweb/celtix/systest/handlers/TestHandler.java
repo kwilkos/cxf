@@ -66,6 +66,7 @@ class TestHandler<T extends LogicalMessageContext> implements LogicalHandler<T> 
         QName operationName = (QName)ctx.get(MessageContext.WSDL_OPERATION);
         
         boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        String handlerInfo = "handler" + id + " handleMessage " + (outbound ? "outbound" : "inbound");
         
         boolean ret = handleMessageRet; 
 
@@ -178,11 +179,10 @@ class TestHandler<T extends LogicalMessageContext> implements LogicalHandler<T> 
         handleMessageRet = ret; 
     }
 
-    @SuppressWarnings("unchecked")
     private List<String> getHandlerInfoList(LogicalMessageContext ctx) { 
         List<String> handlerInfoList = null; 
         if (ctx.containsKey("handler.info")) { 
-            handlerInfoList = (List<String>)ctx.get("handler.info"); 
+            handlerInfoList = (List)ctx.get("handler.info"); 
         } else {
             handlerInfoList = new ArrayList<String>();
             ctx.put("handler.info", handlerInfoList);

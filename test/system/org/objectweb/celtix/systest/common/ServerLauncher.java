@@ -55,7 +55,6 @@ public class ServerLauncher {
             process.getOutputStream().write('q');
             process.getOutputStream().write('\n');
             process.getOutputStream().flush();
-            //System.out.println("stopping server");
             waitForServerToStop();
             process.destroy();
         }
