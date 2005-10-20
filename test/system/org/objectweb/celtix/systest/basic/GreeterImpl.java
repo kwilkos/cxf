@@ -22,7 +22,6 @@ public class GreeterImpl implements Greeter {
     }
     
     public void testDocLitFault(String faultType) throws BadRecordLitFault, NoSuchCodeLitFault {
-        System.out.println(faultType + "-:-" + BadRecordLitFault.class.getSimpleName());
         if (faultType.equals(BadRecordLitFault.class.getSimpleName())) {         
             throw new BadRecordLitFault("TestBadRecordLit", "BadRecordLitFault");
         }
@@ -34,6 +33,9 @@ public class GreeterImpl implements Greeter {
             nscl.setCode(ec);
             throw new NoSuchCodeLitFault("TestNoSuchCodeLit", nscl);
         }
-        System.out.println("Reached Here");
+    }
+    
+    public void greetMeOneWay(String requestType) {
+        
     }
 }
