@@ -1,24 +1,30 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.concurrent.Future;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.hello_world_soap_http.Greeter;
+import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 
 public class SOAPClientBindingTest extends TestCase {
     Bus bus;
@@ -74,6 +80,37 @@ public class SOAPClientBindingTest extends TestCase {
         assertEquals(arg0, (String)objContext.getReturn());
     }
 
+    public void testhasFault() throws Exception {
+        TestClientBinding clientBinding = new TestClientBinding(bus, epr);
+        SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());
+
+        InputStream is =  getClass().getResourceAsStream("resources/NoSuchCodeDocLiteral.xml");
+        MessageFactory msgFactory = MessageFactory.newInstance();
+        SOAPMessage faultMsg = msgFactory.createMessage(null,  is);
+        soapCtx.setMessage(faultMsg);
+        assertTrue(clientBinding.hasFault(soapCtx));
+        
+        is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
+        faultMsg = msgFactory.createMessage(null,  is);
+        soapCtx.setMessage(faultMsg);
+        assertFalse(clientBinding.hasFault(soapCtx));
+    }
+
+    public void testUnmarshalFault() throws Exception {
+        TestClientBinding clientBinding = new TestClientBinding(bus, epr);
+        ObjectMessageContext objContext = clientBinding.createObjectContext();
+        SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());
+        objContext.setMethod(SOAPMessageUtil.getMethod(Greeter.class, "testDocLitFault"));
+
+        InputStream is =  getClass().getResourceAsStream("resources/NoSuchCodeDocLiteral.xml");
+        MessageFactory msgFactory = MessageFactory.newInstance();
+        SOAPMessage faultMsg = msgFactory.createMessage(null,  is);
+        soapCtx.setMessage(faultMsg);
+        clientBinding.unmarshalFault(soapCtx,  objContext);
+        assertNotNull(objContext.getException());
+        assertTrue(NoSuchCodeLitFault.class.isAssignableFrom(objContext.getException().getClass()));
+    }
+    
     class TestClientBinding extends SOAPClientBinding {
 
         public TestClientBinding(Bus b, EndpointReferenceType ref) 
@@ -85,8 +122,16 @@ public class SOAPClientBindingTest extends TestCase {
             throws WSDLException, IOException {
             return new TestClientTransport(bus, ref);
         }
+        
+        public boolean hasFault(MessageContext msgCtx) {
+            return super.hasFault(msgCtx);
+        }
+        
+        public void unmarshalFault(MessageContext context, ObjectMessageContext objContext) {
+            super.unmarshalFault(context, objContext);
+        }
     }
-
+    
     class TestClientTransport implements ClientTransport {
         public TestClientTransport(Bus b, EndpointReferenceType ref) {
         }

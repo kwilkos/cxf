@@ -81,7 +81,7 @@ public class AnnotatedGreeterImpl {
         return "Bonjour " + me + "!";
     }
 
-    public void testDocLitFault()  throws LiteralException {        
+    public void testDocLitFault(String faultType)  throws BadRecordLitFault, NoSuchCodeLitFault {        
     }
 
     @Resource

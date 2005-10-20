@@ -20,13 +20,13 @@ public class NotAnnotatedGreeterImpl implements Greeter {
         return "Bonjour";
     }
 
-    public void testDocLitFault()  throws LiteralException {
+    public void testDocLitFault(String faultType)  throws BadRecordLitFault, NoSuchCodeLitFault {
         ErrorCode ec = new ErrorCode();
         ec.setMajor((short)1);
         ec.setMinor((short)1);
         NoSuchCodeLit nscl = new NoSuchCodeLit();
         nscl.setCode(ec);
         
-        throw new LiteralException("TestException", nscl);
+        throw new NoSuchCodeLitFault("TestException", nscl);
     }    
 }

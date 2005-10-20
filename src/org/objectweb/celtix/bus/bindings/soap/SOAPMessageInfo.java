@@ -7,9 +7,12 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.soap.SOAPBinding;
+
 import javax.xml.namespace.QName;
+
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
+import javax.xml.ws.WebFault;
 
 public class SOAPMessageInfo {
     private SOAPBinding soapBindAnnotation;
@@ -126,5 +129,17 @@ public class SOAPMessageInfo {
     
     public Method getMethod() {
         return method;
+    }
+    
+    public Class<?> getWebFault(QName faultName) {
+        for (Class<?> clazz : getMethod().getExceptionTypes()) {
+            WebFault wfAnnotation = clazz.getAnnotation(WebFault.class);
+            if (wfAnnotation != null
+                && (wfAnnotation.name().equals(faultName.getLocalPart()) 
+                && wfAnnotation.targetNamespace().equals(faultName.getNamespaceURI()))) {
+                return clazz;
+            }
+        }
+        return null;
     }
 }

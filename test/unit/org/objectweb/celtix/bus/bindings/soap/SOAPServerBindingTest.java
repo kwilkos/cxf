@@ -33,7 +33,7 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-import org.objectweb.hello_world_soap_http.LiteralException;
+import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 import org.objectweb.hello_world_soap_http.NotAnnotatedGreeterImpl;
 
 
@@ -123,7 +123,7 @@ public class SOAPServerBindingTest extends TestCase {
         TestOutputStreamContext osc = (TestOutputStreamContext) serverTransport.getOutputStreamContext();
         ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
         
-        checkFaultMessage(bais, LiteralException.class, "TestException");
+        checkFaultMessage(bais, NoSuchCodeLitFault.class, "TestException");
     }
     
     private void checkFaultMessage(ByteArrayInputStream bais, 

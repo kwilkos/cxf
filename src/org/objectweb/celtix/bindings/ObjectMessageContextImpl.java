@@ -40,13 +40,13 @@ public class ObjectMessageContextImpl extends GenericMessageContext implements O
         return (Method) get(METHOD_OBJ);
     }
 
-    public void setException(Object ex) {
+    public void setException(Throwable ex) {
         put(METHOD_FAULT, ex);
         setScope(METHOD_FAULT, MessageContext.Scope.HANDLER);
     }
     
-    public Object getException() {
-        return get(METHOD_FAULT);
+    public Throwable getException() {
+        return (Throwable) get(METHOD_FAULT);
     }    
 }
 

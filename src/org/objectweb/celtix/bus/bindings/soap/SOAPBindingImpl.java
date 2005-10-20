@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -18,6 +19,7 @@ import javax.jws.WebParam;
 import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.namespace.QName;
+//import javax.xml.soap.Detail;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPElement;
@@ -30,8 +32,10 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPBinding;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import org.objectweb.celtix.bus.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -109,7 +113,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         SOAPMessage msg = null;
         try {            
-            msg = initSOAPMessage();            
+            msg = initSOAPMessage();
             SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
             
             Throwable t = (Throwable) objContext.getException();
@@ -120,7 +124,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             fault.setFaultCode(SOAPConstants.FAULTCODE_SERVER);
             fault.setFaultString(t.getMessage());
             
-            if (null != wfAnnotation) {                
+            if (null != wfAnnotation) {
                 Object faultInfo = getFaultInfo(t);
                 JAXBEncoderDecoder encoder = 
                     new JAXBEncoderDecoder(getPackageList(messageInfo, true));
@@ -131,7 +135,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 msg.saveChanges();
             }
         } catch (SOAPException se) {
-            LOG.log(Level.SEVERE, "FAULT_SERIALIZATION_FAILURE_MSG", se);
+            LOG.log(Level.SEVERE, "FAULT_MARSHALLING_FAILURE_MSG", se);
             //Handle UnChecked Exception, Runtime Exception.
         }
 
@@ -161,6 +165,44 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         getParts(soapEl, messageInfo, objContext, isOutputMsg);
     }
 
+    public void unmarshalFault(MessageContext context, ObjectMessageContext objContext) 
+        throws SOAPException {
+
+        if (!SOAPMessageContext.class.isInstance(context)) {
+            throw new SOAPException("SOAPMessageContext not available");
+        }
+
+        SOAPMessageContext soapContext = SOAPMessageContext.class.cast(context);
+        SOAPMessage soapMessage = soapContext.getMessage();
+        SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
+        
+        SOAPFault fault = soapMessage.getSOAPBody().getFault();
+        
+        NodeList list = fault.getDetail().getChildNodes();
+        assert list.getLength() == 1;
+        
+        QName faultName = new QName(list.item(0).getNamespaceURI(), list.item(0).getLocalName());
+        Class<?> clazz = messageInfo.getWebFault(faultName);
+
+        Object faultObj = null;
+        try {
+            if (clazz != null) {
+                JAXBEncoderDecoder decoder = 
+                    new JAXBEncoderDecoder(getPackageList(messageInfo, false));
+                Object obj = decoder.unmarshall(list.item(0), faultName);
+                Constructor<?> ctor = clazz.getConstructor(String.class, obj.getClass());
+                faultObj = ctor.newInstance(fault.getFaultString(), obj);
+            } else {
+                SOAPFaultException sfe = new SOAPFaultException(fault);
+                faultObj = sfe;
+            }
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "FAULT_UNMARSHALLING_FAILURE_MSG", ex);
+            throw new SOAPException("error in unmarshal of SOAPFault", ex);
+        }
+        objContext.setException((Throwable)faultObj);
+    }
+    
     public void parseMessage(InputStream in, MessageContext mc) 
         throws SOAPException, IOException {
 
@@ -187,7 +229,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                         }
                     }
                 }
-            }            
+            }
             soapMessage = msgFactory.createMessage(headers, in);
         } catch (Exception ex) {
             LOG.log(Level.INFO, "error in creating soap message", ex);

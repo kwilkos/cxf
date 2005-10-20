@@ -9,6 +9,7 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.objectweb.hello_world_soap_http.Greeter;
+import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 
 public class SoapMessageInfoTest extends TestCase {
     private SOAPMessageInfo msgInfo;
@@ -23,14 +24,7 @@ public class SoapMessageInfoTest extends TestCase {
     
     protected void setUp() throws Exception {
         super.setUp();
-        
-        Method[] declMethods = Greeter.class.getDeclaredMethods();
-        for (Method method : declMethods) {
-            if (method.getName().equals("greetMe")) {
-                msgInfo = new SOAPMessageInfo(method);
-                break;
-            }
-        }
+        msgInfo = new SOAPMessageInfo(SOAPMessageUtil.getMethod(Greeter.class, "greetMe"));
     }
 
     protected void tearDown() throws Exception {
@@ -115,5 +109,15 @@ public class SoapMessageInfoTest extends TestCase {
         assertEquals(SOAPConstants.EMPTY_QNAME, info.getResponseWrapperQName());
         assertEquals("", info.getRequestWrapperType());
         assertEquals("", info.getResponseWrapperType());
+    }
+    
+    public void testHasWebFault() throws Exception {
+        QName faultName = new QName("http://objectweb.org/hello_world_soap_http/types", "NoSuchCodeLit");
+        assertNull(msgInfo.getWebFault(faultName));
+        
+        msgInfo = new SOAPMessageInfo(SOAPMessageUtil.getMethod(Greeter.class, "testDocLitFault"));
+        Class<?> clazz = msgInfo.getWebFault(faultName);
+        assertNotNull(clazz);
+        assertTrue(NoSuchCodeLitFault.class.isAssignableFrom(clazz));
     }
 }

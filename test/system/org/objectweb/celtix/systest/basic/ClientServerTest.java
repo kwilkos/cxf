@@ -7,12 +7,13 @@ import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
+//import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
+import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 import org.objectweb.hello_world_soap_http.SOAPService;
 
 public class ClientServerTest extends ClientServerTestBase {
-    
-    
+
     private QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");    
     private QName portName = new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
 
@@ -40,7 +41,7 @@ public class ClientServerTest extends ClientServerTestBase {
         String response2 = new String("Bonjour");
         try {
             Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
-            for (int idx = 0; idx < 20; idx++) {
+            for (int idx = 0; idx < 5; idx++) {
                 String greeting = greeter.greetMe("Milestone-" + idx);
                 assertNotNull("no response received from service", greeting);
                 String exResponse = response1 + idx;
@@ -52,6 +53,37 @@ public class ClientServerTest extends ClientServerTestBase {
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
+        }
+    } 
+
+    public void testFaults() throws Exception {
+        URL wsdl = getClass().getResource("/hello_world.wsdl");
+        assertNotNull(wsdl);
+        
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull(service);
+
+        String noSuchCodeFault = "NoSuchCodeLitFault";
+        String badRecordFault = "BadRecordLitFault";
+
+        Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+        for (int idx = 0; idx < 5; idx++) {
+            try {
+                greeter.testDocLitFault(noSuchCodeFault);
+                fail("Should have thrown NoSuchCodeLitFault exception");
+            } catch (NoSuchCodeLitFault nslf) {
+                assertNotNull(nslf.getFaultInfo());
+                assertNotNull(nslf.getFaultInfo().getCode());
+            } 
+            
+            /* JAXB Issue To Be Resolved.
+            try {
+                greeter.testDocLitFault(badRecordFault);
+                fail("Should have thrown BadRecordLitFault exception");
+            } catch (BadRecordLitFault brlf) {
+                assertNotNull(brlf.getFaultInfo());
+            }
+            */
         }
     } 
     

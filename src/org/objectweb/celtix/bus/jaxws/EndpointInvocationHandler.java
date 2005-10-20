@@ -1,7 +1,7 @@
 package org.objectweb.celtix.bus.jaxws;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +14,7 @@ import javax.wsdl.Port;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.ProtocolException;
 import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.Bus;
@@ -44,17 +45,24 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         clientBinding = createBinding(reference);
     }
 
-    public Object invoke(Object proxy, Method method, Object args[]) {
+    public Object invoke(Object proxy, Method method, Object args[]) throws Throwable {
+
+        if (portTypeInterface.equals(method.getDeclaringClass())) {
+            return invokeSEIMethod(proxy, method, args);
+        }             
+
         try {
-            if (portTypeInterface.equals(method.getDeclaringClass())) {
-                return invokeSEIMethod(proxy, method, args);
-            } else {
-                return method.invoke(this, args);
+            return method.invoke(this, args);
+        } catch (InvocationTargetException ite) {
+            LOG.log(Level.SEVERE, "BINDING_PROVIDER_METHOD_EXC", method.getName());
+            if (WebServiceException.class.isAssignableFrom(ite.getCause().getClass())) {
+                throw (WebServiceException)ite.getCause();
             }
+            throw new WebServiceException(ite.getCause());
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "invoke failed", ex);
-            throw new WebServiceException(ex);          
-        }
+            LOG.log(Level.SEVERE, "BINDING_PROVIDER_METHOD_EXC", method.getName());
+            throw new WebServiceException(ex);
+        } 
     }
 
     public Binding getBinding() {
@@ -78,7 +86,7 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
     }
     
     private Object invokeSEIMethod(Object proxy, Method method, Object parameters[])
-        throws IOException {
+        throws Exception {
 
         ObjectMessageContext objMsgContext = clientBinding.createObjectContext();
         //TODO
@@ -98,6 +106,15 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
             clientBinding.invokeOneWay(objMsgContext);
         } else {
             objMsgContext = clientBinding.invoke(objMsgContext);
+        }
+        
+        if (objMsgContext.getException() != null) {
+            LOG.log(Level.SEVERE, "ENDPOINT_INVOCATION_FAILED", method.getName());
+            if (isValidException(objMsgContext)) {
+                throw (Exception)objMsgContext.getException();
+            } else {                
+                throw new ProtocolException(objMsgContext.getException());
+            }
         }
         
         return objMsgContext.getReturn();
@@ -133,5 +150,24 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         ExtensibilityElement extElement = (ExtensibilityElement) list.get(0);
         
         return extElement.getElementType().getNamespaceURI();
+    }
+    
+    private boolean isValidException(ObjectMessageContext objContext) {
+        Method method = objContext.getMethod();
+        Throwable t = objContext.getException();
+        
+        boolean val = ProtocolException.class.isAssignableFrom(t.getClass()) 
+                   || WebServiceException.class.isAssignableFrom(t.getClass());
+        
+        if (!val) {
+            for (Class<?> clazz : method.getExceptionTypes()) {
+                if (clazz.isAssignableFrom(t.getClass())) {
+                    val = true;
+                    break;
+                }
+            }
+        }
+        
+        return val;
     }
 }

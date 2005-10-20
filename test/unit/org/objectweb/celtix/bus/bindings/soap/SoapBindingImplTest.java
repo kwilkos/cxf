@@ -1,7 +1,7 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.ByteArrayInputStream;
-import java.lang.reflect.Method;
+import java.io.InputStream;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.Detail;
@@ -17,8 +17,9 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.GenericMessageContext;
+import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
-import org.objectweb.hello_world_soap_http.LiteralException;
+import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 import org.objectweb.hello_world_soap_http.types.ErrorCode;
 import org.objectweb.hello_world_soap_http.types.NoSuchCodeLit;
 
@@ -41,12 +42,7 @@ public class SoapBindingImplTest extends TestCase {
         objContext = new ObjectMessageContextImpl();
         soapContext = new SOAPMessageContextImpl(new GenericMessageContext());
         
-        Method[] declMethods = Greeter.class.getDeclaredMethods();
-        for (Method method : declMethods) {
-            if (method.getName().equals("greetMe")) {
-                objContext.setMethod(method);
-            }
-        }
+        objContext.setMethod(SOAPMessageUtil.getMethod(Greeter.class, "greetMe"));
     }
 
     protected void tearDown() throws Exception {
@@ -78,6 +74,7 @@ public class SoapBindingImplTest extends TestCase {
         SOAPMessage msg = binding.marshalMessage(objContext, soapContext);
         soapContext.setMessage(msg);
         assertNotNull(msg);
+
         assertTrue(msg.getSOAPBody().hasChildNodes());
         NodeList list = msg.getSOAPBody().getChildNodes();
         assertEquals(1, list.getLength());
@@ -184,12 +181,12 @@ public class SoapBindingImplTest extends TestCase {
         ec.setMinor((short)1);
         NoSuchCodeLit nscl = new NoSuchCodeLit();
         nscl.setCode(ec);
-        LiteralException ex = new LiteralException(exMessage, nscl);
+        NoSuchCodeLitFault ex = new NoSuchCodeLitFault(exMessage, nscl);
         objContext.setException(ex);
 
         SOAPMessage msg = binding.marshalFault(objContext, soapContext);
         soapContext.setMessage(msg);
-        
+
         assertNotNull(msg);
         assertTrue(msg.getSOAPBody().hasFault());
         SOAPFault fault = msg.getSOAPBody().getFault();
@@ -226,5 +223,39 @@ public class SoapBindingImplTest extends TestCase {
         NodeList list = fault.getChildNodes();
         assertEquals(2, list.getLength());         
     }
-    
+
+    public void testUnmarshalDocLiteralUserFaults() throws Exception {
+        //Test The InputMessage of GreetMe Operation
+        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        objContext.setMethod(SOAPMessageUtil.getMethod(Greeter.class, "testDocLitFault"));
+
+        InputStream is =  getClass().getResourceAsStream("resources/NoSuchCodeDocLiteral.xml");
+        SOAPMessage faultMsg = binding.getMessageFactory().createMessage(null,  is);
+        soapContext.setMessage(faultMsg);
+
+        binding.unmarshalFault(soapContext, objContext);
+        assertNotNull(objContext.getException());
+        Object faultEx = objContext.getException();
+        assertTrue(NoSuchCodeLitFault.class.isAssignableFrom(faultEx.getClass()));
+        NoSuchCodeLitFault nscf = (NoSuchCodeLitFault)faultEx;
+        assertNotNull(nscf.getFaultInfo());
+        NoSuchCodeLit faultInfo = nscf.getFaultInfo();
+
+        assertNotNull(faultInfo.getCode());
+        ErrorCode ec = faultInfo.getCode();
+        assertEquals(ec.getMajor(), (short)666);
+        assertEquals(ec.getMinor(), (short)999);
+        
+        assertEquals(nscf.getMessage(), "Test Exception");
+        
+        is =  getClass().getResourceAsStream("resources/BadRecordDocLiteral.xml");
+        faultMsg = binding.getMessageFactory().createMessage(null,  is);
+        soapContext.setMessage(faultMsg);
+        binding.unmarshalFault(soapContext, objContext);
+        assertNotNull(objContext.getException());
+        faultEx = objContext.getException();
+        assertTrue(BadRecordLitFault.class.isAssignableFrom(faultEx.getClass()));
+        BadRecordLitFault brlf = (BadRecordLitFault)faultEx;
+        assertEquals(brlf.getFaultInfo(), "BadRecordTested");
+    }    
 }

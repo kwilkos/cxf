@@ -21,9 +21,9 @@ public interface ObjectMessageContext extends MessageContext {
     
     Object getReturn();
     
-    void setException(Object retVal);
+    void setException(Throwable retVal);
     
-    Object getException();
+    Throwable getException();
 }
 
 

@@ -46,7 +46,7 @@ public class DerivedGreeterImpl implements Greeter {
         return "Hi";
     }
 
-    public void testDocLitFault()  throws LiteralException {        
+    public void testDocLitFault(String faultType)  throws BadRecordLitFault, NoSuchCodeLitFault {        
     }
 
     

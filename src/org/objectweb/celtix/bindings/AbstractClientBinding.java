@@ -67,12 +67,14 @@ public abstract class AbstractClientBinding implements ClientBinding {
     protected abstract void marshal(ObjectMessageContext objContext, MessageContext context);
 
     protected abstract void unmarshal(MessageContext context, ObjectMessageContext objContext);
+    
+    protected abstract void unmarshalFault(MessageContext context, ObjectMessageContext objContext);    
+    
+    protected abstract boolean hasFault(MessageContext context);
 
-    protected abstract void write(MessageContext context, 
-            OutputStreamMessageContext outCtx) throws IOException;
+    protected abstract void write(MessageContext context, OutputStreamMessageContext outCtx);
 
-    protected abstract void read(InputStreamMessageContext inCtx, 
-            MessageContext context) throws IOException;
+    protected abstract void read(InputStreamMessageContext inCtx, MessageContext context);
     
     public ObjectMessageContext invoke(ObjectMessageContext context) throws IOException {
         
@@ -86,21 +88,21 @@ public abstract class AbstractClientBinding implements ClientBinding {
             boolean continueProcessing = handlerInvoker.invokeLogicalHandlers();
 
             if (continueProcessing) {  
-                
+
                 if (null != bindingContext) {
                     marshal(context, bindingContext);
                 } else {
                     bindingContext = context;
                 }
-                
-                assert transport != null : "transport is null"; 
-                
+
+                assert transport != null : "transport is null";
+
                 OutputStreamMessageContext ostreamContext = 
                     transport.createOutputStreamContext(bindingContext);
-                
+
                 // TODO - invoke output stream handlers
                 transport.finalPrepareOutputStreamContext(ostreamContext);
-                
+
                 write(bindingContext, ostreamContext);
                 
                 InputStreamMessageContext ins = transport.invoke(ostreamContext);
@@ -120,7 +122,11 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 context = createObjectContext();
                 context.setMethod(m);
 
-                unmarshal(bindingContext, context);
+                if (!hasFault(bindingContext)) {
+                    unmarshal(bindingContext, context);
+                } else {
+                    unmarshalFault(bindingContext, context);
+                }
             }
             handlerInvoker.setInbound();
             handlerInvoker.invokeLogicalHandlers();
@@ -131,7 +137,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
     }
 
     
-    public void invokeOneWay(ObjectMessageContext context) {
+    public void invokeOneWay(ObjectMessageContext context) throws IOException {
         // TODO Auto-generated method stub
 
     }

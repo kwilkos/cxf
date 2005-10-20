@@ -38,7 +38,9 @@
 
             <element name="testDocLitFault">
                 <complexType>
-                    <sequence/>
+                    <sequence>
+                        <element name="faultType" type="xsd:string"/>
+                    </sequence>
                 </complexType>
             </element>
             <element name="testDocLitFaultResponse">
@@ -61,6 +63,16 @@
                     </sequence>
                 </complexType>
             </element>
+
+            <element name="BadRecordLit" type="xsd:string"/>
+
+            <xsd:complexType name="BadRecord">
+                <xsd:sequence>
+                    <xsd:element name="reason" type="xsd:string"/>
+                    <xsd:element name="code" type="xsd:short"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
         </schema>
     </wsdl:types>
     <wsdl:message name="sayHiRequest">
@@ -81,8 +93,11 @@
     <wsdl:message name="testDocLitFaultResponse">
         <wsdl:part element="x1:testDocLitFaultResponse" name="out"/>
     </wsdl:message>
-    <wsdl:message name="LiteralException">
+    <wsdl:message name="NoSuchCodeLitFault">
         <wsdl:part element="x1:NoSuchCodeLit" name="NoSuchCodeLit"/>
+    </wsdl:message>
+    <wsdl:message name="BadRecordLitFault">
+        <wsdl:part element="x1:BadRecordLit" name="BadRecordLit"/>
     </wsdl:message>
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
@@ -96,7 +111,8 @@
         <wsdl:operation name="testDocLitFault">
             <wsdl:input message="tns:testDocLitFaultRequest" name="testDocLitFaultRequest"/>
             <wsdl:output message="tns:testDocLitFaultResponse" name="testDocLitFaultResponse"/>
-            <wsdl:fault  message="tns:LiteralException" name="LiteralException"/>
+            <wsdl:fault  message="tns:NoSuchCodeLitFault" name="NoSuchCodeLitFault"/>
+            <wsdl:fault  message="tns:BadRecordLitFault" name="BadRecordLitFault"/>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="Greeter_SOAPBinding" type="tns:Greeter">
@@ -127,8 +143,11 @@
             <wsdl:output name="testDocLitFaultResponse">
                 <soap:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="LiteralException">
-                <soap:fault name="LiteralException" use="literal" /> 
+            <wsdl:fault name="NoSuchCodeLitFault">
+                <soap:fault name="NoSuchCodeLitFault" use="literal" /> 
+            </wsdl:fault>
+            <wsdl:fault name="BadRecordLitFault">
+                <soap:fault name="BadRecordLitFault" use="literal" /> 
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>

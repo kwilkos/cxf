@@ -21,7 +21,6 @@ import org.objectweb.celtix.bus.context.WebServiceContextImpl;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.bus.jaxws.EndpointUtils;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -100,8 +99,6 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
         //Input Message
         requestCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
-        // use ServerBinding to read the SAAJ model and insert it into a
-        // SOAPMessageContext
         
         try {
             read(inCtx, requestCtx);
@@ -124,7 +121,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         }
 
         try {
-            OutputStreamMessageContext outCtx = t.createOutputStreamContext(inCtx);
+            OutputStreamMessageContext outCtx = t.createOutputStreamContext(replyCtx);
             // TODO - invoke output stream handlers
             t.finalPrepareOutputStreamContext(outCtx);
             write(replyCtx, outCtx);
@@ -150,28 +147,20 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
     private MessageContext invokeOnMethod(MessageContext requestCtx) {
 
-        // get operation name from message context and identify method
-        // in implementor
-        //REVISIT replyCtx should be created once the method is invoked
         ObjectMessageContext objContext = createObjectContext();
-        MessageContext replyCtx = createBindingMessageContext(new GenericMessageContext());
+        MessageContext replyCtx = createBindingMessageContext(requestCtx);
         assert replyCtx != null;
 
-        
         QName operationName;
         if ((operationName = getOperationName(requestCtx, objContext)) == null) {
             throw new WebServiceException("Request Context does not include operation name");
         }
 
-        // get implementing method
         Method method = EndpointUtils.getMethod(endpoint, operationName);
         if (method == null) {
             LOG.log(Level.SEVERE, "IMPLEMENTOR_MISSING_METHOD_MSG", operationName);
             throw new WebServiceException("Web method: " + operationName + " not found in implementor.");
         }
-
-        // unmarshal arguments for method call - includes transferring the
-        // operationName from the message context into the object context
 
         objContext.setMethod(method);
        
@@ -184,7 +173,6 @@ public abstract class AbstractServerBinding implements ServerBinding {
         objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
         boolean continueProcessing = invoker.invokeLogicalHandlers();
 
-        
         try {
             if (continueProcessing) {
                 // get parameters from object context and invoke on implementor

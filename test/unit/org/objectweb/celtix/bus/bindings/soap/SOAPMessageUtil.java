@@ -1,11 +1,22 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+import java.lang.reflect.Method;
 import javax.xml.namespace.QName;
 
 public final class SOAPMessageUtil {
 
     private SOAPMessageUtil() {
         // Utility class - never constructed
+    }
+    
+    public static Method getMethod(Class<?> clazz, String methodName) throws Exception {
+        Method[] declMethods = clazz.getDeclaredMethods();
+        for (Method method : declMethods) {
+            if (method.getName().equals(methodName)) {
+                return method;
+            }
+        }
+        return null;
     }
     
     public static String createWrapDocLitSOAPMessage(QName wrapName, QName elName, String data) {
