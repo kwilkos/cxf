@@ -68,7 +68,8 @@ public class JAXBEncoderDecoder {
                     } 
                 }
             } else {
-                mObj = new JAXBElement(elNname, mObj.getClass(), mObj);
+                mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
+                    .newInstance(elNname, mObj.getClass(), mObj);
             }
            
             u.marshal(mObj, destNode);
@@ -76,7 +77,7 @@ public class JAXBEncoderDecoder {
             throw new SOAPException("Marshalling Error", ex);
         }
     }
-
+    
     public Object unmarshall(Node srcNode, QName elName) throws SOAPException {
         Object obj = null;
         try {

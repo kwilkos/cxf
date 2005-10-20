@@ -60,6 +60,10 @@ public abstract class ClientServerTestBase extends TestCase {
     protected void initBus() throws BusException { 
         bus = Bus.init();
     }
+    
+    protected Bus getBus() {
+        return bus;
+    }
 
     protected void onetimeSetUp() throws BusException { 
         // emtpy

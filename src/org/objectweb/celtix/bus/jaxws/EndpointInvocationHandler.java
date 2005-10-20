@@ -45,7 +45,7 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         clientBinding = createBinding(reference);
     }
 
-    public Object invoke(Object proxy, Method method, Object args[]) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object args[]) throws Exception {
 
         if (portTypeInterface.equals(method.getDeclaringClass())) {
             return invokeSEIMethod(proxy, method, args);

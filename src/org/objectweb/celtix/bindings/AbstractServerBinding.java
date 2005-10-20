@@ -165,8 +165,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         MessageContext replyCtx = createBindingMessageContext(requestCtx);
         assert replyCtx != null;
 
-        QName operationName;
-        if ((operationName = getOperationName(requestCtx, objContext)) == null) {
+        if (getOperationName(requestCtx, objContext) == null) {
             throw new WebServiceException("Request Context does not include operation name");
         }
 

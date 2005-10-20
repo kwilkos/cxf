@@ -64,7 +64,6 @@ public class ClientServerTest extends ClientServerTestBase {
         assertNotNull(service);
 
         String noSuchCodeFault = "NoSuchCodeLitFault";
-        String badRecordFault = "BadRecordLitFault";
 
         Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
         for (int idx = 0; idx < 5; idx++) {

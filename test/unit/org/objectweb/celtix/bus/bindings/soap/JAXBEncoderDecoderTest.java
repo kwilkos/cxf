@@ -63,6 +63,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
         packageName = packageName.substring(0, packageName.lastIndexOf('.'));
         try {
             JAXBContext context = JAXBContext.newInstance(String.class);
+            // Need to "read" from it to avoid a warning
+            context.getClass();
         } catch (Exception ex) {
             throw new SOAPException("Could not create JAXB Context", ex);
         }
