@@ -27,6 +27,8 @@ public class ConfigurationMetadataTest extends TestCase {
     public void testStandardTypes() {
              
         ConfigurationMetadata model = buildMetadata("meta1.xml"); 
+        assertEquals("http://celtix.objectweb.org/configuration/test/meta1", 
+                     model.getNamespaceURI());
         Collection<ConfigurationItemMetadata> definitions = model.getDefinitions();
         assertEquals(12, definitions.size());
         ConfigurationItemMetadata definition = model.getDefinition("stringListItem");
@@ -69,6 +71,12 @@ public class ConfigurationMetadataTest extends TestCase {
         definition = model.getDefinition("otherStringItem");
         assertEquals(new QName(TYPES_NAMESPACE_URI, "string"),
                      definition.getType());
+        
+        ConfigurationMetadataImpl imodel = (ConfigurationMetadataImpl)model;
+        assertEquals(1, imodel.getTypeSchemas().size());
+        assertNotNull(imodel.getTypeSchema(TYPES_NAMESPACE_URI));
+        assertNotNull(imodel.getTypeSchema(new QName(TYPES_NAMESPACE_URI, "long")));
+        
     }
 
     public void testIllegalQNameInType() {

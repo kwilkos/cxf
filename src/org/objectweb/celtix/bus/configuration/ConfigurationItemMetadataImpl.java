@@ -10,7 +10,6 @@ public class ConfigurationItemMetadataImpl implements ConfigurationItemMetadata 
     private LifecyclePolicy lifecyclePolicy = LifecyclePolicy.STATIC;
     private QName type;
     private Object defaultValue;
-    private String packageName;
     
     public String getName() {
         return name;
@@ -28,10 +27,6 @@ public class ConfigurationItemMetadataImpl implements ConfigurationItemMetadata 
         return defaultValue;
     }
     
-    public String getTypePackageName() {
-        return packageName;
-    }
-    
     protected void setName(String n) {
         name = n;
     }
@@ -46,9 +41,5 @@ public class ConfigurationItemMetadataImpl implements ConfigurationItemMetadata 
         
     protected void setDefaultValue(Object v) {
         defaultValue = v;
-    }
-    
-    protected void setTypePackageName(String p) {
-        packageName = p;
     }
 }

@@ -3,7 +3,19 @@ package org.objectweb.celtix.configuration;
 import java.util.List;
 
 public interface Configuration {
-    
+   
+    /**
+     * Returns the (instance) identifier of this configuration. This should be unique among all 
+     * instances of the same type, and would typically be implemented as a string (e.g. the bus id),
+     * but other types, e.g. QName, may also be used.
+     * 
+     * The combination of this identifier with the namespaceURI of the associated metadata model 
+     * should allow to uniquely identify a Configuration object (i.e. an instance of a 
+     * configurable component) inside an application. 
+     * 
+     * @return
+     */
+    Object getId();
     
     /** 
      * Returns the <code>Configurator</code> associated with this <code>Configuration</code>.

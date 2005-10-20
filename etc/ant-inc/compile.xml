@@ -44,7 +44,7 @@
 
     <!--  Targets to compile the code -->
     <!-- TODO: need to setup classpaths and such for the dependent libs -->
-    <target name="src.compile" depends="schemas.codegen" description="Compile the source">
+    <target name="src.compile" depends="schemas.codegen,configuration.codegen" description="Compile the source">
         <mkdir dir="${basedir}/build/classes"/>
 
         <javac
@@ -69,6 +69,25 @@
         	<fileset dir="${basedir}/src" includes="**/*.xml"/>
         </copy>
         <antcall target="src.checkstyle"/>
+    </target>
+
+    <target name="spring.compile" depends="spring.codegen" description="Generate and compile the source for Spring support">
+        <mkdir dir="${basedir}/build/classes"/>
+        <javac
+            destdir="${basedir}/build/classes"
+            debug="true"
+            target="1.5"
+            source="1.5"
+            fork="true"
+            sourcepath=""
+            includeAntRuntime="false">
+            <compilerarg line="-Xlint${xlint.args}"/>
+            <src path="${basedir}/build/spring-src"/>
+            <classpath>
+                <path refid="src.compile.classpath"/>
+                <pathelement location="${basedir}/build/classes"/>
+            </classpath>
+        </javac>
     </target>
 
     <target name="unittest.compile" depends="testwsdl.codegen" description="Compile the unit tests">

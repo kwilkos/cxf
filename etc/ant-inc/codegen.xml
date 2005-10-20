@@ -66,18 +66,32 @@
         <xsdtojava file="${basedir}/schemas/ws-addr.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing"/>
         <xsdtojava file="${basedir}/schemas/ws-addr-wsdl.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing.wsdl"/>
         <xsdtojava file="${basedir}/schemas/wsdl.xsd" destdir="${basedir}/build/src"/>
-    	<xsdtojava file="${basedir}/src/org/objectweb/celtix/configuration/types.xsd" destdir="${basedir}/build/src"/>
         <touch file="${basedir}/build/src/.SCHEMA.CODEGEN.DONE"/>
     </target>
 
     <target name="schemas.codegen">
         <uptodate property="schema.codegen.notrequired" value="true">
             <srcfiles dir="schemas" includes="*"/>
-        	<srcfiles dir="src/org/objectweb/celtix/configuration" includes="types.xsd"/>
             <srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
             <mapper type="merge" to="${basedir}/build/src/.SCHEMA.CODEGEN.DONE"/>
         </uptodate>
         <antcall target="schemas.codegen.internal"/>
+    </target>
+	
+	<target name="configuration.codegen.internal" unless="configuration.codegen.notrequired">
+		<xsdtojava file="${basedir}/src/org/objectweb/celtix/configuration/types.xsd" destdir="${basedir}/build/src"/>
+		<xsdtojava file="${basedir}/src/org/objectweb/celtix/bus/jaxws/configuration/types.xsd" destdir="${basedir}/build/src"/>
+	    <touch file="${basedir}/build/src/.CONFIGURATION.CODEGEN.DONE"/>
+	</target>
+
+	<target name="configuration.codegen">
+	    <uptodate property="configuration.codegen.notrequired" value="true">
+	        <srcfiles dir="src/org/objectweb/celtix/configuration" includes="types.xsd"/>
+	    	<srcfiles dir="src/org/objectweb/celtix/bus/jaxws/configuration" includes="types.xsd"/>
+	    	<srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
+	    	<mapper type="merge" to="${basedir}/build/src/.CONFIGURATION.CODEGEN.DONE"/>
+	    </uptodate>
+	    <antcall target="configuration.codegen.internal"/>
     </target>
 
     <target name="testwsdl.codegen.internal" unless="testwsdl.codegen.notrequired">
@@ -100,5 +114,33 @@
         <antcall target="testwsdl.codegen.internal"/>
     </target>
 
-    <target name="codegen" depends="schemas.codegen,testwsdl.codegen" description="Generate all generated code"/>
+    <target name="codegen" depends="schemas.codegen,configuration.codegen,testwsdl.codegen" description="Generate all generated code"/>
+
+    <target name="spring.codegen.internal" unless="spring.codegen.notrequired">
+        <fileset dir="${basedir}/src" id="metadata.schemas">
+            <include name="**/configuration.xml"/>
+        </fileset>
+  
+        <pathconvert pathsep=" " property="metadata.schema.files" refid="metadata.schemas"/>
+        <property name="output.dir" location="${basedir}/build/spring-src"/>
+        <java failonerror="true" classname="org.objectweb.celtix.bus.configuration.spring.BeanGenerator" fork="true" newenvironment="true">
+                <classpath>
+                    <path location="${basedir}/build/classes"/>
+                    <path refid="jaxws.classpath"/>
+              	</classpath>
+                <arg line="-d"/>
+                <arg value="${output.dir}"/>
+                <arg value="${metadata.schema.files}"/>
+            </java>
+        <touch file="${basedir}/build/src/.SPRING.CODEGEN.DONE"/>
+    </target>
+
+    <target name="spring.codegen" description="Generate Java Beans for use with Spring">
+        <uptodate property="spring.codegen.notrequired" value="true">
+            <srcfiles dir="src" includes="**/configuration.xml"/>
+            <mapper type="merge" to="${basedir}/build/spring-src/.SPRING.CODEGEN.DONE"/>
+        </uptodate>
+        <antcall target="spring.codegen.internal"/>
+    </target>
+	
 </project>

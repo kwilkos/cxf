@@ -3,7 +3,8 @@
     xmlns:cm="http://celtix.objectweb.org/config-metadata" 
     xmlns:ct="http://celtix.objectweb.org/config-types" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata metadata.xsd">
+    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata metadata.xsd"
+    namespace="http://celtix.objectweb.org/configuration/test/meta5">
 
    <!-- multiple items with same name are illegal  -->
    

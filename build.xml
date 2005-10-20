@@ -36,7 +36,8 @@
     <!-- Load the release targets -->
     <import file="etc/ant-inc/release.xml"/>
 	
-	<!-- Target to clean the build dir -->
+    <!-- Target to clean the build dir -->
     <import file="etc/ant-inc/clean.xml"/>
+
 
 </project>

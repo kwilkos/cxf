@@ -9,6 +9,5 @@ public class ApplicationConfiguration extends AbstractConfigurationImpl {
     ApplicationConfiguration() {
         super(null);
     }
-    
    
 }

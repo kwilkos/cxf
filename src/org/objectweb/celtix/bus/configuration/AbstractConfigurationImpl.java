@@ -40,6 +40,10 @@ public abstract class AbstractConfigurationImpl implements Configuration {
     public AbstractConfigurationImpl(URL url) {
         this(url, null);
     }
+    
+    public Object getId() {
+        return getClass().getName();
+    }
 
     public Configurator getConfigurator() {
         return configurator;

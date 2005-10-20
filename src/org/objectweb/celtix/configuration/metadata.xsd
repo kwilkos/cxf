@@ -14,6 +14,7 @@
 			<xs:element name="configImport" type="tns:importType" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="configItem" type="tns:configItemType" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
+		<xs:attribute name="namespace" type="xs:anyURI" use="required"/>
 	</xs:complexType>
 	<xs:complexType name="importType">
 		<xs:attribute name="namespace" type="xs:anyURI" use="required"/>
@@ -24,8 +25,8 @@
 			<xs:documentation>Describes an individual configuration item</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="name" type="xs:string" nillable="false"/>
-			<xs:element name="type" type="tns:typeType" nillable="false"/>
+			<xs:element name="name" type="tns:nameType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="type" type="tns:typeType" minOccurs="1" maxOccurs="1" />
 			<xs:element name="description" type="tns:descriptionType" nillable="true" minOccurs="0"/>
 			<xs:element name="lifecyclePolicy" type="tns:lifecyclePolicyType" nillable="false" minOccurs="0"/>
 			<xs:any namespace="##other" processContents="lax" minOccurs="0"/>
@@ -42,8 +43,15 @@
 			<xs:enumeration value="dynamic"/>
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:simpleType name="nameType">
+		<xs:restriction base="xs:string">
+		    <xs:pattern value="\S+"/>
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:simpleType name="typeType">
-		<xs:restriction base="xs:string"/>
+		<xs:restriction base="xs:string">
+		    <xs:pattern value="\S+"/>
+		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="descriptionType">
 		<xs:restriction base="xs:string">

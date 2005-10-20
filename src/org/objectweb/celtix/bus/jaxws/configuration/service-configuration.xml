@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config 
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
+    xmlns:std-types="http://celtix.objectweb.org/configuration/types" 
+    xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata metadata.xsd"
+    namespace="http://celtix.objectweb.org/bus/jaxws/service">
+
+   <!-- configuration metadata for test component top  -->
+   
+    <cm:configImport location="/org/objectweb/celtix/configuration/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    <cm:configImport location="/org/objectweb/celtix/bus/jaxws/configuration/types.xsd" namespace="http://celtix.objectweb.org/bus/jaxws/configuration/types"/>
+    
+    <!-- items with default values -->
+    
+    <!-- items without default values - values will always depend on the actual service -->
+    
+    <cm:configItem>
+        <cm:name>handlerChain</cm:name>
+        <cm:type>jaxws-types:handlerChain</cm:type>
+        <cm:description>
+        Specifies the list of handlers to be used for a service. The list can contain a mix 
+        of logical and protocol handlers. It is up to the HandlerRegister
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+    </cm:configItem>
+   
+	
+</cm:config>

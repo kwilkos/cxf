@@ -4,7 +4,8 @@
     xmlns:ct="http://celtix.objectweb.org/configuration/types" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata 
-    http://celtix.objectweb.org/configuration/metadata.xsd">
+    http://celtix.objectweb.org/configuration/metadata.xsd"
+    namespace="http://celtix.objectweb.org/configuration/test/meta1">
     
     <cm:configImport location="/org/objectweb/celtix/configuration/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
     

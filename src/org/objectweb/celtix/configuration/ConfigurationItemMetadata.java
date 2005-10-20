@@ -50,5 +50,6 @@ public interface ConfigurationItemMetadata {
      * 
      * @return the default value of this configuration metadata item.
      */
-    Object getDefaultValue();   
+    Object getDefaultValue();
+    
 }

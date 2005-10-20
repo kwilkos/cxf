@@ -10,5 +10,10 @@ public class BusConfiguration extends AbstractConfigurationImpl {
         super(BusConfiguration.class.getResource("configuration.xml"));
         
         //ignore arguments  ...
-    }   
+    }  
+    
+    public Object getId() {
+        // should really be the bus id
+        return super.getId();
+    }
 }

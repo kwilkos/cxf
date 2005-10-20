@@ -9,6 +9,13 @@ import java.util.Collection;
 public interface ConfigurationMetadata {
     
     /**
+     * Gets the namespace URI for this configuration metadata model.
+     *
+     * @return the configuration metadata model's namespace URI. 
+     */
+    String  getNamespaceURI();
+    
+    /**
      * Gets the metadata for the specified configuration item name.
      * 
      * @param name the name of the configuration item.

@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.configuration;
 
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,17 +12,22 @@ import org.objectweb.celtix.configuration.ConfigurationMetadata;
 public class ConfigurationMetadataImpl implements ConfigurationMetadata {
 
     private Map<String, ConfigurationItemMetadata> definitions;
-    private Map<QName, QName> types;
+    private Map<String, TypeSchema> types;
+    private String namespaceURI;
     
     protected ConfigurationMetadataImpl() {
         definitions = new HashMap<String, ConfigurationItemMetadata>();
-        types = new HashMap<QName, QName>();
+        types = new HashMap<String, TypeSchema>();
     }
     
     protected void addItem(ConfigurationItemMetadata item) {
         definitions.put(item.getName(), item);
     }
     
+    public String getNamespaceURI() {
+        return namespaceURI;
+    }
+
     public ConfigurationItemMetadata getDefinition(String name) {      
         return definitions.get(name);
     }
@@ -32,22 +36,23 @@ public class ConfigurationMetadataImpl implements ConfigurationMetadata {
         return definitions.values();
     }
     
-    public Collection<QName> getTypes() {
+    public Collection<TypeSchema> getTypeSchemas() {
         return types.values();
     }
     
-    public QName getType(QName elementName) {
-        return types.get(elementName);
+    public TypeSchema getTypeSchema(QName typeName) {
+        return types.get(typeName.getNamespaceURI());
     }
     
-    public QName addType(QName elementName, QName type) {
-        return types.put(elementName, type);
+    public TypeSchema getTypeSchema(String namespace) {
+        return types.get(namespace);
     }
     
-    public static void main(String[] args) throws Exception {
-        System.out.println("parsing metadata " + args[0]);
-        URL url = new URL(args[0]);
-        ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();
-        builder.build(url);        
-    }   
+    public void addTypeSchema(String namespace, TypeSchema ts) {
+        types.put(namespace, ts);
+    }
+    
+    protected void setNamespaceURI(String uri) {
+        namespaceURI = uri;
+    }
 }

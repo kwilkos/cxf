@@ -9,6 +9,7 @@
                  <include name="classes-tests/unit/**/*"/>
                  <include name="classes-tests/system/**/*"/>
                  <include name="src/**/*"/>
+                 <include name="spring-src/**/*"/>
                  <include name="test-src/**/*"/>
                  <include name="set_env*"/>
             </fileset>

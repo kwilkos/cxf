@@ -28,6 +28,7 @@ import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.handlers.HandlerChainBuilder;
 import org.objectweb.celtix.bus.handlers.HandlerResolverImpl;
 import org.objectweb.celtix.bus.handlers.PortInfoImpl;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class ServiceImpl extends ServiceDelegate {
@@ -38,6 +39,7 @@ public class ServiceImpl extends ServiceDelegate {
     private QName serviceName;
     private List<QName> endpointList;
     private final Bus bus;
+    private Configuration configuration;
     private HandlerResolver handlerResolver; 
     
     /**
@@ -46,10 +48,11 @@ public class ServiceImpl extends ServiceDelegate {
      */
     public ServiceImpl(Bus b, URL location, QName name, Class<?> si) {
         bus = b;
+        configuration = new ServiceConfiguration(bus, name);
         wsdlLocation = location;
         serviceName = name;
         endpointList = new Vector<QName>();
-        handlerResolver = new HandlerResolverImpl();
+        handlerResolver = new HandlerResolverImpl(configuration);
     }
     
     public void createPort(QName portName, URI bindingId, String endpointAddress) {
