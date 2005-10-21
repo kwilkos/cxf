@@ -63,7 +63,7 @@ public class ConfigurationMetadataBuilder  {
         try {
             parseXML(new InputSource(new FileInputStream(path)));
         } catch (IOException ex) {
-            throw new ConfigurationException(new Message("IO_ERROR_EXC", LOG, path));
+            throw new ConfigurationException(new Message("IO_ERROR_EXC", LOG, path), ex);
         }
         return model;
     }
