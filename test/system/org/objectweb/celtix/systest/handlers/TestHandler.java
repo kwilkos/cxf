@@ -2,6 +2,8 @@ package org.objectweb.celtix.systest.handlers;
 
 
 
+
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.LogicalMessage;
+import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
@@ -52,6 +55,10 @@ class TestHandler<T extends LogicalMessageContext> implements LogicalHandler<T> 
  
     } 
 
+    public String getHandlerId() { 
+        return "handler" + id;
+    } 
+
     public int getId() {
         return id; 
     }
@@ -64,10 +71,10 @@ class TestHandler<T extends LogicalMessageContext> implements LogicalHandler<T> 
         }
 
         QName operationName = (QName)ctx.get(MessageContext.WSDL_OPERATION);
-        
         boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-        
         boolean ret = handleMessageRet; 
+
+        //printHandlerInfo("handleMessage", outbound);
 
         if ("ping".equals(operationName.getLocalPart())) {
             ret = handlePingMessage(outbound, ctx);
@@ -79,36 +86,56 @@ class TestHandler<T extends LogicalMessageContext> implements LogicalHandler<T> 
     }
 
 
+    private void printHandlerInfo(String methodName, boolean outbound) { 
+        String info = getHandlerId() + " "
+            + (outbound ? "outbound" : "inbound") + " "
+            + methodName;
+        System.out.println(info);
+    } 
+
+
     private boolean handlePingWithArgsMessage(boolean outbound, T ctx) { 
 
         LogicalMessage msg = ctx.getMessage();
         addHandlerId(msg, ctx, outbound);
         Object payload = msg.getPayload(jaxbCtx); 
-        String handlerId = "handler" + id; 
 
         boolean ret = true;
         if (payload instanceof PingWithArgs) {
             String arg = ((PingWithArgs)payload).getHandlersCommand();
+            
             StringTokenizer strtok = new StringTokenizer(arg, " ");
             String hid = strtok.nextToken();
             String direction = strtok.nextToken();
             String command = strtok.nextToken();
+            
+            if (outbound) {
+                return ret; 
+            } 
 
-            if (!outbound) {
-                if ("inbound".equals(direction) && handlerId.equals(hid)) {
+            if (getHandlerId().equals(hid)) {
+                if ("inbound".equals(direction)) {
                     if ("stop".equals(command)) {
-
                         PingResponse resp = new PingResponse();
                         resp.getHandlersInfo().addAll(getHandlerInfoList(ctx));
                         msg.setPayload(resp, jaxbCtx);
                         ret = false;
+                    } else if ("throw".equals(command)) {
+                        throwException(strtok.nextToken());
                     }
                 }
+
             }
-        } 
+        }
         return ret;
     } 
 
+
+    private void throwException(String exType) { 
+        if (exType.contains("ProtocolException")) {
+            throw new ProtocolException("from server handler");
+        }
+    } 
 
     private boolean handlePingMessage(boolean outbound, T ctx) { 
 
@@ -133,7 +160,10 @@ class TestHandler<T extends LogicalMessageContext> implements LogicalHandler<T> 
     } 
 
 
-    public boolean handleFault(T arg0) {
+    public boolean handleFault(T ctx) {
+
+        boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        //printHandlerInfo("handleFault", outbound);
         handleFaultInvoked++;
         return true;
     }
@@ -160,6 +190,10 @@ class TestHandler<T extends LogicalMessageContext> implements LogicalHandler<T> 
 
     public boolean isHandleFaultInvoked() {
         return handleFaultInvoked != 0;
+    }
+
+    public int getHandleFaultInvoked() {
+        return handleFaultInvoked;
     }
 
     public boolean isHandleMessageInvoked() {

@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.jaxws;
 
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,7 +19,6 @@ import javax.xml.ws.ProtocolException;
 import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.Bus;
-
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ClientBinding;
@@ -107,9 +107,9 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         } else {
             objMsgContext = clientBinding.invoke(objMsgContext);
         }
-        
+
         if (objMsgContext.getException() != null) {
-            LOG.log(Level.SEVERE, "ENDPOINT_INVOCATION_FAILED", method.getName());
+            LOG.log(Level.INFO, "ENDPOINT_INVOCATION_FAILED", method.getName());
             if (isValidException(objMsgContext)) {
                 throw (Exception)objMsgContext.getException();
             } else {                

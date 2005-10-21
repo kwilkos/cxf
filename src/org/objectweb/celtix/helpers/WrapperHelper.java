@@ -19,11 +19,9 @@ public final class WrapperHelper {
         if (part instanceof List) {
             setWrappedListProperty(name, wrapperType, part);
         } else {
-            
             Method elMethods[] = wrapperType.getClass().getMethods();
             for (Method method : elMethods) {
-                if (method.getParameterTypes().length == 1
-                    && method.getParameterTypes()[0].equals(part.getClass())) {
+                if (isSetterForType(method, part.getClass())) {
                     method.invoke(wrapperType, part);
                 }
             }
@@ -46,4 +44,10 @@ public final class WrapperHelper {
         }
     }
 
+    private static boolean isSetterForType(Method m, Class<?> clz) { 
+        
+        return m.getParameterTypes() != null 
+            && m.getParameterTypes().length == 1
+            && clz.isAssignableFrom(m.getParameterTypes()[0]);
+    } 
 }

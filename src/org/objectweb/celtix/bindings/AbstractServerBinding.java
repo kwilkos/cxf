@@ -188,7 +188,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 Object params[] = (Object[])objContext.getMessageObjects();
                 Object result = method.invoke(getEndpoint().getImplementor(), params);
                 objContext.setReturn(result);
-            }
+            } 
             if (!isOneWay(method)) {
                 objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
                 objContext.remove(ObjectMessageContext.MESSAGE_PAYLOAD);
@@ -199,11 +199,15 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 marshal(objContext, replyCtx);
             }
 
+            if (!invoker.faultRaised()) { 
+                marshal(objContext, replyCtx);
+            }
+
         } catch (IllegalAccessException ex) {
             LogUtils.log(LOG, Level.SEVERE, "IMPLEMENTOR_INVOCATION_FAILURE_MSG", ex, method.getName());
             objContext.setException(ex);
         } catch (InvocationTargetException ex) {
-            LogUtils.log(LOG, Level.SEVERE, "IMPLEMENTOR_INVOCATION_EXCEPTION_MSG", ex, method.getName());
+            LogUtils.log(LOG, Level.INFO, "IMPLEMENTOR_INVOCATION_EXCEPTION_MSG", ex, method.getName());
             Throwable cause = ex.getCause();
             if (cause != null) {
                 objContext.setException(cause);
@@ -211,6 +215,10 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 objContext.setException(ex);
             }            
         } finally {
+            if (!isOneWay(method)) {
+                invoker.setOutbound(); 
+                invoker.invokeLogicalHandlers();
+            }
             if (null != objContext.getException()) {
                 marshalFault(objContext, replyCtx);
             }

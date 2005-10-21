@@ -177,6 +177,8 @@ public class ResourceInjector {
             String name = getFieldNameForResource(res, field);
             Class<?> type = getFieldTypeForResource(res, field); 
             
+            // TODO -- need to add some magic to set private fields
+            // here 
             if ((field.getModifiers() & (Modifier.PRIVATE ^ Modifier.PROTECTED)) > 0) {
                 LOG.log(Level.SEVERE, "PRIVATE_FIELD_INJECTION_NYI", field);
                 continue;

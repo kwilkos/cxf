@@ -72,15 +72,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         return serverBinding.getBinding();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.xml.ws.Endpoint#getHandlerChain()
-     */
-    public List<Handler> getHandlerChain() {
-        // TODO - create a copy of handler chain?  Maybe unmodifiable list?
-        return handlers;
-    }
 
     /*
      * (non-Javadoc)

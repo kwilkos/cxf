@@ -10,6 +10,8 @@ import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.handler_test.HandlerTest;
+import org.objectweb.handler_test.PingException;
+import org.objectweb.handler_test.types.PingFaultDetails;
 
 @WebService(serviceName = "HandlerTestService", portName = "SoapPort", name = "HandlerTest", 
             targetNamespace = "http://objectweb.org/handler_test")
@@ -22,7 +24,6 @@ public class HandlerTestImpl implements HandlerTest {
         try {
             List<String> handlerInfoList = getHandlersInfo(context.getMessageContext());
             handlerInfoList.add("servant");
-            System.out.println("\n\n\nhandler list: " + handlerInfoList);
             context.getMessageContext().remove("handler.info");
 
             return handlerInfoList;
@@ -34,10 +35,21 @@ public class HandlerTestImpl implements HandlerTest {
         return null;
     }
 
-    public final List<String> pingWithArgs(String handlerCommand) { 
+    public final void pingOneWay() {
+    } 
+
+    public final List<String> pingWithArgs(String handlerCommand) throws PingException {
+
         List<String> ret = new ArrayList<String>(); 
         ret.add(handlerCommand); 
         ret.addAll(getHandlersInfo(context.getMessageContext()));
+
+        if (handlerCommand.contains("throw exception")) {
+            PingFaultDetails details = new PingFaultDetails(); 
+            details.setDetail(ret.toString());
+            throw new PingException("from servant", details); 
+        }
+
         return ret;
     } 
 

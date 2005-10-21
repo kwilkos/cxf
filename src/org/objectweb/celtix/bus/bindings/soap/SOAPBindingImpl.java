@@ -19,7 +19,6 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.namespace.QName;
-//import javax.xml.soap.Detail;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPElement;
@@ -27,6 +26,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.ProtocolException;
 import javax.xml.ws.WebFault;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
@@ -180,29 +180,34 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
         
         SOAPFault fault = soapMessage.getSOAPBody().getFault();
-        
-        NodeList list = fault.getDetail().getChildNodes();
-        assert list.getLength() == 1;
-        
-        QName faultName = new QName(list.item(0).getNamespaceURI(), list.item(0).getLocalName());
-        Class<?> clazz = messageInfo.getWebFault(faultName);
-
         Object faultObj = null;
-        try {
-            if (clazz != null) {
-                JAXBEncoderDecoder decoder = 
-                    new JAXBEncoderDecoder(getPackageList(messageInfo, false));
-                Object obj = decoder.unmarshall(list.item(0), faultName);
-                Constructor<?> ctor = clazz.getConstructor(String.class, obj.getClass());
-                faultObj = ctor.newInstance(fault.getFaultString(), obj);
-            } else {
-                SOAPFaultException sfe = new SOAPFaultException(fault);
-                faultObj = sfe;
+        if (fault.getDetail() != null) {
+            NodeList list = fault.getDetail().getChildNodes();
+            assert list.getLength() == 1;
+        
+            QName faultName = new QName(list.item(0).getNamespaceURI(), list.item(0).getLocalName());
+            Class<?> clazz = messageInfo.getWebFault(faultName);
+
+            try {
+                if (clazz != null) {
+                    JAXBEncoderDecoder decoder = 
+                        new JAXBEncoderDecoder(getPackageList(messageInfo, false));
+                    Object obj = decoder.unmarshall(list.item(0), faultName);
+                    Constructor<?> ctor = clazz.getConstructor(String.class, obj.getClass());
+                    faultObj = ctor.newInstance(fault.getFaultString(), obj);
+                } else {
+                    SOAPFaultException sfe = new SOAPFaultException(fault);
+                    faultObj = sfe;
+                }
+            } catch (Exception ex) {
+                LOG.log(Level.SEVERE, "FAULT_UNMARSHALLING_FAILURE_MSG", ex);
+                throw new SOAPException("error in unmarshal of SOAPFault", ex);
             }
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "FAULT_UNMARSHALLING_FAILURE_MSG", ex);
-            throw new SOAPException("error in unmarshal of SOAPFault", ex);
+        } else {
+            faultObj = new ProtocolException(fault.getFaultString());
         }
+
+
         objContext.setException((Throwable)faultObj);
     }
     
@@ -241,7 +246,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
 
     private SOAPElement addOperationNode(SOAPElement body, SOAPMessageInfo messageInfo,
-                          boolean isOutBound) throws SOAPException {
+                                         boolean isOutBound) throws SOAPException {
 
         String responseSuffix = isOutBound ? "Response" : "";
 
@@ -250,7 +255,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             WebService wsAnnotation = methodParam.getDeclaringClass().getAnnotation(WebService.class);
             String  namespaceURI = wsAnnotation.targetNamespace();
             QName operationName = new QName(namespaceURI, 
-                                       messageInfo.getOperationName() + responseSuffix);
+                                            messageInfo.getOperationName() + responseSuffix);
             return body.addChildElement(operationName);
         }
         return body;
@@ -267,7 +272,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
     
     private void getWrappedDocLitParts(Node xmlNode , SOAPMessageInfo messageInfo,
-                                 ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
+                                       ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
         
         Method method = messageInfo.getMethod();
         JAXBEncoderDecoder decoder =
@@ -301,7 +306,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
     
     private void getRPCLitParts(Node xmlNode , SOAPMessageInfo messageInfo,
-                             ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
+                                ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
       
         Method method = messageInfo.getMethod();
         Node childNode = xmlNode.getFirstChild();
@@ -348,7 +353,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
 
     private void addRPCLitParts(Node xmlNode , SOAPMessageInfo messageInfo,
-                             ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
+                                ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
 
         Method method = messageInfo.getMethod();
         Object[] args = objCtx.getMessageObjects();
@@ -378,7 +383,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
 
     private void addWrappedDocLitParts(Node xmlNode , SOAPMessageInfo messageInfo,
-                          ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
+                                       ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
 
         Method method = messageInfo.getMethod();
         JAXBEncoderDecoder encoder =
@@ -386,7 +391,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         Object[] args = objCtx.getMessageObjects();
 
         String wrapperType = isOutBound ? messageInfo.getResponseWrapperType()
-                : messageInfo.getRequestWrapperType();
+            : messageInfo.getRequestWrapperType();
 
         Object wrapperObj = null;
         try {
@@ -412,7 +417,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
 
         QName elName = isOutBound ? messageInfo.getResponseWrapperQName()
-              : messageInfo.getRequestWrapperQName();
+            : messageInfo.getRequestWrapperQName();
 
         encoder.marshall(wrapperObj, elName, xmlNode);
     }

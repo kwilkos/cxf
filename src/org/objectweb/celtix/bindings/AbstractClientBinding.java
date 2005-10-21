@@ -121,6 +121,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 Method m = context.getMethod();
                 context = createObjectContext();
                 context.setMethod(m);
+                handlerInvoker.setContext(context); 
 
                 if (!hasFault(bindingContext)) {
                     unmarshal(bindingContext, context);
