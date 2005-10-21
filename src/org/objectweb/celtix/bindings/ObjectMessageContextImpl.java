@@ -48,5 +48,10 @@ public class ObjectMessageContextImpl extends GenericMessageContext implements O
     public Throwable getException() {
         return (Throwable) get(METHOD_FAULT);
     }    
+
+    public void setRequestorRole(boolean requestor) {
+        put(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY, Boolean.valueOf(requestor));
+        setScope(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY, MessageContext.Scope.HANDLER);
+    }
 }
 

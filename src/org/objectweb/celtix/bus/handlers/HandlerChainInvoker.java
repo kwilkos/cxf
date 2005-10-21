@@ -56,7 +56,8 @@ public class HandlerChainInvoker {
         context = ctx;
     }
 
-    public boolean invokeLogicalHandlers() {        
+    public boolean invokeLogicalHandlers(boolean requestor) {        
+        context.setRequestorRole(requestor);
         LogicalMessageContextImpl logicalContext = new LogicalMessageContextImpl(context);
 
         // if the last time through, the handler processing was 
@@ -69,8 +70,8 @@ public class HandlerChainInvoker {
         }
     }
         
-    public boolean invokeProtocolHandlers() { 
-        
+    public boolean invokeProtocolHandlers(boolean requestor) { 
+        context.setRequestorRole(requestor);
         return invokeHandlerChain(protocolHandlers, context);
     }    
     

@@ -8,6 +8,7 @@ public interface ObjectMessageContext extends MessageContext {
     String MESSAGE_INPUT = "org.objectweb.celtix.input";
     String MESSAGE_PAYLOAD = "org.objectweb.celtix.payload";
     String REQUEST_PROXY = "org.objectweb.celtix.proxy"; 
+    String REQUESTOR_ROLE_PROPERTY = "org.objectweb.celtix.role.requestor"; 
 
     Object[] getMessageObjects();
     
@@ -24,6 +25,8 @@ public interface ObjectMessageContext extends MessageContext {
     void setException(Throwable retVal);
     
     Throwable getException();
+
+    void setRequestorRole(boolean requestor);
 }
 
 

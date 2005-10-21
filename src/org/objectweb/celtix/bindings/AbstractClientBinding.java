@@ -85,7 +85,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
             //Input Message For Client
             bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
-            boolean continueProcessing = handlerInvoker.invokeLogicalHandlers();
+            boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(true);
 
             if (continueProcessing) {  
 
@@ -130,7 +130,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 }
             }
             handlerInvoker.setInbound();
-            handlerInvoker.invokeLogicalHandlers();
+            handlerInvoker.invokeLogicalHandlers(true);
         } finally { 
             handlerInvoker.mepComplete();
         }

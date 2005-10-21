@@ -172,7 +172,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         Method method = getMethod(requestCtx); 
 
         objContext.setMethod(method);
-       
+
         unmarshal(requestCtx, objContext);
         
         new WebServiceContextImpl(objContext); 
@@ -180,7 +180,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                                                               objContext, false); 
 
         objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
-        boolean continueProcessing = invoker.invokeLogicalHandlers();
+        boolean continueProcessing = invoker.invokeLogicalHandlers(false);
 
         try {
             if (continueProcessing) {
@@ -194,7 +194,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 objContext.remove(ObjectMessageContext.MESSAGE_PAYLOAD);
                 objContext.setMessageObjects((Object[])null);
                 invoker.setOutbound(); 
-                invoker.invokeLogicalHandlers();
+                invoker.invokeLogicalHandlers(false);
                 replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
                 marshal(objContext, replyCtx);
             }
@@ -217,7 +217,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         } finally {
             if (!isOneWay(method)) {
                 invoker.setOutbound(); 
-                invoker.invokeLogicalHandlers();
+                invoker.invokeLogicalHandlers(false);
             }
             if (null != objContext.getException()) {
                 marshalFault(objContext, replyCtx);
