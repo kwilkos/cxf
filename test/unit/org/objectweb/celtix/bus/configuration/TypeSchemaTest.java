@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.configuration;
 
-import java.io.FileNotFoundException;
 import java.net.URL;
 
 import junit.framework.TestCase;
@@ -61,8 +60,6 @@ public class TypeSchemaTest extends TestCase {
                             "file:resources/test-types.xsd");
         } catch (org.objectweb.celtix.configuration.ConfigurationException ex) {
             assertEquals("FILE_OPEN_ERROR_EXC", ex.getCode());
-            assertNotNull(ex.getCause());
-            assertTrue(ex.getCause() instanceof FileNotFoundException);
         }
         
         URL url = TypeSchemaTest.class.getResource("resources/test-types.xsd");

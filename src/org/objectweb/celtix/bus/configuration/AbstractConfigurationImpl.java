@@ -1,7 +1,7 @@
 package org.objectweb.celtix.bus.configuration;
 
+import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,19 +26,19 @@ public abstract class AbstractConfigurationImpl implements Configuration {
     private ConfigurationMetadata model;
     private Map<String, ConfigurationItem> items;
 
-    public AbstractConfigurationImpl(URL url, Configuration parent) {
+    public AbstractConfigurationImpl(InputStream is, Configuration parent) {
         configurator = new ConfiguratorImpl(this, parent);
         ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();
-        if (null != url) {
-            model = builder.build(url);
+        if (null != is) {
+            model = builder.build(is);
         } else {
             model = new ConfigurationMetadataImpl();
         }
         items = new HashMap<String, ConfigurationItem>();
     }
 
-    public AbstractConfigurationImpl(URL url) {
-        this(url, null);
+    public AbstractConfigurationImpl(InputStream is) {
+        this(is, null);
     }
     
     public Object getId() {

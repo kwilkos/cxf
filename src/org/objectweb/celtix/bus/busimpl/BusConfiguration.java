@@ -7,7 +7,7 @@ import org.objectweb.celtix.bus.configuration.AbstractConfigurationImpl;
 public class BusConfiguration extends AbstractConfigurationImpl {
    
     BusConfiguration(String[] args, Map<String, Object> properties) {
-        super(BusConfiguration.class.getResource("configuration.xml"));
+        super(BusConfiguration.class.getResourceAsStream("configuration.xml"));
         
         //ignore arguments  ...
     }  

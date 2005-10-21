@@ -1,9 +1,7 @@
 package org.objectweb.celtix.bus.configuration;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,22 +46,16 @@ public class ConfigurationMetadataBuilder  {
     private static ErrorHandler validatorErrorHandler;
     
     private ConfigurationMetadataImpl model;
-    private URL url;
     
     public ConfigurationMetadataBuilder() {
         model = new ConfigurationMetadataImpl();
     }
 
-    public ConfigurationMetadata build(URL u) {
-        url = u;
-        String path = url.getFile();
-        if (null == path) {
-            throw new ConfigurationException(new Message("IO_ERROR_EXC", LOG, url));
-        }
+    public ConfigurationMetadata build(InputStream is) {    
         try {
-            parseXML(new InputSource(new FileInputStream(path)));
+            parseXML(new InputSource(is));
         } catch (IOException ex) {
-            throw new ConfigurationException(new Message("IO_ERROR_EXC", LOG, path), ex);
+            throw new ConfigurationException(new Message("IO_ERROR_EXC", LOG), ex);
         }
         return model;
     }
@@ -83,7 +75,7 @@ public class ConfigurationMetadataBuilder  {
             DocumentBuilder parser = factory.newDocumentBuilder();
             document = parser.parse(is);
         } catch (ParserConfigurationException ex) {
-            throw new ConfigurationException(new Message("PARSER_CONFIGURATION_ERROR_EXC", LOG, url), ex);
+            throw new ConfigurationException(new Message("PARSER_CONFIGURATION_ERROR_EXC", LOG), ex);
         } catch (SAXException ex) {
             throw new ConfigurationException(new Message("PARSE_ERROR_EXC", LOG), ex);
         }        
@@ -92,7 +84,7 @@ public class ConfigurationMetadataBuilder  {
             Validator v = getMetadataValidator();
             v.validate(new DOMSource(document));
         } catch (SAXException ex) {
-            Message msg = new Message("METADATA_VALIDATION_ERROR_EXC", LOG, url);
+            Message msg = new Message("METADATA_VALIDATION_ERROR_EXC", LOG);
             throw new ConfigurationException(msg, ex);
         }
         
@@ -222,20 +214,15 @@ public class ConfigurationMetadataBuilder  {
         }
     }
 
-    private String getSchemaLocation() {
-        URL u = ConfigurationException.class.getResource("metadata.xsd");
-        if (null != u) {
-            return u.getFile();
-        }
-        LOG.severe("CANNOT_FIND_CONFIG_METADATA_SCHEMA_MSG");
-        return null;
-    }
-
     private Schema getMetadataSchema() {
         if (null == metadataSchema) {
-            String path = getSchemaLocation();
+            InputStream is = ConfigurationException.class.getResourceAsStream("metadata.xsd");
+            if (null == is) {
+                throw new ConfigurationException(new Message("CANNOT_FIND_CONFIG_METADATA_SCHEMA_MSG", LOG));
+            }
+
             try {
-                metadataSchema = getSchema(path);
+                metadataSchema = getSchema(is);
             } catch (ConfigurationException ex) {
                 // should never happen as metadata schema is immutable
                 LOG.log(Level.SEVERE, "CANNOT_CREATE_CONFIG_METADATA_SCHEMA_MSG", ex);
@@ -244,15 +231,15 @@ public class ConfigurationMetadataBuilder  {
         return metadataSchema;
     }
 
-    private Schema getSchema(String path) {
-        Source schemaFile = new StreamSource(new File(path));
+    private Schema getSchema(InputStream is) {
+        Source schemaFile = new StreamSource(is);
         
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Schema schema = null;
         try {
             schema = factory.newSchema(schemaFile);
         } catch (SAXException ex) {
-            throw new ConfigurationException(new Message("SCHEMA_CREATION_ERROR_EXC", LOG, path), ex);
+            throw new ConfigurationException(new Message("SCHEMA_CREATION_ERROR_EXC", LOG), ex);
         }
         return schema;
     }

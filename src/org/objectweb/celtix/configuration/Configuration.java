@@ -13,7 +13,7 @@ public interface Configuration {
      * should allow to uniquely identify a Configuration object (i.e. an instance of a 
      * configurable component) inside an application. 
      * 
-     * @return
+     * @return the configuration identifier.
      */
     Object getId();
     
@@ -26,7 +26,8 @@ public interface Configuration {
     
     /**
      * Returns the configuration metadata model for this <code>Configuration</code>.
-     * @return
+     * 
+     * @return the configuration metadata model.
      */
     ConfigurationMetadata getModel();
     

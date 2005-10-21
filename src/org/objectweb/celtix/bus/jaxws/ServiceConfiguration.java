@@ -10,7 +10,7 @@ public class ServiceConfiguration extends AbstractConfigurationImpl {
     private QName serviceName;
     
     ServiceConfiguration(Bus bus, QName name) {
-        super(ServiceConfiguration.class.getResource("configuration/service-configuration.xml"), 
+        super(ServiceConfiguration.class.getResourceAsStream("configuration/service-configuration.xml"), 
               bus.getConfiguration());       
         serviceName = name;
     }

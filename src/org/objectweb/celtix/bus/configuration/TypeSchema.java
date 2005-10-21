@@ -2,14 +2,12 @@ package org.objectweb.celtix.bus.configuration;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
@@ -62,39 +60,48 @@ public class TypeSchema /* implements ErrorHandler */ {
             throw new ConfigurationException(msg, ex);
         }
 
-        URL url = null;
+        InputStream is = null;
 
         if (uri.isAbsolute()) {
+            String path = uri.getPath();
+            if (null == path) {
+                Message msg = new Message("FILE_OPEN_ERROR_EXC", LOG, location); 
+                throw new ConfigurationException(msg);
+            }  
             try {
-                url = uri.toURL();
-            } catch (MalformedURLException ex) {
-                Message msg = new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location);
+                is = new FileInputStream(path);
+            } catch (IOException ex) {
+                Message msg = new Message("FILE_OPEN_ERROR_EXC", LOG, location);
                 throw new ConfigurationException(msg, ex);
             }
         } else {
-            url = getClass().getResource(uri.getPath());
+            is = getClass().getResourceAsStream(uri.getPath());
+            if (null == is) {
+                throw new ConfigurationException(new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location));
+            }      
         }
-        if (null == url) {
-            throw new ConfigurationException(new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location));
-        }
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Effective location for schema: " + url.getPath());
-        }
-
-        String effectiveLocation = url.getPath();
+        
         Document document = null;
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             DocumentBuilder parser = factory.newDocumentBuilder();
-            document = parser.parse(new InputSource(new FileInputStream(effectiveLocation)));
+            document = parser.parse(new InputSource(is));
         } catch (ParserConfigurationException ex) {
             throw new ConfigurationException(new Message("PARSER_CONFIGURATION_ERROR_EXC", LOG,
-                                                         effectiveLocation), ex);
+                                                         location), ex);
         } catch (SAXException ex) {
             throw new ConfigurationException(new Message("PARSE_ERROR_EXC", LOG), ex);
         } catch (IOException ex) {
-            throw new ConfigurationException(new Message("FILE_OPEN_ERROR_EXC", LOG, effectiveLocation), ex);
+            throw new ConfigurationException(new Message("FILE_OPEN_ERROR_EXC", LOG, location), ex);
+        } finally {
+            if (null != is) {
+                try {
+                    is.close();
+                } catch (IOException ex) {
+                    // ignore
+                }
+            }
         }
 
         deserialize(document, namespaceURI);
@@ -105,9 +112,7 @@ public class TypeSchema /* implements ErrorHandler */ {
         try {
             schema = factory.newSchema(src);
         } catch (SAXException ex) {
-            throw new ConfigurationException(
-                                             new Message("SCHEMA_CREATION_ERROR_EXC", LOG, effectiveLocation),
-                                             ex);
+            throw new ConfigurationException(new Message("SCHEMA_CREATION_ERROR_EXC", LOG, location), ex);
         }
         document = null;
     }

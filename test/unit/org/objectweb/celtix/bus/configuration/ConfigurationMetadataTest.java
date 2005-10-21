@@ -1,9 +1,9 @@
 package org.objectweb.celtix.bus.configuration;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
-import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
@@ -194,9 +194,9 @@ public class ConfigurationMetadataTest extends TestCase {
     }
     
     private ConfigurationMetadata buildMetadata(String filename) {
-        URL url = getClass().getResource("resources/" + filename);
+        InputStream is = getClass().getResourceAsStream("resources/" + filename);
         ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();
-        return builder.build(url);     
+        return builder.build(is);     
     }
     
 
