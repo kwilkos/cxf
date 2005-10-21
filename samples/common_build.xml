@@ -14,13 +14,19 @@
         <pathelement location="${tools.jar}"/>
     </path>
 
+    <condition property="is.java.version.15">
+        <equals arg1="${ant.java.version}" arg2="1.5"/>
+    </condition> 
+
+    <fail message="Celtix requires Java version 1.5 or higher. You are currently using Java version ${ant.java.version}."
+        unless="is.java.version.15"/>
+
     <!-- 
         First assume we are either in a working copy or in a source
         distribution, and expect third party libraries in the ../../tools directory.
         If neither directory exists assume we are in a binary distribution
         in which case third party tools are located in the ../../lib directory.
     -->
-    
 
     <available property="thirdparty.tools.dir" value="${basedir}/../../tools/" file="tools" filepath="${basedir}/../.." type="dir"/>
     <condition property="thirdparty.tools.dir" value="${basedir}/../../lib">
