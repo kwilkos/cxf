@@ -38,12 +38,14 @@ public class CeltixBusLifeCycleManager implements BusLifeCycleManager {
     }
     
     void preShutdown() {
+        // TODO inverse order of registration?
         for (BusLifeCycleListener listener : listeners) {
             listener.preShutdown();
         }
     }
     
     void postShutdown() {
+        // TODO inverse order of registration?
         for (BusLifeCycleListener listener : listeners) {
             listener.postShutdown();
         }

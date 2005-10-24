@@ -5,6 +5,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.objectweb.celtix.common.i18n.Message;
+
 
 public class ForkedCommand extends Thread {
     public static final String EXE_SUFFIX;
@@ -42,6 +44,9 @@ public class ForkedCommand extends Thread {
     }
 
     public String toString() {
+        if (null == arguments) {
+            return null;
+        }
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < arguments.length; i++) {
             if (i > 0) {
@@ -60,7 +65,7 @@ public class ForkedCommand extends Thread {
                 buf.append("\"");
             }
         }
-        return buf.toString();
+        return buf.length() > 0 ? buf.toString() : "";
     }
 
     /**
@@ -86,17 +91,16 @@ public class ForkedCommand extends Thread {
      *             or if the timeout has expired and the process was killed
      */
     public int execute(int timeout) {
+        if (null == arguments || arguments.length == 0) {
+            throw new ForkedCommandException(new Message("NO_ARGUMENTS_EXC", LOG));
+        }
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Executing command: " + this);
         }
         try {
             Runtime rt = Runtime.getRuntime();
             if (environment == null) {
-                if (this.arguments != null && arguments.length == 1) {
-                    proc = rt.exec(arguments[0]);
-                } else {
-                    proc = rt.exec(arguments);
-                }
+                proc = rt.exec(arguments);
             } else {
                 StringBuffer msg = null;
                 if (LOG.isLoggable(Level.FINE)) {
@@ -113,7 +117,7 @@ public class ForkedCommand extends Thread {
                 proc = rt.exec(arguments, environment);
             }
         } catch (IOException ex) {
-            throw new ForkedCommandException(this, ex);
+            throw new ForkedCommandException(new Message("EXECUTE_EXC", LOG, this), ex);
         }
 
         // catch process stderr/stdout
@@ -171,8 +175,7 @@ public class ForkedCommand extends Thread {
         }
 
         if (killed) {
-            throw new ForkedCommandException(this, "Process timed out and was killed after " + timeout
-                                                   + " seconds.");
+            throw new ForkedCommandException(new Message("TIMEOUT_EXC", LOG, timeout));
         }
         int exitVal = proc.exitValue();
         if (LOG.isLoggable(Level.FINE)) {

@@ -8,16 +8,12 @@ public class ResultBufferedCommand extends ForkedCommand {
     private ByteArrayOutputStream bosError;
 
     public ResultBufferedCommand() {
-
+        init();
     }
 
     public ResultBufferedCommand(String[] args) {
         super(args);
-        this.bosOut = new ByteArrayOutputStream();
-        this.bosError = new ByteArrayOutputStream();
-
-        setOutputStream(new PrintStream(this.bosOut));
-        setErrorStream(new PrintStream(this.bosError));
+        init();
     }
 
     public InputStream getOutput() {
@@ -25,16 +21,25 @@ public class ResultBufferedCommand extends ForkedCommand {
     }
 
     public BufferedReader getBufferedOutputReader() {
-        return new BufferedReader(new InputStreamReader(new ByteArrayInputStream(this.bosOut.toByteArray())));
+        return new BufferedReader(new InputStreamReader(
+                new ByteArrayInputStream(this.bosOut.toByteArray())));
     }
 
     public InputStream getError() {
-        return new ByteArrayInputStream(this.bosError.toByteArray());
+        return new ByteArrayInputStream(bosError.toByteArray());
     }
 
     public BufferedReader getBufferedErrorReader() {
         return new BufferedReader(new InputStreamReader(
-                new ByteArrayInputStream(this.bosError.toByteArray())));
+                new ByteArrayInputStream(bosError.toByteArray())));
+    }
+    
+    private void init() {
+        bosOut = new ByteArrayOutputStream();
+        bosError = new ByteArrayOutputStream();
+
+        setOutputStream(new PrintStream(bosOut));
+        setErrorStream(new PrintStream(bosError));
     }
 
 

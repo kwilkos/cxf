@@ -1,21 +1,19 @@
 package org.objectweb.celtix.common.commands;
 
-public class ForkedCommandException extends RuntimeException {
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.i18n.UncheckedException;
+
+public class ForkedCommandException extends UncheckedException {
 
     private static final long serialVersionUID = 1L;
-    private final ForkedCommand cmd;
-
-    public ForkedCommandException(ForkedCommand proc, Throwable t) {
-        this(proc, t.getMessage());
-    }
-
-    public ForkedCommandException(ForkedCommand proc, String msg) {
+        
+    public ForkedCommandException(Message msg) {
         super(msg);
-        this.cmd = proc;
     }
-
-    public ForkedCommand getCommand() {
-        return this.cmd;
+    public ForkedCommandException(Message msg, Throwable cause) {
+        super(msg, cause);
     }
-
+    public ForkedCommandException(Throwable cause) {
+        super(cause);
+    }
 }
