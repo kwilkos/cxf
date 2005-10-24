@@ -426,7 +426,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         //REVISIT Package of all WebParam may be needed as well.
         String str = isOutBound ? messageInfo.getResponseWrapperType()
             : messageInfo.getRequestWrapperType();
-
         if (str == null || messageInfo.getSOAPStyle() == Style.RPC) {
             return messageInfo.getMethod().getDeclaringClass().getPackage().getName();
         }

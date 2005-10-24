@@ -79,6 +79,22 @@ public class SOAPClientBindingTest extends TestCase {
         assertNotNull(objContext);
         assertEquals(arg0, (String)objContext.getReturn());
     }
+    
+    public void testInvokeOneWay() throws Exception {
+        TestClientBinding clientBinding = new TestClientBinding(bus, epr);
+        ObjectMessageContext objContext = clientBinding.createObjectContext();
+        assertNotNull(objContext);
+        Method[] declMethods = Greeter.class.getDeclaredMethods();
+        for (Method method : declMethods) {
+            if (method.getName().equals("greetMeOneWay")) {
+                objContext.setMethod(method);
+            }
+        }
+        String arg0 = new String("TestSOAPInputPMessage");
+        objContext.setMessageObjects(arg0);
+        
+        clientBinding.invokeOneWay(objContext);        
+    }
 
     public void testhasFault() throws Exception {
         TestClientBinding clientBinding = new TestClientBinding(bus, epr);

@@ -50,6 +50,8 @@ public class ClientServerTest extends ClientServerTestBase {
                 String reply = greeter.sayHi();
                 assertNotNull("no response received from service", reply);
                 assertEquals(response2, reply);
+                
+                greeter.greetMeOneWay("Milestone-" + idx);
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();

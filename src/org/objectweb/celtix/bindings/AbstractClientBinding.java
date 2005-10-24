@@ -139,8 +139,38 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
     
     public void invokeOneWay(ObjectMessageContext context) throws IOException {
-        // TODO Auto-generated method stub
+        
+        HandlerChainInvoker handlerInvoker = new HandlerChainInvoker(getBinding().getHandlerChain(), context);
 
+        try { 
+            MessageContext bindingContext = createBindingMessageContext(context);
+
+            //Input Message For Client
+            bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
+            boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(true);
+
+            if (continueProcessing) {  
+
+                if (null != bindingContext) {
+                    marshal(context, bindingContext);
+                } else {
+                    bindingContext = context;
+                }
+
+                assert transport != null : "transport is null";
+
+                OutputStreamMessageContext ostreamContext = 
+                    transport.createOutputStreamContext(bindingContext);
+
+                // TODO - invoke output stream handlers
+                transport.finalPrepareOutputStreamContext(ostreamContext);
+
+                write(bindingContext, ostreamContext);
+            }
+            
+        } finally { 
+            handlerInvoker.mepComplete();
+        }
     }
 
     public Future<ObjectMessageContext> invokeAsync(ObjectMessageContext context) {
