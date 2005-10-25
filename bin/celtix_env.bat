@@ -19,16 +19,12 @@ if not defined JAXWS_HOME (
     set JAXWS_HOME=%CELTIX_HOME%\lib\jaxws-ri\20050929
 )
 
-rem add the celtix jar to the class path
-rem
-set CLASSPATH=%CELTIX_HOME%\lib\celtix.jar;%CELTIX_HOME%\lib\wsdl4j\1.5.1\wsdl4j.jar
-
 if not exist %JAVA_HOME%\lib\tools.jar goto cannot_find_tools_jar
-set CLASSPATH=%CLASSPATH%;%JAVA_HOME%\lib\tools.jar
+set CLASSPATH=%JAVA_HOME%\lib\tools.jar;%CLASSPATH%
 
-rem set jaxws classpath
-for %%i in (%JAXWS_HOME%\lib\*.jar) do call %CELTIX_HOME%\bin\cp.bat %%i 
-for %%i in (%CELTIX_HOME%\lib\wsdl4j\1.5.1\*.jar) do call %CELTIX_HOME%\bin\cp.bat %%i 
+rem add the celtix jar and wsdl4j.jar to the class path
+rem
+set CLASSPATH=%CELTIX_HOME%\lib\celtix.jar;%CELTIX_HOME%\lib\wsdl4j\1.5.1\wsdl4j.jar;%CLASSPATH%
 
 set PATH=%CELTIX_HOME%\bin;%PATH% 
 set CELTIX_ENV_SET=true 

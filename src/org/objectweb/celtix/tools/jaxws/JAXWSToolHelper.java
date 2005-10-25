@@ -116,7 +116,7 @@ public final class JAXWSToolHelper {
         String cp = getURLsAsPath(path);
         String origCP = System.getProperty("java.class.path");
         if (origCP != null) {
-            cp = cp + File.separator + origCP;
+            cp = cp + File.pathSeparator + origCP;
         }
         LOG.finest("setting system classpath: " + cp);
         System.setProperty("java.class.path", cp);

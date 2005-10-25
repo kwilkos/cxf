@@ -3,16 +3,6 @@
 #
 
 #
-# a simple function for adding jars to the 
-# classpath
-#
-add_jars_to_classpath() {
-    for i in $1/*.jar; do 
-	CLASSPATH=$CLASSPATH:$i
-    done
-}
-
-#
 # check that the required environment variables are set
 #
 
@@ -49,13 +39,8 @@ fi
 #
 # add the core celtix jar to the classpath
 #
-CLASSPATH=$CELTIX_HOME/lib/celtix.jar:${CLASSPATH-""}
+CLASSPATH=$CELTIX_HOME/lib/celtix.jar:$CELTIX_HOME/lib/wsdl4j/1.5.1/wsdl4j.jar:${CLASSPATH-""}
 
-#
-# add all of the jars needed by the runtime to the 
-# classpath
-#
-add_jars_to_classpath $JAXWS_HOME/lib
 
 export PATH=$CELTIX_HOME/bin:$PATH 
 

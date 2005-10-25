@@ -10,6 +10,6 @@ fi
 
 source $CELTIX_HOME/bin/celtix_env
 
-java -Djaxws.home=$JAXWS_HOME org.objectweb.celtix.tools.Java2Wsdl "$@"
+$JAVA_HOME/bin/java -Djaxws.home=$JAXWS_HOME org.objectweb.celtix.tools.Java2Wsdl "$@"
 
 
