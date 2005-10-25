@@ -148,10 +148,12 @@ public class SoapBindingImplTest extends TestCase {
         assertEquals(data, (String)params[0]);
     }    
 
-    public void testUnmarshalDocLiteralOutputMessage() throws Exception {
-        //Test The InputMessage of GreetMe Operation
-        QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");        
-        QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "requestType");
+    public void testUnmarshalWrapDocLiteralOutputMessage() throws Exception {
+
+        QName wrapName = 
+            new QName("http://objectweb.org/hello_world_soap_http/types", "greetMeResponse");        
+        QName elName = 
+            new QName("http://objectweb.org/hello_world_soap_http/types", "responseType");
         String data = new String("TestSOAPOutputMessage");
         String str = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data);
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());

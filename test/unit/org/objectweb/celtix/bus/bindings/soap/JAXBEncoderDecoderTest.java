@@ -2,10 +2,8 @@ package org.objectweb.celtix.bus.bindings.soap;
 
 import java.lang.reflect.Method;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.ws.RequestWrapper;
 
@@ -32,12 +30,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        Method methods[] = Greeter.class.getMethods();
-        for (Method method : methods) {
-            if (method.getName().equals("greetMe")) {
-                wrapperAnnotation = method.getAnnotation(RequestWrapper.class);
-            }
-        }
+        Method method = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
+        wrapperAnnotation = method.getAnnotation(RequestWrapper.class);
     }
 
     protected void tearDown() throws Exception {
@@ -51,28 +45,9 @@ public class JAXBEncoderDecoderTest extends TestCase {
         Element elNode = soapElFactory.createElement(inCorrectElName);
         assertNotNull(elNode);
 
-        try {
-            JAXBEncoderDecoder test = new JAXBEncoderDecoder((String) null);
-            fail("Should have thrown a exception");
-            assert test == null;
-        } catch (SOAPException ex) {
-            //Expected Exception
-        }
-
-        String packageName = wrapperAnnotation.className();
-        packageName = packageName.substring(0, packageName.lastIndexOf('.'));
-        try {
-            JAXBContext context = JAXBContext.newInstance(String.class);
-            // Need to "read" from it to avoid a warning
-            context.getClass();
-        } catch (Exception ex) {
-            throw new SOAPException("Could not create JAXB Context", ex);
-        }
-        //Hello World Wsdl generated namespace
-        JAXBEncoderDecoder jaxbEncoder = new JAXBEncoderDecoder(packageName);
         Node node;
         try {
-            jaxbEncoder.marshall(str, inCorrectElName,  elNode);
+            JAXBEncoderDecoder.marshall(str, inCorrectElName,  elNode);
         } catch (Exception ex) {
             //expected - not a valid qname or anything
         }
@@ -81,7 +56,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         obj.setRequestType("Hello");
         QName elName = new QName(wrapperAnnotation.targetNamespace(),
                                  wrapperAnnotation.localName());
-        jaxbEncoder.marshall(obj, elName, elNode);
+        JAXBEncoderDecoder.marshall(obj, elName, elNode);
         node = elNode.getLastChild();
         //The XML Tree Looks like
         //<GreetMe><requestType>Hello</requestType></GreetMe>
@@ -97,10 +72,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         SOAPFactory soapElFactory = SOAPFactory.newInstance();
         QName elName = new QName("http://test_jaxb_marshall", "in");
         SOAPElement elNode = soapElFactory.createElement(elName);
-        
-        JAXBEncoderDecoder jaxbEncoder = new JAXBEncoderDecoder(String.class);
-        
-        jaxbEncoder.marshall(new String("TestSOAPMessage"), elName,  elNode);
+        JAXBEncoderDecoder.marshall(new String("TestSOAPMessage"), elName,  elNode);
         
         assertNotNull(elNode.getChildNodes());
         assertEquals("TestSOAPMessage", elNode.getFirstChild().getFirstChild().getNodeValue());
@@ -108,11 +80,6 @@ public class JAXBEncoderDecoderTest extends TestCase {
 
     public void testUnMarshall() throws Exception {
         //Hello World Wsdl generated namespace
-        String packageName = wrapperAnnotation.className();
-        packageName = packageName.substring(0, packageName.lastIndexOf('.'));
-
-        //Hello World Wsdl generated namespace
-        JAXBEncoderDecoder jaxbDecoder = new JAXBEncoderDecoder(packageName);
         QName elName = new QName(wrapperAnnotation.targetNamespace(),
                                  wrapperAnnotation.localName());
 
@@ -124,7 +91,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
         String str = new String("Hello Test");
         elNode.addChildElement("requestType").setValue(str);
 
-        Object obj = jaxbDecoder.unmarshall(elNode, elName);
+        Object obj = JAXBEncoderDecoder.unmarshall(
+                         elNode, elName, Class.forName(wrapperAnnotation.className()));
         assertNotNull(obj);
 
         //Add a Node and then test

@@ -1,7 +1,9 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.concurrent.Future;
@@ -17,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -61,35 +64,61 @@ public class SOAPClientBindingTest extends TestCase {
         SOAPClientBinding clientBinding = new SOAPClientBinding(bus, epr);
         assertNotNull(clientBinding.createObjectContext());
     }
+
+    public void testCreateBindingMessageContext() throws Exception {
+        TestClientBinding clientBinding = new TestClientBinding(bus, epr);
+        assertNotNull(clientBinding.createBindingMessageContext(null));
+    }
     
-    public void testInvoke() throws Exception {
+    public void testMarshal() throws Exception {
         TestClientBinding clientBinding = new TestClientBinding(bus, epr);
         ObjectMessageContext objContext = clientBinding.createObjectContext();
         assertNotNull(objContext);
-        Method[] declMethods = Greeter.class.getDeclaredMethods();
-        for (Method method : declMethods) {
-            if (method.getName().equals("greetMe")) {
-                objContext.setMethod(method);
-            }
-        }
+        
+        Method method = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
+        objContext.setMethod(method);
         String arg0 = new String("TestSOAPInputPMessage");
         objContext.setMessageObjects(arg0);
         
-        objContext = clientBinding.invoke(objContext);        
+        SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());  
+        soapCtx.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        clientBinding.marshal(objContext, soapCtx);
+        
+        assertNotNull(soapCtx.getMessage());
+    }
+
+    public void testUnmarshal() throws Exception {
+        TestClientBinding clientBinding = new TestClientBinding(bus, epr);
+        ObjectMessageContext objContext = clientBinding.createObjectContext();
         assertNotNull(objContext);
-        assertEquals(arg0, (String)objContext.getReturn());
+        
+        Method method = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
+        InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralResp.xml");
+        MessageFactory msgFactory = MessageFactory.newInstance();
+        SOAPMessage greetMeMsg = msgFactory.createMessage(null,  is);
+        
+        SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());        
+        soapCtx.setMessage(greetMeMsg);
+        soapCtx.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        
+        objContext.setMethod(method);
+        
+        clientBinding.unmarshal(soapCtx, objContext);
+        
+        assertNotNull(objContext.getMessageObjects());
+        assertEquals(0, objContext.getMessageObjects().length);
+
+        assertNotNull(objContext.getReturn());
+        assertTrue(String.class.isAssignableFrom(objContext.getReturn().getClass()));
     }
     
     public void testInvokeOneWay() throws Exception {
         TestClientBinding clientBinding = new TestClientBinding(bus, epr);
         ObjectMessageContext objContext = clientBinding.createObjectContext();
         assertNotNull(objContext);
-        Method[] declMethods = Greeter.class.getDeclaredMethods();
-        for (Method method : declMethods) {
-            if (method.getName().equals("greetMeOneWay")) {
-                objContext.setMethod(method);
-            }
-        }
+        Method method = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
+        objContext.setMethod(method);
+        
         String arg0 = new String("TestSOAPInputPMessage");
         objContext.setMessageObjects(arg0);
         
@@ -126,6 +155,41 @@ public class SOAPClientBindingTest extends TestCase {
         assertNotNull(objContext.getException());
         assertTrue(NoSuchCodeLitFault.class.isAssignableFrom(objContext.getException().getClass()));
     }
+
+    public void testRead() throws Exception {
+        TestClientBinding clientBinding = new TestClientBinding(bus, epr);
+        InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralResp.xml");
+        TestInputStreamContext tisc = new TestInputStreamContext(null);
+        tisc.setInputStream(is);
+        
+        SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());        
+        clientBinding.read(tisc,  soapCtx);
+        assertNotNull(soapCtx.getMessage());
+    }
+
+    public void testWrite() throws Exception {
+        TestClientBinding clientBinding = new TestClientBinding(bus, epr);
+        
+        InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralResp.xml");
+        
+        MessageFactory msgFactory = MessageFactory.newInstance();
+        SOAPMessage greetMeMsg = msgFactory.createMessage(null,  is);
+        is.close();
+        
+        BufferedReader br = 
+            new BufferedReader(
+                new InputStreamReader(
+                    getClass().getResourceAsStream("resources/GreetMeDocLiteralResp.xml")));
+        
+        SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());
+        soapCtx.setMessage(greetMeMsg);
+        
+        TestOutputStreamContext tosc = new TestOutputStreamContext(null, soapCtx);
+        clientBinding.write(soapCtx, tosc);
+
+        byte[] bArray = tosc.getOutputStreamBytes();
+        assertEquals(br.readLine(), (new String(bArray)).trim());
+    }
     
     class TestClientBinding extends SOAPClientBinding {
 
@@ -146,6 +210,27 @@ public class SOAPClientBindingTest extends TestCase {
         public void unmarshalFault(MessageContext context, ObjectMessageContext objContext) {
             super.unmarshalFault(context, objContext);
         }
+
+        public void marshal(ObjectMessageContext objContext, MessageContext context) {
+            super.marshal(objContext, context);
+        }
+        
+        public void unmarshal(MessageContext context, ObjectMessageContext objContext) {
+            super.unmarshal(context, objContext);
+        }
+        
+        public void write(MessageContext context, OutputStreamMessageContext outCtx) {
+            super.write(context, outCtx);
+        }
+        
+        public void read(InputStreamMessageContext inCtx, MessageContext context) {
+            super.read(inCtx, context);
+        }
+
+        public MessageContext createBindingMessageContext(MessageContext ctx) {
+            return super.createBindingMessageContext(ctx);
+        }
+        
     }
     
     class TestClientTransport implements ClientTransport {

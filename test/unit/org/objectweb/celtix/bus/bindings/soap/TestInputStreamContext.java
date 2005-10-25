@@ -28,14 +28,20 @@ public class TestInputStreamContext
 
     private static final long serialVersionUID = 1L;
     private byte[] byteArray;
+    private InputStream inputStream;
     public TestInputStreamContext(byte[] bArray) throws IOException {
         byteArray = bArray;
     }
 
     public InputStream getInputStream() {
+        if (inputStream != null) {
+            return inputStream;
+        }
         return new ByteArrayInputStream(byteArray);
     }
 
-    public void setInputStream(InputStream ins) { }
+    public void setInputStream(InputStream ins) {
+        inputStream = ins;
+    }
 
 }

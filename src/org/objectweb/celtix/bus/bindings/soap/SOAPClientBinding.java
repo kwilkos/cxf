@@ -48,7 +48,7 @@ public class SOAPClientBinding extends AbstractClientBinding {
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_MARSHALLING_FAILURE_MSG", se);
-            throw new ProtocolException(se.getMessage());
+            throw new ProtocolException(se);
         }
     }
 
@@ -57,7 +57,7 @@ public class SOAPClientBinding extends AbstractClientBinding {
             soapBinding.unmarshalMessage(context, objContext);
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
-            throw new ProtocolException(se.getMessage());
+            throw new ProtocolException(se);
         }
     }
 
@@ -69,7 +69,7 @@ public class SOAPClientBinding extends AbstractClientBinding {
             hasFault = msg.getSOAPBody().hasFault();
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
-            throw new ProtocolException(se.getMessage());
+            throw new ProtocolException(se);
         }
         
         return hasFault;
@@ -80,7 +80,7 @@ public class SOAPClientBinding extends AbstractClientBinding {
             soapBinding.unmarshalFault(context, objContext);
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
-            throw new ProtocolException(se.getMessage());
+            throw new ProtocolException(se);
         }
     }
     
@@ -90,10 +90,10 @@ public class SOAPClientBinding extends AbstractClientBinding {
             soapCtx.getMessage().writeTo(outCtx.getOutputStream());
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_WRITE_FAILURE_MSG", se);
-            throw new ProtocolException(se.getMessage());
+            throw new ProtocolException(se);
         } catch (IOException ioe) {
             LOG.log(Level.SEVERE, "SOAP_WRITE_IO_FAILURE_MSG", ioe);
-            throw new ProtocolException(ioe.getMessage());
+            throw new ProtocolException(ioe);
         }
     }
 
@@ -102,10 +102,10 @@ public class SOAPClientBinding extends AbstractClientBinding {
             soapBinding.parseMessage(inCtx.getInputStream(), context);
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_PARSING_FAILURE_MSG", se);
-            throw new ProtocolException(se.getMessage());
+            throw new ProtocolException(se);
         } catch (IOException ioe) {
             LOG.log(Level.SEVERE, "SOAP_READ_IO_FAILURE_MSG", ioe);
-            throw new ProtocolException(ioe.getMessage());
+            throw new ProtocolException(ioe);
         }
     }
 }

@@ -18,31 +18,15 @@ import org.w3c.dom.Node;
  * JAXBEncoderDecoder
  * @author apaibir
  */
-public class JAXBEncoderDecoder {
-    final JAXBContext context;
-    final String contextPath;
-    
-    public JAXBEncoderDecoder(String packageName) throws SOAPException {
-        contextPath = packageName;
-        try {
-            context = JAXBContext.newInstance(packageName);
-        } catch (Exception ex) {
-            throw new SOAPException("Could not create JAXB Context", ex);
-        }
+public final class JAXBEncoderDecoder {
+    private JAXBEncoderDecoder() {        
     }
     
-    public JAXBEncoderDecoder(Class cls) throws SOAPException {
-        contextPath = cls.getPackage().getName();
-        try {
-            context = JAXBContext.newInstance(cls);
-        } catch (Exception ex) {
-            throw new SOAPException("Could not create JAXB Context", ex);
-        }
-    }
-    
-    public void marshall(Object elValue, QName elNname,  Node destNode) throws SOAPException {
+    public static void marshall(Object elValue, QName elNname,  Node destNode) throws SOAPException {
         
         try {
+            JAXBContext context = JAXBContext.newInstance(elValue.getClass());
+            
             Object mObj = elValue;
             Marshaller u = context.createMarshaller();
             u.setProperty(Marshaller.JAXB_ENCODING , "UTF-8");
@@ -50,8 +34,8 @@ public class JAXBEncoderDecoder {
             u.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
            
             if (elValue.getClass().isAnnotationPresent(XmlRootElement.class)) {
-            
-                Class<?> objectFactory = Class.forName(contextPath + ".ObjectFactory");
+                String packageName = elValue.getClass().getPackage().getName();
+                Class<?> objectFactory = Class.forName(packageName + ".ObjectFactory");
                 Method methods[] = objectFactory.getDeclaredMethods();
                 for (Method method : methods) {
                     if (method.getParameterTypes().length == 1
@@ -78,21 +62,18 @@ public class JAXBEncoderDecoder {
         }
     }
     
-    public Object unmarshall(Node srcNode, QName elName) throws SOAPException {
+    public static Object unmarshall(Node srcNode, QName elName, Class<?> clazz) throws SOAPException {
         Object obj = null;
         try {
+            JAXBContext context = JAXBContext.newInstance(clazz);
             Unmarshaller u = context.createUnmarshaller();
-        
-            obj = u.unmarshal(srcNode);
-            if (obj instanceof JAXBElement<?>) {
-                JAXBElement<?> el = (JAXBElement<?>)obj;
-                if (el.getName().equals(elName)) {
-                    return el.getValue();
-                }
+            JAXBElement<?> el = u.unmarshal(srcNode, clazz);
+            if (el.getName().equals(elName)) {
+                obj = el.getValue();
             }
         } catch (Exception ex) {
             throw new SOAPException("Unmarshalling error", ex);
         }
         return obj;
-    }
+    }    
 }
