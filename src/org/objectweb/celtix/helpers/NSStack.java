@@ -8,14 +8,14 @@ public class NSStack {
 
     private static final String NS_PREFIX_PREFIX = "ns";
 
-    private List <ArrayList> stack = new ArrayList<ArrayList>();
-    private List <NSDecl>top; 
+    private List<List<NSDecl>> stack = new ArrayList<List<NSDecl>>();
+    private List<NSDecl>top; 
     private int size; 
     private int nsPrefixCount = 1;
 
     public synchronized void push() {
         top = new ArrayList<NSDecl>();
-        stack.add((ArrayList)top);
+        stack.add(top);
         size++;
     }
 
@@ -28,7 +28,7 @@ public class NSStack {
         stack.remove(--size);
         top = null;
         if (size != 0) {
-            top = (ArrayList<NSDecl>)stack.get(size - 1);
+            top = stack.get(size - 1);
         }
     }
 
@@ -75,11 +75,11 @@ public class NSStack {
      */
     public String getPrefix(String uri) {
         for (int i = size - 1; i >= 0; i--) {
-            List scope = stack.get(i);
-            ListIterator lsIterator =  scope.listIterator();
+            List<NSDecl> scope = stack.get(i);
+            ListIterator<NSDecl> lsIterator =  scope.listIterator();
 
             while (lsIterator.hasNext()) {
-                NSDecl nsd = (NSDecl)lsIterator.next();
+                NSDecl nsd = lsIterator.next();
 
                 if (nsd.getUri().equals(uri)) {
                     return nsd.getPrefix();
@@ -98,11 +98,11 @@ public class NSStack {
      */
     public String getURI(String prefix) {
         for (int i = size - 1; i >= 0; i--) {
-            List scope = stack.get(i);
-            ListIterator lsIterator =  scope.listIterator();
+            List<NSDecl> scope = stack.get(i);
+            ListIterator<NSDecl> lsIterator = scope.listIterator();
 
             while (lsIterator.hasNext()) {
-                NSDecl nsd = (NSDecl)lsIterator.next();
+                NSDecl nsd = lsIterator.next();
 
                 if (nsd.getPrefix().equals(prefix)) {
                     return nsd.getUri();
