@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.bindings.soap;
+package org.objectweb.celtix.bus.jaxws;
 
 import java.lang.reflect.Method;
 
@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
+import javax.xml.ws.WebServiceException;
 
 import org.w3c.dom.Node;
 
@@ -22,7 +23,7 @@ public final class JAXBEncoderDecoder {
     private JAXBEncoderDecoder() {        
     }
     
-    public static void marshall(Object elValue, QName elNname,  Node destNode) throws SOAPException {
+    public static void marshall(Object elValue, QName elNname,  Node destNode) {
         
         try {
             JAXBContext context = JAXBContext.newInstance(elValue.getClass());
@@ -58,7 +59,7 @@ public final class JAXBEncoderDecoder {
            
             u.marshal(mObj, destNode);
         } catch (Exception ex) {
-            throw new SOAPException("Marshalling Error", ex);
+            throw new WebServiceException("Marshalling Error", ex);
         }
     }
     

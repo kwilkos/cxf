@@ -411,7 +411,7 @@ public class HandlerChainInvokerTest extends TestCase {
                 throw exception;
             }
 
-            return true;
+            return handleFaultRet;
         }
 
         public void close(MessageContext arg0) {

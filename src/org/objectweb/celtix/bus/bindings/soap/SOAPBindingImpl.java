@@ -2,7 +2,6 @@ package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -17,29 +16,34 @@ import javax.jws.WebParam;
 import javax.jws.soap.SOAPBinding.Style;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.Detail;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
+import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.soap.SOAPPart;
 import javax.xml.ws.ProtocolException;
-import javax.xml.ws.WebFault;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPBinding;
-import javax.xml.ws.soap.SOAPFaultException;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
+import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bindings.DataReader;
+import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.bindings.AbstractBindingImpl;
+import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.helpers.NSStack;
-import org.objectweb.celtix.helpers.WrapperHelper;
 
 public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(SOAPBindingImpl.class);
@@ -89,53 +93,110 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         return msgFactory;
     }
 
-    public SOAPMessage marshalMessage(ObjectMessageContext objContext, MessageContext mc)
+    public SOAPMessage marshalMessage(ObjectMessageContext objContext,
+                                      MessageContext mc,
+                                      DataBindingCallback callback)
         throws SOAPException {
 
         boolean isInputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
 
         SOAPMessage msg = initSOAPMessage();
-        SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
+        if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
+            //contains the entire SOAP message
+            boolean found = false;
+            for (Class<?> cls : callback.getSupportedFormats()) {
+                if (cls == SOAPMessage.class) {
+                    DataWriter<SOAPMessage> writer = callback.createWriter(SOAPMessage.class);
+                    writer.write(objContext, msg);
+                    found = true;
+                    break;
+                } else if (cls == SOAPPart.class) {
+                    DataWriter<SOAPPart> writer = callback.createWriter(SOAPPart.class);
+                    writer.write(objContext, msg.getSOAPPart());
+                    found = true;
+                    break;
+                } else if (cls == SOAPElement.class) {
+                    DataWriter<SOAPElement> writer = callback.createWriter(SOAPElement.class);
+                    writer.write(objContext, msg.getSOAPPart().getEnvelope());
+                    found = true;
+                    break;
+                } else if (cls == Document.class) {
+                    DataWriter<Document> writer = callback.createWriter(Document.class);
+                    writer.write(objContext, msg.getSOAPPart());
+                    found = true;
+                    break;
+                } else {
+                    //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
+                }
+            }
+            if (!found) {
+                throw new SOAPException("Could not figure out how to marshal data");
+            }
+        } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {
+            //contains the contents of the SOAP:Body
+            boolean found = false;
+            for (Class<?> cls : callback.getSupportedFormats()) {
+                if (cls == SOAPBody.class) {
+                    DataWriter<SOAPBody> writer = callback.createWriter(SOAPBody.class);
+                    writer.write(objContext, msg.getSOAPPart().getEnvelope().getBody());
+                    found = true;
+                    break;
+                } else if (cls == SOAPElement.class) {
+                    DataWriter<SOAPElement> writer = callback.createWriter(SOAPElement.class);
+                    writer.write(objContext, msg.getSOAPPart().getEnvelope().getBody());
+                    found = true;
+                    break;
+                } else if (cls == Element.class) {
+                    DataWriter<Element> writer = callback.createWriter(Element.class);
+                    writer.write(objContext, msg.getSOAPPart().getEnvelope().getBody());
+                    found = true;
+                    break;
+                } else {
+                    //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
+                }
+            }
+            if (!found) {
+                throw new SOAPException("Could not figure out how to marshal data");
+            }
+        } else {
+            if (callback.getSOAPStyle() == Style.RPC) {
+                nsStack = new NSStack();
+                nsStack.push();
+            }
+            SOAPElement soapElement = addOperationNode(msg.getSOAPBody(), callback, isInputMsg);
 
-        if (messageInfo.getSOAPStyle() == Style.RPC) {
-            nsStack = new NSStack();
-            nsStack.push();
+            //add out and inout params
+            addParts(soapElement, objContext, isInputMsg, callback);
+
+            if (msg.saveRequired()) {
+                msg.saveChanges();
+            }
         }
-        
-        SOAPElement soapElement = addOperationNode(msg.getSOAPBody(), messageInfo, isInputMsg);
-
-        //add out and inout params
-        addParts(soapElement, messageInfo, objContext, isInputMsg);
-
-        if (msg.saveRequired()) {
-            msg.saveChanges();
-        }
-
         return msg;
     }
 
-    public SOAPMessage marshalFault(ObjectMessageContext objContext, MessageContext mc) {
+    public SOAPMessage marshalFault(ObjectMessageContext objContext,
+                                    MessageContext mc,
+                                    DataBindingCallback callback) {
 
         SOAPMessage msg = null;
 
         try {
             msg = initSOAPMessage();
-
-            //SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
-
-            Throwable t = (Throwable) objContext.getException();
-            WebFault wfAnnotation = t.getClass().getAnnotation(WebFault.class);
-
+            Throwable t = (Throwable)objContext.getException();
+            
             SOAPFault fault = msg.getSOAPBody().addFault();
             //REVIST FaultCode to handle other codes.
             fault.setFaultCode(SOAPConstants.FAULTCODE_SERVER);
             fault.setFaultString(t.getMessage());
 
-            if (null != wfAnnotation) {
-
-                Object faultInfo = getFaultInfo(t);
-                QName elName = new QName(wfAnnotation.targetNamespace(), wfAnnotation.name());
-                JAXBEncoderDecoder.marshall(faultInfo, elName, fault.addDetail());
+            DataWriter<Detail> writer = callback.createWriter(Detail.class);
+            if (writer == null) {
+                throw new WebServiceException("Could not marshal fault details");
+            }
+            writer.write(t, fault.addDetail());
+            if (fault.getDetail().getChildNodes().getLength() == 0) {
+                fault.removeChild(fault.getDetail());
             }
 
             if (msg.saveRequired()) {
@@ -149,7 +210,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         return msg;
     }
 
-    public void unmarshalMessage(MessageContext mc, ObjectMessageContext objContext)
+    public void unmarshalMessage(MessageContext mc,
+                                 ObjectMessageContext objContext,
+                                 DataBindingCallback callback)
         throws SOAPException {
 
         boolean isOutputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
@@ -163,16 +226,16 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         //Assuming No Headers are inserted.
         Node soapEl = soapMessage.getSOAPBody();
 
-        SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
-
-        if (messageInfo.getSOAPStyle() == Style.RPC) {
+        if (callback.getSOAPStyle() == Style.RPC) {
             soapEl = soapEl.getFirstChild();
         }
 
-        getParts(soapEl, messageInfo, objContext, isOutputMsg);
+        getParts(soapEl, callback, objContext, isOutputMsg);
     }
 
-    public void unmarshalFault(MessageContext context, ObjectMessageContext objContext)
+    public void unmarshalFault(MessageContext context,
+                               ObjectMessageContext objContext,
+                               DataBindingCallback callback)
         throws SOAPException {
 
         if (!SOAPMessageContext.class.isInstance(context)) {
@@ -181,34 +244,17 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         SOAPMessageContext soapContext = SOAPMessageContext.class.cast(context);
         SOAPMessage soapMessage = soapContext.getMessage();
-        SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
 
         SOAPFault fault = soapMessage.getSOAPBody().getFault();
-        Object faultObj = null;
-        if (fault.getDetail() != null) {
-            NodeList list = fault.getDetail().getChildNodes();
-            assert list.getLength() == 1;
 
-            QName faultName = new QName(list.item(0).getNamespaceURI(), list.item(0).getLocalName());
-            Class<?> clazz = messageInfo.getWebFault(faultName);
-            try {
-                if (clazz != null) {
-                    Class<?> faultInfo = clazz.getMethod("getFaultInfo").getReturnType();
-                    Object obj = JAXBEncoderDecoder.unmarshall(list.item(0), faultName, faultInfo);
-                    Constructor<?> ctor = clazz.getConstructor(String.class, obj.getClass());
-                    faultObj = ctor.newInstance(fault.getFaultString(), obj);
-                } else {
-                    SOAPFaultException sfe = new SOAPFaultException(fault);
-                    faultObj = sfe;
-                }
-            } catch (Exception ex) {
-                LOG.log(Level.SEVERE, "FAULT_UNMARSHALLING_FAILURE_MSG", ex);
-                throw new SOAPException("error in unmarshal of SOAPFault", ex);
-            }
-        } else {
-            faultObj = new ProtocolException(fault.getFaultString());
+        DataReader<SOAPFault> reader = callback.createReader(SOAPFault.class);
+        if (reader == null) {
+            throw new WebServiceException("Could not unmarshal fault");
         }
-
+        Object faultObj = reader.read(null, fault);
+        if (faultObj == null) {
+            faultObj = new ProtocolException(fault.getFaultString());            
+        }
 
         objContext.setException((Throwable)faultObj);
     }
@@ -250,47 +296,48 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         soapContext.setMessage(soapMessage);
     }
 
-    private SOAPElement addOperationNode(SOAPElement body, SOAPMessageInfo messageInfo,
+    private SOAPElement addOperationNode(SOAPElement body,
+                                         DataBindingCallback callback,
                                          boolean isOutBound) throws SOAPException {
 
         String responseSuffix = isOutBound ? "Response" : "";
 
-        if (messageInfo.getSOAPStyle() == Style.RPC) {
-            String  namespaceURI = messageInfo.getTargetNameSpace();
+        if (callback.getSOAPStyle() == Style.RPC) {
+            String  namespaceURI = callback.getTargetNamespace();
             nsStack.add(namespaceURI);
             String prefix = nsStack.getPrefix(namespaceURI);
             QName operationName = new QName(namespaceURI,
-                                            messageInfo.getOperationName() + responseSuffix, prefix);
+                                            callback.getOperationName() + responseSuffix, prefix);
            
             return body.addChildElement(operationName);
         }
         return body;
     }
 
-    private void getParts(Node xmlNode , SOAPMessageInfo messageInfo,
+    private void getParts(Node xmlNode , DataBindingCallback callback,
                           ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
 
-        if (messageInfo.getSOAPStyle() != Style.RPC) {
-            getWrappedDocLitParts(xmlNode , messageInfo, objCtx, isOutBound);
+        if (callback.getSOAPStyle() != Style.RPC) {
+            getWrappedDocLitParts(xmlNode , callback, objCtx, isOutBound);
         } else {
-            getRPCLitParts(xmlNode , messageInfo, objCtx, isOutBound);
+            getRPCLitParts(xmlNode , callback, objCtx, isOutBound);
         }
     }
 
-    private void getWrappedDocLitParts(Node xmlNode , SOAPMessageInfo messageInfo,
+    private void getWrappedDocLitParts(Node xmlNode , DataBindingCallback callback,
                                        ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
 
-        Method method = messageInfo.getMethod();
-        String wrapperType = isOutBound ? messageInfo.getResponseWrapperType()
-            : messageInfo.getRequestWrapperType();
+        Method method = objCtx.getMethod();
+        String wrapperType = isOutBound ? callback.getResponseWrapperType()
+            : callback.getRequestWrapperType();
         
         Node childNode = xmlNode.getFirstChild();
 
         Object retVal = null;
         List<Object> paramList = new ArrayList<Object>();
 
-        QName elName = isOutBound ? messageInfo.getResponseWrapperQName()
-            : messageInfo.getRequestWrapperQName();
+        QName elName = isOutBound ? callback.getResponseWrapperQName()
+            : callback.getRequestWrapperQName();
 
         Object obj = null;
 
@@ -307,7 +354,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
         int noArgs = method.getParameterTypes().length;
         for (int idx = 0; idx < noArgs; idx++) {
-            WebParam param = messageInfo.getWebParam(idx);
+            WebParam param = callback.getWebParam(idx);
             if ((param.mode() != ignoreParamMode) && !param.header()) {
                 paramList.add(getWrappedPart(obj, method.getParameterTypes()[idx]));
             }
@@ -317,10 +364,10 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         objCtx.setMessageObjects(paramList.toArray());
     }
 
-    private void getRPCLitParts(Node xmlNode , SOAPMessageInfo messageInfo,
+    private void getRPCLitParts(Node xmlNode , DataBindingCallback callback,
                                 ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
 
-        Method method = messageInfo.getMethod();
+        Method method = objCtx.getMethod();
         Node childNode = xmlNode.getFirstChild();
 
         Object retVal = null;
@@ -328,7 +375,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         if (isOutBound && !"void".equals(method.getReturnType().getName())) {
             retVal = JAXBEncoderDecoder.unmarshall(
                         childNode, 
-                        new QName("", messageInfo.getWebResultAnnotation().partName()), 
+                        new QName("", callback.getWebResultAnnotation().partName()), 
                         method.getReturnType());
             childNode = childNode.getNextSibling();
         }
@@ -339,12 +386,14 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
         for (int idx = 0; idx < noArgs; idx++) {
-            WebParam param = messageInfo.getWebParam(idx);
-            String paramNameSpace = param.targetNamespace();
+            WebParam param = callback.getWebParam(idx);
             
+            /*
+            String paramNameSpace = param.targetNamespace();
             if ("".equals(param.targetNamespace())) {             
                 paramNameSpace = messageInfo.getTargetNameSpace();
             } 
+            */
             
             if ((param.mode() != ignoreParamMode) && !param.header()) {
                 QName elName = new QName("", param.partName());
@@ -358,90 +407,84 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         objCtx.setMessageObjects(paramList.toArray());
     }
 
-    private void addParts(Node xmlNode , SOAPMessageInfo messageInfo,
-                          ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
+    private void addParts(Node xmlNode,
+                          ObjectMessageContext objCtx, boolean isOutBound,
+                          DataBindingCallback callback) throws SOAPException {
 
-        if (messageInfo.getSOAPStyle() != Style.RPC) {
-            addWrappedDocLitParts(xmlNode , messageInfo, objCtx, isOutBound);
-
+        if (callback.getSOAPStyle() != Style.RPC) {
+            addWrappedDocLitParts(xmlNode, objCtx, isOutBound, callback);
         } else {
-            addRPCLitParts(xmlNode , messageInfo, objCtx, isOutBound);
+            addRPCLitParts(xmlNode, objCtx, isOutBound, callback);
         }
     }
 
-    private void addRPCLitParts(Node xmlNode , SOAPMessageInfo messageInfo,
-                                ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
+    private void addRPCLitParts(Node xmlNode,
+                                ObjectMessageContext objCtx,
+                                boolean isOutBound,
+                                DataBindingCallback callback) throws SOAPException {
 
-        Method method = messageInfo.getMethod();
         Object[] args = objCtx.getMessageObjects();
-        //Add the Return Type
-        if (isOutBound && !"void".equals(method.getReturnType().getName())) {
-            Object retVal = objCtx.getReturn();          
-            JAXBEncoderDecoder.marshall(retVal, 
-                                        new QName("",  messageInfo.getWebResultAnnotation().partName()), 
-                                        xmlNode);
-        }
 
-        //Add the in,inout,out args depend on the inputMode
-        WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
-        int noArgs = method.getParameterTypes().length;
-
-        //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
-        for (int idx = 0; idx < noArgs; idx++) {
-            WebParam param = messageInfo.getWebParam(idx);
-            if ((param.mode() != ignoreParamMode) && !param.header()) {
-                QName elName = new QName("",  param.partName());
-                JAXBEncoderDecoder.marshall(args[idx], elName, xmlNode);             
+        DataWriter<Node> writer = null;
+        for (Class<?> cls : callback.getSupportedFormats()) {
+            if (cls == Node.class) {
+                writer = callback.createWriter(Node.class);
+                break;
+            } else {
+                //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
             }
         }
-    }
-
-    private void addWrappedDocLitParts(Node xmlNode , SOAPMessageInfo messageInfo,
-                                       ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
-
-        Method method = messageInfo.getMethod();
-        String wrapperType = isOutBound ? messageInfo.getResponseWrapperType()
-            : messageInfo.getRequestWrapperType();
+        if (writer == null) {
+            throw new SOAPException("Could not figure out how to marshal data");
+        }
         
-        Object wrapperObj = null;
-        try {
-            wrapperObj = Class.forName(wrapperType).newInstance();
-        } catch (Exception ex) {
-            throw new SOAPException("Could not create the wrapper element", ex);
-        }
-
-        if (isOutBound && !"void".equals(method.getReturnType().getName())) {
-            setWrappedPart(messageInfo.getWebResult().getLocalPart(), wrapperObj, objCtx.getReturn());
+        
+        //Add the Return Type
+        if (isOutBound && callback.getWebResult() != null) {
+            Object retVal = objCtx.getReturn();
+            writer.write(retVal, callback.getWebResult(), xmlNode);
         }
 
         //Add the in,inout,out args depend on the inputMode
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
-        int noArgs = method.getParameterTypes().length;
+        int noArgs = callback.getParamsLength();
 
-        //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
-        Object[] args = objCtx.getMessageObjects();
+        //Marshal parts of mode that should notbe ignored and are not part of the SOAP Headers
         for (int idx = 0; idx < noArgs; idx++) {
-            WebParam param = messageInfo.getWebParam(idx);
+            WebParam param = callback.getWebParam(idx);
             if ((param.mode() != ignoreParamMode) && !param.header()) {
-                setWrappedPart(param.partName(), wrapperObj, args[idx]);
+                QName elName = new QName("", param.name());
+                writer.write(args[idx], elName, xmlNode);
             }
         }
-
-        QName elName = isOutBound ? messageInfo.getResponseWrapperQName()
-            : messageInfo.getRequestWrapperQName();
-
-        JAXBEncoderDecoder.marshall(wrapperObj, elName, xmlNode);
     }
 
-    private void setWrappedPart(String name, Object wrapperType, Object part) throws SOAPException {
+    private void addWrappedDocLitParts(Node xmlNode,
+                                       ObjectMessageContext objCtx,
+                                       boolean isOutBound,
+                                       DataBindingCallback callback) throws SOAPException {
 
-        try {
-            WrapperHelper.setWrappedPart(name, wrapperType, part);
-        } catch (Exception ex) {
-            throw new SOAPException("Could not set parts into wrapper element", ex);
+        Object wrapperObj = callback.createWrapperType(objCtx, isOutBound);
+        assert wrapperObj != null;
+
+        QName elName = isOutBound ? callback.getResponseWrapperQName()
+            : callback.getRequestWrapperQName();
+
+        boolean found = false;
+        for (Class<?> cls : callback.getSupportedFormats()) {
+            if (cls == Node.class) {
+                DataWriter<Node> writer = callback.createWriter(Node.class);
+                writer.write(wrapperObj, elName, xmlNode);
+                found = true;
+                break;
+            } else {
+                //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
+            }
+        }
+        if (!found) {
+            throw new SOAPException("Could not figure out how to marshal data");
         }
     }
-
 
     Object getWrappedPart(Object wrapperType, Class<?> part) throws SOAPException {
         try {
@@ -459,19 +502,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         return null;
     }
 
-    private Object getFaultInfo(Throwable fault) throws SOAPException {
-        try {
-            Method faultInfoMethod = fault.getClass().getMethod("getFaultInfo");
-            if (faultInfoMethod != null) {
-                return faultInfoMethod.invoke(fault);
-            }
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "FAULT_INFO_RETREIVAL_FAILURE_MSG", ex);
-            throw new SOAPException("Could not get faultInfo out of Exception", ex);
-        }
-
-        return null;
-    }
 
     public SOAPFactory getSOAPFactory() {
         return soapFactory;
@@ -481,11 +511,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         SOAPMessage msg = msgFactory.createMessage();
         msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION,  "true");
-        msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(
-                                                                W3CConstants.NP_SCHEMA_XSD,
+        msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(W3CConstants.NP_SCHEMA_XSD,
                                                                 W3CConstants.NU_SCHEMA_XSD);
-        msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(
-                                                                W3CConstants.NP_SCHEMA_XSI,
+        msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(W3CConstants.NP_SCHEMA_XSI,
                                                                 W3CConstants.NU_SCHEMA_XSI);
 
         //SOAP Headers not supported

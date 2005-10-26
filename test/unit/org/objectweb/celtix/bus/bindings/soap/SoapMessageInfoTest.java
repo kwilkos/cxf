@@ -12,13 +12,15 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 
 public class SoapMessageInfoTest extends TestCase {
-    private SOAPMessageInfo msgInfo;
-    private SOAPMessageInfo rpcMsgInfo;
+    private DataBindingCallback msgInfo;
+    private DataBindingCallback rpcMsgInfo;
     private String methodNameString = "greetMe";
       
     
@@ -32,9 +34,11 @@ public class SoapMessageInfoTest extends TestCase {
     
     protected void setUp() throws Exception {
         super.setUp();
-        msgInfo = new SOAPMessageInfo(SOAPMessageUtil.getMethod(Greeter.class, "greetMe"));
+        msgInfo = new JAXBDataBindingCallback(SOAPMessageUtil.getMethod(Greeter.class, "greetMe"),
+                                          DataBindingCallback.Mode.PARTS);
         
-        rpcMsgInfo = new SOAPMessageInfo(SOAPMessageUtil.getMethod(GreeterRPCLit.class, "greetMe"));
+        rpcMsgInfo = new JAXBDataBindingCallback(SOAPMessageUtil.getMethod(GreeterRPCLit.class, "greetMe"),
+                                             DataBindingCallback.Mode.PARTS);
     }
 
     protected void tearDown() throws Exception {
@@ -92,12 +96,13 @@ public class SoapMessageInfoTest extends TestCase {
     
     public void testGetOperationNameCustomised() {
     
-        SOAPMessageInfo customMsgInfo = null;
+        JAXBDataBindingCallback customMsgInfo = null;
         Method [] methodList = CustomAnnotationTestHelper.class.getDeclaredMethods();
         
         for (Method mt : methodList) {
             if (mt.getName().equals(methodNameString)) {
-                customMsgInfo = new SOAPMessageInfo(mt);
+                customMsgInfo = new JAXBDataBindingCallback(mt,
+                                                            DataBindingCallback.Mode.PARTS);
                 break;
             }
         }
@@ -132,12 +137,13 @@ public class SoapMessageInfoTest extends TestCase {
     }    
     
     public void testDefaults() throws Exception {
-        SOAPMessageInfo info = null;
+        JAXBDataBindingCallback info = null;
         
         Method[] declMethods = String.class.getDeclaredMethods();
         for (Method method : declMethods) {
             if (method.getName().equals("length")) {
-                info = new SOAPMessageInfo(method);
+                info = new JAXBDataBindingCallback(method,
+                                                   DataBindingCallback.Mode.PARTS);
                 break;
             }
         }
@@ -157,11 +163,13 @@ public class SoapMessageInfoTest extends TestCase {
     }
     
     public void testHasWebFault() throws Exception {
+        JAXBDataBindingCallback jaxbmi = (JAXBDataBindingCallback)msgInfo;
         QName faultName = new QName("http://objectweb.org/hello_world_soap_http/types", "NoSuchCodeLit");
-        assertNull(msgInfo.getWebFault(faultName));
+        assertNull(jaxbmi.getWebFault(faultName));
         
-        msgInfo = new SOAPMessageInfo(SOAPMessageUtil.getMethod(Greeter.class, "testDocLitFault"));
-        Class<?> clazz = msgInfo.getWebFault(faultName);
+        jaxbmi = new JAXBDataBindingCallback(SOAPMessageUtil.getMethod(Greeter.class, "testDocLitFault"),
+                                              DataBindingCallback.Mode.PARTS);
+        Class<?> clazz = jaxbmi.getWebFault(faultName);
         assertNotNull(clazz);
         assertTrue(NoSuchCodeLitFault.class.isAssignableFrom(clazz));
     }

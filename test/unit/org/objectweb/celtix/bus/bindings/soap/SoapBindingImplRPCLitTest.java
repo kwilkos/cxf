@@ -12,7 +12,9 @@ import org.w3c.dom.NodeList;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
+import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 
@@ -59,8 +61,10 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         String arg0 = new String("TestSOAPInputPMessage");
         objContext.setMessageObjects(arg0);
 
-        SOAPMessage msg = binding.marshalMessage(objContext, soapContext);
-        msg.writeTo(System.out);
+        SOAPMessage msg = binding.marshalMessage(objContext, soapContext,
+                                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                                             DataBindingCallback.Mode.PARTS));
+        //msg.writeTo(System.out);
         soapContext.setMessage(msg);
         assertNotNull(msg);
         assertTrue(msg.getSOAPBody().hasChildNodes());
@@ -84,7 +88,9 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         String arg0 = new String("TestSOAPOutputMessage");
         objContext.setReturn(arg0);
 
-        SOAPMessage msg = binding.marshalMessage(objContext, soapContext);
+        SOAPMessage msg = binding.marshalMessage(objContext, soapContext,
+                                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                                             DataBindingCallback.Mode.PARTS));
         soapContext.setMessage(msg);
         assertNotNull(msg);
         assertTrue(msg.getSOAPBody().hasChildNodes());
@@ -137,7 +143,9 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
         soapContext.setMessage(soapMessage);
 
-        binding.unmarshalMessage(soapContext, objContext);
+        binding.unmarshalMessage(soapContext, objContext,
+                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                             DataBindingCallback.Mode.PARTS));
 
         Object[] params = objContext.getMessageObjects();
         assertNotNull(params);
@@ -159,7 +167,9 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
         soapContext.setMessage(soapMessage);
 
-        binding.unmarshalMessage(soapContext, objContext);
+        binding.unmarshalMessage(soapContext, objContext,
+                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                             DataBindingCallback.Mode.PARTS));
 
         Object[] params = objContext.getMessageObjects();
         //REVISIT Should it be null;

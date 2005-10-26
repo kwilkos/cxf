@@ -172,7 +172,7 @@ public class HandlerInvocationTest extends ClientServerTestBase {
         addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
 
         try {
-            List<String> resp = handlerTest.ping();
+            handlerTest.ping();
             fail("did not get expected exception");
         } catch (ProtocolException e) {
             assertEquals(clientHandlerMessage, e.getMessage()); 

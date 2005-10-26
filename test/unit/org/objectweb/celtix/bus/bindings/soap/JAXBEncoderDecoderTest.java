@@ -11,6 +11,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import junit.framework.TestCase;
+
+import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
 /**

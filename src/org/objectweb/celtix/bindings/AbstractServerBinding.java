@@ -142,9 +142,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 }
                 t.finalPrepareOutputStreamContext(outCtx);
                 
-                //if (!isOneWay(method)){
                 write(replyCtx, outCtx);
-                //}
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
                 throw new WebServiceException(ex);
@@ -157,7 +155,6 @@ public abstract class AbstractServerBinding implements ServerBinding {
     private QName getOperationName(MessageContext requestCtx, ObjectMessageContext objContext) {
 
         QName operationName = getOperationName(requestCtx);
-        System.out.println("getOperationName, QName: " + operationName);
         if (null != operationName) {
             objContext.put(MessageContext.WSDL_OPERATION, operationName);
         } else {
@@ -193,7 +190,6 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 invoker.setOutbound(); 
                 invoker.invokeLogicalHandlers(false);
             }
-
         } catch (IllegalAccessException ex) {
             LogUtils.log(LOG, Level.SEVERE, "IMPLEMENTOR_INVOCATION_FAILURE_MSG", ex, method.getName());
             objContext.setException(ex);

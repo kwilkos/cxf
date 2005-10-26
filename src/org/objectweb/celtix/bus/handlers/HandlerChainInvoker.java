@@ -283,10 +283,6 @@ public class HandlerChainInvoker {
     } 
 
 
-    private Boolean getMessageOutboundProperty() {
-        return (Boolean)context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-    } 
-
     private void setMessageOutboundProperty() {
         context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
     }

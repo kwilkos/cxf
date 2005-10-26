@@ -146,7 +146,6 @@ public class SOAPServerBindingTest extends TestCase {
 
         TestOutputStreamContext osc = (TestOutputStreamContext) serverTransport.getOutputStreamContext();
         ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
-        
         checkFaultMessage(bais, NoSuchCodeLitFault.class, "TestException");
     }
     

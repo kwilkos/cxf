@@ -27,6 +27,8 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
+import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -72,7 +74,11 @@ public class SOAPServerBinding extends AbstractServerBinding {
 
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {
         try {
-            SOAPMessage msg = soapBinding.marshalMessage(objContext, context);
+            SOAPMessage msg = soapBinding
+                .marshalMessage(objContext,
+                                context,
+                                new JAXBDataBindingCallback(objContext.getMethod(),
+                                                            DataBindingCallback.Mode.PARTS));
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
             se.printStackTrace();
@@ -81,13 +87,19 @@ public class SOAPServerBinding extends AbstractServerBinding {
     }
 
     protected void marshalFault(ObjectMessageContext objContext, MessageContext context) {
-        SOAPMessage msg = soapBinding.marshalFault(objContext, context);
+        SOAPMessage msg = soapBinding
+            .marshalFault(objContext, context,
+                          new JAXBDataBindingCallback(objContext.getMethod(),
+                                                      DataBindingCallback.Mode.PARTS));
         ((SOAPMessageContext)context).setMessage(msg);
     }
     
     protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
         try {
-            soapBinding.unmarshalMessage(context, objContext);
+            soapBinding.unmarshalMessage(context,
+                                         objContext,
+                                         new JAXBDataBindingCallback(objContext.getMethod(),
+                                                                     DataBindingCallback.Mode.PARTS));
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
         }

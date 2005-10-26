@@ -108,6 +108,7 @@ class TestHandler<T extends LogicalMessageContext> extends TestHandlerBase imple
 
     private void throwException(String exType) { 
         if (exType.contains("ProtocolException")) {
+            Thread.dumpStack();
             throw new ProtocolException("from server handler");
         }
     } 
@@ -137,7 +138,7 @@ class TestHandler<T extends LogicalMessageContext> extends TestHandlerBase imple
     public boolean handleFault(T ctx) {
         methodCalled("handleFault");
 
-        boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        //boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         return true;
     }
 

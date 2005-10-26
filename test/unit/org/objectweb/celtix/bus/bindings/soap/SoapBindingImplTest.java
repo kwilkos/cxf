@@ -15,7 +15,9 @@ import org.w3c.dom.NodeList;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
+import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
@@ -71,7 +73,10 @@ public class SoapBindingImplTest extends TestCase {
         String arg0 = new String("TestSOAPInputPMessage");
         objContext.setMessageObjects(arg0);
 
-        SOAPMessage msg = binding.marshalMessage(objContext, soapContext);
+        SOAPMessage msg = binding.marshalMessage(objContext,
+                                                 soapContext,
+                                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                                             DataBindingCallback.Mode.PARTS));
         soapContext.setMessage(msg);
         assertNotNull(msg);
 
@@ -90,7 +95,10 @@ public class SoapBindingImplTest extends TestCase {
         String arg0 = new String("TestSOAPOutputMessage");
         objContext.setReturn(arg0);
         
-        SOAPMessage msg = binding.marshalMessage(objContext, soapContext);
+        SOAPMessage msg = binding.marshalMessage(objContext,
+                                                 soapContext,
+                                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                                             DataBindingCallback.Mode.PARTS));
         soapContext.setMessage(msg);
         assertNotNull(msg);
         assertTrue(msg.getSOAPBody().hasChildNodes());
@@ -139,7 +147,9 @@ public class SoapBindingImplTest extends TestCase {
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
         soapContext.setMessage(soapMessage);
 
-        binding.unmarshalMessage(soapContext, objContext);
+        binding.unmarshalMessage(soapContext, objContext,
+                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                             DataBindingCallback.Mode.PARTS));
         
         Object[] params = objContext.getMessageObjects();
         assertNotNull(params);
@@ -163,7 +173,9 @@ public class SoapBindingImplTest extends TestCase {
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
         soapContext.setMessage(soapMessage);
 
-        binding.unmarshalMessage(soapContext, objContext);
+        binding.unmarshalMessage(soapContext, objContext,
+                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                             DataBindingCallback.Mode.PARTS));
         
         Object[] params = objContext.getMessageObjects();
         //REVISIT Should it be null;
@@ -186,7 +198,10 @@ public class SoapBindingImplTest extends TestCase {
         NoSuchCodeLitFault ex = new NoSuchCodeLitFault(exMessage, nscl);
         objContext.setException(ex);
 
-        SOAPMessage msg = binding.marshalFault(objContext, soapContext);
+        SOAPMessage msg = binding.marshalFault(objContext,
+                                               soapContext,
+                                               new JAXBDataBindingCallback(objContext.getMethod(),
+                                                                           DataBindingCallback.Mode.PARTS));
         soapContext.setMessage(msg);
 
         assertNotNull(msg);
@@ -213,7 +228,9 @@ public class SoapBindingImplTest extends TestCase {
         SOAPException se = new SOAPException("SAAJ Exception");
         objContext.setException(se);
 
-        SOAPMessage msg = binding.marshalFault(objContext, soapContext);
+        SOAPMessage msg = binding.marshalFault(objContext, soapContext,
+                                               new JAXBDataBindingCallback(objContext.getMethod(),
+                                                                           DataBindingCallback.Mode.PARTS));
         soapContext.setMessage(msg);
         
         assertNotNull(msg);
@@ -235,7 +252,9 @@ public class SoapBindingImplTest extends TestCase {
         SOAPMessage faultMsg = binding.getMessageFactory().createMessage(null,  is);
         soapContext.setMessage(faultMsg);
 
-        binding.unmarshalFault(soapContext, objContext);
+        binding.unmarshalFault(soapContext, objContext,
+                               new JAXBDataBindingCallback(objContext.getMethod(),
+                                                           DataBindingCallback.Mode.PARTS));
         assertNotNull(objContext.getException());
         Object faultEx = objContext.getException();
         assertTrue(NoSuchCodeLitFault.class.isAssignableFrom(faultEx.getClass()));
@@ -253,7 +272,9 @@ public class SoapBindingImplTest extends TestCase {
         is =  getClass().getResourceAsStream("resources/BadRecordDocLiteral.xml");
         faultMsg = binding.getMessageFactory().createMessage(null,  is);
         soapContext.setMessage(faultMsg);
-        binding.unmarshalFault(soapContext, objContext);
+        binding.unmarshalFault(soapContext, objContext,
+                               new JAXBDataBindingCallback(objContext.getMethod(),
+                                                           DataBindingCallback.Mode.PARTS));
         assertNotNull(objContext.getException());
         faultEx = objContext.getException();
         assertTrue(BadRecordLitFault.class.isAssignableFrom(faultEx.getClass()));

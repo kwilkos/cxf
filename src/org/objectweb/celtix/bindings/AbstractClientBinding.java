@@ -62,13 +62,20 @@ public abstract class AbstractClientBinding implements ClientBinding {
         return new ObjectMessageContextImpl();
     }
 
-    protected abstract  MessageContext createBindingMessageContext(MessageContext orig);
+    protected abstract MessageContext createBindingMessageContext(MessageContext orig);
     
-    protected abstract void marshal(ObjectMessageContext objContext, MessageContext context);
-
-    protected abstract void unmarshal(MessageContext context, ObjectMessageContext objContext);
+    protected abstract void marshal(ObjectMessageContext objContext,
+                                    MessageContext context,
+                                    DataBindingCallback callback);
     
-    protected abstract void unmarshalFault(MessageContext context, ObjectMessageContext objContext);    
+    protected abstract void unmarshal(MessageContext context,
+                                      ObjectMessageContext objContext,
+                                      DataBindingCallback callback);
+    
+    protected abstract void unmarshalFault(MessageContext context,
+                                           ObjectMessageContext objContext,
+                                           DataBindingCallback callback);
+    
     
     protected abstract boolean hasFault(MessageContext context);
 
@@ -76,7 +83,11 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
     protected abstract void read(InputStreamMessageContext inCtx, MessageContext context);
     
-    public ObjectMessageContext invoke(ObjectMessageContext context) throws IOException {
+    
+    
+    public ObjectMessageContext invoke(ObjectMessageContext context,
+                                       DataBindingCallback callback)
+        throws IOException {
         
         HandlerChainInvoker handlerInvoker = new HandlerChainInvoker(getBinding().getHandlerChain(), context);
 
@@ -91,7 +102,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
             if (continueProcessing) {  
 
                 if (null != bindingContext) {
-                    marshal(context, bindingContext);
+                    marshal(context, bindingContext, callback);
                 } else {
                     bindingContext = context;
                 }
@@ -132,9 +143,9 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 handlerInvoker.invokeProtocolHandlers(true, bindingContext);
 
                 if (!hasFault(bindingContext)) {
-                    unmarshal(bindingContext, context);
+                    unmarshal(bindingContext, context, callback);
                 } else {
-                    unmarshalFault(bindingContext, context);
+                    unmarshalFault(bindingContext, context, callback);
                 }
             }
             context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
@@ -147,7 +158,8 @@ public abstract class AbstractClientBinding implements ClientBinding {
     }
 
     
-    public void invokeOneWay(ObjectMessageContext context) throws IOException {
+    public void invokeOneWay(ObjectMessageContext context,
+                             DataBindingCallback callback) throws IOException {
         
         HandlerChainInvoker handlerInvoker = new HandlerChainInvoker(getBinding().getHandlerChain(), context);
 
@@ -161,7 +173,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
             if (continueProcessing) {  
 
                 if (null != bindingContext) {
-                    marshal(context, bindingContext);
+                    marshal(context, bindingContext, callback);
                 } else {
                     bindingContext = context;
                 }
@@ -184,7 +196,8 @@ public abstract class AbstractClientBinding implements ClientBinding {
         }
     }
 
-    public Future<ObjectMessageContext> invokeAsync(ObjectMessageContext context) {
+    public Future<ObjectMessageContext> invokeAsync(ObjectMessageContext context,
+                                                    DataBindingCallback callback) {
         // TODO Auto-generated method stub
         return null;
     }

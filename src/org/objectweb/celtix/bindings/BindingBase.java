@@ -4,6 +4,7 @@ import javax.xml.ws.Binding;
 
 import org.objectweb.celtix.context.ObjectMessageContext;
 
+
 /**
  * Contains base operations to be implemented by bindings.
  */
@@ -26,9 +27,11 @@ public interface BindingBase {
     Binding getBinding();
     
     /**
-     * Create an <code>ObjectMessageContext</code> to hold objects of a message.
+     * Create an <code>ObjectMessageContext</code>.
      *
      * @return The newly created ObjectMessageContext.
      */
     ObjectMessageContext createObjectContext();
+        
+    
 }

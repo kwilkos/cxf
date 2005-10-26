@@ -61,7 +61,5 @@ public class NameSpaceTest extends TestCase {
         assertFalse(nsDecl2.equals(nsDecl1));
         assertTrue(nsDecl3.equals(nsDecl1));
         
-        int hashcode =  nsDecl1.hashCode();
-        
     }
 }

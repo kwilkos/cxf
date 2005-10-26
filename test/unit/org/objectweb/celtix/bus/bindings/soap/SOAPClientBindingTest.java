@@ -19,7 +19,9 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
+import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -122,7 +124,9 @@ public class SOAPClientBindingTest extends TestCase {
         String arg0 = new String("TestSOAPInputPMessage");
         objContext.setMessageObjects(arg0);
         
-        clientBinding.invokeOneWay(objContext);        
+        clientBinding.invokeOneWay(objContext,
+                                   new JAXBDataBindingCallback(method,
+                                                               DataBindingCallback.Mode.PARTS));        
     }
 
     public void testhasFault() throws Exception {
@@ -208,15 +212,21 @@ public class SOAPClientBindingTest extends TestCase {
         }
         
         public void unmarshalFault(MessageContext context, ObjectMessageContext objContext) {
-            super.unmarshalFault(context, objContext);
+            super.unmarshalFault(context, objContext,
+                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                             DataBindingCallback.Mode.PARTS));
         }
 
         public void marshal(ObjectMessageContext objContext, MessageContext context) {
-            super.marshal(objContext, context);
+            super.marshal(objContext, context,
+                          new JAXBDataBindingCallback(objContext.getMethod(),
+                                                      DataBindingCallback.Mode.PARTS));
         }
         
         public void unmarshal(MessageContext context, ObjectMessageContext objContext) {
-            super.unmarshal(context, objContext);
+            super.unmarshal(context, objContext,
+                            new JAXBDataBindingCallback(objContext.getMethod(),
+                                                        DataBindingCallback.Mode.PARTS));
         }
         
         public void write(MessageContext context, OutputStreamMessageContext outCtx) {

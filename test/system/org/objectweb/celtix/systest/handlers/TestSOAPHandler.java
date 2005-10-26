@@ -7,7 +7,6 @@ import java.util.StringTokenizer;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
@@ -141,7 +140,7 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                         // remove the incoming request body.
                         body.removeContents();
                         
-                        SOAPFactory factory = SOAPFactory.newInstance();
+                        //SOAPFactory factory = SOAPFactory.newInstance();
                         Document doc = body.getOwnerDocument(); 
                         
                         // build the SOAP response for this message 

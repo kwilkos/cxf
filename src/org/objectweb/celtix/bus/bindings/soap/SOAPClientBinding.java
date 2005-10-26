@@ -16,6 +16,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractClientBinding;
+import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -43,9 +44,10 @@ public class SOAPClientBinding extends AbstractClientBinding {
         return new SOAPMessageContextImpl(ctx);
     }
 
-    protected void marshal(ObjectMessageContext objContext, MessageContext context) {
+    protected void marshal(ObjectMessageContext objContext, MessageContext context,
+                           DataBindingCallback callback) {
         try {
-            SOAPMessage msg = soapBinding.marshalMessage(objContext, context);
+            SOAPMessage msg = soapBinding.marshalMessage(objContext, context, callback);
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_MARSHALLING_FAILURE_MSG", se);
@@ -53,9 +55,11 @@ public class SOAPClientBinding extends AbstractClientBinding {
         }
     }
 
-    protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
+    protected void unmarshal(MessageContext context,
+                             ObjectMessageContext objContext,
+                             DataBindingCallback callback) {
         try {
-            soapBinding.unmarshalMessage(context, objContext);
+            soapBinding.unmarshalMessage(context, objContext, callback);
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
             throw new ProtocolException(se);
@@ -76,9 +80,11 @@ public class SOAPClientBinding extends AbstractClientBinding {
         return hasFault;
     }
     
-    protected void unmarshalFault(MessageContext context, ObjectMessageContext objContext) {
+    protected void unmarshalFault(MessageContext context,
+                                  ObjectMessageContext objContext,
+                                  DataBindingCallback callback) {
         try {
-            soapBinding.unmarshalFault(context, objContext);
+            soapBinding.unmarshalFault(context, objContext, callback);
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
             throw new ProtocolException(se);

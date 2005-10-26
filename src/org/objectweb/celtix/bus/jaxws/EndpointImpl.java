@@ -13,7 +13,6 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
-import javax.xml.ws.handler.Handler;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
@@ -37,7 +36,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private EndpointReferenceType reference;
     private ServerBinding serverBinding;
     private boolean published;
-    private List<Handler> handlers;
     private List<Source> metadata;
     private Executor executor;
 
@@ -144,15 +142,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
                 new BusException(new Message("BINDING_INCOMPATIBLE_ADDRESS_EXC", LOG)));
         }
         doPublish(address);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.xml.ws.Endpoint#setHandlerChain(java.util.List)
-     */
-    public void setHandlerChain(List<Handler> h) {
-        handlers = h;
     }
 
     /*

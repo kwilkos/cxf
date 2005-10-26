@@ -22,6 +22,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ClientBinding;
+import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -103,9 +104,13 @@ public class EndpointInvocationHandler implements BindingProvider, InvocationHan
         boolean isOneway = (method.getAnnotation(Oneway.class) != null) ? true : false;
 
         if (isOneway) {
-            clientBinding.invokeOneWay(objMsgContext);
+            clientBinding.invokeOneWay(objMsgContext,
+                                       new JAXBDataBindingCallback(method,
+                                                                   DataBindingCallback.Mode.PARTS));
         } else {
-            objMsgContext = clientBinding.invoke(objMsgContext);
+            objMsgContext = clientBinding.invoke(objMsgContext,
+                                                 new JAXBDataBindingCallback(method,
+                                                                             DataBindingCallback.Mode.PARTS));
         }
 
         if (objMsgContext.getException() != null) {
