@@ -94,7 +94,8 @@ public class SOAPServerBindingTest extends TestCase {
         TestInputStreamContext inCtx = new TestInputStreamContext(bArray);
         serverBinding.testDispatch(inCtx, serverTransport);
 
-        assertNotNull(serverTransport.getOutputStreamContext());  
+        assertNotNull(serverTransport.getOutputStreamContext());
+        assertFalse(serverTransport.getOutputStreamContext().isFault());
         OutputStream os = serverTransport.getOutputStreamContext().getOutputStream();
         assertNotNull(os);
 
@@ -140,7 +141,8 @@ public class SOAPServerBindingTest extends TestCase {
         TestInputStreamContext inCtx = new TestInputStreamContext(bArray);
         serverBinding.testDispatch(inCtx, serverTransport);
 
-        assertNotNull(serverTransport.getOutputStreamContext());  
+        assertNotNull(serverTransport.getOutputStreamContext());
+        assertTrue(serverTransport.getOutputStreamContext().isFault());
 
         TestOutputStreamContext osc = (TestOutputStreamContext) serverTransport.getOutputStreamContext();
         ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());

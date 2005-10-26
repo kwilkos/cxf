@@ -108,8 +108,11 @@ public abstract class AbstractServerBinding implements ServerBinding {
             throw new WebServiceException(ex);
         }
 
-        MessageContext replyCtx = null;
-        Method method = getMethod(requestCtx, null);
+        ObjectMessageContext objContext = createObjectContext();        
+        Method method = getMethod(requestCtx, objContext);
+        assert method != null;
+        objContext.setMethod(method);
+        
         if (isOneWay(method)) {
             try {
                 OutputStreamMessageContext outCtx = t.createOutputStreamContext(inCtx);
@@ -121,11 +124,12 @@ public abstract class AbstractServerBinding implements ServerBinding {
         }
 
         ServiceMode mode = EndpointUtils.getServiceMode(endpoint);
+        MessageContext replyCtx = null;
         try {
             if (null != mode) {
                 replyCtx = invokeOnProvider(requestCtx, mode);
             } else {
-                replyCtx = invokeOnMethod(requestCtx);
+                replyCtx = invokeOnMethod(requestCtx, objContext);
             }
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "PROVIDER_INVOCATION_FAILURE_MSG", ex);
@@ -135,7 +139,9 @@ public abstract class AbstractServerBinding implements ServerBinding {
         if (!isOneWay(method)) {
             try {
                 OutputStreamMessageContext outCtx = t.createOutputStreamContext(inCtx);
-                // TODO - invoke output stream handlers
+                if (objContext.getException() != null) {
+                    outCtx.setFault(true);
+                }
                 t.finalPrepareOutputStreamContext(outCtx);
                 write(replyCtx, outCtx);
             } catch (IOException ex) {
@@ -212,9 +218,9 @@ public abstract class AbstractServerBinding implements ServerBinding {
         replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
     } 
  
-    private MessageContext invokeOnMethod(MessageContext requestCtx) {
+    private MessageContext invokeOnMethod(MessageContext requestCtx, ObjectMessageContext objContext) {
 
-        ObjectMessageContext objContext = createObjectContext();
+
         objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
 
         HandlerChainInvoker invoker = new HandlerChainInvoker(getBinding().getHandlerChain(), 
@@ -222,14 +228,14 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
         MessageContext replyCtx = createBindingMessageContext(requestCtx);
         assert replyCtx != null;
-        Method method = getMethod(requestCtx, objContext); 
-        assert method != null;
-        objContext.setMethod(method);
 
         try {
-            boolean continueProcessing = invoker.invokeProtocolHandlers(false, requestCtx); 
+            boolean continueProcessing = invoker.invokeProtocolHandlers(false, requestCtx);
+
             if (continueProcessing) {
                 unmarshal(requestCtx, objContext);
+                
+                Method method = objContext.getMethod();
                 doInvocation(method, objContext, replyCtx, invoker); 
 
                 if (!isOneWay(method)) {

@@ -15,6 +15,7 @@ class TestOutputStreamContext
     extends MessageContextWrapper
     implements OutputStreamMessageContext {
     ByteArrayOutputStream baos;
+    boolean isFaultMsg;
 
     public TestOutputStreamContext(URL url, MessageContext ctx) throws IOException {
         super(ctx);
@@ -22,10 +23,12 @@ class TestOutputStreamContext
 
     void flushHeaders() throws IOException { }
 
-    public void setFault(boolean isFault) { }
+    public void setFault(boolean isFault) { 
+        isFaultMsg = isFault;
+    }
 
     public boolean isFault() {
-        return false;
+        return isFaultMsg;
     }
 
     public OutputStream getOutputStream() {
