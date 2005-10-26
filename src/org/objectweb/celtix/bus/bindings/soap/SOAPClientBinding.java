@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -88,6 +89,12 @@ public class SOAPClientBinding extends AbstractClientBinding {
         SOAPMessageContext soapCtx = (SOAPMessageContext)context;
         try {
             soapCtx.getMessage().writeTo(outCtx.getOutputStream());
+            
+            if (LOG.isLoggable(Level.FINE)) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                soapCtx.getMessage().writeTo(baos);
+                LOG.log(Level.FINE, baos.toString());    
+            }
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_WRITE_FAILURE_MSG", se);
             throw new ProtocolException(se);

@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
+import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
@@ -22,6 +23,7 @@ public class SOAPMessageInfo {
     private RequestWrapper reqWrapper;
     private ResponseWrapper respWrapper;
     private Method method;
+    private WebService webServiceAnnotation;
 
     public SOAPMessageInfo(Method m) {
         method = m;
@@ -29,6 +31,8 @@ public class SOAPMessageInfo {
     }
 
     private void init() {
+        //Get WebService Annotation.
+        webServiceAnnotation = method.getDeclaringClass().getAnnotation(WebService.class);
         //Get SOAP Style, Use,
         soapBindAnnotation = method.getDeclaringClass().getAnnotation(SOAPBinding.class);
         //Get Operation,Action Info
@@ -87,10 +91,14 @@ public class SOAPMessageInfo {
             } else {
                 // RPC-Lit case.
                 //REVISIT : For spec. compliance with other types. 
-                return new QName("", webResultAnnotation.partName());
+                return new QName(null, webResultAnnotation.partName());
             }
         }
         return SOAPConstants.EMPTY_QNAME;
+    }
+    
+    public WebResult getWebResultAnnotation() {
+        return webResultAnnotation;
     }
 
     public WebParam getWebParam(int index) {
@@ -102,6 +110,14 @@ public class SOAPMessageInfo {
             }
         }
         return null;
+    }
+    
+    public WebService getWebService() {
+        return webServiceAnnotation;
+    }
+    
+    public String getTargetNameSpace() {
+        return webServiceAnnotation.targetNamespace();
     }
 
     public QName getRequestWrapperQName() {

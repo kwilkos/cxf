@@ -96,8 +96,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
     protected void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
         LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
         MessageContext requestCtx = createBindingMessageContext(inCtx);
-            
-
+     
         //Input Message
         requestCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
         

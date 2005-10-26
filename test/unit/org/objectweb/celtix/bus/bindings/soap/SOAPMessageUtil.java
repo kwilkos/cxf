@@ -54,7 +54,7 @@ public final class SOAPMessageUtil {
         str.append("<ns4:" + operation.getLocalPart());
         str.append(" xmlns:ns4=\"" + operation.getNamespaceURI() + "\">");
         if (elName != null) {
-            str.append("<" + elName.getLocalPart() + " xsi:type=\"xs:string\">");
+            str.append("<" + elName.getLocalPart() + ">");
             str.append(data);
             str.append("</" + elName.getLocalPart() + ">");
         }

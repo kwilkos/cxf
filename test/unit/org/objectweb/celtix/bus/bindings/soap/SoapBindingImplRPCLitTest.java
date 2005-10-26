@@ -60,6 +60,7 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         objContext.setMessageObjects(arg0);
 
         SOAPMessage msg = binding.marshalMessage(objContext, soapContext);
+        msg.writeTo(System.out);
         soapContext.setMessage(msg);
         assertNotNull(msg);
         assertTrue(msg.getSOAPBody().hasChildNodes());

@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -14,10 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.jws.WebParam;
-import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding.Style;
+
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
@@ -40,12 +38,14 @@ import org.w3c.dom.NodeList;
 import org.objectweb.celtix.bus.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.helpers.NSStack;
 import org.objectweb.celtix.helpers.WrapperHelper;
 
 public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(SOAPBindingImpl.class);
     protected final MessageFactory msgFactory;
     protected final SOAPFactory soapFactory;
+    private NSStack nsStack;
 
     public SOAPBindingImpl() {
         try {
@@ -97,6 +97,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         SOAPMessage msg = initSOAPMessage();
         SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
 
+        if (messageInfo.getSOAPStyle() == Style.RPC) {
+            nsStack = new NSStack();
+            nsStack.push();
+        }
+        
         SOAPElement soapElement = addOperationNode(msg.getSOAPBody(), messageInfo, isInputMsg);
 
         //add out and inout params
@@ -113,7 +118,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         SOAPMessage msg = null;
 
-        try {            
+        try {
             msg = initSOAPMessage();
 
             //SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
@@ -127,6 +132,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             fault.setFaultString(t.getMessage());
 
             if (null != wfAnnotation) {
+
                 Object faultInfo = getFaultInfo(t);
                 QName elName = new QName(wfAnnotation.targetNamespace(), wfAnnotation.name());
                 JAXBEncoderDecoder.marshall(faultInfo, elName, fault.addDetail());
@@ -153,7 +159,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
         SOAPMessage soapMessage = soapContext.getMessage();
-
+        
         //Assuming No Headers are inserted.
         Node soapEl = soapMessage.getSOAPBody();
 
@@ -166,7 +172,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         getParts(soapEl, messageInfo, objContext, isOutputMsg);
     }
 
-    public void unmarshalFault(MessageContext context, ObjectMessageContext objContext) 
+    public void unmarshalFault(MessageContext context, ObjectMessageContext objContext)
         throws SOAPException {
 
         if (!SOAPMessageContext.class.isInstance(context)) {
@@ -176,16 +182,15 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         SOAPMessageContext soapContext = SOAPMessageContext.class.cast(context);
         SOAPMessage soapMessage = soapContext.getMessage();
         SOAPMessageInfo messageInfo = new SOAPMessageInfo(objContext.getMethod());
-        
+
         SOAPFault fault = soapMessage.getSOAPBody().getFault();
         Object faultObj = null;
         if (fault.getDetail() != null) {
             NodeList list = fault.getDetail().getChildNodes();
             assert list.getLength() == 1;
-        
+
             QName faultName = new QName(list.item(0).getNamespaceURI(), list.item(0).getLocalName());
             Class<?> clazz = messageInfo.getWebFault(faultName);
-
             try {
                 if (clazz != null) {
                     Class<?> faultInfo = clazz.getMethod("getFaultInfo").getReturnType();
@@ -207,8 +212,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         objContext.setException((Throwable)faultObj);
     }
-    
-    public void parseMessage(InputStream in, MessageContext mc) 
+
+    public void parseMessage(InputStream in, MessageContext mc)
         throws SOAPException, IOException {
 
         if (!SOAPMessageContext.class.isInstance(mc)) {
@@ -235,7 +240,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                     }
                 }
             }
+            
             soapMessage = msgFactory.createMessage(headers, in);
+            
         } catch (Exception ex) {
             LOG.log(Level.INFO, "error in creating soap message", ex);
         }
@@ -248,11 +255,12 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         String responseSuffix = isOutBound ? "Response" : "";
 
         if (messageInfo.getSOAPStyle() == Style.RPC) {
-            Method methodParam = messageInfo.getMethod();
-            WebService wsAnnotation = methodParam.getDeclaringClass().getAnnotation(WebService.class);
-            String  namespaceURI = wsAnnotation.targetNamespace();
-            QName operationName = new QName(namespaceURI, 
-                                            messageInfo.getOperationName() + responseSuffix);
+            String  namespaceURI = messageInfo.getTargetNameSpace();
+            nsStack.add(namespaceURI);
+            String prefix = nsStack.getPrefix(namespaceURI);
+            QName operationName = new QName(namespaceURI,
+                                            messageInfo.getOperationName() + responseSuffix, prefix);
+           
             return body.addChildElement(operationName);
         }
         return body;
@@ -260,21 +268,21 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
     private void getParts(Node xmlNode , SOAPMessageInfo messageInfo,
                           ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
-        
+
         if (messageInfo.getSOAPStyle() != Style.RPC) {
-            getWrappedDocLitParts(xmlNode , messageInfo, objCtx, isOutBound);  
+            getWrappedDocLitParts(xmlNode , messageInfo, objCtx, isOutBound);
         } else {
             getRPCLitParts(xmlNode , messageInfo, objCtx, isOutBound);
-        } 
+        }
     }
-    
+
     private void getWrappedDocLitParts(Node xmlNode , SOAPMessageInfo messageInfo,
                                        ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
-        
+
         Method method = messageInfo.getMethod();
         String wrapperType = isOutBound ? messageInfo.getResponseWrapperType()
             : messageInfo.getRequestWrapperType();
-
+        
         Node childNode = xmlNode.getFirstChild();
 
         Object retVal = null;
@@ -303,14 +311,14 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 paramList.add(getWrappedPart(obj, method.getParameterTypes()[idx]));
             }
         }
-        
+
         objCtx.setReturn(retVal);
         objCtx.setMessageObjects(paramList.toArray());
     }
-    
+
     private void getRPCLitParts(Node xmlNode , SOAPMessageInfo messageInfo,
                                 ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
-      
+
         Method method = messageInfo.getMethod();
         Node childNode = xmlNode.getFirstChild();
 
@@ -319,8 +327,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         if (isOutBound && !"void".equals(method.getReturnType().getName())) {
             retVal = JAXBEncoderDecoder.unmarshall(
                         childNode, 
-                        messageInfo.getWebResult(),
-                        method.getReturnType().getClass());
+                        new QName("", messageInfo.getWebResultAnnotation().partName()), 
+                        method.getReturnType());
             childNode = childNode.getNextSibling();
         }
 
@@ -331,17 +339,20 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
         for (int idx = 0; idx < noArgs; idx++) {
             WebParam param = messageInfo.getWebParam(idx);
+            String paramNameSpace = param.targetNamespace();
+            
+            if ("".equals(param.targetNamespace())) {             
+                paramNameSpace = messageInfo.getTargetNameSpace();
+            } 
+            
             if ((param.mode() != ignoreParamMode) && !param.header()) {
-                QName elName = new QName(param.targetNamespace(), param.name());
-                Object obj = JAXBEncoderDecoder.unmarshall(
-                                                childNode,
-                                                elName,
-                                                listOfParams[idx].getClass());
+                QName elName = new QName("", param.partName());
+                Object obj = JAXBEncoderDecoder.unmarshall(childNode, elName, listOfParams[idx]);
                 paramList.add(obj);
                 childNode = childNode.getNextSibling();
             }
         }
-        
+
         objCtx.setReturn(retVal);
         objCtx.setMessageObjects(paramList.toArray());
     }
@@ -362,11 +373,12 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         Method method = messageInfo.getMethod();
         Object[] args = objCtx.getMessageObjects();
-
         //Add the Return Type
         if (isOutBound && !"void".equals(method.getReturnType().getName())) {
-            Object retVal = objCtx.getReturn();
-            JAXBEncoderDecoder.marshall(retVal, messageInfo.getWebResult(), xmlNode);
+            Object retVal = objCtx.getReturn();          
+            JAXBEncoderDecoder.marshall(retVal, 
+                                        new QName("",  messageInfo.getWebResultAnnotation().partName()), 
+                                        xmlNode);
         }
 
         //Add the in,inout,out args depend on the inputMode
@@ -377,8 +389,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         for (int idx = 0; idx < noArgs; idx++) {
             WebParam param = messageInfo.getWebParam(idx);
             if ((param.mode() != ignoreParamMode) && !param.header()) {
-                QName elName = new QName(param.targetNamespace(), param.name());
-                JAXBEncoderDecoder.marshall(args[idx], elName, xmlNode);
+                QName elName = new QName("",  param.partName());
+                JAXBEncoderDecoder.marshall(args[idx], elName, xmlNode);             
             }
         }
     }

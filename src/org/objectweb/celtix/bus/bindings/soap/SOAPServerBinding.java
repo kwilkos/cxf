@@ -1,13 +1,10 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.jws.soap.SOAPBinding;
-import javax.jws.soap.SOAPBinding.ParameterStyle;
-import javax.jws.soap.SOAPBinding.Style;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
@@ -101,6 +98,12 @@ public class SOAPServerBinding extends AbstractServerBinding {
         SOAPMessageContext soapCtx = (SOAPMessageContext)context;
         try {
             soapCtx.getMessage().writeTo(outCtx.getOutputStream());
+            
+            if (LOG.isLoggable(Level.FINE)) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                soapCtx.getMessage().writeTo(baos);
+                LOG.log(Level.FINE, baos.toString());    
+            }
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_WRITE_FAILURE_MSG", se);
             throw new IOException(se.getMessage());
@@ -170,21 +173,10 @@ public class SOAPServerBinding extends AbstractServerBinding {
         
         QName ret = null;         
         try { 
-            Class<?> implementorClass = endpoint.getImplementor().getClass(); 
-            SOAPBinding binding = getBindingAnnotationFromClass(implementorClass);
-            
-            
-            if (null == binding
-                || (binding.style() == Style.DOCUMENT && binding.parameterStyle() == ParameterStyle.WRAPPED
-                && binding.use() == SOAPBinding.Use.LITERAL)) {
-                
-                SOAPMessageContext soapContext = SOAPMessageContext.class.cast(ctx);
-                SOAPMessage msg = soapContext.getMessage();
-                Node node = msg.getSOAPBody().getFirstChild();
-                ret = new QName(node.getNamespaceURI(), node.getLocalName());
-            } else { 
-                LOG.severe("OPERATION_NAME_RETREIVAL_FAILURE_MSG");
-            }
+            SOAPMessageContext soapContext = SOAPMessageContext.class.cast(ctx);
+            SOAPMessage msg = soapContext.getMessage();
+            Node node = msg.getSOAPBody().getFirstChild();
+            ret = new QName(node.getNamespaceURI(), node.getLocalName());
         } catch (SOAPException ex) {
             LOG.log(Level.SEVERE, "OPERATION_NAME_RETREIVAL_FAILURE_MSG", ex);
         }
@@ -192,16 +184,4 @@ public class SOAPServerBinding extends AbstractServerBinding {
         LOG.info("retrieved operation name from soap message:" + ret);
         return ret;
     }
-    
-    private SOAPBinding getBindingAnnotationFromClass(Class<?> clz) {
-        
-        SOAPBinding annotation = null;
-        
-        for (Class<?> iface : clz.getInterfaces()) {
-            if ((annotation = iface.getAnnotation(SOAPBinding.class)) != null) {
-                break;
-            }
-        }
-        return annotation;     
-    }    
 }
