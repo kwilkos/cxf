@@ -38,6 +38,7 @@
         </and>
     </condition>
     <property name="jaxws.lib.dir" location="${thirdparty.tools.dir}/jaxws-ri/20050929/lib"/>
+    <property name="celtix.etc.dir" location="../../etc"/>
 
     <target name="build"  depends="generate.code,compile" description="build demo client and server"/>
 
@@ -73,6 +74,7 @@
                 <assertions>
                     <enable package="org.objectweb.celtix"/>
                 </assertions>
+                <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
             </java>
         </sequential>
     </macrodef>
@@ -132,6 +134,7 @@
                     </fileset>
                     <path refid="jdk.tools.classpath"/>
                 </classpath>
+                <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
                 <arg line="${package.arg.@{file}}"/>
                 <arg value="-keep"/>
                 <arg value="-s"/>

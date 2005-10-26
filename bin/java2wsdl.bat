@@ -7,7 +7,7 @@ rem
 if not defined CELTIX_HOME goto no_celtix_home
 
 call %CELTIX_HOME%\bin\celtix_env.bat 
-%JAVA_HOME%\bin\java -Djaxws.home=%JAXWS_HOME% org.objectweb.celtix.tools.Java2Wsdl %*
+%JAVA_HOME%\bin\java -Djaxws.home=%JAXWS_HOME% -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties org.objectweb.celtix.tools.Java2Wsdl %*
 @endlocal
 
 goto end 

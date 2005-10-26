@@ -17,7 +17,7 @@
             <fileset dir="${basedir}/test/unit" includes="**/*.properties"/>
         </copy>
         <copy todir="${basedir}/build/classes-tests/unit">
-            <fileset dir="${basedir}/etc" includes="logging.properties"/>
+            <fileset dir="${basedir}/etc/test" includes="logging.properties"/>
         </copy>
     </target>
     
