@@ -2,10 +2,6 @@ package org.objectweb.celtix.bus.handlers;
 
 
 
-
-
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +9,9 @@ import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
 import junit.framework.TestCase;
+import org.easymock.EasyMock;
 import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
 import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -27,7 +25,7 @@ public class HandlerChainInvokerTest extends TestCase {
     HandlerChainInvoker invoker;
     
     ObjectMessageContextImpl ctx = new ObjectMessageContextImpl();
-
+    SOAPMessageContext soapContext;
     
     TestLogicalHandler[] logicalHandlers = new TestLogicalHandler[HANDLER_COUNT];
     TestProtocolHandler[] protocolHandlers = new TestProtocolHandler[HANDLER_COUNT];
@@ -45,14 +43,28 @@ public class HandlerChainInvokerTest extends TestCase {
             handlers.add(protocolHandlers[i]);
         }
         invoker = new HandlerChainInvoker(handlers, ctx);
+        
+        soapContext = EasyMock.createNiceMock(SOAPMessageContext.class);
     }
     
     public void testInvokeEmptyHandlerChain() {
         invoker = new HandlerChainInvoker(new ArrayList<Handler>(), ctx);
         assertTrue(invoker.invokeLogicalHandlers(false));
-        assertTrue(invoker.invokeProtocolHandlers(false));
+        assertTrue(invoker.invokeProtocolHandlers(false, soapContext));
         assertTrue(invoker.invokeStreamHandlers());
     }
+
+    
+    public void testHandlerPartitioning() { 
+
+        for (Handler h : invoker.getLogicalHandlers()) {
+            assertTrue(h instanceof LogicalHandler); 
+        }
+        for (Handler h : invoker.getProtocolHandlers()) {
+            assertTrue(!(h instanceof LogicalHandler)); 
+        }
+    } 
+
     
     public void testInvokeHandlersOutbound() {
 
@@ -115,7 +127,7 @@ public class HandlerChainInvokerTest extends TestCase {
         ret = invoker.invokeLogicalHandlers(false);
         assertTrue(ret);
         assertFalse(invoker.isClosed()); 
-        assertEquals(2, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
         assertEquals(0, logicalHandlers[1].getHandleMessageCount());
         assertTrue(invoker.isInbound());
     }
@@ -160,7 +172,7 @@ public class HandlerChainInvokerTest extends TestCase {
         assertEquals(1, logicalHandlers[0].getHandleMessageCount()); 
         assertEquals(1, logicalHandlers[1].getHandleMessageCount()); 
         assertEquals(1, logicalHandlers[0].getHandleFaultCount());
-        assertEquals(1, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[1].getHandleFaultCount());
 
         assertTrue(logicalHandlers[1].getInvokedOrder() 
                    < logicalHandlers[0].getInvokedOrder());
@@ -224,7 +236,7 @@ public class HandlerChainInvokerTest extends TestCase {
     public void testMEPComplete() { 
 
         invoker.invokeLogicalHandlers(false); 
-        invoker.invokeProtocolHandlers(false); 
+        invoker.invokeProtocolHandlers(false, soapContext); 
         assertEquals(4, invoker.getInvokedHandlers().size()); 
 
         invoker.mepComplete(); 
@@ -263,7 +275,39 @@ public class HandlerChainInvokerTest extends TestCase {
         assertSame(newCtx, invoker.getContext());
     } 
 
+    
+    /* test invoking logical handlers when processing has been aborted
+     * with both protocol and logical handlers in invokedHandlers list.
+     *
+     */
+    public void testInvokedAlreadyInvokedMixed() { 
 
+        // simulate an invocation being aborted by a logical handler
+        //
+        logicalHandlers[1].setHandleMessageRet(false);        
+        invoker.setInbound();
+        invoker.invokeProtocolHandlers(true, soapContext); 
+        invoker.invokeLogicalHandlers(true); 
+
+        assertEquals(2, invoker.getInvokedHandlers().size());
+        assertTrue(!invoker.getInvokedHandlers().contains(logicalHandlers[1]));
+        assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[0]));
+        assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[1]));
+        assertEquals(0, logicalHandlers[0].getHandleMessageCount()); 
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount()); 
+        assertEquals(1, protocolHandlers[0].getHandleMessageCount()); 
+        assertEquals(1, protocolHandlers[1].getHandleMessageCount()); 
+
+        // now, invoke handlers on outbound leg
+        invoker.invokeLogicalHandlers(true); 
+
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount()); 
+        assertEquals(0, logicalHandlers[0].getHandleMessageCount()); 
+        assertEquals(1, protocolHandlers[0].getHandleMessageCount()); 
+        assertEquals(1, protocolHandlers[1].getHandleMessageCount()); 
+
+    }
+    
     protected void checkLogicalHandlersInvoked(boolean outboundProperty, boolean requestorProperty) { 
 
         invoker.invokeLogicalHandlers(requestorProperty);
@@ -276,18 +320,23 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue("handler not invoked", logicalHandlers[1].isHandleMessageInvoked());
         assertTrue(invoker.getInvokedHandlers().contains(logicalHandlers[0])); 
         assertTrue(invoker.getInvokedHandlers().contains(logicalHandlers[1])); 
-
     }
     
     protected void checkProtocolHandlersInvoked(boolean outboundProperty) { 
-        
-        invoker.invokeProtocolHandlers(false);
-        
+
+        soapContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, invoker.isOutbound());
+        EasyMock.expectLastCall().andReturn(null); 
+        EasyMock.replay(soapContext); 
+
+        invoker.invokeProtocolHandlers(false, soapContext);
+
+        EasyMock.verify(soapContext); 
+
         assertTrue("handler not invoked", protocolHandlers[0].isHandleMessageInvoked());
         assertTrue("handler not invoked", protocolHandlers[1].isHandleMessageInvoked());
+
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[0])); 
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[1])); 
-
     }
     
     
@@ -308,7 +357,7 @@ public class HandlerChainInvokerTest extends TestCase {
 
 
 
-    static class TestProtocolHandler extends AbstractHandlerBase {
+    static class TestProtocolHandler extends AbstractHandlerBase<SOAPMessageContext> {
         
     }
     

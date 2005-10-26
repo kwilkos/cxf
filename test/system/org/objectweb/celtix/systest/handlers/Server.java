@@ -11,6 +11,8 @@ public class Server extends TestServerBase {
     
     TestHandler handler1 = new TestHandler(true); 
     TestHandler handler2 = new TestHandler(true); 
+    TestSOAPHandler soapHandler1 = new TestSOAPHandler(true); 
+    TestSOAPHandler soapHandler2 = new TestSOAPHandler(true); 
 
     protected void run()  {
         System.out.println(">> running server <<");
@@ -22,6 +24,8 @@ public class Server extends TestServerBase {
         List<Handler> hc = new ArrayList<Handler>(); 
         hc.add(handler1);
         hc.add(handler2);
+        hc.add(soapHandler1);
+        hc.add(soapHandler2);
         ep.getBinding().setHandlerChain(hc);
     }
     

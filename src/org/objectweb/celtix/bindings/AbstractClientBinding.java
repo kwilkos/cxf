@@ -84,6 +84,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
             MessageContext bindingContext = createBindingMessageContext(context);
 
             //Input Message For Client
+            context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
             bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
             boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(true);
 
@@ -95,33 +96,40 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     bindingContext = context;
                 }
 
-                assert transport != null : "transport is null";
+                continueProcessing = handlerInvoker.invokeProtocolHandlers(true, bindingContext); 
 
-                OutputStreamMessageContext ostreamContext = 
-                    transport.createOutputStreamContext(bindingContext);
+                if (continueProcessing) {
+                    assert transport != null : "transport is null";
+                    
+                    OutputStreamMessageContext ostreamContext = 
+                        transport.createOutputStreamContext(bindingContext);
+                    
+                    // TODO - invoke output stream handlers
+                    transport.finalPrepareOutputStreamContext(ostreamContext);
+                    
+                    write(bindingContext, ostreamContext);
+                    
+                    InputStreamMessageContext ins = transport.invoke(ostreamContext);
+                    bindingContext = createBindingMessageContext(ins);
+                    if (null == bindingContext) {
+                        bindingContext = ins;
+                    }
 
-                // TODO - invoke output stream handlers
-                transport.finalPrepareOutputStreamContext(ostreamContext);
-
-                write(bindingContext, ostreamContext);
-                
-                InputStreamMessageContext ins = transport.invoke(ostreamContext);
-                
-                bindingContext = createBindingMessageContext(ins);
-                if (null == bindingContext) {
-                    bindingContext = ins;
+                    //Output Message For Client
+                    bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
+                    // TODO - invoke input stream handlers
+                    read(ins, bindingContext);
+                } else {
+                    //Output Message For Client
+                    bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
                 }
-                
-                //Output Message For Client
-                bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
-                // TODO - invoke input stream handlers
-                read(ins, bindingContext);
-                
-                // TODO - invoke binding handlers
+
                 Method m = context.getMethod();
                 context = createObjectContext();
                 context.setMethod(m);
                 handlerInvoker.setContext(context); 
+
+                handlerInvoker.invokeProtocolHandlers(true, bindingContext);
 
                 if (!hasFault(bindingContext)) {
                     unmarshal(bindingContext, context);
@@ -129,6 +137,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     unmarshalFault(bindingContext, context);
                 }
             }
+            context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
             handlerInvoker.setInbound();
             handlerInvoker.invokeLogicalHandlers(true);
         } finally { 

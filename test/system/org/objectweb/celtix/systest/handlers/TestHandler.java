@@ -1,11 +1,6 @@
 package org.objectweb.celtix.systest.handlers;
 
 
-
-
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -23,19 +18,7 @@ import org.objectweb.handler_test.types.PingWithArgs;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
 
 
-class TestHandler<T extends LogicalMessageContext> implements LogicalHandler<T> {
-
-    private static int sid; 
-
-    private final int id;
-
-    private int handleMessageInvoked; 
-    private int handleFaultInvoked; 
-    private int closeInvoked; 
-    private int initInvoked; 
-    private int destroyInvoked; 
-    private boolean handleMessageRet = true; 
-    private boolean isServerSideHandler;
+class TestHandler<T extends LogicalMessageContext> extends TestHandlerBase implements LogicalHandler<T> {
 
     private final JAXBContext jaxbCtx;
 
@@ -45,8 +28,8 @@ class TestHandler<T extends LogicalMessageContext> implements LogicalHandler<T> 
     } 
 
     public TestHandler(boolean serverSide) {
-        id = ++sid; 
-        isServerSideHandler = serverSide;
+        super(serverSide); 
+
         try {
             jaxbCtx = JAXBContext.newInstance(GreetMe.class.getPackage().getName());
         } catch (JAXBException e) {
@@ -56,49 +39,39 @@ class TestHandler<T extends LogicalMessageContext> implements LogicalHandler<T> 
     } 
 
     public String getHandlerId() { 
-        return "handler" + id;
+        return "handler" + getId();
     } 
 
-    public int getId() {
-        return id; 
-    }
-    
     public boolean handleMessage(T ctx) {
-        handleMessageInvoked++;
+        methodCalled("handleMessage");
 
-        if (!isServerSideHandler) {
-            return true;
-        }
 
-        QName operationName = (QName)ctx.get(MessageContext.WSDL_OPERATION);
         boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         boolean ret = handleMessageRet; 
 
-        //printHandlerInfo("handleMessage", outbound);
+        if (!isServerSideHandler()) {
+            return true;
+        }
+
+
+        QName operationName = (QName)ctx.get(MessageContext.WSDL_OPERATION);
+        assert operationName != null : "unable to get operation name from " + ctx;
 
         if ("ping".equals(operationName.getLocalPart())) {
             ret = handlePingMessage(outbound, ctx);
         } else if ("pingWithArgs".equals(operationName.getLocalPart())) {
             ret = handlePingWithArgsMessage(outbound, ctx); 
         }
-
         return ret;
     }
 
 
-    private void printHandlerInfo(String methodName, boolean outbound) { 
-        String info = getHandlerId() + " "
-            + (outbound ? "outbound" : "inbound") + " "
-            + methodName;
-        System.out.println(info);
-    } 
-
-
     private boolean handlePingWithArgsMessage(boolean outbound, T ctx) { 
 
+        
         LogicalMessage msg = ctx.getMessage();
-        addHandlerId(msg, ctx, outbound);
         Object payload = msg.getPayload(jaxbCtx); 
+        addHandlerId(ctx.getMessage(), ctx, outbound);
 
         boolean ret = true;
         if (payload instanceof PingWithArgs) {
@@ -110,14 +83,16 @@ class TestHandler<T extends LogicalMessageContext> implements LogicalHandler<T> 
             String command = strtok.nextToken();
             
             if (outbound) {
-                return ret; 
-            } 
+                return ret;
+            }
 
             if (getHandlerId().equals(hid)) {
                 if ("inbound".equals(direction)) {
                     if ("stop".equals(command)) {
                         PingResponse resp = new PingResponse();
+                        getHandlerInfoList(ctx).add(getHandlerId()); 
                         resp.getHandlersInfo().addAll(getHandlerInfoList(ctx));
+                        clear();
                         msg.setPayload(resp, jaxbCtx);
                         ret = false;
                     } else if ("throw".equals(command)) {
@@ -147,81 +122,38 @@ class TestHandler<T extends LogicalMessageContext> implements LogicalHandler<T> 
     private void addHandlerId(LogicalMessage msg, T ctx, boolean outbound) { 
 
         Object obj = msg.getPayload(jaxbCtx);
-        if (outbound && isServerSideHandler && obj != null) {
-            
+        if (obj instanceof PingResponse) {
             PingResponse origResp = (PingResponse)obj;
             PingResponse newResp = new PingResponse();
             newResp.getHandlersInfo().addAll(origResp.getHandlersInfo());
-            newResp.getHandlersInfo().add("handler" + id);
+            newResp.getHandlersInfo().add(getHandlerId());
             msg.setPayload(newResp, jaxbCtx);
         } else if (!outbound && obj == null) {
-            getHandlerInfoList(ctx).add("handler" + id);
+            getHandlerInfoList(ctx).add(getHandlerId());
         }
     } 
 
 
     public boolean handleFault(T ctx) {
+        methodCalled("handleFault");
 
         boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-        //printHandlerInfo("handleFault", outbound);
-        handleFaultInvoked++;
         return true;
     }
 
     public void close(MessageContext arg0) {
-        closeInvoked++;
+        methodCalled("close");
     }
 
     public void init(Map arg0) {
-        initInvoked++;
+        methodCalled("init");
     }
 
     public void destroy() {
-        destroyInvoked++;
+        methodCalled("destroy");
     }
 
-    public boolean isCloseInvoked() {
-        return closeInvoked != 0;
-    }
-
-    public boolean isDestroyInvoked() {
-        return destroyInvoked != 0;
-    }
-
-    public boolean isHandleFaultInvoked() {
-        return handleFaultInvoked != 0;
-    }
-
-    public int getHandleFaultInvoked() {
-        return handleFaultInvoked;
-    }
-
-    public boolean isHandleMessageInvoked() {
-        return handleMessageInvoked != 0;
-    }
-
-    public int getHandleMessageInvoked() {
-        return handleMessageInvoked;
-    }
-    
-    public boolean isInitInvoked() {
-        return initInvoked != 0;
-    }
-    
-    public void setHandleMessageRet(boolean ret) { 
-        handleMessageRet = ret; 
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<String> getHandlerInfoList(LogicalMessageContext ctx) { 
-        List<String> handlerInfoList = null; 
-        if (ctx.containsKey("handler.info")) { 
-            handlerInfoList = (List<String>)ctx.get("handler.info"); 
-        } else {
-            handlerInfoList = new ArrayList<String>();
-            ctx.put("handler.info", handlerInfoList);
-            ctx.setScope("handler.info", MessageContext.Scope.APPLICATION);
-        }
-        return handlerInfoList;
-    }
+    public String toString() { 
+        return getHandlerId(); 
+    } 
 }    

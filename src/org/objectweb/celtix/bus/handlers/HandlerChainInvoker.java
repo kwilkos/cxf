@@ -26,6 +26,7 @@ public class HandlerChainInvoker {
     private final List<Handler> protocolHandlers = new ArrayList<Handler>(); 
     private final List<LogicalHandler> logicalHandlers  = new ArrayList<LogicalHandler>(); 
     private final List<Handler> invokedHandlers  = new ArrayList<Handler>(); 
+    private final List<Handler> closeHandlers  = new ArrayList<Handler>(); 
 
     private boolean outbound; 
     private boolean responseExpected = true; 
@@ -59,20 +60,15 @@ public class HandlerChainInvoker {
     public boolean invokeLogicalHandlers(boolean requestor) {        
         context.setRequestorRole(requestor);
         LogicalMessageContextImpl logicalContext = new LogicalMessageContextImpl(context);
+        return invokeHandlerChain(logicalHandlers, logicalContext); 
 
-        // if the last time through, the handler processing was 
-        // aborted, then just invoke the handlers that have already
-        // been invoked.
-        if (handlerProcessingAborted) {
-            return invokeHandlerChain(invokedHandlers, logicalContext);
-        } else {
-            return invokeHandlerChain(logicalHandlers, logicalContext);
-        }
     }
         
-    public boolean invokeProtocolHandlers(boolean requestor) { 
+    public boolean invokeProtocolHandlers(boolean requestor, MessageContext bindingContext) { 
         context.setRequestorRole(requestor);
-        return invokeHandlerChain(protocolHandlers, context);
+        bindingContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, isOutbound()); 
+
+        return invokeHandlerChain(protocolHandlers, bindingContext);
     }    
     
     
@@ -155,11 +151,18 @@ public class HandlerChainInvoker {
         return Collections.unmodifiableList(invokedHandlers);
     }
 
+    public List<LogicalHandler> getLogicalHandlers() { 
+        return logicalHandlers;
+    } 
+
+    List<Handler> getProtocolHandlers() { 
+        return protocolHandlers;
+    }
     
     private <T extends Handler> void invokeClose(List<T> handlers) {
 
         for (Handler h : handlers) {
-            if (invokedHandlers.contains(h)) {
+            if (closeHandlers.contains(h)) {
                 h.close(context);
             }
         }
@@ -214,11 +217,14 @@ public class HandlerChainInvoker {
 
         try {
             for (Handler<MessageContext> h : handlerChain) {
-                markHandlerInvoked(h); 
-                continueProcessing = h.handleFault(ctx);
+                if (invokeThisHandler(h)) {
+                    closeHandlers.add(h);
+                    continueProcessing = h.handleFault(ctx);
+                }
                 if (!continueProcessing) {
                     break;
                 }
+                markHandlerInvoked(h); 
             }
         } catch (RuntimeException e) {
             LOG.log(Level.WARNING, "HANDLER_RAISED_RUNTIME_EXCEPTION", e);
@@ -233,14 +239,16 @@ public class HandlerChainInvoker {
     private boolean invokeHandleMessage(List<? extends Handler> handlerChain, MessageContext ctx) { 
 
         boolean continueProcessing = true; 
-
         try {
             for (Handler h : handlerChain) {
-                markHandlerInvoked(h); 
-                continueProcessing = h.handleMessage(ctx);
+                if (invokeThisHandler(h)) {
+                    closeHandlers.add(h);
+                    continueProcessing = h.handleMessage(ctx);
+                }
                 if (!continueProcessing) {
                     break;
                 }
+                markHandlerInvoked(h); 
             }
         } catch (ProtocolException e) {
             LOG.log(Level.FINE, "handleMessage raised exception", e);
@@ -254,12 +262,30 @@ public class HandlerChainInvoker {
         return continueProcessing;
     } 
 
+    
+    private boolean invokeThisHandler(Handler h) {
+        
+        boolean ret = true;
+        // when handler processing has been aborted, only invoked on
+        // previously invoked handlers
+        //
+        if (handlerProcessingAborted) {
+            ret = invokedHandlers.contains(h);
+        }
+        return ret; 
+    }
+
+
     private void markHandlerInvoked(Handler h) {
         if (!invokedHandlers.contains(h)) { 
             invokedHandlers.add(h);
         }
     } 
 
+
+    private Boolean getMessageOutboundProperty() {
+        return (Boolean)context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+    } 
 
     private void setMessageOutboundProperty() {
         context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);

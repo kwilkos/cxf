@@ -1,5 +1,7 @@
 package org.objectweb.celtix.bindings;
 
+
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -7,7 +9,6 @@ import java.rmi.RemoteException;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.jws.Oneway;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
@@ -15,7 +16,6 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.context.WebServiceContextImpl;
@@ -109,7 +109,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         }
 
         MessageContext replyCtx = null;
-        Method method = getMethod(requestCtx);
+        Method method = getMethod(requestCtx, null);
         if (isOneWay(method)) {
             try {
                 OutputStreamMessageContext outCtx = t.createOutputStreamContext(inCtx);
@@ -159,53 +159,37 @@ public abstract class AbstractServerBinding implements ServerBinding {
     }
 
 
-    private MessageContext invokeOnMethod(MessageContext requestCtx) {
+    /** invoke the target method.  Ensure that any replies or
+     * exceptions are put into the correct context for the return path
+     */
+    private boolean doInvocation(Method method, ObjectMessageContext objContext, 
+                                 MessageContext replyCtx, HandlerChainInvoker invoker) { 
 
-        ObjectMessageContext objContext = createObjectContext();
-        MessageContext replyCtx = createBindingMessageContext(requestCtx);
-        assert replyCtx != null;
-
-        if (getOperationName(requestCtx, objContext) == null) {
-            throw new WebServiceException("Request Context does not include operation name");
-        }
-
-        Method method = getMethod(requestCtx); 
-
-        objContext.setMethod(method);
-
-        unmarshal(requestCtx, objContext);
-        
-        new WebServiceContextImpl(objContext); 
-        HandlerChainInvoker invoker = new HandlerChainInvoker(getBinding().getHandlerChain(), 
-                                                              objContext, false); 
-
-        objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
-        boolean continueProcessing = invoker.invokeLogicalHandlers(false);
-
+        assert method != null && objContext != null && replyCtx != null;
+            
+        boolean exceptionCaught = false; 
         try {
+
+            boolean continueProcessing = invoker.invokeLogicalHandlers(false);
             if (continueProcessing) {
+                new WebServiceContextImpl(objContext); 
                 // get parameters from object context and invoke on implementor
                 Object params[] = (Object[])objContext.getMessageObjects();
                 Object result = method.invoke(getEndpoint().getImplementor(), params);
                 objContext.setReturn(result);
-            } 
-            if (!isOneWay(method)) {
-                objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
-                objContext.remove(ObjectMessageContext.MESSAGE_PAYLOAD);
-                objContext.setMessageObjects((Object[])null);
-                invoker.setOutbound(); 
-                invoker.invokeLogicalHandlers(false);
-                replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
-                marshal(objContext, replyCtx);
             }
 
-            if (!invoker.faultRaised()) { 
-                marshal(objContext, replyCtx);
+            if (!isOneWay(method)) {
+                switchToResponse(objContext, replyCtx); 
+                replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
+                invoker.setOutbound(); 
+                invoker.invokeLogicalHandlers(false);
             }
 
         } catch (IllegalAccessException ex) {
             LogUtils.log(LOG, Level.SEVERE, "IMPLEMENTOR_INVOCATION_FAILURE_MSG", ex, method.getName());
             objContext.setException(ex);
+            exceptionCaught = true;
         } catch (InvocationTargetException ex) {
             LogUtils.log(LOG, Level.INFO, "IMPLEMENTOR_INVOCATION_EXCEPTION_MSG", ex, method.getName());
             Throwable cause = ex.getCause();
@@ -214,14 +198,53 @@ public abstract class AbstractServerBinding implements ServerBinding {
             } else {
                 objContext.setException(ex);
             }            
+            exceptionCaught = true;
+        }
+        
+        return exceptionCaught || invoker.faultRaised();
+    } 
+
+
+    private void switchToResponse(ObjectMessageContext ctx, MessageContext replyCtx) { 
+        ctx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
+        ctx.remove(ObjectMessageContext.MESSAGE_PAYLOAD);
+        ctx.setMessageObjects((Object[])null);
+        replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
+    } 
+ 
+    private MessageContext invokeOnMethod(MessageContext requestCtx) {
+
+        ObjectMessageContext objContext = createObjectContext();
+        objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
+
+        HandlerChainInvoker invoker = new HandlerChainInvoker(getBinding().getHandlerChain(), 
+                                                              objContext, false); 
+
+        MessageContext replyCtx = createBindingMessageContext(requestCtx);
+        assert replyCtx != null;
+        Method method = getMethod(requestCtx, objContext); 
+        assert method != null;
+        objContext.setMethod(method);
+
+        try {
+            boolean continueProcessing = invoker.invokeProtocolHandlers(false, requestCtx); 
+            if (continueProcessing) {
+                unmarshal(requestCtx, objContext);
+                doInvocation(method, objContext, replyCtx, invoker); 
+
+                if (!isOneWay(method)) {
+                    switchToResponse(objContext, replyCtx); 
+                    if (null == objContext.getException()) {
+                        marshal(objContext, replyCtx);
+                    } else {
+                        marshalFault(objContext, replyCtx);
+                    }
+
+                }
+            }
+            invoker.invokeProtocolHandlers(false, replyCtx); 
+
         } finally {
-            if (!isOneWay(method)) {
-                invoker.setOutbound(); 
-                invoker.invokeLogicalHandlers(false);
-            }
-            if (null != objContext.getException()) {
-                marshalFault(objContext, replyCtx);
-            }
             invoker.mepComplete(); 
         }
 
@@ -232,8 +255,15 @@ public abstract class AbstractServerBinding implements ServerBinding {
         return (method.getAnnotation(Oneway.class) != null) ? true : false; 
     }
     
-    private Method getMethod(MessageContext requestCtx) {
-        QName operationName = getOperationName(requestCtx);
+    private Method getMethod(MessageContext requestCtx, ObjectMessageContext objContext) {
+        QName operationName;
+
+        if (objContext != null) {
+            operationName = getOperationName(requestCtx, objContext);
+        } else {
+            operationName = getOperationName(requestCtx); 
+        }
+
         if (null == operationName) {
             LOG.severe("CONTEXT_MISSING_OPERATION_NAME_MSG");
             throw new WebServiceException("Request Context does not include operation name");

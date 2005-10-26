@@ -207,7 +207,7 @@ public class LogicalMessageImpl implements LogicalMessage {
         Boolean isOutbound = (Boolean)msgContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY); 
 
         assert isOutbound != null : "MessageContext.MESSAGE_OUTBOUND must be set in context";
-        assert isInputMsg != null : "ObjectMessageContext.MESSAGE_INPUT must be set in context";
+        assert isInputMsg != null : "ObjectMessageContext.MESSAGE_INPUT must be set in context " + msgContext;
 
         return (isOutbound && !isInputMsg) || (!isOutbound && !isInputMsg);
     } 
