@@ -20,6 +20,11 @@
                 <include name="**/*"/>
             </fileset>
         </copy>
+        <copy includeEmptyDirs="false" todir="${build.release.dir}/etc">
+            <fileset dir="${basedir}/etc">
+                <include name="logging.properties"/>
+            </fileset>
+        </copy>    	
         <copy includeEmptyDirs="false" todir="${build.release.dir}/samples">
             <fileset dir="${basedir}/samples">
                 <include name="**/*"/>
