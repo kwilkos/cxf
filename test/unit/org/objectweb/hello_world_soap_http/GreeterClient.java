@@ -45,6 +45,10 @@ public class GreeterClient {
         } else if ("greetMe".equals(operationName) && params != null && params.length > 0) {
             System.out.println("Invoking greetMe...");
             System.out.println("server responded with: " + port.greetMe(params[0]));
+        } else if ("greetMeOneWay".equals(operationName) && params != null && params.length > 0) {
+            System.out.println("Invoking greetMeOneWay...");
+            port.greetMeOneWay(params[0]);
+            System.out.println("no response from server as method is OneWay");
         } else {
             System.err.println("No such operation");
         }

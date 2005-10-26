@@ -244,6 +244,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             soapMessage = msgFactory.createMessage(headers, in);
             
         } catch (Exception ex) {
+            ex.printStackTrace();
             LOG.log(Level.INFO, "error in creating soap message", ex);
         }
         soapContext.setMessage(soapMessage);

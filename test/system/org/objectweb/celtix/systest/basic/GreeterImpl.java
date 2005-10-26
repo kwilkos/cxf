@@ -36,6 +36,7 @@ public class GreeterImpl implements Greeter {
     }
     
     public void greetMeOneWay(String requestType) {
+        System.out.println("*********  greetMeOneWay: " + requestType);
         
     }
 }

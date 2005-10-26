@@ -175,6 +175,8 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 transport.finalPrepareOutputStreamContext(ostreamContext);
 
                 write(bindingContext, ostreamContext);
+                transport.invokeOneway(ostreamContext);
+                
             }
             
         } finally { 

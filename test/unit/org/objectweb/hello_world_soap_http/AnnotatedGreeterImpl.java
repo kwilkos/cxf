@@ -80,6 +80,16 @@ public class AnnotatedGreeterImpl {
         incrementInvocationCount("greetMe");
         return "Bonjour " + me + "!";
     }
+    
+    @WebMethod
+    @RequestWrapper(className = "org.objectweb.hello_world_soap_http.types.GreetMeOneWay",
+                    localName = "greetMeOneWay",
+                    targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+    public void greetMeOneWay(String me) {
+        incrementInvocationCount("greetMeOneWay");
+        System.out.println("Hello there " + me);
+        System.out.println("That was OneWay to say hello");
+    }
 
     public void testDocLitFault(String faultType)  throws BadRecordLitFault, NoSuchCodeLitFault {        
     }

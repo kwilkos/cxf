@@ -114,10 +114,14 @@ public class SOAPServerBinding extends AbstractServerBinding {
         //REVISIT InputStreamMessageContext should be copied to MessageContext
         try {
             soapBinding.parseMessage(instr.getInputStream(), mc);
+            SOAPMessageContext soapCtx = (SOAPMessageContext)mc;
+            SOAPMessage msg = soapCtx.getMessage();
+            assert msg != null;
+            
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_PARSING_FAILURE_MSG", se);
             throw new IOException(se.getMessage());
-        }          
+        }
     }
     
     protected MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode)

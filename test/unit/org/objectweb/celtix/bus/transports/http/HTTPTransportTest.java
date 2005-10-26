@@ -63,6 +63,7 @@ public class HTTPTransportTest extends TestCase {
             public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
                 try {
                     byte bytes[] = new byte[10000];
+                    System.out.println("bytes are: " + bytes.toString());
                     int len = ctx.getInputStream().read(bytes);
                     
                     OutputStreamMessageContext octx = transport.createOutputStreamContext(ctx);
@@ -98,7 +99,7 @@ public class HTTPTransportTest extends TestCase {
         assertEquals(new String(outBytes), new String(bytes, 0, len));
         
         server.deactivate();
-        
+  
         try {
             octx = client.createOutputStreamContext(new GenericMessageContext());
             client.finalPrepareOutputStreamContext(octx);

@@ -94,9 +94,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
         throws RemoteException;
 
     protected void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
-        LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
+        LOG.info("Dispatched to binding on thread : " + Thread.currentThread());         
         MessageContext requestCtx = createBindingMessageContext(inCtx);
-     
         //Input Message
         requestCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
         
@@ -107,7 +106,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             throw new WebServiceException(ex);
         }
 
-        ObjectMessageContext objContext = createObjectContext();        
+        ObjectMessageContext objContext = createObjectContext(); 
         Method method = getMethod(requestCtx, objContext);
         assert method != null;
         objContext.setMethod(method);
@@ -142,7 +141,10 @@ public abstract class AbstractServerBinding implements ServerBinding {
                     outCtx.setFault(true);
                 }
                 t.finalPrepareOutputStreamContext(outCtx);
+                
+                //if (!isOneWay(method)){
                 write(replyCtx, outCtx);
+                //}
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
                 throw new WebServiceException(ex);
@@ -155,6 +157,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
     private QName getOperationName(MessageContext requestCtx, ObjectMessageContext objContext) {
 
         QName operationName = getOperationName(requestCtx);
+        System.out.println("getOperationName, QName: " + operationName);
         if (null != operationName) {
             objContext.put(MessageContext.WSDL_OPERATION, operationName);
         } else {

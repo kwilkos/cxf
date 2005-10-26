@@ -19,15 +19,23 @@ public class GreeterImpl implements Greeter {
      * @see org.objectweb.hello_world_soap_http.Greeter#greetMe(java.lang.String)
      */
     public String greetMe(String me) {
-        logger.info("Executing operation sayHi");
+        logger.info("Executing operation greetMe");
         return "Hello " + me;
+    }
+    
+	/* (non-Javadoc)
+     * @see org.objectweb.hello_world_soap_http.Greeter#greetMeOneWay(java.lang.String)
+     */
+    public void greetMeOneWay(String me) {
+        logger.info("Executing operation greetMeOneWay");
+        System.out.println("Hello there " + me);
     }
 
     /* (non-Javadoc)
      * @see org.objectweb.hello_world_soap_http.Greeter#sayHi()
      */
     public String sayHi() {
-        logger.info("Executing operation greetMe");
+        logger.info("Executing operation sayHi");
         return "Bonjour";
     }
     
