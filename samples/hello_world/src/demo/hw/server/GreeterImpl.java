@@ -20,6 +20,8 @@ public class GreeterImpl implements Greeter {
      */
     public String greetMe(String me) {
         logger.info("Executing operation greetMe");
+        System.out.println("Executing operation greetMe");
+        System.out.println("Message received: " + me);
         return "Hello " + me;
     }
     
@@ -28,6 +30,7 @@ public class GreeterImpl implements Greeter {
      */
     public void greetMeOneWay(String me) {
         logger.info("Executing operation greetMeOneWay");
+        System.out.println("Executing operation greetMeOneWay");
         System.out.println("Hello there " + me);
     }
 
@@ -36,6 +39,7 @@ public class GreeterImpl implements Greeter {
      */
     public String sayHi() {
         logger.info("Executing operation sayHi");
+        System.out.println("Executing operation sayHi");
         return "Bonjour";
     }
     
@@ -44,6 +48,7 @@ public class GreeterImpl implements Greeter {
         faultDetail.setMajor((short)2);
         faultDetail.setMinor((short)1);
         logger.info("Executing operation pingMe, throwing PingMeFault exception");
+        System.out.println("Executing operation pingMe, throwing PingMeFault exception");
         throw new PingMeFault("PingMeFault", faultDetail);
     }
 

@@ -30,11 +30,11 @@ public class Server implements Runnable {
     
     public void run() {
         System.out.println("running bus");
-        
         bus.run();
     }
     
     void shutdown(boolean wait) throws BusException {
+        System.out.println("shutting down bus");
         bus.shutdown(wait);
     }
 

@@ -7,11 +7,11 @@
     <property name="wsdl.file" value="hello_world_RPCLit.wsdl"/>
 
     <target name="client" description="run demo client">
-        <celtixrun classname="demo.hwRPCLit.client.Client" wsdl="${basedir}/wsdl/hello_world_RPCLit.wsdl"/>
+        <celtixrun classname="demo.hwRPCLit.client.Client" param1="${basedir}/wsdl/hello_world_RPCLit.wsdl"/>
     </target>
     
 
     <target name="server" description="run demo server">
-        <celtixrun classname="demo.hwRPCLit.server.Server" wsdl="${basedir}/wsdl/hello_world_RPCLit.wsdl"/>
+        <celtixrun classname="demo.hwRPCLit.server.Server" param1="${basedir}/wsdl/hello_world_RPCLit.wsdl"/>
     </target>
 </project>

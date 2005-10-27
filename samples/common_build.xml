@@ -64,13 +64,17 @@
 
     <macrodef name="celtixrun">
         <attribute name="classname"/>
-        <attribute name="wsdl"/>
+	<attribute name="param1" default=""/>
+	<attribute name="param2" default=""/>
+	<attribute name="param3" default=""/>
         <sequential>
             <java classname="@{classname}" fork="yes">
                 <classpath>
                     <path refid="celtix.runtime.classpath"/>
                 </classpath>
-                <arg value="@{wsdl}"/>
+                <arg value="@{param1}"/>
+		<arg value="@{param2}"/>
+		<arg value="@{param3}"/>
                 <assertions>
                     <enable package="org.objectweb.celtix"/>
                 </assertions>

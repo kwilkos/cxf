@@ -43,7 +43,7 @@ public class Client {
         }
         
         System.out.println("Invoking operation: " + operationName);
-        System.out.println("Parameters:" + params); 
+        System.out.println("Parameters: " + params); 
         
         Bus bus = Bus.init();
                
@@ -63,6 +63,7 @@ public class Client {
             System.out.println("no response from server as method is OneWay");
         } else if ("pingMe".equals(operationName)) {
             try {
+                System.out.println("Invoking pingMe...");
                 port.pingMe();
             } catch(PingMeFault ex) {
                 System.out.println("Expected exception: PingMeFault has Occurred.");
