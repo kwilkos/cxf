@@ -222,9 +222,10 @@ class ForkedCommandStreamHandler extends Thread {
         try {
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);
-            String line = null;
-            while ((line = br.readLine()) != null) {
+            String line = br.readLine();
+            while (line != null) {
                 ps.println(line);
+                line = br.readLine();
             }
         } catch (IOException ioe) {
             // ignore

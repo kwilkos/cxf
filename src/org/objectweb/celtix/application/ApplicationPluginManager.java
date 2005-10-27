@@ -31,7 +31,7 @@ public class ApplicationPluginManager implements PluginManager {
     private static final MessageFormat PLUGINS_PREREQUISITES_FMT = 
         new MessageFormat("plugins:{0}:prerequisites");
 
-    private static List<PluginInfo> plugins;
+    private List<PluginInfo> plugins;
 
     public ApplicationPluginManager() {
         plugins = new ArrayList<PluginInfo>();
@@ -81,7 +81,6 @@ public class ApplicationPluginManager implements PluginManager {
         } else {
             plugins.remove(plugin);
             info = null;
-            plugin = null;
         }    
     }
 

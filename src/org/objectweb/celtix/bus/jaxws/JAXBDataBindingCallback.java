@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bus.jaxws;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import javax.jws.WebMethod;
@@ -18,15 +17,17 @@ import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.soap.SOAPFaultException;
 
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.bindings.soap.SOAPConstants;
+import org.objectweb.celtix.bus.jaxws.io.DetailDataWriter;
+import org.objectweb.celtix.bus.jaxws.io.NodeDataReader;
+import org.objectweb.celtix.bus.jaxws.io.NodeDataWriter;
+import org.objectweb.celtix.bus.jaxws.io.SOAPFaultDataReader;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.helpers.WrapperHelper;
 
@@ -60,80 +61,19 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
 
     public <T> DataWriter<T> createWriter(Class<T> cls) {
         if (cls == Node.class) {
-            return new DataWriter<T>() {
-                public void write(Object obj, T output) {
-                    write(obj, null, output);
-                }
-                public void write(Object obj, QName elName, T output) {
-                    JAXBEncoderDecoder.marshall(obj, elName, (Node)output);
-                }
-            };
+            return new NodeDataWriter<T>(this);
         } else if (cls == Detail.class) {
-            return new DataWriter<T>() {
-                public void write(Object obj, T output) {
-                    WebFault wfAnnotation = obj.getClass().getAnnotation(WebFault.class);
-                    if (wfAnnotation != null) {
-                        QName elName = new QName(wfAnnotation.targetNamespace(), wfAnnotation.name());
-                        write(obj, elName, output);
-                    }
-                }
-                public void write(Object obj, QName elName, T output) {
-                    Object faultInfo = getFaultInfo((Throwable)obj);
-                    if (faultInfo != null) {
-                        JAXBEncoderDecoder.marshall(faultInfo, elName, (Detail)output);
-                    }
-                }
-                private Object getFaultInfo(Throwable fault) {
-                    try {
-                        Method faultInfoMethod = fault.getClass().getMethod("getFaultInfo");
-                        if (faultInfoMethod != null) {
-                            return faultInfoMethod.invoke(fault);
-                        }
-                    } catch (Exception ex) {
-                        throw new WebServiceException("Could not get faultInfo out of Exception", ex);
-                    }
-
-                    return null;
-                }
-                
-            };
+            return new DetailDataWriter<T>(this);
         }
         // TODO Auto-generated method stub
         return null;
     }
 
     public <T> DataReader<T> createReader(Class<T> cls) {
-        if (cls == SOAPFault.class) {
-            return new DataReader<T>() {
-                public Object read(QName name, T input) {
-                    SOAPFault fault = (SOAPFault)input;
-                    if (fault.getDetail() != null) {
-                        NodeList list = fault.getDetail().getChildNodes();
-                        assert list.getLength() == 1;
-                        
-                        QName faultName = new QName(list.item(0).getNamespaceURI(),
-                                                    list.item(0).getLocalName());
-                        
-                        Class<?> clazz = getWebFault(faultName);
-                        try {
-                            if (clazz != null) {
-                                Class<?> faultInfo = clazz.getMethod("getFaultInfo").getReturnType();
-                                Object obj = JAXBEncoderDecoder.unmarshall(list.item(0),
-                                                                           faultName,
-                                                                           faultInfo);
-                                Constructor<?> ctor = clazz.getConstructor(String.class,
-                                                                           obj.getClass());
-                                return ctor.newInstance(fault.getFaultString(), obj);
-                            } else {
-                                return new SOAPFaultException(fault);
-                            }
-                        } catch (Exception ex) {
-                            throw new WebServiceException("error in unmarshal of SOAPFault", ex);
-                        }
-                    }
-                    return null;
-                }
-            };
+        if (cls == Node.class) {
+            return new NodeDataReader<T>(this);
+        } else if (cls == SOAPFault.class) { 
+            return new SOAPFaultDataReader<T>(this);
         }
         // TODO Auto-generated method stub
         return null;
@@ -308,7 +248,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         }
         return wrapperObj;
     }    
-    private void setWrappedPart(String name, Object wrapperType, Object part) {
+    public void setWrappedPart(String name, Object wrapperType, Object part) {
         try {
             WrapperHelper.setWrappedPart(name, wrapperType, part);
         } catch (Exception ex) {
@@ -316,6 +256,21 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
             throw new WebServiceException("Could not set parts into wrapper element", ex);
         }
     }
+    public Object getWrappedPart(Object wrapperType, Class<?> part) {
+        try {
+            assert wrapperType != null;
+            Method elMethods[] = wrapperType.getClass().getMethods();
+            for (Method meth : elMethods) {
+                if (meth.getParameterTypes().length == 0
+                    && meth.getReturnType().equals(part)) {
+                    return meth.invoke(wrapperType);
+                }
+            }
+        } catch (Exception ex) {
+            throw new WebServiceException("Could not get part out of wrapper element", ex);
+        }
+        return null;
+    }    
 
     
      

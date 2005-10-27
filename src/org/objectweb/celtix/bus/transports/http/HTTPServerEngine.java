@@ -100,8 +100,8 @@ final class HTTPServerEngine {
 
         String contextName = "";
         String servletMap = lpath;
-        int idx;
-        if ((idx = lpath.lastIndexOf('/')) > 0) {
+        int idx = lpath.lastIndexOf('/');
+        if (idx > 0) {
             contextName = lpath.substring(0, idx);
             servletMap = lpath.substring(idx);
         }
@@ -126,8 +126,8 @@ final class HTTPServerEngine {
         String lpath = nurl.getPath();
         
         String servletMap = lpath;
-        int idx;
-        if ((idx = lpath.lastIndexOf('/')) > 0) {
+        int idx = lpath.lastIndexOf('/');
+        if (idx > 0) {
             servletMap = lpath.substring(idx);
         }
         

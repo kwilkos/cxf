@@ -10,7 +10,6 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPException;
 import javax.xml.ws.WebServiceException;
 
 import org.w3c.dom.Node;
@@ -63,7 +62,7 @@ public final class JAXBEncoderDecoder {
         }
     }
     
-    public static Object unmarshall(Node srcNode, QName elName, Class<?> clazz) throws SOAPException {
+    public static Object unmarshall(Node srcNode, QName elName, Class<?> clazz) {
         Object obj = null;
         try {
             JAXBContext context = JAXBContext.newInstance(clazz);
@@ -73,7 +72,7 @@ public final class JAXBEncoderDecoder {
                 obj = el.getValue();
             }
         } catch (Exception ex) {
-            throw new SOAPException("Unmarshalling error", ex);
+            throw new WebServiceException("Unmarshalling error", ex);
         }
         return obj;
     }    

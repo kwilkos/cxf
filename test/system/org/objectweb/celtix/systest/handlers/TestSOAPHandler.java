@@ -85,7 +85,7 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                     getHandlerInfoList(ctx).add(getHandlerId());
                 }
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return continueProcessing;

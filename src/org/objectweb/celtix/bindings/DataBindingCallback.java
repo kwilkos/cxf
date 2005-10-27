@@ -8,10 +8,6 @@ import javax.jws.soap.SOAPBinding;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 
-import org.objectweb.celtix.context.ObjectMessageContext;
-
-
-
 public interface DataBindingCallback {
     
     public enum Mode { 
@@ -61,6 +57,4 @@ public interface DataBindingCallback {
     String getRequestWrapperType();
     QName getResponseWrapperQName();
     String getResponseWrapperType();
-    
-    Object createWrapperType(ObjectMessageContext objCtx, boolean isOutBound);
 }

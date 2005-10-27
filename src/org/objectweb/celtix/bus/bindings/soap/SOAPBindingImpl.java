@@ -2,7 +2,6 @@ package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -40,7 +39,6 @@ import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.bindings.AbstractBindingImpl;
-import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.helpers.NSStack;
@@ -222,15 +220,22 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
         SOAPMessage soapMessage = soapContext.getMessage();
+
         
-        //Assuming No Headers are inserted.
-        Node soapEl = soapMessage.getSOAPBody();
+        if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
+            //TODO - unmarshal to a full message
+        } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {
+            //TODO - unmarshal to payload
+        } else {
+            //Assuming No Headers are inserted.
+            Node soapEl = soapMessage.getSOAPBody();
 
-        if (callback.getSOAPStyle() == Style.RPC) {
-            soapEl = soapEl.getFirstChild();
+            if (callback.getSOAPStyle() == Style.RPC) {
+                soapEl = soapEl.getFirstChild();
+            }
+
+            getParts(soapEl, callback, objContext, isOutputMsg);
         }
-
-        getParts(soapEl, callback, objContext, isOutputMsg);
     }
 
     public void unmarshalFault(MessageContext context,
@@ -251,7 +256,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         if (reader == null) {
             throw new WebServiceException("Could not unmarshal fault");
         }
-        Object faultObj = reader.read(null, fault);
+        Object faultObj = reader.read(null, 0, fault);
         if (faultObj == null) {
             faultObj = new ProtocolException(fault.getFaultString());            
         }
@@ -327,81 +332,64 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     private void getWrappedDocLitParts(Node xmlNode , DataBindingCallback callback,
                                        ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
 
-        Method method = objCtx.getMethod();
-        String wrapperType = isOutBound ? callback.getResponseWrapperType()
-            : callback.getRequestWrapperType();
-        
-        Node childNode = xmlNode.getFirstChild();
-
-        Object retVal = null;
-        List<Object> paramList = new ArrayList<Object>();
-
-        QName elName = isOutBound ? callback.getResponseWrapperQName()
-            : callback.getRequestWrapperQName();
-
-        Object obj = null;
-
-        try {
-            obj = JAXBEncoderDecoder.unmarshall(childNode, elName, Class.forName(wrapperType));
-        } catch (ClassNotFoundException e) {
-            throw new SOAPException("Could not unmarshall wrapped type.");
-        }
-
-        if (isOutBound && !"void".equals(method.getReturnType().getName())) {
-            retVal = getWrappedPart(obj, method.getReturnType());
-        }
-
-        WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
-        int noArgs = method.getParameterTypes().length;
-        for (int idx = 0; idx < noArgs; idx++) {
-            WebParam param = callback.getWebParam(idx);
-            if ((param.mode() != ignoreParamMode) && !param.header()) {
-                paramList.add(getWrappedPart(obj, method.getParameterTypes()[idx]));
+        boolean found = false;
+        for (Class<?> cls : callback.getSupportedFormats()) {
+            if (cls == Node.class) {
+                DataReader<Node> reader = callback.createReader(Node.class);
+                reader.readWrapper(objCtx, isOutBound, xmlNode);
+                found = true;
+                break;
+            } else {
+                //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
             }
         }
-
-        objCtx.setReturn(retVal);
-        objCtx.setMessageObjects(paramList.toArray());
+        if (!found) {
+            throw new SOAPException("Could not figure out how to marshal data");
+        }
     }
 
     private void getRPCLitParts(Node xmlNode , DataBindingCallback callback,
                                 ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
 
-        Method method = objCtx.getMethod();
         Node childNode = xmlNode.getFirstChild();
-
         Object retVal = null;
         List<Object> paramList = new ArrayList<Object>();
-        if (isOutBound && !"void".equals(method.getReturnType().getName())) {
-            retVal = JAXBEncoderDecoder.unmarshall(
-                        childNode, 
-                        new QName("", callback.getWebResultAnnotation().partName()), 
-                        method.getReturnType());
-            childNode = childNode.getNextSibling();
-        }
+        
+        boolean found = false;
+        for (Class<?> cls : callback.getSupportedFormats()) {
+            if (cls == Node.class) {
+                DataReader<Node> reader = callback.createReader(Node.class);
+                found = true;
+                
+                if (isOutBound && callback.getWebResult() != null) {
+                    retVal = reader.read(new QName("", callback.getWebResultAnnotation().partName()),
+                                         -1, childNode);
+                    childNode = childNode.getNextSibling();
+                }
 
-        WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
-        int noArgs = method.getParameterTypes().length;
-        Class [] listOfParams = method.getParameterTypes();
+                
+                WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
+                int noArgs = callback.getParamsLength();
 
-        //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
-        for (int idx = 0; idx < noArgs; idx++) {
-            WebParam param = callback.getWebParam(idx);
-            
-            /*
-            String paramNameSpace = param.targetNamespace();
-            if ("".equals(param.targetNamespace())) {             
-                paramNameSpace = messageInfo.getTargetNameSpace();
-            } 
-            */
-            
-            if ((param.mode() != ignoreParamMode) && !param.header()) {
-                QName elName = new QName("", param.partName());
-                Object obj = JAXBEncoderDecoder.unmarshall(childNode, elName, listOfParams[idx]);
-                paramList.add(obj);
-                childNode = childNode.getNextSibling();
+                //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
+                for (int idx = 0; idx < noArgs; idx++) {
+                    WebParam param = callback.getWebParam(idx);
+                    if ((param.mode() != ignoreParamMode) && !param.header()) {
+                        QName elName = new QName("", param.partName());
+                        Object obj = reader.read(elName, idx, childNode);
+                        paramList.add(obj);
+                    }
+                }
+                break;
+            } else {
+                //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
             }
         }
+        if (!found) {
+            throw new SOAPException("Could not figure out how to marshal data");
+        }
+        
+        
 
         objCtx.setReturn(retVal);
         objCtx.setMessageObjects(paramList.toArray());
@@ -464,17 +452,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                                        boolean isOutBound,
                                        DataBindingCallback callback) throws SOAPException {
 
-        Object wrapperObj = callback.createWrapperType(objCtx, isOutBound);
-        assert wrapperObj != null;
-
-        QName elName = isOutBound ? callback.getResponseWrapperQName()
-            : callback.getRequestWrapperQName();
-
         boolean found = false;
         for (Class<?> cls : callback.getSupportedFormats()) {
             if (cls == Node.class) {
                 DataWriter<Node> writer = callback.createWriter(Node.class);
-                writer.write(wrapperObj, elName, xmlNode);
+                writer.writeWrapper(objCtx, isOutBound, xmlNode);
                 found = true;
                 break;
             } else {
@@ -486,22 +468,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
     }
 
-    Object getWrappedPart(Object wrapperType, Class<?> part) throws SOAPException {
-        try {
-            assert wrapperType != null;
-            Method elMethods[] = wrapperType.getClass().getMethods();
-            for (Method method : elMethods) {
-                if (method.getParameterTypes().length == 0
-                    && method.getReturnType().equals(part)) {
-                    return method.invoke(wrapperType);
-                }
-            }
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "PART_RETREIVAL_FAILURE_MSG", ex);
-            throw new SOAPException("Could not get part out of wrapper element", ex);
-        }
-        return null;
-    }
+
 
 
     public SOAPFactory getSOAPFactory() {
