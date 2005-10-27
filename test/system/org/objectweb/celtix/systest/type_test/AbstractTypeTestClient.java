@@ -40,6 +40,7 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
 
     public AbstractTypeTestClient(String name) {
         super(name);
+        System.setProperty("javax.xml.ws.spi.Provider", "org.objectweb.celtix.bus.jaxws.spi.ProviderImpl");
     }
     public AbstractTypeTestClient() {
         super("TypeTest");

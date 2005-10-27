@@ -219,14 +219,18 @@ public final class EndpointReferenceUtils {
             String className = ws.endpointInterface();
 
             if (null == className || "".equals(className)) {
-                Class<?>[] interfaces = implementor.getClass().getInterfaces();
-                for (Class<?> c : interfaces) {
-                    WebService a = c.getAnnotation(WebService.class);
-                    if (null != a) {
-                        className = c.getName();
-                        url = a.wsdlLocation();
-                        break;
+                Class<?> cls = implementor.getClass();
+                while (cls != null && (null == className || "".equals(className))) {
+                    Class<?>[] interfaces = cls.getInterfaces();
+                    for (Class<?> c : interfaces) {
+                        WebService a = c.getAnnotation(WebService.class);
+                        if (null != a) {
+                            className = c.getName();
+                            url = a.wsdlLocation();
+                            break;
+                        }
                     }
+                    cls = cls.getSuperclass();
                 }
                 if (null == className || "".equals(className)) {
                     className = implementor.getClass().getName();

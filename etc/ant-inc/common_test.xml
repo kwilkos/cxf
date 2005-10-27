@@ -39,13 +39,13 @@
                 <jvmarg value="-ea"/>
 
                 <sysproperty key="java.util.logging.config.file" value="${basedir}/build/classes-tests/@{type}/logging.properties"/>
-
-	
+                <sysproperty key="javax.xml.ws.spi.Provider" value="org.objectweb.celtix.bus.jaxws.spi.ProviderImpl"/>
 
                 <test name="${test.real.class}" todir="${basedir}/build/testresults/@{type}" outfile="@{type}test-results" />
                 <batchtest todir="${basedir}/build/testresults/@{type}">
                     <fileset dir="${basedir}/build/classes-tests/@{type}">
                         <include name="${tests.filters}"/>
+                        <exclude name="**/SOAPClientTypeTest**"/>
                     </fileset>
                 </batchtest>
             </junit>
