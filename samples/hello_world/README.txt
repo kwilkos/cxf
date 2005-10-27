@@ -11,4 +11,8 @@ The ant build script can be used to build and run the demo.
 
 * ant build
 * ant server 
-* ant client 
+* ant client -Dop=sayHi 
+* ant client -Dop=greetMe -Dparam="some string"
+* ant client -Dop=greetMeOneWay -Dparam="some string"
+* ant client -Dop=pingMe 
+	

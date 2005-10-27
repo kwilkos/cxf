@@ -7,7 +7,17 @@
     <property name="wsdl.file" value="hello_world.wsdl"/>
 
     <target name="client" description="run demo client">
-        <celtixrun classname="demo.hw.client.Client" wsdl="${basedir}/wsdl/hello_world.wsdl"/>
+            <java classname="demo.hw.client.Client" fork="yes">
+                <classpath>
+                    <path refid="celtix.runtime.classpath"/>
+                </classpath>
+		<arg value="${basedir}/wsdl/hello_world.wsdl"/>
+                <arg value="${op}"/>
+		<arg value="${param}"/>
+                <assertions>
+                    <enable package="org.objectweb.celtix"/>
+                </assertions>
+            </java>
     </target>
     
 
