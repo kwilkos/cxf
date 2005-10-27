@@ -3,11 +3,9 @@ package demo.hwRPCLit.client;
 import javax.xml.namespace.QName;
 import java.io.File;
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.BusException;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.SOAPServiceRPCLit;
 import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
-import java.rmi.RemoteException;
 
 public class Client {
 
