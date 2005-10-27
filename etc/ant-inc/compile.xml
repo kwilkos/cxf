@@ -109,8 +109,7 @@
 
     <target name="systest.compile" depends="testwsdl.codegen,type_test.codegen" description="Compile the system tests">
         <mkdir dir="${basedir}/build/classes-tests/system"/>
-        <javac srcdir="${basedir}/test/system"
-               destdir="${basedir}/build/classes-tests/system"
+        <javac destdir="${basedir}/build/classes-tests/system"
                debug="true"
                target="1.5"
                source="1.5"
@@ -120,6 +119,8 @@
             <classpath>
                 <path refid="system.test.compile.classpath"/>
             </classpath>
+            <src path="${basedir}/test/system"/>
+            <src path="${basedir}/build/test-src/org/objectweb/celtix/systest/type_test"/>
         </javac>
         <antcall target="systemtest.checkstyle"/>
     </target>
