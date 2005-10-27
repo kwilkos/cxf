@@ -104,18 +104,18 @@
         <xslt style="${basedir}/test/wsdl/type_test/type_test_wsdl.xsl"
               in="${basedir}/test/wsdl/type_test/type_test.xsd"
               out="${basedir}/build/classes-tests/wsdl/type_test/type_test.wsdl">
-            <param name="inc_xsd_path" expression="${basedir}/build/classes-tests/wsdl/type_test"/>
+            <param name="inc_xsd_path" expression="."/>
             <param name="use_style" expression="document"/>
         </xslt>
         <xslt style="${basedir}/test/wsdl/type_test/type_test_soap_wsdl.xsl"
               in="${basedir}/test/wsdl/type_test/type_test.xsd"
               out="${basedir}/build/classes-tests/wsdl/type_test/type_test_soap.wsdl">
-            <param name="inc_wsdl_path" expression="${basedir}/build/classes-tests/wsdl/type_test"/>
+            <param name="inc_wsdl_path" expression="."/>
             <param name="use_style" expression="document"/>
         </xslt>
         <wsdltojava file="${basedir}/build/classes-tests/wsdl/type_test/type_test_soap.wsdl"
-                    destdir="${basedir}/build/classes-tests/wsdl" 
-                    srcdestdir="${basedir}/build/test-src"/>
+                    destdir="build/classes-tests/wsdl" 
+                    srcdestdir="build/test-src"/>
     	<xslt style="${basedir}/test/wsdl/type_test/type_test_impl_java.xsl"
               in="${basedir}/test/wsdl/type_test/type_test.xsd"
               out="${basedir}/test/system/org/objectweb/celtix/systest/type_test/TypeTestImpl.java"
