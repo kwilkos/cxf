@@ -38,7 +38,10 @@ public abstract class TestServerBase extends Assert {
         } catch (Exception ex) {
             ex.printStackTrace();
             startFailed();
-        } finally { 
+        } finally {
+            if (verify(LOG)) {
+                LOG.info("server passed");
+            }
             LOG.info("server stopped");
         }
     }
@@ -60,12 +63,11 @@ public abstract class TestServerBase extends Assert {
         System.out.println("server ready");
     }
     
-    
     protected void startFailed() {
         System.out.println("server startup failed");
         System.exit(-1);        
     }
-    
+
     private void runBus() { 
         Thread t = new Thread() { 
                 public void run() { 
@@ -74,5 +76,15 @@ public abstract class TestServerBase extends Assert {
                 } 
             }; 
         t.start();
-    } 
+    }
+ 
+    /**
+     * Used to facilitate assertions on server-side behaviour.
+     *
+     * @param log logger to use for diagnostics if assertions fail
+     * @return true if assertions hold
+     */
+    protected boolean verify(Logger log) {
+        return true;
+    }    
 }

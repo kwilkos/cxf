@@ -21,8 +21,7 @@ public class ServerLauncher {
     private boolean serverIsReady;
     private boolean serverIsStopped;
     private boolean serverLaunchFailed;
-
-    private final StringBuilder serverOutput = new StringBuilder();
+    private boolean serverPassed;
 
     private final Mutex mutex = new Mutex();
 
@@ -50,7 +49,7 @@ public class ServerLauncher {
         return serverIsStopped;
     }
 
-    public void stopServer() throws IOException {
+    public boolean stopServer() throws IOException {
         if (process != null) {
             process.getOutputStream().write('q');
             process.getOutputStream().write('\n');
@@ -58,6 +57,7 @@ public class ServerLauncher {
             waitForServerToStop();
             process.destroy();
         }
+        return serverPassed;
     }
 
     public boolean launchServer() throws IOException {
@@ -101,35 +101,37 @@ public class ServerLauncher {
     }
 
     private void launchOutputMonitorThread(final InputStream in, final PrintStream out) {
-        
         Thread t = new Thread() {
             public void run() {
-
                 try {
+                    StringBuilder serverOutput = new StringBuilder();
                     FileOutputStream fos = new FileOutputStream(className + ".out");
                     PrintStream ps = new PrintStream(fos);
-
                     int ch = -1;
-                    while ((ch = in.read()) != -1) {
+                    boolean running = true;
+                    while ((ch = in.read()) != -1 && running) {
                         serverOutput.append((char)ch);
                         String s = serverOutput.toString();
                         if (s.contains("server ready")) {
                             notifyServerIsReady();
-                        }
-                        if (s.contains("server stopped")) {
+                        } else if (s.contains("server passed")) {
+                            serverPassed = true;
+                        } else if (s.contains("server stopped")) {
                             notifyServerIsStopped();
-                            break;
-                        }
-                        if (s.contains("failed")) {
+                            running = false;
+                        } else if (s.contains("failed")) {
                             notifyServerLaunchFailed();
-                            break;
+                            running = false;
                         }
-
-                        synchronized (out) {
-                            ps.print((char)ch);
-                            ps.flush();
+                        if (ch == '\n' || !running) {
+                            synchronized (out) {
+                                ps.print(serverOutput.toString());
+                                serverOutput = new StringBuilder();
+                                ps.flush();
+                            }
                         }
                     }
+                    
                 } catch (IOException ex) {
                     if (!ex.getMessage().contains("Stream closed")) {
                         ex.printStackTrace();

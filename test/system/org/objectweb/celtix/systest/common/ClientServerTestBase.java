@@ -69,14 +69,17 @@ public abstract class ClientServerTestBase extends TestCase {
         // emtpy
     } 
 
-    protected void stopAllServers() {
+    protected boolean stopAllServers() {
+        boolean passed = true;
         for (ServerLauncher sl : launchers) {
             try { 
-                sl.stopServer(); 
+                passed = passed && sl.stopServer(); 
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
+        launchers.clear();
+        return passed;
     }
     
     protected boolean launchServer(Class<?> clz) {
