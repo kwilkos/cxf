@@ -7,10 +7,17 @@
     xmlns:x1="http://objectweb.org/hello_world_rpclit/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    
     <wsdl:types>
         <schema targetNamespace="http://objectweb.org/hello_world_rpclit/types" 
             xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
-
+            <complexType name="myComplexStruct">
+	        <sequence>
+	            <element name="elem1" type="xsd:string"/>
+	            <element name="elem2" type="xsd:string"/>
+	            <element name="elem3" type="xsd:int"/>
+	        </sequence>
+            </complexType>
         </schema>
     </wsdl:types>
     
@@ -28,6 +35,14 @@
         <wsdl:part type="xsd:string" name="out"/>
     </wsdl:message>
     
+    <wsdl:message name="sendReceiveDataRequest">
+        <wsdl:part type="x1:myComplexStruct" name="in"/>
+    </wsdl:message>
+    
+    <wsdl:message name="sendReceiveDataResponse">
+        <wsdl:part type="x1:myComplexStruct" name="out"/>
+    </wsdl:message>
+    
     <wsdl:portType name="GreeterRPCLit">
         <wsdl:operation name="sayHi">
             <wsdl:input message="tns:sayHiRequest" name="sayHiRequest"/>
@@ -36,6 +51,10 @@
         <wsdl:operation name="greetMe">
             <wsdl:input message="tns:greetMeRequest" name="greetMeRequest"/>
             <wsdl:output message="tns:greetMeResponse" name="greetMeResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="sendReceiveData">
+            <wsdl:input message="tns:sendReceiveDataRequest" name="SendReceiveDataRequest"/>
+	    <wsdl:output message="tns:sendReceiveDataResponse" name="SendReceiveDataResponse"/>
         </wsdl:operation>
     </wsdl:portType>
     
@@ -62,7 +81,17 @@
                 <soap:body namespace="http://objectweb.org/hello_world_rpclit" use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-    
+        
+        <wsdl:operation name="sendReceiveData">
+            <soap:operation soapAction="" style="rpc"/>
+               <wsdl:input>
+                   <soap:body namespace="http://objectweb.org/hello_world_rpclit" use="literal"/>
+               </wsdl:input>
+               <wsdl:output>
+                   <soap:body namespace="http://objectweb.org/hello_world_rpclit" use="literal"/>
+               </wsdl:output>   
+        </wsdl:operation>
+
     </wsdl:binding>
     
     <wsdl:service name="SOAPServiceRPCLit">

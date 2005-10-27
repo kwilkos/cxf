@@ -10,6 +10,7 @@ import org.objectweb.celtix.systest.common.ClientServerTestBase;
 
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.SOAPServiceRPCLit;
+import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
 
 public class ClientServerTest extends ClientServerTestBase {
 
@@ -53,6 +54,37 @@ public class ClientServerTest extends ClientServerTestBase {
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
         }
+    }
+    
+    public void testComplexType() throws Exception {
+        URL wsdl = getClass().getResource("/hello_world_rpc_lit.wsdl");
+        assertNotNull(wsdl);
+
+        SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
+        assertNotNull(service);
+
+        MyComplexStruct argument = new MyComplexStruct();
+        MyComplexStruct retVal = null;
+        
+        try {
+            GreeterRPCLit greeter = (GreeterRPCLit) service.getPort(portName, GreeterRPCLit.class);
+            for (int idx = 0; idx < 5; idx++) {
+                argument.setElem1("Hello Milestone-" + idx);
+                argument.setElem2("Bonjour-" + idx);
+                argument.setElem3(idx);
+                
+                retVal = greeter.sendReceiveData(argument);
+                assertNotNull("no response received from service", retVal);
+                
+                assertTrue(argument.getElem1().equals(retVal.getElem1()));
+                assertTrue(argument.getElem2().equals(retVal.getElem2()));
+                assertTrue(argument.getElem3() == retVal.getElem3());
+                
+                retVal = null;
+            }
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }       
     }
 
     public static void main(String[] args) {
