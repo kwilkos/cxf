@@ -84,23 +84,77 @@
 	    <touch file="${basedir}/build/src/.CONFIGURATION.CODEGEN.DONE"/>
 	</target>
 
-	<target name="configuration.codegen">
-	    <uptodate property="configuration.codegen.notrequired" value="true">
-	        <srcfiles dir="src/org/objectweb/celtix/configuration" includes="types.xsd"/>
-	    	<srcfiles dir="src/org/objectweb/celtix/bus/jaxws/configuration" includes="types.xsd"/>
-	    	<srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
-	    	<mapper type="merge" to="${basedir}/build/src/.CONFIGURATION.CODEGEN.DONE"/>
-	    </uptodate>
-	    <antcall target="configuration.codegen.internal"/>
+    <target name="type_test.codegen.internal" unless="type_test.codegen.notrequired">
+        <mkdir dir="${basedir}/build/classes-tests/wsdl/type_test"/>
+        <xslt style="${basedir}/test/wsdl/type_test/type_test_ID_xsd.xsl"
+              in="${basedir}/test/wsdl/type_test/type_test.xsd"
+              out="${basedir}/build/classes-tests/wsdl/type_test/type_test_1.xsd">
+            <param name="groupID" expression="1"/>
+        </xslt>
+        <xslt style="${basedir}/test/wsdl/type_test/type_test_ID_xsd.xsl"
+              in="${basedir}/test/wsdl/type_test/type_test.xsd"
+              out="${basedir}/build/classes-tests/wsdl/type_test/type_test_2.xsd">
+            <param name="groupID" expression="2"/>
+        </xslt>
+        <xslt style="${basedir}/test/wsdl/type_test/type_test_ID_xsd.xsl"
+              in="${basedir}/test/wsdl/type_test/type_test.xsd"
+              out="${basedir}/build/classes-tests/wsdl/type_test/type_test_3.xsd">
+            <param name="groupID" expression="3"/>
+        </xslt>
+        <xslt style="${basedir}/test/wsdl/type_test/type_test_wsdl.xsl"
+              in="${basedir}/test/wsdl/type_test/type_test.xsd"
+              out="${basedir}/build/classes-tests/wsdl/type_test/type_test.wsdl">
+            <param name="inc_xsd_path" expression="${basedir}/build/classes-tests/wsdl/type_test"/>
+            <param name="use_style" expression="document"/>
+        </xslt>
+        <xslt style="${basedir}/test/wsdl/type_test/type_test_soap_wsdl.xsl"
+              in="${basedir}/test/wsdl/type_test/type_test.xsd"
+              out="${basedir}/build/classes-tests/wsdl/type_test/type_test_soap.wsdl">
+            <param name="inc_wsdl_path" expression="${basedir}/build/classes-tests/wsdl/type_test"/>
+            <param name="use_style" expression="document"/>
+        </xslt>
+        <wsdltojava file="${basedir}/build/classes-tests/wsdl/type_test/type_test_soap.wsdl"
+                    destdir="${basedir}/build/classes-tests/wsdl" 
+                    srcdestdir="${basedir}/build/test-src"/>
+    	<xslt style="${basedir}/test/wsdl/type_test/type_test_impl_java.xsl"
+              in="${basedir}/test/wsdl/type_test/type_test.xsd"
+              out="${basedir}/test/system/org/objectweb/celtix/systest/type_test/TypeTestImpl.java"
+    	      force="true"/>
+        <xslt style="${basedir}/test/wsdl/type_test/type_test_tester_java.xsl"
+              in="${basedir}/test/wsdl/type_test/type_test.xsd"
+              out="${basedir}/test/system/org/objectweb/celtix/systest/type_test/TypeTestTester.java"
+              force="true"/>
+        <touch file="${basedir}/build/classes-tests/wsdl/type_test/.TYPE_TEST.CODEGEN.DONE"/>
+    </target>
+
+    <target name="type_test.codegen">
+        <uptodate property="type_test.codegen.notrequired" value="true">
+            <srcfiles dir="${basedir}/test/wsdl/type_test" includes="*"/>
+            <srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
+            <mapper type="merge" to="${basedir}/build/classes-tests/wsdl/type_test/.TYPE_TEST.CODEGEN.DONE"/>
+        </uptodate>
+        <antcall target="type_test.codegen.internal"/>
+    </target>
+
+    <target name="configuration.codegen">
+        <uptodate property="configuration.codegen.notrequired" value="true">
+            <srcfiles dir="src/org/objectweb/celtix/configuration" includes="types.xsd"/>
+            <srcfiles dir="src/org/objectweb/celtix/bus/jaxws/configuration" includes="types.xsd"/>
+            <srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
+            <mapper type="merge" to="${basedir}/build/src/.CONFIGURATION.CODEGEN.DONE"/>
+        </uptodate>
+        <antcall target="configuration.codegen.internal"/>
     </target>
 
     <target name="testwsdl.codegen.internal" unless="testwsdl.codegen.notrequired">
-        <wsdltojava file="${basedir}/test/wsdl/hello_world.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
+       	<wsdltojava file="${basedir}/test/wsdl/hello_world.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
         <wsdltojava file="${basedir}/test/wsdl/hello_world_rpc_lit.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
         <wsdltojava file="${basedir}/test/wsdl/handler_test.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
-        <mkdir dir="build/classes-tests/wsdl"/>
-        <copy todir="build/classes-tests/wsdl">
-            <fileset dir="${basedir}/test/wsdl" includes="**/*.wsdl"/>
+        <mkdir dir="${basedir}/build/classes-tests/wsdl"/>
+    	<copy todir="${basedir}/build/classes-tests/wsdl">
+            <fileset dir="${basedir}/test/wsdl">
+            	<include name="**/*.wsdl"/>
+            </fileset>
         </copy>
         <touch file="${basedir}/build/test-src/.TESTWSDL.CODEGEN.DONE"/>
     </target>
@@ -114,7 +168,7 @@
         <antcall target="testwsdl.codegen.internal"/>
     </target>
 
-    <target name="codegen" depends="schemas.codegen,configuration.codegen,testwsdl.codegen" description="Generate all generated code"/>
+    <target name="codegen" depends="schemas.codegen,configuration.codegen,testwsdl.codegen,type_test.codegen" description="Generate all generated code"/>
 
     <target name="spring.codegen.internal" unless="spring.codegen.notrequired">
         <fileset dir="${basedir}/src" id="metadata.schemas">

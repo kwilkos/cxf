@@ -107,7 +107,7 @@
         <antcall target="unittest.checkstyle"/>
     </target>
 
-    <target name="systest.compile" depends="testwsdl.codegen" description="Compile the system tests">
+    <target name="systest.compile" depends="testwsdl.codegen,type_test.codegen" description="Compile the system tests">
         <mkdir dir="${basedir}/build/classes-tests/system"/>
         <javac srcdir="${basedir}/test/system"
                destdir="${basedir}/build/classes-tests/system"
