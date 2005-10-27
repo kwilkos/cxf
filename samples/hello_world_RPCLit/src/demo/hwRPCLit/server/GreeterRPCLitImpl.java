@@ -24,7 +24,7 @@ public class GreeterRPCLitImpl implements GreeterRPCLit {
     }
 
      public MyComplexStruct sendReceiveData(MyComplexStruct in) {
-		 logger.info("Executing operation sayHi");
+		 logger.info("Executing operation sendReceiveData");
 	     logger.info("Received struct with values : Elem1 : " + in.getElem1()
 	                  + " Elem2 : " + in.getElem2()
 	                  + " Elem3 : " + in.getElem3()
