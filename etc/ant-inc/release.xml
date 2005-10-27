@@ -3,10 +3,6 @@
     <import file="compile.xml"/>
     <import file="javadoc.xml"/>
 
-    <condition property="on.windows">
-	<os family="windows"/>
-    </condition>
-
     <target name="release" depends="celtix.jar,publicapi.javadoc"
         description="Build a release kit">
 
@@ -24,12 +20,6 @@
                 <include name="**/*"/>
             </fileset>
         </copy>
-	<chmod perm="755">
-            <fileset dir="${build.release.dir}/bin">
-                <include name="*"/>
-            </fileset>
-	</chmod>
-	<fixcrlf srcdir="${build.release.dir}/bin"/>
         <copy includeEmptyDirs="false" todir="${build.release.dir}/etc">
             <fileset dir="${basedir}/etc">
                 <include name="logging.properties"/>
@@ -67,33 +57,9 @@
 		
         <delete dir="${build.package.dir}" quiet="true"/>
         <mkdir dir="${build.package.dir}"/>
-	<antcall target="package.windows"/>
-	<antcall target="package.unix"/>
-    </target>
-	
-    <target name="package.windows" if="on.windows">
-        <zip destfile="${build.package.dir}/celtix-${celtix.version}-bin.zip">
-            <zipfileset prefix="celtix" dir="${build.release.dir}">
-                <include name="**/*"/>
-                <exclude name="**/tomcat/**/work/**/*"/>
-                <exclude name="**/*.wc"/>
-            </zipfileset>
-        </zip>
-        <zip destfile="${build.package.dir}/celtix-${celtix.version}-src.zip">
-            <zipfileset prefix="celtix" dir="${basedir}">
-                <include name="**/*"/>
-                <exclude name="build"/>
-                <exclude name="build/**/*"/>
-                <exclude name="**/.*"/>
-                <exclude name="NOTICE"/>
-                <exclude name="**/tomcat/**/work/**/*"/>
-            </zipfileset>
-        </zip>
-    </target>
 
-    <target name="package.unix" unless="on.windows">
         <tar compression="gzip"
-            destfile="${build.package.dir}/celtix-${celtix.version}-bin.tar.gz">
+            destfile="${build.package.dir}/celtix-${celtix.version}-bin.tgz">
             <tarfileset prefix="celtix" dir="${build.release.dir}">
                 <include name="**/*"/>
                 <exclude name="**/tomcat/**/work/**/*"/>
@@ -105,7 +71,7 @@
             </tarfileset>
         </tar>
         <tar compression="gzip"
-            destfile="${build.package.dir}/celtix-${celtix.version}-src.tar.gz">
+            destfile="${build.package.dir}/celtix-${celtix.version}-src.tgz">
             <tarfileset prefix="celtix" dir="${basedir}">
                 <include name="**/*"/>
                 <exclude name="build"/>
@@ -120,7 +86,7 @@
             </tarfileset>
         </tar>
     </target>
-
+	
     <target name="celtix.jar" depends="src.compile" description="build the celtix jar">
         <mkdir dir="${build.lib.dir}"/>
         <jar destfile="${celtix.jar}"
