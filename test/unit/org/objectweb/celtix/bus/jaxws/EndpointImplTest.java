@@ -4,10 +4,13 @@ package org.objectweb.celtix.bus.jaxws;
 
 
 import java.util.Properties;
+
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.spi.Provider;
+
 import junit.framework.TestCase;
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingManager;
@@ -78,5 +81,4 @@ public class EndpointImplTest extends TestCase {
         WebServiceContext ctx = servant.getContext();
         assertNotNull(ctx);
     }
-
 }

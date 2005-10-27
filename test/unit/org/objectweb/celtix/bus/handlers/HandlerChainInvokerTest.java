@@ -458,7 +458,7 @@ public class HandlerChainInvokerTest extends TestCase {
         }
         
         public void setHandleFaultRet(boolean ret) {
-            handleFaultRet = ret; 
+            //handleFaultRet = ret; 
         }
 
         public String toString() { 

@@ -50,8 +50,8 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
             methodCalled("handleMessage"); 
             Object b  = ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
             boolean outbound = (Boolean)b;
-
             SOAPMessage msg = ctx.getMessage();
+
             if (isServerSideHandler()) {
                 if (!outbound) {
                     continueProcessing = getReturnValue(outbound, ctx); 
@@ -138,15 +138,12 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                     if ("stop".equals(command)) {
 
                         // remove the incoming request body.
-                        body.removeContents();
-                        
-                        //SOAPFactory factory = SOAPFactory.newInstance();
                         Document doc = body.getOwnerDocument(); 
-                        
                         // build the SOAP response for this message 
                         //
                         Node wrapper = doc.createElementNS(namespace, "pingResponse");
                         wrapper.setPrefix("ns4");
+                        body.removeChild(body.getFirstChild());
                         body.appendChild(wrapper); 
 
                         for (String info : getHandlerInfo()) {
@@ -160,7 +157,6 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                                 wrapper.appendChild(newEl); 
                             }
                         }
-
                         ret = false;
                     } else if ("throw".equals(command)) {
                         //throwException(strtok.nextToken());

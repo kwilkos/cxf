@@ -488,6 +488,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
     Object getWrappedPart(Object wrapperType, Class<?> part) throws SOAPException {
         try {
+            assert wrapperType != null;
             Method elMethods[] = wrapperType.getClass().getMethods();
             for (Method method : elMethods) {
                 if (method.getParameterTypes().length == 0

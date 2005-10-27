@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
+import javax.jws.HandlerChain;
 import javax.jws.WebMethod;
 import javax.jws.WebResult;
 import javax.xml.ws.RequestWrapper;
@@ -13,10 +14,14 @@ import javax.xml.ws.WebServiceContext;
 
 @javax.jws.WebService(name = "Greeter", serviceName = "SOAPService", 
                       targetNamespace = "http://objectweb.org/hello_world_soap_http")
+@HandlerChain(name = "testhandlers", file = "handlers.xml")
 public class AnnotatedGreeterImpl {
 
     private static final Logger LOG = 
         Logger.getLogger(AnnotatedGreeterImpl.class.getName());
+
+    @Resource
+    private int foo; 
 
     private WebServiceContext context;
 
@@ -103,6 +108,10 @@ public class AnnotatedGreeterImpl {
         return context;
     }
 
+    public int getFoo() {
+        // just to keep the warning out of eclipse
+        return foo;
+    }
     private void incrementInvocationCount(String method) {
         LOG.info("Executing " + method);
         int n = invocationCount.get(method);

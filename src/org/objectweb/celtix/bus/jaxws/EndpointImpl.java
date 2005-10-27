@@ -8,11 +8,14 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
+import javax.xml.ws.handler.Handler;
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
@@ -58,6 +61,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             }
         }
         serverBinding = createServerBinding(bindingId);
+        configureHandlers(); 
         injectResources();
     }
 
@@ -147,6 +151,14 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     /*
      * (non-Javadoc)
      * 
+     * @see javax.xml.ws.Endpoint#setHandlerChain(java.util.List)
+     */
+    public void setHandlerChain(List<Handler> h) {        
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.xml.ws.Endpoint#setMetadata(java.util.List)
      */
     public void setMetadata(List<Source> m) {
@@ -228,8 +240,15 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     }
 
 
+    /** inject resources into servant.  The resources are injected
+     * according to @Resource annotations.  See JSR 250 for more
+     * information 
+     *
+     */
     private void injectResources() { 
 
+        // TODO ResourceResolver needs to be globally available and to
+        // resolve more that just WebServiceContexts
         ResourceInjector injector = new ResourceInjector(new ResourceResolver() { 
                 public Object resolve(String resourceName, Class<?> resourceType) {
                     return new WebServiceContextImpl();
@@ -239,4 +258,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         injector.inject(implementor);
     }
 
+
+    private void configureHandlers() { 
+    } 
 }

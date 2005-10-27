@@ -1,46 +1,52 @@
 package org.objectweb.celtix.common.injection;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.InjectionComplete;
 import javax.annotation.Resource;
+import org.objectweb.celtix.common.annotation.AnnotationProcessor;
+import org.objectweb.celtix.common.annotation.AnnotationVisitor;
 import org.objectweb.celtix.common.logging.LogUtils;
 
 /**
  * injects references specified using @Resource annotation 
  * 
  */
-public class ResourceInjector {
+public class ResourceInjector implements AnnotationVisitor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(ResourceInjector.class);
 
-
     private final ResourceResolver resolver; 
+    private Object target; 
 
     public ResourceInjector(ResourceResolver r) {
         resolver = r;
     }
 
-    public void inject(Object target) {
+    public void inject(Object o) {
 
-        injectClassLevel(target);
-        injectSetters(target); 
-        injectFields(target);
-        invokeInjectionComplete(target);
+        AnnotationProcessor processor = new AnnotationProcessor(o); 
+        processor.accept(this); 
+
+        invokeInjectionComplete();
     }
 
-    private void injectClassLevel(Object target) {
+
+
+    // Implementation of org.objectweb.celtix.common.annotation.AnnotationVisitor
+
+    public final void visitClass(final Class<?> clz, final Annotation annotation) {
         
-        LOG.fine("injecting class resource references");
-        
-        Resource res = target.getClass().getAnnotation(Resource.class);
-        if (res == null) {
-            return;
-        }
+        assert annotation != null && annotation instanceof Resource : annotation; 
+
+        Resource res = (Resource)annotation; 
 
         if (res.name() == null || "".equals(res.name())) { 
             LOG.log(Level.SEVERE, "RESOURCE_NAME_NOT_SPECIFIED", target.getClass().getName());
@@ -54,23 +60,78 @@ public class ResourceInjector {
         } 
 
         // first find a setter that matches this resource
-        Method setter = findSetterForResource(target, res);
+        Method setter = findSetterForResource(res);
         if (setter != null) { 
-            invokeSetter(setter, target, resource);
+            invokeSetter(setter, resource);
             return;
         }
         
-        Field field = findFieldForResource(target, res);
+        Field field = findFieldForResource(res);
         if (field != null) { 
-            injectField(target, field, resource); 
+            injectField(field, resource); 
             return;
         }
 
-        LOG.log(Level.SEVERE, "NO_SETTER_OR_FIELD_FOR_RESOURCE", target.getClass().getName());
+        LOG.log(Level.SEVERE, "NO_SETTER_OR_FIELD_FOR_RESOURCE", getTarget().getClass().getName());
+
+    }
+
+    public final List<Class<? extends Annotation>> getTargetAnnotations() {
+        List<Class<? extends Annotation>> al = new LinkedList<Class<? extends Annotation>>();
+        al.add(Resource.class); 
+        return al;
+    }
+
+    public final void visitField(final Field field, final Annotation annotation) {
+
+        assert annotation != null && annotation instanceof Resource : annotation;
+        
+        Resource res = (Resource)annotation;
+
+        String name = getFieldNameForResource(res, field);
+        Class<?> type = getFieldTypeForResource(res, field); 
+        
+        // TODO -- need to add some magic to set private fields
+        // here 
+        if ((field.getModifiers() & (Modifier.PRIVATE ^ Modifier.PROTECTED)) > 0) {
+            LOG.log(Level.SEVERE, "PRIVATE_FIELD_INJECTION_NYI", field);
+            return;
+        } 
+
+        Object resource = resolver.resolve(name, type);
+        if (resource != null) {
+            injectField(field, resource);
+        } else {
+            LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED");
+        }
+    }
+
+    public final void visitMethod(final Method method, final Annotation annotation) {
+        
+        assert annotation != null && annotation instanceof Resource : annotation;
+
+        Resource res = (Resource)annotation; 
+
+        String resourceName = getResourceName(res, method);
+        Class<?> clz = getResourceType(res, method); 
+        Object resource = resolver.resolve(resourceName, clz);
+        if (resource != null) {
+            invokeSetter(method, resource);
+        } else { 
+            LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED");
+        }
     }
 
 
-    private Field findFieldForResource(Object target, Resource res) {
+    public final void setTarget(final Object object) {
+        target = object;
+    }
+
+    public final Object getTarget() { 
+        return target; 
+    } 
+
+    private Field findFieldForResource(Resource res) {
         assert target != null; 
         assert res.name() != null;
 
@@ -83,13 +144,13 @@ public class ResourceInjector {
     }
 
 
-    private Method findSetterForResource(Object target, Resource res) {
+    private Method findSetterForResource(Resource res) {
         assert target != null; 
 
         String setterName = resourceNameToSetter(res.name());
         Method setterMethod = null;
 
-        for (Method method : target.getClass().getMethods()) {
+        for (Method method : getTarget().getClass().getMethods()) {
             if (setterName.equals(method.getName())) {
                 setterMethod = method;
                 break;
@@ -109,34 +170,10 @@ public class ResourceInjector {
     }
     
 
-    private void injectSetters(Object target) { 
-        LOG.fine("injecting setter resource references");
-
-        Method[] methods = target.getClass().getMethods();
-        for (Method method : methods) {
-            Resource res = method.getAnnotation(Resource.class);
-            if (res == null) {
-                continue;
-            }
-            
-            String resourceName = getResourceName(res, method);
-            Class<?> clz = getResourceType(res, method); 
-
-            Object resource = resolver.resolve(resourceName, clz);
-            if (resource != null) {
-                invokeSetter(method, target, resource);
-            } else { 
-                LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED");
-            }
-        }
-
-    } 
-
-
-    private void invokeSetter(Method method, Object target, Object resource) { 
+    private void invokeSetter(Method method, Object resource) { 
 
         try {
-            method.invoke(target, resource);
+            method.invoke(getTarget(), resource);
         } catch (IllegalAccessException e) { 
             LOG.log(Level.SEVERE, "INJECTION_SETTER_NOT_VISIBLE", method);
         } catch (InvocationTargetException e) { 
@@ -164,39 +201,10 @@ public class ResourceInjector {
     } 
 
 
-    private void injectFields(Object target) { 
-        LOG.fine("injecting field resource references");
 
-        for (Field field : target.getClass().getFields()) {
-            Resource res  = field.getAnnotation(Resource.class);
-
-            if (res == null) {
-                continue;
-            }
-
-            String name = getFieldNameForResource(res, field);
-            Class<?> type = getFieldTypeForResource(res, field); 
-            
-            // TODO -- need to add some magic to set private fields
-            // here 
-            if ((field.getModifiers() & (Modifier.PRIVATE ^ Modifier.PROTECTED)) > 0) {
-                LOG.log(Level.SEVERE, "PRIVATE_FIELD_INJECTION_NYI", field);
-                continue;
-            } 
-
-            Object resource = resolver.resolve(name, type);
-            if (resource != null) {
-                injectField(target, field, resource);
-            } else {
-                LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED");
-            }
-        }
-    } 
-
-    
-    private void injectField(Object target, Field field, Object resource) { 
+    private void injectField(Field field, Object resource) { 
         try {
-            field.set(target, resource);
+            field.set(getTarget(), resource);
         } catch (IllegalAccessException e) { 
             e.printStackTrace();
             LOG.severe("FAILED_TO_INJECT_FIELD"); 
@@ -204,9 +212,9 @@ public class ResourceInjector {
     } 
 
 
-    private void invokeInjectionComplete(Object target) {
+    private void invokeInjectionComplete() {
 
-        for (Method method : target.getClass().getMethods()) {
+        for (Method method : getTarget().getClass().getMethods()) {
             InjectionComplete ic = method.getAnnotation(InjectionComplete.class);
             if (ic != null) {
                 try {
