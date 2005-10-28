@@ -1,0 +1,24 @@
+<handler-config> 
+  <handler-chain> 
+    <handler-chain-name>TestHandlerChain</handler-chain-name> 
+    <handler> 
+      <handler-name>DummyHandler</handler-name> 
+      <handler-class>org.objectweb.celtix.bus.handlers.DummyHandler</handler-class> 
+      <init-param> 
+	<param-name>foo</param-name> 
+	<param-value>bar</param-value> 
+      </init-param> 
+    </handler> 
+  </handler-chain> 
+  <handler-chain> 
+    <handler-chain-name>BrokenHandlerChain</handler-chain-name> 
+    <handler> 
+      <handler-name>DummyHandler</handler-name> 
+      <handler-class>org.foo.bar.NoSuchHandler</handler-class> 
+      <init-param> 
+	<param-name>foo</param-name> 
+	<param-value>bar</param-value> 
+      </init-param> 
+    </handler> 
+  </handler-chain> 
+</handler-config> 

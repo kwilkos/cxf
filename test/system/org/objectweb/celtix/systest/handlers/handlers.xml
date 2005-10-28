@@ -1,0 +1,21 @@
+<handler-config> 
+  <handler-chain> 
+    <handler-chain-name>TestHandlerChain</handler-chain-name> 
+    <handler> 
+      <handler-name>Handler1</handler-name> 
+      <handler-class>org.objectweb.celtix.systest.handlers.TestHandler</handler-class> 
+    </handler> 
+    <handler> 
+      <handler-name>Handler2</handler-name> 
+      <handler-class>org.objectweb.celtix.systest.handlers.TestHandler</handler-class> 
+    </handler> 
+    <handler> 
+      <handler-name>ProtocolHandler1</handler-name> 
+      <handler-class>org.objectweb.celtix.systest.handlers.TestSOAPHandler</handler-class> 
+    </handler> 
+    <handler> 
+      <handler-name>ProtocolHandler2</handler-name> 
+      <handler-class>org.objectweb.celtix.systest.handlers.TestSOAPHandler</handler-class> 
+    </handler> 
+  </handler-chain> 
+</handler-config> 

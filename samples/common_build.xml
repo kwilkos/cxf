@@ -64,12 +64,12 @@
 
     <macrodef name="celtixrun">
         <attribute name="classname"/>
-    <attribute name="param1" default=""/>
-    <attribute name="param2" default=""/>
-    <attribute name="param3" default=""/>
-    <attribute name="param4" default=""/>
-    <attribute name="param5" default=""/>
-        <sequential>
+	<attribute name="param1" default=""/>
+	<attribute name="param2" default=""/>
+	<attribute name="param3" default=""/>
+	<attribute name="param4" default=""/>
+	<attribute name="param5" default=""/>
+	<sequential>
             <java classname="@{classname}" fork="yes">
                 <classpath>
                     <path refid="celtix.runtime.classpath"/>
