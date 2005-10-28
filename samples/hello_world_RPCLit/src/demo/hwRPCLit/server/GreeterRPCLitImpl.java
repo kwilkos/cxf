@@ -15,19 +15,23 @@ public class GreeterRPCLitImpl implements GreeterRPCLit {
 
     public String greetMe(String me) {
         logger.info("Executing operation greetMe");
+        System.out.println("Executing operation greetMe");
+        System.out.println("Message received: " + me);
         return "Hello " + me;
     }
 
     public String sayHi() {
         logger.info("Executing operation sayHi");
+        System.out.println("Executing operation sayHi");
         return "Bonjour";
     }
 
      public MyComplexStruct sendReceiveData(MyComplexStruct in) {
 		 logger.info("Executing operation sendReceiveData");
-	     logger.info("Received struct with values : Elem1 : " + in.getElem1()
-	                  + " Elem2 : " + in.getElem2()
-	                  + " Elem3 : " + in.getElem3()
+		 System.out.println("Executing operation sendReceiveData");
+	     System.out.println("Received struct with values :\nElement-1 : " + in.getElem1()
+	                  + "\nElement-2 : " + in.getElem2()
+	                  + "\nElement-3 : " + in.getElem3()
 	                  + "\n");
 	     return in;
     }

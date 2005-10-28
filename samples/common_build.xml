@@ -50,7 +50,7 @@
             <include name="*.jar"/>
         </fileset>
     </path>
-	
+    
 
     <path id="celtix.runtime.classpath">
         <path refid="celtix.build.classpath"/>
@@ -64,17 +64,21 @@
 
     <macrodef name="celtixrun">
         <attribute name="classname"/>
-	<attribute name="param1" default=""/>
-	<attribute name="param2" default=""/>
-	<attribute name="param3" default=""/>
+    <attribute name="param1" default=""/>
+    <attribute name="param2" default=""/>
+    <attribute name="param3" default=""/>
+    <attribute name="param4" default=""/>
+    <attribute name="param5" default=""/>
         <sequential>
             <java classname="@{classname}" fork="yes">
                 <classpath>
                     <path refid="celtix.runtime.classpath"/>
                 </classpath>
                 <arg value="@{param1}"/>
-		<arg value="@{param2}"/>
-		<arg value="@{param3}"/>
+                <arg value="@{param2}"/>
+                <arg value="@{param3}"/>
+                <arg value="@{param4}"/>
+                <arg value="@{param5}"/>
                 <assertions>
                     <enable package="org.objectweb.celtix"/>
                 </assertions>
