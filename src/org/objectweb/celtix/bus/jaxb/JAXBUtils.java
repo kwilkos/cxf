@@ -194,6 +194,9 @@ public final class JAXBUtils {
         
         boolean conventionalIdentifier = isConventionalIdentifier(buf, type); 
         if (legalIdentifier && conventionalIdentifier) {
+            if (JAXBUtils.isJavaKeyword(name) && type == IdentifierType.VARIABLE) {
+                name = normalizePackageNamePart(name.toString());
+            }
             return name;
         }
         
@@ -263,7 +266,6 @@ public final class JAXBUtils {
                 first = i;
                 firstChar = sword.charAt(first);
             }
-            i++;         
         }
         
         if (index > (listIndex + 1)) {
@@ -296,10 +298,11 @@ public final class JAXBUtils {
         } else {
             int pos = 3;
             if (IdentifierType.GETTER == type 
-                && !(buf.length() > pos && "get".equals(buf.subSequence(0, 3)))) {
+                && !(buf.length() >= pos 
+                    && "get".equals(buf.subSequence(0, 3)))) {
                 return false;
             } else if (IdentifierType.SETTER == type 
-                && !(buf.length() > pos && "set".equals(buf.subSequence(0, 3)))) {
+                && !(buf.length() >= pos && "set".equals(buf.subSequence(0, 3)))) {
                 return false;
             } else {
                 pos = 0;

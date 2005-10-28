@@ -14,6 +14,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.ProtocolException;
 import javax.xml.ws.Provider;
 import javax.xml.ws.Service;
 import javax.xml.ws.ServiceMode;
@@ -81,8 +82,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
                                                             DataBindingCallback.Mode.PARTS));
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
-            se.printStackTrace();
             LOG.log(Level.SEVERE, "SOAP_MARSHALLING_FAILURE_MSG", se);
+            throw new ProtocolException(se);
         }
     }
 
@@ -102,6 +103,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
                                                                      DataBindingCallback.Mode.PARTS));
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
+            throw new ProtocolException(se);
         }
     }
     
@@ -118,7 +120,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
             }
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_WRITE_FAILURE_MSG", se);
-            throw new IOException(se.getMessage());
+            throw new ProtocolException(se);
         }
     }
     
@@ -132,7 +134,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
             
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_PARSING_FAILURE_MSG", se);
-            throw new IOException(se.getMessage());
+            throw new ProtocolException(se);
         }
     }
     
@@ -175,11 +177,10 @@ public class SOAPServerBinding extends AbstractServerBinding {
             Source reply = provider.invoke(request);
             assert null != reply;
             SOAPMessageContext replyCtx = new SOAPMessageContextImpl(soapCtx);
-            assert null != replyCtx;
-            
-            // ...
+            assert null != replyCtx;         
         } catch (SOAPException ex) {
             LOG.log(Level.SEVERE, "SOAP_BODY_PROVIDER_FAILURE_MSG", ex);
+            throw new ProtocolException(ex);
         }
         
         return null;
@@ -195,6 +196,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
             ret = new QName(node.getNamespaceURI(), node.getLocalName());
         } catch (SOAPException ex) {
             LOG.log(Level.SEVERE, "OPERATION_NAME_RETREIVAL_FAILURE_MSG", ex);
+            throw new ProtocolException(ex);
         }
         
         LOG.info("retrieved operation name from soap message:" + ret);

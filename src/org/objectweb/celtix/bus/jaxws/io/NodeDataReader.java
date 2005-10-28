@@ -57,7 +57,10 @@ public class NodeDataReader<T> implements DataReader<T> {
         }
 
         if (isOutBound && callback.getWebResult() != null) {
-            retVal = callback.getWrappedPart(obj, callback.getMethod().getReturnType());
+            retVal = callback.getWrappedPart(
+                             callback.getWebResult().getLocalPart(), 
+                             obj, 
+                             callback.getMethod().getReturnType());
         }
 
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
@@ -65,7 +68,9 @@ public class NodeDataReader<T> implements DataReader<T> {
         for (int idx = 0; idx < noArgs; idx++) {
             WebParam param = callback.getWebParam(idx);
             if ((param.mode() != ignoreParamMode) && !param.header()) {
-                paramList.add(callback.getWrappedPart(obj, callback.getMethod().getParameterTypes()[idx]));
+                paramList.add(
+                              callback.getWrappedPart(
+                                       param.name(), obj, callback.getMethod().getParameterTypes()[idx]));
             }
         }
 

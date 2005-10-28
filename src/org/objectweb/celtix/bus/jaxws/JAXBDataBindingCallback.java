@@ -150,8 +150,6 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
                 return new QName(webResultAnnotation.targetNamespace(),
                                  webResultAnnotation.name());
             } else {
-                // RPC-Lit case.
-                //REVISIT : For spec. compliance with other types. 
                 return new QName("", webResultAnnotation.partName());
             }
         }
@@ -243,7 +241,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         for (int idx = 0; idx < noArgs; idx++) {
             WebParam param = getWebParam(idx);
             if ((param.mode() != ignoreParamMode) && !param.header()) {
-                setWrappedPart(param.partName(), wrapperObj, args[idx]);
+                setWrappedPart(param.name(), wrapperObj, args[idx]);
             }
         }
         return wrapperObj;
@@ -256,20 +254,16 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
             throw new WebServiceException("Could not set parts into wrapper element", ex);
         }
     }
-    public Object getWrappedPart(Object wrapperType, Class<?> part) {
+    public Object getWrappedPart(String name, Object wrapperType, Class<?> part) {
+        Object obj = null;
         try {
             assert wrapperType != null;
-            Method elMethods[] = wrapperType.getClass().getMethods();
-            for (Method meth : elMethods) {
-                if (meth.getParameterTypes().length == 0
-                    && meth.getReturnType().equals(part)) {
-                    return meth.invoke(wrapperType);
-                }
-            }
+            obj = WrapperHelper.getWrappedPart(name, wrapperType, part);
+            assert obj != null;
         } catch (Exception ex) {
             throw new WebServiceException("Could not get part out of wrapper element", ex);
         }
-        return null;
+        return obj;
     }    
 
     

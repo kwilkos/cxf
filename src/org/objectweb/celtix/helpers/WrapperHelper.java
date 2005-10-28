@@ -1,10 +1,15 @@
 package org.objectweb.celtix.helpers;
 
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
+
+import org.objectweb.celtix.bus.jaxb.JAXBUtils;
 
 public final class WrapperHelper {
 
@@ -13,25 +18,45 @@ public final class WrapperHelper {
     }
 
 
-    public static void setWrappedPart(String name, Object wrapperType, Object part) 
+    public static void setWrappedPart(String partName, Object wrapperType, Object part) 
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
         if (part instanceof List) {
-            setWrappedListProperty(name, wrapperType, part);
+            setWrappedListProperty(partName, wrapperType, part);
         } else {
-            Method elMethods[] = wrapperType.getClass().getMethods();
-            for (Method method : elMethods) {
-                if (isSetterForType(method, part.getClass())) {
-                    method.invoke(wrapperType, part);
+            String accessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.SETTER);
+            
+            for (Method method : wrapperType.getClass().getMethods()) {
+                if (method.getParameterTypes() != null 
+                    && method.getParameterTypes().length == 1
+                    && accessor.equals(method.getName())) {
+                    
+                    Class<?> clazz = method.getParameterTypes()[0];
+                    if (method.getParameterTypes()[0].isPrimitive()) {
+                        for (Field field : wrapperType.getClass().getDeclaredFields()) {
+                            if (JAXBUtils.isJavaKeyword(partName)) {
+                                partName = JAXBUtils.nameToIdentifier(
+                                                partName, 
+                                               JAXBUtils.IdentifierType.VARIABLE);
+                            }
+                            if (field.getName().equals(partName)) {
+                                //JAXB Type get XmlElement Annotation
+                                clazz = field.getAnnotation(XmlElement.class).type();
+                            } 
+                        }
+                    }
+                    if (clazz.isAssignableFrom(part.getClass())) {
+                        method.invoke(wrapperType, part);
+                    }
                 }
             }
         }
     }
 
-    private static void setWrappedListProperty(String name, Object wrapperType, Object part) 
+    private static void setWrappedListProperty(String partName, Object wrapperType, Object part) 
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
-        String accessorName = "get" + name;
+        String accessorName = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
         for (Method method : wrapperType.getClass().getMethods()) {
             if (accessorName.equals(method.getName()) 
                 && List.class.isAssignableFrom(method.getReturnType())) { 
@@ -43,11 +68,19 @@ public final class WrapperHelper {
             }
         }
     }
+    
+    public static Object getWrappedPart(String partName, Object wrapperType, Class<?> partClazz) 
+        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
-    private static boolean isSetterForType(Method m, Class<?> clz) { 
+        String modifier = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
         
-        return m.getParameterTypes() != null 
-            && m.getParameterTypes().length == 1
-            && clz.isAssignableFrom(m.getParameterTypes()[0]);
-    } 
+        for (Method method : wrapperType.getClass().getMethods()) {
+            if (method.getParameterTypes().length == 0
+                && modifier.equals(method.getName())
+                && method.getReturnType().isAssignableFrom(partClazz)) {
+                return method.invoke(wrapperType);
+            }
+        }
+        return null;
+    }
 }

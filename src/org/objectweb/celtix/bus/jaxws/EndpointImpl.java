@@ -15,6 +15,7 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
@@ -44,26 +45,24 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private Executor executor;
 
 
-    public EndpointImpl(Bus b, Object impl, String bindingId)
-        throws BusException, WSDLException, IOException {
+    public EndpointImpl(Bus b, Object impl, String bindingId) {
 
         bus = b;
         implementor = impl;
         // configuration = new EndpointConfiguration(Bus, this);
-        reference = EndpointReferenceUtils.getEndpointReference(bus.getWSDLManager(), implementor);
-        if (null == bindingId) {
-            try {
+        try {
+            reference = EndpointReferenceUtils.getEndpointReference(bus.getWSDLManager(), implementor);
+            if (null == bindingId) {
                 Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), reference);
                 ExtensibilityElement el = (ExtensibilityElement)port.getExtensibilityElements().get(0);
                 bindingId = el.getElementType().getNamespaceURI();
-            } catch (WSDLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             }
+            serverBinding = createServerBinding(bindingId);
+            configureHandlers();            
+            injectResources();
+        } catch (Exception ex) {
+            throw new WebServiceException("Creation of Endpoint failed", ex);
         }
-        serverBinding = createServerBinding(bindingId);
-        configureHandlers(); 
-        injectResources();
     }
 
     /*
@@ -196,6 +195,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     public EndpointReferenceType getEndpointReferenceType() {
         return reference;
     }
+    
     ServerBinding createServerBinding(String bindingId) throws BusException, WSDLException, IOException {
 
         BindingFactory factory = bus.getBindingManager().getBindingFactory(bindingId);
@@ -223,8 +223,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             published = true;
         } catch (WSDLException ex) {
             LOG.log(Level.SEVERE, "SERVER_BINDING_ACTIVATION_FAILURE_MSG", ex);
+            throw new WebServiceException(ex);
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, "SERVER_BINDING_ACTIVATION_FAILURE_MSG", ex);
+            throw new WebServiceException(ex);
         }
     }
 

@@ -13,6 +13,7 @@ import javax.jws.Oneway;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.ProtocolException;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
@@ -94,7 +95,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         throws RemoteException;
 
     protected void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
-        LOG.info("Dispatched to binding on thread : " + Thread.currentThread());         
+        LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
         MessageContext requestCtx = createBindingMessageContext(inCtx);
         //Input Message
         requestCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
@@ -106,7 +107,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             throw new WebServiceException(ex);
         }
 
-        ObjectMessageContext objContext = createObjectContext(); 
+        ObjectMessageContext objContext = createObjectContext();
         Method method = getMethod(requestCtx, objContext);
         assert method != null;
         objContext.setMethod(method);
@@ -151,18 +152,6 @@ public abstract class AbstractServerBinding implements ServerBinding {
         
         LOG.info("Dispatch complete on thread : " + Thread.currentThread());
     }
-
-    private QName getOperationName(MessageContext requestCtx, ObjectMessageContext objContext) {
-
-        QName operationName = getOperationName(requestCtx);
-        if (null != operationName) {
-            objContext.put(MessageContext.WSDL_OPERATION, operationName);
-        } else {
-            LOG.severe("CONTEXT_MISSING_OPERATION_NAME_MSG");
-        }
-        return operationName;
-    }
-
 
     /** invoke the target method.  Ensure that any replies or
      * exceptions are put into the correct context for the return path
@@ -231,19 +220,29 @@ public abstract class AbstractServerBinding implements ServerBinding {
             boolean continueProcessing = invoker.invokeProtocolHandlers(false, requestCtx);
 
             if (continueProcessing) {
-                unmarshal(requestCtx, objContext);
-                
-                Method method = objContext.getMethod();
-                doInvocation(method, objContext, replyCtx, invoker); 
-
-                if (!isOneWay(method)) {
-                    switchToResponse(objContext, replyCtx); 
-                    if (null == objContext.getException()) {
-                        marshal(objContext, replyCtx);
+                try {
+                    unmarshal(requestCtx, objContext);
+                    
+                    Method method = objContext.getMethod();
+                    doInvocation(method, objContext, replyCtx, invoker); 
+    
+                    if (!isOneWay(method)) {
+                        switchToResponse(objContext, replyCtx); 
+                        if (null == objContext.getException()) {
+                            marshal(objContext, replyCtx);
+                        } 
+                    }
+                } catch (ProtocolException pe) {
+                    
+                    if (pe.getCause() != null) {
+                        objContext.setException(pe.getCause());
                     } else {
+                        objContext.setException(pe);
+                    }
+                } finally {
+                    if (objContext.getException() != null) {
                         marshalFault(objContext, replyCtx);
                     }
-
                 }
             }
             invoker.invokeProtocolHandlers(false, replyCtx); 
@@ -260,18 +259,18 @@ public abstract class AbstractServerBinding implements ServerBinding {
     }
     
     private Method getMethod(MessageContext requestCtx, ObjectMessageContext objContext) {
-        QName operationName;
-
-        if (objContext != null) {
-            operationName = getOperationName(requestCtx, objContext);
-        } else {
-            operationName = getOperationName(requestCtx); 
-        }
+        
+        QName operationName = getOperationName(requestCtx); 
 
         if (null == operationName) {
             LOG.severe("CONTEXT_MISSING_OPERATION_NAME_MSG");
             throw new WebServiceException("Request Context does not include operation name");
         }
+        
+        if (objContext != null) {
+            objContext.put(MessageContext.WSDL_OPERATION, operationName);
+        }
+        
         Method method = EndpointUtils.getMethod(endpoint, operationName);
         if (method == null) {
             LOG.log(Level.SEVERE, "IMPLEMENTOR_MISSING_METHOD_MSG", operationName);

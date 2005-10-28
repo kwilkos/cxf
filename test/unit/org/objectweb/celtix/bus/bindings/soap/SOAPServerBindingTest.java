@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.List;
@@ -79,7 +80,7 @@ public class SOAPServerBindingTest extends TestCase {
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, null);
         assertNotNull(serverBinding.getTransport(epr));
     }
-    
+
     public void testDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint);        
@@ -133,12 +134,10 @@ public class SOAPServerBindingTest extends TestCase {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint);        
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
-
-        QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "testDocLitFault");
-       
-        byte[] bArray = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, null, null).getBytes();
+        InputStream is =  getClass().getResourceAsStream("resources/TestDocLitFaultReq.xml");
         
-        TestInputStreamContext inCtx = new TestInputStreamContext(bArray);
+        TestInputStreamContext inCtx = new TestInputStreamContext(null);
+        inCtx.setInputStream(is);
         serverBinding.testDispatch(inCtx, serverTransport);
 
         assertNotNull(serverTransport.getOutputStreamContext());
