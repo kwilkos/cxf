@@ -13,7 +13,7 @@ import org.objectweb.hello_world_soap_http.SOAPService;
 
 public class ConcurrentInvokerTest extends ClientServerTestBase {
 
-    static final int INVOKER_COUNT = 10;
+    static final int INVOKER_COUNT = 5;
     static final int INVOCATION_REPS = 50;
     static final int EXPECTED_CALLS = INVOKER_COUNT * INVOCATION_REPS;
 
