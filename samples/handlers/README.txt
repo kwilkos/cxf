@@ -13,5 +13,4 @@ The ant build script can be used to build and run the demo.  The
 server and client targets automatically build the demo.
 
 * ant server 
-* ant client 
-
+* ant client
