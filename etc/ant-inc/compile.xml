@@ -104,6 +104,11 @@
                 <path refid="unit.test.compile.classpath"/>
             </classpath>
         </javac>
+	<copy todir="${basedir}/build/classes-tests/unit">
+	  <fileset dir="${basedir}/test/unit" includes="**/*.properties"/>
+	  <fileset dir="${basedir}/test/unit" includes="**/*.xsd"/>
+	  <fileset dir="${basedir}/test/unit" includes="**/*.xml"/>
+	</copy>
         <antcall target="unittest.checkstyle"/>
     </target>
 
@@ -122,6 +127,11 @@
             <src path="${basedir}/test/system"/>
             <src path="${basedir}/build/test-src/org/objectweb/celtix/systest/type_test"/>
         </javac>
+	<copy todir="${basedir}/build/classes-tests/system">
+	  <fileset dir="${basedir}/test/system" includes="**/*.properties"/>
+	  <fileset dir="${basedir}/test/system" includes="**/*.xsd"/>
+	  <fileset dir="${basedir}/test/system" includes="**/*.xml"/>
+	</copy>
         <antcall target="systemtest.checkstyle"/>
     </target>
 </project>

@@ -1,12 +1,12 @@
 package org.objectweb.celtix.bus.jaxws;
 
 
-
-
+import java.util.List;
 import java.util.Properties;
 
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.Handler;
 import javax.xml.ws.spi.Provider;
 
 import junit.framework.TestCase;
@@ -81,4 +81,10 @@ public class EndpointImplTest extends TestCase {
         WebServiceContext ctx = servant.getContext();
         assertNotNull(ctx);
     }
+
+    public void testHandlerAnnotation() { 
+
+        List<Handler> handlers = endpoint.getBinding().getHandlerChain();
+        assertNotNull(handlers);
+    } 
 }

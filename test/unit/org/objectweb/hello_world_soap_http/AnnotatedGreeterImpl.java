@@ -14,7 +14,7 @@ import javax.xml.ws.WebServiceContext;
 
 @javax.jws.WebService(name = "Greeter", serviceName = "SOAPService", 
                       targetNamespace = "http://objectweb.org/hello_world_soap_http")
-@HandlerChain(name = "testhandlers", file = "handlers.xml")
+@HandlerChain(name = "TestHandlerChain", file = "handlers.xml")
 public class AnnotatedGreeterImpl {
 
     private static final Logger LOG = 
@@ -108,10 +108,13 @@ public class AnnotatedGreeterImpl {
         return context;
     }
 
-    public int getFoo() {
-        // just to keep the warning out of eclipse
+    /**
+     * stop eclipse from whinging 
+     */
+    public int getFoo() {         
         return foo;
     }
+    
     private void incrementInvocationCount(String method) {
         LOG.info("Executing " + method);
         int n = invocationCount.get(method);

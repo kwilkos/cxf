@@ -28,6 +28,10 @@ import org.w3c.dom.Node;
 public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerBase 
     implements SOAPHandler<T> {
 
+    public TestSOAPHandler() {
+        this(true); 
+    } 
+
     public TestSOAPHandler(boolean serverSide) {
         super(serverSide);
     }
@@ -169,5 +173,10 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
         }
             
         return ret;
+    } 
+
+
+    public String toString() { 
+        return getHandlerId();
     } 
 }

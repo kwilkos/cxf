@@ -1,11 +1,10 @@
 package org.objectweb.celtix.systest.handlers;
 
 
-
-
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
+import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
@@ -15,6 +14,7 @@ import org.objectweb.handler_test.types.PingFaultDetails;
 
 @WebService(serviceName = "HandlerTestService", portName = "SoapPort", name = "HandlerTest", 
             targetNamespace = "http://objectweb.org/handler_test")
+@HandlerChain(file = "./handlers.xml", name = "TestHandlerChain")
 public class HandlerTestImpl implements HandlerTest {
 
     private WebServiceContext context; 

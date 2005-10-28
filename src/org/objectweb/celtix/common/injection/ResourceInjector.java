@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -86,18 +85,12 @@ public class ResourceInjector implements AnnotationVisitor {
 
         assert annotation != null && annotation instanceof Resource : annotation;
         
+        
         Resource res = (Resource)annotation;
 
         String name = getFieldNameForResource(res, field);
         Class<?> type = getFieldTypeForResource(res, field); 
         
-        // TODO -- need to add some magic to set private fields
-        // here 
-        if ((field.getModifiers() & (Modifier.PRIVATE ^ Modifier.PROTECTED)) > 0) {
-            LOG.log(Level.SEVERE, "PRIVATE_FIELD_INJECTION_NYI", field);
-            return;
-        } 
-
         Object resource = resolver.resolve(name, type);
         if (resource != null) {
             injectField(field, resource);
@@ -203,12 +196,21 @@ public class ResourceInjector implements AnnotationVisitor {
 
 
     private void injectField(Field field, Object resource) { 
+        assert field != null; 
+        assert resource != null; 
+
+        boolean accessible = field.isAccessible(); 
         try {
-            field.set(getTarget(), resource);
+            if (field.getType().isAssignableFrom(resource.getClass())) { 
+                field.setAccessible(true); 
+                field.set(getTarget(), resource);
+            }
         } catch (IllegalAccessException e) { 
             e.printStackTrace();
             LOG.severe("FAILED_TO_INJECT_FIELD"); 
-        } 
+        } finally {
+            field.setAccessible(accessible); 
+        }
     } 
 
 

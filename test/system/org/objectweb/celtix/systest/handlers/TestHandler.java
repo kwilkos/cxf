@@ -18,13 +18,13 @@ import org.objectweb.handler_test.types.PingWithArgs;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
 
 
-class TestHandler<T extends LogicalMessageContext> extends TestHandlerBase implements LogicalHandler<T> {
+public class TestHandler<T extends LogicalMessageContext> 
+    extends TestHandlerBase implements LogicalHandler<T> {
 
     private final JAXBContext jaxbCtx;
 
     public TestHandler() {
-        this(false);
-        
+        this(true);
     } 
 
     public TestHandler(boolean serverSide) {

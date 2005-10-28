@@ -76,9 +76,9 @@ interface Target {
 
 class FieldTarget implements Target {
 
-    @Resource public String resource1; 
+    @Resource private String resource1; 
 
-    @Resource(name = "resource2") public String resource2foo;
+    @Resource(name = "resource2") private String resource2foo;
 
     public String getResource1() { 
         return resource1; 
