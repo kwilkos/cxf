@@ -80,9 +80,13 @@
                 <exclude name="NOTICE"/>
                 <exclude name="**/tomcat/**/work/**/*"/>
                 <exclude name="bin/*"/>
+                <exclude name="tools/**/bin/*"/>
             </tarfileset>
             <tarfileset prefix="celtix" dir="${build.release.dir}" mode="755">
                 <include name="bin/*"/>
+            </tarfileset>
+            <tarfileset prefix="celtix" dir="${basedir}" mode="755">
+                <include name="tools/**/bin/*"/>
             </tarfileset>
         </tar>
     </target>
