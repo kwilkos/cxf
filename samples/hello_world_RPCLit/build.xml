@@ -7,6 +7,9 @@
     <property name="wsdl.file" value="hello_world_RPCLit.wsdl"/>
 
     <target name="client" description="run demo client">
+        <property name="param1" value=""/>
+        <property name="param2" value=""/>
+        <property name="param3" value=""/>
         <celtixrun classname="demo.hwRPCLit.client.Client" param1="${basedir}/wsdl/hello_world_RPCLit.wsdl" param2="${op}" param3="${param1}" param4="${param2}" param5="${param3}"/>
     </target>
     

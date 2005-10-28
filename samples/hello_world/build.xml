@@ -7,6 +7,7 @@
     <property name="wsdl.file" value="hello_world.wsdl"/>
 
     <target name="client" description="run demo client">
+        <property name="param" value=""/>
         <celtixrun classname="demo.hw.client.Client" param1="${basedir}/wsdl/hello_world.wsdl" param2="${op}" param3="${param}"/>
     </target> 
 

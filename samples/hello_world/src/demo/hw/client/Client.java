@@ -43,7 +43,7 @@ public class Client {
         }
         
         System.out.println("Invoking operation: " + operationName);
-        System.out.println("Parameters: " + params); 
+        System.out.println("Parameters: " + (params == null ? "" : params)); 
         
         Bus bus = Bus.init();
                
@@ -53,20 +53,20 @@ public class Client {
         
         if ("sayHi".equals(operationName)) {
             System.out.println("Invoking sayHi...");
-            System.out.println("server responded with: " + port.sayHi());
+            System.out.println("Server responded with: " + port.sayHi());
         } else if ("greetMe".equals(operationName) && params != null) {
             System.out.println("Invoking greetMe...");
-            System.out.println("server responded with: " + port.greetMe(params));
+            System.out.println("Server responded with: " + port.greetMe(params));
         } else if ("greetMeOneWay".equals(operationName) && params != null) {
             System.out.println("Invoking greetMeOneWay...");
             port.greetMeOneWay(params);
-            System.out.println("no response from server as method is OneWay");
+            System.out.println("No response from server as method is OneWay");
         } else if ("pingMe".equals(operationName)) {
             try {
                 System.out.println("Invoking pingMe...");
                 port.pingMe();
             } catch(PingMeFault ex) {
-                System.out.println("Expected exception: PingMeFault has Occurred.");
+                System.out.println("Expected exception: PingMeFault has occurred.");
                 System.out.println(ex.toString());
             }          
         } else {
