@@ -15,6 +15,11 @@ public final class Application {
         pluginManager = new ApplicationPluginManager();
     }
     
+    /** 
+     * Returns the <code>Application</code> singleton.
+     * 
+     * @return Application the application singleton.
+     */
     public static Application getInstance() {
         synchronized (Application.class) {
             if (null == theInstance) {
@@ -24,10 +29,20 @@ public final class Application {
         return theInstance;
     }
     
+    /** 
+     * Returns the <code>Configuration</code> of the <code>Application</code>.
+     * 
+     * @return Configuration the configuration of the application.
+     */
     public Configuration getConfiguration() {
         return configuration;
     }
     
+    /** 
+     * Returns the <code>PluginManager</code> of the <code>Application</code>.
+     * 
+     * @return PluginManager the plugin manager of the application.
+     */
     public PluginManager getPluginManager() {
         return pluginManager;
     }

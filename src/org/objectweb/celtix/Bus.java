@@ -13,6 +13,10 @@ import org.objectweb.celtix.transports.TransportFactoryManager;
 import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
+/**
+ * The Bus class provides access to configuration, factories and managers
+ * for use by an application.
+ */
 public abstract class Bus {
     
     public static final String BUS_CLASS_PROPERTY = "org.objectweb.celtix.BusClass";
@@ -106,15 +110,70 @@ public abstract class Bus {
         current.set(bus);
     }
     
-
+    /**
+     * Shuts down the <code>Bus</code>.
+     * 
+     * @param wait If <code>true</code>, waits for the <code>Bus</code>
+     * to shutdown before returning, otherwise returns immediately.
+     * @throws BusException
+     */
     public abstract void shutdown(boolean wait) throws BusException;
+
+    /** 
+     * Returns the <code>Configuration</code> of this <code>Bus</code>.
+     * 
+     * @return Configuration the configuration of this <code>bus</code>.
+     */
     public abstract Configuration getConfiguration();
+
+    /** 
+     * Returns the <code>HandlerFactoryManager</code> of this <code>Bus</code>.
+     * 
+     * @return HandlerFactoryManager the handler factory manager of this
+     * <code>Bus</code>.
+     */
     public abstract HandlerFactoryManager getHandlerFactoryManager();
+
+    /** 
+     * Returns the <code>TransportFactoryManager</code> of this <code>Bus</code>.
+     * 
+     * @return TransportRegistry the servant registry of this <code>Bus</code>.
+     */
     public abstract TransportFactoryManager getTransportFactoryManager();
+
+    /** 
+     * Returns the <code>BindingManager</code> of this <code>Bus</code>.
+     * 
+     * @return BindingManager the binding manager of this <code>Bus</code>.
+     */
     public abstract BindingManager getBindingManager();
+
+    /** 
+     * Returns the <code>ClientRegistry</code> of this <code>Bus</code>.
+     * 
+     * @return WSDLManager the wsdl manager of this <code>Bus</code>.
+     */
     public abstract WSDLManager getWSDLManager();
+
+    /** 
+     * Returns the <code>PluginManager</code> of this <code>Bus</code>.
+     * 
+     * @return PluginManager the plugin manager of this <code>Bus</code>.
+     */
     public abstract PluginManager getPluginManager();
+
+    /** 
+     * Returns the <code>BusLifeCycleManager</code> of this <code>Bus</code>.
+     * 
+     * @return BusLifeCycleManager of this <code>Bus</code>.
+     */
     public abstract BusLifeCycleManager getLifeCycleManager();
+
+    /** 
+     * Returns the <code>WorkQueueManager</code> of this <code>Bus</code>.
+     * 
+     * @return WorkQueueManager of this <code>Bus</code>.
+     */
     public abstract WorkQueueManager getWorkQueueManager();
     
     /**
@@ -123,9 +182,8 @@ public abstract class Bus {
      *
      */
     public abstract void run();
-    
+
     public abstract void initialize(String[] args,
             Map<String, Object> properties) throws BusException;
-
 
 }

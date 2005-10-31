@@ -95,9 +95,8 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
         public void setUp() throws Exception {
             // setup for entire suite
 
-            // XXX - Disable assertions to avoid bogus
-            // RuntimeModeler.getPortTypeName() assertion
-            // when publishing endpoint.
+            // XXX - Disable assertions here - theres a bogus assertion when
+            // publishing an endpoint in RuntimeModeler.getPortTypeName()
             ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(false);
 
             boolean noServerStart = Boolean.getBoolean("NO_SERVER_START");
@@ -130,6 +129,9 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
 
             SOAPService service = new SOAPService(wsdlLocation, serviceName);
             client = (TypeTestPortType) service.getPort(portName, TypeTestPortType.class);
+
+            // XXX - Re-enable assertions
+            ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
         }
 
         public void tearDown() throws Exception {

@@ -202,9 +202,11 @@
 
   <!-- 1.2 - group of test operations -->
   <xsl:template match="itst:it_test_group" mode="test_operations_group">
-    <!--xsl:apply-templates select="xsd:simpleType" mode="test_operation"/>
+    <!--
+    <xsl:apply-templates select="xsd:simpleType" mode="test_operation"/>
     <xsl:apply-templates select="xsd:complexType" mode="test_operation"/>
-    <xsl:apply-templates select="xsd:element" mode="test_operation"/-->
+    <xsl:apply-templates select="xsd:element" mode="test_operation"/>
+    -->
     <xsl:apply-templates select="itst:builtIn" mode="test_operation"/>
   </xsl:template>
   
@@ -219,7 +221,7 @@
                                    substring(@name, 2)))"/>
     </xsl:variable>
     <xsl:variable name="operation_input_name">
-      <xsl:value-of select="$operation_name"/>
+      <xsl:value-of select="concat($operation_name, 'Request')"/>
     </xsl:variable>
     <xsl:variable name="operation_output_name">
       <xsl:value-of select="concat($operation_name, 'Response')"/>
