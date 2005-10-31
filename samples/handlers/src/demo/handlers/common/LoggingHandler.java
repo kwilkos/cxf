@@ -28,7 +28,7 @@ public class LoggingHandler implements SOAPHandler<SOAPMessageContext> {
     private Map config;
 
     public void init(Map config) {
-        System.out.println("init() Called....");
+        System.out.println("LoggingHandler : init() Called....");
         this.config = config;
     }
 
@@ -37,22 +37,25 @@ public class LoggingHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     public boolean handleMessage(SOAPMessageContext smc) {
-        System.out.println("handleMessage Called....");
+        System.out.println("LoggingHandler : handleMessage Called....");
         logToSystemOut(smc);
         return true;
     }
 
     public boolean handleFault(SOAPMessageContext smc) {
+        System.out.println("LoggingHandler : handleFault Called....");
         logToSystemOut(smc);
         return true;
     }
 
     // nothing to clean up
     public void close(MessageContext messageContext) {
+        System.out.println("LoggingHandler : close() Called....");
     }
 
     // nothing to clean up
     public void destroy() {
+        System.out.println("LoggingHandler : destroy() Called....");
     }
 
     /*

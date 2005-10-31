@@ -33,7 +33,6 @@ public class Client {
         bus = Bus.init();
 
         AddNumbersService service = new AddNumbersService(wsdl.toURL(), serviceName);
-        //AddNumbers port = service.getAddNumbersPort();
         AddNumbers port = (AddNumbers) service.getPort(portName, AddNumbers.class);
 
         try {
@@ -50,7 +49,7 @@ public class Client {
             System.out.printf("The result of adding %d and %d is %d.\n", number1, number2, result);
 
         } catch (AddNumbersFault ex) {
-            System.out.printf("Caught AddNumbersFault: %s\n", ex.getFaultInfo().getFaultInfo());
+            System.out.printf("Caught AddNumbersFault: %s\n", ex.getFaultInfo().getMessage());
         }
 
         if (bus != null) {

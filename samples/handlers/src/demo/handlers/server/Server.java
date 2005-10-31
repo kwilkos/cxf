@@ -28,10 +28,6 @@ public class Server implements Runnable {
         String address = "http://localhost:9000/handlers/AddNumbersService/AddNumbersPort";
         Endpoint ep = Endpoint.publish(address, implementor);
 
-        System.out.println("Registering Logging Handler...");
-        List<Handler> hc = new ArrayList<Handler>();
-        hc.add(new LoggingHandler());
-        ep.getBinding().setHandlerChain(hc);
     }
 
     public static void main(String args[]) throws Exception {
