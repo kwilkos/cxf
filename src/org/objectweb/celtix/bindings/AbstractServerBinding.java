@@ -175,7 +175,6 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
             if (!isOneWay(method)) {
                 switchToResponse(objContext, replyCtx); 
-                replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
                 invoker.setOutbound(); 
                 invoker.invokeLogicalHandlers(false);
             }
@@ -192,7 +191,9 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 objContext.setException(ex);
             }            
             exceptionCaught = true;
-        }
+        } finally { 
+            invoker.setOutbound(); 
+        } 
         
         return exceptionCaught || invoker.faultRaised();
     } 
