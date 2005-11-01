@@ -1,16 +1,11 @@
 package demo.hw.client;
 
-import javax.xml.namespace.QName;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.io.File;
-import javax.xml.ws.WebServiceException;
+import javax.xml.namespace.QName;
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.BusException;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.PingMeFault;
 import org.objectweb.hello_world_soap_http.SOAPService;
-import java.rmi.RemoteException;
 
 public class Client {
     
@@ -18,8 +13,7 @@ public class Client {
     }
     
     public static void main(String args[]) throws Exception {
-
-
+        
         if (args.length == 0) {
             System.out.println("Arguments Required");
             System.out.println("wsdl, sayHi");
@@ -27,9 +21,9 @@ public class Client {
             System.out.println("wsdl, greetMeOneWay, string");
             System.out.println("wsdl, pingMe");
             System.exit(0);
-            }
+        }
 
-       File wsdl = new File(args[0]);
+        File wsdl = new File(args[0]);
 
         String operationName = "sayHi";
         if (args.length > 1) {
@@ -65,7 +59,7 @@ public class Client {
             try {
                 System.out.println("Invoking pingMe...");
                 port.pingMe();
-            } catch(PingMeFault ex) {
+            } catch (PingMeFault ex) {
                 System.out.println("Expected exception: PingMeFault has occurred.");
                 System.out.println(ex.toString());
             }          

@@ -27,9 +27,9 @@ public class LoggingHandler implements SOAPHandler<SOAPMessageContext> {
     // used to hold initilization data
     private Map config;
 
-    public void init(Map config) {
+    public void init(Map c) {
         System.out.println("LoggingHandler : init() Called....");
-        this.config = config;
+        this.config = c;
     }
 
     public Set<QName> getHeaders() {
@@ -78,7 +78,7 @@ public class LoggingHandler implements SOAPHandler<SOAPMessageContext> {
         SOAPMessage message = smc.getMessage();
         try {
             message.writeTo(out);
-            out.println("");   // just to add a newline
+            out.println();
         } catch (Exception e) {
             out.println("Exception in handler: " + e);
         }

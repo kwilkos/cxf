@@ -1,15 +1,10 @@
 package demo.handlers.server;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.handler.Handler;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-
-import demo.handlers.common.LoggingHandler;
 
 public class Server implements Runnable {
 

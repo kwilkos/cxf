@@ -102,6 +102,15 @@
 	</copy>
     </target>
 
+    <target name="checkstyle">
+        <checkstyle config="${checkstyle.config.file}">
+            <fileset dir="src" includes="**/*.java"/>
+            <classpath>
+                <path refid="celtix.build.classpath"/>
+            </classpath>
+        </checkstyle>
+    </target>
+
     <target name="generate.code" depends="init">
         <uptodate property="codegen.notrequired" value="true">
             <srcfiles dir="${wsdl.dir}" includes="*"/>

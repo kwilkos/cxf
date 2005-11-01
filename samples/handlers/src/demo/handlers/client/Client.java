@@ -1,18 +1,14 @@
 package demo.handlers.client;
 
-
-import demo.handlers.common.SmallNumberHandler;
 import java.io.File;
-import java.net.MalformedURLException;
-import java.rmi.RemoteException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.WebServiceException;
+import demo.handlers.common.SmallNumberHandler;
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.BusException;
 import org.objectweb.handlers.AddNumbers;
 import org.objectweb.handlers.AddNumbersFault;
 import org.objectweb.handlers.AddNumbersService;
+
 
 public class Client {
 
@@ -22,6 +18,9 @@ public class Client {
     static QName portName = new QName("http://www.objectweb.org/handlers",
                                         "AddNumbersPort");
     static Bus bus;
+    
+    protected Client() {        
+    }
 
     public static void main(String[] args) throws Exception {
 

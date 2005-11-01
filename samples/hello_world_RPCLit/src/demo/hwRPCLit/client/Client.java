@@ -1,7 +1,7 @@
 package demo.hwRPCLit.client;
 
-import javax.xml.namespace.QName;
 import java.io.File;
+import javax.xml.namespace.QName;
 import org.objectweb.celtix.Bus;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.SOAPServiceRPCLit;
@@ -13,6 +13,9 @@ public class Client {
 
     static QName portName = new QName("http://objectweb.org/hello_world_rpclit", "SoapPortRPCLit");
 
+    protected Client() {        
+    }
+    
     public static void printUsage() {
         System.out.println("Arguments Required");
         System.out.println("wsdl, sayHi");

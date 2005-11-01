@@ -14,6 +14,12 @@
                  <include name="set_env*"/>
             </fileset>
         </delete>
+        <delete quiet="true" includeemptydirs="true">
+            <fileset dir="samples">
+                 <include name="**/build/**/*"/>
+                 <include name="**/build"/>
+            </fileset>
+        </delete>
         <delete quiet="true" dir="build/coverage"/>
         <delete quiet="true" dir="build/classes-instrumented"/>
         <delete quiet="true" dir="build/testresults"/>

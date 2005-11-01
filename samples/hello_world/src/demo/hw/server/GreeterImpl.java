@@ -1,6 +1,5 @@
 package demo.hw.server;
 
-import java.rmi.RemoteException;
 import java.util.logging.Logger;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.PingMeFault;
@@ -25,7 +24,7 @@ public class GreeterImpl implements Greeter {
         return "Hello " + me;
     }
     
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.objectweb.hello_world_soap_http.Greeter#greetMeOneWay(java.lang.String)
      */
     public void greetMeOneWay(String me) {

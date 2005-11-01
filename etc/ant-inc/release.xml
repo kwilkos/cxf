@@ -3,7 +3,7 @@
     <import file="compile.xml"/>
     <import file="javadoc.xml"/>
 
-    <target name="release" depends="celtix.jar,publicapi.javadoc"
+    <target name="release" depends="celtix.jar,publicapi.javadoc,check.samples"
         description="Build a release kit">
 
         <mkdir dir="${build.release.dir}"/>
@@ -76,6 +76,7 @@
                 <include name="**/*"/>
                 <exclude name="build"/>
                 <exclude name="build/**/*"/>
+                <exclude name="samples/**/build/**/*"/>
                 <exclude name="**/.*"/>
                 <exclude name="NOTICE"/>
                 <exclude name="**/tomcat/**/work/**/*"/>
@@ -101,4 +102,21 @@
             </manifest>
         </jar>
     </target>
+
+    <target name="check.samples">
+        <check.sample sample.dir="samples/handlers"/>
+        <check.sample sample.dir="samples/hello_world"/>
+        <check.sample sample.dir="samples/hello_world_RPCLit"/>
+    </target>
+
+    <macrodef name="check.sample">
+        <attribute name="sample.dir"/>
+        <sequential>
+            <ant dir="@{sample.dir}" target="compile" inheritAll="false"/>
+            <ant dir="@{sample.dir}" target="checkstyle" inheritAll="false">
+                <property name="checkstyle.config.file" location="${basedir}/etc/checkstyle.xml"/>
+            </ant>
+        </sequential>
+    </macrodef>
+
 </project>
