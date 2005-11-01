@@ -57,7 +57,6 @@ public class HandlerChainBuilderTest extends TestCase {
 
         assertNotNull(dh.getConfig()); 
         Map cfg = dh.getConfig(); 
-        System.out.println(":: cfg: " + cfg.keySet());
         
         assertEquals(2, cfg.keySet().size());
         Iterator iter = cfg.keySet().iterator();
