@@ -35,5 +35,11 @@
     <target name="very.clean" description="Clean the build artifacts, generated artifacts and directories">
         <delete quiet="true" dir="build"/>
         <delete quiet="true" dir="${tools.dir}/tomcat/5.5.9/server/work"/>
+        <delete quiet="true" includeemptydirs="true">
+            <fileset dir="samples">
+                 <include name="**/build/**/*"/>
+                 <include name="**/build"/>
+            </fileset>
+        </delete>
     </target>
 </project>
