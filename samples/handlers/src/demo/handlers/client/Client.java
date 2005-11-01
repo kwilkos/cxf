@@ -1,13 +1,15 @@
 package demo.handlers.client;
 
-import javax.xml.namespace.QName;
-import java.net.MalformedURLException;
+
+import demo.handlers.common.SmallNumberHandler;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.rmi.RemoteException;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import java.rmi.RemoteException;
-
 import org.objectweb.handlers.AddNumbers;
 import org.objectweb.handlers.AddNumbersFault;
 import org.objectweb.handlers.AddNumbersService;
@@ -34,7 +36,8 @@ public class Client {
 
         AddNumbersService service = new AddNumbersService(wsdl.toURL(), serviceName);
         AddNumbers port = (AddNumbers) service.getPort(portName, AddNumbers.class);
-
+        ((BindingProvider)port).getBinding().getHandlerChain().add(new SmallNumberHandler()); 
+        
         try {
             int number1 = 10;
             int number2 = 20;
@@ -43,6 +46,13 @@ public class Client {
             int result = port.addNumbers(number1, number2);
             System.out.printf("The result of adding %d and %d is %d.\n\n", number1, number2, result);
 
+            number1 = 3; 
+            number2 = 5; 
+
+            System.out.printf("Invoking addNumbers(%d, %d)\n", number1, number2);
+            result = port.addNumbers(number1, number2);
+            System.out.printf("The result of adding %d and %d is %d.\n\n", number1, number2, result);
+            
             number1 = -10;
             System.out.printf("Invoking addNumbers(%d, %d)\n", number1, number2);
             result = port.addNumbers(number1, number2);
