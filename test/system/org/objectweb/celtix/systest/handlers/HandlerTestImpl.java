@@ -23,7 +23,6 @@ public class HandlerTestImpl implements HandlerTest {
 
         try {
             List<String> handlerInfoList = getHandlersInfo(context.getMessageContext());
-            clearHandlersInfo();
             handlerInfoList.add("servant");
             context.getMessageContext().remove("handler.info");
             System.out.println(">> servant returning list: " + handlerInfoList);
@@ -44,7 +43,6 @@ public class HandlerTestImpl implements HandlerTest {
         List<String> ret = new ArrayList<String>(); 
         ret.add(handlerCommand); 
         ret.addAll(getHandlersInfo(context.getMessageContext()));
-        clearHandlersInfo();
 
         if (handlerCommand.contains("throw exception")) {
             PingFaultDetails details = new PingFaultDetails(); 
@@ -62,16 +60,11 @@ public class HandlerTestImpl implements HandlerTest {
 
     @SuppressWarnings("unchecked")
     private List<String> getHandlersInfo(MessageContext ctx) { 
-//         List<String> ret = (List<String>)ctx.get("handler.info"); 
-//         if (ret == null) {
-//             ret = new ArrayList<String>(); 
-//         }
-//        return ret;
-        return TestHandler.getHandlerInfo();
+        List<String> ret = (List<String>)ctx.get("handler.info"); 
+        if (ret == null) {
+            ret = new ArrayList<String>(); 
+        }
+        return ret;
     } 
-
-    private void clearHandlersInfo() {
-        TestHandler.clearHandlersInfo();
-    }
 
 }

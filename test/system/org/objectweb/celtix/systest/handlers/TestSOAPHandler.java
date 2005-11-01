@@ -150,7 +150,7 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                         body.removeChild(body.getFirstChild());
                         body.appendChild(wrapper); 
 
-                        for (String info : getHandlerInfo()) {
+                        for (String info : getHandlerInfoList(ctx)) {
                             // copy the the previously invoked handler list into the response.  
                             // Ignore this handlers information as it will be added again later.
                             //

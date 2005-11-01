@@ -18,9 +18,6 @@ import javax.xml.ws.handler.MessageContext;
  */
 public abstract class TestHandlerBase {
     
-    // REVISIT: until context is sorted out, add handler request chain here
-    private static List<String> handlerInfo = new ArrayList<String>();
-
     private static int sid; 
 
     protected boolean handleMessageRet = true; 
@@ -86,19 +83,6 @@ public abstract class TestHandlerBase {
         return isServerSideHandler; 
     } 
 
-    public static List<String> getHandlerInfo() { 
-        return handlerInfo; 
-    } 
-
-    public static void clearHandlersInfo() { 
-        clear();
-    }
-
-    public static void clear() { 
-        handlerInfo = new ArrayList<String>();
-    } 
-
-
     protected void printHandlerInfo(String methodName, boolean outbound) { 
         String info = getHandlerId() + " "
             + (outbound ? "outbound" : "inbound") + " "
@@ -109,16 +93,15 @@ public abstract class TestHandlerBase {
 
     @SuppressWarnings("unchecked")
     protected List<String> getHandlerInfoList(MessageContext ctx) { 
-//         List<String> handlerInfoList = null; 
-//         if (ctx.containsKey("handler.info")) { 
-//             handlerInfoList = (List<String>)ctx.get("handler.info"); 
-//         } else {
-//             handlerInfoList = new ArrayList<String>();
-//             ctx.put("handler.info", handlerInfoList);
-//             ctx.setScope("handler.info", MessageContext.Scope.APPLICATION);
-//         }
-//         return handlerInfoList;
-        return handlerInfo;
+        List<String> handlerInfoList = null; 
+        if (ctx.containsKey("handler.info")) { 
+            handlerInfoList = (List<String>)ctx.get("handler.info"); 
+        } else {
+            handlerInfoList = new ArrayList<String>();
+            ctx.put("handler.info", handlerInfoList);
+            ctx.setScope("handler.info", MessageContext.Scope.APPLICATION);
+        }
+        return handlerInfoList;
     }
     
 }

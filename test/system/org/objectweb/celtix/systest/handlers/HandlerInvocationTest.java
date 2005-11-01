@@ -42,7 +42,6 @@ public class HandlerInvocationTest extends ClientServerTestBase {
             wsdl = HandlerInvocationTest.class.getResource("/handler_test.wsdl");
             service = new HandlerTestService(wsdl, serviceName);
             handlerTest = (HandlerTest) service.getPort(portName, HandlerTest.class);
-            TestHandlerBase.clear(); 
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.toString());

@@ -121,7 +121,8 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     write(bindingContext, ostreamContext);
                     
                     InputStreamMessageContext ins = transport.invoke(ostreamContext);
-                    bindingContext = createBindingMessageContext(ins);
+                    context.putAll(ins); 
+                    bindingContext = createBindingMessageContext(context);
                     if (null == bindingContext) {
                         bindingContext = ins;
                     }

@@ -92,7 +92,6 @@ public class TestHandler<T extends LogicalMessageContext>
                         PingResponse resp = new PingResponse();
                         getHandlerInfoList(ctx).add(getHandlerId()); 
                         resp.getHandlersInfo().addAll(getHandlerInfoList(ctx));
-                        clear();
                         msg.setPayload(resp, jaxbCtx);
                         ret = false;
                     } else if ("throw".equals(command)) {

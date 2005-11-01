@@ -96,7 +96,14 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
     protected void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
         LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
-        MessageContext requestCtx = createBindingMessageContext(inCtx);
+        ObjectMessageContext objContext = createObjectContext();
+
+        if (inCtx != null) { 
+            // this may be null during unit tests
+            objContext.putAll(inCtx);
+        }
+
+        MessageContext requestCtx = createBindingMessageContext(objContext);
         //Input Message
         requestCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
         
@@ -107,7 +114,6 @@ public abstract class AbstractServerBinding implements ServerBinding {
             throw new WebServiceException(ex);
         }
 
-        ObjectMessageContext objContext = createObjectContext();
         Method method = getMethod(requestCtx, objContext);
         assert method != null;
         objContext.setMethod(method);
@@ -214,7 +220,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         HandlerChainInvoker invoker = new HandlerChainInvoker(getBinding().getHandlerChain(), 
                                                               objContext, false); 
 
-        MessageContext replyCtx = createBindingMessageContext(requestCtx);
+        MessageContext replyCtx = createBindingMessageContext(objContext);
         assert replyCtx != null;
 
         try {
