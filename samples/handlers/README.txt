@@ -6,6 +6,10 @@ outgoing messages to the console.
 On the server side the handlers registered using the @HandlerChain
 annotation on the service implementation class.
 
+The client contains a logical handler that checks the parameters on
+outbound requests and prevents the further processing of the request
+in certain circumstances.
+
 Running the demo
 ---------------
 
