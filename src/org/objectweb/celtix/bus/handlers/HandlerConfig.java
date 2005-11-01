@@ -1,14 +1,14 @@
 package org.objectweb.celtix.bus.handlers;
 
-import java.util.ArrayList;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HandlerConfig {
 
     private String className;
     private String name;
-    private List<Param> initParams = new ArrayList<Param>(); 
+    private Map<String, String> initParams = new HashMap<String, String>();
 
     public HandlerConfig() {
     }
@@ -31,13 +31,18 @@ public class HandlerConfig {
     }
 
     public void addInitParam(String n, String v) { 
-        addInitParam(new Param(n, v));
+        initParams.put(n, v); 
     } 
 
-    public void addInitParam(Param p) { 
-        initParams.add(p); 
+    public Map<String, String> getInitParams() { 
+        return initParams;
+    } 
+
+    void addInitParam(Param p) { 
+        addInitParam(p.getName(), p.getValue()); 
     }
 
+    
     public String toString() {
         return "[" + name + ":" + className + ":" + initParams + "]";
     }

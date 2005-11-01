@@ -1,15 +1,18 @@
 package org.objectweb.celtix.bus.handlers;
 
 
-
-
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
+
 import junit.framework.TestCase;
+
 import org.easymock.EasyMock;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 
@@ -44,6 +47,38 @@ public class HandlerChainBuilderTest extends TestCase {
         assertTrue(chain.get(0) instanceof Handler);
     } 
 
+    public void testBuilderCallsInit() { 
+        
+        List<Handler> chain = builder.buildHandlerChainFor(greeterImpl); 
+        
+        assertEquals(1, chain.size()); 
+        assertEquals(DummyHandler.class, chain.get(0).getClass()); 
+        DummyHandler dh = (DummyHandler)chain.get(0);
+
+        assertNotNull(dh.getConfig()); 
+        Map cfg = dh.getConfig(); 
+        System.out.println(":: cfg: " + cfg.keySet());
+        
+        assertEquals(2, cfg.keySet().size());
+        Iterator iter = cfg.keySet().iterator();
+        assertEquals("foo", iter.next()); 
+        assertEquals("1", cfg.get("foo")); 
+        assertEquals("bar", iter.next()); 
+        assertEquals("2", cfg.get("bar")); 
+    } 
+
+    public void testBuilderCallsInitWithNoInitParams() { 
+
+        List<Handler> chain = builder.buildHandlerChainFor(new HandlerChainNoInit()); 
+        assertEquals(1, chain.size()); 
+        Handler h = chain.get(0); 
+        assertNotNull(h); 
+        assertEquals(h.getClass(), DummyHandler.class); 
+        assertTrue(((DummyHandler)h).initCalled()); 
+        assertEquals(0, ((DummyHandler)h).getConfig().keySet().size()); 
+    } 
+
+
     public void testBuildHandlerChainInvalidFile() { 
 
         try { 
@@ -75,6 +110,7 @@ public class HandlerChainBuilderTest extends TestCase {
             // happy
         } 
     } 
+    
 }
 
 
@@ -91,4 +127,7 @@ class InvalidName extends AnnotatedGreeterImpl {
 class NoSuchClassName extends AnnotatedGreeterImpl {
 }
 
+@HandlerChain(file = "../../../hello_world_soap_http/handlers.xml", name = "HandlerChainNoInitParam")
+class HandlerChainNoInit extends AnnotatedGreeterImpl {
+}
 

@@ -6,6 +6,9 @@ import javax.xml.ws.handler.MessageContext;
 
 public class DummyHandler implements Handler {
 
+    Map config; 
+    private boolean initCalled; 
+
     public DummyHandler() {
 
     }
@@ -19,7 +22,8 @@ public class DummyHandler implements Handler {
     }
 
     public final void init(final Map map) {
-
+        config = map; 
+        initCalled = true; 
     }
 
     public final void destroy() {
@@ -30,4 +34,12 @@ public class DummyHandler implements Handler {
 
     }
 
+
+    public boolean initCalled() { 
+        return initCalled;
+    } 
+
+    public final Map getConfig() {
+        return config; 
+    } 
 }

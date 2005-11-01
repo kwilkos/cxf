@@ -1,18 +1,21 @@
 package org.objectweb.celtix.bus.handlers;
 
 
+
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
-
 import org.objectweb.celtix.common.logging.LogUtils;
 
 public class HandlerChainBuilder {
@@ -107,8 +110,7 @@ public class HandlerChainBuilder {
                         
                 Handler h = handlerClass.newInstance(); 
                 LOG.fine("adding handler to chain: " + h); 
-
-                // TODO initialise handler 
+                configureHandler(h, hc); 
                 chain.add(h); 
 
             } catch (ClassNotFoundException ex) { 
@@ -126,4 +128,21 @@ public class HandlerChainBuilder {
     private ClassLoader getHandlerClassLoader() {
         return getClass().getClassLoader(); 
     }
+
+    private void configureHandler(Handler handler, HandlerConfig config) { 
+        
+        Map<String, String> params = config.getInitParams(); 
+
+        try { 
+            Method init = handler.getClass().getMethod("init", Map.class);
+            init.invoke(handler, params); 
+        } catch (InvocationTargetException ex) {
+            Throwable t = ex.getCause() != null ? ex.getCause() : ex;
+            LogUtils.log(LOG, Level.WARNING, "INIT_METHOD_THREW_EXCEPTION", t, handler.getClass());
+        } catch (NoSuchMethodException ex) {
+            LOG.log(Level.SEVERE, "NO_INIT_METHOD_ON_HANDLER", handler.getClass()); 
+        } catch (IllegalAccessException ex) {
+            LOG.log(Level.SEVERE, "CANNOT_ACCESS_INIT", handler.getClass()); 
+        } 
+    } 
 }
