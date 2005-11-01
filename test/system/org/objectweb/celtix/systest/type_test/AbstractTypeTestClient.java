@@ -101,7 +101,6 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
 
             boolean noServerStart = Boolean.getBoolean("NO_SERVER_START");
             if (!noServerStart) {
-                //server = (AbstractTypeTestImpl)serverClass.newInstance();
                 Object object = serverClass.newInstance();
                 if (object instanceof SOAPServerImpl) {
                     server = (SOAPServerImpl) object;

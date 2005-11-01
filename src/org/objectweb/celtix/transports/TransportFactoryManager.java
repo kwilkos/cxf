@@ -2,6 +2,10 @@ package org.objectweb.celtix.transports;
 
 import org.objectweb.celtix.BusException;
 
+/**
+ * The TransportFactoryManager provides an interface to register and retrieve
+ * transport factories.
+ */
 public interface TransportFactoryManager {
 
     /**
