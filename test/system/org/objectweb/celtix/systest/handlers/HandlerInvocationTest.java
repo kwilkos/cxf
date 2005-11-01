@@ -213,15 +213,18 @@ public class HandlerInvocationTest extends ClientServerTestBase {
     } 
 
 
-    public void disabledtestLogicalHandlerOneWay() {
+    public void testLogicalHandlerOneWay() {
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
         TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext>(false);
-        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
+        TestSOAPHandler soapHandler1 = new TestSOAPHandler(false);  
+
+        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2, soapHandler1);
 
         handlerTest.pingOneWay(); 
 
         assertEquals(1, handler1.getHandleMessageInvoked());
         assertEquals(1, handler2.getHandleMessageInvoked());
+        assertEquals(1, soapHandler1.getHandleMessageInvoked());
     }
 
     private void addHandlersToChain(BindingProvider bp, Handler...handlers) { 

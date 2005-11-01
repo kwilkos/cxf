@@ -60,7 +60,7 @@ public abstract class TestHandlerBase {
     }
 
     public int getHandleFaultInvoked() {
-        return methodCallCount.get("handleFault");
+        return getMethodCallCount("handleFault");
     }
 
     public boolean isHandleMessageInvoked() {
@@ -68,7 +68,7 @@ public abstract class TestHandlerBase {
     }
 
     public int getHandleMessageInvoked() {
-        return methodCallCount.get("handleMessage");
+        return getMethodCallCount("handleMessage");
     }
     
     public boolean isInitInvoked() {
@@ -103,5 +103,13 @@ public abstract class TestHandlerBase {
         }
         return handlerInfoList;
     }
+
+    private int getMethodCallCount(String methodName) { 
+        int ret = 0;
+        if (methodCallCount.containsKey(methodName)) {
+            ret = methodCallCount.get(methodName);             
+        }
+        return ret;
+    } 
     
 }

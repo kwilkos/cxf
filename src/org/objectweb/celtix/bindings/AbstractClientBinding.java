@@ -47,7 +47,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
             if (exts.size() > 0) {                
                 ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
                 TransportFactory factory = bus.getTransportFactoryManager().
-                        getTransportFactory(el.getElementType().getNamespaceURI()); 
+                    getTransportFactory(el.getElementType().getNamespaceURI()); 
                 ret = factory.createClientTransport(ref);
             }
         } catch (BusException ex) {
@@ -179,17 +179,20 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     bindingContext = context;
                 }
 
-                assert transport != null : "transport is null";
+                continueProcessing = handlerInvoker.invokeProtocolHandlers(true, bindingContext);
 
-                OutputStreamMessageContext ostreamContext = 
-                    transport.createOutputStreamContext(bindingContext);
+                if (continueProcessing) { 
+                    assert transport != null : "transport is null";
 
-                // TODO - invoke output stream handlers
-                transport.finalPrepareOutputStreamContext(ostreamContext);
+                    OutputStreamMessageContext ostreamContext = 
+                        transport.createOutputStreamContext(bindingContext);
 
-                write(bindingContext, ostreamContext);
-                transport.invokeOneway(ostreamContext);
-                
+                    // TODO - invoke output stream handlers
+                    transport.finalPrepareOutputStreamContext(ostreamContext);
+
+                    write(bindingContext, ostreamContext);
+                    transport.invokeOneway(ostreamContext);
+                }
             }
             
         } finally { 
