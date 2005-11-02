@@ -21,7 +21,7 @@
                     <fileset dir="${jaxws.home}/lib">
                         <include name="*.jar"/>
                     </fileset>
-		    <path refid="jdk.tools.classpath"/>
+		    		<path refid="jdk.tools.classpath"/>
                 </classpath>
                 <arg line="${package.arg.@{file}}"/>
                 <arg value="-keep"/>
@@ -125,14 +125,14 @@
               in="${basedir}/test/wsdl/type_test/type_test.xsd"
               out="${basedir}/build/test-src/org/objectweb/celtix/systest/type_test/TypeTestTester.java"
               force="true"/>
-        <touch file="${basedir}/build/classes-tests/wsdl/type_test/.TYPE_TEST.CODEGEN.DONE"/>
+        <touch file="${basedir}/build/test-src/.TYPE_TEST.CODEGEN.DONE"/>
     </target>
 
     <target name="type_test.codegen">
         <uptodate property="type_test.codegen.notrequired" value="true">
             <srcfiles dir="${basedir}/test/wsdl/type_test" includes="*"/>
             <srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
-            <mapper type="merge" to="${basedir}/build/classes-tests/wsdl/type_test/.TYPE_TEST.CODEGEN.DONE"/>
+            <mapper type="merge" to="${basedir}/build/test-src/.TYPE_TEST.CODEGEN.DONE"/>
         </uptodate>
         <antcall target="type_test.codegen.internal"/>
     </target>

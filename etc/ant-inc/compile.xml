@@ -90,6 +90,21 @@
         </javac>
     </target>
 
+    <target name="testwsdl.compile" depends="testwsdl.codegen,type_test.codegen" description="Compile the generated wsdl artifacts">
+        <mkdir dir="${basedir}/build/classes-tests/wsdl"/>
+        <javac srcdir="${basedir}/build/test-src"
+            destdir="${basedir}/build/classes-tests/wsdl"
+            debug="true"
+            target="1.5"
+            source="1.5"
+            sourcepath=""
+            fork="true">
+            <classpath>
+                <path refid="unit.test.compile.classpath"/>
+            </classpath>
+        </javac>
+    </target>
+    
     <target name="unittest.compile" depends="testwsdl.codegen" description="Compile the unit tests">
         <mkdir dir="${basedir}/build/classes-tests/unit"/>
         <javac srcdir="${basedir}/test/unit"
@@ -104,15 +119,15 @@
                 <path refid="unit.test.compile.classpath"/>
             </classpath>
         </javac>
-	<copy todir="${basedir}/build/classes-tests/unit">
-	  <fileset dir="${basedir}/test/unit" includes="**/*.properties"/>
-	  <fileset dir="${basedir}/test/unit" includes="**/*.xsd"/>
-	  <fileset dir="${basedir}/test/unit" includes="**/*.xml"/>
-	</copy>
+		<copy todir="${basedir}/build/classes-tests/unit">
+ 			<fileset dir="${basedir}/test/unit" includes="**/*.properties"/>
+			<fileset dir="${basedir}/test/unit" includes="**/*.xsd"/>
+			<fileset dir="${basedir}/test/unit" includes="**/*.xml"/>
+		</copy>
         <antcall target="unittest.checkstyle"/>
     </target>
 
-    <target name="systest.compile" depends="testwsdl.codegen,type_test.codegen" description="Compile the system tests">
+    <target name="systest.compile" depends="testwsdl.codegen,testwsdl.compile" description="Compile the system tests">
         <mkdir dir="${basedir}/build/classes-tests/system"/>
         <javac destdir="${basedir}/build/classes-tests/system"
                debug="true"
@@ -125,13 +140,12 @@
                 <path refid="system.test.compile.classpath"/>
             </classpath>
             <src path="${basedir}/test/system"/>
-            <src path="${basedir}/build/test-src/org/objectweb/celtix/systest/type_test"/>
         </javac>
-	<copy todir="${basedir}/build/classes-tests/system">
-	  <fileset dir="${basedir}/test/system" includes="**/*.properties"/>
-	  <fileset dir="${basedir}/test/system" includes="**/*.xsd"/>
-	  <fileset dir="${basedir}/test/system" includes="**/*.xml"/>
-	</copy>
+		<copy todir="${basedir}/build/classes-tests/system">
+			<fileset dir="${basedir}/test/system" includes="**/*.properties"/>
+			<fileset dir="${basedir}/test/system" includes="**/*.xsd"/>
+			<fileset dir="${basedir}/test/system" includes="**/*.xml"/>
+		</copy>
         <antcall target="systemtest.checkstyle"/>
     </target>
 </project>
