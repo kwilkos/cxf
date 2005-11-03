@@ -4,16 +4,23 @@
     xmlns:ct="http://celtix.objectweb.org/configuration/types" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata metadata.xsd"
-    namespace="http://celtix.objectweb.org/configuration/test/meta7">
+    namespace="http://celtix.objectweb.org/configuration/test/leaf">
 
-   <!-- default values for all standard data types  -->
+   <!-- configuration metadata for test component leaf  -->
    
     <cm:configImport location="/org/objectweb/celtix/configuration/config-metadata/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
     
+    <!-- items with default values --> 
+    
     <cm:configItem>
-		<cm:name>stringItem</cm:name>
-		<cm:type>ct:boolean</cm:type>
-		<ct:boolean>rubbish</ct:boolean>
+		<cm:name>stringLeafItem</cm:name>
+		<cm:type>ct:string</cm:type>
+		<ct:string>the default</ct:string>
 	</cm:configItem>
 	
+	<cm:configItem>
+		<cm:name>longLeafItemNoDefault</cm:name>
+		<cm:type>ct:long</cm:type>
+	</cm:configItem>
+
 </cm:config>

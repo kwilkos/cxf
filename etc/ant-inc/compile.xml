@@ -6,7 +6,7 @@
     <import file="codegen.xml"/>
 
     <property name="xlint.args" value=":unchecked,deprecation,fallthrough,serial,finally"/>
-	
+    
     <!-- The entire codebase will be checkstyled automatically as part
     of the compile process.   If the code does not meet the style standards,
     the build will fail.    This is to make sure the code is more maintainable. -->
@@ -66,12 +66,13 @@
         <copy todir="${basedir}/build/classes">
             <fileset dir="${basedir}/src" includes="**/*.properties"/>
             <fileset dir="${basedir}/src" includes="**/*.xsd"/>
-        	<fileset dir="${basedir}/src" includes="**/*.xml"/>
+            <fileset dir="${basedir}/src" includes="**/*.xml"/>
         </copy>
         <antcall target="src.checkstyle"/>
     </target>
 
-    <target name="spring.compile" depends="spring.codegen" description="Generate and compile the source for Spring support">
+    <target name="spring.compile" depends="src.compile" description="Generate and compile the source for Spring support">
+        <antcall target="spring.codegen"/>
         <mkdir dir="${basedir}/build/classes"/>
         <javac
             destdir="${basedir}/build/classes"
@@ -89,6 +90,25 @@
             </classpath>
         </javac>
     </target>
+    
+    <target name="spring.unittest.compile" depends="src.compile" description="Generate and compile the source for Spring support">
+            <antcall target="spring.test.codegen"/>
+            <mkdir dir="${basedir}/build/classes"/>
+            <javac srcdir="${basedir}/build/test-spring-src"
+                destdir="${basedir}/build/classes-tests/unit"
+                debug="true"
+                target="1.5"
+                source="1.5"
+                fork="true"
+                sourcepath=""
+                includeAntRuntime="false">
+                <compilerarg line="-Xlint${xlint.args}"/>
+                <classpath>
+                    <path refid="src.compile.classpath"/>
+                    <pathelement location="${basedir}/build/classes"/>
+                </classpath>
+            </javac>
+    </target>
 
     <target name="testwsdl.compile" depends="testwsdl.codegen,type_test.codegen" description="Compile the generated wsdl artifacts">
         <mkdir dir="${basedir}/build/classes-tests/wsdl"/>
@@ -105,7 +125,7 @@
         </javac>
     </target>
     
-    <target name="unittest.compile" depends="testwsdl.codegen" description="Compile the unit tests">
+    <target name="unittest.compile" depends="testwsdl.codegen,spring.unittest.compile" description="Compile the unit tests">
         <mkdir dir="${basedir}/build/classes-tests/unit"/>
         <javac srcdir="${basedir}/test/unit"
             destdir="${basedir}/build/classes-tests/unit"
@@ -148,4 +168,5 @@
 		</copy>
         <antcall target="systemtest.checkstyle"/>
     </target>
+
 </project>

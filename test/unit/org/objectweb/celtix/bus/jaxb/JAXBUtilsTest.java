@@ -1,10 +1,17 @@
 package org.objectweb.celtix.bus.jaxb;
 
+
 import junit.framework.TestCase;
 
 public class JAXBUtilsTest extends TestCase {
+    
+    public void testBuiltInTypeToJavaType() {
+        assertEquals("boolean", JAXBUtils.builtInTypeToJavaType("boolean"));
+        assertEquals("javax.xml.datatype.XMLGregorianCalendar", JAXBUtils.builtInTypeToJavaType("gYear"));
+        assertNull(JAXBUtils.builtInTypeToJavaType("other"));
+    }
 
-    public void xtestPackageNames() {
+    public void testPackageNames() {
         assertEquals("org.objectweb.celtix.configuration.types",
                      JAXBUtils.namespaceURIToPackage("http://celtix.objectweb.org/configuration/types"));
         assertEquals("org.objectweb.celtix.configuration.types",
@@ -19,7 +26,7 @@ public class JAXBUtilsTest extends TestCase {
                      JAXBUtils.namespaceURIToPackage("http://www.iona.com/configuration/types"));
         assertEquals("org.objectweb.celtix.config.types",
                      JAXBUtils.namespaceURIToPackage("urn://celtix-objectweb-org/config/types"));
-        
+        assertEquals("types", JAXBUtils.namespaceURIToPackage("types"));
     } 
     
     public void testNameToIdentifier() {

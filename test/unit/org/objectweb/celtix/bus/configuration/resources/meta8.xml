@@ -8,7 +8,7 @@
 
    <!-- default values for all standard types  -->
    
-    <cm:configImport location="/org/objectweb/celtix/configuration/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    <cm:configImport location="/org/objectweb/celtix/configuration/config-metadata/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
     
     <cm:configItem>
 		<cm:name>booleanItem</cm:name>

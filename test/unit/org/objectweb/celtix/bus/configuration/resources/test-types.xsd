@@ -8,6 +8,7 @@
     -->
 	<xs:element name="bool" type="tns:bool"/>
 	<xs:element name="int" type="tns:int"/>
+	<xs:element name="long" type="tns:longType"/>
 	<xs:element name="string" type="tns:string"/>
 	<xs:element name="boolList" type="tns:boolList"/>
 	<xs:element name="address" type="tns:addressType"/>
@@ -19,6 +20,12 @@
 	</xs:simpleType>
 	<xs:simpleType name="int">
 		<xs:restriction base="xs:integer"/>
+	</xs:simpleType>
+	<xs:simpleType name="longType">
+		<xs:restriction base="tns:longBaseType"/>
+	</xs:simpleType>
+	<xs:simpleType name="longBaseType">
+		<xs:restriction base="xs:long"/>
 	</xs:simpleType>
 	<xs:simpleType name="string">
 		<xs:restriction base="xs:string"/>

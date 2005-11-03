@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  
+  <!-- incorrect class -->
+  
+  <bean id="top1" class="org.objectweb.celtix.configuration.test.top.spring.Tap">
+  </bean>
+  
+</beans>

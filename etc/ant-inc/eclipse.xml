@@ -12,7 +12,7 @@
     <property name="eclipse.project.workspace" value="${basedir}/../workspace"/>
 
     <target name="generate.eclipse.workspace" description="Generates an eclipse workspace"
-        depends="src.compile,unittest.compile,generate.eclipse.workspace.dirs,generate.eclipse.workspace.settings"/>
+        depends="src.compile,unittest.compile,systest.compile,generate.eclipse.workspace.dirs,generate.eclipse.workspace.settings"/>
 
     <target name="generate.eclipse.workspace.dirs">
         <mkdir dir="${eclipse.project.workspace}"/>

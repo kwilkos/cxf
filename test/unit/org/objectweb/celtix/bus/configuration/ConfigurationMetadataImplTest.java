@@ -18,7 +18,7 @@ import org.objectweb.celtix.configuration.ConfigurationMetadata;
 import org.objectweb.celtix.configuration.types.StringListType;
 
 
-public class ConfigurationMetadataTest extends TestCase {
+public class ConfigurationMetadataImplTest extends TestCase {
 
     private static final String TYPES_NAMESPACE_URI = 
         "http://celtix.objectweb.org/configuration/types";

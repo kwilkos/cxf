@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  
+  <!-- incorrect class -->
+  
+  <bean id="top2" class="org.objectweb.celtix.configuration.test.top.spring.TopBean">
+     
+      <property name="booleanItem">
+          <value>false</value>
+      </property>
+      <property name="integerItem">
+          <value>1997</value>
+      </property>
+      <property name="doubleItem">
+          <value>9876.54321</value>
+      </property>
+       <property name="stringItem">
+          <value>not the default</value>
+      </property>
+  </bean>
+  
+  <bean id="top2.leaf" class="org.objectweb.celtix.configuration.test.leaf.spring.LeafBean">
+     
+      <property name="stringLeafItem">
+          <value>Don't fear the reaper</value>
+      </property>
+      <property name="longLeafItemNoDefault">
+          <value>99</value>
+      </property>
+      
+  </bean>
+  
+</beans>

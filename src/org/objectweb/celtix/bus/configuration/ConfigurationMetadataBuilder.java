@@ -6,10 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -186,25 +182,8 @@ public class ConfigurationMetadataBuilder  {
     }
     
     private void unmarshalDefaultValue(ConfigurationItemMetadataImpl item, Element data) {
-        JAXBContext context = null;
         TypeSchema ts = model.getTypeSchema(data.getNamespaceURI());
-        String packageName = ts.getPackageName();
-        Object obj = null;
-        try {
-            context = JAXBContext.newInstance(packageName);
-            Unmarshaller u = context.createUnmarshaller();
-            u.setSchema(model.getTypeSchema(data.getNamespaceURI()).getSchema());
-            obj = u.unmarshal(data);
-            if (obj instanceof JAXBElement<?>) {
-                JAXBElement<?> el = (JAXBElement<?>)obj;
-                if (el.getName().equals(item.getType())) {
-                    obj = el.getValue();
-                }
-            }    
-        } catch (JAXBException ex) {
-            Message msg = new Message("DEFAULT_VALUE_UNMARSHAL_ERROR_EXC", LOG, item.getName());
-            throw new ConfigurationException(msg, ex);
-        }
+        Object obj = ts.unmarshalDefaultValue(item, data);
         if (null != obj) {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Unmarshaled default value into object of type: " + obj.getClass().getName() 

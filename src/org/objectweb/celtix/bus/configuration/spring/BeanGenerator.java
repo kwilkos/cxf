@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -19,7 +18,9 @@ import org.objectweb.celtix.bus.configuration.ConfigurationMetadataBuilder;
 import org.objectweb.celtix.bus.configuration.ConfigurationMetadataImpl;
 import org.objectweb.celtix.bus.configuration.TypeSchema;
 import org.objectweb.celtix.bus.jaxb.JAXBUtils;
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
 
@@ -29,10 +30,10 @@ public class BeanGenerator {
     
     File outputDir;
 
-    protected BeanGenerator() {
+    public BeanGenerator() {
         outputDir = new File(".");
     }
-
+ 
     public static void main(String[] args) {
         
         BeanGenerator generator = new BeanGenerator();
@@ -43,31 +44,26 @@ public class BeanGenerator {
                 i++; 
                 generator.setOutputDir(args[i]);
             } else {
-                schemaFiles.add(args[i]);
+                schemaFiles.addAll(splitArgument(args[i]));
             }
             i++;
         }
         for (String sf : schemaFiles) {
-            if (!generator.generateBean(sf)) {
-                System.err.println("Failed to generate bean for: " + sf);
-                System.exit(1);
-            }
+            generator.generateBean(sf);
         }
     }
     
-    public void setOutputDir(String path) {
-        outputDir = new File(path);     
+    void setOutputDir(String dir) {
+        outputDir = new File(dir);
     }
 
-    public boolean generateBean(String path) {
+    void generateBean(String path) {
         
         InputSource src = null;
-        boolean result = false;
         try {
             src = new InputSource(new FileInputStream(path));
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "FAILED_TO_GENERATE_BEAN_MSG", ex);
-            return result;
+            throw new ConfigurationException(new Message("FAILED_TO_GENERATE_BEAN_EXC", LOG), ex);
         }
         
         ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();
@@ -76,35 +72,17 @@ public class BeanGenerator {
         try {
             model = builder.build(src);
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "FAILED_TO_GENERATE_BEAN_MSG", ex);
-            return result;
-        }
-              
-        String namespaceURI = model.getNamespaceURI();
-        
-        StringBuffer packageName = new StringBuffer(JAXBUtils.namespaceURIToPackage(namespaceURI));
-        int index = packageName.lastIndexOf(".");
-        StringBuffer className = new StringBuffer();
-        if (index >= 0) {
-            className.append(packageName.substring(index + 1));
-        } else {
-            className.append(packageName);
-        }
-        if (Character.isLowerCase(className.charAt(0))) {
-            className.setCharAt(0, Character.toUpperCase(className.charAt(0)));
+            throw new ConfigurationException(new Message("FAILED_TO_GENERATE_BEAN_EXC", LOG), ex);
         }
         
-        packageName .append(".spring");
-        className.append("Bean");
+        String className = SpringUtils.getBeanClassName(model.getNamespaceURI());
         
-        StringBuffer classFileName = new StringBuffer(packageName);
+        StringBuffer classFileName = new StringBuffer(className);
         for (int i = 0; i < classFileName.length(); i++) {
             if ('.' == classFileName.charAt(i)) {
                 classFileName.setCharAt(i, File.separatorChar);
             }
         }
-        classFileName.append(File.separatorChar);
-        classFileName.append(className);
         classFileName.append(".java");        
         
         File classFile = new File(outputDir, classFileName.toString());
@@ -113,36 +91,35 @@ public class BeanGenerator {
             dir.mkdirs();
         }
         
-        LOG.info("Generating class: " + className.toString() + "\n"
+        LOG.info("Generating class: " + className + "\n"
             +    "           file:  " + classFile.getPath()); 
         
         PrintWriter pw = null;
         try {
             pw = new PrintWriter(new FileOutputStream(classFile));
-            writeClass(pw, model, packageName.toString(), className.toString());
-            result = true;
+            writeClass(pw, model, className);
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "FAILED_TO_GENERATE_BEAN", ex);
-            
+            throw new ConfigurationException(new Message("FAILED_TO_GENERATE_BEAN_EXC", LOG), ex);          
         } finally {
             pw.close();
         }
-        
-        return result;
-
     }
     
-    void writeClass(PrintWriter pw, ConfigurationMetadata model, String packageName, String className) {
+    void writeClass(PrintWriter pw, ConfigurationMetadata model, String qualifiedClassName) {
         
+        int index = qualifiedClassName.lastIndexOf('.');
+        
+        String packageName = qualifiedClassName.substring(0, index);
+        String className = qualifiedClassName.substring(index + 1);
         pw.print("package ");
-        pw.print(packageName.toString());
+        pw.print(packageName);
         pw.println(";");            
         pw.println();
         
         writeImports(pw, model);
         
         pw.print("public class ");
-        pw.print(className.toString());
+        pw.print(className);
         pw.println(" {");
         pw.println();
         
@@ -155,15 +132,24 @@ public class BeanGenerator {
         Collection<String> classNames = new ArrayList<String>();
         
         for (ConfigurationItemMetadata definition : model.getDefinitions()) {
-            QName type = definition.getType();            
+            QName type = definition.getType(); 
             TypeSchema ts = ((ConfigurationMetadataImpl)model).getTypeSchema(type.getNamespaceURI());
-            String typeName = ts.getTypeType(type.getLocalPart());
-            String className = JAXBUtils.nameToIdentifier(typeName,
-                                                   JAXBUtils.IdentifierType.CLASS);
-            String qualifiedClassName = ts.getPackageName() + "." + className;
-            if (!classNames.contains(qualifiedClassName)) {
-                classNames.add(qualifiedClassName);
+            String className = getType(ts, type.getLocalPart(), true);
+            int index = className.lastIndexOf('.');
+            if (index < 0 || "java.lang".equals(className.substring(0, index))) {
+                continue;
             }
+            if (!classNames.contains(className)) {
+                classNames.add(className);
+            }
+        }
+        
+        if (!classNames.contains("java.util.Collection")) {
+            classNames.add("java.util.Collection");
+        }
+        
+        if (!classNames.contains("java.util.ArrayList")) {
+            classNames.add("java.util.ArrayList");
         }
         
         for (String className : classNames) {
@@ -179,47 +165,117 @@ public class BeanGenerator {
         for (ConfigurationItemMetadata definition : model.getDefinitions()) {
             QName type = definition.getType();            
             TypeSchema ts = ((ConfigurationMetadataImpl)model).getTypeSchema(type.getNamespaceURI());
-            String typeName = ts.getTypeType(type.getLocalPart());
-            String className = JAXBUtils.nameToIdentifier(typeName,
-                                                   JAXBUtils.IdentifierType.CLASS);
-            
+            String className = getType(ts, type.getLocalPart(), false);
+            String memberName = JAXBUtils.nameToIdentifier(definition.getName(), 
+                                                           JAXBUtils.IdentifierType.VARIABLE);
             pw.print("    private ");
             pw.print(className);
             pw.print(" ");
-            pw.print(definition.getName());
-            pw.println(";");            
+            pw.print(memberName);
+            pw.println(";");           
         }
+        pw.println();
+        pw.print("    private Collection<String> _initialized = ");
+        pw.println("new ArrayList<String>();");
+        
         pw.println();
     }
     
     private void writeAccessors(PrintWriter pw, ConfigurationMetadata model) {
+        
         for (ConfigurationItemMetadata definition : model.getDefinitions()) {
             QName type = definition.getType();            
             TypeSchema ts = ((ConfigurationMetadataImpl)model).getTypeSchema(type.getNamespaceURI());
-            String typeName = ts.getTypeType(type.getLocalPart());
-            String className = JAXBUtils.nameToIdentifier(typeName,
-                                                   JAXBUtils.IdentifierType.CLASS);
+            String className = getType(ts, type.getLocalPart(), false);
+            String memberName = JAXBUtils.nameToIdentifier(definition.getName(), 
+                                                           JAXBUtils.IdentifierType.VARIABLE);
+            
             pw.print("    public ");
             pw.print(className);
             pw.print(" ");
-            pw.print(SpringUtils.getGetterName(definition));
+            pw.print(JAXBUtils.nameToIdentifier(definition.getName(), JAXBUtils.IdentifierType.GETTER));
             pw.println("() {");
             pw.print("        return ");
-            pw.print(SpringUtils.getMemberName(definition));
+            pw.print(memberName);
             pw.println(";");
             pw.println("    }");
             pw.println();
             
             pw.print("    public void ");
-            pw.print(SpringUtils.getSetterName(definition));
+            pw.print(JAXBUtils.nameToIdentifier(definition.getName(), JAXBUtils.IdentifierType.SETTER));
             pw.print("(");
             pw.print(className);
             pw.println(" obj) {");
             pw.print("        ");
-            pw.print(SpringUtils.getMemberName(definition));
+            pw.print(memberName);
             pw.println(" = obj;");
+            pw.print("        if (!_initialized.contains(\"");
+            pw.print(definition.getName());
+            pw.println("\")) {");
+            pw.print("            _initialized.add(\"");
+            pw.print(definition.getName());
+            pw.println("\");");
+            pw.println("        }");
             pw.println("    }");
             pw.println();
         }
+        
+        pw.println("    public boolean isSet(String name) {");
+        pw.println("        return _initialized.contains(name);");
+        pw.println("    }");
+    }
+    
+    private String getType(TypeSchema ts, String typeName, boolean qualified) {     
+        String baseType = ts.getXMLSchemaBaseType(typeName);
+        String className = null;
+        if (null != baseType) {
+            className = JAXBUtils.builtInTypeToJavaType(baseType);
+            if (className != null && !qualified) {
+                int index = className.lastIndexOf('.');
+                if (index >= 0) {
+                    className = className.substring(index + 1);
+                }
+            }
+        }
+        if (null == className) {
+            baseType = ts.getDeclaredType(typeName);
+            className = JAXBUtils.nameToIdentifier(baseType,
+                                                   JAXBUtils.IdentifierType.CLASS);
+            if (qualified) {
+                className = ts.getPackageName() + "." + className;
+            }
+        }
+        return className;
+    }
+
+    private static List<String> splitArgument(String arg) {
+        List<String> filenames  = new ArrayList<String>();
+
+        String filename = null;
+        int from = 0;
+        while (from < arg.length()) {
+            int to = 0;
+            if (arg.indexOf("\"", from)  == from) {
+                to = arg.indexOf("\"", from + 1);
+                if (to >= 0) {
+                    filename = arg.substring(from + 1, to);
+                    to++;
+                } else {
+                    throw new IllegalArgumentException(new Message("MISMATCHED_QUOTES", LOG).toString());
+                }
+            } else {
+                to = from;
+                while (to < arg.length() && !Character.isWhitespace(arg.charAt(to))) {
+                    to++;
+                }
+                filename = arg.substring(from, to);
+            }
+            while (to < arg.length() && Character.isWhitespace(arg.charAt(to))) {
+                to++;
+            }
+            from = to;
+            filenames.add(filename);
+        }
+        return filenames;
     }
 }

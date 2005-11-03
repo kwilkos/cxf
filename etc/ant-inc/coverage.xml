@@ -23,6 +23,7 @@
                 <filter excludes="*.ObjectFactory"/>
                 <filter excludes="*.package-info"/>
                 <filter excludes="org.objectweb.celtix.wsdl.T*"/>
+                <filter excludes="*.spring.BeanGenerator"/>
             </instr>
         </emma>
         <property name="emma.enabled" value="true"/>

@@ -8,9 +8,14 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,20 +35,22 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+
 import org.objectweb.celtix.bus.jaxb.JAXBUtils;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.ConfigurationException;
 
-public class TypeSchema /* implements ErrorHandler */ {
+public class TypeSchema {
 
     private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationMetadataBuilder.class);
-    private static Map<TypeSchemaInfo, TypeSchema> map = new HashMap<TypeSchemaInfo, TypeSchema>();
+    private static Map<String, TypeSchema> map = new HashMap<String, TypeSchema>();
 
     private Schema schema;
     private Validator validator;
     private String packageName;
     private Map<String, String> types;
+    private Map<String, String> baseTypes;
 
     /**
      * prevent instantiation
@@ -51,6 +58,7 @@ public class TypeSchema /* implements ErrorHandler */ {
     protected TypeSchema(String namespaceURI, String location) {
 
         types = new HashMap<String, String>();
+        baseTypes = new HashMap<String, String>();
 
         URI uri = null;
         try {
@@ -118,13 +126,16 @@ public class TypeSchema /* implements ErrorHandler */ {
     }
 
     public static TypeSchema get(String namespaceURI, String location) {
-        TypeSchemaInfo tsi = new TypeSchemaInfo(namespaceURI, location);
-        TypeSchema ts = map.get(tsi);
+        TypeSchema ts = map.get(namespaceURI);
         if (null == ts) {
             ts = new TypeSchema(namespaceURI, location);
-            map.put(tsi, ts);
+            map.put(namespaceURI, ts);
         }
         return ts;
+    }
+    
+    public static TypeSchema get(String namespaceURI) {
+        return map.get(namespaceURI);
     }
 
     public Validator getValidator() {
@@ -144,8 +155,12 @@ public class TypeSchema /* implements ErrorHandler */ {
         return types.containsKey(typeName);
     }
     
-    public String getTypeType(String typeName) {
+    public String getDeclaredType(String typeName) {
         return types.get(typeName);
+    }
+    
+    public String getXMLSchemaBaseType(String typeName) {
+        return baseTypes.get(typeName);
     }
 
     public String getPackageName() {
@@ -154,6 +169,33 @@ public class TypeSchema /* implements ErrorHandler */ {
 
     public Schema getSchema() {
         return schema;
+    }
+    
+    public Object unmarshalDefaultValue(ConfigurationItemMetadataImpl item, Element data) {
+        JAXBContext context = null;
+        Object obj = null;
+        try {
+            context = JAXBContext.newInstance(packageName);
+            Unmarshaller u = context.createUnmarshaller();
+            u.setSchema(schema);
+            obj = u.unmarshal(data);
+            if (obj instanceof JAXBElement<?>) {
+                JAXBElement<?> el = (JAXBElement<?>)obj;
+                if (el.getName().equals(item.getType())) {
+                    obj = el.getValue();
+                }
+            }    
+        } catch (JAXBException ex) {
+            Message msg = new Message("DEFAULT_VALUE_UNMARSHAL_ERROR_EXC", LOG, item.getName());
+            throw new ConfigurationException(msg, ex);
+        }
+        if (null != obj) {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Unmarshaled default value into object of type: " + obj.getClass().getName() 
+                         + "    value: " + obj);
+            }     
+        }
+        return obj;
     }
 
     private void deserialize(Document document, String namespaceURI) {
@@ -166,8 +208,8 @@ public class TypeSchema /* implements ErrorHandler */ {
         for (Node nd = root.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
             if (Node.ELEMENT_NODE == nd.getNodeType()) {
                 if ("element".equals(nd.getLocalName())) {
-                    QName name = ConfigurationMetadataUtils.elementAttributeToQName(document,
-                                                                                   (Element)nd, "name");
+                    QName name = ConfigurationMetadataUtils.elementAttributeToQName(
+                        document, (Element)nd, "name");
                     String localName = name.getLocalPart();
                     /*
                     if (!isJavaIdentifier(localName)) {
@@ -175,8 +217,8 @@ public class TypeSchema /* implements ErrorHandler */ {
                                                                      LOG, localName));
                     } 
                     */                                                               
-                    QName type = ConfigurationMetadataUtils.elementAttributeToQName(document,
-                                                                                    (Element)nd, "type");
+                    QName type = ConfigurationMetadataUtils.elementAttributeToQName(
+                        document, (Element)nd, "type");                    
                     String localType = type.getLocalPart();
                     
                     /*
@@ -187,9 +229,57 @@ public class TypeSchema /* implements ErrorHandler */ {
                     */
                     
                     types.put(localName, localType);
+                    
+                    String baseType = getBaseType(document, type);
+                    if (null != baseType) {
+                        baseTypes.put(localName, baseType);
+                    }
                 }
             }
         }
+    }
+    
+    private String getBaseType(Document document, QName type) {
+        QName currentType = type;
+        QName baseType;
+        do {
+            baseType = getBaseTypeInternal(document, currentType);
+            if (null == baseType) {
+                return null;
+            } else if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(baseType.getNamespaceURI())) {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Base type for " + type + ": " + baseType);
+                }
+                return baseType.getLocalPart();                
+            }  
+            currentType = baseType;
+        } while (true);
+    }
+    
+    private QName getBaseTypeInternal(Document document, QName type) {
+        Element root = document.getDocumentElement();
+        Element simpleTypeElement = null;
+        for (Node nd = root.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
+            if (Node.ELEMENT_NODE == nd.getNodeType()
+                && "simpleType".equals(nd.getLocalName())
+                && type.getLocalPart().equals(((Element)nd).getAttribute("name"))) { 
+                simpleTypeElement = (Element)nd;                
+            }
+        }
+        if (null == simpleTypeElement) {
+            return null;
+        }
+        
+        for (Node nd = simpleTypeElement.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
+            if (Node.ELEMENT_NODE == nd.getNodeType()
+                && "restriction".equals(nd.getLocalName())) { 
+                // TODO restriction element can have base attribute OR simpleType
+                // child element. Currently we only handle the base attribute. 
+                
+                return ConfigurationMetadataUtils.elementAttributeToQName(document, (Element)nd, "base");
+            }
+        }       
+        return  null;
     }
 
     private void deseralizePackageName(Document document, String namespaceURI) {
@@ -243,17 +333,17 @@ public class TypeSchema /* implements ErrorHandler */ {
 
     // ErrorHandler interface
     
-    private final class TypeSchemaErrorHandler implements ErrorHandler {
+    final class TypeSchemaErrorHandler implements ErrorHandler {
 
-        public void error(SAXParseException exception) throws SAXException {
+        public void error(SAXParseException exception) throws SAXParseException {
             throw exception;
         }
 
-        public void fatalError(SAXParseException exception) throws SAXException {
+        public void fatalError(SAXParseException exception) throws SAXParseException {
             throw exception;
         }
 
-        public void warning(SAXParseException exception) throws SAXException {
+        public void warning(SAXParseException exception) throws SAXParseException {
             throw exception;
         }
     }

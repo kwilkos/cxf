@@ -25,8 +25,14 @@
 	<property name="build.lib.dir" location="${build.dir}/lib"/>
 	<property name="celtix.jar" location="${build.lib.dir}/celtix.jar"/>
 
-	<path id="jdk.tools.classpath">
-      <pathelement location="${tools.jar}"/>
+    <path id="jdk.tools.classpath">
+        <pathelement location="${tools.jar}"/>
+    </path>
+
+    <path id="ant.classpath">
+        <fileset dir="${tools.dir}/ant/1.6.5">
+            <include name="ant.jar"/>
+        </fileset>
     </path>
 
     <path id="jaxws.classpath">
@@ -62,12 +68,20 @@
             <include name="*.jar"/>     
         </fileset>
     </path>
+	
+    <path id="spring.classpath">
+        <fileset dir="${tools.dir}/spring/1.2.5/">
+            <include name="spring-core.jar"/>
+            <include name="spring-beans.jar"/>
+        </fileset>
+    </path>
     
   
     <path id="src.compile.classpath">
         <path refid="wsdl4j.classpath"/>
     	<path refid="jaxws.classpath"/>
     	<path refid="embedded.tomcat.classpath"/>
+    	<path refid="spring.classpath"/>
     </path>
  
     <path id="unit.test.compile.classpath">

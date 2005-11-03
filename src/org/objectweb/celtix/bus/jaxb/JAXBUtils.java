@@ -4,7 +4,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 public final class JAXBUtils {
@@ -17,6 +19,8 @@ public final class JAXBUtils {
         VARIABLE,
         CONSTANT
     };
+    
+    public static final String JAXB_URI = "http://java.sun.com/xml/ns/jaxb";
     
     private static final String[] KEYWORDS = new String[] {       
         "abstract",    "continue",    "for",           "new",          "switch",
@@ -44,11 +48,51 @@ public final class JAXBUtils {
     
     private static final String XML_NAME_PUNCTUATION_STRING = new String(XML_NAME_PUNCTUATION_CHARS);
     
+    private static final Map<String, String> BUILTIN_DATATYPES_MAP;
+    
+    static {
+        BUILTIN_DATATYPES_MAP = new HashMap<String, String>();
+        BUILTIN_DATATYPES_MAP.put("string", "java.lang.String");
+        BUILTIN_DATATYPES_MAP.put("integer", "java.math.BigInteger");
+        BUILTIN_DATATYPES_MAP.put("int", "int");
+        BUILTIN_DATATYPES_MAP.put("long", "long");
+        BUILTIN_DATATYPES_MAP.put("short", "short");
+        BUILTIN_DATATYPES_MAP.put("decimal", "java.mathy.BigDecimal");
+        BUILTIN_DATATYPES_MAP.put("float", "float");
+        BUILTIN_DATATYPES_MAP.put("double", "double");
+        BUILTIN_DATATYPES_MAP.put("boolean", "boolean");
+        BUILTIN_DATATYPES_MAP.put("byte", "byte");
+        BUILTIN_DATATYPES_MAP.put("QName", "javax.xml.namespace.QName");
+        BUILTIN_DATATYPES_MAP.put("dateTime", "javax.xml.datatype.XMLGregorianCalendar");
+        BUILTIN_DATATYPES_MAP.put("base64Binary", "byte[]");
+        BUILTIN_DATATYPES_MAP.put("hexBinary", "byte[]");
+        BUILTIN_DATATYPES_MAP.put("unsignedInt", "long");
+        BUILTIN_DATATYPES_MAP.put("unsignedShort", "short");
+        BUILTIN_DATATYPES_MAP.put("unsignedByte", "byte");
+        BUILTIN_DATATYPES_MAP.put("time", "javax.xml.datatype.XMLGregorianCalendar");
+        BUILTIN_DATATYPES_MAP.put("date", "javax.xml.datatype.XMLGregorianCalendar");
+        BUILTIN_DATATYPES_MAP.put("gYear", "javax.xml.datatype.XMLGregorianCalendar");
+        BUILTIN_DATATYPES_MAP.put("gYearMonth", "javax.xml.datatype.XMLGregorianCalendar");
+        BUILTIN_DATATYPES_MAP.put("gMonth", "javax.xml.datatype.XMLGregorianCalendar");
+        BUILTIN_DATATYPES_MAP.put("gMonthDay", "javax.xml.datatype.XMLGregorianCalendar");
+        BUILTIN_DATATYPES_MAP.put("gDay", "javax.xml.datatype.XMLGregorianCalendar");
+        BUILTIN_DATATYPES_MAP.put("duration", "javax.xml.datatype.Duration");
+        BUILTIN_DATATYPES_MAP.put("NOTATION", "javax.xml.namespace.QName");
+        BUILTIN_DATATYPES_MAP.put("string", "java.lang.String");
+        BUILTIN_DATATYPES_MAP.put("string", "java.lang.String");
+        BUILTIN_DATATYPES_MAP.put("string", "java.lang.String");       
+    }
+    
+    
     /**
      * prevents instantiation
      *
      */
     private JAXBUtils() {
+    }
+    
+    public static String builtInTypeToJavaType(String type) {
+        return BUILTIN_DATATYPES_MAP.get(type);
     }
     
     /** 
@@ -94,36 +138,39 @@ public final class JAXBUtils {
         
         String authority = uri.getAuthority();
         
-        if ("urn".equals(uri.getScheme())) {
-            packageName.append(authority);
-            for (int i = 0; i < packageName.length(); i++) {
-                if (packageName.charAt(i) == '-') {
-                    packageName.setCharAt(i, '.');
-                }
-            }
-            authority = packageName.toString();
-            packageName.setLength(0);
-        }
         
-        StringTokenizer st = new StringTokenizer(authority, ".");
-        if (st.hasMoreTokens()) {
-            String token = null;
-            while (st.hasMoreTokens()) {
-                token = st.nextToken();
-                if (packageName.length() == 0) {
-                    if ("www".equals(token)) {
-                        continue;
+        if (null != authority && !"".equals(authority)) {
+            if ("urn".equals(uri.getScheme())) {
+                packageName.append(authority);
+                for (int i = 0; i < packageName.length(); i++) {
+                    if (packageName.charAt(i) == '-') {
+                        packageName.setCharAt(i, '.');
                     }
-                } else {
-                    packageName.insert(0, ".");
                 }
-                packageName.insert(0, token);
-            }
-            
-            if (!("com".equals(token) || "gov".equals(token) || "net".equals(token) || "org".equals(token)
-                || "edu".equals(token))) {
+                authority = packageName.toString();
                 packageName.setLength(0);
+            }
 
+            StringTokenizer st = new StringTokenizer(authority, ".");
+            if (st.hasMoreTokens()) {
+                String token = null;
+                while (st.hasMoreTokens()) {
+                    token = st.nextToken();
+                    if (packageName.length() == 0) {
+                        if ("www".equals(token)) {
+                            continue;
+                        }
+                    } else {
+                        packageName.insert(0, ".");
+                    }
+                    packageName.insert(0, token);
+                }
+
+                if (!("com".equals(token) || "gov".equals(token) || "net".equals(token)
+                      || "org".equals(token) || "edu".equals(token))) {
+                    packageName.setLength(0);
+
+                }
             }
         }
 
@@ -132,7 +179,7 @@ public final class JAXBUtils {
         if (index < 0) {
             index = path.length();
         }
-        st = new StringTokenizer(path.substring(0, index), "/");
+        StringTokenizer st = new StringTokenizer(path.substring(0, index), "/");
         while (st.hasMoreTokens()) {
             String token = st.nextToken();
             if (packageName.length() > 0) {

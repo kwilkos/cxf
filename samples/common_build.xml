@@ -28,7 +28,17 @@
         in which case third party tools are located in the ../../lib directory.
     -->
 
+	<!--
     <available property="thirdparty.tools.dir" value="${basedir}/../../tools/" file="tools" filepath="${basedir}/../.." type="dir"/>
+    -->
+	<condition property="thirdparty.tools.dir" value="${basedir}/../../../tools">
+	        <and>
+	            <not>
+	                <isset property="thirdparty.tools.dir"/>
+	            </not>
+	            <available filepath="${basedir}/../../.." file="tools" type="dir"/>
+	        </and>
+	    </condition>
     <condition property="thirdparty.tools.dir" value="${basedir}/../../lib">
         <and>
             <not>

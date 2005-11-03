@@ -2,9 +2,7 @@ package org.objectweb.celtix.bus.configuration;
 
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
@@ -13,9 +11,9 @@ import org.objectweb.celtix.common.i18n.BundleUtils;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
-import org.objectweb.celtix.configuration.ConfigurationItem;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
+import org.objectweb.celtix.configuration.ConfigurationProvider;
 import org.objectweb.celtix.configuration.Configurator;
 import org.objectweb.celtix.configuration.types.StringListType;
 
@@ -24,9 +22,10 @@ public abstract class AbstractConfigurationImpl implements Configuration {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AbstractConfigurationImpl.class);
     private Configurator configurator;
     private ConfigurationMetadata model;
-    private Map<String, ConfigurationItem> items;
+    private QName id;
+    private ConfigurationProvider[] providers;
 
-    public AbstractConfigurationImpl(InputStream is, Configuration parent) {
+    public AbstractConfigurationImpl(InputStream is, String instanceId, Configuration parent) {
         configurator = new ConfiguratorImpl(this, parent);
         ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();
         if (null != is) {
@@ -34,15 +33,21 @@ public abstract class AbstractConfigurationImpl implements Configuration {
         } else {
             model = new ConfigurationMetadataImpl();
         }
-        items = new HashMap<String, ConfigurationItem>();
+        id = new QName(model.getNamespaceURI(), instanceId);
+        
+        DefaultConfigurationProviderFactory  factory = DefaultConfigurationProviderFactory.getInstance();
+        ConfigurationProvider defaultProvider = factory.createDefaultProvider(this);
+        if (null != defaultProvider) {
+            providers = new ConfigurationProvider[] {defaultProvider};
+        }            
     }
 
-    public AbstractConfigurationImpl(InputStream is) {
-        this(is, null);
+    public AbstractConfigurationImpl(InputStream is, String instanceId) {
+        this(is, instanceId, null);
     }
     
-    public Object getId() {
-        return getClass().getName();
+    public QName getName() {
+        return id;
     }
 
     public Configurator getConfigurator() {
@@ -52,9 +57,13 @@ public abstract class AbstractConfigurationImpl implements Configuration {
     public ConfigurationMetadata getModel() {
         return model;
     }
-
-    public ConfigurationItem getItem(String name) {
-        return items.get(name);
+    
+    public ConfigurationProvider[] getProviders() {
+        return providers;
+    }
+    
+    public void setProviders(ConfigurationProvider[] p) {
+        providers = p;
     }
 
     public Object getObject(String name) {
@@ -65,11 +74,10 @@ public abstract class AbstractConfigurationImpl implements Configuration {
         }
 
         Configuration holder = this;
-        ConfigurationItem item = null;
         while (true) {
-            item = holder.getItem(name);
-            if (null != item) {
-                break;
+            Object obj = getLocal(holder, name);
+            if (null != obj) {
+                return obj;
             }
             Configurator hook = holder.getConfigurator().getHook();
             if (null == hook) {
@@ -77,11 +85,7 @@ public abstract class AbstractConfigurationImpl implements Configuration {
             }
             holder = hook.getConfiguration();
         }
-        if (item == null) {
-            return definition.getDefaultValue();
-        } else {
-            return item.getValue();
-        }
+        return definition.getDefaultValue();
     }
 
     public boolean getBoolean(String name) {
@@ -160,8 +164,19 @@ public abstract class AbstractConfigurationImpl implements Configuration {
             QName type = model.getDefinition(name).getType();
             throw new ConfigurationException(new Message("ITEM_TYPE_MISMATCH_EXC", BUNDLE, name, type));
         }
-    }
-    
-    
+    }    
 
+    protected Object getLocal(Configuration c, String name) {
+        if (null == providers) {
+            return  null;
+        }
+        Object obj;
+        for (ConfigurationProvider provider : providers) {
+            obj = provider.getObject(name);
+            if (null != obj) {
+                return obj;
+            }
+        }
+        return null;
+    }
 }

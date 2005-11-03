@@ -2,38 +2,14 @@ package org.objectweb.celtix.bus.configuration;
 
 import java.net.URL;
 
+import org.xml.sax.SAXParseException;
+
 import junit.framework.TestCase;
+
+import org.objectweb.celtix.bus.configuration.TypeSchema.TypeSchemaErrorHandler;
 
 public class TypeSchemaTest extends TestCase {
     
-    TypeSchemaInfo tsi1 = new TypeSchemaInfo("http://celtix.objectweb.org/configuration/test/types",
-        "resources/test-types.xsd");
-    TypeSchemaInfo tsi2 = new TypeSchemaInfo("http://celtix.objectweb.org/configuration/test/types",
-        "/org/objectweb/celtix/bus/configuration/resources/test-types.xsd");
-    TypeSchemaInfo tsi3 = new TypeSchemaInfo("http://celtix.objectweb.org/configuration/test/types",
-        "file:resources/test-types.xsd");
-    TypeSchemaInfo tsi4 = new TypeSchemaInfo("http://celtix.objectweb.org/configuration/types",
-        "/org/objectweb/celtix/configuration/types.xsd"); 
-    
-    
-    public void testHashCode() {
-        assertTrue(tsi1.hashCode() == tsi2.hashCode());
-        assertTrue(tsi1.hashCode() != tsi4.hashCode());     
-    }
-    
-    public void testEquals() {
-        assertTrue(tsi1.equals(tsi1));
-        assertTrue(!tsi1.equals(tsi2));
-        assertTrue(!tsi2.equals(tsi1));
-        assertTrue(!tsi1.equals(this));
-        assertTrue(!this.equals(tsi1));
-    }
-    
-    public void testAttributes() {
-        assertEquals("http://celtix.objectweb.org/configuration/test/types", tsi1.getNamespaceURI());
-        assertEquals("resources/test-types.xsd", tsi1.getLocation());
-    }
-
     public void testConstructor() {
 
         // relative uri with relative path
@@ -77,12 +53,69 @@ public class TypeSchemaTest extends TestCase {
         assertNotNull(ts);
         
         assertEquals("org.objectweb.celtix.configuration.test.types", ts.getPackageName());
-        assertEquals(5, ts.getTypes().size());      
-        assertTrue(ts.hasType("boolList"));
-        assertTrue(!ts.hasType("boolListType"));
-        assertEquals("boolList", ts.getTypeType("boolList"));
-        assertEquals("addressType", ts.getTypeType("address"));
+        assertEquals(6, ts.getTypes().size()); 
+        
+        assertTrue(ts.hasType("bool"));
+        assertEquals("bool", ts.getDeclaredType("bool"));
+        assertEquals("boolean", ts.getXMLSchemaBaseType("bool"));
+        
+        assertTrue(ts.hasType("int"));
+        assertEquals("int", ts.getDeclaredType("int"));
+        assertEquals("integer", ts.getXMLSchemaBaseType("int"));
+        
+        assertTrue(ts.hasType("long"));
+        assertEquals("longType", ts.getDeclaredType("long"));
+        assertEquals("long", ts.getXMLSchemaBaseType("long"));
+        
+        assertTrue(ts.hasType("string"));
+        assertEquals("string", ts.getDeclaredType("string"));
+        assertEquals("string", ts.getXMLSchemaBaseType("string"));
+        
+        assertTrue(ts.hasType("boolList"));        
+        assertEquals("boolList", ts.getDeclaredType("boolList"));
+        assertNull(ts.getXMLSchemaBaseType("boolList"));
+        
+        assertTrue(ts.hasType("address"));
+        assertTrue(!ts.hasType("addressType"));
+        assertEquals("addressType", ts.getDeclaredType("address"));
+        assertNull(ts.getXMLSchemaBaseType("address"));
+        
         assertNotNull(ts.getSchema());
         assertNotNull(ts.getValidator());
+    }
+    
+    public void testAnnotatedPackageName() {
+        TypeSchema ts = new TypeSchema("http://celtix.objectweb.org/configuration/test/custom/pkg",
+                                       "resources/test-types-annotations.xsd");   
+        assertEquals("org.objectweb.celtix.test.custom", ts.getPackageName());
+    }
+    
+    public void testErrorHandler() {
+        TypeSchema ts = TypeSchema.get("http://celtix.objectweb.org/configuration/test/types",
+            "resources/test-types.xsd");
+        TypeSchemaErrorHandler eh = ts.new TypeSchemaErrorHandler();
+        SAXParseException spe = new SAXParseException(null, null, null, 0, 0);
+        
+        try {
+            eh.error(spe);
+            fail("Expected SAXParseException not thrown.");
+        } catch (SAXParseException ex) {
+            // ignore;
+        }
+        
+        try {
+            eh.warning(spe);
+            fail("Expected SAXParseException not thrown.");
+        } catch (SAXParseException ex) {
+             // ignore;
+        }
+        
+        try {
+            eh.fatalError(spe);
+            fail("Expected SAXParseException not thrown.");
+        } catch (SAXParseException ex) {
+             // ignore;
+        }    
+        
     }
 }

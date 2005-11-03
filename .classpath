@@ -12,5 +12,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JUnit"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/WSDL4J"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Easymock"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Spring"/>
+	<classpathentry kind="lib" path="C:/celtix/working-copies/andrea/trunk/tools/ant/1.6.5/lib/ant.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

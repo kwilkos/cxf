@@ -4,6 +4,8 @@ package org.objectweb.celtix.bus.configuration;
 import java.util.Collection;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.configuration.Configuration;
@@ -12,13 +14,13 @@ import org.objectweb.celtix.configuration.ConfigurationMetadata;
 import org.objectweb.celtix.configuration.Configurator;
 
 
-public class ConfigurationTest extends TestCase {
+public class AbstractConfigurationImplTest extends TestCase {
 
     private Configuration top;
 
-    public ConfigurationTest(String name) {
+    public AbstractConfigurationImplTest(String name) {
         super(name);
-        top = new TopConfiguration();
+        top = new TopConfiguration("top");
     }
     
     public void testConstruction() {
@@ -29,7 +31,7 @@ public class ConfigurationTest extends TestCase {
     }
     
     public void testConfigurators() {
-        Configuration topConfiguration = new TopConfiguration();
+        Configuration topConfiguration = new TopConfiguration("TOP");
         Configurator topConfigurator = topConfiguration.getConfigurator();
         assertNotNull(topConfigurator);
         assertTrue(topConfiguration == topConfigurator.getConfiguration());
@@ -37,7 +39,7 @@ public class ConfigurationTest extends TestCase {
         Collection<Configurator> topClients = topConfigurator.getClients();
         assertEquals(0, topClients.size());    
         
-        Configuration leafConfiguration = new LeafConfiguration(topConfiguration);
+        Configuration leafConfiguration = new LeafConfiguration(topConfiguration, "LEAF");
         assertEquals(1, topClients.size());   
         Configurator leafConfigurator = leafConfiguration.getConfigurator();
         assertNotNull(leafConfigurator);
@@ -47,6 +49,23 @@ public class ConfigurationTest extends TestCase {
         assertTrue(hook == topConfigurator);
         Collection<Configurator> leafClients = leafConfigurator.getClients();
         assertEquals(0, leafClients.size());   
+        
+        QName cidTop = topConfiguration.getName();
+        assertEquals("http://celtix.objectweb.org/configuration/test/top", cidTop.getNamespaceURI());
+        assertEquals("TOP", cidTop.getLocalPart());
+        
+        QName cidLeaf = leafConfiguration.getName();
+        assertEquals("http://celtix.objectweb.org/configuration/test/leaf", cidLeaf.getNamespaceURI());
+        assertEquals("LEAF", cidLeaf.getLocalPart());
+        
+        assertTrue(cidTop.equals(cidTop));
+        assertTrue(!cidTop.equals(cidLeaf));
+        assertTrue(!cidTop.equals(this));
+        
+        assertTrue(!cidTop.toString().equals(cidLeaf.toString()));
+        assertTrue(cidTop.hashCode() != cidLeaf.hashCode());
+     
+        
         topConfigurator.unregisterClient(leafConfigurator);
         assertEquals(0, topClients.size());
         assertNotNull(leafConfigurator.getHook());

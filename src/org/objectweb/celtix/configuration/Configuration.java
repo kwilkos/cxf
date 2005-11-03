@@ -2,20 +2,16 @@ package org.objectweb.celtix.configuration;
 
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 public interface Configuration {
    
-    /**
-     * Returns the (instance) identifier of this configuration. This should be unique among all 
-     * instances of the same type, and would typically be implemented as a string (e.g. the bus id),
-     * but other types, e.g. QName, may also be used.
+    /** 
+     * Returns the unique identifier for this configuration instance.
      * 
-     * The combination of this identifier with the namespaceURI of the associated metadata model 
-     * should allow to uniquely identify a Configuration object (i.e. an instance of a 
-     * configurable component) inside an application. 
-     * 
-     * @return the configuration identifier.
+     * @return the identifier for this configuration.
      */
-    Object getId();
+    QName getName();
     
     /** 
      * Returns the <code>Configurator</code> associated with this <code>Configuration</code>.
@@ -32,13 +28,19 @@ public interface Configuration {
     ConfigurationMetadata getModel();
     
     /**
-     * Returns the configuration item with the specified name if this item is held by
-     * this <code>Configuration<code>, null otherwise.
+     * Sets the list of configuration providers for this configuration - these will be 
+     * consulted in orde when looking up the value for a particular configuration item.
      * 
-     * @param name the name of the configuration item.
-     * @return the configuration item.
-     */   
-    ConfigurationItem getItem(String name);
+     * @param providers the configuration providers to use for this configuration.
+     */
+    void setProviders(ConfigurationProvider[] providers);
+    
+    /**
+     * Returns the list of configuration providers for this configuration.
+     * 
+     * @return the list of configuration providers for this configuration.
+     */
+    ConfigurationProvider[] getProviders();
     
     /**
      * Returns the object holding the value for the configuration item with the specified name. 
