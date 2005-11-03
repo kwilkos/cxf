@@ -93,7 +93,7 @@
     
     <target name="spring.unittest.compile" depends="src.compile" description="Generate and compile the source for Spring support">
             <antcall target="spring.test.codegen"/>
-            <mkdir dir="${basedir}/build/classes"/>
+            <mkdir dir="${basedir}/build/classes-tests/unit"/>
             <javac srcdir="${basedir}/build/test-spring-src"
                 destdir="${basedir}/build/classes-tests/unit"
                 debug="true"
