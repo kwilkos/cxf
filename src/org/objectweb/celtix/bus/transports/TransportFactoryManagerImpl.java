@@ -11,7 +11,7 @@ import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.transports.TransportFactoryManager;
 
-public class TransportFactoryManagerImpl implements TransportFactoryManager {
+public final class TransportFactoryManagerImpl implements TransportFactoryManager {
 
     private final Map<String, TransportFactory> transportFactories;
     private final Bus bus;

@@ -16,7 +16,7 @@ import org.objectweb.celtix.configuration.Configurator;
 
 public class AbstractConfigurationImplTest extends TestCase {
 
-    private Configuration top;
+    private final Configuration top;
 
     public AbstractConfigurationImplTest(String name) {
         super(name);

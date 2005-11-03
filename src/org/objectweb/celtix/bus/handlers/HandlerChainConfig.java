@@ -30,7 +30,7 @@ public class HandlerChainConfig {
     private static final String PARAM_NAME = "param-name"; 
     private static final String PARAM_VALUE = "param-value"; 
 
-    private Map<String, List<HandlerConfig>> chains = new HashMap<String, List<HandlerConfig>>(); 
+    private final Map<String, List<HandlerConfig>> chains = new HashMap<String, List<HandlerConfig>>(); 
 
     public HandlerChainConfig(InputStream in) throws IOException {
         assert in != null;
@@ -133,15 +133,13 @@ public class HandlerChainConfig {
         for (int i = 0; i < children.getLength(); i++) { 
             Node n = children.item(i); 
 
-            if (PARAM_NAME.equals(n.getNodeName())) { 
-                if (n.getFirstChild() != null) { 
-                    name = n.getFirstChild().getNodeValue();
-                } 
+            if (PARAM_NAME.equals(n.getNodeName()) 
+                && n.getFirstChild() != null) {
+                name = n.getFirstChild().getNodeValue();
             } 
-            if (PARAM_VALUE.equals(n.getNodeName())) { 
-                if (n.getFirstChild() != null) { 
-                    value = n.getFirstChild().getNodeValue();
-                } 
+            if (PARAM_VALUE.equals(n.getNodeName())
+                && n.getFirstChild() != null) { 
+                value = n.getFirstChild().getNodeValue();
             }
         }
 

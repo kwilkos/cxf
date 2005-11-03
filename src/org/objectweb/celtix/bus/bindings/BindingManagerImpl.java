@@ -11,7 +11,7 @@ import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 
-public class BindingManagerImpl implements BindingManager {
+public final class BindingManagerImpl implements BindingManager {
 
     private final Map<String, BindingFactory> bindingFactories;
     private final Bus bus;

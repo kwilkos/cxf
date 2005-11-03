@@ -8,7 +8,7 @@ import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 
 public class CeltixBusLifeCycleManager implements BusLifeCycleManager {
 
-    private List<BusLifeCycleListener> listeners;
+    private final List<BusLifeCycleListener> listeners;
     
     public CeltixBusLifeCycleManager() {
         listeners = new ArrayList<BusLifeCycleListener>();

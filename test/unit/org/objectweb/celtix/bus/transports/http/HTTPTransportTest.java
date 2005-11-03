@@ -30,14 +30,6 @@ public class HTTPTransportTest extends TestCase {
         junit.textui.TestRunner.run(HTTPTransportTest.class);
     }
     
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-    
     public void testHTTPTransport() throws Exception {
         doTestHTTPTransport(false);
     }

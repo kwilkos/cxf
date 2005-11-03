@@ -9,23 +9,23 @@ import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
                       wsdlLocation = "file:./wsdl/hello_world_RPCLit.wsdl")
 public class GreeterRPCLitImpl implements GreeterRPCLit {
 
-    private static Logger logger = Logger.getLogger(GreeterRPCLitImpl.class.getPackage().getName());
+    private static final Logger LOG = Logger.getLogger(GreeterRPCLitImpl.class.getPackage().getName());
 
     public String greetMe(String me) {
-        logger.info("Executing operation greetMe");
+        LOG.info("Executing operation greetMe");
         System.out.println("Executing operation greetMe");
         System.out.println("Message received: " + me);
         return "Hello " + me;
     }
 
     public String sayHi() {
-        logger.info("Executing operation sayHi");
+        LOG.info("Executing operation sayHi");
         System.out.println("Executing operation sayHi");
         return "Bonjour";
     }
 
     public MyComplexStruct sendReceiveData(MyComplexStruct in) {
-        logger.info("Executing operation sendReceiveData");
+        LOG.info("Executing operation sendReceiveData");
         System.out.println("Executing operation sendReceiveData");
         System.out.println("Received struct with values :\nElement-1 : " + in.getElem1() + "\nElement-2 : "
                            + in.getElem2() + "\nElement-3 : " + in.getElem3() + "\n");

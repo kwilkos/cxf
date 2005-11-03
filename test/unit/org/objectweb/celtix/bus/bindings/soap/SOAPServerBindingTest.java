@@ -60,10 +60,6 @@ public class SOAPServerBindingTest extends TestCase {
         epr = EndpointReferenceUtils.getEndpointReference(wsdlUrl, serviceName, "SoapPort");
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-    
     public void testGetBinding() throws Exception {
         SOAPServerBinding serverBinding = new SOAPServerBinding(bus, epr, null);
         assertNotNull(serverBinding.getBinding());
@@ -216,7 +212,7 @@ public class SOAPServerBindingTest extends TestCase {
     
     class TestEndpointImpl extends javax.xml.ws.Endpoint {
 
-        private Object implementor;
+        private final Object implementor;
 
         TestEndpointImpl(Object impl) {
             implementor = impl;

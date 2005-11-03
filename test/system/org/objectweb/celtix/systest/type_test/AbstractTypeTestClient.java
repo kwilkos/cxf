@@ -158,9 +158,8 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
             && (actual.getMinute() == DatatypeConstants.FIELD_UNDEFINED)
             && (actual.getSecond() == DatatypeConstants.FIELD_UNDEFINED)
             && (actual.getMillisecond() == DatatypeConstants.FIELD_UNDEFINED)) {
-            if (orig.getTimezone() == actual.getTimezone()) {
-                result = true;
-            }
+
+            result = orig.getTimezone() == actual.getTimezone();
         }
         return result;
     }
@@ -186,9 +185,8 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
             && (orig.getMinute() == actual.getMinute())
             && (orig.getSecond() == actual.getSecond())
             && (orig.getMillisecond() == actual.getMillisecond())) {
-            if (orig.getTimezone() == actual.getTimezone()) {
-                result = true;
-            }
+
+            result = orig.getTimezone() == actual.getTimezone();
         }
         return result;
     }

@@ -30,14 +30,14 @@ import org.objectweb.celtix.common.injection.ResourceResolver;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-public class EndpointImpl extends javax.xml.ws.Endpoint {
+public final class EndpointImpl extends javax.xml.ws.Endpoint {
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
 
     private final Bus bus;
     //private final Configuration configuration;
     
-    private Object implementor;
+    private final Object implementor;
     private EndpointReferenceType reference;
     private ServerBinding serverBinding;
     private boolean published;

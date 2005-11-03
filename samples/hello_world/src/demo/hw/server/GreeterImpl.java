@@ -11,14 +11,14 @@ import org.objectweb.hello_world_soap_http.types.FaultDetail;
                   
 public class GreeterImpl implements Greeter {
 
-    private static Logger logger = 
+    private static final Logger LOG = 
         Logger.getLogger(GreeterImpl.class.getPackage().getName());
     
     /* (non-Javadoc)
      * @see org.objectweb.hello_world_soap_http.Greeter#greetMe(java.lang.String)
      */
     public String greetMe(String me) {
-        logger.info("Executing operation greetMe");
+        LOG.info("Executing operation greetMe");
         System.out.println("Executing operation greetMe");
         System.out.println("Message received: " + me);
         return "Hello " + me;
@@ -28,7 +28,7 @@ public class GreeterImpl implements Greeter {
      * @see org.objectweb.hello_world_soap_http.Greeter#greetMeOneWay(java.lang.String)
      */
     public void greetMeOneWay(String me) {
-        logger.info("Executing operation greetMeOneWay");
+        LOG.info("Executing operation greetMeOneWay");
         System.out.println("Executing operation greetMeOneWay");
         System.out.println("Hello there " + me);
     }
@@ -37,7 +37,7 @@ public class GreeterImpl implements Greeter {
      * @see org.objectweb.hello_world_soap_http.Greeter#sayHi()
      */
     public String sayHi() {
-        logger.info("Executing operation sayHi");
+        LOG.info("Executing operation sayHi");
         System.out.println("Executing operation sayHi");
         return "Bonjour";
     }
@@ -46,7 +46,7 @@ public class GreeterImpl implements Greeter {
         FaultDetail faultDetail = new FaultDetail();
         faultDetail.setMajor((short)2);
         faultDetail.setMinor((short)1);
-        logger.info("Executing operation pingMe, throwing PingMeFault exception");
+        LOG.info("Executing operation pingMe, throwing PingMeFault exception");
         System.out.println("Executing operation pingMe, throwing PingMeFault exception");
         throw new PingMeFault("PingMeFault", faultDetail);
     }

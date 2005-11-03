@@ -26,8 +26,7 @@ public final class EndpointUtils {
         assert null != endpoint;
         Object implementor = endpoint.getImplementor();
         if (implementor instanceof Provider) {
-            ServiceMode mode = implementor.getClass().getAnnotation(ServiceMode.class);
-            return mode;
+            return implementor.getClass().getAnnotation(ServiceMode.class);
         }
         return null;
     }

@@ -43,7 +43,7 @@ public class ResourceInjector implements AnnotationVisitor {
 
     public final void visitClass(final Class<?> clz, final Annotation annotation) {
         
-        assert annotation != null && annotation instanceof Resource : annotation; 
+        assert annotation instanceof Resource : annotation; 
 
         Resource res = (Resource)annotation; 
 
@@ -83,7 +83,7 @@ public class ResourceInjector implements AnnotationVisitor {
 
     public final void visitField(final Field field, final Annotation annotation) {
 
-        assert annotation != null && annotation instanceof Resource : annotation;
+        assert annotation instanceof Resource : annotation;
         
         
         Resource res = (Resource)annotation;
@@ -101,7 +101,7 @@ public class ResourceInjector implements AnnotationVisitor {
 
     public final void visitMethod(final Method method, final Annotation annotation) {
         
-        assert annotation != null && annotation instanceof Resource : annotation;
+        assert annotation instanceof Resource : annotation;
 
         Resource res = (Resource)annotation; 
 

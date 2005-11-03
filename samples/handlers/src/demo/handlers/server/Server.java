@@ -21,7 +21,7 @@ public class Server implements Runnable {
         bus = Bus.init(args);
         Object implementor = new AddNumbersImpl();
         String address = "http://localhost:9000/handlers/AddNumbersService/AddNumbersPort";
-        Endpoint ep = Endpoint.publish(address, implementor);
+        Endpoint.publish(address, implementor);
 
     }
 

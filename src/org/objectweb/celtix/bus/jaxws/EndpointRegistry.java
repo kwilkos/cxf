@@ -12,8 +12,8 @@ import org.objectweb.celtix.common.logging.LogUtils;
 public class EndpointRegistry {
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointRegistry.class);
-    private Bus bus;
-    private List<EndpointImpl> endpoints;
+    private final Bus bus;
+    private final List<EndpointImpl> endpoints;
 
     public EndpointRegistry(Bus b) {
         bus = b;

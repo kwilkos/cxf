@@ -3,6 +3,7 @@
     <!-- Targets for compiling the codebase -->
 
     <!-- Load the codegen targets -->
+    <import file="paths.xml"/>
     <import file="codegen.xml"/>
 
     <property name="xlint.args" value=":unchecked,deprecation,fallthrough,serial,finally"/>
@@ -12,6 +13,9 @@
     the build will fail.    This is to make sure the code is more maintainable. -->
     <taskdef resource="checkstyletask.properties"
          classpath="${tools.dir}/checkstyle/4.0-beta5/checkstyle-all-4.0-beta5.jar"/>
+    <taskdef name="pmd"
+    	classname="net.sourceforge.pmd.ant.PMDTask"
+        classpath="${tools.dir}/pmd/3.3/pmd.jar:${tools.dir}/pmd/3.3/jaxen-1.1-beta-7.jar"/>
 
     <target name="src.checkstyle" unless="no.checkstyle">
         <checkstyle config="${basedir}/etc/checkstyle.xml">
@@ -41,6 +45,23 @@
     <target name="checkstyle" depends="src.checkstyle,unittest.checkstyle,systemtest.checkstyle" description="Checkstyle the entire codebase"/>
 
 
+    <target name="pmd" unless="no.pmd" description="Run PMD on source files">
+        <pmd printToConsole="true"
+             targetjdk="1.5"
+            rulesetfiles="${basedir}/.ruleset"
+            failonerror="true"
+            failOnRuleViolation="true">
+            <fileset dir="src">
+                <include name="**/*.java"/>
+            </fileset>
+            <fileset dir="test/unit">
+                <include name="**/*.java"/>
+            </fileset>
+            <fileset dir="test/system">
+                <include name="**/*.java"/>
+            </fileset>
+        </pmd>
+    </target>
 
     <!--  Targets to compile the code -->
     <!-- TODO: need to setup classpaths and such for the dependent libs -->
@@ -69,6 +90,7 @@
             <fileset dir="${basedir}/src" includes="**/*.xml"/>
         </copy>
         <antcall target="src.checkstyle"/>
+        <antcall target="pmd"/>
     </target>
 
     <target name="spring.compile" depends="src.compile" description="Generate and compile the source for Spring support">

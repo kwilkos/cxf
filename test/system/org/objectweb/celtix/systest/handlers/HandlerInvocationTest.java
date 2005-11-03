@@ -22,9 +22,9 @@ import org.objectweb.hello_world_soap_http.types.GreetMe;
 
 public class HandlerInvocationTest extends ClientServerTestBase {
     
-    private QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", 
+    private final QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", 
                                           "HandlerTestService");    
-    private QName portName = new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
+    private final QName portName = new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
     
     private URL wsdl;
     private HandlerTestService service;
@@ -227,7 +227,7 @@ public class HandlerInvocationTest extends ClientServerTestBase {
         assertEquals(1, soapHandler1.getHandleMessageInvoked());
     }
 
-    private void addHandlersToChain(BindingProvider bp, Handler...handlers) { 
+    void addHandlersToChain(BindingProvider bp, Handler...handlers) { 
         List<Handler> handlerChain = bp.getBinding().getHandlerChain();
         assertNotNull(handlerChain);        
         for (Handler h : handlers) {

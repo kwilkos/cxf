@@ -23,7 +23,7 @@ public abstract class TestHandlerBase {
     protected boolean handleMessageRet = true; 
     Map<String, Integer> methodCallCount = new HashMap<String, Integer>();
     private final int id;
-    private boolean isServerSideHandler;
+    private final boolean isServerSideHandler;
 
     public TestHandlerBase(boolean serverSide) {
         id = ++sid; 

@@ -31,6 +31,7 @@
         <delete quiet="true" dir="${tools.dir}/tomcat/5.5.9/server/work"/>
         <delete quiet="true" file="run"/>
         <delete quiet="true" file="run.bat"/>
+        <delete quiet="true" file="pmd-eclipse.log"/>
     </target>
     
     <target name="very.clean" description="Clean the build artifacts, generated artifacts and directories">
@@ -42,5 +43,6 @@
                  <include name="**/build"/>
             </fileset>
         </delete>
+    	<antcall target="clean"/>
     </target>
 </project>

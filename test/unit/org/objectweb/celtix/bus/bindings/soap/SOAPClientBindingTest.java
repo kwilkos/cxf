@@ -53,10 +53,6 @@ public class SOAPClientBindingTest extends TestCase {
         epr = EndpointReferenceUtils.getEndpointReference(wsdlUrl, serviceName, "SoapPort");        
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-    
     public void testGetBinding() throws Exception {
         SOAPClientBinding clientBinding = new SOAPClientBinding(bus, epr);
         assertNotNull(clientBinding.getBinding());
@@ -207,10 +203,6 @@ public class SOAPClientBindingTest extends TestCase {
             return new TestClientTransport(bus, ref);
         }
         
-        public boolean hasFault(MessageContext msgCtx) {
-            return super.hasFault(msgCtx);
-        }
-        
         public void unmarshalFault(MessageContext context, ObjectMessageContext objContext) {
             super.unmarshalFault(context, objContext,
                                  new JAXBDataBindingCallback(objContext.getMethod(),
@@ -237,10 +229,6 @@ public class SOAPClientBindingTest extends TestCase {
             super.read(inCtx, context);
         }
 
-        public MessageContext createBindingMessageContext(MessageContext ctx) {
-            return super.createBindingMessageContext(ctx);
-        }
-        
     }
     
     class TestClientTransport implements ClientTransport {
@@ -260,8 +248,7 @@ public class SOAPClientBindingTest extends TestCase {
         }
 
         public InputStreamMessageContext invoke(OutputStreamMessageContext context) throws IOException {
-            TestOutputStreamContext ctx = (TestOutputStreamContext)context;
-            return ctx.createInputStreamContext();
+            return ((TestOutputStreamContext)context).createInputStreamContext();
         }
 
         public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context) 

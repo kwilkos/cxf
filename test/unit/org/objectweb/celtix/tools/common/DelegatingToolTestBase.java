@@ -15,11 +15,6 @@ public abstract class DelegatingToolTestBase extends ToolTestBase {
         mockGenerator = EasyMock.createNiceMock(Generator.class);
     }
     
-    public void tearDown() {
-        super.tearDown();
-    }
-    
-       
     public void testMainDelegatesToGenerator() { 
         
         mockGenerator = EasyMock.createMock(Generator.class);

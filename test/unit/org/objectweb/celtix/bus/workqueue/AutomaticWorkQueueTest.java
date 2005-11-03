@@ -278,10 +278,9 @@ public class AutomaticWorkQueueTest extends TestCase {
                 // allow thread to make no progress for 5 time-slices before
                 // assuming a deadlock has occurred
                 //  
-                if (oldCompleted != 0) {
-                    if (++noProgressCount > 5) {
-                        return false;
-                    }
+                if (oldCompleted != 0
+                    && ++noProgressCount > 5) {
+                    return false;
                 }
             }
             try {

@@ -27,8 +27,8 @@ public class GreeterServerMain {
     }
 
     private class TerminationHandler implements Runnable {
-        private Bus bus;
-        private boolean processRemainingTasks;
+        private final Bus bus;
+        private final boolean processRemainingTasks;
 
         TerminationHandler(Bus b, boolean p) {
             bus = b;

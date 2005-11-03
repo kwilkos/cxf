@@ -8,7 +8,7 @@ import org.objectweb.celtix.plugins.PluginException;
 
 public class BusPluginManager extends ApplicationPluginManager {
 
-    private Bus bus;
+    private final Bus bus;
     
     BusPluginManager(Bus b) {
         bus = b;

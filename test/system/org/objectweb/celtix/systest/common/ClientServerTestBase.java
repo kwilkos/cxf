@@ -17,11 +17,11 @@ public abstract class ClientServerTestBase extends TestCase {
         System.setProperty(ProviderImpl.JAXWSPROVIDER_PROPERTY, ProviderImpl.JAXWS_PROVIDER);
     }
     
+    protected static int setUpCount; 
     private static File onetimeMarker;
-    private static int setUpCount; 
     private static Bus bus; 
 
-    private List<ServerLauncher> launchers = new ArrayList<ServerLauncher>();  
+    private final List<ServerLauncher> launchers = new ArrayList<ServerLauncher>();  
 
     public void setUp() throws BusException {    
         
@@ -52,7 +52,7 @@ public abstract class ClientServerTestBase extends TestCase {
     } 
 
     private boolean oneTimeSetUpDone() { 
-        return onetimeMarker != null ? onetimeMarker.exists() : false;
+        return onetimeMarker == null ? false : onetimeMarker.exists();
     } 
 
 

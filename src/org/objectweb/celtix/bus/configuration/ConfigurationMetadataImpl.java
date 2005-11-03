@@ -11,8 +11,8 @@ import org.objectweb.celtix.configuration.ConfigurationMetadata;
 
 public class ConfigurationMetadataImpl implements ConfigurationMetadata {
 
-    private Map<String, ConfigurationItemMetadata> definitions;
-    private Map<String, TypeSchema> types;
+    private final Map<String, ConfigurationItemMetadata> definitions;
+    private final Map<String, TypeSchema> types;
     private String namespaceURI;
     
     protected ConfigurationMetadataImpl() {

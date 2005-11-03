@@ -8,7 +8,7 @@ import java.util.List;
 
 public abstract class AbstractAnnotationVisitor implements AnnotationVisitor {
 
-    private List<Class<? extends Annotation>> targetAnnotations = 
+    private final List<Class<? extends Annotation>> targetAnnotations = 
                                  new ArrayList<Class<? extends Annotation>>(); 
     
     private Object target; 
@@ -17,7 +17,7 @@ public abstract class AbstractAnnotationVisitor implements AnnotationVisitor {
         addTargetAnnotation(ann);
     }
 
-    protected void addTargetAnnotation(Class<? extends Annotation> ann) { 
+    protected final void addTargetAnnotation(Class<? extends Annotation> ann) { 
         targetAnnotations.add(ann); 
     } 
 

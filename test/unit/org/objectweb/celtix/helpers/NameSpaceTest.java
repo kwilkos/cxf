@@ -4,10 +4,10 @@ import junit.framework.TestCase;
 
 public class NameSpaceTest extends TestCase {
     
-    private String myURL1 = "http://test.objectweb.com/testurl1";
-    private String myURL2 = "http://test.objectweb.com/testurl2";
-    private String myCustomURL = "http://test.objectweb.com/custom-prefix-url";
-    private String myOwnPrefix = "myown-prefix";
+    private final String myURL1 = "http://test.objectweb.com/testurl1";
+    private final String myURL2 = "http://test.objectweb.com/testurl2";
+    private final String myCustomURL = "http://test.objectweb.com/custom-prefix-url";
+    private final String myOwnPrefix = "myown-prefix";
     
 
     public NameSpaceTest(String arg0) {
@@ -21,14 +21,6 @@ public class NameSpaceTest extends TestCase {
         junit.textui.TestRunner.run(NameSpaceTest.class);
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-    
     public void testNSStackOperations() throws Exception {
         NSStack  nsStackObj = new NSStack();
         

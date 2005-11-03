@@ -13,7 +13,7 @@ import javax.xml.ws.handler.MessageContext.Scope;
 public class ProviderMessageContext implements Map<String, Object> {
 
     private static final long serialVersionUID = 1L;
-    private MessageContext context;
+    private final MessageContext context;
 
     public ProviderMessageContext(MessageContext ctx) {
         context = ctx;

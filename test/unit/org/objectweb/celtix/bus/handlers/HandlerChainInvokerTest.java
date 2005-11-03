@@ -374,12 +374,12 @@ public class HandlerChainInvokerTest extends TestCase {
         private static int sid; 
         
         private int invokeOrder; 
-        private int id = ++sid; 
+        private final int id = ++sid; 
         
         private int handleMessageInvoked;
         private int handleFaultInvoked;
         private boolean handleMessageRet = true; 
-        private boolean handleFaultRet = true; 
+        private final boolean handleFaultRet = true; 
         private RuntimeException exception; 
 
         private int closeInvoked; 

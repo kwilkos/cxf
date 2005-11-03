@@ -6,17 +6,17 @@ import junit.framework.TestCase;
 
 public class PortInfoImplTest extends TestCase {
 
-    private PortInfoImpl p1 = new PortInfoImpl(new QName("http://foo.bar.com/test", "Port"),
+    private final PortInfoImpl p1 = new PortInfoImpl(new QName("http://foo.bar.com/test", "Port"),
                                        new QName("http://foo.bar.com/test", "Service"),
                                        "bindingid");
                                        
-    private PortInfoImpl p2 = new PortInfoImpl(new QName("http://foo.bar.com/test", "Port"),
+    private final PortInfoImpl p2 = new PortInfoImpl(new QName("http://foo.bar.com/test", "Port"),
                                        new QName("http://foo.bar.com/test", "Service"),
                                        "bindingid");
-    private PortInfoImpl p3 = new PortInfoImpl(new QName("http://foo.bar.com/test", "Port"),
+    private final PortInfoImpl p3 = new PortInfoImpl(new QName("http://foo.bar.com/test", "Port"),
                                        new QName("http://foo.bar.com/test", "Service"),
                                        "bindingid");
-    private PortInfoImpl p4 = new PortInfoImpl(new QName("http://foo.bar.com/test", "Port1"),
+    private final PortInfoImpl p4 = new PortInfoImpl(new QName("http://foo.bar.com/test", "Port1"),
                                        new QName("http://foo.bar.com/test", "Service"),
                                        "bindingid");
 

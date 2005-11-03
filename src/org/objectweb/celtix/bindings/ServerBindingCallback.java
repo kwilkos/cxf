@@ -5,9 +5,9 @@ import org.objectweb.celtix.transports.ServerTransport;
 
 public class ServerBindingCallback implements Runnable {
 
-    private InputStreamMessageContext context;
-    private ServerTransport transport;
-    private AbstractServerBinding binding;
+    private final InputStreamMessageContext context;
+    private final ServerTransport transport;
+    private final AbstractServerBinding binding;
 
     public ServerBindingCallback(InputStreamMessageContext ctx, ServerTransport t, AbstractServerBinding b) {
         context = ctx;

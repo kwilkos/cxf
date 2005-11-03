@@ -5,7 +5,6 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
@@ -14,20 +13,14 @@ import org.objectweb.hello_world_soap_http.SOAPService;
 
 public class ClientServerTest extends ClientServerTestBase {
 
-    private QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");    
-    private QName portName = new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
+    private final QName serviceName = new QName("http://objectweb.org/hello_world_soap_http",
+                                                "SOAPService");    
+    private final QName portName = new QName("http://objectweb.org/hello_world_soap_http",
+                                             "SoapPort");
 
     
-    public void setUp() throws BusException {
-        super.setUp();
-    }
-
     public void onetimeSetUp() { 
         assertTrue("server did not launch correctly", launchServer(Server.class));
-    }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
     }
 
     public void testBasicConnection() throws Exception {

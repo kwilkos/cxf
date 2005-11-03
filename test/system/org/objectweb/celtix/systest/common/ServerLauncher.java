@@ -107,9 +107,8 @@ public class ServerLauncher {
                     StringBuilder serverOutput = new StringBuilder();
                     FileOutputStream fos = new FileOutputStream(className + ".out");
                     PrintStream ps = new PrintStream(fos);
-                    int ch = -1;
                     boolean running = true;
-                    while ((ch = in.read()) != -1 && running) {
+                    for (int ch = in.read(); ch != -1; ch = in.read()) {
                         serverOutput.append((char)ch);
                         String s = serverOutput.toString();
                         if (s.contains("server ready")) {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><fileset-config file-format-version="1.1.0" simple-config="false">
-<fileset name="all" check-config-name="Celtix Checks" enabled="true"><file-match-pattern match-pattern="^src[/\\]." include-pattern="true"/>
-<file-match-pattern match-pattern="^test[/\\]." include-pattern="true"/>
+<fileset name="all" check-config-name="Celtix Checks" enabled="true"><file-match-pattern match-pattern="java$" include-pattern="true"/>
+<file-match-pattern match-pattern="[/\\]build[/\\]" include-pattern="false"/>
+<file-match-pattern match-pattern="^build[/\\]" include-pattern="false"/>
 </fileset>
 </fileset-config>

@@ -37,9 +37,9 @@ public class ServiceImpl extends ServiceDelegate {
     
     private URL wsdlLocation;
     private QName serviceName;
-    private List<QName> endpointList;
+    private final List<QName> endpointList;
     private final Bus bus;
-    private Configuration configuration;
+    private final Configuration configuration;
     private HandlerResolver handlerResolver; 
     
     /**

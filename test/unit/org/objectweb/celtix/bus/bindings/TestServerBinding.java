@@ -64,7 +64,7 @@ public class TestServerBinding extends AbstractServerBinding {
     protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
         // populate object context with test data depending on current operation
         // name
-        if (currentOperation.equals("greetMe")) {
+        if ("greetMe".equals(currentOperation)) {
             String name = System.getProperty("user.name");
             objContext.setMessageObjects(name);
         }

@@ -15,8 +15,10 @@ import org.objectweb.hello_world_soap_http.SOAPService;
 
 public class RegistrationTest extends ClientServerTestBase {
     
-    private QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");    
-    private QName portName = new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
+    private final QName serviceName = new QName("http://objectweb.org/hello_world_soap_http",
+                                                "SOAPService");    
+    private final QName portName = new QName("http://objectweb.org/hello_world_soap_http",
+                                             "SoapPort");
     
     private URL wsdl;
     private SOAPService service;

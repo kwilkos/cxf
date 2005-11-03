@@ -7,8 +7,8 @@ public final class Application {
     
     private static Application theInstance;
     
-    private Configuration configuration;
-    private PluginManager pluginManager;
+    private final Configuration configuration;
+    private final PluginManager pluginManager;
     
     private Application() {
         configuration = new ApplicationConfiguration(); 

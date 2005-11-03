@@ -41,7 +41,7 @@ public class ConfigurationMetadataBuilder  {
     private static Schema metadataSchema;
     private static ErrorHandler validatorErrorHandler;
     
-    private ConfigurationMetadataImpl model;
+    private final ConfigurationMetadataImpl model;
     
     public ConfigurationMetadataBuilder() {
         model = new ConfigurationMetadataImpl();

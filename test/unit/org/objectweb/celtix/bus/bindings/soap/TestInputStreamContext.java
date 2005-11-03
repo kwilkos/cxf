@@ -27,7 +27,7 @@ public class TestInputStreamContext
     implements InputStreamMessageContext {
 
     private static final long serialVersionUID = 1L;
-    private byte[] byteArray;
+    private final byte[] byteArray;
     private InputStream inputStream;
     public TestInputStreamContext(byte[] bArray) throws IOException {
         byteArray = bArray;

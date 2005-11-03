@@ -149,9 +149,10 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
     
     private Configuration getRootConfiguration() {
         Configurator parent = configuration.getConfigurator();
-        Configurator hook;
-        while (null != (hook = parent.getHook())) {
+        Configurator hook = parent.getHook();
+        while (null != hook) {
             parent = hook;
+            hook = parent.getHook();
         }
         return parent.getConfiguration();
     }

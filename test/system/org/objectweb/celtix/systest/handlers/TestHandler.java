@@ -86,19 +86,18 @@ public class TestHandler<T extends LogicalMessageContext>
                 return ret;
             }
 
-            if (getHandlerId().equals(hid)) {
-                if ("inbound".equals(direction)) {
-                    if ("stop".equals(command)) {
-                        PingResponse resp = new PingResponse();
-                        getHandlerInfoList(ctx).add(getHandlerId()); 
-                        resp.getHandlersInfo().addAll(getHandlerInfoList(ctx));
-                        msg.setPayload(resp, jaxbCtx);
-                        ret = false;
-                    } else if ("throw".equals(command)) {
-                        throwException(strtok.nextToken());
-                    }
+            if (getHandlerId().equals(hid)
+                && "inbound".equals(direction)) {
+                
+                if ("stop".equals(command)) {
+                    PingResponse resp = new PingResponse();
+                    getHandlerInfoList(ctx).add(getHandlerId()); 
+                    resp.getHandlersInfo().addAll(getHandlerInfoList(ctx));
+                    msg.setPayload(resp, jaxbCtx);
+                    ret = false;
+                } else if ("throw".equals(command)) {
+                    throwException(strtok.nextToken());
                 }
-
             }
         }
         return ret;

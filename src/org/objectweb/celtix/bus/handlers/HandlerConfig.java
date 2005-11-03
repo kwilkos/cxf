@@ -8,7 +8,7 @@ public class HandlerConfig {
 
     private String className;
     private String name;
-    private Map<String, String> initParams = new HashMap<String, String>();
+    private final Map<String, String> initParams = new HashMap<String, String>();
 
     public HandlerConfig() {
     }

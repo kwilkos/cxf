@@ -36,10 +36,6 @@ public class JAXBEncoderDecoderTest extends TestCase {
         wrapperAnnotation = method.getAnnotation(RequestWrapper.class);
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     public void testMarshall() throws Exception {
         String str = new String("Hello");
         QName inCorrectElName = new QName("http://test_jaxb_marshall", "requestType");

@@ -18,8 +18,9 @@ public class ConcurrentInvokerTest extends ClientServerTestBase {
     static final int EXPECTED_CALLS = INVOKER_COUNT * INVOCATION_REPS;
 
     private Greeter greeter;
-    private QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");    
-    private QName portName = new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
+    private final QName serviceName = new QName("http://objectweb.org/hello_world_soap_http",
+                                                "SOAPService");    
+    private final QName portName = new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ConcurrentInvokerTest.class);
@@ -34,10 +35,6 @@ public class ConcurrentInvokerTest extends ClientServerTestBase {
 
     public void onetimeSetUp() { 
         assertTrue("server did not launch correctly", launchServer(Server.class));
-    }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
     }
 
     public void testConcurrentInvocation() throws Exception {

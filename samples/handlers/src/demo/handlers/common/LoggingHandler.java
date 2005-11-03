@@ -24,12 +24,8 @@ public class LoggingHandler implements SOAPHandler<SOAPMessageContext> {
     // change this to redirect output if desired
     private static PrintStream out = System.out;
 
-    // used to hold initilization data
-    private Map config;
-
     public void init(Map c) {
         System.out.println("LoggingHandler : init() Called....");
-        this.config = c;
     }
 
     public Set<QName> getHeaders() {

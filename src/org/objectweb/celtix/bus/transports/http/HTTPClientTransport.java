@@ -63,8 +63,7 @@ public class HTTPClientTransport implements ClientTransport {
     }
 
     public InputStreamMessageContext invoke(OutputStreamMessageContext context) throws IOException {
-        HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;
-        return ctx.createInputStreamContext();
+        return ((HTTPClientOutputStreamContext)context).createInputStreamContext();
     }
 
     public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context) 

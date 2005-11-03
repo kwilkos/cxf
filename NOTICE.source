@@ -10,3 +10,5 @@ WSDL4J                1.5.1     CPL    http://www.opensource.org/licenses/cpl1.0
 JAX-WS Reference Impl 2005-09-29 CDDL  lib/jaxws-ri/20050929/license.txt
                                        lib/jaxws-ri/20050929/JAXWSv2.0.THIRDPARTYLICENSEREADME.txt
 Code Gen Library (cglib) 2.1.2  APACHE http://www.apache.org/licenses/LICENSE-2.0.txt
+PMD					  3.3       BSD    http://pmd.sourceforge.net/license.html
+Jaxen				  1.1	    APACHE tools/pmd/3.3/jaxen-LICENSE.txt

@@ -1,7 +1,7 @@
 package org.objectweb.celtix.application.test;
 
 public class PersonalGreeter {
-    private String name;
+    private final String name;
 
     public PersonalGreeter(String n) {
         name = n;

@@ -15,8 +15,8 @@ import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
 
 public class LogicalMessageImplTest extends TestCase {
 
-    private ObjectMessageContextImpl ctx = new ObjectMessageContextImpl();
-    private LogicalMessageImpl lm = new LogicalMessageImpl(new LogicalMessageContextImpl(ctx)); 
+    private final ObjectMessageContextImpl ctx = new ObjectMessageContextImpl();
+    private final LogicalMessageImpl lm = new LogicalMessageImpl(new LogicalMessageContextImpl(ctx)); 
     private JAXBContext jaxbCtx; 
 
     public void setUp() throws Exception { 

@@ -14,7 +14,7 @@ public class ResourceInjectorTest extends TestCase {
 
     Map<String, String> resourceMap = new HashMap<String, String>(); 
 
-    private ResourceInjector injector = new ResourceInjector(new TestResolver());
+    private final ResourceInjector injector = new ResourceInjector(new TestResolver());
         
     public void setUp() { 
         resourceMap.put("resource1", RESOURCE_ONE); 

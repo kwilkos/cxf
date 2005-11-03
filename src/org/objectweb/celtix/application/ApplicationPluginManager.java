@@ -31,7 +31,7 @@ public class ApplicationPluginManager implements PluginManager {
     private static final MessageFormat PLUGINS_PREREQUISITES_FMT = 
         new MessageFormat("plugins:{0}:prerequisites");
 
-    private List<PluginInfo> plugins;
+    private final List<PluginInfo> plugins;
 
     public ApplicationPluginManager() {
         plugins = new ArrayList<PluginInfo>();

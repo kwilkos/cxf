@@ -7,12 +7,12 @@ import org.objectweb.celtix.plugins.PluginManager;
 
 public class PluginInfo {
 
-    private String className;
-    private PluginManager loadingManager;
-    private PluginStateMachine state;
+    private final String className;
+    private final PluginManager loadingManager;
+    private final PluginStateMachine state;
+    private final Collection<PluginManager> referringManagers;
     private Object plugin;
     private PluginInfo requiredFor;
-    private Collection<PluginManager> referringManagers;
     
     PluginInfo(String cn, PluginManager o) {
         className = cn;

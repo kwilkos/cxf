@@ -35,7 +35,7 @@ public class PortInfoImpl implements PortInfo {
             return true;
         }
         
-        if (o == null || !(o instanceof PortInfoImpl)) {
+        if (!(o instanceof PortInfoImpl)) {
             return false;            
         }        
         PortInfoImpl rhs = (PortInfoImpl)o;

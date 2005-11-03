@@ -50,10 +50,6 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         }
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     public void testMarshalRPCLitInputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation
         soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);

@@ -38,8 +38,8 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     private Annotation[][] paramAnnotations;
     private RequestWrapper reqWrapper;
     private ResponseWrapper respWrapper;
-    private Method method;
-    private Mode mode;
+    private final Method method;
+    private final Mode mode;
     private WebService webServiceAnnotation;
     
     public JAXBDataBindingCallback(Method m, Mode md) {

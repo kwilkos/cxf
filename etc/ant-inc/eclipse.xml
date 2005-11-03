@@ -12,13 +12,14 @@
     <property name="eclipse.project.workspace" value="${basedir}/../workspace"/>
 
     <target name="generate.eclipse.workspace" description="Generates an eclipse workspace"
-        depends="src.compile,unittest.compile,systest.compile,generate.eclipse.workspace.dirs,generate.eclipse.workspace.settings"/>
+        depends="codegen,src.compile,unittest.compile,systest.compile,generate.eclipse.workspace.dirs,generate.eclipse.workspace.settings"/>
 
     <target name="generate.eclipse.workspace.dirs">
         <mkdir dir="${eclipse.project.workspace}"/>
         <mkdir dir="${eclipse.project.workspace}/.metadata"/>
         <mkdir dir="${eclipse.project.workspace}/.metadata/.plugins"/>
         <mkdir dir="${eclipse.project.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle"/>
+        <mkdir dir="${eclipse.project.workspace}/.metadata/.plugins/org.eclipse.ui.workbench"/>
     </target>
 
     <target name="generate.eclipse.workspace.settings">
@@ -46,6 +47,10 @@
                 <filter token="TOOLS_DIR" value="${eclipse.tools.dir}"/>
                 <filter token="JAXWS_HOME" value="${eclipse.jaxws.home}"/>
             </filterset>
+        </copy>
+        <copy file="${basedir}/etc/eclipse/workingsets.xml"
+            tofile="${eclipse.project.workspace}/.metadata/.plugins/org.eclipse.ui.workbench/workingsets.xml"
+            overwrite="yes">
         </copy>
     </target>
 

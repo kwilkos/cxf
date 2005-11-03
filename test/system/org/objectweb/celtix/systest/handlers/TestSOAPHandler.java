@@ -57,14 +57,13 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
             SOAPMessage msg = ctx.getMessage();
 
             if (isServerSideHandler()) {
-                if (!outbound) {
+                if (outbound) {
+                    continueProcessing = true;
+                } else {
                     continueProcessing = getReturnValue(outbound, ctx); 
                     if (!continueProcessing) {
                         outbound = true;
                     }
-
-                } else {
-                    continueProcessing = true;
                 }
 
                 if (outbound) {
@@ -137,34 +136,33 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
             String direction = strtok.nextToken();
             String command = strtok.nextToken();
             
-            if (getHandlerId().equals(hid)) {
-                if ("inbound".equals(direction)) {
-                    if ("stop".equals(command)) {
+            if (getHandlerId().equals(hid)
+                && "inbound".equals(direction)) {
+                if ("stop".equals(command)) {
 
-                        // remove the incoming request body.
-                        Document doc = body.getOwnerDocument(); 
-                        // build the SOAP response for this message 
+                    // remove the incoming request body.
+                    Document doc = body.getOwnerDocument(); 
+                    // build the SOAP response for this message 
+                    //
+                    Node wrapper = doc.createElementNS(namespace, "pingResponse");
+                    wrapper.setPrefix("ns4");
+                    body.removeChild(body.getFirstChild());
+                    body.appendChild(wrapper); 
+
+                    for (String info : getHandlerInfoList(ctx)) {
+                        // copy the the previously invoked handler list into the response.  
+                        // Ignore this handlers information as it will be added again later.
                         //
-                        Node wrapper = doc.createElementNS(namespace, "pingResponse");
-                        wrapper.setPrefix("ns4");
-                        body.removeChild(body.getFirstChild());
-                        body.appendChild(wrapper); 
-
-                        for (String info : getHandlerInfoList(ctx)) {
-                            // copy the the previously invoked handler list into the response.  
-                            // Ignore this handlers information as it will be added again later.
-                            //
-                            if (!info.contains(getHandlerId())) {
-                                Node newEl = doc.createElementNS(namespace, "HandlersInfo");
-                                newEl.setPrefix("ns4");
-                                newEl.appendChild(doc.createTextNode(info));
-                                wrapper.appendChild(newEl); 
-                            }
+                        if (!info.contains(getHandlerId())) {
+                            Node newEl = doc.createElementNS(namespace, "HandlersInfo");
+                            newEl.setPrefix("ns4");
+                            newEl.appendChild(doc.createTextNode(info));
+                            wrapper.appendChild(newEl); 
                         }
-                        ret = false;
-                    } else if ("throw".equals(command)) {
-                        //throwException(strtok.nextToken());
                     }
+                    ret = false;
+                } else if ("throw".equals(command)) {
+                    //throwException(strtok.nextToken());
                 }
             }
 

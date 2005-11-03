@@ -23,7 +23,7 @@ public class TestBindingFactory implements BindingFactory {
         return new TestServerBinding(bus, reference, endpoint);
     }
 
-    public void init(Bus b) {
+    public final void init(Bus b) {
         bus = b;
     }
 }

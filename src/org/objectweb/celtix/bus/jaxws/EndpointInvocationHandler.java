@@ -29,12 +29,13 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 
-public class EndpointInvocationHandler implements BindingProvider, InvocationHandler
+public final class EndpointInvocationHandler implements BindingProvider, InvocationHandler
 {
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
-    protected ClientBinding clientBinding;
-    protected Map<String, Object> requestContext;
-    protected Map<String, Object> responseContext;
+    
+    private final ClientBinding clientBinding;
+    private Map<String, Object> requestContext;
+    private Map<String, Object> responseContext;
     
     private final Class<?> portTypeInterface;
     private final Bus bus;

@@ -254,8 +254,8 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
             
             final class Servicer implements Runnable {
                 private boolean complete;
-                private ServletRequest request;
-                private ServletResponse response;
+                private final ServletRequest request;
+                private final ServletResponse response;
                 
                 Servicer(ServletRequest req, ServletResponse resp) {
                     request = req;

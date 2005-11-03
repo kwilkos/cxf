@@ -262,7 +262,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
     }
     
     private boolean isOneWay(Method method) {
-        return (method.getAnnotation(Oneway.class) != null) ? true : false; 
+        return !(method.getAnnotation(Oneway.class) == null); 
     }
     
     private Method getMethod(MessageContext requestCtx, ObjectMessageContext objContext) {

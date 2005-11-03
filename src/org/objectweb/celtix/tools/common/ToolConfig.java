@@ -16,7 +16,7 @@ public class ToolConfig extends AbstractCommandLineConfiguration {
     }
 
     @Override
-    protected void parseCommandLine(String[] args, boolean consume) {
+    protected final void parseCommandLine(String[] args, boolean consume) {
 
         originalArgs = new String[args.length];
         System.arraycopy(args, 0, originalArgs, 0, args.length);

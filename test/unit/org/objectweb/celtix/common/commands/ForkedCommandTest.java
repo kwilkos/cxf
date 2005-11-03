@@ -78,13 +78,13 @@ public class ForkedCommandTest extends TestCase {
             String line = st.nextToken();
             if (line.length() > 0) {
                 if (System.getProperty("os.name").startsWith("Windows")) {
-                    if (line.equals("AVAR=something very %BVAR%")) {
+                    if ("AVAR=something very %BVAR%".equals(line)) {
                         found = true;
                         break;
                     }
                 } else {
-                    if (line.equals("AVAR=something very $BVAR")
-                        || line.equals("AVAR=something $BVAR")) {
+                    if ("AVAR=something very $BVAR".equals(line)
+                        || "AVAR=something $BVAR".equals(line)) {
                         found = true;
                         break;
                     }

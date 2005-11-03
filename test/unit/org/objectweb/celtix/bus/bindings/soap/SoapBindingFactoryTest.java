@@ -25,14 +25,6 @@ public class SoapBindingFactoryTest extends TestCase {
         junit.textui.TestRunner.run(SoapBindingFactoryTest.class);
     }
     
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     public void testCreateClientBinding() throws Exception {
         Bus bus = Bus.init(new String[0]);
         BindingFactory factory = 

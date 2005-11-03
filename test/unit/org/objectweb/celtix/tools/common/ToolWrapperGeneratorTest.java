@@ -5,15 +5,7 @@ package org.objectweb.celtix.tools.common;
 
 public class ToolWrapperGeneratorTest extends ToolTestBase {
     
-    private ToolWrapperGenerator generator = new ToolWrapperGenerator(ToolDummy.class.getName());
-    
-    public void setUp() {
-        super.setUp();
-    }
-    
-    public void tearDown() { 
-        super.tearDown();
-    }
+    private final ToolWrapperGenerator generator = new ToolWrapperGenerator(ToolDummy.class.getName());
     
 
     public void testGeneratorUsingDefaultClassLoader() {     

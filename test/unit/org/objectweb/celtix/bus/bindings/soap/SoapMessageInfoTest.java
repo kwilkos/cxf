@@ -21,7 +21,7 @@ import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 public class SoapMessageInfoTest extends TestCase {
     private DataBindingCallback msgInfo;
     private DataBindingCallback rpcMsgInfo;
-    private String methodNameString = "greetMe";
+    private final String methodNameString = "greetMe";
       
     
     public SoapMessageInfoTest(String arg0) {
@@ -39,10 +39,6 @@ public class SoapMessageInfoTest extends TestCase {
         
         rpcMsgInfo = new JAXBDataBindingCallback(SOAPMessageUtil.getMethod(GreeterRPCLit.class, "greetMe"),
                                              DataBindingCallback.Mode.PARTS);
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
     }
 
     public void testGetSoapStyle() throws Exception {

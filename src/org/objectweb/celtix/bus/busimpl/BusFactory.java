@@ -47,8 +47,7 @@ public final class BusFactory {
         
         // create the bus
        
-        Bus bus = createBus(busClass, classLoader, args, properties);
-        return bus;    
+        return createBus(busClass, classLoader, args, properties);
     }
     
     private static Bus createBus(String className,

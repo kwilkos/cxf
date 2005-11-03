@@ -211,7 +211,7 @@ public class WSDLManagerImpl implements WSDLManager {
         Definition definition = null;
         
         class Directory {
-            private File dir;
+            private final File dir;
             Directory(File d) {
                 dir = d;
             }

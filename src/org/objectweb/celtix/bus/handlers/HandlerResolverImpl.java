@@ -20,7 +20,7 @@ public class HandlerResolverImpl implements HandlerResolver {
 
     private static final Logger LOG = Logger.getLogger(HandlerResolverImpl.class.getName());
     
-    private Map<PortInfo, List<Handler>> handlerMap = new HashMap<PortInfo, List<Handler>>();  
+    private final Map<PortInfo, List<Handler>> handlerMap = new HashMap<PortInfo, List<Handler>>();  
     private Configuration configuration;
     
     public HandlerResolverImpl(Configuration c) {

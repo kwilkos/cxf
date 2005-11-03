@@ -210,8 +210,8 @@ public class ForkedCommand extends Thread {
 
 class ForkedCommandStreamHandler extends Thread {
 
-    private InputStream is;
-    private PrintStream ps;
+    private final InputStream is;
+    private final PrintStream ps;
 
     ForkedCommandStreamHandler(InputStream i, PrintStream p) {
         is = i;

@@ -21,10 +21,6 @@ public class MessageContextWrapperTest extends AbstractMessageContextTestBase {
     }
 
     
-    public void setUp() { 
-        super.setUp();               
-    }
-    
     /*
      * Test method for 'org.objectweb.celtix.bus.context.MessageContextWrapper.size()'
      */

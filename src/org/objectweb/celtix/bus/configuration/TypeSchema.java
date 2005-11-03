@@ -49,8 +49,8 @@ public class TypeSchema {
     private Schema schema;
     private Validator validator;
     private String packageName;
-    private Map<String, String> types;
-    private Map<String, String> baseTypes;
+    private final Map<String, String> types;
+    private final Map<String, String> baseTypes;
 
     /**
      * prevent instantiation
@@ -189,11 +189,10 @@ public class TypeSchema {
             Message msg = new Message("DEFAULT_VALUE_UNMARSHAL_ERROR_EXC", LOG, item.getName());
             throw new ConfigurationException(msg, ex);
         }
-        if (null != obj) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Unmarshaled default value into object of type: " + obj.getClass().getName() 
-                         + "    value: " + obj);
-            }     
+        if (null != obj
+            && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Unmarshaled default value into object of type: " + obj.getClass().getName() 
+                     + "    value: " + obj);
         }
         return obj;
     }
@@ -206,34 +205,33 @@ public class TypeSchema {
     private void deserializeTypes(Document document) {
         Element root = document.getDocumentElement();
         for (Node nd = root.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
-            if (Node.ELEMENT_NODE == nd.getNodeType()) {
-                if ("element".equals(nd.getLocalName())) {
-                    QName name = ConfigurationMetadataUtils.elementAttributeToQName(
-                        document, (Element)nd, "name");
-                    String localName = name.getLocalPart();
-                    /*
-                    if (!isJavaIdentifier(localName)) {
-                        throw new ConfigurationException(new Message("ELEMENT_NAME_NOT_AN_IDENTIFIER_EXC", 
-                                                                     LOG, localName));
-                    } 
-                    */                                                               
-                    QName type = ConfigurationMetadataUtils.elementAttributeToQName(
-                        document, (Element)nd, "type");                    
-                    String localType = type.getLocalPart();
-                    
-                    /*
-                    if (!isJavaIdentifier(localType)) {
-                        throw new ConfigurationException(new Message("ELEMENT_TYPE_NOT_AN_IDENTIFIER_EXC", 
-                                                                     LOG, localType));
-                    }
-                    */
-                    
-                    types.put(localName, localType);
-                    
-                    String baseType = getBaseType(document, type);
-                    if (null != baseType) {
-                        baseTypes.put(localName, baseType);
-                    }
+            if (Node.ELEMENT_NODE == nd.getNodeType()
+                && "element".equals(nd.getLocalName())) {
+                QName name = ConfigurationMetadataUtils.elementAttributeToQName(
+                    document, (Element)nd, "name");
+                String localName = name.getLocalPart();
+                /*
+                if (!isJavaIdentifier(localName)) {
+                    throw new ConfigurationException(new Message("ELEMENT_NAME_NOT_AN_IDENTIFIER_EXC", 
+                                                                 LOG, localName));
+                } 
+                */                                                               
+                QName type = ConfigurationMetadataUtils.elementAttributeToQName(
+                    document, (Element)nd, "type");                    
+                String localType = type.getLocalPart();
+                
+                /*
+                if (!isJavaIdentifier(localType)) {
+                    throw new ConfigurationException(new Message("ELEMENT_TYPE_NOT_AN_IDENTIFIER_EXC", 
+                                                                 LOG, localType));
+                }
+                */
+                
+                types.put(localName, localType);
+                
+                String baseType = getBaseType(document, type);
+                if (null != baseType) {
+                    baseTypes.put(localName, baseType);
                 }
             }
         }

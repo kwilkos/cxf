@@ -34,9 +34,16 @@ public abstract class AbstractClientBinding implements ClientBinding {
     public AbstractClientBinding(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
         bus = b;
         reference = ref;
-        transport = createTransport(reference);
+        transport = null;
     }
-
+    
+    protected synchronized ClientTransport getTransport() throws WSDLException, IOException {
+        if (transport == null) {
+            transport = createTransport(reference);
+        }
+        return transport;
+    }
+    
     protected ClientTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
         ClientTransport ret = null;
         try {
@@ -101,15 +108,20 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
             if (continueProcessing) {  
 
-                if (null != bindingContext) {
-                    marshal(context, bindingContext, callback);
-                } else {
+                if (null == bindingContext) {
                     bindingContext = context;
+                } else {
+                    marshal(context, bindingContext, callback);
                 }
 
                 continueProcessing = handlerInvoker.invokeProtocolHandlers(true, bindingContext); 
 
                 if (continueProcessing) {
+                    try {
+                        getTransport();
+                    } catch (WSDLException e) {
+                        throw (IOException)(new IOException(e.getMessage()).initCause(e));
+                    }
                     assert transport != null : "transport is null";
                     
                     OutputStreamMessageContext ostreamContext = 
@@ -182,6 +194,11 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 continueProcessing = handlerInvoker.invokeProtocolHandlers(true, bindingContext);
 
                 if (continueProcessing) { 
+                    try {
+                        getTransport();
+                    } catch (WSDLException e) {
+                        throw (IOException)(new IOException(e.getMessage()).initCause(e));
+                    }
                     assert transport != null : "transport is null";
 
                     OutputStreamMessageContext ostreamContext = 

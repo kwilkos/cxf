@@ -12,9 +12,9 @@ import org.objectweb.celtix.configuration.Configurator;
  */
 public class ConfiguratorImpl implements Configurator {
     
-    private Configuration configuration;
-    private Configurator hook;
-    private Collection<Configurator> clients;   
+    private final Configuration configuration;
+    private final Configurator hook;
+    private final Collection<Configurator> clients;   
     
     public ConfiguratorImpl(Configuration c, Configuration parent) {
         configuration = c;
@@ -22,6 +22,8 @@ public class ConfiguratorImpl implements Configurator {
         if (null != parent) {
             hook = parent.getConfigurator();
             hook.registerClient(this);
+        } else {
+            hook = null;
         }
     }
     

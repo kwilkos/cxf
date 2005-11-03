@@ -47,10 +47,6 @@ public class SoapBindingImplTest extends TestCase {
         objContext.setMethod(SOAPMessageUtil.getMethod(Greeter.class, "greetMe"));
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     public void testGetMessageFactory() throws Exception {
         assertNotNull(binding.getSOAPFactory());
     }

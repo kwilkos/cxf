@@ -18,8 +18,8 @@ import static org.easymock.EasyMock.*;
 
 public class HandlerResolverImplTest extends TestCase {
 
-    private HandlerResolverImpl resolver = new HandlerResolverImpl();
-    private PortInfoImpl portInfo = new PortInfoImpl(
+    private final HandlerResolverImpl resolver = new HandlerResolverImpl();
+    private final PortInfoImpl portInfo = new PortInfoImpl(
         new QName("http://objectweb.org/hello_world_soap_http", "Greeter"),
         new QName("http://objectweb.org/hello_world_soap_http", "SOAP_Service"),
         "Greeter_SOAPBinding");

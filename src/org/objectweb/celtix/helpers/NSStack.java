@@ -8,7 +8,7 @@ public class NSStack {
 
     private static final String NS_PREFIX_PREFIX = "ns";
 
-    private List<List<NSDecl>> stack = new ArrayList<List<NSDecl>>();
+    private final List<List<NSDecl>> stack = new ArrayList<List<NSDecl>>();
     private List<NSDecl> top; 
     private int size; 
     private int nsPrefixCount = 1;
