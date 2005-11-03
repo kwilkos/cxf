@@ -39,7 +39,7 @@ public class HandlerInvocationTest extends ClientServerTestBase {
         try { 
             super.setUp();
             
-            wsdl = HandlerInvocationTest.class.getResource("/handler_test.wsdl");
+            wsdl = HandlerInvocationTest.class.getResource("/wsdl/handler_test.wsdl");
             service = new HandlerTestService(wsdl, serviceName);
             handlerTest = (HandlerTest) service.getPort(portName, HandlerTest.class);
         } catch (Exception ex) {

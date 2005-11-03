@@ -23,7 +23,7 @@ public class ClientServerTest extends ClientServerTestBase {
     }
 
     public void testBasicConnection() throws Exception {
-        URL wsdl = getClass().getResource("/hello_world_rpc_lit.wsdl");
+        URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
         assertNotNull(wsdl);
 
         SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
@@ -49,7 +49,7 @@ public class ClientServerTest extends ClientServerTestBase {
     }
     
     public void testComplexType() throws Exception {
-        URL wsdl = getClass().getResource("/hello_world_rpc_lit.wsdl");
+        URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
         assertNotNull(wsdl);
 
         SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);

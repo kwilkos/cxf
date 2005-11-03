@@ -9,7 +9,7 @@ import junit.framework.TestSuite;
 import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient;
 
 public class SOAPClientTypeTest extends AbstractTypeTestClient {
-    static final String WSDL_PATH = "/type_test/type_test_soap.wsdl";
+    static final String WSDL_PATH = "/wsdl/type_test/type_test_soap.wsdl";
     static final QName SERVICE_NAME = new QName("http://objectweb.org/type_test", "SOAPService");
     static final QName PORT_NAME = new QName("http://objectweb.org/type_test", "SOAPPort");
     static String[] args = new String[] {};

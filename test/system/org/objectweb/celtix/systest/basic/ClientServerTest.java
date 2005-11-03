@@ -24,7 +24,7 @@ public class ClientServerTest extends ClientServerTestBase {
     }
 
     public void testBasicConnection() throws Exception {
-        URL wsdl = getClass().getResource("/hello_world.wsdl");
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         
         SOAPService service = new SOAPService(wsdl, serviceName);
@@ -52,7 +52,7 @@ public class ClientServerTest extends ClientServerTestBase {
     } 
 
     public void testFaults() throws Exception {
-        URL wsdl = getClass().getResource("/hello_world.wsdl");
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         
         SOAPService service = new SOAPService(wsdl, serviceName);

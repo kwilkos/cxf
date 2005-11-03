@@ -13,6 +13,7 @@
                  <include name="test-spring-src/**/*"/>
                  <include name="test-src/**/*"/>
                  <include name="set_env*"/>
+                 <include name="wsdl/**/*"/>
             </fileset>
         </delete>
         <delete quiet="true" includeemptydirs="true">
@@ -29,9 +30,14 @@
         <delete quiet="true" dir="${build.package.dir}"/>
         <delete quiet="true" dir="${basedir}/build/javadoc"/>
         <delete quiet="true" dir="${tools.dir}/tomcat/5.5.9/server/work"/>
-        <delete quiet="true" file="run"/>
-        <delete quiet="true" file="run.bat"/>
-        <delete quiet="true" file="pmd-eclipse.log"/>
+        <delete quiet="true">
+        	<fileset dir="${basedir}">
+        		<include name="org.*.out"/>
+        		<include name="run"/>
+    			<include name="run.bat"/>
+        		<include name="pmd-eclipse.log"/>
+        	</fileset>
+    	</delete>
     </target>
     
     <target name="very.clean" description="Clean the build artifacts, generated artifacts and directories">

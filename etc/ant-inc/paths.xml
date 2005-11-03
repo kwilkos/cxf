@@ -103,6 +103,7 @@
     <taskdef resource="emma_ant.properties" classpathref="emma.lib" />
     
     <path id="unit.test.classpath">
+        <pathelement location="${basedir}/build/wsdl"/>
         <pathelement location="${basedir}/build/classes-instrumented"/>
         <pathelement location="${basedir}/build/classes-tests"/>
         <pathelement location="${basedir}/build/classes-tests/unit"/>
@@ -120,6 +121,7 @@
 	</path>
 	 
     <path id="system.test.classpath">
+        <pathelement location="${basedir}/build/wsdl"/>
 	    <path refid="system.test.compile.classpath"/>
         <pathelement location="${basedir}/build/classes-tests/unit"/>
 	    <pathelement location="${basedir}/build/classes-tests/system"/>

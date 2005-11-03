@@ -28,7 +28,7 @@ public class ConcurrentInvokerTest extends ClientServerTestBase {
 
     public void setUp() throws BusException {
         super.setUp();
-        URL wsdl = getClass().getResource("/hello_world.wsdl");
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         SOAPService service = new SOAPService(wsdl, serviceName);
         greeter = (Greeter)service.getPort(portName, Greeter.class);
     }

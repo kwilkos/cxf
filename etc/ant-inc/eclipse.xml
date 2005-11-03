@@ -7,7 +7,8 @@
     <import file="systest.xml"/>
     <import file="clean.xml"/>
 
-    <target name="eclipse.clean" depends="clean,unit.test.resources,system.test.resources,codegen"/>
+    <target name="eclipse.clean" depends="clean"/>
+	<target name="eclipse.postclean" depends="unit.test.resources,system.test.resources,codegen"/>
     
     <property name="eclipse.project.workspace" value="${basedir}/../workspace"/>
 
