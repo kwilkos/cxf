@@ -9,8 +9,8 @@
 
    <!-- configuration metadata for test component top  -->
    
-    <cm:configImport location="/org/objectweb/celtix/configuration/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
-    <cm:configImport location="/org/objectweb/celtix/bus/jaxws/configuration/types.xsd" namespace="http://celtix.objectweb.org/bus/jaxws/configuration/types"/>
+    <cm:configImport location="/org/objectweb/celtix/configuration/config-metadata/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    <cm:configImport location="/org/objectweb/celtix/bus/jaxws/config-metadata/types.xsd" namespace="http://celtix.objectweb.org/bus/jaxws/configuration/types"/>
     
     <!-- items with default values -->
     
