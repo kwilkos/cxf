@@ -16,7 +16,7 @@ if not defined CELTIX_HOME (
 )
 
 if not defined JAXWS_HOME (
-    set JAXWS_HOME=%CELTIX_HOME%\lib\jaxws-ri\20050929
+    set JAXWS_HOME=%CELTIX_HOME%\lib\jaxws-ri\20051104
 )
 
 if not exist %JAVA_HOME%\lib\tools.jar goto cannot_find_tools_jar

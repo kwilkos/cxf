@@ -1,12 +1,10 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
 import java.lang.reflect.Method;
-
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.ws.RequestWrapper;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -15,6 +13,7 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
+
 /**
  * JAXBEncoderDecoderTest
  * @author apaibir
@@ -80,11 +79,11 @@ public class JAXBEncoderDecoderTest extends TestCase {
         //Hello World Wsdl generated namespace
         QName elName = new QName(wrapperAnnotation.targetNamespace(),
                                  wrapperAnnotation.localName());
-
         //Create a XML Tree of
         //<GreetMe><requestType>Hello</requestType></GreetMe>
         SOAPFactory soapElFactory = SOAPFactory.newInstance();
         SOAPElement elNode = soapElFactory.createElement(elName);
+        elNode.addNamespaceDeclaration("", elName.getNamespaceURI()); 
 
         String str = new String("Hello Test");
         elNode.addChildElement("requestType").setValue(str);

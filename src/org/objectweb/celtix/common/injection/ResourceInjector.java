@@ -4,12 +4,15 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.InjectionComplete;
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.annotation.Resources;
+
 import org.objectweb.celtix.common.annotation.AnnotationProcessor;
 import org.objectweb.celtix.common.annotation.AnnotationVisitor;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -34,7 +37,7 @@ public class ResourceInjector implements AnnotationVisitor {
         AnnotationProcessor processor = new AnnotationProcessor(o); 
         processor.accept(this); 
 
-        invokeInjectionComplete();
+        invokePostConstruct();
     }
 
 
@@ -43,10 +46,20 @@ public class ResourceInjector implements AnnotationVisitor {
 
     public final void visitClass(final Class<?> clz, final Annotation annotation) {
         
-        assert annotation instanceof Resource : annotation; 
+        assert annotation instanceof Resource || annotation instanceof Resources : annotation; 
 
-        Resource res = (Resource)annotation; 
+        if (annotation instanceof Resource) { 
+            injectResourceClassLevel(clz, (Resource)annotation); 
+        } else if (annotation instanceof Resources) { 
+            Resources resources = (Resources)annotation;
+            for (Resource resource : resources.value()) {
+                injectResourceClassLevel(clz, resource); 
+            }
+        } 
 
+    }
+
+    private void injectResourceClassLevel(Class<?> clz, Resource res) { 
         if (res.name() == null || "".equals(res.name())) { 
             LOG.log(Level.SEVERE, "RESOURCE_NAME_NOT_SPECIFIED", target.getClass().getName());
             return;
@@ -70,14 +83,13 @@ public class ResourceInjector implements AnnotationVisitor {
             injectField(field, resource); 
             return;
         }
-
         LOG.log(Level.SEVERE, "NO_SETTER_OR_FIELD_FOR_RESOURCE", getTarget().getClass().getName());
-
-    }
+    } 
 
     public final List<Class<? extends Annotation>> getTargetAnnotations() {
         List<Class<? extends Annotation>> al = new LinkedList<Class<? extends Annotation>>();
         al.add(Resource.class); 
+        al.add(Resources.class); 
         return al;
     }
 
@@ -133,6 +145,12 @@ public class ResourceInjector implements AnnotationVisitor {
                 return field;
             } 
         }
+
+        for (Field field : target.getClass().getDeclaredFields()) { 
+            if (field.getName().equals(res.name())) { 
+                return field;
+            } 
+        }
         return null;
     }
 
@@ -149,8 +167,8 @@ public class ResourceInjector implements AnnotationVisitor {
                 break;
             }
         }
-
-        if (setterMethod.getParameterTypes().length != 1) {
+        
+        if (setterMethod != null && setterMethod.getParameterTypes().length != 1) {
             LOG.log(Level.WARNING, "SETTER_INJECTION_WITH_INCORRECT_TYPE", setterMethod);
         }
         return setterMethod;
@@ -164,7 +182,6 @@ public class ResourceInjector implements AnnotationVisitor {
     
 
     private void invokeSetter(Method method, Object resource) { 
-
         try {
             method.invoke(getTarget(), resource);
         } catch (IllegalAccessException e) { 
@@ -214,21 +231,42 @@ public class ResourceInjector implements AnnotationVisitor {
     } 
 
 
-    private void invokeInjectionComplete() {
-
-        for (Method method : getTarget().getClass().getMethods()) {
-            InjectionComplete ic = method.getAnnotation(InjectionComplete.class);
-            if (ic != null) {
+    private void invokePostConstruct() {
+        
+        boolean accessible = false; 
+        for (Method method : getPostConstructMethods()) {
+            PostConstruct pc = method.getAnnotation(PostConstruct.class);
+            if (pc != null) {
                 try {
+                    method.setAccessible(true);
                     method.invoke(target);
                 } catch (IllegalAccessException e) {
                     LOG.log(Level.WARNING, "INJECTION_COMPLETE_NOT_VISIBLE", method);
                 } catch (InvocationTargetException e) {
                     LOG.log(Level.WARNING, "INJECTION_COMPLETE_THREW_EXCEPTION", e);
+                } finally {
+                    method.setAccessible(accessible); 
                 }
             }
         }
     }
+
+    private Collection<Method> getPostConstructMethods() { 
+
+        Collection<Method> methods = new LinkedList<Method>(); 
+        addPostConstructMethods(getTarget().getClass().getMethods(), methods); 
+        addPostConstructMethods(getTarget().getClass().getDeclaredMethods(), methods);
+        return methods;
+    } 
+
+    private void addPostConstructMethods(Method[] methods, Collection<Method> postConstructMethods) {
+        for (Method method : methods) { 
+            if (method.getAnnotation(PostConstruct.class) != null 
+                && !postConstructMethods.contains(method)) {
+                postConstructMethods.add(method); 
+            }
+        }
+    } 
      
         
     private Class<?> getFieldTypeForResource(Resource res, Field field) {

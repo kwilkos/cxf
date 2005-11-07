@@ -3,8 +3,9 @@ package org.objectweb.celtix.common.injection;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.InjectionComplete;
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.annotation.Resources;
 import junit.framework.TestCase;
 
 
@@ -35,14 +36,11 @@ public class ResourceInjectorTest extends TestCase {
         doInjectTest(new ClassTarget());
     }
 
-    public void testTypeMismatch() { 
-        
-    }
-
     public void testResourcesContainer() {
+        doInjectTest(new ResourcesContainerTarget()); 
     }
 
-    public void testInjectionComplete() { 
+    public void testPostConstruct() { 
 
         SetterTarget target = new SetterTarget(); 
         doInjectTest(target); 
@@ -98,7 +96,8 @@ class SetterTarget implements Target {
 
     private String resource1;
     private String resource2;
-    private boolean injectionComplete; 
+    private boolean injectionCompletePublic; 
+    private boolean injectionCompletePrivate; 
 
     public final String getResource1() {
         return this.resource1;
@@ -116,12 +115,19 @@ class SetterTarget implements Target {
         this.resource2 = argResource2;
     }
 
-    @InjectionComplete public void injectionIsAllFinishedNowThankYouVeryMuch() { 
-        injectionComplete = true;
+    @PostConstruct public void injectionIsAllFinishedNowThankYouVeryMuch() { 
+        injectionCompletePublic = true;
+
+        // stick this here to keep PMD happy...
+        injectionIsAllFinishedNowThankYouVeryMuchPrivate();
+    } 
+    
+    @PostConstruct private void injectionIsAllFinishedNowThankYouVeryMuchPrivate() { 
+        injectionCompletePrivate = true;
     } 
     
     public boolean injectionCompleteCalled() { 
-        return injectionComplete;
+        return injectionCompletePrivate && injectionCompletePublic;
     }
 }
 
@@ -141,5 +147,27 @@ class ClassTarget implements Target {
 
     public final String getResource2() {
         return resource2foo;
+    }
+}
+
+
+
+@Resources({@Resource(name = "resource1"), 
+            @Resource(name = "resource2") })
+class ResourcesContainerTarget implements Target {
+
+    private String res1; 
+    private String resource2; 
+
+    public final void setResource1(String res) { 
+        res1 = res; 
+    } 
+
+    public final String getResource1() {
+        return res1;
+    }
+
+    public final String getResource2() {
+        return resource2;
     }
 }
