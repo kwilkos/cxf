@@ -8,7 +8,6 @@ import java.net.URL;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
@@ -21,6 +20,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.common.commands.ForkedCommand;
 import org.objectweb.celtix.common.commands.ForkedCommandException;
+import org.objectweb.celtix.common.commands.JavaHelper;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
@@ -154,7 +154,7 @@ public class WSDLManagerImpl implements WSDLManager {
          */
         
         String [] args = new String[] {
-            "java" + ForkedCommand.EXE_SUFFIX,
+            JavaHelper.getJavaCommand(),
             "-cp",
             System.getProperty("java.class.path"),
             "com.sun.tools.ws.WsGen", 

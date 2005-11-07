@@ -97,7 +97,7 @@ public class ForkedCommandTest extends TestCase {
     
     public void testTimeout() {
         String[] cmd = new String[] {
-            "java" + ForkedCommand.EXE_SUFFIX,
+            JavaHelper.getJavaCommand(),
             "org.objectweb.celtix.common.commands.TestCommand",
             "-duration",
             "60000",

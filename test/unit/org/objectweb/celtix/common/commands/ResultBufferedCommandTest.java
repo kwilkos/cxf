@@ -11,9 +11,10 @@ public class ResultBufferedCommandTest extends TestCase {
     private static final String OUT = "Hello World!";
     private static final String ERR = "Please contact your administrator.";
     
+
     public void testStreamsEmpty() throws IOException {
         String[] cmd = new String[] {
-            "java" + ForkedCommand.EXE_SUFFIX,
+            JavaHelper.getJavaCommand(),
             "org.objectweb.celtix.common.commands.TestCommand",
         };
         ResultBufferedCommand rbc = new ResultBufferedCommand(cmd);
@@ -36,7 +37,7 @@ public class ResultBufferedCommandTest extends TestCase {
     
     public void testStreamsNotEmpty() throws IOException {
         String[] cmd = new String[] {
-            "java" + ForkedCommand.EXE_SUFFIX,
+            JavaHelper.getJavaCommand(),
             "org.objectweb.celtix.common.commands.TestCommand",
             "-out",
             OUT,
@@ -67,4 +68,5 @@ public class ResultBufferedCommandTest extends TestCase {
         assertTrue(is.available() > 0);
         is.close();
     }
+
 }
