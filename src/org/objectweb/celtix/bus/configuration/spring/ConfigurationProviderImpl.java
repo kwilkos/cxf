@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.bus.jaxb.JAXBUtils;
@@ -15,9 +14,7 @@ import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
 import org.objectweb.celtix.configuration.Configurator;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.UrlResource;
 
 
@@ -27,7 +24,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
     public static final String CONFIG_FILE_PROPERTY_NAME = "celtix.config.file";
     
     private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationProviderImpl.class);
-    private static Map<UrlResource, BeanFactory> beanFactories;
+    private static Map<UrlResource, CeltixXmlBeanFactory> beanFactories;
   
     private Object bean;
     private Configuration configuration;
@@ -35,28 +32,22 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
     
     public void init(Configuration c) {
         configuration = c;
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Creating Spring Provider for configuration"); 
-        }
-           
+        
         if (null == beanFactories) {
-            beanFactories = new HashMap<UrlResource, BeanFactory>();
+            beanFactories = new HashMap<UrlResource, CeltixXmlBeanFactory>();
         }
         
-        BeanFactory beanFactory =  null;
+        CeltixXmlBeanFactory beanFactory =  null;
         UrlResource urlRes = getBeanDefinitionsResource();
         if (null != urlRes) {
             if (!beanFactories.containsKey(urlRes)) {
 
                 if (null != urlRes) {
                     try {
-                        beanFactory = new XmlBeanFactory(urlRes);
+                        beanFactory = new CeltixXmlBeanFactory(urlRes);
                     } catch (BeansException ex) {
                         throw new ConfigurationException(new Message("BEAN_FACTORY_CREATION_EXC", LOG, urlRes
                             .toString()), ex);
-                    }
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Created factory from bean definitions file " + urlRes.toString());
                     }
                     beanFactories.put(urlRes, beanFactory);
                 }
@@ -65,7 +56,8 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
             }  
         }
     
-        if (null != beanFactory) {            
+        if (null != beanFactory) { 
+            beanFactory.registerCustomEditors(c);
             String beanName = getBeanName();
             try {
                 bean = beanFactory.getBean(beanName);
@@ -74,10 +66,8 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
             } catch (BeansException ex) {
                 throw new ConfigurationException(new Message("BEAN_CREATION_EXC", LOG, beanName), ex);
             }
-        } else {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Not using a bean definitions file.");
-            }  
+        } else {            
+            LOG.fine("Not using a bean definitions file.");
         }
         
     }

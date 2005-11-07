@@ -49,15 +49,16 @@ public final class JAXBUtils {
     private static final String XML_NAME_PUNCTUATION_STRING = new String(XML_NAME_PUNCTUATION_CHARS);
     
     private static final Map<String, String> BUILTIN_DATATYPES_MAP;
+    private static final Map<String, Class> HOLDER_TYPES_MAP;
     
     static {
-        BUILTIN_DATATYPES_MAP = new HashMap<String, String>();
+        BUILTIN_DATATYPES_MAP = new HashMap<String, String>();        
         BUILTIN_DATATYPES_MAP.put("string", "java.lang.String");
         BUILTIN_DATATYPES_MAP.put("integer", "java.math.BigInteger");
         BUILTIN_DATATYPES_MAP.put("int", "int");
         BUILTIN_DATATYPES_MAP.put("long", "long");
         BUILTIN_DATATYPES_MAP.put("short", "short");
-        BUILTIN_DATATYPES_MAP.put("decimal", "java.mathy.BigDecimal");
+        BUILTIN_DATATYPES_MAP.put("decimal", "java.math.BigDecimal");
         BUILTIN_DATATYPES_MAP.put("float", "float");
         BUILTIN_DATATYPES_MAP.put("double", "double");
         BUILTIN_DATATYPES_MAP.put("boolean", "boolean");
@@ -79,8 +80,15 @@ public final class JAXBUtils {
         BUILTIN_DATATYPES_MAP.put("duration", "javax.xml.datatype.Duration");
         BUILTIN_DATATYPES_MAP.put("NOTATION", "javax.xml.namespace.QName");
         BUILTIN_DATATYPES_MAP.put("string", "java.lang.String");
-        BUILTIN_DATATYPES_MAP.put("string", "java.lang.String");
-        BUILTIN_DATATYPES_MAP.put("string", "java.lang.String");       
+        
+        HOLDER_TYPES_MAP = new HashMap<String, Class>();
+        HOLDER_TYPES_MAP.put("int", java.lang.Integer.class);
+        HOLDER_TYPES_MAP.put("long", java.lang.Long.class);
+        HOLDER_TYPES_MAP.put("short", java.lang.Short.class);
+        HOLDER_TYPES_MAP.put("float", java.lang.Float.class);
+        HOLDER_TYPES_MAP.put("double", java.lang.Double.class);
+        HOLDER_TYPES_MAP.put("boolean", java.lang.Boolean.class);
+        HOLDER_TYPES_MAP.put("byte", java.lang.Byte.class);
     }
     
     
@@ -93,6 +101,10 @@ public final class JAXBUtils {
     
     public static String builtInTypeToJavaType(String type) {
         return BUILTIN_DATATYPES_MAP.get(type);
+    }
+    
+    public static Class holderClass(String type) {
+        return HOLDER_TYPES_MAP.get(type);
     }
     
     /** 

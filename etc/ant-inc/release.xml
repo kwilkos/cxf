@@ -78,6 +78,7 @@
                 <exclude name="build/**/*"/>
                 <exclude name="samples/**/build/**/*"/>
                 <exclude name="**/.*"/>
+                <include name=".ruleset"/>
                 <exclude name="NOTICE"/>
                 <exclude name="**/tomcat/**/work/**/*"/>
                 <exclude name="bin/*"/>

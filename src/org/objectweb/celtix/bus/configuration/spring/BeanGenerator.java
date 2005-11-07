@@ -225,7 +225,7 @@ public class BeanGenerator {
         pw.println("    }");
     }
     
-    private String getType(TypeSchema ts, String typeName, boolean qualified) {     
+    protected static String getType(TypeSchema ts, String typeName, boolean qualified) {     
         String baseType = ts.getXMLSchemaBaseType(typeName);
         String className = null;
         if (null != baseType) {

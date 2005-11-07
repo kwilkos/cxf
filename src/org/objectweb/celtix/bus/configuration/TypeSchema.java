@@ -35,16 +35,16 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-
 import org.objectweb.celtix.bus.jaxb.JAXBUtils;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.ConfigurationException;
+import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 
 public class TypeSchema {
 
     private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationMetadataBuilder.class);
-    private static Map<String, TypeSchema> map = new HashMap<String, TypeSchema>();
+    // private static Map<String, TypeSchema> map = new HashMap<String, TypeSchema>();
 
     private Schema schema;
     private Validator validator;
@@ -125,6 +125,7 @@ public class TypeSchema {
         document = null;
     }
 
+    /*
     public static TypeSchema get(String namespaceURI, String location) {
         TypeSchema ts = map.get(namespaceURI);
         if (null == ts) {
@@ -137,6 +138,11 @@ public class TypeSchema {
     public static TypeSchema get(String namespaceURI) {
         return map.get(namespaceURI);
     }
+    
+    public static Collection<TypeSchema> getTypeSchemas() {
+        return map.values();
+    }
+    */
 
     public Validator getValidator() {
         if (null == validator) {
@@ -171,27 +177,32 @@ public class TypeSchema {
         return schema;
     }
     
-    public Object unmarshalDefaultValue(ConfigurationItemMetadataImpl item, Element data) {
-        JAXBContext context = null;
-        Object obj = null;
+    public Object unmarshalDefaultValue(ConfigurationItemMetadata item, Element data) {
         try {
-            context = JAXBContext.newInstance(packageName);
-            Unmarshaller u = context.createUnmarshaller();
-            u.setSchema(schema);
-            obj = u.unmarshal(data);
-            if (obj instanceof JAXBElement<?>) {
-                JAXBElement<?> el = (JAXBElement<?>)obj;
-                if (el.getName().equals(item.getType())) {
-                    obj = el.getValue();
-                }
-            }    
+            return unmarshal(item.getType(), data);
         } catch (JAXBException ex) {
             Message msg = new Message("DEFAULT_VALUE_UNMARSHAL_ERROR_EXC", LOG, item.getName());
-            throw new ConfigurationException(msg, ex);
+            throw new ConfigurationException(msg, ex); 
         }
-        if (null != obj
-            && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Unmarshaled default value into object of type: " + obj.getClass().getName() 
+    }
+     
+    public Object unmarshal(QName type, Element data) throws JAXBException {
+        JAXBContext context = null;
+        Object obj = null;
+
+        context = JAXBContext.newInstance(packageName);
+        Unmarshaller u = context.createUnmarshaller();
+        u.setSchema(schema);
+        obj = u.unmarshal(data);
+        if (obj instanceof JAXBElement<?>) {
+            JAXBElement<?> el = (JAXBElement<?>)obj;
+            if (el.getName().equals(type)) {
+                obj = el.getValue();
+            }
+        }
+
+        if (null != obj && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Unmarshaled default value into object of type: " + obj.getClass().getName()
                      + "    value: " + obj);
         }
         return obj;

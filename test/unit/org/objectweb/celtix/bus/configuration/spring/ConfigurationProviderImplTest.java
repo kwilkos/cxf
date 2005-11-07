@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.configuration.spring;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Properties;
 
 import junit.framework.TestCase;
@@ -12,6 +13,7 @@ import org.objectweb.celtix.bus.configuration.TopConfiguration;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
+import org.objectweb.celtix.configuration.types.StringListType;
 
 public class ConfigurationProviderImplTest extends TestCase {
     
@@ -122,13 +124,25 @@ public class ConfigurationProviderImplTest extends TestCase {
         assertTrue(providers[0] instanceof ConfigurationProviderImpl); 
     }
     
-    public void testBeanCreation() throws MalformedURLException {
+    public void testBeanCreationUsingValueAsText() throws MalformedURLException {
         String surl = ConfigurationProviderImplTest.class.getResource("resources/top2.xml").toString();
         int index = surl.lastIndexOf("/top2.xml");
         URL url = new URL(surl.substring(0, index));
         System.setProperty(ConfigurationProviderImpl.CONFIG_DIR_PROPERTY_NAME, url.toExternalForm());
-            
-        Configuration top = new TopConfiguration("top2");
+        Configuration top = null;
+        
+        try {
+            top = new TopConfiguration("top2");
+        } catch (Exception ex) {
+            Throwable e = ex;
+            while (null != e.getCause()) {
+                e = e.getCause(); 
+            }
+            System.err.println("Original cause: ");
+            e.printStackTrace();
+            fail();
+        }
+        
         ConfigurationProvider[] providers = top.getProviders();
         assertEquals(1, providers.length);
         assertTrue(providers[0] instanceof ConfigurationProviderImpl); 
@@ -150,7 +164,7 @@ public class ConfigurationProviderImplTest extends TestCase {
         o = cpi.getObject("doubleItem");  
         assertTrue(o instanceof Double);
         assertTrue(Math.abs(((Double)o).doubleValue() - 9876.54321) < 0.5E-5);
-        
+ 
         o = cpi.getObject("stringItem");
         assertTrue(o instanceof String);
         assertEquals("not the default", (String)o);
@@ -162,7 +176,62 @@ public class ConfigurationProviderImplTest extends TestCase {
         }
     }
     
-    public void testBeanHierarchyCreation() {
+    public void testBeanCreationUsingValueAsElements() throws MalformedURLException {
+        URL url = ConfigurationProviderImplTest.class.getResource("resources/top2.xml");
+        System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
+        Configuration top = null;
+        
+        try {
+            top = new TopConfiguration("top22");
+        } catch (Exception ex) {
+            Throwable e = ex;
+            while (null != e.getCause()) {
+                e = e.getCause(); 
+            }
+            System.err.println("Original cause: ");
+            e.printStackTrace();
+            fail();
+        }
+        
+        ConfigurationProvider[] providers = top.getProviders();
+        assertEquals(1, providers.length);
+        assertTrue(providers[0] instanceof ConfigurationProviderImpl); 
+        
+        ConfigurationProviderImpl cpi = (ConfigurationProviderImpl)providers[0];
+        Object o;
+        
+        o = cpi.getObject("booleanItem");
+        assertTrue(o instanceof Boolean);
+        assertTrue(!((Boolean)o).booleanValue());
+        
+        o = cpi.getObject("integerItem");
+        assertTrue(o instanceof BigInteger);
+        assertEquals(1997, ((BigInteger)o).intValue());
+        
+        o = cpi.getObject("longItem");
+        assertTrue(o instanceof Long);
+        assertEquals(99, ((Long)o).longValue());
+        
+        o = cpi.getObject("doubleItem");  
+        assertTrue(o instanceof Double);
+        assertTrue(Math.abs(((Double)o).doubleValue() - 9876.54321) < 0.5E-5);
+        
+        o = cpi.getObject("stringItem");
+        assertTrue(o instanceof String);
+        assertEquals("not the default", (String)o);
+        
+        o = cpi.getObject("stringListItem");
+        assertTrue(o instanceof StringListType);
+
+        List<String> l = ((StringListType)o).getItem();
+        assertNotNull(l);
+        assertEquals(2, l.size());
+        assertEquals("something", l.get(0));
+        assertEquals("else", l.get(1));
+       
+    }
+    
+    public void testBeanCreationSimpleHierarchy() {
         URL url = ConfigurationProviderImplTest.class.getResource("resources/top2.xml");
         System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
         
@@ -178,10 +247,6 @@ public class ConfigurationProviderImplTest extends TestCase {
         assertEquals("Don't fear the reaper", (String)o);
         
         o = providers[0].getObject("longLeafItemNoDefault");
-        assertEquals(99, ((Long)o).longValue());       
+        assertEquals(99, ((Long)o).longValue()); 
     }
-    
-    
-        
-
 }

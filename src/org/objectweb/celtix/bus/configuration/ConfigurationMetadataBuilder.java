@@ -104,7 +104,7 @@ public class ConfigurationMetadataBuilder  {
                 String location = importElement.getAttribute("location");
                 String namespaceURI = importElement.getAttribute("namespace");
                 if (null == model.getTypeSchema(namespaceURI)) {
-                    TypeSchema ts = TypeSchema.get(namespaceURI, location);
+                    TypeSchema ts = new TypeSchemaHelper().get(namespaceURI, location);
                     model.addTypeSchema(namespaceURI, ts);
                 }
             }

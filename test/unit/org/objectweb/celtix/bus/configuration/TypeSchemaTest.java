@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.configuration;
 
 import java.net.URL;
+import java.util.Collection;
 
 import org.xml.sax.SAXParseException;
 
@@ -10,15 +11,17 @@ import org.objectweb.celtix.bus.configuration.TypeSchema.TypeSchemaErrorHandler;
 
 public class TypeSchemaTest extends TestCase {
     
+    private final TypeSchemaHelper tsh = new TypeSchemaHelper();
+    
     public void testConstructor() {
 
         // relative uri with relative path
-
-        TypeSchema ts1 = TypeSchema.get("http://celtix.objectweb.org/configuration/test/types",
+        
+        TypeSchema ts1 = tsh.get("http://celtix.objectweb.org/configuration/test/types",
                             "resources/test-types.xsd");
         assertNotNull(ts1);
         
-        TypeSchema ts2 = TypeSchema.get("http://celtix.objectweb.org/configuration/test/types",
+        TypeSchema ts2 = tsh.get("http://celtix.objectweb.org/configuration/test/types",
                                         "resources/test-types.xsd");
         assertNotNull(ts2);
         assertTrue(ts1 == ts2);
@@ -48,7 +51,7 @@ public class TypeSchemaTest extends TestCase {
     }
     
     public void testContent() {
-        TypeSchema ts = TypeSchema.get("http://celtix.objectweb.org/configuration/test/types",
+        TypeSchema ts = tsh.get("http://celtix.objectweb.org/configuration/test/types",
                                        "resources/test-types.xsd");
         assertNotNull(ts);
         
@@ -91,7 +94,7 @@ public class TypeSchemaTest extends TestCase {
     }
     
     public void testErrorHandler() {
-        TypeSchema ts = TypeSchema.get("http://celtix.objectweb.org/configuration/test/types",
+        TypeSchema ts = tsh.get("http://celtix.objectweb.org/configuration/test/types",
             "resources/test-types.xsd");
         TypeSchemaErrorHandler eh = ts.new TypeSchemaErrorHandler();
         SAXParseException spe = new SAXParseException(null, null, null, 0, 0);
@@ -115,7 +118,18 @@ public class TypeSchemaTest extends TestCase {
             fail("Expected SAXParseException not thrown.");
         } catch (SAXParseException ex) {
              // ignore;
-        }    
-        
+        }          
+    }
+    
+    public void testTypeSchemaHelper() {
+        TypeSchema ts = org.easymock.classextension.EasyMock.createMock(TypeSchema.class);
+        String namespaceURI = "http://celtix.objectweb.org/helper/test/types";
+        assertNull(tsh.get(namespaceURI));
+        tsh.put(namespaceURI, ts);
+        assertNotNull(tsh.get(namespaceURI));
+        assertNotNull(tsh.get(namespaceURI, "/helper/test/types.xsd"));
+        Collection<TypeSchema> c = tsh.getTypeSchemas();
+        assertTrue(c.size() > 0);
+        assertTrue(c.contains(ts));               
     }
 }
