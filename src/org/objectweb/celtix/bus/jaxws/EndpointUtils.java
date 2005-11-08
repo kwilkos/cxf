@@ -1,6 +1,9 @@
 package org.objectweb.celtix.bus.jaxws;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,7 +15,6 @@ import javax.xml.ws.Provider;
 import javax.xml.ws.ServiceMode;
 
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public final class EndpointUtils {
 
@@ -45,56 +47,40 @@ public final class EndpointUtils {
      */
 
     public static Method getMethod(Endpoint endpoint, QName operationName) {
-        Object implementor = endpoint.getImplementor();
-        Class<?> iClass = implementor.getClass();
-        WebService iws = EndpointReferenceUtils.getWebServiceAnnotation(iClass);
+
+        Class<?> iClass = endpoint.getImplementor().getClass();
 
         // determine the (fully annoated) SEI
-
-        Class<?>[] interfaces = iClass.getInterfaces();
-
-        Class<?> sei = null;
-        for (Class<?> c : interfaces) {
-            WebService ws = c.getAnnotation(WebService.class);
-            // REVISIT: check for equality of targetNamespace also
-            if (null != ws) {                
-                sei = c;
-                if (null == iws) {
-                    iws = ws;
-                }
-                break;
-            }
+        List<Class<?>> list = getWebServiceAnnotatedClass(iClass);
+        //Add the Implementor incase there is no SEI.
+        if (list.size() == 0) {
+            list.add(iClass);
         }
-        
-        if (null == iws) {
-            LOG.severe("WEBSERVICE_ANNOTATION_NOT_PRESENT_MSG");
-            return null;
-        }
-        
-        if (null == sei) {
-            LOG.severe("SEI_NOT_IMPLEMENTED_MSG");
-            return null;
-        }
-
         // determine the method in the SEI
 
         String methodName = operationName.getLocalPart();
-
-        Method[] iMethods = sei.getMethods();
         Method iMethod = null;
-        for (Method m : iMethods) {
-            if (m.getName().equals(methodName)) {
-                iMethod = m;
-                WebMethod wm = m.getAnnotation(WebMethod.class);
-                if (wm != null && wm.operationName().equals(methodName)) {
-                    break;
+        
+        Iterator<Class<?>> iter = list.iterator();
+        
+        while (iter.hasNext()) {
+            Class<?> sei = iter.next();
+            Method[] iMethods = sei.getMethods();
+
+            for (Method m : iMethods) {
+                if (m.getName().equals(methodName)) {
+                    iMethod = m;
+                    WebMethod wm = m.getAnnotation(WebMethod.class);
+                    if (wm != null && wm.operationName().equals(methodName)) {
+                        break;
+                    }
+                    // assume this is an overloaded version of the method we are
+                    // looking for
+                    // continue searching for a better match
                 }
-                // assume this is an overloaded version of the method we are
-                // looking for
-                // continue searching for a better match
             }
         }
-
+        
         if (null == iMethod) {
             LOG.log(Level.SEVERE, "METHOD_NOT_DEFINED_MSG", methodName);
             return null;
@@ -133,5 +119,29 @@ public final class EndpointUtils {
 
         LOG.info("Implementor is not annotated with WebService annotation.");
         return false;
+    }
+    
+    private static List<Class<?>> getWebServiceAnnotatedClass(Class<?> cls) {
+        List<Class<?>> list = new ArrayList<Class<?>>();
+
+        if (!cls.isInterface()) {
+            Class<?> superClass = cls.getSuperclass();        
+            if (superClass != null) {
+                if (superClass.isAnnotationPresent(WebService.class)) {
+                    list.add(superClass);
+                }
+                list.addAll(getWebServiceAnnotatedClass(superClass));
+            }
+        }
+        
+        Class<?>[] interfaces = cls.getInterfaces();
+        for (Class<?> c : interfaces) {
+            if (c.isAnnotationPresent(WebService.class)) {
+                list.add(c);
+            }
+            list.addAll(getWebServiceAnnotatedClass(c));
+        }
+
+        return list;        
     }
 }

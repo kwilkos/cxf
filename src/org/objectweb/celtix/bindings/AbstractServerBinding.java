@@ -3,9 +3,9 @@ package org.objectweb.celtix.bindings;
 
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,6 +13,7 @@ import javax.jws.Oneway;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
@@ -91,8 +92,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
     protected abstract void read(InputStreamMessageContext inCtx, MessageContext context) throws IOException;
 
-    protected abstract MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode)
-        throws RemoteException;
+    protected abstract MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode);
 
     protected void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
         LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
@@ -116,7 +116,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
         Method method = getMethod(requestCtx, objContext);
         assert method != null;
-        objContext.setMethod(method);
+        initObjectContext(objContext, method);
         
         if (isOneWay(method)) {
             try {
@@ -130,15 +130,10 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
         ServiceMode mode = EndpointUtils.getServiceMode(endpoint);
         MessageContext replyCtx = null;
-        try {
-            if (null != mode) {
-                replyCtx = invokeOnProvider(requestCtx, mode);
-            } else {
-                replyCtx = invokeOnMethod(requestCtx, objContext);
-            }
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "PROVIDER_INVOCATION_FAILURE_MSG", ex);
-            throw new WebServiceException(ex);
+        if (null != mode) {
+            replyCtx = invokeOnProvider(requestCtx, mode);
+        } else {
+            replyCtx = invokeOnMethod(requestCtx, objContext);
         }
         
         if (!isOneWay(method)) {
@@ -208,7 +203,6 @@ public abstract class AbstractServerBinding implements ServerBinding {
     private void switchToResponse(ObjectMessageContext ctx, MessageContext replyCtx) { 
         ctx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
         ctx.remove(ObjectMessageContext.MESSAGE_PAYLOAD);
-        ctx.setMessageObjects((Object[])null);
         replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
     } 
  
@@ -284,6 +278,25 @@ public abstract class AbstractServerBinding implements ServerBinding {
             throw new WebServiceException("Web method: " + operationName + " not found in implementor.");
         }
         return method;       
+    }
+    
+    private void initObjectContext(ObjectMessageContext objCtx, Method method) {
+        try {
+            int idx = 0;
+            Object[] methodArgs = (Object[])
+                Array.newInstance(Object.class, method.getParameterTypes().length);
+            for (Class<?> cls : method.getParameterTypes()) {
+                if (cls.isAssignableFrom(Holder.class)) {
+                    methodArgs[idx] = cls.newInstance();
+                } 
+                idx++;
+            }
+            objCtx.setMessageObjects(methodArgs);
+            objCtx.setMethod(method);
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "INIT_OBJ_CONTEXT_FAILED");
+            throw new WebServiceException(ex);
+        }
     }
     
     protected abstract QName getOperationName(MessageContext ctx);

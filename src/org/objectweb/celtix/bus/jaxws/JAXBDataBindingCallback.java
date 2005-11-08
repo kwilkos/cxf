@@ -13,6 +13,7 @@ import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.namespace.QName;
 import javax.xml.soap.Detail;
 import javax.xml.soap.SOAPFault;
+import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
@@ -241,7 +242,12 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         for (int idx = 0; idx < noArgs; idx++) {
             WebParam param = getWebParam(idx);
             if ((param.mode() != ignoreParamMode) && !param.header()) {
-                setWrappedPart(param.name(), wrapperObj, args[idx]);
+                Object wrappedObj = args[idx];
+                //Unwrap Holder for inout,out parts.                
+                if (param.mode() != WebParam.Mode.IN) {
+                    wrappedObj = ((Holder)wrappedObj).value;    
+                }
+                setWrappedPart(param.name(), wrapperObj, wrappedObj);
             }
         }
         return wrapperObj;
@@ -250,14 +256,13 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         try {
             WrapperHelper.setWrappedPart(name, wrapperType, part);
         } catch (Exception ex) {
-            ex.printStackTrace();
             throw new WebServiceException("Could not set parts into wrapper element", ex);
         }
     }
     public Object getWrappedPart(String name, Object wrapperType, Class<?> part) {
         Object obj = null;
         try {
-            assert wrapperType != null;
+            assert wrapperType != null;            
             obj = WrapperHelper.getWrappedPart(name, wrapperType, part);
             assert obj != null;
         } catch (Exception ex) {

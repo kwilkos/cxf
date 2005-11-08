@@ -1,10 +1,14 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.WebServiceException;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -13,7 +17,7 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
-
+import org.objectweb.type_test.TypeTestPortType;
 /**
  * JAXBEncoderDecoderTest
  * @author apaibir
@@ -44,9 +48,10 @@ public class JAXBEncoderDecoderTest extends TestCase {
 
         Node node;
         try {
-            JAXBEncoderDecoder.marshall(str, inCorrectElName,  elNode);
-        } catch (Exception ex) {
-            //expected - not a valid qname or anything
+            JAXBEncoderDecoder.marshall(null, inCorrectElName,  elNode);
+            fail("Should have thrown a WebServiceException");
+        } catch (WebServiceException ex) {
+            //expected - not a valid object
         }
 
         GreetMe obj = new GreetMe();
@@ -95,6 +100,39 @@ public class JAXBEncoderDecoderTest extends TestCase {
         //Add a Node and then test
         assertEquals(GreetMe.class,  obj.getClass());
         assertEquals(str, ((GreetMe)obj).getRequestType());
-    }  
+        
+        try {
+            JAXBEncoderDecoder.unmarshall(null, null, null);
+            fail("Should have received a WebServiceException");
+        } catch (WebServiceException wex) {
+            //Expected Exception
+        }
+    } 
+    
+    public void testGetClassFromType() throws Exception {
+        Method testByte = SOAPMessageUtil.getMethod(TypeTestPortType.class, "testByte");
+        Type[] genericParameterTypes = testByte.getGenericParameterTypes();
+        Class<?>[] paramTypes = testByte.getParameterTypes();
+ 
+        int idx = 0;
+        for (Type t : genericParameterTypes) {
+            Class<?> cls = JAXBEncoderDecoder.getClassFromType(t);
+            assertTrue(cls.equals(paramTypes[idx]));
+            idx++;
+        }
+        
+        Method testBase64Binary = SOAPMessageUtil.getMethod(TypeTestPortType.class, "testBase64Binary");
+        genericParameterTypes = testBase64Binary.getGenericParameterTypes();
+        paramTypes = testBase64Binary.getParameterTypes();
+ 
+        idx = 0;
+        for (Type t : genericParameterTypes) {
+            Class<?> cls = JAXBEncoderDecoder.getClassFromType(t);
+            assertTrue(cls.equals(paramTypes[idx]));
+            idx++;
+        }
+        
+        
+    }
 }
 

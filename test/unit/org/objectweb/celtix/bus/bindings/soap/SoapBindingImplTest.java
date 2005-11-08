@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.Detail;
@@ -24,6 +25,7 @@ import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 import org.objectweb.hello_world_soap_http.types.ErrorCode;
 import org.objectweb.hello_world_soap_http.types.NoSuchCodeLit;
+import org.objectweb.type_test.TypeTestPortType;
 
 public class SoapBindingImplTest extends TestCase {
     private SOAPBindingImpl binding;
@@ -84,9 +86,43 @@ public class SoapBindingImplTest extends TestCase {
         assertEquals(arg0, wrappedNode.getFirstChild().getNodeValue());
     }
 
+    public void testMarshalWrapDocLitMessageForInOutVar() throws Exception {
+        //Test The InputMessage of GreetMe Operation
+        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        Method testInt = SOAPMessageUtil.getMethod(TypeTestPortType.class, "testInt");
+        assertNotNull(testInt);
+        objContext.setMethod(testInt);
+        
+        Object[] methodArg = SOAPMessageUtil.getMessageObjects(testInt);
+        int arg0 = 5;
+        methodArg[0] = arg0;
+        //INOUT Variable
+        methodArg[1].getClass().getField("value").set(methodArg[1], arg0);
+        objContext.setMessageObjects(methodArg);
+
+        SOAPMessage msg = binding.marshalMessage(objContext,
+                                                 soapContext,
+                                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                                             DataBindingCallback.Mode.PARTS));
+        soapContext.setMessage(msg);
+        assertNotNull(msg);
+
+        assertTrue(msg.getSOAPBody().hasChildNodes());
+        NodeList list = msg.getSOAPBody().getChildNodes();
+        assertEquals(1, list.getLength());
+        list = list.item(0).getChildNodes();
+        assertEquals(2, list.getLength());
+        Node wrappedNode = list.item(0);
+        assertEquals(String.valueOf(arg0), wrappedNode.getFirstChild().getNodeValue());
+        
+        wrappedNode = list.item(1);
+        assertEquals(String.valueOf(arg0), wrappedNode.getFirstChild().getNodeValue());        
+    }
+    
     public void testMarshalWrapDocLitOutputMessage() throws Exception {
         //Test The Output of GreetMe Operation
         soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        objContext.setMessageObjects(new Object[0]);
 
         String arg0 = new String("TestSOAPOutputMessage");
         objContext.setReturn(arg0);
@@ -143,6 +179,8 @@ public class SoapBindingImplTest extends TestCase {
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
         soapContext.setMessage(soapMessage);
 
+        //GreetMe method has a IN parameter
+        objContext.setMessageObjects(new Object[1]);
         binding.unmarshalMessage(soapContext, objContext,
                                  new JAXBDataBindingCallback(objContext.getMethod(),
                                                              DataBindingCallback.Mode.PARTS));
@@ -154,6 +192,34 @@ public class SoapBindingImplTest extends TestCase {
         assertEquals(data, (String)params[0]);
     }    
 
+    public void testUnmarshalWrapDocLitMessageWithInOutVar() throws Exception {
+        //Test The testInt Operation of TypeTestPortType SEI
+        Method testInt = SOAPMessageUtil.getMethod(TypeTestPortType.class, "testInt");
+        assertNotNull(testInt);
+        objContext.setMethod(testInt);
+        
+        InputStream is =  getClass().getResourceAsStream("resources/TestIntDocLitTypeTestReq.xml");
+        assertNotNull(binding.getMessageFactory());
+        SOAPMessage faultMsg = binding.getMessageFactory().createMessage(null,  is);
+        soapContext.setMessage(faultMsg);
+        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+
+        Object[] methodArg = SOAPMessageUtil.getMessageObjects(testInt);
+        assertNotNull(methodArg);
+        objContext.setMessageObjects(methodArg);
+        
+        binding.unmarshalMessage(soapContext, objContext,
+                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                             DataBindingCallback.Mode.PARTS));
+
+        assertNotNull(objContext.getMessageObjects());        
+        methodArg = objContext.getMessageObjects();
+
+        assertNull(objContext.getReturn());
+        assertEquals(3, methodArg.length);
+        assertEquals("5", String.valueOf(methodArg[0]));
+    }    
+  
     public void testUnmarshalWrapDocLiteralOutputMessage() throws Exception {
 
         QName wrapName = 
@@ -173,10 +239,7 @@ public class SoapBindingImplTest extends TestCase {
                                  new JAXBDataBindingCallback(objContext.getMethod(),
                                                              DataBindingCallback.Mode.PARTS));
         
-        Object[] params = objContext.getMessageObjects();
-        //REVISIT Should it be null;
-        assertNotNull(params);
-        assertEquals(0, params.length);
+        assertNull(objContext.getMessageObjects());
         assertNotNull(objContext.getReturn());
         assertEquals(data, (String)objContext.getReturn());
     }    

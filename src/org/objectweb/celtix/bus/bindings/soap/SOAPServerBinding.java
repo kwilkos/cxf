@@ -2,7 +2,6 @@ package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.wsdl.WSDLException;
@@ -125,21 +124,16 @@ public class SOAPServerBinding extends AbstractServerBinding {
     }
     
     protected void read(InputStreamMessageContext instr, MessageContext mc) throws IOException {
-        //REVISIT InputStreamMessageContext should be copied to MessageContext
+
         try {
             soapBinding.parseMessage(instr.getInputStream(), mc);
-            SOAPMessageContext soapCtx = (SOAPMessageContext)mc;
-            SOAPMessage msg = soapCtx.getMessage();
-            assert msg != null;
-            
-        } catch (SOAPException se) {
+        } catch (Exception se) {
             LOG.log(Level.SEVERE, "SOAP_PARSING_FAILURE_MSG", se);
             throw new ProtocolException(se);
         }
     }
     
-    protected MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode)
-        throws RemoteException {
+    protected MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode) {
         SOAPMessageContext soapCtx = (SOAPMessageContext)requestCtx;
         SOAPMessage msg = soapCtx.getMessage();
         
@@ -158,7 +152,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
     
     
     @SuppressWarnings("unchecked")
-    MessageContext invokeOnProvider(SOAPMessage msg, SOAPMessageContext soapCtx) throws RemoteException {
+    MessageContext invokeOnProvider(SOAPMessage msg, SOAPMessageContext soapCtx) {
         Provider<SOAPMessage> provider = (Provider<SOAPMessage>)getEndpoint().getImplementor();
         SOAPMessage replyMsg = provider.invoke(msg);
         SOAPMessageContextImpl replyCtx = new SOAPMessageContextImpl(soapCtx);
@@ -167,7 +161,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
     }
     
     @SuppressWarnings("unchecked")
-    MessageContext invokeOnProvider(SOAPBody body, SOAPMessageContext soapCtx) throws RemoteException {
+    MessageContext invokeOnProvider(SOAPBody body, SOAPMessageContext soapCtx) {
         
         try {
             Document document = body.extractContentAsDocument();

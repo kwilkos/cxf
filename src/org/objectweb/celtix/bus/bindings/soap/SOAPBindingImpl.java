@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +24,7 @@ import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
+import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
@@ -293,7 +293,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
             
             soapMessage = msgFactory.createMessage(headers, in);
-            
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.log(Level.INFO, "error in creating soap message", ex);
@@ -352,8 +351,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                                 ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
 
         Node childNode = xmlNode.getFirstChild();
-        Object retVal = null;
-        List<Object> paramList = new ArrayList<Object>();
+        Object[] methodArgs = objCtx.getMessageObjects();
         
         boolean found = false;
         for (Class<?> cls : callback.getSupportedFormats()) {
@@ -362,9 +360,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 found = true;
                 
                 if (isOutBound && callback.getWebResult() != null) {
-                    retVal = reader.read(new QName("", callback.getWebResultAnnotation().partName()),
+                    Object retVal = reader.read(new QName("", callback.getWebResultAnnotation().partName()),
                                          -1, childNode);
                     childNode = childNode.getNextSibling();
+                    
+                    objCtx.setReturn(retVal);
                 }
 
                 
@@ -377,7 +377,18 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                     if ((param.mode() != ignoreParamMode) && !param.header()) {
                         QName elName = new QName("", param.partName());
                         Object obj = reader.read(elName, idx, childNode);
-                        paramList.add(obj);
+                        if (param.mode() != WebParam.Mode.IN) {
+                            try {
+                                //TO avoid type safety warning the Holder 
+                                //needs tobe set as below.                                
+                                methodArgs[idx].getClass().getField("value").set(methodArgs[idx], obj);
+                            } catch (Exception ex) {
+                                throw new SOAPException("Can not set the part value into the Holder field.");
+                            }
+                            //((Holder)methodArgs[idx]).value = obj;
+                        } else {
+                            methodArgs[idx] = obj;
+                        }
                     }
                 }
                 break;
@@ -388,11 +399,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         if (!found) {
             throw new SOAPException("Could not figure out how to marshal data");
         }
-        
-        
-
-        objCtx.setReturn(retVal);
-        objCtx.setMessageObjects(paramList.toArray());
     }
 
     private void addParts(Node xmlNode,
@@ -442,7 +448,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             WebParam param = callback.getWebParam(idx);
             if ((param.mode() != ignoreParamMode) && !param.header()) {
                 QName elName = new QName("", param.name());
-                writer.write(args[idx], elName, xmlNode);
+                Object partValue = args[idx];
+                if (param.mode() != WebParam.Mode.IN) {
+                    partValue = ((Holder)args[idx]).value;    
+                }                
+                writer.write(partValue, elName, xmlNode);
             }
         }
     }

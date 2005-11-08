@@ -65,10 +65,12 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
     }
 
     public void tearDown() throws Exception {
+
         System.setOut(pout);
         if (failed) {
             System.out.println(new String(bout.toByteArray()));
         }
+
         if (tearDownAll) {
             this.getTestSetup().tearDown();
         }
@@ -559,7 +561,7 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
 
         y = new Holder<XMLGregorianCalendar>(yOrig);
         z = new Holder<XMLGregorianCalendar>();
-
+/* TODO Throw a Error
         try {
             ret = client.testDate(x, y, z);
             fail("Expected to catch IllegalStateException when calling"
@@ -567,6 +569,7 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
         } catch (java.lang.IllegalStateException e) {
             // Ignore expected failure.
         }
+*/
         failed = false;
     }
 
@@ -600,19 +603,6 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
             assertTrue("testDateTime(): Incorrect return value", equalsDateTime(x, ret));
         }
 
-        x = datatypeFactory.newXMLGregorianCalendar();
-        yOrig = datatypeFactory.newXMLGregorianCalendar();
-
-        y = new Holder<XMLGregorianCalendar>(yOrig);
-        z = new Holder<XMLGregorianCalendar>();
-
-        try {
-            ret = client.testDateTime(x, y, z);
-            fail("Expected to catch IllegalStateException when calling "
-                 + "testDateTime() with uninitialized parameters.");
-        } catch (java.lang.IllegalStateException e) {
-            // Ignore expected failure.
-        }
         failed = false;
     }
 
@@ -641,19 +631,6 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
             assertTrue("testTime(): Incorrect return value", equalsTime(x, ret));
         }
 
-        x = datatypeFactory.newXMLGregorianCalendar();
-        yOrig = datatypeFactory.newXMLGregorianCalendar();
-
-        y = new Holder<XMLGregorianCalendar>(yOrig);
-        z = new Holder<XMLGregorianCalendar>();
-
-        try {
-            ret = client.testTime(x, y, z);
-            fail("Expected to catch IllegalStateException when calling "
-                 + "testTime() with uninitialized parameters.");
-        } catch (java.lang.IllegalStateException e) {
-            // Ignore expected failure.
-        }
         failed = false;
     }
 
@@ -747,37 +724,6 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
         failed = false;
     }
 
-    /*
-     * XXX - TODO
-     *
-    public void testanyURI() throws Exception {
-        failed = true;
-        String valueSets[][] = {
-            {"file:///root%20%20/-;?&+", "file:///w:/test!artix~java*"},
-            {"http://iona.com/", "file:///z:/mail_iona=com,\'xmlbus\'"},
-            {"mailto:windows@systems", "file:///"}
-        };
-
-        for (int i = 0; i < valueSets.length; i++) {
-            URI x = new URI(valueSets[i][0]);
-            Holder<URI> yOrig = new Holder<URI>(new URI(valueSets[i][1]));
-            Holder<URI> y = new Holder<URI>(new URI(valueSets[i][1]));
-            Holder<URI> z = new Holder<URI>();
-
-            URI ret = client.testanyURI(x, y, z);
-            if (!perfTestOnly) {
-                assertEquals("testanyURI(): Incorrect value for inout param",
-                             x.toString(), y.value.toString());
-                assertEquals("testanyURI(): Incorrect value for out param",
-                             yOrig.value.toString(), z.value.toString());
-                assertEquals("testanyURI(): Incorrect return value",
-                             x.toString(), ret.toString());
-            }
-        }
-        failed = false;
-    }
-    */
-
     public void testNormalizedString() throws Exception {
         failed = true;
         String x = "  normalized string ";
@@ -860,21 +806,7 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
         }
         failed = false;
     }
-/*  XXX
-    private boolean equalsNMTOKENS(List<String> lhs, List<String> rhs) {
-        if (lhs.size() != rhs.size()) {
-            return false;
-        }
-
-        for (int i = 0; i < lhs.size(); ++i) {
-            if (!lhs[i].equals(rhs[i])) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-*/
+    
     public void testName() throws Exception {
         failed = true;
         String x = "abc:123";
@@ -1108,17 +1040,48 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
         }
 
         // Test uninitialized holder value
-        // XXX - TODO Should we get an exception for this test?
         try {
             y = new Holder<byte[]>();
             z = new Holder<byte[]>();
-            /*byte[] result =*/ client.testBase64Binary(x, y, z);
-            //fail("Uninitialized Holder for inout parameter should have thrown an error.");
+            client.testBase64Binary(x, y, z);
+            fail("Uninitialized Holder for inout parameter should have thrown an error.");
         } catch (Exception e) {
             // Ignore expected failure.
         }
 
         failed = false;
     }
+
+    /*
+     * XXX - TODO
+     *
+    public void testanyURI() throws Exception {
+        failed = true;
+        String valueSets[][] = {
+            {"file:///root%20%20/-;?&+", "file:///w:/test!artix~java*"},
+            {"http://iona.com/", "file:///z:/mail_iona=com,\'xmlbus\'"},
+            {"mailto:windows@systems", "file:///"}
+        };
+
+        for (int i = 0; i < valueSets.length; i++) {
+            URI x = new URI(valueSets[i][0]);
+            Holder<URI> yOrig = new Holder<URI>(new URI(valueSets[i][1]));
+            Holder<URI> y = new Holder<URI>(new URI(valueSets[i][1]));
+            Holder<URI> z = new Holder<URI>();
+
+            URI ret = client.testanyURI(x, y, z);
+            if (!perfTestOnly) {
+                assertEquals("testanyURI(): Incorrect value for inout param",
+                             x.toString(), y.value.toString());
+                assertEquals("testanyURI(): Incorrect value for out param",
+                             yOrig.value.toString(), z.value.toString());
+                assertEquals("testanyURI(): Incorrect return value",
+                             x.toString(), ret.toString());
+            }
+        }
+        failed = false;
+    }
+    */
+    
 }
 

@@ -58,7 +58,7 @@
     </xsl:template>
     
     <xsl:template match="itst:builtIn" mode="javaHolderType">
-        <xsl:text>&#10;            javax.xml.ws.Holder&#x3c;</xsl:text>
+        <xsl:text>&#10;        Holder&#x3c;</xsl:text>
         <xsl:value-of select="@javaHolder"/>
         <xsl:text>&#x3e;</xsl:text>
     </xsl:template>

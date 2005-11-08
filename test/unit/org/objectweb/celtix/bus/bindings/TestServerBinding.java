@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bus.bindings;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
@@ -91,8 +90,7 @@ public class TestServerBinding extends AbstractServerBinding {
         return null != address && address.startsWith(schemeName);
     }
     
-    protected MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode) 
-        throws RemoteException {
+    protected MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode) {
         return null;
     }
 

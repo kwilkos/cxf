@@ -25,37 +25,16 @@
         <xsl:variable name="class_name">
             <xsl:value-of select="concat('Test', $the_name)"/>
         </xsl:variable>
-        <xsl:text>
-    @WebMethod(operationName = "</xsl:text>
-        <xsl:value-of select="$operation_name"/>
-        <xsl:text>")
-    @RequestWrapper(className = "org.objectweb.type_test.</xsl:text>
-        <xsl:value-of select="$class_name"/>
-        <xsl:text>",
-                    localName = "</xsl:text>
-        <xsl:value-of select="$operation_name"/>
-        <xsl:text>",
-                    targetNamespace = "http://objectweb.org/type_test")
-    @ResponseWrapper(className = "org.objectweb.type_test.</xsl:text>
-        <xsl:value-of select="$class_name"/>
-        <xsl:text>Response",
-                     localName = "</xsl:text>
-        <xsl:value-of select="$operation_name"/>
-        <xsl:text>Response",
-                     targetNamespace = "http://objectweb.org/type_test")
-    public </xsl:text>
+        <xsl:text>public </xsl:text>
         <xsl:apply-templates select="." mode="javaType"/>
         <xsl:text> </xsl:text>
         <xsl:value-of select="$operation_name"/>
         <xsl:text>(
-            @WebParam(name = "x", targetNamespace = "")
-            </xsl:text>
+        </xsl:text>
         <xsl:apply-templates select="." mode="javaType"/>
-        <xsl:text> x,
-            @WebParam(name = "y", targetNamespace = "", mode = Mode.INOUT)</xsl:text>
+        <xsl:text> x,</xsl:text>
         <xsl:apply-templates select="." mode="javaHolderType"/>
-        <xsl:text> y,
-            @WebParam(name = "z", targetNamespace = "", mode = Mode.OUT)</xsl:text>
+        <xsl:text> y,</xsl:text>
         <xsl:apply-templates select="." mode="javaHolderType"/>
         <xsl:text> z)</xsl:text>
     </xsl:template>

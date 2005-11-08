@@ -150,7 +150,7 @@
         </javac>
     </target>
     
-    <target name="unittest.compile" depends="testwsdl.codegen,spring.unittest.compile" description="Compile the unit tests">
+    <target name="unittest.compile" depends="testwsdl.compile,spring.unittest.compile" description="Compile the unit tests">
         <mkdir dir="${basedir}/build/classes-tests/unit"/>
         <javac srcdir="${basedir}/test/unit"
             destdir="${basedir}/build/classes-tests/unit"

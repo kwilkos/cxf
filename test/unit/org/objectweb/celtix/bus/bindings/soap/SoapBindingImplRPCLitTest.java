@@ -41,13 +41,9 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         binding = new SOAPBindingImpl();
         objContext = new ObjectMessageContextImpl();
         soapContext = new SOAPMessageContextImpl(new GenericMessageContext());
-
-        Method[] declMethods = GreeterRPCLit.class.getDeclaredMethods();
-        for (Method method : declMethods) {
-            if (method.getName().equals("greetMe")) {
-                objContext.setMethod(method);
-            }
-        }
+        
+        Method greetMe = SOAPMessageUtil.getMethod(GreeterRPCLit.class, "greetMe");
+        objContext.setMethod(greetMe);
     }
 
     public void testMarshalRPCLitInputMessage() throws Exception {
@@ -138,14 +134,16 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         assertNotNull(binding.getMessageFactory());
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
         soapContext.setMessage(soapMessage);
+        //GreetMe has a IN parameter
+        objContext.setMessageObjects(new Object[]{null});
 
         binding.unmarshalMessage(soapContext, objContext,
                                  new JAXBDataBindingCallback(objContext.getMethod(),
                                                              DataBindingCallback.Mode.PARTS));
 
+        assertNull(objContext.getReturn());
         Object[] params = objContext.getMessageObjects();
         assertNotNull(params);
-        assertNull(objContext.getReturn());
         assertEquals(1, params.length);
         assertEquals(data, (String)params[0]);
     }
@@ -167,10 +165,7 @@ public class SoapBindingImplRPCLitTest extends TestCase {
                                  new JAXBDataBindingCallback(objContext.getMethod(),
                                                              DataBindingCallback.Mode.PARTS));
 
-        Object[] params = objContext.getMessageObjects();
-        //REVISIT Should it be null;
-        assertNotNull(params);
-        assertEquals(0, params.length);
+        assertNull(objContext.getMessageObjects());
         assertNotNull(objContext.getReturn());
         assertEquals(data, (String)objContext.getReturn());
     }

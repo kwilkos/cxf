@@ -103,9 +103,7 @@ public class SOAPClientBindingTest extends TestCase {
         
         clientBinding.unmarshal(soapCtx, objContext);
         
-        assertNotNull(objContext.getMessageObjects());
-        assertEquals(0, objContext.getMessageObjects().length);
-
+        assertNull(objContext.getMessageObjects());
         assertNotNull(objContext.getReturn());
         assertTrue(String.class.isAssignableFrom(objContext.getReturn().getClass()));
     }

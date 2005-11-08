@@ -45,7 +45,6 @@
                 <batchtest todir="${basedir}/build/testresults/@{type}">
                     <fileset dir="${basedir}/build/classes-tests/@{type}">
                         <include name="${tests.filters}"/>
-                        <exclude name="**/SOAPClientTypeTest**"/>
                     </fileset>
                 </batchtest>
             </junit>

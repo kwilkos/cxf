@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
@@ -147,11 +146,6 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     //Output Message For Client
                     bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
                 }
-
-                Method m = context.getMethod();
-                context = createObjectContext();
-                context.setMethod(m);
-                handlerInvoker.setContext(context); 
 
                 handlerInvoker.invokeProtocolHandlers(true, bindingContext);
 

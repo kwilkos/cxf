@@ -17,13 +17,7 @@
 package org.objectweb.celtix.systest.type_test;
 
 //import java.net.URI;
-
-//import javax.jws.Oneway;
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebParam.Mode;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
+import javax.xml.ws.Holder;
 
 import org.objectweb.type_test.TypeTestPortType;
 
@@ -32,22 +26,12 @@ import org.objectweb.type_test.TypeTestPortType;
  */
 public class TypeTestImpl implements TypeTestPortType {
 
-/*
-    @WebMethod(operationName = "testVoid")
-    @RequestWrapper(className = "org.objectweb.type_test.TestVoid",
-                    localName = "testVoid",
-                    targetNamespace = "http://objectweb.org/type_test")
     public void testVoid() {
     }
     
-    @WebMethod(operationName = "testOneway")
-    @Oneway
-    @RequestWrapper(localName = "testOneway",
-                    targetNamespace = "http://objectweb.org/type_test",
-                    className = "org.objectweb.type_test.TestOneway")
     public void testOneway(String x, String y) {
     }
-
+/*
     public AnonTypeElement testAnonTypeElement(AnonTypeElement x, 
             javax.xml.ws.Holder<AnonTypeElement> y, 
             javax.xml.ws.Holder<AnonTypeElement> z) {
@@ -238,12 +222,13 @@ public class TypeTestImpl implements TypeTestPortType {
             match="itst:it_test_group/*[not(@itst:it_no_test='true')]"
             mode="definition">
         <xsl:apply-templates select="." mode="test_signature"/>
-        <xsl:text> {
+    <xsl:text> {    
         z.value = y.value;
         y.value = x;
         return x;
     }
-        </xsl:text>
+    
+    </xsl:text>
     </xsl:template>
 
 </xsl:stylesheet>

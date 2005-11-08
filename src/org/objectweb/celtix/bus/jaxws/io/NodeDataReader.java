@@ -1,7 +1,7 @@
 package org.objectweb.celtix.bus.jaxws.io;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import javax.jws.WebParam;
 import javax.xml.namespace.QName;
@@ -41,9 +41,7 @@ public class NodeDataReader<T> implements DataReader<T> {
             : callback.getRequestWrapperType();
         
         Node childNode = xmlNode.getFirstChild();
-
-        Object retVal = null;
-        List<Object> paramList = new ArrayList<Object>();
+        Object[] methodArgs = objCtx.getMessageObjects();
 
         QName elName = isOutBound ? callback.getResponseWrapperQName()
             : callback.getRequestWrapperQName();
@@ -57,24 +55,40 @@ public class NodeDataReader<T> implements DataReader<T> {
         }
 
         if (isOutBound && callback.getWebResult() != null) {
-            retVal = callback.getWrappedPart(
+            Object retVal = callback.getWrappedPart(
                              callback.getWebResult().getLocalPart(), 
                              obj, 
                              callback.getMethod().getReturnType());
+            objCtx.setReturn(retVal);
         }
 
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
         int noArgs = callback.getMethod().getParameterTypes().length;
-        for (int idx = 0; idx < noArgs; idx++) {
-            WebParam param = callback.getWebParam(idx);
-            if ((param.mode() != ignoreParamMode) && !param.header()) {
-                paramList.add(
-                              callback.getWrappedPart(
-                                       param.name(), obj, callback.getMethod().getParameterTypes()[idx]));
+        try {
+            for (int idx = 0; idx < noArgs; idx++) {
+                WebParam param = callback.getWebParam(idx);
+                if ((param.mode() != ignoreParamMode) && !param.header()) {
+                    Class<?> cls = callback.getMethod().getParameterTypes()[idx];                
+                    if (param.mode() != WebParam.Mode.IN) {
+                        //INOUT and OUT Params are mapped to Holder<T>. 
+                        Type[] genericParameterTypes = callback.getMethod().getGenericParameterTypes();
+                        //ParameterizedType represents Holder<?>
+                        ParameterizedType paramType = (ParameterizedType)genericParameterTypes[idx];
+                        Class<?> c = 
+                            JAXBEncoderDecoder.getClassFromType(paramType.getActualTypeArguments()[0]);
+                        Object partValue = callback.getWrappedPart(param.name(), obj, c);
+                        //TO avoid type safety warning the Holder 
+                        //needs tobe set as below.                        
+                        cls.getField("value").set(methodArgs[idx], partValue);
+                    } else {
+                        methodArgs[idx] = callback.getWrappedPart(param.name(), obj, cls);
+                    }
+                }
             }
+        } catch (IllegalAccessException iae) {
+            throw new WebServiceException("Could not unwrap the parts.", iae);
+        } catch (NoSuchFieldException nsfe) {
+            throw new WebServiceException("Could not unwrap the parts.", nsfe);
         }
-
-        objCtx.setReturn(retVal);
-        objCtx.setMessageObjects(paramList.toArray());
     }
 }

@@ -20,15 +20,15 @@ package org.objectweb.celtix.systest.type_test;
 public interface TypeTestTester {
 
     void setPerformanceTestOnly();
-
-    void testVoid() throws Exception;
-    void testOneway() throws Exception;
-
+    
     /*void testAnonTypeElement() throws Exception;*/]]>
+    
+    void testVoid() throws Exception;
+    
+    void testOneway() throws Exception;
         <xsl:apply-templates mode="definitions"/>
         <![CDATA[
-}
-]]>
+}]]>
     </xsl:template>
 
     <xsl:template match="itst:it_test_group" mode="definitions">

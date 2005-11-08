@@ -18,7 +18,7 @@ public class SOAPServerImpl {
         bus = Bus.init(args);
 
         Object implementor = new SOAPTypeTestImpl();
-        String address = "http://localhost:9200/SOAPService/SOAPPort";
+        String address = "http://localhost:9200/SOAPService/SOAPPort/";
 
         // XXX - Discard some Endpoint.publish() verbosity.
         PrintStream pout = System.out;

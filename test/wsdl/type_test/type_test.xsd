@@ -4,7 +4,8 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:tns="http://objectweb.org/type_test"
         xmlns:itst="http://tests.iona.com/ittests"
-	xmlns:wsse="http://schemas.xmlsoap.org/ws/2003/06/secext">
+	xmlns:wsse="http://schemas.xmlsoap.org/ws/2003/06/secext"
+	elementFormDefault="qualified">
 
     <!-- For each type and element defined in this schema, the
 	 type_test_wsdl stylesheet will generate a set of test

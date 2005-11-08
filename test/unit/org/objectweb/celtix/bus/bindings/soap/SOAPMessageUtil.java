@@ -1,7 +1,10 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+
 import javax.xml.namespace.QName;
+import javax.xml.ws.Holder;
 
 public final class SOAPMessageUtil {
 
@@ -17,6 +20,20 @@ public final class SOAPMessageUtil {
             }
         }
         return null;
+    }
+
+    public static Object[] getMessageObjects(Method method) throws Exception {
+        int idx = 0;
+        Object[] methodArgs = (Object[])
+            Array.newInstance(Object.class, method.getParameterTypes().length);
+        for (Class<?> cls : method.getParameterTypes()) {
+            if (cls.isAssignableFrom(Holder.class)) {
+                methodArgs[idx] = cls.newInstance();
+            } 
+            idx++;
+        }
+
+        return methodArgs;
     }
     
     public static String createWrapDocLitSOAPMessage(QName wrapName, QName elName, String data) {
