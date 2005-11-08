@@ -38,7 +38,7 @@ public interface BindingBase {
     /**
      * Create a <code>HandlerInvoker</code>.
      *
-     * @ return The newly create <code>HandlerInvoker</code>
+     * @return The newly create <code>HandlerInvoker</code>
      */
     HandlerInvoker createHandlerInvoker();
 }
