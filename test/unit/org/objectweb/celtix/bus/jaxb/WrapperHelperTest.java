@@ -1,4 +1,4 @@
-package org.objectweb.celtix.helpers;
+package org.objectweb.celtix.bus.jaxb;
 
 import java.util.ArrayList;
 import java.util.List;

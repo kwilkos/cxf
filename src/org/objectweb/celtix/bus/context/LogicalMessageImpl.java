@@ -1,9 +1,6 @@
 package org.objectweb.celtix.bus.context;
 
 
-
-
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -18,10 +15,10 @@ import javax.xml.ws.LogicalMessage;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.handler.MessageContext;
+import org.objectweb.celtix.bus.jaxb.WrapperHelper;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
-import org.objectweb.celtix.helpers.WrapperHelper;
 
 public class LogicalMessageImpl implements LogicalMessage {
 

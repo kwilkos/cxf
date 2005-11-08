@@ -14,12 +14,13 @@ import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.WebServiceContextImpl;
+import org.objectweb.celtix.handlers.HandlerInvoker;
 
 /**
  * invoke invoke the handlers in a registered handler chain
  *
  */
-public class HandlerChainInvoker {
+public class HandlerChainInvoker implements HandlerInvoker {
 
     private static final Logger LOG = LogUtils.getL7dLogger(HandlerChainInvoker.class);
 
@@ -34,6 +35,10 @@ public class HandlerChainInvoker {
     private boolean closed; 
 
     private ObjectMessageContext context; 
+
+    public HandlerChainInvoker(List<Handler> hc) {
+        this(hc, null, true);
+    } 
 
     public HandlerChainInvoker(List<Handler> hc, ObjectMessageContext ctx) {
         this(hc, ctx, true);

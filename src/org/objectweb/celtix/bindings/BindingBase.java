@@ -3,6 +3,7 @@ package org.objectweb.celtix.bindings;
 import javax.xml.ws.Binding;
 
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.handlers.HandlerInvoker;
 
 
 /**
@@ -33,5 +34,11 @@ public interface BindingBase {
      */
     ObjectMessageContext createObjectContext();
         
-    
+
+    /**
+     * Create a <code>HandlerInvoker</code>.
+     *
+     * @ return The newly create <code>HandlerInvoker</code>
+     */
+    HandlerInvoker createHandlerInvoker();
 }

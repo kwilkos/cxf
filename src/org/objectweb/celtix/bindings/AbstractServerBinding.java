@@ -21,13 +21,13 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.context.WebServiceContextImpl;
+import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 
@@ -68,9 +68,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 public Executor getExecutor() {
                     return AbstractServerBinding.this.getEndpoint().getExecutor();
                 }
-
             };
-        
         transport.activate(tc);
     }
 
@@ -164,7 +162,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
      * exceptions are put into the correct context for the return path
      */
     private boolean doInvocation(Method method, ObjectMessageContext objContext, 
-                                 MessageContext replyCtx, HandlerChainInvoker invoker) { 
+                                 MessageContext replyCtx, HandlerInvoker invoker) { 
 
         assert method != null && objContext != null && replyCtx != null;
             
@@ -214,11 +212,11 @@ public abstract class AbstractServerBinding implements ServerBinding {
  
     private MessageContext invokeOnMethod(MessageContext requestCtx, ObjectMessageContext objContext) {
 
-
         objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
 
-        HandlerChainInvoker invoker = new HandlerChainInvoker(getBinding().getHandlerChain(), 
-                                                              objContext, false); 
+        HandlerInvoker invoker = createHandlerInvoker(); 
+        invoker.setContext(objContext); 
+        invoker.setInbound(); 
 
         MessageContext replyCtx = createBindingMessageContext(objContext);
         assert replyCtx != null;

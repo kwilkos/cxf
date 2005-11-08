@@ -29,10 +29,12 @@ import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
+import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
 
@@ -58,6 +60,11 @@ public class SOAPServerBinding extends AbstractServerBinding {
         return soapBinding.isCompatibleWithAddress(address);
     }
     
+
+    public HandlerInvoker createHandlerInvoker() {
+        return new HandlerChainInvoker(getBinding().getHandlerChain()); 
+    }
+
     protected ServerTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
         // TODO get from configuration
         // TODO get from reference bindingID

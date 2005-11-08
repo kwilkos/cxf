@@ -13,12 +13,12 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -96,7 +96,8 @@ public abstract class AbstractClientBinding implements ClientBinding {
                                        DataBindingCallback callback)
         throws IOException {
         
-        HandlerChainInvoker handlerInvoker = new HandlerChainInvoker(getBinding().getHandlerChain(), context);
+        HandlerInvoker handlerInvoker = createHandlerInvoker(); 
+        handlerInvoker.setContext(context); 
 
         try { 
             MessageContext bindingContext = createBindingMessageContext(context);
@@ -169,8 +170,9 @@ public abstract class AbstractClientBinding implements ClientBinding {
     public void invokeOneWay(ObjectMessageContext context,
                              DataBindingCallback callback) throws IOException {
         
-        HandlerChainInvoker handlerInvoker = new HandlerChainInvoker(getBinding().getHandlerChain(), context);
-
+        HandlerInvoker handlerInvoker = createHandlerInvoker(); 
+        handlerInvoker.setContext(context); 
+        
         try { 
             MessageContext bindingContext = createBindingMessageContext(context);
 

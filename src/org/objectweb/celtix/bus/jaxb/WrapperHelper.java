@@ -1,4 +1,4 @@
-package org.objectweb.celtix.helpers;
+package org.objectweb.celtix.bus.jaxb;
 
 
 import java.lang.reflect.Field;
@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 
-import org.objectweb.celtix.bus.jaxb.JAXBUtils;
 
 public final class WrapperHelper {
 

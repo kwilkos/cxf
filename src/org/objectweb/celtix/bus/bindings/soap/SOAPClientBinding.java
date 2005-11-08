@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.wsdl.WSDLException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -17,10 +16,12 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractClientBinding;
 import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.handlers.HandlerInvoker;
 
 
 public class SOAPClientBinding extends AbstractClientBinding {
@@ -38,6 +39,11 @@ public class SOAPClientBinding extends AbstractClientBinding {
     
     public boolean isCompatibleWithAddress(String address) {
         return soapBinding.isCompatibleWithAddress(address);
+    }
+
+
+    public HandlerInvoker createHandlerInvoker() {
+        return new HandlerChainInvoker(getBinding().getHandlerChain()); 
     }
 
     protected MessageContext createBindingMessageContext(MessageContext ctx) {

@@ -25,12 +25,12 @@ import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.bindings.soap.SOAPConstants;
+import org.objectweb.celtix.bus.jaxb.WrapperHelper;
 import org.objectweb.celtix.bus.jaxws.io.DetailDataWriter;
 import org.objectweb.celtix.bus.jaxws.io.NodeDataReader;
 import org.objectweb.celtix.bus.jaxws.io.NodeDataWriter;
 import org.objectweb.celtix.bus.jaxws.io.SOAPFaultDataReader;
 import org.objectweb.celtix.context.ObjectMessageContext;
-import org.objectweb.celtix.helpers.WrapperHelper;
 
 public class JAXBDataBindingCallback implements DataBindingCallback {
     private SOAPBinding soapBindAnnotation;

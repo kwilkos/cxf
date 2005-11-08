@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bus.bindings;
 
 import java.io.IOException;
-
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
@@ -14,10 +13,12 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
+import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
@@ -107,6 +108,10 @@ public class TestServerBinding extends AbstractServerBinding {
             tsb.fire();
         }
     }
+
+    public HandlerInvoker createHandlerInvoker() { 
+        return new HandlerChainInvoker(getBinding().getHandlerChain()); 
+    } 
 
     protected QName getOperationName(MessageContext ctx) {
         return new QName("blah", currentOperation);
