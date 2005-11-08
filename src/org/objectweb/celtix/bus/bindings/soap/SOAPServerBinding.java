@@ -28,7 +28,7 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.DataBindingCallback;
-import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
+import org.objectweb.celtix.bindings.DataBindingCallbackFactory;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -42,8 +42,11 @@ public class SOAPServerBinding extends AbstractServerBinding {
     
     protected final SOAPBindingImpl soapBinding;
     
-    public SOAPServerBinding(Bus b, EndpointReferenceType ref, Endpoint ep) {
-        super(b, ref, ep);
+    public SOAPServerBinding(Bus b,
+                             EndpointReferenceType ref,
+                             Endpoint ep,
+                             DataBindingCallbackFactory cbFactory) {
+        super(b, ref, ep, cbFactory);
         soapBinding = new SOAPBindingImpl();
     }
     
@@ -77,8 +80,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
             SOAPMessage msg = soapBinding
                 .marshalMessage(objContext,
                                 context,
-                                new JAXBDataBindingCallback(objContext.getMethod(),
-                                                            DataBindingCallback.Mode.PARTS));
+                                dbcbFactory.createDataBindingCallback(objContext,
+                                                                      DataBindingCallback.Mode.PARTS));
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_MARSHALLING_FAILURE_MSG", se);
@@ -89,8 +92,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
     protected void marshalFault(ObjectMessageContext objContext, MessageContext context) {
         SOAPMessage msg = soapBinding
             .marshalFault(objContext, context,
-                          new JAXBDataBindingCallback(objContext.getMethod(),
-                                                      DataBindingCallback.Mode.PARTS));
+                          dbcbFactory.createDataBindingCallback(objContext,
+                                                                DataBindingCallback.Mode.PARTS));
         ((SOAPMessageContext)context).setMessage(msg);
     }
     
@@ -98,8 +101,9 @@ public class SOAPServerBinding extends AbstractServerBinding {
         try {
             soapBinding.unmarshalMessage(context,
                                          objContext,
-                                         new JAXBDataBindingCallback(objContext.getMethod(),
-                                                                     DataBindingCallback.Mode.PARTS));
+                                         dbcbFactory
+                                             .createDataBindingCallback(objContext,
+                                                                        DataBindingCallback.Mode.PARTS));
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
             throw new ProtocolException(se);

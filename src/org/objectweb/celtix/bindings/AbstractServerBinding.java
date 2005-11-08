@@ -39,11 +39,16 @@ public abstract class AbstractServerBinding implements ServerBinding {
     protected final EndpointReferenceType reference;
     protected ServerTransport transport;
     protected Endpoint endpoint;
+    protected DataBindingCallbackFactory dbcbFactory;
 
-    public AbstractServerBinding(Bus b, EndpointReferenceType ref, Endpoint ep) {
+    public AbstractServerBinding(Bus b,
+                                 EndpointReferenceType ref,
+                                 Endpoint ep,
+                                 DataBindingCallbackFactory cbFactory) {
         bus = b;
         reference = ref;
         endpoint = ep;
+        dbcbFactory = cbFactory;
     }
     
     public Endpoint getEndpoint() {

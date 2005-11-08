@@ -28,7 +28,11 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bindings.DataBindingCallbackFactory;
+import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.InputStreamMessageContext;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
@@ -61,25 +65,25 @@ public class SOAPServerBindingTest extends TestCase {
     }
 
     public void testGetBinding() throws Exception {
-        SOAPServerBinding serverBinding = new SOAPServerBinding(bus, epr, null);
+        SOAPServerBinding serverBinding = new SOAPServerBinding(bus, epr, null, null);
         assertNotNull(serverBinding.getBinding());
     }
 
     public void testCreateObjectContext() throws Exception {
-        SOAPServerBinding serverBinding = new SOAPServerBinding(bus, epr, null);
+        SOAPServerBinding serverBinding = new SOAPServerBinding(bus, epr, null, null);
         byte[] bArray = new byte[0];
         TestInputStreamContext inCtx = new TestInputStreamContext(bArray);
         assertNotNull(serverBinding.createBindingMessageContext(inCtx));
     }
 
     public void testCreateTransport() throws Exception {
-        TestServerBinding serverBinding = new TestServerBinding(bus, epr, null);
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, null, null);
         assertNotNull(serverBinding.getTransport(epr));
     }
 
     public void testDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
-        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint);        
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint);        
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
 
         QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");
@@ -106,7 +110,7 @@ public class SOAPServerBindingTest extends TestCase {
     
     public void testDispatchOneway() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
-        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint);        
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint);        
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
 
         QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMeOneWay");
@@ -128,7 +132,7 @@ public class SOAPServerBindingTest extends TestCase {
 
     public void testFaultDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
-        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint);        
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint);        
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
         InputStream is =  getClass().getResourceAsStream("resources/TestDocLitFaultReq.xml");
         
@@ -170,8 +174,9 @@ public class SOAPServerBindingTest extends TestCase {
     
     class TestServerBinding extends SOAPServerBinding {
 
-        public TestServerBinding(Bus b, EndpointReferenceType ref, Endpoint ep) {
-            super(b, ref, ep);
+        public TestServerBinding(Bus b, EndpointReferenceType ref, Endpoint ep,
+                                 DataBindingCallbackFactory cbFactory) {
+            super(b, ref, ep, cbFactory);
         }
 
         public ServerTransport getTransport(EndpointReferenceType ref) throws Exception {            
@@ -210,7 +215,7 @@ public class SOAPServerBindingTest extends TestCase {
         }
     }
     
-    class TestEndpointImpl extends javax.xml.ws.Endpoint {
+    class TestEndpointImpl extends javax.xml.ws.Endpoint implements DataBindingCallbackFactory {
 
         private final Object implementor;
 
@@ -268,6 +273,12 @@ public class SOAPServerBindingTest extends TestCase {
             // TODO Auto-generated method stub
             
         }
+
+        public DataBindingCallback createDataBindingCallback(ObjectMessageContext objContext,
+                                                             DataBindingCallback.Mode mode) {
+            return new JAXBDataBindingCallback(objContext.getMethod(),
+                                               mode);
+        } 
     }
     
 }

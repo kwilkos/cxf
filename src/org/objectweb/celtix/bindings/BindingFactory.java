@@ -35,6 +35,8 @@ public interface BindingFactory {
      * @param endpoint The server endpoint.
      * @return ServerBinding The newly created ServerBinding.
      */
-    ServerBinding createServerBinding(EndpointReferenceType reference, Endpoint endpoint)
+    ServerBinding createServerBinding(EndpointReferenceType reference,
+                                      Endpoint endpoint,
+                                      DataBindingCallbackFactory cbFactory)
         throws WSDLException, IOException;
 }

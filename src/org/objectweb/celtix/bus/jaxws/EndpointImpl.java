@@ -1,9 +1,6 @@
 package org.objectweb.celtix.bus.jaxws;
 
 
-
-
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +18,8 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
+import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bindings.DataBindingCallbackFactory;
 import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bus.context.WebServiceContextImpl;
 import org.objectweb.celtix.bus.handlers.HandlerChainBuilder;
@@ -28,9 +27,11 @@ import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.injection.ResourceResolver;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-public final class EndpointImpl extends javax.xml.ws.Endpoint {
+public final class EndpointImpl extends javax.xml.ws.Endpoint
+    implements DataBindingCallbackFactory {
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
 
@@ -202,7 +203,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint {
         if (null == factory) {
             throw new BusException(new Message("BINDING_FACTORY_MISSING_EXC", LOG, bindingId));
         }
-        ServerBinding bindingImpl = factory.createServerBinding(reference, this);
+        ServerBinding bindingImpl = factory.createServerBinding(reference, this, this);
         assert null != bindingImpl;
         return bindingImpl;
 
@@ -269,5 +270,11 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint {
         HandlerChainBuilder builder = new HandlerChainBuilder();
         List<Handler> chain = builder.buildHandlerChainFor(implementor); 
         serverBinding.getBinding().setHandlerChain(chain); 
+    }
+
+    public DataBindingCallback createDataBindingCallback(ObjectMessageContext objContext,
+                                                         DataBindingCallback.Mode mode) {
+        return new JAXBDataBindingCallback(objContext.getMethod(),
+                                           mode);
     } 
 }

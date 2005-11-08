@@ -13,6 +13,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
+import org.objectweb.celtix.bindings.DataBindingCallbackFactory;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -29,8 +30,10 @@ public class TestServerBinding extends AbstractServerBinding {
     String currentOperation = "undeclared";
     String schemeName = "test";
 
-    public TestServerBinding(Bus b, EndpointReferenceType ref, Endpoint ep) {
-        super(b, ref, ep);
+    public TestServerBinding(Bus b, EndpointReferenceType ref, 
+                             Endpoint ep,
+                             DataBindingCallbackFactory cbFactory) {
+        super(b, ref, ep, cbFactory);
         binding = new TestBinding();
     }
 
