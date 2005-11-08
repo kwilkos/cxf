@@ -119,9 +119,9 @@ public class CeltixBus extends Bus {
     }
     
     /** 
-     * Returns the <code>HandlerRegistry</code> of this <code>Bus</code>.
+     * Returns the <code>HandlerFactoryManager</code> of this <code>Bus</code>.
      * 
-     * @return HandlerRegistry the servant registry of this <code>Bus</code>.
+     * @return HandlerFactoryManager the handler factory manager of this <code>Bus</code>.
      */
     public HandlerFactoryManager getHandlerFactoryManager() {
         return handlerFactoryManager;
@@ -137,9 +137,9 @@ public class CeltixBus extends Bus {
     }
     
     /** 
-     * Returns the <code>TransportRegistry</code> of this <code>Bus</code>.
+     * Returns the <code>TransportFactoryManager</code> of this <code>Bus</code>.
      * 
-     * @return TransportRegistry the servant registry of this <code>Bus</code>.
+     * @return TransportFactoryManager the transport factory manager of this <code>Bus</code>.
      */
     public TransportFactoryManager getTransportFactoryManager() {
         return transportFactoryManager;

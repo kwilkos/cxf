@@ -25,6 +25,9 @@ import org.objectweb.celtix.addressing.ObjectFactory;
 import org.objectweb.celtix.addressing.wsdl.ServiceNameType;
 import org.objectweb.celtix.common.logging.LogUtils;
 
+/**
+ * Provides utility methods for obtaining endpoint references, wsdl definitions, etc.
+ */
 public final class EndpointReferenceUtils {
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointReferenceUtils.class);
@@ -39,6 +42,13 @@ public final class EndpointReferenceUtils {
         // Utility class - never constructed
     }
 
+    /**
+     * Gets the WSDL definition for the provided endpoint reference.
+     * @param manager - the WSDL manager 
+     * @param ref - the endpoint reference
+     * @return Definition the wsdl definition
+     * @throws WSDLException
+     */
     public static Definition getWSDLDefinition(WSDLManager manager, EndpointReferenceType ref)
         throws WSDLException {
         
@@ -74,6 +84,13 @@ public final class EndpointReferenceUtils {
         return null;
     }
 
+    /**
+     * Gets the WSDL port for the provided endpoint reference.
+     * @param manager - the WSDL manager 
+     * @param ref - the endpoint reference
+     * @return Port the wsdl port
+     * @throws WSDLException
+     */
     public static Port getPort(WSDLManager manager, EndpointReferenceType ref) throws WSDLException {
 
         Definition def = getWSDLDefinition(manager, ref);
@@ -136,6 +153,11 @@ public final class EndpointReferenceUtils {
         return null;
     }
 
+    /**
+     * Get the address from the provided endpoint reference.
+     * @param ref - the endpoint reference
+     * @return String the address of the endpoint
+     */
     public static String getAddress(EndpointReferenceType ref) {
         AttributedURIType a = ref.getAddress();
         if (null != a) {
@@ -145,12 +167,24 @@ public final class EndpointReferenceUtils {
         return null;
     }
 
+    /**
+     * Set the address of the provided endpoint reference.
+     * @param ref - the endpoint reference
+     * @param address - the address
+     */
     public static void setAddress(EndpointReferenceType ref, String address) {
         AttributedURIType a = new ObjectFactory().createAttributedURIType();
         a.setValue(address);
         ref.setAddress(a);
     }
 
+    /**
+     * Create an endpoint reference for the provided wsdl, service and portname.
+     * @param wsdlUrl - url of the wsdl that describes the service.
+     * @param serviceName - the <code>QName</code> of the service.
+     * @param portName - the name of the port.
+     * @return EndpointReferenceType - the endpoint reference
+     */
     public static EndpointReferenceType getEndpointReference(URL wsdlUrl, 
                                                              QName serviceName, 
                                                              String portName) {
@@ -166,6 +200,13 @@ public final class EndpointReferenceUtils {
         return reference;
     }
 
+    /**
+     * Get the WebService for the provided class.  If the class
+     * itself does not have a WebService annotation, this method
+     * is called recursively on the class's interfaces and superclass. 
+     * @param cls - the Class .
+     * @return WebService - the web service
+     */
     public static WebService getWebServiceAnnotation(Class<?> cls) {
         if (cls == null) {
             return null;
@@ -185,6 +226,12 @@ public final class EndpointReferenceUtils {
     }
     
     
+    /**
+     * Gets an endpoint reference for the provided implementor object.
+     * @param manager - the wsdl manager.
+     * @param implementor - the service implementor.
+     * @return EndpointReferenceType - the endpoint reference
+     */
     public static EndpointReferenceType getEndpointReference(WSDLManager manager, Object implementor) {
 
         WebService ws = getWebServiceAnnotation(implementor.getClass());
