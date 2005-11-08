@@ -18,15 +18,16 @@ import javax.xml.ws.ProtocolException;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.bus.context.WebServiceContextImpl;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
-import org.objectweb.celtix.bus.jaxws.EndpointUtils;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.context.WebServiceContextImpl;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 
@@ -39,16 +40,16 @@ public abstract class AbstractServerBinding implements ServerBinding {
     protected final EndpointReferenceType reference;
     protected ServerTransport transport;
     protected Endpoint endpoint;
-    protected DataBindingCallbackFactory dbcbFactory;
+    protected ServerBindingEndpointCallback sbeCallback;
 
     public AbstractServerBinding(Bus b,
                                  EndpointReferenceType ref,
                                  Endpoint ep,
-                                 DataBindingCallbackFactory cbFactory) {
+                                 ServerBindingEndpointCallback sbcb) {
         bus = b;
         reference = ref;
         endpoint = ep;
-        dbcbFactory = cbFactory;
+        sbeCallback = sbcb;
     }
     
     public Endpoint getEndpoint() {
@@ -133,7 +134,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             }
         }
 
-        ServiceMode mode = EndpointUtils.getServiceMode(endpoint);
+        ServiceMode mode = sbeCallback.getServiceMode(endpoint);
         MessageContext replyCtx = null;
         if (null != mode) {
             replyCtx = invokeOnProvider(requestCtx, mode);
@@ -277,7 +278,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             objContext.put(MessageContext.WSDL_OPERATION, operationName);
         }
         
-        Method method = EndpointUtils.getMethod(endpoint, operationName);
+        Method method = sbeCallback.getMethod(endpoint, operationName);
         if (method == null) {
             LOG.log(Level.SEVERE, "IMPLEMENTOR_MISSING_METHOD_MSG", operationName);
             throw new WebServiceException("Web method: " + operationName + " not found in implementor.");

@@ -13,9 +13,9 @@ import org.w3c.dom.NodeList;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback;
-import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
+import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 
 public class SoapBindingImplRPCLitTest extends TestCase {

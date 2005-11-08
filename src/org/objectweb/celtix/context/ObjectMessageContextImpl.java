@@ -1,9 +1,7 @@
-package org.objectweb.celtix.bindings;
+package org.objectweb.celtix.context;
 
 import java.lang.reflect.Method;
 import javax.xml.ws.handler.MessageContext;
-import org.objectweb.celtix.context.GenericMessageContext;
-import org.objectweb.celtix.context.ObjectMessageContext;
 
 public class ObjectMessageContextImpl extends GenericMessageContext implements ObjectMessageContext {
     public static final String METHOD_OBJ = "org.objectweb.celtix.method";

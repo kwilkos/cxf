@@ -6,8 +6,8 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ClientBinding;
-import org.objectweb.celtix.bindings.DataBindingCallbackFactory;
 import org.objectweb.celtix.bindings.ServerBinding;
+import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 
 public class TestBindingFactory implements BindingFactory {
     private Bus bus;
@@ -22,7 +22,7 @@ public class TestBindingFactory implements BindingFactory {
 
     public ServerBinding createServerBinding(EndpointReferenceType reference,
                                              Endpoint endpoint,
-                                             DataBindingCallbackFactory cbFactory) {
+                                             ServerBindingEndpointCallback cbFactory) {
         return new TestServerBinding(bus, reference, endpoint, cbFactory);
     }
 

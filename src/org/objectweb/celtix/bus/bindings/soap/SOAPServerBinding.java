@@ -28,7 +28,7 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.DataBindingCallback;
-import org.objectweb.celtix.bindings.DataBindingCallbackFactory;
+import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -45,7 +45,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
     public SOAPServerBinding(Bus b,
                              EndpointReferenceType ref,
                              Endpoint ep,
-                             DataBindingCallbackFactory cbFactory) {
+                             ServerBindingEndpointCallback cbFactory) {
         super(b, ref, ep, cbFactory);
         soapBinding = new SOAPBindingImpl();
     }
@@ -80,7 +80,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
             SOAPMessage msg = soapBinding
                 .marshalMessage(objContext,
                                 context,
-                                dbcbFactory.createDataBindingCallback(objContext,
+                                sbeCallback.createDataBindingCallback(objContext,
                                                                       DataBindingCallback.Mode.PARTS));
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
@@ -92,7 +92,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
     protected void marshalFault(ObjectMessageContext objContext, MessageContext context) {
         SOAPMessage msg = soapBinding
             .marshalFault(objContext, context,
-                          dbcbFactory.createDataBindingCallback(objContext,
+                          sbeCallback.createDataBindingCallback(objContext,
                                                                 DataBindingCallback.Mode.PARTS));
         ((SOAPMessageContext)context).setMessage(msg);
     }
@@ -101,7 +101,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         try {
             soapBinding.unmarshalMessage(context,
                                          objContext,
-                                         dbcbFactory
+                                         sbeCallback
                                              .createDataBindingCallback(objContext,
                                                                         DataBindingCallback.Mode.PARTS));
         } catch (SOAPException se) {

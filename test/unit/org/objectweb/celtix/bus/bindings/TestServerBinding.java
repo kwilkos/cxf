@@ -13,7 +13,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
-import org.objectweb.celtix.bindings.DataBindingCallbackFactory;
+import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -32,7 +32,7 @@ public class TestServerBinding extends AbstractServerBinding {
 
     public TestServerBinding(Bus b, EndpointReferenceType ref, 
                              Endpoint ep,
-                             DataBindingCallbackFactory cbFactory) {
+                             ServerBindingEndpointCallback cbFactory) {
         super(b, ref, ep, cbFactory);
         binding = new TestBinding();
     }

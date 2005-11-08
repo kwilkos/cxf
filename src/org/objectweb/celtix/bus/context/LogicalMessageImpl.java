@@ -18,9 +18,9 @@ import javax.xml.ws.LogicalMessage;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.handler.MessageContext;
-import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.helpers.WrapperHelper;
 
 public class LogicalMessageImpl implements LogicalMessage {

@@ -6,7 +6,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.ws.handler.MessageContext;
 import junit.framework.TestCase;
-import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
+
+import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.handler_test.HandlerTest;
 import org.objectweb.handler_test.types.PingResponse;
 import org.objectweb.hello_world_soap_http.Greeter;

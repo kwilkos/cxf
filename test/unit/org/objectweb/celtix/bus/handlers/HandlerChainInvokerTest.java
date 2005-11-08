@@ -12,9 +12,9 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
-import org.objectweb.celtix.bindings.ObjectMessageContextImpl;
 import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.handler_test.PingException;
 import org.objectweb.handler_test.types.PingFaultDetails;
 

@@ -8,6 +8,9 @@ import javax.jws.soap.SOAPBinding;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 
+/**
+ * Callback used during IO for the bindings to figure out how to properly construct the messages. 
+ */
 public interface DataBindingCallback {
     
     public enum Mode { 

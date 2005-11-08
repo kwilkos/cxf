@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.context;
+package org.objectweb.celtix.context;
 
 import java.security.Principal;
 import javax.xml.ws.WebServiceContext;

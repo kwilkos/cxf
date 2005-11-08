@@ -8,8 +8,8 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ClientBinding;
-import org.objectweb.celtix.bindings.DataBindingCallbackFactory;
 import org.objectweb.celtix.bindings.ServerBinding;
+import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 
 public class SOAPBindingFactory implements BindingFactory {
     private Bus bus;
@@ -29,7 +29,7 @@ public class SOAPBindingFactory implements BindingFactory {
 
     public ServerBinding createServerBinding(EndpointReferenceType reference,
                                              Endpoint ep,
-                                             DataBindingCallbackFactory cbFactory)
+                                             ServerBindingEndpointCallback cbFactory)
         throws WSDLException, IOException {
         return new SOAPServerBinding(bus, reference, ep, cbFactory);
     }

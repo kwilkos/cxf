@@ -11,9 +11,9 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
-import org.objectweb.celtix.bus.context.WebServiceContextImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.WebServiceContextImpl;
 
 /**
  * invoke invoke the handlers in a registered handler chain

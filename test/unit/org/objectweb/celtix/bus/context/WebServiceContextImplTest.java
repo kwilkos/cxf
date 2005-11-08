@@ -5,6 +5,7 @@ package org.objectweb.celtix.bus.context;
 import javax.xml.ws.handler.MessageContext;
 import junit.framework.TestCase;
 import org.objectweb.celtix.context.GenericMessageContext;
+import org.objectweb.celtix.context.WebServiceContextImpl;
 
 
 public class WebServiceContextImplTest extends TestCase {

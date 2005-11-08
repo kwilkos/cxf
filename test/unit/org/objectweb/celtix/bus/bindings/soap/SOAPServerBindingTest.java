@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebFault;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
@@ -29,7 +31,8 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.DataBindingCallback;
-import org.objectweb.celtix.bindings.DataBindingCallbackFactory;
+import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
+import org.objectweb.celtix.bus.jaxws.EndpointUtils;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -175,7 +178,7 @@ public class SOAPServerBindingTest extends TestCase {
     class TestServerBinding extends SOAPServerBinding {
 
         public TestServerBinding(Bus b, EndpointReferenceType ref, Endpoint ep,
-                                 DataBindingCallbackFactory cbFactory) {
+                                 ServerBindingEndpointCallback cbFactory) {
             super(b, ref, ep, cbFactory);
         }
 
@@ -215,7 +218,7 @@ public class SOAPServerBindingTest extends TestCase {
         }
     }
     
-    class TestEndpointImpl extends javax.xml.ws.Endpoint implements DataBindingCallbackFactory {
+    class TestEndpointImpl extends javax.xml.ws.Endpoint implements ServerBindingEndpointCallback {
 
         private final Object implementor;
 
@@ -278,7 +281,15 @@ public class SOAPServerBindingTest extends TestCase {
                                                              DataBindingCallback.Mode mode) {
             return new JAXBDataBindingCallback(objContext.getMethod(),
                                                mode);
+        }
+        public Method getMethod(Endpoint endpoint, QName operationName) {
+            return EndpointUtils.getMethod(endpoint, operationName);
+        }
+
+        public ServiceMode getServiceMode(Endpoint endpoint) {
+            return EndpointUtils.getServiceMode(endpoint);
         } 
+
     }
     
 }

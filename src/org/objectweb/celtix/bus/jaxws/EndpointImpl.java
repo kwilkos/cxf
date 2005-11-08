@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.jaxws;
 
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -10,8 +11,11 @@ import java.util.logging.Logger;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import org.objectweb.celtix.Bus;
@@ -19,19 +23,19 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.DataBindingCallback;
-import org.objectweb.celtix.bindings.DataBindingCallbackFactory;
 import org.objectweb.celtix.bindings.ServerBinding;
-import org.objectweb.celtix.bus.context.WebServiceContextImpl;
+import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.bus.handlers.HandlerChainBuilder;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.injection.ResourceResolver;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.WebServiceContextImpl;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public final class EndpointImpl extends javax.xml.ws.Endpoint
-    implements DataBindingCallbackFactory {
+    implements ServerBindingEndpointCallback {
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
 
@@ -276,5 +280,13 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
                                                          DataBindingCallback.Mode mode) {
         return new JAXBDataBindingCallback(objContext.getMethod(),
                                            mode);
+    }
+
+    public Method getMethod(Endpoint endpoint, QName operationName) {
+        return EndpointUtils.getMethod(endpoint, operationName);
+    }
+
+    public ServiceMode getServiceMode(Endpoint endpoint) {
+        return EndpointUtils.getServiceMode(endpoint);
     } 
 }
