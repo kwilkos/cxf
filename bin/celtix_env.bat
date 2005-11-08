@@ -22,9 +22,9 @@ if not defined JAXWS_HOME (
 if not exist %JAVA_HOME%\lib\tools.jar goto cannot_find_tools_jar
 set CLASSPATH=%JAVA_HOME%\lib\tools.jar;%CLASSPATH%
 
-rem add the celtix jar and wsdl4j.jar to the class path
+rem add the celtix jar  to the class path
 rem
-set CLASSPATH=%CELTIX_HOME%\lib\celtix.jar;%CELTIX_HOME%\lib\wsdl4j\1.5.1\wsdl4j.jar;%CLASSPATH%
+set CLASSPATH=%CELTIX_HOME%\lib\celtix.jar;%CLASSPATH%
 
 set PATH=%CELTIX_HOME%\bin;%PATH% 
 set CELTIX_ENV_SET=true 

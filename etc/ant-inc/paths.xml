@@ -55,7 +55,7 @@
         </fileset>
     </path>
 
-	<property name="tomcat.local.classes" value=""/>
+    <property name="tomcat.local.classes" value=""/>
     <path id="embedded.tomcat.classpath">
         <pathelement location="${tomcat.local.classes}"/>
     	<fileset dir="${tools.dir}/tomcat/5.5.9/server/lib">
@@ -83,7 +83,14 @@
     	<path refid="embedded.tomcat.classpath"/>
     	<path refid="spring.classpath"/>
     </path>
- 
+
+    <!-- alias the above classpath for use as the runtime classpath.
+	 This will be used to define the manifest classpath entry.
+    -->
+    <path id="runtime.classpath">
+        <path refid="src.compile.classpath"/>
+    </path>
+
     <path id="unit.test.compile.classpath">
         <pathelement location="${basedir}/build/classes"/>
         <pathelement location="${basedir}/build/classes-tests/wsdl"/>

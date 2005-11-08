@@ -42,6 +42,7 @@
                 <include name="wsdl4j/**/*"/>
                 <include name="tomcat/**/*"/>
                 <include name="jaxws-ri/**/*"/>
+                <include name="spring/**/*"/>
             </fileset>
         </copy>
         <copy todir="${build.release.dir}/docs">
@@ -74,11 +75,11 @@
             destfile="${build.package.dir}/celtix-${celtix.version}-src.tgz">
             <tarfileset prefix="celtix" dir="${basedir}">
                 <include name="**/*"/>
+                <include name=".ruleset"/>
                 <exclude name="build"/>
                 <exclude name="build/**/*"/>
                 <exclude name="samples/**/build/**/*"/>
                 <exclude name="**/.*"/>
-                <include name=".ruleset"/>
                 <exclude name="NOTICE"/>
                 <exclude name="**/tomcat/**/work/**/*"/>
                 <exclude name="bin/*"/>
@@ -95,11 +96,15 @@
 	
     <target name="celtix.jar" depends="src.compile" description="build the celtix jar">
         <mkdir dir="${build.lib.dir}"/>
+	<pathconvert pathsep=" " property="manifest.classpath" refid="runtime.classpath">
+	  <map from="${tools.dir}/" to=""/>
+	</pathconvert>
+
         <jar destfile="${celtix.jar}"
              basedir="${build.classes.dir}">
             <metainf dir="${basedir}/etc/metainf"/>
             <manifest>
-                <attribute name="Class-Path" value="tomcat/5.5.9/bin/bootstrap.jar tomcat/5.5.9/bin/commons-daemon.jar tomcat/5.5.9/bin/commons-logging-api.jar tomcat/5.5.9/bin/tomcat-juli.jar tomcat/5.5.9/common/i18n/tomcat-i18n-en.jar tomcat/5.5.9/common/i18n/tomcat-i18n-es.jar tomcat/5.5.9/common/i18n/tomcat-i18n-fr.jar tomcat/5.5.9/common/i18n/tomcat-i18n-ja.jar tomcat/5.5.9/common/lib/commons-el.jar tomcat/5.5.9/common/lib/jasper-compiler-jdt.jar tomcat/5.5.9/common/lib/jasper-compiler.jar tomcat/5.5.9/common/lib/jasper-runtime.jar tomcat/5.5.9/common/lib/jsp-api.jar tomcat/5.5.9/common/lib/naming-factory-dbcp.jar tomcat/5.5.9/common/lib/naming-factory.jar tomcat/5.5.9/common/lib/naming-resources.jar tomcat/5.5.9/common/lib/servlet-api.jar tomcat/5.5.9/server/lib/catalina-ant.jar tomcat/5.5.9/server/lib/catalina-cluster.jar tomcat/5.5.9/server/lib/catalina-optional.jar tomcat/5.5.9/server/lib/catalina-storeconfig.jar tomcat/5.5.9/server/lib/catalina.jar tomcat/5.5.9/server/lib/commons-modeler.jar tomcat/5.5.9/server/lib/servlets-default.jar tomcat/5.5.9/server/lib/servlets-invoker.jar tomcat/5.5.9/server/lib/servlets-webdav.jar tomcat/5.5.9/server/lib/tomcat-ajp.jar tomcat/5.5.9/server/lib/tomcat-coyote.jar tomcat/5.5.9/server/lib/tomcat-http.jar tomcat/5.5.9/server/lib/tomcat-util.jar tomcat/5.5.9/server/webapps/host-manager/WEB-INF/lib/catalina-host-manager.jar tomcat/5.5.9/server/webapps/manager/WEB-INF/lib/catalina-manager.jar tomcat/5.5.9/server/webapps/manager/WEB-INF/lib/commons-fileupload-1.0.jar wsdl4j/1.5.1/wsdl4j.jar"/>
+                <attribute name="Class-Path" value="${manifest.classpath}"/>
             </manifest>
         </jar>
     </target>
@@ -120,4 +125,10 @@
         </sequential>
     </macrodef>
 
+    <target name="manifest.classpath">
+      <pathconvert pathsep=" " property="manifest.classpath" refid="runtime.classpath">
+	<map from="${tools.dir}/" to=""/>
+      </pathconvert>
+      <echo message="foo: ${manifest.classpath}"/>
+    </target>
 </project>

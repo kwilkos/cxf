@@ -39,7 +39,7 @@ fi
 #
 # add the core celtix jar to the classpath
 #
-CLASSPATH=$CELTIX_HOME/lib/celtix.jar:$CELTIX_HOME/lib/wsdl4j/1.5.1/wsdl4j.jar:${CLASSPATH-""}
+CLASSPATH=$CELTIX_HOME/lib/celtix.jar
 
 
 export PATH=$CELTIX_HOME/bin:$PATH 

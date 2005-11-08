@@ -4,11 +4,12 @@ registers a SOAP protocol handler which simply logs incoming and
 outgoing messages to the console.  
 
 On the server side the handlers registered using the @HandlerChain
-annotation on the service implementation class.
+annotation on the service implementation class. For this demo, the
+handler is SOAPHandler which logs the SOAP message to stdout.
 
 The client contains a logical handler that checks the parameters on
-outbound requests and prevents the further processing of the request
-in certain circumstances.
+outbound requests and short-circuits the invocation in certain
+circumstances.
 
 Running the demo
 ---------------
