@@ -14,6 +14,7 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
+import javax.xml.ws.WebServiceException;
 
 import junit.extensions.TestSetup;
 //import junit.framework.Assert;
@@ -561,15 +562,15 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
 
         y = new Holder<XMLGregorianCalendar>(yOrig);
         z = new Holder<XMLGregorianCalendar>();
-/* TODO Throw a Error
+
         try {
             ret = client.testDate(x, y, z);
             fail("Expected to catch IllegalStateException when calling"
                  + " testDate() with uninitialized parameters.");
-        } catch (java.lang.IllegalStateException e) {
+        } catch (WebServiceException e) {
             // Ignore expected failure.
         }
-*/
+
         failed = false;
     }
 
