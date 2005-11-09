@@ -96,8 +96,9 @@
 	
     <target name="celtix.jar" depends="src.compile" description="build the celtix jar">
         <mkdir dir="${build.lib.dir}"/>
-	<pathconvert pathsep=" " property="manifest.classpath" refid="runtime.classpath">
-	  <map from="${tools.dir}/" to=""/>
+	<pathconvert dirsep="/" pathsep=" " property="manifest.classpath" refid="runtime.classpath">
+	  <!-- remove the location specific parts -->
+	  <map from="${tools.dir}${file.separator}" to=""/>
 	</pathconvert>
 
         <jar destfile="${celtix.jar}"
