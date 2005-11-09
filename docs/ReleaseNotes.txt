@@ -2,6 +2,11 @@ Celtix Milestone 2 Release Notes
 
 1. Features
 
+  Added in Milestone 2a:
+    * Support for inout and out variables.
+    * Resolved issues with schema primitive types.
+    * Improved server side binding support.
+
   Added in Milestone 2:
 
     * Enhanced Binding API for better pluggability. 
