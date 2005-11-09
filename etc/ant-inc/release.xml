@@ -125,11 +125,4 @@
             </ant>
         </sequential>
     </macrodef>
-
-    <target name="manifest.classpath">
-      <pathconvert pathsep=" " property="manifest.classpath" refid="runtime.classpath">
-	<map from="${tools.dir}/" to=""/>
-      </pathconvert>
-      <echo message="foo: ${manifest.classpath}"/>
-    </target>
 </project>
