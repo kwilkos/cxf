@@ -4,17 +4,27 @@ rem  invoke the Celtix java2wsdl tool
 rem 
 @setlocal
 
-if not defined CELTIX_HOME goto no_celtix_home
+set CELTIX_HOME=%~dp0..
 
-call %CELTIX_HOME%\bin\celtix_env.bat 
+if not defined JAXWS_HOME (
+    set JAXWS_HOME=%CELTIX_HOME%\lib\jaxws-ri\20051104
+)
+
+if not defined JAVA_HOME goto no_java_home
+
+set CLASSPATH=%JAVA_HOME%\lib\tools.jar;%CLASSPATH%
+
+rem add the celtix jar  to the class path
+rem
+set CLASSPATH=%CELTIX_HOME%\lib\celtix.jar;%CLASSPATH%
+
 %JAVA_HOME%\bin\java -Djaxws.home=%JAXWS_HOME% -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties org.objectweb.celtix.tools.Java2Wsdl %*
+
 @endlocal
-
-goto end 
-
-:no_celtix_home
-    echo The CELTIX_HOME environment variable is unset.  Please set CELTIX_HOME
-    echo envionment variable to the location of the Celtix installation
 goto end
+
+:no_java_home
+echo Please set JAVA_HOME to point a J2SE 5.0 Development Kit
+goto end 
 
 :end
