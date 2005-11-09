@@ -10,7 +10,7 @@ import org.objectweb.handlers.AddNumbersFault;
 import org.objectweb.handlers.AddNumbersService;
 
 
-public class Client {
+public final class Client {
 
     static QName serviceName = new QName("http://www.objectweb.org/handlers",
                                            "AddNumbersService");
@@ -18,9 +18,9 @@ public class Client {
     static QName portName = new QName("http://www.objectweb.org/handlers",
                                         "AddNumbersPort");
     static Bus bus;
-    
-    protected Client() {        
-    }
+
+    private Client() {
+    } 
 
     public static void main(String[] args) throws Exception {
 

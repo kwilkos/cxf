@@ -14,13 +14,13 @@ public class GreeterRPCLitImpl implements GreeterRPCLit {
     public String greetMe(String me) {
         LOG.info("Executing operation greetMe");
         System.out.println("Executing operation greetMe");
-        System.out.println("Message received: " + me);
+        System.out.println("Message received: " + me + "\n");
         return "Hello " + me;
     }
 
     public String sayHi() {
         LOG.info("Executing operation sayHi");
-        System.out.println("Executing operation sayHi");
+        System.out.println("Executing operation sayHi" + "\n");
         return "Bonjour";
     }
 

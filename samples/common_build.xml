@@ -60,6 +60,9 @@
             <include name="common/lib/*.jar"/>
             <include name="bin/*.jar"/>
         </fileset>
+        <fileset dir="${thirdparty.tools.dir}/spring/1.2.5">
+	  <include name="*.jar"/>
+	</fileset>
     </path>
 
     <macrodef name="celtixrun">
