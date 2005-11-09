@@ -75,7 +75,6 @@
             destfile="${build.package.dir}/celtix-${celtix.version}-src.tgz">
             <tarfileset prefix="celtix" dir="${basedir}">
                 <include name="**/*"/>
-                <include name=".ruleset"/>
                 <exclude name="build"/>
                 <exclude name="build/**/*"/>
                 <exclude name="samples/**/build/**/*"/>
@@ -90,6 +89,9 @@
             </tarfileset>
             <tarfileset prefix="celtix" dir="${basedir}" mode="755">
                 <include name="tools/**/bin/*"/>
+            </tarfileset>
+            <tarfileset prefix="celtix" dir="${basedir}">
+                <include name=".ruleset"/>
             </tarfileset>
         </tar>
     </target>
