@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.jws.WebParam;
+import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
 
 import javax.xml.namespace.QName;
@@ -319,110 +320,75 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
 
     private void getParts(Node xmlNode , DataBindingCallback callback,
-                          ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
+                      ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
 
-        if (callback.getSOAPStyle() != Style.RPC) {
-            getWrappedDocLitParts(xmlNode , callback, objCtx, isOutBound);
-        } else {
-            getRPCLitParts(xmlNode , callback, objCtx, isOutBound);
-        }
-    }
-
-    private void getWrappedDocLitParts(Node xmlNode , DataBindingCallback callback,
-                                       ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
-
-        boolean found = false;
+        DataReader<Node> reader = null;
         for (Class<?> cls : callback.getSupportedFormats()) {
             if (cls == Node.class) {
-                DataReader<Node> reader = callback.createReader(Node.class);
-                reader.readWrapper(objCtx, isOutBound, xmlNode);
-                found = true;
+                reader = callback.createReader(Node.class);
                 break;
             } else {
                 //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
             }
         }
-        if (!found) {
+        
+        if (reader == null) {
             throw new SOAPException("Could not figure out how to marshal data");
         }
-    }
 
-    private void getRPCLitParts(Node xmlNode , DataBindingCallback callback,
-                                ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
+        if (callback.getSOAPStyle() == Style.DOCUMENT 
+            && callback.getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
+            reader.readWrapper(objCtx, isOutBound, xmlNode);
+            return;
+        }
 
         Node childNode = xmlNode.getFirstChild();
-        Object[] methodArgs = objCtx.getMessageObjects();
+        if (isOutBound && callback.getWebResult() != null) {
+            Object retVal = reader.read(callback.getWebResult(), -1, childNode);
+            childNode = childNode.getNextSibling();
+            
+            objCtx.setReturn(retVal);
+        }
+
         
-        boolean found = false;
-        for (Class<?> cls : callback.getSupportedFormats()) {
-            if (cls == Node.class) {
-                DataReader<Node> reader = callback.createReader(Node.class);
-                found = true;
-                
-                if (isOutBound && callback.getWebResult() != null) {
-                    Object retVal = reader.read(new QName("", callback.getWebResultAnnotation().partName()),
-                                         -1, childNode);
-                    childNode = childNode.getNextSibling();
-                    
-                    objCtx.setReturn(retVal);
-                }
+        WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
+        int noArgs = callback.getParamsLength();
 
+        //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
+        Object[] methodArgs = objCtx.getMessageObjects();
+        for (int idx = 0; idx < noArgs; idx++) {
+            WebParam param = callback.getWebParam(idx);
+            if ((param.mode() != ignoreParamMode) && !param.header()) {
                 
-                WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
-                int noArgs = callback.getParamsLength();
-
-                //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
-                for (int idx = 0; idx < noArgs; idx++) {
-                    WebParam param = callback.getWebParam(idx);
-                    if ((param.mode() != ignoreParamMode) && !param.header()) {
-                        QName elName = new QName("", param.partName());
-                        Object obj = reader.read(elName, idx, childNode);
-                        if (param.mode() != WebParam.Mode.IN) {
-                            try {
-                                //TO avoid type safety warning the Holder 
-                                //needs tobe set as below.                                
-                                methodArgs[idx].getClass().getField("value").set(methodArgs[idx], obj);
-                            } catch (Exception ex) {
-                                throw new SOAPException("Can not set the part value into the Holder field.");
-                            }
-                            //((Holder)methodArgs[idx]).value = obj;
-                        } else {
-                            methodArgs[idx] = obj;
-                        }
+                QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) 
+                                ? new QName(param.targetNamespace(), param.name())
+                                : new QName("", param.partName());
+                
+                Object obj = reader.read(elName, idx, childNode);
+                if (param.mode() != WebParam.Mode.IN) {
+                    try {
+                        //TO avoid type safety warning the Holder 
+                        //needs tobe set as below.                                
+                        methodArgs[idx].getClass().getField("value").set(methodArgs[idx], obj);
+                    } catch (Exception ex) {
+                        throw new SOAPException("Can not set the part value into the Holder field.");
                     }
+                } else {
+                    methodArgs[idx] = obj;
                 }
-                break;
-            } else {
-                //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
             }
-        }
-        if (!found) {
-            throw new SOAPException("Could not figure out how to marshal data");
-        }
+        }        
     }
 
     private void addParts(Node xmlNode,
-                          ObjectMessageContext objCtx, boolean isOutBound,
-                          DataBindingCallback callback) throws SOAPException {
-
-        if (callback.getSOAPStyle() != Style.RPC) {
-            addWrappedDocLitParts(xmlNode, objCtx, isOutBound, callback);
-        } else {
-            addRPCLitParts(xmlNode, objCtx, isOutBound, callback);
-        }
-    }
-
-    private void addRPCLitParts(Node xmlNode,
-                                ObjectMessageContext objCtx,
-                                boolean isOutBound,
-                                DataBindingCallback callback) throws SOAPException {
-
-        Object[] args = objCtx.getMessageObjects();
+                           ObjectMessageContext objCtx,
+                           boolean isOutBound,
+                           DataBindingCallback callback) throws SOAPException {
 
         DataWriter<Node> writer = null;
         for (Class<?> cls : callback.getSupportedFormats()) {
             if (cls == Node.class) {
-                writer = callback.createWriter(Node.class);
+                writer = callback.createWriter(Node.class);                
                 break;
             } else {
                 //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
@@ -432,7 +398,12 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             throw new SOAPException("Could not figure out how to marshal data");
         }
         
-        
+        if (callback.getSOAPStyle() == Style.DOCUMENT 
+            && callback.getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
+            writer.writeWrapper(objCtx, isOutBound, xmlNode);
+            return;
+        }
+
         //Add the Return Type
         if (isOutBound && callback.getWebResult() != null) {
             Object retVal = objCtx.getReturn();
@@ -444,10 +415,13 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         int noArgs = callback.getParamsLength();
 
         //Marshal parts of mode that should notbe ignored and are not part of the SOAP Headers
+        Object[] args = objCtx.getMessageObjects();
         for (int idx = 0; idx < noArgs; idx++) {
             WebParam param = callback.getWebParam(idx);
             if ((param.mode() != ignoreParamMode) && !param.header()) {
-                QName elName = new QName("", param.name());
+                QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) 
+                                ? new QName(param.targetNamespace(), param.name())
+                                : new QName("", param.partName());
                 Object partValue = args[idx];
                 if (param.mode() != WebParam.Mode.IN) {
                     partValue = ((Holder)args[idx]).value;    
@@ -456,30 +430,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
         }
     }
-
-    private void addWrappedDocLitParts(Node xmlNode,
-                                       ObjectMessageContext objCtx,
-                                       boolean isOutBound,
-                                       DataBindingCallback callback) throws SOAPException {
-
-        boolean found = false;
-        for (Class<?> cls : callback.getSupportedFormats()) {
-            if (cls == Node.class) {
-                DataWriter<Node> writer = callback.createWriter(Node.class);
-                writer.writeWrapper(objCtx, isOutBound, xmlNode);
-                found = true;
-                break;
-            } else {
-                //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
-            }
-        }
-        if (!found) {
-            throw new SOAPException("Could not figure out how to marshal data");
-        }
-    }
-
-
-
 
     public SOAPFactory getSOAPFactory() {
         return soapFactory;
