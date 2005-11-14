@@ -71,9 +71,33 @@ public final class JAXBEncoderDecoder {
         try {
             JAXBContext context = JAXBContext.newInstance(clazz);
             Unmarshaller u = context.createUnmarshaller();
-            JAXBElement<?> el = u.unmarshal(srcNode, clazz);
-            if (el.getName().equals(elName)) {
-                obj = el.getValue();
+
+            obj = (clazz != null) ? u.unmarshal(srcNode, clazz) : u.unmarshal(srcNode);
+            
+            if (obj instanceof JAXBElement<?>) {
+                JAXBElement<?> el = (JAXBElement<?>)obj;
+                if (el.getName().equals(elName)) {
+                    obj = el.getValue();
+                }
+            }
+        } catch (Exception ex) {
+            throw new WebServiceException("Unmarshalling error", ex);
+        }
+        return obj;
+    }
+
+    public static Object unmarshall(JAXBContext context, Node srcNode, QName elName) {
+        Object obj = null;
+        try {
+            Unmarshaller u = context.createUnmarshaller();
+
+            obj = u.unmarshal(srcNode);
+            
+            if (obj instanceof JAXBElement<?>) {
+                JAXBElement<?> el = (JAXBElement<?>)obj;
+                if (el.getName().equals(elName)) {
+                    obj = el.getValue();
+                }
             }
         } catch (Exception ex) {
             throw new WebServiceException("Unmarshalling error", ex);

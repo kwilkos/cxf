@@ -1,16 +1,23 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.objectweb.celtix.context.MessageContextWrapper;;
+import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
+import org.objectweb.celtix.context.MessageContextWrapper;
 
 class SOAPMessageContextImpl extends MessageContextWrapper implements SOAPMessageContext {
     private static final long serialVersionUID = 1L;
@@ -30,8 +37,34 @@ class SOAPMessageContextImpl extends MessageContextWrapper implements SOAPMessag
         setScope(SOAP_MESSAGE, MessageContext.Scope.HANDLER);        
     }
 
-    public Object[] getHeaders(QName header, JAXBContext jaxbContext, boolean allRoles) {
-        throw new WebServiceException("Not supported yet");
+    public Object[] getHeaders(QName headerName, JAXBContext jaxbContext, boolean allRoles) {
+        SOAPMessage msg = getMessage();
+        assert msg != null;
+
+        List<Object> headerList  = new ArrayList<Object>();
+
+        SOAPHeader header = null;
+        try {
+            header = msg.getSOAPHeader();
+        } catch (SOAPException se) {
+            throw new WebServiceException("Could not get the SOAPHeader node", se);
+        }
+        
+        if (header == null) {
+            return new Object[0];
+        }
+        Iterator iter = header.getChildElements(headerName);
+
+        //TODO Role/Actor attribute is not supported yet.
+        //Assuming ultimate receiver.
+        while (iter.hasNext()) {
+            SOAPHeaderElement headerNode = (SOAPHeaderElement)iter.next();
+            Object headerValue = JAXBEncoderDecoder.unmarshall(jaxbContext, headerNode, headerName);
+            assert headerValue != null;
+            headerList.add(headerValue);            
+        }
+        
+        return headerList.toArray();
     }
 
     public Set<URI> getRoles() {

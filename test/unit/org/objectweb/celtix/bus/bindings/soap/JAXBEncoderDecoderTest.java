@@ -102,7 +102,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         assertEquals(str, ((GreetMe)obj).getRequestType());
         
         try {
-            JAXBEncoderDecoder.unmarshall(null, null, null);
+            JAXBEncoderDecoder.unmarshall(null, null, String.class);
             fail("Should have received a WebServiceException");
         } catch (WebServiceException wex) {
             //Expected Exception
