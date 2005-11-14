@@ -22,7 +22,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import org.objectweb.celtix.common.logging.LogUtils;
-//import org.objectweb.celtix.tools.common.dom.ExtendedDocumentBuilder;
 import org.objectweb.celtix.tools.common.toolspec.Tool;
 import org.objectweb.celtix.tools.common.toolspec.ToolSpec;
 
@@ -30,7 +29,6 @@ import org.objectweb.celtix.tools.common.toolspec.ToolSpec;
 public class CommandLineParser {
 
     private static final Logger LOG = LogUtils.getL7dLogger(CommandLineParser.class);
-    //    private ExtendedDocumentBuilder builder = new ExtendedDocumentBuilder();
     private ToolSpec toolspec;
 
     public CommandLineParser(ToolSpec ts) {
@@ -181,7 +179,6 @@ public class CommandLineParser {
         String result = null;
         Element element = toolspec.getElementById(id);
         NodeList annotations = element.getElementsByTagNameNS(Tool.TOOL_SPEC_PUBLIC_ID, "annotation");
-
         if ((annotations != null) && (annotations.getLength() > 0)) {
             result = annotations.item(0).getFirstChild().getNodeValue();
         }

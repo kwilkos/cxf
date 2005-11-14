@@ -1,11 +1,16 @@
 package org.objectweb.celtix.tools.common.dom;
 
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.sun.org.apache.xerces.internal.impl.Constants;
-import com.sun.org.apache.xerces.internal.parsers.SAXParser;
-
+import javax.xml.XMLConstants;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+    
 import org.objectweb.celtix.common.logging.LogUtils;
 
 /**
@@ -16,49 +21,42 @@ public final class SchemaValidatingSAXParser {
 
     private static final Logger LOG = LogUtils.getL7dLogger(SchemaValidatingSAXParser.class);
 
-    private final JavaResourceEntityResolver entityResolver = new JavaResourceEntityResolver();
-    private final SAXParser parser = new SAXParser();
-    private final SchemaLocationMap schemaLocations = new SchemaLocationMap();
+    private final SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+    private SAXParser parser;
+    private SchemaFactory schemaFactory;
+    private Schema schema;
 
     public SchemaValidatingSAXParser() {
         try {
-            setValidating(true);
-            parser.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.SCHEMA_VALIDATION_FEATURE, true);
-            parser.setProperty(Constants.XERCES_PROPERTY_PREFIX + Constants.ENTITY_RESOLVER_PROPERTY,
-                               entityResolver);
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "SET_FEATURE_FAILURE_MSG");
+            parserFactory.setNamespaceAware(true);
+            parser = parserFactory.newSAXParser();
+        } catch (javax.xml.parsers.ParserConfigurationException e) {
+            LOG.log(Level.SEVERE, "SAX_PARSER_CONFIG_ERR_MSG");
+        } catch (org.xml.sax.SAXException saxe) {
+            LOG.log(Level.SEVERE, "SAX_PARSER_EXCEPTION_MSG");
         }
+
+        setValidating(true);
     }
 
+    private InputStream getSchemaLocation() {
+        String toolspec = "/org/objectweb/celtix/tools/common/toolspec/tool-specification.xsd";
+        return getClass().getResourceAsStream(toolspec);
+    }
+    
     public void setValidating(boolean validate) {
-        try {
-            parser.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.VALIDATION_FEATURE, validate);
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "SET_FEATURE_FAILURE_MSG");
+        if (validate) {
+            this.schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            try {
+                this.schema = schemaFactory.newSchema(new StreamSource(getSchemaLocation()));
+            } catch (org.xml.sax.SAXException e) {
+                LOG.log(Level.SEVERE, "SCHEMA_FACTORY_EXCEPTION_MSG");
+            }
+            this.parserFactory.setSchema(this.schema);
         }
     }
 
     public SAXParser getSAXParser() {
         return parser;
     }
-
-    public void mapDefaultNamespaceToSchemaResource(String path) {
-        entityResolver.mapSystemIdentifierToResource(null, path);
-    }
-
-    public void mapNamespaceToSchemaResource(String publicId, String systemId, String path) {
-        entityResolver.mapSystemIdentifierToResource(systemId, path);
-        schemaLocations.add(publicId, systemId);
-        if (schemaLocations.size() > 0) {
-            try {
-                parser.setProperty(Constants.XERCES_PROPERTY_PREFIX + Constants.SCHEMA_LOCATION,
-                                   schemaLocations.toString());
-            } catch (Exception ex) {
-                LOG.log(Level.SEVERE, "FAIL_SET_SAX_PARSER_MSG", Constants.XERCES_PROPERTY_PREFIX
-                                                              + Constants.SCHEMA_LOCATION);
-            }
-        }
-    }
-
 }

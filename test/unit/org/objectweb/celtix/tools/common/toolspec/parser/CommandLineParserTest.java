@@ -17,7 +17,7 @@ public class CommandLineParserTest extends TestCase {
 
     public void setUp() throws Exception {
         String tsSource = "/org/objectweb/celtix/tools/common/toolspec/parser/resources/testtool.xml";
-        ToolSpec toolspec = new ToolSpec(getClass().getResourceAsStream(tsSource), false);
+        ToolSpec toolspec = new ToolSpec(getClass().getResourceAsStream(tsSource), true);
 
         parser = new CommandLineParser(toolspec);
     }
@@ -32,7 +32,6 @@ public class CommandLineParserTest extends TestCase {
     public void testInvalidArgumentValue() throws Exception {
         try {
             String[] args = new String[] {"-n", "test@", "arg1"};
-            //            CommandDocument result = parser.parseArguments(args);
             parser.parseArguments(args);
             fail("testInvalidArgumentValue failed");
         } catch (BadUsageException ex) {
@@ -56,7 +55,6 @@ public class CommandLineParserTest extends TestCase {
     public void testInvalidOption() {
         try {
             String[] args = new String[] {"-n", "-r", "arg1"};
-            //            CommandDocument result =
             parser.parseArguments(args);
 
             fail("testInvalidOption failed");
@@ -78,7 +76,6 @@ public class CommandLineParserTest extends TestCase {
     public void testMissingOption() {
         try {
             String[] args = new String[] {"-n", "test", "arg1"};
-            //            CommandDocument result = parser.parseArguments(args);
             parser.parseArguments(args);
             fail("testMissingOption failed");
         } catch (BadUsageException ex) {
@@ -97,7 +94,6 @@ public class CommandLineParserTest extends TestCase {
     public void testMissingArgument() {
         try {
             String[] args = new String[] {"-n", "test", "-r"};
-            //            CommandDocument result = 
             parser.parseArguments(args);
             fail("testMissingArgument failed");
         } catch (BadUsageException ex) {
@@ -116,7 +112,6 @@ public class CommandLineParserTest extends TestCase {
     public void testDuplicateArgument() {
         try {
             String[] args = new String[] {"-n", "test", "-r", "arg1", "arg2"};
-            //            CommandDocument result = 
             parser.parseArguments(args);
             fail("testUnexpectedArgument failed");
         } catch (BadUsageException ex) {
@@ -130,7 +125,6 @@ public class CommandLineParserTest extends TestCase {
     public void testUnexpectedOption() {
         try {
             String[] args = new String[] {"-n", "test", "-r", "-unknown"};
-            //            CommandDocument result = 
             parser.parseArguments(args);
             fail("testUnexpectedOption failed");
         } catch (BadUsageException ex) {
@@ -179,7 +173,7 @@ public class CommandLineParserTest extends TestCase {
     }
 
     public void testGetDetailedUsage() {
-        assertTrue(parser.getDetailedUsage("namespace").equals("Namespace"));
+        assertTrue("Namespace".equals(parser.getDetailedUsage("namespace")));
     }
 
 }

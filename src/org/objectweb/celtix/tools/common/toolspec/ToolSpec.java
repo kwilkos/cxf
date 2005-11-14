@@ -28,18 +28,6 @@ public class ToolSpec {
     private static final Logger LOG = LogUtils.getL7dLogger(ToolSpec.class);
     private static ExtendedDocumentBuilder builder = new ExtendedDocumentBuilder();
 
-    static {
-
-        builder.mapDefaultNamespaceToSchemaResource("/org/objectweb/celtix/tools/common/toolspe"
-                                                    + "c/tool-specification.xsd");
-        builder.mapNamespaceToSchemaResource("http://www.xsume.com/XUtil/ToolSpecification",
-                                             "http://www.xsume.com/schema/xutil/tool-specification.xsd",
-                                             "/org/objectweb/celtix/tools/common/"
-                                                 + "toolspec/tool-specification.xsd");
-        builder.mapNamespaceToSchemaResource("http://www.xsume.com/Xutil/Command", "command.xsd",
-                                             "/com/iona/xutil/command.xsd");
-    }
-
     private Document doc;
     private Tool handler;
 

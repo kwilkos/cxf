@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!DOCTYPE project [
-    <!ENTITY common_options SYSTEM "/org/objectweb/celtix/tools/common/toolspec/parser/resources/commonoptions.xml">
-]>
-
-
 <!-- The xhtml namespace is for usage documentation -->
 <toolspec xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xhtml="http://www.w3.org/TR/xhtml1/strict"
@@ -37,7 +32,16 @@
       </option>
 
     </optionGroup>
-    &common_options;
+
+    <optionGroup id="common_options">
+      <option id="help" maxOccurs="1" minOccurs="0">
+	<switch>?</switch>
+      </option>
+      <option id="version" minOccurs="0">
+	<switch>v</switch>
+      </option>
+    </optionGroup>
+
     <argument id="wsdlurl" minOccurs="1" maxOccurs="1"  streamref="streamref">
        <annotation>WSDL/SCHEMA URL</annotation>
     </argument>

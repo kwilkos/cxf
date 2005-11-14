@@ -108,9 +108,11 @@ This policy can be changed by modifying the ending '+' to a '*' in the regular e
     <complexType>
       <choice>
         <group ref="tool:formModel"/>
+
         <sequence>
-          <element ref="tool:annotation" minOccurs="0" maxOccurs="1"/>
-          <element ref="tool:optionGroup" minOccurs="0" maxOccurs="unbounded"/>
+<!--          <element ref="tool:annotation" minOccurs="0" maxOccurs="1"/>
+          <element ref="tool:optionGroup" minOccurs="0" maxOccurs="1"/>
+-->
           <element ref="tool:form" minOccurs="1" maxOccurs="unbounded"/>
         </sequence>
       </choice>
