@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-//import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,22 +15,16 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceException;
 
-import junit.extensions.TestSetup;
-//import junit.framework.Assert;
-//import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.systest.type_test.soap.SOAPServerImpl;
+import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.type_test.SOAPService;
 import org.objectweb.type_test.TypeTestPortType;
 
-public abstract class AbstractTypeTestClient extends TestCase implements TypeTestTester {
+public abstract class AbstractTypeTestClient extends ClientServerTestBase implements TypeTestTester {
     protected static Bus bus;
     protected static TypeTestPortType client;
-    protected static SOAPServerImpl server;
 
     protected PrintStream pout;
     protected ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -39,117 +32,38 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
     protected boolean tearDownAll;
     protected boolean perfTestOnly;
 
-    public AbstractTypeTestClient(String name) {
-        super(name);
+    private final QName serviceName;
+    private final QName portName;
+    private final String wsdlPath;
+
+    public AbstractTypeTestClient(String name, QName theServicename, QName thePort, String theWsdlPath) {
+        super(name); 
+
         System.setProperty("javax.xml.ws.spi.Provider", "org.objectweb.celtix.bus.jaxws.spi.ProviderImpl");
-    }
-    public AbstractTypeTestClient() {
-        super("TypeTest");
+        serviceName = theServicename;
+        portName = thePort;
+        wsdlPath = theWsdlPath;
     }
 
     public void setPerformanceTestOnly() {
         perfTestOnly = true;
     }
 
-    public abstract TypeTestSetup getTestSetup();
-
-    public void setUp() throws Exception {
-
-        if (client == null || server == null) {
-            tearDownAll = true;
-            this.getTestSetup().setUp();
-        }
-
-        pout = System.out;
-
-        System.setOut(new PrintStream(bout));
+    public void setUp() throws BusException {
+        super.setUp(); 
+        initBus(); 
+        // for support of soap header, context, substitutionGroup and
+        // xsd:anyType, you must register generated TypeFactory.
+        //File file = new File("/wsdl/type_test/type_test_soap.wsdl");
+        //String location = file.toURL().toString();
+        //bus.registerTypeFactory(new org.objectweb.type_test.TypeTestTypeFactory(location));
+        
+        URL wsdlLocation = getClass().getResource(wsdlPath);
+        assertNotNull(wsdlLocation);
+        SOAPService service = new SOAPService(wsdlLocation, serviceName);
+        client = (TypeTestPortType) service.getPort(portName, TypeTestPortType.class);
     }
 
-    public void tearDown() throws Exception {
-
-        System.setOut(pout);
-        if (failed) {
-            System.out.println(new String(bout.toByteArray()));
-        }
-
-        if (tearDownAll) {
-            this.getTestSetup().tearDown();
-        }
-    }
-
-    protected static class TypeTestSetup extends TestSetup {
-        Class serverClass;
-        QName serviceName;
-        QName portName;
-        String wsdlPath;
-        String[] args;
-
-        public TypeTestSetup(TestSuite suite, Class theServerClass, 
-                             QName servicename, QName port, String theWsdlPath,
-                             String[] theArgs) {
-            super(suite);
-            this.serverClass = theServerClass;
-            this.serviceName = servicename;
-            this.portName = port;
-            this.wsdlPath = theWsdlPath;
-            this.args = theArgs;
-        }
-
-        public void setUp() throws Exception {
-            // setup for entire suite
-
-            // XXX - Disable assertions here - theres a bogus assertion when
-            // publishing an endpoint in RuntimeModeler.getPortTypeName()
-            ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(false);
-
-            boolean noServerStart = Boolean.getBoolean("NO_SERVER_START");
-            if (!noServerStart) {
-                Object object = serverClass.newInstance();
-                if (object instanceof SOAPServerImpl) {
-                    server = (SOAPServerImpl) object;
-                }
-                try {
-                    server.start(args);
-                } catch (BusException bex) {
-                    server.stop();
-                    server = null;
-                    throw bex;
-                }
-            }
-
-            bus = Bus.init(args);
-
-            // for support of soap header, context, substitutionGroup and
-            // xsd:anyType, you must register generated TypeFactory.
-            //File file = new File("/wsdl/type_test/type_test_soap.wsdl");
-            //String location = file.toURL().toString();
-            //bus.registerTypeFactory(new org.objectweb.type_test.TypeTestTypeFactory(location));
-
-            URL wsdlLocation = null;
-            wsdlLocation = getClass().getResource(wsdlPath);
-            assertNotNull(wsdlLocation);
-
-            SOAPService service = new SOAPService(wsdlLocation, serviceName);
-            client = (TypeTestPortType) service.getPort(portName, TypeTestPortType.class);
-
-            // XXX - Re-enable assertions
-            ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
-        }
-
-        public void tearDown() throws Exception {
-            // tear down for entire suite
-            //
-            if (server != null) {
-                server.stop();
-                server = null;
-            }
-            if (bus != null) {
-                bus.shutdown(true);
-                bus = null;
-            }
-
-        }
-    }
 
     protected boolean equalsDate(XMLGregorianCalendar orig, XMLGregorianCalendar actual) {
         boolean result = false;
@@ -279,7 +193,7 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
     public void testInt() throws Exception {
         failed = true;
         int valueSets[][] = {{5, 10}, {-10, 50},
-            {Integer.MIN_VALUE, Integer.MAX_VALUE}};
+                             {Integer.MIN_VALUE, Integer.MAX_VALUE}};
 
         for (int i = 0; i < valueSets.length; i++) {
             int x = valueSets[i][0];
@@ -300,7 +214,7 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
     public void testUnsignedInt() throws Exception {
         failed = true;
         long valueSets[][] = {{11, 20}, {1, 0},
-            {0, ((long)Integer.MAX_VALUE) * 2 + 1}};
+                              {0, ((long)Integer.MAX_VALUE) * 2 + 1}};
 
         for (int i = 0; i < valueSets.length; i++) {
             long x = valueSets[i][0];
@@ -323,7 +237,7 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
     public void testLong() throws Exception {
         failed = true;
         long valueSets[][] = {{0, 1}, {-1, 0},
-            {Long.MIN_VALUE, Long.MAX_VALUE}};
+                              {Long.MIN_VALUE, Long.MAX_VALUE}};
 
         for (int i = 0; i < valueSets.length; i++) {
             long x = valueSets[i][0];
@@ -344,8 +258,9 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
     public void testUnsignedLong() throws Exception {
         failed = true;
         BigInteger valueSets[][] = {{new BigInteger("0"), new BigInteger("1")},
-            {new BigInteger("1"), new BigInteger("0")},
-            {new BigInteger("0"), new BigInteger(String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}};
+                                    {new BigInteger("1"), new BigInteger("0")},
+                                    {new BigInteger("0"), 
+                                     new BigInteger(String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}};
 
         for (int i = 0; i < valueSets.length; i++) {
             BigInteger x = valueSets[i][0];
@@ -444,7 +359,7 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
     public void testUnsignedByte() throws Exception {
         failed = true;
         short valueSets[][] = {{0, 1}, {1, 0},
-            {0, Byte.MAX_VALUE * 2 + 1}};
+                               {0, Byte.MAX_VALUE * 2 + 1}};
 
         for (int i = 0; i < valueSets.length; i++) {
             short x = valueSets[i][0];
@@ -467,7 +382,7 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
     public void testBoolean() throws Exception {
         failed = true;
         boolean valueSets[][] = {{true, false}, {true, true},
-            {false, true}, {false, false}};
+                                 {false, true}, {false, false}};
 
         for (int i = 0; i < valueSets.length; i++) {
             boolean x = valueSets[i][0];
@@ -488,7 +403,7 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
     public void testString() throws Exception {
         failed = true;
         String valueSets[][] = {{"hello", "world"}, {"is pi > 3 ?", " is pi < 4\\\""},
-            {"<illegal_tag/>", ""}};
+                                {"<illegal_tag/>", ""}};
 
         for (int i = 0; i < valueSets.length; i++) {
             String x = valueSets[i][0];
@@ -1056,32 +971,32 @@ public abstract class AbstractTypeTestClient extends TestCase implements TypeTes
     /*
      * XXX - TODO
      *
-    public void testanyURI() throws Exception {
-        failed = true;
-        String valueSets[][] = {
-            {"file:///root%20%20/-;?&+", "file:///w:/test!artix~java*"},
-            {"http://iona.com/", "file:///z:/mail_iona=com,\'xmlbus\'"},
-            {"mailto:windows@systems", "file:///"}
-        };
+     public void testanyURI() throws Exception {
+     failed = true;
+     String valueSets[][] = {
+     {"file:///root%20%20/-;?&+", "file:///w:/test!artix~java*"},
+     {"http://iona.com/", "file:///z:/mail_iona=com,\'xmlbus\'"},
+     {"mailto:windows@systems", "file:///"}
+     };
 
-        for (int i = 0; i < valueSets.length; i++) {
-            URI x = new URI(valueSets[i][0]);
-            Holder<URI> yOrig = new Holder<URI>(new URI(valueSets[i][1]));
-            Holder<URI> y = new Holder<URI>(new URI(valueSets[i][1]));
-            Holder<URI> z = new Holder<URI>();
+     for (int i = 0; i < valueSets.length; i++) {
+     URI x = new URI(valueSets[i][0]);
+     Holder<URI> yOrig = new Holder<URI>(new URI(valueSets[i][1]));
+     Holder<URI> y = new Holder<URI>(new URI(valueSets[i][1]));
+     Holder<URI> z = new Holder<URI>();
 
-            URI ret = client.testanyURI(x, y, z);
-            if (!perfTestOnly) {
-                assertEquals("testanyURI(): Incorrect value for inout param",
-                             x.toString(), y.value.toString());
-                assertEquals("testanyURI(): Incorrect value for out param",
-                             yOrig.value.toString(), z.value.toString());
-                assertEquals("testanyURI(): Incorrect return value",
-                             x.toString(), ret.toString());
-            }
-        }
-        failed = false;
-    }
+     URI ret = client.testanyURI(x, y, z);
+     if (!perfTestOnly) {
+     assertEquals("testanyURI(): Incorrect value for inout param",
+     x.toString(), y.value.toString());
+     assertEquals("testanyURI(): Incorrect value for out param",
+     yOrig.value.toString(), z.value.toString());
+     assertEquals("testanyURI(): Incorrect return value",
+     x.toString(), ret.toString());
+     }
+     }
+     failed = false;
+     }
     */
     
 }

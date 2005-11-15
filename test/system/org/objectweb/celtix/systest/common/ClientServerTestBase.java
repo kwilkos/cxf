@@ -23,6 +23,13 @@ public abstract class ClientServerTestBase extends TestCase {
 
     private final List<ServerLauncher> launchers = new ArrayList<ServerLauncher>();  
 
+    protected ClientServerTestBase() { 
+    } 
+
+    protected ClientServerTestBase(String name) { 
+        super(name); 
+    } 
+
     public void setUp() throws BusException {    
         
         if (!oneTimeSetUpDone()) { 

@@ -1,11 +1,6 @@
 package org.objectweb.celtix.systest.type_test.soap;
 
 import javax.xml.namespace.QName;
-
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient;
 
 public class SOAPClientTypeTest extends AbstractTypeTestClient {
@@ -15,39 +10,20 @@ public class SOAPClientTypeTest extends AbstractTypeTestClient {
     static String[] args = new String[] {};
 
     public SOAPClientTypeTest(String name) {
-        super(name);
-    }
-    public SOAPClientTypeTest() {
-        super("SOAPClientTypeTest");
+        super(name, SERVICE_NAME, PORT_NAME, WSDL_PATH);
     }
 
-    public static void main(String[] theArgs) {
-        junit.textui.TestRunner.run(SOAPClientTypeTest.suite());
-    }
+    public void onetimeSetUp()  { 
+        try { 
+            initBus(); 
+            boolean ok = launchServer(SOAPServerImpl.class); 
+            assertTrue("failed to launch server", ok);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    } 
 
-    public TypeTestSetup getTestSetup() {
-        TestSuite suite = new TestSuite(SOAPClientTypeTest.class);
-        return new TypeTestSetup(suite,
-                                 SOAPServerImpl.class,
-                                 SERVICE_NAME,
-                                 PORT_NAME,
-                                 WSDL_PATH,
-                                 args);
-    }
 
-    /**
-     * Start soap server & client bus once upfront for all test cases.
-     */
-    public static Test suite() {
-        TestSuite suite = new TestSuite(SOAPClientTypeTest.class);
-        TestSetup wrapper = new TypeTestSetup(suite,
-                                              SOAPServerImpl.class,
-                                              SERVICE_NAME,
-                                              PORT_NAME,
-                                              WSDL_PATH,
-                                              args);
-        return wrapper;
-    }
 /*
     public void testStructWithAnyStrict() throws Exception {
         failed = true;
