@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 
 import javax.jws.WebParam;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceException;
 
 import org.w3c.dom.Node;
@@ -24,17 +25,27 @@ public class NodeDataReader<T> implements DataReader<T> {
     public Object read(int idx, T input) {
         return read(null, idx, input);
     }
+    
     public Object read(QName name, int idx, T input) {
         Class<?> cls;
         if (idx == -1) {
             cls = callback.getMethod().getReturnType();
         } else {
             cls = callback.getMethod().getParameterTypes()[idx];
+            if (cls.isAssignableFrom(Holder.class)) {
+                //INOUT and OUT Params are mapped to Holder<T>. 
+                Type[] genericParameterTypes = callback.getMethod().getGenericParameterTypes();
+                //ParameterizedType represents Holder<?>
+                ParameterizedType paramType = (ParameterizedType)genericParameterTypes[idx];
+                cls = JAXBEncoderDecoder.getClassFromType(
+                                         paramType.getActualTypeArguments()[0]);                
+            }
         }
         Node xmlNode = (Node)input;
         
         return JAXBEncoderDecoder.unmarshall(xmlNode, name, cls);
     }
+    
     public void readWrapper(ObjectMessageContext objCtx, boolean isOutBound, T input) {
         Node xmlNode = (Node)input;
         String wrapperType = isOutBound ? callback.getResponseWrapperType()

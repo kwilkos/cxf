@@ -74,7 +74,8 @@
 		<wsdl:part name="inoutHeader" element="x1:testHeader3"/>
 	</wsdl:message>
 	<wsdl:message name="testHeader3Response">
-		<wsdl:part name="in" element="x1:testHeader3Response"/>
+		<wsdl:part name="out" element="x1:testHeader3Response"/>
+		<wsdl:part name="inoutHeader" element="x1:testHeader3"/>
 	</wsdl:message>
 	<wsdl:message name="testHeader4Request">
 		<wsdl:part name="in" element="x1:testHeader4"/>
@@ -132,8 +133,8 @@
 				<soap:header message="tns:testHeader3Request" part="inoutHeader" use="literal"/>
 			</wsdl:input>
 			<wsdl:output>
-				<soap:body use="literal"/>
-				<soap:header message="tns:testHeader3Request" part="inoutHeader" use="literal"/>
+				<soap:body parts="out" use="literal"/>
+				<soap:header message="tns:testHeader3Response" part="inoutHeader" use="literal"/>
 			</wsdl:output>
 		</wsdl:operation>
 		<wsdl:operation name="testHeader4">

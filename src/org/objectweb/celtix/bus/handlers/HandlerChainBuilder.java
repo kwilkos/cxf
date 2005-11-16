@@ -57,7 +57,7 @@ public class HandlerChainBuilder {
             HandlerChain hcAnn = obj.getClass().getAnnotation(HandlerChain.class); 
             if (hcAnn == null) { 
                 LOG.fine("no HandlerChain annotation on " + obj.getClass()); 
-                return null;
+                return new ArrayList<Handler>();
             } 
         
             String fileName = hcAnn.file(); 

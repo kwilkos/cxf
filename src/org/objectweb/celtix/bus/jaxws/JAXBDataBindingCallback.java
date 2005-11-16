@@ -84,7 +84,10 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         //Get WebService Annotation.
         webServiceAnnotation = method.getDeclaringClass().getAnnotation(WebService.class);
         //Get SOAP Style, Use,
-        soapBindAnnotation = method.getDeclaringClass().getAnnotation(SOAPBinding.class);
+        soapBindAnnotation = method.getAnnotation(SOAPBinding.class);
+        if (soapBindAnnotation == null) {
+            soapBindAnnotation = method.getDeclaringClass().getAnnotation(SOAPBinding.class);            
+        }
         //Get Operation,Action Info
         webMethodAnnotation = method.getAnnotation(WebMethod.class);
         //Get Parameter Info
@@ -143,7 +146,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     }
 
     public QName getWebResult() {
-        if (method.getReturnType() == Void.class) {
+        if (method.getReturnType().equals(void.class)) {
             return null;
         }
         if (null != webResultAnnotation) {

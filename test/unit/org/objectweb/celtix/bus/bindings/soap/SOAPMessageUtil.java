@@ -22,6 +22,9 @@ public final class SOAPMessageUtil {
         return null;
     }
 
+    /* The method creates a object array based on the number of method parameters
+     * also creates holder objects for in-out and out params.
+     */
     public static Object[] getMessageObjects(Method method) throws Exception {
         int idx = 0;
         Object[] methodArgs = (Object[])
@@ -30,6 +33,28 @@ public final class SOAPMessageUtil {
             if (cls.isAssignableFrom(Holder.class)) {
                 methodArgs[idx] = cls.newInstance();
             } 
+            idx++;
+        }
+
+        return methodArgs;
+    }
+
+    /* The method wraps inout, out method parameters into javax.xml.ws.Holder<T>
+     * and returns a array of objects.
+     */
+    
+    public static Object[] getMessageObjects(Method method, Object... args) throws Exception {
+        assert args.length == method.getParameterTypes().length;
+        int idx = 0;
+        Object[] methodArgs = (Object[])
+            Array.newInstance(Object.class, method.getParameterTypes().length);
+        for (Class<?> cls : method.getParameterTypes()) {
+            if (cls.isAssignableFrom(Holder.class)) {
+                methodArgs[idx] = cls.newInstance();
+                Holder.class.getField("value").set(methodArgs[idx], args[idx]);
+            } else {
+                methodArgs[idx] = args[idx];
+            }
             idx++;
         }
 
