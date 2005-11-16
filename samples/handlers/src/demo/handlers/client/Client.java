@@ -4,7 +4,6 @@ import java.io.File;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import demo.handlers.common.SmallNumberHandler;
-import org.objectweb.celtix.Bus;
 import org.objectweb.handlers.AddNumbers;
 import org.objectweb.handlers.AddNumbersFault;
 import org.objectweb.handlers.AddNumbersService;
@@ -17,8 +16,6 @@ public final class Client {
 
     static QName portName = new QName("http://www.objectweb.org/handlers",
                                         "AddNumbersPort");
-    static Bus bus;
-
     private Client() {
     } 
 
@@ -30,8 +27,6 @@ public final class Client {
         }
 
         File wsdl = new File(args[0]);
-
-        bus = Bus.init();
 
         AddNumbersService service = new AddNumbersService(wsdl.toURL(), serviceName);
         AddNumbers port = (AddNumbers) service.getPort(portName, AddNumbers.class);
@@ -61,8 +56,6 @@ public final class Client {
             System.out.printf("Caught AddNumbersFault: %s\n", ex.getFaultInfo().getMessage());
         }
 
-        if (bus != null) {
-            bus.shutdown(true);
-        }
+        System.exit(0); 
     }
 }

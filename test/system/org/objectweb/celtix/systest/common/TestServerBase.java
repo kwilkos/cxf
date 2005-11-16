@@ -21,9 +21,6 @@ public abstract class TestServerBase extends Assert {
     
     public void start() {
         try { 
-            LOG.info("initialise bus");
-            bus = Bus.init();
-            runBus();
             LOG.info("running server");
             run();
             LOG.info("signal ready");
@@ -34,7 +31,6 @@ public abstract class TestServerBase extends Assert {
             //
             System.in.read(); 
             LOG.info("stopping bus");
-            bus.shutdown(true);
         } catch (Exception ex) {
             ex.printStackTrace();
             startFailed();
@@ -43,6 +39,7 @@ public abstract class TestServerBase extends Assert {
                 LOG.info("server passed");
             }
             LOG.info("server stopped");
+            System.exit(0);
         }
     }
     
@@ -68,16 +65,6 @@ public abstract class TestServerBase extends Assert {
         System.exit(-1);        
     }
 
-    private void runBus() { 
-        Thread t = new Thread() { 
-                public void run() { 
-                    LOG.info("running bus");
-                    bus.run();
-                } 
-            }; 
-        t.start();
-    }
- 
     /**
      * Used to facilitate assertions on server-side behaviour.
      *

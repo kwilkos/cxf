@@ -2,7 +2,6 @@ package demo.hw.client;
 
 import java.io.File;
 import javax.xml.namespace.QName;
-import org.objectweb.celtix.Bus;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.PingMeFault;
 import org.objectweb.hello_world_soap_http.SOAPService;
@@ -24,8 +23,6 @@ public final class Client {
         }
 
         File wsdl = new File(args[0]);
-        
-        Bus bus = Bus.init();
         
         SOAPService ss = new SOAPService(wsdl.toURL(), SERVICE_NAME);
         Greeter port = ss.getSoapPort();
@@ -53,10 +50,7 @@ public final class Client {
             System.out.println("Expected exception: PingMeFault has occurred.");
             System.out.println(ex.toString());
         }          
-          
-        if (bus != null) { 
-            bus.shutdown(true);
-        }
+        System.exit(0); 
     }
 
 }

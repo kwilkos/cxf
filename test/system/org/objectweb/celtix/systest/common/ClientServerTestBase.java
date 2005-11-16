@@ -33,7 +33,7 @@ public abstract class ClientServerTestBase extends TestCase {
     public void setUp() throws BusException {    
         
         if (!oneTimeSetUpDone()) { 
-            initBus();
+            //initBus();
             onetimeSetUp();
             oneTimeSetUpComplete();
             Runtime.getRuntime().addShutdownHook(new Thread() {

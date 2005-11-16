@@ -37,7 +37,7 @@ public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements Automa
         buf.append("initialThreads: " + initialThreads + "\n");
         buf.append("lowWaterMark: " + lowWaterMark + "\n");
         buf.append("highWaterMark: " + highWaterMark + "\n");
-        LOG.info(buf.toString());
+        LOG.fine(buf.toString());
 
         if (initialThreads > highWaterMark) {
             initialThreads = highWaterMark;

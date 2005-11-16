@@ -19,7 +19,7 @@ public interface ServerBindingEndpointCallback {
      * Creates the DataBindingCallback object
      * @param objContext The ObjectMessageContext for the dispatch
      * @param mode The Mode for the dispatch
-     * @return
+     * @return a DataBinding callback object
      */
     DataBindingCallback createDataBindingCallback(ObjectMessageContext objContext,
                                                   DataBindingCallback.Mode mode);
@@ -38,7 +38,7 @@ public interface ServerBindingEndpointCallback {
     /**
      * Returns the ServiceMode used for the given Endpoint
      * @param endpoint
-     * @return
+     * @return the endpoint's service mode
      */
     ServiceMode getServiceMode(Endpoint endpoint);
 }

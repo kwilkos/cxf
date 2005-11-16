@@ -2,7 +2,6 @@ package demo.hwRPCLit.client;
 
 import java.io.File;
 import javax.xml.namespace.QName;
-import org.objectweb.celtix.Bus;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.SOAPServiceRPCLit;
 import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
@@ -25,8 +24,6 @@ public final class Client {
         }
 
         File wsdl = new File(args[0]);
-
-        Bus bus = Bus.init();
 
         SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl.toURL(), SERVICE_NAME);
         GreeterRPCLit greeter = (GreeterRPCLit)service.getPort(PORT_NAME, GreeterRPCLit.class);
@@ -59,8 +56,7 @@ public final class Client {
         System.out.println("Element-3 : " + retVal.getElem3());
         System.out.println();
 
-        if (bus != null) {
-            bus.shutdown(true);
-        }
+
+        System.exit(0); 
     }
 }

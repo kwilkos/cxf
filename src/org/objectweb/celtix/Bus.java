@@ -1,8 +1,9 @@
 package org.objectweb.celtix;
 
+
 import java.util.HashMap;
 import java.util.Map;
-
+import javax.xml.ws.WebServiceException;
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bus.busimpl.BusFactory;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
@@ -22,7 +23,8 @@ public abstract class Bus {
     public static final String BUS_CLASS_PROPERTY = "org.objectweb.celtix.BusClass";
 
     private static ThreadLocal<Bus> current = new ThreadLocal<Bus>();
-    
+    private static Bus defaultBus; 
+
     /**
      * Returns a newly created and fully initialised <code>Bus</code>.
      * 
@@ -85,29 +87,31 @@ public abstract class Bus {
     }
     
     /** 
-    * Returns the current <code>Bus</code> on this thread.
+    * Returns the current <code>Bus</code> on this thread.  If no bus
+    * has been initialised on this thread, return the default bus.
     * 
     * @return the current <code>Bus</code> on this thread.
     */
     public static Bus getCurrent() {        
-        return current.get();
+        Bus ret = current.get();
+        if (ret == null) { 
+            ret = getDefaultBus(); 
+        } 
+        return ret; 
     }
-   
+
+
     /** 
-    * Sets the current <code>Bus</code>
-    * This method has been added to make the association between a <code>Service</code>
-    * and a <code>Bus</code> - as a runtime environment for the <code>Service</code> 
-    * more explicit. Recurring to the last <code>Bus</code> created in the process
-    * or the current <code>Bus</code> on a thread is necessary as the 
-    * JAX-WS <code>ServiceFactory</code> must be implemented as a Singleton.
-    * By exposing these APIs the dependency
-    * becomes more obvious and - more importantly - can be controlled by the application
-    * developer.
-    * 
-    * @param bus The <code>Bus</code> designated to be the current one on this thread.
+    * Sets the current <code>Bus</code>.  If a bus is explicitly
+    * initialised on a thread, this is the current bus.  If no thread
+    * has been initialised (implicitly or explicitly), setting the
+    * current bus will set the default bus for all threads
+    *
+    * @param bus the current bus
     */
     public static void setCurrent(Bus bus) {
         current.set(bus);
+        setDefaultBus(bus);
     }
     
     /**
@@ -185,5 +189,42 @@ public abstract class Bus {
 
     public abstract void initialize(String[] args,
             Map<String, Object> properties) throws BusException;
+
+
+    static void clearDefault() { 
+        defaultBus = null; 
+    } 
+
+
+    /**
+     * Clear current for all threads.  For use in unit testing
+     */
+    static void clearCurrent() { 
+        current.remove(); 
+    } 
+    /**
+     * Initialise a default bus.
+     */
+    private static synchronized Bus getDefaultBus() { 
+        try { 
+            if (defaultBus == null) { 
+                defaultBus = Bus.init(); 
+            } 
+            return defaultBus;
+        } catch (BusException ex) { 
+            throw new WebServiceException("unable to initialize default bus", ex);
+        } 
+    } 
+
+    /** 
+     * Set the default bus for all threads.  If no bus has been
+     * already initialised, this bus will be used as the default bus
+     * that do not explicitly initialise a bus.
+     */
+    private static synchronized void setDefaultBus(Bus bus) { 
+        if (defaultBus == null) { 
+            defaultBus = bus;
+        } 
+    } 
 
 }
