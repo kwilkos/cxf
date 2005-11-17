@@ -170,6 +170,16 @@ public class ServerLauncher {
         cmd.add("-classpath");
         cmd.add(System.getProperty("java.class.path"));
         cmd.add("-Djavax.xml.ws.spi.Provider=org.objectweb.celtix.bus.jaxws.spi.ProviderImpl");
+        /* REVISIT: this prevents the server from shutting down and causes the test to timeout.
+         * It would be good however to get this fixed as it is useful for server debugging. 
+         */
+        /*
+        String loggingPropertiesFile = System.getProperty("java.util.logging.config.file");
+        if (null != loggingPropertiesFile) {
+            cmd.add("-Djava.util.logging.config.file=" + loggingPropertiesFile);
+        } 
+        */ 
+     
         cmd.add(className);
 
         return cmd;

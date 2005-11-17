@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.bus.jaxb.JAXBUtils;
@@ -12,7 +13,6 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
-import org.objectweb.celtix.configuration.Configurator;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.core.io.UrlResource;
@@ -62,9 +62,15 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
             try {
                 bean = beanFactory.getBean(beanName);
             } catch (NoSuchBeanDefinitionException ex) {
-                throw new ConfigurationException(new Message("NO_SUCH_BEAN_EXC", LOG, beanName), ex);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Could not find definition for bean with id " + beanName); 
+                }
+                // throw new ConfigurationException(new Message("NO_SUCH_BEAN_EXC", LOG, beanName), ex);
             } catch (BeansException ex) {
                 throw new ConfigurationException(new Message("BEAN_CREATION_EXC", LOG, beanName), ex);
+            }
+            if (null != bean && LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Using configuration from bean with id " + beanName);         
             }
         } else {            
             LOG.fine("Not using a bean definitions file.");
@@ -125,7 +131,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
         url = System.getProperty(CONFIG_DIR_PROPERTY_NAME);
         if (null != url) {
             Configuration rootConfiguration = getRootConfiguration();
-            String id = rootConfiguration.getName().getLocalPart();
+            String id = rootConfiguration.getId().toString();
             try {
                 urlRes = new UrlResource(url + "/" + id + ".xml");  
             } catch (MalformedURLException ex) {
@@ -138,13 +144,11 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
     }
     
     private Configuration getRootConfiguration() {
-        Configurator parent = configuration.getConfigurator();
-        Configurator hook = parent.getHook();
-        while (null != hook) {
-            parent = hook;
-            hook = parent.getHook();
+        Configuration root = configuration;
+        while (null != root.getParent()) {
+            root = root.getParent();
         }
-        return parent.getConfiguration();
+        return root;
     }
     
     private String getBeanName() {
@@ -154,9 +158,8 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
             if (buf.length() > 0) {
                 buf.insert(0, ".");
             }
-            buf.insert(0, c.getName().getLocalPart());
-            Configurator configurator = c.getConfigurator().getHook();
-            c = null == configurator ? null : configurator.getConfiguration();            
+            buf.insert(0, c.getId().toString());
+            c = c.getParent();          
         }
         return buf.toString();
     }

@@ -117,6 +117,7 @@
         <pathelement location="${basedir}/build/classes-instrumented"/>
         <pathelement location="${basedir}/build/classes-tests"/>
         <pathelement location="${basedir}/build/classes-tests/unit"/>
+    	<pathelement location="${basedir}/schemas"/>
         <path refid="unit.test.compile.classpath"/>
         <path refid="emma.lib"/>
 
@@ -134,10 +135,11 @@
 	 
     <path id="system.test.classpath">
         <pathelement location="${basedir}/build/wsdl"/>
-	    <path refid="system.test.compile.classpath"/>
+        <path refid="system.test.compile.classpath"/>
         <pathelement location="${basedir}/build/classes-tests/unit"/>
-	    <pathelement location="${basedir}/build/classes-tests/system"/>
-	</path>
+	<pathelement location="${basedir}/build/classes-tests/system"/>
+    	<pathelement location="${basedir}/schemas"/>
+    </path>
 
 	<target name="create.set_env">
     	<property name="unit.test.classpath" refid="unit.test.classpath"/>

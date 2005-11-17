@@ -32,33 +32,213 @@ import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata.LifecyclePolicy;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
 
+
 public class ConfigurationMetadataBuilder  {
 
+    final class ValidatorErrorHandler implements ErrorHandler {
+
+        public void error(SAXParseException exception) throws SAXException {
+            throw exception;
+        }
+
+        public void fatalError(SAXParseException exception) throws SAXException {
+            throw exception;
+        }
+
+        public void warning(SAXParseException exception) throws SAXException {
+            throw exception;
+        }
+
+    }
     private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationMetadataBuilder.class);
     private static final String MEATADATA_NAMESPACE_URI = 
         "http://celtix.objectweb.org/configuration/metadata";
-    private static Validator metadataValidator;
     private static Schema metadataSchema;
+    private static Validator metadataValidator;
+    
     private static ErrorHandler validatorErrorHandler;
     
     private final ConfigurationMetadataImpl model;
-    
+
     public ConfigurationMetadataBuilder() {
         model = new ConfigurationMetadataImpl();
-    }
-
-    public ConfigurationMetadata build(InputStream is) {    
-        try {
-            parseXML(new InputSource(is));
-        } catch (IOException ex) {
-            throw new ConfigurationException(new Message("IO_ERROR_EXC", LOG), ex);
-        }
-        return model;
     }
 
     public ConfigurationMetadata build(InputSource is) throws IOException {
         parseXML(is);
         return model;
+    }
+
+    public ConfigurationMetadata build(InputStream is) throws IOException {    
+        return build(new InputSource(is));
+    }
+    
+    private void deserializeConfig(Document document) {
+        Element root = document.getDocumentElement();
+        model.setNamespaceURI(root.getAttribute("namespace"));
+    }
+
+    private void deserializeConfigItem(Document document, Element configItemElement) {
+        
+        ConfigurationItemMetadataImpl item = new ConfigurationItemMetadataImpl();
+
+        for (Node nd = configItemElement.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
+            if (Node.ELEMENT_NODE != nd.getNodeType()) {
+                continue;
+            } else if ("name".equals(nd.getLocalName())) {
+                item.setName(ConfigurationMetadataUtils.getElementValue(nd));
+            } else if ("type".equals(nd.getLocalName())) {
+                QName type = ConfigurationMetadataUtils.elementValueToQName(document, 
+                                                                           (Element)nd);
+                item.setType(type);
+                if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type.getNamespaceURI())) {
+                    continue;
+                }
+                TypeSchema ts = new TypeSchemaHelper().get(type.getNamespaceURI());
+                if (ts == null) {
+                    throw new ConfigurationException(new Message("NO_TYPESCHEMA_FOR_NAMESPACE_EXC", LOG,
+                                                                 type.getNamespaceURI()));
+                }
+                if (!ts.hasType(type.getLocalPart())) {
+                    throw new ConfigurationException(new Message("TYPE_NOT_DEFINED_IN_NAMESPACE_EXC", LOG,
+                                                                 type.getLocalPart(), 
+                                                                 type.getNamespaceURI()));
+                }                
+            } else if ("description".equals(nd.getLocalName())) {
+                // item.setDescription(getElementValue(nd));
+            } else if ("lifecyclePolicy".equals(nd.getLocalName())) {
+                String value = ConfigurationMetadataUtils.getElementValue(nd);
+                if (null != value) {
+                    if ("static".equals(value)) {
+                        item.setLifecyclePolicy(LifecyclePolicy.STATIC);
+                    } else if ("process".equals(value)) {
+                        item.setLifecyclePolicy(LifecyclePolicy.PROCESS);
+                    } else if ("bus".equals(value)) {
+                        item.setLifecyclePolicy(LifecyclePolicy.BUS);
+                    } else {
+                        item.setLifecyclePolicy(LifecyclePolicy.DYNAMIC);
+                    }
+                }
+            } else {
+                // this must be the extension element holding the default value
+                deserializeDefaultValue(item, (Element)nd);
+            }
+        }
+
+        model.addItem(item);
+    }
+
+    private void deserializeConfigItems(Document document) {
+        for (Node nd = document.getDocumentElement().getFirstChild(); nd != null; nd = nd.getNextSibling()) {
+            if (Node.ELEMENT_NODE == nd.getNodeType()
+                && "configItem".equals(nd.getLocalName())
+                && MEATADATA_NAMESPACE_URI.equals(nd.getNamespaceURI())) {
+                Element configItemElement = (Element)nd;
+                deserializeConfigItem(document, configItemElement);
+            }
+        }
+    }
+
+    private void deserializeDefaultValue(ConfigurationItemMetadataImpl item, Element data) {
+        /*
+        String namespaceURI = data.getNamespaceURI();
+        System.out.println("deserializeDefaultValue: \n" 
+                           + "    data namespaceURI: " + namespaceURI + "\n"
+                           + "    data localName: " + data.getLocalName() + "\n"
+                           + "    item type: " + item.getType());
+        
+        if (!namespaceURI.equals(item.getType().getNamespaceURI())) {
+            Message msg = new Message("INVALID_ELEMENT_FOR_DEFAULT_VALUE_EXC", 
+                                      LOG, item.getName(), item.getType());
+            throw new ConfigurationException(msg); 
+        }
+        TypeSchema ts = new TypeSchemaHelper().get(namespaceURI);
+        assert ts != null;
+        String name = data.getLocalName();
+        QName type = ts.getDeclaredType(name);
+        if (null == type || !type.equals(item.getType().getLocalPart())) {
+            Message msg = new Message("INVALID_ELEMENT_FOR_DEFAULT_VALUE_EXC",
+                                      LOG, item.getName(), item.getType());
+            throw new ConfigurationException(msg);
+        }                
+        unmarshalDefaultValue(item, data);
+        */
+        String elementName = data.getLocalName();
+        String namespaceURI = data.getNamespaceURI();   
+        TypeSchema ts = new TypeSchemaHelper().get(namespaceURI);
+        QName type = null;
+        if (null != ts) {
+            type = ts.getDeclaredType(elementName);
+        }
+        if (null == ts || null == type) {
+            throw new ConfigurationException(new Message("INVALID_ELEMENT_FOR_DEFAULT_VALUE_EXC", LOG,
+                                                         item.getName(), item.getType()));
+        }
+        if (!type.equals(item.getType())) {
+            throw new ConfigurationException(new Message("INVALID_TYPE_FOR_DEFAULT_VALUE_EXC", LOG, 
+                                                       item.getName(), item.getType()));
+        }                
+        unmarshalDefaultValue(item, data);
+    } 
+    
+    private void deserializeImports(Document document) {
+        TypeSchemaHelper tsh = new TypeSchemaHelper();
+        for (Node nd = document.getDocumentElement().getFirstChild(); nd != null; nd = nd.getNextSibling()) {
+            if (Node.ELEMENT_NODE == nd.getNodeType()
+                && "configImport".equals(nd.getLocalName())
+                && MEATADATA_NAMESPACE_URI.equals(nd.getNamespaceURI())) {             
+                Element importElement = (Element)nd;
+                String location = importElement.getAttribute("location");
+                String namespaceURI = importElement.getAttribute("namespace");     
+                if (null == tsh.get(namespaceURI)) {
+                    tsh.get(namespaceURI, location);
+                }
+            }
+        } 
+    }
+    
+    private Schema getMetadataSchema() {
+        if (null == metadataSchema) {
+            InputStream is = ConfigurationException.class.getResourceAsStream("config-metadata/metadata.xsd");
+            if (null == is) {
+                throw new ConfigurationException(new Message("CANNOT_FIND_CONFIG_METADATA_SCHEMA_MSG", LOG));
+            }
+
+            try {
+                metadataSchema = getSchema(is);
+            } catch (ConfigurationException ex) {
+                // should never happen as metadata schema is immutable
+                LOG.log(Level.SEVERE, "CANNOT_CREATE_CONFIG_METADATA_SCHEMA_MSG", ex);
+            }
+        }
+        return metadataSchema;
+    }
+
+    private Validator getMetadataValidator() {
+        if (null == metadataValidator) {
+            Schema schema = getMetadataSchema();
+            // assert null != schema;
+            metadataValidator = schema.newValidator();
+            if (null == validatorErrorHandler) {
+                validatorErrorHandler = new ValidatorErrorHandler();
+            }
+            metadataValidator.setErrorHandler(validatorErrorHandler);
+            // assert null != metadataValidator;
+        }
+        return metadataValidator;
+    }
+
+    private Schema getSchema(InputStream is) {
+        Source schemaFile = new StreamSource(is);
+        
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Schema schema = null;
+        try {
+            schema = factory.newSchema(schemaFile);
+        } catch (SAXException ex) {
+            throw new ConfigurationException(new Message("SCHEMA_CREATION_ERROR_EXC", LOG), ex);
+        }
+        return schema;
     }
 
     private void parseXML(InputSource is) throws IOException {
@@ -88,168 +268,12 @@ public class ConfigurationMetadataBuilder  {
         deserializeConfig(document);
         deserializeConfigItems(document);
     }
-    
-    private void deserializeConfig(Document document) {
-        Element root = document.getDocumentElement();
-        model.setNamespaceURI(root.getAttribute("namespace"));
-    }
 
-    private void deserializeImports(Document document) {
-    
-        for (Node nd = document.getDocumentElement().getFirstChild(); nd != null; nd = nd.getNextSibling()) {
-            if (Node.ELEMENT_NODE == nd.getNodeType()
-                && "configImport".equals(nd.getLocalName())
-                && MEATADATA_NAMESPACE_URI.equals(nd.getNamespaceURI())) {             
-                Element importElement = (Element)nd;
-                String location = importElement.getAttribute("location");
-                String namespaceURI = importElement.getAttribute("namespace");
-                if (null == model.getTypeSchema(namespaceURI)) {
-                    TypeSchema ts = new TypeSchemaHelper().get(namespaceURI, location);
-                    model.addTypeSchema(namespaceURI, ts);
-                }
-            }
-        } 
-    }
-
-    private void deserializeConfigItems(Document document) {
-        for (Node nd = document.getDocumentElement().getFirstChild(); nd != null; nd = nd.getNextSibling()) {
-            if (Node.ELEMENT_NODE == nd.getNodeType()
-                && "configItem".equals(nd.getLocalName())
-                && MEATADATA_NAMESPACE_URI.equals(nd.getNamespaceURI())) {
-                Element configItemElement = (Element)nd;
-                deserializeConfigItem(document, configItemElement);
-            }
-        }
-    }
-
-    private void deserializeConfigItem(Document document, Element configItemElement) {
-        
-        ConfigurationItemMetadataImpl item = new ConfigurationItemMetadataImpl();
-
-        for (Node nd = configItemElement.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
-            if (Node.ELEMENT_NODE != nd.getNodeType()) {
-                continue;
-            } else if ("name".equals(nd.getLocalName())) {
-                item.setName(ConfigurationMetadataUtils.getElementValue(nd));
-            } else if ("type".equals(nd.getLocalName())) {
-                QName type = ConfigurationMetadataUtils.elementValueToQName(document, 
-                                                                            (Element)nd);                
-                TypeSchema ts = model.getTypeSchema(type.getNamespaceURI());
-                if (null == ts || !ts.hasType(type.getLocalPart())) {
-                    throw new ConfigurationException(new Message("UNKNOWN_TYPE_EXC", LOG, 
-                                                                 type.getLocalPart()));
-                }
-                item.setType(type);
-                /*
-                String packageName = ts.getPackageName();
-                String className = ts.getTypeType(type.getLocalPart());
-                item.setDeclaredClass(packageName + "." + className);
-                */
-            } else if ("description".equals(nd.getLocalName())) {
-                // item.setDescription(getElementValue(nd));
-            } else if ("lifecyclePolicy".equals(nd.getLocalName())) {
-                String value = ConfigurationMetadataUtils.getElementValue(nd);
-                if (null != value) {
-                    if ("static".equals(value)) {
-                        item.setLifecyclePolicy(LifecyclePolicy.STATIC);
-                    } else if ("process".equals(value)) {
-                        item.setLifecyclePolicy(LifecyclePolicy.PROCESS);
-                    } else if ("bus".equals(value)) {
-                        item.setLifecyclePolicy(LifecyclePolicy.BUS);
-                    } else {
-                        item.setLifecyclePolicy(LifecyclePolicy.DYNAMIC);
-                    }
-                }
-            } else {
-                // this must be the extension element holding the default value
-                deserializeDefaultValue(item, (Element)nd);
-            }
-        }
-
-        model.addItem(item);
-    }   
-    
-    private void deserializeDefaultValue(ConfigurationItemMetadataImpl item, Element data) {
-        
-        String localName = data.getLocalName();
-        String namespaceURI = data.getNamespaceURI();
-        QName type = new QName(namespaceURI, localName);
-        if (!type.equals(item.getType())) {
-            Message msg = new Message("INVALID_TYPE_FOR_DEFAULT_VALUE_EXC", LOG, item.getType());
-            throw new ConfigurationException(msg);
-        }                
-        unmarshalDefaultValue(item, data);
-    }
-    
     private void unmarshalDefaultValue(ConfigurationItemMetadataImpl item, Element data) {
-        TypeSchema ts = model.getTypeSchema(data.getNamespaceURI());
+        TypeSchema ts = new TypeSchemaHelper().get(data.getNamespaceURI());
         Object obj = ts.unmarshalDefaultValue(item, data);
         if (null != obj) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Unmarshaled default value into object of type: " + obj.getClass().getName() 
-                         + "    value: " + obj);
-            }
             item.setDefaultValue(obj);        
         }
-    }
-
-    private Schema getMetadataSchema() {
-        if (null == metadataSchema) {
-            InputStream is = ConfigurationException.class.getResourceAsStream("metadata.xsd");
-            if (null == is) {
-                throw new ConfigurationException(new Message("CANNOT_FIND_CONFIG_METADATA_SCHEMA_MSG", LOG));
-            }
-
-            try {
-                metadataSchema = getSchema(is);
-            } catch (ConfigurationException ex) {
-                // should never happen as metadata schema is immutable
-                LOG.log(Level.SEVERE, "CANNOT_CREATE_CONFIG_METADATA_SCHEMA_MSG", ex);
-            }
-        }
-        return metadataSchema;
-    }
-
-    private Schema getSchema(InputStream is) {
-        Source schemaFile = new StreamSource(is);
-        
-        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = null;
-        try {
-            schema = factory.newSchema(schemaFile);
-        } catch (SAXException ex) {
-            throw new ConfigurationException(new Message("SCHEMA_CREATION_ERROR_EXC", LOG), ex);
-        }
-        return schema;
-    }
-
-    private Validator getMetadataValidator() {
-        if (null == metadataValidator) {
-            Schema schema = getMetadataSchema();
-            // assert null != schema;
-            metadataValidator = schema.newValidator();
-            if (null == validatorErrorHandler) {
-                validatorErrorHandler = new ValidatorErrorHandler();
-            }
-            metadataValidator.setErrorHandler(validatorErrorHandler);
-            // assert null != metadataValidator;
-        }
-        return metadataValidator;
-    }
-
-    final class ValidatorErrorHandler implements ErrorHandler {
-
-        public void error(SAXParseException exception) throws SAXException {
-            throw exception;
-        }
-
-        public void fatalError(SAXParseException exception) throws SAXException {
-            throw exception;
-        }
-
-        public void warning(SAXParseException exception) throws SAXException {
-            throw exception;
-        }
-
     }
 }

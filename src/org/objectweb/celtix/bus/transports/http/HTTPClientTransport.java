@@ -13,14 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
-import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
@@ -30,33 +28,28 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class HTTPClientTransport implements ClientTransport {
-    final EndpointReferenceType reference;
-    URL url;
     
+    URL url;
+    Configuration configuration;
+      
     public HTTPClientTransport(Bus bus, EndpointReferenceType ref) throws WSDLException, IOException {
-        reference = ref;
-        Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
-        List<?> list = port.getExtensibilityElements();
-        for (Object ep : list) {
-            ExtensibilityElement ext = (ExtensibilityElement)ep;
-            if (ext instanceof SOAPAddress) {
-                SOAPAddress ad = (SOAPAddress)ext;
-                url = new URL(ad.getLocationURI());
-            }
-        }
+        
+        Configuration portConfiguration = getPortConfiguration(bus, ref);
+        url = new URL(portConfiguration.getString("address"));
+        
+        configuration = new HTTPClientTransportConfiguration(portConfiguration, 
+            EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref));
     }
     
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
-        return new HTTPClientOutputStreamContext(url, context);
+        return new HTTPClientOutputStreamContext(url, configuration, context);
     }
 
     public void finalPrepareOutputStreamContext(OutputStreamMessageContext context) throws IOException {
         HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;
         ctx.flushHeaders();
     }
-
-    
-    
+   
     public void invokeOneway(OutputStreamMessageContext context) throws IOException {
         HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;
         ctx.createInputStreamContext().getInputStream().close();
@@ -77,6 +70,17 @@ public class HTTPClientTransport implements ClientTransport {
     public void shutdown() {
         //nothing to do
     }
+    
+    private Configuration getPortConfiguration(Bus bus, EndpointReferenceType ref) {
+        Configuration busConfiguration = bus.getConfiguration();
+        Configuration serviceConfiguration = busConfiguration
+            .getChild("http://celtix.objectweb.org/bus/jaxws/service-config",
+                     EndpointReferenceUtils.getServiceName(ref));
+        Configuration portConfiguration = serviceConfiguration
+            .getChild("http://celtix.objectweb.org/bus/jaxws/port-config",
+                      EndpointReferenceUtils.getPortName(ref));
+        return portConfiguration;
+    }
 
     
     static class HTTPClientOutputStreamContext
@@ -87,7 +91,8 @@ public class HTTPClientTransport implements ClientTransport {
         WrappedOutputStream origOut;
         OutputStream out;
         
-        public HTTPClientOutputStreamContext(URL url, MessageContext ctx) throws IOException {
+        public HTTPClientOutputStreamContext(URL url, Configuration configuration, MessageContext ctx)
+            throws IOException {
             super(ctx);
             connection =  url.openConnection();
             connection.setUseCaches(false);
@@ -98,6 +103,9 @@ public class HTTPClientTransport implements ClientTransport {
                 hc.setRequestMethod("POST");
             }
             // TODO - set connection timeouts, etc...
+            
+            // connection.setReadTimeout(configuration.getInt(""));
+            
             origOut = new WrappedOutputStream();
             out = origOut;
         }

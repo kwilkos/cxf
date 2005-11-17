@@ -70,6 +70,9 @@
             <tarfileset prefix="celtix" dir="${build.release.dir}" mode="755">
                 <include name="bin/*"/>
             </tarfileset>
+            <tarfileset prefix="celtix" dir="${basedir}">
+                <include name="schemas/*"/>
+            </tarfileset>
         </tar>
         <tar compression="gzip"
             destfile="${build.package.dir}/celtix-${celtix.version}-src.tgz">

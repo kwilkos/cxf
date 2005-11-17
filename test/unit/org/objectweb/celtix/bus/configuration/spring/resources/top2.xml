@@ -27,35 +27,35 @@
      
       <property name="booleanItem">
           <value>
-              <ct:boolean>false</ct:boolean>
+              <ct:booleanValue>false</ct:booleanValue>
           </value>
       </property>
       <property name="integerItem">
           <value>
-              <ct:integer>1997</ct:integer>
+              <ct:integerValue>1997</ct:integerValue>
           </value>
       </property>
       <property name="longItem">
           <value>
-              <ct:long>99</ct:long>
+              <ct:longValue>99</ct:longValue>
           </value>
       </property>
       <property name="doubleItem">
           <value>
-              <ct:double>9876.54321</ct:double>
+              <ct:doubleValue>9876.54321</ct:doubleValue>
           </value>
       </property>
       <property name="stringItem">
           <value>
-              <ct:string>not the default</ct:string>
+              <ct:stringValue>not the default</ct:stringValue>
           </value>
       </property>
        <property name="stringListItem">
           <value>
-              <ct:stringList>
+              <ct:stringListValue>
 		          <ct:item>something</ct:item>
 		          <ct:item>else</ct:item>
-		      </ct:stringList>
+		      </ct:stringListValue>
 	      </value>
       </property>
   </bean>

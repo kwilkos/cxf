@@ -5,7 +5,7 @@
             - can be referenced from other parts of this schema or from other schema documents
             - can appear as root element in valid documents  
     -->
-	<xs:element name="handlerChain" type="tns:handlerChainType"/>
+	<xs:element name="handlerChainValue" type="tns:handlerChainType"/>
 	<!--
         type definitions
     -->

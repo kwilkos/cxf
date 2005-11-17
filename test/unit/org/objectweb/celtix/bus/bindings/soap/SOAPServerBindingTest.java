@@ -79,14 +79,17 @@ public class SOAPServerBindingTest extends TestCase {
         assertNotNull(serverBinding.createBindingMessageContext(inCtx));
     }
 
+    /*
     public void testCreateTransport() throws Exception {
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, null, null);
         assertNotNull(serverBinding.getTransport(epr));
     }
+    */
 
     public void testDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
-        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint);        
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
+        
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
 
         QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");

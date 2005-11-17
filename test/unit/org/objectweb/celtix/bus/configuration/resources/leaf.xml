@@ -2,7 +2,8 @@
 <cm:config 
     xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
     xmlns:ct="http://celtix.objectweb.org/configuration/types" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata metadata.xsd"
     namespace="http://celtix.objectweb.org/configuration/test/leaf">
 
@@ -10,17 +11,17 @@
    
     <cm:configImport location="/org/objectweb/celtix/configuration/config-metadata/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
     
-    <!-- items with default values --> 
+    <!-- items without default values --> 
     
     <cm:configItem>
 		<cm:name>stringLeafItem</cm:name>
-		<cm:type>ct:string</cm:type>
-		<ct:string>the default</ct:string>
+		<cm:type>xs:string</cm:type>
+		<ct:stringValue>the default</ct:stringValue>
 	</cm:configItem>
 	
 	<cm:configItem>
 		<cm:name>longLeafItemNoDefault</cm:name>
-		<cm:type>ct:long</cm:type>
+		<cm:type>xs:long</cm:type>
 	</cm:configItem>
 
 </cm:config>

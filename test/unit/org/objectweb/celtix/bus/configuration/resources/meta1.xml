@@ -2,7 +2,8 @@
 <cm:config 
     xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
     xmlns:ct="http://celtix.objectweb.org/configuration/types" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata 
     http://celtix.objectweb.org/configuration/metadata.xsd"
     namespace="http://celtix.objectweb.org/configuration/test/meta1">
@@ -13,74 +14,55 @@
     
     <cm:configItem>
 		<cm:name>booleanItem</cm:name>
-		<cm:type>ct:boolean</cm:type>
-	</cm:configItem>
-	
-	<cm:configItem>
-		<cm:name>integerItem</cm:name>
-		<cm:type>ct:integer</cm:type>
-	</cm:configItem>
-	
-	<cm:configItem>
-		<cm:name>longItem</cm:name>
-		<cm:type>ct:long</cm:type>
-	</cm:configItem>
-	
-	<cm:configItem>
-		<cm:name>doubleItem</cm:name>
-		<cm:type>ct:double</cm:type>
-	</cm:configItem>
-	
-	<cm:configItem>
-		<cm:name>stringItem</cm:name>
-		<cm:type>ct:string</cm:type>
-	</cm:configItem>
-	
-	<cm:configItem>
-		<cm:name>stringListItem</cm:name>
-		<cm:type>ct:stringList</cm:type>
-	</cm:configItem>
-	
-	<!--  standard types, without default but with other optional attributes  -->
-   
-    <cm:configItem>
-		<cm:name>otherBooleanItem</cm:name>
-		<cm:type>ct:boolean</cm:type>
+		<cm:type>xs:boolean</cm:type>
 		<cm:description></cm:description>
 		<cm:lifecyclePolicy>static</cm:lifecyclePolicy>
 	</cm:configItem>
 	
 	<cm:configItem>
-		<cm:name>otherIntegerItem</cm:name>
-		<cm:type>ct:integer</cm:type>
+		<cm:name>shortItem</cm:name>
+		<cm:type>xs:short</cm:type>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>intItem</cm:name>
+		<cm:type>xs:int</cm:type>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>integerItem</cm:name>
+		<cm:type>xs:integer</cm:type>
 		<cm:description> </cm:description>
 		<cm:lifecyclePolicy>process</cm:lifecyclePolicy>
 	</cm:configItem>
 	
 	<cm:configItem>
-		<cm:name>otherLongItem</cm:name>
-		<cm:type>ct:long</cm:type>
-		<cm:description>otherLongItem description</cm:description>
+		<cm:name>longItem</cm:name>
+		<cm:type>xs:long</cm:type>
 		<cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
 	</cm:configItem>
 	
 	<cm:configItem>
-		<cm:name>otherDoubleItem</cm:name>
-		<cm:type>ct:double</cm:type>
-		<cm:description>otherDoubleItem description</cm:description>
+		<cm:name>floatItem</cm:name>
+		<cm:type>xs:float</cm:type>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>doubleItem</cm:name>
+		<cm:type>xs:double</cm:type>
 		<cm:lifecyclePolicy>dynamic</cm:lifecyclePolicy>
 	</cm:configItem>
 	
 	<cm:configItem>
-		<cm:name>otherStringItem</cm:name>
-		<cm:type>ct:string</cm:type>
-		<cm:description>otherStringItem description</cm:description>
+		<cm:name>stringItem</cm:name>
+		<cm:type>xs:string</cm:type>
+		<cm:description>stringItem description</cm:description>
 	</cm:configItem>
 	
 	<cm:configItem>
-		<cm:name>otherStringListItem</cm:name>
-		<cm:type>ct:stringList</cm:type>
-		<cm:description>otherStringListItem description</cm:description>
-	</cm:configItem>    
-	
+		<cm:name>stringListItem</cm:name>
+		<cm:type>ct:stringListType</cm:type>
+		<cm:description>stringListItem description</cm:description>
+	</cm:configItem>
+
 </cm:config>

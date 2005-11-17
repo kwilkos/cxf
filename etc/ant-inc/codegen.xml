@@ -23,6 +23,7 @@
                     </fileset>
 		    		<path refid="jdk.tools.classpath"/>
                 </classpath>
+                <sysproperty key="java.util.logging.config.file" value="${basedir}/etc/logging.properties"/>
                 <arg line="${package.arg.@{file}}"/>
                 <arg value="-keep"/>
                 <arg value="-s"/>
@@ -53,6 +54,7 @@
                     </fileset>
 					<path refid="jdk.tools.classpath"/>
               	</classpath>
+                <sysproperty key="java.util.logging.config.file" value="${basedir}/etc/logging.properties"/>
                 <arg line="${package.arg.@{file}}"/>
                 <arg value="-quiet"/>
                 <arg value="-d"/>
@@ -81,13 +83,33 @@
     <target name="configuration.codegen.internal" unless="configuration.codegen.notrequired">
         <xsdtojava file="${basedir}/src/org/objectweb/celtix/configuration/config-metadata/types.xsd" destdir="${basedir}/build/src"/>
         <xsdtojava file="${basedir}/src/org/objectweb/celtix/bus/jaxws/config-metadata/types.xsd" destdir="${basedir}/build/src"/>
+        <property name="http-metadata.dir" value="${basedir}/build/src/org/objectweb/celtix/bus/transports/http/config-metadata"/>
+        <xslt in="schemas/http-conf.xsd" out="${http-metadata.dir}/http-conf-types.xsd" style="${basedir}/etc/transforms/http-conf-types.xsl">
+        </xslt>
+        <xslt in="schemas/http-conf.xsd" out="${http-metadata.dir}/http-server-config.xml" style="${basedir}/etc/transforms/http-conf.xsl">
+            <param name="type" expression="server"/>
+        </xslt>
+        <xslt in="schemas/http-conf.xsd" out="${http-metadata.dir}/http-client-config.xml" style="${basedir}/etc/transforms/http-conf.xsl">
+            <param name="type" expression="client"/>
+        </xslt>
+        <copy file="schemas/http-conf.xsd" todir="${http-metadata.dir}"/>
+        <copy file="schemas/wsdl.xsd" todir="${http-metadata.dir}"/>
+        <copy file="schemas/jms.xsd" todir="${http-metadata.dir}"/>
+        <copy file="schemas/http-conf.xsd" todir="${http-metadata.dir}"/>
+        <xsdtojava file="${http-metadata.dir}/http-conf-types.xsd" destdir="${basedir}/build/src"/>
         <touch file="${basedir}/build/src/.CONFIGURATION.CODEGEN.DONE"/>
+    </target>
+
+    <target name="gen">
+        <property name="http-metadata.dir" value="${basedir}/build/src/org/objectweb/celtix/bus/transports/http/config-metadata"/>
+        <xsdtojava file="${http-metadata.dir}/http-conf-types.xsd" destdir="${basedir}/build/src"/>
     </target>
 
     <target name="configuration.codegen">
         <uptodate property="configuration.codegen.notrequired" value="true">
             <srcfiles dir="src/org/objectweb/celtix/configuration/config-metadata" includes="types.xsd"/>
             <srcfiles dir="src/org/objectweb/celtix/bus/jaxws/config-metadata" includes="types.xsd"/>
+            <srcfiles dir="schemas" includes="http-conf.xsd"/>
             <srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
             <mapper type="merge" to="${basedir}/build/src/.CONFIGURATION.CODEGEN.DONE"/>
         </uptodate>
@@ -174,35 +196,32 @@
 
     <target name="codegen" depends="schemas.codegen,configuration.codegen,testwsdl.codegen,type_test.codegen" description="Generate all generated code"/>
 
-    <path id="bean.generator.path">
-        <path location="${basedir}/build/classes"/>
-        <path location="${basedir}/etc"/>
-        <path refid="jaxws.classpath"/>
-    </path>
-
     <macrodef name="beangen">
         <attribute name="output.dir"/>
-        <attribute name="arg.line"/>
+        <attribute name="schema.files"/>
         <sequential>
             <java failonerror="true" classname="org.objectweb.celtix.bus.configuration.spring.BeanGenerator" fork="true" newenvironment="true">
                 <classpath>
                     <path location="${basedir}/build/classes"/>
                     <path refid="jaxws.classpath"/>
+                    <path location="${basedir}/schemas"/>
                 </classpath>
+                <sysproperty key="java.util.logging.config.file" value="${basedir}/etc/logging.properties"/>
                 <arg line="-d"/>
-                <arg value="${output.dir}"/>
-                <arg line="${arg.line}"/>
+                <arg value="@{output.dir}"/>
+                <arg line="@{schema.files}"/>
              </java>
         </sequential>
     </macrodef>
 
     <target name="spring.codegen.internal" unless="spring.codegen.notrequired">
-        <fileset dir="${basedir}/src" id="metadata.schemas">
-            <include name="**/*metadata.xml"/>
+        <fileset dir="${basedir}" id="metadata.schemas">
+            <include name="src/**/config-metadata/*-config.xml"/>
+            <include name="build/src/**/config-metadata/*-config.xml"/>
         </fileset>
-        <pathconvert property="arg.line" refid="metadata.schemas" pathseparator="&quot; &quot;"/> 
+        <pathconvert pathsep=" " property="metadata.schema.files" refid="metadata.schemas"/> 
         <property name="output.dir" location="${basedir}/build/spring-src"/>
-        <beangen output.dir="${output.dir}" arg.line="&quot;${args.line}&quot;"/>
+        <beangen output.dir="${output.dir}" schema.files="${metadata.schema.files}"/>
         <touch file="${basedir}/build/spring-src/.SPRING.CODEGEN.DONE"/>
     </target>
     
@@ -222,15 +241,7 @@
   
         <pathconvert pathsep=" " property="test.metadata.schema.files" refid="test.metadata.schemas"/>
         <property name="output.dir" location="${basedir}/build/test-spring-src"/>
-        <java failonerror="true" classname="org.objectweb.celtix.bus.configuration.spring.BeanGenerator" fork="true" newenvironment="true">
-                <classpath>
-                    <path location="${basedir}/build/classes"/>
-                    <path refid="jaxws.classpath"/>
-              	</classpath>
-                <arg line="-d"/>
-                <arg value="${output.dir}"/>
-                <arg value="${test.metadata.schema.files}"/>
-            </java>
+        <beangen output.dir="${output.dir}" schema.files="${test.metadata.schema.files}"/>
         <touch file="${basedir}/build/test-spring-src/.SPRING.TEST.CODEGEN.DONE"/>
     </target>
 
@@ -242,5 +253,5 @@
         </uptodate>
         <antcall target="spring.test.codegen.internal"/>
     </target>
-	
+
 </project>

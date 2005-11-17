@@ -91,12 +91,15 @@
 	    <fileset dir="${basedir}/src" includes="**/*.toolspec"/>
 	    <fileset dir="${basedir}/src" includes="**/*.xsl"/>
 	    <fileset dir="${basedir}/src" includes="**/*.xml"/>
+            <fileset dir="${basedir}/build/src" includes="**/*.xsd"/>
+	    <fileset dir="${basedir}/build/src" includes="**/*.xml"/>
         </copy>
+        <antcall target="spring.compile"/>
         <antcall target="src.checkstyle"/>
         <antcall target="pmd"/>
     </target>
 
-    <target name="spring.compile" depends="src.compile" description="Generate and compile the source for Spring support">
+    <target name="spring.compile" description="Generate and compile the source for Spring support">
         <antcall target="spring.codegen"/>
         <mkdir dir="${basedir}/build/classes"/>
         <javac
@@ -149,7 +152,7 @@
             </classpath>
         </javac>
     </target>
-    
+   
     <target name="unittest.compile" depends="testwsdl.compile,spring.unittest.compile" description="Compile the unit tests">
         <mkdir dir="${basedir}/build/classes-tests/unit"/>
         <javac srcdir="${basedir}/test/unit"

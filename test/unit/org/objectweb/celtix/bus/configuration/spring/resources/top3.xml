@@ -16,9 +16,9 @@
    
       <property name="stringListItem">
           <value>
-          <ct:stringList>
-              <ct:long>1345</ct:long>
-          </ct:stringList>
+          <ct:stringListValue>
+              <ct:longValue>1345</ct:longValue>
+          </ct:stringListValue>
           </value>
       </property>
   </bean>

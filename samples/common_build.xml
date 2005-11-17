@@ -63,6 +63,7 @@
         <fileset dir="${thirdparty.tools.dir}/spring/1.2.5">
 	  <include name="*.jar"/>
 	</fileset>
+        <pathelement location="${basedir}/../../schemas"/>
     </path>
 
     <macrodef name="celtixrun">

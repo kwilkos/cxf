@@ -14,7 +14,7 @@ import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
 
 
-public final class DefaultConfigurationProviderFactory {
+public class DefaultConfigurationProviderFactory {
     
     private static final Logger LOG = LogUtils.getL7dLogger(DefaultConfigurationProviderFactory.class);
     
@@ -22,12 +22,12 @@ public final class DefaultConfigurationProviderFactory {
         "org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl";
     
     private static final String DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME_PROPERTY = 
-        "org.objectweb.celtix.bus.configuration.ConfigurationProvider.default.class";
+        "org.objectweb.celtix.bus.configuration.ConfigurationProvider";
     
     private static DefaultConfigurationProviderFactory theInstance;
     
     
-    private DefaultConfigurationProviderFactory() {
+    protected DefaultConfigurationProviderFactory() {
     }
     
     public static DefaultConfigurationProviderFactory getInstance() {
@@ -44,24 +44,17 @@ public final class DefaultConfigurationProviderFactory {
         Class<? extends ConfigurationProvider> providerClass;
         try {
             providerClass = Class.forName(className).asSubclass(ConfigurationProvider.class);
-        } catch (ClassCastException ex) {
-            throw new ConfigurationException(new Message("DEFAULT_PROVIDER_INSTANTIATION_EXC", LOG), ex);
-        } catch (ClassNotFoundException ex) {
-            throw new ConfigurationException(new Message("DEFAULT_PROVIDER_INSTANTIATION_EXC", LOG), ex);
-        }
-        
-        try {
             ConfigurationProvider provider = providerClass.newInstance();
             provider.init(configuration);
             return provider;
-        } catch (IllegalAccessException ex) {
+        } catch (ConfigurationException ex) {
+            throw ex;
+        } catch (Exception ex) {
             throw new ConfigurationException(new Message("DEFAULT_PROVIDER_INSTANTIATION_EXC", LOG), ex);
-        } catch (InstantiationException ex) {
-            throw new ConfigurationException(new Message("DEFAULT_PROVIDER_INSTANTIATION_EXC", LOG), ex);
-        }
+        } 
     }
     
-    private String getDefaultProviderClassName() {
+    String getDefaultProviderClassName() {
         
         String providerClass = null;
         
@@ -74,6 +67,8 @@ public final class DefaultConfigurationProviderFactory {
         // next, check for the services stuff in the jar file
         String serviceId = "META-INF/services/" + DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME_PROPERTY;
         InputStream is = ClassLoader.getSystemResourceAsStream(serviceId);
+        
+        
   
         if (is != null) {
             try {

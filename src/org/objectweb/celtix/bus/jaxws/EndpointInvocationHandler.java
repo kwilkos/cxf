@@ -5,14 +5,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.Oneway;
-import javax.wsdl.Port;
-import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.ProtocolException;
@@ -24,9 +21,8 @@ import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.ObjectMessageContext;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
-import org.objectweb.celtix.wsdl.WSDLManager;
 
 
 public final class EndpointInvocationHandler implements BindingProvider, InvocationHandler
@@ -41,10 +37,10 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
     private final Bus bus;
     
     public EndpointInvocationHandler(Bus b, EndpointReferenceType reference,
-            Class<?> portSEI) {
+                                     Configuration configuration, Class<?> portSEI) {
         bus = b;
         portTypeInterface = portSEI;
-        clientBinding = createBinding(reference);
+        clientBinding = createBinding(reference, configuration);
     }
 
     public Object invoke(Object proxy, Method method, Object args[]) throws Exception {
@@ -126,36 +122,19 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
         return objMsgContext.getReturn();
     }
     
-    protected ClientBinding createBinding(EndpointReferenceType ref) {
+    protected ClientBinding createBinding(EndpointReferenceType ref, Configuration c) {
 
-        WSDLManager wsdlManager = bus.getWSDLManager();
         ClientBinding binding = null;
         try {
-            Port endpoint = EndpointReferenceUtils.getPort(wsdlManager, ref);
             
-            assert endpoint != null : "unable to find endpoint for " + ref;
-            String bindingId = getBindingId(endpoint.getBinding());
-
+            String bindingId = c.getString("bindingId");            
             BindingFactory factory = bus.getBindingManager().getBindingFactory(bindingId);
-            assert factory != null : "unable to find binding factory for " + ref;
+            assert factory != null : "unable to find binding factory for " + bindingId;
             binding = factory.createClientBinding(ref);
         } catch (Exception ex) {
             throw new WebServiceException(ex);
         }
         return binding;
-    }
-
-    private String getBindingId(javax.wsdl.Binding binding) {
-
-        List list = binding.getExtensibilityElements();
-        
-        if (list.isEmpty()) {
-            throw new WebServiceException("Could not get the extension element URI");
-        }
-
-        ExtensibilityElement extElement = (ExtensibilityElement) list.get(0);
-        
-        return extElement.getElementType().getNamespaceURI();
     }
     
     private boolean isValidException(ObjectMessageContext objContext) {

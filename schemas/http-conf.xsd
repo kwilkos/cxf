@@ -7,7 +7,7 @@
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-		   jaxb:version="2.0">
+           jaxb:version="2.0">
 
 
 
@@ -96,7 +96,7 @@
                     </xs:annotation>      
                 </xs:attribute>
 
-                <xs:attribute name="CacheControl" use="optional">
+                <xs:attribute name="CacheControl" type="http-conf:serverCacheControlType" use="optional">
                     <xs:annotation>
                         <xs:documentation>
                         Most commonly used to specify no-cache, however the standard supports a 
@@ -104,20 +104,6 @@
                         </xs:documentation>
                     </xs:annotation>      
 
-                    <xs:simpleType>
-                        <xs:restriction base="xs:string">
-                            <xs:enumeration value="no-cache"/>
-                            <xs:enumeration value="public"/>
-                            <xs:enumeration value="private"/>
-                            <xs:enumeration value="no-store"/>
-                            <xs:enumeration value="no-transform"/>
-                            <xs:enumeration value="must-revalidate"/>
-                            <xs:enumeration value="proxy-revalidate"/>
-                            <xs:enumeration value="max-age"/>
-                            <xs:enumeration value="s-max-age"/>
-                            <xs:enumeration value="cache-extension"/>
-                        </xs:restriction>
-                    </xs:simpleType>
                 </xs:attribute>
 
                 <xs:attribute name="ContentLocation" type="xs:string" use="optional">
@@ -344,7 +330,7 @@
                     </xs:annotation>      
                 </xs:attribute>
 
-                <xs:attribute name="Connection" use="optional" default="close">
+                <xs:attribute name="Connection" type="http-conf:connectionType" use="optional" default="close">
                     <xs:annotation>
                         <xs:documentation>
                         The connection disposition.  If close the connection to the server is closed 
@@ -357,15 +343,9 @@
                         </xs:documentation>
                     </xs:annotation>      
 
-                    <xs:simpleType>
-                        <xs:restriction base="xs:string">
-                            <xs:enumeration value="close"/>
-                            <xs:enumeration value="Keep-Alive"/>
-                        </xs:restriction>
-                    </xs:simpleType>
                 </xs:attribute>
 
-                <xs:attribute name="CacheControl" use="optional">
+                <xs:attribute name="CacheControl" type="http-conf:clientCacheControlType" use="optional">
                     <xs:annotation>
                         <xs:documentation>
                         Most commonly used to specify no-cache, however the standard supports a 
@@ -373,18 +353,6 @@
                         </xs:documentation>
                     </xs:annotation>      
 
-                    <xs:simpleType>
-                        <xs:restriction base="xs:string">
-                            <xs:enumeration value="no-cache"/>
-                            <xs:enumeration value="no-store"/>
-                            <xs:enumeration value="max-age"/>
-                            <xs:enumeration value="max-stale"/>
-                            <xs:enumeration value="min-fresh"/>
-                            <xs:enumeration value="no-transform"/>
-                            <xs:enumeration value="only-if-cached"/>
-                            <xs:enumeration value="cache-extension"/>
-                        </xs:restriction>
-                    </xs:simpleType>
                 </xs:attribute>
 
                 <xs:attribute name="Cookie" type="xs:string" use="optional">
@@ -558,6 +526,7 @@
 
 
     <xs:simpleType name="timeIntervalType">
+        <!--
         <xs:union memberTypes="xs:int">
             <xs:simpleType>
                 <xs:restriction base="xs:string">
@@ -566,5 +535,42 @@
                 </xs:restriction>
             </xs:simpleType>
         </xs:union>
+        -->
+        <xs:restriction base="xs:int"/>
+    </xs:simpleType>
+  
+    <xs:simpleType name="serverCacheControlType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="no-cache"/>
+            <xs:enumeration value="public"/>
+            <xs:enumeration value="private"/>
+            <xs:enumeration value="no-store"/>
+            <xs:enumeration value="no-transform"/>
+            <xs:enumeration value="must-revalidate"/>
+            <xs:enumeration value="proxy-revalidate"/>
+            <xs:enumeration value="max-age"/>
+            <xs:enumeration value="s-max-age"/>
+            <xs:enumeration value="cache-extension"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="clientCacheControlType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="no-cache"/>
+            <xs:enumeration value="no-store"/>
+            <xs:enumeration value="max-age"/>
+            <xs:enumeration value="max-stale"/>
+            <xs:enumeration value="min-fresh"/>
+            <xs:enumeration value="no-transform"/>
+            <xs:enumeration value="only-if-cached"/>
+            <xs:enumeration value="cache-extension"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="connectionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="close"/>
+            <xs:enumeration value="Keep-Alive"/>
+        </xs:restriction>
     </xs:simpleType>
 </xs:schema>

@@ -31,6 +31,7 @@ public final class SpringUtils {
         }
         buf.append(".spring.");
         int len = buf.length();
+        className = JAXBUtils.nameToIdentifier(className, JAXBUtils.IdentifierType.CLASS);
         buf.append(className);
         if (Character.isLowerCase(buf.charAt(len))) {
             buf.setCharAt(len, Character.toUpperCase(buf.charAt(len)));

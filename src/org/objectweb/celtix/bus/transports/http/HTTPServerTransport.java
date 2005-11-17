@@ -22,14 +22,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
-import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.catalina.core.StandardWrapper;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
@@ -49,27 +49,14 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
     String name;
     Servlet servlet = new HTTPServlet(this);
     ServerTransportCallback callback;
+    Configuration configuration;
     
     public HTTPServerTransport(Bus bus, EndpointReferenceType ref) throws WSDLException, IOException {
+        
         reference = ref;
-        
-        // first try to get url (publish address) from endpoint reference
-        url = EndpointReferenceUtils.getAddress(ref);
-        
-        // if that fails, check the wsdl model 
-        
-        if (url == null) {
-            reference = ref;
-            Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
-            List<?> list = port.getExtensibilityElements();
-            for (Object ep : list) {
-                ExtensibilityElement ext = (ExtensibilityElement)ep;
-                if (ext instanceof SOAPAddress) {
-                    SOAPAddress ad = (SOAPAddress)ext;
-                    url = ad.getLocationURI();
-                }
-            }
-        }
+        // get url (publish address) from endpoint reference
+        url = EndpointReferenceUtils.getAddress(ref);  
+        configuration = createConfiguration(bus, ref);
         
         URL nurl = new URL(url);
         name = nurl.getPath();
@@ -106,6 +93,20 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
     }
 
     public void shutdown() {
+    }
+    
+    private Configuration createConfiguration(Bus bus, EndpointReferenceType ref) {
+        Configuration busConfiguration = bus.getConfiguration();
+        QName serviceName = EndpointReferenceUtils.getServiceName(ref);
+        Configuration endpointConfiguration = busConfiguration
+            .getChild("http://celtix.objectweb.org/bus/jaxws/endpoint-config", serviceName);
+        Port port = null;
+        try {
+            port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);            
+        } catch (WSDLException ex) {
+            // ignore
+        }
+        return new HTTPServerTransportConfiguration(endpointConfiguration, port);
     }
 
     

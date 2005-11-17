@@ -5,13 +5,14 @@ import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.net.URL;
 import java.rmi.Remote;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.WebService;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
@@ -114,9 +115,11 @@ public class ServiceImpl extends ServiceDelegate {
         
         EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlLocation, 
                 serviceName, portName.getLocalPart());
+             
+        PortConfiguration pc = new PortConfiguration(configuration, portName.getLocalPart(), bus, ref);
         
         EndpointInvocationHandler endpointHandler = 
-                new EndpointInvocationHandler(bus, ref, serviceEndpointInterface);
+                new EndpointInvocationHandler(bus, ref, pc, serviceEndpointInterface);
         
         createHandlerChainForBinding(portName, endpointHandler.getBinding());
         

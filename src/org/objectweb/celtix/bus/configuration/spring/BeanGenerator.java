@@ -10,13 +10,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import org.xml.sax.InputSource;
 
 import org.objectweb.celtix.bus.configuration.ConfigurationMetadataBuilder;
-import org.objectweb.celtix.bus.configuration.ConfigurationMetadataImpl;
 import org.objectweb.celtix.bus.configuration.TypeSchema;
+import org.objectweb.celtix.bus.configuration.TypeSchemaHelper;
 import org.objectweb.celtix.bus.jaxb.JAXBUtils;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -29,6 +30,7 @@ public class BeanGenerator {
     private static final Logger LOG = LogUtils.getL7dLogger(BeanGenerator.class);
     
     File outputDir;
+    TypeSchemaHelper tsh = new TypeSchemaHelper();
 
     public BeanGenerator() {
         outputDir = new File(".");
@@ -58,7 +60,7 @@ public class BeanGenerator {
     }
 
     void generateBean(String path) {
-        
+        System.out.println("Generating bean from resource : " + path);
         InputSource src = null;
         try {
             src = new InputSource(new FileInputStream(path));
@@ -97,6 +99,7 @@ public class BeanGenerator {
         PrintWriter pw = null;
         try {
             pw = new PrintWriter(new FileOutputStream(classFile));
+            // pw = new PrintWriter(System.out);
             writeClass(pw, model, className);
         } catch (IOException ex) {
             throw new ConfigurationException(new Message("FAILED_TO_GENERATE_BEAN_EXC", LOG), ex);          
@@ -133,8 +136,7 @@ public class BeanGenerator {
         
         for (ConfigurationItemMetadata definition : model.getDefinitions()) {
             QName type = definition.getType(); 
-            TypeSchema ts = ((ConfigurationMetadataImpl)model).getTypeSchema(type.getNamespaceURI());
-            String className = getType(ts, type.getLocalPart(), true);
+            String className = getClassName(type, true);
             int index = className.lastIndexOf('.');
             if (index < 0 || "java.lang".equals(className.substring(0, index))) {
                 continue;
@@ -164,8 +166,7 @@ public class BeanGenerator {
    
         for (ConfigurationItemMetadata definition : model.getDefinitions()) {
             QName type = definition.getType();            
-            TypeSchema ts = ((ConfigurationMetadataImpl)model).getTypeSchema(type.getNamespaceURI());
-            String className = getType(ts, type.getLocalPart(), false);
+            String className = getClassName(type, false);
             String memberName = JAXBUtils.nameToIdentifier(definition.getName(), 
                                                            JAXBUtils.IdentifierType.VARIABLE);
             pw.print("    private ");
@@ -185,8 +186,7 @@ public class BeanGenerator {
         
         for (ConfigurationItemMetadata definition : model.getDefinitions()) {
             QName type = definition.getType();            
-            TypeSchema ts = ((ConfigurationMetadataImpl)model).getTypeSchema(type.getNamespaceURI());
-            String className = getType(ts, type.getLocalPart(), false);
+            String className = getClassName(type, false);
             String memberName = JAXBUtils.nameToIdentifier(definition.getName(), 
                                                            JAXBUtils.IdentifierType.VARIABLE);
             
@@ -225,8 +225,15 @@ public class BeanGenerator {
         pw.println("    }");
     }
     
-    protected static String getType(TypeSchema ts, String typeName, boolean qualified) {     
-        String baseType = ts.getXMLSchemaBaseType(typeName);
+    protected static String getClassName(QName typeName, boolean qualified) { 
+        String baseType = null;
+        TypeSchema ts = null;
+        if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(typeName.getNamespaceURI())) {
+            baseType = typeName.getLocalPart(); 
+        } else {
+            ts = new TypeSchemaHelper().get(typeName.getNamespaceURI());
+            baseType = ts.getXMLSchemaBaseType(typeName.getLocalPart());
+        }
         String className = null;
         if (null != baseType) {
             className = JAXBUtils.builtInTypeToJavaType(baseType);
@@ -238,7 +245,7 @@ public class BeanGenerator {
             }
         }
         if (null == className) {
-            baseType = ts.getDeclaredType(typeName);
+            baseType = typeName.getLocalPart();
             className = JAXBUtils.nameToIdentifier(baseType,
                                                    JAXBUtils.IdentifierType.CLASS);
             if (qualified) {

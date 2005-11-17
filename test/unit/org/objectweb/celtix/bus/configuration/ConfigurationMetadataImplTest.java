@@ -1,12 +1,14 @@
 package org.objectweb.celtix.bus.configuration;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
@@ -30,53 +32,71 @@ public class ConfigurationMetadataImplTest extends TestCase {
         assertEquals("http://celtix.objectweb.org/configuration/test/meta1", 
                      model.getNamespaceURI());
         Collection<ConfigurationItemMetadata> definitions = model.getDefinitions();
-        assertEquals(12, definitions.size());
-        ConfigurationItemMetadata definition = model.getDefinition("stringListItem");
+        assertEquals(9, definitions.size());
+        ConfigurationItemMetadata definition = null;
+        
+        definition = model.getDefinition("booleanItem");
         assertNotNull(definition);
-        assertEquals("stringListItem", definition.getName());
-        assertEquals(new QName(TYPES_NAMESPACE_URI, "stringList"),
+        assertEquals("booleanItem", definition.getName());
+        assertEquals(new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "boolean"),
                      definition.getType());
-        // assertNull(definition.getDescription());
         assertEquals(LifecyclePolicy.STATIC, definition.getLifecyclePolicy());
-        assertNull(definition.getDefaultValue());
         
-       
-        definition = model.getDefinition("otherBooleanItem");
-        assertEquals(new QName(TYPES_NAMESPACE_URI, "boolean"),
+        definition = model.getDefinition("shortItem");
+        assertNotNull(definition);
+        assertEquals("shortItem", definition.getName());
+        assertEquals(new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "short"),
+                     definition.getType());
+        
+        definition = model.getDefinition("intItem");
+        assertNotNull(definition);
+        assertEquals("intItem", definition.getName());
+        assertEquals(new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "int"),
+                     definition.getType());
+        
+        definition = model.getDefinition("integerItem");
+        assertNotNull(definition);
+        assertEquals("integerItem", definition.getName());
+        assertEquals(new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "integer"),
                      definition.getType());
         // assertNull(definition.getDescription());
-        // assertEquals("", definition.getDescription());
-        
-        definition = model.getDefinition("otherIntegerItem");
-        assertEquals(new QName(TYPES_NAMESPACE_URI, "integer"),
-                     definition.getType());
-        // assertNotNull(definition.getDescription());
-        // assertEquals(" ", definition.getDescription());
         assertEquals(LifecyclePolicy.PROCESS, definition.getLifecyclePolicy());
         
-        definition = model.getDefinition("otherLongItem");
-        assertEquals(new QName(TYPES_NAMESPACE_URI, "long"),
+        definition = model.getDefinition("longItem");
+        assertNotNull(definition);
+        assertEquals("longItem", definition.getName());
+        assertEquals(new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "long"),
                      definition.getType());
-        // assertNotNull(definition.getDescription());
         // assertEquals(definition.getName() + " description", definition.getDescription());
         assertEquals(LifecyclePolicy.BUS, definition.getLifecyclePolicy());
         
-        definition = model.getDefinition("otherDoubleItem");
-        assertEquals(new QName(TYPES_NAMESPACE_URI, "double"),
+        definition = model.getDefinition("floatItem");
+        assertNotNull(definition);
+        assertEquals("floatItem", definition.getName());
+        assertEquals(new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "float"),
                      definition.getType());
-        // assertNotNull(definition.getDescription());
+        
+        definition = model.getDefinition("doubleItem");
+        assertNotNull(definition);
+        assertEquals("doubleItem", definition.getName());
+        assertEquals(new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "double"),
+                     definition.getType());
         // assertEquals(definition.getName() + " description", definition.getDescription());
         assertEquals(LifecyclePolicy.DYNAMIC, definition.getLifecyclePolicy()); 
         
-        definition = model.getDefinition("otherStringItem");
-        assertEquals(new QName(TYPES_NAMESPACE_URI, "string"),
+        definition = model.getDefinition("stringItem");
+        assertNotNull(definition);
+        assertEquals("stringItem", definition.getName());
+        assertEquals(new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"),
                      definition.getType());
         
-        ConfigurationMetadataImpl imodel = (ConfigurationMetadataImpl)model;
-        assertEquals(1, imodel.getTypeSchemas().size());
-        assertNotNull(imodel.getTypeSchema(TYPES_NAMESPACE_URI));
-        assertNotNull(imodel.getTypeSchema(new QName(TYPES_NAMESPACE_URI, "long")));
-        
+        definition = model.getDefinition("stringListItem");
+        assertNotNull(definition);
+        assertEquals("stringListItem", definition.getName());
+        assertEquals(new QName(TYPES_NAMESPACE_URI, "stringListType"),
+                     definition.getType()); 
+        assertEquals(LifecyclePolicy.STATIC, definition.getLifecyclePolicy());
+        assertNull(definition.getDefaultValue());
     }
 
     public void testIllegalQNameInType() {
@@ -102,7 +122,7 @@ public class ConfigurationMetadataImplTest extends TestCase {
             buildMetadata("meta4.xml");
             fail("Expected ConfigurationException not thrown.");
         } catch (ConfigurationException ex) {
-            assertEquals("UNKNOWN_TYPE_EXC", ex.getCode()); 
+            assertEquals("TYPE_NOT_DEFINED_IN_NAMESPACE_EXC", ex.getCode()); 
         }
     }
 
@@ -144,7 +164,7 @@ public class ConfigurationMetadataImplTest extends TestCase {
     public void testDefaultValue() {        
         ConfigurationMetadata model = buildMetadata("meta8.xml"); 
         Collection<ConfigurationItemMetadata> definitions = model.getDefinitions();
-        assertEquals(6, definitions.size());
+        assertEquals(9, definitions.size());
         
         ConfigurationItemMetadata definition = null;  
         Object defaultValue = null;
@@ -192,11 +212,16 @@ public class ConfigurationMetadataImplTest extends TestCase {
         assertEquals("b", l.get(1));
         assertEquals("c", l.get(2));
     }
+   
     
     private ConfigurationMetadata buildMetadata(String filename) {
         InputStream is = getClass().getResourceAsStream("resources/" + filename);
         ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();
-        return builder.build(is);     
+        try {
+            return builder.build(is); 
+        } catch (IOException ex) {
+            return null;
+        }
     }
     
 

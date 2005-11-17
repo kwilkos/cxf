@@ -12,6 +12,7 @@
 	<xs:element name="string" type="tns:string"/>
 	<xs:element name="boolList" type="tns:boolList"/>
 	<xs:element name="address" type="tns:addressType"/>
+	<xs:element name="floatValue" type="xs:float"/>
 	<!--
         test configuration types
     -->

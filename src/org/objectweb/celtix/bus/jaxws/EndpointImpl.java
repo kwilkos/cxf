@@ -30,6 +30,7 @@ import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.injection.ResourceResolver;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.WebServiceContextImpl;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -40,10 +41,10 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
 
     private final Bus bus;
-    //private final Configuration configuration;
+    private final Configuration configuration;
     
     private final Object implementor;
-    private EndpointReferenceType reference;
+    private final EndpointReferenceType reference;
     private ServerBinding serverBinding;
     private boolean published;
     private List<Source> metadata;
@@ -54,9 +55,9 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
 
         bus = b;
         implementor = impl;
-        // configuration = new EndpointConfiguration(Bus, this);
-        try {
-            reference = EndpointReferenceUtils.getEndpointReference(bus.getWSDLManager(), implementor);
+        reference = EndpointReferenceUtils.getEndpointReference(bus.getWSDLManager(), implementor);
+        configuration = new EndpointConfiguration(bus, EndpointReferenceUtils.getServiceName(reference));
+        try {           
             if (null == bindingId) {
                 Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), reference);
                 ExtensibilityElement el = (ExtensibilityElement)port.getExtensibilityElements().get(0);
@@ -268,11 +269,19 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     }
 
 
+    /** 
+     * Obtain handler chain from configuration first. If none is specified, 
+     * default to the chain configured in the code, i.e. in annotations.
+     *
+     */
     private void configureHandlers() { 
-
+        
         LOG.fine("loading handler chain for endpoint"); 
         HandlerChainBuilder builder = new HandlerChainBuilder();
-        List<Handler> chain = builder.buildHandlerChainFor(implementor); 
+        List<Handler> chain = builder.buildHandlerChainFromConfiguration(configuration, "handlerChain");
+        if (null == chain) {
+            chain = builder.buildHandlerChainFor(implementor); 
+        }
         serverBinding.getBinding().setHandlerChain(chain); 
     }
 

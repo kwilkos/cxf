@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.configuration;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -29,6 +30,8 @@ import javax.xml.validation.Validator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
 
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -43,52 +46,27 @@ import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 
 public class TypeSchema {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationMetadataBuilder.class);
-    // private static Map<String, TypeSchema> map = new HashMap<String, TypeSchema>();
-
+    private static final Logger LOG = LogUtils.getL7dLogger(TypeSchema.class);
     private Schema schema;
     private Validator validator;
+    private final String namespaceURI;
     private String packageName;
-    private final Map<String, String> types;
-    private final Map<String, String> baseTypes;
-
+    private final Map<String, QName> elementDefinitions;
+    private final Map<String, String> typeDefinitions;
+    
     /**
      * prevent instantiation
      */
-    protected TypeSchema(String namespaceURI, String location) {
-
-        types = new HashMap<String, String>();
-        baseTypes = new HashMap<String, String>();
-
-        URI uri = null;
-        try {
-            uri = new URI(location);
-        } catch (URISyntaxException ex) {
-            Message msg = new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location);
-            throw new ConfigurationException(msg, ex);
-        }
-
-        InputStream is = null;
-
-        if (uri.isAbsolute()) {
-            String path = uri.getPath();
-            if (null == path) {
-                Message msg = new Message("FILE_OPEN_ERROR_EXC", LOG, location); 
-                throw new ConfigurationException(msg);
-            }  
-            try {
-                is = new FileInputStream(path);
-            } catch (IOException ex) {
-                Message msg = new Message("FILE_OPEN_ERROR_EXC", LOG, location);
-                throw new ConfigurationException(msg, ex);
-            }
-        } else {
-            is = getClass().getResourceAsStream(uri.getPath());
-            if (null == is) {
-                throw new ConfigurationException(new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location));
-            }      
-        }
+    protected TypeSchema(String nsuri, String location) {
         
+        namespaceURI = nsuri;
+        elementDefinitions = new HashMap<String, QName>();
+        typeDefinitions = new HashMap<String, String>();   
+        
+        LOG.fine("Creating type schema for namespace " + namespaceURI);
+
+        InputStream is = getSchemaInputStream(location);
+
         Document document = null;
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -96,8 +74,8 @@ public class TypeSchema {
             DocumentBuilder parser = factory.newDocumentBuilder();
             document = parser.parse(new InputSource(is));
         } catch (ParserConfigurationException ex) {
-            throw new ConfigurationException(new Message("PARSER_CONFIGURATION_ERROR_EXC", LOG,
-                                                         location), ex);
+            throw new ConfigurationException(new Message("PARSER_CONFIGURATION_ERROR_EXC", 
+                                                         LOG, location), ex);
         } catch (SAXException ex) {
             throw new ConfigurationException(new Message("PARSE_ERROR_EXC", LOG), ex);
         } catch (IOException ex) {
@@ -112,37 +90,49 @@ public class TypeSchema {
             }
         }
 
-        deserialize(document, namespaceURI);
+        deserialize(document);
 
         Source src = new DOMSource(document);
 
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        final LSResourceResolver oldResolver = factory.getResourceResolver();
+     
+        LSResourceResolver resolver = new LSResourceResolver() {
+
+            public LSInput resolveResource(String type, String nsuri,
+                                           String publicId, String systemId, String baseURI) {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("resolving resource type: " + type + "\n"
+                            + "                   namespaceURI:" + nsuri + "\n"
+                            + "                   publicId:" + publicId + "\n"
+                            + "                   systemId:" + systemId + "\n"
+                            + "                   baseURI:" + baseURI);
+                }
+                
+                if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type)) {
+                    LSInput lsi = new SchemaInput(type, nsuri, publicId, systemId, baseURI);
+                    lsi.setByteStream(getSchemaInputStream(systemId));  
+                    return lsi;
+                } 
+                
+                if (null != oldResolver) { 
+                    return oldResolver.resolveResource(type, nsuri, publicId, systemId, baseURI);
+                } else {
+                    return null;
+                }
+            }
+        };
+        
+        factory.setResourceResolver(resolver);        
         try {
             schema = factory.newSchema(src);
         } catch (SAXException ex) {
             throw new ConfigurationException(new Message("SCHEMA_CREATION_ERROR_EXC", LOG, location), ex);
         }
         document = null;
+        
+        LOG.fine("Created type schema for namespace " + namespaceURI);
     }
-
-    /*
-    public static TypeSchema get(String namespaceURI, String location) {
-        TypeSchema ts = map.get(namespaceURI);
-        if (null == ts) {
-            ts = new TypeSchema(namespaceURI, location);
-            map.put(namespaceURI, ts);
-        }
-        return ts;
-    }
-    
-    public static TypeSchema get(String namespaceURI) {
-        return map.get(namespaceURI);
-    }
-    
-    public static Collection<TypeSchema> getTypeSchemas() {
-        return map.values();
-    }
-    */
 
     public Validator getValidator() {
         if (null == validator) {
@@ -154,19 +144,32 @@ public class TypeSchema {
     }
 
     public Collection<String> getTypes() {
-        return types.keySet();
+        return typeDefinitions.keySet();
     }
-    
+
     public boolean hasType(String typeName) {
-        return types.containsKey(typeName);
+        return typeDefinitions.containsKey(typeName);
     }
     
-    public String getDeclaredType(String typeName) {
-        return types.get(typeName);
+    public Collection<String> getElements() {
+        return elementDefinitions.keySet();
     }
     
+    public boolean hasElement(String elementName) {
+        return elementDefinitions.containsKey(elementName);
+    }
+
+    public QName getDeclaredType(String typeName) {
+        return elementDefinitions.get(typeName);
+    }
+
     public String getXMLSchemaBaseType(String typeName) {
-        return baseTypes.get(typeName);
+        if (!hasType(typeName)) {
+            throw new ConfigurationException(new Message("TYPE_NOT_DEFINED_IN_NAMESPACE_EXC", LOG,
+                                                         typeName, namespaceURI));
+                                                      
+        }
+        return typeDefinitions.get(typeName);
     }
 
     public String getPackageName() {
@@ -176,17 +179,24 @@ public class TypeSchema {
     public Schema getSchema() {
         return schema;
     }
-    
+
     public Object unmarshalDefaultValue(ConfigurationItemMetadata item, Element data) {
         try {
             return unmarshal(item.getType(), data);
         } catch (JAXBException ex) {
             Message msg = new Message("DEFAULT_VALUE_UNMARSHAL_ERROR_EXC", LOG, item.getName());
-            throw new ConfigurationException(msg, ex); 
+            throw new ConfigurationException(msg, ex);
         }
     }
-     
+
     public Object unmarshal(QName type, Element data) throws JAXBException {
+        
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("unmarshalling: element namespaceURI: " + data.getNamespaceURI() + "\n" 
+                     + "                       localName: " + data.getLocalName() + "\n"
+                     + "             type: " + type  + "\n"
+                     + "             type schema package name: " + packageName);            
+        }
         JAXBContext context = null;
         Object obj = null;
 
@@ -196,9 +206,10 @@ public class TypeSchema {
         obj = u.unmarshal(data);
         if (obj instanceof JAXBElement<?>) {
             JAXBElement<?> el = (JAXBElement<?>)obj;
-            if (el.getName().equals(type)) {
-                obj = el.getValue();
-            }
+            obj = el.getValue();
+            /*
+             * if (el.getName().equals(type)) { obj = el.getValue(); }
+             */
         }
 
         if (null != obj && LOG.isLoggable(Level.FINE)) {
@@ -208,90 +219,103 @@ public class TypeSchema {
         return obj;
     }
 
-    private void deserialize(Document document, String namespaceURI) {
-        deseralizePackageName(document, namespaceURI);
+    private void deserialize(Document document) {
+        deseralizePackageName(document);
         deserializeTypes(document);
+        deserializeElements(document);
+    }
+
+    private void deserializeElements(Document document) {
+        Element root = document.getDocumentElement();
+        for (Node nd = root.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
+            if (Node.ELEMENT_NODE == nd.getNodeType() && "element".equals(nd.getLocalName())) {
+                String elementName = ((Element)nd).getAttribute("name");
+
+                QName type = ConfigurationMetadataUtils
+                    .elementAttributeToQName(document, (Element)nd, "type");
+
+                elementDefinitions.put(elementName, type);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Added type " + type + "  for key: " + elementName);
+                }
+            }
+        }
     }
 
     private void deserializeTypes(Document document) {
         Element root = document.getDocumentElement();
         for (Node nd = root.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
             if (Node.ELEMENT_NODE == nd.getNodeType()
-                && "element".equals(nd.getLocalName())) {
-                QName name = ConfigurationMetadataUtils.elementAttributeToQName(
-                    document, (Element)nd, "name");
-                String localName = name.getLocalPart();
-                /*
-                if (!isJavaIdentifier(localName)) {
-                    throw new ConfigurationException(new Message("ELEMENT_NAME_NOT_AN_IDENTIFIER_EXC", 
-                                                                 LOG, localName));
-                } 
-                */                                                               
-                QName type = ConfigurationMetadataUtils.elementAttributeToQName(
-                    document, (Element)nd, "type");                    
-                String localType = type.getLocalPart();
-                
-                /*
-                if (!isJavaIdentifier(localType)) {
-                    throw new ConfigurationException(new Message("ELEMENT_TYPE_NOT_AN_IDENTIFIER_EXC", 
-                                                                 LOG, localType));
+                && ("simpleType".equals(nd.getLocalName()) || ("complexType".equals(nd.getLocalName())))) {
+
+                String typeName = ((Element)nd).getAttribute("name");
+
+                String baseType = null;
+                if ("simpleType".equals(nd.getLocalName())) {
+                    baseType = getBaseType(document, typeName);
                 }
-                */
-                
-                types.put(localName, localType);
-                
-                String baseType = getBaseType(document, type);
-                if (null != baseType) {
-                    baseTypes.put(localName, baseType);
+
+                if (!typeDefinitions.containsKey(typeName)) {
+                    typeDefinitions.put(typeName, baseType);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Added base type " + baseType + "  for key: " + typeName);
+                    }
                 }
+
             }
         }
     }
-    
-    private String getBaseType(Document document, QName type) {
-        QName currentType = type;
+
+    private String getBaseType(Document document, String typeName) {
+        String currentType = typeName;
         QName baseType;
         do {
             baseType = getBaseTypeInternal(document, currentType);
             if (null == baseType) {
+                LOG.severe(new Message("UNDEFINED_SIMPLE_TYPE_MSG", LOG, typeName).toString());
                 return null;
             } else if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(baseType.getNamespaceURI())) {
                 if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Base type for " + type + ": " + baseType);
+                    LOG.fine("Base type for " + typeName + ": " + baseType);
                 }
-                return baseType.getLocalPart();                
-            }  
-            currentType = baseType;
+                return baseType.getLocalPart();
+            } else if (!namespaceURI.equals(baseType.getNamespaceURI())) {
+                LOG.severe(new Message("SIMPLE_TYPE_DEFINED_IN_OTHER_NAMESPACE_MSG", LOG, typeName,
+                                       namespaceURI).toString());
+                return null;
+            }
+            currentType = baseType.getLocalPart();
         } while (true);
     }
-    
-    private QName getBaseTypeInternal(Document document, QName type) {
+
+    private QName getBaseTypeInternal(Document document, String type) {
         Element root = document.getDocumentElement();
         Element simpleTypeElement = null;
+
         for (Node nd = root.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
-            if (Node.ELEMENT_NODE == nd.getNodeType()
-                && "simpleType".equals(nd.getLocalName())
-                && type.getLocalPart().equals(((Element)nd).getAttribute("name"))) { 
-                simpleTypeElement = (Element)nd;                
+            if (Node.ELEMENT_NODE == nd.getNodeType() && "simpleType".equals(nd.getLocalName())
+                && ((Element)nd).getAttribute("name").equals(type)) {
+                simpleTypeElement = (Element)nd;
             }
         }
         if (null == simpleTypeElement) {
             return null;
         }
-        
+
         for (Node nd = simpleTypeElement.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
-            if (Node.ELEMENT_NODE == nd.getNodeType()
-                && "restriction".equals(nd.getLocalName())) { 
-                // TODO restriction element can have base attribute OR simpleType
-                // child element. Currently we only handle the base attribute. 
-                
+            if (Node.ELEMENT_NODE == nd.getNodeType() && "restriction".equals(nd.getLocalName())) {
+                // TODO restriction element can have base attribute OR
+                // simpleType
+                // child element. Currently we only handle the base attribute
+                // case.
+
                 return ConfigurationMetadataUtils.elementAttributeToQName(document, (Element)nd, "base");
             }
-        }       
-        return  null;
+        }
+        return null;
     }
 
-    private void deseralizePackageName(Document document, String namespaceURI) {
+    private void deseralizePackageName(Document document) {
         Element root = document.getDocumentElement();
         Element annotationElement = null;
         for (Node nd = root.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
@@ -339,9 +363,45 @@ public class TypeSchema {
         }
 
     }
+    
+    private InputStream getSchemaInputStream(String location) {
+        URI uri = null;
+        try {
+            uri = new URI(location);
+        } catch (URISyntaxException ex) {
+            Message msg = new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location);
+            throw new ConfigurationException(msg, ex);
+        }
+
+        InputStream is = null;
+
+        if (uri.isAbsolute()) {
+            String path = uri.getPath();
+            if (null == path) {
+                Message msg = new Message("FILE_OPEN_ERROR_EXC", LOG, location);
+                throw new ConfigurationException(msg);
+            }
+            try {
+                is = new FileInputStream(path);
+            } catch (IOException ex) {
+                Message msg = new Message("FILE_OPEN_ERROR_EXC", LOG, location);
+                throw new ConfigurationException(msg, ex);
+            }
+        } else {            
+            is = getClass().getResourceAsStream(uri.getPath());
+            if (null == is) {
+                is = ClassLoader.getSystemResourceAsStream(location);
+            }
+            if (null == is) {
+                throw new ConfigurationException(new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location));
+            }
+            
+        }
+        return is;
+    }
 
     // ErrorHandler interface
-    
+
     final class TypeSchemaErrorHandler implements ErrorHandler {
 
         public void error(SAXParseException exception) throws SAXParseException {
@@ -355,5 +415,83 @@ public class TypeSchema {
         public void warning(SAXParseException exception) throws SAXParseException {
             throw exception;
         }
+    }
+    
+    final class SchemaInput implements LSInput {
+        String type;
+        String namespaceURI;
+        String publicId;
+        String systemId;
+        String baseURI;
+        InputStream is;
+        
+        SchemaInput(String t, String nsuri, String pid, String sid, String buri) {
+            type = t;
+            namespaceURI = nsuri;
+            publicId = pid;
+            systemId = sid;
+            baseURI = buri;
+        }
+        
+        public String getBaseURI() {
+            return baseURI;
+        }
+
+        public InputStream getByteStream() {
+            return is;
+        }
+
+        public boolean getCertifiedText() {
+            return false;
+        }
+
+        public Reader getCharacterStream() {
+            return null;
+        }
+
+        public String getEncoding() {
+            return null;
+        }
+
+        public String getPublicId() {
+            return publicId;
+        }
+
+        public String getStringData() {
+            return null;
+        }
+
+        public String getSystemId() {
+            return systemId;
+        }
+
+        public void setBaseURI(String buri) {
+            baseURI = buri;
+        }
+
+        public void setByteStream(InputStream byteStream) {
+            is = byteStream;
+        }
+
+        public void setCertifiedText(boolean certifiedText) {
+        }
+
+        public void setCharacterStream(Reader characterStream) {
+        }
+
+        public void setEncoding(String encoding) {
+        }
+
+        public void setPublicId(String pid) {
+            publicId = pid;
+        }
+
+        public void setStringData(String stringData) {
+        }
+
+        public void setSystemId(String sid) {
+            systemId = sid;
+        }
+            
     }
 }

@@ -16,7 +16,12 @@ import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
+
+import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
+import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerType;
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
 
 public class HandlerChainBuilder {
 
@@ -47,6 +52,32 @@ public class HandlerChainBuilder {
         sortedHandlers.addAll(logicalHandlers);
         sortedHandlers.addAll(protocolHandlers);
         return sortedHandlers;
+    }
+    
+    public List<Handler> buildHandlerChainFromConfiguration(Configuration configuration, String key) {
+        HandlerChainType hc = (HandlerChainType)configuration.getObject(key);
+        if (null == hc) {
+            return null;
+        }
+        List<Handler> handlerChain = new ArrayList<Handler>();
+        for (HandlerType h : hc.getHandler()) {
+            String classname = h.getClassName();
+            try {
+                Class<? extends Handler> clazz = Class.forName(classname).asSubclass(Handler.class);
+                Handler handler = clazz.newInstance();
+
+                // use init parameters to configure handler
+
+                handlerChain.add(handler);
+            } catch (ClassNotFoundException e) {
+                throw new WebServiceException(new Message("HANDLER_INSTANTIATION_EXC", LOG).toString(), e);
+            } catch (InstantiationException e) {
+                throw new WebServiceException(new Message("HANDLER_INSTANTIATION_EXC", LOG).toString(), e);
+            } catch (IllegalAccessException e) {
+                throw new WebServiceException(new Message("HANDLER_INSTANTIATION_EXC", LOG).toString(), e);
+            }
+        }
+        return handlerChain;
     }
 
     public List<Handler> buildHandlerChainFor(Object obj) { 

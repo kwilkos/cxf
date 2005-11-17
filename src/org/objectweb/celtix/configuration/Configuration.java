@@ -2,23 +2,22 @@ package org.objectweb.celtix.configuration;
 
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
 public interface Configuration {
    
     /** 
-     * Returns the unique identifier for this configuration instance.
+     * Returns the identifier for this configuration instance (unique within all instances
+     * configuration instances for the same metadata model).
      * 
-     * @return the identifier for this configuration.
+     * @return the name for this configuration.
      */
-    QName getName();
+    Object getId();
     
     /** 
      * Returns the <code>Configurator</code> associated with this <code>Configuration</code>.
      *
      * @return the configuration's configurator object.
      */
-    Configurator getConfigurator();
+    // Configurator getConfigurator();
     
     /**
      * Returns the configuration metadata model for this <code>Configuration</code>.
@@ -33,14 +32,33 @@ public interface Configuration {
      * 
      * @param providers the configuration providers to use for this configuration.
      */
-    void setProviders(ConfigurationProvider[] providers);
+    void setProviders(List<ConfigurationProvider> providers);
     
     /**
      * Returns the list of configuration providers for this configuration.
      * 
      * @return the list of configuration providers for this configuration.
      */
-    ConfigurationProvider[] getProviders();
+    List<ConfigurationProvider> getProviders();
+    
+    /** 
+     * Returns the parent configuration of this configuration, or null if there is no 
+     * parent.
+     * 
+     * @return the parent configuration.
+     */
+    Configuration getParent();
+    
+    /**
+     * Returns the child configuration of the type specified in the namespaceURI and with the 
+     * specified identifier if there is one, otherwise null.
+     * 
+     * @param id the identifier of the child configuration.
+     * 
+     * @return the configuration metadata model.
+     * 
+     */
+    Configuration getChild(String  namespaceURI, Object id);
     
     /**
      * Returns the object holding the value for the configuration item with the specified name. 
@@ -66,13 +84,22 @@ public interface Configuration {
      */
     boolean getBoolean(String name);
     
-    /** Convenience method to extract the value of a int type configuration item from
+    /** Convenience method to extract the value of a short type configuration item from
      * its holder object.
      * 
      * @param name the name of the configuration item.
      * @return the value of the configuration item.
      */
-    int getInteger(String name);
+    short getShort(String name);
+    
+    /** Convenience method to extract the value of an int type configuration item from
+     * its holder object.
+     * 
+     * @param name the name of the configuration item.
+     * @return the value of the configuration item.
+     */
+    int getInt(String name);
+  
     
     /** Convenience method to extract the value of a long type configuration item from
      * its holder object.
@@ -81,6 +108,15 @@ public interface Configuration {
      * @return the value of the configuration item.
      */
     long getLong(String name);
+    
+    /** Convenience method to extract the value of a float type configuration item from
+     * its holder object.
+     * 
+     * @param name the name of the configuration item.
+     * @return the value of the configuration item.
+     */
+    float getFloat(String name);
+    
     
     /** Convenience method to extract the value of a double type configuration item from
      * its holder object.

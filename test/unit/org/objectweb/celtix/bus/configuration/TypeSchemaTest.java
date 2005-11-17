@@ -3,11 +3,15 @@ package org.objectweb.celtix.bus.configuration;
 import java.net.URL;
 import java.util.Collection;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
+
 import org.xml.sax.SAXParseException;
 
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.bus.configuration.TypeSchema.TypeSchemaErrorHandler;
+import org.objectweb.celtix.configuration.ConfigurationException;
 
 public class TypeSchemaTest extends TestCase {
     
@@ -49,39 +53,126 @@ public class TypeSchemaTest extends TestCase {
                             "file:" + url.getFile());
         assertNotNull(ts); 
     }
+
+    public void testTypesOnly() {
+        TypeSchema ts = tsh.get("http://celtix.objectweb.org/configuration/test/types-types",
+            "resources/test-types-types.xsd");
+        
+        assertEquals(7, ts.getTypes().size()); 
+        assertEquals(0, ts.getElements().size());
+        
+        assertTrue(ts.hasType("bool"));
+        assertEquals("boolean", ts.getXMLSchemaBaseType("bool"));
+        
+        assertTrue(ts.hasType("int"));
+        assertEquals("integer", ts.getXMLSchemaBaseType("int"));
+        
+        assertTrue(ts.hasType("longType"));
+        assertEquals("long", ts.getXMLSchemaBaseType("longType"));
+        
+        assertTrue(ts.hasType("longBaseType"));
+        assertEquals("long", ts.getXMLSchemaBaseType("longBaseType"));
+        
+        assertTrue(ts.hasType("string"));
+        assertEquals("string", ts.getXMLSchemaBaseType("string"));
+        
+        assertTrue(ts.hasType("boolList"));        
+        assertNull(ts.getXMLSchemaBaseType("boolList"));
+        
+        assertTrue(ts.hasType("addressType"));
+        assertNull(ts.getXMLSchemaBaseType("addressType"));  
+        
+        assertNotNull(ts.getSchema());
+        assertNotNull(ts.getValidator());
+    }
+
+    public void testElementsOnly() {
+        TypeSchema ts = tsh.get("http://celtix.objectweb.org/configuration/test/types-elements",
+            "resources/test-types-elements.xsd");
+        
+        assertEquals(0, ts.getTypes().size());
+        assertEquals(7, ts.getElements().size()); 
+        
+        String namespace = "http://celtix.objectweb.org/configuration/test/types-types";
+        assertTrue(ts.hasElement("bool"));
+        assertEquals(new QName(namespace, "bool"), ts.getDeclaredType("bool"));
+        assertTrue(!ts.hasType("bool"));
+        try {
+            ts.getXMLSchemaBaseType("bool");
+        } catch (ConfigurationException ex) {
+            assertEquals("TYPE_NOT_DEFINED_IN_NAMESPACE_EXC", ex.getCode());
+        }
+        
+        assertTrue(ts.hasElement("int"));
+        assertEquals(new QName(namespace, "int"), ts.getDeclaredType("int"));
+        
+        assertTrue(ts.hasElement("long"));
+        assertEquals(new QName(namespace, "longType"), ts.getDeclaredType("long"));
+        
+        assertTrue(ts.hasElement("string"));
+        assertEquals(new QName(namespace, "string"), ts.getDeclaredType("string"));
+        
+        assertTrue(ts.hasElement("boolList"));        
+        assertEquals(new QName(namespace, "boolList"), ts.getDeclaredType("boolList"));
+        
+        assertTrue(ts.hasElement("address"));
+        assertEquals(new QName(namespace, "addressType"), ts.getDeclaredType("address"));
+        
+        assertTrue(ts.hasElement("floatValue"));
+        assertEquals(new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "float"), 
+                     ts.getDeclaredType("floatValue"));        
+        
+        assertNotNull(ts.getSchema());
+        assertNotNull(ts.getValidator());
+        
+    }
     
-    public void testContent() {
+    public void testElementsAndTypes() {
+        String namespace = "http://celtix.objectweb.org/configuration/test/types";
         TypeSchema ts = tsh.get("http://celtix.objectweb.org/configuration/test/types",
                                        "resources/test-types.xsd");
         assertNotNull(ts);
         
         assertEquals("org.objectweb.celtix.configuration.test.types", ts.getPackageName());
-        assertEquals(6, ts.getTypes().size()); 
+        assertEquals(7, ts.getTypes().size());
+        assertEquals(7, ts.getElements().size()); 
         
+        assertTrue(ts.hasElement("bool"));        
+        assertEquals(new QName(namespace, "bool"), ts.getDeclaredType("bool"));
         assertTrue(ts.hasType("bool"));
-        assertEquals("bool", ts.getDeclaredType("bool"));
         assertEquals("boolean", ts.getXMLSchemaBaseType("bool"));
         
+        assertTrue(ts.hasElement("int"));
+        assertEquals(new QName(namespace, "int"), ts.getDeclaredType("int"));
         assertTrue(ts.hasType("int"));
-        assertEquals("int", ts.getDeclaredType("int"));
         assertEquals("integer", ts.getXMLSchemaBaseType("int"));
         
-        assertTrue(ts.hasType("long"));
-        assertEquals("longType", ts.getDeclaredType("long"));
-        assertEquals("long", ts.getXMLSchemaBaseType("long"));
+        assertTrue(ts.hasElement("long"));
+        assertEquals(new QName(namespace, "longType"), ts.getDeclaredType("long"));
+        assertTrue(ts.hasType("longType"));
+        assertEquals("long", ts.getXMLSchemaBaseType("longType"));
+        assertTrue(ts.hasType("longBaseType"));
+        assertEquals("long", ts.getXMLSchemaBaseType("longBaseType"));
         
+        assertTrue(ts.hasElement("string"));
+        assertEquals(new QName(namespace, "string"), ts.getDeclaredType("string"));
         assertTrue(ts.hasType("string"));
-        assertEquals("string", ts.getDeclaredType("string"));
         assertEquals("string", ts.getXMLSchemaBaseType("string"));
         
-        assertTrue(ts.hasType("boolList"));        
-        assertEquals("boolList", ts.getDeclaredType("boolList"));
+        assertTrue(ts.hasElement("boolList"));        
+        assertEquals(new QName(namespace, "boolList"), ts.getDeclaredType("boolList"));
+        assertTrue(ts.hasElement("boolList"));
         assertNull(ts.getXMLSchemaBaseType("boolList"));
         
-        assertTrue(ts.hasType("address"));
-        assertTrue(!ts.hasType("addressType"));
-        assertEquals("addressType", ts.getDeclaredType("address"));
-        assertNull(ts.getXMLSchemaBaseType("address"));
+        assertTrue(ts.hasElement("address"));
+        assertEquals(new QName(namespace, "addressType"), ts.getDeclaredType("address"));
+        assertTrue(ts.hasType("addressType"));
+        assertNull(ts.getXMLSchemaBaseType("addressType"));
+        
+        assertTrue(ts.hasElement("floatValue"));
+        assertEquals(new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "float"), 
+                     ts.getDeclaredType("floatValue"));
+        assertTrue(!ts.hasType("float"));
         
         assertNotNull(ts.getSchema());
         assertNotNull(ts.getValidator());

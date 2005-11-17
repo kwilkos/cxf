@@ -63,11 +63,11 @@ public class ConfigurationProviderImplTest extends TestCase {
         System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
         */
         Configuration top = new TopConfiguration("top");
-        ConfigurationProvider[] providers = top.getProviders();
-        assertEquals(1, providers.length);
-        assertTrue(providers[0] instanceof ConfigurationProviderImpl); 
+        List<ConfigurationProvider> providers = top.getProviders();
+        assertEquals(1, providers.size());
+        assertTrue(providers.get(0) instanceof ConfigurationProviderImpl); 
         
-        ConfigurationProviderImpl cpi = (ConfigurationProviderImpl)providers[0];       
+        ConfigurationProviderImpl cpi = (ConfigurationProviderImpl)providers.get(0);       
         assertNull(cpi.getBean());   
     }
     
@@ -100,16 +100,19 @@ public class ConfigurationProviderImplTest extends TestCase {
     }
     
     public void testNoSuchBean() {
-        
+
         URL url = ConfigurationProviderImplTest.class.getResource("resources/top1.xml");
         System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
-          
-        try {
-            new TopConfiguration("top2");
-            fail("Expected ConfigurationException not thrown.");
-        } catch (ConfigurationException ex) {
-            assertEquals("NO_SUCH_BEAN_EXC", ex.getCode());
-        }
+
+        Configuration top = new TopConfiguration("top2");
+
+        List<ConfigurationProvider> providers = top.getProviders();
+        assertEquals(1, providers.size());
+        
+        ConfigurationProviderImpl cpi = (ConfigurationProviderImpl)providers.get(0);
+        assertNull(cpi.getBean());
+        
+
     }
     
     public void testDefaultBeanCreation() throws MalformedURLException {
@@ -119,9 +122,9 @@ public class ConfigurationProviderImplTest extends TestCase {
         System.setProperty(ConfigurationProviderImpl.CONFIG_DIR_PROPERTY_NAME, url.toExternalForm());
             
         Configuration top = new TopConfiguration("top1");
-        ConfigurationProvider[] providers = top.getProviders();
-        assertEquals(1, providers.length);
-        assertTrue(providers[0] instanceof ConfigurationProviderImpl); 
+        List<ConfigurationProvider> providers = top.getProviders();
+        assertEquals(1, providers.size());
+        assertTrue(providers.get(0) instanceof ConfigurationProviderImpl); 
     }
     
     public void testBeanCreationUsingValueAsText() throws MalformedURLException {
@@ -143,11 +146,11 @@ public class ConfigurationProviderImplTest extends TestCase {
             fail();
         }
         
-        ConfigurationProvider[] providers = top.getProviders();
-        assertEquals(1, providers.length);
-        assertTrue(providers[0] instanceof ConfigurationProviderImpl); 
+        List<ConfigurationProvider> providers = top.getProviders();
+        assertEquals(1, providers.size());
+        assertTrue(providers.get(0) instanceof ConfigurationProviderImpl); 
         
-        ConfigurationProviderImpl cpi = (ConfigurationProviderImpl)providers[0];
+        ConfigurationProviderImpl cpi = (ConfigurationProviderImpl)providers.get(0);
         Object o;
         
         o = cpi.getObject("booleanItem");
@@ -193,11 +196,11 @@ public class ConfigurationProviderImplTest extends TestCase {
             fail();
         }
         
-        ConfigurationProvider[] providers = top.getProviders();
-        assertEquals(1, providers.length);
-        assertTrue(providers[0] instanceof ConfigurationProviderImpl); 
+        List<ConfigurationProvider> providers = top.getProviders();
+        assertEquals(1, providers.size());
+        assertTrue(providers.get(0) instanceof ConfigurationProviderImpl); 
         
-        ConfigurationProviderImpl cpi = (ConfigurationProviderImpl)providers[0];
+        ConfigurationProviderImpl cpi = (ConfigurationProviderImpl)providers.get(0);
         Object o;
         
         o = cpi.getObject("booleanItem");
@@ -238,15 +241,15 @@ public class ConfigurationProviderImplTest extends TestCase {
         Configuration top = new TopConfiguration("top2");
         Configuration leaf = new LeafConfiguration(top, "leaf");
         
-        ConfigurationProvider[] providers = leaf.getProviders();
-        assertEquals(1, providers.length);
+        List<ConfigurationProvider> providers = leaf.getProviders();
+        assertEquals(1, providers.size());
         
         
-        Object o = providers[0].getObject("stringLeafItem");
+        Object o = providers.get(0).getObject("stringLeafItem");
         assertTrue(o instanceof String);
         assertEquals("Don't fear the reaper", (String)o);
         
-        o = providers[0].getObject("longLeafItemNoDefault");
+        o = providers.get(0).getObject("longLeafItemNoDefault");
         assertEquals(99, ((Long)o).longValue()); 
     }
 }

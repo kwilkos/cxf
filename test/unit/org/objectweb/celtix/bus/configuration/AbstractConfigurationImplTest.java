@@ -1,13 +1,19 @@
 package org.objectweb.celtix.bus.configuration;
 
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
-
-import javax.xml.namespace.QName;
+import java.util.StringTokenizer;
 
 import junit.framework.TestCase;
 
+import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
@@ -23,15 +29,70 @@ public class AbstractConfigurationImplTest extends TestCase {
         top = new TopConfiguration("top");
     }
     
+    public void testDefaultConfigurationProviderFactory() throws NoSuchMethodException, IOException  {
+        Method m = DefaultConfigurationProviderFactory.class
+            .getDeclaredMethod("getDefaultProviderClassName");
+        DefaultConfigurationProviderFactory factory = 
+            EasyMock.createMock(DefaultConfigurationProviderFactory.class, new Method[] {m});
+        factory.getDefaultProviderClassName();
+        EasyMock.expectLastCall().andReturn("org.objectweb.celtix.some.Unknown");
+        EasyMock.replay(factory);
+        try {
+            factory.createDefaultProvider(null);
+            fail("Expected ConfigurationException not thrown.");
+        } catch (ConfigurationException ex) {
+            assertEquals("DEFAULT_PROVIDER_INSTANTIATION_EXC", ex.getCode()); 
+        }
+        
+        String key = "org.objectweb.celtix.bus.configuration.ConfigurationProvider";
+        String className = "org.objectweb.celtix.bus.configuration.TestConfigurationProvider";
+        
+        String cp = System.getProperty("java.class.path");
+        StringTokenizer st = new StringTokenizer(cp, File.pathSeparator);
+        File classesDir = null;
+        while (st.hasMoreTokens()) {
+            String token = st.nextToken();
+            if (token.endsWith("classes-tests")) {
+                classesDir = new File(token);
+                break;
+            }
+        }
+        
+        File mDir = new File(classesDir.getParentFile().getParentFile(), "META-INF");
+        boolean mDirCreated = mDir.mkdir();
+        File sDir = new File(mDir, "services");
+        boolean sDirCreated = sDir.mkdir();
+        File f = new File(sDir, key);
+
+        PrintWriter pw = new PrintWriter(new FileWriter(f));
+        pw.println(className);
+        pw.close();
+        
+        factory = DefaultConfigurationProviderFactory.getInstance();
+        try {
+            assertNotNull(factory.createDefaultProvider(null));
+        } catch (Exception ex) {
+            fail();
+        } finally {
+            f.delete();
+            if (sDirCreated) {
+                sDir.delete();
+            }
+            if (mDirCreated) {
+                mDir.delete();
+            }
+        }     
+    }
+    
     public void testConstruction() {
         assertNotNull(top);        
         ConfigurationMetadata model = top.getModel();
         assertNotNull(model);
-        assertEquals(12, model.getDefinitions().size()); 
+        assertEquals(18, model.getDefinitions().size()); 
     }
     
     public void testConfigurators() {
-        Configuration topConfiguration = new TopConfiguration("TOP");
+        AbstractConfigurationImpl topConfiguration = new TopConfiguration("TOP");
         Configurator topConfigurator = topConfiguration.getConfigurator();
         assertNotNull(topConfigurator);
         assertTrue(topConfiguration == topConfigurator.getConfiguration());
@@ -39,7 +100,7 @@ public class AbstractConfigurationImplTest extends TestCase {
         Collection<Configurator> topClients = topConfigurator.getClients();
         assertEquals(0, topClients.size());    
         
-        Configuration leafConfiguration = new LeafConfiguration(topConfiguration, "LEAF");
+        AbstractConfigurationImpl leafConfiguration = new LeafConfiguration(topConfiguration, "LEAF");
         assertEquals(1, topClients.size());   
         Configurator leafConfigurator = leafConfiguration.getConfigurator();
         assertNotNull(leafConfigurator);
@@ -50,13 +111,11 @@ public class AbstractConfigurationImplTest extends TestCase {
         Collection<Configurator> leafClients = leafConfigurator.getClients();
         assertEquals(0, leafClients.size());   
         
-        QName cidTop = topConfiguration.getName();
-        assertEquals("http://celtix.objectweb.org/configuration/test/top", cidTop.getNamespaceURI());
-        assertEquals("TOP", cidTop.getLocalPart());
+        Object cidTop = topConfiguration.getId();
+        assertEquals("TOP", cidTop.toString());
         
-        QName cidLeaf = leafConfiguration.getName();
-        assertEquals("http://celtix.objectweb.org/configuration/test/leaf", cidLeaf.getNamespaceURI());
-        assertEquals("LEAF", cidLeaf.getLocalPart());
+        Object cidLeaf = leafConfiguration.getId();
+        assertEquals("LEAF", cidLeaf.toString());
         
         assertTrue(cidTop.equals(cidTop));
         assertTrue(!cidTop.equals(cidLeaf));
@@ -89,15 +148,27 @@ public class AbstractConfigurationImplTest extends TestCase {
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
-        assertNull(top.getObject("integerItemNoDefault"));
+        assertNull(top.getObject("shortItemNoDefault"));
         try {
-            top.getInteger("integerItemNoDefault");
+            top.getShort("shortItemNoDefault");
+        } catch (ConfigurationException ex) {
+            assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
+        }
+        assertNull(top.getObject("intItemNoDefault"));
+        try {
+            top.getInt("integerItemNoDefault");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
         assertNull(top.getObject("longItemNoDefault"));
         try {
             top.getLong("longItemNoDefault");
+        } catch (ConfigurationException ex) {
+            assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
+        }
+        assertNull(top.getObject("floatItemNoDefault"));
+        try {
+            top.getFloat("floatItemNoDefault");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
@@ -117,17 +188,25 @@ public class AbstractConfigurationImplTest extends TestCase {
     }
     
     public void testDefaults() {
+        Object value = null;
         assertNotNull(top.getObject("booleanItem"));
         assertTrue(top.getBoolean("booleanItem"));
-        assertNotNull(top.getObject("integerItem"));
-        assertEquals(44959, top.getInteger("integerItem"));
+        assertNotNull(top.getObject("shortItem"));
+        assertEquals(3, top.getShort("shortItem"));
+        assertNotNull(top.getObject("intItem"));
+        assertEquals(44959, top.getInt("intItem"));
+        value = top.getObject("integerItem");
+        assertNotNull(value);
+        assertEquals(44959, ((BigInteger)value).intValue());
         assertNotNull(top.getObject("longItem"));
         assertEquals(-99, top.getLong("longItem"));
+        assertNotNull(top.getObject("floatItem"));
+        assertTrue(Math.abs(1234.5678 - top.getFloat("floatItem")) < 0.5E-3);
         assertNotNull(top.getObject("doubleItem"));
         assertTrue(Math.abs(1234.5678 - top.getDouble("doubleItem")) < 0.5E-5);
         assertNotNull(top.getObject("stringItem"));
         assertEquals("\"Hello World!\"", top.getString("stringItem"));
-        Object value = top.getObject("stringListItem");
+        value = top.getObject("stringListItem");
         assertNotNull(value);
         List<String> l = top.getStringList("stringListItem");
         assertNotNull(l);
@@ -144,12 +223,17 @@ public class AbstractConfigurationImplTest extends TestCase {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.getBoolean("integerItem");
+            top.getBoolean("shortItem");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.getInteger("longItem");
+            top.getShort("intItem");
+        } catch (ConfigurationException ex) {
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
+        }
+        try {
+            top.getInt("integerItem");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }

@@ -41,6 +41,26 @@ public final class EndpointReferenceUtils {
     private EndpointReferenceUtils() {
         // Utility class - never constructed
     }
+    
+    /**
+     * Gets the service name of the provided endpoint reference. 
+     * @param ref the endpoint reference.
+     * @return the service name.
+     */
+    public static QName getServiceName(EndpointReferenceType ref) {
+        Map<QName, String> attribMap = ref.getMetadata().getOtherAttributes();
+        return QName.valueOf(attribMap.get(SERVICE_NAME));
+    }
+    
+    /**
+     * Gets the port name of the provided endpoint reference.
+     * @param ref the endpoint reference.
+     * @return the port name.
+     */
+    public static String getPortName(EndpointReferenceType ref) {
+        Map<QName, String> attribMap = ref.getMetadata().getOtherAttributes();
+        return attribMap.get(PORT_NAME);
+    }
 
     /**
      * Gets the WSDL definition for the provided endpoint reference.

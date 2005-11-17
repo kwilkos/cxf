@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.bus.configuration.TypeSchemaHelper;
 import org.objectweb.celtix.bus.jaxb.JAXBUtils;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -75,8 +74,7 @@ public class CeltixXmlBeanFactory extends DefaultListableBeanFactory {
 
         for (ConfigurationItemMetadata definition : c.getModel().getDefinitions()) {
             QName qn = definition.getType();
-            String className = BeanGenerator.getType(new TypeSchemaHelper().get(qn.getNamespaceURI()),
-                                                     qn.getLocalPart(), true);
+            String className = BeanGenerator.getClassName(qn, true);
 
             Class cl = JAXBUtils.holderClass(className);
             if (null != cl) {

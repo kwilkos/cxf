@@ -77,7 +77,7 @@
     	
 
         <pathconvert property="path.id.string" refid="${command.classpath.refid}"/>
-        <echo file="run${script.extension}" append="false" message="${set.env.command}CP=${path.id.string}${line.separator}java${java.extension} -Djava.util.logging.config.file=${basedir}/build/classes-tests/unit/logging.properties -Djavax.xml.ws.EndpointFactory=org.objectweb.celtix.bus.EndpointFactoryImpl -Djavax.xml.ws.ServiceFactory=org.objectweb.celtix.bus.ServiceFactoryImpl -classpath &quot;${classpath.flag}&quot; ${all.parameters.flag}${line.separator}"/>
+        <echo file="run${script.extension}" append="false" message="${set.env.command}CP=${path.id.string}${line.separator}java${java.extension} -Djava.util.logging.config.file=${basedir}/build/classes-tests/unit/logging.properties -Djavax.xml.ws.spi.Provider=org.objectweb.celtix.bus.jaxws.spi.ProviderImpl -classpath &quot;${classpath.flag}&quot; ${all.parameters.flag}${line.separator}"/>
         <chmod file="run${script.extension}" perm="ugo+x"/>
     </target>
 
