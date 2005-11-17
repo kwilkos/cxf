@@ -144,10 +144,15 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         return "";
     }
 
-    public QName getWebResult() {
-        if (method.getReturnType().equals(void.class)) {
-            return null;
+    public WebResult getWebResult() {
+        if (null != webResultAnnotation) {
+            return webResultAnnotation;
         }
+        
+        return null;
+    }
+
+    public QName getWebResultQName() {
         if (null != webResultAnnotation) {
             if (getSOAPStyle() == Style.DOCUMENT) {
                 return new QName(webResultAnnotation.targetNamespace(),
@@ -158,7 +163,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         }
         return SOAPConstants.EMPTY_QNAME;
     }
-
+    
     public WebParam getWebParam(int index) {
         if (null != paramAnnotations && index < paramAnnotations.length) {
             for (Annotation annotation : paramAnnotations[index]) {
@@ -232,7 +237,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         }
 
         if (isOutBound && getWebResult() != null) {
-            setWrappedPart(getWebResult().getLocalPart(), wrapperObj, objCtx.getReturn());
+            setWrappedPart(getWebResultQName().getLocalPart(), wrapperObj, objCtx.getReturn());
         }
 
         //Add the in,inout,out args depend on the inputMode

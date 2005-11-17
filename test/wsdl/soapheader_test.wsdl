@@ -57,6 +57,13 @@
 					</sequence>
 				</complexType>
 			</element>
+			<element name="testHeader5">
+				<complexType>
+					<sequence>
+						<element name="requestType" type="xsd:string"/>
+					</sequence>
+				</complexType>
+			</element>
 		</schema>
 	</wsdl:types>
 	<wsdl:message name="testHeader1Request">
@@ -87,6 +94,12 @@
 	<wsdl:message name="testHeader4Response">
 		<wsdl:part name="out" element="x1:testHeader4Response"/>
 	</wsdl:message>
+	<wsdl:message name="testHeader5Request">
+		<wsdl:part name="in" element="x1:testHeader5"/>
+	</wsdl:message>
+	<wsdl:message name="testHeader5Response">
+    	<wsdl:part name="outHeader" element="x1:testHeader5"/>
+	</wsdl:message>
 	<wsdl:message name="testHeaderMessage">
 		<wsdl:part name="inoutHeader" element="x1:testHeaderMessage"/>
 	</wsdl:message>
@@ -106,6 +119,10 @@
 		<wsdl:operation name="testHeader4">
 			<wsdl:input name="testHeader4Request" message="tns:testHeader4Request"/>
 			<wsdl:output name="testHeader4Response" message="tns:testHeader4Response"/>
+		</wsdl:operation>
+		<wsdl:operation name="testHeader5">
+			<wsdl:input name="testHeader5Request" message="tns:testHeader5Request"/>
+			<wsdl:output name="testHeader5Response" message="tns:testHeader5Response"/>
 		</wsdl:operation>
 	</wsdl:portType>
 	<wsdl:binding name="TestHeader_SOAPBinding" type="tns:TestHeader">
@@ -150,6 +167,16 @@
 			<wsdl:output>
 				<soap:body use="literal"/>
 				<soap:header message="tns:testHeaderMessage" part="inoutHeader" use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="testHeader5">
+			<soap:operation style="document"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body parts="" use="literal"/>
+				<soap:header message="tns:testHeader5Response" part="outHeader" use="literal"/>
 			</wsdl:output>
 		</wsdl:operation>
 	</wsdl:binding>

@@ -24,6 +24,7 @@ import org.objectweb.header_test.TestHeader;
 import org.objectweb.header_test.types.TestHeader1;
 import org.objectweb.header_test.types.TestHeader2Response;
 import org.objectweb.header_test.types.TestHeader3;
+import org.objectweb.header_test.types.TestHeader5;
 
 public class SoapBindingImplHeaderTest extends TestCase {
     private SOAPBindingImpl binding;
@@ -130,7 +131,40 @@ public class SoapBindingImplHeaderTest extends TestCase {
         assertTrue(headerElement.hasChildNodes());
         list = headerElement.getChildNodes();
         assertEquals(1, list.getLength());
-        assertEquals(arg1.getResponseType(), list.item(0).getFirstChild().getNodeValue());        
+        assertEquals(arg1.getResponseType(), list.item(0).getFirstChild().getNodeValue());
+        
+        //TestHeader5 return Header
+        Method testHeader5 = SOAPMessageUtil.getMethod(TestHeader.class, "testHeader5");
+        assertNotNull(testHeader5);
+        objContext.setMethod(testHeader5);
+        
+        TestHeader5 arg2 = new TestHeader5();
+        arg2.setRequestType("HeaderVal5");
+        
+        objContext.setMessageObjects(new Object[0]);
+        objContext.setReturn(arg2);
+        
+        msg = binding.marshalMessage(objContext,
+                                     soapContext,
+                                     new JAXBDataBindingCallback(testHeader5,
+                                                                 DataBindingCallback.Mode.PARTS));
+        assertNotNull(msg);
+        
+        //Test the Header Part Only
+        assertNotNull(msg.getSOAPHeader());
+        assertTrue(msg.getSOAPHeader().hasChildNodes());
+        list = msg.getSOAPHeader().getChildNodes();
+        assertEquals(1, list.getLength());
+        headerElement = (Element) list.item(0);
+        //Check for mustUndrstand Attribute
+        assertEquals("true", headerElement.getAttribute(SOAPConstants.HEADER_MUSTUNDERSTAND));
+        
+        //TestHeader5 has child elements.
+        assertTrue(headerElement.hasChildNodes());
+        list = headerElement.getChildNodes();
+        assertEquals(1, list.getLength());
+        assertEquals(arg2.getRequestType(), list.item(0).getFirstChild().getNodeValue());
+        
     }
 
     public void testUnmarshalHeaderDocLitInputMessage() throws Exception {
@@ -192,6 +226,31 @@ public class SoapBindingImplHeaderTest extends TestCase {
         assertTrue(holder.value.getClass().isAssignableFrom(TestHeader2Response.class));
         TestHeader2Response header2 = (TestHeader2Response) holder.value;
         assertEquals("HeaderVal2", header2.getResponseType());
+        
+        //test for return header using TestHeader5 operation 
+        Method testHeader5 = SOAPMessageUtil.getMethod(TestHeader.class, "testHeader5");
+        assertNotNull(testHeader5);
+        objContext.setMethod(testHeader5);
+        objContext.setMessageObjects(SOAPMessageUtil.getMessageObjects(testHeader5));
+        
+        is =  getClass().getResourceAsStream("resources/TestHeader5DocLitResp.xml");
+        headerMsg = binding.getMessageFactory().createMessage(null,  is);
+        soapContext.setMessage(headerMsg);
+        
+        //Test The InputMessage of testHeader3 Operation
+        binding.unmarshalMessage(soapContext, objContext,
+                                 new JAXBDataBindingCallback(testHeader5,
+                                                             DataBindingCallback.Mode.PARTS));
+
+        params = objContext.getMessageObjects();
+        assertNotNull(params);
+        assertEquals(1, params.length);       
+ 
+        //Test the Header method paramaters        
+        assertNotNull(objContext.getReturn());
+        TestHeader5 header5 = (TestHeader5) objContext.getReturn();
+        assertEquals("HeaderVal5", header5.getRequestType());
+        
     }
     
 }

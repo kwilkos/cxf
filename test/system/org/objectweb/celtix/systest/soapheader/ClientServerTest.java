@@ -16,6 +16,7 @@ import org.objectweb.header_test.types.TestHeader2;
 import org.objectweb.header_test.types.TestHeader2Response;
 import org.objectweb.header_test.types.TestHeader3;
 import org.objectweb.header_test.types.TestHeader3Response;
+import org.objectweb.header_test.types.TestHeader5;
 
 public class ClientServerTest extends ClientServerTestBase {
 
@@ -101,6 +102,25 @@ public class ClientServerTest extends ClientServerTestBase {
                 assertNotNull(returnVal);
                 assertEquals(val, returnVal.getResponseType());
                 assertNull(inoutHeader.value.getRequestType());
+            }
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    } 
+
+    public void testReturnHeader() throws Exception {
+        
+        try {
+            TestHeader5 in = new TestHeader5();
+            String val = new String(TestHeader5.class.getSimpleName());
+            for (int idx = 0; idx < 2; idx++) {
+                val += idx;                
+                in.setRequestType(val);
+                TestHeader5 returnVal = proxy.testHeader5(in);
+
+                //in copied to return                
+                assertNotNull(returnVal);
+                assertEquals(val, returnVal.getRequestType());
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();

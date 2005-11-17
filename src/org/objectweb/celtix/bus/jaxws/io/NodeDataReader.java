@@ -67,7 +67,7 @@ public class NodeDataReader<T> implements DataReader<T> {
 
         if (isOutBound && callback.getWebResult() != null) {
             Object retVal = callback.getWrappedPart(
-                             callback.getWebResult().getLocalPart(), 
+                             callback.getWebResultQName().getLocalPart(), 
                              obj, 
                              callback.getMethod().getReturnType());
             objCtx.setReturn(retVal);

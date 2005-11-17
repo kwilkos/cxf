@@ -58,13 +58,15 @@ public class SoapMessageInfoTest extends TestCase {
 
     public void testGetWebResult() throws Exception {
        //Wrapped Doc-Lit. : Should consider Namespace.
-        QName returnType = msgInfo.getWebResult();
+        assertNotNull(msgInfo.getWebResult());
+        QName returnType = msgInfo.getWebResultQName();
         assertEquals(
                 new QName("http://objectweb.org/hello_world_soap_http/types", "responseType"), 
                 returnType); 
          
         // RPC-Lit Test if WebResult returns the partname with no namespce associated.
-        QName rpcReturnType = rpcMsgInfo.getWebResult();
+        assertNotNull(rpcMsgInfo.getWebResult());
+        QName rpcReturnType = rpcMsgInfo.getWebResultQName();
         assertEquals(new QName("", "out"), rpcReturnType);
         
     }
@@ -150,7 +152,8 @@ public class SoapMessageInfoTest extends TestCase {
         assertEquals(SOAPBinding.ParameterStyle.WRAPPED, info.getSOAPParameterStyle());
         assertEquals("length", info.getOperationName());        
         assertEquals("", info.getSOAPAction());
-        assertEquals(SOAPConstants.EMPTY_QNAME, info.getWebResult());
+        assertNull(info.getWebResult());
+        assertEquals(SOAPConstants.EMPTY_QNAME, info.getWebResultQName());
         assertNull(info.getWebParam(1));
         assertEquals(SOAPConstants.EMPTY_QNAME, info.getRequestWrapperQName());
         assertEquals(SOAPConstants.EMPTY_QNAME, info.getResponseWrapperQName());

@@ -49,7 +49,8 @@ public interface DataBindingCallback {
     String getOperationName();
     String getTargetNamespace();
     String getSOAPAction();
-    QName getWebResult();
+    WebResult getWebResult();
+    QName getWebResultQName();
     WebParam getWebParam(int index);
     int getParamsLength();
     

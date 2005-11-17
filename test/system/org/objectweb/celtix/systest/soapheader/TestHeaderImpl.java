@@ -1,7 +1,6 @@
 
 package org.objectweb.celtix.systest.soapheader;
 
-import javax.jws.WebService;
 import javax.xml.ws.Holder;
 import org.objectweb.header_test.TestHeader;
 import org.objectweb.header_test.types.TestHeader1;
@@ -10,12 +9,9 @@ import org.objectweb.header_test.types.TestHeader2;
 import org.objectweb.header_test.types.TestHeader2Response;
 import org.objectweb.header_test.types.TestHeader3;
 import org.objectweb.header_test.types.TestHeader3Response;
+import org.objectweb.header_test.types.TestHeader5;
 
 
-@WebService(
-            name = "TestHeader", 
-            targetNamespace = "http://objectweb.org/header_test", 
-            wsdlLocation = "C:\\CeltixSVN\\trunk/test/wsdl/soapheader_test.wsdl")
 public class TestHeaderImpl implements TestHeader {
 
 
@@ -88,4 +84,15 @@ public class TestHeaderImpl implements TestHeader {
         
     }
 
+    /**
+     * 
+     * @param in
+     * @return
+     *     returns org.objectweb.header_test.types.TestHeader5
+     */
+    public TestHeader5 testHeader5(
+        TestHeader5 in) {
+        return in;
+    }
+    
 }

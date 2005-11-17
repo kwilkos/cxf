@@ -353,12 +353,14 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
 
         Node childNode = xmlNode.getFirstChild();
-        if (isOutBound && callback.getWebResult() != null) {
-            Object retVal = reader.read(callback.getWebResult(), -1, childNode);
+        if (isOutBound 
+            && callback.getWebResult() != null 
+            && !callback.getWebResult().header()) {
+            
+            Object retVal = reader.read(callback.getWebResultQName(), -1, childNode);
             objCtx.setReturn(retVal);
-            childNode = childNode.getNextSibling();            
+            childNode = childNode.getNextSibling();
         }
-
 
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
         int noArgs = callback.getParamsLength();
@@ -410,6 +412,20 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         if (reader == null) {
             throw new SOAPException("Could not figure out how to marshal data");
+        }
+        
+        if (isOutBound 
+            && callback.getWebResult() != null
+            && callback.getWebResult().header()) {
+            
+            QName elName = callback.getWebResultQName();
+            NodeList headerElems =
+                header.getElementsByTagNameNS(elName.getNamespaceURI(), elName.getLocalPart());
+            assert headerElems.getLength() == 1;
+            Node childNode = headerElems.item(0);
+            
+            Object retVal = reader.read(elName, -1, childNode);
+            objCtx.setReturn(retVal);
         }
 
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
@@ -467,9 +483,10 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
 
         //Add the Return Type
-        if (isOutBound && callback.getWebResult() != null) {
-            Object retVal = objCtx.getReturn();
-            writer.write(retVal, callback.getWebResult(), xmlNode);
+        if (isOutBound 
+            && callback.getWebResult() != null
+            && !callback.getWebResult().header()) {
+            writer.write(objCtx.getReturn(), callback.getWebResultQName(), xmlNode);
         }
 
         //Add the in,inout,out args depend on the inputMode
@@ -512,6 +529,13 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             throw new SOAPException("Could not figure out how to marshal data");
         }
 
+        if (isOutBound 
+            && callback.getWebResult() != null
+            && callback.getWebResult().header()) {
+            writer.write(objCtx.getReturn(), callback.getWebResultQName(), header);
+            addSOAPHeaderAttributes(header, callback.getWebResultQName(), true);
+        }
+        
         //Add the in,inout,out args depend on the inputMode
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
         int noArgs = callback.getParamsLength();
@@ -528,22 +552,28 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
                 QName elName = new QName(param.targetNamespace(), param.name());
                 writer.write(partValue, elName, header);
-
-                //Set mustUnderstand Attribute on header parts.
-                NodeList children =
-                        header.getElementsByTagNameNS(elName.getNamespaceURI(), elName.getLocalPart());
-                assert children.getLength() == 1;
-                //Set the mustUnderstand attribute
-                if (children.item(0) instanceof Element) {
-                    Element child = (Element)(children.item(0));
-                    child.setAttribute(SOAPConstants.HEADER_MUSTUNDERSTAND, "true");
-                }
+                
+                addSOAPHeaderAttributes(header, elName, true);
             }
         }
         
         if (!header.hasChildNodes()) {
             header.detachNode();
         }
+    }
+    
+    private void addSOAPHeaderAttributes(Element header, QName elName, boolean mustUnderstand) {
+        //Set mustUnderstand Attribute on header parts.
+        NodeList children =
+                header.getElementsByTagNameNS(elName.getNamespaceURI(), elName.getLocalPart());
+        assert children.getLength() == 1;
+        //Set the mustUnderstand attribute
+        if (children.item(0) instanceof Element) {
+            Element child = (Element)(children.item(0));
+            child.setAttribute(SOAPConstants.HEADER_MUSTUNDERSTAND, String.valueOf(mustUnderstand));
+        }
+
+        //TODO Actor/Role Attribute.
     }
 
     public SOAPFactory getSOAPFactory() {
