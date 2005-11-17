@@ -13,7 +13,7 @@ public class Server {
     }
     
     public static void main(String args[]) throws Exception {
-        Server server = new Server();
+        new Server();
         System.out.println("Server ready..."); 
         
         Thread.sleep(5 * 60 * 1000); 
