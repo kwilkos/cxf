@@ -8,7 +8,6 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.namespace.QName;
 import javax.xml.soap.Detail;
@@ -150,7 +149,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
             return null;
         }
         if (null != webResultAnnotation) {
-            if (getSOAPStyle() == Style.DOCUMENT && getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
+            if (getSOAPStyle() == Style.DOCUMENT) {
                 return new QName(webResultAnnotation.targetNamespace(),
                                  webResultAnnotation.name());
             } else {

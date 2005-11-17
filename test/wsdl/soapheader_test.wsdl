@@ -34,7 +34,11 @@
 				</complexType>
 			</element>
 			<element name="testHeader3Response">
-				<complexType/>
+				<complexType>
+					<sequence>
+						<element name="responseType" nillable="true" type="xsd:string"/>
+					</sequence>
+				</complexType>
 			</element>
 			<element name="testHeader4">
 				<complexType>
