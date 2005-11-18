@@ -35,12 +35,12 @@ public class  TestStreamHandler extends TestHandlerBase
                 getHandlerInfoList(ctx).add(getHandlerId());
             } else { 
                 // compress outbound on server side
-                setupCompressionOutputStream(ctx);
+                //setupCompressionOutputStream(ctx);
             } 
         } else {  
             if (!isOutbound(ctx)) { 
                 // decompress inbound on client side
-                setupDecompressionInputStream(ctx); 
+                //setupDecompressionInputStream(ctx); 
             } 
         } 
         return true;
@@ -69,32 +69,6 @@ public class  TestStreamHandler extends TestHandlerBase
         return getHandlerId();
     } 
 
-    private void setupDecompressionInputStream(StreamMessageContext ctx) { 
-        try { 
-            
-            GZIPInputStream zipIn = new GZIPInputStream(ctx.getInputStream());
-            ctx.setInputStream(zipIn); 
-        } catch (IOException ex) { 
-            throw new ProtocolException(ex);
-        }
-    } 
-
-    private void setupCompressionOutputStream(StreamMessageContext ctx) { 
-
-        try { 
-            final FileOutputStream log = new FileOutputStream("/tmp.msg.log");
-            GZIPOutputStream zipOut = new GZIPOutputStream(ctx.getOutputStream()) {
-                    public void flush() throws IOException { 
-                        super.finish();
-                        super.flush();
-                    } 
-                };
-
-            ctx.setOutputStream(zipOut); 
-        } catch (IOException ex) { 
-            throw new ProtocolException(ex);
-        }
-    } 
 
     private boolean isOutbound(MessageContext ctx) {
         return (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
