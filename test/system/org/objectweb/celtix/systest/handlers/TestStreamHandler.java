@@ -1,12 +1,7 @@
 package org.objectweb.celtix.systest.handlers;
 
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.context.StreamMessageContext;
 import org.objectweb.celtix.handlers.StreamHandler;
