@@ -93,7 +93,11 @@
 	    <fileset dir="${basedir}/src" includes="**/*.xml"/>
             <fileset dir="${basedir}/build/src" includes="**/*.xsd"/>
 	    <fileset dir="${basedir}/build/src" includes="**/*.xml"/>
+	    <filterset>
+	      <filter token="product.version" value="${celtix.version}"/>
+	    </filterset>
         </copy>
+
         <antcall target="spring.compile"/>
         <antcall target="src.checkstyle"/>
         <antcall target="pmd"/>
@@ -171,6 +175,9 @@
  			<fileset dir="${basedir}/test/unit" includes="**/*.properties"/>
 			<fileset dir="${basedir}/test/unit" includes="**/*.xsd"/>
 			<fileset dir="${basedir}/test/unit" includes="**/*.xml"/>
+			<filterset>
+			  <filter token="product.version" value="${celtix.version}"/>
+			</filterset>
 		</copy>
         <antcall target="unittest.checkstyle"/>
     </target>
@@ -196,5 +203,4 @@
 		</copy>
         <antcall target="systemtest.checkstyle"/>
     </target>
-
 </project>
