@@ -14,9 +14,9 @@ import org.objectweb.celtix.tools.common.toolspec.parser.ErrorVisitor;
 
 public abstract class AbstractCeltixToolContainer extends AbstractToolContainer {
 
-    private static String name;
     private static AbstractCeltixToolContainer instance;
     
+    private final String name;
     private CommandDocument commandDocument;
     private boolean verbose;
     private String usage;
@@ -25,7 +25,7 @@ public abstract class AbstractCeltixToolContainer extends AbstractToolContainer 
 
     public AbstractCeltixToolContainer(String nm, ToolSpec toolspec) throws Exception {
         super(toolspec);
-        this.name = nm;
+        name = nm;
         instance = this;
     }
 
@@ -105,12 +105,12 @@ public abstract class AbstractCeltixToolContainer extends AbstractToolContainer 
         return usage;
     }
 
-    public static void outputVersion() {
+    public void outputVersion() {
         System.out.println(name + " - " + Version.getCompleteVersionString());
         System.out.println();
     }
 
-    public  void outputFullCommandLine() {
+    public void outputFullCommandLine() {
         System.out.print(name);
         for (int i = 0; i < getArgument().length; i++) {
             System.out.print(" " + getArgument()[i]);
@@ -138,7 +138,7 @@ public abstract class AbstractCeltixToolContainer extends AbstractToolContainer 
         System.err.println(ex.getMessage());
         System.err.println("Usage : " + toolName + " " + ex.getUsage());
         if (getInstance().verbose) {
-            outputVersion();
+            getInstance().outputVersion();
         }
         System.err.println();
     }
