@@ -5,6 +5,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +20,7 @@ import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.namespace.QName;
 import javax.xml.soap.Detail;
 import javax.xml.soap.MessageFactory;
+import javax.xml.soap.MimeHeader;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPElement;
@@ -50,10 +54,12 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     private static final Logger LOG = LogUtils.getL7dLogger(SOAPBindingImpl.class);
     protected final MessageFactory msgFactory;
     protected final SOAPFactory soapFactory;
+    protected final boolean isServer;
     private NSStack nsStack;
 
-    public SOAPBindingImpl() {
+    public SOAPBindingImpl(boolean server) {
         try {
+            isServer = server;
             msgFactory = MessageFactory.newInstance();
             soapFactory = SOAPFactory.newInstance();
         } catch (SOAPException se) {
@@ -177,11 +183,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
             if (msg.saveRequired()) {
                 msg.saveChanges();
-            }
+            }            
         }
         return msg;
     }
-
+    
     public SOAPMessage marshalFault(ObjectMessageContext objContext,
                                     MessageContext mc,
                                     DataBindingCallback callback) {
@@ -217,6 +223,33 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         return msg;
     }
 
+    @SuppressWarnings("unchecked")
+    public void updateHeaders(MessageContext ctx, SOAPMessage msg) {
+        MimeHeaders headers = msg.getMimeHeaders();
+        Map<String, List<String>> reqHead;
+        String inOutKey = MessageContext.HTTP_REQUEST_HEADERS;
+        if (isServer) {
+            inOutKey = MessageContext.HTTP_RESPONSE_HEADERS;
+        }
+        reqHead = (Map<String, List<String>>)ctx.get(inOutKey);
+        if (reqHead == null) {
+            reqHead = new HashMap<String, List<String>>();
+            ctx.put(inOutKey, reqHead);
+        }
+        Iterator it = headers.getAllHeaders();
+        while (it.hasNext()) {
+            MimeHeader header = (MimeHeader)it.next();
+            if (!"Content-Length".equals(header.getName())) {
+                List<String> vals = (List<String>)reqHead.get(header.getName());
+                if (null == vals) {
+                    vals = new ArrayList<String>();
+                    reqHead.put(header.getName(), vals);
+                }
+                vals.add(header.getValue());
+            }
+        }
+    }
+    
     public void unmarshalMessage(MessageContext mc,
                                  ObjectMessageContext objContext,
                                  DataBindingCallback callback)
@@ -284,11 +317,12 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
         SOAPMessage soapMessage = null;
+        MimeHeaders headers = new MimeHeaders();
         try {
-            MimeHeaders headers = new MimeHeaders();
-            Map<?, ?> httpHeaders = (Map<?, ?>)mc.get(MessageContext.HTTP_REQUEST_HEADERS);
-
-            if (httpHeaders == null) {
+            Map<?, ?> httpHeaders;
+            if (isServer) {
+                httpHeaders = (Map<?, ?>)mc.get(MessageContext.HTTP_REQUEST_HEADERS);
+            } else {
                 httpHeaders = (Map<?, ?>)mc.get(MessageContext.HTTP_RESPONSE_HEADERS);
             }
             if (httpHeaders != null) {
@@ -304,6 +338,16 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
 
             soapMessage = msgFactory.createMessage(headers, in);
+        } catch (com.sun.xml.messaging.saaj.SOAPExceptionImpl ex3) {
+            Iterator it = headers.getAllHeaders();
+            while (it.hasNext()) {
+                MimeHeader head = (MimeHeader)it.next();
+                System.err.println(head.getName() + ": " + head.getValue());
+            }
+            while (in.available() > 0) {
+                System.err.print((char)in.read());
+            }
+            System.err.println();
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.log(Level.INFO, "error in creating soap message", ex);

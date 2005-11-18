@@ -402,8 +402,17 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
 
     public void testString() throws Exception {
         failed = true;
+        int bufferSize = 1000;
+        StringBuffer buffer = new StringBuffer(bufferSize);
+        StringBuffer buffer2 = new StringBuffer(bufferSize);
+        for (int x = 0; x < bufferSize; x++) {
+            buffer.append((char)('a' + (x % 26)));
+            buffer2.append((char)('A' + (x % 26)));
+        }
+        
         String valueSets[][] = {{"hello", "world"}, {"is pi > 3 ?", " is pi < 4\\\""},
-                                {"<illegal_tag/>", ""}};
+                                {"<illegal_tag/>", ""},
+                                {buffer.toString(), buffer2.toString()}};
 
         for (int i = 0; i < valueSets.length; i++) {
             String x = valueSets[i][0];
@@ -418,6 +427,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
                 assertEquals("testString(): Incorrect return value", x, ret);
             }
         }
+        
         failed = false;
     }
 

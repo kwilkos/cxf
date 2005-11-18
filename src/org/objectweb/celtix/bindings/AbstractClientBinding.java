@@ -90,7 +90,15 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
     protected abstract void read(InputStreamMessageContext inCtx, MessageContext context);
     
-    
+    protected OutputStreamMessageContext createOutputStreamContext(MessageContext bindingContext)
+        throws IOException {
+        return transport.createOutputStreamContext(bindingContext);            
+    }
+    protected void finalPrepareOutputStreamContext(MessageContext bindingContext,
+                                                   OutputStreamMessageContext ostreamContext) 
+        throws IOException {
+        transport.finalPrepareOutputStreamContext(ostreamContext);
+    }
     
     public ObjectMessageContext invoke(ObjectMessageContext context,
                                        DataBindingCallback callback)
@@ -126,11 +134,11 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     assert transport != null : "transport is null";
                     
                     OutputStreamMessageContext ostreamContext = 
-                        transport.createOutputStreamContext(bindingContext);
+                        createOutputStreamContext(bindingContext);
                     
                     handlerInvoker.invokeStreamHandlers(ostreamContext); 
 
-                    transport.finalPrepareOutputStreamContext(ostreamContext);
+                    finalPrepareOutputStreamContext(bindingContext, ostreamContext);
                     
                     write(bindingContext, ostreamContext);
                     
@@ -202,10 +210,10 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     assert transport != null : "transport is null";
 
                     OutputStreamMessageContext ostreamContext = 
-                        transport.createOutputStreamContext(bindingContext);
+                        createOutputStreamContext(bindingContext);
 
                     handlerInvoker.invokeStreamHandlers(ostreamContext); 
-                    transport.finalPrepareOutputStreamContext(ostreamContext);
+                    finalPrepareOutputStreamContext(bindingContext, ostreamContext);
 
                     write(bindingContext, ostreamContext);
                     transport.invokeOneway(ostreamContext);

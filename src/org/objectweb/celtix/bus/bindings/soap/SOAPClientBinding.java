@@ -30,7 +30,7 @@ public class SOAPClientBinding extends AbstractClientBinding {
     
     public SOAPClientBinding(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
         super(b, ref);
-        soapBinding = new SOAPBindingImpl();
+        soapBinding = new SOAPBindingImpl(false);
     }
     
     public Binding getBinding() {
@@ -41,13 +41,19 @@ public class SOAPClientBinding extends AbstractClientBinding {
         return soapBinding.isCompatibleWithAddress(address);
     }
 
-
     public HandlerInvoker createHandlerInvoker() {
         return new HandlerChainInvoker(getBinding().getHandlerChain()); 
     }
 
     protected MessageContext createBindingMessageContext(MessageContext ctx) {
         return new SOAPMessageContextImpl(ctx);
+    }
+    
+    protected OutputStreamMessageContext createOutputStreamContext(MessageContext bindingContext)
+        throws IOException {
+        SOAPMessage msg = ((SOAPMessageContext)bindingContext).getMessage();
+        soapBinding.updateHeaders(bindingContext, msg);
+        return super.createOutputStreamContext(bindingContext);
     }
 
     protected void marshal(ObjectMessageContext objContext, MessageContext context,

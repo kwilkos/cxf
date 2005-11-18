@@ -6,7 +6,7 @@
     <import file="paths.xml"/>
     <import file="codegen.xml"/>
 
-    <property name="xlint.args" value=":unchecked,deprecation,fallthrough,serial,finally"/>
+    <property name="xlint.args" value=":fallthrough,finally"/>
     
     <!-- The entire codebase will be checkstyled automatically as part
     of the compile process.   If the code does not meet the style standards,
@@ -62,10 +62,19 @@
             </fileset>
         </pmd>
     </target>
+	
+	<target name="src.resources">
+        <copy tofile="${basedir}/build/src/org/objectweb/celtix/tools/version.properties"
+        	  file="${basedir}/src/org/objectweb/celtix/tools/version.properties.prefilter">
+            <filterset>
+                <filter token="product.version" value="${celtix.version}"/>
+            </filterset>
+        </copy>
+    </target>
 
     <!--  Targets to compile the code -->
     <!-- TODO: need to setup classpaths and such for the dependent libs -->
-    <target name="src.compile" depends="schemas.codegen,configuration.codegen" description="Compile the source">
+    <target name="src.compile" depends="schemas.codegen,configuration.codegen,src.resources" description="Compile the source">
         <mkdir dir="${basedir}/build/classes"/>
 
         <javac
@@ -88,14 +97,12 @@
             <fileset dir="${basedir}/src" includes="**/*.properties"/>
             <fileset dir="${basedir}/src" includes="**/*.xsd"/>
             <fileset dir="${basedir}/src" includes="**/*.dtd"/>
-	    <fileset dir="${basedir}/src" includes="**/*.toolspec"/>
-	    <fileset dir="${basedir}/src" includes="**/*.xsl"/>
-	    <fileset dir="${basedir}/src" includes="**/*.xml"/>
+            <fileset dir="${basedir}/src" includes="**/*.toolspec"/>
+            <fileset dir="${basedir}/src" includes="**/*.xsl"/>
+            <fileset dir="${basedir}/src" includes="**/*.xml"/>
+            <fileset dir="${basedir}/build/src" includes="**/*.properties"/>
             <fileset dir="${basedir}/build/src" includes="**/*.xsd"/>
-	    <fileset dir="${basedir}/build/src" includes="**/*.xml"/>
-	    <filterset>
-	      <filter token="product.version" value="${celtix.version}"/>
-	    </filterset>
+            <fileset dir="${basedir}/build/src" includes="**/*.xml"/>
         </copy>
 
         <antcall target="spring.compile"/>

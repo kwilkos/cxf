@@ -41,7 +41,7 @@ public class SoapBindingImplHeaderTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        binding = new SOAPBindingImpl();
+        binding = new SOAPBindingImpl(false);
         objContext = new ObjectMessageContextImpl();
         soapContext = new SOAPMessageContextImpl(new GenericMessageContext());
     }

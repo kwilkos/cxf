@@ -67,6 +67,11 @@
             <include name="*.jar"/>     
         </fileset>
     </path>
+    <path id="jetty.classpath">
+    	<fileset dir="${tools.dir}/jetty/5.1.5rc2">
+            <include name="*.jar"/>    	
+    	</fileset>
+    </path>
 	
     <path id="spring.classpath">
         <fileset dir="${tools.dir}/spring/1.2.5/">
@@ -79,7 +84,7 @@
     <path id="src.compile.classpath">
         <path refid="wsdl4j.classpath"/>
     	<path refid="jaxws.classpath"/>
-    	<path refid="embedded.tomcat.classpath"/>
+    	<path refid="jetty.classpath"/>
     	<path refid="spring.classpath"/>
         <pathelement location="${tools.jar}"/>
     </path>
@@ -90,7 +95,7 @@
     <path id="runtime.classpath">
         <path refid="wsdl4j.classpath"/>
     	<path refid="jaxws.classpath"/>
-    	<path refid="embedded.tomcat.classpath"/>
+    	<path refid="jetty.classpath"/>
     	<path refid="spring.classpath"/>
     </path>
 

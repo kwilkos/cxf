@@ -98,6 +98,21 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
     protected abstract MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode);
 
+    protected OutputStreamMessageContext createOutputStreamContext(ServerTransport t,
+                                                                   MessageContext bindingContext)
+        throws IOException {
+        return t.createOutputStreamContext(bindingContext);            
+    }
+    protected void finalPrepareOutputStreamContext(ServerTransport t,
+                                                   MessageContext bindingContext,
+                                                   OutputStreamMessageContext ostreamContext) 
+        throws IOException {
+        t.finalPrepareOutputStreamContext(ostreamContext);
+    }
+    protected boolean isFault(ObjectMessageContext objCtx, MessageContext bindingCtx) {
+        return objCtx.getException() != null;
+    }
+    
     protected void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
         LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
         ObjectMessageContext objContext = createObjectContext();
@@ -129,8 +144,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
         
         if (isOneWay(method)) {
             try {
-                OutputStreamMessageContext outCtx = t.createOutputStreamContext(objContext);
-                t.finalPrepareOutputStreamContext(outCtx);
+                OutputStreamMessageContext outCtx = createOutputStreamContext(t, objContext);
+                finalPrepareOutputStreamContext(t, null, outCtx);
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
                 throw new WebServiceException(ex);
@@ -147,13 +162,13 @@ public abstract class AbstractServerBinding implements ServerBinding {
         
         if (!isOneWay(method)) {
             try {
-                OutputStreamMessageContext outCtx = t.createOutputStreamContext(objContext);
-                if (objContext.getException() != null) {
+                OutputStreamMessageContext outCtx = createOutputStreamContext(t, replyCtx);
+                if (isFault(objContext, replyCtx)) {
                     outCtx.setFault(true);
                 }
                 invoker.setOutbound(); 
                 invoker.invokeStreamHandlers(outCtx);
-                t.finalPrepareOutputStreamContext(outCtx);
+                finalPrepareOutputStreamContext(t, replyCtx, outCtx);
                 write(replyCtx, outCtx);
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);

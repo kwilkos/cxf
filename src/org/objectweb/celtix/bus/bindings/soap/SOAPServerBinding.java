@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.wsdl.WSDLException;
@@ -49,7 +50,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
                              Endpoint ep,
                              ServerBindingEndpointCallback cbFactory) {
         super(b, ref, ep, cbFactory);
-        soapBinding = new SOAPBindingImpl();
+        soapBinding = new SOAPBindingImpl(true);
     }
     
     public Binding getBinding() {
@@ -77,6 +78,27 @@ public class SOAPServerBinding extends AbstractServerBinding {
         }
         return null;
     }
+    protected OutputStreamMessageContext createOutputStreamContext(ServerTransport t,
+                                                                   MessageContext bindingContext)
+        throws IOException {
+        if (bindingContext instanceof SOAPMessageContext) {
+            SOAPMessage msg = ((SOAPMessageContext)bindingContext).getMessage();
+            soapBinding.updateHeaders(bindingContext, msg);
+        }
+        return t.createOutputStreamContext(bindingContext);            
+    }
+    protected boolean isFault(ObjectMessageContext objCtx, MessageContext bindingContext) {
+        if (bindingContext instanceof SOAPMessageContext) {
+            SOAPMessage msg = ((SOAPMessageContext)bindingContext).getMessage();
+            try {
+                return msg.getSOAPPart().getEnvelope().getBody().hasFault();
+            } catch (SOAPException e) {
+                return false;
+            }
+        }
+        return super.isFault(objCtx, bindingContext);
+    }
+
     
     protected MessageContext createBindingMessageContext(MessageContext orig) {
         return new SOAPMessageContextImpl(orig);
@@ -121,7 +143,9 @@ public class SOAPServerBinding extends AbstractServerBinding {
         
         SOAPMessageContext soapCtx = (SOAPMessageContext)context;
         try {
-            soapCtx.getMessage().writeTo(outCtx.getOutputStream());
+            OutputStream out = outCtx.getOutputStream();
+            soapCtx.getMessage().writeTo(out);
+            out.flush();
             
             if (LOG.isLoggable(Level.FINE)) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();

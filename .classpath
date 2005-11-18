@@ -6,12 +6,13 @@
 	<classpathentry output="build/classes-tests/unit" kind="src" path="test/unit"/>
 	<classpathentry output="build/classes-tests/system" kind="src" path="test/system"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Tomcat"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Jetty"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JAX-WS"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JUnit"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/WSDL4J"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Easymock"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Spring"/>
 	<classpathentry kind="lib" path="build/wsdl"/>
+	<classpathentry kind="lib" path="schemas"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

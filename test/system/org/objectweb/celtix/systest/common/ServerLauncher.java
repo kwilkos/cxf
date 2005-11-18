@@ -15,6 +15,8 @@ public class ServerLauncher {
 
     private static final Logger LOG = Logger.getLogger(ServerLauncher.class.getName());
 
+    private final boolean debug = false; 
+    
     private final String className;
     private final String javaExe;
     private Process process;
@@ -110,6 +112,9 @@ public class ServerLauncher {
                     boolean running = true;
                     for (int ch = in.read(); ch != -1; ch = in.read()) {
                         serverOutput.append((char)ch);
+                        if (debug) {
+                            System.err.print((char)ch);
+                        }
                         String s = serverOutput.toString();
                         if (s.contains("server ready")) {
                             notifyServerIsReady();

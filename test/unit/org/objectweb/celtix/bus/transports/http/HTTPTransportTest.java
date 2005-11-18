@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.transports.http;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.concurrent.Executor;
 
@@ -57,6 +58,16 @@ public class HTTPTransportTest extends TestCase {
         doTestHTTPTransport(true);
     }
 
+    private int readBytes(byte bytes[], InputStream ins) throws IOException {
+        int len = ins.read(bytes);
+        int total = 0;
+        while (len != -1) {
+            total += len;
+            len = ins.read(bytes, total, bytes.length - total);
+        }
+        return total;
+    }
+    
     public void doTestHTTPTransport(final boolean useAutomaticWorkQueue) throws Exception {
         
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
@@ -74,12 +85,11 @@ public class HTTPTransportTest extends TestCase {
             public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
                 try {
                     byte bytes[] = new byte[10000];
-                    //System.out.println("bytes are: " + bytes.toString());
-                    int len = ctx.getInputStream().read(bytes);
+                    int total = readBytes(bytes, ctx.getInputStream());
                     
                     OutputStreamMessageContext octx = transport.createOutputStreamContext(ctx);
                     transport.finalPrepareOutputStreamContext(octx);
-                    octx.getOutputStream().write(bytes, 0, len);
+                    octx.getOutputStream().write(bytes, 0, total);
                     octx.getOutputStream().flush();
                     octx.getOutputStream().close();
                 } catch (Exception ex) {
@@ -109,6 +119,22 @@ public class HTTPTransportTest extends TestCase {
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
         
+        //long request
+        outBytes = new byte[5000];
+        for (int x = 0; x < outBytes.length; x++) {
+            outBytes[x] = (byte)('a' + (x % 26));
+        }
+        client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
+        octx = client.createOutputStreamContext(new GenericMessageContext());
+        client.finalPrepareOutputStreamContext(octx);
+        octx.getOutputStream().write(outBytes);
+        ictx = client.invoke(octx);
+        int total = readBytes(bytes, ictx.getInputStream());
+        
+        assertTrue("Did not read anything " + total, total > 0);
+        assertEquals(new String(outBytes), new String(bytes, 0, total));
+        
+        outBytes = "Hello World!!!".getBytes();
         server.deactivate();
   
         try {

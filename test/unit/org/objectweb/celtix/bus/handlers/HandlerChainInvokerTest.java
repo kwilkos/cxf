@@ -410,7 +410,7 @@ public class HandlerChainInvokerTest extends TestCase {
     
     
 
-    static class  TestLogicalHandler extends AbstractHandlerBase<LogicalMessageContextImpl>
+    static class TestLogicalHandler extends AbstractHandlerBase<LogicalMessageContextImpl>
         implements LogicalHandler<LogicalMessageContextImpl> {
         
     }    

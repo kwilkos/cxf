@@ -40,7 +40,7 @@
         <copy todir="${build.release.dir}/lib">
             <fileset dir="${tools.dir}">
                 <include name="wsdl4j/**/*"/>
-                <include name="tomcat/**/*"/>
+                <include name="jetty/**/*"/>
                 <include name="jaxws-ri/**/*"/>
                 <include name="spring/**/*"/>
             </fileset>
@@ -101,10 +101,10 @@
 	
     <target name="celtix.jar" depends="src.compile" description="build the celtix jar">
         <mkdir dir="${build.lib.dir}"/>
-	<pathconvert dirsep="/" pathsep=" " property="manifest.classpath" refid="runtime.classpath">
-	  <!-- remove the location specific parts -->
-	  <map from="${tools.dir}${file.separator}" to=""/>
-	</pathconvert>
+	    <pathconvert dirsep="/" pathsep=" " property="manifest.classpath" refid="runtime.classpath">
+            <!-- remove the location specific parts -->
+            <map from="${tools.dir}${file.separator}" to=""/>
+        </pathconvert>
 
         <jar destfile="${celtix.jar}"
              basedir="${build.classes.dir}">

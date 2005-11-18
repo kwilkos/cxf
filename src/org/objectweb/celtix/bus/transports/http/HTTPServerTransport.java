@@ -6,29 +6,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import javax.servlet.GenericServlet;
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletResponse;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 
-import org.apache.catalina.core.StandardWrapper;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -39,15 +32,13 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-public class HTTPServerTransport extends StandardWrapper implements ServerTransport {
+public class HTTPServerTransport implements ServerTransport {
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LogUtils.getL7dLogger(HTTPServerTransport.class);
 
     EndpointReferenceType reference;
     String url;
     HTTPServerEngine engine;
     String name;
-    Servlet servlet = new HTTPServlet(this);
     ServerTransportCallback callback;
     Configuration configuration;
     
@@ -62,24 +53,6 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
         name = nurl.getPath();
         engine = HTTPServerEngine.getForPort(nurl.getProtocol(), nurl.getPort());
         
-        try {
-            super.init();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-    
-    
-    public String getName() {
-        return name;
-    }
-
-    public void load() {
-        //nothing
-    }
-    public Servlet allocate() throws ServletException {
-        return servlet;
     }
     
     public void activate(ServerTransportCallback cb) throws IOException {
@@ -88,7 +61,6 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
     }
 
     public void deactivate() throws IOException {
-        // TODO Auto-generated method stub
         engine.removeServant(url, this);
     }
 
@@ -132,34 +104,45 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
         extends GenericMessageContext
         implements InputStreamMessageContext {
     
-        static final String HTTP_SERVLET_REQUEST =
+        static final String HTTP_REQUEST =
             HTTPServerInputStreamContext.class.getName() + ".REQUEST";
-        static final String HTTP_SERVLET_RESPONSE =
+        static final String HTTP_RESPONSE =
             HTTPServerInputStreamContext.class.getName() + ".RESPONSE";
 
         private static final long serialVersionUID = 1L;
 
-        final ServletRequest request;
+        final HttpRequest request;
         InputStream origInputStream;
         InputStream inStream;
     
-        public HTTPServerInputStreamContext(ServletRequest req, ServletResponse resp)
+        public HTTPServerInputStreamContext(HttpRequest req, HttpResponse resp)
             throws IOException {
             
             request = req;
-            put(ObjectMessageContext.MESSAGE_INPUT, false);
+            put(ObjectMessageContext.MESSAGE_INPUT, true);
             Map<String, List<String>> headers = new HashMap<String, List<String>>();
-            for (Object nameObject : req.getParameterMap().keySet()) {
-                String name = (String)nameObject;
-                headers.put(name, Arrays.asList(req.getParameterValues(name)));
+            for (Enumeration e = req.getFieldNames(); e.hasMoreElements();) {
+                String name = (String)e.nextElement();
+                List<String> values;
+                if (headers.containsKey(name)) {
+                    values = headers.get(name);
+                } else {
+                    values = new ArrayList<String>();
+                    headers.put(name, values);
+                }
+                for (Enumeration e2 = req.getFieldValues(name); e2.hasMoreElements();) {
+                    String val = (String)e2.nextElement();
+                    values.add(val);
+                }
             }
             put(HTTP_REQUEST_HEADERS, headers); 
+            put(HTTP_RESPONSE_HEADERS, new HashMap<String, List<String>>()); 
             
             origInputStream = req.getInputStream();
             inStream = origInputStream;
             
-            put(HTTP_SERVLET_RESPONSE, resp);
-            put(HTTP_SERVLET_REQUEST, req);
+            put(HTTP_RESPONSE, resp);
+            put(HTTP_REQUEST, req);
         }
     
         public InputStream getInputStream() {
@@ -177,13 +160,13 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
         
         WrappedOutputStream origOut;
         OutputStream out;
-        ServletResponse response;
+        HttpResponse response;
         
         public HTTPServerOutputStreamContext(MessageContext ctx) throws IOException {
             super(ctx);
             origOut = new WrappedOutputStream();
             out = origOut;
-            response = (ServletResponse)ctx.get(HTTPServerInputStreamContext.HTTP_SERVLET_RESPONSE); 
+            response = (HttpResponse)ctx.get(HTTPServerInputStreamContext.HTTP_RESPONSE); 
         }
         
         void flushHeaders() throws IOException {
@@ -193,15 +176,17 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
                     String header = (String)iter.next();
                     List<?> headerList = (List<?>)headers.get(header);
                     for (Object string : headerList) {
-                        ((HttpServletResponse)response).addHeader(header, (String)string);
+                        response.addField(header, (String)string);
                     }
                 }
             }
             origOut.resetOut(response.getOutputStream());
         }
 
+        
         public void setFault(boolean isFault) {
             put(HTTP_RESPONSE_CODE, 500);
+            response.setStatus(500);
         }
 
         public boolean isFault() {
@@ -215,7 +200,6 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
             out = o;
         }
         
-        
         private class WrappedOutputStream extends FilterOutputStream {
             WrappedOutputStream() {
                 super(new ByteArrayOutputStream());
@@ -227,81 +211,10 @@ public class HTTPServerTransport extends StandardWrapper implements ServerTransp
                 }
                 out = newOut;
             }
-            public void flush() throws IOException {
-                super.flush();
-                response.flushBuffer();
-            }
-            public void close() throws IOException {
-                response.flushBuffer();
-                super.close();
-            }
         }
     }
-    
-
-    private class HTTPServlet extends GenericServlet {
-        private static final long serialVersionUID = 8291179381765644068L;
-
-        final HTTPServerTransport transport;
-        HTTPServlet(HTTPServerTransport trans) {
-            transport = trans;
-        }
         
-        
-        public void service(ServletRequest req, ServletResponse resp) throws ServletException, IOException {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Service http request on thread: " + Thread.currentThread());
-            }
-            
-            final class Servicer implements Runnable {
-                private boolean complete;
-                private final ServletRequest request;
-                private final ServletResponse response;
-                
-                Servicer(ServletRequest req, ServletResponse resp) {
-                    request = req;
-                    response = resp;
-                }
-                public void run() {
-                    try {
-                        doService(request, response);                        
-                    } catch (IOException ex) {                        
-                        // TODO handle exception
-                        LOG.log(Level.SEVERE, "DISPATCH_FAILURE_MSG", ex);
-                    } finally {
-                        complete = true;
-                        synchronized (this) {
-                            notifyAll();
-                        }
-                    }
-                } 
-                
-                public synchronized void waitForCompletion() {
-                    while (!complete) {
-                        try {
-                            wait();
-                        } catch (InterruptedException ex) {
-                            // ignore
-                        }
-                    }
-                }
-            }
-            
-            if (null == callback.getExecutor()) {
-                doService(req, resp);
-            } else {  
-                Servicer servicer = new Servicer(req, resp);
-                callback.getExecutor().execute(servicer);
-                servicer.waitForCompletion();
-            }
-           
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.fine("Finished servicing http request on thread: " + Thread.currentThread());
-            }
-        }
-    }
-    
-    void doService(ServletRequest req, ServletResponse resp) throws IOException {
+    void doService(HttpRequest req, HttpResponse resp) throws IOException {
         InputStreamMessageContext ctx = new HTTPServerInputStreamContext(req, resp);
         callback.dispatch(ctx, this);
     }
