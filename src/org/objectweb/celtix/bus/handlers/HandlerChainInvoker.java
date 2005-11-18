@@ -6,15 +6,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.MessageContext;
+
 import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
+import org.objectweb.celtix.bus.context.StreamMessageContextImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.context.WebServiceContextImpl;
 import org.objectweb.celtix.handlers.HandlerInvoker;
+import org.objectweb.celtix.handlers.StreamHandler;
 
 /**
  * invoke invoke the handlers in a registered handler chain
@@ -26,6 +32,7 @@ public class HandlerChainInvoker implements HandlerInvoker {
 
     private final List<Handler> protocolHandlers = new ArrayList<Handler>(); 
     private final List<LogicalHandler> logicalHandlers  = new ArrayList<LogicalHandler>(); 
+    private final List<StreamHandler> streamHandlers  = new ArrayList<StreamHandler>(); 
     private final List<Handler> invokedHandlers  = new ArrayList<Handler>(); 
     private final List<Handler> closeHandlers  = new ArrayList<Handler>(); 
 
@@ -53,6 +60,8 @@ public class HandlerChainInvoker implements HandlerInvoker {
             for (Handler h : hc) { 
                 if (h instanceof LogicalHandler) {                    
                     logicalHandlers.add((LogicalHandler)h);
+                } else if (h instanceof StreamHandler) {
+                    streamHandlers.add((StreamHandler)h); 
                 } else { 
                     protocolHandlers.add(h);
                 }
@@ -76,9 +85,16 @@ public class HandlerChainInvoker implements HandlerInvoker {
         return invokeHandlerChain(protocolHandlers, bindingContext);
     }    
     
+    public boolean invokeStreamHandlers(InputStreamMessageContext ctx) {
+        StreamMessageContextImpl sctx = new StreamMessageContextImpl(ctx);
+        sctx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
+        return invokeHandlerChain(streamHandlers, new StreamMessageContextImpl(ctx));
+    }
     
-    public boolean invokeStreamHandlers() {
-        return true; 
+    public boolean invokeStreamHandlers(OutputStreamMessageContext ctx) {
+        StreamMessageContextImpl sctx = new StreamMessageContextImpl(ctx);
+        sctx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
+        return invokeHandlerChain(streamHandlers, sctx);
     }
         
     public void closeHandlers() {        
@@ -127,8 +143,9 @@ public class HandlerChainInvoker implements HandlerInvoker {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(Level.FINE, "closing protocol handlers - handler count:", invokedHandlers.size());
         }
-        invokeClose(reverseHandlerChain(protocolHandlers));
-        invokeClose(reverseHandlerChain(logicalHandlers));
+        invokeClose(protocolHandlers);
+        invokeClose(logicalHandlers);
+        invokeClose(streamHandlers);
     }
 
 
@@ -163,9 +180,13 @@ public class HandlerChainInvoker implements HandlerInvoker {
     List<Handler> getProtocolHandlers() { 
         return protocolHandlers;
     }
+
+    List<? extends Handler> getStreamHandlers() { 
+        return streamHandlers;
+    }
     
     private <T extends Handler> void invokeClose(List<T> handlers) {
-
+        handlers = reverseHandlerChain(handlers); 
         for (Handler h : handlers) {
             if (closeHandlers.contains(h)) {
                 h.close(context);
@@ -183,7 +204,6 @@ public class HandlerChainInvoker implements HandlerInvoker {
         if (isClosed()) {
             return false;
         }
-
 
         LOG.log(Level.FINE, "invoking handlers, direction: ", outbound ? "outbound" : "inbound");        
         setMessageOutboundProperty();
@@ -203,15 +223,14 @@ public class HandlerChainInvoker implements HandlerInvoker {
         }
 
         if (!continueProcessing) {
-            // stop processing handlers, change direction and return 
-            // control to the bindng.  Then the binding the will 
-            // invoke on the next set on handlers and they will be processing 
-            // in the correct direction.  It would be good refactor it and 
-            // control all of the processing here.
+            // stop processing handlers, change direction and return
+            // control to the bindng.  Then the binding will invoke on
+            // the next set on handlers and they will be processing in
+            // the correct direction.  It would be good refactor it
+            // and control all of the processing here.
             changeMessageDirection(); 
             handlerProcessingAborted = true;
         }
-         
         return continueProcessing;        
     }    
 

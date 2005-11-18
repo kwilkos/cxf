@@ -120,5 +120,4 @@ public class ServerBindingTest extends TestCase {
         assertEquals(0, implementor.getInvocationCount("overloadedSayHi"));
         assertEquals(1, implementor.getInvocationCount("greetMe")); 
     }
-
 }

@@ -1,6 +1,10 @@
 package org.objectweb.celtix.bus.bindings;
 
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
@@ -16,6 +20,7 @@ import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
+import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
@@ -151,7 +156,7 @@ public class TestServerBinding extends AbstractServerBinding {
 
         public OutputStreamMessageContext createOutputStreamContext(MessageContext context)
             throws IOException {
-            return null;
+            return new ToyOutputStreamMessageContext(new GenericMessageContext());
         }
 
         public void deactivate() throws IOException {
@@ -161,7 +166,46 @@ public class TestServerBinding extends AbstractServerBinding {
         }
 
         public void fire() {
-            callback.dispatch(null, this);
+            callback.dispatch(new ToyInputStreamMessageContext(new GenericMessageContext()), this);
         }
+    }
+
+    static class ToyInputStreamMessageContext extends MessageContextWrapper 
+        implements InputStreamMessageContext {
+        private static final long serialVersionUID = 1;
+        
+        ToyInputStreamMessageContext(MessageContext wrapped) { 
+            super(wrapped); 
+        } 
+
+        public InputStream getInputStream() { 
+            return null; 
+        }
+    
+        public void setInputStream(InputStream ins) {
+        }
+    }
+
+    static class ToyOutputStreamMessageContext extends MessageContextWrapper 
+        implements OutputStreamMessageContext {
+        private static final long serialVersionUID = 1;
+        
+        ToyOutputStreamMessageContext(MessageContext wrapped) { 
+            super(wrapped); 
+        } 
+
+        public OutputStream getOutputStream() { 
+            return null; 
+        }
+    
+        public void setOutputStream(OutputStream ins) {
+        }
+
+        public boolean isFault() { 
+            return false; 
+        } 
+
+        public void setFault(boolean b) {
+        } 
     }
 }

@@ -128,7 +128,8 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     OutputStreamMessageContext ostreamContext = 
                         transport.createOutputStreamContext(bindingContext);
                     
-                    // TODO - invoke output stream handlers
+                    handlerInvoker.invokeStreamHandlers(ostreamContext); 
+
                     transport.finalPrepareOutputStreamContext(ostreamContext);
                     
                     write(bindingContext, ostreamContext);
@@ -142,7 +143,10 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
                     //Output Message For Client
                     bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
-                    // TODO - invoke input stream handlers
+                    handlerInvoker.setInbound();
+
+                    handlerInvoker.invokeStreamHandlers(ins); 
+                    
                     read(ins, bindingContext);
                 } else {
                     //Output Message For Client
@@ -158,7 +162,6 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 }
             }
             context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
-            handlerInvoker.setInbound();
             handlerInvoker.invokeLogicalHandlers(true);
         } finally { 
             handlerInvoker.mepComplete();
@@ -201,7 +204,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     OutputStreamMessageContext ostreamContext = 
                         transport.createOutputStreamContext(bindingContext);
 
-                    // TODO - invoke output stream handlers
+                    handlerInvoker.invokeStreamHandlers(ostreamContext); 
                     transport.finalPrepareOutputStreamContext(ostreamContext);
 
                     write(bindingContext, ostreamContext);

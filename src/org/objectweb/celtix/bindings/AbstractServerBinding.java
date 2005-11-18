@@ -102,6 +102,11 @@ public abstract class AbstractServerBinding implements ServerBinding {
         LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
         ObjectMessageContext objContext = createObjectContext();
 
+        HandlerInvoker invoker = createHandlerInvoker(); 
+        invoker.setContext(objContext); 
+        invoker.setInbound(); 
+
+        invoker.invokeStreamHandlers(inCtx);
         if (inCtx != null) { 
             // this may be null during unit tests
             objContext.putAll(inCtx);
@@ -124,7 +129,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         
         if (isOneWay(method)) {
             try {
-                OutputStreamMessageContext outCtx = t.createOutputStreamContext(inCtx);
+                OutputStreamMessageContext outCtx = t.createOutputStreamContext(objContext);
                 t.finalPrepareOutputStreamContext(outCtx);
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
@@ -137,17 +142,18 @@ public abstract class AbstractServerBinding implements ServerBinding {
         if (null != mode) {
             replyCtx = invokeOnProvider(requestCtx, mode);
         } else {
-            replyCtx = invokeOnMethod(requestCtx, objContext);
+            replyCtx = invokeOnMethod(requestCtx, objContext, invoker);
         }
         
         if (!isOneWay(method)) {
             try {
-                OutputStreamMessageContext outCtx = t.createOutputStreamContext(inCtx);
+                OutputStreamMessageContext outCtx = t.createOutputStreamContext(objContext);
                 if (objContext.getException() != null) {
                     outCtx.setFault(true);
                 }
+                invoker.setOutbound(); 
+                invoker.invokeStreamHandlers(outCtx);
                 t.finalPrepareOutputStreamContext(outCtx);
-                
                 write(replyCtx, outCtx);
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
@@ -210,13 +216,10 @@ public abstract class AbstractServerBinding implements ServerBinding {
         replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
     } 
  
-    private MessageContext invokeOnMethod(MessageContext requestCtx, ObjectMessageContext objContext) {
+    private MessageContext invokeOnMethod(MessageContext requestCtx, ObjectMessageContext objContext, 
+                                          HandlerInvoker invoker) {
 
         objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
-
-        HandlerInvoker invoker = createHandlerInvoker(); 
-        invoker.setContext(objContext); 
-        invoker.setInbound(); 
 
         MessageContext replyCtx = createBindingMessageContext(objContext);
         assert replyCtx != null;

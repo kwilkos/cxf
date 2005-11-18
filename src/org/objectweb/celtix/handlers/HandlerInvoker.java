@@ -1,7 +1,11 @@
 package org.objectweb.celtix.handlers; 
 
+
 import javax.xml.ws.handler.MessageContext;
+
+import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.OutputStreamMessageContext;
 
 
 
@@ -28,12 +32,23 @@ public interface HandlerInvoker {
      */
     boolean invokeProtocolHandlers(boolean requestor, MessageContext bindingContext);
     
-    
+     
     /** 
-     * Invoke the stream level handlers. 
+     * Invoke the stream level handlers with an InputStream.
+     * 
+     * @param context the InputStreamMessageContext for the message
+     * exchange
      */
-    boolean invokeStreamHandlers();
+    boolean invokeStreamHandlers(InputStreamMessageContext context);
         
+
+    /** 
+     * Invoke the stream level handlers with an OutputStream.
+     *
+     * @param context the OutputStreamMessageContext for the message exchange
+     */
+    boolean invokeStreamHandlers(OutputStreamMessageContext context);
+
     /** 
      * Close all handlers that have previously invoked
      */
