@@ -19,12 +19,10 @@ package org.objectweb.celtix.systest.type_test;
 //import java.net.URI;
 import javax.xml.ws.Holder;
 
-import org.objectweb.type_test.TypeTestPortType;
-
 /**
  * org.objectweb.celtix.systest.type_test.TypeTestImpl
  */
-public class TypeTestImpl implements TypeTestPortType {
+public class TypeTestImpl {
 
     public void testVoid() {
     }

@@ -25,7 +25,7 @@ import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 import org.objectweb.hello_world_soap_http.types.ErrorCode;
 import org.objectweb.hello_world_soap_http.types.NoSuchCodeLit;
-import org.objectweb.type_test.TypeTestPortType;
+import org.objectweb.type_test.doc.TypeTestPortType;
 
 public class SoapBindingImplTest extends TestCase {
     private SOAPBindingImpl binding;

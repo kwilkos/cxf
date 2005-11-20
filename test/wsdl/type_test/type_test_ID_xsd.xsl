@@ -4,8 +4,8 @@
     xmlns:xalan="http://xml.apache.org/xslt"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:wsse="http://schemas.xmlsoap.org/ws/2003/06/secext"
-    xmlns:tns="http://objectweb.org/type_test"
     xmlns:itst="http://tests.iona.com/ittests"
+    xmlns:tns="http://objectweb.org/type_test/types"
     xmlns="http://www.w3.org/2001/XMLSchema"
     >
 
@@ -25,8 +25,10 @@
   <!-- 0 - root schema node -->
   <xsl:template match="/xsd:schema">
     <xsd:schema
-        xmlns:tns="http://objectweb.org/type_test"
         xmlns="http://www.w3.org/2001/XMLSchema">
+      <xsl:attribute name="targetNamespace">
+        <xsl:value-of select="'http://objectweb.org/type_test/types'"/>
+      </xsl:attribute>
       <xsl:apply-templates select="@*" mode="attribute_copy"/>
       <xsl:apply-templates select="itst:it_test_group[@ID=$groupID]" mode="test_group"/>
     </xsd:schema>

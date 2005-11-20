@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://objectweb.org/type_test"
+<schema
 	xmlns="http://www.w3.org/2001/XMLSchema"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:tns="http://objectweb.org/type_test"
         xmlns:itst="http://tests.iona.com/ittests"
 	xmlns:wsse="http://schemas.xmlsoap.org/ws/2003/06/secext"
 	elementFormDefault="qualified">
@@ -68,7 +67,9 @@
     <itst:builtIn name="token"                        javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="language"                     javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="NMTOKEN"                      javaType="java.lang.String"             javaHolder="java.lang.String"/>
+<!-- XXX  NMTOKENS
     <itst:builtIn name="NMTOKENS"                     javaType="java.util.List&#x3c;java.lang.String&#x3e;" javaHolder="java.util.List&#x3c;java.lang.String&#x3e;"/>
+-->
     <itst:builtIn name="Name"                         javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="NCName"                       javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="ID"                           javaType="java.lang.String"             javaHolder="java.lang.String"/>

@@ -17,7 +17,7 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
-import org.objectweb.type_test.TypeTestPortType;
+import org.objectweb.type_test.doc.TypeTestPortType;
 /**
  * JAXBEncoderDecoderTest
  * @author apaibir

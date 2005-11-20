@@ -5,7 +5,7 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:wsse="http://schemas.xmlsoap.org/ws/2003/06/secext"
-    xmlns:tns="http://objectweb.org/type_test"
+    xmlns:x1="http://objectweb.org/type_test/types"
     xmlns:itst="http://tests.iona.com/ittests">
 
   <xsl:output method="xml" indent="yes" xalan:indent-amount="4"/>
@@ -13,7 +13,7 @@
 
   <!-- Parameter: Path to the generated XSDs to include -->
   <xsl:param name="inc_xsd_path"/>
-  <!-- Parameter: Use DOC-literal or RPC-literal style -->
+  <!-- Parameter: Use document-literal 'document' or rpc-literal 'rpc' style -->
   <xsl:param name="use_style"/>
  
   <!-- copy attributes from any node -->
@@ -25,14 +25,30 @@
 
   <!-- 0 - root schema node -->
   <xsl:template match="/xsd:schema">
-    <definitions
-        xmlns="http://schemas.xmlsoap.org/wsdl/"
-        name="type_test">
-      <xsl:apply-templates select="@*" mode="attribute_copy"/>
-      <xsl:apply-templates select="." mode="schema"/>
-      <xsl:apply-templates select="." mode="test_messages"/>
-      <xsl:apply-templates select="." mode="test_portType"/>
-    </definitions>
+    <xsl:if test="$use_style='document'">
+      <definitions
+          xmlns="http://schemas.xmlsoap.org/wsdl/"
+          xmlns:tns="http://objectweb.org/type_test/doc"
+          targetNamespace="http://objectweb.org/type_test/doc"
+          name="type_test">
+        <xsl:apply-templates select="@*" mode="attribute_copy"/>
+        <xsl:apply-templates select="." mode="schema"/>
+        <xsl:apply-templates select="." mode="test_messages"/>
+        <xsl:apply-templates select="." mode="test_portType"/>
+      </definitions>
+    </xsl:if>
+    <xsl:if test="$use_style='rpc'">
+      <definitions
+          xmlns="http://schemas.xmlsoap.org/wsdl/"
+          xmlns:tns="http://objectweb.org/type_test/rpc"
+          targetNamespace="http://objectweb.org/type_test/rpc"
+          name="type_test">
+        <xsl:apply-templates select="@*" mode="attribute_copy"/>
+        <xsl:apply-templates select="." mode="schema"/>
+        <xsl:apply-templates select="." mode="test_messages"/>
+        <xsl:apply-templates select="." mode="test_portType"/>
+      </definitions>
+    </xsl:if>
   </xsl:template>
 
   <!-- 1 - schema -->
@@ -40,6 +56,14 @@
         xmlns="http://schemas.xmlsoap.org/wsdl/">
     <types>
       <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema">
+        <xsl:attribute name="targetNamespace">
+          <xsl:if test="$use_style='document'">
+            <xsl:value-of select="'http://objectweb.org/type_test/doc'"/>
+          </xsl:if>
+          <xsl:if test="$use_style='rpc'">
+            <xsl:value-of select="'http://objectweb.org/type_test/rpc'"/>
+          </xsl:if>
+        </xsl:attribute>
         <xsl:apply-templates select="@*" mode="attribute_copy"/>
         <xsl:apply-templates select="itst:it_test_group[@ID]" mode="schema_include"/>
         <xsl:apply-templates select="itst:it_test_group[not(@ID)]" mode="hardcoded_types"/>
@@ -51,16 +75,18 @@
 
   <!-- 1.1 - group of tests - schema include -->
   <xsl:template match="itst:it_test_group[@ID]" mode="schema_include">
-        <xsd:include>
-          <xsl:attribute name="schemaLocation">
-            <xsl:value-of select="concat($inc_xsd_path, '/type_test_', @ID, '.xsd')"/> 
-          </xsl:attribute>
-        </xsd:include>
+    <xsd:import>
+      <xsl:attribute name="namespace">
+        <xsl:value-of select="'http://objectweb.org/type_test/types'"/>
+      </xsl:attribute>
+      <xsl:attribute name="schemaLocation">
+        <xsl:value-of select="concat($inc_xsd_path, '/type_test_', @ID, '.xsd')"/> 
+      </xsl:attribute>
+    </xsd:import>
   </xsl:template>
 
   <!-- 1.2 - group of tests - schema include -->
   <xsl:template match="itst:it_test_group[not(@ID)]" mode="hardcoded_types">
-    <!--
     <xsd:element name="testVoid"/>
     <xsd:element name="testOneway">
       <xsd:complexType>
@@ -70,7 +96,6 @@
         </sequence>
       </xsd:complexType>
     </xsd:element>
-    -->
   </xsl:template>
   
   <!-- 1.3 group of types (only for groups with no ID) -->
@@ -94,63 +119,59 @@
 
   <!-- 1.4 - group of tests - test elements -->
   <xsl:template match="itst:it_test_group" mode="test_elements">
+    <xsl:if test="$use_style='document'">
       <!--
-      <xsl:apply-templates select="xsd:simpleType" mode="doc_elements_xyz"/>
-      <xsl:apply-templates select="xsd:complexType" mode="doc_elements_xyz"/>
-      <xsl:apply-templates select="xsd:element" mode="doc_elements_xyz"/>
+      <xsl:apply-templates select="xsd:simpleType" mode="elements_xyz">
+          <xsl:with-param name="prefix">x1:</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="xsd:complexType" mode="elements_xyz">
+          <xsl:with-param name="prefix">x1:</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="xsd:element" mode="elements_xyz">
+          <xsl:with-param name="prefix">x1:</xsl:with-param>
+      </xsl:apply-templates>
       -->
-      <xsl:apply-templates select="itst:builtIn" mode="elements_xyz"/>
+      <xsl:apply-templates select="itst:builtIn" mode="elements_xyz">
+          <xsl:with-param name="prefix">xsd:</xsl:with-param>
+      </xsl:apply-templates>
+    </xsl:if>
   </xsl:template>
 
-  <!-- 1.4.1 - group of x/y/z/return test elements -->
+  <!-- 1.4.1 - group of x/y/z/return doc-literal test elements -->
   <xsl:template match="itst:it_test_group/*[not(@itst:it_no_test='true')]" mode="elements_xyz">
-    <xsl:variable name="operation_name">
+    <xsl:param name="prefix"/>
+    <xsl:param name="operation_name">
       <xsl:value-of select="concat('test',
                             concat(translate(substring(@name, 1, 1),    
                                    'abcdefghijklmnopqrstuvwxyz', 
                                    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                                    substring(@name, 2)))"/>
-    </xsl:variable>
-    <xsl:if test="$use_style='document'">
+    </xsl:param>
       <xsd:element>
         <xsl:attribute name="name">
           <xsl:value-of select="$operation_name"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="elements_in"/>
+        <xsl:apply-templates select="." mode="elements_in">
+          <xsl:with-param name="prefix"/>
+          <xsl:with-param name="operation_name"/>
+        </xsl:apply-templates>
       </xsd:element>
       <xsd:element>
         <xsl:attribute name="name">
           <xsl:value-of select="concat($operation_name, 'Response')"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="elements_out"/>
+        <xsl:apply-templates select="." mode="elements_out">
+          <xsl:with-param name="prefix"/>
+          <xsl:with-param name="operation_name"/>
+        </xsl:apply-templates>
       </xsd:element>
-    </xsl:if>
-    <!--
-    <xsl:if test="$use_style='rpc'">
-      <xsl:apply-templates select="." mode="elements_in"/>
-      <xsl:apply-templates select="." mode="elements_out"/>
-    </xsl:if>
-    -->
   </xsl:template>
 
   <!-- 1.4.1.1 - group of x/y test elements -->
   <xsl:template match="itst:it_test_group/*[not(@itst:it_no_test='true')]" mode="elements_in">
-    <xsl:variable name="prefix">
-      <xsl:value-of select="'xsd:'"/>
-    </xsl:variable>
-    <xsl:variable name="operation_name">
-      <xsl:value-of select="concat('test',
-                            concat(translate(substring(@name, 1, 1),    
-                                   'abcdefghijklmnopqrstuvwxyz', 
-                                   'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                                   substring(@name, 2)))"/>
-    </xsl:variable>
+    <xsl:param name="prefix"/>
+    <xsl:param name="operation_name"/>
     <xsd:complexType>
-      <xsl:if test="$use_style='rpc'">
-        <xsl:attribute name="name">
-          <xsl:value-of select="$operation_name"/>
-        </xsl:attribute>
-      </xsl:if>
       <sequence>
         <xsd:element>
           <xsl:attribute name="name">
@@ -174,22 +195,9 @@
 
   <!-- 1.4.1.2 - group of y/z/return test elements -->
   <xsl:template match="itst:it_test_group/*[not(@itst:it_no_test='true')]" mode="elements_out">
-    <xsl:variable name="prefix">
-      <xsl:value-of select="'xsd:'"/>
-    </xsl:variable>
-    <xsl:variable name="operation_name">
-      <xsl:value-of select="concat('test',
-                            concat(translate(substring(@name, 1, 1),    
-                                   'abcdefghijklmnopqrstuvwxyz', 
-                                   'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                                   substring(@name, 2)))"/>
-    </xsl:variable>
+    <xsl:param name="prefix"/>
+    <xsl:param name="operation_name"/>
     <xsd:complexType>
-      <xsl:if test="$use_style='rpc'">
-        <xsl:attribute name="name">
-          <xsl:value-of select="concat($operation_name, 'Response')"/>
-        </xsl:attribute>
-      </xsl:if>
       <sequence>
         <xsd:element>
           <xsl:attribute name="name">
@@ -254,13 +262,13 @@
   <!-- 2.2 - group of test messages -->
   <xsl:template match="itst:it_test_group" mode="test_messages_group">
     <xsl:apply-templates select="xsd:simpleType" mode="test_messages">
-      <xsl:with-param name="prefix">tns:</xsl:with-param>
+      <xsl:with-param name="prefix">x1:</xsl:with-param>
     </xsl:apply-templates>
     <xsl:apply-templates select="xsd:complexType" mode="test_messages">
-      <xsl:with-param name="prefix">tns:</xsl:with-param>
+      <xsl:with-param name="prefix">x1:</xsl:with-param>
     </xsl:apply-templates>
     <xsl:apply-templates select="xsd:element" mode="test_messages">
-      <xsl:with-param name="prefix">tns:</xsl:with-param>
+      <xsl:with-param name="prefix">x1:</xsl:with-param>
     </xsl:apply-templates>
     <xsl:apply-templates select="itst:builtIn" mode="test_messages">
       <xsl:with-param name="prefix">xsd:</xsl:with-param>
@@ -268,8 +276,9 @@
   </xsl:template>
   
   <!-- 2.2.1 - request and response messages -->
-  <xsl:template match="itst:it_test_group/*[not(@itst:it_no_test='true')]" mode="test_messages"
-        xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <xsl:template match="itst:it_test_group/*[not(@itst:it_no_test='true')]" 
+        mode="test_messages" xmlns="http://schemas.xmlsoap.org/wsdl/">
+    <!-- prefix is used for rpc style -->
     <xsl:param name="prefix"/>
     <xsl:variable name="message_name_prefix">
       <xsl:value-of select="concat('test',
@@ -298,15 +307,9 @@
   </xsl:if>
   <xsl:if test="$use_style='rpc'">
       <part>
-        <!--
-        <xsl:attribute name="name">in</xsl:attribute>
-        -->
         <xsl:attribute name="name">x</xsl:attribute>
         <xsl:attribute name="type">
           <xsl:value-of select="concat($prefix, @name)"/>
-          <!--
-          <xsl:value-of select="concat('tns:', $message_name_prefix)"/>
-          -->
         </xsl:attribute>
       </part>
       <part>
@@ -332,14 +335,8 @@
   <xsl:if test="$use_style='rpc'">
       <part>
         <xsl:attribute name="name">return</xsl:attribute>
-        <!--
-        <xsl:attribute name="name">out</xsl:attribute>
-        -->
         <xsl:attribute name="type">
           <xsl:value-of select="concat($prefix, @name)"/>
-          <!--
-          <xsl:value-of select="concat('tns:', $output_message_name)"/>
-          -->
         </xsl:attribute>
       </part>
       <part>
@@ -443,6 +440,9 @@
       <xsl:attribute name="name">
         <xsl:value-of select="$operation_name"/>
       </xsl:attribute>
+      <xsl:if test="$use_style='rpc'">
+        <xsl:attribute name="parameterOrder">x y z</xsl:attribute>
+      </xsl:if>
       <input>
         <xsl:attribute name="name">
           <xsl:value-of select="$operation_input_name"/>

@@ -1,28 +1,27 @@
 package org.objectweb.celtix.systest.type_test.soap;
 
 import javax.xml.namespace.QName;
+
 import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient;
 
-public class SOAPClientTypeTest extends AbstractTypeTestClient {
-    static final String WSDL_PATH = "/wsdl/type_test/type_test_soap.wsdl";
-    static final QName SERVICE_NAME = new QName("http://objectweb.org/type_test", "SOAPService");
-    static final QName PORT_NAME = new QName("http://objectweb.org/type_test", "SOAPPort");
-    static String[] args = new String[] {};
+public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient {
+    static final String WSDL_PATH = "/wsdl/type_test/type_test_doclit_soap.wsdl";
+    static final QName SERVICE_NAME = new QName("http://objectweb.org/type_test/doc", "SOAPService");
+    static final QName PORT_NAME = new QName("http://objectweb.org/type_test/doc", "SOAPPort");
 
-    public SOAPClientTypeTest(String name) {
+    public SOAPDocLitClientTypeTest(String name) {
         super(name, SERVICE_NAME, PORT_NAME, WSDL_PATH);
     }
 
     public void onetimeSetUp()  { 
         try { 
             initBus(); 
-            boolean ok = launchServer(SOAPServerImpl.class); 
+            boolean ok = launchServer(SOAPDocLitServerImpl.class); 
             assertTrue("failed to launch server", ok);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     } 
-
 
 /*
     public void testStructWithAnyStrict() throws Exception {

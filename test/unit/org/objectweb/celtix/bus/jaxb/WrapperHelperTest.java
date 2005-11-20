@@ -6,9 +6,9 @@ import junit.framework.TestCase;
 import org.objectweb.handler_test.types.PingResponse;
 import org.objectweb.hello_world_soap_http.types.AddNumbers;
 import org.objectweb.hello_world_soap_http.types.AddNumbersResponse;
-import org.objectweb.type_test.TestBoolean;
-import org.objectweb.type_test.TestByte;
-import org.objectweb.type_test.TestByteResponse;
+import org.objectweb.type_test.doc.TestBoolean;
+import org.objectweb.type_test.doc.TestByte;
+import org.objectweb.type_test.doc.TestByteResponse;
 
 public class WrapperHelperTest extends TestCase {
 
