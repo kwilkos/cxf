@@ -2,13 +2,13 @@
 <project name="celtix-paths" basedir="../..">
     <!-- Path definitions -->
 
-	<property name="tools.dir" location="${basedir}/tools"/>
-	<property name="jaxws.home" location="${tools.dir}/jaxws-ri/20051104"/>
-	
+    <property name="tools.dir" location="${basedir}/tools"/>
+    <property name="jaxws.home" location="${tools.dir}/jaxws-ri/20051104"/>
+    
     <!-- on darwin, tools.jar does not exist -->
 
     <available property="tools.jar" value="${env.JAVA_HOME}/lib/tools.jar"
-	       file="${env.JAVA_HOME}/lib/tools.jar"/>
+           file="${env.JAVA_HOME}/lib/tools.jar"/>
     <condition property="tools.jar" value="${java.home}/../lib/tools.jar">
         <and>
             <not>
@@ -46,7 +46,7 @@
             <include name="*.jar"/>
         </fileset>
     </path>
-	
+    
     <property name="junit.jar" value="${tools.dir}/junit/3.8.1/junit.jar"/>
     <path id="junit.classpath">
         <fileset dir="${tools.dir}/junit/3.8.1">
@@ -57,9 +57,9 @@
     <!-- property name="tomcat.local.classes" value=""/ -->
     <path id="embedded.tomcat.classpath">
         <!-- pathelement location="${tomcat.local.classes}"/ -->
-    	<fileset dir="${tools.dir}/tomcat/5.5.9/server/lib">
-            <include name="*.jar"/>    	
-    	</fileset>
+        <fileset dir="${tools.dir}/tomcat/5.5.9/server/lib">
+            <include name="*.jar"/>     
+        </fileset>
         <fileset dir="${tools.dir}/tomcat/5.5.9/bin">
             <include name="*.jar"/>     
         </fileset>
@@ -67,12 +67,13 @@
             <include name="*.jar"/>     
         </fileset>
     </path>
+
     <path id="jetty.classpath">
-    	<fileset dir="${tools.dir}/jetty/5.1.5rc2">
-            <include name="*.jar"/>    	
-    	</fileset>
+        <fileset dir="${tools.dir}/jetty/5.1.5rc2">
+            <include name="*.jar"/>     
+        </fileset>
     </path>
-	
+    
     <path id="spring.classpath">
         <fileset dir="${tools.dir}/spring/1.2.5/">
             <include name="spring-core.jar"/>
@@ -80,23 +81,31 @@
         </fileset>
     </path>
     
+    <path id="activemq.classpath">
+        <fileset dir="${tools.dir}/activemq/3.2/lib/">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+    
   
     <path id="src.compile.classpath">
         <path refid="wsdl4j.classpath"/>
-    	<path refid="jaxws.classpath"/>
-    	<path refid="jetty.classpath"/>
-    	<path refid="spring.classpath"/>
+        <path refid="jaxws.classpath"/>
+        <path refid="jetty.classpath"/>
+        <path refid="spring.classpath"/>
+        <path refid="activemq.classpath"/>
         <pathelement location="${tools.jar}"/>
     </path>
 
     <!-- 
-	 This will be used to define the manifest classpath entry.
+     This will be used to define the manifest classpath entry.
     -->
     <path id="runtime.classpath">
         <path refid="wsdl4j.classpath"/>
-    	<path refid="jaxws.classpath"/>
-    	<path refid="jetty.classpath"/>
-    	<path refid="spring.classpath"/>
+        <path refid="jaxws.classpath"/>
+        <path refid="jetty.classpath"/>
+        <path refid="spring.classpath"/>
+        <path refid="activemq.classpath"/>
     </path>
 
     <path id="unit.test.compile.classpath">
@@ -106,7 +115,7 @@
         <pathelement location="${tools.dir}/easymock/2.0/easymock.jar"/>
         <pathelement location="${tools.dir}/easymock/2.0/classextension/easymockclassextension.jar"/>
         <pathelement location="${tools.dir}/cglib/2.1.2/cglib-nodep.jar"/>
-    	<path refid="junit.classpath"/>
+        <path refid="junit.classpath"/>
     </path>
  
     
@@ -122,7 +131,7 @@
         <pathelement location="${basedir}/build/classes-instrumented"/>
         <pathelement location="${basedir}/build/classes-tests"/>
         <pathelement location="${basedir}/build/classes-tests/unit"/>
-    	<pathelement location="${basedir}/schemas"/>
+        <pathelement location="${basedir}/schemas"/>
         <path refid="unit.test.compile.classpath"/>
         <path refid="emma.lib"/>
 
@@ -130,33 +139,33 @@
     </path>
     
     <path id="system.test.compile.classpath">
-		<pathelement location="${basedir}/build/classes"/>
-	    <pathelement location="${basedir}/build/classes-tests/wsdl"/>
-	    <path refid="src.compile.classpath"/>
-	    <pathelement location="${tools.dir}/easymock/2.0/easymock.jar"/>
+        <pathelement location="${basedir}/build/classes"/>
+        <pathelement location="${basedir}/build/classes-tests/wsdl"/>
+        <path refid="src.compile.classpath"/>
+        <pathelement location="${tools.dir}/easymock/2.0/easymock.jar"/>
         <pathelement location="${tools.dir}/easymock/2.0/classextension/easymockclassextension.jar"/>
         <pathelement location="${tools.dir}/cglib/2.1.2/cglib-nodep.jar"/>
-	</path>
-	 
+    </path>
+     
     <path id="system.test.classpath">
         <pathelement location="${basedir}/build/wsdl"/>
         <path refid="system.test.compile.classpath"/>
         <pathelement location="${basedir}/build/classes-tests/unit"/>
-	<pathelement location="${basedir}/build/classes-tests/system"/>
-    	<pathelement location="${basedir}/schemas"/>
+        <pathelement location="${basedir}/build/classes-tests/system"/>
+        <pathelement location="${basedir}/schemas"/>
     </path>
 
-	<target name="create.set_env">
-    	<property name="unit.test.classpath" refid="unit.test.classpath"/>
-    	<condition property="envmessage" value="set CLASSPATH=${unit.test.classpath};%CLASSPATH%">
-    		<os family="windows"/>
-    	</condition>
-    	<condition property="envext" value=".bat">
-    		<os family="windows"/>
-    	</condition>
-    	<property name="envmessage" value="export CLASSPATH=${unit.test.classpath}:$$CLASSPATH"/>
-    	<property name="envext" value=".sh"/>
-    	<echo file="build/set_env${envext}">${envmessage}   
+    <target name="create.set_env">
+        <property name="unit.test.classpath" refid="unit.test.classpath"/>
+        <condition property="envmessage" value="set CLASSPATH=${unit.test.classpath};%CLASSPATH%">
+            <os family="windows"/>
+        </condition>
+        <condition property="envext" value=".bat">
+            <os family="windows"/>
+        </condition>
+        <property name="envmessage" value="export CLASSPATH=${unit.test.classpath}:$$CLASSPATH"/>
+        <property name="envext" value=".sh"/>
+        <echo file="build/set_env${envext}">${envmessage}   
         </echo>
     </target>
 

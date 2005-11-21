@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.bindings;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -213,6 +212,15 @@ public class TestServerBinding extends AbstractServerBinding {
         } 
 
         public void setFault(boolean b) {
-        } 
+        }
+        
+        public void setOneWay(boolean isOneWay) {
+            put(ONEWAY_MESSAGE_TF, isOneWay);
+        }
+        
+        public boolean isOneWay() {
+            return (boolean) ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
+        }
+
     }
 }

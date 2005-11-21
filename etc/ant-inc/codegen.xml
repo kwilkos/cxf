@@ -68,6 +68,7 @@
         <xsdtojava file="${basedir}/schemas/ws-addr.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing"/>
         <xsdtojava file="${basedir}/schemas/ws-addr-wsdl.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing.wsdl"/>
         <xsdtojava file="${basedir}/schemas/wsdl.xsd" destdir="${basedir}/build/src"/>
+        <xsdtojava file="${basedir}/schemas/jms-context.xsd" destdir="${basedir}/build/src"/>
         <touch file="${basedir}/build/src/.SCHEMA.CODEGEN.DONE"/>
     </target>
 
@@ -255,7 +256,7 @@
             <include name="**/resources/top.xml"/>
             <include name="**/resources/leaf.xml"/>
         </fileset>
-  
+		  
         <pathconvert pathsep=" " property="test.metadata.schema.files" refid="test.metadata.schemas"/>
         <property name="output.dir" location="${basedir}/build/test-spring-src"/>
         <beangen output.dir="${output.dir}" schema.files="${test.metadata.schema.files}"/>

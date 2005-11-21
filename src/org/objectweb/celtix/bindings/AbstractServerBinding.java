@@ -145,6 +145,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         if (isOneWay(method)) {
             try {
                 OutputStreamMessageContext outCtx = createOutputStreamContext(t, objContext);
+                outCtx.setOneWay(isOneWay(method));
                 finalPrepareOutputStreamContext(t, null, outCtx);
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
@@ -163,6 +164,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         if (!isOneWay(method)) {
             try {
                 OutputStreamMessageContext outCtx = createOutputStreamContext(t, replyCtx);
+                outCtx.setOneWay(isOneWay(method));
                 if (isFault(objContext, replyCtx)) {
                     outCtx.setFault(true);
                 }

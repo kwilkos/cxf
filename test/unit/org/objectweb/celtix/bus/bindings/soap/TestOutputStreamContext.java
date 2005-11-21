@@ -30,6 +30,14 @@ class TestOutputStreamContext
     public boolean isFault() {
         return isFaultMsg;
     }
+    
+    public void setOneWay(boolean isOneWay) {
+        put(ONEWAY_MESSAGE_TF, isOneWay);
+    }
+    
+    public boolean isOneWay() {
+        return (boolean) ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
+    }
 
     public OutputStream getOutputStream() {
         if (baos == null) {

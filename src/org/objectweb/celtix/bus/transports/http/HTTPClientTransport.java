@@ -132,6 +132,14 @@ public class HTTPClientTransport implements ClientTransport {
             return false;
         }
         
+        public void setOneWay(boolean isOneWay) {
+            put(ONEWAY_MESSAGE_TF, isOneWay);
+        }
+        
+        public boolean isOneWay() {
+            return (boolean) ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
+        }
+        
         public OutputStream getOutputStream() {
             return out;
         }

@@ -135,6 +135,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     
                     OutputStreamMessageContext ostreamContext = 
                         createOutputStreamContext(bindingContext);
+                    ostreamContext.setOneWay(false);
                     
                     handlerInvoker.invokeStreamHandlers(ostreamContext); 
 
@@ -214,6 +215,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
                     OutputStreamMessageContext ostreamContext = 
                         createOutputStreamContext(bindingContext);
+                    ostreamContext.setOneWay(true);
 
                     handlerInvoker.invokeStreamHandlers(ostreamContext); 
                     finalPrepareOutputStreamContext(bindingContext, ostreamContext);
@@ -225,7 +227,6 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     }
                 }
             }
-            
         } finally { 
             handlerInvoker.mepComplete();
         }
@@ -234,6 +235,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
     public Future<ObjectMessageContext> invokeAsync(ObjectMessageContext context,
                                                     DataBindingCallback callback) {
         // TODO Auto-generated method stub
+        // do not forget to set oneway operation.
         return null;
     }
 }
