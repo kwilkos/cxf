@@ -142,7 +142,10 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     
                     write(bindingContext, ostreamContext);
                     InputStreamMessageContext ins = transport.invoke(ostreamContext);
-                    ostreamContext.getOutputStream().close();
+                    
+                    if (ostreamContext.getOutputStream() != null) {
+                        ostreamContext.getOutputStream().close();
+                    }
                     context.putAll(ins); 
                     bindingContext = createBindingMessageContext(context);
                     if (null == bindingContext) {
@@ -217,7 +220,9 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
                     write(bindingContext, ostreamContext);
                     transport.invokeOneway(ostreamContext);
-                    ostreamContext.getOutputStream().close(); 
+                    if (ostreamContext.getOutputStream() != null) { 
+                        ostreamContext.getOutputStream().close(); 
+                    }
                 }
             }
             
