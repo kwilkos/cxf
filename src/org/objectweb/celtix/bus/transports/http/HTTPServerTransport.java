@@ -152,6 +152,14 @@ public class HTTPServerTransport implements ServerTransport {
         public void setInputStream(InputStream ins) {
             inStream = ins;
         }
+
+        public void setFault(boolean isFault) {
+            //nothing to do
+        }
+
+        public boolean isFault() {
+            return false;
+        }
     }
 
     static class HTTPServerOutputStreamContext
@@ -192,6 +200,7 @@ public class HTTPServerTransport implements ServerTransport {
         public boolean isFault() {
             return ((Integer)get(HTTP_RESPONSE_CODE)).intValue() == 500;
         }
+
         public OutputStream getOutputStream() {
             return out;
         }

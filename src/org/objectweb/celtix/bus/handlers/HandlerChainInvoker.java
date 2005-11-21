@@ -38,6 +38,7 @@ public class HandlerChainInvoker implements HandlerInvoker {
 
     private boolean outbound; 
     private boolean responseExpected = true; 
+    private boolean faultExpected; 
     private boolean handlerProcessingAborted; 
     private boolean closed; 
 
@@ -108,10 +109,6 @@ public class HandlerChainInvoker implements HandlerInvoker {
         return responseExpected;
     }
 
-    public boolean faultRaised() {
-        return context.getException() != null; 
-    }
-    
     public boolean isOutbound() {
         return outbound;
     }    
@@ -129,8 +126,16 @@ public class HandlerChainInvoker implements HandlerInvoker {
     }
 
 
+    public boolean faultRaised() {
+        return context.getException() != null || faultExpected; 
+    }
+    
     public void setFault(Exception pe) { 
         context.setException(pe);
+    }
+
+    public void setFault(boolean fe) { 
+        faultExpected = fe;
     }
 
     /** Invoke handlers at the end of an MEP calling close on each.

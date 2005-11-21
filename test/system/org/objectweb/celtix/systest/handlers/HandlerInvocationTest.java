@@ -42,6 +42,9 @@ public class HandlerInvocationTest extends ClientServerTestBase {
             wsdl = HandlerInvocationTest.class.getResource("/wsdl/handler_test.wsdl");
             service = new HandlerTestService(wsdl, serviceName);
             handlerTest = (HandlerTest) service.getPort(portName, HandlerTest.class);
+            if (!"testHandlersInvoked".equals(getName())) {
+                addHandlersToChain((BindingProvider)handlerTest, new TestStreamHandler(false)); 
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.toString());
@@ -205,7 +208,8 @@ public class HandlerInvocationTest extends ClientServerTestBase {
 
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
         TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext>(false);
-        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
+        TestStreamHandler streamHandler = new TestStreamHandler(false);
+        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2, streamHandler);
         
         try {
             handlerTest.pingWithArgs("servant throw exception"); 
@@ -216,8 +220,10 @@ public class HandlerInvocationTest extends ClientServerTestBase {
 
         assertEquals(1, handler1.getHandleMessageInvoked());
         assertEquals(1, handler2.getHandleMessageInvoked());
+        assertEquals(1, streamHandler.getHandleMessageInvoked());
         assertEquals(1, handler1.getHandleFaultInvoked()); 
         assertEquals(1, handler2.getHandleFaultInvoked()); 
+        assertEquals(1, streamHandler.getHandleFaultInvoked()); 
     } 
 
 

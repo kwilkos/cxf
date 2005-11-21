@@ -44,4 +44,10 @@ public class TestInputStreamContext
         inputStream = ins;
     }
 
+    public boolean isFault() { 
+        return false; 
+    } 
+
+    public void setFault(boolean b) {
+    } 
 }

@@ -89,9 +89,18 @@ public interface HandlerInvoker {
 
 
     /**
-     * set the current exception in this message exchange
+     * set the current exception in this message exchange and set the
+     * invoker into fault processing mode.
      */
     void setFault(Exception pe);
+
+    /**
+     * set the invoker into fault processing mode.  This method is
+     * invoked when a client transport indicates that a fault has been
+     * raised by the server but the message has not yet been read or
+     * unmarshalled.
+     */
+    void setFault(boolean faultExpected);
 
     /** 
      * Invoke handlers at the end of an MEP calling close on each.

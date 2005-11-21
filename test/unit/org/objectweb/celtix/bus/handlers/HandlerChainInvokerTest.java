@@ -21,8 +21,6 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.StreamMessageContext;
 import org.objectweb.celtix.handlers.StreamHandler;
-import org.objectweb.handler_test.PingException;
-import org.objectweb.handler_test.types.PingFaultDetails;
 
 public class HandlerChainInvokerTest extends TestCase {
     
@@ -247,6 +245,31 @@ public class HandlerChainInvokerTest extends TestCase {
     } 
 
 
+    public void testFaultRaised() {  
+
+        assertFalse(invoker.faultRaised()); 
+
+        invoker.setFault(new ProtocolException("test exception")); 
+        assertTrue(invoker.faultRaised()); 
+
+        // reset
+        invoker.setFault(null); 
+        assertFalse(invoker.faultRaised()); 
+
+        invoker.setFault(true); 
+        assertTrue(invoker.faultRaised()); 
+
+        // reset 
+        invoker.setFault(false); 
+        invoker.setFault(null); 
+        assertFalse(invoker.faultRaised()); 
+
+        invoker.setFault(true); 
+        invoker.setFault(new ProtocolException("test exception")); 
+    } 
+
+
+
     public void testHandleFaultThrowsProtocolException() {
 
         doHandleFaultExceptionTest(new ProtocolException("banzai"));
@@ -286,14 +309,6 @@ public class HandlerChainInvokerTest extends TestCase {
     public void testResponseExpectedDefault() {
         assertTrue(invoker.isResponseExpected());
     }
-
-    public void testFaultRaised() { 
-
-        assertFalse(invoker.faultRaised());
-        ctx.setException(new PingException("", new PingFaultDetails()));
-        assertTrue(invoker.faultRaised());
-        
-    } 
 
     public void testSwitchContext() {
 

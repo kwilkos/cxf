@@ -123,6 +123,7 @@ public class HTTPClientTransport implements ClientTransport {
             }
             origOut.resetOut(connection.getOutputStream());
         }
+
         public void setFault(boolean isFault) {
             //nothing to do
         }
@@ -194,6 +195,13 @@ public class HTTPClientTransport implements ClientTransport {
             inStream = ins;
         }
         
-        
+        public void setFault(boolean isFault) {
+            //nothing to do
+        }
+
+        public boolean isFault() {
+            assert get(HTTP_RESPONSE_CODE) != null;
+            return ((Integer)get(HTTP_RESPONSE_CODE)).intValue() == 500;
+        }
     }
 }

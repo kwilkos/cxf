@@ -170,6 +170,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 invoker.invokeStreamHandlers(outCtx);
                 finalPrepareOutputStreamContext(t, replyCtx, outCtx);
                 write(replyCtx, outCtx);
+                outCtx.getOutputStream().flush(); 
+
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
                 throw new WebServiceException(ex);

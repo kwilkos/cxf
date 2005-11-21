@@ -184,6 +184,13 @@ public class TestServerBinding extends AbstractServerBinding {
     
         public void setInputStream(InputStream ins) {
         }
+
+        public boolean isFault() { 
+            return false;
+        } 
+
+        public void setFault(boolean isfault) { 
+        }
     }
 
     static class ToyOutputStreamMessageContext extends MessageContextWrapper 

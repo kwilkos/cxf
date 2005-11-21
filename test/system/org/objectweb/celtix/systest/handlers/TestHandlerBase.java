@@ -1,9 +1,11 @@
 package org.objectweb.celtix.systest.handlers;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.xml.ws.handler.MessageContext;
 
@@ -17,7 +19,9 @@ import javax.xml.ws.handler.MessageContext;
  * @version 1.0
  */
 public abstract class TestHandlerBase {
-    
+
+    private static final Logger LOG = Logger.getLogger(TestHandlerBase.class.getName());
+
     private static int sid; 
 
     protected boolean handleMessageRet = true; 
@@ -87,7 +91,7 @@ public abstract class TestHandlerBase {
         String info = getHandlerId() + " "
             + (outbound ? "outbound" : "inbound") + " "
             + methodName;
-        System.out.println(info);
+        LOG.info(info);
     } 
 
 

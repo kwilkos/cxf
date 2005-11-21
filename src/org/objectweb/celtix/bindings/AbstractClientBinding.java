@@ -141,8 +141,8 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     finalPrepareOutputStreamContext(bindingContext, ostreamContext);
                     
                     write(bindingContext, ostreamContext);
-                    
                     InputStreamMessageContext ins = transport.invoke(ostreamContext);
+                    ostreamContext.getOutputStream().close();
                     context.putAll(ins); 
                     bindingContext = createBindingMessageContext(context);
                     if (null == bindingContext) {
@@ -152,7 +152,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     //Output Message For Client
                     bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
                     handlerInvoker.setInbound();
-
+                    handlerInvoker.setFault(ins.isFault()); 
                     handlerInvoker.invokeStreamHandlers(ins); 
                     
                     read(ins, bindingContext);
@@ -217,6 +217,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
                     write(bindingContext, ostreamContext);
                     transport.invokeOneway(ostreamContext);
+                    ostreamContext.getOutputStream().close(); 
                 }
             }
             
