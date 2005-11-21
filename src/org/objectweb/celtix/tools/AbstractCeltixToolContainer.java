@@ -131,7 +131,7 @@ public abstract class AbstractCeltixToolContainer extends AbstractToolContainer 
         return fileBase;
     }
 
-    public static void printUsageException(String toolName, BadUsageException ex) {
+    public void printUsageException(String toolName, BadUsageException ex) {
         if (getInstance().verbose) {
             getInstance().outputFullCommandLine();
         }
@@ -143,7 +143,7 @@ public abstract class AbstractCeltixToolContainer extends AbstractToolContainer 
         System.err.println();
     }
 
-    public static String getFileName(String loc) {
+    public String getFileName(String loc) {
         int idx = loc.lastIndexOf("/");
 
         if (idx != -1) {
@@ -176,7 +176,7 @@ public abstract class AbstractCeltixToolContainer extends AbstractToolContainer 
         return strBuf.toString();
     }
 
-    private static InputStream getResourceAsStream(String resource) {
+    private InputStream getResourceAsStream(String resource) {
         ClassLoader cl = AbstractCeltixToolContainer.class.getClassLoader();
         InputStream ins = cl.getResourceAsStream(resource);
         if (ins == null && resource.startsWith("/")) {
@@ -185,7 +185,7 @@ public abstract class AbstractCeltixToolContainer extends AbstractToolContainer 
         return ins;
     }
 
-    public static Properties loadProperties(String propertyFile) {
+    public Properties loadProperties(String propertyFile) {
         Properties p = new Properties();
 
         try {

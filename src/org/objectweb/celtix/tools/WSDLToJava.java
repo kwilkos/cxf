@@ -66,7 +66,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
         } catch (ToolException ex) {
             System.err.println("Error : " + ex.getMessage());
             if (ex.getCause() instanceof BadUsageException) {
-                printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
+                getInstance().printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
             System.exit(1);
         } catch (Exception ex) {
@@ -109,7 +109,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
                                false,
                                args);
         } catch (BadUsageException ex) {
-            printUsageException(TOOL_NAME, ex);
+            getInstance().printUsageException(TOOL_NAME, ex);
             System.exit(1);
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
