@@ -8,7 +8,11 @@ public interface ObjectMessageContext extends MessageContext {
     String MESSAGE_INPUT = "org.objectweb.celtix.input";
     String MESSAGE_PAYLOAD = "org.objectweb.celtix.payload";
     String REQUEST_PROXY = "org.objectweb.celtix.proxy"; 
-    String REQUESTOR_ROLE_PROPERTY = "org.objectweb.celtix.role.requestor"; 
+    String REQUESTOR_ROLE_PROPERTY = "org.objectweb.celtix.role.requestor";
+    String METHOD_OBJ = "org.objectweb.celtix.method";
+    String METHOD_PARAMETERS = "org.objectweb.celtix.parameters";
+    String METHOD_RETURN = "org.objectweb.celtix.return";
+    String METHOD_FAULT = "org.objectweb.celtix.fault";    
 
     Object[] getMessageObjects();
     
