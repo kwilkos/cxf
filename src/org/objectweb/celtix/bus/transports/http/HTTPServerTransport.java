@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
@@ -22,6 +24,7 @@ import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -34,6 +37,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class HTTPServerTransport implements ServerTransport {
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LogUtils.getL7dLogger(HTTPServerTransport.class);
 
     EndpointReferenceType reference;
     String url;
@@ -232,8 +236,62 @@ public class HTTPServerTransport implements ServerTransport {
     }
         
     void doService(HttpRequest req, HttpResponse resp) throws IOException {
+        
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("Service http request on thread: " + Thread.currentThread());
+        }
+        
+        final class Servicer implements Runnable {
+            private boolean complete;
+            private final HttpRequest request;
+            private final HttpResponse response;
+            
+            Servicer(HttpRequest req, HttpResponse resp) {
+                request = req;
+                response = resp;
+            }
+            public void run() {
+                try {
+                    serviceRequest(request, response);                        
+                } catch (IOException ex) {                        
+                    // TODO handle exception
+                    LOG.log(Level.SEVERE, "DISPATCH_FAILURE_MSG", ex);
+                } finally {
+                    complete = true;
+                    synchronized (this) {
+                        notifyAll();
+                    }
+                }
+            } 
+            
+            public synchronized void waitForCompletion() {
+                while (!complete) {
+                    try {
+                        wait();
+                    } catch (InterruptedException ex) {
+                        // ignore
+                    }
+                }
+            }
+        }
+        
+        if (null == callback.getExecutor()) {
+            serviceRequest(req, resp);
+        } else {  
+            Servicer servicer = new Servicer(req, resp);
+            callback.getExecutor().execute(servicer);
+            servicer.waitForCompletion();
+        }        
+    }
+    
+    private void serviceRequest(HttpRequest req, HttpResponse resp) throws IOException {
         InputStreamMessageContext ctx = new HTTPServerInputStreamContext(req, resp);
         callback.dispatch(ctx, this);
+        resp.commit();
+        req.setHandled(true);
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.fine("Finished servicing http request on thread: " + Thread.currentThread());
+        }
     }
 
 

@@ -35,7 +35,8 @@ import org.objectweb.celtix.wsdl.WSDLManager;
 public class HTTPTransportTest extends TestCase {
     
     private Bus bus;
-    private WSDLManager wsdlManager;
+    private WSDLManager wsdlManager; 
+    private int testCount;
     
     public HTTPTransportTest(String arg0) {
         super(arg0);
@@ -54,6 +55,10 @@ public class HTTPTransportTest extends TestCase {
         doTestHTTPTransport(false);
     }
     
+    // REVISIT asmyth
+    // Both tests individually - but not when part of one test case
+    // (same problem if the first test is executed twice within one test case).
+    
     public void xtestHTTPTransportUsingAutomaticWorkQueue() throws Exception {
         doTestHTTPTransport(true);
     }
@@ -69,7 +74,7 @@ public class HTTPTransportTest extends TestCase {
     }
     
     public void doTestHTTPTransport(final boolean useAutomaticWorkQueue) throws Exception {
-        
+        sleepIfNessessary();
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
         String portName = "SoapPort";
         String address = "http://localhost:9000/SoapContext/SoapPort";
@@ -143,10 +148,13 @@ public class HTTPTransportTest extends TestCase {
             octx.getOutputStream().write(outBytes);
             ictx = client.invoke(octx);
             len = ictx.getInputStream().read(bytes);
+            String bstr = new String(bytes, 0, len); 
             if (len != -1
-                && new String(bytes, 0, len).indexOf("HTTP Status 503") == -1) {
+                && bstr.indexOf("HTTP Status 503") == -1) {
                 fail("was able to process a message after the servant was deactivated: " + len 
-                     + " - " + new String(bytes));
+                     + " - " + new String(bytes).substring(0, 32) + "\n"
+                     + "len: " + len + "\n"
+                     + "index: " + bstr.indexOf("HTTP Status 503"));
             }
         } catch (IOException ex) {
             //ignore - this is what we want
@@ -252,5 +260,16 @@ public class HTTPTransportTest extends TestCase {
         
         return transport;
 
+    }
+    
+    private void sleepIfNessessary() {
+        if (testCount > 0) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+        testCount++;
     }
 }

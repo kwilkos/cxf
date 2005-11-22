@@ -23,6 +23,7 @@
         <copy includeEmptyDirs="false" todir="${build.release.dir}/etc">
             <fileset dir="${basedir}/etc">
                 <include name="logging.properties"/>
+                <include name="log4j.properties"/>
             </fileset>
         </copy>    	
         <copy includeEmptyDirs="false" todir="${build.release.dir}/samples">

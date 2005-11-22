@@ -39,6 +39,7 @@
                 <jvmarg value="-ea"/>
 
                 <sysproperty key="java.util.logging.config.file" value="${basedir}/build/classes-tests/@{type}/logging.properties"/>
+                <sysproperty key="log4j.configuration" value="file:///${basedir}/build/classes-tests/@{type}/log4j.properties"/>
                 <sysproperty key="javax.xml.ws.spi.Provider" value="org.objectweb.celtix.bus.jaxws.spi.ProviderImpl"/>
 
                 <test name="${test.real.class}" todir="${basedir}/build/testresults/@{type}" outfile="@{type}test-results" />

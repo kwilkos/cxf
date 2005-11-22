@@ -99,9 +99,7 @@ final class HTTPServerEngine {
                 throws IOException {
                 // TODO Auto-generated method stub
                 if (pathInContext.equals(getName())) {
-                    servant.doService(req, resp);
-                    resp.commit();
-                    req.setHandled(true);
+                    servant.doService(req, resp);                    
                 }
             }
             

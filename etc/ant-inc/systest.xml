@@ -12,7 +12,10 @@
             <fileset dir="${basedir}/test/system" includes="**/resource/**/*"/>
         </copy>
         <copy todir="${basedir}/build/classes-tests/system">
-            <fileset dir="${basedir}/etc/test" includes="logging.properties"/>
+            <fileset dir="${basedir}/etc/test">
+                <include name="logging.properties"/>
+                <include name="log4j.properties"/>
+            </fileset>
         </copy>
     </target>
     
