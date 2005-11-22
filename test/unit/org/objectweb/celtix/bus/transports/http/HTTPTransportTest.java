@@ -54,7 +54,11 @@ public class HTTPTransportTest extends TestCase {
         doTestHTTPTransport(false);
     }
     
-    public void xtestHTTPTransportUsingAutomaticWorkQueue() throws Exception {
+    public void xtestHTTPTransportAgain() throws Exception {
+        doTestHTTPTransport(false);
+    }
+    
+    public void testHTTPTransportUsingAutomaticWorkQueue() throws Exception {
         doTestHTTPTransport(true);
     }
 
@@ -159,6 +163,7 @@ public class HTTPTransportTest extends TestCase {
         len = ictx.getInputStream().read(bytes);
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
+        server.deactivate();
     }
     
     private TransportFactory createTransportFactory() throws BusException { 
