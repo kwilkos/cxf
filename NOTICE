@@ -5,3 +5,4 @@ WSDL4J                1.5.1     CPL    http://www.opensource.org/licenses/cpl1.0
 JAX-WS Reference Impl 2005-11-04 CDDL  lib/jaxws-ri/20051104/license.txt
                                        lib/jaxws-ri/20051104/JAXWSv2.0.THIRDPARTYLICENSEREADME.txt
 Spring                1.2.5     APACHE http://www.apache.org/licenses/LICENSE-2.0.txt
+ActiveMQ              3.2       APACHE http://www.apache.org/licenses/LICENSE-2.0

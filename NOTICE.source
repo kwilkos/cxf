@@ -13,3 +13,4 @@ Code Gen Library (cglib) 2.1.2  APACHE http://www.apache.org/licenses/LICENSE-2.
 PMD                   3.3       BSD    http://pmd.sourceforge.net/license.html
 Jaxen                 1.1       APACHE tools/pmd/3.3/jaxen-LICENSE.txt
 Spring                1.2.5     APACHE http://www.apache.org/licenses/LICENSE-2.0.txt
+ActiveMQ              3.2       APACHE http://www.apache.org/licenses/LICENSE-2.0
