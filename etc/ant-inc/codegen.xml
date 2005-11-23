@@ -272,4 +272,16 @@
         <antcall target="spring.test.codegen.internal"/>
     </target>
 
+    <target name="configuration.docgen" depends="configuration.codegen" description="Generate documentation from configuration metadata">
+        <mkdir dir="${basedir}/build/doc"/>
+        <xslt style="${basedir}/etc/transforms/config-doc.xsl" destdir="${basedir}/build/doc" basedir="${basedir}" includes="src/**/config-metadata/*-config.xml build/src/**/config-metadata/*-config.xml">
+            <mapper>
+            <chainedmapper>
+                <mapper type="flatten"/>
+                <mapper type="glob" from="*.xml" to="*.html"/>
+            </chainedmapper>
+            </mapper>
+        </xslt>
+    </target>
+
 </project>
