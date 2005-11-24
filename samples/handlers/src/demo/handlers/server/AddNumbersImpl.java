@@ -8,6 +8,7 @@ import org.objectweb.handlers.types.FaultDetail;
 
 
 @WebService(name = "AddNumbers", targetNamespace = "http://www.objectweb.org/handlers", 
+            serviceName = "AddNumbersService",
             wsdlLocation = "file:./wsdl/addNumbers.wsdl")
 @HandlerChain(file = "../common/demo_handlers.xml", name = "DemoHandlerChain")
 public class AddNumbersImpl implements AddNumbers {

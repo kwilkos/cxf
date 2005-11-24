@@ -9,8 +9,8 @@ import org.objectweb.celtix.configuration.Configuration;
 public class HTTPServerTransportConfiguration extends AbstractConfigurationImpl {
     
     HTTPServerTransportConfiguration(Configuration endpointConfiguration, Port port) {
-        super(HTTPClientTransportConfiguration.class, "config-metadata/http-server-config.xml", 
-              endpointConfiguration); 
+        super(HTTPServerTransportConfiguration.class, "config-metadata/http-server-config.xml", 
+              "http-server", endpointConfiguration); 
         if (null != port) {
             this.getProviders().add(new WsdlHttpConfigurationProvider(port, true));
         }

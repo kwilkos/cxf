@@ -21,8 +21,15 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
  */
 public class LoggingHandler implements SOAPHandler<SOAPMessageContext> {
 
-    // change this to redirect output if desired
-    private static PrintStream out = System.out;
+    private PrintStream out;
+
+    public LoggingHandler() {
+        setLogStream(System.out);
+    }
+
+    protected final void setLogStream(PrintStream ps) {
+        out = ps;
+    }
 
     public void init(Map c) {
         System.out.println("LoggingHandler : init() Called....");
@@ -61,7 +68,7 @@ public class LoggingHandler implements SOAPHandler<SOAPMessageContext> {
      * output the message. The writeTo() method can throw
      * SOAPException or IOException
      */
-    private void logToSystemOut(SOAPMessageContext smc) {
+    protected void logToSystemOut(SOAPMessageContext smc) {
         Boolean outboundProperty = (Boolean)
             smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 

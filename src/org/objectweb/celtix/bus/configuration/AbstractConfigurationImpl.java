@@ -31,7 +31,8 @@ public class AbstractConfigurationImpl implements Configuration {
     private List<ConfigurationProvider> providers;
 
     public AbstractConfigurationImpl(Class cl, String resource, Object instanceId, Configuration parent) {
-        configurator = new ConfiguratorImpl(this, (AbstractConfigurationImpl)parent);
+        configurator = new ConfiguratorImpl(this, 
+            parent instanceof AbstractConfigurationImpl ? (AbstractConfigurationImpl)parent : null);
         ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();
         InputStream is = null;
         if (null != cl && resource != null) {

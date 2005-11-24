@@ -9,9 +9,20 @@ The server code registers a handler using the @HandlerChain
 annotation on the service implementation class. For this demo, the
 handler is SOAPHandler that logs the SOAP message to stdout.
 
+While the annotation in the service implementation class specifies
+that the server should use the LoggingHandler, the demo shows how this 
+behaviour is superceded by information obtained from the celtix-server.xml
+configuration file, thus allowing to control the server's behaviour without
+changing the code. 
+
 The client includes a logical handler that checks the parameters on
 outbound requests and short-circuits the invocation in certain
-circumstances.
+circumstances. This handler is not specified programatically but through
+configuration, in celtix-client.xml. Follow the instructions in the 
+celtix-client.xml file to run the client without handler (or implement your
+own handler and change the class name in the configuration file accordingly)
+and see how configuration allows you to control the behaviour of a Celtix
+application without changing any code.
 
 Please review the README in the samples directory before
 continuing.

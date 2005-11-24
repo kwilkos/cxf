@@ -4,11 +4,11 @@
     <import file="../common_build.xml"/>
 
     <target name="client" description="run demo client" depends="build">
-        <celtixrun classname="demo.handlers.client.Client" param1="${basedir}/wsdl/addNumbers.wsdl"/>
+        <celtixrun classname="demo.handlers.client.Client" param1="${basedir}/wsdl/addNumbers.wsdl" jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-client.xml"/>
     </target>
 
     <target name="server" description="run demo server" depends="build">
-        <celtixrun classname="demo.handlers.server.Server" param1="${basedir}/wsdl/addNumbers.wsdl"/>
+        <celtixrun classname="demo.handlers.server.Server" param1="${basedir}/wsdl/addNumbers.wsdl" jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-server.xml"/>
     </target>
 
     <target name="generate.code" unless="codegen.notrequired">

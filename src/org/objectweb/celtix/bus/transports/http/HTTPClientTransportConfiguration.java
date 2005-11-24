@@ -10,7 +10,7 @@ public class HTTPClientTransportConfiguration extends AbstractConfigurationImpl 
 
     HTTPClientTransportConfiguration(Configuration portConfiguration, Port port) {
         super(HTTPClientTransportConfiguration.class, "config-metadata/http-client-config.xml", 
-              portConfiguration); 
+              "http-client", portConfiguration); 
         if (null != port) {
             this.getProviders().add(new WsdlHttpConfigurationProvider(port, false));
         }
