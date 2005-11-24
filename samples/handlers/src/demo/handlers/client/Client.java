@@ -30,7 +30,7 @@ public final class Client {
 
         AddNumbersService service = new AddNumbersService(wsdl.toURL(), serviceName);
         AddNumbers port = (AddNumbers) service.getPort(portName, AddNumbers.class);
-        ((BindingProvider)port).getBinding().getHandlerChain().add(new SmallNumberHandler()); 
+        // ((BindingProvider)port).getBinding().getHandlerChain().add(new SmallNumberHandler()); 
         
         try {
             int number1 = 10;
