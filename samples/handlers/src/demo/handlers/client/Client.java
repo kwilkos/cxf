@@ -2,8 +2,6 @@ package demo.handlers.client;
 
 import java.io.File;
 import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import demo.handlers.common.SmallNumberHandler;
 import org.objectweb.handlers.AddNumbers;
 import org.objectweb.handlers.AddNumbersFault;
 import org.objectweb.handlers.AddNumbersService;
@@ -30,7 +28,6 @@ public final class Client {
 
         AddNumbersService service = new AddNumbersService(wsdl.toURL(), serviceName);
         AddNumbers port = (AddNumbers) service.getPort(portName, AddNumbers.class);
-        // ((BindingProvider)port).getBinding().getHandlerChain().add(new SmallNumberHandler()); 
         
         try {
             int number1 = 10;
