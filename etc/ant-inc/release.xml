@@ -3,7 +3,7 @@
     <import file="compile.xml"/>
     <import file="javadoc.xml"/>
 
-    <target name="release" depends="celtix.jar,publicapi.javadoc,check.samples"
+    <target name="release" depends="celtix.bin.jar,publicapi.javadoc,check.samples"
         description="Build a release kit">
 
         <mkdir dir="${build.release.dir}"/>
@@ -33,11 +33,7 @@
                 <exclude name="**/build"/>
             </fileset>
         </copy>
-        <copy todir="${build.release.dir}/lib">
-            <fileset dir="${build.lib.dir}">
-                <include name="**/*"/>
-            </fileset>
-        </copy>
+        <copy file="${celtix.bin.jar}" tofile="${build.release.dir}/lib/celtix.jar"/>
         <copy todir="${build.release.dir}/lib">
             <fileset dir="${tools.dir}">
                 <include name="wsdl4j/**/*"/>
@@ -99,12 +95,28 @@
             </tarfileset>
         </tar>
     </target>
-	
-    <target name="celtix.jar" depends="src.compile" description="build the celtix jar">
+
+    <target name="celtix.bin.jar" depends="src.compile" description="build the celtix jar for a binary distribution">
+        <mkdir dir="${build.lib.dir}"/>
+	    <pathconvert dirsep="/" pathsep=" " property="manifest.bin.classpath" refid="runtime.classpath">
+            <!-- remove the location specific parts -->
+            <map from="${tools.dir}${file.separator}" to=""/>
+        </pathconvert>
+
+        <jar destfile="${celtix.bin.jar}"
+             basedir="${build.classes.dir}">
+            <metainf dir="${basedir}/etc/metainf"/>
+            <manifest>
+                <attribute name="Class-Path" value="${manifest.bin.classpath}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="celtix.jar" depends="src.compile" description="build the celtix jar for a source distribution">
         <mkdir dir="${build.lib.dir}"/>
 	    <pathconvert dirsep="/" pathsep=" " property="manifest.classpath" refid="runtime.classpath">
             <!-- remove the location specific parts -->
-            <map from="${tools.dir}${file.separator}" to=""/>
+            <map from="${tools.dir}" to="..${file.separator}..${file.separator}tools"/>
         </pathconvert>
 
         <jar destfile="${celtix.jar}"
@@ -116,7 +128,7 @@
         </jar>
     </target>
 
-    <target name="check.samples">
+    <target name="check.samples" depends="celtix.jar">
         <check.sample sample.dir="samples/handlers"/>
         <check.sample sample.dir="samples/hello_world"/>
         <check.sample sample.dir="samples/hello_world_RPCLit"/>

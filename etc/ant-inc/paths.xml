@@ -24,6 +24,7 @@
     <property name="build.package.dir" location="${build.dir}/package"/>
     <property name="build.lib.dir" location="${build.dir}/lib"/>
     <property name="celtix.jar" location="${build.lib.dir}/celtix.jar"/>
+    <property name="celtix.bin.jar" location="${build.lib.dir}/celtix-bin.jar"/>
 
     <path id="jdk.tools.classpath">
         <pathelement location="${tools.jar}"/>

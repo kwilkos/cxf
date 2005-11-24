@@ -3,18 +3,20 @@
 
     <import file="../common_build.xml"/>
 
-    <property name="wsdl.dir" location="${basedir}/wsdl"/>
-    <property name="wsdl.file" value="hello_world_RPCLit.wsdl"/>
-
     <target name="client" description="run demo client">
         <property name="param1" value=""/>
         <property name="param2" value=""/>
         <property name="param3" value=""/>
         <celtixrun classname="demo.hwRPCLit.client.Client" param1="${basedir}/wsdl/hello_world_RPCLit.wsdl" param2="${op}" param3="${param1}" param4="${param2}" param5="${param3}"/>
     </target>
-    
 
     <target name="server" description="run demo server">
         <celtixrun classname="demo.hwRPCLit.server.Server" param1="${basedir}/wsdl/hello_world_RPCLit.wsdl"/>
     </target>
+        
+    <target name="generate.code" unless="codegen.notrequired">
+        <echo message="Generating code using wsdl2java..."/>
+        <wsdl2java file="hello_world_RPCLit.wsdl"/>
+        <touch file="${codegen.timestamp.file}"/>
+    </target>        
 </project>

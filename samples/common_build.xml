@@ -1,80 +1,116 @@
-<?xml version="1.0"?>
-<!-- common build targets for Celtix demos -->
-<project name="celtix-demo-common">
-
+<project name="Celtix common build file" default="build">
+        
+    <property environment="env"/>
     <property name="build.dir" location ="${basedir}/build"/>
     <property name="build.classes.dir" location ="${build.dir}/classes"/>
     <property name="build.src.dir" location ="${build.dir}/src"/>
+    <property name="codegen.timestamp.file" value="${build.src.dir}/.CODEGEN_DONE"/>
+    <property name="wsdl.dir" location="${basedir}/wsdl"/>
 
+    <uptodate property="codegen.notrequired" value="true">
+        <srcfiles dir="${wsdl.dir}" includes="*.wsdl"/>
+        <srcfiles dir="${wsdl.dir}" includes="*.xsd"/>
+        <mapper type="merge" to="${codegen.timestamp.file}"/>
+    </uptodate>
+        
     <!-- find the tools jar, which on darwin, tools.jar does not exist -->
-    <property environment="env"/>
-    <available property="tools.jar" value="${env.JAVA_HOME}/lib/tools.jar"
-           file="${env.JAVA_HOME}/lib/tools.jar"/>
+    <available property="tools.jar" value="$${env.JAVA_HOME}/lib/tools.jar"
+       file="${env.JAVA_HOME}/lib/tools.jar"/>
     <path id="jdk.tools.classpath">
         <pathelement location="${tools.jar}"/>
     </path>
 
     <condition property="is.java.version.15">
         <equals arg1="${ant.java.version}" arg2="1.5"/>
-    </condition> 
+    </condition>
 
     <fail message="Celtix requires Java version 1.5 or higher. You are currently using Java version ${ant.java.version}."
         unless="is.java.version.15"/>
 
-    <!-- 
-        First assume we are either in a working copy or in a source
-        distribution, and expect third party libraries in the ../../tools directory.
-        If neither directory exists assume we are in a binary distribution
-        in which case third party tools are located in the ../../lib directory.
-    -->
-
-    <available property="thirdparty.tools.dir" value="${basedir}/../../tools/" file="tools" filepath="${basedir}/../.." type="dir"/>
-    <condition property="thirdparty.tools.dir" value="${basedir}/../../lib">
-        <and>
-            <not>
-                <isset property="thirdparty.tools.dir"/>
-            </not>
-            <available filepath="${basedir}/../.." file="lib" type="dir"/>
-        </and>
+    <!-- Determine celtix.home, either from the environment variable CELTIX_HOME
+       - or using ../..
+       -->
+    <condition property="celtix.home" value="${env.CELTIX_HOME}">
+        <isset property="env.CELTIX_HOME"/>
     </condition>
-    <property name="jaxws.lib.dir" location="${thirdparty.tools.dir}/jaxws-ri/20051104/lib"/>
-    <property name="celtix.etc.dir" location="../../etc"/>
+    <property name="celtix.home" value="../.."/>
 
-    <target name="build"  depends="generate.code,compile" description="build demo client and server"/>
+    <!-- Determine celtix.jar.file, either ${celtix.home}/build/lib/celtix.jar
+       - in a source distribution, or ${celtix.home}/lib/celtix.jar in a binary
+       - distribution.
+       -->
+    <condition property="celtix.jar.file" value="${celtix.home}/build/lib/celtix.jar">
+        <available file="celtix.jar" type="file" filepath="${celtix.home}/build/lib"/>
+    </condition>
+    <property name="celtix.jar.file" value="${celtix.home}/lib/celtix.jar"/>
 
-    <path id="celtix.build.classpath">
-        <pathelement location="${basedir}/build/classes"/>
-        <pathelement location="${basedir}/../../lib/celtix.jar"/>
-        <pathelement location="${basedir}/../../build/lib/celtix.jar"/>
-        <fileset dir="${jaxws.lib.dir}">
-            <include name="*.jar"/>
-        </fileset>
+    <fail message="The location ${celtix.home} does not seem to contain a Celtix installation; if you are importing this common build file from a location other than the Celtix samples directory then you need to set the CELTIX_HOME environment variable.">
+        <condition>
+            <not>
+                <isset property="celtix.jar.file" />
+            </not>
+        </condition>
+    </fail>
+
+    <!-- Determine the tools directory, either ${celtix.home}/tools
+       - in a source distribution, or ${celtix.home}/lib in a binary
+       - distribution.
+       -->
+    <condition property="thirdparty.tools.dir" value="${celtix.home}/tools">
+        <available file="tools" type="dir" filepath="${celtix.home}"/>
+    </condition>
+
+    <condition property="thirdparty.tools.dir" value="${celtix.home}/lib">
+        <available file="lib" type="dir" filepath="${celtix.home}"/>
+    </condition>
+
+    <property name="jaxws.home" value="${thirdparty.tools.dir}/jaxws-ri/20051104/"/>
+    <property name="jaxws.lib.dir" location="${jaxws.home}/lib"/>
+    <property name="celtix.etc.dir" location="${celtix.home}/etc"/>
+    <property name="catalina.base.dir" value="${thirdparty.tools.dir}/tomcat/5.5.9"/>
+
+    <path id="celtix.classpath">
+        <pathelement location="${build.classes.dir}"/>
+        <pathelement location="${celtix.jar.file}"/>
+        <pathelement location="${celtix.home}/schemas"/>
     </path>
-    
 
-    <path id="celtix.runtime.classpath">
-        <path refid="celtix.build.classpath"/>
-        <pathelement location="${thirdparty.tools.dir}/wsdl4j/1.5.1/wsdl4j.jar"/>
-        <fileset dir="${thirdparty.tools.dir}/jetty/5.1.5rc2">
-            <include name="*.jar"/>
-        </fileset>
-        <fileset dir="${thirdparty.tools.dir}/spring/1.2.5">
-	  <include name="*.jar"/>
-	</fileset>
-        <pathelement location="${basedir}/../../schemas"/>
-    </path>
+    <target name="compile" depends="generate.code">
+        <javac srcdir="${basedir}/src" destdir="${build.classes.dir}" debug="true">
+            <classpath refid="celtix.classpath" />
+        </javac>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${basedir}/src" includes="**/*.xml" />
+        </copy>
+    </target>
+
+    <target name="checkstyle">
+        <checkstyle config="${checkstyle.config.file}">
+            <fileset dir="${basedir}/src" includes="**/*.java"/>
+            <classpath>
+                <path refid="celtix.classpath"/>
+            </classpath>
+        </checkstyle>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.classes.dir}"/>
+        <delete file="${codegen.timestamp.file}"/>
+    </target>
+        
+    <target name="build"  depends="compile" description="build demo client and server"/>
 
     <macrodef name="celtixrun">
         <attribute name="classname"/>
-	<attribute name="param1" default=""/>
-	<attribute name="param2" default=""/>
-	<attribute name="param3" default=""/>
-	<attribute name="param4" default=""/>
-	<attribute name="param5" default=""/>
-	<sequential>
+        <attribute name="param1" default=""/>
+        <attribute name="param2" default=""/>
+        <attribute name="param3" default=""/>
+        <attribute name="param4" default=""/>
+        <attribute name="param5" default=""/>
+        <sequential>
             <java classname="@{classname}" fork="yes">
                 <classpath>
-                    <path refid="celtix.runtime.classpath"/>
+                    <path refid="celtix.classpath"/>
                 </classpath>
                 <arg value="@{param1}"/>
                 <arg value="@{param2}"/>
@@ -86,61 +122,19 @@
                 </assertions>
                 <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
                 <sysproperty key="log4j.configuration" value="file:///${celtix.etc.dir}/log4j.properties"/>
+                <!-- the requirement to set catalina.home will be removed when the Jetty HTTP stack is put into Celtix -->
+                <sysproperty key="catalina.home" value="${catalina.base.dir}"/>
             </java>
         </sequential>
     </macrodef>
-
-    <target name="init">
-        <mkdir dir="${build.classes.dir}"/>
-        <mkdir dir="${build.src.dir}"/>
-    </target>
-
-    <target name="compile" depends="generate.code">
-        <javac srcdir="${basedir}/src" destdir="${basedir}/build/classes"
-           debug="true">
-            <classpath refid="celtix.build.classpath"/>
-        </javac>
-	<copy todir="${basedir}/build/classes">
-	  <fileset dir="${basedir}/src" includes="**/*.xml"/>
-	</copy>
-    </target>
-
-    <target name="checkstyle">
-        <checkstyle config="${checkstyle.config.file}">
-            <fileset dir="src" includes="**/*.java"/>
-            <classpath>
-                <path refid="celtix.build.classpath"/>
-            </classpath>
-        </checkstyle>
-    </target>
-
-    <target name="generate.code" depends="init">
-        <uptodate property="codegen.notrequired" value="true">
-            <srcfiles dir="${wsdl.dir}" includes="*"/>
-            <mapper type="merge" to="${build.src.dir}/.CODEGEN.DONE"/>
-        </uptodate>
-        <antcall target="codegen.internal"/>
-    </target>
-
-    <target name="codegen.internal" unless="codegen.notrequired">
-        <wsdltojava file="${wsdl.dir}/${wsdl.file}" destdir="${build.classes.dir}"
-            srcdestdir="${build.src.dir}"/>
-        <touch file="${build.src.dir}/.CODEGEN.DONE"/>
-    </target>
-    
-
-    <target name="clean">
-        <delete dir="${build.dir}"/>
-    </target>
-
-
-    <!-- targets and tasks for code generation -->
-
-    <macrodef name="wsdltojava">
-        <attribute name="srcdestdir"/>
-        <attribute name="destdir"/>
+        
+        
+    <macrodef name="wsdl2java">
+        <attribute name="srcdestdir" default="${build.src.dir}"/>
+        <attribute name="destdir" default="${build.classes.dir}"/>
         <attribute name="file"/>
-        <attribute name="package" default="NOT_SPECIFIED"/>
+        <attribute name="dir" default="${wsdl.dir}"/>
+        <attribute name="package" default="NOT_SPECIFIED"/>           
         <sequential>
             <mkdir dir="@{destdir}"/>
             <mkdir dir="@{srcdestdir}"/>
@@ -150,22 +144,21 @@
                 </not>
             </condition>
             <property name="package.arg.@{file}" value=""/>
-            <java failonerror="true" classname="com.sun.tools.ws.WsImport" fork="yes">
+            <java failonerror="true" classname="org.objectweb.celtix.tools.Wsdl2Java" fork="yes">
                 <classpath>
-                    <fileset dir="${jaxws.lib.dir}">
-                        <include name="*.jar"/>
-                    </fileset>
-                    <path refid="jdk.tools.classpath"/>
+                    <path refid="celtix.classpath" />
                 </classpath>
                 <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
+                <sysproperty key="jaxws.home" value="${jaxws.home}"/>
                 <arg line="${package.arg.@{file}}"/>
                 <arg value="-keep"/>
                 <arg value="-s"/>
                 <arg value="@{srcdestdir}"/>
                 <arg value="-d"/>
                 <arg value="@{destdir}"/>
-                <arg value="@{file}"/>
-            </java>
+                <arg value="@{dir}/@{file}"/>
+            </java>  
         </sequential>
     </macrodef>
+
 </project>

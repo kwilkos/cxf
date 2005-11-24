@@ -1,17 +1,20 @@
 <?xml version="1.0"?>
 <project name="hello world demo" default="build" basedir=".">
 
-    <import file="../common_build.xml"/>
-
-    <property name="wsdl.dir" location="${basedir}/wsdl"/>
-    <property name="wsdl.file" value="hello_world.wsdl"/>
-
+    <import file="../common_build.xml"/>        
+        
     <target name="client" description="run demo client">
         <property name="param" value=""/>
         <celtixrun classname="demo.hw.client.Client" param1="${basedir}/wsdl/hello_world.wsdl" param2="${op}" param3="${param}"/>
     </target> 
-
+        
     <target name="server" description="run demo server">
         <celtixrun classname="demo.hw.server.Server" param1="${basedir}/wsdl/hello_world.wsdl"/>
+    </target>
+        
+    <target name="generate.code" unless="codegen.notrequired">
+        <echo message="Generating code using wsdl2java..."/>
+        <wsdl2java file="hello_world.wsdl"/>
+        <touch file="${codegen.timestamp.file}"/>
     </target>
 </project>
