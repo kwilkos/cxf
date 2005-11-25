@@ -59,9 +59,14 @@ public class ConfigurationMetadataBuilder  {
     private static ErrorHandler validatorErrorHandler;
     
     private final ConfigurationMetadataImpl model;
+    private boolean doValidate;
 
     public ConfigurationMetadataBuilder() {
         model = new ConfigurationMetadataImpl();
+    }
+    
+    public void setValidation(boolean onOff) {
+        doValidate = onOff;   
     }
 
     public ConfigurationMetadata build(InputSource is) throws IOException {
@@ -91,19 +96,21 @@ public class ConfigurationMetadataBuilder  {
                 QName type = ConfigurationMetadataUtils.elementValueToQName(document, 
                                                                            (Element)nd);
                 item.setType(type);
-                if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type.getNamespaceURI())) {
-                    continue;
+                if (doValidate) {
+                    if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type.getNamespaceURI())) {
+                        continue;
+                    }
+                    TypeSchema ts = new TypeSchemaHelper().get(type.getNamespaceURI());
+                    if (ts == null) {
+                        throw new ConfigurationException(new Message("NO_TYPESCHEMA_FOR_NAMESPACE_EXC", LOG,
+                                                                     type.getNamespaceURI()));
+                    }
+                    if (!ts.hasType(type.getLocalPart())) {
+                        throw new ConfigurationException(new Message("TYPE_NOT_DEFINED_IN_NAMESPACE_EXC",
+                                                                     LOG, type.getLocalPart(), type
+                                                                         .getNamespaceURI()));
+                    }
                 }
-                TypeSchema ts = new TypeSchemaHelper().get(type.getNamespaceURI());
-                if (ts == null) {
-                    throw new ConfigurationException(new Message("NO_TYPESCHEMA_FOR_NAMESPACE_EXC", LOG,
-                                                                 type.getNamespaceURI()));
-                }
-                if (!ts.hasType(type.getLocalPart())) {
-                    throw new ConfigurationException(new Message("TYPE_NOT_DEFINED_IN_NAMESPACE_EXC", LOG,
-                                                                 type.getLocalPart(), 
-                                                                 type.getNamespaceURI()));
-                }                
             } else if ("description".equals(nd.getLocalName())) {
                 // item.setDescription(getElementValue(nd));
             } else if ("lifecyclePolicy".equals(nd.getLocalName())) {
@@ -254,14 +261,16 @@ public class ConfigurationMetadataBuilder  {
             throw new ConfigurationException(new Message("PARSER_CONFIGURATION_ERROR_EXC", LOG), ex);
         } catch (SAXException ex) {
             throw new ConfigurationException(new Message("PARSE_ERROR_EXC", LOG), ex);
-        }        
-       
-        try {
-            Validator v = getMetadataValidator();
-            v.validate(new DOMSource(document));
-        } catch (SAXException ex) {
-            Message msg = new Message("METADATA_VALIDATION_ERROR_EXC", LOG);
-            throw new ConfigurationException(msg, ex);
+        } 
+        
+        if (doValidate) {
+            try {
+                Validator v = getMetadataValidator();
+                v.validate(new DOMSource(document));
+            } catch (SAXException ex) {
+                Message msg = new Message("METADATA_VALIDATION_ERROR_EXC", LOG);
+                throw new ConfigurationException(msg, ex);
+            }
         }
         
         deserializeImports(document);
@@ -271,7 +280,7 @@ public class ConfigurationMetadataBuilder  {
 
     private void unmarshalDefaultValue(ConfigurationItemMetadataImpl item, Element data) {
         TypeSchema ts = new TypeSchemaHelper().get(data.getNamespaceURI());
-        Object obj = ts.unmarshalDefaultValue(item, data);
+        Object obj = ts.unmarshalDefaultValue(item, data, doValidate);
         if (null != obj) {
             item.setDefaultValue(obj);        
         }

@@ -69,6 +69,7 @@ public class BeanGenerator {
         }
         
         ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();
+        builder.setValidation(true);
         ConfigurationMetadata model = null;
 
         try {

@@ -24,6 +24,7 @@
                 <filter excludes="*.package-info"/>
                 <filter excludes="org.objectweb.celtix.wsdl.T*"/>
                 <filter excludes="*.spring.BeanGenerator"/>
+                <filter excludes="*.spring.*"/>
             </instr>
         </emma>
         <property name="emma.enabled" value="true"/>

@@ -124,6 +124,7 @@ public class ConfigurationMetadataImplTest extends TestCase {
         } catch (ConfigurationException ex) {
             assertEquals("TYPE_NOT_DEFINED_IN_NAMESPACE_EXC", ex.getCode()); 
         }
+        assertNotNull(buildMetadata("meta4.xml", false));
     }
 
     public void testUniqueName() {
@@ -139,6 +140,7 @@ public class ConfigurationMetadataImplTest extends TestCase {
         } finally {
             System.setErr(perr); 
         }
+        assertNotNull(buildMetadata("meta5.xml", false));
     }
 
     public void testInvalidTypeInDefaultValue() {       
@@ -159,6 +161,7 @@ public class ConfigurationMetadataImplTest extends TestCase {
             // assertEquals("INVALID_DEFAULT_VALUE_EXC", ex.getCode());   
             assertEquals("DEFAULT_VALUE_UNMARSHAL_ERROR_EXC", ex.getCode());
         }
+        assertNotNull(buildMetadata("meta7.xml", false));
     }
     
     public void testDefaultValue() {        
@@ -213,10 +216,14 @@ public class ConfigurationMetadataImplTest extends TestCase {
         assertEquals("c", l.get(2));
     }
    
-    
     private ConfigurationMetadata buildMetadata(String filename) {
+        return buildMetadata(filename, true);
+    }
+    
+    private ConfigurationMetadata buildMetadata(String filename, boolean doValidate) {
         InputStream is = getClass().getResourceAsStream("resources/" + filename);
         ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();
+        builder.setValidation(doValidate);
         try {
             return builder.build(is); 
         } catch (IOException ex) {

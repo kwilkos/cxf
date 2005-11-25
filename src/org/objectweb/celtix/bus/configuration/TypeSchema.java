@@ -179,17 +179,25 @@ public class TypeSchema {
     public Schema getSchema() {
         return schema;
     }
-
+    
     public Object unmarshalDefaultValue(ConfigurationItemMetadata item, Element data) {
+        return unmarshalDefaultValue(item, data, false);
+    }
+
+    public Object unmarshalDefaultValue(ConfigurationItemMetadata item, Element data, boolean doValidate) {
         try {
-            return unmarshal(item.getType(), data);
+            return unmarshal(item.getType(), data, doValidate);
         } catch (JAXBException ex) {
             Message msg = new Message("DEFAULT_VALUE_UNMARSHAL_ERROR_EXC", LOG, item.getName());
             throw new ConfigurationException(msg, ex);
         }
     }
-
+    
     public Object unmarshal(QName type, Element data) throws JAXBException {
+        return  unmarshal(type, data, true);
+    }
+
+    public Object unmarshal(QName type, Element data, boolean doValidate) throws JAXBException {
         
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("unmarshalling: element namespaceURI: " + data.getNamespaceURI() + "\n" 
@@ -202,7 +210,9 @@ public class TypeSchema {
 
         context = JAXBContext.newInstance(packageName);
         Unmarshaller u = context.createUnmarshaller();
-        u.setSchema(schema);
+        if (doValidate) {
+            u.setSchema(schema);
+        }
         obj = u.unmarshal(data);
         if (obj instanceof JAXBElement<?>) {
             JAXBElement<?> el = (JAXBElement<?>)obj;
