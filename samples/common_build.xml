@@ -67,7 +67,6 @@
     <property name="jaxws.home" value="${thirdparty.tools.dir}/jaxws-ri/20051104/"/>
     <property name="jaxws.lib.dir" location="${jaxws.home}/lib"/>
     <property name="celtix.etc.dir" location="${celtix.home}/etc"/>
-    <property name="catalina.base.dir" value="${thirdparty.tools.dir}/tomcat/5.5.9"/>
 
     <path id="celtix.classpath">
         <pathelement location="${build.classes.dir}"/>
@@ -108,11 +107,11 @@
         <attribute name="param3" default=""/>
         <attribute name="param4" default=""/>
         <attribute name="param5" default=""/>
-        <attribute name="jvmarg1" default=""/>
-        <attribute name="jvmarg2" default=""/>
-        <attribute name="jvmarg3" default=""/>
-        <attribute name="jvmarg4" default=""/>
-        <attribute name="jvmarg5" default=""/>
+        <attribute name="jvmarg1" default="-D"/>
+        <attribute name="jvmarg2" default="-D"/>
+        <attribute name="jvmarg3" default="-D"/>
+        <attribute name="jvmarg4" default="-D"/>
+        <attribute name="jvmarg5" default="-D"/>
         <sequential>
             <java classname="@{classname}" fork="yes">
                 <classpath>
@@ -133,8 +132,6 @@
                 </assertions>
                 <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
                 <sysproperty key="log4j.configuration" value="file:///${celtix.etc.dir}/log4j.properties"/>
-                <!-- the requirement to set catalina.home will be removed when the Jetty HTTP stack is put into Celtix -->
-                <sysproperty key="catalina.home" value="${catalina.base.dir}"/>
             </java>
         </sequential>
     </macrodef>
