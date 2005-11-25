@@ -67,6 +67,9 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             configureHandlers();            
             injectResources();
         } catch (Exception ex) {
+            if (ex instanceof WebServiceException) { 
+                throw (WebServiceException)ex; 
+            }
             throw new WebServiceException("Creation of Endpoint failed", ex);
         }
     }
@@ -129,7 +132,8 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         }
         if (!isContextBindingCompatible(serverContext)) {
             throw new IllegalArgumentException(
-                new BusException(new Message("BINDING_INCOMPATIBLE_CONTEXT_EXC", LOG)));
+                                               new BusException(new Message("BINDING_INCOMPATIBLE_CONTEXT_EXC"
+                                                                            , LOG)));
         }
 
         // apply all changes to configuration and metadata and (re-)activate
@@ -148,8 +152,10 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             LOG.warning("ENDPOINT_ALREADY_PUBLISHED_MSG");
         }
         if (!serverBinding.isCompatibleWithAddress(address)) {
-            throw new IllegalArgumentException(
-                new BusException(new Message("BINDING_INCOMPATIBLE_ADDRESS_EXC", LOG)));
+            throw 
+                new IllegalArgumentException(
+                                             new BusException(new Message("BINDING_INCOMPATIBLE_ADDRESS_EXC",
+                                                                          LOG)));
         }
         doPublish(address);
     }
@@ -280,7 +286,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         HandlerChainBuilder builder = new HandlerChainBuilder();
         List<Handler> chain = builder.buildHandlerChainFromConfiguration(configuration, "handlerChain");
         if (null == chain) {
-            chain = builder.buildHandlerChainFor(implementor); 
+            chain = builder.buildHandlerChainFor(implementor.getClass()); 
         }
         serverBinding.getBinding().setHandlerChain(chain); 
     }

@@ -1,3 +1,4 @@
+
 package org.objectweb.celtix.bus.handlers;
 
 
@@ -17,8 +18,9 @@ public class HandlerChainConfigTest extends TestCase {
     private InputStream in; 
 
     public void setUp() {
-        in = getClass().getResourceAsStream(getName() + ".xml"); 
-        assertNotNull("could not load config file", in); 
+        String name = getName() + ".xml";
+        in = getClass().getResourceAsStream(name); 
+        assertNotNull("could not load config file " + name, in); 
     } 
 
 
@@ -40,13 +42,23 @@ public class HandlerChainConfigTest extends TestCase {
 
     public void testConfigNoName() throws IOException { 
 
-        doInvalidXmlTest(""); 
+        HandlerChainConfig conf = new HandlerChainConfig(in); 
+        List<HandlerConfig> handlerInfo = conf.getHandlerConfig();
+        assertNotNull(handlerInfo);
+        assertEquals(1, handlerInfo.size());
     }
 
     public void testConfigNoClass() throws IOException { 
 
         doInvalidXmlTest(""); 
     }
+
+    public void testBindingGeneratedConfig() throws IOException { 
+        HandlerChainConfig conf = new HandlerChainConfig(in); 
+        List<HandlerConfig> handlerInfo = conf.getHandlerConfig();
+        assertNotNull(handlerInfo);
+        assertEquals(1, handlerInfo.size());
+    } 
 
     private void doInvalidXmlTest(String expectedErrorCode) throws IOException { 
         try { 

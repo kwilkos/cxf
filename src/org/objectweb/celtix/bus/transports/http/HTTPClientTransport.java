@@ -1,5 +1,7 @@
 package org.objectweb.celtix.bus.transports.http;
 
+
+
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -12,10 +14,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
-
 import javax.wsdl.WSDLException;
 import javax.xml.ws.handler.MessageContext;
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.configuration.Configuration;
@@ -37,8 +37,9 @@ public class HTTPClientTransport implements ClientTransport {
         Configuration portConfiguration = getPortConfiguration(bus, ref);
         url = new URL(portConfiguration.getString("address"));
         
-        configuration = new HTTPClientTransportConfiguration(portConfiguration, 
-            EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref));
+        configuration = 
+            new HTTPClientTransportConfiguration(portConfiguration, 
+                                                 EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref));
     }
     
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
@@ -52,10 +53,14 @@ public class HTTPClientTransport implements ClientTransport {
    
     public void invokeOneway(OutputStreamMessageContext context) throws IOException {
         HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;
+
+        context.getOutputStream().close();
         ctx.createInputStreamContext().getInputStream().close();
     }
 
     public InputStreamMessageContext invoke(OutputStreamMessageContext context) throws IOException {
+        
+        context.getOutputStream().close();
         return ((HTTPClientOutputStreamContext)context).createInputStreamContext();
     }
 
@@ -75,7 +80,7 @@ public class HTTPClientTransport implements ClientTransport {
         Configuration busConfiguration = bus.getConfiguration();
         Configuration serviceConfiguration = busConfiguration
             .getChild("http://celtix.objectweb.org/bus/jaxws/service-config",
-                     EndpointReferenceUtils.getServiceName(ref));
+                      EndpointReferenceUtils.getServiceName(ref));
         Configuration portConfiguration = serviceConfiguration
             .getChild("http://celtix.objectweb.org/bus/jaxws/port-config",
                       EndpointReferenceUtils.getPortName(ref));
@@ -90,7 +95,8 @@ public class HTTPClientTransport implements ClientTransport {
         URLConnection connection;
         WrappedOutputStream origOut;
         OutputStream out;
-        
+        HTTPClientInputStreamContext inputStreamContext;
+
         public HTTPClientOutputStreamContext(URL url, Configuration configuration, MessageContext ctx)
             throws IOException {
             super(ctx);
@@ -149,10 +155,13 @@ public class HTTPClientTransport implements ClientTransport {
         }
 
         public InputStreamMessageContext createInputStreamContext() throws IOException {
-            return new HTTPClientInputStreamContext(connection);
+            if (inputStreamContext == null) {
+                inputStreamContext =  new HTTPClientInputStreamContext(connection);
+            }
+            return inputStreamContext;
         }
         
-        private static class WrappedOutputStream extends FilterOutputStream {
+        private class WrappedOutputStream extends FilterOutputStream {
             WrappedOutputStream() {
                 super(new ByteArrayOutputStream());
             }
@@ -162,6 +171,13 @@ public class HTTPClientTransport implements ClientTransport {
                     bout.writeTo(newOut);
                 }
                 out = newOut;
+            }
+
+            
+            public void close() throws IOException {
+                if (inputStreamContext != null) {
+                    inputStreamContext.initialise();
+                }
             }
         }
     }
@@ -175,27 +191,50 @@ public class HTTPClientTransport implements ClientTransport {
         final URLConnection connection;
         InputStream origInputStream;
         InputStream inStream;
-        
+        private boolean initialised; 
+
         public HTTPClientInputStreamContext(URLConnection con) throws IOException {
             connection = con;
-            put(ObjectMessageContext.MESSAGE_INPUT, false);
-            put(HTTP_RESPONSE_HEADERS, connection.getHeaderFields());
-            if (connection instanceof HttpURLConnection) {
-                HttpURLConnection hc = (HttpURLConnection)con;
-                put(HTTP_RESPONSE_CODE, hc.getResponseCode());
-                
-                origInputStream = hc.getErrorStream();
-                if (null == origInputStream) {
-                    origInputStream = connection.getInputStream();
-                }
-            } else {
-                origInputStream = connection.getInputStream();
-            }
-            
-            inStream = origInputStream;
+            initialise();
         }
 
+        /**
+         * Calling getHeaderFields on the connection implicitly gets
+         * the InputStream from the connection.  Getting the
+         * InputStream implicitly closes the output stream which
+         * renders it unwritable.  The InputStream context is created
+         * before the binding is finished with it.  For this reason it
+         * is necessary to initialise the InputStreamContext lazily.
+         * When the OutputStream associated with this connection is
+         * closed, it will invoke on this initialise method.  
+         */
+        private void initialise()  throws IOException {
+            if (!initialised) {
+                put(ObjectMessageContext.MESSAGE_INPUT, false);
+                put(HTTP_RESPONSE_HEADERS, connection.getHeaderFields());
+                if (connection instanceof HttpURLConnection) {
+                    HttpURLConnection hc = (HttpURLConnection)connection;
+                    put(HTTP_RESPONSE_CODE, hc.getResponseCode());
+                
+                    origInputStream = hc.getErrorStream();
+                    if (null == origInputStream) {
+                        origInputStream = connection.getInputStream();
+                    }
+                } else {
+                    origInputStream = connection.getInputStream();
+                }
+            
+                inStream = origInputStream;
+                initialised = true;
+            }
+        } 
+
         public InputStream getInputStream() {
+            try {
+                initialise();
+            } catch (IOException ex) { 
+                throw new RuntimeException(ex); 
+            } 
             return inStream;
         }
 

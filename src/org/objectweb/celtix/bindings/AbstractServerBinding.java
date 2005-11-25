@@ -173,7 +173,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 finalPrepareOutputStreamContext(t, replyCtx, outCtx);
                 write(replyCtx, outCtx);
                 if (outCtx.getOutputStream() != null) {
-                    outCtx.getOutputStream().flush(); 
+                    outCtx.getOutputStream().close(); 
                 }
 
             } catch (IOException ex) {

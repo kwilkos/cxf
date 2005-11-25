@@ -2,7 +2,7 @@
   <handler-chain> 
     <handler-chain-name>TestHandlerChain</handler-chain-name> 
     <handler> 
-      <handler-name>DummyHandler0</handler-name> 
+      <handler-class>org.objectweb.celtix.bus.handlers.DummyHandler</handler-class> 
     </handler> 
   </handler-chain> 
 </handler-config> 

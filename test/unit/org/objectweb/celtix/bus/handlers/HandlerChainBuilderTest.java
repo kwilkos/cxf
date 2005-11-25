@@ -1,12 +1,17 @@
 package org.objectweb.celtix.bus.handlers;
 
 
+
+
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.jws.HandlerChain;
+import javax.jws.WebService;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
@@ -15,6 +20,9 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
+import org.objectweb.hello_world_soap_http.BadRecordLitFault;
+import org.objectweb.hello_world_soap_http.Greeter;
+import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 
 public class HandlerChainBuilderTest extends TestCase {
 
@@ -38,18 +46,66 @@ public class HandlerChainBuilderTest extends TestCase {
     }
 
 
+    public void testBuildHandlerChainWithExistingHandlers() { 
+
+        List<Handler> existingChain = new ArrayList<Handler>(); 
+        existingChain.add(EasyMock.createMock(LogicalHandler.class));
+        existingChain.add(EasyMock.createMock(Handler.class));
+
+        List<Handler> chain = builder.buildHandlerChainFor(AnnotatedGreeterImpl.class, existingChain); 
+        
+        assertNotNull(chain); 
+        assertEquals(3, chain.size()); 
+        assertTrue(chain.get(0) instanceof LogicalHandler);
+        assertFalse(chain.get(1) instanceof LogicalHandler);
+        assertFalse(chain.get(2) instanceof LogicalHandler);
+    } 
+
+
+    public void testBuildHandlerChainWithExistingHandlersNoAnnotation() { 
+
+        List<Handler> existingChain = new ArrayList<Handler>(); 
+        existingChain.add(EasyMock.createMock(LogicalHandler.class));
+        existingChain.add(EasyMock.createMock(Handler.class));
+
+        List<Handler> chain = builder.buildHandlerChainFor(Greeter.class, existingChain); 
+        
+        assertNotNull(chain); 
+        assertEquals(existingChain.size(), chain.size()); 
+        assertSame(existingChain.get(0), chain.get(0));
+        assertSame(existingChain.get(1), chain.get(1));
+
+    } 
+
+
     public void testBuildHandlerChain() { 
 
-        List<Handler> chain = builder.buildHandlerChainFor(greeterImpl); 
+        List<Handler> chain = builder.buildHandlerChainFor(AnnotatedGreeterImpl.class); 
         
         assertNotNull(chain); 
         assertEquals(1, chain.size()); 
         assertTrue(chain.get(0) instanceof Handler);
     } 
 
+    public void testBuildHandlerForServiceEndpointInterface() { 
+
+        List<Handler> chain = builder.buildHandlerChainFor(GreeterWithHandlerChainOnInterfaceImpl.class); 
+
+        assertNotNull(chain); 
+        assertEquals(1, chain.size()); 
+        assertTrue(chain.get(0) instanceof Handler);
+    } 
+
+
+    public void testBuildHandlerChainNoHanlders() { 
+        List<Handler> chain = builder.buildHandlerChainFor(String.class); 
+        assertNotNull(chain); 
+        assertEquals(0, chain.size()); 
+    } 
+
     public void testBuilderCallsInit() { 
         
-        List<Handler> chain = builder.buildHandlerChainFor(greeterImpl); 
+        List<Handler> chain = builder.buildHandlerChainFor(AnnotatedGreeterImpl.class); 
         
         assertEquals(1, chain.size()); 
         assertEquals(DummyHandler.class, chain.get(0).getClass()); 
@@ -68,7 +124,7 @@ public class HandlerChainBuilderTest extends TestCase {
 
     public void testBuilderCallsInitWithNoInitParams() { 
 
-        List<Handler> chain = builder.buildHandlerChainFor(new HandlerChainNoInit()); 
+        List<Handler> chain = builder.buildHandlerChainFor(HandlerChainNoInit.class); 
         assertEquals(1, chain.size()); 
         Handler h = chain.get(0); 
         assertNotNull(h); 
@@ -81,7 +137,7 @@ public class HandlerChainBuilderTest extends TestCase {
     public void testBuildHandlerChainInvalidFile() { 
 
         try { 
-            builder.buildHandlerChainFor(new InvalidAnnotation()); 
+            builder.buildHandlerChainFor(InvalidAnnotation.class); 
             fail("did not get expected exception"); 
         } catch (WebServiceException ex) { 
             // happy
@@ -91,7 +147,7 @@ public class HandlerChainBuilderTest extends TestCase {
     public void testBuildHandlerChainInvalidHandlerList() {
 
         try { 
-            builder.buildHandlerChainFor(new InvalidName()); 
+            builder.buildHandlerChainFor(InvalidName.class); 
             fail("did not get expected exception"); 
         } catch (WebServiceException ex) { 
             // happy
@@ -101,7 +157,7 @@ public class HandlerChainBuilderTest extends TestCase {
     public void testBuilderCannotLoadHandlerClass() { 
 
         try { 
-            builder.buildHandlerChainFor(new NoSuchClassName()); 
+            builder.buildHandlerChainFor(NoSuchClassName.class); 
             fail("did not get expected exception"); 
         } catch (WebServiceException ex) { 
             assertNotNull(ex.getCause()); 
@@ -130,3 +186,26 @@ class NoSuchClassName extends AnnotatedGreeterImpl {
 class HandlerChainNoInit extends AnnotatedGreeterImpl {
 }
 
+
+@WebService(name = "Greeter")
+@HandlerChain(file = "../../../hello_world_soap_http/handlers.xml", name = "TestHandlerChain")
+interface GreeterWithHandlerChain extends Greeter { 
+
+} 
+
+class GreeterWithHandlerChainOnInterfaceImpl implements GreeterWithHandlerChain {
+
+    public String sayHi() { 
+        return "";
+    } 
+
+    public String greetMe(String requestType) { 
+        return requestType;
+    }
+
+    public void greetMeOneWay(String requestType) {
+    }
+
+    public void testDocLitFault(String faultType) throws BadRecordLitFault, NoSuchCodeLitFault {
+    }
+}

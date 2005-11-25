@@ -31,17 +31,25 @@ public class HandlerChainConfig {
     private static final String PARAM_VALUE = "param-value"; 
 
     private final Map<String, List<HandlerConfig>> chains = new HashMap<String, List<HandlerConfig>>(); 
+    private List<HandlerConfig> first; 
 
     public HandlerChainConfig(InputStream in) throws IOException {
         assert in != null;
         parseConfigFile(in); 
     }
 
+    public List<HandlerConfig> getHandlerConfig() { 
+        return getHandlerConfig(null); 
+    } 
+
     public List<HandlerConfig> getHandlerConfig(String chainName) { 
+        if ("".equals(chainName) || null == chainName) { 
+            return first;
+        } 
         return chains.get(chainName); 
     }
 
-
+    
     private void parseConfigFile(InputStream in) throws IOException {
 
         try {
@@ -51,13 +59,14 @@ public class HandlerChainConfig {
             NodeList chainNodes = doc.getFirstChild().getChildNodes(); 
             for (int i = 0; i < chainNodes.getLength(); i++) { 
                 Node node = chainNodes.item(i); 
-                if (HANDLER_CHAIN_NODE.equals(node.getNodeName())) {
+                if (HANDLER_CHAIN_NODE.equals(getNodeName(node))) {
                     parseHandlerChain((Element)node); 
                 } 
-
             } 
-
         } catch (Exception ex) { 
+            if (ex instanceof WebServiceException) { 
+                throw (WebServiceException)ex;
+            } 
             throw new WebServiceException(ex);
         } 
     }
@@ -70,17 +79,16 @@ public class HandlerChainConfig {
         NodeList children = el.getChildNodes(); 
         for (int i = 0; i < children.getLength(); i++) { 
             Node n = children.item(i); 
-            if (HANDLER_CHAIN_NAME_NODE.equals(n.getNodeName())) { 
+            if (HANDLER_CHAIN_NAME_NODE.equals(getNodeName(n))) { 
                 chainName = n.getFirstChild().getNodeValue();
-            } else if (HANDLER_NODE.equals(n.getNodeName())) {
+            } else if (HANDLER_NODE.equals(getNodeName(n))) {
                 chain.add(parseHandler((Element)n));
             } 
         } 
 
-        if (null == chainName || "".equals(chainName)) { 
-            throw new WebServiceException("handler chain name not specified");
+        if (first == null) { 
+            first = chain;
         } 
-
         chains.put(chainName, chain);
     }
 
@@ -91,7 +99,7 @@ public class HandlerChainConfig {
         NodeList children = el.getChildNodes(); 
         for (int i = 0; i < children.getLength(); i++) { 
             Node n = children.item(i); 
-            String nodeName = n.getNodeName(); 
+            String nodeName = getNodeName(n); 
 
             if (HANDLER_NAME_NODE.equals(nodeName)) {
                 if (n.getFirstChild() != null) { 
@@ -114,9 +122,9 @@ public class HandlerChainConfig {
             } 
         } 
 
-        if (null == h.getName() || "".equals(h.getName())) { 
-            throw new WebServiceException("handler name not specified"); 
-        } 
+//         if (null == h.getName() || "".equals(h.getName())) { 
+//             throw new WebServiceException("handler name not specified"); 
+//         } 
         if (null == h.getClassName() || "".equals(h.getClassName())) {
             throw new WebServiceException("handler class not specified"); 
         } 
@@ -133,11 +141,11 @@ public class HandlerChainConfig {
         for (int i = 0; i < children.getLength(); i++) { 
             Node n = children.item(i); 
 
-            if (PARAM_NAME.equals(n.getNodeName()) 
+            if (PARAM_NAME.equals(getNodeName(n)) 
                 && n.getFirstChild() != null) {
                 name = n.getFirstChild().getNodeValue();
             } 
-            if (PARAM_VALUE.equals(n.getNodeName())
+            if (PARAM_VALUE.equals(getNodeName(n))
                 && n.getFirstChild() != null) { 
                 value = n.getFirstChild().getNodeValue();
             }
@@ -145,4 +153,13 @@ public class HandlerChainConfig {
 
         return new HandlerConfig.Param(name, value); 
     } 
+
+    private String getNodeName(Node node) { 
+        String name = node.getNodeName(); 
+        if (name.contains(":")) { 
+            name = name.substring(name.indexOf(":") + 1); 
+        }
+        return name;
+    } 
+
 }

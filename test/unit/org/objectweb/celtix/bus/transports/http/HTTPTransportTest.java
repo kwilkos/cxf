@@ -143,6 +143,7 @@ public class HTTPTransportTest extends TestCase {
             octx = client.createOutputStreamContext(new GenericMessageContext());
             client.finalPrepareOutputStreamContext(octx);
             octx.getOutputStream().write(outBytes);
+            octx.getOutputStream().close();
             ictx = client.invoke(octx);
             len = ictx.getInputStream().read(bytes);
             if (len != -1

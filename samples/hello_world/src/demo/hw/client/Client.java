@@ -7,7 +7,7 @@ import org.objectweb.hello_world_soap_http.PingMeFault;
 import org.objectweb.hello_world_soap_http.SOAPService;
 
 public final class Client {
-    
+
     private static final QName SERVICE_NAME 
         = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
 

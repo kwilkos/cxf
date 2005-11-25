@@ -121,7 +121,7 @@ public class ServiceImpl extends ServiceDelegate {
         EndpointInvocationHandler endpointHandler = 
                 new EndpointInvocationHandler(bus, ref, pc, serviceEndpointInterface);
         
-        createHandlerChainForBinding(portName, endpointHandler.getBinding());
+        createHandlerChainForBinding(serviceEndpointInterface, portName, endpointHandler.getBinding());
         
         Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(),
                                             new Class[] {serviceEndpointInterface, Remote.class, 
@@ -136,13 +136,14 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     
-    private void createHandlerChainForBinding(QName portName, Binding binding) {
+    private <T> void createHandlerChainForBinding(Class<T> serviceEndpointInterface, 
+                                                  QName portName, Binding binding) {
 
         assert handlerResolver != null; 
         PortInfoImpl portInfo = new PortInfoImpl(serviceName, portName, null);
         List<Handler> handlers = handlerResolver.getHandlerChain(portInfo);
         HandlerChainBuilder handlerChainBuilder = new HandlerChainBuilder(); 
-        handlers = handlerChainBuilder.sortHandlers(handlers);
+        handlers = handlerChainBuilder.buildHandlerChainFor(serviceEndpointInterface, handlers);
         binding.setHandlerChain(handlers);
     }
     
@@ -156,7 +157,6 @@ public class ServiceImpl extends ServiceDelegate {
                 mue.printStackTrace();
             }
         }
-        
         return url;
     }
     

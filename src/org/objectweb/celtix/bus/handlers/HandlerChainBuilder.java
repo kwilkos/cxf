@@ -80,47 +80,52 @@ public class HandlerChainBuilder {
         return handlerChain;
     }
 
-    public List<Handler> buildHandlerChainFor(Object obj) { 
+    public List<Handler> buildHandlerChainFor(Class<?> clz, List<Handler> existingHandlers) { 
 
         LOG.fine("building handler chain");
-
-        try {
-            HandlerChain hcAnn = obj.getClass().getAnnotation(HandlerChain.class); 
-            if (hcAnn == null) { 
-                LOG.fine("no HandlerChain annotation on " + obj.getClass()); 
-                return new ArrayList<Handler>();
-            } 
-        
-            String fileName = hcAnn.file(); 
-            String chainName = hcAnn.name();
-
-            if (null == fileName || "".equals(fileName)) {
-                throw new WebServiceException("@HandlerChain annotation does not contain a file name or url");
-            } 
-
-            if (null == chainName || "".equals(chainName)) {
-                throw new WebServiceException("@HandlerChain annotation does not contain a chain name");
-            } 
-
-            InputStream in = obj.getClass().getResourceAsStream(fileName); 
+        HandlerChainAnnotation hcAnn = findHandlerChainAnnotation(clz); 
+        List<Handler> chain = null;
+        if (hcAnn == null) { 
+            LOG.fine("no HandlerChain annotation on " + clz); 
+            chain = new ArrayList<Handler>();
+        } else {
+            hcAnn.validate(); 
             
-            if (null == in) {
-                throw new WebServiceException("unable to load handler configuration (" 
-                                              + fileName + ") specified by annotation");
-            } 
+            HandlerChainConfig cfg = getHandlerChainConfig(hcAnn);
 
-            HandlerChainConfig cfg = new HandlerChainConfig(in);
-            LOG.log(Level.INFO, "reading handler chain configuration from " + fileName);
-
-            List<HandlerConfig> handlersConfig = cfg.getHandlerConfig(chainName); 
+            List<HandlerConfig> handlersConfig = cfg.getHandlerConfig(hcAnn.getChainName()); 
 
             if (null == handlersConfig) {
                 throw new WebServiceException("@HandlerChain specified a chain that is not"
                                               + " defined in the specified file");
             } 
 
-            return buildHandlerChain(handlersConfig); 
+            chain =  buildHandlerChain(handlersConfig); 
+        }
+        assert chain != null;
+        if (existingHandlers != null) { 
+            chain.addAll(existingHandlers);
+        } 
+        return sortHandlers(chain);
+    } 
 
+    public List<Handler> buildHandlerChainFor(Class<?> clz) { 
+        return buildHandlerChainFor(clz, null);
+    } 
+
+
+    private HandlerChainConfig getHandlerChainConfig(HandlerChainAnnotation hcAnn) { 
+        try {
+            InputStream in = hcAnn.getDeclaringClass().getResourceAsStream(hcAnn.getFileName()); 
+        
+            if (null == in) {
+                throw new WebServiceException("unable to load handler configuration (" 
+                                              + hcAnn.getFileName() 
+                                              + ") specified by annotation, file nout found");
+            } 
+        
+            LOG.log(Level.INFO, "reading handler chain configuration from " + hcAnn.getFileName());
+            return new HandlerChainConfig(in);
         } catch (IOException ex) { 
             throw new WebServiceException(ex);
         } 
@@ -175,5 +180,65 @@ public class HandlerChainBuilder {
         } catch (IllegalAccessException ex) {
             LOG.log(Level.SEVERE, "CANNOT_ACCESS_INIT", handler.getClass()); 
         } 
+    } 
+
+
+    private HandlerChainAnnotation findHandlerChainAnnotation(Class<?> clz) { 
+
+        HandlerChain ann = clz.getAnnotation(HandlerChain.class); 
+        Class<?> declaringClass = clz; 
+
+        if (ann == null) { 
+            for (Class<?> iface : clz.getInterfaces()) { 
+                if (LOG.isLoggable(Level.FINE)) { 
+                    LOG.fine("checking for HandlerChain annoation on " + iface.getName());
+                }
+                ann = iface.getAnnotation(HandlerChain.class);
+                if (ann != null) { 
+                    declaringClass = iface;
+                    break;
+                }
+            }
+        } 
+        if (ann != null) { 
+            return new HandlerChainAnnotation(ann, declaringClass);
+        } else { 
+            return null;
+        }
+    } 
+
+    private static class HandlerChainAnnotation { 
+        private final Class<?> declaringClass; 
+        private final HandlerChain ann; 
+        
+        HandlerChainAnnotation(HandlerChain hc, Class<?> clz) { 
+            ann = hc; 
+            declaringClass = clz;
+        } 
+
+        public Class<?> getDeclaringClass() { 
+            return declaringClass; 
+        } 
+
+        public String getFileName() { 
+            return ann.file(); 
+        } 
+
+        public String getChainName() { 
+            return ann.name(); 
+        }
+        
+        public void validate() { 
+            if (null == ann.file() || "".equals(ann.file())) {
+                throw new WebServiceException("@HandlerChain annotation does not contain a file name or url");
+            } 
+            if (null == ann.name() || "".equals(ann.name())) {
+                LOG.fine("no handler name specified, defaulting to first declared");
+            } 
+        } 
+
+        public String toString() { 
+            return "[" + declaringClass + "," + ann + "]";
+        }
     } 
 }

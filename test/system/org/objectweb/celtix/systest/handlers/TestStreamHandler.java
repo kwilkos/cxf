@@ -90,13 +90,7 @@ public class  TestStreamHandler extends TestHandlerBase
     private void setupCompressionOutputStream(StreamMessageContext ctx) { 
 
         try { 
-            GZIPOutputStream zipOut = new GZIPOutputStream(ctx.getOutputStream()) {
-                    public void flush() throws IOException { 
-                        super.finish();
-                        super.flush();
-                    } 
-                };
-
+            GZIPOutputStream zipOut = new GZIPOutputStream(ctx.getOutputStream());
             ctx.setOutputStream(zipOut); 
         } catch (IOException ex) { 
             throw new ProtocolException(ex);
@@ -106,4 +100,7 @@ public class  TestStreamHandler extends TestHandlerBase
     private boolean isOutbound(MessageContext ctx) {
         return (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
     }
+
+
+
 }
