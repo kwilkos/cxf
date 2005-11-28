@@ -6,12 +6,15 @@
     
     <target name="unit.test.coverage" depends="instrument.src,unit.test,coverage.report"
         description="Run the unit tests in coverage mode and generate a coverage report"/>
+    <target name="unit.test.coverage.nodeps" depends="instrument.src.nodeps,unit.test.nodeps,coverage.report"
+        description="Run the unit tests in coverage mode and generate a coverage report"/>
     
     <target name="clean.instrumented" unless="emma.enabled">
     	<delete dir="build/classes-instrumented" quiet="true"/>
     </target>
     
-    <target name="instrument.src" depends="src.compile">
+    <target name="instrument.src" depends="src.compile,instrument.src.nodeps"/>
+    <target name="instrument.src.nodeps">
     	<delete dir="build/classes-instrumented" quiet="true"/>
         <mkdir dir="build/classes-instrumented"/>
     	<emma enabled="true">

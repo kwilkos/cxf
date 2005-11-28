@@ -163,6 +163,7 @@ public class HTTPTransportTest extends TestCase {
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
         server.deactivate();
+        
     }
     
     private TransportFactory createTransportFactory() throws BusException { 

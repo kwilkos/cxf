@@ -15,9 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import javax.wsdl.WSDLException;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -96,11 +98,18 @@ public class HTTPClientTransport implements ClientTransport {
         WrappedOutputStream origOut;
         OutputStream out;
         HTTPClientInputStreamContext inputStreamContext;
+        Configuration config;
 
         public HTTPClientOutputStreamContext(URL url, Configuration configuration, MessageContext ctx)
             throws IOException {
             super(ctx);
-            connection =  url.openConnection();
+            config = configuration;
+            String value = (String)ctx.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            if (value != null) {
+                url = new URL(value);
+            }
+            
+            connection = url.openConnection();
             connection.setUseCaches(false);
             connection.setDoOutput(true);
             if (connection instanceof HttpURLConnection) {
@@ -108,6 +117,18 @@ public class HTTPClientTransport implements ClientTransport {
                 hc.setChunkedStreamingMode(4096);
                 hc.setRequestMethod("POST");
             }
+            
+            value = (String)ctx.get(BindingProvider.USERNAME_PROPERTY);
+            if (value != null) {
+                String passwd = (String)ctx.get(BindingProvider.PASSWORD_PROPERTY);
+                value += ":";
+                if (passwd != null) {
+                    value += passwd;
+                }
+                value = Base64Utility.encode(value.getBytes());
+                connection.addRequestProperty("Authorization", "Basic " + value);
+            }
+            
             // TODO - set connection timeouts, etc...
             
             // connection.setReadTimeout(configuration.getInt(""));

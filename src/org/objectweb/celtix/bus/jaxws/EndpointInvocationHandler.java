@@ -90,7 +90,7 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
         //TODO
         //RequestConetxts needed to be populated based on JAX-WS mandatory properties
         //Further copied into ObjectMessageContext so as to decouple context across invocations
-        objMsgContext.put("org.objectweb.celtix.context.request", getRequestContext());
+        objMsgContext.putAll(getRequestContext());
         
         //REVISIT this property could be part of the requqest context.
         objMsgContext.put(ObjectMessageContext.REQUEST_PROXY, proxy);
