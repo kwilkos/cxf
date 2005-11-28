@@ -4,6 +4,7 @@
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Celtix/samples/handlers/src" type="2"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Celtix/samples/hello_world/src" type="2"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Celtix/samples/hello_world_RPCLit/src" type="2"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Celtix/samples/streams/src" type="2"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Celtix/src" type="2"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Celtix/test/system" type="2"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Celtix/test/unit" type="2"/>

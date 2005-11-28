@@ -15,6 +15,7 @@ import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.util.AbstractTwoStageCache;
 
 
 /**
@@ -81,8 +82,8 @@ public class JMSSessionFactory {
     private static final int PRIMARY_CACHE_MAX = 20;
 
     private final  Connection theConnection;
-    private AbstractTwoStageCache replyCapableSessionCache;
-    private AbstractTwoStageCache sendOnlySessionCache;
+    private AbstractTwoStageCache<PooledSession> replyCapableSessionCache;
+    private AbstractTwoStageCache<PooledSession> sendOnlySessionCache;
     private final boolean isQueueConnection;
     private final String durableName;
     private final String messageSelector;
@@ -106,12 +107,12 @@ public class JMSSessionFactory {
             // domain
             //
             replyCapableSessionCache = 
-                new AbstractTwoStageCache(
+                new AbstractTwoStageCache<PooledSession>(
                             PRIMARY_CACHE_MAX, 
                             CACHE_HIGH_WATER_MARK, 
                             0, 
                             this) {
-                    public final java.lang.Object create() throws JMSException {
+                    public final PooledSession create() throws JMSException {
                         return createPointToPointReplyCapableSession();
                     }
                 };
@@ -125,12 +126,12 @@ public class JMSSessionFactory {
             // send-only cache for point-to-point oneway requests and replies
             //
             sendOnlySessionCache = 
-                new AbstractTwoStageCache(
+                new AbstractTwoStageCache<PooledSession>(
                             PRIMARY_CACHE_MAX, 
                             CACHE_HIGH_WATER_MARK, 
                             0, 
                             this) {
-                    public final java.lang.Object create() throws JMSException {
+                    public final PooledSession create() throws JMSException {
                         return createPointToPointSendOnlySession();
                     }
                 };
@@ -144,12 +145,12 @@ public class JMSSessionFactory {
             // send-only cache for pub-sub oneway requests
             //
             sendOnlySessionCache = 
-                new AbstractTwoStageCache(
+                new AbstractTwoStageCache<PooledSession>(
                            PRIMARY_CACHE_MAX, 
                            CACHE_HIGH_WATER_MARK, 
                            0, 
                            this) {
-                    public final java.lang.Object create() throws JMSException {
+                    public final PooledSession create() throws JMSException {
                         return createPubSubSession(true, false, null);
                     }
                 };

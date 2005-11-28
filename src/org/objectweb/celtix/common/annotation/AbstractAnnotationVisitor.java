@@ -21,7 +21,7 @@ public abstract class AbstractAnnotationVisitor implements AnnotationVisitor {
         targetAnnotations.add(ann); 
     } 
 
-    public void visitClass(Class clz, Annotation annotation) {
+    public void visitClass(Class<?> clz, Annotation annotation) {
         // complete
     }
 

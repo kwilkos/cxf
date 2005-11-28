@@ -1,8 +1,9 @@
-package org.objectweb.celtix.bus.transports.jms;
+package org.objectweb.celtix.common.util;
 
 import java.lang.ref.SoftReference;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Queue;
 
 
 /**
@@ -22,14 +23,14 @@ import java.util.List;
  *
  * @author Eoghan Glynn
  */
-public abstract class AbstractTwoStageCache {
+public abstract class AbstractTwoStageCache<E> {
     private Object mutex;
     private int preallocation;
-    private Object primaryCache[];
     private int primaryCacheSize;
-    private int primaryCacheNextFree;
     private int secondaryCacheHighWaterMark;
-    private List secondaryCache;
+    
+    private Queue<E> primaryCache;
+    private Queue<SoftReference<E>> secondaryCache;
 
     /**
      * Constructor.
@@ -56,7 +57,7 @@ public abstract class AbstractTwoStageCache {
     public AbstractTwoStageCache(int pCacheSize, int highWaterMark, int prealloc, Object mutexParam) {
         this.primaryCacheSize = Math.min(pCacheSize, highWaterMark);
         this.secondaryCacheHighWaterMark = highWaterMark - pCacheSize;
-        this.preallocation = prealloc;
+        this.preallocation = prealloc > highWaterMark ? highWaterMark : prealloc;
         this.mutex = mutexParam != null ? mutexParam : this;
     }
 
@@ -70,33 +71,28 @@ public abstract class AbstractTwoStageCache {
      *
      * @return newly created object
      */
-    protected abstract Object create() throws Throwable;
+    protected abstract E create() throws Exception;
 
 
     /**
      * Populate the cache
      */
-    public void populateCache() throws Throwable {
+    public void populateCache() throws Exception {
         // create cache
-        primaryCache = new Object[primaryCacheSize];
+        primaryCache = new LinkedList<E>();
+        secondaryCache = new LinkedList<SoftReference<E>>();
 
         // preallocate objects into primary cache
         int primaryCachePreallocation = 
             (preallocation > primaryCacheSize) ? primaryCacheSize : preallocation;
-
-        primaryCacheNextFree = primaryCacheSize - primaryCachePreallocation;
-
-        for (int i = primaryCacheNextFree; i < primaryCacheSize; i++) {
-            primaryCache[i] = create();
+        for (int i = 0; i < primaryCachePreallocation; i++) {
+            primaryCache.offer(create());
         }
-
+        
         // preallocate objects into secondary cache
-        secondaryCache = new LinkedList();
-
         int secondaryCachePreallocation = preallocation - primaryCachePreallocation;
-
         for (int i = 0; i < secondaryCachePreallocation; i++) {
-            secondaryCache.add(new SoftReference(create()));
+            secondaryCache.offer(new SoftReference<E>(create()));
         }
     }
 
@@ -106,21 +102,8 @@ public abstract class AbstractTwoStageCache {
      *
      * @return an object
      */
-    public Object get() throws Throwable {
-        Object ret = null;
-
-        synchronized (mutex) {
-            if (primaryCache != null) {
-                if (primaryCacheNextFree < primaryCacheSize) {
-                    ret = primaryCache[primaryCacheNextFree];
-                    primaryCache[primaryCacheNextFree++] = null;
-                }
-
-                if ((ret == null) && (secondaryCache.size() > 0)) {
-                    ret = ((SoftReference) ((LinkedList) secondaryCache).removeFirst()).get();
-                }
-            }
-        }
+    public E get() throws Exception {
+        E ret = poll();
 
         if (ret == null) {
             ret = create();
@@ -135,18 +118,22 @@ public abstract class AbstractTwoStageCache {
      *
      * @return an object
      */
-    public Object poll() {
-        Object ret = null;
+    public E poll() {
+        E ret = null;
 
         synchronized (mutex) {
             if (primaryCache != null) {
-                if (primaryCacheNextFree < primaryCacheSize) {
-                    ret = primaryCache[primaryCacheNextFree];
-                    primaryCache[primaryCacheNextFree++] = null;
-                }
-
-                if ((ret == null) && (secondaryCache.size() > 0)) {
-                    ret = ((SoftReference) ((LinkedList)secondaryCache).removeFirst()).get();
+                ret = primaryCache.poll();
+                if (ret == null) {
+                    SoftReference<E> sr = secondaryCache.poll();
+                    while (ret == null && sr != null) {
+                        if (sr != null) {
+                            ret = sr.get();
+                        }
+                        if (ret == null) {
+                            sr = secondaryCache.poll();
+                        }
+                    }
                 }
             }
         }
@@ -161,19 +148,28 @@ public abstract class AbstractTwoStageCache {
      * @param oldObject the object to recycle
      * @return true iff the object can be accomodated in the cache
      */
-    public boolean recycle(Object oldObject) {
+    public boolean recycle(E oldObject) {
         boolean cached = false;
 
         synchronized (mutex) {
             if (primaryCache != null) {
-                if (primaryCacheNextFree > 0) {
-                    primaryCache[--primaryCacheNextFree] = oldObject;
-                    cached = true;
+                if (primaryCache.size() < primaryCacheSize) {
+                    cached = primaryCache.offer(oldObject);
+                }
+
+                if (!cached && (secondaryCache.size() >= secondaryCacheHighWaterMark)) {
+                    // check for nulls in secondary cache and remove them to create room
+                    Iterator<SoftReference<E>> it = secondaryCache.iterator();
+                    while (it.hasNext()) {
+                        SoftReference<E> sr = it.next();
+                        if (sr.get() == null) {
+                            it.remove();
+                        }
+                    }
                 }
 
                 if (!cached && (secondaryCache.size() < secondaryCacheHighWaterMark)) {
-                    secondaryCache.add(new SoftReference(oldObject));
-                    cached = true;
+                    cached = secondaryCache.offer(new SoftReference<E>(oldObject));
                 }
             }
         }
