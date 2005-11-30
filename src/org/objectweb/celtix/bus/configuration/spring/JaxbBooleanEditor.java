@@ -29,10 +29,13 @@ public class JaxbBooleanEditor extends CustomBooleanEditor {
             Element el = (Element)o;
             QName type = new QName(el.getNamespaceURI(), el.getLocalName());
             TypeSchema ts = new TypeSchemaHelper().get(type.getNamespaceURI());
+            if (null == ts) {
+                throw new ConfigurationException(new Message("JAXB_PROPERTY_EDITOR_EXC", LOG, type));
+            }
             try {
                 return o = ts.unmarshal(type, el);
             } catch (JAXBException ex) {
-                Message msg = new Message("JAXB_PROPERTY_EDITOR_EXC", LOG);
+                Message msg = new Message("JAXB_PROPERTY_EDITOR_EXC", LOG, type);
                 throw new ConfigurationException(msg, ex);
             }
         }

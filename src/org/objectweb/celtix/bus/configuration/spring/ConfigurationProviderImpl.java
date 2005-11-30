@@ -20,7 +20,6 @@ import org.springframework.core.io.UrlResource;
 
 public class ConfigurationProviderImpl implements ConfigurationProvider {
   
-    public static final String CONFIG_DIR_PROPERTY_NAME = "celtix.config.dir";
     public static final String CONFIG_FILE_PROPERTY_NAME = "celtix.config.file";
     
     private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationProviderImpl.class);
@@ -46,8 +45,9 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
                     try {
                         beanFactory = new CeltixXmlBeanFactory(urlRes);
                     } catch (BeansException ex) {
-                        throw new ConfigurationException(new Message("BEAN_FACTORY_CREATION_EXC", LOG, urlRes
-                            .toString()), ex);
+                        // continue without using configuration from the bean definitions
+                        LOG.log(Level.WARNING, new Message("BEAN_FACTORY_CREATION_EXC", LOG, urlRes
+                                                           .toString()).toString(), ex); 
                     }
                     beanFactories.put(urlRes, beanFactory);
                 }
@@ -90,6 +90,10 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
         return bean;
     }
     
+    protected static Map<UrlResource, CeltixXmlBeanFactory> getBeanFactories() {
+        return beanFactories;
+    }
+    
     private Object invokeGetter(Object beanObject, String name) {
         
         String methodName = JAXBUtils.nameToIdentifier(name, JAXBUtils.IdentifierType.GETTER);
@@ -128,27 +132,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
             }
             return urlRes;
         }
-        url = System.getProperty(CONFIG_DIR_PROPERTY_NAME);
-        if (null != url) {
-            Configuration rootConfiguration = getRootConfiguration();
-            String id = rootConfiguration.getId().toString();
-            try {
-                urlRes = new UrlResource(url + "/" + id + ".xml");  
-            } catch (MalformedURLException ex) {
-                throw new ConfigurationException(new Message("MALFORMED_URL_PROPERTY", LOG, 
-                                                             CONFIG_DIR_PROPERTY_NAME), ex);
-            }
-            return urlRes;
-        } 
         return null;
-    }
-    
-    private Configuration getRootConfiguration() {
-        Configuration root = configuration;
-        while (null != root.getParent()) {
-            root = root.getParent();
-        }
-        return root;
     }
     
     private String getBeanName() {

@@ -17,22 +17,13 @@ import org.objectweb.celtix.configuration.types.StringListType;
 
 public class ConfigurationProviderImplTest extends TestCase {
     
-    private String originalConfigDir;
     private String originalConfigFile;
     
     public void setUp() {
-        originalConfigDir = System.getProperty(ConfigurationProviderImpl.CONFIG_DIR_PROPERTY_NAME);
         originalConfigFile = System.getProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME);
     }
 
     public void tearDown() {
-        if (null == originalConfigDir) {
-            Properties properties = System.getProperties();
-            properties.remove(ConfigurationProviderImpl.CONFIG_DIR_PROPERTY_NAME);
-            System.setProperties(properties);
-        } else {
-            System.setProperty(ConfigurationProviderImpl.CONFIG_DIR_PROPERTY_NAME, originalConfigDir);
-        }
         if (null == originalConfigFile) {
             Properties properties = System.getProperties();
             properties.remove(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME);
@@ -40,15 +31,10 @@ public class ConfigurationProviderImplTest extends TestCase {
         } else {
             System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, originalConfigFile);
         }
+        ConfigurationProviderImpl.getBeanFactories().clear();
     }
     
     public void testInvalidBeanDefinitionsResourceURL() {
-        System.setProperty(ConfigurationProviderImpl.CONFIG_DIR_PROPERTY_NAME, "c:\\resources\\sub");
-        try {
-            new TopConfiguration("top");
-        } catch (ConfigurationException ex) {
-            assertEquals("MALFORMED_URL_PROPERTY", ex.getCode());
-        }
         System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, "resources\top1.xml");
         try {
             new TopConfiguration("top");
@@ -58,15 +44,10 @@ public class ConfigurationProviderImplTest extends TestCase {
     }
 
     public void testNoBeanDefinitionsFile() {
-        /*
-        URL url = ConfigurationProviderImplTest.class.getResource("resources/top-no-beans.xml");
-        System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
-        */
         Configuration top = new TopConfiguration("top");
         List<ConfigurationProvider> providers = top.getProviders();
         assertEquals(1, providers.size());
         assertTrue(providers.get(0) instanceof ConfigurationProviderImpl); 
-        
         ConfigurationProviderImpl cpi = (ConfigurationProviderImpl)providers.get(0);       
         assertNull(cpi.getBean());   
     }
@@ -74,13 +55,8 @@ public class ConfigurationProviderImplTest extends TestCase {
     public void testInvalidBeanDefinitionFile() {
         URL url = ConfigurationProviderImplTest.class.getResource("resources/top-invalid.xml");
         System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
-        
-        try {
-            new TopConfiguration("top");
-            fail("Expected ConfigurationException not thrown.");
-        } catch (ConfigurationException ex) {
-            assertEquals("BEAN_FACTORY_CREATION_EXC", ex.getCode());
-        }
+        new TopConfiguration("top");
+        assertNull(ConfigurationProviderImpl.getBeanFactories().get(url));  
     }
     
     public void testBeanClassNotFound() {
@@ -91,12 +67,8 @@ public class ConfigurationProviderImplTest extends TestCase {
         // The non-existing class is detected when the bean factory is initialised - not 
         // later when the bean is created.
         
-        try {
-            new TopConfiguration("top");
-            fail("Expected ConfigurationException not thrown.");
-        } catch (ConfigurationException ex) {
-            assertEquals("BEAN_FACTORY_CREATION_EXC", ex.getCode());
-        }
+        new TopConfiguration("top");
+        assertNull(ConfigurationProviderImpl.getBeanFactories().get(url)); 
     }
     
     public void testNoSuchBean() {
@@ -116,10 +88,8 @@ public class ConfigurationProviderImplTest extends TestCase {
     }
     
     public void testDefaultBeanCreation() throws MalformedURLException {
-        String surl = ConfigurationProviderImplTest.class.getResource("resources/top1.xml").toString();
-        int index = surl.lastIndexOf("/top1.xml");
-        URL url = new URL(surl.substring(0, index));
-        System.setProperty(ConfigurationProviderImpl.CONFIG_DIR_PROPERTY_NAME, url.toExternalForm());
+        URL url = ConfigurationProviderImplTest.class.getResource("resources/top1.xml");
+        System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
             
         Configuration top = new TopConfiguration("top1");
         List<ConfigurationProvider> providers = top.getProviders();
@@ -128,23 +98,9 @@ public class ConfigurationProviderImplTest extends TestCase {
     }
     
     public void testBeanCreationUsingValueAsText() throws MalformedURLException {
-        String surl = ConfigurationProviderImplTest.class.getResource("resources/top2.xml").toString();
-        int index = surl.lastIndexOf("/top2.xml");
-        URL url = new URL(surl.substring(0, index));
-        System.setProperty(ConfigurationProviderImpl.CONFIG_DIR_PROPERTY_NAME, url.toExternalForm());
-        Configuration top = null;
-        
-        try {
-            top = new TopConfiguration("top2");
-        } catch (Exception ex) {
-            Throwable e = ex;
-            while (null != e.getCause()) {
-                e = e.getCause(); 
-            }
-            System.err.println("Original cause: ");
-            e.printStackTrace();
-            fail();
-        }
+        URL url = ConfigurationProviderImplTest.class.getResource("resources/top2.xml");
+        System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
+        Configuration top = new TopConfiguration("top2");
         
         List<ConfigurationProvider> providers = top.getProviders();
         assertEquals(1, providers.size());
