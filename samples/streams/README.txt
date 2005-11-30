@@ -8,6 +8,13 @@ used by the binding to unmarshal the message with an OutputStream
 which compresses the message.  For an incoming message, a
 decompressing InputStream is used.
 
+The StreamHandler is specified in an external JAXB Bindings file
+(./wsdl/bindings.xml) which is passed to the wsdl2java code generator.
+The binding file is written in the JAXWS Binding Language.  In this
+case, the generated Service Endpoint Interface includes a
+@HandlerChain annotation which results in a handler chain being
+created both on the client and server side.
+
 Please review the README in the samples directory before
 continuing.
 
