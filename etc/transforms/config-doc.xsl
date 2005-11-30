@@ -21,57 +21,93 @@ version="2.0"
 </head>
 <body>
 <h2>Configuration for Component <xsl:value-of select="@namespace"/></h2>
-<table border="0" cellspacing="5">
         <xsl:apply-templates select="cm:configItem"/>
-</table>
 </body>
 </html>
     </xsl:template>
 
 
     <xsl:template match="cm:configItem">
+<table border="0" cellspacing="5">
+        <xsl:for-each select="./*">
+            <xsl:choose>
+
+                <xsl:when test="name(.)='cm:name'">
 <tr>
-<td><b><i>Variable</i></b></td>
-<td colspan="2"><b>
-        <xsl:value-of select="cm:name"/>
+<td style="width:200px;"><b><i>Variable</i></b></td>
+<td style="width:600px;"><b>
+                    <xsl:value-of select="."/>
 </b></td>
 </tr>
+                </xsl:when>
+                
+                <xsl:when test="name(.)='cm:type'">
 <tr>
-<td><b><i>Type</i></b></td>
-<td colspan="2">
-        <xsl:value-of select="cm:type"/>
+<td style="width:200px;"><b><i>Type</i></b></td>
+<td style="width:600px;">
+                    <xsl:value-of select="."/>
 </td>
 </tr>
+                </xsl:when>
+
+                <xsl:when test="name(.)='cm:description'">
 <tr>
-<td><b><i>Description</i></b></td>
-<td colspan="2">
-      <xsl:value-of select="cm:description"/>
+<td style="width:200px;"><b><i>Description</i></b></td>
+<td style="width:600px;">
+                    <xsl:value-of select="."/>
 </td>
 </tr>
+                </xsl:when>
+
+                <xsl:when test="name(.)='cm:lifecyclePolicy'">
+                    <!-- do nothing -->
+                </xsl:when>
+
+                <xsl:otherwise>
+                    <!-- the default value -->
 <tr>
-<td><b><i>Lifecycle Policy</i></b></td>
-<td colspan="2">
-      <xsl:value-of select="cm:lifecyclePolicy"/>
-</td>
-</tr>
-<tr>
-<td><b><i>Default Value</i></b></td>
-<td colspan="2">
+<td style="width:200px;"><b><i>Default</i></b></td>
+<td style="width:600px;">
 <code>
-      <xsl:value-of select="'-'"/>
-</code>
+                    <!-- do nothing -->
+                    <xsl:apply-templates mode="copy" select="."/>
+                    <!--
+                    <xsl:call-template name="getDefaultValue">
+                        </xsl:with-param name="value" select=".">
+                    </xsl:call-template>
+                    -->
+</code>                    
 </td>
 </tr>
-<tr>
-<td><b><i>Sources</i></b><br></br></td>
-<td colspan="2">
-    <!--
-    <xsl:choose>
-    </xsl:choose>
-    -->
-    WSDL, Configuration<br></br></td>
-</tr>
+                </xsl:otherwise>
+
+            </xsl:choose>
+        </xsl:for-each>
+</table>
+<p>
+</p>
     </xsl:template>
 
+    <xsl:template name="getDefaultValue">
+        <xsl:param name="value"/>
+        <xsl:apply-templates mode="copy" select="$value"/>
+    </xsl:template>
+
+    <xsl:template match="*" mode="copy">
+<br>
+</br>
+        <xsl:text diable-output-escaping="yes">&lt;</xsl:text>
+        <xsl:value-of select="name(.)"/>
+        <xsl:text diable-output-escaping="yes">&gt;</xsl:text>
+        <xsl:apply-templates select="text()" mode="copy"/>
+        <xsl:apply-templates select="*" mode="copy"/>
+        <xsl:text diable-output-escaping="yes">&lt;/</xsl:text>
+        <xsl:value-of select="name(.)"/>
+        <xsl:text diable-output-escaping="yes">&gt;</xsl:text>
+    </xsl:template>
+
+    <xsl:template match="text()" mode="copy">
+        <xsl:value-of select="."/>
+    </xsl:template>
 
 </xsl:stylesheet>

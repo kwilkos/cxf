@@ -191,7 +191,6 @@ public class CeltixBus extends Bus {
     public WorkQueueManager getWorkQueueManager() {
         return workQueueManager;
     }
-
     
     
     

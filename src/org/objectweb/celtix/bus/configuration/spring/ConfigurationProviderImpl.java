@@ -2,7 +2,9 @@ package org.objectweb.celtix.bus.configuration.spring;
 
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,6 +24,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
   
     public static final String CONFIG_FILE_PROPERTY_NAME = "celtix.config.file";
     
+    
     private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationProviderImpl.class);
     private static Map<UrlResource, CeltixXmlBeanFactory> beanFactories;
   
@@ -40,14 +43,14 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
         UrlResource urlRes = getBeanDefinitionsResource();
         if (null != urlRes) {
             if (!beanFactories.containsKey(urlRes)) {
-
+                
                 if (null != urlRes) {
                     try {
                         beanFactory = new CeltixXmlBeanFactory(urlRes);
                     } catch (BeansException ex) {
                         // continue without using configuration from the bean definitions
                         LOG.log(Level.WARNING, new Message("BEAN_FACTORY_CREATION_EXC", LOG, urlRes
-                                                           .toString()).toString(), ex); 
+                                                           .toString()).toString(), ex);
                     }
                     beanFactories.put(urlRes, beanFactory);
                 }
@@ -57,21 +60,8 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
         }
     
         if (null != beanFactory) { 
-            beanFactory.registerCustomEditors(c);
-            String beanName = getBeanName();
-            try {
-                bean = beanFactory.getBean(beanName);
-            } catch (NoSuchBeanDefinitionException ex) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Could not find definition for bean with id " + beanName); 
-                }
-                // throw new ConfigurationException(new Message("NO_SUCH_BEAN_EXC", LOG, beanName), ex);
-            } catch (BeansException ex) {
-                throw new ConfigurationException(new Message("BEAN_CREATION_EXC", LOG, beanName), ex);
-            }
-            if (null != bean && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Using configuration from bean with id " + beanName);         
-            }
+            beanFactory.registerCustomEditors(configuration);            
+            findBean(beanFactory);              
         } else {            
             LOG.fine("Not using a bean definitions file.");
         }
@@ -79,10 +69,10 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
     }
     
     public Object getObject(String name) {
-        // TODO use BeanWrapper instead
-        if (null != bean) {
+        // TODO use BeanWrapper instead        
+        if (null != bean) {            
             return invokeGetter(bean, name);
-        }  
+        } 
         return null;
     }
     
@@ -135,16 +125,54 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
         return null;
     }
     
-    private String getBeanName() {
-        StringBuffer buf = new StringBuffer();
-        Configuration c = configuration;
-        while (null != c) {
-            if (buf.length() > 0) {
-                buf.insert(0, ".");
-            }
-            buf.insert(0, c.getId().toString());
-            c = c.getParent();          
+    private void findBean(CeltixXmlBeanFactory beanFactory) {
+        
+        String beanClassName = SpringUtils.getBeanClassName(configuration.getModel().getNamespaceURI());
+        Class beanClass = null;
+        try {
+            beanClass = Class.forName(beanClassName);
+        } catch (ClassCastException ex) {
+            LOG.log(Level.SEVERE, "Could not load bean class  " + beanClassName, ex);
+            return;
+        } catch (ClassNotFoundException ex) {
+            LOG.log(Level.SEVERE, "Could not load bean class  " + beanClassName, ex);
+            return;
         }
-        return buf.toString();
+
+        String[] candidates = beanFactory.getBeanNamesForType(beanClass);
+        if (null == candidates || candidates.length == 0) {
+            bean = null;
+            return;
+        }
+        
+        List<BeanName> beanNames = new ArrayList<BeanName>();
+        for (String n : candidates) {
+            BeanName bn = new BeanName(n);
+            bn.normalise();
+            beanNames.add(bn);
+        }
+        
+        BeanName ref = new BeanName(configuration);
+        BeanName beanName = ref.findBestMatch(beanNames);
+        
+        if (null != beanName) {
+            try {
+                bean = beanFactory.getBean(beanName.getName(), beanClass);
+            } catch (NoSuchBeanDefinitionException ex) {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Could not find definition for bean with id " + beanName);
+                }
+            } catch (BeansException ex) {
+                throw new ConfigurationException(new Message("BEAN_CREATION_EXC", LOG, beanName), ex);
+            }
+        } 
+        
+        if (LOG.isLoggable(Level.FINE)) {
+            if (null == bean) {
+                LOG.fine("Could not find matching bean definition"); 
+            } else {
+                LOG.fine("Using configuration from bean with id " + beanName.getName());
+            }
+        }
     }
 }

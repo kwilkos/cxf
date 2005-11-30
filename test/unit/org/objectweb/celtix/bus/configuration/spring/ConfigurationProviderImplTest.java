@@ -20,7 +20,7 @@ public class ConfigurationProviderImplTest extends TestCase {
     private String originalConfigFile;
     
     public void setUp() {
-        originalConfigFile = System.getProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME);
+        originalConfigFile = System.getProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME);     
     }
 
     public void tearDown() {
@@ -138,19 +138,7 @@ public class ConfigurationProviderImplTest extends TestCase {
     public void testBeanCreationUsingValueAsElements() throws MalformedURLException {
         URL url = ConfigurationProviderImplTest.class.getResource("resources/top2.xml");
         System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
-        Configuration top = null;
-        
-        try {
-            top = new TopConfiguration("top22");
-        } catch (Exception ex) {
-            Throwable e = ex;
-            while (null != e.getCause()) {
-                e = e.getCause(); 
-            }
-            System.err.println("Original cause: ");
-            e.printStackTrace();
-            fail();
-        }
+        Configuration top = new TopConfiguration("top22");
         
         List<ConfigurationProvider> providers = top.getProviders();
         assertEquals(1, providers.size());
@@ -208,4 +196,5 @@ public class ConfigurationProviderImplTest extends TestCase {
         o = providers.get(0).getObject("longLeafItemNoDefault");
         assertEquals(99, ((Long)o).longValue()); 
     }
+    
 }
