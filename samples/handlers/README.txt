@@ -147,7 +147,6 @@ From the samples/handlers directory run the commands (entered on a single comman
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
-         -Dcatalina.home=../../lib/tomcat/5.5.9/ 
          -Dceltix.config.file=file:///$CELTIX_HOME/samples/handlers/celtix-server.xml
          demo.handlers.server.Server &
 
@@ -160,7 +159,6 @@ The server process starts in the background.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
-         -Dcatalina.home=..\..\lib\tomcat\5.5.9\
          -Dceltix.config.file=file:///%CELTIX_HOME%\samples\handlers\celtix-server.xml
          demo.handlers.server.Server
 
@@ -182,7 +180,6 @@ From the samples/handlers directory run the commands (entered on a single comman
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
-         -Dcatalina.home=../../lib/tomcat/5.5.9/ 
          demo.handlers.server.Server &
 
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
@@ -193,7 +190,6 @@ The server process starts in the background.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
-         -Dcatalina.home=..\..\lib\tomcat\5.5.9\
          demo.handlers.server.Server
 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
