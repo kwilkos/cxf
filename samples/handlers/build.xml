@@ -11,6 +11,14 @@
         <celtixrun classname="demo.handlers.server.Server" param1="${basedir}/wsdl/addNumbers.wsdl" jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-server.xml"/>
     </target>
 
+    <target name="client2" description="run demo client with out handlers" depends="build">
+        <celtixrun classname="demo.handlers.client.Client" param1="${basedir}/wsdl/addNumbers.wsdl"/>
+    </target>
+
+    <target name="server2" description="run demo server with out handlers" depends="build">
+        <celtixrun classname="demo.handlers.server.Server" param1="${basedir}/wsdl/addNumbers.wsdl"/>
+    </target>
+
     <target name="generate.code" unless="codegen.notrequired">
         <echo message="Generating code using wsdl2java..."/>
         <wsdl2java file="addNumbers.wsdl"/>
