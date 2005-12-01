@@ -106,7 +106,6 @@ single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
-         -Dcatalina.home=../../lib/tomcat/5.5.9/ 
          demo.handlers.server.Server &
 
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
@@ -118,7 +117,6 @@ use the kill command to terminate the server process.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
-         -Dcatalina.home=..\..\lib\tomcat\5.5.9\ 
          demo.handlers.server.Server
 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties

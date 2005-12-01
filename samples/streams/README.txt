@@ -68,14 +68,14 @@ For Windows:
   mkdir build\classes
     Must use back slashes.
 
-  wsdl2java -d build\classes .\wsdl\hello_world.wsdl
+  wsdl2java -b .\wsdl\binding.xml -d build\classes .\wsdl\hello_world.wsdl
     May use either forward or back slashes.
 
 Now compile both the generated code and the provided client and
 server applications with the commands:
 
-  javac -d build/classes src/demo/hw/client/*.java
-  javac -d build/classes src/demo/hw/server/*.java
+  javac -d build/classes src/demo/*/*/*.java
+
 
 Windows may use either forward or back slashes.
 
@@ -89,7 +89,6 @@ single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
-         -Dcatalina.home=../../lib/tomcat/5.5.9/ 
          demo.hw.server.Server &
 
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
@@ -101,7 +100,6 @@ use the kill command to terminate the server process.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
-         -Dcatalina.home=..\..\lib\tomcat\5.5.9\ 
          demo.hw.server.Server
 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
