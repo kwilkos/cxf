@@ -12,8 +12,9 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/WSDL4J"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Easymock"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Spring"/>
-        <classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ActiveMQ"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ActiveMQ"/>
 	<classpathentry kind="lib" path="build/wsdl"/>
-	<classpathentry kind="lib" path="schemas"/>
+	<classpathentry kind="lib" path="resources"/>
+	<classpathentry kind="lib" path="build/resources"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
