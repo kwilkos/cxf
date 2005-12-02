@@ -115,70 +115,82 @@ public abstract class AbstractServerBinding implements ServerBinding {
     
     protected void dispatch(InputStreamMessageContext inCtx, ServerTransport t) {
         LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
-        ObjectMessageContext objContext = createObjectContext();
-
-        HandlerInvoker invoker = createHandlerInvoker(); 
-        invoker.setContext(objContext); 
-        invoker.setInbound(); 
-
-        invoker.invokeStreamHandlers(inCtx);
-        if (inCtx != null) { 
-            // this may be null during unit tests
-            objContext.putAll(inCtx);
-        }
-
-        MessageContext requestCtx = createBindingMessageContext(objContext);
-        //Input Message
-        requestCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
-        
+        ObjectMessageContext objContext = null;
+        HandlerInvoker invoker = null;
+        Method method = null;
+        MessageContext replyCtx = null;
         try {
-            read(inCtx, requestCtx);
-        } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "REQUEST_UNREADABLE_MSG", ex);
-            throw new WebServiceException(ex);
-        }
+            objContext = createObjectContext();
 
-        Method method = getMethod(requestCtx, objContext);
-        assert method != null;
-        initObjectContext(objContext, method);
-        
-        if (isOneWay(method)) {
+            invoker = createHandlerInvoker(); 
+            invoker.setContext(objContext); 
+            invoker.setInbound(); 
+
+            invoker.invokeStreamHandlers(inCtx);
+            if (inCtx != null) { 
+                // this may be null during unit tests
+                objContext.putAll(inCtx);
+            }
+
+            MessageContext requestCtx = createBindingMessageContext(objContext);
+            //Input Message
+            requestCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
+            
             try {
-                OutputStreamMessageContext outCtx = createOutputStreamContext(t, objContext);
-                outCtx.setOneWay(isOneWay(method));
-                finalPrepareOutputStreamContext(t, null, outCtx);
+                read(inCtx, requestCtx);
             } catch (IOException ex) {
-                LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
+                LOG.log(Level.SEVERE, "REQUEST_UNREADABLE_MSG", ex);
                 throw new WebServiceException(ex);
             }
-        }
-
-        ServiceMode mode = sbeCallback.getServiceMode(endpoint);
-        MessageContext replyCtx = null;
-        if (null != mode) {
-            replyCtx = invokeOnProvider(requestCtx, mode);
-        } else {
-            replyCtx = invokeOnMethod(requestCtx, objContext, invoker);
-        }
-        
-        if (!isOneWay(method)) {
-            try {
-                OutputStreamMessageContext outCtx = createOutputStreamContext(t, replyCtx);
-                outCtx.setOneWay(isOneWay(method));
-                if (isFault(objContext, replyCtx)) {
-                    outCtx.setFault(true);
+                       
+            method = getMethod(requestCtx, objContext);
+            assert method != null;
+            initObjectContext(objContext, method);
+            
+            if (isOneWay(method)) {
+                try {
+                    OutputStreamMessageContext outCtx = createOutputStreamContext(t, objContext);
+                    outCtx.setOneWay(isOneWay(method));
+                    finalPrepareOutputStreamContext(t, null, outCtx);
+                } catch (IOException ex) {
+                    LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
+                    throw new WebServiceException(ex);
                 }
-                invoker.setOutbound(); 
-                invoker.invokeStreamHandlers(outCtx);
-                finalPrepareOutputStreamContext(t, replyCtx, outCtx);
-                write(replyCtx, outCtx);
-                if (outCtx.getOutputStream() != null) {
-                    outCtx.getOutputStream().close(); 
-                }
+            }
 
-            } catch (IOException ex) {
-                LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
-                throw new WebServiceException(ex);
+            ServiceMode mode = sbeCallback.getServiceMode(endpoint);
+            if (null != mode) {
+                replyCtx = invokeOnProvider(requestCtx, mode);
+            } else {
+                replyCtx = invokeOnMethod(requestCtx, objContext, invoker);
+            }
+        } catch (RuntimeException ex) {
+            objContext.setException(ex);
+            if (replyCtx == null) {
+                replyCtx = createBindingMessageContext(objContext);
+                assert replyCtx != null;
+            }
+            marshalFault(objContext, replyCtx);
+        } finally {            
+            if (!isOneWay(method)) {
+                try {
+                    OutputStreamMessageContext outCtx = createOutputStreamContext(t, replyCtx);
+                    outCtx.setOneWay(isOneWay(method));
+                    if (isFault(objContext, replyCtx)) {
+                        outCtx.setFault(true);
+                    }
+                    invoker.setOutbound();
+                    invoker.invokeStreamHandlers(outCtx);
+                    finalPrepareOutputStreamContext(t, replyCtx, outCtx);
+                    write(replyCtx, outCtx);
+                    if (outCtx.getOutputStream() != null) {
+                        outCtx.getOutputStream().close();
+                    }
+
+                } catch (IOException ex) {
+                    LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
+                    throw new WebServiceException(ex);
+                }
             }
         }
         
@@ -283,8 +295,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
         return replyCtx;
     }
     
-    private boolean isOneWay(Method method) {
-        return !(method.getAnnotation(Oneway.class) == null); 
+    private boolean isOneWay(Method method) {        
+        return method != null && (method.getAnnotation(Oneway.class) != null);
     }
     
     private Method getMethod(MessageContext requestCtx, ObjectMessageContext objContext) {

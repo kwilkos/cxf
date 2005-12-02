@@ -108,4 +108,24 @@ public final class SOAPMessageUtil {
         
         return str.toString();
     }
+    
+    public static String createBareDocLitSOAPMessage(QName elName, String data) {
+        StringBuffer str = new StringBuffer();
+        
+        str.append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
+        str.append("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ");
+        str.append("xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" ");
+        str.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+        str.append("<SOAP-ENV:Header/>");
+        str.append("<SOAP-ENV:Body>");
+
+        str.append("<ns4:" + elName.getLocalPart() + " xmlns:ns4=\"" + elName.getNamespaceURI() + "\">");
+        str.append(data);
+        str.append("</ns4:" + elName.getLocalPart() + ">");
+        
+        str.append("</SOAP-ENV:Body>");
+        str.append("</SOAP-ENV:Envelope>");
+        
+        return str.toString();
+    }
 }

@@ -80,23 +80,25 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     }
 
     private void init() {
-        //Get WebService Annotation.
-        webServiceAnnotation = method.getDeclaringClass().getAnnotation(WebService.class);
-        //Get SOAP Style, Use,
-        soapBindAnnotation = method.getAnnotation(SOAPBinding.class);
-        if (soapBindAnnotation == null) {
-            soapBindAnnotation = method.getDeclaringClass().getAnnotation(SOAPBinding.class);            
+        if (method != null) {
+            //Get WebService Annotation.
+            webServiceAnnotation = method.getDeclaringClass().getAnnotation(WebService.class);
+            //Get SOAP Style, Use,
+            soapBindAnnotation = method.getAnnotation(SOAPBinding.class);
+            if (soapBindAnnotation == null) {
+                soapBindAnnotation = method.getDeclaringClass().getAnnotation(SOAPBinding.class);            
+            }
+            //Get Operation,Action Info
+            webMethodAnnotation = method.getAnnotation(WebMethod.class);
+            //Get Parameter Info
+            paramAnnotations = method.getParameterAnnotations();
+            //Get Return Type Info
+            webResultAnnotation = method.getAnnotation(WebResult.class);
+            //Get the RequestWrapper
+            reqWrapper = method.getAnnotation(RequestWrapper.class);
+            //Get the RequestWrapper
+            respWrapper = method.getAnnotation(ResponseWrapper.class);
         }
-        //Get Operation,Action Info
-        webMethodAnnotation = method.getAnnotation(WebMethod.class);
-        //Get Parameter Info
-        paramAnnotations = method.getParameterAnnotations();
-        //Get Return Type Info
-        webResultAnnotation = method.getAnnotation(WebResult.class);
-        //Get the RequestWrapper
-        reqWrapper = method.getAnnotation(RequestWrapper.class);
-        //Get the RequestWrapper
-        respWrapper = method.getAnnotation(ResponseWrapper.class);
     }
 
     public SOAPBinding.Style getSOAPStyle() {

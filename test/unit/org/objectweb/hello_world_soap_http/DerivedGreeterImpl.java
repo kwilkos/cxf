@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
+
 @javax.jws.WebService(name = "Greeter", serviceName = "SOAPService", 
                       targetNamespace = "http://objectweb.org/hello_world_soap_http")
 public class DerivedGreeterImpl implements Greeter {
@@ -59,7 +61,15 @@ public class DerivedGreeterImpl implements Greeter {
     public void greetMeOneWay(String me) {
         incrementInvocationCount("greetMeOneWay");
     }
-
+    
+    public BareDocumentResponse testDocLitBare(String in) {
+        incrementInvocationCount("testDocLitBare");
+        BareDocumentResponse res = new BareDocumentResponse();
+        res.setCompany("Celtix");
+        res.setId(1);
+        return res;
+    }
+    
     private void incrementInvocationCount(String method) {
         LOG.info("Executing " + method);
         int n = invocationCount.get(method);

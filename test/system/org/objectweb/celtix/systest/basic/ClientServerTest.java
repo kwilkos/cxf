@@ -10,6 +10,7 @@ import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 import org.objectweb.hello_world_soap_http.SOAPService;
+import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
 
 public class ClientServerTest extends ClientServerTestBase {
 
@@ -29,11 +30,12 @@ public class ClientServerTest extends ClientServerTestBase {
         
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);
-
+        
+        Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+        
         String response1 = new String("Hello Milestone-");
         String response2 = new String("Bonjour");
-        try {
-            Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+        try {                        
             for (int idx = 0; idx < 5; idx++) {
                 String greeting = greeter.greetMe("Milestone-" + idx);
                 assertNotNull("no response received from service", greeting);
@@ -45,9 +47,20 @@ public class ClientServerTest extends ClientServerTestBase {
                 assertEquals(response2, reply);
 
                 greeter.greetMeOneWay("Milestone-" + idx);
-            }
+            }            
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
+        }
+        
+        try {
+            BareDocumentResponse bareres = greeter.testDocLitBare("MySimpleDocument");
+            fail("Should have thrown Exception as SOAP Doc/Lit Bare Style is not yet supported");
+            assertNotNull("no response for operation testDocLitBare", bareres);
+            assertEquals("Celtix", bareres.getCompany());
+            assertTrue(bareres.getId() == 1);
+        } catch (Exception e) {
+            //e.printStackTrace();
+            //Ignore as exception is expected.
         }
     } 
 

@@ -23,6 +23,7 @@ import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
+import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
 
 public class HandlerChainBuilderTest extends TestCase {
 
@@ -207,5 +208,12 @@ class GreeterWithHandlerChainOnInterfaceImpl implements GreeterWithHandlerChain 
     }
 
     public void testDocLitFault(String faultType) throws BadRecordLitFault, NoSuchCodeLitFault {
+    }
+    
+    public BareDocumentResponse testDocLitBare(String in) {
+        BareDocumentResponse res = new BareDocumentResponse();
+        res.setCompany("Celtix");
+        res.setId(1);
+        return res;
     }
 }

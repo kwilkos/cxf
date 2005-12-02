@@ -339,5 +339,57 @@ public class SoapBindingImplTest extends TestCase {
         assertTrue(BadRecordLitFault.class.isAssignableFrom(faultEx.getClass()));
         BadRecordLitFault brlf = (BadRecordLitFault)faultEx;
         assertEquals(brlf.getFaultInfo(), "BadRecordTested");
-    }    
+    }
+    
+    //Bare Doc Literal Tests
+    public void testMarshalBareDocLitInputMessage() throws Exception {
+        //Test The InputMessage of testDocLitBare Operation
+        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        objContext.setMethod(SOAPMessageUtil.getMethod(Greeter.class, "testDocLitBare"));
+        
+        String arg0 = new String("DocLitBareDocumentInputMessage");
+        objContext.setMessageObjects(arg0);
+
+        SOAPMessage msg = binding.marshalMessage(objContext,
+                                                 soapContext,
+                                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                                             DataBindingCallback.Mode.PARTS));
+        soapContext.setMessage(msg);
+        assertNotNull(msg);
+        //msg.writeTo(System.out);
+        assertTrue(msg.getSOAPBody().hasChildNodes());
+        NodeList list = msg.getSOAPBody().getChildNodes();
+        assertEquals(1, list.getLength());
+        Node msgnode = list.item(0).getFirstChild();
+        assertTrue(!msgnode.hasChildNodes());
+        assertEquals(arg0, msgnode.getNodeValue());
+    }
+    
+    public void testUnmarshalBareDocLitInputMessage() throws Exception {
+        //Test The InputMessage of testDocLitBare Operation
+        objContext.setMethod(SOAPMessageUtil.getMethod(Greeter.class, "testDocLitBare"));
+        QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "BareDocument");        
+
+        String data = new String("DocLitBareDocumentInputMessage");
+        String str = SOAPMessageUtil.createBareDocLitSOAPMessage(elName, data);
+        
+        ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
+        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+
+        assertNotNull(binding.getMessageFactory());
+        SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
+        soapContext.setMessage(soapMessage);
+
+        //testDocLitBare method has a IN parameter
+        objContext.setMessageObjects(new Object[1]);
+        binding.unmarshalMessage(soapContext, objContext,
+                                 new JAXBDataBindingCallback(objContext.getMethod(),
+                                                             DataBindingCallback.Mode.PARTS));
+        
+        Object[] params = objContext.getMessageObjects();
+        assertNotNull(params);
+        assertNull(objContext.getReturn());
+        assertEquals(1, params.length);
+        assertEquals(data, (String)params[0]);
+    }
 }

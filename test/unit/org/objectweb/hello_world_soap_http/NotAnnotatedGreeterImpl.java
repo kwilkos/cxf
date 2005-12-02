@@ -2,6 +2,7 @@ package org.objectweb.hello_world_soap_http;
 
 import java.util.logging.Logger;
 
+import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
 import org.objectweb.hello_world_soap_http.types.ErrorCode;
 import org.objectweb.hello_world_soap_http.types.NoSuchCodeLit;
                 
@@ -32,5 +33,13 @@ public class NotAnnotatedGreeterImpl implements Greeter {
         nscl.setCode(ec);
         
         throw new NoSuchCodeLitFault("TestException", nscl);
+    }
+    
+    public BareDocumentResponse testDocLitBare(String in) {
+        LOG.info("Executin operation testDocLitBare");
+        BareDocumentResponse res = new BareDocumentResponse();
+        res.setCompany("Celtix");
+        res.setId(1);
+        return res;
     }    
 }
