@@ -3,20 +3,20 @@
 
     <import file="../common_build.xml"/>
 
-    <property name="binding.file" value="${wsdl.dir}/binding.xml"/> 
-	 
     <target name="client" description="run demo client">
         <property name="param" value=""/>
-        <celtixrun classname="demo.streams.client.Client" param1="${basedir}/wsdl/hello_world.wsdl" param2="${op}" param3="${param}"/>
+        <celtixrun classname="demo.streams.client.Client"
+        param1="${basedir}/wsdl/hello_world.wsdl"  jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-client.xml"/>
     </target> 
 
     <target name="server" description="run demo server">
-        <celtixrun classname="demo.streams.server.Server" param1="${basedir}}/wsdl/hello_world.wsdl"/>
+        <celtixrun classname="demo.streams.server.Server" param1="${basedir}}/wsdl/hello_world.wsdl"   
+		   jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-server.xml"/>
     </target>
 
     <target name="generate.code" unless="codegen.notrequired">
         <echo message="Generating code using wsdl2java..."/>
-        <wsdl2java file="hello_world.wsdl" bindingfile="${basedir}/wsdl/binding.xml"/>
+        <wsdl2java file="hello_world.wsdl"/>
         <touch file="${codegen.timestamp.file}"/>
     </target>
 

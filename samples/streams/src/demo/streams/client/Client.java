@@ -5,13 +5,13 @@ import java.lang.reflect.UndeclaredThrowableException;
 import javax.xml.namespace.QName;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.PingMeFault;
-import org.objectweb.hello_world_soap_http.SOAPService;
+import org.objectweb.hello_world_soap_http.HelloWorldService;
 
 
 public final class Client {
     
     private static final QName SERVICE_NAME 
-        = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
+        = new QName("http://objectweb.org/hello_world_soap_http", "HelloWorldService");
 
 
     private Client() {
@@ -27,7 +27,7 @@ public final class Client {
 
             File wsdl = new File(args[0]);
         
-            SOAPService ss = new SOAPService(wsdl.toURL(), SERVICE_NAME);
+            HelloWorldService ss = new HelloWorldService(wsdl.toURL(), SERVICE_NAME);
             Greeter port = ss.getSoapPort();
             String resp; 
 

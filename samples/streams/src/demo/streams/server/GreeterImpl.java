@@ -5,7 +5,7 @@ import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.PingMeFault;
 import org.objectweb.hello_world_soap_http.types.FaultDetail;
 
-@javax.jws.WebService(name = "Greeter", serviceName = "SOAPService", 
+@javax.jws.WebService(name = "Greeter", serviceName = "HelloWorldService", 
                       targetNamespace = "http://objectweb.org/hello_world_soap_http", 
                       wsdlLocation = "file:./wsdl/hello_world.wsdl")
                   

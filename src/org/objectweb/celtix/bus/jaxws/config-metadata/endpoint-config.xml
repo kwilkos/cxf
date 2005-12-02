@@ -17,7 +17,7 @@
         <cm:type>jaxws-types:handlerChainType</cm:type>
         <cm:description>
         Specifies the list of handlers to be used on an endpoint. The list can contain a mix 
-        of logical and protocol handlers.
+        of logical, protocol and stream handlers.
         </cm:description>
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
     </cm:configItem>

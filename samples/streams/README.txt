@@ -36,7 +36,7 @@ environment by running the script.
 Building and running the demo using ant
 ---------------------------------------
 
-From the samples/hello_world directory, the ant build script
+From the samples/streams directory, the ant build script
 can be used to build and run the demo.
 
 Using either UNIX or Windows:
@@ -56,7 +56,7 @@ files, run:
 Buildng the demo using wsdl2java and javac
 ------------------------------------------
 
-From the samples/hello_world directory, first create the target
+From the samples/streams directory, first create the target
 directory build/classes and then generate code from the WSDL file.
 
 For UNIX:
@@ -68,13 +68,15 @@ For Windows:
   mkdir build\classes
     Must use back slashes.
 
-  wsdl2java -b .\wsdl\binding.xml -d build\classes .\wsdl\hello_world.wsdl
+  wsdl2java -d build\classes .\wsdl\hello_world.wsdl
     May use either forward or back slashes.
 
 Now compile both the generated code and the provided client and
 server applications with the commands:
 
-  javac -d build/classes src/demo/*/*/*.java
+  javac -d build/classes src/demo/streams/common/*.java
+  javac -d build/classes src/demo/streams/client/*.java
+  javac -d build/classes src/demo/streams/server/*.java
 
 
 Windows may use either forward or back slashes.
@@ -84,7 +86,7 @@ Windows may use either forward or back slashes.
 Running the demo using java
 ---------------------------
 
-From the samples/hello_world directory run the commands, entered on a
+From the samples/streams directory run the commands, entered on a
 single command line:
 
 For UNIX (must use forward slashes):

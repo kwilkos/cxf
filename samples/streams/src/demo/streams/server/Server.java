@@ -9,7 +9,7 @@ public class Server {
 
 
         Object implementor = new GreeterImpl();
-        String address = "http://localhost:9000/SoapContext/SoapPort";
+        String address = "http://localhost:9000/helloworld/SoapPort";
         Endpoint.publish(address, implementor);
     }
     

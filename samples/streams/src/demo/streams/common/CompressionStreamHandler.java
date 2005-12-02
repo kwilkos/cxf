@@ -16,14 +16,11 @@ import org.objectweb.celtix.handlers.StreamHandler;
 public class  CompressionStreamHandler implements StreamHandler {
 
     private static final Logger LOG = Logger.getLogger(CompressionStreamHandler.class.getName()); 
-
-
+    
     public final boolean handleMessage(StreamMessageContext ctx) {
-
         setUpStream(ctx);
         return true;
     }
-
 
     public final boolean handleFault(StreamMessageContext ctx) {
         setUpStream(ctx);
@@ -45,17 +42,16 @@ public class  CompressionStreamHandler implements StreamHandler {
     private void setUpStream(StreamMessageContext ctx) { 
         if (isOutbound(ctx)) { 
             LOG.info("encrypting message stream");
-            // compress outbound on server side
+            // compress outbound messages
             setupCompressionOutputStream(ctx);
         } else {
             LOG.info("decrypting message stream");
-            // decompress inbound on client side
+            // decompress inbound messages
             setupDecompressionInputStream(ctx); 
         } 
     } 
 
     private void setupDecompressionInputStream(StreamMessageContext ctx) { 
-        
         try { 
             ctx.setInputStream(new GZIPInputStream(ctx.getInputStream())); 
         } catch (IOException ex) {
