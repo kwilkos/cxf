@@ -48,7 +48,6 @@ public class ConfigurationMetadataBuilder  {
         public void warning(SAXParseException exception) throws SAXException {
             throw exception;
         }
-
     }
     private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationMetadataBuilder.class);
     private static final String MEATADATA_NAMESPACE_URI = 
@@ -178,6 +177,10 @@ public class ConfigurationMetadataBuilder  {
             type = ts.getDeclaredType(elementName);
         }
         if (null == ts || null == type) {
+            System.err.println(elementName);
+            System.err.println(namespaceURI);
+            System.err.println(ts);
+            System.err.println(type);
             throw new ConfigurationException(new Message("INVALID_ELEMENT_FOR_DEFAULT_VALUE_EXC", LOG,
                                                          item.getName(), item.getType()));
         }

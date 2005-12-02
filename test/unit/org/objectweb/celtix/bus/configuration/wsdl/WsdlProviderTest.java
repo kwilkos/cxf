@@ -28,9 +28,9 @@ public class WsdlProviderTest extends TestCase {
         if (null == wmgr) {
             wmgr = new WSDLManagerImpl(null);
             JAXBExtensionHelper.addExtensions(wmgr.getExtenstionRegistry(), javax.wsdl.Port.class,
-                org.objectweb.celtix.transports.http.configuration.ServerType.class);
+                org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy.class);
             JAXBExtensionHelper.addExtensions(wmgr.getExtenstionRegistry(), javax.wsdl.Port.class,
-                org.objectweb.celtix.transports.http.configuration.ClientType.class);
+                org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy.class);
         }
     }
     
@@ -58,11 +58,11 @@ public class WsdlProviderTest extends TestCase {
        
         WsdlHttpConfigurationProvider hcp = new WsdlHttpConfigurationProvider(p, true);
         Object value = hcp.getObject("SendTimeout");
-        assertEquals(value.toString(), 60000, ((Integer)value).intValue());
+        assertEquals(value.toString(), 60000, ((Long)value).intValue());
            
         hcp = new WsdlHttpConfigurationProvider(p, false);
         value = hcp.getObject("ReceiveTimeout");
-        assertEquals(value.toString(), 90000, ((Integer)value).intValue());
+        assertEquals(value.toString(), 90000, ((Long)value).intValue());
         
         hcp = new WsdlHttpConfigurationProvider(null, false);
         value = hcp.getObject("ReceiveTimeout");

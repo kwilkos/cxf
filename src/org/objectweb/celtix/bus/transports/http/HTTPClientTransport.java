@@ -1,7 +1,5 @@
 package org.objectweb.celtix.bus.transports.http;
 
-
-
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -10,7 +8,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Iterator;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -19,6 +18,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.GenericMessageContext;
@@ -27,12 +27,15 @@ import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
+import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class HTTPClientTransport implements ClientTransport {
     
-    URL url;
-    Configuration configuration;
+    final URL url;
+    final Configuration configuration;
+    final HTTPClientPolicy policy;
+    final AuthorizationPolicy authPolicy;
       
     public HTTPClientTransport(Bus bus, EndpointReferenceType ref) throws WSDLException, IOException {
         
@@ -42,10 +45,21 @@ public class HTTPClientTransport implements ClientTransport {
         configuration = 
             new HTTPClientTransportConfiguration(portConfiguration, 
                                                  EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref));
+        policy = getClientPolicy(configuration);
+        authPolicy = getAuthPolicy(configuration);
     }
     
+    private HTTPClientPolicy getClientPolicy(Configuration configuration2) {
+        // TODO - get policy from wsld, config, etc...
+        return new HTTPClientPolicy();
+    }
+    private AuthorizationPolicy getAuthPolicy(Configuration configuration2) {
+        // TODO - get policy from config
+        return new AuthorizationPolicy();
+    }
+
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
-        return new HTTPClientOutputStreamContext(url, configuration, context);
+        return new HTTPClientOutputStreamContext(url, policy, authPolicy, context);
     }
 
     public void finalPrepareOutputStreamContext(OutputStreamMessageContext context) throws IOException {
@@ -98,53 +112,131 @@ public class HTTPClientTransport implements ClientTransport {
         WrappedOutputStream origOut;
         OutputStream out;
         HTTPClientInputStreamContext inputStreamContext;
-        Configuration config;
+        HTTPClientPolicy policy;
+        AuthorizationPolicy authPolicy;
 
-        public HTTPClientOutputStreamContext(URL url, Configuration configuration, MessageContext ctx)
+        @SuppressWarnings("unchecked")
+        public HTTPClientOutputStreamContext(URL url, HTTPClientPolicy p,
+                                             AuthorizationPolicy ap, MessageContext ctx)
             throws IOException {
             super(ctx);
-            config = configuration;
+
+            Map<String, List<String>> headers = (Map<String, List<String>>)super.get(HTTP_REQUEST_HEADERS);
+            if (null == headers) {
+                headers = new HashMap<String, List<String>>();
+                super.put(HTTP_REQUEST_HEADERS, headers);
+            }
+
+            policy = p;
+            authPolicy = ap;
             String value = (String)ctx.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
             if (value != null) {
                 url = new URL(value);
             }
-            
+
             connection = url.openConnection();
-            connection.setUseCaches(false);
             connection.setDoOutput(true);
+
             if (connection instanceof HttpURLConnection) {
                 HttpURLConnection hc = (HttpURLConnection)connection;
                 hc.setChunkedStreamingMode(4096);
                 hc.setRequestMethod("POST");
             }
-            
-            value = (String)ctx.get(BindingProvider.USERNAME_PROPERTY);
-            if (value != null) {
-                String passwd = (String)ctx.get(BindingProvider.PASSWORD_PROPERTY);
-                value += ":";
-                if (passwd != null) {
-                    value += passwd;
+
+            connection.setConnectTimeout((int)policy.getConnectionTimeout());
+            connection.setReadTimeout((int)policy.getReceiveTimeout());
+
+            connection.setUseCaches(false);
+            if (connection instanceof HttpURLConnection) {
+                HttpURLConnection hc = (HttpURLConnection)connection;
+                if (policy.isAutoRedirect()) {
+                    //cannot use chunking if autoredirect as the request will need to be
+                    //completely cached locally and resent to the redirect target
+                    hc.setInstanceFollowRedirects(true);
+                } else {
+                    hc.setInstanceFollowRedirects(false);
+                    hc.setChunkedStreamingMode(4096);
                 }
-                value = Base64Utility.encode(value.getBytes());
-                connection.addRequestProperty("Authorization", "Basic " + value);
             }
-            
-            // TODO - set connection timeouts, etc...
-            
-            // connection.setReadTimeout(configuration.getInt(""));
-            
+            setPolicies(headers);
+
             origOut = new WrappedOutputStream();
             out = origOut;
         }
+        private void setPolicies(Map<String, List<String>> headers) {
+            String userName = (String)get(BindingProvider.USERNAME_PROPERTY);
+            if (userName == null && authPolicy.isSetUserName()) {
+                userName = authPolicy.getUserName();
+            }
+            if (userName != null) {
+                String passwd = (String)get(BindingProvider.PASSWORD_PROPERTY);
+                if (passwd == null && authPolicy.isSetPassword()) {
+                    passwd = authPolicy.getPassword();
+                }
+                userName += ":";
+                if (passwd != null) {
+                    userName += passwd;
+                }
+                userName = Base64Utility.encode(userName.getBytes());
+                headers.put("Authorization",
+                            Arrays.asList(new String[] {"Basic " + userName}));
+            } else if (authPolicy.isSetAuthorizationType() && authPolicy.isSetAuthorization()) {
+                String type = authPolicy.getAuthorizationType();
+                type += " ";
+                type += authPolicy.getAuthorization();
+                headers.put("Authorization",
+                            Arrays.asList(new String[] {type}));
+            }
+            if (policy.isSetCacheControl()) {
+                headers.put("Cache-Control",
+                            Arrays.asList(new String[] {policy.getCacheControl().value()}));
+            }
+            if (policy.isSetHost()) {
+                headers.put("Host",
+                            Arrays.asList(new String[] {policy.getHost()}));
+            }
+            if (policy.isSetConnection()) {
+                headers.put("Connection",
+                            Arrays.asList(new String[] {policy.getConnection().value()}));                
+            }
+            if (policy.isSetAccept()) {
+                headers.put("Accept",
+                            Arrays.asList(new String[] {policy.getAccept()}));                
+            }
+            if (policy.isSetAcceptEncoding()) {
+                headers.put("Accept-Encoding",
+                            Arrays.asList(new String[] {policy.getAcceptEncoding()}));                
+            }
+            if (policy.isSetAcceptLanguage()) {
+                headers.put("Accept-Language",
+                            Arrays.asList(new String[] {policy.getAcceptLanguage()}));                
+            }
+            if (policy.isSetContentType()) {
+                headers.put("Content-Type",
+                            Arrays.asList(new String[] {policy.getContentType()}));                
+            }
+            if (policy.isSetCookie()) {
+                headers.put("Cookie",
+                            Arrays.asList(new String[] {policy.getCookie()}));                
+            }
+            if (policy.isSetBrowserType()) {
+                headers.put("BrowserType",
+                            Arrays.asList(new String[] {policy.getBrowserType()}));                
+            }
+            if (policy.isSetReferer()) {
+                headers.put("Referer",
+                            Arrays.asList(new String[] {policy.getReferer()}));                
+            }
+        }
         
+        @SuppressWarnings("unchecked")
         void flushHeaders() throws IOException {
-            Map<?, ?> headers = (Map<?, ?>)super.get(HTTP_REQUEST_HEADERS);
+            Map<String, List<String>> headers = (Map<String, List<String>>)super.get(HTTP_REQUEST_HEADERS);
             if (null != headers) {
-                for (Iterator<?> iter = headers.keySet().iterator(); iter.hasNext();) {
-                    String header = (String)iter.next();
-                    List<?> headerList = (List<?>)headers.get(header);
-                    for (Object string : headerList) {
-                        connection.addRequestProperty(header, (String)string);
+                for (String header : headers.keySet()) {
+                    List<String> headerList = (List<String>)headers.get(header);
+                    for (String string : headerList) {
+                        connection.addRequestProperty(header, string);
                     }
                 } 
             }

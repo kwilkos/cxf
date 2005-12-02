@@ -23,7 +23,7 @@ version="2.0"
     </xsl:template>
 
     <xsl:template match="xs:schema/xs:complexType">
-        <xsl:if test="@name=concat($type,'Type')">
+        <xsl:if test="@name=concat('HTTP',concat($type,'Policy'))">
             <xsl:text>
 </xsl:text>
             <xsl:text disable-output-escaping="yes">&lt;cm:config</xsl:text><xsl:text>

@@ -9,12 +9,9 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            jaxb:version="2.0">
 
-
-
-
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
 
-    <xs:complexType name="serverType">
+    <xs:complexType name="HTTPServerPolicy">
         <xs:annotation>
             <xs:documentation>HTTP Server configuration properties.
             Used for configuring a HTTP server port.
@@ -24,18 +21,18 @@
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
 
-                <xs:attribute name="SendTimeout" type="http-conf:timeIntervalType" use="optional" default="30000">
+                <xs:attribute name="SendTimeout" type="xs:unsignedInt" use="optional" default="30000">
                     <xs:annotation>
                         <xs:documentation>
-                        Send timeout in milliseconds
+                        Send timeout in milliseconds, 0 is infinite
                         </xs:documentation>
                     </xs:annotation>      
                 </xs:attribute>
 
-                <xs:attribute name="ReceiveTimeout" type="http-conf:timeIntervalType" use="optional" default="30000">
+                <xs:attribute name="ReceiveTimeout" type="xs:unsignedInt" use="optional" default="30000">
                     <xs:annotation>
                         <xs:documentation>
-                        Receive timeout in milliseconds
+                        Receive timeout in milliseconds, 0 is infinite
                         </xs:documentation>
                     </xs:annotation>      
                 </xs:attribute>
@@ -70,18 +67,6 @@
                         the connection alive.  Keep-Alive improves performance for the client 
                         requesting such behavior, but can limit overall scalability of the server 
                         for handling many clients.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="MultiplexPoolSize" type="xs:int" use="optional" default="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                        Server applications can achieve higher concurrency per thread by honoring 
-                        keep alive requests and using the Multiplex Pool for holding live connections.  
-                        The multiplex pool will store up to the number of live connections indicated 
-                        by this parameter.  To prevent starvation, a round-robin algorithm is used 
-                        when multiple connections queue requests at the same time.                      
                         </xs:documentation>
                     </xs:annotation>      
                 </xs:attribute>
@@ -138,78 +123,13 @@
                         </xs:documentation>
                     </xs:annotation>      
                 </xs:attribute>
-
-                <!--SSL related attributes-->
-                <xs:attribute name="UseSecureSockets" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                        If Yes, SSL or TLS connection will be expected by the server.  SSL and TLS are 
-                        public standards, and when they are used, the connection is often referred to 
-                        as HTTPS instead of HTTP.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="ServerCertificate" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        Servers are required to present a certificate for authentication of the server 
-                        by the client.  This field should contain the PKCS12 encoded certificate 
-                        issued by the certificate authority.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="ServerCertificateChain" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        Certificates can be issued by intermediate certificate authorities that are not 
-                        trusted by the Client, but have had their certificates issues by a trusted 
-                        authority.  This option allows the certificate chain of PEM encoded X509 
-                        certificates to be presented for verification.  Optional.
-                        This will be deprecated due to the move to PKCS12.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="ServerPrivateKey" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        The PEM encoded private key corresponding to X509 certificate listed in 
-                        ServerCertificate.  Required if ServerCertificate is specified, and cannot be 
-                        specified if ServerCertificate is not specified.
-                        This will be deprecated due to the move to PKCS12.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="ServerPrivateKeyPassword" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        If the PEM encoded ServerPrivateKey field is encrypted with a password, this 
-                        is the password used to decrypt it.  These keys are typically encrypted by the 
-                        certificate authority when sending the key over a public network, and password 
-                        is delivered by a secure means.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="TrustedRootCertificates" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        The client should specify a list of PEM encoded X509 certificates for 
-                        certificate authorities that are trusted.  This will be used to validate the 
-                        certificate presented by the server.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:element name="server" type="http-conf:serverType"/>
+    <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
 
 
-    <xs:complexType name="clientType">
+    <xs:complexType name="HTTPClientPolicy">
         <xs:annotation>
             <xs:documentation>HTTP client configuration properties.
             Used for configuring a HTTP client port.
@@ -219,18 +139,18 @@
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
 
-                <xs:attribute name="SendTimeout" type="http-conf:timeIntervalType" use="optional" default="30000">
+                <xs:attribute name="ConnectionTimeout" type="xs:unsignedInt" use="optional" default="30000">
                     <xs:annotation>
                         <xs:documentation>
-                        Send timeout in milliseconds
+                        Send timeout in milliseconds, 0 is infinite
                         </xs:documentation>
                     </xs:annotation>      
                 </xs:attribute>
 
-                <xs:attribute name="ReceiveTimeout" type="http-conf:timeIntervalType" use="optional" default="30000">
+                <xs:attribute name="ReceiveTimeout" type="xs:unsignedInt" use="optional" default="30000">
                     <xs:annotation>
                         <xs:documentation>
-                        Receive timeout in milliseconds
+                        Receive timeout in milliseconds, 0 is infinite
                         </xs:documentation>
                     </xs:annotation>      
                 </xs:attribute>
@@ -245,45 +165,6 @@
                     </xs:annotation>      
                 </xs:attribute>
 
-                <xs:attribute name="UserName" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        User Name for  server BASIC authentication login
-                        (some servers require users to authenticate with the server -- see also Password, AuthorizationType, and Authorization)
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="Password" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        Password for server BASIC authentication login
-                        (some servers require users to authenticate with the server -- see also UserName, AuthorizationType, and Authorization)
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="AuthorizationType" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        Type of authentication to use with server, if not using
-                        username and password based "BASIC" authentication.
-                        If username and password are used, this does not need to be set.
-                        (some servers require users to authenticate with the server -- see also UserName, Password, and Authorization)
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="Authorization" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        Actual authentication data for server, if not using
-                        username and password based "BASIC" authentication
-                        If username and password are used, this does not need to be set.
-                        (some servers require users to authenticate with the server -- see also UserName, Password, and AuthorizationType)
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
 
                 <xs:attribute name="Accept" type="xs:string" use="optional">
                     <xs:annotation>
@@ -396,148 +277,11 @@
                     </xs:annotation>      
                 </xs:attribute>
 
-                <!--Proxy server attributes-->
-                <xs:attribute name="ProxyServer" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        URL of proxy server, if used 
-                        (proxy servers are a special kind of firewall)
-                             http://myproxyserver/moreproxyinfo/ 
-                             https://myproxyserver/moreproxyinfo
-                             http://myproxyserver:9001/moreproxyinfo
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="ProxyUserName" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        User Name for proxy server BASIC authentication login
-                        (some proxy servers require users to authenticate with the 
-                        proxy server.  this is independent of any downstream login)
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="ProxyPassword" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        Password for proxy server BASIC authentication login
-                        (some proxy servers require users to authenticate with the 
-                        proxy server.  this is independent of any downstream login)
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="ProxyAuthorizationType" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        Type of authentication to use with proxy server, if not using
-                        username and password based "BASIC" authentication
-                        (some proxy servers require users to authenticate with the 
-                        proxy server.  this is independent of any downstream login)
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="ProxyAuthorization" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        Actual authentication data for proxy server, if not using
-                        username and password based "BASIC" authentication
-                        (some proxy servers require users to authenticate with the 
-                        proxy server.  this is independent of any downstream login)
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-
-                <!--SSL related attributes-->
-                <xs:attribute name="UseSecureSockets" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                        If true, SSL or TLS connection will be expected by the server.  SSL and TLS are 
-                        public standards, and when they are used, the connection is often referred to 
-                        as HTTPS instead of HTTP.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="ClientCertificate" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        Some servers may require the client to also present a certificate for 
-                        authentication of the client by the server.  This field should contain 
-                        the PKCS12 encoded certificate issued by the certificate authority.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="ClientCertificateChain" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        Certificates can be issued by intermediate certificate authorities that are not 
-                        trusted by the Server, but have had their certificates issues by a trusted 
-                        authority.  This option allows the certificate chain of PEM encoded X509 
-                        certificates to be presented for verification.  Optional.
-                        This will be deprecated due to the move to PKCS12.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="ClientPrivateKey" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        The PEM encoded private key corresponding to X509 certificate listed in 
-                        ClientCertificate.  Required if ClientCertificate is specified, and cannot be 
-                        specified if ClientCertificate is not specified.
-                        This will be deprecated due to the move to PKCS12.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="ClientPrivateKeyPassword" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        If the PEM encoded ClientPrivateKey field is encrypted with a password, this 
-                        is the password used to decrypt it.  These keys are typically encrypted by the 
-                        certificate authority when sending the key over a public network, and password 
-                        is delivered by a secure means.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
-                <xs:attribute name="TrustedRootCertificates" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                        The client should specify a list of PEM encoded X509 certificates for 
-                        certificate authorities that are trusted.  This will be used to validate the 
-                        certificate presented by the server.
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:element name="client" type="http-conf:clientType"/>
+    <xs:element name="client" type="http-conf:HTTPClientPolicy"/>
 
-
-
-
-    <xs:simpleType name="timeIntervalType">
-        <!--
-        <xs:union memberTypes="xs:int">
-            <xs:simpleType>
-                <xs:restriction base="xs:string">
-                    <xs:enumeration value="infinite"/>
-                    <xs:enumeration value="INFINITE"/>
-                </xs:restriction>
-            </xs:simpleType>
-        </xs:union>
-        -->
-        <xs:restriction base="xs:int"/>
-    </xs:simpleType>
   
     <xs:simpleType name="serverCacheControlType">
         <xs:restriction base="xs:string">

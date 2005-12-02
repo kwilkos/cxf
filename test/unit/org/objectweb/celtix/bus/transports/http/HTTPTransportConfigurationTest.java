@@ -9,7 +9,7 @@ public class HTTPTransportConfigurationTest extends TestCase {
     public void testCreateClientConfiguration() {
         Configuration c = new HTTPClientTransportConfiguration(null, null);
         assertNotNull(c);
-        assertEquals(30000, c.getInt("SendTimeout"));
+        assertEquals(30000, c.getLong("ReceiveTimeout"));
     }
 
     public void testCreateServerConfiguration() {

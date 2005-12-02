@@ -102,10 +102,10 @@
         <xslt in="${src.wsdl.schema.dir}/http-conf.xsd" out="${configuration.schema.dir}/http-conf-types.xsd" style="${basedir}/etc/transforms/http-conf-types.xsl">
         </xslt>
         <xslt in="${src.wsdl.schema.dir}/http-conf.xsd" out="${config-metadata.dir}/http-server-config.xml" style="${basedir}/etc/transforms/http-conf.xsl">
-            <param name="type" expression="server"/>
+            <param name="type" expression="Server"/>
         </xslt>
         <xslt in="${src.wsdl.schema.dir}/http-conf.xsd" out="${config-metadata.dir}/http-client-config.xml" style="${basedir}/etc/transforms/http-conf.xsl">
-            <param name="type" expression="client"/>
+            <param name="type" expression="Client"/>
         </xslt>
 
         <fileset id="included.wsdls" dir="${src.wsdl.schema.dir}" includes="http-conf.xsd, wsdl.xsd, jms.xsd"/>
@@ -113,6 +113,7 @@
             <fileset refid="included.wsdls"/>
         </copy>
         <xsdtojava file="${configuration.schema.dir}/http-conf-types.xsd" destdir="${basedir}/build/src"/>
+        <xsdtojava file="${src.configuration.schema.dir}/security.xsd" destdir="${basedir}/build/src"/>
         <delete quiet="true">
             <fileset dir="${configuration.schema.dir}" includes="http-conf.xsd, wsdl.xsd, jms.xsd"/>
         </delete>
@@ -131,6 +132,7 @@
             <srcfiles dir="${src.configuration.schema.dir}" includes="*.xsd"/>
             <srcfiles dir="${src.wsdl.schema.dir}" includes="http-conf.xsd"/>
             <srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
+            <srcfiles dir="etc/transforms" includes="*.xsl"/>
             <mapper type="merge" to="${basedir}/build/src/.CONFIGURATION.CODEGEN.DONE"/>
         </uptodate>
         <antcall target="configuration.codegen.internal"/>

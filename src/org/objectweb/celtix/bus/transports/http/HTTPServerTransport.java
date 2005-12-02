@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,9 +34,15 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
+import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class HTTPServerTransport implements ServerTransport {
+    static final String HTTP_REQUEST =
+        HTTPServerInputStreamContext.class.getName() + ".REQUEST";
+    static final String HTTP_RESPONSE =
+        HTTPServerInputStreamContext.class.getName() + ".RESPONSE";
+    
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPServerTransport.class);
 
@@ -45,6 +52,7 @@ public class HTTPServerTransport implements ServerTransport {
     String name;
     ServerTransportCallback callback;
     Configuration configuration;
+    HTTPServerPolicy policy;
     
     public HTTPServerTransport(Bus bus, EndpointReferenceType ref) throws WSDLException, IOException {
         
@@ -56,9 +64,14 @@ public class HTTPServerTransport implements ServerTransport {
         URL nurl = new URL(url);
         name = nurl.getPath();
         engine = HTTPServerEngine.getForPort(nurl.getProtocol(), nurl.getPort());
-        
+        policy = getServerPolicy(configuration);
     }
     
+    private HTTPServerPolicy getServerPolicy(Configuration configuration2) {
+        // TODO - get policy from config
+        return new HTTPServerPolicy();
+    }
+
     public void activate(ServerTransportCallback cb) throws IOException {
         callback = cb;
         engine.addServant(url, this);
@@ -104,14 +117,10 @@ public class HTTPServerTransport implements ServerTransport {
         ((HTTPServerOutputStreamContext)context).flushHeaders();
     }
     
-    static class HTTPServerInputStreamContext
+    class HTTPServerInputStreamContext
         extends GenericMessageContext
         implements InputStreamMessageContext {
     
-        static final String HTTP_REQUEST =
-            HTTPServerInputStreamContext.class.getName() + ".REQUEST";
-        static final String HTTP_RESPONSE =
-            HTTPServerInputStreamContext.class.getName() + ".RESPONSE";
 
         private static final long serialVersionUID = 1L;
 
@@ -126,27 +135,66 @@ public class HTTPServerTransport implements ServerTransport {
             put(ObjectMessageContext.MESSAGE_INPUT, true);
             Map<String, List<String>> headers = new HashMap<String, List<String>>();
             for (Enumeration e = req.getFieldNames(); e.hasMoreElements();) {
-                String name = (String)e.nextElement();
+                String fname = (String)e.nextElement();
                 List<String> values;
-                if (headers.containsKey(name)) {
-                    values = headers.get(name);
+                if (headers.containsKey(fname)) {
+                    values = headers.get(fname);
                 } else {
                     values = new ArrayList<String>();
-                    headers.put(name, values);
+                    headers.put(fname, values);
                 }
-                for (Enumeration e2 = req.getFieldValues(name); e2.hasMoreElements();) {
+                for (Enumeration e2 = req.getFieldValues(fname); e2.hasMoreElements();) {
                     String val = (String)e2.nextElement();
                     values.add(val);
                 }
             }
-            put(HTTP_REQUEST_HEADERS, headers); 
-            put(HTTP_RESPONSE_HEADERS, new HashMap<String, List<String>>()); 
+            put(HTTP_REQUEST_HEADERS, headers);
+            
+            headers = new HashMap<String, List<String>>();
+            setPolicies(headers);
+            
+            put(HTTP_RESPONSE_HEADERS, headers); 
             
             origInputStream = req.getInputStream();
             inStream = origInputStream;
             
             put(HTTP_RESPONSE, resp);
             put(HTTP_REQUEST, req);
+        }
+        
+        private void setPolicies(Map<String, List<String>> headers) {
+            if (policy.isSetCacheControl()) {
+                headers.put("Cache-Control",
+                            Arrays.asList(new String[] {policy.getCacheControl().value()}));
+            }
+            if (policy.isSetContentLocation()) {
+                headers.put("Content-Location",
+                            Arrays.asList(new String[] {policy.getContentLocation()}));
+            }
+            if (policy.isSetContentEncoding()) {
+                headers.put("Content-Encoding",
+                            Arrays.asList(new String[] {policy.getContentEncoding()}));
+            }
+            if (policy.isSetContentType()) {
+                headers.put("Content-Type",
+                            Arrays.asList(new String[] {policy.getContentType()}));
+            }
+            if (policy.isSetServerType()) {
+                headers.put("Server",
+                            Arrays.asList(new String[] {policy.getServerType()}));
+            }
+            if (policy.isSetHonorKeepAlive() && !policy.isHonorKeepAlive()) {
+                headers.put("Connection",
+                            Arrays.asList(new String[] {"close"}));
+            }
+        /*
+         * TODO - hook up these policies
+        <xs:attribute name="SendTimeout" type="xs:unsignedInt" use="optional" default="30000">
+        <xs:attribute name="ReceiveTimeout" type="xs:unsignedInt" use="optional" default="30000">
+        <xs:attribute name="SuppressClientSendErrors" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="SuppressClientReceiveErrors" type="xs:boolean" use="optional" default="false">
+        */
+
         }
     
         public InputStream getInputStream() {
@@ -166,7 +214,7 @@ public class HTTPServerTransport implements ServerTransport {
         }
     }
 
-    static class HTTPServerOutputStreamContext
+    class HTTPServerOutputStreamContext
         extends MessageContextWrapper
         implements OutputStreamMessageContext {
         
@@ -178,7 +226,7 @@ public class HTTPServerTransport implements ServerTransport {
             super(ctx);
             origOut = new WrappedOutputStream();
             out = origOut;
-            response = (HttpResponse)ctx.get(HTTPServerInputStreamContext.HTTP_RESPONSE); 
+            response = (HttpResponse)ctx.get(HTTP_RESPONSE); 
         }
         
         void flushHeaders() throws IOException {
@@ -236,6 +284,12 @@ public class HTTPServerTransport implements ServerTransport {
     }
         
     void doService(HttpRequest req, HttpResponse resp) throws IOException {
+        if (policy.isSetRedirectURL()) {
+            resp.sendRedirect(policy.getRedirectURL());
+            resp.commit();
+            req.setHandled(true);
+            return;
+        }
         
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Service http request on thread: " + Thread.currentThread());

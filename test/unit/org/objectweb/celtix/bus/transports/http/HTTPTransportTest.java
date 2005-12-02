@@ -178,10 +178,14 @@ public class HTTPTransportTest extends TestCase {
         mapping.getNamespace().add(transportId);
         mappings.getMap().add(mapping);
         
+        bus.getWSDLManager();
+        EasyMock.expectLastCall().andReturn(wsdlManager);
+        bus.getWSDLManager();
+        EasyMock.expectLastCall().andReturn(wsdlManager);
         bus.getConfiguration();
         EasyMock.expectLastCall().andReturn(bc);
         bc.getObject("transportFactories");
-        EasyMock.expectLastCall().andReturn(mappings);       
+        EasyMock.expectLastCall().andReturn(mappings);    
         
         EasyMock.replay(bus);
         EasyMock.replay(bc); 

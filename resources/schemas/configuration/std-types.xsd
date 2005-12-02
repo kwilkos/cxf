@@ -20,6 +20,10 @@ elementFormDefault="qualified"
 	<xs:element name="doubleValue" type="xs:double"/>
 	<xs:element name="stringValue" type="xs:string"/>
 	
+	<xs:element name="unsignedShortValue" type="xs:unsignedShort"/>
+	<xs:element name="unsignedIntValue" type="xs:unsignedInt"/>
+	<xs:element name="unsignedLongValue" type="xs:unsignedLong"/>
+
 	<!--
 	<xs:element name="boolean" type="tns:booleanType"/>
 	<xs:element name="short" type="tns:shortType"/>

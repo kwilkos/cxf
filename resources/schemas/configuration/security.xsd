@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema targetNamespace="http://celtix.objectweb.org/bus/configuration/security"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           elementFormDefault="qualified" 
+           attributeFormDefault="unqualified"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           jaxb:version="2.0">
+
+    <xs:annotation>
+        <xs:appinfo>
+            <jaxb:globalBindings generateIsSetMethod="true"/>
+        </xs:appinfo>
+    </xs:annotation>
+
+    <xs:complexType name="AuthorizationPolicy">
+        <xs:annotation>
+            <xs:documentation>
+            Policies for controlling basic authentication
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="UserName" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    User Name for  server BASIC authentication login
+                    (some servers require users to authenticate with the server -- see also Password, AuthorizationType, and Authorization)
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="Password" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    Password for server BASIC authentication login
+                    (some servers require users to authenticate with the server -- see also UserName, AuthorizationType, and Authorization)
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="AuthorizationType" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    Type of authentication to use with server, if not using
+                    username and password based "BASIC" authentication.
+                    If username and password are used, this does not need to be set.
+                    (some servers require users to authenticate with the server -- see also UserName, Password, and Authorization)
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="Authorization" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    Actual authentication data for server, if not using
+                    username and password based "BASIC" authentication
+                    If username and password are used, this does not need to be set.
+                    (some servers require users to authenticate with the server -- see also UserName, Password, and AuthorizationType)
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="SSLPolicy">
+        <xs:annotation>
+            <xs:documentation>
+            Policies for controlling SSL encryption
+            </xs:documentation>
+        </xs:annotation>
+
+    	<xs:sequence>
+    		<!--SSL related elements-->
+            <xs:element name="UseSecureSockets" type="xs:boolean" minOccurs="0" default="false">
+                <xs:annotation>
+                    <xs:documentation>
+                    If true, SSL or TLS connection will be expected by the server.  SSL and TLS are 
+                    public standards, and when they are used, the connection is often referred to 
+                    as HTTPS instead of HTTP.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="Certificate" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    Some servers may require the client to also present a certificate for 
+                    authentication of the client by the server.  This field should contain 
+                    the PKCS12 encoded certificate issued by the certificate authority.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="CertificateChain" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    Certificates can be issued by intermediate certificate authorities that are not 
+                    trusted by the Server, but have had their certificates issues by a trusted 
+                    authority.  This option allows the certificate chain of PEM encoded X509 
+                    certificates to be presented for verification.  Optional.
+                    This will be deprecated due to the move to PKCS12.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="PrivateKey" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    The PEM encoded private key corresponding to X509 certificate listed in 
+                    ClientCertificate.  Required if ClientCertificate is specified, and cannot be 
+                    specified if ClientCertificate is not specified.
+                    This will be deprecated due to the move to PKCS12.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="PrivateKeyPassword" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    If the PEM encoded ClientPrivateKey field is encrypted with a password, this 
+                    is the password used to decrypt it.  These keys are typically encrypted by the 
+                    certificate authority when sending the key over a public network, and password 
+                    is delivered by a secure means.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="TrustedRootCertificates" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    The client should specify a list of PEM encoded X509 certificates for 
+                    certificate authorities that are trusted.  This will be used to validate the 
+                    certificate presented by the server.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+</xs:schema>

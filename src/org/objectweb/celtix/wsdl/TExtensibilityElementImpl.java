@@ -39,5 +39,8 @@ public class TExtensibilityElementImpl
     public Boolean getRequired() {
         return isRequired();
     }
+    public void setRequired(Boolean value) {
+        this.required = value;
+    }
 
 }
