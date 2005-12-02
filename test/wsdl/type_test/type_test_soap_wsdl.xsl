@@ -31,7 +31,7 @@
           xmlns:tns="http://objectweb.org/type_test/doc"
           targetNamespace="http://objectweb.org/type_test/doc"
           name="type_test_soap">
-        <xsl:apply-templates select="@*" mode="attribute_copy"/>
+        <xsl:apply-templates select="@*[name(.)!='elementFormDefault']" mode="attribute_copy"/>
         <xsl:apply-templates select="." mode="test_binding"/>
       </wsdl:definitions>
     </xsl:if>
@@ -41,7 +41,7 @@
           xmlns:tns="http://objectweb.org/type_test/rpc"
           targetNamespace="http://objectweb.org/type_test/rpc"
           name="type_test_soap">
-        <xsl:apply-templates select="@*" mode="attribute_copy"/>
+        <xsl:apply-templates select="@*[name(.)!='elementFormDefault']" mode="attribute_copy"/>
         <xsl:apply-templates select="." mode="test_binding"/>
       </wsdl:definitions>
     </xsl:if>
@@ -71,7 +71,6 @@
       <wsdl:port name="SOAPPort">
         <xsl:attribute name="binding" xmlns="http://schemas.xmlsoap.org/">
             <xsl:value-of select="'tns:TypeTestSOAP'"/>
-            <!--xsl:value-of select="'tns:TypeTestSOAPRpcLit'"/-->
         </xsl:attribute>
         <soap:address location="http://localhost:9000/SOAPService/SOAPPort/"/>
         <http-conf:client SendTimeout="120000" ReceiveTimeout="180000"/>
@@ -99,7 +98,7 @@
         <soap:body use="literal">
           <xsl:if test="$use_style='rpc'">
             <xsl:attribute name="namespace">
-              <xsl:value-of select="'http://objectweb.org/type_test'"/>
+              <xsl:value-of select="'http://objectweb.org/type_test/rpc'"/>
             </xsl:attribute>
           </xsl:if>
         </soap:body>
@@ -120,92 +119,20 @@
         <soap:body use="literal">
           <xsl:if test="$use_style='rpc'">
             <xsl:attribute name="namespace">
-              <xsl:value-of select="'http://objectweb.org/type_test'"/>
+              <xsl:value-of select="'http://objectweb.org/type_test/rpc'"/>
             </xsl:attribute>
           </xsl:if>
         </soap:body>
       </wsdl:input>
-    </wsdl:operation>
-    -->
-    <!--
-    <wsdl:operation name="testDispatch1">
-      <soap:operation soapAction="">
-        <xsl:attribute name="style">
-          <xsl:value-of select="$use_style"/>
-        </xsl:attribute>
-      </soap:operation>
-      <wsdl:input>
-        <xsl:if test="$use_style='document'">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'testDispatch1'"/>
-          </xsl:attribute>
-        </xsl:if>
-        <soap:body use="literal">
-          <xsl:if test="$use_style='rpc'">
-            <xsl:attribute name="namespace">
-              <xsl:value-of select="'http://objectweb.org/type_test'"/>
-            </xsl:attribute>
-          </xsl:if>
-        </soap:body>
-      </wsdl:input>
-      <wsdl:output>
-        <xsl:if test="$use_style='document'">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'testDispatch1Response'"/>
-          </xsl:attribute>
-        </xsl:if>
-        <soap:body use="literal">
-          <xsl:if test="$use_style='rpc'">
-            <xsl:attribute name="namespace">
-              <xsl:value-of select="'http://objectweb.org/type_test'"/>
-            </xsl:attribute>
-          </xsl:if>
-        </soap:body>
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="testDispatch2">
-      <soap:operation soapAction="">
-        <xsl:attribute name="style">
-          <xsl:value-of select="$use_style"/>
-        </xsl:attribute>
-      </soap:operation>
-      <wsdl:input>
-        <xsl:if test="$use_style='document'">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'testDispatch2'"/>
-          </xsl:attribute>
-        </xsl:if>
-        <soap:body use="literal">
-          <xsl:if test="$use_style='rpc'">
-            <xsl:attribute name="namespace">
-              <xsl:value-of select="'http://objectweb.org/type_test'"/>
-            </xsl:attribute>
-          </xsl:if>
-        </soap:body>
-      </wsdl:input>
-      <wsdl:output>
-        <xsl:if test="$use_style='document'">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'testDispatch2Response'"/>
-          </xsl:attribute>
-        </xsl:if>
-        <soap:body use="literal">
-          <xsl:if test="$use_style='rpc'">
-            <xsl:attribute name="namespace">
-              <xsl:value-of select="'http://objectweb.org/type_test'"/>
-            </xsl:attribute>
-          </xsl:if>
-        </soap:body>
-      </wsdl:output>
     </wsdl:operation>
     -->
   </xsl:template>
 
   <!-- 1.2 - group of test operations -->
   <xsl:template match="itst:it_test_group" mode="test_operations_group">
-    <!--
     <xsl:apply-templates select="xsd:simpleType" mode="test_operation"/>
     <xsl:apply-templates select="xsd:complexType" mode="test_operation"/>
+    <!--
     <xsl:apply-templates select="xsd:element" mode="test_operation"/>
     -->
     <xsl:apply-templates select="itst:builtIn" mode="test_operation"/>
@@ -222,7 +149,7 @@
                                    substring(@name, 2)))"/>
     </xsl:variable>
     <xsl:variable name="operation_input_name">
-      <xsl:value-of select="concat($operation_name, 'Request')"/>
+      <xsl:value-of select="$operation_name"/>
     </xsl:variable>
     <xsl:variable name="operation_output_name">
       <xsl:value-of select="concat($operation_name, 'Response')"/>

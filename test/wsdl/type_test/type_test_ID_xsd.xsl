@@ -24,8 +24,9 @@
 
   <!-- 0 - root schema node -->
   <xsl:template match="/xsd:schema">
-    <xsd:schema
-        xmlns="http://www.w3.org/2001/XMLSchema">
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
+                xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+                jaxb:version="2.0">
       <xsl:attribute name="targetNamespace">
         <xsl:value-of select="'http://objectweb.org/type_test/types'"/>
       </xsl:attribute>

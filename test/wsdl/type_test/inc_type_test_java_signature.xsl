@@ -12,7 +12,7 @@
     <xsl:output method="text"/>
     <xsl:strip-space elements="*"/>
     
-    <xsl:template match="xsd:simpleType|xsd:complexType|itst:builtIn" mode="test_signature">
+    <xsl:template match="xsd:simpleType|xsd:complexType|xsd:element|itst:builtIn" mode="test_signature">
         <xsl:variable name="the_name">
             <xsl:value-of select="concat(translate(substring(@name, 1, 1),
                                          'abcdefghijklmnopqrstuvwxyz', 
@@ -25,38 +25,16 @@
         <xsl:variable name="class_name">
             <xsl:value-of select="concat('Test', $the_name)"/>
         </xsl:variable>
-        <xsl:text>public </xsl:text>
+        <xsl:text>&#10;    public </xsl:text>
         <xsl:apply-templates select="." mode="javaType"/>
         <xsl:text> </xsl:text>
         <xsl:value-of select="$operation_name"/>
-        <xsl:text>(
-        </xsl:text>
+        <xsl:text>(&#10;            </xsl:text>
         <xsl:apply-templates select="." mode="javaType"/>
         <xsl:text> x,</xsl:text>
         <xsl:apply-templates select="." mode="javaHolderType"/>
         <xsl:text> y,</xsl:text>
         <xsl:apply-templates select="." mode="javaHolderType"/>
-        <xsl:text> z)</xsl:text>
-    </xsl:template>
-
-    <xsl:template match="xsd:element" mode="test_signature">
-        <xsl:text>
-    public </xsl:text>
-        <xsl:apply-templates select="." mode="javaType"/>
-        <xsl:text> test_</xsl:text>
-        <xsl:value-of select="@name"/>
-        <xsl:text>(</xsl:text>
-        <xsl:apply-templates select="." mode="javaType_suffix">
-            <xsl:with-param name="suffix">_x</xsl:with-param>
-        </xsl:apply-templates>
-        <xsl:text> x, </xsl:text>
-        <xsl:apply-templates select="." mode="javaHolderType_suffix">
-            <xsl:with-param name="suffix">_y</xsl:with-param>
-        </xsl:apply-templates>
-        <xsl:text> y, </xsl:text>
-        <xsl:apply-templates select="." mode="javaHolderType_suffix">
-            <xsl:with-param name="suffix">_z</xsl:with-param>
-        </xsl:apply-templates>
         <xsl:text> z)</xsl:text>
     </xsl:template>
 

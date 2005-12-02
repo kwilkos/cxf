@@ -3,9 +3,8 @@ package org.objectweb.celtix.systest.type_test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
-//import java.util.ArrayList;
 import java.util.Arrays;
-//import java.util.List;
+import java.util.List;
 
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -15,6 +14,11 @@ import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
+//import org.objectweb.type_test.types.ColourEnum;
+import org.objectweb.type_test.types.DecimalEnum;
+import org.objectweb.type_test.types.NMTokenEnum;
+import org.objectweb.type_test.types.NumberEnum;
+import org.objectweb.type_test.types.StringEnum;
 
 public abstract class AbstractTypeTestClient extends ClientServerTestBase implements TypeTestTester {
     protected static org.objectweb.type_test.doc.TypeTestPortType docClient;
@@ -43,12 +47,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     public void setUp() throws BusException {
         super.setUp(); 
         initBus(); 
-        // for support of soap header, context, substitutionGroup and
-        // xsd:anyType, you must register generated TypeFactory.
-        //File file = new File("/wsdl/type_test/type_test_soap.wsdl");
-        //String location = file.toURL().toString();
-        //bus.registerTypeFactory(new org.objectweb.type_test.TypeTestTypeFactory(location));
-        
+
         //
         // Check the name of the wsdlPath to decide whether to test doc
         // literal or rpc literal style.
@@ -528,7 +527,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             ret = docClient.testDate(x, y, z);
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests.
+            // xsd:date tests (ClassCastException in jaxb).
             //ret = rpcClient.testDate(x, y, z);
             return;
         }
@@ -584,7 +583,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             ret = docClient.testDateTime(x, y, z);
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests.
+            // xsd:date tests (ClassCastException in jaxb).
             //ret = rpcClient.testDateTime(x, y, z);
             return;
         }
@@ -641,7 +640,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             ret = docClient.testGYear(x, y, z);
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests.
+            // xsd:date tests (ClassCastException in jaxb).
             //ret = rpcClient.testGYear(x, y, z);
             return;
         }
@@ -664,7 +663,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             ret = docClient.testGYearMonth(x, y, z);
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests.
+            // xsd:date tests (ClassCastException in jaxb).
             //ret = rpcClient.testGYearMonth(x, y, z);
             return;
         }
@@ -687,7 +686,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             ret = docClient.testGMonth(x, y, z);
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests.
+            // xsd:date tests (ClassCastException in jaxb).
             //ret = rpcClient.testGMonth(x, y, z);
             return;
         }
@@ -710,7 +709,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             ret = docClient.testGMonthDay(x, y, z);
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests.
+            // xsd:date tests (ClassCastException in jaxb).
             //ret = rpcClient.testGMonthDay(x, y, z);
             return;
         }
@@ -733,7 +732,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             ret = docClient.testGDay(x, y, z);
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests.
+            // xsd:date tests (ClassCastException in jaxb).
             //ret = rpcClient.testGDay(x, y, z);
             return;
         }
@@ -817,16 +816,13 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     public void testNMTOKENS() throws Exception {
         /*
         //
-        // XXX - The ri code generation produces different method
+        // XXX - The jaxb ri code generation produces different method
         // signatures for the NMTOKENS type between using rpc literal
         // and doc literal styles.
         //
         if (testDocLiteral) {
-            List<String> x = new ArrayList<String>(1);
-            x.add("123:abc");
-            List<String> yOrig = new ArrayList<String>(2);
-            yOrig.add("abc.-_:");
-            yOrig.add("a");
+            List<String> x = Arrays.asList("123:abc");
+            List<String> yOrig = Arrays.asList("abc.-_:", "a");
 
             Holder<List<String>> y = new Holder<List<String>>(yOrig);
             Holder<List<String>> z = new Holder<List<String>>();
@@ -1135,7 +1131,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     }
 
     /*
-     * XXX - TODO
+     * XXX - TODO - need to customize anyURI type.
      *
     public void testanyURI() throws Exception {
         String valueSets[][] = {
@@ -1168,5 +1164,794 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     }
     */
     
-}
+    /**
+     * XXX - In the generated code for ColourEnum, the fromValue()
+     * method is not declared static - not so easy to create a
+     * ColourEnum instance!
+     */
+    public void testColourEnum() throws Exception {
+        /*
+        String[] xx = {"RED", "GREEN", "BLUE"};
+        String[] yy = {"GREEN", "BLUE", "RED"};
 
+        Holder<ColourEnum> z = new Holder<ColourEnum>();
+
+        for (int i = 0; i < 3; i++) {
+            ColourEnum x = ColourEnum.fromValue(xx[i]);
+            ColourEnum yOrig = ColourEnum.fromValue(yy[i]);
+            Holder<ColourEnum> y = new Holder<ColourEnum>(yOrig);
+
+            ColourEnum ret;
+                ret = rpcClient.testColourEnum(x, y, z);
+                ret = docClient.testColourEnum(x, y, z);
+            if (!perfTestOnly) {
+                assertEquals("testColourEnum(): Incorrect value for inout param",
+                             x.value(), y.value.value());
+                assertEquals("testColourEnum(): Incorrect value for out param",
+                             yOrig.value(), z.value.value());
+                assertEquals("testColourEnum(): Incorrect return value",
+                             x.value(), ret.value());
+            }
+        }
+        */
+    }
+    
+    public void testNumberEnum() throws Exception {
+        int[] xx = {1, 2, 3};
+        int[] yy = {3, 1, 2};
+
+        Holder<NumberEnum> z = new Holder<NumberEnum>();
+
+        for (int i = 0; i < 3; i++) {
+            NumberEnum x = NumberEnum.fromValue(xx[i]);
+            NumberEnum yOrig = NumberEnum.fromValue(yy[i]);
+            Holder<NumberEnum> y = new Holder<NumberEnum>(yOrig);
+
+            NumberEnum ret;
+            if (testDocLiteral) {
+                ret = docClient.testNumberEnum(x, y, z);
+            } else {
+                ret = rpcClient.testNumberEnum(x, y, z);
+            }
+            if (!perfTestOnly) {
+                assertEquals("testNumberEnum(): Incorrect value for inout param",
+                             x.value(), y.value.value());
+                assertEquals("testNumberEnum(): Incorrect value for out param",
+                             yOrig.value(), z.value.value());
+                assertEquals("testNumberEnum(): Incorrect return value",
+                             x.value(), ret.value());
+            }
+        }
+    }
+    
+    public void testStringEnum() throws Exception {
+        String[] xx = {"a b c", "d e f", "g h i"};
+        String[] yy = {"g h i", "a b c", "d e f"};
+
+        Holder<StringEnum> z = new Holder<StringEnum>();
+        for (int i = 0; i < 3; i++) {
+            StringEnum x = StringEnum.fromValue(xx[i]);
+            StringEnum yOrig = StringEnum.fromValue(yy[i]);
+            Holder<StringEnum> y = new Holder<StringEnum>(yOrig);
+
+            StringEnum ret;
+            if (testDocLiteral) {
+                ret = docClient.testStringEnum(x, y, z);
+            } else {
+                ret = rpcClient.testStringEnum(x, y, z);
+            }
+            if (!perfTestOnly) {
+                assertEquals("testStringEnum(): Incorrect value for inout param",
+                             x.value(), y.value.value());
+                assertEquals("testStringEnum(): Incorrect value for out param",
+                             yOrig.value(), z.value.value());
+                assertEquals("testStringEnum(): Incorrect return value",
+                             x.value(), ret.value());
+            }
+        }
+    }
+    
+    public void testDecimalEnum() throws Exception {
+        BigDecimal[] xx = {new BigDecimal("-10.34"),
+                           new BigDecimal("11.22"),
+                           new BigDecimal("14.55")};
+        BigDecimal[] yy = {new BigDecimal("14.55"),
+                           new BigDecimal("-10.34"),
+                           new BigDecimal("11.22")};
+
+        Holder<DecimalEnum> z = new Holder<DecimalEnum>();
+
+        for (int i = 0; i < 3; i++) {
+            DecimalEnum x = DecimalEnum.fromValue(xx[i]);
+            DecimalEnum yOrig = DecimalEnum.fromValue(yy[i]);
+            Holder<DecimalEnum> y = new Holder<DecimalEnum>(yOrig);
+
+            DecimalEnum ret;
+            if (testDocLiteral) {
+                ret = docClient.testDecimalEnum(x, y, z);
+            } else {
+                ret = rpcClient.testDecimalEnum(x, y, z);
+            }
+            if (!perfTestOnly) {
+                assertEquals("testDecimalEnum(): Incorrect value for inout param",
+                             x.value(), y.value.value());
+                assertEquals("testDecimalEnum(): Incorrect value for out param",
+                             yOrig.value(), z.value.value());
+                assertEquals("testDecimalEnum(): Incorrect return value",
+                             x.value(), ret.value());
+            }
+        }
+    }
+    
+    public void testNMTokenEnum() throws Exception {
+        String[] xx = {"hello", "there"};
+        String[] yy = {"there", "hello"};
+
+        Holder<NMTokenEnum> z = new Holder<NMTokenEnum>();
+
+        for (int i = 0; i < 2; i++) {
+            NMTokenEnum x = NMTokenEnum.fromValue(xx[i]);
+            NMTokenEnum yOrig = NMTokenEnum.fromValue(yy[i]);
+            Holder<NMTokenEnum> y = new Holder<NMTokenEnum>(yOrig);
+
+            NMTokenEnum ret;
+            if (testDocLiteral) {
+                ret = docClient.testNMTokenEnum(x, y, z);
+            } else {
+                ret = rpcClient.testNMTokenEnum(x, y, z);
+            }
+            if (!perfTestOnly) {
+                assertEquals("testNMTokenEnum(): Incorrect value for inout param",
+                             x.value(), y.value.value());
+                assertEquals("testNMTokenEnum(): Incorrect value for out param",
+                             yOrig.value(), z.value.value());
+                assertEquals("testNMTokenEnum(): Incorrect return value",
+                             x.value(), ret.value());
+            }
+        }
+    }
+    
+    public void testSimpleRestriction() throws Exception {
+        // normal case, maxLength=10
+        String x = "string_x";
+        String yOrig = "string_y";
+        Holder<String> y = new Holder<String>(yOrig);
+        Holder<String> z = new Holder<String>();
+        String ret;
+        if (testDocLiteral) {
+            ret = docClient.testSimpleRestriction(x, y, z);
+        } else {
+            ret = rpcClient.testSimpleRestriction(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertEquals("testSimpleRestriction(): Incorrect value for inout param", x, y.value);
+            assertEquals("testSimpleRestriction(): Incorrect value for out param", yOrig, z.value);
+            assertEquals("testSimpleRestriction(): Incorrect return value", x, ret);
+        }
+        
+        // abnormal case
+        /* XXX - TODO - restrictions are not enforced.
+        x = "string_xxxxx";
+        y = new Holder<String>(yOrig);
+        z = new Holder<String>();
+        try {
+            if (testDocLiteral) {
+                ret = docClient.testSimpleRestriction(x, y, z);
+            } else {
+                ret = rpcClient.testSimpleRestriction(x, y, z);
+            }
+            fail("maxLength=10 restriction is violated.");
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+        }
+
+        // abnormal case
+        x = "string_x";
+        yOrig = "string_yyyyyy";
+        y = new Holder<String>(yOrig);
+        z = new Holder<String>();
+        try {
+            if (testDocLiteral) {
+                ret = docClient.testSimpleRestriction(x, y, z);
+            } else {
+                ret = rpcClient.testSimpleRestriction(x, y, z);
+            }
+            fail("maxLength=10 restriction is violated.");
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+        }
+        */
+    }
+
+    public void testSimpleRestriction2() throws Exception {
+        // normal case, minLength=5
+        String x = "str_x";
+        String yOrig = "string_yyy";
+        Holder<String> y = new Holder<String>(yOrig);
+        Holder<String> z = new Holder<String>();
+
+        String ret;
+        if (testDocLiteral) {
+            ret = docClient.testSimpleRestriction2(x, y, z);
+        } else {
+            ret = rpcClient.testSimpleRestriction2(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertEquals("testSimpleRestriction2(): Incorrect value for inout param", x, y.value);
+            assertEquals("testSimpleRestriction2(): Incorrect value for out param", yOrig, z.value);
+            assertEquals("testSimpleRestriction2(): Incorrect return value", x, ret);
+        }
+        
+        // abnormal case
+        /* XXX - TODO - restrictions are not enforced.
+        x = "str";
+        y = new Holder<String>(yOrig);
+        z = new Holder<String>();
+        try {
+            if (testDocLiteral) {
+                ret = docClient.testSimpleRestriction2(x, y, z);
+            } else {
+                ret = rpcClient.testSimpleRestriction2(x, y, z);
+            }
+            fail("minLength=5 restriction is violated.");
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+        }
+        */
+    }
+
+    public void testSimpleRestriction3() throws Exception {
+        // normal case, maxLength=10 && minLength=5
+        String x = "str_x";
+        String yOrig = "string_yyy";
+        Holder<String> y = new Holder<String>(yOrig);
+        Holder<String> z = new Holder<String>();
+
+        String ret;
+        if (testDocLiteral) {
+            ret = docClient.testSimpleRestriction3(x, y, z);
+        } else {
+            ret = rpcClient.testSimpleRestriction3(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertEquals("testSimpleRestriction3(): Incorrect value for inout param", x, y.value);
+            assertEquals("testSimpleRestriction3(): Incorrect value for out param", yOrig, z.value);
+            assertEquals("testSimpleRestriction3(): Incorrect return value", x, ret);
+        }
+        
+        // abnormal case
+        /* XXX - TODO - restrictions are not enforced.
+        x = "str";
+        y = new Holder<String>(yOrig);
+        z = new Holder<String>();
+        try {
+            if (testDocLiteral) {
+                ret = docClient.testSimpleRestriction3(x, y, z);
+            } else {
+                ret = rpcClient.testSimpleRestriction3(x, y, z);
+            }
+            fail("maxLength=10 && minLength=5 restriction is violated.");
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+        }
+
+        // abnormal case
+        x = "string_x";
+        yOrig = "string_yyyyyy";
+        y = new Holder<String>(yOrig);
+        z = new Holder<String>();
+        try {
+            ret = rpcClient.testSimpleRestriction3(x, y, z);
+            fail("maxLength=10 && minLength=5 restriction is violated.");
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+        }
+        */
+    }
+
+    public void testSimpleRestriction4() throws Exception {
+        // normal case, length=1
+        String x = "x";
+        String yOrig = "y";
+        Holder<String> y = new Holder<String>(yOrig);
+        Holder<String> z = new Holder<String>();
+
+        String ret;
+        if (testDocLiteral) {
+            ret = docClient.testSimpleRestriction4(x, y, z);
+        } else {
+            ret = rpcClient.testSimpleRestriction4(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertEquals("testSimpleRestriction4(): Incorrect value for inout param", x, y.value);
+            assertEquals("testSimpleRestriction4(): Incorrect value for out param", yOrig, z.value);
+            assertEquals("testSimpleRestriction4(): Incorrect return value", x, ret);
+        }
+        
+        // abnormal case
+        /* XXX - TODO - restrictions are not enforced.
+        x = "str";
+        y = new Holder<String>(yOrig);
+        z = new Holder<String>();
+        try {
+            if (testDocLiteral) {
+                ret = docClient.testSimpleRestriction4(x, y, z);
+            } else {
+                ret = rpcClient.testSimpleRestriction4(x, y, z);
+            }
+            fail("minLength=5 restriction is violated.");
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+        }
+        */
+    }
+
+    public void testSimpleRestriction5() throws Exception {
+        // normal case, maxLength=10 for SimpleRestrction
+        // && minLength=5 for SimpleRestriction5
+        String x = "str_x";
+        String yOrig = "string_yyy";
+        Holder<String> y = new Holder<String>(yOrig);
+        Holder<String> z = new Holder<String>();
+
+        String ret;
+        if (testDocLiteral) {
+            ret = docClient.testSimpleRestriction5(x, y, z);
+        } else {
+            ret = rpcClient.testSimpleRestriction5(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertEquals("testSimpleRestriction5(): Incorrect value for inout param", x, y.value);
+            assertEquals("testSimpleRestriction5(): Incorrect value for out param", yOrig, z.value);
+            assertEquals("testSimpleRestriction5(): Incorrect return value", x, ret);
+        }
+        
+        // abnormal case
+        /* XXX - TODO - restrictions are not enforced.
+        x = "str";
+        y = new Holder<String>(yOrig);
+        z = new Holder<String>();
+        try {
+            if (testDocLiteral) {
+                ret = docClient.testSimpleRestriction5(x, y, z);
+            } else {
+                ret = rpcClient.testSimpleRestriction5(x, y, z);
+            }
+            fail("maxLength=10 && minLength=5 restriction is violated.");
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+        }
+
+        // abnormal case
+        x = "string_x";
+        yOrig = "string_yyyyyy";
+        y = new Holder<String>(yOrig);
+        z = new Holder<String>();
+        try {
+            if (testDocLiteral) {
+                ret = docClient.testSimpleRestriction5(x, y, z);
+            } else {
+                ret = rpcClient.testSimpleRestriction5(x, y, z);
+            }
+            fail("maxLength=10 && minLength=5 restriction is violated.");
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+        }
+        */
+    }
+
+    public void testSimpleRestriction6() throws Exception {
+        // normal case, maxLength=10 for SimpleRestrction
+        // && maxLength=5 for SimpleRestriction6
+        String x = "str_x";
+        String yOrig = "y";
+        Holder<String> y = new Holder<String>(yOrig);
+        Holder<String> z = new Holder<String>();
+
+        String ret;
+        if (testDocLiteral) {
+            ret = docClient.testSimpleRestriction6(x, y, z);
+        } else {
+            ret = rpcClient.testSimpleRestriction6(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertEquals("testSimpleRestriction6(): Incorrect value for inout param", x, y.value);
+            assertEquals("testSimpleRestriction6(): Incorrect value for out param", yOrig, z.value);
+            assertEquals("testSimpleRestriction6(): Incorrect return value", x, ret);
+        }
+        
+        // abnormal case
+        /* XXX - TODO - restrictions are not enforced.
+        x = "string_x";
+        yOrig = "string_y";
+        y = new Holder<String>(yOrig);
+        z = new Holder<String>();
+        try {
+            if (testDocLiteral) {
+                ret = docClient.testSimpleRestriction6(x, y, z);
+            } else {
+                ret = rpcClient.testSimpleRestriction6(x, y, z);
+            }
+            fail("maxLength=10 && minLength=5 restriction is violated.");
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+        }
+        */
+    }
+
+    public void testHexBinaryRestriction() throws Exception {
+        // normal case, maxLength=10 && minLength=1
+        byte[] x = "x".getBytes();
+        byte[] yOrig = "string_yyy".getBytes();
+        Holder<byte[]> y = new Holder<byte[]>(yOrig);
+        Holder<byte[]> z = new Holder<byte[]>();
+
+        byte[] ret;
+        if (testDocLiteral) {
+            ret = docClient.testHexBinaryRestriction(x, y, z);
+        } else {
+            ret = rpcClient.testHexBinaryRestriction(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertTrue("testHexBinaryRestriction(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testHexBinaryRestriction(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testHexBinaryRestriction(): Incorrect return value", equals(x, ret));
+        }
+
+        // abnormal case
+        /* XXX - TODO - restrictions are not enforced.
+        x = "".getBytes();
+        y = new Holder<byte[]>(yOrig);
+        z = new Holder<byte[]>();
+        try {
+            if (testDocLiteral) {
+                ret = docClient.testHexBinaryRestriction(x, y, z);
+            } else {
+                ret = rpcClient.testHexBinaryRestriction(x, y, z);
+            }
+            fail("maxLength=10 && minLength=1 restriction is violated.");
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+        }
+
+        // abnormal case
+        x = "string_x".getBytes();
+        yOrig = "string_yyyyyy".getBytes();
+        y = new Holder<byte[]>(yOrig);
+        z = new Holder<byte[]>();
+        try {
+            if (testDocLiteral) {
+                ret = docClient.testHexBinaryRestriction(x, y, z);
+            } else {
+                ret = rpcClient.testHexBinaryRestriction(x, y, z);
+            }
+            fail("maxLength=10 && minLength=1 restriction is violated.");
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+        }
+        */
+    }
+    
+    protected boolean equals(byte[] x, byte[] y) {
+        String xx = new String(x);
+        String yy = new String(y);
+        return xx.equals(yy);
+    }
+    
+    public void testBase64BinaryRestriction() throws Exception {
+        //      normal case, length=10
+        byte[] x = "string_xxx".getBytes();
+        byte[] yOrig = "string_yyy".getBytes();
+        Holder<byte[]> y = new Holder<byte[]>(yOrig);
+        Holder<byte[]> z = new Holder<byte[]>();
+
+        byte[] ret;
+        if (testDocLiteral) {
+            ret = docClient.testBase64BinaryRestriction(x, y, z);
+        } else {
+            ret = rpcClient.testBase64BinaryRestriction(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertTrue("testBase64BinaryRestriction(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testBase64BinaryRestriction(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testBase64BinaryRestriction(): Incorrect return value", equals(x, ret));
+        }
+
+        // abnormal case
+        /* XXX - TODO - restrictions are not enforced.
+        x = "string_xxxxx".getBytes();
+        y = new Holder<byte[]>(yOrig);
+        z = new Holder<byte[]>();
+        try {
+            if (testDocLiteral) {
+                ret = docClient.testBase64BinaryRestriction(x, y, z);
+            } else {
+                ret = rpcClient.testBase64BinaryRestriction(x, y, z);
+            }
+            fail("length=10 restriction is violated.");
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+        }
+        */
+    }
+    
+    public void testSimpleListRestriction2() throws Exception {
+        // XXX - jaxb ri generated code has different method signature
+        //       between doc-literal and rpc-literal styles.
+        if (testDocLiteral) {
+            List<String> x = Arrays.asList("I", "am", "SimpleList");
+            List<String> yOrig = Arrays.asList("Does", "SimpleList", "Work");
+            Holder< List<String> > y = new Holder< List<String> >(yOrig);
+            Holder< List<String> > z = new Holder< List<String> >();
+
+            // normal case, maxLength=10 && minLength=1
+            List<String> ret = docClient.testSimpleListRestriction2(x, y, z);
+            if (!perfTestOnly) {
+                assertTrue("testStringList(): Incorrect value for inout param", x.equals(y.value));
+                assertTrue("testStringList(): Incorrect value for out param", yOrig.equals(z.value));
+                assertTrue("testStringList(): Incorrect return value", x.equals(ret));
+            }
+
+            // abnormal case
+            /* XXX - TODO - restrictions are not enforced.
+            x = Arrays.asList("");
+            y = new Holder< List<String> >(yOrig);
+            z = new Holder< List<String> >();
+            try {
+                ret = docClient.testSimpleListRestriction2(x, y, z);
+                fail("length=10 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
+            */
+        } else {
+            String[] x = {"I", "am", "SimpleList"};
+            String[] yOrig = {"Does", "SimpleList", "Work"};
+            Holder<String[]> y = new Holder<String[]>(yOrig);
+            Holder<String[]> z = new Holder<String[]>();
+
+            // normal case, maxLength=10 && minLength=1
+            String[] ret = rpcClient.testSimpleListRestriction2(x, y, z);
+
+            assertTrue(y.value.length == 3);
+            assertTrue(z.value.length == 3);
+            assertTrue(ret.length == 3);
+            if (!perfTestOnly) {
+                for (int i = 0; i < 3; i++) {
+                    assertEquals("testStringList(): Incorrect value for inout param", x[i], y.value[i]);
+                    assertEquals("testStringList(): Incorrect value for out param", yOrig[i], z.value[i]);
+                    assertEquals("testStringList(): Incorrect return value", x[i], ret[i]);
+                }
+            }
+            
+            // abnormal case
+            /* XXX - TODO - restrictions are not enforced.
+            x = new String[0];
+            y = new Holder<String[]>(yOrig);
+            z = new Holder<String[]>();
+            try {
+                ret = rpcClient.testSimpleListRestriction2(x, y, z);
+                fail("length=10 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
+            */
+        }
+    }
+    
+    public void testStringList() throws Exception {
+        if (testDocLiteral) {
+            List<String> x = Arrays.asList("I", "am", "SimpleList");
+            List<String> yOrig = Arrays.asList("Does", "SimpleList", "Work");
+            Holder< List<String> > y = new Holder< List<String> >(yOrig);
+            Holder< List<String> > z = new Holder< List<String> >();
+
+            List<String> ret = docClient.testStringList(x, y, z);
+            if (!perfTestOnly) {
+                assertTrue("testStringList(): Incorrect value for inout param", x.equals(y.value));
+                assertTrue("testStringList(): Incorrect value for out param", yOrig.equals(z.value));
+                assertTrue("testStringList(): Incorrect return value", x.equals(ret));
+            }
+        } else {
+            String[] x = {"I", "am", "SimpleList"};
+            String[] yOrig = {"Does", "SimpleList", "Work"};
+            Holder<String[]> y = new Holder<String[]>(yOrig);
+            Holder<String[]> z = new Holder<String[]>();
+
+            String[] ret = rpcClient.testStringList(x, y, z);
+
+            assertTrue(y.value.length == 3);
+            assertTrue(z.value.length == 3);
+            assertTrue(ret.length == 3);
+            if (!perfTestOnly) {
+                for (int i = 0; i < 3; i++) {
+                    assertEquals("testStringList(): Incorrect value for inout param", x[i], y.value[i]);
+                    assertEquals("testStringList(): Incorrect value for out param", yOrig[i], z.value[i]);
+                    assertEquals("testStringList(): Incorrect return value", x[i], ret[i]);
+                }
+            }
+        }
+    }
+
+    public void testNumberList() throws Exception {
+        if (testDocLiteral) {
+            List<Integer> x = Arrays.asList(1, 2, 3);
+            List<Integer> yOrig = Arrays.asList(10, 100, 1000);
+            Holder< List<Integer> > y = new Holder< List<Integer> >(yOrig);
+            Holder< List<Integer> > z = new Holder< List<Integer> >();
+
+            List<Integer> ret = docClient.testNumberList(x, y, z);
+            if (!perfTestOnly) {
+                assertTrue("testNumberList(): Incorrect value for inout param", x.equals(y.value));
+                assertTrue("testNumberList(): Incorrect value for out param", yOrig.equals(z.value));
+                assertTrue("testNumberList(): Incorrect return value", x.equals(ret));
+            }
+        } else {
+            Integer[] x = {1, 2, 3};
+            Integer[] yOrig = {10, 100, 1000};
+            Holder<Integer[]> y = new Holder<Integer[]>(yOrig);
+            Holder<Integer[]> z = new Holder<Integer[]>();
+
+            Integer[] ret = rpcClient.testNumberList(x, y, z);
+
+            assertTrue(y.value.length == 3);
+            assertTrue(z.value.length == 3);
+            assertTrue(ret.length == 3);
+            if (!perfTestOnly) {
+                for (int i = 0; i < 3; i++) {
+                    assertEquals("testNumberList(): Incorrect value for inout param", x[i], y.value[i]);
+                    assertEquals("testNumberList(): Incorrect value for out param", yOrig[i], z.value[i]);
+                    assertEquals("testNumberList(): Incorrect return value", x[i], ret[i]);
+                }
+            }
+        }
+    }
+    
+    public void testQNameList() throws Exception {
+        if (testDocLiteral) {
+            List<QName> x = Arrays.asList(
+                new QName("http://schemas.iona.com/type_test", "testqname1"),
+                new QName("http://schemas.iona.com/type_test", "testqname2"),
+                new QName("http://schemas.iona.com/type_test", "testqname3")
+            );
+            List<QName> yOrig = Arrays.asList(
+                new QName("http://schemas.iona.com/type_test", "testqname4"),
+                new QName("http://schemas.iona.com/type_test", "testqname5"),
+                new QName("http://schemas.iona.com/type_test", "testqname6")
+            );
+            Holder< List<QName> > y = new Holder< List<QName> >(yOrig);
+            Holder< List<QName> > z = new Holder< List<QName> >();
+
+            List<QName> ret = docClient.testQNameList(x, y, z);
+            if (!perfTestOnly) {
+                assertTrue("testQNameList(): Incorrect value for inout param", x.equals(y.value));
+                assertTrue("testQNameList(): Incorrect value for out param", yOrig.equals(z.value));
+                assertTrue("testQNameList(): Incorrect return value", x.equals(ret));
+            }
+        } else {
+            QName[] x = {
+                new QName("http://schemas.iona.com/type_test", "testqname1"),
+                new QName("http://schemas.iona.com/type_test", "testqname2"),
+                new QName("http://schemas.iona.com/type_test", "testqname3")
+            };
+            QName[] yOrig = {
+                new QName("http://schemas.iona.com/type_test", "testqname4"),
+                new QName("http://schemas.iona.com/type_test", "testqname5"),
+                new QName("http://schemas.iona.com/type_test", "testqname6")
+            };
+            Holder<QName[]> y = new Holder<QName[]>(yOrig);
+            Holder<QName[]> z = new Holder<QName[]>();
+
+            QName[] ret = rpcClient.testQNameList(x, y, z);
+
+            assertTrue(y.value.length == 3);
+            assertTrue(z.value.length == 3);
+            assertTrue(ret.length == 3);
+            if (!perfTestOnly) {
+                for (int i = 0; i < 3; i++) {
+                    assertEquals("testQNameList(): Incorrect value for inout param", x[i], y.value[i]);
+                    assertEquals("testQNameList(): Incorrect value for out param", yOrig[i], z.value[i]);
+                    assertEquals("testQNameList(): Incorrect return value", x[i], ret[i]);
+                }
+            }
+        }
+    }
+
+    public void testSimpleUnionList() throws Exception {
+        if (testDocLiteral) {
+            List<String> x = Arrays.asList("5", "-7");
+            List<String> yOrig = Arrays.asList("-9", "7");
+
+            Holder< List<String> > y = new Holder< List<String> >(yOrig);
+            Holder< List<String> > z = new Holder< List<String> >();
+
+            List<String> ret = docClient.testSimpleUnionList(x, y, z);
+            if (!perfTestOnly) {
+                assertTrue("testSimpleUnionList(): Incorrect value for inout param", x.equals(y.value));
+                assertTrue("testSimpleUnionList(): Incorrect value for out param", yOrig.equals(z.value));
+                assertTrue("testSimpleUnionList(): Incorrect return value", x.equals(ret));
+            }
+        } else {
+            String[] x = {"5", "-7"};
+            String[] yOrig = {"-9", "7"};
+
+            Holder<String[]> y = new Holder<String[]>(yOrig);
+            Holder<String[]> z = new Holder<String[]>();
+
+            String[] ret = rpcClient.testSimpleUnionList(x, y, z);
+
+            assertTrue(y.value.length == 2);
+            assertTrue(z.value.length == 2);
+            assertTrue(ret.length == 2);
+            if (!perfTestOnly) {
+                for (int i = 0; i < 2; i++) {
+                    assertEquals("testSimpleUnionList(): Incorrect value for inout param",
+                                 x[i], y.value[i]);
+                    assertEquals("testSimpleUnionList(): Incorrect value for out param",
+                                 yOrig[i], z.value[i]);
+                    assertEquals("testSimpleUnionList(): Incorrect return value",
+                                 x[i], ret[i]);
+                }
+            }
+        }
+    }
+
+    public void testAnonEnumList() throws Exception {
+        if (testDocLiteral) {
+            List<Short> x = Arrays.asList((short)10, (short)100);
+            List<Short> yOrig = Arrays.asList((short)1000, (short)10);
+
+            Holder< List<Short> > y = new Holder< List<Short> >(yOrig);
+            Holder< List<Short> > z = new Holder< List<Short> >();
+
+            List<Short> ret = docClient.testAnonEnumList(x, y, z);
+            assertTrue("testNMTOKENS(): Incorrect value for inout param", x.equals(y.value));
+            assertTrue("testNMTOKENS(): Incorrect value for out param", yOrig.equals(z.value));
+            assertTrue("testNMTOKENS(): Incorrect return value", x.equals(ret));
+        } else {
+            Short[] x = {(short)10, (short)100};
+            Short[] yOrig = {(short)1000, (short)10};
+
+            Holder<Short[]> y = new Holder<Short[]>(yOrig);
+            Holder<Short[]> z = new Holder<Short[]>();
+
+            Short[] ret = rpcClient.testAnonEnumList(x, y, z);
+
+            assertTrue(y.value.length == 2);
+            assertTrue(z.value.length == 2);
+            assertTrue(ret.length == 2);
+            if (!perfTestOnly) {
+                for (int i = 0; i < 2; i++) {
+                    assertEquals("testAnonEnumList(): Incorrect value for inout param",
+                                 x[i].shortValue(), y.value[i].shortValue());
+                    assertEquals("testAnonEnumList(): Incorrect value for out param",
+                                 yOrig[i].shortValue(), z.value[i].shortValue());
+                    assertEquals("testAnonEnumList(): Incorrect return value",
+                                 x[i].shortValue(), ret[i].shortValue());
+                }
+            }
+        }
+    }
+
+    public void testUnionWithAnonEnum() throws Exception {
+        String x = "5";
+        String yOrig = "n/a";
+
+        Holder<String> y = new Holder<String>(yOrig);
+        Holder<String> z = new Holder<String>();
+        String ret;
+        if (testDocLiteral) {
+            ret = docClient.testUnionWithAnonEnum(x, y, z);
+        } else {
+            ret = rpcClient.testUnionWithAnonEnum(x, y, z);
+        }
+        assertEquals("testUnionWithAnonEnum(): Incorrect value for inout param", x, y.value);
+        assertEquals("testUnionWithAnonEnum(): Incorrect value for out param", yOrig, z.value);
+        assertEquals("testUnionWithAnonEnum(): Incorrect return value", x, ret);
+    }
+
+}

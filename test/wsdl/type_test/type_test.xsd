@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema
-	xmlns="http://www.w3.org/2001/XMLSchema"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        xmlns:itst="http://tests.iona.com/ittests"
-	xmlns:wsse="http://schemas.xmlsoap.org/ws/2003/06/secext"
-	elementFormDefault="qualified">
+    xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:itst="http://tests.iona.com/ittests"
+    xmlns:wsse="http://schemas.xmlsoap.org/ws/2003/06/secext"
+    xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+    xmlns:tns="http://objectweb.org/type_test/types"
+    elementFormDefault="qualified">
 
     <!-- For each type and element defined in this schema, the
 	 type_test_wsdl stylesheet will generate a set of test
@@ -60,23 +62,21 @@
     <itst:builtIn name="gMonth"                         javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
     <itst:builtIn name="gMonthDay"                         javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
     <itst:builtIn name="gDay"                         javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
-<!-- XXX  anyURI
+<!-- XXX anyURI need to customize this type
     <itst:builtIn name="anyURI"                       javaType="java.net.URI"       javaHolder="java.net.URI"/>
 -->
     <itst:builtIn name="normalizedString"             javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="token"                        javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="language"                     javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="NMTOKEN"                      javaType="java.lang.String"             javaHolder="java.lang.String"/>
-<!-- XXX  NMTOKENS
+<!-- XXX  NMTOKENS - rpc-literal and doc-literal generated code differs
     <itst:builtIn name="NMTOKENS"                     javaType="java.util.List&#x3c;java.lang.String&#x3e;" javaHolder="java.util.List&#x3c;java.lang.String&#x3e;"/>
 -->
     <itst:builtIn name="Name"                         javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="NCName"                       javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="ID"                           javaType="java.lang.String"             javaHolder="java.lang.String"/>
-    
-    <!--itst:builtIn prefix="ref:" name="Reference" cxxType="Reference" javaType="com.iona.schemas.references.Reference" javaHolder="com.iona.test.type_test.holders.ReferenceHolder"/-->
-    <itst:builtIn name="base64Binary"  javaType="byte[]" javaHolder="byte[]" XXX="x.xml.rpc.holders.ByteArrayHolder"/>
-    <itst:builtIn name="hexBinary"     javaType="byte[]" javaHolder="byte[]" XXX="ArrayHolder"/>
+    <itst:builtIn name="base64Binary"  javaType="byte[]" javaHolder="byte[]"/>
+    <itst:builtIn name="hexBinary"     javaType="byte[]" javaHolder="byte[]"/>
 
   </itst:it_test_group>
   <itst:it_test_group ID="1">
@@ -97,8 +97,8 @@
     </element>
 
     <!-- Any Elements -->
-    <element itst:it_no_test="true" name="StringElementQualified" form="qualified" type="xsd:string" />
-    <element itst:it_no_test="true" name="AnonTypeElementQualified" form="qualified">
+    <element itst:it_no_test="true" name="StringElementQualified" type="xsd:string" />
+    <element itst:it_no_test="true" name="AnonTypeElementQualified">
         <complexType>
             <sequence>
                 <element name="varFloat" type="float"/>
@@ -196,6 +196,8 @@
 
     <!-- Simple types -->
     
+    <!-- enumerations -->
+    
     <simpleType name="ColourEnum">
         <restriction base="string">
             <enumeration value="RED"/>
@@ -204,17 +206,19 @@
         </restriction>
     </simpleType>
     <simpleType name="NumberEnum">
+        <xsd:annotation>
+            <xsd:appinfo>
+                <jaxb:typesafeEnumClass name="NumberEnum">
+                    <jaxb:typesafeEnumMember name="ONE" value="1"/>
+                    <jaxb:typesafeEnumMember name="TWO" value="2"/>
+                    <jaxb:typesafeEnumMember name="THREE" value="3"/>
+                </jaxb:typesafeEnumClass>
+            </xsd:appinfo>
+        </xsd:annotation>
         <restriction base="int">
             <enumeration value="1"/>
             <enumeration value="2"/>
             <enumeration value="3"/>
-        </restriction>
-    </simpleType>
-    <simpleType name="ShortEnum">
-        <restriction base="short">
-            <enumeration value="-1"/>
-            <enumeration value="2"/>
-            <enumeration value="-3"/>
         </restriction>
     </simpleType>
     <simpleType name="StringEnum">
@@ -225,10 +229,63 @@
         </restriction>
     </simpleType>
     <simpleType name="DecimalEnum">
+        <xsd:annotation>
+            <xsd:appinfo>
+                <jaxb:typesafeEnumClass name="DecimalEnum">
+                    <jaxb:typesafeEnumMember name="ONE" value="-10.34"/>
+                    <jaxb:typesafeEnumMember name="TWO" value="11.22"/>
+                    <jaxb:typesafeEnumMember name="THREE" value="14.55"/>
+                </jaxb:typesafeEnumClass>
+            </xsd:appinfo>
+        </xsd:annotation>
         <restriction base="decimal">
             <enumeration value="-10.34"/>
             <enumeration value="11.22"/>
             <enumeration value="14.55"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="NMTokenEnum">
+        <restriction base="NMTOKEN">
+            <enumeration value="hello"/>
+            <enumeration value="there"/>
+        </restriction>
+    </simpleType>
+    <!-- XXX - generated code doesn't compile... needs a custom javaType 
+    <simpleType name="ShortEnum">
+        <xsd:annotation>
+            <xsd:appinfo>
+                <jaxb:typesafeEnumClass name="ShortEnum">
+                    <jaxb:typesafeEnumMember name="NEG_ONE" value="-1"/>
+                    <jaxb:typesafeEnumMember name="TWO" value="2"/>
+                    <jaxb:typesafeEnumMember name="NEG_THREE" value="-3"/>
+                </jaxb:typesafeEnumClass>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <restriction base="short">
+            <enumeration value="-1"/>
+            <enumeration value="2"/>
+            <enumeration value="-3"/>
+        </restriction>
+    </simpleType>
+    -->
+    <!-- XXX - date, dateTime, hexBinary, and QName cannot be
+               customized with jaxb:typesafeEnumClass
+    <simpleType name="DateTimeEnum">
+        <restriction base="dateTime">
+            <enumeration value="2005-01-01T12:00:00Z"/>
+            <enumeration value="2005-07-01T12:00:00Z"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="DateEnum">
+        <restriction base="date">
+            <enumeration value="2005-01-01Z"/>
+            <enumeration value="2005-07-01Z"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="HexBinaryEnum">
+        <restriction base="hexBinary">
+            <enumeration value="FFFFFF"/>
+            <enumeration value="100000"/>
         </restriction>
     </simpleType>
     <simpleType name="QNameBaseEnum">
@@ -242,38 +299,15 @@
             <enumeration value="wsse:SecurityTokenUnavailable"/>
         </restriction>
     </simpleType>
-    <simpleType name="NMTokenEnum">
-        <restriction base="NMTOKEN">
-            <enumeration value="hello"/>
-            <enumeration value="there"/>
-        </restriction>
-    </simpleType>
-    <simpleType name="DateTimeEnum">
-        <restriction base="dateTime">
-            <enumeration value="2005-01-01T12:00:00Z"/>
-            <enumeration value="2005-07-01T12:00:00Z"/>
-        </restriction>
-    </simpleType>
-    <simpleType name="DateEnum">
-        <restriction base="date">
-            <enumeration value="2005-01-01Z"/>
-            <enumeration value="2005-07-01Z"/>
-        </restriction>
-    </simpleType>
-<!-- XXX  anyURI
+    -->
+    <!-- XXX  anyURI
     <simpleType name="AnyURIEnum">
         <restriction base="anyURI">
             <enumeration value="http://www.iona.com"/>
             <enumeration value="http://www.google.com"/>
         </restriction>
     </simpleType>
--->
-    <simpleType name="HexBinaryEnum">
-        <restriction base="hexBinary">
-            <enumeration value="hello"/>
-            <enumeration value="there"/>
-        </restriction>
-    </simpleType>
+    -->
     
     <!-- facet (length, maxLength & minLength) support -->
 
@@ -314,13 +348,13 @@
       </restriction>
     </simpleType>
 
-<!-- XXX  anyURI
+    <!-- XXX  anyURI
     <simpleType name="AnyURIRestriction">
       <restriction base="anyURI">
         <maxLength value="50"/>
       </restriction>
     </simpleType>
--->
+    -->
 
     <simpleType name="HexBinaryRestriction">
       <restriction base="hexBinary">
@@ -342,6 +376,7 @@
       </restriction>
     </simpleType>
 
+    <!-- XXX - TODO - ws-i ComplexRestriction
     <complexType name="ComplexRestriction">
       <simpleContent>
         <restriction base="string">
@@ -374,8 +409,9 @@
         </restriction>
       </simpleContent>
     </complexType>
+    -->
 
-<!-- XXX  anyURI
+    <!-- XXX  anyURI
     <complexType name="ComplexRestriction5">
       <simpleContent>
         <restriction base="tns:AnyURIRestriction">
@@ -383,9 +419,11 @@
         </restriction>
       </simpleContent>
     </complexType>
--->
+    -->
     <!-- list simple types -->
 
+    <!-- XXX - StringList, NumberList, QNameList and AnonEnumList
+        rpc-literal and doc-literal generated code differs (array/List). -->
     <simpleType name="StringList">
         <list itemType="string"/>
     </simpleType>
@@ -395,10 +433,12 @@
     <simpleType name="QNameList">
         <list itemType="QName"/>
     </simpleType>
+    <!-- XXX - ShortEnum
     <simpleType name="ShortEnumList">
         <list itemType="tns:ShortEnum"/>
     </simpleType>
-
+    -->
+    
     <simpleType name="AnonEnumList">
         <list>
             <simpleType>
@@ -413,6 +453,9 @@
 
     <!-- list simple types with union -->
 
+    <!-- XXX - SimpleUnionList and AnonUnionList
+           rpc-literal and doc-literal generated code differs (array/List).
+    -->
     <simpleType name="SimpleUnionList">
         <list itemType="tns:SimpleUnion"/>
     </simpleType>
@@ -440,12 +483,14 @@
 
     <!-- list simple type as complex simple content -->
 
+    <!-- XXX - ShortEnum
     <complexType name="ListSimpleContent">
         <simpleContent>
             <extension base="tns:ShortEnumList"/>
         </simpleContent>
     </complexType>
-
+    -->
+    
     <!-- union simple types -->
 
     <simpleType name="SimpleUnion">
@@ -468,6 +513,8 @@
 
     <!-- union simple type with list members -->
 
+    <!-- XXX - UnionWithStringList, UnionWithStringListRestriction and UnionWithAnonList
+         rpc-literal and doc-literal generated code differs (array/List).
     <simpleType name="UnionWithStringList">
         <union memberTypes="int tns:StringList"/>
     </simpleType>
@@ -479,7 +526,6 @@
             </simpleType>
         </union>
     </simpleType>
-
     <simpleType name="UnionWithAnonList">
         <union memberTypes="int">
             <simpleType>
@@ -487,9 +533,12 @@
             </simpleType>
         </union>
     </simpleType>
+    -->
 
     <!-- union simple types with union members -->
 
+<!-- XXX - UnionWithUnion, UnionWithUnionRestriction and UnionWithAnonUnion -
+           rpc-literal and doc-literal generated code differs (array/List).
     <simpleType name="UnionWithUnion">
         <union memberTypes="tns:SimpleUnion">
             <simpleType>
@@ -520,6 +569,7 @@
             </simpleType>
         </union>
     </simpleType>
+-->
 
     <!-- union simple type as attribute -->
 
@@ -643,14 +693,14 @@
             <element name="varChoiceArray" type="tns:ChoiceArray"/>
             <!--WSDLTOCORBA Bug 4086-->
             <!--
-		 <element name="varChoiceArray">
-		     <complexType name="ChoiceArray">
-			 <sequence>
-			     <element name="item" type="tns:RecursiveUnion" minOccurs="0" maxOccurs="unbounded"/>
-			 </sequence>
-		     </complexType>
-		 </element>
-		 -->
+            <element name="varChoiceArray">
+                <complexType name="ChoiceArray">
+                    <sequence>
+                        <element name="item" type="tns:RecursiveUnion" minOccurs="0" maxOccurs="unbounded"/>
+                    </sequence>
+                </complexType>
+            </element>
+            -->
         </sequence>
     </complexType>
     <complexType name="ChoiceArray">
@@ -741,7 +791,7 @@
     </complexType>
 
     <!-- ComplexContent types -->
-    <complexType name="DerivedStruct_BaseStruct">
+    <complexType name="DerivedStructBaseStruct">
         <complexContent mixed="false">
             <extension base="tns:SimpleStruct">
                 <sequence>
@@ -749,11 +799,11 @@
                     <element name="varFloatExt" type="float"/>
                 </sequence>
                 <attribute name="attrString1" type="string"/>
-		<attribute name="attrString2" type="string"/>
+                <attribute name="attrString2" type="string"/>
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="DerivedStruct_BaseChoice">
+    <complexType name="DerivedStructBaseChoice">
         <complexContent mixed="false">
             <extension base="tns:SimpleChoice">
                 <sequence>
@@ -764,6 +814,7 @@
             </extension>
         </complexContent>
     </complexType>
+    <!-- XXX - TODO - ws-i
     <complexType name="DerivedStruct_BaseAll">
         <complexContent mixed="false">
             <extension base="tns:SimpleAll">
@@ -775,7 +826,8 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="DerivedChoice_BaseStruct">
+    -->
+    <complexType name="DerivedChoiceBaseStruct">
         <complexContent mixed="false">
             <extension base="tns:SimpleStruct">
                 <choice>
@@ -786,7 +838,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="DerivedChoice_BaseChoice">
+    <complexType name="DerivedChoiceBaseChoice">
         <complexContent mixed="false">
             <extension base="tns:SimpleChoice">
                 <choice>
@@ -797,6 +849,7 @@
             </extension>
         </complexContent>
     </complexType>
+    <!-- XXX - TODO - ws-i
     <complexType name="DerivedChoice_BaseAll">
         <complexContent mixed="false">
             <extension base="tns:SimpleAll">
@@ -852,7 +905,8 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="DerivedChoice_BaseArray">
+    -->
+    <complexType name="DerivedChoiceBaseArray">
         <complexContent mixed="false">
             <extension base="tns:UnboundedArray">
                 <choice>
@@ -863,7 +917,7 @@
             </extension>
         </complexContent>
     </complexType>
-<!--
+    <!--
     TODO - XXX javatowsdl doesn't like this one.  Disabled it for now.
     <complexType name="DerivedChoice_BaseSimpleContent">
         <complexContent mixed="false">
@@ -876,14 +930,14 @@
             </extension>
         </complexContent>
     </complexType>
--->
+    -->
     <complexType name="DerivedNoContent">
         <complexContent mixed="false">
             <extension base="tns:SimpleStruct">
             </extension>
         </complexContent>
-    </complexType>
-    <complexType name="DerivedStruct_BaseEmpty">
+    </complexType> 
+    <complexType name="DerivedStructBaseEmpty">
         <complexContent mixed="false">
             <extension base="tns:EmptyStruct">
                 <sequence>
@@ -894,18 +948,19 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="DerivedEmpty_BaseEmptyAll">
+    <complexType name="DerivedEmptyBaseEmptyAll">
         <complexContent mixed="false">
             <extension base="tns:EmptyAll">
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="DerivedEmpty_BaseEmptyChoice">
+    <complexType name="DerivedEmptyBaseEmptyChoice">
         <complexContent mixed="false">
             <extension base="tns:EmptyChoice">
             </extension>
         </complexContent>
     </complexType>
+    <!-- XXX - TODO - DerivedChoice_Base
     <complexType name="ComplexStruct">
         <sequence>
             <element name="varFloat" type="float"/>
@@ -923,8 +978,10 @@
             <element name="varDerivedItem" nillable="true" minOccurs="2" maxOccurs="2" type="tns:DerivedAll_BaseStruct"/>
         </sequence>
     </complexType>
+    -->
 
     <!-- ComplexContentRestriction types -->
+<!-- XXX - rcase-Recurse.2 Schema Component Constraint: Particle Derivation OK
     <complexType name="RestrictedStruct_BaseStruct">
         <complexContent>
             <restriction base="tns:SimpleStruct">
@@ -947,7 +1004,8 @@
             </restriction>
         </complexContent>
     </complexType>
-    <complexType name="RestrictedChoice_BaseChoice">
+-->
+    <complexType name="RestrictedChoiceBaseChoice">
         <complexContent mixed="false">
             <restriction base="tns:SimpleChoice">
                 <choice>
@@ -993,6 +1051,16 @@
         </sequence>
     </group>
 
+    <!-- XXX - wsi compliance - added this for things such as
+        SequenceWithGroupSeq - avoid particles with same name. -->
+    <group name="BatchElementsSeq1">
+        <sequence>
+	    <element name="varOtherFloat" type="xsd:float"/>
+	    <element name="varOtherInt" type="xsd:int"/>
+	    <element name="varOtherString" type="xsd:string"/>
+        </sequence>
+    </group>
+
     <group name="BatchElementsChoice">
         <choice>
 	    <element name="varFloat" type="xsd:float"/>
@@ -1001,24 +1069,34 @@
         </choice>
     </group>
 
+    <!-- XXX - wsi compliance - avoid particles with same name
+        for complex types that include it. -->
+    <group name="BatchElementsChoice1">
+        <choice>
+	    <element name="varOtherFloat" type="xsd:float"/>
+	    <element name="varOtherInt" type="xsd:int"/>
+	    <element name="varOtherString" type="xsd:string"/>
+        </choice>
+    </group>
+
     <complexType name="SequenceWithGroupSeq">
         <sequence>
             <group ref="tns:BatchElementsSeq"/>
-            <group ref="tns:BatchElementsSeq"/>
+            <group ref="tns:BatchElementsSeq1"/>
         </sequence>
     </complexType>
 
     <complexType name="SequenceWithGroupChoice">
         <sequence>
             <group ref="tns:BatchElementsChoice"/>
-            <group ref="tns:BatchElementsChoice"/>
+            <group ref="tns:BatchElementsChoice1"/>
         </sequence>
     </complexType>
 
     <complexType name="SequenceWithGroups">
         <sequence>
             <group ref="tns:BatchElementsSeq"/>
-            <group ref="tns:BatchElementsChoice"/>
+            <group ref="tns:BatchElementsChoice1"/>
         </sequence>
     </complexType>
 
@@ -1028,25 +1106,25 @@
             <group ref="tns:BatchElementsSeq" minOccurs="0" maxOccurs="3"/>
         </sequence>
     </complexType>
-    
+
     <complexType name="ChoiceWithGroupSeq">
         <choice>
             <group ref="tns:BatchElementsSeq"/>
-            <group ref="tns:BatchElementsSeq"/>
+            <group ref="tns:BatchElementsSeq1"/>
         </choice>
     </complexType>
 
     <complexType name="ChoiceWithGroupChoice">
         <choice>
             <group ref="tns:BatchElementsChoice"/>
-            <group ref="tns:BatchElementsChoice"/>
+            <group ref="tns:BatchElementsChoice1"/>
         </choice>
     </complexType>
 
     <complexType name="ChoiceWithGroups">
         <choice>
             <group ref="tns:BatchElementsSeq"/>
-            <group ref="tns:BatchElementsChoice"/>
+            <group ref="tns:BatchElementsChoice1"/>
         </choice>
     </complexType>
 
@@ -1064,7 +1142,7 @@
 	        <element name="varInt" type="xsd:int"/>
             </sequence>
             <sequence>
-	        <element name="varInt" type="xsd:int"/>
+	        <element name="varOtherInt" type="xsd:int"/>
 	        <element name="varString" type="xsd:string"/>
             </sequence>
         </choice>
@@ -1074,12 +1152,12 @@
     <complexType name="ChoiceOfChoice">
         <choice>
             <choice>
-	        <element name="varFloat" type="xsd:float"/>
-	        <element name="varInt" type="xsd:int"/>
+                <element name="varFloat" type="xsd:float"/>
+                <element name="varInt" type="xsd:int"/>
             </choice>
             <choice>
-	        <element name="varInt" type="xsd:int"/>
-	        <element name="varString" type="xsd:string"/>
+                <element name="varOtherInt" type="xsd:int"/>
+                <element name="varString" type="xsd:string"/>
             </choice>
         </choice>
     </complexType>
@@ -1133,7 +1211,7 @@
 
 
     <!-- Bug 5043 -->
-    <complexType name="ID_Type_Attribute">
+    <complexType name="IDTypeAttribute">
         <attribute name="Id" type="xsd:ID"/>
     </complexType>
 

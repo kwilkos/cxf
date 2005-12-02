@@ -32,9 +32,16 @@ public interface TypeTestTester {
     </xsl:template>
 
     <xsl:template match="itst:it_test_group" mode="definitions">
-        <!--xsl:apply-templates select="xsd:simpleType" mode="definition"/>
+        <xsl:apply-templates select="xsd:simpleType[not(
+                @name='SimpleUnionList'
+                or @name='AnonUnionList'
+                or @name='SimpleUnion'
+                )]"
+            mode="definition"/>
         <xsl:apply-templates select="xsd:complexType" mode="definition"/>
-        <xsl:apply-templates select="xsd:element[not(@name='AnonTypeElement')]" mode="definition"/-->
+        <!--
+        <xsl:apply-templates select="xsd:element[not(@name='AnonTypeElement')]" mode="definition"/>
+        -->
         <xsl:apply-templates select="itst:builtIn" mode="definition"/>
     </xsl:template>
 
