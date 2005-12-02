@@ -5,6 +5,6 @@ import org.objectweb.celtix.configuration.Configuration;
 public class LeafConfiguration extends AbstractConfigurationImpl {
     
     public LeafConfiguration(Configuration top, String id) {
-        super(LeafConfiguration.class, "resources/leaf.xml", id, top);  
+        super("org/objectweb/celtix/bus/configuration/resources/leaf.xml", id, top);  
     }
 }

@@ -7,7 +7,7 @@
     elementFormDefault="qualified" >
     
     <xs:import namespace="http://celtix.objectweb.org/configuration/test/types-types"
-        schemaLocation="resources/test-types-types.xsd"/>
+        schemaLocation="org/objectweb/celtix/bus/configuration/resources/test-types-types.xsd"/>
 	
 	<!-- 
         global elements 

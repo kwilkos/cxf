@@ -15,6 +15,7 @@
                  <include name="set_env*"/>
                  <include name="wsdl/**/*"/>
                  <include name="doc/*"/>
+                 <include name="resources/*"/>
             </fileset>
         </delete>
         <delete quiet="true" includeemptydirs="true">

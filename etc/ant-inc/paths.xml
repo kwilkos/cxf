@@ -132,7 +132,8 @@
         <pathelement location="${basedir}/build/classes-instrumented"/>
         <pathelement location="${basedir}/build/classes-tests"/>
         <pathelement location="${basedir}/build/classes-tests/unit"/>
-        <pathelement location="${basedir}/schemas"/>
+        <pathelement location="${basedir}/resources"/>
+        <pathelement location="${basedir}/build/resources"/>
         <path refid="unit.test.compile.classpath"/>
         <path refid="emma.lib"/>
 
@@ -153,7 +154,8 @@
         <path refid="system.test.compile.classpath"/>
         <pathelement location="${basedir}/build/classes-tests/unit"/>
         <pathelement location="${basedir}/build/classes-tests/system"/>
-        <pathelement location="${basedir}/schemas"/>
+        <pathelement location="${basedir}/resources"/>
+        <pathelement location="${basedir}/build/resources"/>
     </path>
 
     <target name="create.set_env">

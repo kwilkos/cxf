@@ -14,7 +14,7 @@ public class PortConfiguration extends AbstractConfigurationImpl {
 
     PortConfiguration(Configuration serviceConfiguration, String portName, Bus bus,
                       EndpointReferenceType ref) {
-        super(PortConfiguration.class, "config-metadata/port-config.xml", portName,
+        super("config-metadata/port-config.xml", portName,
               serviceConfiguration);
         Port port = null;
         try  {

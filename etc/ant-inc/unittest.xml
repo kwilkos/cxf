@@ -28,4 +28,9 @@
     <target name="unit.test.nodeps" depends="clean.instrumented,unit.test.resources" description="Run the unit tests">
     	<runjunittest type="unit"/>        
     </target>
+
+    <target name="configuration.unit.test">
+        <property name="tests.filters" value="**/configuration/**/*Test.class"/>
+        <antcall target="unit.test"/>
+    </target>
 </project>

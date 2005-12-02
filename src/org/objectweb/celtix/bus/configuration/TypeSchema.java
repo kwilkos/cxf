@@ -111,7 +111,19 @@ public class TypeSchema {
                 
                 if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type)) {
                     LSInput lsi = new SchemaInput(type, nsuri, publicId, systemId, baseURI);
-                    lsi.setByteStream(getSchemaInputStream(systemId));  
+                    String resourceName = systemId;
+                    // The special case for wsdl.xsd is OK - the other two can be removed
+                    // once wsdl.xsd is fixed so that it does not inmport further schemata
+                    if (("wsdl.xsd".equals(systemId) 
+                           && "http://schemas.xmlsoap.org/wsdl/".equals(nsuri))
+                        || ("jms.xsd".equals(systemId) 
+                           && "http://celtix.objectweb.org/transports/jms".equals(nsuri))
+                        || ("http-conf.xsd".equals(systemId) 
+                               && "http://celtix.objectweb.org/transports/http/configuration"
+                               .equals(nsuri))) {
+                        resourceName = "schemas/wsdl/" + systemId;
+                    }
+                    lsi.setByteStream(getSchemaInputStream(resourceName));  
                     return lsi;
                 } 
                 
@@ -386,22 +398,25 @@ public class TypeSchema {
         InputStream is = null;
 
         if (uri.isAbsolute()) {
-            String path = uri.getPath();
-            if (null == path) {
-                Message msg = new Message("FILE_OPEN_ERROR_EXC", LOG, location);
+            if ("file".equals(uri.getScheme())) {
+                String path = uri.getPath();
+                if (null == path) {
+                    Message msg = new Message("FILE_OPEN_ERROR_EXC", LOG, location);
+                    throw new ConfigurationException(msg);
+                }
+                try {
+                    is = new FileInputStream(path);
+                } catch (IOException ex) {
+                    Message msg = new Message("FILE_OPEN_ERROR_EXC", LOG, location);
+                    throw new ConfigurationException(msg, ex);
+                }
+            } else {
+                Message msg = new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location);
                 throw new ConfigurationException(msg);
             }
-            try {
-                is = new FileInputStream(path);
-            } catch (IOException ex) {
-                Message msg = new Message("FILE_OPEN_ERROR_EXC", LOG, location);
-                throw new ConfigurationException(msg, ex);
-            }
-        } else {            
-            is = getClass().getResourceAsStream(uri.getPath());
-            if (null == is) {
-                is = ClassLoader.getSystemResourceAsStream(location);
-            }
+        } else { 
+            // uri path is a system resource             
+            is = ClassLoader.getSystemResourceAsStream(location);
             if (null == is) {
                 throw new ConfigurationException(new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location));
             }

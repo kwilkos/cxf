@@ -9,15 +9,15 @@
 
    <!-- configuration metadata for component Endpoint  -->
    
-    <cm:configImport location="/org/objectweb/celtix/configuration/config-metadata/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
-    <cm:configImport location="/org/objectweb/celtix/bus/jaxws/config-metadata/types.xsd" namespace="http://celtix.objectweb.org/bus/jaxws/configuration/types"/>
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    <cm:configImport location="schemas/configuration/jaxws-types.xsd" namespace="http://celtix.objectweb.org/bus/jaxws/configuration/types"/>
     
     <cm:configItem>
         <cm:name>handlerChain</cm:name>
         <cm:type>jaxws-types:handlerChainType</cm:type>
         <cm:description>
         Specifies the list of handlers to be used on an endpoint. The list can contain a mix 
-        of logical, protocol and stream handlers.
+        of logical and protocol handlers.
         </cm:description>
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
     </cm:configItem>

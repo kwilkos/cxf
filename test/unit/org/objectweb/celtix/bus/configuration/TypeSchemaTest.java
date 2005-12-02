@@ -19,28 +19,32 @@ public class TypeSchemaTest extends TestCase {
     
     public void testConstructor() {
 
-        // relative uri with relative path
+        TypeSchema ts = null;
         
-        TypeSchema ts1 = tsh.get("http://celtix.objectweb.org/configuration/test/types",
-                            "resources/test-types.xsd");
-        assertNotNull(ts1);
+        // relative uri with relative path
+        ts = tsh.get("http://celtix.objectweb.org/configuration/test/types",
+                            "org/objectweb/celtix/bus/configuration/resources/test-types.xsd");
+        assertNotNull(ts);
         
         TypeSchema ts2 = tsh.get("http://celtix.objectweb.org/configuration/test/types",
-                                        "resources/test-types.xsd");
+                            "org/objectweb/celtix/bus/configuration/resources/test-types.xsd");
         assertNotNull(ts2);
-        assertTrue(ts1 == ts2);
+        assertTrue(ts == ts2);
         
         // relative uri with absolute path
         
-        TypeSchema ts = new TypeSchema("http://celtix.objectweb.org/configuration/test/types",
+        try {
+            new TypeSchema("http://celtix.objectweb.org/configuration/test/types",
                             "/org/objectweb/celtix/bus/configuration/resources/test-types.xsd");
-        assertNotNull(ts);
+        } catch (ConfigurationException ex) {
+            assertEquals("SCHEMA_LOCATION_ERROR_EXC", ex.getCode());
+        }
 
-        // absolute uri with relative path
+        // file uri with relative path
         
         try {
             ts = new TypeSchema("http://celtix.objectweb.org/configuration/test/types", 
-                            "file:resources/test-types.xsd");
+                            "file://resources/test-types.xsd");
         } catch (org.objectweb.celtix.configuration.ConfigurationException ex) {
             assertEquals("FILE_OPEN_ERROR_EXC", ex.getCode());
         }
@@ -50,13 +54,13 @@ public class TypeSchemaTest extends TestCase {
         // absolute uri with absolute path
         
         ts = new TypeSchema("http://celtix.objectweb.org/configuration/test/types", 
-                            "file:" + url.getFile());
+                            "file://" + url.getFile());
         assertNotNull(ts); 
     }
 
     public void testTypesOnly() {
         TypeSchema ts = tsh.get("http://celtix.objectweb.org/configuration/test/types-types",
-            "resources/test-types-types.xsd");
+            "org/objectweb/celtix/bus/configuration/resources/test-types-types.xsd");
         
         assertEquals(7, ts.getTypes().size()); 
         assertEquals(0, ts.getElements().size());
@@ -88,7 +92,7 @@ public class TypeSchemaTest extends TestCase {
 
     public void testElementsOnly() {
         TypeSchema ts = tsh.get("http://celtix.objectweb.org/configuration/test/types-elements",
-            "resources/test-types-elements.xsd");
+            "org/objectweb/celtix/bus/configuration/resources/test-types-elements.xsd");
         
         assertEquals(0, ts.getTypes().size());
         assertEquals(7, ts.getElements().size()); 
@@ -130,7 +134,7 @@ public class TypeSchemaTest extends TestCase {
     public void testElementsAndTypes() {
         String namespace = "http://celtix.objectweb.org/configuration/test/types";
         TypeSchema ts = tsh.get("http://celtix.objectweb.org/configuration/test/types",
-                                       "resources/test-types.xsd");
+            "org/objectweb/celtix/bus/configuration/resources/test-types.xsd");
         assertNotNull(ts);
         
         assertEquals("org.objectweb.celtix.configuration.test.types", ts.getPackageName());
@@ -180,13 +184,13 @@ public class TypeSchemaTest extends TestCase {
     
     public void testAnnotatedPackageName() {
         TypeSchema ts = new TypeSchema("http://celtix.objectweb.org/configuration/test/custom/pkg",
-                                       "resources/test-types-annotations.xsd");   
+            "org/objectweb/celtix/bus/configuration/resources/test-types-annotations.xsd");   
         assertEquals("org.objectweb.celtix.test.custom", ts.getPackageName());
     }
     
     public void testErrorHandler() {
         TypeSchema ts = tsh.get("http://celtix.objectweb.org/configuration/test/types",
-            "resources/test-types.xsd");
+            "org/objectweb/celtix/bus/configuration/resources/test-types.xsd");
         TypeSchemaErrorHandler eh = ts.new TypeSchemaErrorHandler();
         SAXParseException spe = new SAXParseException(null, null, null, 0, 0);
         

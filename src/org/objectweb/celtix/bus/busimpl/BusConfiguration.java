@@ -20,7 +20,7 @@ public class BusConfiguration extends AbstractConfigurationImpl {
     
     
     BusConfiguration(String[] args, Map<String, Object> properties) {
-        super(BusConfiguration.class, "config-metadata/bus-config.xml", "celtix");  
+        super("config-metadata/bus-config.xml", "celtix");  
         
         // get the bus id from the command line arguments        
         id = getBusId(args, properties);       

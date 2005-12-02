@@ -9,7 +9,7 @@
 
    <!-- default values for all standard data types  -->
    
-    <cm:configImport location="/org/objectweb/celtix/configuration/config-metadata/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
     
     <cm:configItem>
 		<cm:name>stringItem</cm:name>

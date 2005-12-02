@@ -15,12 +15,12 @@ public class CeltixBeansDtdResolver implements EntityResolver {
 
     private static final String DTD_SYSTEM_ID = 
         "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd";
-    private static final String DTD_FILE = "celtix-spring-beans.dtd";
+    private static final String DTD_FILE = "schemas/configuration/celtix-spring-beans.dtd";
     private static final Logger LOG = LogUtils.getL7dLogger(BeanGenerator.class);
 
     public InputSource resolveEntity(String publicId, String systemId) throws IOException {
         if (systemId != null && systemId.equals(DTD_SYSTEM_ID)) {
-            InputStream is = getClass().getResourceAsStream(getDtdFile());
+            InputStream is = ClassLoader.getSystemResourceAsStream(getDtdFile());
             if (is == null) {
                 throw new ConfigurationException(new Message("COULD_NOT_RESOLVE_BEANS_DTD", LOG,
                                                              DTD_SYSTEM_ID));

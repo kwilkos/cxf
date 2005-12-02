@@ -204,9 +204,18 @@ public class ConfigurationMetadataBuilder  {
         } 
     }
     
+    /**
+     * The configuration metadata schema is obtained system resource
+     * "schemas/configuration/metadata.xsd".
+     * It requires that either the resources directory is on the classpath or that
+     * the resources is listed in the classpath specified in the manifest of celtix.jar.
+     * 
+     * @return the metadata schema
+     */
+    
     private Schema getMetadataSchema() {
         if (null == metadataSchema) {
-            InputStream is = ConfigurationException.class.getResourceAsStream("config-metadata/metadata.xsd");
+            InputStream is = ClassLoader.getSystemResourceAsStream("schemas/configuration/metadata.xsd");
             if (null == is) {
                 throw new ConfigurationException(new Message("CANNOT_FIND_CONFIG_METADATA_SCHEMA_MSG", LOG));
             }

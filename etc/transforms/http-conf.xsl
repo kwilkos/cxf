@@ -52,7 +52,7 @@ version="2.0"
                     <xsl:text>http://celtix.objectweb.org/configuration/types</xsl:text>
                 </xsl:attribute>
                 <xsl:attribute name="location">
-                   <xsl:text>/org/objectweb/celtix/configuration/config-metadata/types.xsd</xsl:text>
+                   <xsl:text>schemas/configuration/std-types.xsd</xsl:text>
                 </xsl:attribute>
             </xsl:element>
             <xsl:text>
@@ -62,7 +62,7 @@ version="2.0"
                     <xsl:text>http://celtix.objectweb.org/transports/http/configuration</xsl:text>
                 </xsl:attribute>
                 <xsl:attribute name="location">
-                   <xsl:text>http-conf.xsd</xsl:text>
+                   <xsl:text>schemas/wsdl/http-conf.xsd</xsl:text>
                 </xsl:attribute>
             </xsl:element>
             <xsl:text>
@@ -72,7 +72,7 @@ version="2.0"
                     <xsl:text>http://celtix.objectweb.org/bus/transports/http/configuration/types</xsl:text>
                 </xsl:attribute>
                 <xsl:attribute name="location">
-                   <xsl:text>/org/objectweb/celtix/bus/transports/http/config-metadata/http-conf-types.xsd</xsl:text>
+                   <xsl:text>schemas/configuration/http-conf-types.xsd</xsl:text>
                 </xsl:attribute>
             </xsl:element>
             <xsl:text>

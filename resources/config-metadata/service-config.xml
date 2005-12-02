@@ -9,8 +9,8 @@
 
    <!-- configuration metadata for component Service  -->
    
-    <cm:configImport location="/org/objectweb/celtix/configuration/config-metadata/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
-    <cm:configImport location="/org/objectweb/celtix/bus/jaxws/config-metadata/types.xsd" namespace="http://celtix.objectweb.org/bus/jaxws/configuration/types"/>
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    <cm:configImport location="schemas/configuration/jaxws-types.xsd" namespace="http://celtix.objectweb.org/bus/jaxws/configuration/types"/>
     
     <cm:configItem>
         <cm:name>handlerChain</cm:name>

@@ -9,7 +9,7 @@
 
    <!-- configuration metadata for test component top  -->
    
-    <cm:configImport location="/org/objectweb/celtix/configuration/config-metadata/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
     
     <!-- items with default values --> 
     

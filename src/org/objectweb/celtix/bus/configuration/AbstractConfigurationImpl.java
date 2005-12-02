@@ -30,13 +30,13 @@ public class AbstractConfigurationImpl implements Configuration {
     private Object id;
     private List<ConfigurationProvider> providers;
 
-    public AbstractConfigurationImpl(Class cl, String resource, Object instanceId, Configuration parent) {
+    public AbstractConfigurationImpl(String resource, Object instanceId, Configuration parent) {
         configurator = new ConfiguratorImpl(this, 
             parent instanceof AbstractConfigurationImpl ? (AbstractConfigurationImpl)parent : null);
         ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();
         InputStream is = null;
-        if (null != cl && resource != null) {
-            is = cl.getResourceAsStream(resource);
+        if (resource != null) {
+            is = ClassLoader.getSystemResourceAsStream(resource);
             if (is == null) {
                 throw new ConfigurationException(new Message("METADATA_RESOURCE_EXC", BUNDLE, resource));
             }
@@ -63,8 +63,8 @@ public class AbstractConfigurationImpl implements Configuration {
         }
     }
 
-    public AbstractConfigurationImpl(Class cl, String resource, Object instanceId) {
-        this(cl, resource, instanceId, null);
+    public AbstractConfigurationImpl(String resource, Object instanceId) {
+        this(resource, instanceId, null);
     }
 
     public Object getId() {

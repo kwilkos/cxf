@@ -72,7 +72,6 @@
         <pathelement location="${basedir}/../../build/classes"/>
         <pathelement location="${build.classes.dir}"/>
         <pathelement location="${celtix.jar.file}"/>
-        <pathelement location="${celtix.home}/schemas"/>
     </path>
 
     <target name="compile" depends="generate.code">
