@@ -1,0 +1,42 @@
+package $intf.PackageName;
+
+import java.io.File;
+import javax.xml.namespace.QName;
+
+public final class Client {
+
+	private static final QName SERVICE_NAME = new QName("$intf.Namespace", "$serviceName");
+
+	private Client() {
+	}
+
+	public static void main(String args[]) throws Exception {
+
+	if (args.length == 0) { 
+		System.out.println("please specify wsdl");
+		System.exit(1); 
+	}
+
+	File wsdl = new File(args[0]);
+
+	$serviceName ss = new $serviceName(wsdl.toURL(), SERVICE_NAME);
+	$intf.Name port = ss.getSoapPort();       
+	#foreach ($method in $intf.Methods)
+	System.out.println("Invoking ${method.Name}...");
+	#if($method.Exceptions.size() > 0)
+	try{
+		#if($method.return.Type != "void")
+		$method.return.ClassName _${method.Name}_$method.return.Name=#end  port.${method.Name}(#foreach ($parameter in $method.Parameters) new ${parameter.ClassName}()#if ($velocityCounter != $method.getParameters().size()),#end #end);
+	}#foreach($exception in $method.Exceptions)
+	catch($exception.ClassName e){ 
+	System.out.println("Expected exception: $exception.Name has occurred.");
+	System.out.println(e.toString());
+	}#end
+	#else
+	#if($method.return.ClassName != "void")
+	$method.return.ClassName _${method.Name}_$method.return.Name=
+	#end port.${method.Name}(#foreach ($parameter in $method.Parameters) new ${parameter.ClassName}() #if ($velocityCounter != $method.getParameters().size()),#end #end);
+	#end
+	#end
+	}
+}

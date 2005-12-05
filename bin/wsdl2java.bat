@@ -18,7 +18,14 @@ rem add the celtix jar  to the class path
 rem
 set CLASSPATH=%CELTIX_HOME%\lib\celtix.jar;%CLASSPATH%
 
+IF "%1"=="-celtix" GOTO CELTIX_TOOL
+
 "%JAVA_HOME%\bin\java" -Djaxws.home="%JAXWS_HOME%" -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" org.objectweb.celtix.tools.Wsdl2Java %*
+GOTO END
+
+:CELTIX_TOOL
+
+"%JAVA_HOME%\bin\java"  -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" org.objectweb.celtix.tools.WSDLToJava %*
 
 @endlocal
 

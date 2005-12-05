@@ -90,16 +90,17 @@
 	<annotation>Generates code for all interfaces and types.</annotation>
 	<switch>all</switch>
       </option>
-
-      <option id="sample" maxOccurs="1">
-	<annotation>Generate Sample Demo Client.</annotation>
-	<switch>sample</switch>
-      </option>
-      
-      <option id="ant" maxOccurs="1">
-	<annotation>ant script generation.</annotation>
-	<switch>ant</switch>
-      </option>
+      <!--
+	  <option id="sample" maxOccurs="1">
+	  <annotation>Generate Sample Demo Client.</annotation>
+	  <switch>sample</switch>
+	  </option>
+	  
+	  <option id="ant" maxOccurs="1">
+	  <annotation>ant script generation.</annotation>
+	  <switch>ant</switch>
+	  </option>
+      --> 
 
     </optionGroup>
     <optionGroup id="common_options">
@@ -126,7 +127,13 @@
 	<switch>quiet</switch>
 	<switch>q</switch>
       </option>
-      
+
+      <!-- TODO: After the JAX-WS wsdl2java tool deprecated, this option should be removed -->
+      <option id="celtix">
+	<annotation>Indicate it's a celtix wsdl2java tool</annotation>
+	<switch>celtix</switch>
+      </option>
+
     </optionGroup>
     <argument id="wsdlurl" minOccurs="1" maxOccurs="1">
       <annotation>WSDL/SCHEMA URL</annotation>

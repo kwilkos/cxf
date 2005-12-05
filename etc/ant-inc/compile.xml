@@ -100,6 +100,7 @@
             <fileset dir="${basedir}/src" includes="**/*.toolspec"/>
             <fileset dir="${basedir}/src" includes="**/*.xsl"/>
             <fileset dir="${basedir}/src" includes="**/*.xml"/>
+            <fileset dir="${basedir}/src" includes="**/*.vm"/>
             <fileset dir="${basedir}/build/src" includes="**/*.properties"/>
             <fileset dir="${basedir}/build/src" includes="**/*.xsd"/>
             <fileset dir="${basedir}/build/src" includes="**/*.xml"/>

@@ -61,7 +61,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
                 env.put(ToolConstants.CFG_CMD_ARG, args);
 
                 processor.setEnvironment(env);
-                processor.run();
+                processor.process();
             }
         } catch (ToolException ex) {
             System.err.println("Error : " + ex.getMessage());

@@ -1,6 +1,6 @@
 package org.objectweb.celtix.tools.common;
 
 public interface Processor {
-    void run();
+    void process() throws Exception;
     void setEnvironment(ProcessorEnvironment env);
 }

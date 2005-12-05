@@ -55,6 +55,12 @@
         </fileset>
     </path>
 
+    <path id="velocity.classpath">
+        <fileset dir="${tools.dir}/velocity/1.4">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
     <!-- property name="tomcat.local.classes" value=""/ -->
     <path id="embedded.tomcat.classpath">
         <!-- pathelement location="${tomcat.local.classes}"/ -->
@@ -95,6 +101,7 @@
         <path refid="jetty.classpath"/>
         <path refid="spring.classpath"/>
         <path refid="activemq.classpath"/>
+        <path refid="velocity.classpath"/>
         <pathelement location="${tools.jar}"/>
     </path>
 
@@ -107,6 +114,7 @@
         <path refid="jetty.classpath"/>
         <path refid="spring.classpath"/>
         <path refid="activemq.classpath"/>
+        <path refid="velocity.classpath"/>
     </path>
 
     <path id="unit.test.compile.classpath">
@@ -117,6 +125,7 @@
         <pathelement location="${tools.dir}/easymock/2.0/classextension/easymockclassextension.jar"/>
         <pathelement location="${tools.dir}/cglib/2.1.2/cglib-nodep.jar"/>
         <path refid="junit.classpath"/>
+        <path refid="velocity.classpath"/>
     </path>
  
     

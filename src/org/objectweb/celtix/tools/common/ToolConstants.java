@@ -3,6 +3,7 @@ package org.objectweb.celtix.tools.common;
 public final class ToolConstants {
 
     public static final String TOOLSPECS_BASE = "/org/objectweb/celtix/tools/common/toolspec/toolspecs/";
+    public static final String SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
     
     public static final String DEFAULT_TEMP_DIR = "gen_tmp";
     public static final String CFG_OUTPUTDIR = "outputdir";
@@ -15,7 +16,6 @@ public final class ToolConstants {
     public static final String CFG_PORTTYPE = "porttype";
     public static final String CFG_SERVER = "server";
     public static final String CFG_CLIENT = "client";
-    public static final String CFG_SAMPLE = "sample";
     public static final String CFG_ALL = "all";
     public static final String CFG_IMPL = "impl";
     public static final String CFG_PACKAGENAME = "packagename";
@@ -33,4 +33,13 @@ public final class ToolConstants {
     public static final String CFG_ANT = "ant";
     public static final String CFG_LIB_REF = "library.references";
     public static final String CFG_ANT_PROP = "ant.prop";
+
+    // WSDL2Java Processor Constants
+    public static final String SEI_GENERATOR = "sei.generator";
+    public static final String FAULT_GENERATOR = "fault.generator";
+    public static final String TYPE_GENERATOR = "type.generator";
+    public static final String IMPL_GENERATOR = "impl.generator";
+    public static final String SVR_GENERATOR = "svr.generator";
+    public static final String CLT_GENERATOR = "clt.generator";
+    public static final String SERVICE_GENERATOR = "service.generator";
 }
