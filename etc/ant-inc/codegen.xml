@@ -4,17 +4,21 @@
 
     
     <property name="src.resources.dir" location="${basedir}/resources"/>
+    <!--
     <property name="resources.dir" location="${basedir}/build/resources"/>
+    -->
 
     <property name="src.schema.dir" location="${src.resources.dir}/schemas"/>
     <property name="src.wsdl.schema.dir" location="${src.schema.dir}/wsdl"/>
     <property name="src.configuration.schema.dir" location="${src.schema.dir}/configuration"/>
     <property name="src.config-metadata.dir" location="${src.resources.dir}/config-metadata"/>
 
+    <!--
     <property name="schema.dir" location="${resources.dir}/schemas"/>
     <property name="wsdl.schema.dir" location="${schema.dir}/wsdl"/>
     <property name="configuration.schema.dir" location="${schema.dir}/configuration"/>
     <property name="config-metadata.dir" location="${resources.dir}/config-metadata"/>
+    -->
 
     <macrodef name="wsdltojava">
         <attribute name="srcdestdir"/>
@@ -98,41 +102,14 @@
     <target name="configuration.codegen.internal" unless="configuration.codegen.notrequired">
         <xsdtojava file="${src.configuration.schema.dir}/std-types.xsd" destdir="${basedir}/build/src"/>
         <xsdtojava file="${src.configuration.schema.dir}/jaxws-types.xsd" destdir="${basedir}/build/src"/>
-
-        <xslt in="${src.wsdl.schema.dir}/http-conf.xsd" out="${configuration.schema.dir}/http-conf-types.xsd" style="${basedir}/etc/transforms/http-conf-types.xsl">
-        </xslt>
-        <xslt in="${src.wsdl.schema.dir}/http-conf.xsd" out="${config-metadata.dir}/http-server-config.xml" style="${basedir}/etc/transforms/http-conf.xsl">
-            <param name="type" expression="Server"/>
-        </xslt>
-        <xslt in="${src.wsdl.schema.dir}/http-conf.xsd" out="${config-metadata.dir}/http-client-config.xml" style="${basedir}/etc/transforms/http-conf.xsl">
-            <param name="type" expression="Client"/>
-        </xslt>
-
-        <fileset id="included.wsdls" dir="${src.wsdl.schema.dir}" includes="http-conf.xsd, wsdl.xsd, jms.xsd"/>
-        <copy todir="${configuration.schema.dir}">
-            <fileset refid="included.wsdls"/>
-        </copy>
-        <xsdtojava file="${configuration.schema.dir}/http-conf-types.xsd" destdir="${basedir}/build/src"/>
         <xsdtojava file="${src.configuration.schema.dir}/security.xsd" destdir="${basedir}/build/src"/>
-        <delete quiet="true">
-            <fileset dir="${configuration.schema.dir}" includes="http-conf.xsd, wsdl.xsd, jms.xsd"/>
-        </delete>
-
-        <!--
-        <copy file="${src.wsdl.schema.dir}/http-conf.xsd" todir="${http-metadata.dir}"/>
-        <copy file="${src.wsdl.schema.dir}/wsdl.xsd" todir="${http-metadata.dir}"/>
-        <copy file="${src.wsdl.schema.dir}/jms.xsd" todir="${http-metadata.dir}"/>
-        <xsdtojava file="${http-metadata.dir}/http-conf-types.xsd" destdir="${basedir}/build/src"/>
-        -->
         <touch file="${basedir}/build/src/.CONFIGURATION.CODEGEN.DONE"/>
     </target>
 
     <target name="configuration.codegen">
         <uptodate property="configuration.codegen.notrequired" value="true">
             <srcfiles dir="${src.configuration.schema.dir}" includes="*.xsd"/>
-            <srcfiles dir="${src.wsdl.schema.dir}" includes="http-conf.xsd"/>
             <srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
-            <srcfiles dir="etc/transforms" includes="*.xsl"/>
             <mapper type="merge" to="${basedir}/build/src/.CONFIGURATION.CODEGEN.DONE"/>
         </uptodate>
         <antcall target="configuration.codegen.internal"/>
@@ -243,8 +220,8 @@
                 <classpath>
                     <path location="${basedir}/build/classes"/>
                     <path refid="jaxws.classpath"/>
+                    <path refid="wsdl4j.classpath"/>
                     <path location="${src.resources.dir}"/>
-                    <path location="${resources.dir}"/>
                     <path location="${src.wsdl.schema.dir}"/>
                 </classpath>
                 <sysproperty key="java.util.logging.config.file" value="${basedir}/etc/logging.properties"/>
@@ -256,9 +233,8 @@
     </macrodef>
 
     <target name="spring.codegen.internal" unless="spring.codegen.notrequired">
-        <fileset dir="${basedir}" id="metadata.schemas">
-            <include name="resources/config-metadata/*.xml"/>
-            <include name="build/resources/config-metadata/*.xml"/>
+        <fileset dir="${src.config-metadata.dir}" id="metadata.schemas">
+            <include name="*.xml"/>
         </fileset>
         <pathconvert pathsep=" " property="metadata.schema.files" refid="metadata.schemas"/> 
         <property name="output.dir" location="${basedir}/build/spring-src"/>
@@ -269,7 +245,6 @@
     <target name="spring.codegen" description="Generate Java Beans for use with Spring">
         <uptodate property="spring.codegen.notrequired" value="true">
             <srcfiles dir="${src.config-metadata.dir}" includes="*.xml"/>
-            <srcfiles dir="${config-metadata.dir}" includes="*.xml"/>
             <mapper type="merge" to="${basedir}/build/spring-src/.SPRING.CODEGEN.DONE"/>
         </uptodate>
         <antcall target="spring.codegen.internal"/>

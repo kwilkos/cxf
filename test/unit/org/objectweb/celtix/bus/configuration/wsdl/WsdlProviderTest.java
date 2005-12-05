@@ -12,6 +12,8 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
+import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
+import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 import org.objectweb.celtix.wsdl.WSDLManager;
@@ -57,15 +59,19 @@ public class WsdlProviderTest extends TestCase {
         Port p = EndpointReferenceUtils.getPort(wmgr, ref);       
        
         WsdlHttpConfigurationProvider hcp = new WsdlHttpConfigurationProvider(p, true);
-        Object value = hcp.getObject("SendTimeout");
-        assertEquals(value.toString(), 60000, ((Long)value).intValue());
+        assertNull(hcp.getObject("SendTimeout"));
+        Object value = hcp.getObject("httpServer");        
+        assertNotNull(value);
+        assertEquals(60000, ((HTTPServerPolicy)value).getSendTimeout());
+    
            
         hcp = new WsdlHttpConfigurationProvider(p, false);
-        value = hcp.getObject("ReceiveTimeout");
-        assertEquals(value.toString(), 90000, ((Long)value).intValue());
+        assertNull(hcp.getObject("ReceiveTimeout"));
+        value = hcp.getObject("httpClient");
+        assertEquals(90000, ((HTTPClientPolicy)value).getReceiveTimeout());
         
         hcp = new WsdlHttpConfigurationProvider(null, false);
-        value = hcp.getObject("ReceiveTimeout");
+        value = hcp.getObject("httpClient");
         assertNull(value);
     }
     

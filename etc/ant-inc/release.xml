@@ -9,7 +9,6 @@
         <mkdir dir="${build.release.dir}"/>
         <mkdir dir="${build.release.dir}/bin"/>
         <mkdir dir="${build.release.dir}/samples"/>
-        <mkdir dir="${build.release.dir}/resources"/>
         <copy todir="${build.release.dir}">
             <fileset dir="${basedir}">
                 <include name="LICENSE"/>
@@ -25,14 +24,6 @@
             <fileset dir="${basedir}/etc">
                 <include name="logging.properties"/>
                 <include name="log4j.properties"/>
-            </fileset>
-        </copy>    	
-        <copy includeEmptyDirs="false" todir="${build.release.dir}/resources">
-            <fileset dir="${basedir}/resources">
-                <include name="**/*"/>
-            </fileset>
-            <fileset dir="${basedir}/build/resources">
-                <include name="**/*"/>
             </fileset>
         </copy>    	
         <copy includeEmptyDirs="false" todir="${build.release.dir}/samples">
@@ -116,7 +107,6 @@
         <jar destfile="${celtix.bin.jar}">
             <fileset dir="${build.classes.dir}"/>      
             <fileset dir="${basedir}/resources"/>      
-            <fileset dir="${basedir}/build/resources"/>      
             <metainf dir="${basedir}/etc/metainf"/>
             <manifest>
                 <attribute name="Class-Path" value="${manifest.bin.classpath}"/>
@@ -135,7 +125,6 @@
         <jar destfile="${celtix.jar}">
             <fileset dir="${build.classes.dir}"/>      
             <fileset dir="${basedir}/resources"/>      
-            <fileset dir="${basedir}/build/resources"/>      
             <metainf dir="${basedir}/etc/metainf"/>
             <manifest>
                 <attribute name="Class-Path" value="${manifest.classpath}"/>

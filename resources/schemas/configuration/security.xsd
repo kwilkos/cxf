@@ -5,6 +5,7 @@
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:tns="http://celtix.objectweb.org/bus/configuration/security"
            jaxb:version="2.0">
 
     <xs:annotation>
@@ -137,4 +138,5 @@
             </xs:element>
     	</xs:sequence>
     </xs:complexType>
+    <xs:element name="sslPolicy" type="tns:SSLPolicy"/>
 </xs:schema>
