@@ -2,5 +2,6 @@
 <fileset name="all" check-config-name="Celtix Checks" enabled="true"><file-match-pattern match-pattern="java$" include-pattern="true"/>
 <file-match-pattern match-pattern="[/\\]build[/\\]" include-pattern="false"/>
 <file-match-pattern match-pattern="^build[/\\]" include-pattern="false"/>
+<file-match-pattern match-pattern="^test[/\\]performance[/\\]" include-pattern="false"/>
 </fileset>
 </fileset-config>
