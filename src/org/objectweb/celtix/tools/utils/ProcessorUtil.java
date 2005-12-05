@@ -70,9 +70,10 @@ public final class ProcessorUtil {
         return path.replace('\\', '/');
     }
 
+    @SuppressWarnings("unchecked")
     public static List<? extends Property> getBlock(Part part, ProcessorEnvironment env) {
         if (part == null) {
-            return new ArrayList();
+            return new ArrayList<Property>();
         }
         Map<String, S2JJAXBModel> jaxbModels = (Map<String, S2JJAXBModel>) env.get("jaxbmodels");
         QName element;
@@ -81,7 +82,7 @@ public final class ProcessorUtil {
             element = part.getTypeName();
         }
         if (element != null) {
-            S2JJAXBModel jaxbModel = (S2JJAXBModel) jaxbModels.get(element.getNamespaceURI());
+            S2JJAXBModel jaxbModel = jaxbModels.get(element.getNamespaceURI());
             return  jaxbModel.get(element).getWrapperStyleDrilldown();
         } else {
             return new ArrayList();

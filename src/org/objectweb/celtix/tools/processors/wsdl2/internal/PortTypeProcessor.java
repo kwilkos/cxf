@@ -1,6 +1,5 @@
 package org.objectweb.celtix.tools.processors.wsdl2.internal;
 
-import java.io.*;
 import java.util.*;
 import javax.wsdl.Operation;
 import javax.wsdl.PortType;

@@ -33,6 +33,7 @@ public class FaultProcessor {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void processFault(JavaMethod method, Fault fault) throws Exception {
         JavaModel model = method.getInterface().getJavaModel();        
         Message faultMessage = fault.getMessage();

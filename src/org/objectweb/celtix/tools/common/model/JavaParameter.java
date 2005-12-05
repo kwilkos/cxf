@@ -1,7 +1,5 @@
 package org.objectweb.celtix.tools.common.model;
 
-import java.util.*;
-
 public class JavaParameter extends JavaType {
 
     private boolean holder;

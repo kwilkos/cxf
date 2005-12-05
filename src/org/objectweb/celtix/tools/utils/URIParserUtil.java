@@ -1,13 +1,24 @@
 package org.objectweb.celtix.tools.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
 public final class URIParserUtil {
+    private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(
+        new String[] {"abstract", "boolean", "break", "byte", "case", "catch", "char",
+            "class", "const", "continue", "default", "do", "double", "else",
+            "extends", "final", "finally", "float", "for", "goto", "if",
+            "implements", "import", "instanceof", "int", "interface", "long",
+            "native", "new", "package", "private", "protected", "public",
+            "return", "short", "static", "strictfp", "super", "switch",
+            "synchronized", "this", "throw", "throws", "transient", "try", "void",
+            "volatile", "while", "true", "false", "null", "assert", "enum"}));
 
+                                                                                  
     private URIParserUtil() {
         // complete
     }
@@ -120,18 +131,6 @@ public final class URIParserUtil {
     }
 
     private static boolean contiansReservedKeywords(String token) {
-        Set keywords = new HashSet();
-        String[] words = new String[] {"abstract", "boolean", "break", "byte", "case", "catch", "char",
-                                       "class", "const", "continue", "default", "do", "double", "else",
-                                       "extends", "final", "finally", "float", "for", "goto", "if",
-                                       "implements", "import", "instanceof", "int", "interface", "long",
-                                       "native", "new", "package", "private", "protected", "public",
-                                       "return", "short", "static", "strictfp", "super", "switch",
-                                       "synchronized", "this", "throw", "throws", "transient", "try", "void",
-                                       "volatile", "while", "true", "false", "null", "assert", "enum"};
-        for (String w : words) {
-            keywords.add(w);
-        }
-        return keywords.contains(token);
+        return KEYWORDS.contains(token);
     }
 }

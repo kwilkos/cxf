@@ -85,6 +85,7 @@ public class ParameterProcessor {
         method.setReturn(returnType);
     }
 
+    @SuppressWarnings("unchecked")
     private void processInput(JavaMethod method,
                               Message inputMessage) throws Exception {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
@@ -95,6 +96,7 @@ public class ParameterProcessor {
     }
 
 
+    @SuppressWarnings("unchecked")
     private void processWrappedInput(JavaMethod method,
                                      Message inputMessage) throws Exception {
 
@@ -117,6 +119,7 @@ public class ParameterProcessor {
         }
     }
     
+    @SuppressWarnings("unchecked")
     private void processOutput(JavaMethod method,
                                Message inputMessage,
                                Message outputMessage,
@@ -160,6 +163,7 @@ public class ParameterProcessor {
     }
 
         
+    @SuppressWarnings("unchecked")
     private void processWrappedOutput(JavaMethod method,
                                       Message inputMessage,
                                       Message outputMessage,
@@ -264,6 +268,7 @@ public class ParameterProcessor {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void buildParamModelsWithOrdering(JavaMethod method,
                                               Message inputMessage,
                                               Message outputMessage,
@@ -343,6 +348,7 @@ public class ParameterProcessor {
         return false;
     }
     
+    @SuppressWarnings("unchecked")
     private boolean isValidOrdering(List<String> parameterOrder,
                                     Message inputMessage,
                                     Message outputMessage) {

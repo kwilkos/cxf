@@ -22,6 +22,7 @@ public class OperationProcessor  {
         this.env = penv;
     }
 
+    @SuppressWarnings("unchecked")
     public void process(JavaInterface intf, Operation operation) throws Exception {
         JavaMethod method = new JavaMethod(intf);
         method.setName(operation.getName());
@@ -37,6 +38,7 @@ public class OperationProcessor  {
         intf.addMethod(method);
     }
 
+    @SuppressWarnings("unchecked")
     public void processMethod(JavaMethod method, Operation operation) throws Exception {
         List<String> parameterOrder = operation.getParameterOrdering();
         Message inputMessage = operation.getInput() == null ? null : operation.getInput().getMessage();
@@ -51,6 +53,7 @@ public class OperationProcessor  {
                                parameterOrder);
     }
 
+    @SuppressWarnings("unchecked")
     private boolean isWrapperStyle(Operation operation) {
 
         Message inputMessage = operation.getInput() == null ? null : operation.getInput().getMessage();

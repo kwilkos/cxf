@@ -9,7 +9,7 @@ public class JavaInterface {
     private String namespace;
     private String location;
     private JavaModel model;
-    private final List methods = new ArrayList();
+    private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
 
     public JavaInterface() {
     }

@@ -31,6 +31,7 @@ public class TypeGenerator extends AbstractGenerator {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     public void generate() throws Exception {
         if (passthrough()) {
             return;

@@ -6,8 +6,8 @@ public class URIParserUtilTest extends TestCase {
 
     public void testGetPackageName() {
         String packageName = URIParserUtil.getPackageName("http://www.celtix.iona.com");
-        this.assertEquals(packageName, "com.iona.celtix");
+        assertEquals(packageName, "com.iona.celtix");
         packageName = URIParserUtil.getPackageName("urn://www.class.iona.com");
-        this.assertEquals(packageName, "com.iona._class");
+        assertEquals(packageName, "com.iona._class");
     }
 }
