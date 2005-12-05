@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<project name="test.complex_type" default="build" basedir=".">
+
+  <import file="../etc/common_build.xml"/>    
+
+  <property name="wsdl.dir" location="${basedir}/wsdl"/>
+  <property name="wsdl.file" value="complex_type.wsdl"/>
+
+  <target name="client" description="run complex_type client">
+    <property name="param" value=""/>
+    <celtix.perform.run classname="org.objectweb.celtix.performance.complex_type.client.Client" argline="-WSDL ${wsdl.dir}/${wsdl.file}
+													 -Amount ${celtix.running.time}
+													 -BasedOn ${celtix.basedon}
+													 -Operation ${celtix.operation}
+													 -PacketSize ${celtix.packet.size}
+													 -Threads ${celtix.threads}"/>
+  </target> 
+
+  <target name="server" description="run complex_type server">
+    <celtix.perform.run classname="org.objectweb.celtix.performance.complex_type.server.Server" argline="${basedir}/wsdl/${wsdl.file}"/>
+  </target>
+</project>
