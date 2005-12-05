@@ -59,23 +59,23 @@
         <tar compression="gzip"
             destfile="${build.package.dir}/celtix-${celtix.version}-bin.tgz"
         	longfile="gnu">
-            <tarfileset prefix="celtix" dir="${build.release.dir}">
+            <tarfileset prefix="celtix-${celtix.version.short}" dir="${build.release.dir}">
                 <include name="**/*"/>
                 <exclude name="**/tomcat/**/work/**/*"/>
                 <exclude name="**/*.wc"/>
                 <exclude name="bin/*"/>
             </tarfileset>
-            <tarfileset prefix="celtix" dir="${build.release.dir}" mode="755">
+            <tarfileset prefix="celtix-${celtix.version.short}" dir="${build.release.dir}" mode="755">
                 <include name="bin/*"/>
             </tarfileset>
-            <tarfileset prefix="celtix" dir="${basedir}">
+            <tarfileset prefix="celtix-${celtix.version.short}" dir="${basedir}">
                 <include name="resources/*"/>
             </tarfileset>
         </tar>
         <tar compression="gzip"
             destfile="${build.package.dir}/celtix-${celtix.version}-src.tgz"
         	longfile="gnu">
-            <tarfileset prefix="celtix" dir="${basedir}">
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}">
                 <include name="**/*"/>
                 <exclude name="build"/>
                 <exclude name="build/**/*"/>
@@ -86,13 +86,13 @@
                 <exclude name="bin/*"/>
                 <exclude name="tools/**/bin/*"/>
             </tarfileset>
-            <tarfileset prefix="celtix" dir="${build.release.dir}" mode="755">
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${build.release.dir}" mode="755">
                 <include name="bin/*"/>
             </tarfileset>
-            <tarfileset prefix="celtix" dir="${basedir}" mode="755">
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}" mode="755">
                 <include name="tools/**/bin/*"/>
             </tarfileset>
-            <tarfileset prefix="celtix" dir="${basedir}">
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}">
                 <include name=".ruleset"/>
             </tarfileset>
         </tar>
