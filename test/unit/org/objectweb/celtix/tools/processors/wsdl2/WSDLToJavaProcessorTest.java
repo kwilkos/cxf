@@ -1,6 +1,7 @@
 package org.objectweb.celtix.tools.processors.wsdl2;
 
 import java.io.*;
+import java.net.URL;
 
 import junit.framework.TestCase;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
@@ -8,21 +9,27 @@ import org.objectweb.celtix.tools.common.ToolConstants;
 
 public class WSDLToJavaProcessorTest extends TestCase {
     
-    private final ProcessorEnvironment env = new ProcessorEnvironment();
-    private final WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
-    private final File output = new File("org/objectweb/celtix/tools/processors/wsdl2/resources");
+    private ProcessorEnvironment env = new ProcessorEnvironment();
+    private WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
+    private File output;
     
     public void setUp() throws Exception {
+        URL url = WSDLToJavaProcessorTest.class.getResource(".");
+        output = new File(url.getFile());
+        output = new File(output, "/resources");
+        
         if (!output.exists()) {
             output.mkdir();
         }
-
         env.put(ToolConstants.CFG_OUTPUTDIR,
                 output.getCanonicalPath());
     }
 
     public void tearDown() {
         output.deleteOnExit();
+        output = null;
+        processor = null;
+        env = null;
     }
     
     public void testHelloWorld() throws Exception {

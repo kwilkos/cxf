@@ -34,6 +34,7 @@ public class WSDLToProcessor implements Processor {
     private void parseWSDL(String wsdlURL) throws WSDLException {
         wsdlFactory = WSDLFactory.newInstance();
         wsdlReader = wsdlFactory.newWSDLReader();
+        wsdlReader.setFeature("javax.wsdl.verbose", false);
         wsdlDefinition = wsdlReader.readWSDL(wsdlURL);
     }
 

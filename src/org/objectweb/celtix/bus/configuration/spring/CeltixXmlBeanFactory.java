@@ -17,6 +17,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.Resource;
 
+@SuppressWarnings("deprecation")
 public class CeltixXmlBeanFactory extends DefaultListableBeanFactory {
 
     private static final Logger LOG = LogUtils.getL7dLogger(CeltixXmlBeanFactory.class);

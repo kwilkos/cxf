@@ -6,7 +6,7 @@
     <import file="paths.xml"/>
     <import file="codegen.xml"/>
 
-    <property name="xlint.args" value=":fallthrough,finally"/>
+    <property name="xlint.args" value=":unchecked,deprecation,fallthrough,finally"/>
     
     <!-- The entire codebase will be checkstyled automatically as part
     of the compile process.   If the code does not meet the style standards,
