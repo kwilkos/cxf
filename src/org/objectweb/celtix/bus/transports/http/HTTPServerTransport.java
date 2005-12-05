@@ -246,7 +246,7 @@ public class HTTPServerTransport implements ServerTransport {
         
         public void setFault(boolean isFault) {
             put(HTTP_RESPONSE_CODE, 500);
-            response.setStatus(500);
+            response.setStatus(500, "Fault Occurred");
         }
 
         public boolean isFault() {

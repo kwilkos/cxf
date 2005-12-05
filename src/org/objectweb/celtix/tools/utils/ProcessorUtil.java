@@ -83,9 +83,9 @@ public final class ProcessorUtil {
         }
         if (element != null) {
             S2JJAXBModel jaxbModel = jaxbModels.get(element.getNamespaceURI());
-            return  jaxbModel.get(element).getWrapperStyleDrilldown();
+            return jaxbModel.get(element).getWrapperStyleDrilldown();
         } else {
-            return new ArrayList();
+            return new ArrayList<Property>();
         }
     }
 }

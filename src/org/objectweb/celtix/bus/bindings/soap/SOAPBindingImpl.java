@@ -303,6 +303,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         objContext.setException((Throwable)faultObj);
     }
 
+    @SuppressWarnings("unchecked")
     public void parseMessage(InputStream in, MessageContext mc)
         throws SOAPException, IOException {
 
@@ -314,35 +315,24 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         SOAPMessage soapMessage = null;
         MimeHeaders headers = new MimeHeaders();
         try {
-            Map<?, ?> httpHeaders;
+            Map<String, List<String>> httpHeaders;
             if (isServer) {
-                httpHeaders = (Map<?, ?>)mc.get(MessageContext.HTTP_REQUEST_HEADERS);
+                httpHeaders = (Map<String, List<String>>)mc.get(MessageContext.HTTP_REQUEST_HEADERS);
             } else {
-                httpHeaders = (Map<?, ?>)mc.get(MessageContext.HTTP_RESPONSE_HEADERS);
+                httpHeaders = (Map<String, List<String>>)mc.get(MessageContext.HTTP_RESPONSE_HEADERS);
             }
             if (httpHeaders != null) {
-                for (Object key : httpHeaders.keySet()) {
+                for (String key : httpHeaders.keySet()) {
                     if (null != key) {
-                        List<?> values = (List<?>)httpHeaders.get(key);
-                        for (Object value : values) {
-                            headers.addHeader(key.toString(),
-                                              value == null ? null : value.toString());
+                        List<String> values = (List<String>)httpHeaders.get(key);
+                        for (String value : values) {
+                            headers.addHeader(key, value);
                         }
                     }
                 }
             }
 
             soapMessage = msgFactory.createMessage(headers, in);
-        } catch (com.sun.xml.messaging.saaj.SOAPExceptionImpl ex3) {
-            Iterator it = headers.getAllHeaders();
-            while (it.hasNext()) {
-                MimeHeader head = (MimeHeader)it.next();
-                System.err.println(head.getName() + ": " + head.getValue());
-            }
-            while (in.available() > 0) {
-                System.err.print((char)in.read());
-            }
-            System.err.println();
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.log(Level.INFO, "error in creating soap message", ex);

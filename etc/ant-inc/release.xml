@@ -57,7 +57,8 @@
         <mkdir dir="${build.package.dir}"/>
 
         <tar compression="gzip"
-            destfile="${build.package.dir}/celtix-${celtix.version}-bin.tgz">
+            destfile="${build.package.dir}/celtix-${celtix.version}-bin.tgz"
+        	longfile="gnu">
             <tarfileset prefix="celtix" dir="${build.release.dir}">
                 <include name="**/*"/>
                 <exclude name="**/tomcat/**/work/**/*"/>
@@ -72,7 +73,8 @@
             </tarfileset>
         </tar>
         <tar compression="gzip"
-            destfile="${build.package.dir}/celtix-${celtix.version}-src.tgz">
+            destfile="${build.package.dir}/celtix-${celtix.version}-src.tgz"
+        	longfile="gnu">
             <tarfileset prefix="celtix" dir="${basedir}">
                 <include name="**/*"/>
                 <exclude name="build"/>
