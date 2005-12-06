@@ -5,6 +5,8 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,9 +69,12 @@ public class HTTPServerTransport implements ServerTransport {
         policy = getServerPolicy(configuration);
     }
     
-    private HTTPServerPolicy getServerPolicy(Configuration configuration2) {
-        // TODO - get policy from config
-        return new HTTPServerPolicy();
+    private HTTPServerPolicy getServerPolicy(Configuration conf) {
+        HTTPServerPolicy pol = conf.getObject(HTTPServerPolicy.class, "httpServer");
+        if (pol == null) {
+            pol = new HTTPServerPolicy();
+        }
+        return pol;
     }
 
     public void activate(ServerTransportCallback cb) throws IOException {
@@ -151,9 +156,10 @@ public class HTTPServerTransport implements ServerTransport {
             put(HTTP_REQUEST_HEADERS, headers);
             
             headers = new HashMap<String, List<String>>();
-            setPolicies(headers);
+            setPolicies(req, headers);
             
             put(HTTP_RESPONSE_HEADERS, headers); 
+            
             
             origInputStream = req.getInputStream();
             inStream = origInputStream;
@@ -162,7 +168,7 @@ public class HTTPServerTransport implements ServerTransport {
             put(HTTP_REQUEST, req);
         }
         
-        private void setPolicies(Map<String, List<String>> headers) {
+        private void setPolicies(HttpRequest req, Map<String, List<String>> headers) {
             if (policy.isSetCacheControl()) {
                 headers.put("Cache-Control",
                             Arrays.asList(new String[] {policy.getCacheControl().value()}));
@@ -187,10 +193,20 @@ public class HTTPServerTransport implements ServerTransport {
                 headers.put("Connection",
                             Arrays.asList(new String[] {"close"}));
             }
+            if (policy.isSetReceiveTimeout()) {
+                Object connection = req.getHttpConnection().getConnection();
+                if (connection instanceof Socket) {
+                    Socket sock = (Socket)connection;
+                    try {
+                        sock.setSoTimeout((int)policy.getReceiveTimeout());
+                    } catch (SocketException ex) {
+                        LOG.log(Level.INFO, "Could not set SoTimeout", ex);
+                    }
+                }                
+            }
+            
         /*
          * TODO - hook up these policies
-        <xs:attribute name="SendTimeout" type="xs:unsignedInt" use="optional" default="30000">
-        <xs:attribute name="ReceiveTimeout" type="xs:unsignedInt" use="optional" default="30000">
         <xs:attribute name="SuppressClientSendErrors" type="xs:boolean" use="optional" default="false">
         <xs:attribute name="SuppressClientReceiveErrors" type="xs:boolean" use="optional" default="false">
         */

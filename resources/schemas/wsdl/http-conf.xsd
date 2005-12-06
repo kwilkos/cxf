@@ -21,14 +21,6 @@
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
 
-                <xs:attribute name="SendTimeout" type="xs:unsignedInt" use="optional" default="30000">
-                    <xs:annotation>
-                        <xs:documentation>
-                        Send timeout in milliseconds, 0 is infinite
-                        </xs:documentation>
-                    </xs:annotation>      
-                </xs:attribute>
-
                 <xs:attribute name="ReceiveTimeout" type="xs:unsignedInt" use="optional" default="30000">
                     <xs:annotation>
                         <xs:documentation>
@@ -277,6 +269,31 @@
                     </xs:annotation>      
                 </xs:attribute>
 
+
+                <!--Proxy server attributes-->
+                <xs:attribute name="ProxyServer" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                        Address of proxy server, if used 
+                        (proxy servers are a special kind of firewall)
+                             proxy.mycompany.com
+                        </xs:documentation>
+                    </xs:annotation>      
+                </xs:attribute>
+                <xs:attribute name="ProxyServerPort" type="xs:int" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                        Port number of proxy server.
+                        </xs:documentation>
+                    </xs:annotation>      
+                </xs:attribute>
+                <xs:attribute name="ProxyServerType" type="http-conf:proxyServerType" use="optional" default="HTTP">
+                    <xs:annotation>
+                        <xs:documentation>
+                        Type of number of proxy server.
+                        </xs:documentation>
+                    </xs:annotation>      
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -317,4 +334,10 @@
             <xs:enumeration value="Keep-Alive"/>
         </xs:restriction>
     </xs:simpleType>
-</xs:schema>
+    <xs:simpleType name="proxyServerType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="HTTP"/>
+            <xs:enumeration value="SOCKS"/>
+        </xs:restriction>
+    </xs:simpleType>
+ </xs:schema>

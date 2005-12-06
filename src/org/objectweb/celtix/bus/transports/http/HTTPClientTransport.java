@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
@@ -36,6 +38,7 @@ public class HTTPClientTransport implements ClientTransport {
     final Configuration configuration;
     final HTTPClientPolicy policy;
     final AuthorizationPolicy authPolicy;
+    final AuthorizationPolicy proxyAuthPolicy;
       
     public HTTPClientTransport(Bus bus, EndpointReferenceType ref) throws WSDLException, IOException {
         
@@ -46,7 +49,8 @@ public class HTTPClientTransport implements ClientTransport {
             new HTTPClientTransportConfiguration(portConfiguration, 
                                                  EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref));
         policy = getClientPolicy(configuration);
-        authPolicy = getAuthPolicy(configuration);
+        authPolicy = getAuthPolicy("authorization", configuration);
+        proxyAuthPolicy = getAuthPolicy("proxyAuthorization", configuration);
     }
     
     private HTTPClientPolicy getClientPolicy(Configuration conf) {
@@ -56,8 +60,8 @@ public class HTTPClientTransport implements ClientTransport {
         }
         return pol;
     }
-    private AuthorizationPolicy getAuthPolicy(Configuration conf) {
-        AuthorizationPolicy pol = conf.getObject(AuthorizationPolicy.class, "authorization");
+    private AuthorizationPolicy getAuthPolicy(String type, Configuration conf) {
+        AuthorizationPolicy pol = conf.getObject(AuthorizationPolicy.class, type);
         if (pol == null) {
             pol = new AuthorizationPolicy();
         }
@@ -65,7 +69,7 @@ public class HTTPClientTransport implements ClientTransport {
     }
 
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
-        return new HTTPClientOutputStreamContext(url, policy, authPolicy, context);
+        return new HTTPClientOutputStreamContext(url, policy, authPolicy, proxyAuthPolicy, context);
     }
 
     public void finalPrepareOutputStreamContext(OutputStreamMessageContext context) throws IOException {
@@ -120,10 +124,14 @@ public class HTTPClientTransport implements ClientTransport {
         HTTPClientInputStreamContext inputStreamContext;
         HTTPClientPolicy policy;
         AuthorizationPolicy authPolicy;
+        AuthorizationPolicy proxyAuthPolicy;
 
         @SuppressWarnings("unchecked")
-        public HTTPClientOutputStreamContext(URL url, HTTPClientPolicy p,
-                                             AuthorizationPolicy ap, MessageContext ctx)
+        public HTTPClientOutputStreamContext(URL url,
+                                             HTTPClientPolicy p,
+                                             AuthorizationPolicy ap,
+                                             AuthorizationPolicy pap,
+                                             MessageContext ctx)
             throws IOException {
             super(ctx);
 
@@ -135,11 +143,20 @@ public class HTTPClientTransport implements ClientTransport {
 
             policy = p;
             authPolicy = ap;
+            proxyAuthPolicy = pap;
             String value = (String)ctx.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
             if (value != null) {
                 url = new URL(value);
             }
 
+            if (policy.isSetProxyServer()) {
+                Proxy proxy = new Proxy(Proxy.Type.valueOf(policy.getProxyServerType().toString()),
+                                        new InetSocketAddress(policy.getProxyServer(),
+                                                              policy.getProxyServerPort()));
+                connection = url.openConnection(proxy);
+            } else {
+                connection = url.openConnection();
+            }
             connection = url.openConnection();
             connection.setDoOutput(true);
 
@@ -192,6 +209,28 @@ public class HTTPClientTransport implements ClientTransport {
                 type += authPolicy.getAuthorization();
                 headers.put("Authorization",
                             Arrays.asList(new String[] {type}));
+            }
+            if (proxyAuthPolicy.isSetUserName()) {
+                userName = proxyAuthPolicy.getUserName();
+                if (userName != null) {
+                    String passwd = "";
+                    if (proxyAuthPolicy.isSetPassword()) {
+                        passwd = proxyAuthPolicy.getPassword();
+                    }
+                    userName += ":";
+                    if (passwd != null) {
+                        userName += passwd;
+                    }
+                    userName = Base64Utility.encode(userName.getBytes());
+                    headers.put("Proxy-Authorization",
+                                Arrays.asList(new String[] {"Basic " + userName}));
+                } else if (proxyAuthPolicy.isSetAuthorizationType() && proxyAuthPolicy.isSetAuthorization()) {
+                    String type = proxyAuthPolicy.getAuthorizationType();
+                    type += " ";
+                    type += proxyAuthPolicy.getAuthorization();
+                    headers.put("Proxy-Authorization",
+                                Arrays.asList(new String[] {type}));
+                }
             }
             if (policy.isSetCacheControl()) {
                 headers.put("Cache-Control",

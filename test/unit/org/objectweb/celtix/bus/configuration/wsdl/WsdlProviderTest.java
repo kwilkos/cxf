@@ -62,7 +62,7 @@ public class WsdlProviderTest extends TestCase {
         assertNull(hcp.getObject("SendTimeout"));
         Object value = hcp.getObject("httpServer");        
         assertNotNull(value);
-        assertEquals(60000, ((HTTPServerPolicy)value).getSendTimeout());
+        assertEquals(30000, ((HTTPServerPolicy)value).getReceiveTimeout());
     
            
         hcp = new WsdlHttpConfigurationProvider(p, false);
