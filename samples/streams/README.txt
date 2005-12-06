@@ -8,12 +8,15 @@ used by the binding to unmarshal the message with an OutputStream
 which compresses the message.  For an incoming message, a
 decompressing InputStream is used.
 
-The StreamHandler is specified in an external JAXB Bindings file
-(./wsdl/bindings.xml) which is passed to the wsdl2java code generator.
-The binding file is written in the JAXWS Binding Language.  In this
-case, the generated Service Endpoint Interface includes a
-@HandlerChain annotation which results in a handler chain being
-created both on the client and server side.
+The StreamHandler is a Celtix specific handler that is invoked just
+before a message is written to or read from the underlying transport.
+The handler receives a MessageContext which contains that
+java.io.OutputStream or java.io.InputStream which is used to write or
+read the message.  The handler can replace the stream so that some
+transformation or other operation can be applied to the bytes of the
+message.  In this case a GZIPOutputStream and GZIPInputStream are used
+to apply compression to the message as it is being transmitted over
+the wire.
 
 Please review the README in the samples directory before
 continuing.
@@ -91,9 +94,11 @@ single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
-         demo.hw.server.Server &
+         -Dceltix.config.file=file:///$CELTIX_HOME/samples/handlers/celtix-server.xml
+	  demo.hw.server.Server &
 
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+         -Dceltix.config.file=file:///$CELTIX_HOME/samples/handlers/celtix-client.xml
          demo.hw.client.Client ./wsdl/hello_world.wsdl
 
 The server process starts in the background.  After running the client,
@@ -102,10 +107,12 @@ use the kill command to terminate the server process.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+         -Dceltix.config.file=file:///%CELTIX_HOME%\samples\handlers\celtix-server.xml
          demo.hw.server.Server
 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
-       demo.hw.client.Client .\wsdl\hello_world.wsdl
+         -Dceltix.config.file=file:///%CELTIX_HOME%\samples\handlers\celtix-client.xml
+         demo.hw.client.Client .\wsdl\hello_world.wsdl
 
 A new command windows opens for the server process.  After running the
 client, terminate the server process by issuing Ctrl-C in its command window.
