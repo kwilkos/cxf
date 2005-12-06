@@ -41,6 +41,7 @@ public class HTTPClientTransport implements ClientTransport {
         
         Configuration portConfiguration = getPortConfiguration(bus, ref);
         url = new URL(portConfiguration.getString("address"));
+        System.err.println(url);
         
         configuration = 
             new HTTPClientTransportConfiguration(portConfiguration, 
@@ -49,13 +50,22 @@ public class HTTPClientTransport implements ClientTransport {
         authPolicy = getAuthPolicy(configuration);
     }
     
-    private HTTPClientPolicy getClientPolicy(Configuration configuration2) {
-        // TODO - get policy from wsld, config, etc...
-        return new HTTPClientPolicy();
+    private HTTPClientPolicy getClientPolicy(Configuration conf) {
+        HTTPClientPolicy pol = conf.getObject(HTTPClientPolicy.class, "httpClient");
+        System.err.println("Pol: " + pol);
+        if (pol == null) {
+            pol = new HTTPClientPolicy();
+        }
+        System.err.println("TO: " + pol.getConnectionTimeout());
+        return pol;
     }
-    private AuthorizationPolicy getAuthPolicy(Configuration configuration2) {
-        // TODO - get policy from config
-        return new AuthorizationPolicy();
+    private AuthorizationPolicy getAuthPolicy(Configuration conf) {
+        AuthorizationPolicy pol = conf.getObject(AuthorizationPolicy.class, "authorization");
+        System.err.println("Pol: " + pol);
+        if (pol == null) {
+            pol = new AuthorizationPolicy();
+        }
+        return pol;
     }
 
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {

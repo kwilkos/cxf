@@ -63,6 +63,7 @@
             </xs:element>
         </xs:sequence>
     </xs:complexType>
+    <xs:element name="authorization" type="tns:AuthorizationPolicy"/>
     
     <xs:complexType name="SSLPolicy">
         <xs:annotation>
