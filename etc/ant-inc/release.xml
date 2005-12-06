@@ -69,7 +69,7 @@
                 <include name="bin/*"/>
             </tarfileset>
             <tarfileset prefix="celtix-${celtix.version.short}" dir="${basedir}">
-                <include name="resources/*"/>
+                <include name="resources/**/*"/>
             </tarfileset>
         </tar>
         <tar compression="gzip"

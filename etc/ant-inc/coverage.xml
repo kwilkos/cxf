@@ -26,6 +26,8 @@
                 <filter excludes="*.ObjectFactory"/>
                 <filter excludes="*.package-info"/>
                 <filter excludes="org.objectweb.celtix.wsdl.T*"/>
+                <filter excludes="org.objectweb.celtix.bus.configuration.security.*"/>
+                <filter excludes="org.objectweb.celtix.bus.transports.http.configuration.*"/>
                 <filter excludes="*.spring.BeanGenerator"/>
                 <filter excludes="*.spring.*"/>
             </instr>

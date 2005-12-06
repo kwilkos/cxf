@@ -3,22 +3,12 @@
     <!-- Targets for compiling the codebase -->
 
     
-    <property name="src.resources.dir" location="${basedir}/resources"/>
-    <!--
-    <property name="resources.dir" location="${basedir}/build/resources"/>
-    -->
+    <property name="resources.dir" location="${basedir}/resources"/>
 
-    <property name="src.schema.dir" location="${src.resources.dir}/schemas"/>
-    <property name="src.wsdl.schema.dir" location="${src.schema.dir}/wsdl"/>
-    <property name="src.configuration.schema.dir" location="${src.schema.dir}/configuration"/>
-    <property name="src.config-metadata.dir" location="${src.resources.dir}/config-metadata"/>
-
-    <!--
     <property name="schema.dir" location="${resources.dir}/schemas"/>
     <property name="wsdl.schema.dir" location="${schema.dir}/wsdl"/>
     <property name="configuration.schema.dir" location="${schema.dir}/configuration"/>
     <property name="config-metadata.dir" location="${resources.dir}/config-metadata"/>
-    -->
 
     <macrodef name="wsdltojava">
         <attribute name="srcdestdir"/>
@@ -83,16 +73,16 @@
     </macrodef>
 
     <target name="schemas.codegen.internal" unless="schema.codegen.notrequired">
-        <xsdtojava file="${src.wsdl.schema.dir}/ws-addr.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing"/>
-        <xsdtojava file="${src.wsdl.schema.dir}/ws-addr-wsdl.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing.wsdl"/>
-        <xsdtojava file="${src.wsdl.schema.dir}/wsdl.xsd" destdir="${basedir}/build/src"/>
-        <xsdtojava file="${src.wsdl.schema.dir}/jms-context.xsd" destdir="${basedir}/build/src"/>
+        <xsdtojava file="${wsdl.schema.dir}/ws-addr.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing"/>
+        <xsdtojava file="${wsdl.schema.dir}/ws-addr-wsdl.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing.wsdl"/>
+        <xsdtojava file="${wsdl.schema.dir}/wsdl.xsd" destdir="${basedir}/build/src"/>
+        <xsdtojava file="${wsdl.schema.dir}/jms-context.xsd" destdir="${basedir}/build/src"/>
         <touch file="${basedir}/build/src/.SCHEMA.CODEGEN.DONE"/>
     </target>
 
     <target name="schemas.codegen">
         <uptodate property="schema.codegen.notrequired" value="true">
-            <srcfiles dir="${src.wsdl.schema.dir}" includes="*"/>
+            <srcfiles dir="${wsdl.schema.dir}" includes="*"/>
             <srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
             <mapper type="merge" to="${basedir}/build/src/.SCHEMA.CODEGEN.DONE"/>
         </uptodate>
@@ -100,15 +90,15 @@
     </target>
 	
     <target name="configuration.codegen.internal" unless="configuration.codegen.notrequired">
-        <xsdtojava file="${src.configuration.schema.dir}/std-types.xsd" destdir="${basedir}/build/src"/>
-        <xsdtojava file="${src.configuration.schema.dir}/jaxws-types.xsd" destdir="${basedir}/build/src"/>
-        <xsdtojava file="${src.configuration.schema.dir}/security.xsd" destdir="${basedir}/build/src"/>
+        <xsdtojava file="${configuration.schema.dir}/std-types.xsd" destdir="${basedir}/build/src"/>
+        <xsdtojava file="${configuration.schema.dir}/jaxws-types.xsd" destdir="${basedir}/build/src"/>
+        <xsdtojava file="${configuration.schema.dir}/security.xsd" destdir="${basedir}/build/src"/>
         <touch file="${basedir}/build/src/.CONFIGURATION.CODEGEN.DONE"/>
     </target>
 
     <target name="configuration.codegen">
         <uptodate property="configuration.codegen.notrequired" value="true">
-            <srcfiles dir="${src.configuration.schema.dir}" includes="*.xsd"/>
+            <srcfiles dir="${configuration.schema.dir}" includes="*.xsd"/>
             <srcfiles dir="etc/ant-inc" includes="codegen.xml"/>
             <mapper type="merge" to="${basedir}/build/src/.CONFIGURATION.CODEGEN.DONE"/>
         </uptodate>
@@ -221,8 +211,8 @@
                     <path location="${basedir}/build/classes"/>
                     <path refid="jaxws.classpath"/>
                     <path refid="wsdl4j.classpath"/>
-                    <path location="${src.resources.dir}"/>
-                    <path location="${src.wsdl.schema.dir}"/>
+                    <path location="${resources.dir}"/>
+                    <path location="${wsdl.schema.dir}"/>
                 </classpath>
                 <sysproperty key="java.util.logging.config.file" value="${basedir}/etc/logging.properties"/>
                 <arg line="-d"/>
@@ -233,7 +223,7 @@
     </macrodef>
 
     <target name="spring.codegen.internal" unless="spring.codegen.notrequired">
-        <fileset dir="${src.config-metadata.dir}" id="metadata.schemas">
+        <fileset dir="${config-metadata.dir}" id="metadata.schemas">
             <include name="*.xml"/>
         </fileset>
         <pathconvert pathsep=" " property="metadata.schema.files" refid="metadata.schemas"/> 
@@ -244,7 +234,7 @@
     
     <target name="spring.codegen" description="Generate Java Beans for use with Spring">
         <uptodate property="spring.codegen.notrequired" value="true">
-            <srcfiles dir="${src.config-metadata.dir}" includes="*.xml"/>
+            <srcfiles dir="${config-metadata.dir}" includes="*.xml"/>
             <mapper type="merge" to="${basedir}/build/spring-src/.SPRING.CODEGEN.DONE"/>
         </uptodate>
         <antcall target="spring.codegen.internal"/>
@@ -273,7 +263,7 @@
 
     <target name="configuration.docgen" depends="configuration.codegen" description="Generate documentation from configuration metadata">
         <mkdir dir="${basedir}/build/doc"/>
-        <xslt style="${basedir}/etc/transforms/config-doc.xsl" destdir="${basedir}/build/doc" basedir="${basedir}" includes="resources/config-metadata/*.xml build/resources/config-metadata/*.xml">
+        <xslt style="${basedir}/etc/transforms/config-doc.xsl" destdir="${basedir}/build/doc" basedir="${config-metadata.dir}" includes="*.xml">
             <mapper>
             <chainedmapper>
                 <mapper type="flatten"/>
