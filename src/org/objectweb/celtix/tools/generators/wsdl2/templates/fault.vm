@@ -13,7 +13,7 @@ import javax.xml.ws.WebFault;
  */
 
 #foreach ($field in $expClass.Fields)
-  @WebFault(name = "$field.Name", targetNamespace = "$expClass.Namespace")
+  @WebFault(name = "$field.Name", targetNamespace = "$field.TargetNamespace")
 #end
 
 public class $expClass.Name extends Exception {
