@@ -74,7 +74,11 @@
         <pathelement location="${celtix.jar.file}"/>
     </path>
 
-    <target name="compile" depends="generate.code">
+    <target name="maybe.generate.code" unless="codegen.notrequired">
+        <antcall target="generate.code"/>
+        <touch file="${codegen.timestamp.file}"/>
+    </target>
+    <target name="compile" depends="maybe.generate.code">
         <javac srcdir="${basedir}/src" destdir="${build.classes.dir}" debug="true">
             <classpath refid="celtix.classpath" />
         </javac>
