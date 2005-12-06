@@ -1,30 +1,29 @@
 package org.objectweb.celtix.pat.internal;
 
-import java.util.logging.Logger;
+public class TestRunner implements Runnable {
 
-public class TestRunner implements Runnable{
-
+    protected TestCaseBase testCase;
     private String name;
-    protected TestCase testCase;
+    
 
     public TestRunner() {
         this("Default runner");
     }
 
-    public TestRunner(String name) {
-        this(name, null);
+    public TestRunner(String cname) {
+        this(cname, null);
     }
 
-    public TestRunner(String name, TestCase testCase) {
-        this.name = name;
-        this.testCase = testCase;
+    public TestRunner(String cname, TestCaseBase test) {
+        this.name = cname;
+        this.testCase = test;
     }
 
     public void run() {     
         System.out.println("TestRunner " + name + " is running");
         try {
             testCase.internalTestRun(name);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }    
         System.out.println("TestRunner " + name + " is finished");

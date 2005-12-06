@@ -4,7 +4,7 @@ OPERARTION=sendReceiveData
 BASEDON=Time
 AMOUNT=30
 PACKETSIZE=1
-THREADS=2
+THREADS=1
 
 for i in $@
 do 

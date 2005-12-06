@@ -5,7 +5,7 @@ cd ..
 
 set BASEDON=Time
 set AMOUNT=3
-set OPERATION=echoBase64
+set OPERATION=echoString
 set PACKETSIZE=1
 set THREADS=1
 

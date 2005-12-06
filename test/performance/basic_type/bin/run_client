@@ -1,10 +1,10 @@
 #!/bin/bash
 
-OPERARTION=echoBase64
+OPERARTION=echoString
 BASEDON=Time
-AMOUNT=20
+AMOUNT=30
 PACKETSIZE=1
-THREADS=2
+THREADS=0
 
 cd .. 
 
