@@ -18,20 +18,19 @@ public interface DataBindingCallback {
         PAYLOAD(Service.Mode.PAYLOAD),
         PARTS(null);
     
-    /* this indentation is WRONG.   There is a bug in checkstyle already reported */
-    Service.Mode jaxwsMode;
-    Mode(Service.Mode m) {
-        jaxwsMode = m;
-    }
-    public static Mode fromServiceMode(Service.Mode m) {
-        if (m == Service.Mode.PAYLOAD) {
-            return PAYLOAD;
+        Service.Mode jaxwsMode;
+        Mode(Service.Mode m) {
+            jaxwsMode = m;
         }
-        return MESSAGE;
-    }
-    public Service.Mode getServiceMode() {
-        return jaxwsMode;
-    }
+        public static Mode fromServiceMode(Service.Mode m) {
+            if (m == Service.Mode.PAYLOAD) {
+                return PAYLOAD;
+            }
+            return MESSAGE;
+        }
+        public Service.Mode getServiceMode() {
+            return jaxwsMode;
+        }
     };    
 
     Mode getMode();

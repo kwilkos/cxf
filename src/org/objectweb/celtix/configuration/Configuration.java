@@ -75,6 +75,22 @@ public interface Configuration {
      */   
     Object getObject(String name);
     
+    /**
+     * Returns the object holding the value for the configuration item with the specified name. 
+     * The runtime class of this object is determined by the jaxb mapping of the configuration
+     * item's type, e.g. for a boolean item it is an instance of java.lang.Boolean.
+     * 
+     * @throws ConfigurationException if no such item is defined in this configuration's 
+     * metadata model, or if no value for this item can be found in either this configuration
+     * or any of its parent configuration's and if no default value is specified for the
+     * item in the metadata model. 
+     * 
+     * @param name the name of the configuration item.
+     * @param cls the class of the configuration item.
+     * @return the object holding the configuration item's value.
+     */   
+    <T> T getObject(Class<T> cls, String name);
+    
     /** Convenience method to extract the value of a boolean type configuration item from
      * its holder object.
      * 

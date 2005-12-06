@@ -1,243 +1,199 @@
 <?xml version="1.0"?>
 <project name="celtix-compile" basedir="../..">
-  <!-- Targets for compiling the codebase -->
+    <!-- Targets for compiling the codebase -->
 
-  <!-- Load the codegen targets -->
-  <import file="paths.xml"/>
-  <import file="codegen.xml"/>
+    <!-- Load the codegen targets -->
+    <import file="paths.xml" />
+    <import file="codegen.xml" />
 
-  <property name="xlint.args" value=":unchecked,deprecation,fallthrough,finally"/>
-  
-  <!-- The entire codebase will be checkstyled automatically as part
+    <property name="xlint.args" value=":unchecked,deprecation,fallthrough,finally" />
+
+    <!-- The entire codebase will be checkstyled automatically as part
        of the compile process.   If the code does not meet the style standards,
        the build will fail.    This is to make sure the code is more maintainable. -->
-  <taskdef resource="checkstyletask.properties"
-	   classpath="${tools.dir}/checkstyle/4.0-beta5/checkstyle-all-4.0-beta5.jar"/>
-  <taskdef name="pmd"
-	   classname="net.sourceforge.pmd.ant.PMDTask"
-	   classpath="${tools.dir}/pmd/3.3/pmd.jar:${tools.dir}/pmd/3.3/jaxen-1.1-beta-7.jar"/>
+    <taskdef resource="checkstyletask.properties" classpath="${tools.dir}/checkstyle/4.0/checkstyle-all-4.0.jar" />
+    <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpath="${tools.dir}/pmd/3.3/pmd.jar:${tools.dir}/pmd/3.3/jaxen-1.1-beta-7.jar" />
 
-  <target name="src.checkstyle" unless="no.checkstyle">
-    <checkstyle config="${basedir}/etc/checkstyle.xml">
-      <fileset dir="src" includes="**/*.java"/>
-      <classpath>
-	<path refid="src.compile.classpath"/>
-	<pathelement location="${basedir}/build/classes"/>
-      </classpath>
-    </checkstyle>
-  </target>
-  <target name="unittest.checkstyle" unless="no.checkstyle">
-    <checkstyle config="${basedir}/etc/checkstyle.xml">
-      <fileset dir="${basedir}/test/unit" includes="**/*.java"/>
-      <classpath>
-	<path refid="unit.test.compile.classpath"/>
-      </classpath>
-    </checkstyle>
-  </target>
-  <target name="systemtest.checkstyle" unless="no.checkstyle">
-    <checkstyle config="${basedir}/etc/checkstyle.xml">
-      <fileset dir="${basedir}/test/system" includes="**/*.java"/>
-      <classpath>
-	<path refid="system.test.compile.classpath"/>
-      </classpath>
-    </checkstyle>
-  </target>
+    <target name="src.checkstyle" unless="no.checkstyle">
+        <checkstyle config="${basedir}/etc/checkstyle.xml">
+            <fileset dir="src" includes="**/*.java" />
+            <classpath>
+                <path refid="src.compile.classpath" />
+                <pathelement location="${basedir}/build/classes" />
+            </classpath>
+        </checkstyle>
+    </target>
+    <target name="unittest.checkstyle" unless="no.checkstyle">
+        <checkstyle config="${basedir}/etc/checkstyle.xml">
+            <fileset dir="${basedir}/test/unit" includes="**/*.java" />
+            <classpath>
+                <path refid="unit.test.compile.classpath" />
+            </classpath>
+        </checkstyle>
+    </target>
+    <target name="systemtest.checkstyle" unless="no.checkstyle">
+        <checkstyle config="${basedir}/etc/checkstyle.xml">
+            <fileset dir="${basedir}/test/system" includes="**/*.java" />
+            <classpath>
+                <path refid="system.test.compile.classpath" />
+            </classpath>
+        </checkstyle>
+    </target>
 
-  <target name="performancetest.checkstyle" unless="no.checkstyle">
-    <checkstyle config="${basedir}/etc/checkstyle.xml">
-      <fileset dir="${basedir}/test/performance" includes="**/*.java"/>
-      <classpath>
-	<path refid="system.test.compile.classpath"/>
-      </classpath>
-    </checkstyle>
-  </target>
+    <target name="performancetest.checkstyle" unless="no.checkstyle">
+        <checkstyle config="${basedir}/etc/checkstyle.xml">
+            <fileset dir="${basedir}/test/performance" includes="**/*.java" />
+            <classpath>
+                <path refid="system.test.compile.classpath" />
+            </classpath>
+        </checkstyle>
+    </target>
 
-  <target name="checkstyle" depends="src.checkstyle, unittest.checkstyle, systemtest.checkstyle, performancetest.checkstyle" 
-	  description="Checkstyle the entire codebase"/>
+    <target name="checkstyle" depends="src.checkstyle, unittest.checkstyle, systemtest.checkstyle, performancetest.checkstyle" description="Checkstyle the entire codebase" />
 
-  <target name="src.pmd" unless="no.pmd">
-    <pmd printToConsole="true" targetjdk="1.5" rulesetfiles="${basedir}/.ruleset" failonerror="true" failOnRuleViolation="true">
-      <fileset dir="src">
-	<include name="**/*.java"/>
-      </fileset>
-    </pmd>
-  </target>
+    <target name="src.pmd" unless="no.pmd">
+        <pmd printToConsole="true" targetjdk="1.5" rulesetfiles="${basedir}/.ruleset" failonerror="true" failOnRuleViolation="true">
+            <fileset dir="src">
+                <include name="**/*.java" />
+            </fileset>
+        </pmd>
+    </target>
 
-  <target name="unittest.pmd" unless="no.pmd">
-    <pmd printToConsole="true" targetjdk="1.5" rulesetfiles="${basedir}/.ruleset" failonerror="true" failOnRuleViolation="true">
-      <fileset dir="test/unit">
-	<include name="**/*.java"/>
-      </fileset>
-    </pmd>
-  </target>
+    <target name="unittest.pmd" unless="no.pmd">
+        <pmd printToConsole="true" targetjdk="1.5" rulesetfiles="${basedir}/.ruleset" failonerror="true" failOnRuleViolation="true">
+            <fileset dir="test/unit">
+                <include name="**/*.java" />
+            </fileset>
+        </pmd>
+    </target>
 
-  <target name="systemtest.pmd" unless="no.pmd">
-    <pmd printToConsole="true" targetjdk="1.5" rulesetfiles="${basedir}/.ruleset" failonerror="true" failOnRuleViolation="true">
-      <fileset dir="test/system">
-	<include name="**/*.java"/>
-      </fileset>
-    </pmd>
-  </target>
-  
-  <target name="performancetest.pmd" unless="no.pmd">
-    <pmd printToConsole="true" targetjdk="1.5" rulesetfiles="${basedir}/.ruleset" failonerror="true" failOnRuleViolation="true">
-      <fileset dir="test/performance">
-	<include name="**/*.java"/>
-      </fileset>
-    </pmd>
-  </target>
+    <target name="systemtest.pmd" unless="no.pmd">
+        <pmd printToConsole="true" targetjdk="1.5" rulesetfiles="${basedir}/.ruleset" failonerror="true" failOnRuleViolation="true">
+            <fileset dir="test/system">
+                <include name="**/*.java" />
+            </fileset>
+        </pmd>
+    </target>
 
-  <target name="pmd" unless="no.pmd" depends="src.pmd, unittest.pmd, systemtest.pmd, performancetest.pmd" 
-	  description="Run PMD on source files"/>
-  
-  <target name="src.resources">
-    <copy tofile="${basedir}/build/src/org/objectweb/celtix/tools/version.properties"
-	  file="${basedir}/src/org/objectweb/celtix/tools/version.properties.prefilter">
-      <filterset>
-	<filter token="product.version" value="${celtix.version}"/>
-      </filterset>
-    </copy>
-  </target>
+    <target name="performancetest.pmd" unless="no.pmd">
+        <pmd printToConsole="true" targetjdk="1.5" rulesetfiles="${basedir}/.ruleset" failonerror="true" failOnRuleViolation="true">
+            <fileset dir="test/performance">
+                <include name="**/*.java" />
+            </fileset>
+        </pmd>
+    </target>
 
-  <!-- Targets to compile the code -->
-  <!-- TODO: need to setup classpaths and such for the dependent libs -->
-  <target name="src.compile" depends="schemas.codegen,configuration.codegen,src.resources" description="Compile the source">
-    <mkdir dir="${basedir}/build/classes"/>
+    <target name="pmd" unless="no.pmd" depends="src.pmd, unittest.pmd, systemtest.pmd, performancetest.pmd" description="Run PMD on source files" />
 
-    <javac
-	destdir="${basedir}/build/classes"
-	debug="true"
-	target="1.5"
-	source="1.5"
-	fork="true"
-	sourcepath=""
-	includeAntRuntime="false">
-      <compilerarg line="-Xlint${xlint.args}"/>
-      <src path="${basedir}/src"/>
-      <src path="${basedir}/build/src"/>
-      <classpath>
-	<path refid="src.compile.classpath"/>
-	<pathelement location="${basedir}/build/classes"/>
-      </classpath>
-    </javac>
-    <copy todir="${basedir}/build/classes">
-      <fileset dir="${basedir}/src" includes="**/*.properties"/>
-      <fileset dir="${basedir}/src" includes="**/*.xsd"/>
-      <fileset dir="${basedir}/src" includes="**/*.dtd"/>
-      <fileset dir="${basedir}/src" includes="**/*.toolspec"/>
-      <fileset dir="${basedir}/src" includes="**/*.xsl"/>
-      <fileset dir="${basedir}/src" includes="**/*.xml"/>
-      <fileset dir="${basedir}/src" includes="**/*.vm"/>
-      <fileset dir="${basedir}/build/src" includes="**/*.properties"/>
-      <fileset dir="${basedir}/build/src" includes="**/*.xsd"/>
-      <fileset dir="${basedir}/build/src" includes="**/*.xml"/>
-    </copy>
+    <target name="src.resources">
+        <copy tofile="${basedir}/build/src/org/objectweb/celtix/tools/version.properties" file="${basedir}/src/org/objectweb/celtix/tools/version.properties.prefilter">
+            <filterset>
+                <filter token="product.version" value="${celtix.version}" />
+            </filterset>
+        </copy>
+    </target>
 
-    <antcall target="spring.compile"/>
-    <antcall target="src.checkstyle"/>
-    <antcall target="src.pmd"/>
-  </target>
+    <!-- Targets to compile the code -->
+    <!-- TODO: need to setup classpaths and such for the dependent libs -->
+    <target name="src.compile" depends="schemas.codegen,configuration.codegen,src.resources" description="Compile the source">
+        <mkdir dir="${basedir}/build/classes" />
 
-  <target name="spring.compile" description="Generate and compile the source for Spring support">
-    <antcall target="spring.codegen"/>
-    <mkdir dir="${basedir}/build/classes"/>
-    <javac
-	destdir="${basedir}/build/classes"
-	debug="true"
-	target="1.5"
-	source="1.5"
-	fork="true"
-	sourcepath=""
-	includeAntRuntime="false">
-      <compilerarg line="-Xlint${xlint.args}"/>
-      <src path="${basedir}/build/spring-src"/>
-      <classpath>
-	<path refid="src.compile.classpath"/>
-	<pathelement location="${basedir}/build/classes"/>
-      </classpath>
-    </javac>
-  </target>
-  
-  <target name="spring.unittest.compile" depends="src.compile" description="Generate and compile the source for Spring support">
-    <antcall target="spring.test.codegen"/>
-    <mkdir dir="${basedir}/build/classes-tests/unit"/>
-    <javac srcdir="${basedir}/build/test-spring-src"
-	   destdir="${basedir}/build/classes-tests/unit"
-	   debug="true"
-	   target="1.5"
-	   source="1.5"
-	   fork="true"
-	   sourcepath=""
-	   includeAntRuntime="false">
-      <compilerarg line="-Xlint${xlint.args}"/>
-      <classpath>
-	<path refid="src.compile.classpath"/>
-	<pathelement location="${basedir}/build/classes"/>
-      </classpath>
-    </javac>
-  </target>
+        <javac destdir="${basedir}/build/classes" debug="true" target="1.5" source="1.5" fork="true" sourcepath="" includeAntRuntime="false">
+            <compilerarg line="-Xlint${xlint.args}" />
+            <src path="${basedir}/src" />
+            <src path="${basedir}/build/src" />
+            <classpath>
+                <path refid="src.compile.classpath" />
+                <pathelement location="${basedir}/build/classes" />
+            </classpath>
+        </javac>
+        <copy todir="${basedir}/build/classes">
+            <fileset dir="${basedir}/src" includes="**/*.properties" />
+            <fileset dir="${basedir}/src" includes="**/*.xsd" />
+            <fileset dir="${basedir}/src" includes="**/*.dtd" />
+            <fileset dir="${basedir}/src" includes="**/*.toolspec" />
+            <fileset dir="${basedir}/src" includes="**/*.xsl" />
+            <fileset dir="${basedir}/src" includes="**/*.xml" />
+            <fileset dir="${basedir}/src" includes="**/*.vm" />
+            <fileset dir="${basedir}/build/src" includes="**/*.properties" />
+            <fileset dir="${basedir}/build/src" includes="**/*.xsd" />
+            <fileset dir="${basedir}/build/src" includes="**/*.xml" />
+        </copy>
 
-  <target name="testwsdl.compile" depends="testwsdl.codegen,type_test.codegen" description="Compile the generated wsdl artifacts">
-    <mkdir dir="${basedir}/build/classes-tests/wsdl"/>
-    <javac srcdir="${basedir}/build/test-src"
-	   destdir="${basedir}/build/classes-tests/wsdl"
-	   debug="true"
-	   target="1.5"
-	   source="1.5"
-	   sourcepath=""
-	   fork="true">
-      <classpath>
-	<path refid="unit.test.compile.classpath"/>
-      </classpath>
-    </javac>
-  </target>
-  
-  <target name="unittest.compile" depends="testwsdl.compile,spring.unittest.compile" description="Compile the unit tests">
-    <mkdir dir="${basedir}/build/classes-tests/unit"/>
-    <javac srcdir="${basedir}/test/unit"
-	   destdir="${basedir}/build/classes-tests/unit"
-	   debug="true"
-	   target="1.5"
-	   source="1.5"
-	   sourcepath=""
-	   fork="true">
-      <compilerarg value="-Xlint${xlint.args}"/>
-      <classpath>
-	<path refid="unit.test.compile.classpath"/>
-      </classpath>
-    </javac>
-    <copy todir="${basedir}/build/classes-tests/unit">
-      <fileset dir="${basedir}/test/unit" includes="**/*.properties"/>
-      <fileset dir="${basedir}/test/unit" includes="**/*.xsd"/>
-      <fileset dir="${basedir}/test/unit" includes="**/*.xml"/>
-      <filterset>
-	<filter token="product.version" value="${celtix.version}"/>
-      </filterset>
-    </copy>
-    <antcall target="unittest.checkstyle"/>
-    <antcall target="unittest.pmd"/>
-  </target>
+        <antcall target="spring.compile" />
+        <antcall target="src.checkstyle" />
+        <antcall target="src.pmd" />
+    </target>
 
-  <target name="systest.compile" depends="testwsdl.codegen,testwsdl.compile" description="Compile the system tests">
-    <mkdir dir="${basedir}/build/classes-tests/system"/>
-    <javac destdir="${basedir}/build/classes-tests/system"
-	   debug="true"
-	   target="1.5"
-	   source="1.5"
-	   sourcepath=""
-	   fork="true">
-      <compilerarg value="-Xlint${xlint.args}"/>
-      <classpath>
-	<path refid="system.test.compile.classpath"/>
-      </classpath>
-      <src path="${basedir}/test/system"/>
-    </javac>
-    <copy todir="${basedir}/build/classes-tests/system">
-      <fileset dir="${basedir}/test/system" includes="**/*.properties"/>
-      <fileset dir="${basedir}/test/system" includes="**/*.xsd"/>
-      <fileset dir="${basedir}/test/system" includes="**/*.xml"/>
-    </copy>
-    <antcall target="systemtest.checkstyle"/>
-    <antcall target="systemtest.pmd"/>
-  </target>
+    <target name="spring.compile" description="Generate and compile the source for Spring support">
+        <antcall target="spring.codegen" />
+        <mkdir dir="${basedir}/build/classes" />
+        <javac destdir="${basedir}/build/classes" debug="true" target="1.5" source="1.5" fork="true" sourcepath="" includeAntRuntime="false">
+            <compilerarg line="-Xlint${xlint.args}" />
+            <src path="${basedir}/build/spring-src" />
+            <classpath>
+                <path refid="src.compile.classpath" />
+                <pathelement location="${basedir}/build/classes" />
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="spring.unittest.compile" depends="src.compile" description="Generate and compile the source for Spring support">
+        <antcall target="spring.test.codegen" />
+        <mkdir dir="${basedir}/build/classes-tests/unit" />
+        <javac srcdir="${basedir}/build/test-spring-src" destdir="${basedir}/build/classes-tests/unit" debug="true" target="1.5" source="1.5" fork="true" sourcepath="" includeAntRuntime="false">
+            <compilerarg line="-Xlint${xlint.args}" />
+            <classpath>
+                <path refid="src.compile.classpath" />
+                <pathelement location="${basedir}/build/classes" />
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="testwsdl.compile" depends="testwsdl.codegen,type_test.codegen" description="Compile the generated wsdl artifacts">
+        <mkdir dir="${basedir}/build/classes-tests/wsdl" />
+        <javac srcdir="${basedir}/build/test-src" destdir="${basedir}/build/classes-tests/wsdl" debug="true" target="1.5" source="1.5" sourcepath="" fork="true">
+            <classpath>
+                <path refid="unit.test.compile.classpath" />
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="unittest.compile" depends="testwsdl.compile,spring.unittest.compile" description="Compile the unit tests">
+        <mkdir dir="${basedir}/build/classes-tests/unit" />
+        <javac srcdir="${basedir}/test/unit" destdir="${basedir}/build/classes-tests/unit" debug="true" target="1.5" source="1.5" sourcepath="" fork="true">
+            <compilerarg value="-Xlint${xlint.args}" />
+            <classpath>
+                <path refid="unit.test.compile.classpath" />
+            </classpath>
+        </javac>
+        <copy todir="${basedir}/build/classes-tests/unit">
+            <fileset dir="${basedir}/test/unit" includes="**/*.properties" />
+            <fileset dir="${basedir}/test/unit" includes="**/*.xsd" />
+            <fileset dir="${basedir}/test/unit" includes="**/*.xml" />
+            <filterset>
+                <filter token="product.version" value="${celtix.version}" />
+            </filterset>
+        </copy>
+        <antcall target="unittest.checkstyle" />
+        <antcall target="unittest.pmd" />
+    </target>
+
+    <target name="systest.compile" depends="testwsdl.codegen,testwsdl.compile" description="Compile the system tests">
+        <mkdir dir="${basedir}/build/classes-tests/system" />
+        <javac destdir="${basedir}/build/classes-tests/system" debug="true" target="1.5" source="1.5" sourcepath="" fork="true">
+            <compilerarg value="-Xlint${xlint.args}" />
+            <classpath>
+                <path refid="system.test.compile.classpath" />
+            </classpath>
+            <src path="${basedir}/test/system" />
+        </javac>
+        <copy todir="${basedir}/build/classes-tests/system">
+            <fileset dir="${basedir}/test/system" includes="**/*.properties" />
+            <fileset dir="${basedir}/test/system" includes="**/*.xsd" />
+            <fileset dir="${basedir}/test/system" includes="**/*.xml" />
+        </copy>
+        <antcall target="systemtest.checkstyle" />
+        <antcall target="systemtest.pmd" />
+    </target>
 </project>

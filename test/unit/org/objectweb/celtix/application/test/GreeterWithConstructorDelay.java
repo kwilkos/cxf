@@ -12,6 +12,7 @@ public class GreeterWithConstructorDelay {
     }
 
     private synchronized int getDelay() {
-        return delay = (delay + 250) % 500;
+        delay = (delay + 250) % 500;
+        return delay;
     }
 }

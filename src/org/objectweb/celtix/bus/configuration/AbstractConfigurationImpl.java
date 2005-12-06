@@ -67,6 +67,7 @@ public class AbstractConfigurationImpl implements Configuration {
         this(resource, instanceId, null);
     }
 
+   
     public Object getId() {
         return id;
     }
@@ -103,6 +104,11 @@ public class AbstractConfigurationImpl implements Configuration {
         providers = p;
     }
 
+    public <T> T getObject(Class<T> cls, String name) {
+        Object obj = getObject(name);
+        return cls.cast(obj);
+    }
+    
     public Object getObject(String name) {
 
         ConfigurationItemMetadata definition = model.getDefinition(name);

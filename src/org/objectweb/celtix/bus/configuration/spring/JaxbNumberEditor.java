@@ -32,7 +32,7 @@ public class JaxbNumberEditor extends CustomNumberEditor {
                 throw new ConfigurationException(new Message("JAXB_PROPERTY_EDITOR_EXC", LOG, type));
             }
             try {
-                return o = ts.unmarshal(type, el);
+                return ts.unmarshal(type, el);
             } catch (JAXBException ex) {
                 Message msg = new Message("JAXB_PROPERTY_EDITOR_EXC", LOG, type);
                 throw new ConfigurationException(msg, ex);

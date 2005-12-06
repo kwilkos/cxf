@@ -148,7 +148,7 @@ lengths, if/try depths, etc...
         <module name="IllegalInstantiation"/>
         <!--<module name="IllegalToken"/>-->
         <!--<module name="IllegalTokenText"/>-->
-        <module name="InnerAssignment"/>
+        <!--<module name="InnerAssignment"/>-->
         <!--<module name="MagicNumber"/>-->
         <module name="MissingSwitchDefault"/>
         <module name="ModifiedControlVariable"/>
