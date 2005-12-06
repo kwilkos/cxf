@@ -41,7 +41,6 @@ public class HTTPClientTransport implements ClientTransport {
         
         Configuration portConfiguration = getPortConfiguration(bus, ref);
         url = new URL(portConfiguration.getString("address"));
-        System.err.println(url);
         
         configuration = 
             new HTTPClientTransportConfiguration(portConfiguration, 
@@ -52,16 +51,13 @@ public class HTTPClientTransport implements ClientTransport {
     
     private HTTPClientPolicy getClientPolicy(Configuration conf) {
         HTTPClientPolicy pol = conf.getObject(HTTPClientPolicy.class, "httpClient");
-        System.err.println("Pol: " + pol);
         if (pol == null) {
             pol = new HTTPClientPolicy();
         }
-        System.err.println("TO: " + pol.getConnectionTimeout());
         return pol;
     }
     private AuthorizationPolicy getAuthPolicy(Configuration conf) {
         AuthorizationPolicy pol = conf.getObject(AuthorizationPolicy.class, "authorization");
-        System.err.println("Pol: " + pol);
         if (pol == null) {
             pol = new AuthorizationPolicy();
         }
