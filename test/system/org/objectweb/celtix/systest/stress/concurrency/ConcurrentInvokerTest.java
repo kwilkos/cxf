@@ -17,7 +17,7 @@ public class ConcurrentInvokerTest extends ClientServerTestBase {
     static final int INVOCATION_REPS = 50;
     static final int EXPECTED_CALLS = INVOKER_COUNT * INVOCATION_REPS;
 
-    private Greeter greeter;
+    Greeter greeter;
     private final QName serviceName = new QName("http://objectweb.org/hello_world_soap_http",
                                                 "SOAPService");    
     private final QName portName = new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
@@ -30,7 +30,7 @@ public class ConcurrentInvokerTest extends ClientServerTestBase {
         super.setUp();
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         SOAPService service = new SOAPService(wsdl, serviceName);
-        greeter = (Greeter)service.getPort(portName, Greeter.class);
+        greeter = service.getPort(portName, Greeter.class);
     }
 
     public void onetimeSetUp() { 

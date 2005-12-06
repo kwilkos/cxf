@@ -3,7 +3,6 @@ package org.objectweb.celtix.tools.processors.wsdl2;
 import java.util.*;
 import javax.wsdl.Definition;
 import javax.wsdl.PortType;
-import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaModel;
@@ -44,7 +43,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         Map portTypes = definition.getPortTypes();
 
         for (Iterator iter = portTypes.keySet().iterator(); iter.hasNext();) {
-            PortType portType = (PortType)portTypes.get((QName)iter.next());
+            PortType portType = (PortType)portTypes.get(iter.next());
             PortTypeProcessor portTypeProcessor = new PortTypeProcessor(getEnvironment());
             portTypeProcessor.process(javaModel, portType);
         }

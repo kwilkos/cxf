@@ -25,14 +25,14 @@ import org.objectweb.celtix.transports.jms.context.JMSServerHeadersType;
 
 
 public class JMSServerTransport extends JMSTransportBase implements ServerTransport {
-    private static final Logger LOG = LogUtils.getL7dLogger(JMSServerTransport.class);
+    static final Logger LOG = LogUtils.getL7dLogger(JMSServerTransport.class);
     private static final String JMS_SERVER_TRANSPORT_MESSAGE =
         JMSServerTransport.class.getName() + ".IncomingMessage";
     private static final String JMS_SERVER_TRANSPORT_CORRELATION_ID =
         JMSServerTransport.class.getName() + ".CorrelationID";
 
+    ServerTransportCallback callback;
     private PooledSession listenerSession;
-    private ServerTransportCallback callback;
     private Thread listenerThread;
 
     
@@ -214,20 +214,20 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
     }
     
     class JMSListenerThread extends Thread {
-        private final PooledSession listenerSession;
-        private final JMSServerTransport theTransport;
-        private Message message;
+        Message message;
+        final JMSServerTransport theTransport;
+        private final PooledSession listenSession;
 
         public JMSListenerThread(PooledSession session,
                                  JMSServerTransport transport) {
-            listenerSession = session;
+            listenSession = session;
             theTransport = transport;
         }
 
         public void run() {
             try {
                 while (true) {
-                    message = listenerSession.consumer().receive();
+                    message = listenSession.consumer().receive();
                     if (message != null) {
 //                        WorkItem item = new JMSWorkItem(message, theTransport);
 //                        theQueue.enqueue(item, -1);

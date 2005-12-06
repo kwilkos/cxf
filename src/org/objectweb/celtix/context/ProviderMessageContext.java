@@ -112,7 +112,7 @@ public class ProviderMessageContext implements Map<String, Object> {
         Iterator<? extends String> it = context.keySet().iterator();
         while (it.hasNext()) {
             String k = it.next();
-            if (context.getScope((String)k) == Scope.APPLICATION) {
+            if (context.getScope(k) == Scope.APPLICATION) {
                 values.add(context.get(k));
             }
         }

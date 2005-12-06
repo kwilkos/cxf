@@ -30,7 +30,7 @@ public class RegistrationTest extends ClientServerTestBase {
             
             wsdl = RegistrationTest.class.getResource("/wsdl/hello_world.wsdl");
             service = new SOAPService(wsdl, serviceName);
-            greeter = (Greeter) service.getPort(portName, Greeter.class);
+            greeter = service.getPort(portName, Greeter.class);
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.toString());

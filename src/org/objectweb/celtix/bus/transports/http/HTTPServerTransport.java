@@ -38,13 +38,13 @@ import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class HTTPServerTransport implements ServerTransport {
+    static final Logger LOG = LogUtils.getL7dLogger(HTTPServerTransport.class);
     static final String HTTP_REQUEST =
         HTTPServerInputStreamContext.class.getName() + ".REQUEST";
     static final String HTTP_RESPONSE =
         HTTPServerInputStreamContext.class.getName() + ".RESPONSE";
     
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LogUtils.getL7dLogger(HTTPServerTransport.class);
 
     EndpointReferenceType reference;
     String url;
@@ -258,7 +258,7 @@ public class HTTPServerTransport implements ServerTransport {
         }
         
         public boolean isOneWay() {
-            return (boolean) ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
+            return ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
         }
 
         public OutputStream getOutputStream() {
@@ -300,9 +300,9 @@ public class HTTPServerTransport implements ServerTransport {
             private final HttpRequest request;
             private final HttpResponse response;
             
-            Servicer(HttpRequest req, HttpResponse resp) {
-                request = req;
-                response = resp;
+            Servicer(HttpRequest reqs, HttpResponse resps) {
+                request = reqs;
+                response = resps;
             }
             public void run() {
                 try {
@@ -338,7 +338,7 @@ public class HTTPServerTransport implements ServerTransport {
         }        
     }
     
-    private void serviceRequest(HttpRequest req, HttpResponse resp) throws IOException {
+    void serviceRequest(HttpRequest req, HttpResponse resp) throws IOException {
         InputStreamMessageContext ctx = new HTTPServerInputStreamContext(req, resp);
         callback.dispatch(ctx, this);
         resp.commit();

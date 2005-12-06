@@ -84,7 +84,7 @@ public class OperationProcessor  {
         //
         Part inputPart = null;
         if (inputParts.size() == 1) {
-            inputPart = (Part) inputParts.values().iterator().next();
+            inputPart = inputParts.values().iterator().next();
             if (inputPart != null) {
                 QName inputElement = inputPart.getElementName();
                 if (inputElement == null) {
@@ -100,7 +100,7 @@ public class OperationProcessor  {
         //
         Part outputPart = null;
         if (outputParts.size() == 1) {
-            outputPart = (Part) outputParts.values().iterator().next();
+            outputPart = outputParts.values().iterator().next();
             if (outputPart != null) {
                 QName outputElement = outputPart.getElementName();
                 if (outputElement == null) {

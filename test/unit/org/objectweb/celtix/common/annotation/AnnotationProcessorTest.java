@@ -45,7 +45,7 @@ public class AnnotationProcessorTest extends TestCase {
 
         expectedAnnotations.add(Resource.class);
         prepareCommonExpectations(visitor);
-        visitor.visitField((Field)EasyMock.eq(expectedField), 
+        visitor.visitField(EasyMock.eq(expectedField), 
                            (Annotation)EasyMock.isA(Resource.class));
         visitor.visitMethod((Method)EasyMock.anyObject(), (Annotation)EasyMock.anyObject());
 
@@ -66,15 +66,15 @@ public class AnnotationProcessorTest extends TestCase {
         expectedAnnotations.add(Resource.class); 
 
         prepareCommonExpectations(visitor);
-        visitor.visitField((Field)EasyMock.eq(expectedField), 
+        visitor.visitField(EasyMock.eq(expectedField), 
                            (Annotation)EasyMock.isA(Resource.class));
-        visitor.visitMethod((Method)EasyMock.eq(expectedMethod1), 
+        visitor.visitMethod(EasyMock.eq(expectedMethod1), 
                            (Annotation)EasyMock.isA(WebMethod.class));
-        visitor.visitMethod((Method)EasyMock.eq(expectedMethod2), 
+        visitor.visitMethod(EasyMock.eq(expectedMethod2), 
                            (Annotation)EasyMock.isA(WebMethod.class));
-        visitor.visitMethod((Method)EasyMock.eq(expectedMethod3), 
+        visitor.visitMethod(EasyMock.eq(expectedMethod3), 
                            (Annotation)EasyMock.isA(WebMethod.class));
-        visitor.visitMethod((Method)EasyMock.eq(expectedMethod4), 
+        visitor.visitMethod(EasyMock.eq(expectedMethod4), 
                            (Annotation)EasyMock.isA(Resource.class));
         runProcessor(visitor);
     }

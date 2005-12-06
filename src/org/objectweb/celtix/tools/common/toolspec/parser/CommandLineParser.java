@@ -46,7 +46,7 @@ public class CommandLineParser {
         while (toker.hasMoreTokens()) {
             res.add(toker.nextToken());
         }
-        return (String[])res.toArray(new String[res.size()]);
+        return res.toArray(new String[res.size()]);
     }
 
     public CommandDocument parseArguments(String args) throws BadUsageException {
@@ -91,7 +91,7 @@ public class CommandLineParser {
         TokenInputStream tokens = new TokenInputStream(args);
 
         // for all form elements...
-        Element usage = (Element)toolspec.getUsage();
+        Element usage = toolspec.getUsage();
 
         NodeList usageForms = toolspec.getUsageForms();
         if (LOG.isLoggable(Level.INFO)) {

@@ -85,7 +85,6 @@ public class HandlerChainBuilderTest extends TestCase {
         
         assertNotNull(chain); 
         assertEquals(1, chain.size()); 
-        assertTrue(chain.get(0) instanceof Handler);
     } 
 
     public void testBuildHandlerForServiceEndpointInterface() { 
@@ -94,7 +93,6 @@ public class HandlerChainBuilderTest extends TestCase {
 
         assertNotNull(chain); 
         assertEquals(1, chain.size()); 
-        assertTrue(chain.get(0) instanceof Handler);
     } 
 
 

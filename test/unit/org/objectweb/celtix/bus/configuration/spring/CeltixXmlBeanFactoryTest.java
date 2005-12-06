@@ -33,7 +33,7 @@ public class CeltixXmlBeanFactoryTest extends TestCase {
             new Method[] {CeltixBeansDtdResolver.class.getDeclaredMethod("getDtdFile", (Class[])null)});
                
         cer.getDtdFile();
-        EasyMock.expectLastCall().andReturn("celtixx-spring-beans.dtd");
+        org.easymock.EasyMock.expectLastCall().andReturn("celtixx-spring-beans.dtd");
         EasyMock.replay(cer);
         try {
             cer.resolveEntity(null, 

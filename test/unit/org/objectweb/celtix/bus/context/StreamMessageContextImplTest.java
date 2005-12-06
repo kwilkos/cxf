@@ -29,7 +29,7 @@ public class StreamMessageContextImplTest extends AbstractMessageContextTestBase
         InputStreamMessageContext inctx = EasyMock.createMock(InputStreamMessageContext.class);
         
         inctx.getInputStream(); 
-        EasyMock.expectLastCall().andReturn(inStream);
+        org.easymock.EasyMock.expectLastCall().andReturn(inStream);
 
         StreamMessageContext ctx = new StreamMessageContextImpl(inctx);
         
@@ -53,7 +53,7 @@ public class StreamMessageContextImplTest extends AbstractMessageContextTestBase
         OutputStreamMessageContext outctx = EasyMock.createMock(OutputStreamMessageContext.class);
         
         outctx.getOutputStream(); 
-        EasyMock.expectLastCall().andReturn(outStream);
+        org.easymock.EasyMock.expectLastCall().andReturn(outStream);
 
         StreamMessageContext ctx = new StreamMessageContextImpl(outctx);
         

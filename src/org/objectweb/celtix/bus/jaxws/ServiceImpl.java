@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.jaxws;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.net.URL;
@@ -126,7 +125,7 @@ public class ServiceImpl extends ServiceDelegate {
         Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(),
                                             new Class[] {serviceEndpointInterface, Remote.class, 
                                                          BindingProvider.class},
-                                            (InvocationHandler) endpointHandler);
+                                            endpointHandler);
         
         LOG.log(Level.FINE, "created proxy", obj);
                 

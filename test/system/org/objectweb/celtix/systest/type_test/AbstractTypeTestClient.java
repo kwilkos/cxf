@@ -58,14 +58,12 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         if (testDocLiteral) {
             org.objectweb.type_test.doc.SOAPService docService =
                 new org.objectweb.type_test.doc.SOAPService(wsdlLocation, serviceName);
-            docClient = (org.objectweb.type_test.doc.TypeTestPortType)
-                docService.getPort(portName, org.objectweb.type_test.doc.TypeTestPortType.class);
+            docClient = docService.getPort(portName, org.objectweb.type_test.doc.TypeTestPortType.class);
             assertNotNull(docClient);
         } else {
             org.objectweb.type_test.rpc.SOAPService rpcService =
                 new org.objectweb.type_test.rpc.SOAPService(wsdlLocation, serviceName);
-            rpcClient = (org.objectweb.type_test.rpc.TypeTestPortType)
-                rpcService.getPort(portName, org.objectweb.type_test.rpc.TypeTestPortType.class);
+            rpcClient = rpcService.getPort(portName, org.objectweb.type_test.rpc.TypeTestPortType.class);
             assertNotNull(rpcClient);
         }
     }

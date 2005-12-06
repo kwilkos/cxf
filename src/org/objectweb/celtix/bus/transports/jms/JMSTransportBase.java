@@ -202,7 +202,7 @@ public class JMSTransportBase {
         throws JMSException {
         
         if (headers.getProperty() != null) {
-            List<JMSPropertyType> props = (List<JMSPropertyType>) headers.getProperty();
+            List<JMSPropertyType> props = headers.getProperty();
             for (int x = 0; x < props.size(); x++) {
                 message.setStringProperty(props.get(x).getName(), props.get(x).getValue());
             }

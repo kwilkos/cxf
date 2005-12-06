@@ -39,8 +39,8 @@ public class ToolWrapperGeneratorTest extends ToolTestBase {
     
     static final class ToolDummy {
         
+        static boolean mainInvoked; 
         private static String[] arguments;
-        private static boolean mainInvoked; 
         
         private ToolDummy() {
             //complete

@@ -193,7 +193,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         try {
             msg = initSOAPMessage();
-            Throwable t = (Throwable)objContext.getException();
+            Throwable t = objContext.getException();
 
             SOAPFault fault = msg.getSOAPBody().addFault();
             //REVIST FaultCode to handle other codes.
@@ -237,7 +237,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         while (it.hasNext()) {
             MimeHeader header = (MimeHeader)it.next();
             if (!"Content-Length".equals(header.getName())) {
-                List<String> vals = (List<String>)reqHead.get(header.getName());
+                List<String> vals = reqHead.get(header.getName());
                 if (null == vals) {
                     vals = new ArrayList<String>();
                     reqHead.put(header.getName(), vals);
@@ -324,7 +324,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             if (httpHeaders != null) {
                 for (String key : httpHeaders.keySet()) {
                     if (null != key) {
-                        List<String> values = (List<String>)httpHeaders.get(key);
+                        List<String> values = httpHeaders.get(key);
                         for (String value : values) {
                             headers.addHeader(key, value);
                         }

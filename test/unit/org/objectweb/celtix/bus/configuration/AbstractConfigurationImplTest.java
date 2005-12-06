@@ -35,7 +35,7 @@ public class AbstractConfigurationImplTest extends TestCase {
         DefaultConfigurationProviderFactory factory = 
             EasyMock.createMock(DefaultConfigurationProviderFactory.class, new Method[] {m});
         factory.getDefaultProviderClassName();
-        EasyMock.expectLastCall().andReturn("org.objectweb.celtix.some.Unknown");
+        org.easymock.EasyMock.expectLastCall().andReturn("org.objectweb.celtix.some.Unknown");
         EasyMock.replay(factory);
         try {
             factory.createDefaultProvider(null);

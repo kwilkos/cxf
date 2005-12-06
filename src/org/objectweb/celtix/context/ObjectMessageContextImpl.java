@@ -11,7 +11,7 @@ public class ObjectMessageContextImpl extends GenericMessageContext implements O
     }
 
     public void setMessageObjects(Object... objects) {
-        put(ObjectMessageContext.METHOD_PARAMETERS, (Object)objects);
+        put(ObjectMessageContext.METHOD_PARAMETERS, objects);
         setScope(ObjectMessageContext.METHOD_PARAMETERS, MessageContext.Scope.HANDLER);
     }
 

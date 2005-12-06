@@ -18,7 +18,6 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bus.jaxb.WrapperHelper;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
-import org.objectweb.celtix.context.ObjectMessageContextImpl;
 
 public class LogicalMessageImpl implements LogicalMessage {
 
@@ -58,7 +57,7 @@ public class LogicalMessageImpl implements LogicalMessage {
         Object payload = null; 
 
         if (isRequest()) { 
-            Object[] args = (Object[])msgContext.get(ObjectMessageContextImpl.METHOD_PARAMETERS);
+            Object[] args = (Object[])msgContext.get(ObjectMessageContext.METHOD_PARAMETERS);
             if (args == null || args.length == 0) {
                 
                 // no arguments expected in message, so leave payload as
@@ -75,7 +74,7 @@ public class LogicalMessageImpl implements LogicalMessage {
 
 
     private Object buildPayloadFromResponse() { 
-        Method m = (Method)msgContext.get(ObjectMessageContextImpl.METHOD_OBJ);
+        Method m = (Method)msgContext.get(ObjectMessageContext.METHOD_OBJ);
         // TODO -- add support for 'out' params
         //
         if (!Void.TYPE.equals(m.getReturnType())) {
@@ -84,7 +83,7 @@ public class LogicalMessageImpl implements LogicalMessage {
             WebResult wr = m.getAnnotation(WebResult.class);
             assert wr != null : "WebResult is null for method " + m; 
 
-            Object returnVal = msgContext.get(ObjectMessageContextImpl.METHOD_RETURN);
+            Object returnVal = msgContext.get(ObjectMessageContext.METHOD_RETURN);
             
             // if a handler has aborted the processing sequence, the
             // return type may be null 
@@ -144,7 +143,7 @@ public class LogicalMessageImpl implements LogicalMessage {
             args[i++] = getAttributeFromWrapper(payload, wp.name());
         }
 
-        msgContext.put(ObjectMessageContextImpl.METHOD_PARAMETERS, args);
+        msgContext.put(ObjectMessageContext.METHOD_PARAMETERS, args);
     }
 
     private void writeResponseToContext(Object payload) { 
@@ -153,7 +152,7 @@ public class LogicalMessageImpl implements LogicalMessage {
         assert wr != null : "WebResult is null for method " + getMethod(); 
 
         Object retVal = getAttributeFromWrapper(payload, wr.name());
-        msgContext.put(ObjectMessageContextImpl.METHOD_RETURN, retVal);
+        msgContext.put(ObjectMessageContext.METHOD_RETURN, retVal);
     }
 
     private void writePayloadToContext(Object payload) { 
@@ -234,7 +233,7 @@ public class LogicalMessageImpl implements LogicalMessage {
     }
 
     private Method getMethod() { 
-        Method m = (Method)msgContext.get(ObjectMessageContextImpl.METHOD_OBJ);
+        Method m = (Method)msgContext.get(ObjectMessageContext.METHOD_OBJ);
         assert m != null : "failed to get method from ObjectMessageContext";
         return m;
     }

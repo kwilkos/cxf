@@ -73,7 +73,7 @@ public final class EndpointReferenceUtils {
         throws WSDLException {
         
         MetadataType metadata = ref.getMetadata();
-        String location = (String)metadata.getOtherAttributes().get(WSDL_LOCATION);
+        String location = metadata.getOtherAttributes().get(WSDL_LOCATION);
 
         if (null != location) {
             return manager.getDefinition(location);

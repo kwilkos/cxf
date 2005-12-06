@@ -138,7 +138,7 @@ public class TestServerBinding extends AbstractServerBinding {
             return null;
         }
 
-        public void init(Bus bus) {
+        public void init(Bus b) {
         }
     }
 
@@ -219,7 +219,7 @@ public class TestServerBinding extends AbstractServerBinding {
         }
         
         public boolean isOneWay() {
-            return (boolean) ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
+            return ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
         }
 
     }

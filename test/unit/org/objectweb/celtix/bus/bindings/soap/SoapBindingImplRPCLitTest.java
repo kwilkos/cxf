@@ -15,6 +15,7 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 
@@ -48,7 +49,7 @@ public class SoapBindingImplRPCLitTest extends TestCase {
 
     public void testMarshalRPCLitInputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
 
         String arg0 = new String("TestSOAPInputPMessage");
         objContext.setMessageObjects(arg0);
@@ -75,7 +76,7 @@ public class SoapBindingImplRPCLitTest extends TestCase {
 
     public void testMarshalRPCLitOutputMessage() throws Exception {
         //Test The Output of GreetMe Operation
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, true);
 
         String arg0 = new String("TestSOAPOutputMessage");
         objContext.setReturn(arg0);
@@ -129,7 +130,7 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         String str = SOAPMessageUtil.createRPCLitSOAPMessage(opName, elName, data);
 
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
 
         assertNotNull(binding.getMessageFactory());
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
@@ -156,7 +157,7 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         String str = SOAPMessageUtil.createRPCLitSOAPMessage(opName, elName, data);
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
 
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, true);
         assertNotNull(binding.getMessageFactory());
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
         soapContext.setMessage(soapMessage);

@@ -51,9 +51,7 @@ public class JavaMethod {
     
     public boolean hasParameter(String paramName) {
         for (int i = 0; i < parameters.size(); i++) {
-            if (paramName.equals(
-                ((JavaParameter)parameters.get(i)).getName())) {
-
+            if (paramName.equals((parameters.get(i)).getName())) {
                 return true;
             }
         }

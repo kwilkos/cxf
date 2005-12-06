@@ -46,7 +46,8 @@ import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 
 public class TypeSchema {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(TypeSchema.class);
+    static final Logger LOG = LogUtils.getL7dLogger(TypeSchema.class);
+    
     private Schema schema;
     private Validator validator;
     private final String namespaceURI;
@@ -99,28 +100,28 @@ public class TypeSchema {
      
         LSResourceResolver resolver = new LSResourceResolver() {
 
-            public LSInput resolveResource(String type, String nsuri,
+            public LSInput resolveResource(String type, String nsURI,
                                            String publicId, String systemId, String baseURI) {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("resolving resource type: " + type + "\n"
-                            + "                   namespaceURI:" + nsuri + "\n"
+                            + "                   namespaceURI:" + nsURI + "\n"
                             + "                   publicId:" + publicId + "\n"
                             + "                   systemId:" + systemId + "\n"
                             + "                   baseURI:" + baseURI);
                 }
                 
                 if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type)) {
-                    LSInput lsi = new SchemaInput(type, nsuri, publicId, systemId, baseURI);
+                    LSInput lsi = new SchemaInput(type, nsURI, publicId, systemId, baseURI);
                     String resourceName = systemId;
                     // The special case for wsdl.xsd is OK - the other two can be removed
                     // once wsdl.xsd is fixed so that it does not inmport further schemata
                     if (("wsdl.xsd".equals(systemId) 
-                           && "http://schemas.xmlsoap.org/wsdl/".equals(nsuri))
+                           && "http://schemas.xmlsoap.org/wsdl/".equals(nsURI))
                         || ("jms.xsd".equals(systemId) 
-                           && "http://celtix.objectweb.org/transports/jms".equals(nsuri))
+                           && "http://celtix.objectweb.org/transports/jms".equals(nsURI))
                         || ("http-conf.xsd".equals(systemId) 
                                && "http://celtix.objectweb.org/transports/http/configuration"
-                               .equals(nsuri))) {
+                               .equals(nsURI))) {
                         resourceName = "schemas/wsdl/" + systemId;
                     }
                     lsi.setByteStream(getSchemaInputStream(resourceName));  
@@ -128,7 +129,7 @@ public class TypeSchema {
                 } 
                 
                 if (null != oldResolver) { 
-                    return oldResolver.resolveResource(type, nsuri, publicId, systemId, baseURI);
+                    return oldResolver.resolveResource(type, nsURI, publicId, systemId, baseURI);
                 } else {
                     return null;
                 }
@@ -386,7 +387,7 @@ public class TypeSchema {
 
     }
     
-    private InputStream getSchemaInputStream(String location) {
+    static InputStream getSchemaInputStream(String location) {
         URI uri = null;
         try {
             uri = new URI(location);
@@ -442,7 +443,7 @@ public class TypeSchema {
         }
     }
     
-    final class SchemaInput implements LSInput {
+    static final class SchemaInput implements LSInput {
         String type;
         String namespaceURI;
         String publicId;

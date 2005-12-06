@@ -40,7 +40,7 @@ public class ClientServerTest extends ClientServerTestBase {
             
             SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
             assertNotNull(service);
-            proxy = (TestHeader) service.getPort(portName, TestHeader.class);
+            proxy = service.getPort(portName, TestHeader.class);
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.toString());

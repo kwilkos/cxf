@@ -41,7 +41,7 @@ public class HandlerInvocationTest extends ClientServerTestBase {
             
             wsdl = HandlerInvocationTest.class.getResource("/wsdl/handler_test.wsdl");
             service = new HandlerTestService(wsdl, serviceName);
-            handlerTest = (HandlerTest) service.getPort(portName, HandlerTest.class);
+            handlerTest = service.getPort(portName, HandlerTest.class);
             if (!"testHandlersInvoked".equals(getName())) {
                 addHandlersToChain((BindingProvider)handlerTest, new TestStreamHandler(false)); 
             }

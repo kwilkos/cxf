@@ -55,8 +55,8 @@ public class ToolSpecTest extends TestCase {
     public void testGetHandler() throws Exception {
         String tsSource = "/org/objectweb/celtix/tools/common/toolspec/parser/resources/testtool1.xml";
         toolSpec = new ToolSpec(getClass().getResourceAsStream(tsSource), false);
-        assertTrue(toolSpec.getHandler() instanceof Tool);
-        assertTrue(toolSpec.getHandler(this.getClass().getClassLoader()) instanceof Tool);
+        assertNotNull(toolSpec.getHandler());
+        assertNotNull(toolSpec.getHandler(this.getClass().getClassLoader()));
     }
 
     public void testGetOutstreamIds() throws Exception {

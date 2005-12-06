@@ -240,7 +240,7 @@ public class HTTPClientTransport implements ClientTransport {
             Map<String, List<String>> headers = (Map<String, List<String>>)super.get(HTTP_REQUEST_HEADERS);
             if (null != headers) {
                 for (String header : headers.keySet()) {
-                    List<String> headerList = (List<String>)headers.get(header);
+                    List<String> headerList = headers.get(header);
                     for (String string : headerList) {
                         connection.addRequestProperty(header, string);
                     }
@@ -262,7 +262,7 @@ public class HTTPClientTransport implements ClientTransport {
         }
         
         public boolean isOneWay() {
-            return (boolean) ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
+            return ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
         }
         
         public OutputStream getOutputStream() {
@@ -327,7 +327,7 @@ public class HTTPClientTransport implements ClientTransport {
          * When the OutputStream associated with this connection is
          * closed, it will invoke on this initialise method.  
          */
-        private void initialise()  throws IOException {
+        void initialise()  throws IOException {
             if (!initialised) {
                 put(ObjectMessageContext.MESSAGE_INPUT, false);
                 put(HTTP_RESPONSE_HEADERS, connection.getHeaderFields());

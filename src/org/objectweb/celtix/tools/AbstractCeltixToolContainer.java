@@ -207,7 +207,7 @@ public abstract class AbstractCeltixToolContainer extends AbstractToolContainer 
         while (nexcludes.hasMoreElements()) {
             result.add(props.getProperty((String)nexcludes.nextElement()));
         }
-        return (String[])result.toArray(new String[result.size()]);
+        return result.toArray(new String[result.size()]);
     }
 
     /**

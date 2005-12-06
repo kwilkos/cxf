@@ -12,18 +12,19 @@ import java.util.logging.Logger;
 public class ServerLauncher {
 
     public static final int DEFAULT_TIMEOUT = 3 * 60 * 1000;
-
     private static final Logger LOG = Logger.getLogger(ServerLauncher.class.getName());
+
+    boolean serverPassed;
+    final String className;
+
 
     private final boolean debug = false; 
     
-    private final String className;
     private final String javaExe;
     private Process process;
     private boolean serverIsReady;
     private boolean serverIsStopped;
     private boolean serverLaunchFailed;
-    private boolean serverPassed;
 
     private final Mutex mutex = new Mutex();
 
@@ -146,14 +147,14 @@ public class ServerLauncher {
         t.start();
     }
 
-    private void notifyServerIsReady() {
+    void notifyServerIsReady() {
         synchronized (mutex) {
             serverIsReady = true;
             mutex.notifyAll();
         }
     }
 
-    private void notifyServerIsStopped() {
+    void notifyServerIsStopped() {
         synchronized (mutex) {
             LOG.info("notify server stopped");
             serverIsStopped = true;
@@ -161,7 +162,7 @@ public class ServerLauncher {
         }
     }
 
-    private void notifyServerLaunchFailed() {
+    void notifyServerLaunchFailed() {
         synchronized (mutex) {
             serverLaunchFailed = true;
             mutex.notifyAll();

@@ -31,7 +31,7 @@ public class ClientServerTest extends ClientServerTestBase {
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);
         
-        Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+        Greeter greeter = service.getPort(portName, Greeter.class);
         
         String response1 = new String("Hello Milestone-");
         String response2 = new String("Bonjour");
@@ -74,7 +74,7 @@ public class ClientServerTest extends ClientServerTestBase {
         String noSuchCodeFault = "NoSuchCodeLitFault";
         String badRecordFault = "BadRecordLitFault";
 
-        Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+        Greeter greeter = service.getPort(portName, Greeter.class);
         for (int idx = 0; idx < 2; idx++) {
             try {
                 greeter.testDocLitFault(noSuchCodeFault);

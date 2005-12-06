@@ -188,13 +188,13 @@ public class JMSSessionFactory {
             if (replyCapable) {
                 // first try reply capable cache
                 //
-                ret = (PooledSession) replyCapableSessionCache.poll();
+                ret = replyCapableSessionCache.poll();
 
                 if (ret == null) {
                     // fall back to send only cache, creating temporary reply
                     // queue and consumer
                     //
-                    ret = (PooledSession) sendOnlySessionCache.poll();
+                    ret = sendOnlySessionCache.poll();
 
                     if (ret != null) {
                         QueueSession session = (QueueSession) ret.session();
@@ -205,7 +205,7 @@ public class JMSSessionFactory {
                         // in the reply capable cache
                         //
                         try {
-                            ret = (PooledSession) replyCapableSessionCache.get();
+                            ret = replyCapableSessionCache.get();
                         } catch (Throwable t) {
                             // factory method may only throw JMSException
                             //
@@ -216,7 +216,7 @@ public class JMSSessionFactory {
             } else {
                 // first try send only cache
                 //
-                ret = (PooledSession) sendOnlySessionCache.poll();
+                ret = sendOnlySessionCache.poll();
 
                 if (ret == null) {
                     // fall back to reply capable cache if one exists (only in the
@@ -224,7 +224,7 @@ public class JMSSessionFactory {
                     // and consumer
                     //
                     if (replyCapableSessionCache != null) {
-                        ret = (PooledSession) replyCapableSessionCache.poll();
+                        ret = replyCapableSessionCache.poll();
                     }
 
                     if (ret == null) {
@@ -232,7 +232,7 @@ public class JMSSessionFactory {
                         // in the send only cache
                         //
                         try {
-                            ret = (PooledSession) sendOnlySessionCache.get();
+                            ret = sendOnlySessionCache.get();
                         } catch (Throwable t) {
                             // factory method may only throw JMSException
                             //
@@ -304,18 +304,18 @@ public class JMSSessionFactory {
             PooledSession curr;
 
             if (replyCapableSessionCache != null) {
-                curr = (PooledSession) replyCapableSessionCache.poll();
+                curr = replyCapableSessionCache.poll();
                 while (curr != null) {
                     curr.close();
-                    curr = (PooledSession) replyCapableSessionCache.poll();
+                    curr = replyCapableSessionCache.poll();
                 }
             }
 
             if (sendOnlySessionCache != null) {
-                curr = (PooledSession) sendOnlySessionCache.poll();
+                curr = sendOnlySessionCache.poll();
                 while (curr != null) {
                     curr.close();
-                    curr = (PooledSession) sendOnlySessionCache.poll();
+                    curr = sendOnlySessionCache.poll();
                 }
             }
 
@@ -339,7 +339,7 @@ public class JMSSessionFactory {
      * @param destination the target destination
      * @return an appropriate pooled session
      */
-    private PooledSession createPointToPointReplyCapableSession() throws JMSException {
+    PooledSession createPointToPointReplyCapableSession() throws JMSException {
         QueueSession session =
             ((QueueConnection)theConnection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
         Destination destination = session.createTemporaryQueue();
@@ -356,7 +356,7 @@ public class JMSSessionFactory {
      *
      * @return an appropriate pooled session
      */
-    private PooledSession createPointToPointSendOnlySession() throws JMSException {
+    PooledSession createPointToPointSendOnlySession() throws JMSException {
         QueueSession session =
             ((QueueConnection)theConnection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -388,7 +388,7 @@ public class JMSSessionFactory {
      * @param destination the target destination
      * @return an appropriate pooled session
      */
-    private PooledSession createPubSubSession(boolean producer,
+    PooledSession createPubSubSession(boolean producer,
                                               boolean consumer,
                                               Destination destination) throws JMSException {
         TopicSession session = ((TopicConnection)theConnection).createTopicSession(false,

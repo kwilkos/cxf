@@ -24,7 +24,6 @@ import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
-import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -79,7 +78,7 @@ public class SOAPClientBindingTest extends TestCase {
         objContext.setMessageObjects(arg0);
         
         SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());  
-        soapCtx.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapCtx.put(ObjectMessageContext.MESSAGE_INPUT, false);
         clientBinding.marshal(objContext, soapCtx);
         
         assertNotNull(soapCtx.getMessage());
@@ -97,7 +96,7 @@ public class SOAPClientBindingTest extends TestCase {
         
         SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());        
         soapCtx.setMessage(greetMeMsg);
-        soapCtx.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        soapCtx.put(ObjectMessageContext.MESSAGE_INPUT, true);
         
         objContext.setMethod(method);
         

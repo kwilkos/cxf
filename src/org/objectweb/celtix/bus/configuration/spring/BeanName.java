@@ -17,9 +17,9 @@ class BeanName {
     
     static final String ANY_COMPONENT = "?";
     
-    private String name;
-    private String normalisedName;
-    private ComponentIterator iterator;    
+    String name;
+    String normalisedName;
+    ComponentIterator iterator;    
     
     BeanName(String n) {
         this(n, false);
@@ -283,15 +283,15 @@ class BeanName {
     }
     
     
-    private boolean isBinding(char c) {
+    static boolean isBinding(char c) {
         return isTightBinding(c) || isLooseBinding(c);
     }
     
-    private boolean isTightBinding(char c) {
+    static boolean isTightBinding(char c) {
         return TIGHT_BINDING == c;
     }
     
-    private boolean isLooseBinding(char c) {
+    static boolean isLooseBinding(char c) {
         return LOOSE_BINDING == c;
     }
     

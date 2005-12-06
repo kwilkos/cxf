@@ -32,7 +32,7 @@ public abstract class AbstractGenerator {
             ctx.put(key, attributes.get(key));
         }
 
-        BufferedWriter writer = new BufferedWriter((FileWriter)outputs);
+        BufferedWriter writer = new BufferedWriter(outputs);
         tmpl.merge(ctx, writer);
         writer.close();
     }

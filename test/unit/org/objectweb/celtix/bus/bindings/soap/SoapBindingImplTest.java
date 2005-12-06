@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
@@ -66,7 +67,7 @@ public class SoapBindingImplTest extends TestCase {
     
     public void testMarshalWrapDocLitInputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
 
         String arg0 = new String("TestSOAPInputPMessage");
         objContext.setMessageObjects(arg0);
@@ -88,7 +89,7 @@ public class SoapBindingImplTest extends TestCase {
 
     public void testMarshalWrapDocLitMessageForInOutVar() throws Exception {
         //Test The InputMessage of GreetMe Operation
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
         Method testInt = SOAPMessageUtil.getMethod(TypeTestPortType.class, "testInt");
         assertNotNull(testInt);
         objContext.setMethod(testInt);
@@ -121,7 +122,7 @@ public class SoapBindingImplTest extends TestCase {
     
     public void testMarshalWrapDocLitOutputMessage() throws Exception {
         //Test The Output of GreetMe Operation
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, true);
         objContext.setMessageObjects(new Object[0]);
 
         String arg0 = new String("TestSOAPOutputMessage");
@@ -173,7 +174,7 @@ public class SoapBindingImplTest extends TestCase {
         String str = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data);
         
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
 
         assertNotNull(binding.getMessageFactory());
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
@@ -202,7 +203,7 @@ public class SoapBindingImplTest extends TestCase {
         assertNotNull(binding.getMessageFactory());
         SOAPMessage faultMsg = binding.getMessageFactory().createMessage(null,  is);
         soapContext.setMessage(faultMsg);
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
 
         Object[] methodArg = SOAPMessageUtil.getMessageObjects(testInt);
         assertNotNull(methodArg);
@@ -230,7 +231,7 @@ public class SoapBindingImplTest extends TestCase {
         String str = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data);
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
 
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);        
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, true);        
         assertNotNull(binding.getMessageFactory());
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
         soapContext.setMessage(soapMessage);
@@ -246,7 +247,7 @@ public class SoapBindingImplTest extends TestCase {
     
     public void testMarshalDocLiteralUserFaults() throws Exception {
         //Test The InputMessage of GreetMe Operation
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
 
         String exMessage = new String("Test Exception");
         ErrorCode ec = new ErrorCode();
@@ -282,7 +283,7 @@ public class SoapBindingImplTest extends TestCase {
     
     public void testMarshalSystemFaults() throws Exception {
         //Test The InputMessage of GreetMe Operation
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
 
         SOAPException se = new SOAPException("SAAJ Exception");
         objContext.setException(se);
@@ -304,7 +305,7 @@ public class SoapBindingImplTest extends TestCase {
 
     public void testUnmarshalDocLiteralUserFaults() throws Exception {
         //Test The InputMessage of GreetMe Operation
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, true);
         objContext.setMethod(SOAPMessageUtil.getMethod(Greeter.class, "testDocLitFault"));
 
         InputStream is =  getClass().getResourceAsStream("resources/NoSuchCodeDocLiteral.xml");
@@ -344,7 +345,7 @@ public class SoapBindingImplTest extends TestCase {
     //Bare Doc Literal Tests
     public void testMarshalBareDocLitInputMessage() throws Exception {
         //Test The InputMessage of testDocLitBare Operation
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
         objContext.setMethod(SOAPMessageUtil.getMethod(Greeter.class, "testDocLitBare"));
         
         String arg0 = new String("DocLitBareDocumentInputMessage");
@@ -374,7 +375,7 @@ public class SoapBindingImplTest extends TestCase {
         String str = SOAPMessageUtil.createBareDocLitSOAPMessage(elName, data);
         
         ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
 
         assertNotNull(binding.getMessageFactory());
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);

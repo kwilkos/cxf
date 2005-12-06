@@ -17,7 +17,8 @@ public final class SpringUtils {
      * prevent instantiation
      *
      */
-    private SpringUtils() {       
+    private SpringUtils() { 
+        //utility class - never constructed
     }
     
     public static String getBeanClassName(String namespaceURI) {    

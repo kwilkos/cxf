@@ -45,7 +45,7 @@ public class JavaInterface {
 
     public boolean hasMethod(JavaMethod method) {
         for (int i = 0; i < methods.size(); i++) {
-            if (method.equals((JavaMethod)methods.get(i))) {
+            if (method.equals(methods.get(i))) {
                 return true;
             }
         }

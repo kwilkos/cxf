@@ -11,6 +11,7 @@ import org.w3c.dom.NodeList;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.header_test.TestHeader;
 import org.objectweb.header_test.types.TestHeader1;
@@ -40,7 +41,7 @@ public class SoapBindingImplHeaderTest extends TestCase {
 
     public void testMarshalHeaderDocLitInputMessage() throws Exception {
         //Test The InputMessage of testHeader1 Operation
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
         Method testHeader1 = SOAPMessageUtil.getMethod(TestHeader.class, "testHeader1");
         assertNotNull(testHeader1);
         objContext.setMethod(testHeader1);
@@ -97,7 +98,7 @@ public class SoapBindingImplHeaderTest extends TestCase {
   
     public void testMarshalHeaderDocLitOutputMessage() throws Exception {
         //Test The InputMessage of testHeader1 Operation
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, true);
         Method testHeader2 = SOAPMessageUtil.getMethod(TestHeader.class, "testHeader2");
         assertNotNull(testHeader2);
         objContext.setMethod(testHeader2);
@@ -177,7 +178,7 @@ public class SoapBindingImplHeaderTest extends TestCase {
         SOAPMessage headerMsg = binding.getMessageFactory().createMessage(null,  is);
         assertNotNull(headerMsg);
         soapContext.setMessage(headerMsg);
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
         
         SOAPHeaderHandler handler = new SOAPHeaderHandler(binding, true);        
         //Read the headers of testHeader3 Operation - tests inout headers
@@ -206,7 +207,7 @@ public class SoapBindingImplHeaderTest extends TestCase {
         assertNotNull(binding.getMessageFactory());
         SOAPMessage headerMsg = binding.getMessageFactory().createMessage(null,  is);
         soapContext.setMessage(headerMsg);
-        soapContext.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, true);
         
         SOAPHeaderHandler handler = new SOAPHeaderHandler(binding, false);        
         //Read the SOAP Headers

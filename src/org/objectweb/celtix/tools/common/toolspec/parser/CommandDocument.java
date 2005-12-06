@@ -85,7 +85,7 @@ public class CommandDocument {
                 result.add(def);
             }
         }
-        return (String[])result.toArray(new String[result.size()]);
+        return result.toArray(new String[result.size()]);
     }
 
     public String[] getParameterNames() {
@@ -98,7 +98,7 @@ public class CommandDocument {
                 result.add(el.getAttribute("name"));
             }
         }
-        return (String[])result.toArray(new String[result.size()]);
+        return result.toArray(new String[result.size()]);
     }
 
 }

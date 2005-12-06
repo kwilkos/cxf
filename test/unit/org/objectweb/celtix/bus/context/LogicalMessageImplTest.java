@@ -7,6 +7,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.ws.handler.MessageContext;
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.handler_test.HandlerTest;
 import org.objectweb.handler_test.types.PingResponse;
@@ -29,7 +30,7 @@ public class LogicalMessageImplTest extends TestCase {
 
     public void testGetPayloadJAXBOutboundArguments() throws NoSuchMethodException, JAXBException { 
         
-        ctx.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        ctx.put(ObjectMessageContext.MESSAGE_INPUT, false);
         ctx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, true); 
 
         doGetArgumentsFromPayloadTest();
@@ -48,7 +49,7 @@ public class LogicalMessageImplTest extends TestCase {
 
     public void testGetPayloadJAXBOutboundNoArguments() throws NoSuchMethodException, JAXBException { 
 
-        ctx.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        ctx.put(ObjectMessageContext.MESSAGE_INPUT, false);
         ctx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, true); 
 
         Object payload = lm.getPayload(jaxbCtx);
@@ -58,7 +59,7 @@ public class LogicalMessageImplTest extends TestCase {
 
     public void testGetPayloadJAXBInboundReturn() { 
 
-        ctx.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        ctx.put(ObjectMessageContext.MESSAGE_INPUT, true);
         ctx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, false); 
 
         final String returnValue = "test return value";
@@ -72,7 +73,7 @@ public class LogicalMessageImplTest extends TestCase {
 
     public void testSetPayloadJAXBOutboundArgs() { 
 
-        ctx.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        ctx.put(ObjectMessageContext.MESSAGE_INPUT, false);
         ctx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, true); 
 
         final String testArg = "test argument set";
@@ -94,7 +95,7 @@ public class LogicalMessageImplTest extends TestCase {
 
     public void testSetPayloadJAXInboundReturn() { 
 
-        ctx.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        ctx.put(ObjectMessageContext.MESSAGE_INPUT, true);
         ctx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, false); 
 
         final String testResponse = "test replaced response";
@@ -118,7 +119,7 @@ public class LogicalMessageImplTest extends TestCase {
 
     public void testSetPayloadJAXOutboundReturnListProperty() throws Exception { 
         
-        ctx.put(ObjectMessageContextImpl.MESSAGE_INPUT, true);
+        ctx.put(ObjectMessageContext.MESSAGE_INPUT, true);
         ctx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, true); 
         ctx.setMethod(HandlerTest.class.getMethod("ping")); 
 
@@ -136,6 +137,6 @@ public class LogicalMessageImplTest extends TestCase {
     }
     
     public void testGetPayloadJAXBInbountArgs() {
-        ctx.put(ObjectMessageContextImpl.MESSAGE_INPUT, false);
+        ctx.put(ObjectMessageContext.MESSAGE_INPUT, false);
     }
 }

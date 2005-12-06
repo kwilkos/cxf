@@ -48,7 +48,7 @@ public class ClientGenerator extends AbstractGenerator {
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
         for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
             String interfaceName = (String)iter.next();
-            JavaInterface intf = (JavaInterface)interfaces.get(interfaceName);
+            JavaInterface intf = interfaces.get(interfaceName);
 
             // get the ref service name
             String serviceName = "";

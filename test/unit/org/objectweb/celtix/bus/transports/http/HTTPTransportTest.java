@@ -34,7 +34,7 @@ import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class HTTPTransportTest extends TestCase {
     
-    private Bus bus;
+    Bus bus;
     private WSDLManager wsdlManager;
     
     public HTTPTransportTest(String arg0) {
@@ -60,7 +60,7 @@ public class HTTPTransportTest extends TestCase {
         doTestHTTPTransport(true);
     }
 
-    private int readBytes(byte bytes[], InputStream ins) throws IOException {
+    int readBytes(byte bytes[], InputStream ins) throws IOException {
         int len = ins.read(bytes);
         int total = 0;
         while (len != -1) {

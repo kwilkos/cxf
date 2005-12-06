@@ -36,7 +36,7 @@ class TestOutputStreamContext
     }
     
     public boolean isOneWay() {
-        return (boolean) ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
+        return ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
     }
 
     public OutputStream getOutputStream() {

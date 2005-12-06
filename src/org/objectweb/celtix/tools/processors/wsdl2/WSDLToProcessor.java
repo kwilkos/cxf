@@ -110,8 +110,8 @@ public class WSDLToProcessor implements Processor {
     }
 
     protected void doGeneration() throws Exception {
-        for (Iterator iter = generators.keySet().iterator(); iter.hasNext();) {
-            AbstractGenerator gen = (AbstractGenerator) generators.get((String) iter.next());
+        for (String genName : generators.keySet()) {
+            AbstractGenerator gen = generators.get(genName);
             gen.generate();
         }
     }

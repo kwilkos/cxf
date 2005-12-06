@@ -25,7 +25,7 @@ import org.objectweb.celtix.configuration.Configuration;
 
 public class HandlerChainBuilder {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(HandlerChainBuilder.class);
+    static final Logger LOG = LogUtils.getL7dLogger(HandlerChainBuilder.class);
 
     
     /**

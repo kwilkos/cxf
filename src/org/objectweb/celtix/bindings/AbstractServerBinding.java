@@ -212,7 +212,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             if (continueProcessing) {
                 new WebServiceContextImpl(objContext); 
                 // get parameters from object context and invoke on implementor
-                Object params[] = (Object[])objContext.getMessageObjects();
+                Object params[] = objContext.getMessageObjects();
                 Object result = method.invoke(getEndpoint().getImplementor(), params);
                 objContext.setReturn(result);
             }

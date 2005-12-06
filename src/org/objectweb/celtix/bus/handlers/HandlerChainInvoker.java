@@ -98,7 +98,8 @@ public class HandlerChainInvoker implements HandlerInvoker {
         return invokeHandlerChain(streamHandlers, sctx);
     }
         
-    public void closeHandlers() {        
+    public void closeHandlers() {
+        //nothing to do
     }
     
     public void setResponseExpected(boolean expected) {

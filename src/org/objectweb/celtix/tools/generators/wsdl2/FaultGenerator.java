@@ -43,7 +43,7 @@ public class FaultGenerator extends AbstractGenerator {
         Map<String, JavaExceptionClass> exceptionClasses = javaModel.getExceptionClasses();
         for (Iterator iter = exceptionClasses.keySet().iterator(); iter.hasNext();) {
             String expClassName = (String) iter.next();
-            JavaExceptionClass expClz = (JavaExceptionClass) exceptionClasses.get(expClassName);
+            JavaExceptionClass expClz = exceptionClasses.get(expClassName);
 
             clearAttributes();
             setAttributes("expClass", expClz);

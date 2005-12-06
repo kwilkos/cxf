@@ -32,7 +32,7 @@ public class ClientServerTest extends ClientServerTestBase {
         String response1 = new String("Hello Milestone-");
         String response2 = new String("Bonjour");
         try {
-            GreeterRPCLit greeter = (GreeterRPCLit) service.getPort(portName, GreeterRPCLit.class);
+            GreeterRPCLit greeter = service.getPort(portName, GreeterRPCLit.class);
             for (int idx = 0; idx < 5; idx++) {
                 String greeting = greeter.greetMe("Milestone-" + idx);
                 assertNotNull("no response received from service", greeting);
@@ -59,7 +59,7 @@ public class ClientServerTest extends ClientServerTestBase {
         MyComplexStruct retVal = null;
         
         try {
-            GreeterRPCLit greeter = (GreeterRPCLit) service.getPort(portName, GreeterRPCLit.class);
+            GreeterRPCLit greeter = service.getPort(portName, GreeterRPCLit.class);
             for (int idx = 0; idx < 5; idx++) {
                 argument.setElem1("Hello Milestone-" + idx);
                 argument.setElem2("Bonjour-" + idx);
