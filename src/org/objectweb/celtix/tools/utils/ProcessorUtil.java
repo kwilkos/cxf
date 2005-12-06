@@ -1,13 +1,18 @@
 package org.objectweb.celtix.tools.utils;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import javax.wsdl.Part;
 import javax.xml.namespace.QName;
 
 import com.sun.tools.xjc.api.Property;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.xml.bind.api.JAXBRIContext;
+
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 
 public final class ProcessorUtil {
@@ -65,7 +70,17 @@ public final class ProcessorUtil {
     public static String getAbsolutePath(String location) throws Exception {
         return resolvePath(new File(location).getCanonicalPath());
     }
-
+    
+    public static URL getWSDLURL(String location) throws Exception {
+        if (location.startsWith("http://")) {
+            return new URL(location);
+        } else {
+            return  new File(getAbsolutePath(location)).toURL();
+        }
+        
+    }
+    
+    
     private static String resolvePath(String path) {
         return path.replace('\\', '/');
     }

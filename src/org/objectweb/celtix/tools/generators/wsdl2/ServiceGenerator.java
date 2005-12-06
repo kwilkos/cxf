@@ -1,5 +1,6 @@
 package org.objectweb.celtix.tools.generators.wsdl2;
 
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -50,11 +51,11 @@ public class ServiceGenerator extends AbstractGenerator {
         
         while (ite.hasNext()) {
             JavaServiceClass js = (JavaServiceClass)ite.next();
-            String wsdlURL = (String)env.get(ToolConstants.CFG_WSDLURL);
-            String loc = ProcessorUtil.getAbsolutePath(wsdlURL);            
+            String location = (String)env.get(ToolConstants.CFG_WSDLURL);
+            URL url = ProcessorUtil.getWSDLURL(location);            
             clearAttributes();
             setAttributes("service", js);
-            setAttributes("wsdlLocation", loc);
+            setAttributes("wsdlLocation", url.toString());
             setCommonAttributes();            
             doWrite(SERVICE_TEMPLATE, 
                     parseOutputName(js.getPackageName(), 
