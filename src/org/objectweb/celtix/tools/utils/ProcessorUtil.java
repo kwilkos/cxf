@@ -25,7 +25,7 @@ public final class ProcessorUtil {
         return mangleNameToVariableName(part.getName());
     }
 
-    public static String resolvePartType(Part part) {
+    public static String getPartType(Part part) {
         String typeName;
         if (part.getElementName() != null) {
             typeName = part.getElementName().getLocalPart();
@@ -34,7 +34,11 @@ public final class ProcessorUtil {
         } else {
             typeName = "BadType";
         }
-        return mangleNameToClassName(typeName);
+        return typeName;
+    }
+    
+    public static String resolvePartType(Part part) {
+        return mangleNameToClassName(getPartType(part));
     }
 
     public static String resolvePartNamespace(Part part) {
@@ -101,6 +105,27 @@ public final class ProcessorUtil {
             return jaxbModel.get(element).getWrapperStyleDrilldown();
         } else {
             return new ArrayList<Property>();
+        }
+    }
+
+    public static String getFullClzName(String namespace,
+                                        String type,
+                                        String defaultPackageName,
+                                        String[] userPackage) {
+        String jtype = BuiltInTypesJavaMappingUtil.getJType(namespace, type);      
+        if (jtype == null) {
+            String packageName = parsePackageName(namespace, userPackage);
+            if (defaultPackageName.equals(packageName)) {
+                return type;
+            }
+            StringBuffer sb = new StringBuffer();
+            sb.append(packageName);
+            sb.append(".");
+            sb.append(type);
+
+            return sb.toString();
+        } else {
+            return jtype;
         }
     }
 }

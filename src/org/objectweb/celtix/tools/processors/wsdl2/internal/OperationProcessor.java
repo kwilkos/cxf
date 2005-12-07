@@ -10,13 +10,18 @@ import javax.wsdl.Part;
 import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
+import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
+import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class OperationProcessor  {
     
     private final ProcessorEnvironment env;
+    private JavaParameter wrapperRequest;
+    private JavaParameter wrapperResponse;
     
     public OperationProcessor(ProcessorEnvironment penv) {
         this.env = penv;
@@ -51,6 +56,27 @@ public class OperationProcessor  {
                                outputMessage,
                                isRequestResponse(operation),
                                parameterOrder);
+        
+        if (method.isWrapperStyle()) {
+            addWrapperAnnotation(method, operation);
+        }
+    }
+
+    private void addWrapperAnnotation(JavaMethod method, Operation operation) {
+        if (wrapperRequest != null) {
+            JavaAnnotation wrapperRequestAnnotation = new JavaAnnotation("RequestWrapper");
+            wrapperRequestAnnotation.addArgument("localName", wrapperRequest.getType());
+            wrapperRequestAnnotation.addArgument("targetNamespace", wrapperRequest.getTargetNamespace());
+            wrapperRequestAnnotation.addArgument("className", wrapperRequest.getClassName());
+            method.addAnnotation(wrapperRequestAnnotation.toString());
+        }
+        if (wrapperResponse != null) {
+            JavaAnnotation wrapperResponseAnnotation = new JavaAnnotation("ResponseWrapper");
+            wrapperResponseAnnotation.addArgument("localName", wrapperResponse.getType());
+            wrapperResponseAnnotation.addArgument("targetNamespace", wrapperResponse.getTargetNamespace());
+            wrapperResponseAnnotation.addArgument("className", wrapperResponse.getClassName());
+            method.addAnnotation(wrapperResponseAnnotation.toString());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -117,7 +143,30 @@ public class OperationProcessor  {
             || ProcessorUtil.getBlock(outputPart, env) == null) {
             return false;
         }
+        String[] userPackage = (String[])env.get(ToolConstants.CFG_PACKAGENAME);
 
+        if (inputPart != null) {
+            wrapperRequest = new JavaParameter();
+            wrapperRequest.setName(ProcessorUtil.resolvePartName(inputPart));
+            wrapperRequest.setType(ProcessorUtil.getPartType(inputPart));
+            wrapperRequest.setTargetNamespace(ProcessorUtil.resolvePartNamespace(inputPart));
+            wrapperRequest.setClassName(ProcessorUtil.getFullClzName(wrapperRequest.getTargetNamespace(),
+                                                                     ProcessorUtil.resolvePartType(inputPart),
+                                                                     "",
+                                                                     userPackage));
+        }
+        if (outputPart != null) {
+            wrapperResponse = new JavaParameter();
+            wrapperResponse.setName(ProcessorUtil.resolvePartName(outputPart));
+            wrapperResponse.setType(ProcessorUtil.getPartType(outputPart));
+            wrapperResponse.setTargetNamespace(ProcessorUtil.resolvePartNamespace(outputPart));
+            wrapperResponse.setClassName(ProcessorUtil.getFullClzName(wrapperResponse.getTargetNamespace(),
+                                                                      ProcessorUtil.
+                                                                      resolvePartType(outputPart),
+                                                                      "",
+                                                                      userPackage));
+        }
+        
         return true;
     }
 

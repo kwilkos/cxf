@@ -21,6 +21,10 @@ public class $expClass.Name extends Exception {
     
     $field.Modifier $field.ClassName $field.Name;
 
+    public $expClass.Name (String message) {
+        super(message);
+    }
+
     public $expClass.Name (String message, $field.ClassName $field.Name) {
         super(message);
         this.$field.Name = $field.Name;

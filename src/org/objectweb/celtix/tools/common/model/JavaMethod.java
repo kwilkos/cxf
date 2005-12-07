@@ -15,6 +15,7 @@ public class JavaMethod {
     private final JavaInterface javaInterface;
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
+    private final List<String> annotations = new ArrayList<String>();
     
     public JavaMethod() {
         this.javaInterface = null;
@@ -27,6 +28,7 @@ public class JavaMethod {
     public void clear() {
         parameters.clear();
         javaReturn = null;
+        annotations.clear();
     }
 
     public JavaInterface getInterface() {
@@ -141,5 +143,13 @@ public class JavaMethod {
     
     public String getSoapUse() {
         return this.soapUse;
+    }
+
+    public void addAnnotation(String annotation) {
+        this.annotations.add(annotation);
+    }
+
+    public List getAnnotations() {
+        return this.annotations;
     }
 }

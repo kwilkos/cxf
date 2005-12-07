@@ -13,7 +13,6 @@ import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaReturn;
 import org.objectweb.celtix.tools.common.model.JavaType;
-import org.objectweb.celtix.tools.utils.BuiltInTypesJavaMappingUtil;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class ParameterProcessor {
@@ -58,8 +57,11 @@ public class ParameterProcessor {
         String type = ProcessorUtil.resolvePartType(part);
 
         JavaParameter parameter = new JavaParameter(name, type, namespace);
-        
-        parameter.setClassName(getFullClzName(namespace, type, method.getInterface().getPackageName()));
+        String[] userPackage = (String[])env.get(ToolConstants.CFG_PACKAGENAME);
+        parameter.setClassName(ProcessorUtil.getFullClzName(namespace,
+                                                            type,
+                                                            method.getInterface().getPackageName(),
+                                                            userPackage));
 
         if (style == JavaType.Style.INOUT || style == JavaType.Style.OUT) {
             parameter.setHolder(true);
@@ -77,9 +79,12 @@ public class ParameterProcessor {
         
         JavaReturn returnType = new JavaReturn(name, type, namespace);
         returnType.setStyle(JavaType.Style.OUT);
-        
+        String[] userPackage = (String[])env.get(ToolConstants.CFG_PACKAGENAME);
         if (namespace != null && type != null && !"void".equals(type)) {
-            returnType.setClassName(getFullClzName(namespace, type, method.getInterface().getPackageName()));
+            returnType.setClassName(ProcessorUtil.getFullClzName(namespace,
+                                                                 type,
+                                                                 method.getInterface().getPackageName(),
+                                                                 userPackage));
         }
 
         method.setReturn(returnType);
@@ -384,23 +389,4 @@ public class ParameterProcessor {
         return partFound;
     }
 
-    private String getFullClzName(String namespace, String type, String defaultPackageName) {
-        String jtype = BuiltInTypesJavaMappingUtil.getJType(namespace, type);      
-        if (jtype == null) {
-            String packageName = ProcessorUtil.parsePackageName(namespace,
-                                                                (String[])env.get(ToolConstants.
-                                                                                  CFG_PACKAGENAME));
-            if (defaultPackageName.equals(packageName)) {
-                return type;
-            }
-            StringBuffer sb = new StringBuffer();
-            sb.append(packageName);
-            sb.append(".");
-            sb.append(type);
-
-            return sb.toString();
-        } else {
-            return jtype;
-        }
-    }
 }
