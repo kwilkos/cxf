@@ -65,7 +65,7 @@ public class ServiceProcessor {
     private JavaPort processPort(JavaModel model, Port port) throws Exception {
         JavaPort jport = new JavaPort(port.getName());
         Binding binding = port.getBinding();
-        // if it is SOAPBinding
+        // TODO: extend other bindings
         jport.setBindingAdress(getSOAPAdress(port));
         jport.setBindingName(binding.getQName().getLocalPart());
         jport.setPortType(binding.getPortType().getQName().getLocalPart());
@@ -73,7 +73,7 @@ public class ServiceProcessor {
         String portType = binding.getPortType().getQName().getLocalPart();
         jport.setPortType(portType);
         jport.setInterfaceClass(ProcessorUtil.mangleNameToClassName(portType));
-        jport.setStyle(spbd.getStyle());
+        jport.setStyle(getSoapStyle(spbd.getStyle()));
         jport.setTransURI(spbd.getTransportURI());
         Iterator ite = binding.getBindingOperations().iterator();
         while (ite.hasNext()) {
@@ -84,21 +84,46 @@ public class ServiceProcessor {
 
     }
 
+    private JavaPort.SOAPStyle getSoapStyle(String soapStyle) {
+        if ("RPC".equalsIgnoreCase(soapStyle)) {
+            return JavaPort.SOAPStyle.RPC;
+        } else {
+            return JavaPort.SOAPStyle.DOCUMENT;
+        }
+    }
+
+    private JavaMethod.SOAPUse getSoapUse(String soapUse) {
+        if ("ENCODED".equalsIgnoreCase(soapUse)) {
+            return JavaMethod.SOAPUse.ENCODED;
+        } else {
+            return JavaMethod.SOAPUse.LITERAL;
+        }
+    }
+
     private void processOperation(JavaModel model, Port port, BindingOperation bop) throws Exception {
         String portType = port.getBinding().getPortType().getQName().getLocalPart();
         JavaInterface jf = model.getInterfaces().get(portType);
+        // TODO: extend other bindings
+        SOAPBinding soapBinding = getSOAPBinding(port.getBinding());
+        if (soapBinding != null) {
+            jf.setSOAPStyle(getSoapStyle(soapBinding.getStyle()));
+        }
         Iterator ite = jf.getMethods().iterator();
         while (ite.hasNext()) {
             JavaMethod jm = (JavaMethod)ite.next();
             if (jm.getName().equals(bop.getName())) {
                 Map prop = getSoapOperationProp(bop);
-                jm.setSoapAction(prop.get(soapOPAction) == null ? "" : (String)prop.get(soapOPAction));
-                jm.setSoapStyle(prop.get(soapOPStyle) == null ? "" : (String)prop.get(soapOPStyle));
+                String soapAction = prop.get(soapOPAction) == null ? "" : (String)prop.get(soapOPAction);
+                String soapStyle = prop.get(soapOPStyle) == null ? "" : (String)prop.get(soapOPStyle);
+                jm.setSoapAction(soapAction);
+                jm.setSoapStyle(getSoapStyle(soapStyle));
 
+                OperationProcessor processor = new OperationProcessor(env);
                 if (jm.isWrapperStyle() && isNonWrappable(bop)) {
                     // changed wrapper style
                     jm.setWrapperStyle(false);
-                    OperationProcessor processor = new OperationProcessor(env);
+                    processor.processMethod(jm, bop.getOperation());
+                } else {
                     processor.processMethod(jm, bop.getOperation());
                 }
                 processParameter(jm, bop);
@@ -119,17 +144,19 @@ public class ServiceProcessor {
 
             }
         }
-        jm.setSoapUse(use);
-        if ("RPC".equalsIgnoreCase(jm.getSoapStyle()) && "Encoded".equalsIgnoreCase(jm.getSoapUse())) {
+        jm.setSoapUse(getSoapUse(use));
+        if (JavaPort.SOAPStyle.RPC == jm.getSoapStyle()
+            && JavaMethod.SOAPUse.ENCODED == jm.getSoapUse()) {
             System.out.println("** Unsupported RPC-Encoded Style Use **");
         }
-        if ("RPC".equalsIgnoreCase(jm.getSoapStyle()) && "literal".equalsIgnoreCase(jm.getSoapUse())) {
+        if (JavaPort.SOAPStyle.RPC == jm.getSoapStyle()
+            && JavaMethod.SOAPUse.LITERAL == jm.getSoapUse()) {
             processRPCLiteralParameter(jm, operation);
         }
-        if ("Docuement".equalsIgnoreCase(jm.getSoapStyle()) && "literal".equalsIgnoreCase(jm.getSoapUse())) {
+        if (JavaPort.SOAPStyle.DOCUMENT == jm.getSoapStyle()
+            && JavaMethod.SOAPUse.LITERAL == jm.getSoapUse()) {
             return;
         }
-
     }
 
     private Map getSoapOperationProp(BindingOperation bop) {

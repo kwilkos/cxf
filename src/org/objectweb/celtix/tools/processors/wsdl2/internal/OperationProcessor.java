@@ -15,6 +15,7 @@ import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
+import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class OperationProcessor  {
@@ -57,12 +58,51 @@ public class OperationProcessor  {
                                isRequestResponse(operation),
                                parameterOrder);
         
-        if (method.isWrapperStyle()) {
-            addWrapperAnnotation(method, operation);
-        }
+        addWrapperAnnotation(method, operation);
+        addWebResultAnnotation(method);
     }
 
+    private void addWebResultAnnotation(JavaMethod method) {
+        if (method.isOneWay()) {
+            JavaAnnotation oneWayAnnotation = new JavaAnnotation("Oneway");
+            method.addAnnotation(oneWayAnnotation.toString());
+            return;
+        }
+        if ("void".equals(method.getReturn().getType())) {
+            return;
+        }
+        JavaAnnotation resultAnnotation = new JavaAnnotation("WebResult");
+        String name = null;
+        String targetNamespace = null;
+
+        if (method.getSoapStyle() == JavaPort.SOAPStyle.DOCUMENT
+            && !method.isWrapperStyle()) {
+            name = method.getName() + "Operaion";
+        } else {
+            name = method.getReturn().getName();
+        }
+
+        if (method.getSoapStyle() == JavaPort.SOAPStyle.DOCUMENT) {
+            targetNamespace = method.getReturn().getTargetNamespace();
+        } else {
+            targetNamespace = method.getInterface().getNamespace();
+        }
+         
+        resultAnnotation.addArgument("name", name);
+        resultAnnotation.addArgument("targetNamespace", targetNamespace);
+        if (method.getSoapStyle() == JavaPort.SOAPStyle.RPC
+            || (method.getSoapStyle() == JavaPort.SOAPStyle.DOCUMENT && !method.isWrapperStyle())) {
+            resultAnnotation.addArgument("partName", method.getReturn().getName());
+        }
+
+        method.addAnnotation(resultAnnotation.toString());
+    }
+    
     private void addWrapperAnnotation(JavaMethod method, Operation operation) {
+        if (!isWrapperStyle(operation)) {
+            return;
+        }
+
         if (wrapperRequest != null) {
             JavaAnnotation wrapperRequestAnnotation = new JavaAnnotation("RequestWrapper");
             wrapperRequestAnnotation.addArgument("localName", wrapperRequest.getType());

@@ -9,8 +9,10 @@ import com.sun.codemodel.JType;
 import com.sun.tools.xjc.api.Property;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
+import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaReturn;
 import org.objectweb.celtix.tools.common.model.JavaType;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
@@ -51,7 +53,9 @@ public class ParameterProcessor {
         }
     }
 
-    private void processParameter(JavaMethod method, Part part, JavaType.Style style) throws Exception {
+    private JavaParameter getParameterFromPart(JavaMethod method,
+                                               Part part,
+                                               JavaType.Style style) throws Exception {
         String name = ProcessorUtil.resolvePartName(part);
         String namespace = ProcessorUtil.resolvePartNamespace(part);
         String type = ProcessorUtil.resolvePartType(part);
@@ -68,10 +72,38 @@ public class ParameterProcessor {
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());
         }
         parameter.setStyle(style);
+        return parameter;
+    }
+
+    private void addParameter(JavaMethod method, JavaParameter parameter) throws Exception {
+        JavaAnnotation webParamAnnotation = new JavaAnnotation("WebParam");
+        String name = parameter.getName();
+        String targetNamespace = method.getInterface().getNamespace();
+        String partName = null;
+
+        if (method.getSoapStyle() == JavaPort.SOAPStyle.DOCUMENT) {
+            targetNamespace = parameter.getTargetNamespace();
+            if (!method.isWrapperStyle()) {
+                name = method.getName();
+                partName = parameter.getName();
+            }
+        }
+        
+        if (method.getSoapStyle() == JavaPort.SOAPStyle.RPC) {
+            partName = parameter.getName();    
+        }
+
+        if (partName != null) {
+            webParamAnnotation.addArgument("partName", partName);
+        }
+        
+        webParamAnnotation.addArgument("name", name);
+        webParamAnnotation.addArgument("targetNamespace", targetNamespace);
+        parameter.setAnnotation(webParamAnnotation.toString());
         
         method.addParameter(parameter);
     }
-
+    
     private void processReturn(JavaMethod method, Part part) throws Exception {
         String name = part == null ? "return" : part.getName();
         String type = part == null ? "void" : ProcessorUtil.resolvePartType(part);
@@ -86,7 +118,6 @@ public class ParameterProcessor {
                                                                  method.getInterface().getPackageName(),
                                                                  userPackage));
         }
-
         method.setReturn(returnType);
     }
 
@@ -96,7 +127,7 @@ public class ParameterProcessor {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Collection<Part> inputParts = inputPartsMap.values();
         for (Part part : inputParts) {
-            processParameter(method, part, JavaType.Style.IN);
+            addParameter(method, getParameterFromPart(method, part, JavaType.Style.IN));
         }
     }
 
@@ -119,7 +150,7 @@ public class ParameterProcessor {
                 // complete
             }
             for (Property item : block) {
-                method.addParameter(getParameterFromProperty(item, JavaType.Style.IN));
+                addParameter(method, getParameterFromProperty(item, JavaType.Style.IN));
             }        
         }
     }
@@ -142,7 +173,7 @@ public class ParameterProcessor {
                 if (outpart == null) {
                     continue;
                 } else if (isSamePart(outpart, part)) {
-                    processParameter(method, part, JavaType.Style.INOUT);
+                    addParameter(method, getParameterFromPart(method, part, JavaType.Style.INOUT));
                     continue;
                 }
                 outParts.add(outpart);
@@ -151,18 +182,17 @@ public class ParameterProcessor {
 
         if (outParts.size() == 1) {
             processReturn(method, outParts.get(0));
-            //            outputParts.clear();
             outParts.clear();
         } else if (isRequestResponse && outputParts.size() == 1) {
             processReturn(method, outputParts.iterator().next());
-            outputParts.clear();
+            return;
         } else {
             processReturn(method, null);
         }
         
         if (isRequestResponse) {
             for (Part part : outputParts) {
-                processParameter(method, part, JavaType.Style.INOUT);
+                addParameter(method, getParameterFromPart(method, part, JavaType.Style.INOUT));
             }
         }
     }
@@ -202,14 +232,14 @@ public class ParameterProcessor {
         for (Property outElement : outputBlock) {
             for (Property inElement : inputBlock) {
                 if (isSameWrapperChild(inElement, outElement)) {
-                    method.addParameter(getParameterFromProperty(outElement, JavaType.Style.INOUT));
+                    addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT));
                 } else if ("return".equals(outElement.elementName().getLocalPart())) {
                     if (method.getReturn() != null) {
                         throw new Exception("Wrapper style can not have two return types");
                     }
                     method.setReturn(getReturnFromProperty(outElement));
                 } else {
-                    method.addParameter(getParameterFromProperty(outElement, JavaType.Style.INOUT));
+                    addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT));
                 }
             }
         }
@@ -325,17 +355,17 @@ public class ParameterProcessor {
                 style = JavaType.Style.INOUT;
             }
             if (part != null) {
-                processParameter(method, part, style);
+                addParameter(method, getParameterFromPart(method, part, style));
             }
             index++;
         }
         // now from unlisted input parts
         for (Part part : inputUnlistedParts) {
-            processParameter(method, part, JavaType.Style.IN);
+            addParameter(method, getParameterFromPart(method, part, JavaType.Style.IN));
         }
         // now from unlisted output parts
         for (Part part : outputUnlistedParts) {
-            processParameter(method, part, JavaType.Style.INOUT);
+            addParameter(method, getParameterFromPart(method, part, JavaType.Style.INOUT));
         }
     }
 

@@ -9,6 +9,7 @@ public class JavaInterface {
     private String namespace;
     private String location;
     private JavaModel model;
+    private JavaPort.SOAPStyle style;
     private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
 
     public JavaInterface() {
@@ -18,6 +19,13 @@ public class JavaInterface {
         this.model = m;
     }
 
+    public void setSOAPStyle(JavaPort.SOAPStyle s) {
+        this.style = s;
+    }
+
+    public JavaPort.SOAPStyle getSOAPStyle() {
+        return this.style;
+    }
     
     public JavaModel getJavaModel() {
         return this.model;

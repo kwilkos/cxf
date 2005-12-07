@@ -70,7 +70,7 @@ public class ServerGenerator extends AbstractGenerator {
             setAttributes("address", address);
             setCommonAttributes();
 
-            doWrite(SRV_TEMPLATE, parseOutputName(intf.getPackageName(), "Server"));
+            doWrite(SRV_TEMPLATE, parseOutputName(intf.getPackageName(), interfaceName + "Server"));
         }
     }
 

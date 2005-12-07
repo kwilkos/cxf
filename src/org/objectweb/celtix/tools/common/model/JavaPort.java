@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JavaPort {
+    
+    public static enum SOAPStyle { RPC, DOCUMENT }
     private String name;
     private String portType;
     private String bindingName;
     private final List<JavaMethod> operations = new ArrayList<JavaMethod>();
     private String address;
     private String soapVersion;
-    private String style;
+    private SOAPStyle style;
     private String transURI;
-    //added by Jim
     private String interfaceClass; 
     private String namespace;
     public JavaPort(String pname) {
@@ -27,11 +28,11 @@ public class JavaPort {
         return this.transURI;
     }
 
-    public void setStyle(String sty) {
+    public void setStyle(SOAPStyle sty) {
         this.style = sty;
     }
 
-    public String getStyle() {
+    public SOAPStyle getStyle() {
         return this.style;
     }
 

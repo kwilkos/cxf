@@ -46,18 +46,20 @@ public class ClientGenerator extends AbstractGenerator {
         }
 
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
+        JavaServiceClass js = null;
+        JavaPort jp = null;
+
         for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
             String interfaceName = (String)iter.next();
             JavaInterface intf = interfaces.get(interfaceName);
 
-            // get the ref service name
-            String serviceName = "";
             Iterator it = javaModel.getServiceClasses().values().iterator();
             while (it.hasNext()) {
-                JavaServiceClass js = (JavaServiceClass)it.next();
+                String serviceName = "";
+                js = (JavaServiceClass)it.next();
                 Iterator i = js.getPorts().iterator();
                 while (i.hasNext()) {
-                    JavaPort jp = (JavaPort)i.next();
+                    jp = (JavaPort)i.next();
                     if (jp.getPortType() == interfaceName) {                  
                         serviceName = js.getName();
                         break;
@@ -70,10 +72,11 @@ public class ClientGenerator extends AbstractGenerator {
 
             clearAttributes();
             setAttributes("intf", intf);
-            setAttributes("serviceName", serviceName);
+            setAttributes("service", js);
+            setAttributes("port", jp);
             setCommonAttributes();
 
-            doWrite(CLT_TEMPLATE, parseOutputName(intf.getPackageName(), "Client"));
+            doWrite(CLT_TEMPLATE, parseOutputName(intf.getPackageName(), interfaceName + "Client"));
         }
     }
 }
