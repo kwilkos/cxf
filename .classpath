@@ -16,6 +16,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Velocity"/>
 	<classpathentry kind="lib" path="build/wsdl"/>
 	<classpathentry kind="lib" path="resources"/>
-	<classpathentry kind="lib" path="build/resources"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
