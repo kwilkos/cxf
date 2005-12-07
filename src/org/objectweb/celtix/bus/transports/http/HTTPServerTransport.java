@@ -65,7 +65,7 @@ public class HTTPServerTransport implements ServerTransport {
         
         URL nurl = new URL(url);
         name = nurl.getPath();
-        engine = HTTPServerEngine.getForPort(nurl.getProtocol(), nurl.getPort());
+        engine = HTTPServerEngine.getForPort(bus, nurl.getProtocol(), nurl.getPort());
         policy = getServerPolicy(configuration);
     }
     

@@ -139,5 +139,5 @@
             </xs:element>
     	</xs:sequence>
     </xs:complexType>
-    <xs:element name="sslPolicy" type="tns:SSLPolicy"/>
+    <xs:element name="ssl" type="tns:SSLPolicy"/>
 </xs:schema>

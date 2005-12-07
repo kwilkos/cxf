@@ -298,6 +298,40 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:element name="client" type="http-conf:HTTPClientPolicy"/>
+    
+    <xs:complexType name="HTTPListenerPolicy">
+    	<xs:sequence>
+    		<xs:element name="MinThreads" type="xs:unsignedShort" minOccurs="0">
+                <xs:annotation>
+                     <xs:documentation>
+                     Minumum threads waiting to service requests.
+                     </xs:documentation>
+                </xs:annotation>     			
+    		</xs:element>
+    		<xs:element name="MaxThreads" type="xs:unsignedShort" minOccurs="0">
+                <xs:annotation>
+                     <xs:documentation>
+                     Maximum thread that will service requests.
+                     </xs:documentation>
+                </xs:annotation>     			
+    		</xs:element>
+    		<xs:element name="MaxIdleTimeMs" type="xs:unsignedInt" minOccurs="0">
+                <xs:annotation>
+                     <xs:documentation>
+                     Time for an idle thread to wait for a request or read.
+                     </xs:documentation>
+                </xs:annotation>     			
+    		</xs:element>
+    		<xs:element name="LowResourcePersistTimeMs" type="xs:unsignedInt" minOccurs="0">
+                <xs:annotation>
+                     <xs:documentation>
+                     Time in ms that connections will persist if listener is low on resources.
+                     </xs:documentation>
+                </xs:annotation>     			
+    		</xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+    <xs:element name="listener" type="http-conf:HTTPListenerPolicy"/>
 
   
     <xs:simpleType name="serverCacheControlType">

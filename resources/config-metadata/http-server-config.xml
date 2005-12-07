@@ -36,6 +36,6 @@
         <cm:description>Policies for controlling SSL encryption</cm:description>
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
         <!-- attribute values are defaulted -->
-        <sec:sslPolicy></sec:sslPolicy>
+        <sec:ssl></sec:ssl>
     </cm:configItem>
 </cm:config>

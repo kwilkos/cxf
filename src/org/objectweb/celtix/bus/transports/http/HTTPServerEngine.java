@@ -7,9 +7,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.ws.WebServiceException;
-
-
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpHandler;
 import org.mortbay.http.HttpRequest;
@@ -19,6 +16,10 @@ import org.mortbay.http.SocketListener;
 import org.mortbay.http.SslListener;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.mortbay.util.InetAddrPort;
+import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bus.configuration.security.SSLPolicy;
+import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.transports.http.configuration.HTTPListenerPolicy;
 
 
 final class HTTPServerEngine {
@@ -30,22 +31,45 @@ final class HTTPServerEngine {
     int servantCount;
     HttpServer server = new HttpServer();
     SocketListener listener;
+    Configuration config;
+    HTTPListenerPolicy policy;
+    SSLPolicy sslPolicy;
     
-    private HTTPServerEngine(String protocol, int port) {
-        if ("http".equals(protocol)) {
-            listener = new SocketListener(new InetAddrPort(port));
-        } else if ("https".equals(protocol)) {
+    private HTTPServerEngine(Bus bus, String protocol, int port) {
+        config = createConfiguration(bus, port);
+        policy = config.getObject(HTTPListenerPolicy.class, "httpListener");
+        sslPolicy = config.getObject(SSLPolicy.class, "ssl");
+        
+        if (sslPolicy != null && sslPolicy.isUseSecureSockets()) {
             listener = new SslListener(new InetAddrPort(port));
+            // TODO - set the SSL stuff
         } else {
-            throw new WebServiceException("Unknown protocol: " + protocol);
+            listener = new SocketListener(new InetAddrPort(port));
+        }
+        
+        if (policy.isSetMinThreads()) {
+            listener.setMinThreads(policy.getMinThreads());
+        }
+        if (policy.isSetMaxThreads()) {
+            listener.setMaxThreads(policy.getMaxThreads());            
+        }
+        if (policy.isSetMaxIdleTimeMs()) {
+            listener.setMaxIdleTimeMs(policy.getMaxIdleTimeMs().intValue());
+        }
+        if (policy.isSetLowResourcePersistTimeMs()) {
+            listener.setLowResourcePersistTimeMs(policy.getLowResourcePersistTimeMs().intValue());
         }
     }
     
-    static synchronized HTTPServerEngine getForPort(String protocol, int port) {
+    private Configuration createConfiguration(Bus bus, int port) {
+        return new HTTPListenerConfiguration(bus, port);
+    }
+    
+    static synchronized HTTPServerEngine getForPort(Bus bus, String protocol, int port) {
         
         WeakReference<HTTPServerEngine> ref = portMap.get(port);
         if (ref == null || ref.get() == null) {
-            ref = new WeakReference<HTTPServerEngine>(new HTTPServerEngine(protocol, port));
+            ref = new WeakReference<HTTPServerEngine>(new HTTPServerEngine(bus, protocol, port));
             portMap.put(port, ref);
         }
         return ref.get();

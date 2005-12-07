@@ -243,6 +243,8 @@ public class HTTPTransportTest extends TestCase {
         EasyMock.expectLastCall().andReturn(bc);
         bc.getChild("http://celtix.objectweb.org/bus/jaxws/endpoint-config", serviceName);
         EasyMock.expectLastCall().andReturn(ec);
+        bus.getConfiguration();
+        EasyMock.expectLastCall().andReturn(bc);
         bus.getWSDLManager();
         EasyMock.expectLastCall().andReturn(wsdlManager);
 
