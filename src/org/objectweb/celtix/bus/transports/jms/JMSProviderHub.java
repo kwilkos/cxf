@@ -43,13 +43,6 @@ public final class JMSProviderHub {
 
     //--Methods-----------------------------------------------------------------
 
-    /**
-     * Connect an initialized Java {Client|Server}Transport.
-     * We rely here on the threading model being such that only a
-     * single native {Client|Server}Transport is created for each port.
-     *
-     * @param transport the transport to be connected
-     */
     protected static void connect(JMSTransportBase transport) throws JMSException, NamingException {
         AddressType  addrDetails = transport.getJmsAddressDetails();
 
@@ -68,7 +61,7 @@ public final class JMSProviderHub {
             TopicConnectionFactory tcf =
                 (TopicConnectionFactory)context.lookup(addrDetails.getJndiConnectionFactoryName());
             connection = tcf.createTopicConnection();
-            //TODO: Need to add username from the policy.
+            //TODO: Need to add username from the policy once we decide on policy work.
             if (addrDetails.getDurableSubscriberName() != null) {
                 String ext = transport instanceof JMSClientTransport ? "-client" : "-server";
                 connection.setClientID(System.getProperty("user.name" + ext));    

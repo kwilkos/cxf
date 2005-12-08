@@ -31,10 +31,7 @@ public class JMSTransportFactory implements TransportFactory {
                                               Port.class,
                                               AddressType.class);
         } catch (JAXBException e) {
-            // TODO: UBHOLE: Decide later what to do with the exception.
-//            throw new WSDLException(WSDLException.OTHER_ERROR, 
-//                                    "Failed to add extension for JMS Transport in WSDL4J ", 
-//                                    e);
+            e.printStackTrace();
         }
         
     }

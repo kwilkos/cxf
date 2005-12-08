@@ -44,8 +44,7 @@ import org.objectweb.celtix.common.util.AbstractTwoStageCache;
  * of temporary reply destinations, whereas on the server receive side
  * the benefit of pooling is marginal as the session is required from
  * the point at which the port was activated until the Bus is shutdown
- * (though support for port deactication prior to shutdown may be
- * added in Artix 2.0). The server send side resembles the client side,
+ * The server send side resembles the client side,
  * except that a consumer for the temporary destination is never required.
  * Hence different pooling strategies make sense ...
  * <p>

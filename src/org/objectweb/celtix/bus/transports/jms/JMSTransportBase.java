@@ -124,11 +124,6 @@ public class JMSTransportBase {
     }
 
 
-    /**
-     * Native entry point.
-     *
-     * @param trace trace message
-     */
     protected final void entry(String trace) {
         LOG.log(Level.FINE, trace);
     }

@@ -37,11 +37,6 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
     }
 
     
-    /**
-     * Called by the native ClientTransport::disconnect(), giving notice that
-     * the connection maintained the underlying middleware is no longer
-     * required by this transport instance.
-     */
     public void disconnect() {
         entry("JMSClientTransport disconnect()");
 
@@ -66,13 +61,6 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
     public void finalPrepareOutputStreamContext(OutputStreamMessageContext context) throws IOException {
     }
     
-    /**
-     * The ClientTransport::send()/receive() call sequence is unified via
-     * invoke() to facilitate maintaining the context of the reply destination.
-     *
-     * @param request the buffer to send
-     * @return the response buffer
-     */
     public InputStreamMessageContext invoke(OutputStreamMessageContext context) 
         throws IOException {
         //Use the destination style to determine Destination type

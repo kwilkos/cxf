@@ -35,8 +35,6 @@ public class OneWayJMSTransportTest extends TestCase {
     private ServerTransportCallback callback;
     private Bus bus;
     private String serverRcvdInOneWayCall;
-
-   // private WSDLManager wsdlManager;
     
     private Thread jmsBrokerThread;
     
@@ -49,7 +47,6 @@ public class OneWayJMSTransportTest extends TestCase {
     }
     
     public void setUp() throws Exception {
-        System.out.println("Calling Setup..........................................");
         bus = Bus.init();
         jmsBrokerThread = new JMSEmbeddedBroker("tcp://localhost:61616");
  
@@ -59,7 +56,6 @@ public class OneWayJMSTransportTest extends TestCase {
     }
     
     public void tearDown() throws Exception {
-        System.out.println("Calling teardown..........................................");
         ((JMSEmbeddedBroker) jmsBrokerThread).shutdownBroker = true;
         if (jmsBrokerThread != null) {
             jmsBrokerThread.join(5000L);
@@ -211,10 +207,8 @@ public class OneWayJMSTransportTest extends TestCase {
                         lock.wait(5000L);
                     }
                 }
-                System.out.println("Stoppoing broker.....");
                 container.stop();
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
