@@ -109,6 +109,9 @@ public abstract class AbstractServerBinding implements ServerBinding {
         throws IOException {
         t.finalPrepareOutputStreamContext(ostreamContext);
     }
+    
+   
+    
     protected boolean isFault(ObjectMessageContext objCtx, MessageContext bindingCtx) {
         return objCtx.getException() != null;
     }
@@ -119,6 +122,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
         HandlerInvoker invoker = null;
         Method method = null;
         MessageContext replyCtx = null;
+        OutputStreamMessageContext outCtx = null;
+        
         try {
             objContext = createObjectContext();
 
@@ -142,16 +147,14 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 LOG.log(Level.SEVERE, "REQUEST_UNREADABLE_MSG", ex);
                 throw new WebServiceException(ex);
             }
-                       
+            
             method = getMethod(requestCtx, objContext);
             assert method != null;
             initObjectContext(objContext, method);
             
             if (isOneWay(method)) {
                 try {
-                    OutputStreamMessageContext outCtx = createOutputStreamContext(t, objContext);
-                    outCtx.setOneWay(isOneWay(method));
-                    finalPrepareOutputStreamContext(t, null, outCtx);
+                    outCtx = processResponse(t, objContext, replyCtx, isOneWay(method));
                 } catch (IOException ex) {
                     LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
                     throw new WebServiceException(ex);
@@ -172,31 +175,63 @@ public abstract class AbstractServerBinding implements ServerBinding {
             }
             marshalFault(objContext, replyCtx);
         } finally {            
-            if (!isOneWay(method)) {
-                try {
-                    OutputStreamMessageContext outCtx = createOutputStreamContext(t, replyCtx);
-                    outCtx.setOneWay(isOneWay(method));
-                    if (isFault(objContext, replyCtx)) {
-                        outCtx.setFault(true);
-                    }
-                    invoker.setOutbound();
-                    invoker.invokeStreamHandlers(outCtx);
-                    finalPrepareOutputStreamContext(t, replyCtx, outCtx);
-                    write(replyCtx, outCtx);
-                    if (outCtx.getOutputStream() != null) {
-                        outCtx.getOutputStream().close();
-                    }
-
-                } catch (IOException ex) {
-                    LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
-                    throw new WebServiceException(ex);
-                }
+            
+            try {
+                if (!isOneWay(method)) {
+                    outCtx = processResponse(t, objContext, replyCtx,  isOneWay(method));
+                }                
+                this.postDispatch(t, replyCtx, outCtx);
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, "RESPONSE_UNWRITABLE_MSG", ex);
+                throw new WebServiceException(ex);
             }
         }
-        
+
         LOG.info("Dispatch complete on thread : " + Thread.currentThread());
     }
+    
+    protected OutputStreamMessageContext processResponse(ServerTransport st, 
+            ObjectMessageContext objectContext, 
+            MessageContext replyContext,
+            boolean isOneWay)  
+        throws IOException {
+        OutputStreamMessageContext outCtx = null;
+        if (isOneWay) {
+            outCtx = createOutputStreamContext(st, objectContext);
+            outCtx.setOneWay(isOneWay);
+            finalPrepareOutputStreamContext(st, null, outCtx);    
+        } else {
+            outCtx = createOutputStreamContext(st, replyContext);
+            outCtx.setOneWay(isOneWay);
+           
+            if (isFault(objectContext, replyContext)) {
+                outCtx.setFault(true);
+            }
+            
+            HandlerInvoker invoker = createHandlerInvoker(); 
+            invoker.setContext(objectContext); 
+            invoker.setOutbound();
+            invoker.invokeStreamHandlers(outCtx);
+            finalPrepareOutputStreamContext(st, replyContext, outCtx);
+            write(replyContext, outCtx);
+        }
+        
+        return outCtx;
+      
+    }
 
+    protected void postDispatch(ServerTransport t,
+            MessageContext bindingContext,
+            OutputStreamMessageContext ostreamContext) 
+        throws IOException {
+        
+        LOG.info("postDispatch from binding on thread : " + Thread.currentThread());
+        t.postDispatch(bindingContext, ostreamContext);
+        if (ostreamContext.getOutputStream() != null) {
+            ostreamContext.getOutputStream().close();
+        }
+    }
+    
     /** invoke the target method.  Ensure that any replies or
      * exceptions are put into the correct context for the return path
      */

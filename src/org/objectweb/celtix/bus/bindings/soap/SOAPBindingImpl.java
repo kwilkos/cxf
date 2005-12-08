@@ -84,6 +84,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
 
     public boolean isCompatibleWithAddress(String address) {
+        
+        if ("jms".equalsIgnoreCase(address.substring(0, 3))) {
+            return true;
+        }
+        
         URL url = null;
         try {
             url = new URL(address);

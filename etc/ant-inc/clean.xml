@@ -30,6 +30,7 @@
         <delete quiet="true" dir="${build.lib.dir}"/>
         <delete quiet="true" dir="${build.package.dir}"/>
         <delete quiet="true" dir="${basedir}/build/javadoc"/>
+        <delete quiet="true" dir="${basedir}/ActiveMQ"/>
         <delete quiet="true" dir="${tools.dir}/tomcat/5.5.9/server/work"/>
         <delete quiet="true">
         	<fileset dir="${basedir}">

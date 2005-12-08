@@ -19,11 +19,11 @@ import javax.xml.ws.handler.MessageContext;
 
 
 
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.transports.jms.AddressType;
+import org.objectweb.celtix.transports.jms.context.JMSClientHeadersType;
 import org.objectweb.celtix.transports.jms.context.JMSHeadersType;
 import org.objectweb.celtix.transports.jms.context.JMSPropertyType;
 import org.objectweb.celtix.transports.jms.context.JMSServerHeadersType;
@@ -42,6 +42,7 @@ public class JMSTransportBase {
 
     //--Constructors------------------------------------------------------------
     public JMSTransportBase(Bus bus, EndpointReferenceType epr) throws WSDLException {
+        
         Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), epr);
         List<?> list = port.getExtensibilityElements();
         for (Object ep : list) {
@@ -50,20 +51,15 @@ public class JMSTransportBase {
                 jmsAddressDetails = (AddressType)ext;
             }
         }
-        textPayload = JMSConstants.TEXT_MESSAGE_TYPE.equals(jmsAddressDetails.getMessageType());
-        queueDestinationStyle = JMSConstants.JMS_QUEUE.equals(jmsAddressDetails.getDestinationStyle());
+        textPayload = 
+            JMSConstants.TEXT_MESSAGE_TYPE.equals(jmsAddressDetails.getMessageType().value());
+        queueDestinationStyle = 
+            JMSConstants.JMS_QUEUE.equals(jmsAddressDetails.getDestinationStyle().value());
         LOG.log(Level.FINE, "QUEUE_DESTINATION_STYLE: " + queueDestinationStyle);
     }
     
     
     //--Methods-----------------------------------------------------------------
-
-    /**
-     * @return the mutex associated with this transport instance
-     */
-    protected final Object mutex() {
-        return this;
-    }
 
     public final AddressType  getJmsAddressDetails() {
         return jmsAddressDetails;
@@ -94,8 +90,7 @@ public class JMSTransportBase {
         Message message = null;
 
         if (textPayload) {
-            message = session.createTextMessage();
-            ((TextMessage) message).setText((String) payload);
+            message = session.createTextMessage((String) payload);
         } else {
             message = session.createObjectMessage();
             ((ObjectMessage) message).setObject((byte[])payload);
@@ -144,8 +139,14 @@ public class JMSTransportBase {
         JMSHeadersType headers = null;
         if (isServer) {
             headers = (JMSServerHeadersType) context.get(JMSConstants.JMS_RESPONSE_HEADERS);
+            if (headers == null) {
+                headers = new JMSServerHeadersType();
+            }
         } else {
-            headers = (JMSServerHeadersType) context.get(JMSConstants.JMS_REQUEST_HEADERS);
+            headers = (JMSClientHeadersType) context.get(JMSConstants.JMS_REQUEST_HEADERS);
+            if (headers == null) {
+                headers = new JMSClientHeadersType();
+            }
         }
         
         headers.setJMSCorrelationID(message.getJMSCorrelationID());
@@ -156,7 +157,7 @@ public class JMSTransportBase {
         headers.setJMSRedelivered(Boolean.valueOf(message.getJMSRedelivered()));
         headers.setJMSTimeStamp(new Long(message.getJMSTimestamp()));
         headers.setJMSType(message.getJMSType());
-
+        
         List<JMSPropertyType> props = new ArrayList<JMSPropertyType>();
         Enumeration enm = message.getPropertyNames();
         while (enm.hasMoreElements()) {
@@ -174,7 +175,8 @@ public class JMSTransportBase {
     protected int getJMSDeliveryMode(JMSHeadersType headers) {
         int deliveryMode = Message.DEFAULT_DELIVERY_MODE;
         
-        if (headers.getJMSDeliveryMode() != null) {
+        if (headers != null  
+                && headers.getJMSDeliveryMode() != null) {
             deliveryMode = headers.getJMSDeliveryMode().intValue();
         }
         return deliveryMode;
@@ -183,7 +185,8 @@ public class JMSTransportBase {
     protected int getJMSPriority(JMSHeadersType headers) {
         int priority = Message.DEFAULT_PRIORITY;
         
-        if (headers.getJMSPriority() != null) {
+        if (headers != null  
+                && headers.getJMSPriority() != null) {
             priority = headers.getJMSPriority().intValue();
         }        
         return priority;
@@ -192,7 +195,8 @@ public class JMSTransportBase {
     protected long getTimeToLive(JMSHeadersType headers) {
         long ttl = Message.DEFAULT_TIME_TO_LIVE;
         
-        if (headers.getTimeToLive() != null) {
+        if (headers != null  
+                && headers.getTimeToLive() != null) {
             ttl = headers.getTimeToLive().longValue();
         }        
         return ttl;
@@ -201,7 +205,8 @@ public class JMSTransportBase {
     protected void setMessageProperties(JMSHeadersType headers, Message message) 
         throws JMSException {
         
-        if (headers.getProperty() != null) {
+        if (headers != null  
+                && headers.getProperty() != null) {
             List<JMSPropertyType> props = headers.getProperty();
             for (int x = 0; x < props.size(); x++) {
                 message.setStringProperty(props.get(x).getName(), props.get(x).getValue());

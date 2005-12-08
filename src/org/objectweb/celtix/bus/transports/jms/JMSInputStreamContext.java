@@ -20,7 +20,6 @@ public  class JMSInputStreamContext extends GenericMessageContext implements Inp
 
     public void setInputStream(InputStream ins) {
         inStream = ins;
-
     }
     
     public void setMatchingOutCtx(OutputStreamMessageContext os) {

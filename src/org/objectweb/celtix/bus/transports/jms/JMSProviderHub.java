@@ -58,7 +58,9 @@ public final class JMSProviderHub {
         Context context = JMSUtils.getInitialContext(addrDetails);
         Connection connection = null;
 
-        if (JMSConstants.JMS_QUEUE.equals(addrDetails.getDestinationStyle())) {
+        //TODO: Connection can use username and password from policy for Durable Subscriber.
+        
+        if (JMSConstants.JMS_QUEUE.equals(addrDetails.getDestinationStyle().value())) {
             QueueConnectionFactory qcf =
                 (QueueConnectionFactory)context.lookup(addrDetails.getJndiConnectionFactoryName());
             connection = qcf.createQueueConnection();
@@ -66,6 +68,11 @@ public final class JMSProviderHub {
             TopicConnectionFactory tcf =
                 (TopicConnectionFactory)context.lookup(addrDetails.getJndiConnectionFactoryName());
             connection = tcf.createTopicConnection();
+            //TODO: Need to add username from the policy.
+            if (addrDetails.getDurableSubscriberName() != null) {
+                String ext = transport instanceof JMSClientTransport ? "-client" : "-server";
+                connection.setClientID(System.getProperty("user.name" + ext));    
+            }    
         }
 
         connection.start();

@@ -212,6 +212,10 @@ public class SOAPServerBindingTest extends TestCase {
         public void finalPrepareOutputStreamContext(OutputStreamMessageContext context) throws IOException {
         }
         
+        public void postDispatch(MessageContext bindingContext, 
+                                           OutputStreamMessageContext context) throws IOException {
+        }
+        
         public void activate(ServerTransportCallback callback) throws IOException { }
 
         public void deactivate() throws IOException { }   

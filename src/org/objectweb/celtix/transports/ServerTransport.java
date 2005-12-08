@@ -2,6 +2,10 @@ package org.objectweb.celtix.transports;
 
 import java.io.IOException;
 
+import javax.xml.ws.handler.MessageContext;
+
+import org.objectweb.celtix.context.OutputStreamMessageContext;
+
 
 /**
  * ServerTransport
@@ -23,5 +27,12 @@ public interface ServerTransport extends Transport {
      * subsequently the transport could be activated using activate call. 
      */
     void deactivate() throws IOException;
+    
+    /**
+     * 
+     * Do the post dispatch task here.
+     */
+    void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context) 
+        throws IOException;
    
 }

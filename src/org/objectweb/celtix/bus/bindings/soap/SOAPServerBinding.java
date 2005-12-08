@@ -3,9 +3,13 @@ package org.objectweb.celtix.bus.bindings.soap;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
@@ -31,6 +35,7 @@ import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
+
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -38,6 +43,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class SOAPServerBinding extends AbstractServerBinding {
     
@@ -67,12 +73,17 @@ public class SOAPServerBinding extends AbstractServerBinding {
     }
 
     protected ServerTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
-        // TODO get from configuration
-        // TODO get from reference bindingID
+        
         try {
-            TransportFactory tf = 
-                    bus.getTransportFactoryManager().getTransportFactory(SOAPConstants.SOAP_URI);
-            return tf.createServerTransport(ref);
+            Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+            List<?> exts = port.getExtensibilityElements();
+            if (exts.size() > 0) {                
+                ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
+                TransportFactory tf = 
+                    bus.getTransportFactoryManager().
+                        getTransportFactory(el.getElementType().getNamespaceURI());
+                return tf.createServerTransport(ref);
+            }
         } catch (BusException ex) {
             LOG.severe("TRANSPORT_FACTORY_RETREIVAL_FAILURE_MSG");
         }

@@ -2,9 +2,19 @@ package org.objectweb.celtix.bus.wsdl;
 
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.List;
+
 import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.transports.jms.AddressType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
@@ -84,5 +94,33 @@ public class WSDLManagerTest extends TestCase {
         StringWriter writer = new StringWriter();
         wsdlManager.getWSDLFactory().newWSDLWriter().writeWSDL(def, writer);
         assertTrue(writer.toString().indexOf("jms:address") != -1);
+    }
+    
+    public void testExtensionReturnsProperJAXBType() throws Exception {
+        URL neturl = getClass().getResource("/wsdl/jms_test.wsdl");
+        Bus bus = Bus.init();
+        assertNotNull("Could not find WSDL", neturl);
+        WSDLManager wsdlManager = bus.getWSDLManager();
+        JAXBExtensionHelper.addExtensions(wsdlManager.getExtenstionRegistry(),
+                                          javax.wsdl.Port.class,
+                                          org.objectweb.celtix.transports.jms.AddressType.class);
+        
+        QName serviceName = new QName("http://celtix.objectweb.org/hello_world_jms", "HelloWorldService");
+        
+        EndpointReferenceType ref = 
+            EndpointReferenceUtils.getEndpointReference(neturl, serviceName, "");
+        
+        assertNotNull("Unable to create EndpointReference ", ref);
+        
+        Port port = EndpointReferenceUtils.getPort(wsdlManager, ref);
+        List<?> list = port.getExtensibilityElements();
+        AddressType jmsAddressDetails = null;
+        for (Object ep : list) {
+            ExtensibilityElement ext = (ExtensibilityElement)ep;
+            if (ext instanceof AddressType) {
+                jmsAddressDetails = (AddressType)ext;
+            }
+        }
+        assertNotNull(jmsAddressDetails);
     }
 }

@@ -254,6 +254,9 @@ public final class EndpointReferenceUtils {
      */
     public static EndpointReferenceType getEndpointReference(WSDLManager manager, Object implementor) {
 
+        
+//        Thread.dumpStack();
+        
         WebService ws = getWebServiceAnnotation(implementor.getClass());
         if (null == ws) {
             return null;

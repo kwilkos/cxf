@@ -163,6 +163,11 @@ public class TestServerBinding extends AbstractServerBinding {
 
         public void finalPrepareOutputStreamContext(OutputStreamMessageContext context) throws IOException {
         }
+        
+        public void postDispatch(MessageContext bindingContext, 
+                                           OutputStreamMessageContext context) throws IOException {
+            
+        }
 
         public void fire() {
             callback.dispatch(new ToyInputStreamMessageContext(new GenericMessageContext()), this);

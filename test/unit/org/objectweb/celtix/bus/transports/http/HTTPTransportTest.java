@@ -93,6 +93,7 @@ public class HTTPTransportTest extends TestCase {
                     transport.finalPrepareOutputStreamContext(octx);
                     octx.getOutputStream().write(bytes, 0, total);
                     octx.getOutputStream().flush();
+                    transport.postDispatch(ctx, octx);
                     octx.getOutputStream().close();
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -162,8 +163,7 @@ public class HTTPTransportTest extends TestCase {
         len = ictx.getInputStream().read(bytes);
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
-        server.deactivate();
-        
+        server.deactivate();        
     }
     
     private TransportFactory createTransportFactory() throws BusException { 

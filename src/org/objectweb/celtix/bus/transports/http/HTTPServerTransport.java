@@ -78,6 +78,7 @@ public class HTTPServerTransport implements ServerTransport {
     }
 
     public void activate(ServerTransportCallback cb) throws IOException {
+        System.out.println("Calling Activate on Server... ");
         callback = cb;
         engine.addServant(url, this);
     }
@@ -86,6 +87,10 @@ public class HTTPServerTransport implements ServerTransport {
         engine.removeServant(url, this);
     }
 
+    public void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context) {
+        // Do not need to do anything here. 
+    }
+    
     public void shutdown() {
     }
     

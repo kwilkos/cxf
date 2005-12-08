@@ -180,6 +180,8 @@
     <target name="testwsdl.codegen.internal" unless="testwsdl.codegen.notrequired">
        	<wsdltojava file="${basedir}/test/wsdl/hello_world.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
         <wsdltojava file="${basedir}/test/wsdl/hello_world_rpc_lit.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
+        <wsdltojava file="${basedir}/test/wsdl/jms_test.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
+        <!--        <wsdltojava file="help" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/> -->
         <wsdltojava file="${basedir}/test/wsdl/handler_test.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
         <wsdltojava file="${basedir}/test/wsdl/soapheader_test.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
         <mkdir dir="${basedir}/build/wsdl/wsdl"/>

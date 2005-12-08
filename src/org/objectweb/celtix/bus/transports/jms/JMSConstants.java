@@ -1,13 +1,6 @@
 package org.objectweb.celtix.bus.transports.jms;
 
-import javax.xml.namespace.QName;
-
 public final class JMSConstants {
-    public static final String NP_WSDL_JMS = "jms";
-    public static final String NU_WSDL_JMS = "http://celtix.objectweb.org/transports/jms";
-
-    // JMS Extensibility Elements
-    public static final QName NE_JMS_ADDRESS = new QName(NU_WSDL_JMS, "address");
 
     // JMS Attribute Names
     public static final String DESTINATION_STYLE = "destinationStyle";
@@ -21,7 +14,7 @@ public final class JMSConstants {
 
     public static final String MESSAGE_SELECTOR = "messageSelector";
     public static final String DURABLE_SUBSCRIBER_NAME = "durableSubscriberName";
-
+    
     public static final String JMS_QUEUE = "queue";
     public static final String JMS_TOPIC = "topic";
 

@@ -82,7 +82,6 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         if (!queueDestinationStyle) {
             LOG.log(Level.WARNING, "Non-oneway invocations not supported for JMS Topics");
             throw new IOException("Non-oneway invocations not supported for JMS Topics");
-        //    throw new Exception("Non-oneway invocations not supported for JMS Topics");
         }
 
         try {
@@ -106,7 +105,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
      */
     public void invokeOneway(OutputStreamMessageContext context) throws IOException {
         try {
-            invoke(context, true);   
+            invoke(context, false);   
         } catch (Exception ex) {
             throw new IOException(ex.getMessage());
         }
@@ -213,9 +212,10 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         JMSClientHeadersType headers =
             (JMSClientHeadersType) context.get(JMSConstants.JMS_REQUEST_HEADERS);
 
-        long timeout = 0;
+        long timeout = 30000L;
 
-        if (headers.getTimeOut() != null) {
+        if (headers != null  
+                && headers.getTimeOut() != null) {
             timeout = headers.getTimeOut().longValue();
         }
 

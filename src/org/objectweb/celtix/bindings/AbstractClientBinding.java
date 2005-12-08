@@ -13,6 +13,7 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
+
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -48,13 +49,14 @@ public abstract class AbstractClientBinding implements ClientBinding {
         ClientTransport ret = null;
         try {
             LOG.info("creating client transport for " + ref);
-
+          
             Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
             List<?> exts = port.getExtensibilityElements();
-            if (exts.size() > 0) {                
+            if (exts.size() > 0) {
                 ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
+                
                 TransportFactory factory = bus.getTransportFactoryManager().
-                    getTransportFactory(el.getElementType().getNamespaceURI()); 
+                        getTransportFactory(el.getElementType().getNamespaceURI()); 
                 ret = factory.createClientTransport(ref);
             }
         } catch (BusException ex) {
