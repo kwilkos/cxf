@@ -9,7 +9,10 @@ import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 
+import junit.extensions.TestSetup;
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 import org.activemq.broker.BrokerContainer;
 import org.activemq.broker.impl.BrokerContainerImpl;
@@ -17,6 +20,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
+
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
@@ -36,30 +40,26 @@ public class OneWayJMSTransportTest extends TestCase {
     private Bus bus;
     private String serverRcvdInOneWayCall;
     
-    private Thread jmsBrokerThread;
-    
     public OneWayJMSTransportTest(String arg0) {
         super(arg0);
     }
+    
+    public static Test suite() {
+        TestSuite suite = new TestSuite(JMSTransportTest.class);
+        return  new JMSBrokerSetup(suite);
+    }
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(JMSTransportTest.class);
+        junit.textui.TestRunner.run(JMSTransportTest.suite());
     }
     
     public void setUp() throws Exception {
         bus = Bus.init();
-        jmsBrokerThread = new JMSEmbeddedBroker("tcp://localhost:61616");
- 
-        jmsBrokerThread.start();
-        Thread.sleep(5000L);
         serverRcvdInOneWayCall = null;
     }
     
     public void tearDown() throws Exception {
-        ((JMSEmbeddedBroker) jmsBrokerThread).shutdownBroker = true;
-        if (jmsBrokerThread != null) {
-            jmsBrokerThread.join(5000L);
-        }
+        //
     }
     
     public void testOneWayTextQueueJMSTransport() throws Exception {
@@ -186,30 +186,51 @@ public class OneWayJMSTransportTest extends TestCase {
         return  factory.createServerTransport(ref);
     }
     
-    class JMSEmbeddedBroker extends Thread {
-        boolean shutdownBroker;
-        final String brokerUrl;
-        
-        
-        public JMSEmbeddedBroker(String url) {
-            brokerUrl = url;
+    protected static class JMSBrokerSetup extends TestSetup {
+        Thread jmsBrokerThread;
+        public JMSBrokerSetup(TestSuite suite) {
+            super(suite);
         }
         
-        public void run() {
-            try {
-                BrokerContainer container = new BrokerContainerImpl();
-                container.addConnector(brokerUrl);
-                container.start();
-                Object lock = new Object();                
-                
-                while (!shutdownBroker) {
-                    synchronized (lock) {
-                        lock.wait(5000L);
+        public void setUp() throws Exception {
+            jmsBrokerThread = new JMSEmbeddedBroker("tcp://localhost:61616");
+     
+            jmsBrokerThread.start();
+            Thread.sleep(5000L);            
+        }
+        
+        public void tearDown() throws Exception {
+            ((JMSEmbeddedBroker) jmsBrokerThread).shutdownBroker = true;
+            if (jmsBrokerThread != null) {
+                jmsBrokerThread.join(5000L);
+            }
+        }
+        
+        class JMSEmbeddedBroker extends Thread {
+            boolean shutdownBroker;
+            final String brokerUrl;
+            
+            
+            public JMSEmbeddedBroker(String url) {
+                brokerUrl = url;
+            }
+            
+            public void run() {
+                try {                
+                    BrokerContainer container = new BrokerContainerImpl();
+                    container.addConnector(brokerUrl);
+                    container.start();
+                    Object lock = new Object();                
+                    
+                    while (!shutdownBroker) {
+                        synchronized (lock) {
+                            lock.wait(5000L);
+                        }
                     }
+                    container.stop();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                container.stop();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }

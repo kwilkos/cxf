@@ -200,7 +200,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         JMSClientHeadersType headers =
             (JMSClientHeadersType) context.get(JMSConstants.JMS_REQUEST_HEADERS);
 
-        long timeout = 30000L;
+        long timeout = 15000L;
 
         if (headers != null  
                 && headers.getTimeOut() != null) {
