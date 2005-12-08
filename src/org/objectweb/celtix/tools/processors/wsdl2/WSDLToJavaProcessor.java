@@ -14,6 +14,7 @@ import org.objectweb.celtix.tools.generators.wsdl2.ServerGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.ServiceGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.TypeGenerator;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.PortTypeProcessor;
+import org.objectweb.celtix.tools.processors.wsdl2.internal.SEIAnnotationProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ServiceProcessor;
 
 public class WSDLToJavaProcessor extends WSDLToProcessor {
@@ -50,7 +51,10 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
         ServiceProcessor serviceProcessor = new ServiceProcessor(env);
         serviceProcessor.process(javaModel, getWSDLDefinition());
-        
+
+        SEIAnnotationProcessor seiAnnotationProcessor = new SEIAnnotationProcessor(env);
+        seiAnnotationProcessor.process(javaModel);
+
         return javaModel;
     }
 }

@@ -9,8 +9,12 @@ public class JavaInterface {
     private String namespace;
     private String location;
     private JavaModel model;
-    private JavaPort.SOAPStyle style;
+    private JavaPort.SOAPStyle soapStyle;
+    private JavaPort.SOAPUse soapUse;
+    private JavaPort.SOAPParameterStyle soapParameterStyle;
+    
     private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
+    private final List<String> annotations = new ArrayList<String>();
 
     public JavaInterface() {
     }
@@ -20,11 +24,27 @@ public class JavaInterface {
     }
 
     public void setSOAPStyle(JavaPort.SOAPStyle s) {
-        this.style = s;
+        this.soapStyle = s;
     }
 
     public JavaPort.SOAPStyle getSOAPStyle() {
-        return this.style;
+        return this.soapStyle;
+    }
+
+    public void setSOAPUse(JavaPort.SOAPUse u) {
+        this.soapUse = u;
+    }
+
+    public JavaPort.SOAPUse getSOAPUse() {
+        return this.soapUse;
+    }
+
+    public void setSOAPParameterStyle(JavaPort.SOAPParameterStyle p) {
+        this.soapParameterStyle = p;
+    }    
+    
+    public JavaPort.SOAPParameterStyle getSOAPParameterStyle() {
+        return this.soapParameterStyle;
     }
     
     public JavaModel getJavaModel() {
@@ -47,7 +67,7 @@ public class JavaInterface {
         return this.location;
     }
 
-    public List getMethods() {
+    public List<JavaMethod> getMethods() {
         return methods;
     }
 
@@ -81,5 +101,13 @@ public class JavaInterface {
 
     public void setNamespace(String ns) {
         this.namespace = ns;
+    }
+
+    public void addAnnotation(String annotation) {
+        this.annotations.add(annotation);
+    }
+
+    public List getAnnotations() {
+        return this.annotations;
     }
 }

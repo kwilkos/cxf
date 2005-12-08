@@ -5,14 +5,12 @@ import javax.wsdl.OperationType;
 
 public class JavaMethod {
 
-    public static enum SOAPUse { ENCODED, LITERAL }
-    
     private String name;
     private JavaReturn javaReturn;
     private OperationType style;
     private String soapAction;
     private JavaPort.SOAPStyle soapStyle;
-    private SOAPUse soapUse;
+    private JavaPort.SOAPUse soapUse;
     private boolean wrapperStyle;
     private final JavaInterface javaInterface;
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
@@ -139,11 +137,11 @@ public class JavaMethod {
         return this.soapAction; 
     }
     
-    public void setSoapUse(SOAPUse u) {
+    public void setSoapUse(JavaPort.SOAPUse u) {
         this.soapUse = u;
     }
     
-    public SOAPUse getSoapUse() {
+    public JavaPort.SOAPUse getSoapUse() {
         return this.soapUse;
     }
 

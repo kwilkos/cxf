@@ -92,11 +92,11 @@ public class ServiceProcessor {
         }
     }
 
-    private JavaMethod.SOAPUse getSoapUse(String soapUse) {
+    private JavaPort.SOAPUse getSoapUse(String soapUse) {
         if ("ENCODED".equalsIgnoreCase(soapUse)) {
-            return JavaMethod.SOAPUse.ENCODED;
+            return JavaPort.SOAPUse.ENCODED;
         } else {
-            return JavaMethod.SOAPUse.LITERAL;
+            return JavaPort.SOAPUse.LITERAL;
         }
     }
 
@@ -146,15 +146,15 @@ public class ServiceProcessor {
         }
         jm.setSoapUse(getSoapUse(use));
         if (JavaPort.SOAPStyle.RPC == jm.getSoapStyle()
-            && JavaMethod.SOAPUse.ENCODED == jm.getSoapUse()) {
+            && JavaPort.SOAPUse.ENCODED == jm.getSoapUse()) {
             System.out.println("** Unsupported RPC-Encoded Style Use **");
         }
         if (JavaPort.SOAPStyle.RPC == jm.getSoapStyle()
-            && JavaMethod.SOAPUse.LITERAL == jm.getSoapUse()) {
+            && JavaPort.SOAPUse.LITERAL == jm.getSoapUse()) {
             processRPCLiteralParameter(jm, operation);
         }
         if (JavaPort.SOAPStyle.DOCUMENT == jm.getSoapStyle()
-            && JavaMethod.SOAPUse.LITERAL == jm.getSoapUse()) {
+            && JavaPort.SOAPUse.LITERAL == jm.getSoapUse()) {
             return;
         }
     }

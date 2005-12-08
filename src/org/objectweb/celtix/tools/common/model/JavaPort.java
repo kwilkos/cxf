@@ -6,6 +6,9 @@ import java.util.List;
 public class JavaPort {
     
     public static enum SOAPStyle { RPC, DOCUMENT }
+    public static enum SOAPUse { ENCODED, LITERAL }
+    public static enum SOAPParameterStyle { BARE, WRAPPED }
+    
     private String name;
     private String portType;
     private String bindingName;
