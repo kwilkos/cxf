@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.jaxws.io;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -11,6 +12,7 @@ import javax.xml.ws.WebServiceException;
 import org.w3c.dom.Node;
 
 import org.objectweb.celtix.bindings.DataReader;
+import org.objectweb.celtix.bus.jaxb.JAXBUtils;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -66,10 +68,14 @@ public class NodeDataReader<T> implements DataReader<T> {
         }
 
         if (isOutBound && callback.getWebResult() != null) {
+            Method method = callback.getMethod();
+            if (JAXBUtils.isAsync(method)) {
+                method = callback.getSyncMethod();
+            }
             Object retVal = callback.getWrappedPart(
                              callback.getWebResultQName().getLocalPart(), 
                              obj, 
-                             callback.getMethod().getReturnType());
+                             method.getReturnType());
             objCtx.setReturn(retVal);
         }
 

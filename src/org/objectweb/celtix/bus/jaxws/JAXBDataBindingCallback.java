@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.jaxws;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.logging.Logger;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -12,6 +13,7 @@ import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.namespace.QName;
 import javax.xml.soap.Detail;
 import javax.xml.soap.SOAPFault;
+import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
@@ -24,14 +26,19 @@ import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.bindings.soap.SOAPConstants;
+import org.objectweb.celtix.bus.jaxb.JAXBUtils;
 import org.objectweb.celtix.bus.jaxb.WrapperHelper;
 import org.objectweb.celtix.bus.jaxws.io.DetailDataWriter;
 import org.objectweb.celtix.bus.jaxws.io.NodeDataReader;
 import org.objectweb.celtix.bus.jaxws.io.NodeDataWriter;
 import org.objectweb.celtix.bus.jaxws.io.SOAPFaultDataReader;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 
 public class JAXBDataBindingCallback implements DataBindingCallback {
+    
+    private static final Logger LOG = LogUtils.getL7dLogger(JAXBDataBindingCallback.class);
+    
     private SOAPBinding soapBindAnnotation;
     private WebMethod webMethodAnnotation;
     private WebResult webResultAnnotation;
@@ -39,6 +46,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     private RequestWrapper reqWrapper;
     private ResponseWrapper respWrapper;
     private final Method method;
+    private Method syncMethod;
     private final Mode mode;
     private WebService webServiceAnnotation;
     
@@ -98,6 +106,29 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
             reqWrapper = method.getAnnotation(RequestWrapper.class);
             //Get the RequestWrapper
             respWrapper = method.getAnnotation(ResponseWrapper.class);
+            
+            if (JAXBUtils.isAsync(method)) {
+                Class[] paramTypes = method.getParameterTypes();
+                if (paramTypes != null && paramTypes.length > 0 
+                    && AsyncHandler.class.isAssignableFrom(paramTypes[paramTypes.length - 1])) {
+                    Class[] effectiveParamTypes = new Class[paramTypes.length - 1];
+                    System.arraycopy(paramTypes, 0, effectiveParamTypes, 0, paramTypes.length - 1);
+                    paramTypes = effectiveParamTypes;
+                }
+                String syncMethodName = method.getName().substring(0, method.getName().lastIndexOf("Async"));
+                try {
+                    syncMethod = method.getDeclaringClass().getMethod(syncMethodName, paramTypes);
+                    webResultAnnotation = syncMethod.getAnnotation(WebResult.class);
+                   assert null != webResultAnnotation;
+                } catch (NoSuchMethodException ex) {
+                    LOG.severe("Could not find method " + syncMethodName 
+                               + " in class declaring method " + method.getName()); 
+                }
+                
+                if (null == webResultAnnotation) {
+                    webResultAnnotation = syncMethod.getAnnotation(WebResult.class);
+                }
+            }
         }
     }
 
@@ -210,6 +241,11 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     public Method getMethod() {
         return method;
     }
+    
+    public Method getSyncMethod() {
+        return syncMethod;
+    }
+    
     
     public Class<?> getWebFault(QName faultName) {
         for (Class<?> clazz : getMethod().getExceptionTypes()) {

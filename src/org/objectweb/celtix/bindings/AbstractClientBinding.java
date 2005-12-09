@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
+
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
@@ -105,7 +106,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
     public ObjectMessageContext invoke(ObjectMessageContext context,
                                        DataBindingCallback callback)
         throws IOException {
-        
+
         HandlerInvoker handlerInvoker = createHandlerInvoker(); 
         handlerInvoker.setContext(context); 
 
@@ -144,6 +145,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     finalPrepareOutputStreamContext(bindingContext, ostreamContext);
                     
                     write(bindingContext, ostreamContext);
+                    
                     InputStreamMessageContext ins = transport.invoke(ostreamContext);
                     assert ins != null;
 
@@ -160,6 +162,8 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     handlerInvoker.invokeStreamHandlers(ins); 
                     
                     read(ins, bindingContext);
+                    
+                    
                 } else {
                     //Output Message For Client
                     bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
@@ -173,11 +177,12 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     unmarshalFault(bindingContext, context, callback);
                 }
             }
+            
             context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
             handlerInvoker.invokeLogicalHandlers(true);
         } finally { 
             handlerInvoker.mepComplete();
-        }
+        }        
         return context;
     }
 
@@ -232,9 +237,96 @@ public abstract class AbstractClientBinding implements ClientBinding {
     }
 
     public Future<ObjectMessageContext> invokeAsync(ObjectMessageContext context,
-                                                    DataBindingCallback callback) {
-        // TODO Auto-generated method stub
-        // do not forget to set oneway operation.
-        return null;
+                                                    DataBindingCallback callback) throws IOException {
+        
+        LOG.info("AbstractClientBinding: invokeAsync");
+        HandlerInvoker handlerInvoker = createHandlerInvoker();
+        handlerInvoker.setContext(context);
+        AsyncFuture asyncFuture = null;
+
+        try { 
+            MessageContext bindingContext = createBindingMessageContext(context);
+            
+
+            //Input Message For Client
+            context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
+            bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
+            boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(true);
+
+            if (continueProcessing) {  
+
+                if (null == bindingContext) {
+                    bindingContext = context;
+                } else {
+                    marshal(context, bindingContext, callback);
+                }
+
+                continueProcessing = handlerInvoker.invokeProtocolHandlers(true, bindingContext); 
+
+                if (continueProcessing) {
+                    try {
+                        getTransport();
+                    } catch (WSDLException e) {
+                        throw (IOException)(new IOException(e.getMessage()).initCause(e));
+                    }
+                    assert transport != null : "transport is null";
+                    
+                    OutputStreamMessageContext ostreamContext = 
+                        createOutputStreamContext(bindingContext);
+                    ostreamContext.setOneWay(false);
+                    
+                    handlerInvoker.invokeStreamHandlers(ostreamContext);
+                    
+                    finalPrepareOutputStreamContext(bindingContext, ostreamContext);
+                    
+                    write(bindingContext, ostreamContext);
+                    
+                    Future<InputStreamMessageContext> ins = transport.invokeAsync(ostreamContext);
+                    asyncFuture = new AsyncFuture(ins, this, callback, handlerInvoker, context);         
+                }
+            }
+        } finally {
+            handlerInvoker.mepComplete();
+
+        }   
+        return (Future<ObjectMessageContext>)asyncFuture;
+                    
     }
+    
+    public ObjectMessageContext getObjectMessageContextAsync(InputStreamMessageContext ins, 
+                                                             HandlerInvoker handlerInvoker, 
+                                                             DataBindingCallback callback, 
+                                                             ObjectMessageContext context) {     
+        
+        context.putAll(ins); 
+        
+        try {
+            MessageContext bindingContext = createBindingMessageContext(context);
+            if (null == bindingContext) {
+                bindingContext = ins;
+            }
+            //Output Message For Client
+            bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
+            handlerInvoker.setInbound();
+            handlerInvoker.setFault(ins.isFault()); 
+            handlerInvoker.invokeStreamHandlers(ins); 
+
+            read(ins, bindingContext);
+    
+            handlerInvoker.invokeProtocolHandlers(true, bindingContext);
+    
+            if (!hasFault(bindingContext)) {
+                unmarshal(bindingContext, context, callback);
+            } else {
+                unmarshalFault(bindingContext, context, callback);
+            }
+            context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
+            
+        } finally { 
+            handlerInvoker.mepComplete();
+        }
+        
+        return context;
+    }
+
 }

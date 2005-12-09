@@ -50,7 +50,7 @@ public class WSDLToJavaProcessorTest extends TestCase {
         File[] files = helloworldsoaphttp.listFiles();
         assertEquals(files.length, 8);
         files = types.listFiles();
-        assertEquals(files.length, 15);
+        assertEquals(files.length, 17);
     }
 
     public void testHelloWorldRPCLit() throws Exception {

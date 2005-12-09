@@ -32,6 +32,20 @@
                     </sequence>
                 </complexType>
             </element>
+            <element name="greetMeSometime">
+				<complexType>
+					<sequence>
+						<element name="requestType" type="xsd:string"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="greetMeSometimeResponse">
+				<complexType>
+					<sequence>
+						<element name="responseType" type="xsd:string"/>
+					</sequence>
+				</complexType>
+			</element>
             <element name="greetMeOneWay">
                 <complexType>
                     <sequence>
@@ -107,6 +121,12 @@
     <wsdl:message name="greetMeResponse">
         <wsdl:part name="out" element="x1:greetMeResponse"/>
     </wsdl:message>
+    <wsdl:message name="greetMeSometimeRequest">
+        <wsdl:part name="in" element="x1:greetMeSometime"/>
+    </wsdl:message>
+    <wsdl:message name="greetMeSometimeResponse">
+        <wsdl:part name="out" element="x1:greetMeSometimeResponse"/>
+    </wsdl:message>
     <wsdl:message name="greetMeOneWayRequest">
         <wsdl:part name="in" element="x1:greetMeOneWay"/>
     </wsdl:message>
@@ -136,6 +156,10 @@
         <wsdl:operation name="greetMe">
             <wsdl:input name="greetMeRequest" message="tns:greetMeRequest"/>
             <wsdl:output name="greetMeResponse" message="tns:greetMeResponse"/>
+        </wsdl:operation>
+       <wsdl:operation name="greetMeSometime">
+            <wsdl:input name="greetMeSometimeRequest" message="tns:greetMeSometimeRequest"/>
+            <wsdl:output name="greetMeSometimeResponse" message="tns:greetMeSometimeResponse"/>
         </wsdl:operation>
         <wsdl:operation name="greetMeOneWay">
             <wsdl:input name="greetMeOneWayRequest" message="tns:greetMeOneWayRequest"/>
@@ -171,6 +195,15 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="greetMeSometime">
+			<soap:operation style="document"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
         <wsdl:operation name="greetMeOneWay">
             <soap:operation style="document"/>
             <wsdl:input>
@@ -216,4 +249,3 @@
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>
-

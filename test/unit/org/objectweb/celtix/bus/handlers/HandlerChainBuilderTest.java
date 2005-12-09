@@ -9,12 +9,16 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import javax.jws.HandlerChain;
 import javax.jws.WebService;
+import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
+
 
 import junit.framework.TestCase;
 
@@ -24,6 +28,12 @@ import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
+import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
+import org.objectweb.hello_world_soap_http.types.GreetMeSometimeResponse;
+import org.objectweb.hello_world_soap_http.types.SayHiResponse;
+import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
+
+
 
 public class HandlerChainBuilderTest extends TestCase {
 
@@ -201,10 +211,64 @@ class GreeterWithHandlerChainOnInterfaceImpl implements GreeterWithHandlerChain 
     public String greetMe(String requestType) { 
         return requestType;
     }
+    
+    public String greetMeSometime(String requestType) { 
+        return requestType;
+    }
+    
+    public Future<?> greetMeSometimeAsync(String requestType, AsyncHandler ah) { 
+        return null; 
+        /*not called */
+    }
+    
+    public Response<GreetMeSometimeResponse> greetMeSometimeAsync(String requestType) { 
+        return null; 
+        /*not called */
+    }
+    
+    public Future<?>  greetMeAsync(String requestType, AsyncHandler<GreetMeResponse> asyncHandler) { 
+        return null; 
+        /*not called */
+    }
+    
+    public Response<GreetMeResponse> greetMeAsync(String requestType) { 
+        return null; 
+        /*not called */
+    }
+    
+    public Future<?> sayHiAsync(AsyncHandler<SayHiResponse> asyncHandler) { 
+        return null; 
+        /*not called */
+    }
+    
+    public Response<SayHiResponse> sayHiAsync() { 
+        return null; 
+        /*not called */
+    }
 
     public void greetMeOneWay(String requestType) {
     }
 
+    public Response<TestDocLitFaultResponse> testDocLitFaultAsync(String faultType) {
+        return null; 
+        /*not called */
+    }
+    
+    public Future<?> testDocLitFaultAsync(String faultType, AsyncHandler ah) { 
+        return null; 
+        /*not called */
+    }
+    
+    public Future<?> testDocLitBareAsync(String bare, AsyncHandler ah) {
+        return null;
+        /* not called*/
+    }
+    
+    public Response<BareDocumentResponse>testDocLitBareAsync(String bare) {
+        return null;
+        /* not called */
+    }
+    
     public void testDocLitFault(String faultType) throws BadRecordLitFault, NoSuchCodeLitFault {
     }
     

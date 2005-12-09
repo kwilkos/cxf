@@ -15,6 +15,8 @@
         <attribute name="destdir"/>
         <attribute name="file"/>
         <attribute name="package" default="NOT_SPECIFIED"/>
+        <attribute name="extraArg1" default=""/>
+        <attribute name="extraArg2" default=""/>
         <sequential>
             <mkdir dir="@{destdir}"/>
             <mkdir dir="@{srcdestdir}"/>
@@ -38,7 +40,9 @@
                 <arg value="@{srcdestdir}"/>
                 <arg value="-d"/>
                 <arg value="@{destdir}"/>
-                <arg value="@{file}"/>
+                <arg value="@{extraArg1}"/>
+                <arg value="@{extraArg2}"/>
+                <arg value="@{file}"/>            
             </java>
         </sequential>
     </macrodef>
@@ -178,19 +182,34 @@
 
 
     <target name="testwsdl.codegen.internal" unless="testwsdl.codegen.notrequired">
-       	<wsdltojava file="${basedir}/test/wsdl/hello_world.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
+
+       <mkdir dir="${basedir}/build/wsdl/wsdl"/>
+       <property name="wsdl.dir" location="${basedir}/test/wsdl"/>
+       <property name="build.wsdl.dir" location="${basedir}/build/wsdl/wsdl"/>
+       <copy file="${basedir}/test/wsdl/async_binding.xml.tmpl"
+            tofile="${basedir}/build/wsdl/wsdl/async_binding.xml"
+            overwrite="yes">
+            <filterset>
+                <filter token="WSDL_LOCATION" value="${wsdl.dir}"/>
+            </filterset>
+       </copy>
+
+          
         <wsdltojava file="${basedir}/test/wsdl/hello_world_rpc_lit.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
         <wsdltojava file="${basedir}/test/wsdl/jms_test.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
         <!--        <wsdltojava file="help" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/> -->
         <wsdltojava file="${basedir}/test/wsdl/handler_test.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
         <wsdltojava file="${basedir}/test/wsdl/soapheader_test.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
-        <mkdir dir="${basedir}/build/wsdl/wsdl"/>
+       	<wsdltojava file="${basedir}/test/wsdl/hello_world.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"                                       
+             extraArg1="-b" extraArg2="${build.wsdl.dir}/async_binding.xml"/>
+        
     	<copy todir="${basedir}/build/wsdl/wsdl">
             <fileset dir="${basedir}/test/wsdl">
             	<include name="**/*.wsdl"/>
             </fileset>
         </copy>
-        <touch file="${basedir}/build/test-src/.TESTWSDL.CODEGEN.DONE"/>
+    <touch file="${basedir}/build/test-src/.TESTWSDL.CODEGEN.DONE"/>
+
     </target>
 
     <target name="testwsdl.codegen">

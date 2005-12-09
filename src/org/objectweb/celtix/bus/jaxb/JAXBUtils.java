@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.jaxb;
 
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -11,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.Future;
+
+import javax.xml.ws.Response;
 
 public final class JAXBUtils {
     
@@ -198,6 +202,11 @@ public final class JAXBUtils {
             packageName.append(normalizePackageNamePart(token));
         }
         return packageName.toString();
+    }
+    
+    public static boolean isAsync(Method method) {
+        return method.getName().endsWith("Async") 
+            && (method.getReturnType().equals(Response.class) || method.getReturnType().equals(Future.class));
     }
     
     private static String normalizePackageNamePart(String name) {

@@ -1,10 +1,21 @@
 package org.objectweb.hello_world_soap_http;
 
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
+
+import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Response;
 
 import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
 import org.objectweb.hello_world_soap_http.types.ErrorCode;
+import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
+import org.objectweb.hello_world_soap_http.types.GreetMeSometimeResponse;
 import org.objectweb.hello_world_soap_http.types.NoSuchCodeLit;
+import org.objectweb.hello_world_soap_http.types.SayHiResponse;
+import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
+
+
+
                 
 public class NotAnnotatedGreeterImpl implements Greeter {
 
@@ -15,6 +26,42 @@ public class NotAnnotatedGreeterImpl implements Greeter {
         LOG.info("Executing operation greetMe");
         return me;
     }
+    
+    public String greetMeSometime(String me) {
+        LOG.info("Executing operation greetMeSometime");
+        return me;
+    }
+    
+    public Future<?>  greetMeSometimeAsync(String requestType, 
+                                           AsyncHandler<GreetMeSometimeResponse> asyncHandler) { 
+        return null; 
+        /* to be implemented */
+    }
+    
+    public Response<GreetMeSometimeResponse> greetMeSometimeAsync(String requestType) { 
+        return null; 
+        /* to be implemented" */
+    }
+    
+    public Future<?>  greetMeAsync(String requestType, AsyncHandler<GreetMeResponse> asyncHandler) { 
+        return null; 
+        /*not called */
+    }
+    
+    public Response<GreetMeResponse> greetMeAsync(String requestType) { 
+        return null; 
+        /*not called */
+    }
+    
+    public Future<?> sayHiAsync(AsyncHandler<SayHiResponse> asyncHandler) { 
+        return null; 
+        /*not called */
+    }
+    
+    public Response<SayHiResponse> sayHiAsync() { 
+        return null; 
+        /*not called */
+    }
   
     public String sayHi() {
         LOG.info("Executing operation sayHi");
@@ -24,6 +71,27 @@ public class NotAnnotatedGreeterImpl implements Greeter {
     public void greetMeOneWay(String me) {
         LOG.info("Executing operation greetMeOneWay");
     }
+    
+    public Response<TestDocLitFaultResponse> testDocLitFaultAsync(String faultType) {
+        return null; 
+        /*not called */
+    }
+    
+    public Future<?> testDocLitFaultAsync(String faultType, AsyncHandler ah) {  
+        return null; 
+        /*not called */
+    }
+    
+    public Future<?> testDocLitBareAsync(String bare, AsyncHandler ah) {
+        return null;
+        /* not called */
+    }
+    
+    public Response<BareDocumentResponse> testDocLitBareAsync(String bare) {
+        return null;
+        /* not called */
+    }
+    
 
     public void testDocLitFault(String faultType)  throws BadRecordLitFault, NoSuchCodeLitFault {
         ErrorCode ec = new ErrorCode();

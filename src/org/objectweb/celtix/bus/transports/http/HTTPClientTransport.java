@@ -14,13 +14,20 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.wsdl.WSDLException;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.GenericMessageContext;
@@ -34,6 +41,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class HTTPClientTransport implements ClientTransport {
     
+    private static final Logger LOG = LogUtils.getL7dLogger(HTTPClientTransport.class);
     final URL url;
     final Configuration configuration;
     final HTTPClientPolicy policy;
@@ -91,11 +99,9 @@ public class HTTPClientTransport implements ClientTransport {
     }
 
     public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context) 
-        throws IOException {
-        
-        //HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;
-        // TODO async return stuff
-        return null;
+        throws IOException { 
+        HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;       
+        return new FutureInputStreamMessageContext(ctx);
     }
 
     public void shutdown() {
@@ -114,7 +120,7 @@ public class HTTPClientTransport implements ClientTransport {
     }
 
     
-    static class HTTPClientOutputStreamContext
+    protected static class HTTPClientOutputStreamContext
         extends MessageContextWrapper
         implements OutputStreamMessageContext {
 
@@ -408,5 +414,73 @@ public class HTTPClientTransport implements ClientTransport {
             assert get(HTTP_RESPONSE_CODE) != null;
             return ((Integer)get(HTTP_RESPONSE_CODE)).intValue() == 500;
         }
+    }
+    
+    class FutureInputStreamMessageContext implements Future<InputStreamMessageContext>, Runnable {
+        
+        private final HTTPClientOutputStreamContext httpClientOutputStreamContext;
+        private InputStreamMessageContext inputStrmMsgCtx;
+        private final Thread t;
+        private boolean done;
+        private boolean cancelled;
+        
+        public FutureInputStreamMessageContext(HTTPClientOutputStreamContext ctx) {
+            httpClientOutputStreamContext = ctx;  
+            inputStrmMsgCtx = null;
+            t = new Thread(this);
+            t.start();
+        }
+        
+
+        public boolean cancel(boolean mayInterruptIfRunning) {
+                          
+            if (mayInterruptIfRunning) {
+                t.interrupt();
+                cancelled = true;
+            } else if (!mayInterruptIfRunning && done) {                
+                t.interrupt(); 
+                cancelled = true;
+            } else {
+                cancelled = false;
+            }
+    
+            return cancelled;
+        }
+
+        public InputStreamMessageContext get() throws InterruptedException, ExecutionException {
+            while (!done) {
+                // block till done
+            }
+            return inputStrmMsgCtx;
+        }
+
+        public InputStreamMessageContext get(long timeout, TimeUnit unit) 
+            throws InterruptedException, ExecutionException, TimeoutException {
+            while (!done) {
+                // block till done
+            }
+            return inputStrmMsgCtx;
+        }
+
+        public boolean isCancelled() {
+            return cancelled;
+        }
+
+        public boolean isDone() {
+            return done;
+        }
+        
+
+        public void run() {
+            try {
+                done = false;
+                inputStrmMsgCtx = httpClientOutputStreamContext.createInputStreamContext();
+                done = true;
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, "Exception occured creating InputStreamContext", ex);             
+            }
+            
+        }
+
     }
 }

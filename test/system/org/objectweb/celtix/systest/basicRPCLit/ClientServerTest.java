@@ -23,6 +23,7 @@ public class ClientServerTest extends ClientServerTestBase {
     }
 
     public void testBasicConnection() throws Exception {
+
         URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
         assertNotNull(wsdl);
 
@@ -49,6 +50,7 @@ public class ClientServerTest extends ClientServerTestBase {
     }
     
     public void testComplexType() throws Exception {
+        
         URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
         assertNotNull(wsdl);
 
@@ -76,8 +78,9 @@ public class ClientServerTest extends ClientServerTestBase {
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
-        }       
+        }      
     }
+    
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ClientServerTest.class);

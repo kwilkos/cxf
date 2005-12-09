@@ -18,6 +18,7 @@ public class Server extends TestServerBase {
         try { 
             Server s = new Server(); 
             s.start();
+            //s.run();
         } catch (Exception ex) {
             ex.printStackTrace();
             System.exit(-1);

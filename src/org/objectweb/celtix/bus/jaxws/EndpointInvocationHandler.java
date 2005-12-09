@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,6 +45,8 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
     }
 
     public Object invoke(Object proxy, Method method, Object args[]) throws Exception {
+        
+        LOG.info("EndpointInvocationHandler: invoke");
 
         if (portTypeInterface.equals(method.getDeclaringClass())) {
             return invokeSEIMethod(proxy, method, args);
@@ -99,11 +102,19 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
         objMsgContext.setMessageObjects(parameters);
 
         boolean isOneway = (method.getAnnotation(Oneway.class) != null) ? true : false;
+        boolean isAsync = method.getName().endsWith("Async");
 
         if (isOneway) {
             clientBinding.invokeOneWay(objMsgContext,
                                        new JAXBDataBindingCallback(method,
                                                                    DataBindingCallback.Mode.PARTS));
+        } else if (isAsync) {         
+            Future<ObjectMessageContext> objMsgContextAsynch =
+                clientBinding.invokeAsync(objMsgContext,
+                                          new JAXBDataBindingCallback(method,
+                                                                      DataBindingCallback.Mode.PARTS)); 
+            return new AsyncResponse(objMsgContextAsynch);
+            
         } else {
             objMsgContext = clientBinding.invoke(objMsgContext,
                                                  new JAXBDataBindingCallback(method,
