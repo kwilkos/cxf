@@ -36,7 +36,7 @@ public class PortTypeProcessor {
             OperationProcessor operationProcessor = new OperationProcessor(env);
             operationProcessor.process(intf, operation);
         }
-        
+        jmodel.setLocation(location);
         jmodel.addInterface(intf.getName() , intf);
     }    
 }

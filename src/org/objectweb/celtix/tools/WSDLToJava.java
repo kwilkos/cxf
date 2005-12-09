@@ -68,14 +68,12 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
             if (ex.getCause() instanceof BadUsageException) {
                 getInstance().printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
-            System.exit(1);
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
-            System.exit(1);
         }
     }
 
@@ -110,12 +108,10 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
                                args);
         } catch (BadUsageException ex) {
             getInstance().printUsageException(TOOL_NAME, ex);
-            System.exit(1);
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();
             ex.printStackTrace();
-            System.exit(1);
         }
     }
 

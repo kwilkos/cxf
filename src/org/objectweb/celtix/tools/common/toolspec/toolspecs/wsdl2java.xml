@@ -93,12 +93,12 @@
 		<annotation>Generate Sample Demo Client.</annotation>
 		<switch>sample</switch>
 		</option>
-		
-		<option id="ant" maxOccurs="1">
+	    --> 		
+	    <option id="ant" maxOccurs="1">
 		<annotation>ant script generation.</annotation>
 		<switch>ant</switch>
-		</option>
-	    --> 
+	    </option>
+
 	</optionGroup>
 	<optionGroup id="common_options">
 	    <option id="help" maxOccurs="1">

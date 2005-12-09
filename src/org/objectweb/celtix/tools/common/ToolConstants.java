@@ -42,4 +42,5 @@ public final class ToolConstants {
     public static final String SVR_GENERATOR = "svr.generator";
     public static final String CLT_GENERATOR = "clt.generator";
     public static final String SERVICE_GENERATOR = "service.generator";
+    public static final String ANT_GENERATOR = "ant.generator";
 }

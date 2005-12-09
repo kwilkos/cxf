@@ -6,6 +6,7 @@ import javax.wsdl.PortType;
 
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaModel;
+import org.objectweb.celtix.tools.generators.wsdl2.AntGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.ClientGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.FaultGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.ImplGenerator;
@@ -27,6 +28,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         addGenerator(ToolConstants.SVR_GENERATOR, new ServerGenerator(jmodel, getEnvironment()));
         addGenerator(ToolConstants.CLT_GENERATOR, new ClientGenerator(jmodel, getEnvironment()));
         addGenerator(ToolConstants.SERVICE_GENERATOR, new ServiceGenerator(jmodel, getEnvironment()));
+        addGenerator(ToolConstants.ANT_GENERATOR, new AntGenerator(jmodel, getEnvironment()));
     }
     
     public void process() throws Exception {

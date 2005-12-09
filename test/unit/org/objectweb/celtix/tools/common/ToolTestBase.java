@@ -35,5 +35,9 @@ public abstract class ToolTestBase extends TestCase {
     protected String getStdOut() {
         return new String(stdOut.toByteArray());
     }
+    protected String getStdErr() {
+        return new String(errOut.toByteArray());
+    }
+
 }
 

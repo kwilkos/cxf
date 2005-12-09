@@ -37,11 +37,14 @@ public abstract class AbstractGenerator {
         writer.close();
     }
 
-    protected Writer parseOutputName(String packageName, String filename) throws Exception {
+    protected Writer parseOutputName(String packageName, String filename, String ext) throws Exception {
         FileWriterUtil fw = new FileWriterUtil((String) env.get(ToolConstants.CFG_OUTPUTDIR));
-        return fw.getWriter(packageName, filename + ".java");
+        return fw.getWriter(packageName, filename + ext);
     }
 
+    protected Writer parseOutputName(String packageName, String filename) throws Exception {
+        return parseOutputName(packageName, filename, ".java");
+    }
 
     protected void setAttributes(String n, Object value) {
         attributes.put(n, value);

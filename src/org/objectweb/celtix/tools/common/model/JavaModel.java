@@ -7,7 +7,8 @@ public class JavaModel {
     private final Map<String, JavaInterface> interfaces;
     private final Map<String, JavaExceptionClass> exceptionClasses;
     private final Map<String, JavaServiceClass> serviceClasses;
-
+    private String location;
+    
     public JavaModel() {
         interfaces = new HashMap<String, JavaInterface>();
         exceptionClasses = new HashMap<String, JavaExceptionClass>();
@@ -37,5 +38,13 @@ public class JavaModel {
     
     public Map<String, JavaServiceClass> getServiceClasses() {
         return this.serviceClasses;
+    }
+
+    public void setLocation(String l) {
+        this.location = l;
+    }
+
+    public String getLocation() {
+        return this.location;
     }
 }
