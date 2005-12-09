@@ -162,6 +162,14 @@ public abstract class TestCaseBase {
                 setUp();
             }
             initialized = true;
+
+
+            System.out.println("TestCase " + name + " is warming up the jit. (5 sec)");
+            long endTime = System.currentTimeMillis() + 5000;
+            getPort();
+            while (System.currentTimeMillis() < endTime) {
+                doJob();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
