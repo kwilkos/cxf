@@ -16,6 +16,7 @@ import javax.annotation.Resources;
 import org.objectweb.celtix.common.annotation.AnnotationProcessor;
 import org.objectweb.celtix.common.annotation.AnnotationVisitor;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.resource.ResourceResolver;
 
 /**
  * injects references specified using @Resource annotation 

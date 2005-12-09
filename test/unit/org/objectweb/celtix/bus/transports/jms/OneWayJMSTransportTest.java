@@ -146,7 +146,7 @@ public class OneWayJMSTransportTest extends TestCase {
         byte outBytes[] = "Hello World!!!".getBytes(); 
         octx.getOutputStream().write(outBytes);
         client.invokeOneway(octx);
-        Thread.sleep(50L);
+        Thread.sleep(500L);
         assertEquals(new String(outBytes), 
                           serverRcvdInOneWayCall.substring(0, outBytes.length));
         

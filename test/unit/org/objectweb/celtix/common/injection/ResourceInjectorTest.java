@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.annotation.Resources;
 import junit.framework.TestCase;
+import org.objectweb.celtix.resource.ResourceResolver;
 
 
 public class ResourceInjectorTest extends TestCase {

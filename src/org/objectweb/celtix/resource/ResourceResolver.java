@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.injection;
+package org.objectweb.celtix.resource;
 
 /**
  * Resolves resource.  A ResourceResolver is used to find references
