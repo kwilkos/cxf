@@ -34,6 +34,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class HTTPTransportTest extends TestCase {
+    static boolean first = true;
     
     Bus bus;
     private WSDLManager wsdlManager;
@@ -50,13 +51,25 @@ public class HTTPTransportTest extends TestCase {
         bus = EasyMock.createMock(Bus.class);
         wsdlManager = new WSDLManagerImpl(null);
     }
-    
-    public void xtestHTTPTransport() throws Exception {
-        doTestHTTPTransport(false);
-        // currently causes java.net.SocketTimeoutException
-        // doTestHTTPTransport(false);
+    int readBytes(byte bytes[], InputStream ins) throws IOException {
+        int len = ins.read(bytes);
+        int total = 0;
+        while (len != -1) {
+            total += len;
+            len = ins.read(bytes, total, bytes.length - total);
+        }
+        return total;
     }
     
+    
+    public void testHTTPTransport() throws Exception {
+        doTestHTTPTransport(false);
+        doTestHTTPTransport(false);
+    }
+    
+    public void testHTTPTransportUsingAutomaticWorkQueue() throws Exception {
+        doTestHTTPTransport(true);
+    }
     public void testHTTPTransportAsync() throws Exception {
         QName serviceName = new 
         QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
@@ -76,7 +89,7 @@ public class HTTPTransportTest extends TestCase {
                 try {
                     byte bytes[] = new byte[10000];
                     int total = readBytes(bytes, ctx.getInputStream());
-                    Thread.sleep(1000);
+                    Thread.sleep(700);
                     OutputStreamMessageContext octx = 
                         transport.createOutputStreamContext(ctx);
                     transport.finalPrepareOutputStreamContext(octx);
@@ -113,27 +126,14 @@ public class HTTPTransportTest extends TestCase {
         assertTrue(f.isDone());
         InputStreamMessageContext ictx = f.get();
         byte bytes[] = new byte[10000];
-        int len = ictx.getInputStream().read(bytes);
+        int len = readBytes(bytes, ictx.getInputStream());
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
                
     }
 
     
-    public void xtestHTTPTransportUsingAutomaticWorkQueue() throws Exception {
-        doTestHTTPTransport(true);
-    }
 
-    int readBytes(byte bytes[], InputStream ins) throws IOException {
-        int len = ins.read(bytes);
-        int total = 0;
-        while (len != -1) {
-            total += len;
-            len = ins.read(bytes, total, bytes.length - total);
-        }
-        return total;
-    }
-    
     public void doTestHTTPTransport(final boolean useAutomaticWorkQueue) throws Exception {
         
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
@@ -144,9 +144,52 @@ public class HTTPTransportTest extends TestCase {
                
         TransportFactory factory = createTransportFactory();
       
-        ServerTransport server = createServerTransport(factory, wsdlUrl, serviceName, 
-                                                       portName, address);          
+        ServerTransport server = createServerTransport(factory, wsdlUrl, serviceName,
+                                                       portName, address);
              
+        activateServer(server, useAutomaticWorkQueue);
+        //short request
+        ClientTransport client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
+        doRequestResponse(client, "Hello World".getBytes());
+        
+        //long request
+        byte outBytes[] = new byte[5000];
+        for (int x = 0; x < outBytes.length; x++) {
+            outBytes[x] = (byte)('a' + (x % 26));
+        }
+        client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
+        doRequestResponse(client, outBytes);
+        
+        server.deactivate();
+        outBytes = "HelloWorld".getBytes();
+ 
+        try {
+            OutputStreamMessageContext octx = client.createOutputStreamContext(new GenericMessageContext());
+            client.finalPrepareOutputStreamContext(octx);
+            octx.getOutputStream().write(outBytes);
+            octx.getOutputStream().close();
+            InputStreamMessageContext ictx = client.invoke(octx);
+            byte bytes[] = new byte[10000];
+            int len = ictx.getInputStream().read(bytes);
+            if (len != -1
+                && new String(bytes, 0, len).indexOf("HTTP Status 503") == -1
+                && new String(bytes, 0, len).indexOf("Error 404") == -1) {
+                fail("was able to process a message after the servant was deactivated: " + len 
+                     + " - " + new String(bytes));
+            }
+        } catch (IOException ex) {
+            //ignore - this is what we want
+        }
+        activateServer(server, useAutomaticWorkQueue);
+        doRequestResponse(client, "Hello World   3".getBytes());
+        server.deactivate();        
+        activateServer(server, useAutomaticWorkQueue);
+        doRequestResponse(client, "Hello World   4".getBytes());
+        server.deactivate();        
+    }
+    
+    private void activateServer(ServerTransport server,
+                                final boolean useAutomaticWorkQueue) throws Exception {
         ServerTransportCallback callback = new ServerTransportCallback() {
             public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
                 try {
@@ -157,6 +200,7 @@ public class HTTPTransportTest extends TestCase {
                     transport.finalPrepareOutputStreamContext(octx);
                     octx.getOutputStream().write(bytes, 0, total);
                     octx.getOutputStream().flush();
+
                     transport.postDispatch(ctx, octx);
                     octx.getOutputStream().close();
                 } catch (Exception ex) {
@@ -169,65 +213,25 @@ public class HTTPTransportTest extends TestCase {
                 } else {
                     return null;
                 }
-                
             }
         };
-        server.activate(callback);
-        
-        ClientTransport client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
-        OutputStreamMessageContext octx = 
-            client.createOutputStreamContext(new GenericMessageContext());
+
+        EasyMock.reset(bus);
+        Configuration bc = EasyMock.createMock(Configuration.class);
+        bus.getConfiguration();
+        EasyMock.expectLastCall().andReturn(bc);
+        server.activate(callback);        
+    }
+    
+    private void doRequestResponse(ClientTransport client, byte outBytes[]) throws Exception {
+        OutputStreamMessageContext octx = client.createOutputStreamContext(new GenericMessageContext());
         client.finalPrepareOutputStreamContext(octx);
-        byte outBytes[] = "Hello World!!!".getBytes(); 
         octx.getOutputStream().write(outBytes);
         InputStreamMessageContext ictx = client.invoke(octx);
         byte bytes[] = new byte[10000];
-        int len = ictx.getInputStream().read(bytes);
+        int len = readBytes(bytes, ictx.getInputStream());
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
-        
-        //long request
-        outBytes = new byte[5000];
-        for (int x = 0; x < outBytes.length; x++) {
-            outBytes[x] = (byte)('a' + (x % 26));
-        }
-        client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
-        octx = client.createOutputStreamContext(new GenericMessageContext());
-        client.finalPrepareOutputStreamContext(octx);
-        octx.getOutputStream().write(outBytes);
-        ictx = client.invoke(octx);
-        int total = readBytes(bytes, ictx.getInputStream());
-        
-        assertTrue("Did not read anything " + total, total > 0);
-        assertEquals(new String(outBytes), new String(bytes, 0, total));
-        
-        outBytes = "Hello World!!!".getBytes();
-        server.deactivate();
-  
-        try {
-            octx = client.createOutputStreamContext(new GenericMessageContext());
-            client.finalPrepareOutputStreamContext(octx);
-            octx.getOutputStream().write(outBytes);
-            octx.getOutputStream().close();
-            ictx = client.invoke(octx);
-            len = ictx.getInputStream().read(bytes);
-            if (len != -1
-                && new String(bytes, 0, len).indexOf("HTTP Status 503") == -1) {
-                fail("was able to process a message after the servant was deactivated: " + len 
-                     + " - " + new String(bytes));
-            }
-        } catch (IOException ex) {
-            //ignore - this is what we want
-        }
-        server.activate(callback);
-        octx = client.createOutputStreamContext(new GenericMessageContext());
-        client.finalPrepareOutputStreamContext(octx);
-        octx.getOutputStream().write(outBytes);
-        ictx = client.invoke(octx);
-        len = ictx.getInputStream().read(bytes);
-        assertTrue("Did not read anything " + len, len > 0);
-        assertEquals(new String(outBytes), new String(bytes, 0, len));
-        server.deactivate();        
     }
     
     private TransportFactory createTransportFactory() throws BusException { 
@@ -296,8 +300,8 @@ public class HTTPTransportTest extends TestCase {
     }
     
     private ServerTransport createServerTransport(TransportFactory factory, URL wsdlUrl, QName serviceName,
-                                                  String portName, String address) throws WSDLException,
-        IOException {
+                                                  String portName, String address)
+        throws WSDLException, IOException {
         EasyMock.reset(bus);
 
         Configuration bc = EasyMock.createMock(Configuration.class);
@@ -307,10 +311,14 @@ public class HTTPTransportTest extends TestCase {
         EasyMock.expectLastCall().andReturn(bc);
         bc.getChild("http://celtix.objectweb.org/bus/jaxws/endpoint-config", serviceName);
         EasyMock.expectLastCall().andReturn(ec);
-        bus.getConfiguration();
-        EasyMock.expectLastCall().andReturn(bc);
         bus.getWSDLManager();
         EasyMock.expectLastCall().andReturn(wsdlManager);
+        if (first) {
+            //first call will configure the port listener
+            bus.getConfiguration();
+            EasyMock.expectLastCall().andReturn(bc);
+            first = false;
+        }
 
         EasyMock.replay(bus);
         EasyMock.replay(bc);

@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
 import org.mortbay.http.HttpRequest;
@@ -28,6 +29,8 @@ import org.mortbay.http.HttpResponse;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.util.Base64Exception;
+import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -159,12 +162,31 @@ public class HTTPServerTransport implements ServerTransport {
             }
             put(HTTP_REQUEST_HEADERS, headers);
             
+            
+            
             headers = new HashMap<String, List<String>>();
             setPolicies(req, headers);
             
             put(HTTP_RESPONSE_HEADERS, headers); 
-            
-            
+            if (headers.containsKey("Authorization")) {
+                List<String> authorizationLines = headers.get("Authorization"); 
+                String credentials = authorizationLines.get(0);
+                String authType = credentials.split(" ")[0];
+                if ("Basic".equals(authType)) {
+                    String authEncoded = credentials.split(" ")[1];
+                    try {
+                        String authDecoded = new String(Base64Utility.decode(authEncoded));
+                        String authInfo[] = authDecoded.split(":");
+                        String username = authInfo[0];
+                        String password = authInfo[1];
+                        put(BindingProvider.USERNAME_PROPERTY, username);
+                        put(BindingProvider.PASSWORD_PROPERTY, password);
+                    } catch (Base64Exception ex) {
+                        //ignore, we'll leave things alone.  They can try decoding it themselves
+                    }
+                }
+            }
+           
             origInputStream = req.getInputStream();
             inStream = origInputStream;
             
@@ -310,11 +332,7 @@ public class HTTPServerTransport implements ServerTransport {
             req.setHandled(true);
             return;
         }
-        
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Service http request on thread: " + Thread.currentThread());
-        }
-        
+                
         final class Servicer implements Runnable {
             private boolean complete;
             private final HttpRequest request;
@@ -359,12 +377,18 @@ public class HTTPServerTransport implements ServerTransport {
     }
     
     void serviceRequest(HttpRequest req, HttpResponse resp) throws IOException {
-        InputStreamMessageContext ctx = new HTTPServerInputStreamContext(req, resp);
-        callback.dispatch(ctx, this);
-        resp.commit();
-        req.setHandled(true);
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.fine("Finished servicing http request on thread: " + Thread.currentThread());
+        try {
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info("Service http request on thread: " + Thread.currentThread());
+            }
+            InputStreamMessageContext ctx = new HTTPServerInputStreamContext(req, resp);
+            callback.dispatch(ctx, this);
+            resp.commit();
+            req.setHandled(true);
+        } finally {
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info("Finished servicing http request on thread: " + Thread.currentThread());
+            }
         }
     }
 

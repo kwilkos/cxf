@@ -163,12 +163,10 @@ public class HTTPClientTransport implements ClientTransport {
             } else {
                 connection = url.openConnection();
             }
-            connection = url.openConnection();
             connection.setDoOutput(true);
 
             if (connection instanceof HttpURLConnection) {
                 HttpURLConnection hc = (HttpURLConnection)connection;
-                hc.setChunkedStreamingMode(4096);
                 hc.setRequestMethod("POST");
             }
 
@@ -444,20 +442,33 @@ public class HTTPClientTransport implements ClientTransport {
                 cancelled = false;
             }
     
+            synchronized (this) {
+                notifyAll();
+            }
             return cancelled;
         }
 
         public InputStreamMessageContext get() throws InterruptedException, ExecutionException {
-            while (!done) {
-                // block till done
+            synchronized (this) {
+                if (!done) {
+                    wait();
+                }
+            }
+            if (cancelled) {
+                throw new InterruptedException();
             }
             return inputStrmMsgCtx;
         }
 
         public InputStreamMessageContext get(long timeout, TimeUnit unit) 
             throws InterruptedException, ExecutionException, TimeoutException {
-            while (!done) {
-                // block till done
+            synchronized (this) {
+                if (!done) {
+                    unit.wait(timeout);
+                }
+            }
+            if (cancelled) {
+                throw new InterruptedException();
             }
             return inputStrmMsgCtx;
         }
@@ -475,9 +486,16 @@ public class HTTPClientTransport implements ClientTransport {
             try {
                 done = false;
                 inputStrmMsgCtx = httpClientOutputStreamContext.createInputStreamContext();
-                done = true;
+                synchronized (this) {
+                    done = true;
+                    notifyAll();
+                } 
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, "Exception occured creating InputStreamContext", ex);             
+            } finally {
+                synchronized (this) {
+                    notifyAll();
+                } 
             }
             
         }

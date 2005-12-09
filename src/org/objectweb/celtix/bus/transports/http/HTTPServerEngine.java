@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bus.transports.http;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -25,8 +24,8 @@ import org.objectweb.celtix.transports.http.configuration.HTTPListenerPolicy;
 final class HTTPServerEngine {
     private static final long serialVersionUID = 1L;
     
-    private static Map<Integer, WeakReference<HTTPServerEngine>> portMap =
-        new HashMap<Integer, WeakReference<HTTPServerEngine>>();
+    private static Map<Integer, HTTPServerEngine> portMap =
+        new HashMap<Integer, HTTPServerEngine>();
    
     int servantCount;
     HttpServer server = new HttpServer();
@@ -67,12 +66,12 @@ final class HTTPServerEngine {
     
     static synchronized HTTPServerEngine getForPort(Bus bus, String protocol, int port) {
         
-        WeakReference<HTTPServerEngine> ref = portMap.get(port);
-        if (ref == null || ref.get() == null) {
-            ref = new WeakReference<HTTPServerEngine>(new HTTPServerEngine(bus, protocol, port));
+        HTTPServerEngine ref = portMap.get(port);
+        if (ref == null) {
+            ref = new HTTPServerEngine(bus, protocol, port);
             portMap.put(port, ref);
         }
-        return ref.get();
+        return ref;
     }
     
     synchronized void addServant(String url, final HTTPServerTransport servant) {
@@ -169,9 +168,12 @@ final class HTTPServerEngine {
         }
         
         --servantCount;
+        /* Bug in Jetty, we cannot do this.  If we restart later, data goes off
+         * someplace unknown
         if (servantCount == 0) {
             server.removeListener(listener);
         }
+        */
     }
     
     
