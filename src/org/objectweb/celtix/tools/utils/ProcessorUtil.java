@@ -1,10 +1,12 @@
 package org.objectweb.celtix.tools.utils;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.wsdl.Part;
 import javax.xml.namespace.QName;
@@ -108,6 +110,33 @@ public final class ProcessorUtil {
         }
     }
 
+
+    public static URL[] pathToURLs(String path) {
+        StringTokenizer st = new StringTokenizer(path, File.pathSeparator);
+        URL[] urls = new URL[st.countTokens()];
+        int count = 0;
+        while (st.hasMoreTokens()) {
+            File file = new File(st.nextToken());
+            URL url = null;
+            try {
+                url = file.toURL();
+            } catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            if (url != null) {
+                urls[count++] = url;
+            }
+        }
+        if (urls.length != count) {
+            URL[] tmp = new URL[count];
+            System.arraycopy(urls, 0, tmp, 0, count);
+            urls = tmp;
+        }
+        return urls;
+    }
+
+
     public static String getFullClzName(String namespace,
                                         String type,
                                         String defaultPackageName,
@@ -128,4 +157,5 @@ public final class ProcessorUtil {
             return jtype;
         }
     }
+
 }

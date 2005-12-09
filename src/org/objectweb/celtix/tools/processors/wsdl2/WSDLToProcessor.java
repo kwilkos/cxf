@@ -27,7 +27,7 @@ public class WSDLToProcessor implements Processor {
     protected ProcessorEnvironment env;
     protected WSDLFactory wsdlFactory;
     protected WSDLReader wsdlReader;
-    protected Map<String, S2JJAXBModel>jaxbModels = new HashMap<String, S2JJAXBModel>();
+    protected Map<String, S2JJAXBModel> jaxbModels = new HashMap<String, S2JJAXBModel>();
 
     private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
 
@@ -45,6 +45,7 @@ public class WSDLToProcessor implements Processor {
         }
         return logdir + File.separator + logfile;
     }
+
     private void initVelocity() {
         try {
             Properties props = new Properties();
@@ -52,7 +53,7 @@ public class WSDLToProcessor implements Processor {
             props.put("resource.loader", "class");
             props.put("class.resource.loader.class", clzName);
             props.put("runtime.log", getVelocityLogFile("velocity.log"));
-            
+
             Velocity.init(props);
         } catch (Exception e) {
             System.err.println("Can't initialize velocity engine");
@@ -81,27 +82,26 @@ public class WSDLToProcessor implements Processor {
         }
     }
 
-    
-    protected void init() {
+    protected void init() throws Exception {
         try {
-            parseWSDL((String) env.get(ToolConstants.CFG_WSDLURL));
+            parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));
             initVelocity();
             initJAXBModel();
         } catch (WSDLException we) {
             System.err.println("Can not create wsdl model");
         } catch (Exception e) {
-            e.printStackTrace();
+            throw e;
         }
     }
 
     public Map<String, S2JJAXBModel> getJAXBModels() {
         return this.jaxbModels;
     }
-    
+
     public Definition getWSDLDefinition() {
         return this.wsdlDefinition;
     }
-    
+
     public void addGenerator(String name, AbstractGenerator gen) {
         generators.put(name, gen);
     }
@@ -115,7 +115,7 @@ public class WSDLToProcessor implements Processor {
             gen.generate();
         }
     }
-    
+
     public void setEnvironment(ProcessorEnvironment penv) {
         this.env = penv;
     }

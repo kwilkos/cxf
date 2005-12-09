@@ -16,7 +16,6 @@
     <usage>
 
 	<optionGroup id="options">
-
 	    <option id="outputfile" maxOccurs="1">
 		<annotation>The wsdl output file name.</annotation>
 		<switch>o</switch>

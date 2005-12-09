@@ -1,10 +1,14 @@
 package org.objectweb.celtix.tools.common.model;
 
+import com.sun.xml.bind.api.TypeReference;
+
 public class JavaParameter extends JavaType {
 
     private boolean holder;
     private String holderName;
     private String annotation;
+    private TypeReference typeRef;
+    
     
     public JavaParameter() {
     }
@@ -36,4 +40,16 @@ public class JavaParameter extends JavaType {
     public String getAnnotation() {
         return this.annotation;
     }
+  
+    
+    public void setTypeReference(TypeReference ref) {
+        this.typeRef = ref;
+    }
+    
+    public TypeReference getTypeReference() {
+        return this.typeRef;
+    }
+    
+
+    
 }
