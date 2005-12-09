@@ -9,6 +9,7 @@ import java.security.PrivilegedAction;
 
 public class AnnotationUtil {
 
+    @SuppressWarnings("unchecked")
     public static <anoClass> anoClass getPrivClassAnnotation(final Class clazz, final Class anoClass) {
         return (anoClass)AccessController.doPrivileged(new PrivilegedAction() {
             public Object run() {
@@ -16,7 +17,8 @@ public class AnnotationUtil {
             }
         });
     }
-
+    
+    @SuppressWarnings("unchecked")
     public static <anoClass> anoClass getPrivMethodAnnotation(final Method method, final Class anoClass) {
         return (anoClass)AccessController.doPrivileged(new PrivilegedAction() {
             public Object run() {
@@ -24,7 +26,8 @@ public class AnnotationUtil {
             }
         });
     }
-
+    
+    @SuppressWarnings("unchecked")
     public static Annotation[][] getPrivParameterAnnotations(final Method method) {
         return (Annotation[][])AccessController.doPrivileged(new PrivilegedAction() {
             public Object run() {
