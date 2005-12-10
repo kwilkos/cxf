@@ -119,7 +119,7 @@ public class SOAPClientBindingTest extends TestCase {
         
         clientBinding.invokeOneWay(objContext,
                                    new JAXBDataBindingCallback(method,
-                                                               DataBindingCallback.Mode.PARTS));        
+                                                               DataBindingCallback.Mode.PARTS, null));        
     }
 
     public void testhasFault() throws Exception {
@@ -203,19 +203,19 @@ public class SOAPClientBindingTest extends TestCase {
         public void unmarshalFault(MessageContext context, ObjectMessageContext objContext) {
             super.unmarshalFault(context, objContext,
                                  new JAXBDataBindingCallback(objContext.getMethod(),
-                                                             DataBindingCallback.Mode.PARTS));
+                                                             DataBindingCallback.Mode.PARTS, null));
         }
 
         public void marshal(ObjectMessageContext objContext, MessageContext context) {
             super.marshal(objContext, context,
                           new JAXBDataBindingCallback(objContext.getMethod(),
-                                                      DataBindingCallback.Mode.PARTS));
+                                                      DataBindingCallback.Mode.PARTS, null));
         }
         
         public void unmarshal(MessageContext context, ObjectMessageContext objContext) {
             super.unmarshal(context, objContext,
                             new JAXBDataBindingCallback(objContext.getMethod(),
-                                                        DataBindingCallback.Mode.PARTS));
+                                                        DataBindingCallback.Mode.PARTS, null));
         }
         
         public void write(MessageContext context, OutputStreamMessageContext outCtx) {

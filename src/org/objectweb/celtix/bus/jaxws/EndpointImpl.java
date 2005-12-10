@@ -12,6 +12,8 @@ import java.util.logging.Logger;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
@@ -51,12 +53,21 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     private boolean published;
     private List<Source> metadata;
     private Executor executor;
-
+    private JAXBContext context;
 
     public EndpointImpl(Bus b, Object impl, String bindingId) {
 
         bus = b;
         implementor = impl;
+        
+        try {
+            context = JAXBEncoderDecoder.createJAXBContextForClass(impl.getClass());
+        } catch (JAXBException ex1) {
+            // TODO Auto-generated catch block
+            ex1.printStackTrace();
+            context = null;
+        }
+                
         reference = EndpointReferenceUtils.getEndpointReference(bus.getWSDLManager(), implementor);
         configuration = new EndpointConfiguration(bus, EndpointReferenceUtils.getServiceName(reference));
         try {           
@@ -76,6 +87,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         }
     }
 
+    
     /*
      * (non-Javadoc)
      * 
@@ -222,11 +234,11 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
 
     }
 
-    String getAddressFromContext(Object context) {
+    String getAddressFromContext(Object ctx) {
         return null;
     }
 
-    boolean isContextBindingCompatible(Object context) {
+    boolean isContextBindingCompatible(Object ctx) {
         return true;
     }
 
@@ -296,7 +308,8 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     public DataBindingCallback createDataBindingCallback(ObjectMessageContext objContext,
                                                          DataBindingCallback.Mode mode) {
         return new JAXBDataBindingCallback(objContext.getMethod(),
-                                           mode);
+                                           mode,
+                                           context);
     }
 
     public Method getMethod(Endpoint endpoint, QName operationName) {

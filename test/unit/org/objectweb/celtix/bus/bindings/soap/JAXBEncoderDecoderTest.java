@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.bindings.soap;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPFactory;
@@ -24,6 +25,8 @@ import org.objectweb.type_test.doc.TypeTestPortType;
  */
 public class JAXBEncoderDecoderTest extends TestCase {
     RequestWrapper wrapperAnnotation;
+    JAXBContext context;
+    
     public JAXBEncoderDecoderTest(String arg0) {
         super(arg0);
     }
@@ -35,6 +38,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
+        context = JAXBEncoderDecoder.createJAXBContextForClass(Greeter.class);
         Method method = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
         wrapperAnnotation = method.getAnnotation(RequestWrapper.class);
     }
@@ -48,7 +52,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
 
         Node node;
         try {
-            JAXBEncoderDecoder.marshall(null, inCorrectElName,  elNode);
+            JAXBEncoderDecoder.marshall(context, null, inCorrectElName,  elNode);
             fail("Should have thrown a WebServiceException");
         } catch (WebServiceException ex) {
             //expected - not a valid object
@@ -58,7 +62,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         obj.setRequestType("Hello");
         QName elName = new QName(wrapperAnnotation.targetNamespace(),
                                  wrapperAnnotation.localName());
-        JAXBEncoderDecoder.marshall(obj, elName, elNode);
+        JAXBEncoderDecoder.marshall(context, obj, elName, elNode);
         node = elNode.getLastChild();
         //The XML Tree Looks like
         //<GreetMe><requestType>Hello</requestType></GreetMe>
@@ -74,7 +78,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         SOAPFactory soapElFactory = SOAPFactory.newInstance();
         QName elName = new QName("http://test_jaxb_marshall", "in");
         SOAPElement elNode = soapElFactory.createElement(elName);
-        JAXBEncoderDecoder.marshall(new String("TestSOAPMessage"), elName,  elNode);
+        JAXBEncoderDecoder.marshall(context, new String("TestSOAPMessage"), elName,  elNode);
         
         assertNotNull(elNode.getChildNodes());
         assertEquals("TestSOAPMessage", elNode.getFirstChild().getFirstChild().getNodeValue());
@@ -93,7 +97,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         String str = new String("Hello Test");
         elNode.addChildElement("requestType").setValue(str);
 
-        Object obj = JAXBEncoderDecoder.unmarshall(
+        Object obj = JAXBEncoderDecoder.unmarshall(context, 
                          elNode, elName, Class.forName(wrapperAnnotation.className()));
         assertNotNull(obj);
 
@@ -102,7 +106,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         assertEquals(str, ((GreetMe)obj).getRequestType());
         
         try {
-            JAXBEncoderDecoder.unmarshall(null, null, String.class);
+            JAXBEncoderDecoder.unmarshall(context, null, null, String.class);
             fail("Should have received a WebServiceException");
         } catch (WebServiceException wex) {
             //Expected Exception

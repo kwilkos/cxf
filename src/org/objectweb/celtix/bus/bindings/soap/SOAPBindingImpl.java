@@ -182,10 +182,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             SOAPElement soapElement = addOperationNode(msg.getSOAPBody(), callback, isInputMsg);
             //add in, out and inout non-header params
             addParts(soapElement, objContext, isInputMsg, callback);
-
-            if (msg.saveRequired()) {
-                msg.saveChanges();
-            }            
         }
         return msg;
     }
@@ -213,10 +209,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             if (fault.getDetail().getChildNodes().getLength() == 0) {
                 fault.removeChild(fault.getDetail());
             }
-
-            if (msg.saveRequired()) {
-                msg.saveChanges();
-            }
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "FAULT_MARSHALLING_FAILURE_MSG", se);
             //Handle UnChecked Exception, Runtime Exception.
@@ -226,7 +218,10 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
 
     @SuppressWarnings("unchecked")
-    public void updateHeaders(MessageContext ctx, SOAPMessage msg) {
+    public void updateHeaders(MessageContext ctx, SOAPMessage msg) throws SOAPException {
+        if (msg.saveRequired()) {
+            msg.saveChanges();
+        }
         MimeHeaders headers = msg.getMimeHeaders();
         Map<String, List<String>> reqHead;
         String inOutKey = MessageContext.HTTP_REQUEST_HEADERS;

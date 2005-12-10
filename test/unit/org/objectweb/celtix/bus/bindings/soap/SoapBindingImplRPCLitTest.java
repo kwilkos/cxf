@@ -56,7 +56,8 @@ public class SoapBindingImplRPCLitTest extends TestCase {
 
         SOAPMessage msg = binding.marshalMessage(objContext, soapContext,
                                                  new JAXBDataBindingCallback(objContext.getMethod(),
-                                                                             DataBindingCallback.Mode.PARTS));
+                                                                             DataBindingCallback.Mode.PARTS,
+                                                                             null));
         //msg.writeTo(System.out);
         soapContext.setMessage(msg);
         assertNotNull(msg);
@@ -83,7 +84,8 @@ public class SoapBindingImplRPCLitTest extends TestCase {
 
         SOAPMessage msg = binding.marshalMessage(objContext, soapContext,
                                                  new JAXBDataBindingCallback(objContext.getMethod(),
-                                                                             DataBindingCallback.Mode.PARTS));
+                                                                             DataBindingCallback.Mode.PARTS,
+                                                                             null));
         soapContext.setMessage(msg);
         assertNotNull(msg);
         assertTrue(msg.getSOAPBody().hasChildNodes());
@@ -140,7 +142,7 @@ public class SoapBindingImplRPCLitTest extends TestCase {
 
         binding.unmarshalMessage(soapContext, objContext,
                                  new JAXBDataBindingCallback(objContext.getMethod(),
-                                                             DataBindingCallback.Mode.PARTS));
+                                                             DataBindingCallback.Mode.PARTS, null));
 
         assertNull(objContext.getReturn());
         Object[] params = objContext.getMessageObjects();
@@ -164,7 +166,7 @@ public class SoapBindingImplRPCLitTest extends TestCase {
 
         binding.unmarshalMessage(soapContext, objContext,
                                  new JAXBDataBindingCallback(objContext.getMethod(),
-                                                             DataBindingCallback.Mode.PARTS));
+                                                             DataBindingCallback.Mode.PARTS, null));
 
         assertNull(objContext.getMessageObjects());
         assertNotNull(objContext.getReturn());

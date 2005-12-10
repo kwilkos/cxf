@@ -287,7 +287,8 @@ public class SOAPServerBindingTest extends TestCase {
         public DataBindingCallback createDataBindingCallback(ObjectMessageContext objContext,
                                                              DataBindingCallback.Mode mode) {
             return new JAXBDataBindingCallback(objContext.getMethod(),
-                                               mode);
+                                               mode,
+                                               null);
         }
         public Method getMethod(Endpoint endpoint, QName operationName) {
             return EndpointUtils.getMethod(endpoint, operationName);

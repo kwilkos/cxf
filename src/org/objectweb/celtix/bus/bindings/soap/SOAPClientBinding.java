@@ -52,7 +52,13 @@ public class SOAPClientBinding extends AbstractClientBinding {
     protected OutputStreamMessageContext createOutputStreamContext(MessageContext bindingContext)
         throws IOException {
         SOAPMessage msg = ((SOAPMessageContext)bindingContext).getMessage();
-        soapBinding.updateHeaders(bindingContext, msg);
+        try {
+            soapBinding.updateHeaders(bindingContext, msg);
+        } catch (SOAPException ex) {
+            IOException io = new IOException(ex.getMessage());
+            io.initCause(ex);
+            throw io;
+        }
         return super.createOutputStreamContext(bindingContext);
     }
 

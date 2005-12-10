@@ -61,7 +61,7 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext> {
         Boolean isInputMessage = (Boolean) smc.get(ObjectMessageContext.MESSAGE_INPUT);
         Method method = (Method) smc.get(ObjectMessageContext.METHOD_OBJ);
         DataBindingCallback callback = 
-            new JAXBDataBindingCallback(method, DataBindingCallback.Mode.PARTS);
+            new JAXBDataBindingCallback(method, DataBindingCallback.Mode.PARTS, null);
 
         if (isServer) {
             if (isInputMessage.booleanValue()) {

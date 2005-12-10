@@ -35,10 +35,12 @@ public class SoapMessageInfoTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         msgInfo = new JAXBDataBindingCallback(SOAPMessageUtil.getMethod(Greeter.class, "greetMe"),
-                                          DataBindingCallback.Mode.PARTS);
+                                          DataBindingCallback.Mode.PARTS,
+                                          null);
         
         rpcMsgInfo = new JAXBDataBindingCallback(SOAPMessageUtil.getMethod(GreeterRPCLit.class, "greetMe"),
-                                             DataBindingCallback.Mode.PARTS);
+                                             DataBindingCallback.Mode.PARTS,
+                                             null);
     }
 
     public void testGetSoapStyle() throws Exception {
@@ -100,7 +102,8 @@ public class SoapMessageInfoTest extends TestCase {
         for (Method mt : methodList) {
             if (mt.getName().equals(methodNameString)) {
                 customMsgInfo = new JAXBDataBindingCallback(mt,
-                                                            DataBindingCallback.Mode.PARTS);
+                                                            DataBindingCallback.Mode.PARTS,
+                                                            null);
                 break;
             }
         }
@@ -141,7 +144,8 @@ public class SoapMessageInfoTest extends TestCase {
         for (Method method : declMethods) {
             if (method.getName().equals("length")) {
                 info = new JAXBDataBindingCallback(method,
-                                                   DataBindingCallback.Mode.PARTS);
+                                                   DataBindingCallback.Mode.PARTS,
+                                                   null);
                 break;
             }
         }
@@ -167,7 +171,8 @@ public class SoapMessageInfoTest extends TestCase {
         assertNull(jaxbmi.getWebFault(faultName));
         
         jaxbmi = new JAXBDataBindingCallback(SOAPMessageUtil.getMethod(Greeter.class, "testDocLitFault"),
-                                              DataBindingCallback.Mode.PARTS);
+                                              DataBindingCallback.Mode.PARTS,
+                                              null);
         Class<?> clazz = jaxbmi.getWebFault(faultName);
         assertNotNull(clazz);
         assertTrue(NoSuchCodeLitFault.class.isAssignableFrom(clazz));

@@ -19,7 +19,7 @@ public class NodeDataWriter<T> implements DataWriter<T> {
         write(obj, null, output);
     }
     public void write(Object obj, QName elName, T output) {
-        JAXBEncoderDecoder.marshall(obj, elName, (Node)output);
+        JAXBEncoderDecoder.marshall(callback.getJAXBContext(), obj, elName, (Node)output);
     }
     public void writeWrapper(ObjectMessageContext objCtx, boolean isOutBound, T output) {
         Object obj = callback.createWrapperType(objCtx, isOutBound);

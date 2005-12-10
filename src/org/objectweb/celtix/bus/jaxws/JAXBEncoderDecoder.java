@@ -5,15 +5,23 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Holder;
+import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebServiceException;
 
 import org.w3c.dom.Node;
@@ -23,14 +31,154 @@ import org.w3c.dom.Node;
  * @author apaibir
  */
 public final class JAXBEncoderDecoder {
+    
+    static Map<Class, JAXBContext> contextMap = new ConcurrentHashMap<Class, JAXBContext>();
+    
     private JAXBEncoderDecoder() {        
     }
     
-    public static void marshall(Object elValue, QName elNname,  Node destNode) {
+    public static JAXBContext createJAXBContextForClass(Class cls) throws JAXBException {
+        JAXBContext context = contextMap.get(cls);
+        if (context == null) {
+            Set<Class> classes = new HashSet<Class>();
+            getClassesForContext(cls, classes, cls.getClassLoader());
+            try {
+                //System.err.println(classes);
+                context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
+                contextMap.put(cls, context);
+            } catch (JAXBException ex) {
+                //System.err.println(classes);
+                throw ex;
+            }
+        }
+        return context;
+    }
+    
+    private static Class getValidClass(Class cls) {
+        if (cls.isEnum()) {
+            return cls;
+        }
+        if (cls.isArray()) {
+            return getValidClass(cls.getComponentType());
+        }
+
+        if (cls == Holder.class || cls == Object.class || cls == String.class) {
+            cls = null;
+        } else if (cls.isPrimitive() || cls.isInterface() || cls.isAnnotation()) {
+            cls = null;
+        }
+        if (cls != null) {
+            try {
+                if (cls.getConstructor(new Class[0]) == null) {
+                    cls = null;
+                }
+            } catch (NoSuchMethodException ex) {
+                cls = null;
+            }
+        }
+        return cls;
+    }
+    private static void addClass(Class cls, Set<Class> classes) {
+        if (cls.isArray()) {
+            classes.add(cls);
+            return;
+            /*
+            Class c2 = getValidClass(cls);
+            if (c2 != null) {
+                classes.add(cls);
+                return;
+            }*/
+        }
+        cls = getValidClass(cls);
+        if (null != cls) {
+            if (cls.isEnum()) {
+                // The object factory stuff doesn't work for enums
+                classes.add(cls);
+            }
+            String name = cls.getPackage().getName() + ".ObjectFactory";
+            try {
+                cls = Class.forName(name, false, cls.getClassLoader());
+                if (cls != null) {
+                    classes.add(cls);
+                }
+            } catch (ClassNotFoundException ex) {
+                //cannot add factory, just add the class
+                classes.add(cls);
+            }
+        }
+    }
+    private static void addType(Type cls, Set<Class> classes) {
+        if (cls instanceof Class) {
+            addClass((Class)cls, classes);
+        } else if (cls instanceof ParameterizedType) {
+            for (Type t2 : ((ParameterizedType)cls).getActualTypeArguments()) {
+                addType(t2, classes);
+            }
+        } else if (cls instanceof GenericArrayType) {
+            GenericArrayType gt = (GenericArrayType)cls;
+            addType(gt.getGenericComponentType(), classes);
+        }
+    }
+    
+    //collect ALL the classes that are accessed by the class
+    private static void getClassesForContext(Class<?> theClass, Set<Class> classes, ClassLoader loader) {
+        Method methods[] = theClass.getMethods();
+        for (Method meth : methods) {
+            for (Type t : meth.getGenericParameterTypes()) {
+                addType(t, classes);
+            }
+            addType(meth.getGenericReturnType(), classes);
+            
+            if (meth.getReturnType().isArray()) {
+                addClass(meth.getReturnType(), classes);
+            }
+            for (Class cls : meth.getParameterTypes()) {
+                addClass(cls, classes);
+            }
+            
+            for (Class<?> cls : meth.getExceptionTypes()) {
+                //addClass(cls, classes);
+                try {
+                    Method fim = cls.getMethod("getFaultInfo", new Class[0]);
+                    addClass(fim.getReturnType(), classes);
+                } catch (NoSuchMethodException ex) {
+                    //ignore - not a valid JAXB fault thing
+                }
+            }
+            try {
+                //Get the RequestWrapper
+                RequestWrapper reqWrapper = meth.getAnnotation(RequestWrapper.class);
+                if (reqWrapper != null) {
+                    Class cls = Class.forName(reqWrapper.className(), false,
+                                        loader);
+                    addClass(cls, classes);
+                }
+                //Get the RequestWrapper
+                ResponseWrapper respWrapper = meth.getAnnotation(ResponseWrapper.class);
+                if (respWrapper != null) {
+                    Class cls = Class.forName(respWrapper.className(),
+                                              false,
+                                              loader);
+                    addClass(cls, classes);
+                }
+            } catch (ClassNotFoundException ex) {
+                //ignore
+            }
+        }
+        for (Class intf : theClass.getInterfaces()) {
+            getClassesForContext(intf, classes, loader);
+        }
+        if (theClass.getSuperclass() != null) {
+            getClassesForContext(theClass.getSuperclass(), classes, loader);
+        }
+    }
+    
+    public static void marshall(JAXBContext context, Object elValue, QName elNname,  Node destNode) {
         
         try {
-            JAXBContext context = JAXBContext.newInstance(elValue.getClass());
-            
+            if (context == null) {
+                context = JAXBContext.newInstance(elValue.getClass());
+            }
             Object mObj = elValue;
             Marshaller u = context.createMarshaller();
             u.setProperty(Marshaller.JAXB_ENCODING , "UTF-8");
@@ -66,10 +214,13 @@ public final class JAXBEncoderDecoder {
         }
     }
     
-    public static Object unmarshall(Node srcNode, QName elName, Class<?> clazz) {
+    public static Object unmarshall(JAXBContext context, Node srcNode, QName elName, Class<?> clazz) {
         Object obj = null;
         try {
-            JAXBContext context = JAXBContext.newInstance(clazz);
+            if (context == null) {
+                context = JAXBContext.newInstance(clazz);
+            }
+            
             Unmarshaller u = context.createUnmarshaller();
 
             obj = (clazz != null) ? u.unmarshal(srcNode, clazz) : u.unmarshal(srcNode);

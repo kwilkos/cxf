@@ -11,6 +11,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.Oneway;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.ProtocolException;
@@ -36,12 +38,20 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
     
     private final Class<?> portTypeInterface;
     private final Bus bus;
+    private JAXBContext context;
     
     public EndpointInvocationHandler(Bus b, EndpointReferenceType reference,
                                      Configuration configuration, Class<?> portSEI) {
         bus = b;
         portTypeInterface = portSEI;
         clientBinding = createBinding(reference, configuration);
+        try {
+            context = JAXBEncoderDecoder.createJAXBContextForClass(portSEI);
+        } catch (JAXBException ex1) {
+            // TODO Auto-generated catch block
+            ex1.printStackTrace();
+            context = null;
+        }
     }
 
     public Object invoke(Object proxy, Method method, Object args[]) throws Exception {
@@ -107,18 +117,21 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
         if (isOneway) {
             clientBinding.invokeOneWay(objMsgContext,
                                        new JAXBDataBindingCallback(method,
-                                                                   DataBindingCallback.Mode.PARTS));
+                                                                   DataBindingCallback.Mode.PARTS,
+                                                                   context));
         } else if (isAsync) {         
             Future<ObjectMessageContext> objMsgContextAsynch =
                 clientBinding.invokeAsync(objMsgContext,
                                           new JAXBDataBindingCallback(method,
-                                                                      DataBindingCallback.Mode.PARTS)); 
+                                                                      DataBindingCallback.Mode.PARTS,
+                                                                      context)); 
             return new AsyncResponse(objMsgContextAsynch);
             
         } else {
             objMsgContext = clientBinding.invoke(objMsgContext,
                                                  new JAXBDataBindingCallback(method,
-                                                                             DataBindingCallback.Mode.PARTS));
+                                                                             DataBindingCallback.Mode.PARTS,
+                                                                             context));
         }
 
         if (objMsgContext.getException() != null) {

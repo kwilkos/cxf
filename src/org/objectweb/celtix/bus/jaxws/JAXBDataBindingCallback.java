@@ -10,6 +10,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
+import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.soap.Detail;
 import javax.xml.soap.SOAPFault;
@@ -49,13 +50,19 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     private Method syncMethod;
     private final Mode mode;
     private WebService webServiceAnnotation;
+    private final JAXBContext context;
     
-    public JAXBDataBindingCallback(Method m, Mode md) {
+    public JAXBDataBindingCallback(Method m, Mode md, JAXBContext ctx) {
         method = m;
         mode = md;
+        context = ctx;
         init();
     }
 
+    public JAXBContext getJAXBContext() {
+        return context;
+    }
+    
     public Mode getMode() {
         return mode;
     }
