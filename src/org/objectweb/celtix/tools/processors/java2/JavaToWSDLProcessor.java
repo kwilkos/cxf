@@ -16,11 +16,8 @@ public class JavaToWSDLProcessor implements Processor {
 
     public void process() throws Exception {
         model = new WSDLModel();
-        try {
-            init();
-        } catch (Exception e) {
-            throw e;
-        }
+ 
+        init();
         buildModel(model, getSEIClass());
 
         WSDLGenerator generator = new WSDLGenerator(model);
@@ -29,11 +26,7 @@ public class JavaToWSDLProcessor implements Processor {
 
     public void buildModel(WSDLModel wmodel, Class clazz) throws Exception {
         ClassProcessor classproc = new ClassProcessor(clazz);
-        try {
-            classproc.process(wmodel);
-        } catch (Exception e) {
-            throw e;
-        }
+        classproc.process(wmodel);
         printModel();
     }
 
@@ -45,7 +38,7 @@ public class JavaToWSDLProcessor implements Processor {
         return this.penv;
     }
 
-    protected void init() throws Exception {
+    protected void init() {
         seiClass = new AnnotationUtil().loadClass((String)penv.get(ToolConstants.CFG_CLASSNAME));
     }
 
@@ -63,11 +56,9 @@ public class JavaToWSDLProcessor implements Processor {
         echo("** Service  Name ** : " + model.getServiceName());
         echo("** TNS      Name ** : " + model.getTargetNameSpace());
         echo("** WSDL Location ** : " + model.getWsdllocation());
-
     }
 
     public void echo(String tmp) {
         System.out.println(tmp);
     }
-
 }

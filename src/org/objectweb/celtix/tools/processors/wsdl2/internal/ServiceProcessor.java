@@ -49,7 +49,7 @@ public class ServiceProcessor {
         sclz.setName(name);
         String namespace = service.getQName().getNamespaceURI();
         sclz.setNamespace(namespace);
-        String packageName = ProcessorUtil.parsePackageName(namespace, (String[])env
+        String packageName = ProcessorUtil.parsePackageName(namespace, (String)env
             .get(ToolConstants.CFG_PACKAGENAME));
         sclz.setPackageName(packageName);
         Map ports = service.getPorts();

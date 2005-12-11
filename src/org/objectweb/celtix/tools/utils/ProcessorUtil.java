@@ -63,9 +63,9 @@ public final class ProcessorUtil {
         return JAXBRIContext.mangleNameToVariableName(vName);
     }
 
-    public static String parsePackageName(String namespace, String[] defaultPackageNames) {
-        String packageName = (defaultPackageNames != null
-                              && defaultPackageNames.length > 0) ? defaultPackageNames[0] : null;
+    public static String parsePackageName(String namespace, String defaultPackageName) {
+        String packageName = (defaultPackageName != null
+                              && defaultPackageName.trim().length() > 0) ? defaultPackageName : null;
         
         if (packageName == null) {
             packageName = URIParserUtil.getPackageName(namespace);
@@ -139,7 +139,7 @@ public final class ProcessorUtil {
     public static String getFullClzName(String namespace,
                                         String type,
                                         String defaultPackageName,
-                                        String[] userPackage) {
+                                        String userPackage) {
         String jtype = BuiltInTypesJavaMappingUtil.getJType(namespace, type);      
         if (jtype == null) {
             String packageName = parsePackageName(namespace, userPackage);

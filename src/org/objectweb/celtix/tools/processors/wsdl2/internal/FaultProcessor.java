@@ -46,7 +46,7 @@ public class FaultProcessor {
         
         JavaExceptionClass expClass = new JavaExceptionClass(model);
         String packageName = ProcessorUtil.parsePackageName(namespace,
-                                                            (String[])env.get(ToolConstants.CFG_PACKAGENAME));
+                                                            (String)env.get(ToolConstants.CFG_PACKAGENAME));
         expClass.setName(name);
         expClass.setNamespace(namespace);
         expClass.setPackageName(packageName);
@@ -56,8 +56,8 @@ public class FaultProcessor {
             String fType = ProcessorUtil.resolvePartType(part);
             String fNamespace = ProcessorUtil.resolvePartNamespace(part);
             String fPackageName = ProcessorUtil.parsePackageName(fNamespace,
-                                                                (String[])env.get(ToolConstants.
-                                                                                  CFG_PACKAGENAME));
+                                                                 (String)env.get(ToolConstants.
+                                                                                 CFG_PACKAGENAME));
             JavaField fField = new JavaField(fName, fType, fNamespace);
             
             if (!method.getInterface().getPackageName().equals(fPackageName)) {

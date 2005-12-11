@@ -61,7 +61,7 @@ public class ParameterProcessor {
         String type = ProcessorUtil.resolvePartType(part);
 
         JavaParameter parameter = new JavaParameter(name, type, namespace);
-        String[] userPackage = (String[])env.get(ToolConstants.CFG_PACKAGENAME);
+        String userPackage = (String) env.get(ToolConstants.CFG_PACKAGENAME);
         parameter.setClassName(ProcessorUtil.getFullClzName(namespace,
                                                             type,
                                                             method.getInterface().getPackageName(),
@@ -111,7 +111,7 @@ public class ParameterProcessor {
         
         JavaReturn returnType = new JavaReturn(name, type, namespace);
         returnType.setStyle(JavaType.Style.OUT);
-        String[] userPackage = (String[])env.get(ToolConstants.CFG_PACKAGENAME);
+        String userPackage = (String) env.get(ToolConstants.CFG_PACKAGENAME);
         if (namespace != null && type != null && !"void".equals(type)) {
             returnType.setClassName(ProcessorUtil.getFullClzName(namespace,
                                                                  type,

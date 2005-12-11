@@ -183,7 +183,7 @@ public class OperationProcessor  {
             || ProcessorUtil.getBlock(outputPart, env) == null) {
             return false;
         }
-        String[] userPackage = (String[])env.get(ToolConstants.CFG_PACKAGENAME);
+        String userPackage = (String)env.get(ToolConstants.CFG_PACKAGENAME);
 
         if (inputPart != null) {
             wrapperRequest = new JavaParameter();

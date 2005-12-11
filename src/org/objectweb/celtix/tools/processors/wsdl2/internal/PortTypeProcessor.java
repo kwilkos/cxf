@@ -22,7 +22,7 @@ public class PortTypeProcessor {
         JavaInterface intf = new JavaInterface(jmodel);
         String namespace = portType.getQName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace,
-                                                            (String[])env.get(ToolConstants.CFG_PACKAGENAME));
+                                                            (String) env.get(ToolConstants.CFG_PACKAGENAME));
         String location = ProcessorUtil.getAbsolutePath((String) env.get(ToolConstants.CFG_WSDLURL));
         
         intf.setName(portType.getQName().getLocalPart());

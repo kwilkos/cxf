@@ -20,23 +20,13 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
         super(TOOL_NAME, toolspec);
     }
 
-    private Set getArrayKeys() {
-        Set<String> set = new HashSet<String>();
-        set.add(ToolConstants.CFG_PORTTYPE);
-        set.add(ToolConstants.CFG_PACKAGENAME);
-        set.add(ToolConstants.CFG_NINCLUDE);
-        set.add(ToolConstants.CFG_NEXCLUDE);
-        set.add(ToolConstants.CFG_WEBSERVICE);
-        return set;
-    }
-
     public void execute(boolean exitOnFinish) {
         WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
         try {
             super.execute(exitOnFinish);
             if (!hasInfoOption()) {
                 ProcessorEnvironment env = new ProcessorEnvironment();
-                env.setParameters(getParametersMap(getArrayKeys()));
+                env.setParameters(getParametersMap(new HashSet()));
                 if (env.get(ToolConstants.CFG_OUTPUTDIR) == null) {
                     env.put(ToolConstants.CFG_OUTPUTDIR, ".");
                 }

@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import org.objectweb.celtix.tools.common.ToolException;
 
 public class AnnotationUtil {
 
@@ -36,14 +37,14 @@ public class AnnotationUtil {
         });
     }
 
-    public Class loadClass(String className) throws ClassNotFoundException {
+    public Class loadClass(String className) {
         Class clazz = null;
         URL[] urls = ProcessorUtil.pathToURLs(getClassPath());
         URLClassLoader classLoader = new URLClassLoader(urls, this.getClass().getClassLoader());
         try {
             clazz = classLoader.loadClass(className);
-        } catch (ClassNotFoundException e) {
-            throw e;
+        } catch (Exception e) {
+            throw new ToolException("Can not found class <" + className + "> in classpath");
         }
         return clazz;
     }
