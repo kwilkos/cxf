@@ -18,7 +18,6 @@ public class WSDLModel {
             WSDLFactory wsdlFactory = WSDLFactory.newInstance();
             definition = wsdlFactory.newDefinition();
         } catch (WSDLException e) {
-            // TODO Auto-generated catch block
             throw e;
         }
     }
