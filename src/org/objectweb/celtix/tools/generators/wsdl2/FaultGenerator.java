@@ -6,6 +6,7 @@ import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaExceptionClass;
 import org.objectweb.celtix.tools.common.model.JavaModel;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 
 public class FaultGenerator extends AbstractGenerator {
@@ -31,13 +32,9 @@ public class FaultGenerator extends AbstractGenerator {
         return false;
     }
     
-    public void generate() throws Exception {
+    public void generate() throws ToolException {
         if (passthrough()) {
             return;
-        }
-
-        if (javaModel == null) {
-            throw new Exception("no java model is generated");
         }
 
         Map<String, JavaExceptionClass> exceptionClasses = javaModel.getExceptionClasses();

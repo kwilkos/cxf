@@ -4,6 +4,8 @@ import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
+
 public class WSDLModel {
 
     private Definition definition;
@@ -13,12 +15,12 @@ public class WSDLModel {
     private String portTypeName;
     private String packageName;
 
-    public WSDLModel() throws Exception {
+    public WSDLModel() throws ToolException {
         try {
             WSDLFactory wsdlFactory = WSDLFactory.newInstance();
             definition = wsdlFactory.newDefinition();
         } catch (WSDLException e) {
-            throw e;
+            throw new ToolException("New WSDL model failed", e);
         }
     }
 

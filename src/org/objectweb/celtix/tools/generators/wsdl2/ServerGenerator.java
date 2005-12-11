@@ -8,6 +8,7 @@ import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaModel;
 import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 
 public class ServerGenerator extends AbstractGenerator {
@@ -35,13 +36,9 @@ public class ServerGenerator extends AbstractGenerator {
         return false;
     }
 
-    public void generate() throws Exception {
+    public void generate() throws ToolException {
         if (passthrough()) {
             return;
-        }
-
-        if (javaModel == null) {
-            throw new Exception("no java model is generated");
         }
 
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();

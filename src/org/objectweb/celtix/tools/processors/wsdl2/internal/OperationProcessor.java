@@ -16,6 +16,7 @@ import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaPort;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class OperationProcessor  {
@@ -29,7 +30,7 @@ public class OperationProcessor  {
     }
 
     @SuppressWarnings("unchecked")
-    public void process(JavaInterface intf, Operation operation) throws Exception {
+    public void process(JavaInterface intf, Operation operation) throws ToolException {
         JavaMethod method = new JavaMethod(intf);
         method.setName(operation.getName());
         method.setStyle(operation.getStyle());
@@ -45,7 +46,7 @@ public class OperationProcessor  {
     }
 
     @SuppressWarnings("unchecked")
-    public void processMethod(JavaMethod method, Operation operation) throws Exception {
+    public void processMethod(JavaMethod method, Operation operation) throws ToolException {
         List<String> parameterOrder = operation.getParameterOrdering();
         Message inputMessage = operation.getInput() == null ? null : operation.getInput().getMessage();
         Message outputMessage = operation.getOutput() == null ? null : operation.getOutput().getMessage();
@@ -210,9 +211,9 @@ public class OperationProcessor  {
         return true;
     }
 
-    private boolean isRequestResponse(Operation operation) throws Exception {
+    private boolean isRequestResponse(Operation operation) throws ToolException {
         if (operation.getStyle() == null) {
-            throw new Exception("can't get operation style for " + operation.getName());
+            throw new ToolException("can't get operation style for " + operation.getName());
         }
         return OperationType.REQUEST_RESPONSE.equals(operation.getStyle());
     }

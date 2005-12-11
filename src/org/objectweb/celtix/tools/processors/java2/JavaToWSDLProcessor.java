@@ -4,6 +4,7 @@ import org.objectweb.celtix.tools.common.Processor;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.WSDLModel;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.java2.WSDLGenerator;
 import org.objectweb.celtix.tools.processors.java2.internal.ClassProcessor;
 import org.objectweb.celtix.tools.utils.AnnotationUtil;
@@ -14,7 +15,7 @@ public class JavaToWSDLProcessor implements Processor {
     private ProcessorEnvironment penv;
     private Class seiClass;
 
-    public void process() throws Exception {
+    public void process() throws ToolException {
         model = new WSDLModel();
  
         init();
@@ -24,9 +25,13 @@ public class JavaToWSDLProcessor implements Processor {
         generator.generate();
     }
 
-    public void buildModel(WSDLModel wmodel, Class clazz) throws Exception {
+    public void buildModel(WSDLModel wmodel, Class clazz) throws ToolException {
         ClassProcessor classproc = new ClassProcessor(clazz);
-        classproc.process(wmodel);
+        try {
+            classproc.process(wmodel);
+        } catch (Exception e) {
+            throw new ToolException("Build class model failed in " + getClass().getName(), e);
+        }
         printModel();
     }
 

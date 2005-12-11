@@ -10,6 +10,7 @@ import com.sun.tools.ws.processor.model.jaxb.JAXBModel;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 
 public class TypeGenerator extends AbstractGenerator {
@@ -32,7 +33,7 @@ public class TypeGenerator extends AbstractGenerator {
     }
 
     @SuppressWarnings("unchecked")
-    public void generate() throws Exception {
+    public void generate() throws ToolException {
         if (passthrough()) {
             return;
         }
@@ -47,7 +48,7 @@ public class TypeGenerator extends AbstractGenerator {
                 FileCodeWriter fileCodeWriter = new FileCodeWriter(new File(dir));
                 jcodeModel.build(fileCodeWriter);
             } catch (IOException e) {
-                throw e;
+                throw new ToolException("Build type failed", e);
             }
         }
     }

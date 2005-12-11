@@ -6,6 +6,7 @@ import javax.wsdl.PortType;
 
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaModel;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.wsdl2.AntGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.ClientGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.FaultGenerator;
@@ -31,14 +32,17 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         addGenerator(ToolConstants.ANT_GENERATOR, new AntGenerator(jmodel, getEnvironment()));
     }
     
-    public void process() throws Exception {
+    public void process() throws ToolException {
         init();
         JavaModel jmodel = wsdlDefinitionToJavaModel(getWSDLDefinition());
+        if (jmodel == null) {
+            throw new ToolException("Can not create java model from wsdl model");
+        }
         registerGenerators(jmodel);
         doGeneration();
     }
 
-    private JavaModel wsdlDefinitionToJavaModel(Definition definition) throws Exception {
+    private JavaModel wsdlDefinitionToJavaModel(Definition definition) throws ToolException {
         JavaModel javaModel = new JavaModel();
 
         getEnvironment().put("jaxbmodels", getJAXBModels());

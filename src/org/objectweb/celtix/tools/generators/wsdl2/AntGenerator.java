@@ -3,6 +3,7 @@ package org.objectweb.celtix.tools.generators.wsdl2;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaModel;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 
 public class AntGenerator extends AbstractGenerator {
@@ -32,7 +33,7 @@ public class AntGenerator extends AbstractGenerator {
         return false;
     }
 
-    public void generate() throws Exception {
+    public void generate() throws ToolException {
         if (passthrough()) {
             return;
         }

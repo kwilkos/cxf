@@ -12,8 +12,9 @@ import org.objectweb.celtix.tools.common.model.JavaExceptionClass;
 import org.objectweb.celtix.tools.common.model.JavaField;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaModel;
-import org.objectweb.celtix.tools.utils.ProcessorUtil;
-    
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.utils.ProcessorUtil;   
+
 public class FaultProcessor {
 
     private final ProcessorEnvironment env;
@@ -22,7 +23,7 @@ public class FaultProcessor {
         this.env = penv;
     }
 
-    public void process(JavaMethod method, Map<String, Fault> faults) throws Exception {
+    public void process(JavaMethod method, Map<String, Fault> faults) throws ToolException {
         if (faults == null) {
             return;
         }
@@ -34,7 +35,7 @@ public class FaultProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    private void processFault(JavaMethod method, Fault fault) throws Exception {
+    private void processFault(JavaMethod method, Fault fault) throws ToolException {
         JavaModel model = method.getInterface().getJavaModel();        
         Message faultMessage = fault.getMessage();
         String name = ProcessorUtil.mangleNameToClassName(faultMessage.getQName().getLocalPart());

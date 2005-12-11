@@ -58,6 +58,10 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
             if (ex.getCause() instanceof BadUsageException) {
                 getInstance().printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
+            System.err.println();
+            if (isVerboseOn()) {
+                ex.printStackTrace();
+            }
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();

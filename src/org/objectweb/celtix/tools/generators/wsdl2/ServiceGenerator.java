@@ -8,6 +8,7 @@ import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaModel;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
@@ -37,12 +38,9 @@ public class ServiceGenerator extends AbstractGenerator {
         return false;
     }
     
-    public void generate() throws Exception {
+    public void generate() throws ToolException {
         if (passthrough()) {
             return;
-        }
-        if (javaModel == null) {
-            throw new Exception("no java model is generated");
         }
         
         Map<String, JavaServiceClass> serviceClasses = javaModel.getServiceClasses();
@@ -52,7 +50,13 @@ public class ServiceGenerator extends AbstractGenerator {
         while (ite.hasNext()) {
             JavaServiceClass js = (JavaServiceClass)ite.next();
             String location = (String)env.get(ToolConstants.CFG_WSDLURL);
-            URL url = ProcessorUtil.getWSDLURL(location);            
+            URL url = null;
+            try {
+                url = ProcessorUtil.getWSDLURL(location);
+            } catch (Exception e) {
+                throw new ToolException("Can not get WSDL location from: " + location, e);
+            }
+
             clearAttributes();
             setAttributes("service", js);
             setAttributes("wsdlLocation", url.toString());

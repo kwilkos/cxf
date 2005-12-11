@@ -1,5 +1,6 @@
 package org.objectweb.celtix.tools.processors.wsdl2.internal;
 
+import java.io.*;
 import java.util.*;
 import javax.wsdl.Operation;
 import javax.wsdl.PortType;
@@ -8,6 +9,7 @@ import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaModel;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class PortTypeProcessor {
@@ -18,12 +20,19 @@ public class PortTypeProcessor {
         this.env = penv;
     }
     
-    public void process(JavaModel jmodel, PortType portType) throws Exception {
+    public void process(JavaModel jmodel, PortType portType) throws ToolException {
         JavaInterface intf = new JavaInterface(jmodel);
         String namespace = portType.getQName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace,
                                                             (String) env.get(ToolConstants.CFG_PACKAGENAME));
-        String location = ProcessorUtil.getAbsolutePath((String) env.get(ToolConstants.CFG_WSDLURL));
+        String location = (String) env.get(ToolConstants.CFG_WSDLURL);
+        try {
+            location = ProcessorUtil.getAbsolutePath(location);
+        } catch (IOException ioe) {
+            throw new ToolException("Can not find wsdl absolute location from "
+                                    + env.get(ToolConstants.CFG_WSDLURL),
+                                    ioe);
+        }
         
         intf.setName(portType.getQName().getLocalPart());
         intf.setNamespace(namespace);

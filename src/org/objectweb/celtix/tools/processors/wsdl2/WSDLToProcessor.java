@@ -19,6 +19,7 @@ import org.apache.velocity.app.Velocity;
 import org.objectweb.celtix.tools.common.Processor;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 
 public class WSDLToProcessor implements Processor {
@@ -31,11 +32,15 @@ public class WSDLToProcessor implements Processor {
 
     private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
 
-    private void parseWSDL(String wsdlURL) throws WSDLException {
-        wsdlFactory = WSDLFactory.newInstance();
-        wsdlReader = wsdlFactory.newWSDLReader();
-        wsdlReader.setFeature("javax.wsdl.verbose", false);
-        wsdlDefinition = wsdlReader.readWSDL(wsdlURL);
+    private void parseWSDL(String wsdlURL) throws ToolException {
+        try {
+            wsdlFactory = WSDLFactory.newInstance();
+            wsdlReader = wsdlFactory.newWSDLReader();
+            wsdlReader.setFeature("javax.wsdl.verbose", false);
+            wsdlDefinition = wsdlReader.readWSDL(wsdlURL);
+        } catch (WSDLException we) {
+            throw new ToolException("Can not create wsdl model, due to " + we.getMessage(), we);
+        }
     }
 
     private String getVelocityLogFile(String logfile) {
@@ -46,7 +51,7 @@ public class WSDLToProcessor implements Processor {
         return logdir + File.separator + logfile;
     }
 
-    private void initVelocity() {
+    private void initVelocity() throws ToolException {
         try {
             Properties props = new Properties();
             String clzName = "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader";
@@ -56,7 +61,7 @@ public class WSDLToProcessor implements Processor {
 
             Velocity.init(props);
         } catch (Exception e) {
-            System.err.println("Can't initialize velocity engine");
+            throw new ToolException("Can't initialize velocity engine", e);
         }
     }
 
@@ -82,16 +87,10 @@ public class WSDLToProcessor implements Processor {
         }
     }
 
-    protected void init() throws Exception {
-        try {
-            parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));
-            initVelocity();
-            initJAXBModel();
-        } catch (WSDLException we) {
-            System.err.println("Can not create wsdl model");
-        } catch (Exception e) {
-            throw e;
-        }
+    protected void init() throws ToolException {
+        parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));
+        initVelocity();
+        initJAXBModel();
     }
 
     public Map<String, S2JJAXBModel> getJAXBModels() {
@@ -106,10 +105,10 @@ public class WSDLToProcessor implements Processor {
         generators.put(name, gen);
     }
 
-    public void process() throws Exception {
+    public void process() throws ToolException {
     }
 
-    protected void doGeneration() throws Exception {
+    protected void doGeneration() throws ToolException {
         for (String genName : generators.keySet()) {
             AbstractGenerator gen = generators.get(genName);
             gen.generate();

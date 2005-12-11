@@ -1,6 +1,7 @@
 package org.objectweb.celtix.tools.common.model;
 
 import java.util.*;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 
 public class JavaInterface {
 
@@ -80,9 +81,9 @@ public class JavaInterface {
         return false;
     }
 
-    public void addMethod(JavaMethod method) throws Exception {
+    public void addMethod(JavaMethod method) throws ToolException {
         if (hasMethod(method)) {
-            throw new Exception("model.uniqueness");
+            throw new ToolException("model.uniqueness");
         }
         methods.add(method);
     }

@@ -2,6 +2,7 @@ package org.objectweb.celtix.tools.common.model;
 
 import java.util.*;
 import javax.wsdl.OperationType;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 
 public class JavaMethod {
 
@@ -60,10 +61,10 @@ public class JavaMethod {
         return false;
     }
 
-    public void addParameter(JavaParameter param) throws Exception {
+    public void addParameter(JavaParameter param) throws ToolException {
         // verify that this member does not already exist
         if (hasParameter(param.getName())) {
-            throw new Exception("model.uniqueness");
+            throw new ToolException("model.uniqueness");
         }
         parameters.add(param);
     }
@@ -90,9 +91,9 @@ public class JavaMethod {
         return exceptions.contains(exception);
     }
 
-    public void addException(JavaException exception) throws Exception {
+    public void addException(JavaException exception) throws ToolException {
         if (hasException(exception)) {
-            throw new Exception("model.uniqueness");
+            throw new ToolException("model.uniqueness");
         }
         exceptions.add(exception);
     }

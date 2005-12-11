@@ -10,6 +10,7 @@ import org.apache.velocity.app.Velocity;
 import org.objectweb.celtix.tools.Version;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.utils.FileWriterUtil;
 
 public abstract class AbstractGenerator {
@@ -20,10 +21,15 @@ public abstract class AbstractGenerator {
     protected String name;
 
     public abstract boolean passthrough();
-    public abstract void generate() throws Exception;
+    public abstract void generate() throws ToolException;
 
-    protected void doWrite(String templateName, Writer outputs) throws Exception {
-        Template tmpl = Velocity.getTemplate(templateName);
+    protected void doWrite(String templateName, Writer outputs)  throws ToolException {
+        Template tmpl = null;
+        try {
+            tmpl = Velocity.getTemplate(templateName);
+        } catch (Exception e) {
+            throw new ToolException("Can not find velocity tempalte file: " + templateName, e);
+        }
 
         VelocityContext ctx = new VelocityContext();
         
@@ -33,16 +39,27 @@ public abstract class AbstractGenerator {
         }
 
         BufferedWriter writer = new BufferedWriter(outputs);
-        tmpl.merge(ctx, writer);
-        writer.close();
+        try {
+            tmpl.merge(ctx, writer);
+            writer.close();
+        } catch (Exception e) {
+            throw new ToolException("velocity engin write errors", e);
+        }
     }
 
-    protected Writer parseOutputName(String packageName, String filename, String ext) throws Exception {
-        FileWriterUtil fw = new FileWriterUtil((String) env.get(ToolConstants.CFG_OUTPUTDIR));
-        return fw.getWriter(packageName, filename + ext);
+    protected Writer parseOutputName(String packageName, String filename, String ext) throws ToolException {
+        FileWriterUtil fw = null;
+        Writer writer = null;
+        try {
+            fw = new FileWriterUtil((String) env.get(ToolConstants.CFG_OUTPUTDIR));
+            writer = fw.getWriter(packageName, filename + ext);
+        } catch (Exception e) {
+            throw new ToolException("Can not generate output file: " + filename + ext, e);
+        }
+        return writer;
     }
 
-    protected Writer parseOutputName(String packageName, String filename) throws Exception {
+    protected Writer parseOutputName(String packageName, String filename) throws ToolException {
         return parseOutputName(packageName, filename, ".java");
     }
 

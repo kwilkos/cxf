@@ -19,8 +19,8 @@ import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaModel;
 import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
-
 
 public class ServiceProcessor {
     private final String soapOPAction = "SOAPACTION";
@@ -31,7 +31,7 @@ public class ServiceProcessor {
         this.env = penv;
     }
 
-    public void process(JavaModel model, Definition definition) throws Exception {
+    public void process(JavaModel model, Definition definition) throws ToolException {
         Collection services = definition.getServices().values();
         if (services == null) {
             return;
@@ -43,7 +43,9 @@ public class ServiceProcessor {
         }
     }
 
-    private void processService(JavaModel model, Service service, Definition definition) throws Exception {
+    private void processService(JavaModel model,
+                                Service service,
+                                Definition definition) throws ToolException {
         JavaServiceClass sclz = new JavaServiceClass(model);
         String name = ProcessorUtil.mangleNameToClassName(service.getQName().getLocalPart());
         sclz.setName(name);
@@ -62,7 +64,7 @@ public class ServiceProcessor {
         model.addServiceClass("name", sclz);
     }
 
-    private JavaPort processPort(JavaModel model, Port port) throws Exception {
+    private JavaPort processPort(JavaModel model, Port port) throws ToolException {
         JavaPort jport = new JavaPort(port.getName());
         Binding binding = port.getBinding();
         // TODO: extend other bindings
@@ -100,7 +102,7 @@ public class ServiceProcessor {
         }
     }
 
-    private void processOperation(JavaModel model, Port port, BindingOperation bop) throws Exception {
+    private void processOperation(JavaModel model, Port port, BindingOperation bop) throws ToolException {
         String portType = port.getBinding().getPortType().getQName().getLocalPart();
         JavaInterface jf = model.getInterfaces().get(portType);
         // TODO: extend other bindings

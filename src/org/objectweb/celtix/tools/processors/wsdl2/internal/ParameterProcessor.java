@@ -15,6 +15,7 @@ import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaReturn;
 import org.objectweb.celtix.tools.common.model.JavaType;
+import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class ParameterProcessor {
@@ -29,7 +30,7 @@ public class ParameterProcessor {
                         Message inputMessage,
                         Message outputMessage,
                         boolean isRequestResponse,
-                        List<String> parameterOrder) throws Exception {
+                        List<String> parameterOrder) throws ToolException {
         
         boolean parameterOrderPresent = false;
 
@@ -55,7 +56,7 @@ public class ParameterProcessor {
 
     private JavaParameter getParameterFromPart(JavaMethod method,
                                                Part part,
-                                               JavaType.Style style) throws Exception {
+                                               JavaType.Style style) {
         String name = ProcessorUtil.resolvePartName(part);
         String namespace = ProcessorUtil.resolvePartNamespace(part);
         String type = ProcessorUtil.resolvePartType(part);
@@ -75,7 +76,7 @@ public class ParameterProcessor {
         return parameter;
     }
 
-    private void addParameter(JavaMethod method, JavaParameter parameter) throws Exception {
+    private void addParameter(JavaMethod method, JavaParameter parameter) throws ToolException {
         JavaAnnotation webParamAnnotation = new JavaAnnotation("WebParam");
         String name = parameter.getName();
         String targetNamespace = method.getInterface().getNamespace();
@@ -104,7 +105,7 @@ public class ParameterProcessor {
         method.addParameter(parameter);
     }
     
-    private void processReturn(JavaMethod method, Part part) throws Exception {
+    private void processReturn(JavaMethod method, Part part) {
         String name = part == null ? "return" : part.getName();
         String type = part == null ? "void" : ProcessorUtil.resolvePartType(part);
         String namespace = part == null ? null : ProcessorUtil.resolvePartNamespace(part);
@@ -123,7 +124,7 @@ public class ParameterProcessor {
 
     @SuppressWarnings("unchecked")
     private void processInput(JavaMethod method,
-                              Message inputMessage) throws Exception {
+                              Message inputMessage) throws ToolException {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Collection<Part> inputParts = inputPartsMap.values();
         for (Part part : inputParts) {
@@ -134,7 +135,7 @@ public class ParameterProcessor {
 
     @SuppressWarnings("unchecked")
     private void processWrappedInput(JavaMethod method,
-                                     Message inputMessage) throws Exception {
+                                     Message inputMessage) throws ToolException {
 
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Collection<Part> inputParts = inputPartsMap.values();
@@ -159,7 +160,7 @@ public class ParameterProcessor {
     private void processOutput(JavaMethod method,
                                Message inputMessage,
                                Message outputMessage,
-                               boolean isRequestResponse) throws Exception {
+                               boolean isRequestResponse) throws ToolException {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Map<String, Part> outputPartsMap = outputMessage.getParts();
         Collection<Part> outputParts = outputPartsMap.values();
@@ -202,7 +203,7 @@ public class ParameterProcessor {
     private void processWrappedOutput(JavaMethod method,
                                       Message inputMessage,
                                       Message outputMessage,
-                                      boolean isRequestResponse) throws Exception {
+                                      boolean isRequestResponse) throws ToolException {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Map<String, Part> outputPartsMap = outputMessage.getParts();
         Collection<Part> outputParts = outputPartsMap.values();
@@ -235,7 +236,7 @@ public class ParameterProcessor {
                     addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT));
                 } else if ("return".equals(outElement.elementName().getLocalPart())) {
                     if (method.getReturn() != null) {
-                        throw new Exception("Wrapper style can not have two return types");
+                        throw new ToolException("Wrapper style can not have two return types");
                     }
                     method.setReturn(getReturnFromProperty(outElement));
                 } else {
@@ -283,7 +284,7 @@ public class ParameterProcessor {
     private void buildParamModelsWithoutOrdering(JavaMethod method,
                                                  Message inputMessage,
                                                  Message outputMessage,
-                                                 boolean isRequestResponse) throws Exception {
+                                                 boolean isRequestResponse) throws ToolException {
         if (inputMessage != null) {
             if (method.isWrapperStyle()) {
                 processWrappedInput(method, inputMessage);
@@ -308,7 +309,7 @@ public class ParameterProcessor {
                                               Message inputMessage,
                                               Message outputMessage,
                                               boolean isRequestResponse,
-                                              List<String> parameterList) throws Exception {
+                                              List<String> parameterList) throws ToolException {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Map<String, Part> outputPartsMap = outputMessage.getParts();
 
