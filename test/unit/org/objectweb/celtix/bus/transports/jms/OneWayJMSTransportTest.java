@@ -45,12 +45,12 @@ public class OneWayJMSTransportTest extends TestCase {
     }
     
     public static Test suite() {
-        TestSuite suite = new TestSuite(JMSTransportTest.class);
+        TestSuite suite = new TestSuite(OneWayJMSTransportTest.class);
         return  new JMSBrokerSetup(suite);
     }
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(JMSTransportTest.suite());
+        junit.textui.TestRunner.run(OneWayJMSTransportTest.suite());
     }
     
     public void setUp() throws Exception {
@@ -62,7 +62,7 @@ public class OneWayJMSTransportTest extends TestCase {
         //
     }
     
-    public void testOneWayTextQueueJMSTransport() throws Exception {
+    public void xtestOneWayTextQueueJMSTransport() throws Exception {
         QName serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms", 
                                                            "HelloWorldOneWayQueueService");
         doOneWayTestJMSTranport(false,  serviceName, "HelloWorldOneWayQueuePort", 
@@ -196,13 +196,13 @@ public class OneWayJMSTransportTest extends TestCase {
             jmsBrokerThread = new JMSEmbeddedBroker("tcp://localhost:61616");
      
             jmsBrokerThread.start();
-            Thread.sleep(5000L);            
+            Thread.sleep(200L);            
         }
         
         public void tearDown() throws Exception {
             ((JMSEmbeddedBroker) jmsBrokerThread).shutdownBroker = true;
             if (jmsBrokerThread != null) {
-                jmsBrokerThread.join(5000L);
+                jmsBrokerThread.join(200L);
             }
         }
         
@@ -224,7 +224,7 @@ public class OneWayJMSTransportTest extends TestCase {
                     
                     while (!shutdownBroker) {
                         synchronized (lock) {
-                            lock.wait(5000L);
+                            lock.wait(200L);
                         }
                     }
                     container.stop();

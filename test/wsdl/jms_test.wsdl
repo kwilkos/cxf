@@ -39,6 +39,12 @@
         </operation>
     </portType>
     
+    <portType name="HelloWorldPubSubPort">
+        <operation name="greetMeOneWay">
+            <input message="tns:greetMeOneWay" name="greetMeOneWay"/>
+        </operation>
+    </portType>
+    
     <binding name="HelloWorldPortBinding" type="tns:HelloWorldPortType">
         <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
         <operation name="greetMe">
@@ -117,7 +123,7 @@
         </operation>
     </binding>
     
-     <binding name="HelloWorldPubSubBinding" type="tns:HelloWorldOneWayPort">
+     <binding name="HelloWorldPubSubBinding" type="tns:HelloWorldPubSubPort">
             <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
             <operation name="greetMeOneWay">
                 <soap:operation style="rpc"/>
@@ -171,7 +177,7 @@
                 jndiDestinationName="dynamicQueues/test.jmstransport.oneway"
                 messageType="text"
                 useMessageIDAsCorrelationID="true"   
-                durableSubscriberName="Celtix_subscriber"
+                durableSubscriberName="Celtix_Queue_subscriber"
             />
             <soap:address location="http://celtix.objectweb.org/transports/jms"/>
         </port>
@@ -184,10 +190,9 @@
                     jndiProviderURL="tcp://localhost:61616"
                     initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
                     jndiConnectionFactoryName="ConnectionFactory" 
-                    jndiDestinationName="dynamicTopics/test.jmstransport.oneway"
+                    jndiDestinationName="dynamicTopics/test.jmstransport.oneway.topic"
                     messageType="text"
                     useMessageIDAsCorrelationID="true"   
-                    durableSubscriberName="Celtix_subscriber"
                 />
                 <soap:address location="http://celtix.objectweb.org/transports/jms"/>
             </port>

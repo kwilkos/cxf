@@ -240,13 +240,13 @@ public class JMSTransportTest extends TestCase {
             jmsBrokerThread = new JMSEmbeddedBroker("tcp://localhost:61616");
      
             jmsBrokerThread.start();
-            Thread.sleep(5000L);            
+            Thread.sleep(200L);            
         }
         
         public void tearDown() throws Exception {
             ((JMSEmbeddedBroker) jmsBrokerThread).shutdownBroker = true;
             if (jmsBrokerThread != null) {
-                jmsBrokerThread.join(5000L);
+                jmsBrokerThread.join(200L);
             }
         }
         
@@ -268,7 +268,7 @@ public class JMSTransportTest extends TestCase {
                     
                     while (!shutdownBroker) {
                         synchronized (lock) {
-                            lock.wait(5000L);
+                            lock.wait(200L);
                         }
                     }
                     container.stop();
