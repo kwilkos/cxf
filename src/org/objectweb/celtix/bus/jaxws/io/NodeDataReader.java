@@ -71,13 +71,26 @@ public class NodeDataReader<T> implements DataReader<T> {
         if (isOutBound && callback.getWebResult() != null) {
             Method method = callback.getMethod();
             if (JAXBUtils.isAsync(method)) {
-                method = callback.getSyncMethod();
+                Method syncMethod = callback.getSyncMethod();
+                Type gtype = method.getGenericReturnType();
+                if (gtype instanceof ParameterizedType 
+                    && ((ParameterizedType)gtype).getActualTypeArguments().length == 1
+                    && ((ParameterizedType)gtype).getActualTypeArguments()[0] instanceof Class) {
+                    Class cls = (Class)((ParameterizedType)gtype).getActualTypeArguments()[0];
+                    if (cls.getName().equals(wrapperType)) {
+                        syncMethod = null;
+                    }
+                }
+                method = syncMethod;
             }
-            Object retVal = callback.getWrappedPart(
-                             callback.getWebResultQName().getLocalPart(), 
-                             obj, 
-                             method.getReturnType());
-            objCtx.setReturn(retVal);
+            if (method != null) {
+                Object retVal = callback.getWrappedPart(callback.getWebResultQName().getLocalPart(), 
+                                                        obj,       
+                                                        method.getReturnType());
+                objCtx.setReturn(retVal);
+            } else {
+                objCtx.setReturn(obj);
+            }
         }
 
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;

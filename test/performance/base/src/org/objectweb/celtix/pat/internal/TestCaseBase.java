@@ -164,10 +164,12 @@ public abstract class TestCaseBase {
             initialized = true;
 
 
-            System.out.println("TestCase " + name + " is warming up the jit. (5 sec)");
+            System.out.println("TestCase " + name + " is warming up the jit. (5 sec/200 iterations)");
             long endTime = System.currentTimeMillis() + 5000;
             getPort();
-            while (System.currentTimeMillis() < endTime) {
+            int count = 0;
+            while (System.currentTimeMillis() < endTime || count < 200) {
+                count++;
                 doJob();
             }
         } catch (Exception e) {

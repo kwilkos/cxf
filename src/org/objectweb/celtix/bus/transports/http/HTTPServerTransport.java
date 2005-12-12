@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.transports.http;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -162,12 +163,6 @@ public class HTTPServerTransport implements ServerTransport {
             }
             put(HTTP_REQUEST_HEADERS, headers);
             
-            
-            
-            headers = new HashMap<String, List<String>>();
-            setPolicies(req, headers);
-            
-            put(HTTP_RESPONSE_HEADERS, headers); 
             if (headers.containsKey("Authorization")) {
                 List<String> authorizationLines = headers.get("Authorization"); 
                 String credentials = authorizationLines.get(0);
@@ -186,6 +181,10 @@ public class HTTPServerTransport implements ServerTransport {
                     }
                 }
             }
+
+            headers = new HashMap<String, List<String>>();
+            setPolicies(req, headers);
+            put(HTTP_RESPONSE_HEADERS, headers); 
            
             origInputStream = req.getInputStream();
             inStream = origInputStream;
@@ -282,7 +281,7 @@ public class HTTPServerTransport implements ServerTransport {
                     }
                 }
             }
-            origOut.resetOut(response.getOutputStream());
+            origOut.resetOut(new BufferedOutputStream(response.getOutputStream(), 1024));
         }
 
         

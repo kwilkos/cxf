@@ -89,7 +89,6 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     }
  
-
     public void testFaults() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -122,7 +121,6 @@ public class ClientServerTest extends ClientServerTestBase {
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ClientServerTest.class);
     }
-
     /*
     public static void main(String[] args) {
         ClientServerTest cst = new ClientServerTest();

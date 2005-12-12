@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.transports.http;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -99,6 +100,8 @@ public class HTTPClientTransport implements ClientTransport {
     public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, 
                                                          Executor executor) 
         throws IOException { 
+        context.getOutputStream().close();
+
         HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;  
         FutureTask<InputStreamMessageContext> f = new FutureTask<InputStreamMessageContext>(
             new InputStreamMessageContextCallable(ctx));
@@ -193,7 +196,7 @@ public class HTTPClientTransport implements ClientTransport {
                     hc.setInstanceFollowRedirects(true);
                 } else {
                     hc.setInstanceFollowRedirects(false);
-                    hc.setChunkedStreamingMode(4096);
+                    hc.setChunkedStreamingMode(2048);
                 }
             }
             setPolicies(headers);
@@ -300,7 +303,7 @@ public class HTTPClientTransport implements ClientTransport {
                     }
                 } 
             }
-            origOut.resetOut(connection.getOutputStream());
+            origOut.resetOut(new BufferedOutputStream(connection.getOutputStream(), 1024));
         }
 
         public void setFault(boolean isFault) {
@@ -348,6 +351,7 @@ public class HTTPClientTransport implements ClientTransport {
 
             
             public void close() throws IOException {
+                out.flush();
                 if (inputStreamContext != null) {
                     inputStreamContext.initialise();
                 }

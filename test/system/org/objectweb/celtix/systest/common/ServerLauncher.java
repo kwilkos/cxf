@@ -18,7 +18,9 @@ public class ServerLauncher {
     final String className;
 
 
-    private final boolean debug = false; 
+    private final boolean debug = false;
+    private final boolean inProcess = false;
+    private TestServerBase inProcessServer;
     
     private final String javaExe;
     private Process process;
@@ -53,12 +55,21 @@ public class ServerLauncher {
     }
 
     public boolean stopServer() throws IOException {
-        if (process != null) {
-            process.getOutputStream().write('q');
-            process.getOutputStream().write('\n');
-            process.getOutputStream().flush();
-            waitForServerToStop();
-            process.destroy();
+        if (inProcess) {
+            try {
+                return inProcessServer.stopInProcess();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                throw new IOException(ex.getMessage());
+            }
+        } else {
+            if (process != null) {
+                process.getOutputStream().write('q');
+                process.getOutputStream().write('\n');
+                process.getOutputStream().flush();
+                waitForServerToStop();
+                process.destroy();
+            }
         }
         return serverPassed;
     }
@@ -68,26 +79,40 @@ public class ServerLauncher {
         serverIsReady = false;
         serverLaunchFailed = false;
 
-        List<String> cmd = getCommand();
-
-        ProcessBuilder pb = new ProcessBuilder(cmd);
-        pb.redirectErrorStream(true);
-        process = pb.start();
-
-        launchOutputMonitorThread(process.getInputStream(), System.out);
-
-        synchronized (mutex) {
-            do {
-                TimeoutCounter tc = new TimeoutCounter(DEFAULT_TIMEOUT);
-                try {
-                    mutex.wait(DEFAULT_TIMEOUT);
-                    if (tc.isTimeoutExpired()) {
-                        break;
+        if (inProcess) {
+            Class<?> cls;
+            try {
+                cls = Class.forName(className);
+                Class<? extends TestServerBase> svcls = cls.asSubclass(TestServerBase.class);
+                inProcessServer = svcls.newInstance();
+                inProcessServer.startInProcess();
+                serverIsReady = true;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                serverLaunchFailed = true;
+            }
+        } else {
+            List<String> cmd = getCommand();
+    
+            ProcessBuilder pb = new ProcessBuilder(cmd);
+            pb.redirectErrorStream(true);
+            process = pb.start();
+    
+            launchOutputMonitorThread(process.getInputStream(), System.out);
+    
+            synchronized (mutex) {
+                do {
+                    TimeoutCounter tc = new TimeoutCounter(DEFAULT_TIMEOUT);
+                    try {
+                        mutex.wait(DEFAULT_TIMEOUT);
+                        if (tc.isTimeoutExpired()) {
+                            break;
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            } while (!serverIsReady && !serverLaunchFailed);
+                } while (!serverIsReady && !serverLaunchFailed);
+            }
         }
         return serverIsReady;
     }

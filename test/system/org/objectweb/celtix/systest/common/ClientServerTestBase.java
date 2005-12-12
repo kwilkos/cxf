@@ -37,8 +37,12 @@ public abstract class ClientServerTestBase extends TestCase {
             onetimeSetUp();
             oneTimeSetUpComplete();
             Runtime.getRuntime().addShutdownHook(new Thread() {
-                    public void run() { 
-                        stopAllServers();
+                    public void run() {
+                        try {
+                            stopAllServers();
+                        } catch (Exception ex) {
+                            //ignore
+                        }
                     }
                 });
         }

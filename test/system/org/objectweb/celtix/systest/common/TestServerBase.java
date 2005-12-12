@@ -16,8 +16,28 @@ public abstract class TestServerBase extends Assert {
      * servants and publish endpoints etc.
      *
      */
-    protected abstract void run(); 
+    protected abstract void run();
     
+    
+    public void startInProcess() throws Exception {
+        LOG.info("running server");
+        run();
+        LOG.info("signal ready");
+        ready();
+    }
+    
+    public boolean stopInProcess() throws Exception {
+        boolean ret = true;
+        if (verify(LOG)) {
+            LOG.info("server passed");
+        } else {
+            ret = false;
+        }
+        if (bus != null) {
+            bus.shutdown(true);
+        }
+        return ret;
+    }    
     
     public void start() {
         try { 

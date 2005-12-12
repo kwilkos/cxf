@@ -79,7 +79,8 @@ public class ClassProcessor {
             javaMethod.setName(method.getName());
         } else {
             try {
-                Method tmp = implementorClass.getMethod(method.getName(), method.getParameterTypes());
+                Method tmp = implementorClass.getMethod(method.getName(),
+                                                        (Class[])method.getParameterTypes());
                 javaMethod = new JavaMethod();
                 javaMethod.setName(tmp.getName());
             } catch (NoSuchMethodException e) {
@@ -231,7 +232,7 @@ public class ClassProcessor {
     private void processWebPara(JavaMethod jmethod, Method method, WSDLWrapperParameter reqWrapperPara,
                                 WSDLWrapperParameter resWrapperPara) {
         Class<?>[] parameterTypes = method.getParameterTypes();
-        Type[] genParaTypes = method.getGenericParameterTypes();
+        //Type[] genParaTypes = method.getGenericParameterTypes();
         Annotation[][] paraAnnotations = AnnotationUtil.getPrivParameterAnnotations(method);
         boolean isOneWay = method.isAnnotationPresent(Oneway.class);
         int pos = 0;

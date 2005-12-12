@@ -50,6 +50,7 @@ public class GreeterImpl implements Greeter {
     }
     
     public String greetMeSometime(String me) {
+        //System.err.println("In greetMeSometime: " + me);
         return "How are you " + me;
     }
     
@@ -61,22 +62,26 @@ public class GreeterImpl implements Greeter {
     }
     
     public Future<?>  greetMeSometimeAsync(String requestType, 
-                                           AsyncHandler<GreetMeSometimeResponse> asyncHandler) { 
+                                           AsyncHandler<GreetMeSometimeResponse> asyncHandler) {
+        System.err.println("In greetMeSometimeAsync 1");
         return null; 
         /*not called */
     }
     
     public Response<GreetMeSometimeResponse> greetMeSometimeAsync(String requestType) { 
+        System.err.println("In greetMeSometimeAsync 2");
         return null; 
         /*not called */
     }
     
     public Response<TestDocLitFaultResponse> testDocLitFaultAsync(String faultType) {  
+        System.err.println("In testDocLitFaultAsync 1");
         return null; 
         /*not called */
     }
     
     public Future<?> testDocLitFaultAsync(String faultType, AsyncHandler ah) {  
+        System.err.println("In testDocLitFaultAsync 2");
         return null; 
         /*not called */
     }

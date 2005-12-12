@@ -126,7 +126,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
                 try {
                     syncMethod = method.getDeclaringClass().getMethod(syncMethodName, paramTypes);
                     webResultAnnotation = syncMethod.getAnnotation(WebResult.class);
-                   assert null != webResultAnnotation;
+                    assert null != webResultAnnotation;
                 } catch (NoSuchMethodException ex) {
                     LOG.severe("Could not find method " + syncMethodName 
                                + " in class declaring method " + method.getName()); 

@@ -43,7 +43,7 @@ public class AsyncResponse implements Response {
         LOG.info("AsyncResponse get ObjectMessageContext: " + omc.toString());
         LOG.info("AsyncResponse get ObjectMessageContext Method name: " + omc.getMethod().getName());
         Object o = omc.getReturn();
-        LOG.info("AsyncResponse get: " + o.toString());
+        LOG.info("AsyncResponse get: " + o);
         return o;
         //return fObjMsgContext.get();
     }
