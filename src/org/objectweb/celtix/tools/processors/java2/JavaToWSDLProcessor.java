@@ -16,12 +16,16 @@ public class JavaToWSDLProcessor implements Processor {
     private Class seiClass;
 
     public void process() throws ToolException {
-        model = new WSDLModel();
- 
+        try {
+            model = new WSDLModel();
+        } catch (Exception e) {
+            throw new ToolException("Build WSDL Model Fail");
+        }
+
         init();
         buildModel(model, getSEIClass());
-
-        WSDLGenerator generator = new WSDLGenerator(model);
+        model.createJAXBContext();
+        WSDLGenerator generator = new WSDLGenerator(model, penv);
         generator.generate();
     }
 
@@ -32,7 +36,7 @@ public class JavaToWSDLProcessor implements Processor {
         } catch (Exception e) {
             throw new ToolException("Build class model failed in " + getClass().getName(), e);
         }
-        printModel();
+
     }
 
     public void setEnvironment(ProcessorEnvironment env) {
@@ -55,15 +59,4 @@ public class JavaToWSDLProcessor implements Processor {
         return this.model;
     }
 
-    public void printModel() {
-        echo("---------Print WSDLModel---------");
-        echo("** PortType Name ** : " + model.getPortyTypeName());
-        echo("** Service  Name ** : " + model.getServiceName());
-        echo("** TNS      Name ** : " + model.getTargetNameSpace());
-        echo("** WSDL Location ** : " + model.getWsdllocation());
-    }
-
-    public void echo(String tmp) {
-        System.out.println(tmp);
-    }
 }

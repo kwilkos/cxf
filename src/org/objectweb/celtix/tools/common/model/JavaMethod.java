@@ -3,7 +3,7 @@ package org.objectweb.celtix.tools.common.model;
 import java.util.*;
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.OperationType;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.common.ToolException;
 
 public class JavaMethod {
 
@@ -18,11 +18,13 @@ public class JavaMethod {
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
     private final List<String> annotations = new ArrayList<String>();
-    
+    private final List<Object> objparas = new ArrayList<Object>();
+    private final List<WSDLException> wsdlExceptions = new ArrayList<WSDLException>();
+
     public JavaMethod() {
         this.javaInterface = null;
     }
-    
+
     public JavaMethod(JavaInterface i) {
         this.javaInterface = i;
     }
@@ -52,7 +54,7 @@ public class JavaMethod {
     public void setReturn(JavaReturn rt) {
         this.javaReturn = rt;
     }
-    
+
     public boolean hasParameter(String paramName) {
         for (int i = 0; i < parameters.size(); i++) {
             if (paramName.equals((parameters.get(i)).getName())) {
@@ -62,8 +64,7 @@ public class JavaMethod {
         return false;
     }
 
-    public void addParameter(JavaParameter param) throws ToolException {
-        // verify that this member does not already exist
+    public void addParameter(JavaParameter param) {
         if (hasParameter(param.getName())) {
             throw new ToolException("model.uniqueness");
         }
@@ -92,7 +93,7 @@ public class JavaMethod {
         return exceptions.contains(exception);
     }
 
-    public void addException(JavaException exception) throws ToolException {
+    public void addException(JavaException exception) {
         if (hasException(exception)) {
             throw new ToolException("model.uniqueness");
         }
@@ -126,7 +127,7 @@ public class JavaMethod {
     public void setSoapStyle(SOAPBinding.Style sty) {
         this.soapStyle = sty;
     }
-    
+
     public SOAPBinding.Style getSoapStyle() {
         return this.soapStyle;
     }
@@ -136,13 +137,13 @@ public class JavaMethod {
     }
 
     public String getSoapAction() {
-        return this.soapAction; 
+        return this.soapAction;
     }
-    
+
     public void setSoapUse(SOAPBinding.Use u) {
         this.soapUse = u;
     }
-    
+
     public SOAPBinding.Use getSoapUse() {
         return this.soapUse;
     }
@@ -154,4 +155,28 @@ public class JavaMethod {
     public List getAnnotations() {
         return this.annotations;
     }
+
+    public void addWSDLException(WSDLException exception) {
+        if (wsdlExceptions.contains(exception)) {
+            throw new ToolException("exception.uniqueness");
+        }
+        wsdlExceptions.add(exception);
+    }
+
+    public List<WSDLException> getWSDLExceptions() {
+        return wsdlExceptions;
+    }
+
+    public void addObjectParameter(Object obj) {
+        // verify that this member does not already exist
+        if (objparas.contains(obj)) {
+            throw new ToolException("model.uniqueness");
+        }
+        objparas.add(obj);
+    }
+
+    public List<Object> getObjectParameters() {
+        return objparas;
+    }
+
 }

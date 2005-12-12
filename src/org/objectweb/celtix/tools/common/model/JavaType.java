@@ -1,5 +1,7 @@
 package org.objectweb.celtix.tools.common.model;
 
+import com.sun.xml.bind.api.TypeReference;
+
 public class JavaType {
     
     public static enum Style { IN, OUT, INOUT }
@@ -8,6 +10,7 @@ public class JavaType {
     protected String className;
     protected String targetNamespace;
     private Style style;
+    private TypeReference typeRef;
 
     public JavaType() {
     }
@@ -72,5 +75,12 @@ public class JavaType {
 
     public boolean isINOUT() {
         return this.style == Style.INOUT;
+    }
+    public void setTypeReference(TypeReference ref) {
+        this.typeRef = ref;
+    }
+
+    public TypeReference getTypeReference() {
+        return this.typeRef;
     }
 }
