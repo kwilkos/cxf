@@ -38,6 +38,10 @@ final class HTTPServerEngine {
         config = createConfiguration(bus, port);
         policy = config.getObject(HTTPListenerPolicy.class, "httpListener");
         sslPolicy = config.getObject(SSLPolicy.class, "ssl");
+        if (sslPolicy == null && "https".equals(protocol)) {
+            sslPolicy = new SSLPolicy();
+            sslPolicy.setUseSecureSockets(true);
+        }
         
         if (sslPolicy != null && sslPolicy.isUseSecureSockets()) {
             listener = new SslListener(new InetAddrPort(port));
