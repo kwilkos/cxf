@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
 import javax.wsdl.WSDLException;
@@ -248,7 +249,7 @@ public class SOAPClientBindingTest extends TestCase {
             return ((TestOutputStreamContext)context).createInputStreamContext();
         }
 
-        public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context) 
+        public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, Executor ex) 
             throws IOException {
             return null;
         }

@@ -62,7 +62,8 @@ public final class SpringUtils {
         if (str.startsWith("{")) {
             int index = str.lastIndexOf("}");
             if (index <= 1) {
-                throw new IllegalArgumentException(new Message("ILLEGAL_QNAME_STRING", LOG, str).toString());
+                throw new IllegalArgumentException(new Message("ILLEGAL_QNAME_STRING_EXC", 
+                                                               LOG, str).toString());
             }
             return  new QName(str.substring(1, index), 
                               (index < str.length() - 1) ? str.substring(index + 1) : "");

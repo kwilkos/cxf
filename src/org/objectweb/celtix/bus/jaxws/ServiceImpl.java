@@ -41,6 +41,7 @@ public class ServiceImpl extends ServiceDelegate {
     private final Bus bus;
     private final Configuration configuration;
     private HandlerResolver handlerResolver; 
+    private Executor executor;
     
     /**
      * Create a new Service.
@@ -118,7 +119,7 @@ public class ServiceImpl extends ServiceDelegate {
         PortConfiguration pc = new PortConfiguration(configuration, portName.getLocalPart(), bus, ref);
         
         EndpointInvocationHandler endpointHandler = 
-                new EndpointInvocationHandler(bus, ref, pc, serviceEndpointInterface);
+                new EndpointInvocationHandler(bus, ref, this, pc, serviceEndpointInterface);
         
         createHandlerChainForBinding(serviceEndpointInterface, portName, endpointHandler.getBinding());
         
@@ -185,15 +186,12 @@ public class ServiceImpl extends ServiceDelegate {
         handlerResolver = hr;
     }
 
-    @Override
     public Executor getExecutor() {
-        // TODO Auto-generated method stub
-        return null;
+        return executor;
     }
 
-    @Override
-    public void setExecutor(Executor arg0) {
-        // TODO Auto-generated method stub
+    public void setExecutor(Executor e) {
+        executor = e;
         
     }
    

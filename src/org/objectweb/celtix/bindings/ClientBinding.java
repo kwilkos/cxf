@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -40,6 +41,7 @@ public interface ClientBinding extends BindingBase {
      * @throws IOException
      */
     Future<ObjectMessageContext> invokeAsync(ObjectMessageContext context,
-                                       DataBindingCallback callback)
+                                       DataBindingCallback callback,
+                                       Executor executor)
         throws IOException;
 }

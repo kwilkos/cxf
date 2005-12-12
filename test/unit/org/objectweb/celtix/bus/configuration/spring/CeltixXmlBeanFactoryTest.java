@@ -40,7 +40,7 @@ public class CeltixXmlBeanFactoryTest extends TestCase {
                 "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd");
             fail("Expected ConfigurationException not thrown.");
         } catch (ConfigurationException ex) {
-            assertEquals("COULD_NOT_RESOLVE_BEANS_DTD", ex.getCode());
+            assertEquals("COULD_NOT_RESOLVE_BEANS_DTD_EXC", ex.getCode());
         }      
     }
     

@@ -17,6 +17,7 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
@@ -39,10 +40,12 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
     private final Class<?> portTypeInterface;
     private final Bus bus;
     private JAXBContext context;
+    private final ServiceDelegate service;
     
     public EndpointInvocationHandler(Bus b, EndpointReferenceType reference,
-                                     Configuration configuration, Class<?> portSEI) {
+                                     ServiceDelegate s, Configuration configuration, Class<?> portSEI) {
         bus = b;
+        service = s;
         portTypeInterface = portSEI;
         clientBinding = createBinding(reference, configuration);
         try {
@@ -124,7 +127,7 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
                 clientBinding.invokeAsync(objMsgContext,
                                           new JAXBDataBindingCallback(method,
                                                                       DataBindingCallback.Mode.PARTS,
-                                                                      context)); 
+                                                                      context), service.getExecutor()); 
             return new AsyncResponse(objMsgContextAsynch);
             
         } else {

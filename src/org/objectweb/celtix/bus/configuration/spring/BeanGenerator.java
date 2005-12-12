@@ -269,7 +269,7 @@ public class BeanGenerator {
                     filename = arg.substring(from + 1, to);
                     to++;
                 } else {
-                    throw new IllegalArgumentException(new Message("MISMATCHED_QUOTES", LOG).toString());
+                    throw new IllegalArgumentException(new Message("MISMATCHED_QUOTES_EXC", LOG).toString());
                 }
             } else {
                 to = from;

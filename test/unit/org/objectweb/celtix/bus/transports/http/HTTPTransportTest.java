@@ -3,8 +3,11 @@ package org.objectweb.celtix.bus.transports.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
@@ -34,7 +37,14 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class HTTPTransportTest extends TestCase {
-    static boolean first = true;
+
+    private static final QName SERVICE_NAME = new 
+        QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
+    private static final String PORT_NAME = "SoapPort";
+    private static final String ADDRESS = "http://localhost:9000/SoapContext/SoapPort";
+    private static final URL WSDL_URL = HTTPTransportTest.class.getResource("/wsdl/hello_world.wsdl");
+    
+    private static boolean first = true;
     
     Bus bus;
     private WSDLManager wsdlManager;
@@ -62,94 +72,65 @@ public class HTTPTransportTest extends TestCase {
     }
     
     
-    public void testHTTPTransport() throws Exception {
-        doTestHTTPTransport(false);
-        doTestHTTPTransport(false);
+    public void testInvoke() throws Exception {
+        doTestInvoke(false);
+        doTestInvoke(false);
     }
     
-    public void testHTTPTransportUsingAutomaticWorkQueue() throws Exception {
-        doTestHTTPTransport(true);
+    public void testInvokeUsingAutomaticWorkQueue() throws Exception {
+        doTestInvoke(true);
     }
-    public void testHTTPTransportAsync() throws Exception {
-        QName serviceName = new 
-        QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
-        String portName = "SoapPort";
-        String address = "http://localhost:9000/SoapContext/SoapPort";
-        URL wsdlUrl = getClass().getResource("/wsdl/hello_world.wsdl");
-        assertNotNull(wsdlUrl);
-        
-        TransportFactory factory = createTransportFactory();
-        
-        ServerTransport server = createServerTransport(factory, wsdlUrl, 
-                                                       serviceName, portName, address);          
-             
-        ServerTransportCallback callback = new ServerTransportCallback() {
-            public void dispatch(InputStreamMessageContext ctx, 
-                                 ServerTransport transport) {
-                try {
-                    byte bytes[] = new byte[10000];
-                    int total = readBytes(bytes, ctx.getInputStream());
-                    Thread.sleep(700);
-                    OutputStreamMessageContext octx = 
-                        transport.createOutputStreamContext(ctx);
-                    transport.finalPrepareOutputStreamContext(octx);
-                    octx.getOutputStream().write(bytes, 0, total);
-                    octx.getOutputStream().flush();
-                    octx.getOutputStream().close();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-            public Executor getExecutor() {
-                return null;
-            }
-        };
-        server.activate(callback);
-        
-        ClientTransport client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
-        OutputStreamMessageContext octx =
-            client.createOutputStreamContext(new GenericMessageContext());
-        client.finalPrepareOutputStreamContext(octx);
-        byte outBytes[] = "Hello World!!!".getBytes();
-        octx.getOutputStream().write(outBytes);
-        Future<InputStreamMessageContext> f = client.invokeAsync(octx);
-        assertNotNull(f);
-        assertFalse(f.isDone());
-        int i = 0;
-        while (i < 10) {
-            Thread.sleep(200);
-            if (f.isDone()) {
-                break;                
-            }
-            i++;
-        }
-        assertTrue(f.isDone());
-        InputStreamMessageContext ictx = f.get();
-        byte bytes[] = new byte[10000];
-        int len = readBytes(bytes, ictx.getInputStream());
-        assertTrue("Did not read anything " + len, len > 0);
-        assertEquals(new String(outBytes), new String(bytes, 0, len));
-               
-    }
-
     
-
-    public void doTestHTTPTransport(final boolean useAutomaticWorkQueue) throws Exception {
-        
-        QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
-        String portName = "SoapPort";
-        String address = "http://localhost:9000/SoapContext/SoapPort";
-        URL wsdlUrl = getClass().getResource("/wsdl/hello_world.wsdl");
-        assertNotNull(wsdlUrl);
+    public void testInvokeAsync() throws Exception {      
+        doTestInvokeAsync(false);
+    }
+    
+    public void testInvokeAsyncUsingAutomaticWorkQueue() throws Exception {      
+        doTestInvokeAsync(true);
+    }
+    
+    public void testInvokeOneway() throws Exception {
                
         TransportFactory factory = createTransportFactory();
       
-        ServerTransport server = createServerTransport(factory, wsdlUrl, serviceName,
-                                                       portName, address);
+        ServerTransport server = createServerTransport(factory, WSDL_URL, SERVICE_NAME,
+                                                       PORT_NAME, ADDRESS);
+        byte[] buffer = new byte[64];
+        activateServer(server, false, 400, buffer);
+        
+        ClientTransport client = createClientTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
+        byte outBytes[] = "Hello World!!!".getBytes();
+        
+        OutputStreamMessageContext octx = doRequest(client, outBytes);
+        client.invokeOneway(octx);
+        
+        assertEquals(new String(outBytes), new String(buffer, 0, outBytes.length));
+    } 
+    
+    public void testInputStreamMessageContextCallable() throws Exception {
+        HTTPClientTransport.HTTPClientOutputStreamContext octx = 
+            EasyMock.createMock(HTTPClientTransport.HTTPClientOutputStreamContext.class);
+        HTTPClientTransport.HTTPClientInputStreamContext ictx =
+            EasyMock.createMock(HTTPClientTransport.HTTPClientInputStreamContext.class);
+        octx.createInputStreamContext();
+        EasyMock.expectLastCall().andReturn(ictx);
+        EasyMock.replay(octx);
+        
+        Callable c = new HTTPClientTransport.InputStreamMessageContextCallable(octx);
+        assertNotNull(c);
+        InputStreamMessageContext result = (InputStreamMessageContext)c.call();
+        assertEquals(result, ictx); 
+    }
+
+    public void doTestInvoke(final boolean useAutomaticWorkQueue) throws Exception {
+               
+        TransportFactory factory = createTransportFactory();
+      
+        ServerTransport server = createServerTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
              
-        activateServer(server, useAutomaticWorkQueue);
+        activateServer(server, useAutomaticWorkQueue, 0, null);
         //short request
-        ClientTransport client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
+        ClientTransport client = createClientTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
         doRequestResponse(client, "Hello World".getBytes());
         
         //long request
@@ -157,7 +138,7 @@ public class HTTPTransportTest extends TestCase {
         for (int x = 0; x < outBytes.length; x++) {
             outBytes[x] = (byte)('a' + (x % 26));
         }
-        client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
+        client = createClientTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
         doRequestResponse(client, outBytes);
         
         server.deactivate();
@@ -180,21 +161,84 @@ public class HTTPTransportTest extends TestCase {
         } catch (IOException ex) {
             //ignore - this is what we want
         }
-        activateServer(server, useAutomaticWorkQueue);
+        activateServer(server, useAutomaticWorkQueue, 0, null);
         doRequestResponse(client, "Hello World   3".getBytes());
         server.deactivate();        
-        activateServer(server, useAutomaticWorkQueue);
+        activateServer(server, useAutomaticWorkQueue, 0, null);
         doRequestResponse(client, "Hello World   4".getBytes());
+        server.deactivate();   
+        client.shutdown();
+    }
+    
+    public void doTestInvokeAsync(final boolean useAutomaticWorkQueue) throws Exception {
+        
+        Executor executor =  null;
+        if (useAutomaticWorkQueue) {
+            executor = new WorkQueueManagerImpl(bus).getAutomaticWorkQueue();
+        } 
+        TransportFactory factory = createTransportFactory();
+        
+        ServerTransport server = createServerTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
+        activateServer(server, false, 400, null);
+        
+        ClientTransport client = createClientTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
+        byte outBytes[] = "Hello World!!!".getBytes();
+        
+        // wait then read without blocking
+        OutputStreamMessageContext octx = doRequest(client, outBytes);
+        Future<InputStreamMessageContext> f = client.invokeAsync(octx, executor);
+        assertNotNull(f);
+        assertFalse(f.isDone());
+        int i = 0;
+        while (i < 10) {
+            Thread.sleep(100);
+            if (f.isDone()) {
+                break;                
+            }
+            i++;
+        }
+        assertTrue(f.isDone());
+        InputStreamMessageContext ictx = f.get();
+        doResponse(client, ictx, outBytes);
+        
+        // blocking read (on new thread)
+        octx = doRequest(client, outBytes);        
+        f = client.invokeAsync(octx, executor);
+        ictx = f.get();
+        assertTrue(f.isDone());
+        doResponse(client, ictx, outBytes);
+        
+        // blocking read times out
+        boolean timeoutImplemented = false;
+        if (timeoutImplemented) {
+            octx = doRequest(client, outBytes);        
+            f = client.invokeAsync(octx, executor);
+            try {            
+                ictx = f.get(200, TimeUnit.MILLISECONDS);
+                fail("Expected TimeoutException not thrown.");
+            } catch (TimeoutException ex) {
+                // ignore
+            }
+            assertTrue(!f.isDone());
+        }
         server.deactivate();        
     }
     
     private void activateServer(ServerTransport server,
-                                final boolean useAutomaticWorkQueue) throws Exception {
+                                final boolean useAutomaticWorkQueue,
+                                final int delay,
+                                final byte[] buffer) throws Exception {
         ServerTransportCallback callback = new ServerTransportCallback() {
             public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
                 try {
-                    byte bytes[] = new byte[10000];
+                    byte[] bytes = buffer;
+                    if (null == bytes) {
+                        bytes = new byte[10000];
+                    }
                     int total = readBytes(bytes, ctx.getInputStream());
+                    if (delay > 0) {                       
+                        Thread.sleep(delay);
+                    }
                     
                     OutputStreamMessageContext octx = transport.createOutputStreamContext(ctx);
                     transport.finalPrepareOutputStreamContext(octx);
@@ -224,10 +268,20 @@ public class HTTPTransportTest extends TestCase {
     }
     
     private void doRequestResponse(ClientTransport client, byte outBytes[]) throws Exception {
+        OutputStreamMessageContext octx = doRequest(client, outBytes);
+        InputStreamMessageContext ictx = client.invoke(octx);
+        doResponse(client, ictx, outBytes);
+    }
+    
+    private OutputStreamMessageContext doRequest(ClientTransport client, byte outBytes[]) throws Exception {
         OutputStreamMessageContext octx = client.createOutputStreamContext(new GenericMessageContext());
         client.finalPrepareOutputStreamContext(octx);
         octx.getOutputStream().write(outBytes);
-        InputStreamMessageContext ictx = client.invoke(octx);
+        return octx;
+    }
+    
+    private void doResponse(ClientTransport client, 
+        InputStreamMessageContext ictx, byte outBytes[]) throws Exception {
         byte bytes[] = new byte[10000];
         int len = readBytes(bytes, ictx.getInputStream());
         assertTrue("Did not read anything " + len, len > 0);

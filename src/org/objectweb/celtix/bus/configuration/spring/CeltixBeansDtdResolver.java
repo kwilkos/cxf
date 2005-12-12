@@ -22,7 +22,7 @@ public class CeltixBeansDtdResolver implements EntityResolver {
         if (systemId != null && systemId.equals(DTD_SYSTEM_ID)) {
             InputStream is = ClassLoader.getSystemResourceAsStream(getDtdFile());
             if (is == null) {
-                throw new ConfigurationException(new Message("COULD_NOT_RESOLVE_BEANS_DTD", LOG,
+                throw new ConfigurationException(new Message("COULD_NOT_RESOLVE_BEANS_DTD_EXC", LOG,
                                                              DTD_SYSTEM_ID));
             }
             InputSource source = new InputSource(is);

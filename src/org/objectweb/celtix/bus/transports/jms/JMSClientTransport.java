@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.transports.jms;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -99,7 +100,8 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         }
     }
     
-    public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context) 
+    public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, 
+                                                         Executor executor) 
         throws IOException {
         return null;
     }

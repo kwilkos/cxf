@@ -32,7 +32,7 @@ public class CeltixXmlBeanFactory extends DefaultListableBeanFactory {
         reader.setValidating(false);
         reader.setNamespaceAware(true);
         reader.loadBeanDefinitions(res);
-        
+              
         editor = new JaxbPropertyEditor();
         registerCustomEditor(String.class, editor);
         
@@ -85,10 +85,10 @@ public class CeltixXmlBeanFactory extends DefaultListableBeanFactory {
             try {
                 cl = Class.forName(className);
             } catch (ClassCastException ex) {
-                throw new ConfigurationException(new Message("COULD_NOT_REGISTER_PROPERTY_EDITOR", LOG,
+                throw new ConfigurationException(new Message("COULD_NOT_REGISTER_PROPERTY_EDITOR_EXC", LOG,
                                                              className), ex);
             } catch (ClassNotFoundException ex) {
-                throw new ConfigurationException(new Message("COULD_NOT_REGISTER_PROPERTY_EDITOR", LOG,
+                throw new ConfigurationException(new Message("COULD_NOT_REGISTER_PROPERTY_EDITOR_EXC", LOG,
                                                              className), ex);
             }
 

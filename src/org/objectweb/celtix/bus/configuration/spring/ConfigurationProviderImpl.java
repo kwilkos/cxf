@@ -49,7 +49,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
                         beanFactory = new CeltixXmlBeanFactory(urlRes);
                     } catch (BeansException ex) {
                         // continue without using configuration from the bean definitions
-                        LOG.log(Level.WARNING, new Message("BEAN_FACTORY_CREATION_EXC", LOG, urlRes
+                        LOG.log(Level.WARNING, new Message("BEAN_FACTORY_CREATION_MSG", LOG, urlRes
                                                            .toString()).toString(), ex);
                     }
                     beanFactories.put(urlRes, beanFactory);
@@ -117,9 +117,10 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
             try {
                 urlRes = new UrlResource(url);                
             } catch (MalformedURLException ex) {
-                throw new ConfigurationException(new Message("MALFORMED_URL_PROPERTY", LOG, 
-                                                             CONFIG_FILE_PROPERTY_NAME), ex);
+                // continue using default configuration
+                LOG.log(Level.WARNING, new Message("MALFORMED_URL_MSG", LOG, url).toString(), ex);
             }
+ 
             return urlRes;
         }
         return null;
@@ -142,6 +143,9 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
         String[] candidates = beanFactory.getBeanNamesForType(beanClass);
         if (null == candidates || candidates.length == 0) {
             bean = null;
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("No definitions for beans of type " + beanClass.getName());
+            }
             return;
         }
         

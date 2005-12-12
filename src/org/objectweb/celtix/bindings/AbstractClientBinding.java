@@ -2,6 +2,7 @@ package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
@@ -237,7 +238,8 @@ public abstract class AbstractClientBinding implements ClientBinding {
     }
 
     public Future<ObjectMessageContext> invokeAsync(ObjectMessageContext context,
-                                                    DataBindingCallback callback) throws IOException {
+                                                    DataBindingCallback callback,
+                                                    Executor executor) throws IOException {
         
         LOG.info("AbstractClientBinding: invokeAsync");
         HandlerInvoker handlerInvoker = createHandlerInvoker();
@@ -281,7 +283,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     
                     write(bindingContext, ostreamContext);
                     
-                    Future<InputStreamMessageContext> ins = transport.invokeAsync(ostreamContext);
+                    Future<InputStreamMessageContext> ins = transport.invokeAsync(ostreamContext, executor);
                     asyncFuture = new AsyncFuture(ins, this, callback, handlerInvoker, context);         
                 }
             }

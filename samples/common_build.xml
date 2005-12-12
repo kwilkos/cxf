@@ -98,6 +98,7 @@
 
     <target name="clean">
         <delete dir="${build.classes.dir}"/>
+        <delete dir="${build.src.dir}"/>
         <delete file="${codegen.timestamp.file}"/>
         <delete file="demo.log"/>
     </target>

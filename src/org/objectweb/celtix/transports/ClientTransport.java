@@ -3,6 +3,7 @@ package org.objectweb.celtix.transports;
 
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -36,7 +37,7 @@ public interface ClientTransport extends Transport {
      * @param context
      * @return the context containing the InputStream response payload
      */        
-    Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context)
+    Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, Executor executor)
         throws IOException;
 
 }
