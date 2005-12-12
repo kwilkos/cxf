@@ -11,9 +11,9 @@ public class ServerImpl implements ComplexPortType {
         Logger.getLogger(ServerImpl.class.getPackage().getName());
     
     public NestedComplexTypeSeq sendReceiveData(NestedComplexTypeSeq request) {
-        LOG.info("Executing operation sendReceiveData opt");
-        System.out.println("Executing operation sendReceiveData\n");
-        System.out.println("Message received: " + request + "\n");
+        //LOG.info("Executing operation sendReceiveData opt");
+        //System.out.println("Executing operation sendReceiveData\n");
+        //System.out.println("Message received: " + request + "\n");
         return request;
     }
 }
