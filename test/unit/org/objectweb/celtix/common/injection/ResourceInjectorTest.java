@@ -1,12 +1,15 @@
 package org.objectweb.celtix.common.injection;
 
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.annotation.Resources;
 import junit.framework.TestCase;
+import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
+import org.objectweb.celtix.resource.ResourceManager;
 import org.objectweb.celtix.resource.ResourceResolver;
 
 
@@ -16,11 +19,15 @@ public class ResourceInjectorTest extends TestCase {
 
     Map<String, String> resourceMap = new HashMap<String, String>(); 
 
-    private final ResourceInjector injector = new ResourceInjector(new TestResolver());
+    private ResourceInjector injector; 
         
     public void setUp() { 
         resourceMap.put("resource1", RESOURCE_ONE); 
         resourceMap.put("resource2", RESOURCE_TWO); 
+
+        ResourceManager resMgr = new ResourceManagerImpl(); 
+        resMgr.addResourceResolver(new TestResolver());
+        injector = new ResourceInjector(resMgr); 
     } 
 
     public void testFieldInjection() { 
@@ -62,7 +69,11 @@ public class ResourceInjectorTest extends TestCase {
 
     class TestResolver implements ResourceResolver {
         public Object resolve(String resourceName, Class<?> resourceType) {
+            assertEquals(String.class, resourceType);
             return resourceMap.get(resourceName);
+        }
+        public InputStream getAsStream(String name) { 
+            return null;
         }
     }    
 }
