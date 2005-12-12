@@ -2,12 +2,13 @@ package org.objectweb.celtix.tools.common.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.jws.soap.SOAPBinding;
 
 public class JavaPort {
     
-    public static enum SOAPStyle { RPC, DOCUMENT }
-    public static enum SOAPUse { ENCODED, LITERAL }
-    public static enum SOAPParameterStyle { BARE, WRAPPED }
+//     public static enum SOAPStyle { RPC, DOCUMENT }
+//     public static enum SOAPUse { ENCODED, LITERAL }
+//     public static enum SOAPParameterStyle { BARE, WRAPPED }
     
     private String name;
     private String portType;
@@ -15,10 +16,11 @@ public class JavaPort {
     private final List<JavaMethod> operations = new ArrayList<JavaMethod>();
     private String address;
     private String soapVersion;
-    private SOAPStyle style;
+    private SOAPBinding.Style style;
     private String transURI;
     private String interfaceClass; 
     private String namespace;
+    
     public JavaPort(String pname) {
         this.name = pname;
     }
@@ -31,11 +33,11 @@ public class JavaPort {
         return this.transURI;
     }
 
-    public void setStyle(SOAPStyle sty) {
+    public void setStyle(SOAPBinding.Style sty) {
         this.style = sty;
     }
 
-    public SOAPStyle getStyle() {
+    public SOAPBinding.Style getStyle() {
         return this.style;
     }
 

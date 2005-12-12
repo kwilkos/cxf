@@ -1,6 +1,7 @@
 package org.objectweb.celtix.tools.common.model;
 
 import java.util.*;
+import javax.jws.soap.SOAPBinding;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 
 public class JavaInterface {
@@ -10,9 +11,9 @@ public class JavaInterface {
     private String namespace;
     private String location;
     private JavaModel model;
-    private JavaPort.SOAPStyle soapStyle;
-    private JavaPort.SOAPUse soapUse;
-    private JavaPort.SOAPParameterStyle soapParameterStyle;
+    private SOAPBinding.Style soapStyle;
+    private SOAPBinding.Use soapUse;
+    private SOAPBinding.ParameterStyle soapParameterStyle;
     
     private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
     private final List<String> annotations = new ArrayList<String>();
@@ -24,27 +25,27 @@ public class JavaInterface {
         this.model = m;
     }
 
-    public void setSOAPStyle(JavaPort.SOAPStyle s) {
+    public void setSOAPStyle(SOAPBinding.Style s) {
         this.soapStyle = s;
     }
 
-    public JavaPort.SOAPStyle getSOAPStyle() {
+    public SOAPBinding.Style getSOAPStyle() {
         return this.soapStyle;
     }
 
-    public void setSOAPUse(JavaPort.SOAPUse u) {
+    public void setSOAPUse(SOAPBinding.Use u) {
         this.soapUse = u;
     }
 
-    public JavaPort.SOAPUse getSOAPUse() {
+    public SOAPBinding.Use getSOAPUse() {
         return this.soapUse;
     }
 
-    public void setSOAPParameterStyle(JavaPort.SOAPParameterStyle p) {
+    public void setSOAPParameterStyle(SOAPBinding.ParameterStyle p) {
         this.soapParameterStyle = p;
     }    
     
-    public JavaPort.SOAPParameterStyle getSOAPParameterStyle() {
+    public SOAPBinding.ParameterStyle getSOAPParameterStyle() {
         return this.soapParameterStyle;
     }
     

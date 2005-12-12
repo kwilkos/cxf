@@ -2,6 +2,7 @@ package org.objectweb.celtix.tools.processors.wsdl2.internal;
 
 import java.util.*;
 
+import javax.jws.soap.SOAPBinding;
 import javax.wsdl.Fault;
 import javax.wsdl.Message;
 import javax.wsdl.Operation;
@@ -15,7 +16,6 @@ import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
-import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
@@ -76,14 +76,14 @@ public class OperationProcessor  {
         String name = null;
         String targetNamespace = null;
 
-        if (method.getSoapStyle() == JavaPort.SOAPStyle.DOCUMENT
+        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT
             && !method.isWrapperStyle()) {
             name = method.getName() + "Operaion";
         } else {
             name = method.getReturn().getName();
         }
 
-        if (method.getSoapStyle() == JavaPort.SOAPStyle.DOCUMENT) {
+        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
             targetNamespace = method.getReturn().getTargetNamespace();
         } else {
             targetNamespace = method.getInterface().getNamespace();
@@ -91,8 +91,8 @@ public class OperationProcessor  {
          
         resultAnnotation.addArgument("name", name);
         resultAnnotation.addArgument("targetNamespace", targetNamespace);
-        if (method.getSoapStyle() == JavaPort.SOAPStyle.RPC
-            || (method.getSoapStyle() == JavaPort.SOAPStyle.DOCUMENT && !method.isWrapperStyle())) {
+        if (method.getSoapStyle() == SOAPBinding.Style.RPC
+            || (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT && !method.isWrapperStyle())) {
             resultAnnotation.addArgument("partName", method.getReturn().getName());
         }
 

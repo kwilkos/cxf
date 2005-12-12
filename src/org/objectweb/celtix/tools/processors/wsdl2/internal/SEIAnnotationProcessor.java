@@ -1,13 +1,13 @@
 package org.objectweb.celtix.tools.processors.wsdl2.internal;
 
 import java.util.*;
+import javax.jws.soap.SOAPBinding;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaModel;
-import org.objectweb.celtix.tools.common.model.JavaPort;
 
 public class SEIAnnotationProcessor {
 
@@ -43,7 +43,7 @@ public class SEIAnnotationProcessor {
             bindingAnnotation.setToken("");
             bindingAnnotation.addArgument("style", getBindingAnnotation(intf.getSOAPStyle().toString()));
             bindingAnnotation.addArgument("use", getBindingAnnotation(intf.getSOAPUse().toString()));
-            if (intf.getSOAPStyle() == JavaPort.SOAPStyle.DOCUMENT) {
+            if (intf.getSOAPStyle() == SOAPBinding.Style.DOCUMENT) {
                 bindingAnnotation.addArgument("parameterStyle",
                                               getBindingAnnotation(intf.getSOAPParameterStyle().toString()));
             }
@@ -59,28 +59,28 @@ public class SEIAnnotationProcessor {
             if (!method.isWrapperStyle()) {
                 isWrapped = false;
             }
-            if (method.getSoapStyle() == JavaPort.SOAPStyle.RPC) {
+            if (method.getSoapStyle() == SOAPBinding.Style.RPC) {
                 isDOC = false;
             }
-            if (method.getSoapUse() == JavaPort.SOAPUse.ENCODED) {
+            if (method.getSoapUse() == SOAPBinding.Use.ENCODED) {
                 isLiteral = false;
             }
         }
 
         if (isDOC) {
-            intf.setSOAPStyle(JavaPort.SOAPStyle.DOCUMENT);
+            intf.setSOAPStyle(SOAPBinding.Style.DOCUMENT);
             if (isWrapped) {
-                intf.setSOAPParameterStyle(JavaPort.SOAPParameterStyle.WRAPPED);
+                intf.setSOAPParameterStyle(SOAPBinding.ParameterStyle.WRAPPED);
             } else {
-                intf.setSOAPParameterStyle(JavaPort.SOAPParameterStyle.BARE);
+                intf.setSOAPParameterStyle(SOAPBinding.ParameterStyle.BARE);
             }
         } else {
-            intf.setSOAPStyle(JavaPort.SOAPStyle.RPC);
+            intf.setSOAPStyle(SOAPBinding.Style.RPC);
         }
         if (isLiteral) {
-            intf.setSOAPUse(JavaPort.SOAPUse.LITERAL);
+            intf.setSOAPUse(SOAPBinding.Use.LITERAL);
         } else {
-            intf.setSOAPUse(JavaPort.SOAPUse.ENCODED);
+            intf.setSOAPUse(SOAPBinding.Use.ENCODED);
         }
     }
 

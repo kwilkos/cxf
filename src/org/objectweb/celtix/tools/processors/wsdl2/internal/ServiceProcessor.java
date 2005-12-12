@@ -86,19 +86,19 @@ public class ServiceProcessor {
 
     }
 
-    private JavaPort.SOAPStyle getSoapStyle(String soapStyle) {
+    private javax.jws.soap.SOAPBinding.Style getSoapStyle(String soapStyle) {
         if ("RPC".equalsIgnoreCase(soapStyle)) {
-            return JavaPort.SOAPStyle.RPC;
+            return javax.jws.soap.SOAPBinding.Style.RPC;
         } else {
-            return JavaPort.SOAPStyle.DOCUMENT;
+            return javax.jws.soap.SOAPBinding.Style.DOCUMENT;
         }
     }
 
-    private JavaPort.SOAPUse getSoapUse(String soapUse) {
+    private javax.jws.soap.SOAPBinding.Use getSoapUse(String soapUse) {
         if ("ENCODED".equalsIgnoreCase(soapUse)) {
-            return JavaPort.SOAPUse.ENCODED;
+            return javax.jws.soap.SOAPBinding.Use.ENCODED;
         } else {
-            return JavaPort.SOAPUse.LITERAL;
+            return javax.jws.soap.SOAPBinding.Use.LITERAL;
         }
     }
 
@@ -147,16 +147,16 @@ public class ServiceProcessor {
             }
         }
         jm.setSoapUse(getSoapUse(use));
-        if (JavaPort.SOAPStyle.RPC == jm.getSoapStyle()
-            && JavaPort.SOAPUse.ENCODED == jm.getSoapUse()) {
+        if (javax.jws.soap.SOAPBinding.Style.RPC == jm.getSoapStyle()
+            && javax.jws.soap.SOAPBinding.Use.ENCODED == jm.getSoapUse()) {
             System.out.println("** Unsupported RPC-Encoded Style Use **");
         }
-        if (JavaPort.SOAPStyle.RPC == jm.getSoapStyle()
-            && JavaPort.SOAPUse.LITERAL == jm.getSoapUse()) {
+        if (javax.jws.soap.SOAPBinding.Style.RPC == jm.getSoapStyle()
+            && javax.jws.soap.SOAPBinding.Use.LITERAL == jm.getSoapUse()) {
             processRPCLiteralParameter(jm, operation);
         }
-        if (JavaPort.SOAPStyle.DOCUMENT == jm.getSoapStyle()
-            && JavaPort.SOAPUse.LITERAL == jm.getSoapUse()) {
+        if (javax.jws.soap.SOAPBinding.Style.DOCUMENT == jm.getSoapStyle()
+            && javax.jws.soap.SOAPBinding.Use.LITERAL == jm.getSoapUse()) {
             return;
         }
     }

@@ -1,6 +1,7 @@
 package org.objectweb.celtix.tools.common.model;
 
 import java.util.*;
+import javax.jws.soap.SOAPBinding;
 import javax.wsdl.OperationType;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 
@@ -10,8 +11,8 @@ public class JavaMethod {
     private JavaReturn javaReturn;
     private OperationType style;
     private String soapAction;
-    private JavaPort.SOAPStyle soapStyle;
-    private JavaPort.SOAPUse soapUse;
+    private SOAPBinding.Style soapStyle;
+    private SOAPBinding.Use soapUse;
     private boolean wrapperStyle;
     private final JavaInterface javaInterface;
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
@@ -122,11 +123,11 @@ public class JavaMethod {
         this.wrapperStyle = w;
     }
 
-    public void setSoapStyle(JavaPort.SOAPStyle sty) {
+    public void setSoapStyle(SOAPBinding.Style sty) {
         this.soapStyle = sty;
     }
     
-    public JavaPort.SOAPStyle getSoapStyle() {
+    public SOAPBinding.Style getSoapStyle() {
         return this.soapStyle;
     }
 
@@ -138,11 +139,11 @@ public class JavaMethod {
         return this.soapAction; 
     }
     
-    public void setSoapUse(JavaPort.SOAPUse u) {
+    public void setSoapUse(SOAPBinding.Use u) {
         this.soapUse = u;
     }
     
-    public JavaPort.SOAPUse getSoapUse() {
+    public SOAPBinding.Use getSoapUse() {
         return this.soapUse;
     }
 

@@ -1,6 +1,7 @@
 package org.objectweb.celtix.tools.processors.wsdl2.internal;
 
 import java.util.*;
+import javax.jws.soap.SOAPBinding;
 import javax.wsdl.Message;
 import javax.wsdl.Part;
 import javax.xml.namespace.QName;
@@ -12,7 +13,6 @@ import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
-import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaReturn;
 import org.objectweb.celtix.tools.common.model.JavaType;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
@@ -82,7 +82,7 @@ public class ParameterProcessor {
         String targetNamespace = method.getInterface().getNamespace();
         String partName = null;
 
-        if (method.getSoapStyle() == JavaPort.SOAPStyle.DOCUMENT) {
+        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
             targetNamespace = parameter.getTargetNamespace();
             if (!method.isWrapperStyle()) {
                 name = method.getName();
@@ -90,7 +90,7 @@ public class ParameterProcessor {
             }
         }
         
-        if (method.getSoapStyle() == JavaPort.SOAPStyle.RPC) {
+        if (method.getSoapStyle() == SOAPBinding.Style.RPC) {
             partName = parameter.getName();    
         }
 
