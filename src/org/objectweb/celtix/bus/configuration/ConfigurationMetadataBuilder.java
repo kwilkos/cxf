@@ -1,5 +1,13 @@
 package org.objectweb.celtix.bus.configuration;
 
+
+
+
+
+
+
+
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
@@ -26,6 +34,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.ConfigurationException;
@@ -218,7 +227,9 @@ public class ConfigurationMetadataBuilder  {
     
     private Schema getMetadataSchema() {
         if (null == metadataSchema) {
-            InputStream is = ClassLoader.getSystemResourceAsStream("schemas/configuration/metadata.xsd");
+            InputStream is = 
+                new ResourceManagerImpl().getResourceAsStream("schemas/configuration/metadata.xsd");
+
             if (null == is) {
                 throw new ConfigurationException(new Message("CANNOT_FIND_CONFIG_METADATA_SCHEMA_MSG", LOG));
             }

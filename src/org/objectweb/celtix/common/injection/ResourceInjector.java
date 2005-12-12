@@ -1,5 +1,6 @@
 package org.objectweb.celtix.common.injection;
 
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -12,11 +13,11 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.annotation.Resources;
-
 import org.objectweb.celtix.common.annotation.AnnotationProcessor;
 import org.objectweb.celtix.common.annotation.AnnotationVisitor;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.resource.ResourceResolver;
+import org.objectweb.celtix.resource.ResourceManager;
+
 
 /**
  * injects references specified using @Resource annotation 
@@ -26,11 +27,11 @@ public class ResourceInjector implements AnnotationVisitor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(ResourceInjector.class);
 
-    private final ResourceResolver resolver; 
+    private final ResourceManager resourceManager; 
     private Object target; 
 
-    public ResourceInjector(ResourceResolver r) {
-        resolver = r;
+    public ResourceInjector(ResourceManager resMgr) {
+        resourceManager = resMgr;
     }
 
     public void inject(Object o) {
@@ -66,21 +67,29 @@ public class ResourceInjector implements AnnotationVisitor {
             return;
         } 
 
-        Object resource = resolver.resolve(res.name(), res.type()); 
-        if (resource == null) {
-            LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED");
-            return;
-        } 
-
+        Object resource = null;
         // first find a setter that matches this resource
         Method setter = findSetterForResource(res);
         if (setter != null) { 
+            Class<?> type = getResourceType(res, setter); 
+            resource = resourceManager.resolveResource(res.name(), type);
+            if (resource == null) {
+                LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED");
+                return;
+            } 
+
             invokeSetter(setter, resource);
             return;
         }
         
         Field field = findFieldForResource(res);
         if (field != null) { 
+            Class<?> type = getResourceType(res, field); 
+            resource = resourceManager.resolveResource(res.name(), type);
+            if (resource == null) {
+                LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED");
+                return;
+            } 
             injectField(field, resource); 
             return;
         }
@@ -98,17 +107,16 @@ public class ResourceInjector implements AnnotationVisitor {
 
         assert annotation instanceof Resource : annotation;
         
-        
         Resource res = (Resource)annotation;
 
         String name = getFieldNameForResource(res, field);
-        Class<?> type = getFieldTypeForResource(res, field); 
+        Class<?> type = getResourceType(res, field); 
         
-        Object resource = resolver.resolve(name, type);
+        Object resource = resourceManager.resolveResource(name, type);
         if (resource != null) {
             injectField(field, resource);
         } else {
-            LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED");
+            LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED", name);
         }
     }
 
@@ -117,14 +125,15 @@ public class ResourceInjector implements AnnotationVisitor {
         assert annotation instanceof Resource : annotation;
 
         Resource res = (Resource)annotation; 
-
+        
         String resourceName = getResourceName(res, method);
         Class<?> clz = getResourceType(res, method); 
-        Object resource = resolver.resolve(resourceName, clz);
+
+        Object resource = resourceManager.resolveResource(resourceName, clz);
         if (resource != null) {
             invokeSetter(method, resource);
         } else { 
-            LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED");
+            LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED", new Object[] {resourceName, clz});
         }
     }
 
@@ -192,10 +201,6 @@ public class ResourceInjector implements AnnotationVisitor {
         } 
     } 
 
-
-    private Class<?> getResourceType(Resource res, Method method) { 
-        return res.type() != null ? res.type() : method.getParameterTypes()[0];
-    } 
 
     private String getResourceName(Resource res, Method method) { 
         assert method != null; 
@@ -270,15 +275,25 @@ public class ResourceInjector implements AnnotationVisitor {
     } 
      
         
-    private Class<?> getFieldTypeForResource(Resource res, Field field) {
+    /**
+     * making this protected to keep pmd happy
+     */
+    protected Class<?> getResourceType(Resource res, Field field) {
         assert res != null;
-        
         Class type = res.type();
         if (res.type() == null || Object.class == res.type()) {
             type = field.getType();
         }
         return type;
     }
+
+
+    private Class<?> getResourceType(Resource res, Method method) { 
+        return res.type() != null && !Object.class.equals(res.type()) 
+            ? res.type() 
+            : method.getParameterTypes()[0];
+    } 
+
 
     private String getFieldNameForResource(Resource res, Field field) {
         assert res != null;

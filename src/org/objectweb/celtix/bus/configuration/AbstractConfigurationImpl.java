@@ -1,5 +1,7 @@
 package org.objectweb.celtix.bus.configuration;
 
+
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -7,9 +9,7 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.xml.namespace.QName;
-
 import org.objectweb.celtix.common.i18n.BundleUtils;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -31,12 +31,14 @@ public class AbstractConfigurationImpl implements Configuration {
     private List<ConfigurationProvider> providers;
 
     public AbstractConfigurationImpl(String resource, Object instanceId, Configuration parent) {
-        configurator = new ConfiguratorImpl(this, 
-            parent instanceof AbstractConfigurationImpl ? (AbstractConfigurationImpl)parent : null);
+        configurator = new ConfiguratorImpl(this, parent instanceof AbstractConfigurationImpl 
+                                            ? (AbstractConfigurationImpl)parent 
+                                            : null);
         ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();
+
         InputStream is = null;
         if (resource != null) {
-            is = ClassLoader.getSystemResourceAsStream(resource);
+            is = loadResource(resource);
             if (is == null) {
                 throw new ConfigurationException(new Message("METADATA_RESOURCE_EXC", BUNDLE, resource));
             }
@@ -248,4 +250,13 @@ public class AbstractConfigurationImpl implements Configuration {
         return configurator;
     }
 
+    private InputStream loadResource(String resourceName) { 
+        InputStream ret = null;
+
+        ret = getClass().getClassLoader().getResourceAsStream(resourceName);
+        if (null == ret) { 
+            ret = ClassLoader.getSystemResourceAsStream(resourceName);
+        } 
+        return ret;
+    }
 }

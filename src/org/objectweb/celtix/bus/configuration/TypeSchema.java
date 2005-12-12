@@ -1,5 +1,13 @@
 package org.objectweb.celtix.bus.configuration;
 
+
+
+
+
+
+
+
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +47,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import org.objectweb.celtix.bus.jaxb.JAXBUtils;
+import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.ConfigurationException;
@@ -417,7 +426,7 @@ public class TypeSchema {
             }
         } else { 
             // uri path is a system resource             
-            is = ClassLoader.getSystemResourceAsStream(location);
+            is = ResourceManagerImpl.instance().getResourceAsStream(location);
             if (null == is) {
                 throw new ConfigurationException(new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location));
             }

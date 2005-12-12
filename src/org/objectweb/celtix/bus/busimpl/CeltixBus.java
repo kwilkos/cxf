@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.busimpl;
 
+
 import java.util.Map;
 
 import org.objectweb.celtix.Bus;
@@ -8,6 +9,7 @@ import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bus.bindings.BindingManagerImpl;
 import org.objectweb.celtix.bus.handlers.HandlerFactoryManagerImpl;
 import org.objectweb.celtix.bus.jaxws.EndpointRegistry;
+import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
@@ -15,6 +17,7 @@ import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
 import org.objectweb.celtix.plugins.PluginManager;
+import org.objectweb.celtix.resource.ResourceManager;
 import org.objectweb.celtix.transports.TransportFactoryManager;
 import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.wsdl.WSDLManager;
@@ -31,7 +34,7 @@ public class CeltixBus extends Bus {
     private PluginManager pluginManager;
     private CeltixBusLifeCycleManager lifeCycleManager;
     private WorkQueueManager workQueueManager;
-    
+    private ResourceManager resourceManager;
     /**
      * Used by the <code>BusFactory</code> to initialize a new bus.
      * 
@@ -48,7 +51,8 @@ public class CeltixBus extends Bus {
         transportFactoryManager = new TransportFactoryManagerImpl(this);
         bindingManager = new BindingManagerImpl(this);
         workQueueManager = new WorkQueueManagerImpl(this);
-        
+        resourceManager = new ResourceManagerImpl(this);
+
         // create and initialise the remaining objects:
         // clientRegistry = new ClientRegistry(this);
         
@@ -192,6 +196,15 @@ public class CeltixBus extends Bus {
         return workQueueManager;
     }
     
+
+    /* (non-Javadoc)
+     * @see org.objectweb.celtix.Bus#getResourceManager()
+     */
+    @Override
+    public ResourceManager getResourceManager() { 
+        return resourceManager;
+    } 
+
     
     
 }

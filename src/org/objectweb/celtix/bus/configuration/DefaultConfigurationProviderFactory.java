@@ -1,12 +1,13 @@
 package org.objectweb.celtix.bus.configuration;
 
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Logger;
-
+import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
@@ -66,9 +67,7 @@ public class DefaultConfigurationProviderFactory {
     
         // next, check for the services stuff in the jar file
         String serviceId = "META-INF/services/" + DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME_PROPERTY;
-        InputStream is = ClassLoader.getSystemResourceAsStream(serviceId);
-        
-        
+        InputStream is = new ResourceManagerImpl().getResourceAsStream(serviceId);
   
         if (is != null) {
             try {

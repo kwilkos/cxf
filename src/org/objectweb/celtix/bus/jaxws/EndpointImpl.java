@@ -1,6 +1,10 @@
 package org.objectweb.celtix.bus.jaxws;
 
 
+
+
+
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -8,7 +12,6 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
@@ -21,7 +24,6 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.addressing.EndpointReferenceType;
@@ -35,8 +37,6 @@ import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.ObjectMessageContext;
-import org.objectweb.celtix.context.WebServiceContextImpl;
-import org.objectweb.celtix.resource.ResourceResolver;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public final class EndpointImpl extends javax.xml.ws.Endpoint
@@ -269,22 +269,13 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     }
 
 
-    /** inject resources into servant.  The resources are injected
+    /** 
+     * inject resources into servant.  The resources are injected
      * according to @Resource annotations.  See JSR 250 for more
-     * information         AnnotationProcessor
-
-     *
+     * information.
      */
     private void injectResources() { 
-
-        // TODO ResourceResolver needs to be globally available and to
-        // resolve more that just WebServiceContexts
-        ResourceInjector injector = new ResourceInjector(new ResourceResolver() { 
-                public Object resolve(String resourceName, Class<?> resourceType) {
-                    return new WebServiceContextImpl();
-                }
-            });
-
+        ResourceInjector injector = new ResourceInjector(bus.getResourceManager());
         injector.inject(implementor);
     }
 

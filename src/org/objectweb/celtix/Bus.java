@@ -10,6 +10,7 @@ import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;
 import org.objectweb.celtix.plugins.PluginManager;
+import org.objectweb.celtix.resource.ResourceManager;
 import org.objectweb.celtix.transports.TransportFactoryManager;
 import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.wsdl.WSDLManager;
@@ -24,7 +25,7 @@ public abstract class Bus {
 
     private static ThreadLocal<Bus> current = new ThreadLocal<Bus>();
     private static Bus defaultBus; 
-
+    
     /**
      * Returns a newly created and fully initialised <code>Bus</code>.
      * 
@@ -180,6 +181,14 @@ public abstract class Bus {
      */
     public abstract WorkQueueManager getWorkQueueManager();
     
+
+    /** 
+     * Returns the <code>ResourceManager</code> of this <code>Bus</code>.
+     * 
+     * @return ResourceManager of this <code>Bus</code>.
+     */
+    public abstract ResourceManager getResourceManager();
+
     /**
      * Starts processing bus events, and returns only after the <code>Bus</code> has been shut down
      * (from another thread).
@@ -191,6 +200,7 @@ public abstract class Bus {
             Map<String, Object> properties) throws BusException;
 
 
+ 
     static void clearDefault() { 
         defaultBus = null; 
     } 
