@@ -23,7 +23,8 @@ import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
 
 import com.sun.xml.bind.api.TypeReference;
-
+import org.objectweb.celtix.tools.common.ProcessorEnvironment;
+import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
@@ -34,13 +35,20 @@ import org.objectweb.celtix.tools.common.model.WSDLWrapperParameter;
 import org.objectweb.celtix.tools.utils.AnnotationUtil;
 
 public class ClassProcessor {
-
+    
     Class seiClass;
     WSDLModel model;
     Map<Class, Boolean> webMethodClasses = new HashMap<Class, Boolean>();
+    SOAPBinding.Style soapStyle = SOAPBinding.Style.DOCUMENT;
+    SOAPBinding.Use soapUse = SOAPBinding.Use.LITERAL;
+    SOAPBinding.ParameterStyle soapParameter = SOAPBinding.ParameterStyle.WRAPPED;
 
-    public ClassProcessor(Class clz) {
+    private final ProcessorEnvironment env;
+    
+
+    public ClassProcessor(Class clz, ProcessorEnvironment penv) {
         seiClass = clz;
+        env = penv;
     }
 
     public void process(WSDLModel wmodel) {
@@ -58,51 +66,56 @@ public class ClassProcessor {
 
     }
 
+    private boolean isOneWayMethod(Method method) {
+        return method.isAnnotationPresent(Oneway.class);
+    }
+
+    private void resolveSOAPBinding(Class sei) {
+        SOAPBinding soapBinding = AnnotationUtil.getPrivClassAnnotation(seiClass, SOAPBinding.class);
+        if (soapBinding != null) {
+            soapStyle = soapBinding.style();
+            soapUse = soapBinding.use();
+            soapParameter = soapBinding.parameterStyle();
+        }
+    }
+
+    private boolean isDocLit() {
+        return (soapStyle == SOAPBinding.Style.DOCUMENT) && (soapUse == SOAPBinding.Use.LITERAL);
+    }
+
     public void processMethod(WSDLModel wmodel, Method method) {
         if (!Modifier.isPublic(method.getModifiers())) {
             return;
         }
+        
         WebMethod webMethod = AnnotationUtil.getPrivMethodAnnotation(method, WebMethod.class);
-        if (webMethod != null && webMethod.exclude()) {
+        if (webMethod == null || (webMethod != null && webMethod.exclude())) {
             return;
         }
-        boolean useWeb = false;
-        if (useWeb && webMethod == null) {
-            return;
-        }
-        Object implementor = null;
 
-        JavaMethod javaMethod;
-        Class implementorClass = (implementor != null) ? implementor.getClass() : seiClass;
-        if (method.getDeclaringClass().equals(implementorClass)) {
-            javaMethod = new JavaMethod();
-            javaMethod.setName(method.getName());
-        } else {
+        JavaMethod javaMethod = new JavaMethod();
+        
+        if (!method.getDeclaringClass().equals(seiClass)) {
             try {
-                Method tmp = implementorClass.getMethod(method.getName(),
-                                                        (Class[])method.getParameterTypes());
-                javaMethod = new JavaMethod();
+                Method tmp = seiClass.getMethod(method.getName(),
+                                                (Class[])method.getParameterTypes());
                 javaMethod.setName(tmp.getName());
             } catch (NoSuchMethodException e) {
                 throw new ToolException(e.getMessage(), e);
             }
+        } else {
+            javaMethod.setName(method.getName());
         }
-        javaMethod.setStyle(OperationType.ONE_WAY);
-        String operationName = method.getName();
-        if (webMethod != null) {
-            // String action = webMethod.action();
-            operationName = webMethod.operationName().length() > 0
-                ? webMethod.operationName() : operationName;
+        
+        if (isOneWayMethod(method)) {
+            javaMethod.setStyle(OperationType.ONE_WAY);
+        } else {
+            javaMethod.setStyle(OperationType.REQUEST_RESPONSE);
         }
-        javaMethod.setName(operationName);
-        SOAPBinding methodBinding = method.getAnnotation(SOAPBinding.class);
-        if (methodBinding == null && !method.getDeclaringClass().equals(seiClass)
-            && !method.getDeclaringClass().isInterface()) {
-            methodBinding = method.getDeclaringClass().getAnnotation(SOAPBinding.class);
-        }
-        boolean isWrapped = true;
-        SOAPBinding soapBinding = AnnotationUtil.getPrivClassAnnotation(seiClass, SOAPBinding.class);
-        if (soapBinding == null || (soapBinding.style().equals(SOAPBinding.Style.DOCUMENT) && isWrapped)) {
+
+        resolveSOAPBinding(seiClass);
+        
+        if (isDocLit()) {
             processDocWrappedMethod(method);
         }
     }
@@ -408,7 +421,9 @@ public class ClassProcessor {
         }
         model.setServiceName(serviceName);
         String targetNamespace = getNamespace(packageName);
-        if (webService.targetNamespace().length() > 0) {
+        if (env.optionSet(ToolConstants.CFG_TNS)) {
+            targetNamespace = (String) env.get(ToolConstants.CFG_TNS);
+        } else if (webService.targetNamespace().length() > 0) {
             targetNamespace = webService.targetNamespace();
         } else if (targetNamespace == null) {
             throw new ToolException("Class No Package");

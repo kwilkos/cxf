@@ -30,13 +30,10 @@ public class JavaToWSDLProcessor implements Processor {
     }
 
     public void buildModel(WSDLModel wmodel, Class clazz) throws ToolException {
-        ClassProcessor classproc = new ClassProcessor(clazz);
-        try {
-            classproc.process(wmodel);
-        } catch (Exception e) {
-            throw new ToolException("Build class model failed in " + getClass().getName(), e);
-        }
+        ClassProcessor classproc = new ClassProcessor(clazz, getEnvironment());
 
+        classproc.process(wmodel);
+            
     }
 
     public void setEnvironment(ProcessorEnvironment env) {
