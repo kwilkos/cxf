@@ -19,7 +19,7 @@
     </target>
 
     <target name="generate.code" unless="codegen.notrequired">
-        <echo message="Generating code using wsdl2java..."/>
+        <echo level="info"  message="Generating code using wsdl2java..."/>
         <wsdl2java file="${wsdl.file}"/>
         <touch file="${codegen.timestamp.file}"/>
     </target>        
