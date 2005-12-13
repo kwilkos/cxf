@@ -1,12 +1,10 @@
 package org.objectweb.celtix.bus.busimpl;
 
+
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.configuration.CommandLineOption;
@@ -47,34 +45,29 @@ public final class BusFactory {
         
         // create the bus
        
-        return createBus(busClass, classLoader, args, properties);
+        return createBus(busClass, selectClassLoader(classLoader), args, properties);
     }
     
+    private ClassLoader selectClassLoader(ClassLoader classLoader) { 
+        ClassLoader ret = classLoader;
+        if (null == classLoader) { 
+            ret = BusFactory.class.getClassLoader();
+        }
+        return ret;
+    } 
+
     private static Bus createBus(String className,
-            ClassLoader classLoader,
-            String[] args,
-            Map<String, Object> properties) throws BusException {
+                                 ClassLoader classLoader,
+                                 String[] args,
+                                 Map<String, Object> properties) throws BusException {
 
         Class<? extends Bus> busClass;
         try {
-            if (classLoader == null) {
-                busClass = Class.forName(className).asSubclass(Bus.class);
-            } else {
-                busClass = classLoader.loadClass(className).asSubclass(Bus.class);
-            }
-        } catch (ClassCastException ex) {
-            throw new BusException(ex);
-        } catch (ClassNotFoundException ex) {
-            throw new BusException(ex);
-        }
-
-        try {
+            busClass = Class.forName(className, true, classLoader).asSubclass(Bus.class);
             Bus bus = busClass.newInstance();
             bus.initialize(args, properties);
             return bus;
-        } catch (IllegalAccessException ex) {
-            throw new BusException(ex);
-        } catch (InstantiationException ex) {
+        } catch (Exception ex) {
             throw new BusException(ex);
         }
     }
@@ -87,58 +80,55 @@ public final class BusFactory {
         // first check command line arguments
         BUS_CLASS_OPT.initialize(args);
         busClass = (String)BUS_CLASS_OPT.getValue();
-        if (null != busClass && !"".equals(busClass)) {
+        if (isValidBusClass(busClass)) {
             return busClass;
         }
         
         // next check properties    
         busClass = (String)properties.get(Bus.BUS_CLASS_PROPERTY);
-        if (null != busClass && !"".equals(busClass)) {
+        if (isValidBusClass(busClass)) {
             return busClass;
         }
         
         // next check system properties
         busClass = System.getProperty(Bus.BUS_CLASS_PROPERTY);
-        if (null != busClass && !"".equals(busClass)) {
+        if (isValidBusClass(busClass)) {
             return busClass;
         }
     
-        // next, check for the services stuff in the jar file
-        String serviceId = "META-INF/services/" + Bus.BUS_CLASS_PROPERTY;
-        InputStream is = null;
+        try {
+            // next, check for the services stuff in the jar file
+            String serviceId = "META-INF/services/" + Bus.BUS_CLASS_PROPERTY;
+            InputStream is = null;
         
-        if (classLoader == null) {
-            try {
+            if (classLoader == null) {
                 classLoader = Thread.currentThread().getContextClassLoader();
-            } catch (Exception ex) {
-                throw new BusException(ex);
             }
-        }
         
-        if (classLoader == null) {
-            is = ClassLoader.getSystemResourceAsStream(serviceId);
-        } else {
-            is = classLoader.getResourceAsStream(serviceId);
-        }
-        if (is != null) {
-            try {
+            if (classLoader == null) {
+                is = ClassLoader.getSystemResourceAsStream(serviceId);
+            } else {
+                is = classLoader.getResourceAsStream(serviceId);
+            }
+            if (is != null) {
                 BufferedReader rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
                 busClass = rd.readLine();
                 rd.close();
-            } catch (UnsupportedEncodingException useex) {
-                //we're asking for UTF-8 which is supposed to always be supported,
-                //but we'll throw a BusException anyway
-                throw new BusException(useex);
-            } catch (IOException useex) {
-                throw new BusException(useex);
             }
-        }
-        if (busClass != null && !"".equals(busClass)) {
-            return busClass;
-        }
+            if (isValidBusClass(busClass)) {
+                return busClass;
+            }
 
-        // otherwise use default  
-        busClass = DEFAULT_BUS_CLASSNAME;
-        return busClass;
+            // otherwise use default  
+            busClass = DEFAULT_BUS_CLASSNAME;
+            return busClass;
+        } catch (Exception ex) {
+            throw new BusException(ex);
+        }
     } 
+
+    private boolean isValidBusClass(String busClassName) { 
+        return busClassName != null && !"".equals(busClassName);
+    }
+ 
 }

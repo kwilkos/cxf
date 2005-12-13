@@ -40,7 +40,7 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
                                      Class<?> parentType,
                                      Class<? extends TExtensibilityElementImpl> cls) throws JAXBException {
         
-        JAXBContext context = JAXBContext.newInstance(cls.getPackage().getName());
+        JAXBContext context = JAXBContext.newInstance(cls.getPackage().getName(), cls.getClassLoader());
         JAXBExtensionHelper helper = new JAXBExtensionHelper(context, cls);
         
         try {

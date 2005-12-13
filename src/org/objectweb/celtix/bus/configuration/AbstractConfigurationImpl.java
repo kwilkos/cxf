@@ -10,6 +10,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.namespace.QName;
+import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
 import org.objectweb.celtix.common.i18n.BundleUtils;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -251,12 +252,6 @@ public class AbstractConfigurationImpl implements Configuration {
     }
 
     private InputStream loadResource(String resourceName) { 
-        InputStream ret = null;
-
-        ret = getClass().getClassLoader().getResourceAsStream(resourceName);
-        if (null == ret) { 
-            ret = ClassLoader.getSystemResourceAsStream(resourceName);
-        } 
-        return ret;
+        return ResourceManagerImpl.instance().getResourceAsStream(resourceName);
     }
 }

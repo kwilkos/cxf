@@ -43,11 +43,9 @@ public final class JAXBEncoderDecoder {
             Set<Class> classes = new HashSet<Class>();
             getClassesForContext(cls, classes, cls.getClassLoader());
             try {
-                //System.err.println(classes);
                 context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
                 contextMap.put(cls, context);
             } catch (JAXBException ex) {
-                //System.err.println(classes);
                 throw ex;
             }
         }

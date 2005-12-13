@@ -123,7 +123,7 @@ public final class EndpointReferenceUtils {
                 Element el = (Element)obj;
                 if ("http://www.w3.org/2005/02/addressing/wsdl".equals(el.getNamespaceURI())) {
                     try {
-                        JAXBContext context = JAXBContext.newInstance(new Class[] {ObjectFactory.class});
+                        JAXBContext context = JAXBContext.newInstance(ObjectFactory.class);
                         Unmarshaller u = context.createUnmarshaller();
                         obj = u.unmarshal(el);
                     } catch (JAXBException jaxbex) {

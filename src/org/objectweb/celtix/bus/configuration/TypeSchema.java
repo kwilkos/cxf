@@ -230,7 +230,7 @@ public class TypeSchema {
         JAXBContext context = null;
         Object obj = null;
 
-        context = JAXBContext.newInstance(packageName);
+        context = JAXBContext.newInstance(packageName, getClass().getClassLoader());
         Unmarshaller u = context.createUnmarshaller();
         if (doValidate) {
             u.setSchema(schema);
