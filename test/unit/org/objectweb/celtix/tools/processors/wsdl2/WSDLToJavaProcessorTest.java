@@ -62,6 +62,25 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals(files.length, 3);
     }
 
+    public void testDocLitHolder() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/mapping-doc-literal.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+        assertNotNull(output);
+
+        File com = new File(output, "com");
+        assertTrue(com.exists());
+        File iona = new File(com, "iona");
+        assertTrue(iona.exists());
+        File artix = new File(iona, "artix");
+        assertTrue(artix.exists());
+        File mapping = new File(artix, "mapping");
+        assertTrue(mapping.exists());
+        File[] files = mapping.listFiles();
+        assertEquals(files.length, 9);
+    }
+
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
     }

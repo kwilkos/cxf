@@ -1,10 +1,10 @@
 package org.objectweb.celtix.tools.common.model;
 
-
 public class JavaParameter extends JavaType {
 
     private boolean holder;
     private String holderName;
+    private String holderClass;
     private String annotation;
 
     public JavaParameter() {
@@ -30,6 +30,14 @@ public class JavaParameter extends JavaType {
         this.holderName = hn;
     }
 
+    public void setHolderClass(String clz) {
+        this.holderClass = clz;
+    }
+
+    public String getHolderClass() {
+        return this.holderClass;
+    }
+
     public void setAnnotation(String anno) {
         this.annotation = anno;
     }
@@ -38,4 +46,15 @@ public class JavaParameter extends JavaType {
         return this.annotation;
     }
 
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(super.toString());
+        if (holder) {
+            sb.append("\nIS Holder: [Holder Name]:");
+            sb.append(holderName);
+        }
+        sb.append("\n Annotation:");
+        sb.append(annotation);
+        return sb.toString();
+    }
 }

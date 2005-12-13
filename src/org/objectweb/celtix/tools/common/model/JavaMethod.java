@@ -64,9 +64,19 @@ public class JavaMethod {
         return false;
     }
 
+    private void removeParameter(JavaParameter param) {
+        parameters.remove(param);
+    }
+
     public void addParameter(JavaParameter param) {
         if (hasParameter(param.getName())) {
-            throw new ToolException("model.uniqueness");
+            JavaParameter paramInList = getParameter(param.getName());
+            if (paramInList.isIN()) {
+                removeParameter(paramInList);
+            } else {
+                throw new ToolException("model.uniqueness, following model already exist:\n"
+                                        + param.toString());
+            }
         }
         parameters.add(param);
     }
@@ -179,4 +189,32 @@ public class JavaMethod {
         return objparas;
     }
 
+    public String getParameterList() {
+        return getParameterList(true);
+    }
+    
+    public String getParameterList(boolean includeAnnotation) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < parameters.size(); i++) {
+            JavaParameter parameter = parameters.get(i);
+            if (includeAnnotation) {
+                sb.append(parameter.getAnnotation());
+            }
+            sb.append("\n");
+            if (parameter.isHolder()) {
+                sb.append(parameter.getHolderName());
+                sb.append("<");
+                sb.append(parameter.getHolderClass());
+                sb.append(">");
+            } else {
+                sb.append(parameter.getClassName());
+            }
+            sb.append(" ");
+            sb.append(parameter.getName());
+            if (i != parameters.size() - 1) {
+                sb.append(",\n");
+            }
+        }
+        return sb.toString();
+    }
 }

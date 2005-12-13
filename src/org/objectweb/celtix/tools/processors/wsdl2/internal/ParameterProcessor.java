@@ -71,6 +71,7 @@ public class ParameterProcessor {
         if (style == JavaType.Style.INOUT || style == JavaType.Style.OUT) {
             parameter.setHolder(true);
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());
+            parameter.setHolderClass(parameter.getClassName());
         }
         parameter.setStyle(style);
         return parameter;
@@ -97,9 +98,12 @@ public class ParameterProcessor {
         if (partName != null) {
             webParamAnnotation.addArgument("partName", partName);
         }
-        
+        if (parameter.getStyle() == JavaType.Style.OUT || parameter.getStyle() == JavaType.Style.INOUT) {
+            webParamAnnotation.addArgument("mode", "Mode." + parameter.getStyle().toString(), "");
+        }
         webParamAnnotation.addArgument("name", name);
         webParamAnnotation.addArgument("targetNamespace", targetNamespace);
+        
         parameter.setAnnotation(webParamAnnotation.toString());
         
         method.addParameter(parameter);
@@ -213,7 +217,7 @@ public class ParameterProcessor {
             processOutput(method, inputMessage, outputMessage, isRequestResponse);
             return;
         }
-
+        
         Part inputPart = inputParts.iterator().next();
         Part outputPart = outputParts.iterator().next();
         List<? extends Property> inputBlock = ProcessorUtil.getBlock(inputPart, env);
@@ -231,17 +235,23 @@ public class ParameterProcessor {
         }
         method.setReturn(null);
         for (Property outElement : outputBlock) {
+            if ("return".equals(outElement.elementName().getLocalPart())) {
+                if (method.getReturn() != null) {
+                    throw new ToolException("Wrapper style can not have two return types");
+                }
+                method.setReturn(getReturnFromProperty(outElement));
+                continue;
+            }
+            boolean sameWrapperChild = false;
             for (Property inElement : inputBlock) {
                 if (isSameWrapperChild(inElement, outElement)) {
                     addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT));
-                } else if ("return".equals(outElement.elementName().getLocalPart())) {
-                    if (method.getReturn() != null) {
-                        throw new ToolException("Wrapper style can not have two return types");
-                    }
-                    method.setReturn(getReturnFromProperty(outElement));
-                } else {
-                    addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT));
-                }
+                    sameWrapperChild = true;
+                    break;
+                } 
+            }
+            if (!sameWrapperChild) {
+                addParameter(method, getParameterFromProperty(outElement, JavaType.Style.OUT));
             }
         }
         if (method.getReturn() == null) {
@@ -255,6 +265,12 @@ public class ParameterProcessor {
     }
 
     private boolean isSameWrapperChild(Property in, Property out) {
+        if (!in.name().equals(out.name())) {
+            return false;
+        }
+        if (!in.type().fullName().equals(out.type().fullName())) {
+            return false;
+        }
         if (!in.elementName().getNamespaceURI().equals(out.elementName().getNamespaceURI())) {
             return false;
         }
@@ -269,6 +285,7 @@ public class ParameterProcessor {
         if (style == JavaType.Style.OUT || style == JavaType.Style.INOUT) {
             parameter.setHolder(true);
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());
+            parameter.setHolderClass(t.boxify().name());
         }
         return parameter;
     }
@@ -292,7 +309,7 @@ public class ParameterProcessor {
                 processInput(method, inputMessage);
             }
         }
-        
+
         if (outputMessage == null) {
             processReturn(method, null);
         } else {

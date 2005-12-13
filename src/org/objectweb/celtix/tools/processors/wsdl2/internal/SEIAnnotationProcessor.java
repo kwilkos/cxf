@@ -40,12 +40,12 @@ public class SEIAnnotationProcessor {
             processBinding(intf);
             
             JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
-            bindingAnnotation.setToken("");
-            bindingAnnotation.addArgument("style", getBindingAnnotation(intf.getSOAPStyle().toString()));
-            bindingAnnotation.addArgument("use", getBindingAnnotation(intf.getSOAPUse().toString()));
+            bindingAnnotation.addArgument("style", getBindingAnnotation(intf.getSOAPStyle().toString()), "");
+            bindingAnnotation.addArgument("use", getBindingAnnotation(intf.getSOAPUse().toString()), "");
             if (intf.getSOAPStyle() == SOAPBinding.Style.DOCUMENT) {
                 bindingAnnotation.addArgument("parameterStyle",
-                                              getBindingAnnotation(intf.getSOAPParameterStyle().toString()));
+                                              getBindingAnnotation(intf.
+                                                                   getSOAPParameterStyle().toString()), "");
             }
             intf.addAnnotation(bindingAnnotation.toString());
         }        

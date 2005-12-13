@@ -3,8 +3,9 @@ package org.objectweb.celtix.tools.common.model;
 import java.util.*;
 
 public class JavaAnnotation {
+    private static final String DEFAULT_QUOTE  = "\"";
+
     private String tagName;
-    private String token = "\"";
     private final Map<String, String>  arguments = new HashMap<String, String>();
 
     public JavaAnnotation() {
@@ -14,12 +15,12 @@ public class JavaAnnotation {
         this.tagName = tn;
     }
 
-    public void addArgument(String key, String value) {
-        arguments.put(key, value);
+    public void addArgument(String key, String value, String quote) {
+        arguments.put(key, quote + value + quote);
     }
-
-    public void setToken(String t) {
-        this.token = t;
+    
+    public void addArgument(String key, String value) {
+        addArgument(key, value, DEFAULT_QUOTE);
     }
 
     public String toString() {
@@ -32,9 +33,7 @@ public class JavaAnnotation {
             for (int i = 0; i < keys.length; i++) {
                 sb.append((String) keys[i]);
                 sb.append(" = ");
-                sb.append(token);
                 sb.append(this.arguments.get((String)keys[i]));
-                sb.append(token);
                 if (i != (keys.length - 1)) {
                     sb.append(", ");
                 }

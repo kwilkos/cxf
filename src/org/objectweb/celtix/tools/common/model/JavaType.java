@@ -83,4 +83,19 @@ public class JavaType {
     public TypeReference getTypeReference() {
         return this.typeRef;
     }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("\nName: ");
+        sb.append(this.name);
+        sb.append("\nType: ");
+        sb.append(this.type);
+        sb.append("\nClass Name: ");
+        sb.append(this.className);
+        sb.append("\nTargetNamespace: ");
+        sb.append(this.targetNamespace);
+        sb.append("\nStyle: ");
+        sb.append(style.toString());
+        return sb.toString();
+    }
 }
