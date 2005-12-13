@@ -1,35 +1,23 @@
 package org.objectweb.celtix.tools.processors.wsdl2;
 
 import java.io.*;
-import java.net.URL;
 
-import junit.framework.TestCase;
-import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.processors.ProcessorTestBase;
 
-public class WSDLToJavaProcessorTest extends TestCase {
+public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     
-    private ProcessorEnvironment env = new ProcessorEnvironment();
     private WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
-    private File output;
     
     public void setUp() throws Exception {
-        URL url = WSDLToJavaProcessorTest.class.getResource(".");
-        output = new File(url.getFile());
-        output = new File(output, "/resources");
-        
-        if (!output.exists()) {
-            output.mkdir();
-        }
+        super.setUp();
         env.put(ToolConstants.CFG_OUTPUTDIR,
                 output.getCanonicalPath());
     }
 
     public void tearDown() {
-        output.deleteOnExit();
-        output = null;
+        super.tearDown();
         processor = null;
-        env = null;
     }
     
     public void testHelloWorld() throws Exception {
