@@ -138,6 +138,8 @@
         <check.sample sample.dir="samples/handlers"/>
         <check.sample sample.dir="samples/hello_world"/>
         <check.sample sample.dir="samples/hello_world_RPCLit"/>
+        <check.sample sample.dir="samples/hello_world_JMS_queue"/>
+        <check.sample sample.dir="samples/hello_world_JMS_pubsub"/>
         <pmd printToConsole="true"
 	     targetjdk="1.5"
 	     rulesetfiles="${basedir}/.ruleset"
