@@ -102,6 +102,25 @@
         <delete file="${codegen.timestamp.file}"/>
         <delete file="demo.log"/>
     </target>
+
+    <!-- Target to start JMS Broker for JMS samples -->
+    <property name="activemq.home" location="${basedir}/../../tools/activemq/3.2"/>
+    <property name="derby.system.home" location="${basedir}/../../tools/activemq/3.2/var"/>
+    <target name="jmsbroker.start">
+        <java classname="org.activemq.spring.Main" fork="yes">
+            <classpath>
+                <path refid="celtix.classpath"/>
+                <path location="${activemq.home}/lib/optional/commons-dbcp-1.2.jar"/>
+                <path location="${activemq.home}/lib/optional/commons-pool-1.2.jar"/>
+                <path location="${activemq.home}/lib/optional/commons-collections-2.1.jar"/>
+                <path location="${activemq.home}/lib/optional/derby-10.0.2.1.jar"/>
+            </classpath>
+            <arg value="${activemq.home}/conf/activemq.xml"/>
+            <jvmarg value="-Dactivemq.home=${activemq.home}"/>
+            <jvmarg value="-Dderby.system.home=${derby.system.home}"/>
+            <jvmarg value="-Dderby.storage.fileSyncTransactionLog=true"/>
+        </java>
+    </target>
         
     <target name="build"  depends="compile" description="build demo client and server"/>
 

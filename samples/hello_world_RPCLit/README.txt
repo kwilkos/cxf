@@ -82,7 +82,7 @@ For UNIX (must use forward slashes):
          demo.hwRPCLit.server.Server &
 
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
-         demo.hwRPCLit.client.Client ./wsdl/hello_world.wsdl
+         demo.hwRPCLit.client.Client ./wsdl/hello_world_RPCLit.wsdl
 
 The server process starts in the background.  After running the client,
 use the kill command to terminate the server process.
