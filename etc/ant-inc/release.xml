@@ -40,6 +40,7 @@
                 <include name="jetty/**/*"/>
                 <include name="jaxws-ri/**/*"/>
                 <include name="spring/**/*"/>
+                <include name="velocity/**/*"/>
             </fileset>
         </copy>
         <copy todir="${build.release.dir}/docs">
