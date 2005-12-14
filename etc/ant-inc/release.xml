@@ -131,6 +131,8 @@
             <metainf dir="${basedir}/etc/metainf"/>
             <manifest>
                 <attribute name="Class-Path" value="${manifest.classpath}"/>
+		<attribute name="Implementation-Vendor" value="${celtix.vendor}"/>
+		<attribute name="Implementation-Version" value="${celtix.version.short}"/>
             </manifest>
         </jar>
     </target>
