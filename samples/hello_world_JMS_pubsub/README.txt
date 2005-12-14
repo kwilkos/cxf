@@ -88,11 +88,17 @@ For Windows:
 cd <activemq.home.dir>\bin
 activemq.bat ..\conf\activemq.xml
 
+The location of <activemq.home.dir> depends on whether you have installed the
+binary or source release.  In the binary release, <activemq.home.dir> is in
+lib/activemq/3.2.  In the source release, <activemq.home.dir> is in
+tools/activemq/3.2.
+
 From the samples/hello_world_JMS_pubsub directory run the commands, entered on a
 single command line:
 
 For UNIX (must use forward slashes):
-    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties demo.hwRPCLit.server.Server &
+    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+         demo.hwJMS.server.Server &
 
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
          demo.hwJMS.client.Client ./wsdl/hello_world_jms.wsdl
@@ -103,7 +109,7 @@ use the kill command to terminate the server process.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
-         demo.hwRPCLit.server.Server
+         demo.hwJMS.server.Server
 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
        demo.hwJMS.client.Client .\wsdl\hello_world_jms.wsdl
