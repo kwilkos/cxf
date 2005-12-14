@@ -45,13 +45,14 @@ public class AsyncCallbackFuture implements Future, Runnable {
         return done;
     }
 
+    @SuppressWarnings("unchecked")
     public Object get() throws InterruptedException, ExecutionException {
         callback.handleResponse(response);
         done = true;
         return null;
     }
 
-    
+    @SuppressWarnings("unchecked")
     public Object get(long timeout, TimeUnit unit)
         throws InterruptedException, ExecutionException, TimeoutException {
         // TODO - we have to manually check if the callback has finished executing 
