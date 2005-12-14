@@ -1,13 +1,18 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+
+
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +59,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     protected final MessageFactory msgFactory;
     protected final SOAPFactory soapFactory;
     protected final boolean isServer;
+    private final Collection<String> supportedProtocols = new LinkedList<String>(); 
     private NSStack nsStack;
 
     public SOAPBindingImpl(boolean server) {
@@ -61,6 +67,13 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             isServer = server;
             msgFactory = MessageFactory.newInstance();
             soapFactory = SOAPFactory.newInstance();
+
+            // REVISIT: these should be read from configuration
+            supportedProtocols.add("http");
+            supportedProtocols.add("https");
+            supportedProtocols.add("jms");
+            supportedProtocols.add("jbi");
+
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SAAJ_FACTORY_CREATION_FAILURE_MSG", se);
             throw new WebServiceException(se.getMessage());
@@ -85,10 +98,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
     public boolean isCompatibleWithAddress(String address) {
         
-        if ("jms".equalsIgnoreCase(address.substring(0, 3))) {
-            return true;
-        }
-        
         URL url = null;
         try {
             url = new URL(address);
@@ -97,7 +106,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             return false;
         }
         String protocol = url.getProtocol();
-        return "http".equals(protocol) || "https".equals(protocol);
+
+        return supportedProtocols.contains(protocol);
     }
 
     public MessageFactory getMessageFactory() {
