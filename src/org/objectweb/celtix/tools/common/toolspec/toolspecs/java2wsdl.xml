@@ -39,7 +39,7 @@
 		    <annotation>target-namespace</annotation>
 		</associatedArgument>
 	    </option>
-
+<!--
 	    <option id="schemans" maxOccurs="1">
 		<annotation>Specify the schema namespace to use in the wsdl.</annotation>
 		<switch>x</switch>
@@ -54,6 +54,7 @@
 		</annotation>
 		<switch>useTypes</switch>
 	    </option>
+-->
 
 	</optionGroup>
 
