@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
@@ -109,12 +108,8 @@ public class HTTPClientTransport implements ClientTransport {
         HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;  
         FutureTask<InputStreamMessageContext> f = new FutureTask<InputStreamMessageContext>(
             new InputStreamMessageContextCallable(ctx));
-        Executor ex = executor;
-
-        if (null == ex) {
-            ex = Executors.newFixedThreadPool(1);
-        }
-        ex.execute(f);
+        // client (service) must always have an executor associated with it
+        executor.execute(f);
         return f;
     }
 

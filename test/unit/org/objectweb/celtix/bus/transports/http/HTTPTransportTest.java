@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -175,7 +176,9 @@ public class HTTPTransportTest extends TestCase {
         Executor executor =  null;
         if (useAutomaticWorkQueue) {
             executor = new WorkQueueManagerImpl(bus).getAutomaticWorkQueue();
-        } 
+        } else {
+            executor = Executors.newFixedThreadPool(1);
+        }
         TransportFactory factory = createTransportFactory();
         
         ServerTransport server = createServerTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);

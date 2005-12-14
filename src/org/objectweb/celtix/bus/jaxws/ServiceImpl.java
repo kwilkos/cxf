@@ -54,6 +54,7 @@ public class ServiceImpl extends ServiceDelegate {
         serviceName = name;
         endpointList = new Vector<QName>();
         handlerResolver = new HandlerResolverImpl(configuration);
+        executor = bus.getWorkQueueManager().getAutomaticWorkQueue();
     }
     
     public void createPort(QName portName, URI bindingId, String endpointAddress) {
@@ -192,7 +193,6 @@ public class ServiceImpl extends ServiceDelegate {
 
     public void setExecutor(Executor e) {
         executor = e;
-        
     }
    
 }

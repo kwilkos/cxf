@@ -6,8 +6,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -140,11 +138,8 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
                 // callback style
                 AsyncCallbackFuture f = new AsyncCallbackFuture(r, 
                     (AsyncHandler)parameters[parameters.length - 1]);
-                Executor ex = service.getExecutor();
-                if (null == ex) {
-                    ex = Executors.newFixedThreadPool(5);
-                } 
-                ex.execute(f);
+                // service must always have an executor associated with it
+                service.getExecutor().execute(f);
                 return f;
                 
                 

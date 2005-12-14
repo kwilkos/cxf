@@ -100,31 +100,98 @@ public class ClientServerTest extends ClientServerTestBase {
         executor.shutdown();
     }
     
+    public void testAsyncSynchronousPolling() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+        
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull(service);
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+        service.setExecutor(executor);
+        assertNotNull(service);
+
+        final String expectedString = new String("How are you Joe");
+          
+        class Poller extends Thread {
+            Response<GreetMeSometimeResponse> response;
+            int tid;
+            
+            Poller(Response<GreetMeSometimeResponse> r, int t) {
+                response = r;
+                tid = t;
+            }
+            public void run() {
+                if (tid % 2 > 0) {
+                    while (!response.isDone()) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException ex) {
+                            // ignore
+                        }
+                    }
+                }
+                GreetMeSometimeResponse reply = null;
+                try {
+                    reply = response.get();
+                } catch (Exception ex) {
+                    fail("Poller " + tid + " failed with " + ex);
+                }
+                assertNotNull("Poller " + tid + ": no response received from service", reply);
+                String s = reply.getResponseType();
+                assertEquals(expectedString, s);   
+            }
+        }
+        
+        Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+        Response<GreetMeSometimeResponse> response = greeter.greetMeSometimeAsync("Joe");
+        
+        Poller[] pollers = new Poller[4];
+        for (int i = 0; i < pollers.length; i++) {
+            pollers[i] = new Poller(response, i);
+        }
+        for (Poller p : pollers) {            
+            p.start();
+        }
+        
+        for (Poller p : pollers) {
+            p.join();
+        }
+        
+        executor.shutdown();    
+    }
+    
+    static class MyHandler implements AsyncHandler<GreetMeSometimeResponse> {        
+        static int invocationCount;
+        private String replyBuffer;
+        
+        public void handleResponse(Response<GreetMeSometimeResponse> response) {
+            invocationCount++;
+            try {
+                GreetMeSometimeResponse reply = response.get();
+                replyBuffer = reply.getResponseType();
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            } catch (ExecutionException ex) {
+                ex.printStackTrace();
+            }            
+        } 
+        
+        String getReplyBuffer() {
+            return replyBuffer;
+        }
+    }
+    
     public void testAsyncCallWithHandler() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         
         SOAPService service = new SOAPService(wsdl, serviceName);
-        ExecutorService executor = Executors.newFixedThreadPool(1);
+        ExecutorService executor = Executors.newFixedThreadPool(5);
         service.setExecutor(executor);
         assertNotNull(service);
         
-        class MyHandler implements AsyncHandler<GreetMeSometimeResponse> {
-            String replyBuffer;
-            
-            public void handleResponse(Response<GreetMeSometimeResponse> response) {
-                try {
-                    GreetMeSometimeResponse reply = response.get();
-                    replyBuffer = reply.getResponseType();
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                } catch (ExecutionException ex) {
-                    ex.printStackTrace();
-                }
-            }                                  
-        }
-        
         MyHandler h = new MyHandler();
+        MyHandler.invocationCount = 0;
 
         String expectedString = new String("How are you Joe");
         try {
@@ -136,13 +203,75 @@ public class ClientServerTest extends ClientServerTestBase {
                 i++;
             }
             assertEquals("callback was not executed or did not return the expected result",
-                         expectedString, h.replyBuffer);
+                         expectedString, h.getReplyBuffer());
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
         }
-        
+        assertEquals(1, MyHandler.invocationCount);       
         executor.shutdown();
     }
+    
+    public void testAsyncCallWithHandlerAndMultipleClients() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+        
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+        service.setExecutor(executor);
+        assertNotNull(service);
+        
+        final MyHandler h = new MyHandler();
+        MyHandler.invocationCount = 0;
+
+        final String expectedString = new String("How are you Joe");
+        
+        class Poller extends Thread {
+            Future<?> future;
+            int tid;
+            
+            Poller(Future<?> f, int t) {
+                future = f;
+                tid = t;
+            }
+            public void run() {
+                if (tid % 2 > 0) {
+                    while (!future.isDone()) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException ex) {
+                            // ignore
+                        }
+                    }
+                }
+                try {
+                    future.get();
+                } catch (Exception ex) {
+                    fail("Poller " + tid + " failed with " + ex);
+                }
+                assertEquals("callback was not executed or did not return the expected result",
+                             expectedString, h.getReplyBuffer());
+            }
+        }
+        
+        Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+        Future<?> f = greeter.greetMeSometimeAsync("Joe", h);
+        
+        Poller[] pollers = new Poller[4];
+        for (int i = 0; i < pollers.length; i++) {
+            pollers[i] = new Poller(f, i);
+        }
+        for (Poller p : pollers) {            
+            p.start();
+        }
+        
+        for (Poller p : pollers) {
+            p.join();
+        }
+        assertEquals(1, MyHandler.invocationCount);   
+        executor.shutdown();    
+    }
+    
+    
  
     public void testFaults() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
