@@ -144,6 +144,7 @@
         <check.sample sample.dir="samples/hello_world_RPCLit"/>
         <check.sample sample.dir="samples/hello_world_JMS_queue"/>
         <check.sample sample.dir="samples/hello_world_JMS_pubsub"/>
+        <check.sample sample.dir="samples/soap_header"/>
         <pmd printToConsole="true"
 	     targetjdk="1.5"
 	     rulesetfiles="${basedir}/.ruleset"
