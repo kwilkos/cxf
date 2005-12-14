@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Currently Celtix uses the JAX-WS reference implementation's code
+    generator.  This code generator does not recognize the <jms:address>
+    element (under the <port> element), which is used to configure the
+    JMS transport.  The reference implementation's code generator will
+    raise an exception indicating that a usable address does not exist
+    in the WSDL file.
+
+    To work around this situation, this WSDL file's <port> includes a 
+    <soap:address> as well as a <jms:address> child element.  The
+    <soap:address> element satisfies the code generator's requirements
+    and the <jms:address> element is used to configure the JMS
+    transport.
+
+    When configuring a port, Celtix uses the first <address> element, 
+    which is the <jms:address> entry.
+-->
 <definitions name="HelloWorldService" targetNamespace="http://celtix.objectweb.org/hello_world_jms" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:jms="http://celtix.objectweb.org/transports/jms" 
