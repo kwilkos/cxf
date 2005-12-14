@@ -104,10 +104,10 @@
     </target>
 
     <!-- Target to start JMS Broker for JMS samples -->
-    <property name="activemq.home" location="${basedir}/../../tools/activemq/3.2"/>
-    <property name="derby.system.home" location="${basedir}/../../tools/activemq/3.2/var"/>
+    <property name="activemq.home" location="${thirdparty.tools.dir}/activemq/3.2"/>
+    <property name="derby.system.home" location="${thirdparty.tools.dir}/activemq/3.2/var"/>
     <target name="jmsbroker.start">
-        <java classname="org.activemq.spring.Main" fork="yes">
+        <java classname="org.activemq.spring.Main" fork="yes" dir="${activemq.home}/bin">
             <classpath>
                 <path refid="celtix.classpath"/>
                 <path location="${activemq.home}/lib/optional/commons-dbcp-1.2.jar"/>

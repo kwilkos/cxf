@@ -10,19 +10,6 @@ public class GreeterJMSImpl implements HelloWorldPortType {
 
     private static final Logger LOG = Logger.getLogger(GreeterJMSImpl.class.getPackage().getName());
 
-    public String greetMe(String me) {
-        LOG.info("Executing operation greetMe");
-        System.out.println("Executing operation greetMe");
-        System.out.println("Message received: " + me + "\n");
-        return "Hello " + me;
-    }
-
-    public String sayHi() {
-        LOG.info("Executing operation sayHi");
-        System.out.println("Executing operation sayHi" + "\n");
-        return "Bonjour";
-    }
-    
     public void greetMeOneWay(String me) {
         LOG.info("Executing operation greetMeOneWay");
         System.out.println("Executing operation greetMeOneWay\n");

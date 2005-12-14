@@ -74,8 +74,8 @@
                    jndiDestinationName="dynamicQueues/test.celtix.jmstransport"
                    messageType="text"
                    useMessageIDAsCorrelationID="true"   
-             		   durableSubscriberName="Celtix_subscriber"
-                   />
+                   durableSubscriberName="Celtix_subscriber"
+               />
                <soap:address location="http://celtix.objectweb.org/transports/jms"/>
            </port>
     </service>
