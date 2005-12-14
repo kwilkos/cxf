@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.objectweb.celtix.configuration.Configuration;
 
@@ -114,7 +115,7 @@ class BeanName {
     }
     
     BeanName findBestMatch(List<BeanName> candidateBeans) {
-
+ 
         List<BeanName> candidates = new ArrayList<BeanName>(candidateBeans);
         
         for (BeanName bn : candidates) {
@@ -130,9 +131,10 @@ class BeanName {
         
         normalise();
         reset();
+        
         while (iterator.hasNext() && candidates.size() > 0) {
-          
-            iterator.next();
+            
+            iterator.next();            
             
             // at each level:
             
@@ -170,9 +172,13 @@ class BeanName {
             }
             
             
-            // advance remaining candidate iterators where necessary
+            // advance remaining candidate iterators where necessary,
+            // pruning the list if necessary
             
-            for (BeanName candidate : candidates) {
+            ListIterator<BeanName> it = candidates.listIterator();
+            BeanName candidate = it.hasNext() ? it.next() : null;
+            while (null != candidate) {
+                BeanName nextCandidate = it.hasNext() ? it.next() : null;
                 char lb = candidate.iterator.lastBinding();
                 if (0 == lb || isTightBinding(lb)) {
                     if (candidate.iterator.hasNext()) {
@@ -188,7 +194,8 @@ class BeanName {
                         candidates.remove(candidate);
                     }
                 }
-            } 
+                candidate = nextCandidate;
+            }
         } 
         if (candidates.size() > 0) {
             return candidates.get(0);

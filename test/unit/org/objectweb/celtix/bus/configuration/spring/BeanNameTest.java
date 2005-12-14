@@ -288,4 +288,45 @@ public class BeanNameTest extends TestCase {
         BeanName bestMatch = ref.findBestMatch(candidates);
         assertTrue(bestMatch.getName(), beanNames[beanNames.length - 1] == bestMatch);        
     }
+    
+    public void testBug304382() {
+
+        BeanName ref = new BeanName("a.b.c");
+        BeanName[] beanNames = {
+            new BeanName("a.b"),
+        };
+        
+        List<BeanName> candidates = new ArrayList<BeanName>();
+        for (BeanName bn : beanNames) {
+            candidates.add(bn);
+        }
+        BeanName bestMatch = ref.findBestMatch(candidates);
+        assertNull(bestMatch);
+    }
+    
+    public void testLastComponentAny() {
+        BeanName ref = new BeanName("a.b.c");
+        BeanName[] beanNames = {
+            new BeanName("a.b.?"),
+            new BeanName("a.b.?"),
+            new BeanName("a.?.?"),
+            new BeanName("?.?.?")
+            
+        };
+        
+        List<BeanName> candidates = new ArrayList<BeanName>();
+        
+        for (BeanName bn : beanNames) {
+            candidates.add(bn);
+            BeanName match = ref.findBestMatch(candidates);
+            assertTrue(match == bn);
+            candidates.clear();
+        }
+        
+        for (BeanName bn : beanNames) {
+            candidates.add(bn);
+        }
+        BeanName match = ref.findBestMatch(candidates);
+        assertTrue(beanNames[0] == match);        
+    }
 }
