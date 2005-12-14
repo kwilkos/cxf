@@ -106,7 +106,7 @@ public class HTTPTransportTest extends TestCase {
         
         assertEquals(new String(outBytes), new String(buffer, 0, outBytes.length));
     } 
-    
+
     public void testInputStreamMessageContextCallable() throws Exception {
         HTTPClientTransport.HTTPClientOutputStreamContext octx = 
             EasyMock.createMock(HTTPClientTransport.HTTPClientOutputStreamContext.class);

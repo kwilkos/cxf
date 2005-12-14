@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
@@ -105,18 +106,13 @@ public class HTTPClientTransport implements ClientTransport {
                                                          Executor executor) 
         throws IOException { 
         context.getOutputStream().close();
-
         HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;  
         FutureTask<InputStreamMessageContext> f = new FutureTask<InputStreamMessageContext>(
             new InputStreamMessageContextCallable(ctx));
         Executor ex = executor;
+
         if (null == ex) {
-            ex = new Executor() {
-                public void execute(Runnable command) {
-                    new Thread(command).start();    
-                }
-                
-            };
+            ex = Executors.newFixedThreadPool(1);
         }
         ex.execute(f);
         return f;

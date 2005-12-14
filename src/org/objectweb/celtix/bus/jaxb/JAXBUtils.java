@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.Future;
 
+import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
 public final class JAXBUtils {
@@ -207,6 +208,18 @@ public final class JAXBUtils {
     public static boolean isAsync(Method method) {
         return method.getName().endsWith("Async") 
             && (method.getReturnType().equals(Response.class) || method.getReturnType().equals(Future.class));
+    }
+    
+    public static boolean isAsyncPolling(Method method) {
+        return method.getName().endsWith("Async") 
+            && (method.getReturnType().equals(Response.class));   
+    }
+    
+    public static boolean isAsyncCallback(Method method) {
+        Class[] paramTypes = method.getParameterTypes();
+        return method.getName().endsWith("Async") 
+            && (method.getReturnType().equals(Future.class) 
+            && AsyncHandler.class.isAssignableFrom(paramTypes[paramTypes.length - 1]));
     }
     
     private static String normalizePackageNamePart(String name) {

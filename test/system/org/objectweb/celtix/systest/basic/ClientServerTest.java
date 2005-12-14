@@ -2,8 +2,14 @@ package org.objectweb.celtix.systest.basic;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.xml.namespace.QName;
+//import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
@@ -26,7 +32,7 @@ public class ClientServerTest extends ClientServerTestBase {
         assertTrue("server did not launch correctly", launchServer(Server.class));
     }
     
-    public void xtestBasicConnection() throws Exception {
+    public void testBasicConnection() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         
@@ -66,16 +72,20 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     } 
 
-    public void testAsyncCall() throws Exception {
+    public void testAsyncPollingCall() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+        service.setExecutor(executor);
+        assertNotNull(service);
 
         String expectedString = new String("How are you Joe");
         try {
             Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+            
             Response<GreetMeSometimeResponse> response = greeter.greetMeSometimeAsync("Joe");
             while (!response.isDone()) {
                 Thread.sleep(100);
@@ -83,10 +93,55 @@ public class ClientServerTest extends ClientServerTestBase {
             GreetMeSometimeResponse reply = response.get();
             assertNotNull("no response received from service", reply);
             String s = reply.getResponseType();
-            assertEquals(expectedString, s);    
+            assertEquals(expectedString, s);   
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
         }
+        executor.shutdown();
+    }
+    
+    public void testAsyncCallWithHandler() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+        
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        service.setExecutor(executor);
+        assertNotNull(service);
+        
+        class MyHandler implements AsyncHandler<GreetMeSometimeResponse> {
+            String replyBuffer;
+            
+            public void handleResponse(Response<GreetMeSometimeResponse> response) {
+                try {
+                    GreetMeSometimeResponse reply = response.get();
+                    replyBuffer = reply.getResponseType();
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                } catch (ExecutionException ex) {
+                    ex.printStackTrace();
+                }
+            }                                  
+        }
+        
+        MyHandler h = new MyHandler();
+
+        String expectedString = new String("How are you Joe");
+        try {
+            Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+            Future<?> f = greeter.greetMeSometimeAsync("Joe", h);
+            int i = 0;
+            while (!f.isDone() && i < 10) {
+                Thread.sleep(100);
+                i++;
+            }
+            assertEquals("callback was not executed or did not return the expected result",
+                         expectedString, h.replyBuffer);
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+        
+        executor.shutdown();
     }
  
     public void testFaults() throws Exception {
@@ -94,6 +149,8 @@ public class ClientServerTest extends ClientServerTestBase {
         assertNotNull(wsdl);
         
         SOAPService service = new SOAPService(wsdl, serviceName);
+        ExecutorService ex = Executors.newFixedThreadPool(1);
+        service.setExecutor(ex);
         assertNotNull(service);
 
         String noSuchCodeFault = "NoSuchCodeLitFault";
@@ -116,21 +173,28 @@ public class ClientServerTest extends ClientServerTestBase {
                 assertNotNull(brlf.getFaultInfo());
             }
         }
+
     } 
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ClientServerTest.class);
     }
+    
+
+
     /*
+    
     public static void main(String[] args) {
         ClientServerTest cst = new ClientServerTest();
         
         if ("client".equals(args[0])) {
             try {
-                cst.testAsyncCall();
+                cst.testAsyncPollingCall();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+            System.err.println("Exiting...........");
+            System.exit(0);
         } else if ("server".equals(args[0])) {
             try {
                // cst.setUp();
@@ -141,6 +205,12 @@ public class ClientServerTest extends ClientServerTestBase {
         } else {
             System.out.println("Invaid arg");
         }
+
     }
+    
     */
+    
+    
+    
+    
 }

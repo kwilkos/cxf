@@ -19,6 +19,7 @@ public class AsyncResponse implements Response {
     
     private static final Logger LOG = LogUtils.getL7dLogger(AsyncResponse.class);
     private final Future<ObjectMessageContext> fObjMsgContext;
+    private Object result;
     
     public AsyncResponse(Future<ObjectMessageContext> futureObjMsgContext) {
         fObjMsgContext = futureObjMsgContext;     
@@ -36,16 +37,11 @@ public class AsyncResponse implements Response {
         return fObjMsgContext.isDone();
     }
 
-    public Object get() throws InterruptedException, ExecutionException {
-        
-        
-        ObjectMessageContext omc = fObjMsgContext.get();
-        LOG.info("AsyncResponse get ObjectMessageContext: " + omc.toString());
-        LOG.info("AsyncResponse get ObjectMessageContext Method name: " + omc.getMethod().getName());
-        Object o = omc.getReturn();
-        LOG.info("AsyncResponse get: " + o);
-        return o;
-        //return fObjMsgContext.get();
+    public synchronized Object get() throws InterruptedException, ExecutionException {
+        if (result == null) {
+            result = fObjMsgContext.get().getReturn();
+        } 
+        return result;
     }
 
     

@@ -6,6 +6,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,9 +15,11 @@ import java.util.logging.Logger;
 import javax.jws.Oneway;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.ProtocolException;
+import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.spi.ServiceDelegate;
 
@@ -117,6 +121,7 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
         boolean isOneway = (method.getAnnotation(Oneway.class) != null) ? true : false;
         boolean isAsync = method.getName().endsWith("Async");
 
+       
         if (isOneway) {
             clientBinding.invokeOneWay(objMsgContext,
                                        new JAXBDataBindingCallback(method,
@@ -127,8 +132,26 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
                 clientBinding.invokeAsync(objMsgContext,
                                           new JAXBDataBindingCallback(method,
                                                                       DataBindingCallback.Mode.PARTS,
-                                                                      context), service.getExecutor()); 
-            return new AsyncResponse(objMsgContextAsynch);
+                                                                      context)
+                                                                      , service.getExecutor()); 
+            
+            Response r = new AsyncResponse(objMsgContextAsynch);
+            if (parameters.length > 0 && parameters[parameters.length - 1] instanceof AsyncHandler) {
+                // callback style
+                AsyncCallbackFuture f = new AsyncCallbackFuture(r, 
+                    (AsyncHandler)parameters[parameters.length - 1]);
+                Executor ex = service.getExecutor();
+                if (null == ex) {
+                    ex = Executors.newFixedThreadPool(5);
+                } 
+                ex.execute(f);
+                return f;
+                
+                
+            } else {
+                return r;
+            }
+
             
         } else {
             objMsgContext = clientBinding.invoke(objMsgContext,
