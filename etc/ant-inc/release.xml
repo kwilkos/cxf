@@ -11,7 +11,6 @@
         <mkdir dir="${build.release.dir}/samples"/>
         <copy todir="${build.release.dir}">
             <fileset dir="${basedir}">
-                <include name="LICENSE"/>
                 <include name="NOTICE"/>
             </fileset>
         </copy>
@@ -25,7 +24,7 @@
                 <include name="logging.properties"/>
                 <include name="log4j.properties"/>
             </fileset>
-        </copy>    	
+        </copy>     
         <copy includeEmptyDirs="false" todir="${build.release.dir}/samples">
             <fileset dir="${basedir}/samples">
                 <include name="**/*"/>
@@ -54,13 +53,14 @@
                 <include name="**/*"/>
             </fileset>
         </copy>
-		
+        
         <delete dir="${build.package.dir}" quiet="true"/>
         <mkdir dir="${build.package.dir}"/>
 
+        <!-- Binary Distribution Packaging -->
         <tar compression="gzip"
-            destfile="${build.package.dir}/celtix-${celtix.version}-bin.tgz"
-        	longfile="gnu">
+            destfile="${build.package.dir}/celtix-${celtix.version}-bin-lgpl.tgz"
+            longfile="gnu">
             <tarfileset prefix="celtix-${celtix.version.short}" dir="${build.release.dir}">
                 <include name="**/*"/>
                 <exclude name="**/tomcat/**/work/**/*"/>
@@ -72,11 +72,33 @@
             </tarfileset>
             <tarfileset prefix="celtix-${celtix.version.short}" dir="${basedir}">
                 <include name="resources/**/*"/>
+                <include name="LICENSE-LGPL.txt"/>
+                <include name="3party-licenses.txt"/>
             </tarfileset>
         </tar>
         <tar compression="gzip"
-            destfile="${build.package.dir}/celtix-${celtix.version}-src.tgz"
-        	longfile="gnu">
+            destfile="${build.package.dir}/celtix-${celtix.version}-bin-epl.tgz"
+            longfile="gnu">
+            <tarfileset prefix="celtix-${celtix.version.short}" dir="${build.release.dir}">
+                <include name="**/*"/>
+                <exclude name="**/tomcat/**/work/**/*"/>
+                <exclude name="**/*.wc"/>
+                <exclude name="bin/*"/>
+            </tarfileset>
+            <tarfileset prefix="celtix-${celtix.version.short}" dir="${build.release.dir}" mode="755">
+                <include name="bin/*"/>
+            </tarfileset>
+            <tarfileset prefix="celtix-${celtix.version.short}" dir="${basedir}">
+                <include name="resources/**/*"/>
+                <include name="LICENSE-EPL.txt"/>
+                <include name="3party-licenses.txt"/>
+            </tarfileset>
+        </tar>
+        
+        <!-- Source Distribution Packaging -->
+        <tar compression="gzip"
+            destfile="${build.package.dir}/celtix-${celtix.version}-src-lgpl.tgz"
+            longfile="gnu">
             <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}">
                 <include name="**/*"/>
                 <exclude name="build"/>
@@ -87,6 +109,8 @@
                 <exclude name="**/tomcat/**/work/**/*"/>
                 <exclude name="bin/*"/>
                 <exclude name="tools/**/bin/*"/>
+                <exclude name="LICENSE-EPL.txt"/>
+                <exclude name="3party-*.txt"/>
             </tarfileset>
             <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${build.release.dir}" mode="755">
                 <include name="bin/*"/>
@@ -97,12 +121,44 @@
             <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}">
                 <include name=".ruleset"/>
             </tarfileset>
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}" fullpath="3party-licenses.txt">
+                <include name="3party-licenses-source.txt"/>
+            </tarfileset>             
         </tar>
+        <tar compression="gzip"
+            destfile="${build.package.dir}/celtix-${celtix.version}-src-epl.tgz"
+            longfile="gnu">
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}">
+                <include name="**/*"/>
+                <exclude name="build"/>
+                <exclude name="build/**/*"/>
+                <exclude name="samples/**/build/**/*"/>
+                <exclude name="**/.*"/>
+                <exclude name="NOTICE"/>
+                <exclude name="**/tomcat/**/work/**/*"/>
+                <exclude name="bin/*"/>
+                <exclude name="tools/**/bin/*"/>
+                <exclude name="LICENSE-LGPL.txt"/>
+                <exclude name="3party-*.txt"/>
+            </tarfileset>
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${build.release.dir}" mode="755">
+                <include name="bin/*"/>
+            </tarfileset>
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}" mode="755">
+                <include name="tools/**/bin/*"/>
+            </tarfileset>
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}">
+                <include name=".ruleset"/>
+            </tarfileset>
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}" fullpath="celtix-${celtix.version.short}-src/3party-licenses.txt">
+                <include name="3party-licenses-source.txt"/>
+            </tarfileset>            
+        </tar>        
     </target>
 
     <target name="celtix.bin.jar" depends="src.compile" description="build the celtix jar for a binary distribution">
         <mkdir dir="${build.lib.dir}"/>
-	    <pathconvert dirsep="/" pathsep=" " property="manifest.bin.classpath" refid="runtime.classpath">
+        <pathconvert dirsep="/" pathsep=" " property="manifest.bin.classpath" refid="runtime.classpath">
             <!-- remove the location specific parts -->
             <map from="${tools.dir}${file.separator}" to=""/>
             <map from="${basedir}${file.separator}resources" to="..${file.separator}resources"/>
@@ -120,7 +176,7 @@
 
     <target name="celtix.jar" depends="src.compile" description="build the celtix jar for a source distribution">
         <mkdir dir="${build.lib.dir}"/>
-	    <pathconvert dirsep="/" pathsep=" " property="manifest.classpath" refid="runtime.classpath">
+        <pathconvert dirsep="/" pathsep=" " property="manifest.classpath" refid="runtime.classpath">
             <!-- remove the location specific parts -->
             <map from="${tools.dir}" to="..${file.separator}..${file.separator}tools"/>
             <map from="${basedir}${file.separator}resources" to="..${file.separator}..${file.separator}resources"/>
@@ -132,8 +188,8 @@
             <metainf dir="${basedir}/etc/metainf"/>
             <manifest>
                 <attribute name="Class-Path" value="${manifest.classpath}"/>
-		<attribute name="Implementation-Vendor" value="${celtix.vendor}"/>
-		<attribute name="Implementation-Version" value="${celtix.version.short}"/>
+        <attribute name="Implementation-Vendor" value="${celtix.vendor}"/>
+        <attribute name="Implementation-Version" value="${celtix.version.short}"/>
             </manifest>
         </jar>
     </target>
@@ -146,13 +202,13 @@
         <check.sample sample.dir="samples/hello_world_JMS_pubsub"/>
         <check.sample sample.dir="samples/soap_header"/>
         <pmd printToConsole="true"
-	     targetjdk="1.5"
-	     rulesetfiles="${basedir}/.ruleset"
-	     failonerror="true"
-	     failOnRuleViolation="true">
+         targetjdk="1.5"
+         rulesetfiles="${basedir}/.ruleset"
+         failonerror="true"
+         failOnRuleViolation="true">
           <fileset dir="samples">
             <include name="**/src/**/*.java"/>
-	    <exclude name="**/build/**"/>
+        <exclude name="**/build/**"/>
           </fileset>
         </pmd>
     </target>
