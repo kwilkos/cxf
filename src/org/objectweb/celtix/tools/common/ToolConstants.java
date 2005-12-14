@@ -13,7 +13,6 @@ public final class ToolConstants {
     public static final String CFG_PORT = "port";
     public static final String CFG_BINDING = "binding";
     public static final String CFG_WEBSERVICE = "webservice";
-    public static final String CFG_PORTTYPE = "porttype";
     public static final String CFG_SERVER = "server";
     public static final String CFG_CLIENT = "client";
     public static final String CFG_ALL = "all";
@@ -41,6 +40,7 @@ public final class ToolConstants {
     public static final String CFG_SCHEMANS = "schemans";
     public static final String CFG_USETYPES = "usetypes";
     public static final String CFG_CLASSNAME = "classname";
+    public static final String CFG_PORTTYPE = "porttype";
  
 
     

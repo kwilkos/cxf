@@ -27,10 +27,6 @@ public class JavaToWSDL extends AbstractCeltixToolContainer {
             if (!hasInfoOption()) {
                 ProcessorEnvironment env = new ProcessorEnvironment();
                 env.setParameters(getParametersMap(new HashSet()));
-                if (env.get(ToolConstants.CFG_OUTPUTFILE) == null) {
-                    env.put(ToolConstants.CFG_OUTPUTFILE, "./undefinedname.wsdl");
-                }
-
                 if (isVerboseOn()) {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
                 }

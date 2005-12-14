@@ -407,9 +407,9 @@ public class ClassProcessor {
             }
         }
 
-        String portTypeName = clazz.getSimpleName() + "PORT";
+        String portTypeName = clazz.getSimpleName() + "PortType";
         model.setPortyTypeName(portTypeName);
-        String serviceName = clazz.getSimpleName() + "SERVICE";
+        String serviceName = clazz.getSimpleName() + "Service";
         String packageName = "";
         if (clazz.getPackage() != null) {
             packageName = clazz.getPackage().getName();

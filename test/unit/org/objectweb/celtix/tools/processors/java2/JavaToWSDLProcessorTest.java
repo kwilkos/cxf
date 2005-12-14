@@ -12,7 +12,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     public void setUp() throws Exception {
         super.setUp();
         env.put(ToolConstants.CFG_OUTPUTFILE,
-                output.getPath());
+                output.getPath() + "/doc_lit.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.objectweb.hello_world_doc_lit.Greeter");
     }
 
@@ -24,6 +24,8 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     public void testProcess() throws Exception {
         processor.setEnvironment(env);
         processor.process();
+        File wsdlFile = new File(output, "doc_lit.wsdl");
+        assertTrue(wsdlFile.exists());
         File schemaFile = new File(output, "schema1.xsd");
         assertTrue(schemaFile.exists());
     }

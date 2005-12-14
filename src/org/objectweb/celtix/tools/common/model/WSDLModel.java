@@ -1,9 +1,13 @@
 package org.objectweb.celtix.tools.common.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import javax.jws.soap.SOAPBinding.Style;
+import javax.jws.soap.SOAPBinding.Use;
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
@@ -12,7 +16,6 @@ import javax.xml.bind.JAXBException;
 import com.sun.xml.bind.api.JAXBRIContext;
 import com.sun.xml.bind.api.TypeReference;
 
-import org.objectweb.celtix.tools.common.WSDLConstants;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 
 public class WSDLModel {
@@ -24,10 +27,13 @@ public class WSDLModel {
     private String portTypeName;
     private String packageName;
     private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
-    private List<String> knownNamespaceURIs;
+    private final Map<String, String> schemaNSFileMap = new HashMap<String, String>();
+    private Style style;
+    private Use use;
 
     public WSDLModel() throws ToolException {
         try {
+
             WSDLFactory wsdlFactory = WSDLFactory.newInstance();
             definition = wsdlFactory.newDefinition();
         } catch (WSDLException e) {
@@ -37,7 +43,6 @@ public class WSDLModel {
 
     public void setWsdllocation(String loc) {
         this.wsdlLocation = loc;
-
     }
 
     public String getWsdllocation() {
@@ -103,15 +108,6 @@ public class WSDLModel {
             throw new ToolException("Exception When New JAXBRIContext :" + e.getMessage(), e);
         }
 
-        knownNamespaceURIs = new ArrayList<String>();
-        for (String ns : jaxbContext.getKnownNamespaceURIs()) {
-            if (ns.length() > 0 && !ns.equals(WSDLConstants.XSD_NAMESPACE)) {
-
-                knownNamespaceURIs.add(ns);
-
-            }
-        }
-
         return jaxbContext;
     }
 
@@ -129,11 +125,6 @@ public class WSDLModel {
                 if (obj instanceof WSDLWrapperParameter) {
                     WSDLWrapperParameter wrapPara = (WSDLWrapperParameter)obj;
                     types.add(wrapPara.getTypeReference());
-                    Iterator ite2 = wrapPara.getWrapperChildren().iterator();
-                    while (ite2.hasNext()) {
-                        JavaParameter jp = (JavaParameter)ite2.next();
-                        types.add(jp.getTypeReference());
-                    }
                 }
 
                 if (obj instanceof JavaParameter) {
@@ -143,8 +134,8 @@ public class WSDLModel {
 
                 Iterator ite3 = m.getWSDLExceptions().iterator();
                 while (ite3.hasNext()) {
-                    org.objectweb.celtix.tools.common.model.WSDLException 
-                    wsdlEx = (org.objectweb.celtix.tools.common.model.WSDLException)ite3.next();
+                    org.objectweb.celtix.tools.common.model.WSDLException wsdlEx 
+                        = (org.objectweb.celtix.tools.common.model.WSDLException)ite3.next();
                     types.add(wsdlEx.getDetailTypeReference());
                 }
             }
@@ -156,5 +147,37 @@ public class WSDLModel {
     public JAXBRIContext getJaxbContext() {
         return this.jaxbContext;
     }
+
+    public void setStyle(Style s) {
+        this.style = s;
+    }
+
+    public Style getStyle() {
+        return this.style;
+    }
+
+    public void setUse(Use u) {
+        this.use = u;
+    }
+
+    public Use getUse() {
+        return this.use;
+    }
+
+    public boolean isDocLit() {
+        /*
+         * if(this.style == Style.DOCUMENT && this.use == Use.LITERAL) { return
+         * true; } else { return false; }
+         */
+        return true;
+    }
+    
+    public Map<String, String> getSchemaNSFileMap() {
+        return this.schemaNSFileMap;
+    }
+    public void addSchemaNSFileToMap(String schemaNS, String filename) {
+        this.schemaNSFileMap.put(schemaNS, filename);
+    }
+    
 
 }
