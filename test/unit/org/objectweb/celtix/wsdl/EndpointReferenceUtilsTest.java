@@ -12,8 +12,8 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.addressing.ObjectFactory;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.ObjectFactory;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 import org.objectweb.hello_world_soap_http.DerivedGreeterImpl;
 
@@ -32,7 +32,7 @@ public class EndpointReferenceUtilsTest extends TestCase {
         
         JAXBContext context = JAXBContext.newInstance(new Class[] {
             ObjectFactory.class,
-            org.objectweb.celtix.addressing.wsdl.ObjectFactory.class
+            org.objectweb.celtix.ws.addressing.wsdl.ObjectFactory.class
         });
         Unmarshaller u = context.createUnmarshaller();
         
@@ -59,7 +59,7 @@ public class EndpointReferenceUtilsTest extends TestCase {
         
         JAXBContext context = JAXBContext.newInstance(new Class[] {
             ObjectFactory.class,
-            org.objectweb.celtix.addressing.wsdl.ObjectFactory.class
+            org.objectweb.celtix.ws.addressing.wsdl.ObjectFactory.class
         });
         Unmarshaller u = context.createUnmarshaller();
         

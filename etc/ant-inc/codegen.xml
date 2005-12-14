@@ -77,8 +77,8 @@
     </macrodef>
 
     <target name="schemas.codegen.internal" unless="schema.codegen.notrequired">
-        <xsdtojava file="${wsdl.schema.dir}/ws-addr.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing"/>
-        <xsdtojava file="${wsdl.schema.dir}/ws-addr-wsdl.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.addressing.wsdl"/>
+        <xsdtojava file="${wsdl.schema.dir}/ws-addr.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.ws.addressing"/>
+        <xsdtojava file="${wsdl.schema.dir}/ws-addr-wsdl.xsd" destdir="${basedir}/build/src" package="org.objectweb.celtix.ws.addressing.wsdl"/>
         <xsdtojava file="${wsdl.schema.dir}/wsdl.xsd" destdir="${basedir}/build/src"/>
         <xsdtojava file="${wsdl.schema.dir}/jms-context.xsd" destdir="${basedir}/build/src"/>
         <touch file="${basedir}/build/src/.SCHEMA.CODEGEN.DONE"/>

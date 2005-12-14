@@ -20,7 +20,6 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -30,6 +29,7 @@ import org.objectweb.celtix.context.WebServiceContextImpl;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
 public abstract class AbstractServerBinding implements ServerBinding {
@@ -241,21 +241,18 @@ public abstract class AbstractServerBinding implements ServerBinding {
         assert method != null && objContext != null && replyCtx != null;
             
         boolean exceptionCaught = false; 
+        boolean continueProcessing = true;
+        boolean payloadSet = false;
         try {
 
-            boolean continueProcessing = invoker.invokeLogicalHandlers(false);
+            continueProcessing = invoker.invokeLogicalHandlers(false);
+            payloadSet = objContext.get(ObjectMessageContext.MESSAGE_PAYLOAD) != null;
             if (continueProcessing) {
                 new WebServiceContextImpl(objContext); 
                 // get parameters from object context and invoke on implementor
                 Object params[] = objContext.getMessageObjects();
                 Object result = method.invoke(getEndpoint().getImplementor(), params);
                 objContext.setReturn(result);
-            }
-
-            if (!isOneWay(method)) {
-                switchToResponse(objContext, replyCtx); 
-                invoker.setOutbound(); 
-                invoker.invokeLogicalHandlers(false);
             }
         } catch (IllegalAccessException ex) {
             LogUtils.log(LOG, Level.SEVERE, "IMPLEMENTOR_INVOCATION_FAILURE_MSG", ex, method.getName());
@@ -271,14 +268,24 @@ public abstract class AbstractServerBinding implements ServerBinding {
             }            
             exceptionCaught = true;
         } finally { 
-            invoker.setOutbound(); 
+            invoker.setOutbound();
+            // invoke logical handlers from finally block to ensure 
+            // traversal when implementor call raises exception 
+            if (!isOneWay(method)) {
+                switchToResponse(objContext, replyCtx);
+                invoker.invokeLogicalHandlers(false);
+            }
         } 
-        
-        return exceptionCaught || invoker.faultRaised();
+
+        return exceptionCaught 
+               || invoker.faultRaised() 
+               || !(continueProcessing
+                    || payloadSet);
     } 
 
 
-    private void switchToResponse(ObjectMessageContext ctx, MessageContext replyCtx) { 
+    private void switchToResponse(ObjectMessageContext ctx, MessageContext replyCtx) {
+        replyCtx.putAll(ctx); 
         ctx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
         ctx.remove(ObjectMessageContext.MESSAGE_PAYLOAD);
         replyCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
@@ -300,9 +307,11 @@ public abstract class AbstractServerBinding implements ServerBinding {
                     unmarshal(requestCtx, objContext);
                     
                     Method method = objContext.getMethod();
-                    doInvocation(method, objContext, replyCtx, invoker); 
-    
-                    if (!isOneWay(method)) {
+                    // ensure response isn't marshalled if LogicalHandler
+                    // suppressed dispatch to implementor, but didn't set
+                    // the message payload
+                    if (!doInvocation(method, objContext, replyCtx, invoker)
+                        && !isOneWay(method)) {
                         switchToResponse(objContext, replyCtx); 
                         if (null == objContext.getException()) {
                             marshal(objContext, replyCtx);
@@ -320,9 +329,16 @@ public abstract class AbstractServerBinding implements ServerBinding {
                         marshalFault(objContext, replyCtx);
                     }
                 }
-            }
-            invoker.invokeProtocolHandlers(false, replyCtx); 
+            } 
 
+            if (!invoker.invokeProtocolHandlers(false, replyCtx)) {
+                // allow ProtocolHandlers raise faults on outbound
+                // dispatch path 
+                switchToResponse(objContext, replyCtx); 
+                if (objContext.getException() != null) {
+                    marshalFault(objContext, replyCtx);
+                }
+            } 
         } finally {
             invoker.mepComplete(); 
         }

@@ -29,7 +29,6 @@ import org.w3c.dom.NodeList;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.bus.jaxws.EndpointUtils;
@@ -39,6 +38,7 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;

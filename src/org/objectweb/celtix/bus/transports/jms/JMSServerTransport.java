@@ -17,12 +17,12 @@ import javax.wsdl.WSDLException;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.jms.context.JMSServerHeadersType;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
 public class JMSServerTransport extends JMSTransportBase implements ServerTransport {

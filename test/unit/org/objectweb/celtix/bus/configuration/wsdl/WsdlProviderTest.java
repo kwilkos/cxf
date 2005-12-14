@@ -10,10 +10,10 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 import org.objectweb.celtix.wsdl.WSDLManager;

@@ -19,7 +19,6 @@ import org.activemq.broker.impl.BrokerContainerImpl;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 
@@ -34,6 +33,7 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.transports.TransportFactoryManager;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class JMSTransportTest extends TestCase {

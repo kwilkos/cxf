@@ -16,8 +16,8 @@
    [1] http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:tns="http://www.w3.org/2005/02/addressing/wsdl"
-	targetNamespace="http://www.w3.org/2005/02/addressing/wsdl" blockDefault="#all"
+	xmlns:tns="http://www.w3.org/2005/08/addressing/wsdl"
+	targetNamespace="http://www.w3.org/2005/08/addressing/wsdl" blockDefault="#all"
 	elementFormDefault="qualified">
 
 
@@ -41,4 +41,11 @@
 	</xs:complexType>
 	
 	<xs:attribute name="Action" type="xs:anyURI"/>
+
+
+    <xs:element name="UsingAddressing">
+        <xs:complexType>
+            <xs:anyAttribute namespace="##other" processContents="lax"/>
+        </xs:complexType>
+    </xs:element>
 </xs:schema>

@@ -26,7 +26,6 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBinding;
@@ -37,6 +36,7 @@ import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public final class EndpointImpl extends javax.xml.ws.Endpoint

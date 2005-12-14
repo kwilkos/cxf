@@ -5,7 +5,7 @@ import javax.wsdl.WSDLException;
 import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 /**
  * A factory interface for creating client and server bindings. 

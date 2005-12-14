@@ -6,12 +6,12 @@ import javax.wsdl.WSDLException;
 import javax.xml.bind.JAXBException;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 
 public class HTTPTransportFactory implements TransportFactory {

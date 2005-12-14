@@ -24,11 +24,11 @@ import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.handlers.HandlerChainBuilder;
 import org.objectweb.celtix.bus.handlers.HandlerResolverImpl;
 import org.objectweb.celtix.bus.handlers.PortInfoImpl;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class ServiceImpl extends ServiceDelegate {

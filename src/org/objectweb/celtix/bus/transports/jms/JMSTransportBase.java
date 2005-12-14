@@ -20,13 +20,13 @@ import javax.xml.ws.handler.MessageContext;
 
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.transports.jms.AddressType;
 import org.objectweb.celtix.transports.jms.context.JMSClientHeadersType;
 import org.objectweb.celtix.transports.jms.context.JMSHeadersType;
 import org.objectweb.celtix.transports.jms.context.JMSPropertyType;
 import org.objectweb.celtix.transports.jms.context.JMSServerHeadersType;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class JMSTransportBase {

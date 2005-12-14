@@ -13,7 +13,6 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
@@ -28,6 +27,7 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.transports.TransportFactoryManager;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class TestServerBinding extends AbstractServerBinding {
 

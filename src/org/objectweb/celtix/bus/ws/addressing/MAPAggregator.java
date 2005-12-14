@@ -1,0 +1,298 @@
+package org.objectweb.celtix.bus.ws.addressing;
+
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.wsdl.Port;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.ws.handler.LogicalHandler;
+import javax.xml.ws.handler.LogicalMessageContext;
+import javax.xml.ws.handler.MessageContext;
+
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.ws.addressing.AttributedURIType;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+
+
+/**
+ * Logical Handler responsible for aggregating the Message Addressing 
+ * Properties for outgoing messages.
+ */
+public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
+
+    private static final Logger LOG = 
+        Logger.getLogger(MAPAggregator.class.getName());
+
+    /**
+     * Used to fabricate a Uniform Resource Name from a UUID string
+     */
+    private static final String URN_UUID = "urn:uuid:";
+
+    protected final Map<String, String> messageIDs = 
+        new HashMap<String, String>();
+
+    /**
+     * Whether the endpoint supports WS-Addressing.
+     */
+    private final AtomicBoolean usingAddressingDetermined = new AtomicBoolean(false);
+    private final AtomicBoolean usingAddressing = new AtomicBoolean(false);
+
+    /**
+     * Constructor.
+     */
+    public MAPAggregator() {
+    } 
+
+    /**
+     * Initialize the handler.
+     */
+    public void init(Map<String, Object> map) {
+    }
+    
+    /**
+     * Invoked for normal processing of inbound and outbound messages.
+     *
+     * @param context the messsage context
+     */
+    public boolean handleMessage(LogicalMessageContext context) {
+        return mediate(context);
+    }
+
+    /**
+     * Invoked for fault processing.
+     *
+     * @param context the messsage context
+     */
+    public boolean handleFault(LogicalMessageContext context) {
+        return mediate(context);
+    }
+
+    /**
+     * Called at the conclusion of a message exchange pattern just prior to
+     * the JAX-WS runtime dispatching a message, fault or exception.
+     *
+     * @param context the message context
+     */
+    public void close(MessageContext context) {
+    }
+
+    /**
+     * Release handler resources.
+     */
+    public void destroy() {
+    }
+
+    /**
+     * Determine if addressing is being used
+     *
+     * @param context the messsage context
+     * @pre message is outbound
+     */
+    private boolean usingAddressing(LogicalMessageContext context) {
+        boolean ret = false;
+        if (ContextUtils.isRequestor(context)) {
+            if (!usingAddressingDetermined.get()) {
+                Port port = ContextUtils.retrievePort(context);
+                if (port != null) {
+                    Iterator<?> portExts =
+                        port.getExtensibilityElements().iterator();
+                    Iterator<?> bindingExts = 
+                        port.getBinding().getExtensibilityElements().iterator();
+                    ret = hasUsingAddressing(portExts)
+                        || hasUsingAddressing(bindingExts);
+                }
+                usingAddressing.set(ret);
+                usingAddressingDetermined.set(true);
+            } else {
+                ret = usingAddressing.get();
+            }
+        } else {
+            ret = getMAPs(context, false, false) != null;
+        }
+        return ret;
+    }
+
+    /**
+     * @param extensionElements iterator over extension elements
+     * @return true iff the UsingAddressing element is found
+     */
+    private boolean hasUsingAddressing(Iterator<?> extensionElements) {
+        boolean found = false;
+        while (extensionElements.hasNext() && !found) {
+            ExtensibilityElement ext = 
+                (ExtensibilityElement)extensionElements.next();
+            found = Names.WSAW_USING_ADDRESSING_QNAME.equals(ext.getElementType());
+
+        } 
+        return found;
+    }
+
+    /**
+     * Mediate message flow.
+     *
+     * @param context the messsage context
+     * @return true if processing should continue on dispatch path 
+     */
+    private boolean mediate(LogicalMessageContext context) {    
+        boolean continueProcessing = true;
+        if (ContextUtils.isOutbound(context)) {
+            if (usingAddressing(context)) {
+                // request/response MAPs must be aggregated
+                aggregate(context);
+            }
+        } else if (!ContextUtils.isRequestor(context)) {
+            // responder validates incoming MAPs
+            continueProcessing = validateIncomingMAPs(context); 
+            if (!continueProcessing) {
+                // validation failure => dispatch is aborted, response MAPs 
+                // must be aggregated
+                aggregate(context);
+            }
+        }
+        return continueProcessing;
+    }
+
+    /**
+     * Perform MAP aggregation.
+     *
+     * @param context the messsage context
+     */
+    private void aggregate(LogicalMessageContext context) {
+        AddressingProperties maps = assembleGeneric(context);
+        boolean isRequestor = ContextUtils.isRequestor(context);
+        addRoleSpecific(maps, isRequestor, context);
+        // outbound property always used to store MAPs, as this handler 
+        // aggregates only when either:
+        // a) message really is outbound
+        // b) message is currently inbound, but we are about to abort dispatch
+        //    due to an incoming MAPs validation failure, so the dispatch
+        //    will shortly traverse the outbound path
+        ContextUtils.storeMAPs(maps, context, true, isRequestor, true);
+    }
+
+    /**
+     * Assemble the generic MAPs (for both requests and responses).
+     *
+     * @param context the messsage context
+     * @return AddressingProperties containing the generic MAPs
+     */
+    private AddressingProperties assembleGeneric(MessageContext context) {
+        AddressingProperties maps = getMAPs(context, true, true);
+        // MessageID
+        if (maps.getMessageID() == null) {
+            String messageID = URN_UUID + UUID.randomUUID();
+            maps.setMessageID(ContextUtils.getAttributedURI(messageID));
+        }
+        // To
+        if (maps.getTo() == null) {
+            // To cached in context by transport
+            EndpointReferenceType reference = ContextUtils.retrieveTo(context);
+            maps.setTo(reference != null 
+                       ? reference.getAddress()
+                       : ContextUtils.getAttributedURI(Names.WSA_NONE_ADDRESS));
+        }
+        return maps;
+    }
+
+    /**
+     * Add MAPs which are specific to the requestor or responder role.
+     *
+     * @param maps the MAPs being assembled
+     * @param isRequestor true iff the current messaging role is that of 
+     * requestor 
+     * @param context the messsage context
+     */
+    private void addRoleSpecific(AddressingProperties maps, 
+                                 boolean isRequestor,
+                                 MessageContext context) {
+        if (isRequestor) {
+            // add request-specific MAPs
+
+            boolean isOneway = ContextUtils.isOneway(context);
+            // ReplyTo
+            if (maps.getReplyTo() == null) {
+                // REVISIT: use ReplyTo cached in context by transport
+                EndpointReferenceType replyTo =
+                    ContextUtils.WSA_OBJECT_FACTORY.createEndpointReferenceType();
+                AttributedURIType address =
+                    ContextUtils.getAttributedURI(isOneway
+                                                  ? Names.WSA_NONE_ADDRESS
+                                                  : Names.WSA_ANONYMOUS_ADDRESS);
+                replyTo.setAddress(address);
+                maps.setReplyTo(replyTo);
+            }
+            // REVIST Action
+            if (!isOneway) {
+                // REVISIT FaultTo if cached by transport in context
+            }
+        } else {
+            // add response-specific MAPs
+            AddressingProperties inMAPs = getMAPs(context, false, false);
+            // To taken from ReplyTo in incoming MAPs
+            if (inMAPs.getReplyTo() != null) {
+                maps.setTo(inMAPs.getReplyTo().getAddress());
+            }
+            // RelatesTo taken from MessageID in incoming MAPs
+            if (inMAPs.getMessageID() != null) {
+                String inMessageID = inMAPs.getMessageID().getValue();
+                maps.setRelatesTo(ContextUtils.getRelatesTo(inMessageID));
+            }
+        }
+    }
+
+    /**
+     * Get the starting point MAPs (either empty or those set explicitly
+     * by the application on the binding provider request context).
+     *
+     * @param context the messsage context
+     * @param isProviderContext true if the binding provider request context
+     * available to the client application as opposed to the message context
+     * visible to handlers
+     * @param isOutbound true iff the message is outbound
+     * @return AddressingProperties retrieved MAPs
+     */
+    private AddressingProperties getMAPs(MessageContext context,
+                                         boolean isProviderContext,
+                                         boolean isOutbound) {
+
+        AddressingProperties maps = null;
+        maps = ContextUtils.retrieveMAPs(context, 
+                                         isProviderContext,
+                                         isOutbound);
+        LOG.log(Level.INFO, "MAPs retrieved from context {0}", maps);
+
+        if (maps == null && isProviderContext) {
+            maps = new AddressingPropertiesImpl();
+        }
+        return maps;
+    }
+
+    /**
+     * Validate incoming MAPs
+     * @return true if incoming MAPs are valid
+     * @pre inbound message, not requestor
+     */
+    private boolean validateIncomingMAPs(MessageContext context) {
+        boolean valid = true;
+        AddressingProperties maps = getMAPs(context, false, false);
+        if (maps != null) {
+            AttributedURIType messageID = maps.getMessageID();
+            if (messageID != null
+                && messageIDs.put(messageID.getValue(), 
+                                  messageID.getValue()) != null) {
+                ContextUtils.storeBadMAP(messageID.getValue(), context);
+                ContextUtils.storeMAPFault(Names.DUPLICATE_MESSAGE_ID_NAME,
+                                           context);
+                valid = false;
+            }
+        }
+        return valid;
+    }
+}
+

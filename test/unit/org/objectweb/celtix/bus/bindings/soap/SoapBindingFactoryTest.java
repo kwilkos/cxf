@@ -9,10 +9,10 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.context.GenericMessageContext;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class SoapBindingFactoryTest extends TestCase {

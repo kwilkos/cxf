@@ -20,12 +20,12 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
+import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
@@ -36,10 +36,11 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class HTTPClientTransport implements ClientTransport {
-    
+
     // private static final Logger LOG = LogUtils.getL7dLogger(HTTPClientTransport.class);
     final URL url;
     final Configuration configuration;
@@ -48,13 +49,16 @@ public class HTTPClientTransport implements ClientTransport {
     final AuthorizationPolicy proxyAuthPolicy;
       
     public HTTPClientTransport(Bus bus, EndpointReferenceType ref) throws WSDLException, IOException {
-        
+
         Configuration portConfiguration = getPortConfiguration(bus, ref);
-        url = new URL(portConfiguration.getString("address"));
-        
+        String address = portConfiguration.getString("address");
+        EndpointReferenceUtils.setAddress(ref, address);
+        url = new URL(address);
+
+        Port port =
+            EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
         configuration = 
-            new HTTPClientTransportConfiguration(portConfiguration, 
-                                                 EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref));
+            new HTTPClientTransportConfiguration(portConfiguration, port); 
         policy = getClientPolicy(configuration);
         authPolicy = getAuthPolicy("authorization", configuration);
         proxyAuthPolicy = getAuthPolicy("proxyAuthorization", configuration);

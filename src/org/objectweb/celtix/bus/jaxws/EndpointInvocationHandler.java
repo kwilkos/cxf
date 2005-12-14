@@ -20,13 +20,13 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
 public final class EndpointInvocationHandler implements BindingProvider, InvocationHandler

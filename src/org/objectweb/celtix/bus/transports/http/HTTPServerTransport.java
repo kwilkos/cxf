@@ -28,7 +28,6 @@ import javax.xml.ws.handler.MessageContext;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.Base64Exception;
 import org.objectweb.celtix.common.util.Base64Utility;
@@ -41,6 +40,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class HTTPServerTransport implements ServerTransport {

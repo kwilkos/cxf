@@ -10,11 +10,11 @@ import javax.xml.ws.spi.Provider;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.transports.ServerTransport;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.hello_world_soap_http.DerivedGreeterImpl;
 

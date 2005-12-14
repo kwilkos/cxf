@@ -14,7 +14,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -24,6 +24,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.TransportFactory;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
@@ -32,6 +33,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
     protected final Bus bus;
     protected final EndpointReferenceType reference;
+    protected Port port;
     protected ClientTransport transport;
     
     public AbstractClientBinding(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
@@ -52,7 +54,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
         try {
             LOG.info("creating client transport for " + ref);
           
-            Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+            port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
             List<?> exts = port.getExtensibilityElements();
             if (exts.size() > 0) {
                 ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
@@ -114,6 +116,18 @@ public abstract class AbstractClientBinding implements ClientBinding {
         try { 
             MessageContext bindingContext = createBindingMessageContext(context);
 
+            try {
+                getTransport();
+            } catch (WSDLException e) {
+                throw (IOException)(new IOException(e.getMessage()).initCause(e));
+            }
+            assert transport != null : "transport is null";
+
+            // cache To EPR & WSDL Port in context for use by WS-Addressing 
+            // handlers
+            ContextUtils.storeTo(reference, context);
+            ContextUtils.storePort(port, context);
+        
             //Input Message For Client
             context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
             bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
@@ -130,13 +144,6 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 continueProcessing = handlerInvoker.invokeProtocolHandlers(true, bindingContext); 
 
                 if (continueProcessing) {
-                    try {
-                        getTransport();
-                    } catch (WSDLException e) {
-                        throw (IOException)(new IOException(e.getMessage()).initCause(e));
-                    }
-                    assert transport != null : "transport is null";
-                    
                     OutputStreamMessageContext ostreamContext = 
                         createOutputStreamContext(bindingContext);
                     ostreamContext.setOneWay(false);
@@ -199,6 +206,17 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
             //Input Message For Client
             bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
+
+            try {
+                getTransport();
+            } catch (WSDLException e) {
+                throw (IOException)(new IOException(e.getMessage()).initCause(e));
+            }
+            assert transport != null : "transport is null";
+
+            // cache EPR in context for use by WS-Addressing handlers
+            ContextUtils.storeTo(reference, context);
+
             boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(true);
 
             if (continueProcessing) {  
@@ -212,13 +230,6 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 continueProcessing = handlerInvoker.invokeProtocolHandlers(true, bindingContext);
 
                 if (continueProcessing) { 
-                    try {
-                        getTransport();
-                    } catch (WSDLException e) {
-                        throw (IOException)(new IOException(e.getMessage()).initCause(e));
-                    }
-                    assert transport != null : "transport is null";
-
                     OutputStreamMessageContext ostreamContext = 
                         createOutputStreamContext(bindingContext);
                     ostreamContext.setOneWay(true);

@@ -11,6 +11,14 @@ public class MessageContextWrapper implements MessageContext {
     
     public MessageContextWrapper(MessageContext ctx) {
         context = ctx;
+        //System.out.println("created context: " + this);
+    }
+
+    public String toString() {
+        String wrapped = context instanceof MessageContextWrapper 
+                         ? context.toString()
+                         : context.getClass().getName();
+        return this.getClass().getName() + " wrapping: <" + wrapped + ">";
     }
 
     public void setScope(String arg0, Scope arg1) {

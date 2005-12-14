@@ -41,6 +41,7 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPBinding;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -203,13 +204,22 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         SOAPMessage msg = null;
 
         try {
-            msg = initSOAPMessage();
+            msg = SOAPMessageContext.class.isInstance(mc)
+                  && ((SOAPMessageContext)mc).getMessage() != null
+                  ? ((SOAPMessageContext)mc).getMessage()
+                  : initSOAPMessage();
             Throwable t = objContext.getException();
 
             SOAPFault fault = msg.getSOAPBody().addFault();
             //REVIST FaultCode to handle other codes.
-            fault.setFaultCode(SOAPConstants.FAULTCODE_SERVER);
-            fault.setFaultString(t.getMessage());
+            if (t instanceof SOAPFaultException) {
+                SOAPFault f = ((SOAPFaultException)t).getFault();
+                fault.setFaultCode(f.getFaultCodeAsName());
+                fault.setFaultString(f.getFaultString());
+            } else {
+                fault.setFaultCode(SOAPConstants.FAULTCODE_SERVER);
+                fault.setFaultString(t.getMessage());
+            }
 
             DataWriter<Detail> writer = callback.createWriter(Detail.class);
             if (writer == null) {

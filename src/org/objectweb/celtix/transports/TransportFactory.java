@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.wsdl.WSDLException;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
 /**

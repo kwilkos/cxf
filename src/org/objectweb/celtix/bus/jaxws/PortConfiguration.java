@@ -4,10 +4,10 @@ import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bus.configuration.AbstractConfigurationImpl;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlPortProvider;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class PortConfiguration extends AbstractConfigurationImpl {

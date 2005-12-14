@@ -18,12 +18,12 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.addressing.AttributedURIType;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
-import org.objectweb.celtix.addressing.MetadataType;
-import org.objectweb.celtix.addressing.ObjectFactory;
-import org.objectweb.celtix.addressing.wsdl.ServiceNameType;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.ws.addressing.AttributedURIType;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.MetadataType;
+import org.objectweb.celtix.ws.addressing.ObjectFactory;
+import org.objectweb.celtix.ws.addressing.wsdl.ServiceNameType;
 
 /**
  * Provides utility methods for obtaining endpoint references, wsdl definitions, etc.
@@ -121,7 +121,7 @@ public final class EndpointReferenceUtils {
             Object obj = objMeta;
             if (obj instanceof Element) {
                 Element el = (Element)obj;
-                if ("http://www.w3.org/2005/02/addressing/wsdl".equals(el.getNamespaceURI())) {
+                if ("http://www.w3.org/2005/08/addressing/wsdl".equals(el.getNamespaceURI())) {
                     try {
                         JAXBContext context = JAXBContext.newInstance(ObjectFactory.class);
                         Unmarshaller u = context.createUnmarshaller();

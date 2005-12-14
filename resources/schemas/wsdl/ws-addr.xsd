@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='utf-8' ?>
-<!-- $Id: ws-addr.xsd,v 1.5 2005/03/30 21:25:43 plehegar Exp $ -->
 <!--
     W3C XML Schema defined in the Web Services Addressing 1.0 specification
     http://www.w3.org/TR/ws-addr-core
@@ -15,8 +14,8 @@
    [1] http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:tns="http://www.w3.org/2005/03/addressing"
-	targetNamespace="http://www.w3.org/2005/03/addressing" blockDefault="#all"
+	xmlns:tns="http://www.w3.org/2005/08/addressing"
+	targetNamespace="http://www.w3.org/2005/08/addressing" blockDefault="#all"
 	elementFormDefault="qualified">
 	
 	<!-- Constructs from the WS-Addressing Core -->
@@ -53,7 +52,7 @@
 		<xs:simpleContent>
 			<xs:extension base="xs:anyURI">
 				<xs:attribute name="RelationshipType" type="tns:RelationshipTypeOpenEnum"
-					use="optional" default="http://www.w3.org/2005/03/addressing/reply"/>
+					use="optional" default="http://www.w3.org/2005/08/addressing/reply"/>
 				<xs:anyAttribute namespace="##other" processContents="lax"/>
 			</xs:extension>
 		</xs:simpleContent>
@@ -65,7 +64,7 @@
 	
 	<xs:simpleType name="RelationshipType">
 		<xs:restriction base="xs:anyURI">
-			<xs:enumeration value="http://www.w3.org/2005/03/addressing/reply"/>
+			<xs:enumeration value="http://www.w3.org/2005/08/addressing/reply"/>
 		</xs:restriction>
 	</xs:simpleType>
 	
@@ -85,7 +84,7 @@
 	
 	<!-- Constructs from the WS-Addressing SOAP binding -->
 
-	<xs:attribute name="isReferenceParameter" type="xs:boolean"/>
+	<xs:attribute name="IsReferenceParameter" type="xs:boolean"/>
 	
 	<xs:simpleType name="FaultCodesOpenEnumType">
 		<xs:union memberTypes="tns:FaultCodesType xs:QName"/>
@@ -93,20 +92,55 @@
 	
 	<xs:simpleType name="FaultCodesType">
 		<xs:restriction base="xs:QName">
-			<xs:enumeration value="tns:InvalidMessageInformationHeader"/>
-			<xs:enumeration value="tns:MessageInformationHeaderRequired"/>
+			<xs:enumeration value="tns:InvalidAddressingHeader"/>
+			<xs:enumeration value="tns:InvalidAddress"/>
+			<xs:enumeration value="tns:InvalidEPR"/>
+			<xs:enumeration value="tns:InvalidCardinality"/>
+			<xs:enumeration value="tns:MissingAddressInEPR"/>
+			<xs:enumeration value="tns:DuplicateMessageID"/>
+			<xs:enumeration value="tns:ActionMismatch"/>
+			<xs:enumeration value="tns:MessageAddressingHeaderRequired"/>
 			<xs:enumeration value="tns:DestinationUnreachable"/>
 			<xs:enumeration value="tns:ActionNotSupported"/>
 			<xs:enumeration value="tns:EndpointUnavailable"/>
 		</xs:restriction>
 	</xs:simpleType>
 	
-	<xs:element name="RetryAfter" type="tns:AttributedNonNegativeIntegerType"/>
-	<xs:complexType name="AttributedNonNegativeIntegerType">
+	<xs:element name="RetryAfter" type="tns:AttributedUnsignedLongType"/>
+	<xs:complexType name="AttributedUnsignedLongType">
 		<xs:simpleContent>
-			<xs:extension base="xs:nonNegativeInteger">
-				<xs:anyAttribute namespace="##any" processContents="lax"/>
+			<xs:extension base="xs:unsignedLong">
+				<xs:anyAttribute namespace="##other" processContents="lax"/>
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
+	
+	<xs:element name="ProblemHeaderQName" type="tns:AttributedQNameType"/>
+	<xs:complexType name="AttributedQNameType">
+		<xs:simpleContent>
+			<xs:extension base="xs:QName">
+				<xs:anyAttribute namespace="##other" processContents="lax"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	
+	<xs:element name="ProblemHeader" type="tns:AttributedAnyType"/>
+	<xs:complexType name="AttributedAnyType">
+		<xs:sequence>
+			<xs:any namespace="##any" processContents="lax"/>
+		</xs:sequence>
+		<xs:anyAttribute namespace="##other" processContents="lax"/>
+	</xs:complexType>
+	
+	<xs:element name="ProblemIRI" type="tns:AttributedURIType"/>
+	
+	<xs:element name="ProblemAction" type="tns:ProblemActionType"/>
+	<xs:complexType name="ProblemActionType">
+		<xs:sequence>
+			<xs:element ref="tns:Action" minOccurs="0"/>
+			<xs:element name="SoapAction" minOccurs="0" type="xs:anyURI"/>
+		</xs:sequence>
+		<xs:anyAttribute namespace="##other" processContents="lax"/>
+	</xs:complexType>
+	
 </xs:schema>

@@ -30,7 +30,6 @@ import org.w3c.dom.Node;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
@@ -43,6 +42,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class SOAPServerBinding extends AbstractServerBinding {

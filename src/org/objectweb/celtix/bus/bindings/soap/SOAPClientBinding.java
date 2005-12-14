@@ -13,7 +13,6 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.bindings.AbstractClientBinding;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
@@ -22,6 +21,7 @@ import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
 public class SOAPClientBinding extends AbstractClientBinding {

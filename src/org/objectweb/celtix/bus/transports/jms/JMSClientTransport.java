@@ -19,12 +19,12 @@ import javax.wsdl.WSDLException;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.addressing.EndpointReferenceType;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.jms.context.JMSClientHeadersType;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
 
