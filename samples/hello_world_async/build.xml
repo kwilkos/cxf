@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<project name="hello world demo" default="build" basedir=".">
+
+    <import file="../common_build.xml"/>        
+        
+    <target name="client" description="run demo client">
+        <property name="param" value=""/>
+        <celtixrun classname="demo.hw.client.Client" param1="${basedir}/wsdl/hello_world_async.wsdl" param2="${op}" param3="${param}"/>
+    </target> 
+        
+    <target name="server" description="run demo server">
+        <celtixrun classname="demo.hw.server.Server" param1="${basedir}/wsdl/hello_world_async.wsdl"/>
+    </target>
+        
+    <target name="generate.code">
+	<property name="wsdl.dir" location="${basedir}/wsdl"/>
+        <copy file="${basedir}/wsdl/async_binding.xml.tmpl"
+            tofile="${basedir}/wsdl/async_binding.xml"
+            overwrite="yes">
+            <filterset>
+                <filter token="WSDL_LOCATION" value="${wsdl.dir}"/>
+            </filterset>
+        </copy>
+        <echo level="info" message="Generating code using wsdl2java..."/>
+        <wsdl2java file="hello_world_async.wsdl" bindingfile="${basedir}/wsdl/async_binding.xml"/>
+    </target>
+</project>
+
+
+
+       
