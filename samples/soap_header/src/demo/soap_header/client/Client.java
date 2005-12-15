@@ -3,75 +3,87 @@ package demo.soap_header.client;
 import java.io.File;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
-import org.objectweb.header_test.SOAPHeaderService;
-import org.objectweb.header_test.TestHeader;
-
-import org.objectweb.header_test.types.TestHeader1;
-import org.objectweb.header_test.types.TestHeader1Response;
-import org.objectweb.header_test.types.TestHeader2;
-import org.objectweb.header_test.types.TestHeader2Response;
-import org.objectweb.header_test.types.TestHeader3;
-import org.objectweb.header_test.types.TestHeader3Response;
-import org.objectweb.header_test.types.TestHeader5;
+import org.objectweb.headers.HeaderService;
+import org.objectweb.headers.HeaderTester;
+import org.objectweb.headers.InHeader;
+import org.objectweb.headers.InHeaderResponse;
+import org.objectweb.headers.InoutHeader;
+import org.objectweb.headers.InoutHeaderResponse;
+import org.objectweb.headers.OutHeader;
+import org.objectweb.headers.OutHeaderResponse;
+import org.objectweb.headers.SOAPHeaderData;
 
 public final class Client {
 
-    private static final QName SERVICE_NAME 
-        = new QName("http://objectweb.org/header_test", "SOAPHeaderService");
+    private static final QName SERVICE_NAME
+        = new QName("http://objectweb.org/headers", "HeaderService");
 
 
     private Client() {
-    } 
+    }
 
     public static void main(String args[]) throws Exception {
-        
-        if (args.length == 0) { 
+
+        if (args.length == 0) {
             System.out.println("please specify wsdl");
-            System.exit(1); 
+            System.exit(1);
         }
 
         File wsdl = new File(args[0]);
-        
-        SOAPHeaderService ss = new SOAPHeaderService(wsdl.toURL(), SERVICE_NAME);
-        TestHeader proxy = ss.getSoapHeaderPort();
 
-        // Invoke testHeader1 operation
-        System.out.println("Invoking testHeader1 operation");
-        TestHeader1 in1 = new TestHeader1();
-        TestHeader1 inHeader1 = in1;
-        TestHeader1Response response1 = proxy.testHeader1(in1, inHeader1);
-        System.out.println("\ttestHeader1 operation: returned " + response1.getResponseType());
+        HeaderService hs = new HeaderService(wsdl.toURL(), SERVICE_NAME);
+        HeaderTester proxy = hs.getSoapPort();
 
-        // Invoke testHeader2 operation
-        System.out.println("Invoking testHeader2 operation");
-        TestHeader2 in2 = new TestHeader2();
-        Holder<TestHeader2Response> out2 = new Holder<TestHeader2Response>();
-        Holder<TestHeader2Response> outHeader2 = new Holder<TestHeader2Response>();
-
-        in2.setRequestType(TestHeader2Response.class.getSimpleName());
-        proxy.testHeader2(in2, out2, outHeader2);
-        System.out.println("\ttestHeader2 operation: header type " + outHeader2.value.getResponseType());
-
-        // Invoke testHeader3
-        System.out.println("Invoking testHeader3 operation");
-        TestHeader3 in3 = new TestHeader3();
-        Holder<TestHeader3> inoutHeader3 = new Holder<TestHeader3>();
-
-        in3.setRequestType(TestHeader3.class.getSimpleName());
-        inoutHeader3.value = new TestHeader3();
-        inoutHeader3.value.setRequestType(TestHeader3.class.getSimpleName());
-        TestHeader3Response response3 = proxy.testHeader3(in3, inoutHeader3);
-        System.out.println("\ttestHeader3 operation: header type " + inoutHeader3.value.getRequestType());
-        System.out.println("\treturn type " + response3.getResponseType());
-
-        // Invoke testHeader5
-        System.out.println("Invoking testHeader5 operation");
-        TestHeader5 in5 = new TestHeader5();
-        in5.setRequestType(TestHeader5.class.getSimpleName());
-        TestHeader5 response5 = proxy.testHeader5(in5);
-        System.out.println("\ttestHeader5 operation: return type " + response5.getRequestType());
- 
-        System.exit(0); 
+        invokeInHeader(proxy);
+        invokeOutHeader(proxy);  
+        invokeInOutHeader(proxy);  
+    }
+     
+    private static void invokeInHeader(HeaderTester proxy) {
+        // invoke inHeader operation
+        System.out.println("Invoking inHeader operation");
+        InHeader me = new InHeader();
+        me.setRequestType("Celtix user");
+        SOAPHeaderData headerInfo = new SOAPHeaderData();
+        headerInfo.setOriginator("Celtix client");
+        headerInfo.setMessage("Invoking inHeader operation");
+        InHeaderResponse response = proxy.inHeader(me, headerInfo);
+        System.out.println("\tinHeader invocation returned: ");
+        System.out.println("\t\tResult: " + response.getResponseType());
     }
 
+    private static void invokeOutHeader(HeaderTester proxy) {    
+        // invoke outHeaderoperation
+        System.out.println("Invoking outHeader operation");
+        OutHeader me = new OutHeader();
+        me.setRequestType("Celtix user");
+        Holder<OutHeaderResponse> theResponse = new Holder<OutHeaderResponse>();
+        Holder<SOAPHeaderData> headerInfo = new Holder<SOAPHeaderData>();
+        proxy.outHeader(me, theResponse, headerInfo);
+        System.out.println("\toutHeader invocation returned: ");
+        System.out.println("\t\tOut parameter: " + theResponse.value.getResponseType());
+        System.out.println("\t\tHeader content:");
+        System.out.println("\t\t\tOriginator: " + headerInfo.value.getOriginator());
+        System.out.println("\t\t\tMessage: " + headerInfo.value.getMessage());
+    }
+
+    private static void invokeInOutHeader(HeaderTester proxy) {
+        System.out.println("Inovking inoutHeader operation");
+        InoutHeader me = new InoutHeader();
+        me.setRequestType("Celtix user");
+        Holder<SOAPHeaderData> headerInfo = new Holder<SOAPHeaderData>();
+        SOAPHeaderData shd = new SOAPHeaderData();
+        shd.setOriginator("Celtix client");
+        shd.setMessage("Inovking inoutHeader operation");
+        headerInfo.value = shd;
+        InoutHeaderResponse response = proxy.inoutHeader(me, headerInfo);
+        System.out.println("\tinoutHeader invocation returned: ");
+        System.out.println("\t\tResult: " + response.getResponseType());
+        System.out.println("\t\tHeader content:");
+        System.out.println("\t\t\tOriginator: " + headerInfo.value.getOriginator());
+        System.out.println("\t\t\tMessage: " + headerInfo.value.getMessage());
+
+        System.exit(0);
+    }
 }
+

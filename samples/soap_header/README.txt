@@ -2,7 +2,7 @@ SOAP Headers
 ============
 
 This demo illustrates Celtix's support for SOAP headers.  In the
-WSDL file, the SOAP header is included as an additiona1 part within
+WSDL file, the SOAP header is included as an additiona part within
 message and binding definitions.  With this approach to defining a
 SOAP header, Celtix treats the header content as another parameter
 to the operation.  Consequently, the header content is simply
@@ -60,13 +60,13 @@ directory build/classes and then generate code from the WSDL file.
 For UNIX:
   mkdir -p build/classes
 
-  wsdl2java -d build/classes ./wsdl/soapheader_test.wsdl
+  wsdl2java -d build/classes ./wsdl/soap_header.wsdl
 
 For Windows:
   mkdir build\classes
     Must use back slashes.
 
-  wsdl2java -d build\classes .\wsdl\soapheader_test.wsdl
+  wsdl2java -d build\classes .\wsdl\soap_header.wsdl
     May use either forward or back slashes.
 
 Now compile both the generated code and the provided client and
@@ -90,7 +90,7 @@ For UNIX (must use forward slashes):
          demo.soap_header.server.Server &
 
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
-         demo.soap_header.client.Client ./wsdl/soapheader_test.wsdl
+         demo.soap_header.client.Client ./wsdl/soap_header.wsdl
 
 The server process starts in the background.  After running the client,
 use the kill command to terminate the server process.
@@ -101,7 +101,7 @@ For Windows (may use either forward or back slashes):
          demo.soap_header.server.Server
 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
-       demo.soap_header.client.Client .\wsdl\soapheader_test.wsdl
+       demo.soap_header.client.Client .\wsdl\soap_header.wsdl
 
 A new command windows opens for the server process.  After running the
 client, terminate the server process by issuing Ctrl-C in its command window.

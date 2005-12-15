@@ -52,8 +52,8 @@ public class HeaderSnooper implements SOAPHandler<SOAPMessageContext> {
             SOAPHeader header = 
                 context.getMessage().getSOAPPart().getEnvelope().getHeader();
             if (header != null) {
-                System.out.println(getDirection(context) + 
-                                   " WS-Addressing headers");
+                System.out.println(getDirection(context)
+                                   + " WS-Addressing headers");
                 Iterator headerElements = header.examineAllHeaderElements();
                 while (headerElements.hasNext()) {
                     SOAPHeaderElement headerElement =

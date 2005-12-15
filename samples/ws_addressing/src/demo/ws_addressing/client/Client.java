@@ -1,11 +1,11 @@
 package demo.ws_addressing.client;
 
 import java.io.File;
+import java.lang.reflect.UndeclaredThrowableException;
 import javax.xml.namespace.QName;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.PingMeFault;
 import org.objectweb.hello_world_soap_http.SOAPService;
-import java.lang.reflect.UndeclaredThrowableException;
 
 public final class Client {
     
