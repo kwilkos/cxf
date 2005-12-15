@@ -1,6 +1,8 @@
 package demo.soap_header.client;
 
 import java.io.File;
+import java.net.URL;
+
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import org.objectweb.headers.HeaderService;
@@ -29,9 +31,15 @@ public final class Client {
             System.exit(1);
         }
 
-        File wsdl = new File(args[0]);
-
-        HeaderService hs = new HeaderService(wsdl.toURL(), SERVICE_NAME);
+        URL wsdlURL;
+        File wsdlFile = new File(args[0]);
+        if (wsdlFile.exists()) {
+            wsdlURL = wsdlFile.toURL();
+        } else {
+            wsdlURL = new URL(args[0]);
+        }
+        
+        HeaderService hs = new HeaderService(wsdlURL, SERVICE_NAME);
         HeaderTester proxy = hs.getSoapPort();
 
         invokeInHeader(proxy);

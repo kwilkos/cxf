@@ -1,6 +1,8 @@
 package demo.hwRPCLit.client;
 
 import java.io.File;
+import java.net.URL;
+
 import javax.xml.namespace.QName;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.SOAPServiceRPCLit;
@@ -23,9 +25,15 @@ public final class Client {
             System.exit(1); 
         }
 
-        File wsdl = new File(args[0]);
-
-        SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl.toURL(), SERVICE_NAME);
+        URL wsdlURL;
+        File wsdlFile = new File(args[0]);
+        if (wsdlFile.exists()) {
+            wsdlURL = wsdlFile.toURL();
+        } else {
+            wsdlURL = new URL(args[0]);
+        }
+        
+        SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdlURL, SERVICE_NAME);
         GreeterRPCLit greeter = (GreeterRPCLit)service.getPort(PORT_NAME, GreeterRPCLit.class);
 
         System.out.println("Invoking sayHi...");

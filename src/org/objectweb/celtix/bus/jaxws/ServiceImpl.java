@@ -12,6 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.WebService;
+import javax.wsdl.Port;
+import javax.wsdl.WSDLException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
@@ -117,7 +119,13 @@ public class ServiceImpl extends ServiceDelegate {
         EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlLocation, 
                 serviceName, portName.getLocalPart());
              
-        PortConfiguration pc = new PortConfiguration(configuration, portName.getLocalPart(), bus, ref);
+        Port port = null;
+        try  {
+            port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+        } catch (WSDLException ex) {
+            throw new WebServiceException("Could not get port from wsdl", ex);
+        }        
+        PortConfiguration pc = new PortConfiguration(configuration, portName.getLocalPart(), bus, port);
         
         EndpointInvocationHandler endpointHandler = 
                 new EndpointInvocationHandler(bus, ref, this, pc, serviceEndpointInterface);

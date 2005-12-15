@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<endpoints>
+
+    <endpoint
+        name="hello_world_rpclit"
+        interface="org.objectweb.hello_world_rpclit.GreeterRPCLit"
+        implementation="demo.hwRPCLit.server.GreeterRPCLitImpl"
+        wsdl="WEB-INF/wsdl/hello_world_RPCLit.wsdl"
+        service="{http://objectweb.org/hello_world_rpclit}SOAPServiceRPCLit"
+        port="{http://objectweb.org/hello_world_rpclit}SOAPPortRPCLit"
+        url-pattern="/hello_world_rpclit" />
+
+</endpoints>
