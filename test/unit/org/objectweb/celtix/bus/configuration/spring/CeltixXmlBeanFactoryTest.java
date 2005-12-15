@@ -46,7 +46,7 @@ public class CeltixXmlBeanFactoryTest extends TestCase {
     
     public void testConstructor() {
        
-        URL url = ConfigurationProviderImplTest.class.getResource("resources/top2.xml");   
+        URL url = CeltixXmlBeanFactoryTest.class.getResource("resources/top2.xml");   
         UrlResource urlRes = new UrlResource(url);
         CeltixXmlBeanFactory bf = new CeltixXmlBeanFactory(urlRes);
         
@@ -56,7 +56,7 @@ public class CeltixXmlBeanFactoryTest extends TestCase {
     
     public void testCustomEditorRegistration() {
         
-        URL url = ConfigurationProviderImplTest.class.getResource("resources/top2.xml");
+        URL url = CeltixXmlBeanFactoryTest.class.getResource("resources/top2.xml");
         UrlResource urlRes = new UrlResource(url);
         CeltixXmlBeanFactory bf = new CeltixXmlBeanFactory(urlRes);
         Configuration top = new TopConfiguration("top22");
