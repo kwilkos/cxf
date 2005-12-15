@@ -4,6 +4,7 @@
     <property name="build.dir" location ="${basedir}/build"/>
     <property name="build.classes.dir" location ="${build.dir}/classes"/>
     <property name="build.src.dir" location ="${build.dir}/src"/>
+    <property name="build.var.dir" location ="${build.dir}/var"/>
     <property name="codegen.timestamp.file" value="${build.src.dir}/.CODEGEN_DONE"/>
     <property name="wsdl.dir" location="${basedir}/wsdl"/>
 
@@ -105,7 +106,7 @@
 
     <!-- Target to start JMS Broker for JMS samples -->
     <property name="activemq.home" location="${thirdparty.tools.dir}/activemq/3.2"/>
-    <property name="derby.system.home" location="${thirdparty.tools.dir}/activemq/3.2/var"/>
+    <property name="derby.system.home" location="${build.var.dir}"/>
     <target name="jmsbroker.start">
         <java classname="org.activemq.spring.Main" fork="yes" dir="${activemq.home}/bin">
             <classpath>
