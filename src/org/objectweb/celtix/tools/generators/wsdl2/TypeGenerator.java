@@ -38,18 +38,18 @@ public class TypeGenerator extends AbstractGenerator {
             return;
         }
 
-        Map<String, S2JJAXBModel> jaxbModels = (Map<String, S2JJAXBModel>) env.get("jaxbmodels");
-        Collection<S2JJAXBModel> typeModels = jaxbModels.values();
-        for (S2JJAXBModel rawJaxbModel : typeModels) {
-            try {
-                JAXBModel jaxbModel = new JAXBModel(rawJaxbModel);
-                JCodeModel jcodeModel = jaxbModel.getS2JJAXBModel().generateCode(null, null);
-                String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
-                FileCodeWriter fileCodeWriter = new FileCodeWriter(new File(dir));
-                jcodeModel.build(fileCodeWriter);
-            } catch (IOException e) {
-                throw new ToolException("Build type failed", e);
-            }
+        S2JJAXBModel rawJaxbModel = (S2JJAXBModel) env.get("rawjaxbmodel");
+        if (rawJaxbModel == null) {
+            return;
+        }
+        try {
+            JAXBModel jaxbModel = new JAXBModel(rawJaxbModel);
+            JCodeModel jcodeModel = jaxbModel.getS2JJAXBModel().generateCode(null, null);
+            String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
+            FileCodeWriter fileCodeWriter = new FileCodeWriter(new File(dir));
+            jcodeModel.build(fileCodeWriter);
+        } catch (IOException e) {
+            throw new ToolException("Build type failed", e);
         }
     }
 }

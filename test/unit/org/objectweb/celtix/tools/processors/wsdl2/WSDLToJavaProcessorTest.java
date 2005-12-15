@@ -81,6 +81,53 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals(files.length, 9);
     }
 
+    public void testSchemaImport() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_schema_import.wsdl"));
+        
+        processor.setEnvironment(env);
+        processor.process();
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File objectweb = new File(org, "objectweb");
+        assertTrue(objectweb.exists());
+        File helloworldsoaphttp = new File(objectweb, "hello_world_soap_http");
+        assertTrue(helloworldsoaphttp.exists());
+        File types = new File(helloworldsoaphttp, "types");
+        assertTrue(types.exists());
+        File[] files = helloworldsoaphttp.listFiles();
+        assertEquals(files.length, 7);
+        files = types.listFiles();
+        assertEquals(files.length, 10);
+    }
+    
+    public void testExceptionNameCollision() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/InvoiceServer.wsdl"));
+        
+        processor.setEnvironment(env);
+        processor.process();
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File celtix = new File(org, "celtix");
+        assertTrue(celtix.exists());
+        File courseware = new File(celtix, "courseware");
+        assertTrue(courseware.exists());
+        File invoiceserver = new File(courseware, "invoiceserver");
+        assertTrue(invoiceserver.exists());
+        File invoice = new File(courseware, "invoice");
+        assertTrue(invoice.exists());
+
+        File[] files = invoiceserver.listFiles();
+        assertEquals(files.length, 15);
+        files = invoice.listFiles();
+        assertEquals(files.length, 9);
+    }
+
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
     }

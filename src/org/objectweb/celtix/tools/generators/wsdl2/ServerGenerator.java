@@ -67,7 +67,13 @@ public class ServerGenerator extends AbstractGenerator {
             setAttributes("address", address);
             setCommonAttributes();
 
-            doWrite(SRV_TEMPLATE, parseOutputName(intf.getPackageName(), interfaceName + "Server"));
+            String serverClassName = interfaceName + "Server";
+            
+            while (isCollision(intf.getPackageName(), serverClassName)) {
+                serverClassName = serverClassName + "_Server";
+            }
+
+            doWrite(SRV_TEMPLATE, parseOutputName(intf.getPackageName(), serverClassName));
         }
     }
 

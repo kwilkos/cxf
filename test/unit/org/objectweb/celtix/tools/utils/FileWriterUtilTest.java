@@ -4,14 +4,14 @@ import java.io.IOException;
 import junit.framework.TestCase;
 public class FileWriterUtilTest extends TestCase {
     
-    public void testGetFile() {
+    public void testGetFile() throws Exception {
         FileWriterUtil fileWriter = null;    
         try {
             String tmpDir = System.getProperty("java.io.tmpdir");
             File targetDir = new File(tmpDir + File.separator + "target");
             targetDir.mkdirs();
             fileWriter = new FileWriterUtil(targetDir.getAbsolutePath());
-            fileWriter.getFile("com.iona.test" , "A.java");
+            fileWriter.getWriter("com.iona.test" , "A.java");
             String packPath = "/com/iona/test/A.java".replace('/' , File.separatorChar);
             String path = targetDir.getAbsolutePath() + packPath;
             assertNotNull(new File(path).getName());           
@@ -22,7 +22,7 @@ public class FileWriterUtilTest extends TestCase {
          
     }
     
-    public void testGetWriter() {
+    public void testGetWriter() throws Exception {
         FileWriterUtil fileWriter = null;
         
         try {

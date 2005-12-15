@@ -7,10 +7,11 @@ import javax.wsdl.Definition;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.schema.Schema;
+import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 
-import org.w3c.dom.Element;
+import org.w3c.dom.*;
 
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.api.SchemaCompiler;
@@ -28,8 +29,8 @@ public class WSDLToProcessor implements Processor {
     protected ProcessorEnvironment env;
     protected WSDLFactory wsdlFactory;
     protected WSDLReader wsdlReader;
-    protected Map<String, S2JJAXBModel> jaxbModels = new HashMap<String, S2JJAXBModel>();
-
+    protected S2JJAXBModel rawJaxbModel;
+    List<Schema> schemaList = new ArrayList<Schema>();
     private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
 
     private void parseWSDL(String wsdlURL) throws ToolException {
@@ -67,24 +68,64 @@ public class WSDLToProcessor implements Processor {
 
     private void initJAXBModel() {
         Types typesElement = wsdlDefinition.getTypes();
+
         if (typesElement == null) {
             if (env.isVerbose()) {
                 System.err.println("No schema provided in the wsdl file");
             }
             return;
         }
+
         Iterator ite = typesElement.getExtensibilityElements().iterator();
         while (ite.hasNext()) {
             Object obj = ite.next();
             if (obj instanceof Schema) {
                 Schema schema = (Schema)obj;
-                Element element = schema.getElement();
-                String targetNamespace = element.getAttribute("targetNamespace");
-                SchemaCompiler schemaCompiler = XJC.createSchemaCompiler();
-                schemaCompiler.parseSchema("types#", element);
-                jaxbModels.put(targetNamespace, schemaCompiler.bind());
+                addSchema(schema);
             }
         }
+        buildJaxbModel();
+    }
+
+    private void buildJaxbModel() {
+        SchemaCompiler schemaCompiler = XJC.createSchemaCompiler();
+        
+        String packageName = (String)env.get(ToolConstants.CFG_PACKAGENAME);
+        if (packageName != null) {
+            schemaCompiler.setDefaultPackageName(packageName);
+        }
+        
+        for (Schema schema : schemaList) {
+            Element schemaElement = schema.getElement();
+            NodeList nodeList = schemaElement.getElementsByTagName("import");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node importNode = nodeList.item(i);
+                Node schemaNode = importNode.getParentNode();
+                schemaNode.removeChild(importNode);
+            }
+
+            String targetNamespace = schemaElement.getAttribute("targetNamespace");
+            if (targetNamespace == null || targetNamespace.trim().length() == 0) {
+                continue;
+            }
+            schemaCompiler.parseSchema(targetNamespace + "#types", schemaElement);
+        }
+        rawJaxbModel = schemaCompiler.bind();
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void addSchema(Schema schema) {
+        Map<String, List> imports = schema.getImports();
+        if (imports != null && imports.size() > 0) {
+            Collection<String> importKeys = imports.keySet();
+            for (String importNamespace : importKeys) {
+                List<SchemaImport> schemaImports = imports.get(importNamespace);
+                for (SchemaImport schemaImport : schemaImports) {
+                    addSchema(schemaImport.getReferencedSchema());
+                }
+            }
+        }
+        schemaList.add(schema);
     }
 
     protected void init() throws ToolException {
@@ -93,8 +134,8 @@ public class WSDLToProcessor implements Processor {
         initJAXBModel();
     }
 
-    public Map<String, S2JJAXBModel> getJAXBModels() {
-        return this.jaxbModels;
+    public S2JJAXBModel getRawJaxbModel() {
+        return this.rawJaxbModel;
     }
 
     public Definition getWSDLDefinition() {

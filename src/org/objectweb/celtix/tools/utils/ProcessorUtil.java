@@ -92,15 +92,20 @@ public final class ProcessorUtil {
         if (part == null) {
             return new ArrayList<Property>();
         }
-        Map<String, S2JJAXBModel> jaxbModels = (Map<String, S2JJAXBModel>) env.get("jaxbmodels");
+        S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get("rawjaxbmodel");
+        
         QName element;
         element = part.getElementName();
         if (element == null) {
             element = part.getTypeName();
         }
-        if (element != null) {
-            S2JJAXBModel jaxbModel = jaxbModels.get(element.getNamespaceURI());
-            return jaxbModel.get(element).getWrapperStyleDrilldown();
+        if (element != null && jaxbModel != null) {
+            com.sun.tools.xjc.api.Mapping mapping = jaxbModel.get(element);
+            if (mapping != null) {
+                return mapping.getWrapperStyleDrilldown();
+            } else {
+                return new ArrayList<Property>();
+            }
         } else {
             return new ArrayList<Property>();
         }

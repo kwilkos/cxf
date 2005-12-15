@@ -207,6 +207,7 @@
     	<copy todir="${basedir}/build/wsdl/wsdl">
             <fileset dir="${basedir}/test/wsdl">
             	<include name="**/*.wsdl"/>
+            	<include name="**/*.xsd"/>
             </fileset>
         </copy>
     <touch file="${basedir}/build/test-src/.TESTWSDL.CODEGEN.DONE"/>

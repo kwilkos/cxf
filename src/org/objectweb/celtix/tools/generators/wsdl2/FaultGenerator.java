@@ -46,7 +46,11 @@ public class FaultGenerator extends AbstractGenerator {
             setAttributes("expClass", expClz);
             setCommonAttributes();
 
+            while (isCollision(expClz.getPackageName(), expClz.getName())) {
+                expClz.setName(expClz.getName() + "_Exception");
+            }
+            
             doWrite(FAULT_TEMPLATE, parseOutputName(expClz.getPackageName(), expClz.getName()));
-        }        
+        }
     }
 }

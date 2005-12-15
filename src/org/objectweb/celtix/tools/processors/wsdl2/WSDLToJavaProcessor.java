@@ -23,10 +23,10 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
     protected void registerGenerators(JavaModel jmodel) {
         addGenerator(ToolConstants.SEI_GENERATOR, new SEIGenerator(jmodel, getEnvironment()));
-        addGenerator(ToolConstants.FAULT_GENERATOR, new FaultGenerator(jmodel, getEnvironment()));
         addGenerator(ToolConstants.TYPE_GENERATOR, new TypeGenerator(getEnvironment()));
-        addGenerator(ToolConstants.IMPL_GENERATOR, new ImplGenerator(jmodel, getEnvironment()));
+        addGenerator(ToolConstants.FAULT_GENERATOR, new FaultGenerator(jmodel, getEnvironment()));
         addGenerator(ToolConstants.SVR_GENERATOR, new ServerGenerator(jmodel, getEnvironment()));
+        addGenerator(ToolConstants.IMPL_GENERATOR, new ImplGenerator(jmodel, getEnvironment()));
         addGenerator(ToolConstants.CLT_GENERATOR, new ClientGenerator(jmodel, getEnvironment()));
         addGenerator(ToolConstants.SERVICE_GENERATOR, new ServiceGenerator(jmodel, getEnvironment()));
         addGenerator(ToolConstants.ANT_GENERATOR, new AntGenerator(jmodel, getEnvironment()));
@@ -45,7 +45,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
     private JavaModel wsdlDefinitionToJavaModel(Definition definition) throws ToolException {
         JavaModel javaModel = new JavaModel();
 
-        getEnvironment().put("jaxbmodels", getJAXBModels());
+        getEnvironment().put("rawjaxbmodel", getRawJaxbModel());
         
         Map portTypes = definition.getPortTypes();
 

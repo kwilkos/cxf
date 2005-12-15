@@ -47,15 +47,26 @@ public abstract class AbstractGenerator {
         }
     }
 
+    protected boolean isCollision(String packageName, String filename) throws ToolException {
+        return isCollision(packageName, filename, ".java");
+    }
+
+    protected boolean isCollision(String packageName, String filename, String ext) throws ToolException {
+        FileWriterUtil fw = new FileWriterUtil((String) env.get(ToolConstants.CFG_OUTPUTDIR));
+        return fw.isCollision(packageName, filename + ext);
+    }
+
     protected Writer parseOutputName(String packageName, String filename, String ext) throws ToolException {
         FileWriterUtil fw = null;
         Writer writer = null;
+
+        fw = new FileWriterUtil((String) env.get(ToolConstants.CFG_OUTPUTDIR));
         try {
-            fw = new FileWriterUtil((String) env.get(ToolConstants.CFG_OUTPUTDIR));
             writer = fw.getWriter(packageName, filename + ext);
-        } catch (Exception e) {
-            throw new ToolException("Can not generate output file: " + filename + ext, e);
+        } catch (IOException ioe) {
+            throw new ToolException("Failed to write " + packageName + "." + filename + ext, ioe);
         }
+        
         return writer;
     }
 

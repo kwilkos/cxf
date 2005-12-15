@@ -140,7 +140,6 @@ public class ParameterProcessor {
     @SuppressWarnings("unchecked")
     private void processWrappedInput(JavaMethod method,
                                      Message inputMessage) throws ToolException {
-
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Collection<Part> inputParts = inputPartsMap.values();
         if (inputParts.size() > 1) {

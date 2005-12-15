@@ -60,10 +60,14 @@ public class ServiceGenerator extends AbstractGenerator {
             clearAttributes();
             setAttributes("service", js);
             setAttributes("wsdlLocation", url.toString());
-            setCommonAttributes();            
-            doWrite(SERVICE_TEMPLATE, 
-                    parseOutputName(js.getPackageName(), 
-                                    ProcessorUtil.mangleNameToClassName(js.getName())));           
+            setCommonAttributes();
+
+            String serviceClassName = ProcessorUtil.mangleNameToClassName(js.getName());
+            while (isCollision(js.getPackageName(), serviceClassName)) {
+                serviceClassName = serviceClassName + "_Service";
+            }
+
+            doWrite(SERVICE_TEMPLATE, parseOutputName(js.getPackageName(), serviceClassName));           
         }
     }
 }

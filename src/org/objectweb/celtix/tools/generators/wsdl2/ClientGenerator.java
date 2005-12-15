@@ -73,7 +73,13 @@ public class ClientGenerator extends AbstractGenerator {
             setAttributes("port", jp);
             setCommonAttributes();
 
-            doWrite(CLT_TEMPLATE, parseOutputName(intf.getPackageName(), interfaceName + "Client"));
+            String clientClassName = interfaceName + "Client";
+            
+            while (isCollision(intf.getPackageName(), clientClassName)) {
+                clientClassName = clientClassName + "_Client";
+            }
+
+            doWrite(CLT_TEMPLATE, parseOutputName(intf.getPackageName(), clientClassName));
         }
     }
 }
