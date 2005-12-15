@@ -65,7 +65,6 @@ public class ParameterProcessor {
         String userPackage = (String) env.get(ToolConstants.CFG_PACKAGENAME);
         parameter.setClassName(ProcessorUtil.getFullClzName(namespace,
                                                             type,
-                                                            method.getInterface().getPackageName(),
                                                             userPackage));
 
         if (style == JavaType.Style.INOUT || style == JavaType.Style.OUT) {
@@ -120,7 +119,6 @@ public class ParameterProcessor {
         if (namespace != null && type != null && !"void".equals(type)) {
             returnType.setClassName(ProcessorUtil.getFullClzName(namespace,
                                                                  type,
-                                                                 method.getInterface().getPackageName(),
                                                                  userPackage));
         }
         method.setReturn(returnType);

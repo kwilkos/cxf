@@ -17,7 +17,7 @@ public class SEIAnnotationProcessor {
         bindingMap.put("DOCUMENT", "SOAPBinding.Style.DOCUMENT");
         bindingMap.put("LITERAL", "SOAPBinding.Use.LITERAL");
         bindingMap.put("ENCODED", "SOAPBinding.Use.ENCODED");
-        bindingMap.put("BARE", "SOAPBinding.ParameterStyle.Bare");
+        bindingMap.put("BARE", "SOAPBinding.ParameterStyle.BARE");
         bindingMap.put("WRAPPED", "SOAPBinding.ParameterStyle.WRAPPED");
     }
 

@@ -20,13 +20,16 @@ import org.objectweb.celtix.tools.common.model.JavaModel;
 import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.utils.ClassCollectorUtil;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class ServiceProcessor {
+    
+    ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
     private final String soapOPAction = "SOAPACTION";
     private final String soapOPStyle = "STYLE";
     private final ProcessorEnvironment env;
-
+        
     public ServiceProcessor(ProcessorEnvironment penv) {
         this.env = penv;
     }
@@ -43,17 +46,29 @@ public class ServiceProcessor {
         }
     }
 
+    private boolean isNameCollision(String packageName, String className) {
+        return collector.containTypesClass(packageName, className)
+            || collector.containSeiClass(packageName, className)
+            || collector.containExceptionClass(packageName, className);
+    }
+
     private void processService(JavaModel model,
                                 Service service,
                                 Definition definition) throws ToolException {
         JavaServiceClass sclz = new JavaServiceClass(model);
         String name = ProcessorUtil.mangleNameToClassName(service.getQName().getLocalPart());
-        sclz.setName(name);
         String namespace = service.getQName().getNamespaceURI();
-        sclz.setNamespace(namespace);
         String packageName = ProcessorUtil.parsePackageName(namespace, (String)env
-            .get(ToolConstants.CFG_PACKAGENAME));
+                                                            .get(ToolConstants.CFG_PACKAGENAME));
+
+        while (isNameCollision(packageName, name)) {
+            name = name + "_Service";
+        }
+
+        sclz.setName(name);
+        sclz.setNamespace(namespace);
         sclz.setPackageName(packageName);
+
         Map ports = service.getPorts();
 
         for (Iterator ite = ports.values().iterator(); ite.hasNext();) {
@@ -149,7 +164,7 @@ public class ServiceProcessor {
         jm.setSoapUse(getSoapUse(use));
         if (javax.jws.soap.SOAPBinding.Style.RPC == jm.getSoapStyle()
             && javax.jws.soap.SOAPBinding.Use.ENCODED == jm.getSoapUse()) {
-            System.out.println("** Unsupported RPC-Encoded Style Use **");
+            System.err.println("** Unsupported RPC-Encoded Style Use **");
         }
         if (javax.jws.soap.SOAPBinding.Style.RPC == jm.getSoapStyle()
             && javax.jws.soap.SOAPBinding.Use.LITERAL == jm.getSoapUse()) {

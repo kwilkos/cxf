@@ -22,6 +22,8 @@ import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
+import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassNameAllocatorImpl;
+import org.objectweb.celtix.tools.utils.ClassCollectorUtil;
 
 public class WSDLToProcessor implements Processor {
 
@@ -30,6 +32,7 @@ public class WSDLToProcessor implements Processor {
     protected WSDLFactory wsdlFactory;
     protected WSDLReader wsdlReader;
     protected S2JJAXBModel rawJaxbModel;
+    protected ClassCollectorUtil classNameColletor = ClassCollectorUtil.getInstance();
     List<Schema> schemaList = new ArrayList<Schema>();
     private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
 
@@ -86,14 +89,19 @@ public class WSDLToProcessor implements Processor {
         }
         buildJaxbModel();
     }
-
+    
+    @SuppressWarnings("unchecked")
     private void buildJaxbModel() {
         SchemaCompiler schemaCompiler = XJC.createSchemaCompiler();
-        
+
         String packageName = (String)env.get(ToolConstants.CFG_PACKAGENAME);
-        if (packageName != null) {
+        if (packageName != null && packageName.trim().length() > 0) {
             schemaCompiler.setDefaultPackageName(packageName);
         }
+
+        ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl();
+        allocator.setPortTypes(wsdlDefinition.getPortTypes().values(), packageName);
+        schemaCompiler.setClassNameAllocator(allocator);
         
         for (Schema schema : schemaList) {
             Element schemaElement = schema.getElement();

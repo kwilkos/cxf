@@ -139,20 +139,13 @@ public final class ProcessorUtil {
 
     public static String getFullClzName(String namespace,
                                         String type,
-                                        String defaultPackageName,
                                         String userPackage) {
-        String jtype = BuiltInTypesJavaMappingUtil.getJType(namespace, type);      
+        ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
+        
+        String jtype = BuiltInTypesJavaMappingUtil.getJType(namespace, type);
         if (jtype == null) {
             String packageName = parsePackageName(namespace, userPackage);
-            if (defaultPackageName.equals(packageName)) {
-                return type;
-            }
-            StringBuffer sb = new StringBuffer();
-            sb.append(packageName);
-            sb.append(".");
-            sb.append(type);
-
-            return sb.toString();
+            return collector.getTypesFullClassName(packageName, type);
         } else {
             return jtype;
         }

@@ -13,10 +13,12 @@ import org.objectweb.celtix.tools.common.model.JavaField;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaModel;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
-import org.objectweb.celtix.tools.utils.ProcessorUtil;   
+import org.objectweb.celtix.tools.utils.ClassCollectorUtil;
+import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class FaultProcessor {
 
+    ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
     private final ProcessorEnvironment env;
 
     public FaultProcessor(ProcessorEnvironment penv) {
@@ -34,20 +36,32 @@ public class FaultProcessor {
         }
     }
 
+    private boolean isNameCollision(String packageName, String className) {
+        return collector.containTypesClass(packageName, className)
+            || collector.containSeiClass(packageName, className);
+    }
+
     @SuppressWarnings("unchecked")
     private void processFault(JavaMethod method, Fault fault) throws ToolException {
-        JavaModel model = method.getInterface().getJavaModel();        
+        JavaModel model = method.getInterface().getJavaModel();
         Message faultMessage = fault.getMessage();
         String name = ProcessorUtil.mangleNameToClassName(faultMessage.getQName().getLocalPart());
         String namespace = faultMessage.getQName().getNamespaceURI();
+        String packageName = ProcessorUtil.parsePackageName(namespace,
+                                                            (String)env.get(ToolConstants.CFG_PACKAGENAME));
+
+        while (isNameCollision(packageName, name)) {
+            name = name + "_Exception";
+        }
+
+        collector.addExceptionClassName(packageName, name, packageName + "." + name);
+
         method.addException(new JavaException(name, name, namespace));
 
         Map<String, Part> faultParts = faultMessage.getParts();
         Collection<Part> faultValues = faultParts.values();
         
         JavaExceptionClass expClass = new JavaExceptionClass(model);
-        String packageName = ProcessorUtil.parsePackageName(namespace,
-                                                            (String)env.get(ToolConstants.CFG_PACKAGENAME));
         expClass.setName(name);
         expClass.setNamespace(namespace);
         expClass.setPackageName(packageName);

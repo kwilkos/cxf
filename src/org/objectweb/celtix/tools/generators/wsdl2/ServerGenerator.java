@@ -53,7 +53,7 @@ public class ServerGenerator extends AbstractGenerator {
                 Iterator i = js.getPorts().iterator();
                 while (i.hasNext()) {
                     JavaPort jp = (JavaPort)i.next();
-                    if (jp.getPortType() == interfaceName) {
+                    if (interfaceName.equals(jp.getPortType())) {
                         address = jp.getBindingAdress();
                         break;
                     }

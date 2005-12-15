@@ -122,10 +122,38 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File invoice = new File(courseware, "invoice");
         assertTrue(invoice.exists());
 
+        File exceptionCollision = new File(invoiceserver, "NoSuchCustomerFault_Exception.java");
+        assertTrue(exceptionCollision.exists());
+
         File[] files = invoiceserver.listFiles();
         assertEquals(files.length, 15);
         files = invoice.listFiles();
         assertEquals(files.length, 9);
+    }
+
+    public void testAllNameCollision() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_collision.wsdl"));
+        env.put(ToolConstants.CFG_PACKAGENAME, "org.objectweb");
+        
+        processor.setEnvironment(env);
+        processor.process();
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File objectweb = new File(org, "objectweb");
+        assertTrue(objectweb.exists());
+
+        File[] files = objectweb.listFiles();
+        assertEquals(files.length, 16);
+
+        File typeCollision = new File(objectweb, "Greeter_Type.java");
+        assertTrue(typeCollision.exists());
+        File exceptionCollision = new File(objectweb, "Greeter_Exception.java");
+        assertTrue(exceptionCollision.exists());
+        File serviceCollision = new File(objectweb, "Greeter_Service.java");
+        assertTrue(serviceCollision.exists());
     }
 
     private String getLocation(String wsdlFile) {

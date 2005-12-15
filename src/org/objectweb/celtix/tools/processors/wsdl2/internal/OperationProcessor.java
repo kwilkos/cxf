@@ -193,7 +193,6 @@ public class OperationProcessor  {
             wrapperRequest.setTargetNamespace(ProcessorUtil.resolvePartNamespace(inputPart));
             wrapperRequest.setClassName(ProcessorUtil.getFullClzName(wrapperRequest.getTargetNamespace(),
                                                                      ProcessorUtil.resolvePartType(inputPart),
-                                                                     "",
                                                                      userPackage));
         }
         if (outputPart != null) {
@@ -204,7 +203,6 @@ public class OperationProcessor  {
             wrapperResponse.setClassName(ProcessorUtil.getFullClzName(wrapperResponse.getTargetNamespace(),
                                                                       ProcessorUtil.
                                                                       resolvePartType(outputPart),
-                                                                      "",
                                                                       userPackage));
         }
         

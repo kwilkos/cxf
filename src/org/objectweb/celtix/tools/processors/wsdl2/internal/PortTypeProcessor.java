@@ -34,7 +34,7 @@ public class PortTypeProcessor {
                                     ioe);
         }
         
-        intf.setName(portType.getQName().getLocalPart());
+        intf.setName(ProcessorUtil.mangleNameToClassName(portType.getQName().getLocalPart()));
         intf.setNamespace(namespace);
         intf.setPackageName(packageName);
         intf.setLocation(location);
