@@ -102,29 +102,11 @@
         <delete file="${codegen.timestamp.file}"/>
         <delete file="demo.log"/>
     </target>
-
-    <!-- Target to start JMS Broker for JMS samples -->
-    <property name="activemq.home" location="${thirdparty.tools.dir}/activemq/3.2"/>
-    <property name="derby.system.home" location="${thirdparty.tools.dir}/activemq/3.2/var"/>
-    <target name="jmsbroker.start">
-        <java classname="org.activemq.spring.Main" fork="yes" dir="${activemq.home}/bin">
-            <classpath>
-                <path refid="celtix.classpath"/>
-                <path location="${activemq.home}/lib/optional/commons-dbcp-1.2.jar"/>
-                <path location="${activemq.home}/lib/optional/commons-pool-1.2.jar"/>
-                <path location="${activemq.home}/lib/optional/commons-collections-2.1.jar"/>
-                <path location="${activemq.home}/lib/optional/derby-10.0.2.1.jar"/>
-            </classpath>
-            <arg value="${activemq.home}/conf/activemq.xml"/>
-            <jvmarg value="-Dactivemq.home=${activemq.home}"/>
-            <jvmarg value="-Dderby.system.home=${derby.system.home}"/>
-            <jvmarg value="-Dderby.storage.fileSyncTransactionLog=true"/>
-        </java>
-    </target>
         
     <target name="build"  depends="compile" description="build demo client and server"/>
 
     <macrodef name="celtixrun">
+	    <attribute name="logging-properties-file" default="${celtix.etc.dir}/logging.properties"/>
         <attribute name="classname"/>
         <attribute name="param1" default=""/>
         <attribute name="param2" default=""/>
@@ -154,7 +136,7 @@
                 <assertions>
                     <enable package="org.objectweb.celtix"/>
                 </assertions>
-                <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
+                <sysproperty key="java.util.logging.config.file" value="@{logging-properties-file}"/>
                 <sysproperty key="log4j.configuration" value="file:///${celtix.etc.dir}/log4j.properties"/>
             </java>
         </sequential>
