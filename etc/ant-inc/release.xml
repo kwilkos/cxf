@@ -12,6 +12,7 @@
         <copy todir="${build.release.dir}">
             <fileset dir="${basedir}">
                 <include name="NOTICE"/>
+                <include name="README.txt"/>
             </fileset>
         </copy>
         <copy includeEmptyDirs="false" todir="${build.release.dir}/bin">
@@ -46,7 +47,8 @@
         </copy>
         <copy todir="${build.release.dir}/docs">
             <fileset dir="${basedir}/docs">
-                <include name="**/*"/>
+                <include name="**/*.pdf"/>
+                <include name="release_notes.txt"/>
             </fileset>
         </copy>
         <copy todir="${build.release.dir}/docs/api">
