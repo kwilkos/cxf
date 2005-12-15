@@ -64,7 +64,6 @@
             longfile="gnu">
             <tarfileset prefix="celtix-${celtix.version.short}" dir="${build.release.dir}">
                 <include name="**/*"/>
-                <exclude name="**/tomcat/**/work/**/*"/>
                 <exclude name="**/*.wc"/>
                 <exclude name="bin/*"/>
             </tarfileset>
@@ -82,7 +81,6 @@
             longfile="gnu">
             <tarfileset prefix="celtix-${celtix.version.short}" dir="${build.release.dir}">
                 <include name="**/*"/>
-                <exclude name="**/tomcat/**/work/**/*"/>
                 <exclude name="**/*.wc"/>
                 <exclude name="bin/*"/>
             </tarfileset>
@@ -107,7 +105,6 @@
                 <exclude name="samples/**/build/**/*"/>
                 <exclude name="**/.*"/>
                 <exclude name="NOTICE"/>
-                <exclude name="**/tomcat/**/work/**/*"/>
                 <exclude name="bin/*"/>
                 <exclude name="tools/**/bin/*"/>
                 <exclude name="LICENSE-EPL.txt"/>
@@ -136,7 +133,6 @@
                 <exclude name="samples/**/build/**/*"/>
                 <exclude name="**/.*"/>
                 <exclude name="NOTICE"/>
-                <exclude name="**/tomcat/**/work/**/*"/>
                 <exclude name="bin/*"/>
                 <exclude name="tools/**/bin/*"/>
                 <exclude name="LICENSE-LGPL.txt"/>

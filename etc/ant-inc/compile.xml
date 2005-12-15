@@ -11,7 +11,7 @@
     <!-- The entire codebase will be checkstyled automatically as part
        of the compile process.   If the code does not meet the style standards,
        the build will fail.    This is to make sure the code is more maintainable. -->
-    <taskdef resource="checkstyletask.properties" classpath="${tools.dir}/checkstyle/4.0/checkstyle-all-4.0.jar" />
+    <taskdef resource="checkstyletask.properties" classpath="${tools.dir}/checkstyle/4.1/checkstyle-all-4.1.jar" />
     <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpath="${tools.dir}/pmd/3.3/pmd.jar:${tools.dir}/pmd/3.3/jaxen-1.1-beta-7.jar" />
 
     <target name="src.checkstyle" unless="no.checkstyle">

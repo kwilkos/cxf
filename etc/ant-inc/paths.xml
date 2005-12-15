@@ -61,20 +61,6 @@
         </fileset>
     </path>
 
-    <!-- property name="tomcat.local.classes" value=""/ -->
-    <path id="embedded.tomcat.classpath">
-        <!-- pathelement location="${tomcat.local.classes}"/ -->
-        <fileset dir="${tools.dir}/tomcat/5.5.9/server/lib">
-            <include name="*.jar"/>     
-        </fileset>
-        <fileset dir="${tools.dir}/tomcat/5.5.9/bin">
-            <include name="*.jar"/>     
-        </fileset>
-        <fileset dir="${tools.dir}/tomcat/5.5.9/common/lib">
-            <include name="*.jar"/>     
-        </fileset>
-    </path>
-
     <path id="jetty.classpath">
         <fileset dir="${tools.dir}/jetty/5.1.5rc2">
             <include name="*.jar"/>     

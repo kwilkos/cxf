@@ -55,7 +55,7 @@ public class HandlerInvocationTest extends ClientServerTestBase {
     public void testHandlersInvoked() throws PingException { 
         
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);        
-        TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext> (false);
+        TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext>(false);
         TestSOAPHandler soapHandler1 = new TestSOAPHandler(false); 
         TestSOAPHandler soapHandler2 = new TestSOAPHandler(false); 
         TestStreamHandler streamHandler = new TestStreamHandler(false); 
@@ -105,7 +105,7 @@ public class HandlerInvocationTest extends ClientServerTestBase {
 
         final String clientHandlerMessage = "handler2 client side"; 
 
-        TestHandler<LogicalMessageContext>  handler1 = new TestHandler<LogicalMessageContext> (false);
+        TestHandler<LogicalMessageContext>  handler1 = new TestHandler<LogicalMessageContext>(false);
         TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {
             public boolean handleMessage(LogicalMessageContext ctx) {
                 super.handleMessage(ctx);
@@ -177,7 +177,7 @@ public class HandlerInvocationTest extends ClientServerTestBase {
                 throw new ProtocolException(clientHandlerMessage); 
             }
         };        
-        TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext> (false);
+        TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext>(false);
         
         addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
 

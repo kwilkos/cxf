@@ -72,10 +72,8 @@
     <path id="celtix.runtime.classpath">
         <path refid="celtix.build.classpath"/>
         <pathelement location="${thirdparty.tools.dir}/wsdl4j/1.5.1/wsdl4j.jar"/>
-        <fileset dir="${thirdparty.tools.dir}/tomcat/5.5.9">
-            <include name="server/lib/*.jar"/>
-            <include name="common/lib/*.jar"/>
-            <include name="bin/*.jar"/>
+        <fileset dir="${thirdparty.tools.dir}/jetty/5.1.5rc2">
+            <include name="**/*.jar"/>
         </fileset>
         <fileset dir="${thirdparty.tools.dir}/spring/1.2.5">
             <include name="*.jar"/>
