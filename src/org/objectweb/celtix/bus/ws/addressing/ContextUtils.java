@@ -220,18 +220,6 @@ public final class ContextUtils {
     }
 
     /**
-     * Store WSDL Port in the context.
-     *
-     * @param port the WSDL port to store
-     * @param context the message context
-     */
-    public static void storePort(Port port, MessageContext context) {
-        context.put(CLIENT_WSDL_PORT_PROPERTY, port);
-        context.setScope(CLIENT_WSDL_PORT_PROPERTY, 
-                         MessageContext.Scope.HANDLER);
-    }
-
-    /**
      * Retrieve WSDL Port from the context.
      *
      * @param context the message context
@@ -239,19 +227,6 @@ public final class ContextUtils {
      */
     public static Port retrievePort(MessageContext context) {
         return (Port)context.get(CLIENT_WSDL_PORT_PROPERTY);
-    }
-
-    /**
-     * Store To EPR in the context.
-     *
-     * @param ref the EPR to store
-     * @param context the message context
-     */
-    public static void storeTo(EndpointReferenceType ref, 
-                               MessageContext context) {
-        context.put(CLIENT_TO_ADDRESS_PROPERTY, ref);
-        context.setScope(CLIENT_TO_ADDRESS_PROPERTY, 
-                         MessageContext.Scope.HANDLER);
     }
 
     /**

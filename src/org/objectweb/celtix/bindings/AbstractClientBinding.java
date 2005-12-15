@@ -14,7 +14,6 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -26,6 +25,9 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_TO_ADDRESS_PROPERTY;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_WSDL_PORT_PROPERTY;
 
 
 public abstract class AbstractClientBinding implements ClientBinding {
@@ -68,6 +70,15 @@ public abstract class AbstractClientBinding implements ClientBinding {
         }
         assert ret != null; 
         return ret;
+    }
+
+    protected void storeAddress(MessageContext context) {
+        context.put(CLIENT_TO_ADDRESS_PROPERTY, reference);
+        context.setScope(CLIENT_TO_ADDRESS_PROPERTY,
+                         MessageContext.Scope.HANDLER);
+        context.put(CLIENT_WSDL_PORT_PROPERTY, port);
+        context.setScope(CLIENT_WSDL_PORT_PROPERTY,
+                         MessageContext.Scope.HANDLER);
     }
 
 
@@ -125,8 +136,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
             // cache To EPR & WSDL Port in context for use by WS-Addressing 
             // handlers
-            ContextUtils.storeTo(reference, context);
-            ContextUtils.storePort(port, context);
+            storeAddress(context);
         
             //Input Message For Client
             context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
@@ -214,8 +224,9 @@ public abstract class AbstractClientBinding implements ClientBinding {
             }
             assert transport != null : "transport is null";
 
-            // cache EPR in context for use by WS-Addressing handlers
-            ContextUtils.storeTo(reference, context);
+            // cache To EPR & WSDL Port in context for use by WS-Addressing 
+            // handlers
+            storeAddress(context);
 
             boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(true);
 

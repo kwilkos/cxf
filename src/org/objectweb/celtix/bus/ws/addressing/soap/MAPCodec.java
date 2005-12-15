@@ -131,6 +131,7 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
                 SOAPHeader header = env.getHeader() != null 
                                     ? env.getHeader()
                                     : env.addHeader();
+                discardMAPs(header);
                 header.addNamespaceDeclaration(Names.WSA_NAMESPACE_PREFIX,
                                                Names.WSA_NAMESPACE_NAME);
                 Marshaller marshaller = getJAXBContext().createMarshaller();
@@ -266,6 +267,25 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
             unmarshaller.unmarshal(headerElement, clz);
         return element.getValue();
     }
+
+    /**
+     * Discard any pre-existing MAP headers - this may occur if the runtime
+     * re-uses a SOAP message.
+     *
+     * @param header the SOAP header
+     */
+    private void discardMAPs(SOAPHeader header) throws SOAPException {
+        Iterator headerElements = header.examineAllHeaderElements();
+        while (headerElements.hasNext()) {
+            SOAPHeaderElement headerElement =
+                (SOAPHeaderElement)headerElements.next();
+            Name headerName = headerElement.getElementName();
+            if (Names.WSA_NAMESPACE_NAME.equals(headerName.getURI())) {
+                headerElement.detachNode();
+            }
+        }
+    }
+
 
     /**
      * Apply results of validation of incoming MAPs.

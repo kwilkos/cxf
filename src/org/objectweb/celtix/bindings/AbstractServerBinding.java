@@ -301,17 +301,18 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
         try {
             boolean continueProcessing = invoker.invokeProtocolHandlers(false, requestCtx);
-
+            boolean requiresResponse = true;
             if (continueProcessing) {
                 try {
                     unmarshal(requestCtx, objContext);
                     
                     Method method = objContext.getMethod();
+                    requiresResponse = !isOneWay(method);
                     // ensure response isn't marshalled if LogicalHandler
                     // suppressed dispatch to implementor, but didn't set
                     // the message payload
-                    if (!doInvocation(method, objContext, replyCtx, invoker)
-                        && !isOneWay(method)) {
+                    if (!(doInvocation(method, objContext, replyCtx, invoker))
+                        && requiresResponse) {
                         switchToResponse(objContext, replyCtx); 
                         if (null == objContext.getException()) {
                             marshal(objContext, replyCtx);
@@ -331,14 +332,15 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 }
             } 
 
-            if (!invoker.invokeProtocolHandlers(false, replyCtx)) {
+            if (requiresResponse
+                && !invoker.invokeProtocolHandlers(false, replyCtx)) {
                 // allow ProtocolHandlers raise faults on outbound
                 // dispatch path 
                 switchToResponse(objContext, replyCtx); 
                 if (objContext.getException() != null) {
                     marshalFault(objContext, replyCtx);
                 }
-            } 
+            }
         } finally {
             invoker.mepComplete(); 
         }

@@ -234,6 +234,11 @@ public class MAPCodecTest extends TestCase {
                              boolean invalidMAP) throws Exception { 
         context.get(mapProperty);
         EasyMock.expectLastCall().andReturn(maps);
+        Iterator headerItr = control.createMock(Iterator.class);
+        header.examineAllHeaderElements();
+        EasyMock.expectLastCall().andReturn(headerItr);
+        headerItr.hasNext();
+        EasyMock.expectLastCall().andReturn(Boolean.FALSE);
         header.addNamespaceDeclaration(Names.WSA_NAMESPACE_PREFIX,
                                        Names.WSA_NAMESPACE_NAME);
         EasyMock.expectLastCall().andReturn(null);
