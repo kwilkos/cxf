@@ -16,4 +16,13 @@
         <echo level="info" message="Generating code using wsdl2java..."/>
         <wsdl2java file="hello_world.wsdl"/>
     </target>
+    
+    <target name="war" depends="build">
+        <celtixwar wsdl="hello_world.wsdl" filename="helloworld.war"/>
+	</target>
+
+    <target name="client-servlet" description="run demo client hitting servlet">
+        <property name="param" value=""/>
+        <celtixrun classname="demo.hw.client.Client" param1="${base.url}/helloworld/celtix/hello_world" param2="${op}" param3="${param}"/>
+    </target> 
 </project>

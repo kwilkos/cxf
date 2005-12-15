@@ -33,7 +33,7 @@ public class HTTPTransportFactory implements TransportFactory {
 
     public ServerTransport createServerTransport(EndpointReferenceType address) 
         throws WSDLException, IOException {
-        return new HTTPServerTransport(bus, address);
+        return new JettyHTTPServerTransport(bus, address);
     }
 
     public ServerTransport createTransientServerTransport(EndpointReferenceType address)

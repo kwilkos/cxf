@@ -21,11 +21,11 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.transports.http.configuration.HTTPListenerPolicy;
 
 
-final class HTTPServerEngine {
+final class JettyHTTPServerEngine {
     private static final long serialVersionUID = 1L;
     
-    private static Map<Integer, HTTPServerEngine> portMap =
-        new HashMap<Integer, HTTPServerEngine>();
+    private static Map<Integer, JettyHTTPServerEngine> portMap =
+        new HashMap<Integer, JettyHTTPServerEngine>();
    
     int servantCount;
     HttpServer server = new HttpServer();
@@ -34,7 +34,7 @@ final class HTTPServerEngine {
     HTTPListenerPolicy policy;
     SSLPolicy sslPolicy;
     
-    private HTTPServerEngine(Bus bus, String protocol, int port) {
+    private JettyHTTPServerEngine(Bus bus, String protocol, int port) {
         config = createConfiguration(bus, port);
         policy = config.getObject(HTTPListenerPolicy.class, "httpListener");
         sslPolicy = config.getObject(SSLPolicy.class, "ssl");
@@ -68,17 +68,17 @@ final class HTTPServerEngine {
         return new HTTPListenerConfiguration(bus, port);
     }
     
-    static synchronized HTTPServerEngine getForPort(Bus bus, String protocol, int port) {
+    static synchronized JettyHTTPServerEngine getForPort(Bus bus, String protocol, int port) {
         
-        HTTPServerEngine ref = portMap.get(port);
+        JettyHTTPServerEngine ref = portMap.get(port);
         if (ref == null) {
-            ref = new HTTPServerEngine(bus, protocol, port);
+            ref = new JettyHTTPServerEngine(bus, protocol, port);
             portMap.put(port, ref);
         }
         return ref;
     }
     
-    synchronized void addServant(String url, final HTTPServerTransport servant) {
+    synchronized void addServant(String url, final JettyHTTPServerTransport servant) {
         
         URL nurl = null;
         try {
@@ -141,7 +141,7 @@ final class HTTPServerEngine {
         ++servantCount;
     }
     
-    synchronized void removeServant(String url, HTTPServerTransport servant) throws IOException {
+    synchronized void removeServant(String url, AbstractHTTPServerTransport servant) throws IOException {
         URL nurl = new URL(url);
         String lpath = nurl.getPath();
         

@@ -7,6 +7,7 @@
     <property name="build.var.dir" location ="${build.dir}/var"/>
     <property name="codegen.timestamp.file" value="${build.src.dir}/.CODEGEN_DONE"/>
     <property name="wsdl.dir" location="${basedir}/wsdl"/>
+    <property name="war.dir" location="${build.dir}/war"/>
 
     <uptodate property="codegen.notrequired" value="true">
         <srcfiles dir="${wsdl.dir}" includes="*.wsdl"/>
@@ -34,16 +35,17 @@
     <condition property="celtix.home" value="${env.CELTIX_HOME}">
         <isset property="env.CELTIX_HOME"/>
     </condition>
-    <property name="celtix.home" value="../.."/>
+    <property name="celtix.home" location="../.."/>
 
     <!-- Determine celtix.jar.file, either ${celtix.home}/build/lib/celtix.jar
        - in a source distribution, or ${celtix.home}/lib/celtix.jar in a binary
        - distribution.
        -->
-    <condition property="celtix.jar.file" value="${celtix.home}/build/lib/celtix.jar">
+    <condition property="celtix.jar.lib.dir" value="${celtix.home}/build/lib">
         <available file="celtix.jar" type="file" filepath="${celtix.home}/build/lib"/>
     </condition>
-    <property name="celtix.jar.file" value="${celtix.home}/lib/celtix.jar"/>
+    <property name="celtix.jar.lib.dir" value="${celtix.home}/lib"/>
+    <property name="celtix.jar.file" value="${celtix.jar.lib.dir}/celtix.jar"/>
 
     <fail message="The location ${celtix.home} does not seem to contain a Celtix installation; if you are importing this common build file from a location other than the Celtix samples directory then you need to set the CELTIX_HOME environment variable.">
         <condition>
@@ -102,6 +104,7 @@
         <delete dir="${build.src.dir}"/>
         <delete file="${codegen.timestamp.file}"/>
         <delete file="demo.log"/>
+        <delete file="${wsdl.dir}/async_binding.xml"/>
     </target>
 
     <!-- Target to start JMS Broker for JMS samples -->
@@ -194,7 +197,7 @@
                 <sysproperty key="jaxws.home" value="${jaxws.home}"/>
                 <arg line="${package.arg.@{file}}"/>
                 <arg value="-keep"/>
-		<arg line="${binding.arg}"/>
+				<arg line="${binding.arg}"/>
                 <arg value="-s"/>
                 <arg value="@{srcdestdir}"/>
                 <arg value="-d"/>
@@ -204,4 +207,45 @@
         </sequential>
     </macrodef>
 
+    <macrodef name="celtixwar">
+        <attribute name="filename"/>
+        <attribute name="wsdl"/>
+        <attribute name="dir" default="${war.dir}"/>
+        <attribute name="classesdir" default="${build.classes.dir}"/>
+        <sequential>
+            <mkdir dir="@{dir}"/>
+            <mkdir dir="@{dir}/wartmp"/>
+            <!-- This is temporary.  Until we get a classloader built into the servlet to -->
+            <!-- find the jars that are needed, we need to put all the jars into the war -->
+            <copy todir="@{dir}/wartmp" flatten="true">
+                <fileset dir="${celtix.jar.lib.dir}">
+                    <include name="*.jar"/>
+                </fileset>
+                <fileset dir="${thirdparty.tools.dir}">
+	                <include name="spring/**/*.jar"/>
+    	            <include name="wsdl4j/**/*.jar"/>
+        	        <include name="jaxws-ri/**/*.jar"/>
+            	    <exclude name="jaxws-ri/**/jaxws-rt.jar"/>
+                	<exclude name="jaxws-ri/**/jaxws-tools.jar"/>
+	            </fileset>
+            </copy>
+            <war destfile="@{dir}/@{filename}" webxml="${celtix.home}/etc/web.xml">
+            	<classes dir="@{classesdir}"/>
+                <webinf dir="${wsdl.dir}">
+                    <include name="celtix-servlet.xml"/>
+                </webinf>
+                <webinf dir="${wsdl.dir}/..">
+                    <include name="wsdl/@{wsdl}"/>
+                </webinf>
+                <lib dir="${celtix.jar.lib.dir}">
+                    <include name="*.jar"/>
+                </lib>
+                <lib dir="@{dir}/wartmp">
+                    <include name="*.jar"/>
+                </lib>
+            </war>
+			<delete dir="@{dir}/wartmp" quiet="true"/>
+        </sequential>
+    </macrodef>
+    
 </project>

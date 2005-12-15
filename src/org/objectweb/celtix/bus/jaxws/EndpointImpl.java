@@ -56,9 +56,12 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     private JAXBContext context;
 
     public EndpointImpl(Bus b, Object impl, String bindingId) {
-
+        this(b, impl, bindingId, EndpointReferenceUtils.getEndpointReference(b.getWSDLManager(), impl));
+    }
+    public EndpointImpl(Bus b, Object impl, String bindingId, EndpointReferenceType ref) {
         bus = b;
         implementor = impl;
+        reference = ref;
         
         try {
             context = JAXBEncoderDecoder.createJAXBContextForClass(impl.getClass());
@@ -68,7 +71,6 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             context = null;
         }
                 
-        reference = EndpointReferenceUtils.getEndpointReference(bus.getWSDLManager(), implementor);
         configuration = new EndpointConfiguration(bus, EndpointReferenceUtils.getServiceName(reference));
         try {           
             if (null == bindingId) {
@@ -145,8 +147,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             LOG.warning("ENDPOINT_ALREADY_PUBLISHED_MSG");
         }
         if (!isContextBindingCompatible(serverContext)) {
-            throw new IllegalArgumentException(
-                                               new BusException(new Message("BINDING_INCOMPATIBLE_CONTEXT_EXC"
+            throw new IllegalArgumentException(new BusException(new Message("BINDING_INCOMPATIBLE_CONTEXT_EXC"
                                                                             , LOG)));
         }
 
@@ -167,8 +168,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         }
         if (!serverBinding.isCompatibleWithAddress(address)) {
             throw 
-                new IllegalArgumentException(
-                                             new BusException(new Message("BINDING_INCOMPATIBLE_ADDRESS_EXC",
+                new IllegalArgumentException(new BusException(new Message("BINDING_INCOMPATIBLE_ADDRESS_EXC",
                                                                           LOG)));
         }
         doPublish(address);

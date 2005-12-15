@@ -1,6 +1,6 @@
 Third Party Software  Version   Link to License
 ------------          -------   ---------------
-Tomcat                5.5.9     APACHE http://www.apache.org/licenses/LICENSE-2.0.txt
+Jetty                 5.1.5rc2  APACHE http://jetty.mortbay.org/jetty/LICENSE.TXT
 WSDL4J                1.5.1     CPL    http://www.opensource.org/licenses/cpl1.0.php
 JAX-WS Reference Impl 2005-11-04 CDDL  lib/jaxws-ri/20051104/license.txt
                                        lib/jaxws-ri/20051104/JAXWSv2.0.THIRDPARTYLICENSEREADME.txt

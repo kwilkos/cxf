@@ -1,6 +1,7 @@
 package demo.hw.client;
 
 import java.io.File;
+import java.net.URL;
 import javax.xml.namespace.QName;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.PingMeFault;
@@ -22,9 +23,16 @@ public final class Client {
             System.exit(1); 
         }
 
-        File wsdl = new File(args[0]);
+        URL wsdlURL;
+        File wsdlFile = new File(args[0]);
+        if (wsdlFile.exists()) {
+            wsdlURL = wsdlFile.toURL();
+        } else {
+            wsdlURL = new URL(args[0]);
+        }
         
-        SOAPService ss = new SOAPService(wsdl.toURL(), SERVICE_NAME);
+        System.out.println(wsdlURL);
+        SOAPService ss = new SOAPService(wsdlURL, SERVICE_NAME);
         Greeter port = ss.getSoapPort();
         String resp; 
 

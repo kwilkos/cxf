@@ -103,7 +103,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         try {
             url = new URL(address);
         } catch (MalformedURLException ex) {
-            LOG.log(Level.SEVERE, "INVALID_ADDRESS_MSG", ex);
+            LogUtils.log(LOG, Level.SEVERE, "INVALID_ADDRESS_MSG", ex, address);
             return false;
         }
         String protocol = url.getProtocol();
