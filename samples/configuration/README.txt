@@ -32,7 +32,7 @@ environment by running the script.
 Building and running the demo using ant
 ---------------------------------------
 
-From the samples/hello_world directory, the ant build script
+From the samples/configuration directory, the ant build script
 can be used to build and run the demo.
 
 Using either UNIX or Windows:
