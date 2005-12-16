@@ -26,7 +26,7 @@ jaxws_home=$celtix_home/lib/jaxws-ri/20051104/
 
 if [ ! -d $jaxws_home ]; then 
     jaxws_home=$celtix_home/tools/jaxws-ri/20051104/
-    if [ ! -f $jaxws_home ]; then 
+    if [ ! -d $jaxws_home ]; then 
         echo "unable to find JAXWS RI"
         exit 1
     fi 
