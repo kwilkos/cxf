@@ -110,7 +110,7 @@ public class CustomPropertyEditorsTest extends TestCase {
     
     public void testPropertyEditorConversionFailure() throws InvocationTargetException, 
         NoSuchMethodException, IllegalAccessException {
-        URL url = ConfigurationProviderImplTest.class.getResource("resources/top3.xml");
+        URL url = CustomPropertyEditorsTest.class.getResource("resources/top3.xml");
         UrlResource urlRes = new UrlResource(url);
         CeltixXmlBeanFactory bf = new CeltixXmlBeanFactory(urlRes);
         Configuration top = new TopConfiguration("top3");
