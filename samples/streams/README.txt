@@ -95,11 +95,11 @@ single command line:
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
          -Dceltix.config.file=file:///$CELTIX_HOME/samples/handlers/celtix-server.xml
-	  demo.hw.server.Server &
+	 demo.streams.server.Server &
 
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
          -Dceltix.config.file=file:///$CELTIX_HOME/samples/handlers/celtix-client.xml
-         demo.hw.client.Client ./wsdl/hello_world.wsdl
+         demo.streams.client.Client ./wsdl/hello_world.wsdl
 
 The server process starts in the background.  After running the client,
 use the kill command to terminate the server process.
@@ -108,11 +108,11 @@ For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
          -Dceltix.config.file=file:///%CELTIX_HOME%\samples\handlers\celtix-server.xml
-         demo.hw.server.Server
+         demo.streams.server.Server
 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
          -Dceltix.config.file=file:///%CELTIX_HOME%\samples\handlers\celtix-client.xml
-         demo.hw.client.Client .\wsdl\hello_world.wsdl
+         demo.streams.client.Client .\wsdl\hello_world.wsdl
 
 A new command windows opens for the server process.  After running the
 client, terminate the server process by issuing Ctrl-C in its command window.
