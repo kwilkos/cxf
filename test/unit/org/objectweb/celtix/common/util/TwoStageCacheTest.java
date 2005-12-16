@@ -104,11 +104,13 @@ public class TwoStageCacheTest extends TestCase {
         }
         objs = null;
         List<byte[]> list = new LinkedList<byte[]>();
+        int allocCount = 0;
         try {
-            while (true) {
-                list.add(new byte[250000]);
+            while (allocCount++ < 1000) {
+                list.add(new byte[25000 * allocCount]);
                 System.gc();
             }
+            fail("cannot trigger OutOfMemoryError within a reasonable timeframe"); 
         } catch (OutOfMemoryError ex) {
             list = null;
         }
