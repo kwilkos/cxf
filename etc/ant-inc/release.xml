@@ -106,7 +106,8 @@
                 <exclude name="build/**/*"/>
                 <exclude name="samples/**/build/**/*"/>
                 <exclude name="**/.*"/>
-                <exclude name="NOTICE"/>
+                <exclude name="NOTICE"/> 
+                <exclude name="NOTICE.source"/>
                 <exclude name="bin/*"/>
                 <exclude name="tools/**/bin/*"/>
                 <exclude name="LICENSE-EPL.txt"/>
@@ -121,9 +122,12 @@
             <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}">
                 <include name=".ruleset"/>
             </tarfileset>
-            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}" fullpath="3party-licenses.txt">
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}" fullpath="celtix-${celtix.version.short}-src/3party-licenses.txt">
                 <include name="3party-licenses-source.txt"/>
-            </tarfileset>             
+            </tarfileset>
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}" fullpath="celtix-${celtix.version.short}-src/NOTICE">
+                <include name="NOTICE.source"/>
+            </tarfileset>
         </tar>
         <tar compression="gzip"
             destfile="${build.package.dir}/celtix-${celtix.version}-src-epl.tgz"
@@ -135,6 +139,7 @@
                 <exclude name="samples/**/build/**/*"/>
                 <exclude name="**/.*"/>
                 <exclude name="NOTICE"/>
+                <exclude name="NOTICE.source"/>
                 <exclude name="bin/*"/>
                 <exclude name="tools/**/bin/*"/>
                 <exclude name="LICENSE-LGPL.txt"/>
@@ -151,6 +156,9 @@
             </tarfileset>
             <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}" fullpath="celtix-${celtix.version.short}-src/3party-licenses.txt">
                 <include name="3party-licenses-source.txt"/>
+            </tarfileset>
+            <tarfileset prefix="celtix-${celtix.version.short}-src" dir="${basedir}" fullpath="celtix-${celtix.version.short}-src/NOTICE">
+                <include name="NOTICE.source"/>
             </tarfileset>            
         </tar>        
     </target>
