@@ -81,20 +81,17 @@ For more details, see the Celtix Installation Guide.
 
 3. Known Problems
 
-3.1 Configuration
-There is an issue that arises when you attempt to make concurent modifications to a policy.
-
-3.2 HTTP
+3.1 HTTP
 There is an issue with the Jetty HTTP that prevents Celtix from being able to 
 shutdown the actual port listener.   If you programmatically remove the last endpoint
 published on a port, the listener will remain running on the port, but will only 
 serve 404 (not found) errors to all client connections.
 
 
-3.3 JMS
+3.2 JMS
 The JMS transport does not currently use policy based configuration, or support WS-Addressing.
 
-3.4 Code generation
+3.3 Code generation
 Celtix uses the JAX-WS reference implementation's code generator by default. This code
 generator does not recognize the <jms:address> element (under the <port> element),
 which is used to configure the JMS transport. The reference implementation's code 
@@ -106,7 +103,6 @@ the code generator's requirements and the <jms:address> element is used to confi
 the JMS transport.
 When configuring a port, Celtix uses the first <address> element. To enable the JMS transport,
 the first <address> element must be a <jms:address> element.
-
 
 
 4. Reporting Problems
