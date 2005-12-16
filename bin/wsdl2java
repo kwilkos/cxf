@@ -7,7 +7,7 @@ celtix_home=`dirname $0`/..
 
 celtix_jar=$celtix_home/lib/celtix.jar
 
-if [ ! -e $celtix_jar ]; then 
+if [ ! -f $celtix_jar ]; then 
     celtix_jar=$celtix_home/build/lib/celtix.jar
     if [ ! -e $celtix_jar ]; then 
         echo "unable to find celtix.jar in $celtix_home/lib"
@@ -18,13 +18,13 @@ fi
 #
 # add the jdk's tools.jar to the classpath
 #
-if [ -e "${JAVA_HOME}/lib/tools.jar" ]; then
+if [ -f "${JAVA_HOME}/lib/tools.jar" ]; then
     CLASSPATH=${JAVA_HOME}/lib/tools.jar:$CLASSPATH
 fi
 
 jaxws_home=$celtix_home/lib/jaxws-ri/20051104/
 
-if [ ! -e $jaxws_home ]; then 
+if [ ! -d $jaxws_home ]; then 
     jaxws_home=$celtix_home/tools/jaxws-ri/20051104/
     if [ ! -e $jaxws_home ]; then 
         echo "unable to find JAXWS RI"
