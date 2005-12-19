@@ -70,7 +70,11 @@ public final class ProcessorUtil {
     }
 
     public static String getAbsolutePath(String location) throws IOException {
-        return resolvePath(new File(location).getCanonicalPath());
+        if (location.startsWith("http://")) {
+            return location;
+        } else {
+            return resolvePath(new File(location).getCanonicalPath());
+        }
     }
     
     public static URL getWSDLURL(String location) throws Exception {

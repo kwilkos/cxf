@@ -1,5 +1,6 @@
 package org.objectweb.celtix.tools;
 
+import java.io.*;
 import java.util.*;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
@@ -50,6 +51,8 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
                 }
                 env.put(ToolConstants.CFG_CMD_ARG, args);
 
+                validate(env);
+                
                 processor.setEnvironment(env);
                 processor.process();
             }
@@ -67,6 +70,19 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
             System.err.println();
             if (isVerboseOn()) {
                 ex.printStackTrace();
+            }
+        }
+    }
+
+    private void validate(ProcessorEnvironment env) throws ToolException {
+        String outdir = (String) env.get(ToolConstants.CFG_OUTPUTDIR);
+        if (outdir != null) {
+            File dir = new File(outdir);
+            if (!dir.exists()) {
+                throw new ToolException("Specified direcotry [" + outdir + "] is not exist: ");
+            }
+            if (!dir.isDirectory()) {
+                throw new ToolException("Specified direcotry [" + outdir + "] is not a direcotry");
             }
         }
     }
