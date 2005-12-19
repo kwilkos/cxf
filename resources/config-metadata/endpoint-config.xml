@@ -3,8 +3,6 @@
     xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
     xmlns:std-types="http://celtix.objectweb.org/configuration/types" 
     xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata metadata.xsd"
     namespace="http://celtix.objectweb.org/bus/jaxws/endpoint-config">
 
    <!-- configuration metadata for component Endpoint  -->

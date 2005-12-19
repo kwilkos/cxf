@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cm:config 
     xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
-    xmlns:ct="http://celtix.objectweb.org/configuration/types" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata
-    http://celtix.objectweb.org/configuration/metadata.xsd"
     namespace="http://celtix.objectweb.org/bus/bus-config">
 
    <!-- configuration metadata for component Bus  -->

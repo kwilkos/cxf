@@ -3,7 +3,6 @@
     xmlns:cm="http://celtix.objectweb.org/configuration/metadata"
     xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration"
     xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     namespace="http://celtix.objectweb.org/bus/transports/http/http-server-config"
 >

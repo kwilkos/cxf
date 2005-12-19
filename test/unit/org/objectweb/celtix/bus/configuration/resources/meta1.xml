@@ -3,9 +3,6 @@
     xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
     xmlns:ct="http://celtix.objectweb.org/configuration/types" 
     xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata 
-    http://celtix.objectweb.org/configuration/metadata.xsd"
     namespace="http://celtix.objectweb.org/configuration/test/meta1">
     
     <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
