@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="HelloWorld" targetNamespace="http://objectweb.org/hello_world_rpclit" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
-    xmlns:http-conf="http://schemas.iona.com/transports/http/configuration"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
     xmlns:tns="http://objectweb.org/hello_world_rpclit"
     xmlns:x1="http://objectweb.org/hello_world_rpclit/types"
@@ -12,11 +11,11 @@
         <schema targetNamespace="http://objectweb.org/hello_world_rpclit/types" 
             xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
             <complexType name="myComplexStruct">
-	        <sequence>
-	            <element name="elem1" type="xsd:string"/>
-	            <element name="elem2" type="xsd:string"/>
-	            <element name="elem3" type="xsd:int"/>
-	        </sequence>
+            <sequence>
+                <element name="elem1" type="xsd:string"/>
+                <element name="elem2" type="xsd:string"/>
+                <element name="elem3" type="xsd:int"/>
+            </sequence>
             </complexType>
         </schema>
     </wsdl:types>
@@ -54,7 +53,7 @@
         </wsdl:operation>
         <wsdl:operation name="sendReceiveData">
             <wsdl:input message="tns:sendReceiveDataRequest" name="SendReceiveDataRequest"/>
-	    <wsdl:output message="tns:sendReceiveDataResponse" name="SendReceiveDataResponse"/>
+        <wsdl:output message="tns:sendReceiveDataResponse" name="SendReceiveDataResponse"/>
         </wsdl:operation>
     </wsdl:portType>
     
@@ -97,8 +96,6 @@
     <wsdl:service name="SOAPServiceRPCLit">
         <wsdl:port binding="tns:Greeter_SOAPBinding_RPCLit" name="SoapPortRPCLit">
             <soap:address location="http://localhost:9000/SoapContext/SoapPort"/>
-            <http-conf:client/>
-            <http-conf:server/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

@@ -6,7 +6,7 @@
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
     xmlns:itst="http://tests.iona.com/ittests"
-    xmlns:http-conf="http://schemas.iona.com/transports/http/configuration">
+    xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration">
 
   <xsl:output method="xml" indent="yes" xalan:indent-amount="4"/>
   <xsl:strip-space elements="*"/>

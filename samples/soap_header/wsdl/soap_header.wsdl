@@ -2,7 +2,6 @@
 <definitions name="soap_header" targetNamespace="http://objectweb.org/headers" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
-    xmlns:http-conf="http://schemas.iona.com/transports/http/configuration" 
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
     xmlns:tns="http://objectweb.org/headers" 
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
