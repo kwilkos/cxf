@@ -128,6 +128,10 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         boolean isInputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
 
         SOAPMessage msg = initSOAPMessage();
+        if (!"".equals(callback.getSOAPAction())) {
+            msg.getMimeHeaders().setHeader("SOAPAction",
+                                           "\"" + callback.getSOAPAction() + "\"");
+        }
         if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
             //contains the entire SOAP message
             boolean found = false;
