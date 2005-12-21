@@ -16,13 +16,19 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
 
-import org.objectweb.celtix.bus.ws.addressing.Names;
+import org.objectweb.celtix.ws.addressing.AddressingBuilder;
+import org.objectweb.celtix.ws.addressing.AddressingConstants;
 
 
 /**
  * Snoops SOAP headers.
  */
 public class HeaderSnooper implements SOAPHandler<SOAPMessageContext> {
+
+    private static final AddressingConstants ADDRESSING_CONSTANTS = 
+        AddressingBuilder.getAddressingBuilder().newAddressingConstants();
+    private static final String WSA_NAMESPACE_URI = 
+        ADDRESSING_CONSTANTS.getNamespaceURI();
 
     public void init(Map<String, Object> map) {
     }
@@ -59,7 +65,7 @@ public class HeaderSnooper implements SOAPHandler<SOAPMessageContext> {
                     SOAPHeaderElement headerElement =
                         (SOAPHeaderElement)headerElements.next();
                     Name headerName = headerElement.getElementName();
-                    if (Names.WSA_NAMESPACE_NAME.equals(headerName.getURI())) {
+                    if (WSA_NAMESPACE_URI.equals(headerName.getURI())) {
                         System.out.println(headerName.getLocalName()
                                            + getText(headerElement));
                     }

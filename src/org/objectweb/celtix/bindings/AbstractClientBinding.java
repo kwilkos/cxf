@@ -137,10 +137,12 @@ public abstract class AbstractClientBinding implements ClientBinding {
             // cache To EPR & WSDL Port in context for use by WS-Addressing 
             // handlers
             storeAddress(context);
+            context.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, false);
         
             //Input Message For Client
             context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
             bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
+
             boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(true);
 
             if (continueProcessing) {  
@@ -156,7 +158,6 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 if (continueProcessing) {
                     OutputStreamMessageContext ostreamContext = 
                         createOutputStreamContext(bindingContext);
-                    ostreamContext.setOneWay(false);
                     
                     handlerInvoker.invokeStreamHandlers(ostreamContext); 
 
@@ -227,6 +228,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
             // cache To EPR & WSDL Port in context for use by WS-Addressing 
             // handlers
             storeAddress(context);
+            context.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, true);
 
             boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(true);
 
@@ -243,7 +245,6 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 if (continueProcessing) { 
                     OutputStreamMessageContext ostreamContext = 
                         createOutputStreamContext(bindingContext);
-                    ostreamContext.setOneWay(true);
 
                     continueProcessing = handlerInvoker.invokeStreamHandlers(ostreamContext); 
                     if (continueProcessing) { 

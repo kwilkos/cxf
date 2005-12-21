@@ -129,9 +129,8 @@ public class MAPCodecTest extends TestCase {
             fail("expected SOAPFaultException on invalid MAP");
         } catch (SOAPFaultException sfe) {
             assertEquals("unexpected fault string",
-                         sfe.getFault().getFaultString(),
-                         Names.DUPLICATE_MESSAGE_ID_NAME + " urn:uuid:12345"); 
-            
+                         "Duplicate Message ID urn:uuid:12345", 
+                         sfe.getFault().getFaultString());
         }
         control.verify();
         codec.close(context);
@@ -152,9 +151,8 @@ public class MAPCodecTest extends TestCase {
             fail("expected SOAPFaultException on invalid MAP");
         } catch (SOAPFaultException sfe) {
             assertEquals("unexpected fault string",
-                         sfe.getFault().getFaultString(),
-                         Names.DUPLICATE_MESSAGE_ID_NAME + " urn:uuid:12345"); 
-            
+                         "Duplicate Message ID urn:uuid:12345",
+                         sfe.getFault().getFaultString());
         }
         control.verify();
         codec.close(context);
@@ -254,10 +252,10 @@ public class MAPCodecTest extends TestCase {
             EasyMock.expectLastCall();
         }
         if (invalidMAP) {
-            context.get("org.objectweb.celtix.ws.addressing.bad.map.str");
-            EasyMock.expectLastCall().andReturn("urn:uuid:12345"); 
-            context.get("org.objectweb.celtix.ws.addressing.bad.map.fault");
-            EasyMock.expectLastCall().andReturn(Names.DUPLICATE_MESSAGE_ID_NAME);           
+            context.get("org.objectweb.celtix.ws.addressing.map.fault.name");
+            EasyMock.expectLastCall().andReturn(Names.DUPLICATE_MESSAGE_ID_NAME);
+            context.get("org.objectweb.celtix.ws.addressing.map.fault.reason");
+            EasyMock.expectLastCall().andReturn("Duplicate Message ID urn:uuid:12345"); 
         }
     }
 

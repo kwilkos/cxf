@@ -119,7 +119,7 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
                 fail("expected ProtocolException on dulicate message ID");
             } catch (ProtocolException pe) {
                 assertTrue("expected duplicate message ID failure",
-                           pe.getMessage().startsWith("DuplicateMessageID"));
+                           "Duplicate Message ID urn:uuid:12345".equals(pe.getMessage()));
                 checkVerification();
             }
 

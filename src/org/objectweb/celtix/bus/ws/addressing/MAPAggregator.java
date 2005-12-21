@@ -1,9 +1,11 @@
 package org.objectweb.celtix.bus.ws.addressing;
 
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -15,6 +17,7 @@ import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -27,7 +30,8 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
 
     private static final Logger LOG = 
-        Logger.getLogger(MAPAggregator.class.getName());
+        LogUtils.getL7dLogger(MAPAggregator.class);
+    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
     /**
      * Used to fabricate a Uniform Resource Name from a UUID string
@@ -215,10 +219,15 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             // add request-specific MAPs
 
             boolean isOneway = ContextUtils.isOneway(context);
-            // ReplyTo
-            if (maps.getReplyTo() == null) {
+            // ReplyTo, set if null in MAPs or if set to a generic address
+            // (anonymous or none) that may not be appropriate for the
+            // current invocation
+            EndpointReferenceType replyTo = maps.getReplyTo();
+            if (replyTo == null 
+                || Names.WSA_ANONYMOUS_ADDRESS.equals(replyTo.getAddress().getValue())
+                || Names.WSA_NONE_ADDRESS.equals(replyTo.getAddress().getValue())) {
                 // REVISIT: use ReplyTo cached in context by transport
-                EndpointReferenceType replyTo =
+                replyTo =
                     ContextUtils.WSA_OBJECT_FACTORY.createEndpointReferenceType();
                 AttributedURIType address =
                     ContextUtils.getAttributedURI(isOneway
@@ -286,9 +295,13 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             if (messageID != null
                 && messageIDs.put(messageID.getValue(), 
                                   messageID.getValue()) != null) {
-                ContextUtils.storeBadMAP(messageID.getValue(), context);
-                ContextUtils.storeMAPFault(Names.DUPLICATE_MESSAGE_ID_NAME,
-                                           context);
+                String reason =
+                    BUNDLE.getString("DUPLICATE_MESSAGE_ID_MSG");
+                String l7dReason = 
+                    MessageFormat.format(reason, messageID.getValue());
+                ContextUtils.storeMAPFaultName(Names.DUPLICATE_MESSAGE_ID_NAME,
+                                               context);
+                ContextUtils.storeMAPFaultReason(l7dReason, context);
                 valid = false;
             }
         }

@@ -39,6 +39,12 @@ public final class JAXWSAConstants {
         "org.objectweb.celtix.ws.addressing.client.port";
 
     /**
+     * Used by AddressingBuilder factory method.
+     */
+    public static final String DEFAULT_ADDRESSING_BUILDER =
+        "org.objectweb.celtix.bus.ws.addressing.AddressingBuilderImpl";
+
+    /**
      * Prevents instantiation. 
      */
     private JAXWSAConstants() {

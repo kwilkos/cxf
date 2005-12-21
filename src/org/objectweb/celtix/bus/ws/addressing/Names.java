@@ -19,19 +19,15 @@ public final class Names {
     public static final String WSA_NAMESPACE_PREFIX = "wsa";
     public static final String WSA_NAMESPACE_WSDL_PREFIX = "wsaw";
 
-    public static final String WSA_REFERENCEPROPERTIES_NAME = 
-        "ReferenceProperties";
-    public static final QName WSA_REFERENCEPROPERTIES_QNAME = 
-        new QName(WSA_NAMESPACE_NAME, WSA_REFERENCEPROPERTIES_NAME);
-    
-    public static final String WSA_REFERENCEPARAMETERS_NAME = 
+    public static final String WSA_REFERENCE_PARAMETERS_NAME = 
         "ReferenceParameters";
-    public static final QName WSA_REFERENCEPARAMETERS_QNAME = 
-        new QName(WSA_NAMESPACE_NAME, WSA_REFERENCEPARAMETERS_NAME);
+    public static final QName WSA_REFERENCE_PARAMETERS_QNAME = 
+        new QName(WSA_NAMESPACE_NAME, WSA_REFERENCE_PARAMETERS_NAME);
     
-    public static final String WSA_ISREFPARAM_NAME = "isReferenceParameter";
-    public static final QName WSA_ISREFPARAM_QNAME =
-        new QName(WSA_NAMESPACE_NAME, WSA_ISREFPARAM_NAME);
+    public static final String WSA_IS_REFERENCE_PARAMETER_NAME = 
+        "IsReferenceParameter";
+    public static final QName WSA_IS_REFERENCE_PARAMETER_QNAME =
+        new QName(WSA_NAMESPACE_NAME, WSA_IS_REFERENCE_PARAMETER_NAME);
     
     public static final String WSA_ADDRESS_NAME = "Address";
     public static final QName WSA_ADDRESS_QNAME = 
@@ -78,7 +74,11 @@ public final class Names {
     
     public static final String WSA_ANONYMOUS_ADDRESS = 
         WSA_NAMESPACE_NAME + "/anonymous";
-    public static final String WSA_NONE_ADDRESS = "";
+    public static final String WSA_NONE_ADDRESS =
+        WSA_NAMESPACE_NAME + "/none";
+
+    public static final String WSA_DEFAULT_FAULT_ACTION =
+        WSA_NAMESPACE_NAME + "/fault";
     
     public static final String WSAW_ACTION_NAME = "Action";
     public static final QName WSAW_ACTION_QNAME = 
@@ -116,9 +116,6 @@ public final class Names {
         "DuplicateMessageID";
     public static final QName DUPLICATE_MESSAGE_ID_QNAME =
         new QName(WSA_NAMESPACE_NAME, DUPLICATE_MESSAGE_ID_NAME);
-    public static final String DUPLICATE_MESSAGE_ID_TEXT =
-        "Duplicate Message ID: ";
-
     
     public static final String SOAP11HTTP_ADDRESSING_BINDING = 
         "http://schemas.xmlsoap.org/soap/envelope/?addressing=ms";

@@ -286,7 +286,6 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
         }
     }
 
-
     /**
      * Apply results of validation of incoming MAPs.
      *
@@ -296,13 +295,13 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
      */
     private void applyMAPValidation(SOAPMessageContext context)
         throws SOAPException {
-        String badMAP = ContextUtils.retrieveBadMAP(context);
-        if (badMAP != null) {
-            String faultName = ContextUtils.retrieveMAPFault(context);
+        String faultName = ContextUtils.retrieveMAPFaultName(context);
+        if (faultName != null) {
+            String reason = ContextUtils.retrieveMAPFaultReason(context);
             throw createSOAPFaultException(faultName, 
                                            Names.WSA_NAMESPACE_PREFIX,
                                            Names.WSA_NAMESPACE_NAME,
-                                           faultName + " " + badMAP);
+                                           reason);
         }
     }
 

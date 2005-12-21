@@ -19,12 +19,12 @@ containing the handler definitions. Note that any other approach,
 whether programmatic or driven via configuration, would be equally
 valid.
 
-Normally the WS-Addressing MessageAddressProperties are generated
-implicitly, without any intravention from the application. In certain
-circumstances though the application may wish to participate in
-MAP assembly, for example to associate a sequence of requests via
-the RelatesTo header. This demo illustrates only the implicit
-mechanism.	 
+Normally the WS-Addressing MessageAddressProperties are generated and
+propagated implicitly, without any intravention from the
+application. In certain circumstances however, the application may wish
+to participate in MAP assembly, for example to associate a sequence of
+requests via the RelatesTo header. This demo illustrates both implicit
+and explicit MAP propagation.
 
 In all other respects this demo is based on the basic hello_world sample,
 illustrating that WS-Addressing usage is independent of the application.

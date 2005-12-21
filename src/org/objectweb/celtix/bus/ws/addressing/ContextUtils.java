@@ -47,16 +47,16 @@ public final class ContextUtils {
         "org.objectweb.celtix.ws.addressing.client.port";
  
     /**
-     * Used by MAPAggregator to cache bad MAP
-     */
-    private static final String BAD_MAP_PROPERTY = 
-        "org.objectweb.celtix.ws.addressing.bad.map.str";
-
-    /**
      * Used by MAPAggregator to cache bad MAP fault name
      */
-    private static final String MAP_FAULT_PROPERTY = 
-        "org.objectweb.celtix.ws.addressing.bad.map.fault";
+    private static final String MAP_FAULT_NAME_PROPERTY = 
+        "org.objectweb.celtix.ws.addressing.map.fault.name";
+
+    /**
+     * Used by MAPAggregator to cache bad MAP fault reason
+     */
+    private static final String MAP_FAULT_REASON_PROPERTY = 
+        "org.objectweb.celtix.ws.addressing.map.fault.reason";
  
    /**
     * Prevents instantiation.
@@ -220,6 +220,20 @@ public final class ContextUtils {
     }
 
     /**
+     * Helper method to determine if an EPR address is generic (either null,
+     * none or anonymous).
+     *
+     * @param ref the EPR under test
+     * @return true iff the address is generic
+     */
+    public static boolean isGenericAddress(EndpointReferenceType ref) {
+        return ref == null 
+               || ref.getAddress() == null
+               || Names.WSA_ANONYMOUS_ADDRESS.equals(ref.getAddress().getValue())
+               || Names.WSA_NONE_ADDRESS.equals(ref.getAddress().getValue());
+    }
+
+    /**
      * Retrieve WSDL Port from the context.
      *
      * @param context the message context
@@ -240,47 +254,49 @@ public final class ContextUtils {
     }
 
     /**
-     * Store bad MAP in the context.
+     * Store bad MAP fault name in the context.
      *
-     * @param badMAP the bad MAP string to store
+     * @param faultName the fault name to store
      * @param context the message context
      */
-    public static void storeBadMAP(String badMAP, 
-                                   MessageContext context) {
-        context.put(BAD_MAP_PROPERTY, badMAP);
-        context.setScope(BAD_MAP_PROPERTY, MessageContext.Scope.HANDLER);
-    }
-
-    /**
-     * Retrieve bad MAP string from the context.
-     *
-     * @param context the message context
-     * @returned the retrieved bad MAP string
-     */
-    public static String retrieveBadMAP(MessageContext context) {
-        return (String)context.get(BAD_MAP_PROPERTY);
-    }
-
-    /**
-     * Store MAP fault name in the context.
-     *
-     * @param badMAP the MAP fault name to store
-     * @param context the message context
-     */
-    public static void storeMAPFault(String badMAP, 
-                                     MessageContext context) {
-        context.put(MAP_FAULT_PROPERTY, badMAP);
-        context.setScope(MAP_FAULT_PROPERTY, MessageContext.Scope.HANDLER);
+    public static void storeMAPFaultName(String faultName, 
+                                         MessageContext context) {
+        context.put(MAP_FAULT_NAME_PROPERTY, faultName);
+        context.setScope(MAP_FAULT_NAME_PROPERTY,
+                         MessageContext.Scope.HANDLER);
     }
 
     /**
      * Retrieve MAP fault name from the context.
      *
      * @param context the message context
-     * @returned the retrieved MAP fault name
+     * @returned the retrieved fault name
      */
-    public static String retrieveMAPFault(MessageContext context) {
-        return (String)context.get(MAP_FAULT_PROPERTY);
+    public static String retrieveMAPFaultName(MessageContext context) {
+        return (String)context.get(MAP_FAULT_NAME_PROPERTY);
+    }
+
+    /**
+     * Store MAP fault reason in the context.
+     *
+     * @param reason the fault reason to store
+     * @param context the message context
+     */
+    public static void storeMAPFaultReason(String reason, 
+                                           MessageContext context) {
+        context.put(MAP_FAULT_REASON_PROPERTY, reason);
+        context.setScope(MAP_FAULT_REASON_PROPERTY,
+                         MessageContext.Scope.HANDLER);
+    }
+
+    /**
+     * Retrieve MAP fault reason from the context.
+     *
+     * @param context the message context
+     * @returned the retrieved fault reason
+     */
+    public static String retrieveMAPFaultReason(MessageContext context) {
+        return (String)context.get(MAP_FAULT_REASON_PROPERTY);
     }
 }
 
