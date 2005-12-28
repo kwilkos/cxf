@@ -1,7 +1,6 @@
 package org.objectweb.celtix.tools.jaxws;
 
 import java.io.*;
-import java.util.*;
 
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
