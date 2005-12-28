@@ -4,6 +4,7 @@ import java.util.*;
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.OperationType;
 import org.objectweb.celtix.tools.common.ToolException;
+import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 
 public class JavaMethod {
 
@@ -17,10 +18,12 @@ public class JavaMethod {
     private final JavaInterface javaInterface;
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
-    private final List<String> annotations = new ArrayList<String>();
+    private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
     private final List<Object> objparas = new ArrayList<Object>();
     private final List<WSDLException> wsdlExceptions = new ArrayList<WSDLException>();
 
+    private JAXWSBinding jaxwsBinding = new JAXWSBinding();
+    
     public JavaMethod() {
         this.javaInterface = null;
     }
@@ -158,11 +161,15 @@ public class JavaMethod {
         return this.soapUse;
     }
 
-    public void addAnnotation(String annotation) {
-        this.annotations.add(annotation);
+    public void addAnnotation(String tag, JavaAnnotation annotation) {
+        this.annotations.put(tag, annotation);
     }
 
-    public List getAnnotations() {
+    public Collection<JavaAnnotation> getAnnotations() {
+        return this.annotations.values();
+    }
+    
+    public Map<String, JavaAnnotation> getAnnotationMap() {
         return this.annotations;
     }
 
@@ -215,6 +222,31 @@ public class JavaMethod {
                 sb.append(",\n");
             }
         }
+        return sb.toString();
+    }
+
+    public JAXWSBinding getJAXWSBinding() {
+        return this.jaxwsBinding;
+    }
+    
+    public void setJAXWSBinding(JAXWSBinding binding) {
+        if (binding != null) {
+            this.jaxwsBinding = binding;
+        }
+    }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("\n========================\n");
+        sb.append("\nMethod:");
+        sb.append(getName());
+        sb.append("\n-----------\n");
+        sb.append("\nReturn:");
+        sb.append(getReturn());
+        sb.append("\n------------\n");
+        sb.append("\nParameter:");
+        sb.append(getParameterList());
+        sb.append("\n========================\n");
         return sb.toString();
     }
 }

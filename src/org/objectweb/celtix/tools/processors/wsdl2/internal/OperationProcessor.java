@@ -16,7 +16,9 @@ import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
+import org.objectweb.celtix.tools.common.model.JavaReturn;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class OperationProcessor  {
@@ -24,7 +26,7 @@ public class OperationProcessor  {
     private final ProcessorEnvironment env;
     private JavaParameter wrapperRequest;
     private JavaParameter wrapperResponse;
-    
+
     public OperationProcessor(ProcessorEnvironment penv) {
         this.env = penv;
     }
@@ -36,6 +38,8 @@ public class OperationProcessor  {
         method.setStyle(operation.getStyle());
         method.setWrapperStyle(isWrapperStyle(operation));
 
+        method.setJAXWSBinding(customizing(intf, operation));
+
         processMethod(method, operation);
         
         Map<String, Fault> faults = operation.getFaults();
@@ -43,6 +47,10 @@ public class OperationProcessor  {
         faultProcessor.process(method, faults);
 
         intf.addMethod(method);
+        
+        if (method.getJAXWSBinding().isEnableAsyncMapping()) {
+            addAsyncMethod(method);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -59,14 +67,27 @@ public class OperationProcessor  {
                                isRequestResponse(operation),
                                parameterOrder);
         
+        addWebMethodAnnotation(method);
         addWrapperAnnotation(method, operation);
         addWebResultAnnotation(method);
     }
 
+    private void addWebMethodAnnotation(JavaMethod method) {
+        addWebMethodAnnotation(method, method.getName());
+    }
+        
+    private void addWebMethodAnnotation(JavaMethod method, String methodName) {
+        JavaAnnotation methodAnnotation = new JavaAnnotation("WebMethod");
+        methodAnnotation.addArgument("operationName", methodName);
+        method.addAnnotation("WebMethod", methodAnnotation);
+        method.getInterface().addImport("javax.jws.WebMethod");
+    }
+    
     private void addWebResultAnnotation(JavaMethod method) {
         if (method.isOneWay()) {
             JavaAnnotation oneWayAnnotation = new JavaAnnotation("Oneway");
-            method.addAnnotation(oneWayAnnotation.toString());
+            method.addAnnotation("Oneway", oneWayAnnotation);
+            method.getInterface().addImport("javax.jws.Oneway");
             return;
         }
         if ("void".equals(method.getReturn().getType())) {
@@ -96,10 +117,11 @@ public class OperationProcessor  {
             resultAnnotation.addArgument("partName", method.getReturn().getName());
         }
 
-        method.addAnnotation(resultAnnotation.toString());
+        method.addAnnotation("WebResult", resultAnnotation);
+        method.getInterface().addImport("javax.jws.WebResult");
     }
     
-    private void addWrapperAnnotation(JavaMethod method, Operation operation) {
+    protected void addWrapperAnnotation(JavaMethod method, Operation operation) {
         if (!isWrapperStyle(operation)) {
             return;
         }
@@ -109,15 +131,18 @@ public class OperationProcessor  {
             wrapperRequestAnnotation.addArgument("localName", wrapperRequest.getType());
             wrapperRequestAnnotation.addArgument("targetNamespace", wrapperRequest.getTargetNamespace());
             wrapperRequestAnnotation.addArgument("className", wrapperRequest.getClassName());
-            method.addAnnotation(wrapperRequestAnnotation.toString());
+            method.addAnnotation("RequestWrapper", wrapperRequestAnnotation);
         }
         if (wrapperResponse != null) {
             JavaAnnotation wrapperResponseAnnotation = new JavaAnnotation("ResponseWrapper");
             wrapperResponseAnnotation.addArgument("localName", wrapperResponse.getType());
             wrapperResponseAnnotation.addArgument("targetNamespace", wrapperResponse.getTargetNamespace());
             wrapperResponseAnnotation.addArgument("className", wrapperResponse.getClassName());
-            method.addAnnotation(wrapperResponseAnnotation.toString());
+            method.addAnnotation("ResponseWrapper", wrapperResponseAnnotation);
         }
+
+        method.getInterface().addImport("javax.xml.ws.RequestWrapper");
+        method.getInterface().addImport("javax.xml.ws.ResponseWrapper");
     }
 
     @SuppressWarnings("unchecked")
@@ -214,5 +239,85 @@ public class OperationProcessor  {
             throw new ToolException("can't get operation style for " + operation.getName());
         }
         return OperationType.REQUEST_RESPONSE.equals(operation.getStyle());
+    }
+
+    private JAXWSBinding customizing(JavaInterface intf, Operation operation) {
+        JAXWSBinding binding = new JAXWSBinding();
+        List extElements = operation.getExtensibilityElements();
+        if (extElements.size() > 0) {
+            Iterator iterator = extElements.iterator();
+            while (iterator.hasNext()) {
+                Object obj = iterator.next();
+                if (obj instanceof JAXWSBinding) {
+                    binding = (JAXWSBinding) obj;
+                }
+            }
+        }
+        if (intf.getJavaModel().getJAXWSBinding().isEnableAsyncMapping()
+            || intf.getJAXWSBinding().isEnableAsyncMapping()) {
+            binding.setEnableAsyncMapping(true);
+        }
+        return binding;
+    }
+
+    private void addAsyncMethod(JavaMethod method) throws ToolException {
+        addPollingMethod(method);
+        addCallbackMethod(method);
+
+        method.getInterface().addImport("javax.xml.ws.AsyncHandler");
+        method.getInterface().addImport("java.util.concurrent.Future");
+        method.getInterface().addImport("javax.xml.ws.Response");
+    }
+    
+    private void addPollingMethod(JavaMethod method) throws ToolException {
+        JavaMethod pollingMethod = new JavaMethod(method.getInterface());
+        pollingMethod.setName(method.getName() + ToolConstants.ASYNC_METHOD_SUFFIX);
+        pollingMethod.setStyle(method.getStyle());
+        pollingMethod.setWrapperStyle(method.isWrapperStyle());
+        
+        JavaReturn future = new JavaReturn();
+        future.setClassName("Future<?>");
+        pollingMethod.setReturn(future);
+
+        addWebMethodAnnotation(pollingMethod, method.getName());
+        pollingMethod.addAnnotation("ResponseWrapper", method.getAnnotationMap().get("ResponseWrapper"));
+        pollingMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
+        
+        for (Iterator iter = method.getParameters().iterator(); iter.hasNext();) {
+            pollingMethod.addParameter((JavaParameter)iter.next());
+        }
+
+        JavaParameter asyncHandler = new JavaParameter();
+        asyncHandler.setName("asyncHandler");
+        asyncHandler.setClassName("AsyncHandler<" + wrapperResponse.getClassName() + ">");
+        JavaAnnotation asyncHandlerAnnotation = new JavaAnnotation("WebParam");
+        asyncHandlerAnnotation.addArgument("name", "asyncHandler");
+        asyncHandlerAnnotation.addArgument("targetNamespace", "");
+        asyncHandler.setAnnotation(asyncHandlerAnnotation);
+
+        pollingMethod.addParameter(asyncHandler);
+
+        method.getInterface().addMethod(pollingMethod);
+    }
+
+    private void addCallbackMethod(JavaMethod method) throws ToolException {
+        JavaMethod callbackMethod = new JavaMethod(method.getInterface());
+        callbackMethod.setName(method.getName() + ToolConstants.ASYNC_METHOD_SUFFIX);
+        callbackMethod.setStyle(method.getStyle());
+        callbackMethod.setWrapperStyle(method.isWrapperStyle());
+        
+        JavaReturn response = new JavaReturn();
+        response.setClassName("Response<" + wrapperResponse.getClassName() + ">");
+        callbackMethod.setReturn(response);
+
+        addWebMethodAnnotation(callbackMethod, method.getName());
+        callbackMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
+        callbackMethod.addAnnotation("ResponseWrapper", method.getAnnotationMap().get("ResponseWrapper"));
+
+        for (Iterator iter = method.getParameters().iterator(); iter.hasNext();) {
+            callbackMethod.addParameter((JavaParameter)iter.next());
+        }
+
+        method.getInterface().addMethod(callbackMethod);
     }
 }

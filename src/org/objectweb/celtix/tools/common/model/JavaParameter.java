@@ -5,7 +5,7 @@ public class JavaParameter extends JavaType {
     private boolean holder;
     private String holderName;
     private String holderClass;
-    private String annotation;
+    private JavaAnnotation annotation;
 
     public JavaParameter() {
     }
@@ -38,11 +38,11 @@ public class JavaParameter extends JavaType {
         return this.holderClass;
     }
 
-    public void setAnnotation(String anno) {
+    public void setAnnotation(JavaAnnotation anno) {
         this.annotation = anno;
     }
 
-    public String getAnnotation() {
+    public JavaAnnotation getAnnotation() {
         return this.annotation;
     }
 

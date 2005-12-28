@@ -20,6 +20,7 @@ import org.objectweb.celtix.tools.generators.wsdl2.ImplGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.SEIGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.ServerGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.ServiceGenerator;
+import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.PortTypeProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.SEIAnnotationProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ServiceProcessor;
@@ -64,8 +65,9 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
     private JavaModel wsdlDefinitionToJavaModel(Definition definition) throws ToolException {
         JavaModel javaModel = new JavaModel();
-
         getEnvironment().put("rawjaxbmodel", getRawJaxbModel());
+        
+        javaModel.setJAXWSBinding(customizing(definition));
         
         Map portTypes = definition.getPortTypes();
 
@@ -82,5 +84,21 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         seiAnnotationProcessor.process(javaModel);
 
         return javaModel;
+    }
+
+    private JAXWSBinding customizing(Definition def) {
+        List extElements = def.getExtensibilityElements();
+        JAXWSBinding binding = new JAXWSBinding();
+        
+        if (extElements.size() > 0) {
+            Iterator iterator = extElements.iterator();
+            while (iterator.hasNext()) {
+                Object obj = iterator.next();
+                if (obj instanceof JAXWSBinding) {
+                    binding = (JAXWSBinding) obj;
+                }
+            }
+        }
+        return binding;
     }
 }

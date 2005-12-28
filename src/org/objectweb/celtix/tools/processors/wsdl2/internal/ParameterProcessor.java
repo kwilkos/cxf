@@ -101,9 +101,11 @@ public class ParameterProcessor {
             webParamAnnotation.addArgument("mode", "Mode." + parameter.getStyle().toString(), "");
         }
         webParamAnnotation.addArgument("name", name);
-        webParamAnnotation.addArgument("targetNamespace", targetNamespace);
+        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
+            webParamAnnotation.addArgument("targetNamespace", targetNamespace);
+        }
         
-        parameter.setAnnotation(webParamAnnotation.toString());
+        parameter.setAnnotation(webParamAnnotation);
         
         method.addParameter(parameter);
     }
@@ -433,5 +435,4 @@ public class ParameterProcessor {
         }
         return partFound;
     }
-
 }

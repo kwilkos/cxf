@@ -10,6 +10,7 @@ import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaModel;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class PortTypeProcessor {
@@ -22,6 +23,9 @@ public class PortTypeProcessor {
     
     public void process(JavaModel jmodel, PortType portType) throws ToolException {
         JavaInterface intf = new JavaInterface(jmodel);
+
+        intf.setJAXWSBinding(customizing(jmodel, portType));
+        
         String namespace = portType.getQName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace,
                                                             (String) env.get(ToolConstants.CFG_PACKAGENAME));
@@ -47,5 +51,10 @@ public class PortTypeProcessor {
         }
         jmodel.setLocation(location);
         jmodel.addInterface(intf.getName() , intf);
-    }    
+    }
+
+    private JAXWSBinding customizing(JavaModel jmodel, PortType portType) {
+        // TBD: There is no extensibilityelement in port type
+        return new JAXWSBinding();
+    }
 }

@@ -156,6 +156,24 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(serviceCollision.exists());
     }
 
+    public void testHelloWorldAsync() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_async.wsdl"));
+        env.put(ToolConstants.CFG_PACKAGENAME, "org.objectweb");
+        
+        processor.setEnvironment(env);
+        processor.process();
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File objectweb = new File(org, "objectweb");
+        assertTrue(objectweb.exists());
+
+        File[] files = objectweb.listFiles();
+        assertEquals(files.length, 9);
+    }
+
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
     }

@@ -154,4 +154,40 @@ public final class ProcessorUtil {
             return jtype;
         }
     }
+
+    public static String getFileOrURLName(String fileOrURL) {
+        try {
+            try {
+                return escapeSpace(new URL(fileOrURL).toExternalForm());
+            } catch (MalformedURLException e) {
+                return new File(fileOrURL).getCanonicalFile().toURL().toExternalForm();
+            }
+        } catch (Exception e) {
+            return fileOrURL;
+        }
+    }
+
+    private static String escapeSpace(String url) {
+        StringBuffer buf = new StringBuffer();
+        for (int i = 0; i < url.length(); i++) {
+            if (url.charAt(i) == ' ') {
+                buf.append("%20");
+            } else {
+                buf.append(url.charAt(i));
+            }
+        }
+        return buf.toString();
+    }
+
+    public static String absolutize(String name) {
+        // absolutize all the system IDs in the input,
+        // so that we can map system IDs to DOM trees.
+        try {
+            URL baseURL = new File(".").getCanonicalFile().toURL();
+            return new URL(baseURL, name).toExternalForm();
+        } catch (IOException e) {
+            // ignore
+        }
+        return name;
+    }
 }

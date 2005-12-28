@@ -4,8 +4,11 @@ import java.io.*;
 import java.util.*;
 
 import javax.wsdl.Definition;
+import javax.wsdl.Operation;
+import javax.wsdl.PortType;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.factory.WSDLFactory;
@@ -22,6 +25,9 @@ import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
+import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
+import org.objectweb.celtix.tools.jaxws.JAXWSBindingDeserializer;
+import org.objectweb.celtix.tools.jaxws.JAXWSBindingSerializer;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassNameAllocatorImpl;
 import org.objectweb.celtix.tools.utils.ClassCollectorUtil;
 
@@ -41,6 +47,7 @@ public class WSDLToProcessor implements Processor {
             wsdlFactory = WSDLFactory.newInstance();
             wsdlReader = wsdlFactory.newWSDLReader();
             wsdlReader.setFeature("javax.wsdl.verbose", false);
+            registerExtenstions(wsdlReader);
             wsdlDefinition = wsdlReader.readWSDL(wsdlURL);
         } catch (WSDLException we) {
             throw new ToolException("Can not create wsdl model, due to " + we.getMessage(), we);
@@ -170,5 +177,30 @@ public class WSDLToProcessor implements Processor {
 
     public ProcessorEnvironment getEnvironment() {
         return this.env;
+    }
+    
+    private void registerExtenstions(WSDLReader reader) {
+        ExtensionRegistry registry = reader.getExtensionRegistry();
+        if (registry == null) {
+            registry = wsdlFactory.newPopulatedExtensionRegistry();
+        }
+        registerJAXWSBinding(registry, Definition.class);
+        registerJAXWSBinding(registry, PortType.class);
+        registerJAXWSBinding(registry, Operation.class);
+
+        reader.setExtensionRegistry(registry);
+    }
+
+    private void registerJAXWSBinding(ExtensionRegistry registry, Class clz) {
+        registry.registerSerializer(clz,
+                                    ToolConstants.JAXWS_BINDINGS,
+                                    new JAXWSBindingSerializer());
+        
+        registry.registerDeserializer(clz,
+                                      ToolConstants.JAXWS_BINDINGS,
+                                      new JAXWSBindingDeserializer());
+        registry.mapExtensionTypes(clz,
+                                   ToolConstants.JAXWS_BINDINGS,
+                                   JAXWSBinding.class);
     }
 }

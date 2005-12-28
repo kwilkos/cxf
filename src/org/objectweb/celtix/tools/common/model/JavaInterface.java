@@ -2,7 +2,9 @@ package org.objectweb.celtix.tools.common.model;
 
 import java.util.*;
 import javax.jws.soap.SOAPBinding;
+
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 
 public class JavaInterface {
 
@@ -17,7 +19,10 @@ public class JavaInterface {
     
     private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
     private final List<String> annotations = new ArrayList<String>();
+    private final Set<String> imports = new HashSet<String>();
 
+    private JAXWSBinding jaxwsBinding = new JAXWSBinding();
+    
     public JavaInterface() {
     }
     
@@ -111,5 +116,23 @@ public class JavaInterface {
 
     public List getAnnotations() {
         return this.annotations;
+    }
+
+    public JAXWSBinding getJAXWSBinding() {
+        return this.jaxwsBinding;
+    }
+    
+    public void setJAXWSBinding(JAXWSBinding binding) {
+        if (binding != null) {
+            this.jaxwsBinding = binding;
+        }
+    }
+
+    public void addImport(String i) {
+        imports.add(i);
+    }
+
+    public Iterator<String> getImports() {
+        return imports.iterator();
     }
 }

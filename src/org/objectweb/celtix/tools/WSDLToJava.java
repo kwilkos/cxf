@@ -21,24 +21,21 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
         super(TOOL_NAME, toolspec);
     }
 
+    private Set getArrayKeys() {
+        Set<String> set = new HashSet<String>();
+        set.add(ToolConstants.CFG_BINDING);
+        return set;
+    }
+    
     public void execute(boolean exitOnFinish) {
         WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
         try {
             super.execute(exitOnFinish);
             if (!hasInfoOption()) {
                 ProcessorEnvironment env = new ProcessorEnvironment();
-                env.setParameters(getParametersMap(new HashSet()));
+                env.setParameters(getParametersMap(getArrayKeys()));
                 if (env.get(ToolConstants.CFG_OUTPUTDIR) == null) {
                     env.put(ToolConstants.CFG_OUTPUTDIR, ".");
-                }
-
-                if (!env.containsKey(ToolConstants.CFG_NIGNOREEXCLUDE)) {
-                    String[] excludes = getDefaultExcludedNamespaces("wsdltojavaexclude.properties");
-                    if (excludes != null) {
-                        env.put(ToolConstants.CFG_NIGNOREEXCLUDE, excludes);
-                    }
-                } else {
-                    env.remove(ToolConstants.CFG_NIGNOREEXCLUDE);
                 }
 
                 if (env.containsKey(ToolConstants.CFG_ANT)) {
@@ -79,10 +76,22 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
         if (outdir != null) {
             File dir = new File(outdir);
             if (!dir.exists()) {
-                throw new ToolException("Specified direcotry [" + outdir + "] is not exist: ");
+                throw new ToolException("Specified direcotry [" + outdir + "] is not exist");
             }
             if (!dir.isDirectory()) {
                 throw new ToolException("Specified direcotry [" + outdir + "] is not a direcotry");
+            }
+        }
+
+        if (env.containsKey(ToolConstants.CFG_BINDING)) {
+            String[] bindings = (String[]) env.get(ToolConstants.CFG_BINDING);
+            for (int i = 0; i < bindings.length; i++) {
+                File binding = new File(bindings[i]);
+                if (!binding.exists()) {
+                    throw new ToolException("Specified binding file [" + bindings[i] + "] is not exist");
+                } else if (binding.isDirectory()) {
+                    throw new ToolException("Specified binding file [" + bindings[i] + "] is not a file");
+                }
             }
         }
     }

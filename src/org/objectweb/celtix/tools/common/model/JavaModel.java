@@ -1,18 +1,23 @@
 package org.objectweb.celtix.tools.common.model;
 
 import java.util.*;
+import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 
 public class JavaModel {
 
     private final Map<String, JavaInterface> interfaces;
     private final Map<String, JavaExceptionClass> exceptionClasses;
     private final Map<String, JavaServiceClass> serviceClasses;
+    //    private final Map<String, JavaAsyncHandlerClass> asyncHandlerClasses;
+    
     private String location;
+    private JAXWSBinding jaxwsBinding;
     
     public JavaModel() {
         interfaces = new HashMap<String, JavaInterface>();
         exceptionClasses = new HashMap<String, JavaExceptionClass>();
         serviceClasses = new HashMap<String, JavaServiceClass>();
+        jaxwsBinding = new JAXWSBinding();
     }
 
     public void addInterface(String name, JavaInterface i) {
@@ -32,6 +37,14 @@ public class JavaModel {
         return this.exceptionClasses;
     }
 
+//     public void addAsyncHandlerClass(String name, JavaAsyncHandlerClass async) {
+//         this.asyncHandlerClasses.put(name, async);
+//     }
+
+//     public Map<String, JavaAsyncHandlerClass> getAsyncHanderClasses() {
+//         return this.asyncHandlerClasses;
+//     }
+
     public void addServiceClass(String name, JavaServiceClass service) {
         this.serviceClasses.put(name, service);
     }
@@ -46,5 +59,15 @@ public class JavaModel {
 
     public String getLocation() {
         return this.location;
+    }
+
+    public JAXWSBinding getJAXWSBinding() {
+        return this.jaxwsBinding;
+    }
+    
+    public void setJAXWSBinding(JAXWSBinding binding) {
+        if (binding != null) {
+            this.jaxwsBinding = binding;
+        }
     }
 }

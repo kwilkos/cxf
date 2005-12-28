@@ -1,5 +1,7 @@
 package org.objectweb.celtix.tools.common;
 
+import javax.xml.namespace.QName;
+
 public final class ToolConstants {
 
     public static final String TOOLSPECS_BASE = "/org/objectweb/celtix/tools/common/toolspec/toolspecs/";
@@ -43,8 +45,6 @@ public final class ToolConstants {
     public static final String CFG_PORTTYPE = "porttype";
  
 
-    
-
     // WSDL2Java Processor Constants
     public static final String SEI_GENERATOR = "sei.generator";
     public static final String FAULT_GENERATOR = "fault.generator";
@@ -54,4 +54,14 @@ public final class ToolConstants {
     public static final String CLT_GENERATOR = "clt.generator";
     public static final String SERVICE_GENERATOR = "service.generator";
     public static final String ANT_GENERATOR = "ant.generator";
+
+    // Binding namespace
+    public static final String NS_JAXWS_BINDINGS = "http://java.sun.com/xml/ns/jaxws";
+    public static final String NS_JAXB_BINDINGS = "http://java.sun.com/xml/ns/jaxb";
+    public static final QName  JAXWS_BINDINGS = new QName(NS_JAXWS_BINDINGS, "bindings");
+    public static final String JAXWS_BINDINGS_WSDL_LOCATION = "wsdlLocation";
+    public static final String JAXWS_BINDING_NODE = "node";
+    public static final String JAXWS_BINDING_VERSION = "version";
+
+    public static final String ASYNC_METHOD_SUFFIX = "Async";
 }

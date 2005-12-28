@@ -95,7 +95,7 @@ public class JavaType {
         sb.append("\nTargetNamespace: ");
         sb.append(this.targetNamespace);
         sb.append("\nStyle: ");
-        sb.append(style.toString());
+        sb.append(style);
         return sb.toString();
     }
 }
