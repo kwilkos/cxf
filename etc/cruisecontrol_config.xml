@@ -61,7 +61,7 @@
             <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-tools/target/surefire-reports"/>
         </log>
         <publishers>
-            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/target/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix_m2"/>-->
+            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/target/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix_m2"/>
             <htmlemail mailhost="amereast-ems2.iona.com"
                 returnaddress="celtix-build@objectweb.org"
                 returnname="Celtix Build Machine"
@@ -79,4 +79,4 @@
         </publishers>
     </project>
 
-</cruisecontrol> 
+</cruisecontrol>
