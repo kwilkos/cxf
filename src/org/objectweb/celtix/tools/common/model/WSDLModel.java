@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.jws.soap.SOAPBinding.Use;
 import javax.wsdl.Definition;
@@ -17,6 +19,7 @@ import com.sun.xml.bind.api.JAXBRIContext;
 import com.sun.xml.bind.api.TypeReference;
 
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.processors.java2.internal.ClassProcessor;
 
 public class WSDLModel {
     protected JAXBRIContext jaxbContext;
@@ -28,12 +31,13 @@ public class WSDLModel {
     private String packageName;
     private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
     private final Map<String, String> schemaNSFileMap = new HashMap<String, String>();
-    private Style style;
-    private Use use;
+    //default Doc-Lit-Wrapped
+    private Style style = SOAPBinding.Style.DOCUMENT;
+    private Use use = SOAPBinding.Use.LITERAL;
+    private ParameterStyle paraStyle = SOAPBinding.ParameterStyle.WRAPPED;
 
     public WSDLModel() throws ToolException {
         try {
-
             WSDLFactory wsdlFactory = WSDLFactory.newInstance();
             definition = wsdlFactory.newDefinition();
         } catch (WSDLException e) {
@@ -95,8 +99,8 @@ public class WSDLModel {
     }
 
     public JAXBRIContext createJAXBContext() throws ToolException {
-        final List<TypeReference> types = getAllTypeReferences();
-        final Class[] clzzs = new Class[types.size()];
+        List<TypeReference> types = getAllTypeReferences();
+        Class[] clzzs = new Class[types.size()];
         int i = 0;
         for (TypeReference typeref : types) {
             clzzs[i++] = (Class)typeref.type;
@@ -124,18 +128,35 @@ public class WSDLModel {
                 Object obj = ite1.next();
                 if (obj instanceof WSDLWrapperParameter) {
                     WSDLWrapperParameter wrapPara = (WSDLWrapperParameter)obj;
-                    types.add(wrapPara.getTypeReference());
+                    if (wrapPara.getTypeReference() != null
+                        && wrapPara.getTypeReference().type != ClassProcessor.class) {
+                        types.add(wrapPara.getTypeReference());
+                    }
+                    // added for rpc
+                    Iterator ite2 = wrapPara.getWrapperChildren().iterator();
+                    while (ite2.hasNext()) {
+
+                        JavaParameter jp = (JavaParameter)ite2.next();
+                        if (jp.getTypeReference() != null) {
+                            types.add(jp.getTypeReference());
+                        }
+                    }
+
                 }
 
                 if (obj instanceof JavaParameter) {
+
                     JavaParameter jpara = (JavaParameter)obj;
-                    types.add(jpara.getTypeReference());
+
+                    if (jpara.getTypeReference() != null) {
+                        types.add(jpara.getTypeReference());
+                    }
                 }
 
                 Iterator ite3 = m.getWSDLExceptions().iterator();
                 while (ite3.hasNext()) {
-                    org.objectweb.celtix.tools.common.model.WSDLException wsdlEx 
-                        = (org.objectweb.celtix.tools.common.model.WSDLException)ite3.next();
+                    org.objectweb.celtix.tools.common.model.WSDLException wsdlEx = 
+                        (org.objectweb.celtix.tools.common.model.WSDLException)ite3.next();
                     types.add(wsdlEx.getDetailTypeReference());
                 }
             }
@@ -160,24 +181,41 @@ public class WSDLModel {
         this.use = u;
     }
 
+    public ParameterStyle getParameterStyle() {
+        return paraStyle;
+    }
+    
+    public void setPrameterStyle(ParameterStyle pstyle) {
+        paraStyle = pstyle;
+    }
+
     public Use getUse() {
         return this.use;
     }
-
+    
     public boolean isDocLit() {
-        /*
-         * if(this.style == Style.DOCUMENT && this.use == Use.LITERAL) { return
-         * true; } else { return false; }
-         */
-        return true;
+        if (this.style == Style.DOCUMENT && this.use == Use.LITERAL) {
+            return true;
+        } 
+        return false;
     }
     
+   
+    public boolean isWrapped() {
+        return this.paraStyle == SOAPBinding.ParameterStyle.WRAPPED;
+    }
+
+    public boolean isRPC() {
+        return (this.style == SOAPBinding.Style.RPC) && (this.use == SOAPBinding.Use.LITERAL)
+               && (this.paraStyle == SOAPBinding.ParameterStyle.WRAPPED);
+    }
+
     public Map<String, String> getSchemaNSFileMap() {
         return this.schemaNSFileMap;
     }
+
     public void addSchemaNSFileToMap(String schemaNS, String filename) {
         this.schemaNSFileMap.put(schemaNS, filename);
     }
-    
 
 }

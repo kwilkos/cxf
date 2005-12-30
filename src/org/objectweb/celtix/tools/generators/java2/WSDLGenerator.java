@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.jws.soap.SOAPBinding;
 import javax.wsdl.Definition;
 import javax.wsdl.Fault;
 import javax.wsdl.Input;
@@ -96,6 +97,7 @@ public class WSDLGenerator {
         }
         return true;
     }
+
     @SuppressWarnings("unchecked")
     private void generateTypes() {
 
@@ -161,7 +163,7 @@ public class WSDLGenerator {
 
     private void generateMessageAndPortType() {
         PortType portType = definition.createPortType();
-        portType.setQName(new QName(wmodel.getTargetNameSpace(), this.portTypeName));
+        portType.setQName(new QName(wmodel.getTargetNameSpace(), portTypeName));
         portType.setUndefined(false);
         for (JavaMethod method : wmodel.getJavaMethods()) {
             Operation operation = definition.createOperation();
@@ -169,51 +171,49 @@ public class WSDLGenerator {
             operation.setUndefined(false);
             Iterator ite1 = method.getObjectParameters().iterator();
             while (ite1.hasNext()) {
-                Message message = definition.createMessage();
                 Object obj = ite1.next();
+                Message message = definition.createMessage();
                 if (obj instanceof WSDLWrapperParameter) {
                     WSDLWrapperParameter wrapperPara = (WSDLWrapperParameter)obj;
                     message.setQName(new QName(wmodel.getTargetNameSpace(), wrapperPara.getName()));
-                    String ns = null;
-                    if (wrapperPara.getWrapperChildren().size() > 0) {
+                    String ns = wrapperPara.getTargetNamespace();
+                    // Doc-Lit Wrapped
+                    if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT && method.isWrapperStyle()) {
+                        addPartByElementName(message, wrapperPara.getName(), new QName(ns, wrapperPara
+                            .getName()));
+                    }
+                    // RPC
+                    if (method.getSoapStyle() == SOAPBinding.Style.RPC
+                        && wrapperPara.getWrapperChildren().size() > 0) {
+                        JAXBRIContext jxbcontext = wmodel.getJaxbContext();
                         Iterator ite2 = wrapperPara.getWrapperChildren().iterator();
                         while (ite2.hasNext()) {
                             JavaParameter jp = (JavaParameter)ite2.next();
                             ns = jp.getTypeReference().tagName.getNamespaceURI();
+
+                            QName qname = jxbcontext.getTypeName(jp.getTypeReference());
+                            addPartByTypeName(message, jp.getName(), qname);
+
                         }
-                    } else {
-                        ns = wrapperPara.getTypeReference().tagName.getNamespaceURI();
-
                     }
-                    addPart(message, "parameter", new QName(ns, wrapperPara.getName()));
                     if (wrapperPara.getStyle() == JavaType.Style.IN) {
-                        Input input = definition.createInput();
-                        input.setMessage(message);
-                        input.setName(wrapperPara.getName());
-                        operation.setInput(input);
-
+                        addInputToMessage(operation, message, wrapperPara.getName());
                     } else {
-                        Output output = definition.createOutput();
-                        output.setMessage(message);
-                        output.setName(wrapperPara.getName());
-                        operation.setOutput(output);
+                        addOutputToMessage(operation, message, wrapperPara.getName());
                     }
 
                 }
+                // Doc_Bare
                 if (obj instanceof JavaParameter) {
                     JavaParameter jp = (JavaParameter)obj;
-                    addPart(message, "parameter", new QName(wmodel.getTargetNameSpace(), jp.getName()));
+                    addPartByElementName(message, jp.getName(), jp.getTypeReference().tagName);
                     if (jp.getStyle() == JavaType.Style.IN) {
-                        Input input = definition.createInput();
-                        input.setMessage(message);
-                        input.setName(jp.getName());
-                        operation.setInput(input);
+                        addInputToMessage(operation, message, jp.getName());
                     } else {
-                        Output output = definition.createOutput();
-                        output.setMessage(message);
-                        output.setName(jp.getName());
-                        operation.setOutput(output);
+                        addOutputToMessage(operation, message, jp.getName());
+
                     }
+
                 }
                 message.setUndefined(false);
                 definition.addMessage(message);
@@ -243,11 +243,32 @@ public class WSDLGenerator {
         }
     }
 
-    private void addPart(Message message, String partName, QName partElementName) {
+    private void addPartByElementName(Message message, String partName, QName partElementName) {
         Part part = definition.createPart();
         part.setName(partName);
         part.setElementName(partElementName);
         message.addPart(part);
+    }
+
+    private void addPartByTypeName(Message message, String partName, QName typeName) {
+        Part part = definition.createPart();
+        part.setName(partName);
+        part.setTypeName(typeName);
+        message.addPart(part);
+    }
+
+    private void addInputToMessage(Operation operation, Message msg, String inputName) {
+        Input input = definition.createInput();
+        input.setMessage(msg);
+        input.setName(inputName);
+        operation.setInput(input);
+    }
+
+    private void addOutputToMessage(Operation operation, Message msg, String outputName) {
+        Output output = definition.createOutput();
+        output.setMessage(msg);
+        output.setName(outputName);
+        operation.setOutput(output);
     }
 
 }

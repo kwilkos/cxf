@@ -19,7 +19,17 @@ public class WSDLWrapperParameter {
     private TypeReference typeRef;
     private Style style;
     private String pname;
+    
+    public WSDLWrapperParameter() {
+        
+    }
 
+    public WSDLWrapperParameter(String paraName, TypeReference ref, Style paraStyle) {
+        pname = paraName;
+        typeRef = ref;
+        style = paraStyle;
+    }
+    
     public void setName(String arg) {
         this.pname = arg;
     }

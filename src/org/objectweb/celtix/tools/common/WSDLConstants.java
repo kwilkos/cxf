@@ -64,5 +64,11 @@ public final class WSDLConstants {
     public static final QName QNAME_FAULT = new QName(NS_WSDL, "fault");
     public static final QName QNAME_SERVICE = new QName(NS_WSDL, "service");
     public static final QName QNAME_TYPES = new QName(NS_WSDL, "types");
+    
+    public static final int DOC_WRAPPED = 1;
+    public static final int DOC_BARE = 2;
+    public static final int RPC_WRAPPED = 3;
+    public static final int ERORR_STYLE_USE = -1;
+    
 
 }

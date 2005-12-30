@@ -203,7 +203,7 @@
        	<wsdltojava file="${basedir}/test/wsdl/hello_world.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"                                       
              extraArg1="-b" extraArg2="${build.wsdl.dir}/async_binding.xml"/>
        	<wsdltojava file="${basedir}/test/wsdl/hello_world_doc_lit.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
-        
+        <wsdltojava file="${basedir}/test/wsdl/hello_world_doc_wrapped_bare.wsdl" destdir="build/classes-tests/wsdl" srcdestdir="build/test-src"/>
     	<copy todir="${basedir}/build/wsdl/wsdl">
             <fileset dir="${basedir}/test/wsdl">
             	<include name="**/*.wsdl"/>

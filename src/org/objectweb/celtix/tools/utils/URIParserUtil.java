@@ -8,17 +8,15 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 public final class URIParserUtil {
-    private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(
-        new String[] {"abstract", "boolean", "break", "byte", "case", "catch", "char",
-            "class", "const", "continue", "default", "do", "double", "else",
-            "extends", "final", "finally", "float", "for", "goto", "if",
-            "implements", "import", "instanceof", "int", "interface", "long",
-            "native", "new", "package", "private", "protected", "public",
-            "return", "short", "static", "strictfp", "super", "switch",
-            "synchronized", "this", "throw", "throws", "transient", "try", "void",
-            "volatile", "while", "true", "false", "null", "assert", "enum"}));
+    private static final Set<String> KEYWORDS = new HashSet<String>(Arrays
+        .asList(new String[] {"abstract", "boolean", "break", "byte", "case", "catch", "char", "class",
+                              "const", "continue", "default", "do", "double", "else", "extends", "final",
+                              "finally", "float", "for", "goto", "if", "implements", "import", "instanceof",
+                              "int", "interface", "long", "native", "new", "package", "private", "protected",
+                              "public", "return", "short", "static", "strictfp", "super", "switch",
+                              "synchronized", "this", "throw", "throws", "transient", "try", "void",
+                              "volatile", "while", "true", "false", "null", "assert", "enum"}));
 
-                                                                                  
     private URIParserUtil() {
         // complete
     }
@@ -79,6 +77,32 @@ public final class URIParserUtil {
 
         // concat all the pieces and return it
         return combine(tokens, '.');
+    }
+
+    public static String getNamespace(String packageName) {
+        if (packageName == null || packageName.length() == 0) {
+            return null;
+        }
+        StringTokenizer tokenizer = new StringTokenizer(packageName, ".");
+        String[] tokens;
+        if (tokenizer.countTokens() == 0) {
+            tokens = new String[0];
+        } else {
+            tokens = new String[tokenizer.countTokens()];
+            for (int i = tokenizer.countTokens() - 1; i >= 0; i--) {
+                tokens[i] = tokenizer.nextToken();
+            }
+        }
+        StringBuffer namespace = new StringBuffer("http://");
+        String dot = "";
+        for (int i = 0; i < tokens.length; i++) {
+            if (i == 1) {
+                dot = ".";
+            }
+            namespace.append(dot + tokens[i]);
+        }
+        namespace.append('/');
+        return namespace.toString();
     }
 
     private static List<String> tokenize(String str, String sep) {

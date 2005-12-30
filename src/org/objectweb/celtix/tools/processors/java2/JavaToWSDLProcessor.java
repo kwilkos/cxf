@@ -25,15 +25,13 @@ public class JavaToWSDLProcessor implements Processor {
         init();
         buildModel(model, getSEIClass());
         model.createJAXBContext();
-        WSDLGenerator generator = new WSDLGenerator(model, penv);
+        final WSDLGenerator generator = new WSDLGenerator(model, penv);
         generator.generate();
     }
 
     public void buildModel(WSDLModel wmodel, Class clazz) throws ToolException {
-        ClassProcessor classproc = new ClassProcessor(clazz, getEnvironment());
-
+        final ClassProcessor classproc = new ClassProcessor(clazz, getEnvironment());
         classproc.process(wmodel);
-            
     }
 
     public void setEnvironment(ProcessorEnvironment env) {

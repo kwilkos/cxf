@@ -43,7 +43,7 @@ public class WSDLOutputResolver extends SchemaOutputResolver {
     public Result createOutput(String namespaceUri, String suggestedFileName) {
         wmodel.addSchemaNSFileToMap(namespaceUri, suggestedFileName);
         File wsdlFile = getFile(suggestedFileName);
-        Result result = new StreamResult();
+        Result result = null;
         try {
             result = new StreamResult(new FileOutputStream(wsdlFile));
             result.setSystemId(wsdlFile.toString().replace('\\', '/'));

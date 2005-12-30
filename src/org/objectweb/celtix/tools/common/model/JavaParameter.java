@@ -1,15 +1,20 @@
 package org.objectweb.celtix.tools.common.model;
-
+import com.sun.xml.bind.api.TypeReference;
 public class JavaParameter extends JavaType {
 
     private boolean holder;
     private String holderName;
     private String holderClass;
     private JavaAnnotation annotation;
+    private String partName;
 
     public JavaParameter() {
     }
-
+    public JavaParameter(String pname, TypeReference pref , JavaType.Style pstyle) {
+        name = pname;
+        typeRef = pref;
+        style = pstyle;
+    }
     public JavaParameter(String n, String t, String tns) {
         super(n, t, tns);
     }
@@ -46,8 +51,16 @@ public class JavaParameter extends JavaType {
         return this.annotation;
     }
 
+    public void setPartName(String name) {
+        this.partName = name;
+    }
+    
+    public String getPartName() {
+        return getPartName();
+    }
+    
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        final StringBuffer sb = new StringBuffer();
         sb.append(super.toString());
         if (holder) {
             sb.append("\nIS Holder: [Holder Name]:");
@@ -55,6 +68,9 @@ public class JavaParameter extends JavaType {
         }
         sb.append("\n Annotation:");
         sb.append(annotation);
+        
+        sb.append("\n PartName");
+        sb.append(partName);
         return sb.toString();
     }
 }

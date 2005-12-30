@@ -9,8 +9,8 @@ public class JavaType {
     protected String type;
     protected String className;
     protected String targetNamespace;
-    private Style style;
-    private TypeReference typeRef;
+    protected Style style;
+    protected TypeReference typeRef;
 
     public JavaType() {
     }
@@ -85,7 +85,7 @@ public class JavaType {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        final StringBuffer sb = new StringBuffer();
         sb.append("\nName: ");
         sb.append(this.name);
         sb.append("\nType: ");
