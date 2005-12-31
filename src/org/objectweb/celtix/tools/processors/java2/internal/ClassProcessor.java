@@ -168,11 +168,10 @@ public class ClassProcessor {
         } else {
             reqClassName = model.getPackageName() + AnnotationUtil.capitalize(method.getName());
         }
-        AnnotationUtil util = new AnnotationUtil();
-
+        
         Class reqClass = null;
         try {
-            reqClass = util.loadClass(reqClassName);
+            reqClass = AnnotationUtil.loadClass(reqClassName);
         } catch (Exception e) {
             throw new ToolException("Can Not Load class " + reqClassName, e);
         }
@@ -200,7 +199,7 @@ public class ClassProcessor {
         WSDLWrapperParameter resWrapperPara = null;
         if (!isOneWayMethod(method)) {
             try {
-                resClass = util.loadClass(resClassName);
+                resClass = AnnotationUtil.loadClass(resClassName);
             } catch (Exception e) {
                 throw new ToolException("Can Not Load Class " + resClass.getName(), e);
             }
@@ -494,7 +493,7 @@ public class ClassProcessor {
 
         }
         if (webService.endpointInterface().length() > 0) {
-            clazz = new AnnotationUtil().loadClass(webService.endpointInterface());
+            clazz = AnnotationUtil.loadClass(webService.endpointInterface());
             webService = AnnotationUtil.getPrivClassAnnotation(clazz, WebService.class);
             if (webService == null) {
                 throw new ToolException("Endpoint Interface :No Webservice ");

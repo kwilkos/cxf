@@ -6,9 +6,14 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+
+import org.objectweb.celtix.tools.Java2Wsdl;
 import org.objectweb.celtix.tools.common.ToolException;
 
-public class AnnotationUtil {
+public final class AnnotationUtil {
+    private AnnotationUtil() {
+        
+    }
 
     @SuppressWarnings("unchecked")
     public static <anoClass> anoClass getPrivClassAnnotation(final Class clazz, final Class anoClass) {
@@ -18,7 +23,7 @@ public class AnnotationUtil {
             }
         });
     }
-    
+
     @SuppressWarnings("unchecked")
     public static <anoClass> anoClass getPrivMethodAnnotation(final Method method, final Class anoClass) {
         return (anoClass)AccessController.doPrivileged(new PrivilegedAction() {
@@ -27,7 +32,7 @@ public class AnnotationUtil {
             }
         });
     }
-    
+
     @SuppressWarnings("unchecked")
     public static Annotation[][] getPrivParameterAnnotations(final Method method) {
         return (Annotation[][])AccessController.doPrivileged(new PrivilegedAction() {
@@ -37,10 +42,10 @@ public class AnnotationUtil {
         });
     }
 
-    public Class loadClass(String className) {
+    public static synchronized Class loadClass(String className) {
         Class clazz = null;
         URL[] urls = ProcessorUtil.pathToURLs(getClassPath());
-        URLClassLoader classLoader = new URLClassLoader(urls, this.getClass().getClassLoader());
+        URLClassLoader classLoader = new URLClassLoader(urls, Java2Wsdl.class.getClassLoader());
         try {
             clazz = classLoader.loadClass(className);
         } catch (Exception e) {
