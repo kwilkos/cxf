@@ -8,6 +8,7 @@ import org.w3c.dom.*;
 
 public class JAXWSBinding implements ExtensibilityElement, Serializable {
 
+    private boolean isSetAsyncMapping;
     private boolean enableAsyncMapping;
     private Element element;
     private boolean required;
@@ -28,6 +29,14 @@ public class JAXWSBinding implements ExtensibilityElement, Serializable {
 
     public Element getElement() {
         return element;
+    }
+
+    public boolean isSetAsyncMapping() {
+        return this.isSetAsyncMapping;
+    }
+
+    public void setAsyncMapping(boolean set) {
+        this.isSetAsyncMapping = set;
     }
     
     public boolean isEnableAsyncMapping() {

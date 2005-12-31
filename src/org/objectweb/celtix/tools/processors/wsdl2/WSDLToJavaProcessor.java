@@ -20,6 +20,7 @@ import org.objectweb.celtix.tools.generators.wsdl2.ImplGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.SEIGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.ServerGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.ServiceGenerator;
+import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.PortTypeProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.SEIAnnotationProcessor;
@@ -88,7 +89,10 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
     private JAXWSBinding customizing(Definition def) {
         List extElements = def.getExtensibilityElements();
-        JAXWSBinding binding = new JAXWSBinding();
+        JAXWSBinding binding = CustomizationParser.getInstance().getDefinitionExtension();
+        if (binding != null) {
+            return binding;
+        }
         
         if (extElements.size() > 0) {
             Iterator iterator = extElements.iterator();
@@ -98,6 +102,9 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
                     binding = (JAXWSBinding) obj;
                 }
             }
+        }
+        if (binding == null) {
+            binding = new JAXWSBinding();
         }
         return binding;
     }

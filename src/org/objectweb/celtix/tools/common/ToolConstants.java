@@ -6,6 +6,8 @@ public final class ToolConstants {
 
     public static final String TOOLSPECS_BASE = "/org/objectweb/celtix/tools/common/toolspec/toolspecs/";
     public static final String SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
+    public static final String XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
+    public static final String WSDL_NAMESPACE_URI = "http://schemas.xmlsoap.org/wsdl/";
     
     public static final String DEFAULT_TEMP_DIR = "gen_tmp";
     public static final String CFG_OUTPUTDIR = "outputdir";

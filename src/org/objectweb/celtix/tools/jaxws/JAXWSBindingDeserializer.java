@@ -18,28 +18,14 @@ public class JAXWSBindingDeserializer implements ExtensionDeserializer, Serializ
                                            Definition def,
                                            ExtensionRegistry extReg) throws WSDLException {
         JAXWSBinding jaxwsBinding = (JAXWSBinding) extReg.createExtension(parentType, elementType);
-    
+
         jaxwsBinding.setElementType(elementType);
         jaxwsBinding.setElement(el);
         jaxwsBinding.setDocumentBaseURI(def.getDocumentBaseURI());
 
-        NodeList children = el.getChildNodes();
-        if (children != null) {
-            for (int i = 0; i < children.getLength(); i++) {
-                Node child =  children.item(i);
-                if (isAsyncElement(child)) {
-                    jaxwsBinding.setEnableAsyncMapping(isAsync(child));
-                }
-            }
-        }
+        JAXWSBindingParser parser = new JAXWSBindingParser();
+        parser.parseElement(jaxwsBinding, el);
+        
         return jaxwsBinding;
-    }
-
-    private Boolean isAsyncElement(Node node) {
-        return "enableAsyncMapping".equals(node.getNodeName());
-    }
-
-    private Boolean isAsync(Node node) {
-        return Boolean.valueOf(node.getTextContent());
     }
 }

@@ -8,7 +8,6 @@ public class JavaModel {
     private final Map<String, JavaInterface> interfaces;
     private final Map<String, JavaExceptionClass> exceptionClasses;
     private final Map<String, JavaServiceClass> serviceClasses;
-    //    private final Map<String, JavaAsyncHandlerClass> asyncHandlerClasses;
     
     private String location;
     private JAXWSBinding jaxwsBinding;
@@ -36,14 +35,6 @@ public class JavaModel {
     public Map<String, JavaExceptionClass> getExceptionClasses() {
         return this.exceptionClasses;
     }
-
-//     public void addAsyncHandlerClass(String name, JavaAsyncHandlerClass async) {
-//         this.asyncHandlerClasses.put(name, async);
-//     }
-
-//     public Map<String, JavaAsyncHandlerClass> getAsyncHanderClasses() {
-//         return this.asyncHandlerClasses;
-//     }
 
     public void addServiceClass(String name, JavaServiceClass service) {
         this.serviceClasses.put(name, service);

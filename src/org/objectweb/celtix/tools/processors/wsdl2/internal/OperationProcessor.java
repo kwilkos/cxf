@@ -18,6 +18,7 @@ import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaReturn;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
@@ -252,9 +253,18 @@ public class OperationProcessor  {
                     binding = (JAXWSBinding) obj;
                 }
             }
+        } else {
+            String portTypeName = intf.getPortType().getQName().getLocalPart();
+            String operationName = operation.getName();
+            binding = CustomizationParser.getInstance().getPortTypeOperationExtension(portTypeName,
+                                                                                      operationName);
         }
-        if (intf.getJavaModel().getJAXWSBinding().isEnableAsyncMapping()
-            || intf.getJAXWSBinding().isEnableAsyncMapping()) {
+
+        if (binding == null) {
+            return new JAXWSBinding();
+        }
+        if (!binding.isSetAsyncMapping() && (intf.getJavaModel().getJAXWSBinding().isEnableAsyncMapping()
+            || intf.getJAXWSBinding().isEnableAsyncMapping())) {
             binding.setEnableAsyncMapping(true);
         }
         return binding;

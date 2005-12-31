@@ -25,6 +25,7 @@ import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
+import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.jaxws.JAXWSBindingDeserializer;
 import org.objectweb.celtix.tools.jaxws.JAXWSBindingSerializer;
@@ -143,8 +144,17 @@ public class WSDLToProcessor implements Processor {
         schemaList.add(schema);
     }
 
+    private void parseCustomization() {
+        if (!env.optionSet(ToolConstants.CFG_BINDING)) {
+            return;
+        }
+        CustomizationParser customizationParser = CustomizationParser.getInstance();
+        customizationParser.parse(env, wsdlDefinition);
+    }
+
     protected void init() throws ToolException {
         parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));
+        parseCustomization();
         initVelocity();
         initJAXBModel();
     }
