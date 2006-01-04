@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config 
+    xmlns:cm="http://celtix.objectweb.org/config-metadata" 
+    xmlns:ct="http://celtix.objectweb.org/config-types" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    namespace="http://celtix.objectweb.org/configuration/test/meta5">
+
+   <!-- multiple items with same name are illegal  -->
+   
+    <cm:configItem>
+		<cm:name>stringItem</cm:name>
+		<cm:type>xs:string</cm:type>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>stringItem</cm:name>
+		<cm:type>xs:string</cm:type>
+	</cm:configItem>
+	
+</cm:config>

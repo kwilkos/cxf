@@ -1,0 +1,18 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.sun.xml</groupId>
+  <artifactId>jsr250-api</artifactId>
+  <version>1.0-20051126</version>
+  <name>XML Streaming API's for the Java Platform API</name>
+  <description>
+    Based upon anticipated changes to the 250 specification to align with JAX-WS.
+    These anticipated changes maybe incorrect, may change and are not officially part of 250.
+  </description>
+  <distributionManagement>
+    <downloadUrl>https://jax-ws.dev.java.net/files/documents/4202/24765/JAXWS_SI_20051128.jar</downloadUrl>
+  </distributionManagement>
+
+  <dependencies>
+  </dependencies>
+
+</project> 

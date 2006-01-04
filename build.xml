@@ -1,43 +1,64 @@
-<?xml version="1.0"?>
-<project name="celtix" default="build" basedir=".">
-    <property file="build.properties"/>
-    <property file="etc/celtix.version"/>
-
-    <target name="build" depends="src.compile,unittest.compile,systest.compile,unit.test,system.test,release" description="Main build target"/>
-	<target name="test" depends="unit.test,system.test" description="Run unit and system tests"/>
-	
-    <target name="cruisecontrol.build" depends="very.clean,build" description="Main target for cruisecontrol"/>
-	
-
-    <!-- Load the path definitions -->
-    <import file="etc/ant-inc/paths.xml"/>
-
-    <!-- Load the codegen targets -->
-    <import file="etc/ant-inc/codegen.xml"/>
-
-    <!-- Load the compile targets -->
-    <import file="etc/ant-inc/compile.xml"/>
-
-    <!-- Load the unit test targets -->
-    <import file="etc/ant-inc/unittest.xml"/>
-
-    <!-- Load the system test targets -->
-    <import file="etc/ant-inc/systest.xml"/>
-
-    <!-- Load the coverage targets -->
-    <import file="etc/ant-inc/coverage.xml"/>
-
-    <!-- Load the javadoc targets -->
-    <import file="etc/ant-inc/javadoc.xml"/>
-
-    <!-- Load the eclipse targets -->
-    <import file="etc/ant-inc/eclipse.xml"/>
-
-    <!-- Load the release targets -->
-    <import file="etc/ant-inc/release.xml"/>
-	
-    <!-- Target to clean the build dir -->
-    <import file="etc/ant-inc/clean.xml"/>
+<project name="Celtix">
+    <target name="cruisecontrol.build">
+        <mkdir dir="target"/>
+        <exec executable="mvn" dir="${basedir}" output="target/build.out" logError="true">
+            <arg line="clean"/>
+        </exec>
+        <mkdir dir="target"/>
+        <exec executable="mvn" dir="${basedir}" failonerror="true" output="target/build.out" logError="true">
+            <arg line="install -Dsurefire.fork.mode=once"/>
+        </exec>
+    </target>
 
 
+    <target name="setup.eclipse">
+        <property name="eclipse.workspace" value="../workspace"/>
+        <property name="eclipse.downloadSources" value="true"/>
+        <exec executable="mvn" dir="${basedir}">
+            <arg line="eclipse:add-maven-repo -Declipse.workspace=${eclipse.workspace}"/>
+        </exec>
+
+        <mkdir dir="${eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings"/>
+        <mkdir dir="${eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle"/>
+
+        <!-- Add checkstyle config -->
+        <copy file="${basedir}/etc/eclipse/template.checkstyle-config.xml"
+            tofile="${eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml"
+            overwrite="yes">
+            <filterset>
+                <filter token="CHECKSTYLE_CONFIG_FILE" value="${basedir}${file.separator}checkstyle.xml"/>
+            </filterset>
+        </copy>
+
+        <!-- Add warning flags that we want -->
+        <propertyfile file="${eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs">
+            <entry key="org.eclipse.jdt.core.compiler.problem.missingSerialVersion" value="ignore"/>
+        </propertyfile>
+
+
+        <!-- Add code format rules -->
+        <concat destfile="${eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs"
+            append="true" fixlastline="true">
+            <filelist dir="${basedir}/etc/eclipse" files="org.eclipse.jdt.core.prefs"/>
+        </concat>
+        <loadfile property="eclipse.code.format" srcFile="${basedir}/etc/eclipse/CeltixCodeFormatter.xml"/>
+        <loadfile property="eclipse.code.templates" srcFile="${basedir}/etc/eclipse/codetemplates.xml"/>
+        <propertyfile file="${eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.ui.prefs">
+            <entry key="formatter_profile" value="_Celtix Java Conventions"/>
+            <entry key="org.eclipse.jdt.ui.formatterprofiles" value="${eclipse.code.format}"/>
+            <entry key="org.eclipse.jdt.ui.text.custom_code_templates" value="${eclipse.code.templates}"/>
+
+            <!-- Add import order -->
+            <entry key="org.eclipse.jdt.ui.importorder" value="java;javax;org.w3c;org.xml;junit;com;org;"/>
+            <!-- Sort order -->
+            <entry key="org.eclipse.jdt.ui.visibility.order" value="B,R,D,V,"/>
+            <entry key="outlinesortoption" value="T,SF,F,SI,I,C,SM,M,"/>
+            <entry key="org.eclipse.jdt.ui.enable.visibility.order" value="true"/>
+        </propertyfile>
+
+
+        <exec executable="mvn" dir="${basedir}">
+            <arg line="eclipse:eclipse -Declipse.downloadSources=${eclipse.downloadSources}"/>
+        </exec>
+    </target>
 </project>

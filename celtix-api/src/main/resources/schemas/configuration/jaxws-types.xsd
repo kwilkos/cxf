@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://celtix.objectweb.org/bus/jaxws/configuration/types" targetNamespace="http://celtix.objectweb.org/bus/jaxws/configuration/types" elementFormDefault="qualified">
+	<!-- 
+        global elements 
+            - can be referenced from other parts of this schema or from other schema documents
+            - can appear as root element in valid documents  
+    -->
+	<xs:element name="handlerChainValue" type="tns:handlerChainType"/>
+	<!--
+        type definitions
+    -->
+	<xs:complexType name="handlerType">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" minOccurs="0"/>
+			<xs:element name="className" type="xs:string"/>
+			<xs:element name="init-param" type="tns:handlerInitParamType" nillable="false" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="handlerChainType">
+		<xs:sequence>
+			<xs:element name="handler" type="tns:handlerType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="handlerInitParamType">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="param-name" nillable="false"/>
+			<xs:element name="param-value"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

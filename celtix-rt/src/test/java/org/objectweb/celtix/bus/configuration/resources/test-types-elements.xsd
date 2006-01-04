@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:test-types="http://celtix.objectweb.org/configuration/test/types-types" 
+    xmlns:tns="http://celtix.objectweb.org/configuration/test/types" 
+    targetNamespace="http://celtix.objectweb.org/configuration/test/types-elements" 
+    elementFormDefault="qualified" >
+    
+    <xs:import namespace="http://celtix.objectweb.org/configuration/test/types-types"
+        schemaLocation="org/objectweb/celtix/bus/configuration/resources/test-types-types.xsd"/>
+	
+	<!-- 
+        global elements 
+            - can be referenced from other parts of this schema or from other schema documents
+            - can appear as root element in valid documents  
+    -->
+	<xs:element name="bool" type="test-types:bool"/>
+	<xs:element name="int" type="test-types:int"/>
+	<xs:element name="long" type="test-types:longType"/>
+	<xs:element name="string" type="test-types:string"/>
+	<xs:element name="boolList" type="test-types:boolList"/>
+	<xs:element name="address" type="test-types:addressType"/>
+	<xs:element name="floatValue" type="xs:float"/>
+
+</xs:schema>
