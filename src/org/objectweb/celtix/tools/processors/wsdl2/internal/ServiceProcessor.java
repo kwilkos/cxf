@@ -24,12 +24,12 @@ import org.objectweb.celtix.tools.utils.ClassCollectorUtil;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class ServiceProcessor {
-    
+
     ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
     private final String soapOPAction = "SOAPACTION";
     private final String soapOPStyle = "STYLE";
     private final ProcessorEnvironment env;
-        
+
     public ServiceProcessor(ProcessorEnvironment penv) {
         this.env = penv;
     }
@@ -48,18 +48,17 @@ public class ServiceProcessor {
 
     private boolean isNameCollision(String packageName, String className) {
         return collector.containTypesClass(packageName, className)
-            || collector.containSeiClass(packageName, className)
-            || collector.containExceptionClass(packageName, className);
+               || collector.containSeiClass(packageName, className)
+               || collector.containExceptionClass(packageName, className);
     }
 
-    private void processService(JavaModel model,
-                                Service service,
-                                Definition definition) throws ToolException {
+    private void processService(JavaModel model, Service service, Definition definition) 
+        throws ToolException {
         JavaServiceClass sclz = new JavaServiceClass(model);
         String name = ProcessorUtil.mangleNameToClassName(service.getQName().getLocalPart());
         String namespace = service.getQName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, (String)env
-                                                            .get(ToolConstants.CFG_PACKAGENAME));
+            .get(ToolConstants.CFG_PACKAGENAME));
 
         while (isNameCollision(packageName, name)) {
             name = name + "_Service";
@@ -118,7 +117,8 @@ public class ServiceProcessor {
     }
 
     private void processOperation(JavaModel model, Port port, BindingOperation bop) throws ToolException {
-        String portType = port.getBinding().getPortType().getQName().getLocalPart();
+        String portType = ProcessorUtil.mangleNameToClassName(port.getBinding().getPortType().getQName()
+            .getLocalPart());
         JavaInterface jf = model.getInterfaces().get(portType);
         // TODO: extend other bindings
         SOAPBinding soapBinding = getSOAPBinding(port.getBinding());
@@ -249,5 +249,5 @@ public class ServiceProcessor {
 
     private void processRPCLiteralParameter(JavaMethod jm, BindingOperation operation) {
         // to be done
-    }   
+    }
 }

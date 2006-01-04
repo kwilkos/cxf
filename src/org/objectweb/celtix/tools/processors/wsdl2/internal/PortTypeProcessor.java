@@ -52,6 +52,7 @@ public class PortTypeProcessor {
         }
         jmodel.setLocation(location);
         jmodel.addInterface(intf.getName() , intf);
+       
     }
 
     private JAXWSBinding customizing(JavaModel jmodel, PortType portType) {

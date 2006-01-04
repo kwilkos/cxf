@@ -98,7 +98,7 @@ public class JavaInterface {
 
     public void addMethod(JavaMethod method) throws ToolException {
         if (hasMethod(method)) {
-            throw new ToolException("model.uniqueness");
+            throw new ToolException("model.uniqueness, this method already exists");
         }
         methods.add(method);
     }

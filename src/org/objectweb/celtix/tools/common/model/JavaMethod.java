@@ -74,10 +74,10 @@ public class JavaMethod {
     public void addParameter(JavaParameter param) {
         if (hasParameter(param.getName())) {
             JavaParameter paramInList = getParameter(param.getName());
-            if (paramInList.isIN()) {
+            if (paramInList.isIN() || paramInList.isINOUT()) {
                 removeParameter(paramInList);
             } else {
-                throw new ToolException("model.uniqueness, following model already exist:\n"
+                throw new ToolException("model.uniqueness, following parameter already exist:\n"
                                         + param.toString());
             }
         }
