@@ -16,14 +16,32 @@
             </ant>
         </schedule>
         <log dir="/x1/celtix_cruisecontrol/logs/celtix">
-            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-common/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-tools/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-api/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-rt/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-systests/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-common/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-tools/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-api/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-rt/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-systests/target/surefire-reports"/>
         </log>
         <publishers>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/build.out.clean" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-common/target/surefire-reports" 
+                subdirectory="celtix-common"
+                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-tools/target/surefire-reports" 
+                subdirectory="celtix-tools"
+                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-api/target/surefire-reports" 
+                subdirectory="celtix-api"
+                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-rt/target/surefire-reports" 
+                subdirectory="celtix-rt"
+                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-systests/target/surefire-reports" 
+                subdirectory="celtix-systests"
+                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+
             <htmlemail mailhost="amereast-ems2.iona.com"
                 returnaddress="celtix-build@objectweb.org"
                 returnname="Celtix Build Machine"
