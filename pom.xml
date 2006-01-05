@@ -48,6 +48,9 @@
         <mprojectinfo.version>2.0-beta-3</mprojectinfo.version>
 
         <surefire.fork.mode>none</surefire.fork.mode>
+        <systest.surefire.mode>pertest</systest.surefire.mode>
+
+
     </properties>
 
     <modules>
@@ -349,6 +352,10 @@
                 <javadoc.version>2.0-beta-3</javadoc.version>
                 <surefire-report.version>2.0-beta-1</surefire-report.version>
                 <jxr.version>2.0-beta-1</jxr.version>
+                <surefire.version>2.1.1</surefire.version>
+
+                <surefire.fork.mode>once</surefire.fork.mode>
+                <systest.surefire.mode>once</systest.surefire.mode>
             </properties>
             <!--
             <pluginRepositories>
@@ -368,7 +375,7 @@
             -->
         </profile>
         <profile>
-            <!-- No snapshots for release -->
+            <!-- Skip a bunch of timeconsuming things -->
             <id>fastinstall</id>
             <activation>
                 <property>

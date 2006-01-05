@@ -179,7 +179,7 @@
                     </includes>
                     <reportFormat>brief</reportFormat>
                     <useFile>false</useFile>
-                    <forkMode>pertest</forkMode>
+                    <forkMode>${systest.surefire.mode}</forkMode>
 
                     <systemProperties>
                         <property>
