@@ -12,9 +12,9 @@
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:svn:svn://svn.forge.objectweb.org/svnroot/celtix/branches/dkulp_refactor</connection>
-        <developerConnection>scm:svn:svn+ssh://svn.forge.objectweb.org/svnroot/celtix/branches/dkulp_refactor</developerConnection>
-        <url>http://svn.forge.objectweb.org/cgi-bin/viewcvs.cgi/celtix/branches/dkulp_refactor</url>
+        <connection>scm:svn:svn://svn.forge.objectweb.org/svnroot/celtix/trunk</connection>
+        <developerConnection>scm:svn:svn+ssh://svn.forge.objectweb.org/svnroot/celtix/trunk</developerConnection>
+        <url>http://svn.forge.objectweb.org/cgi-bin/viewcvs.cgi/celtix/trunk</url>
     </scm>
 
     <licenses>
@@ -47,10 +47,10 @@
         <jxr.version>2.0-beta-2-SNAPSHOT</jxr.version>
         <mprojectinfo.version>2.0-beta-3</mprojectinfo.version>
         <clover.version>2.0-alpha-2-20051221.001118-2</clover.version>
+
         <surefire.fork.mode>none</surefire.fork.mode>
         <systest.surefire.mode>pertest</systest.surefire.mode>
-
-
+        <compile.forked>false</compile.forked>
     </properties>
 
     <modules>
@@ -59,7 +59,6 @@
         <module>celtix-codegen-plugin</module>
         <module>celtix-testutils</module>
         <module>celtix-api</module>
-        <!--<module>celtix-configtypes</module>-->
         <module>celtix-rt</module>
         <module>celtix-systests</module>
     </modules>
@@ -182,7 +181,7 @@
                     <source>1.5</source>
                     <target>1.5</target>
                     <showDeprecation>true</showDeprecation>
-                    <fork>true</fork>
+                    <fork>${compile.forked}</fork>
                     <compilerArgument>-Xlint:unchecked,deprecation,fallthrough,finally</compilerArgument>
                 </configuration>
             </plugin>
@@ -241,11 +240,20 @@
                     <jdk>1.5</jdk>
                 </configuration>
             </plugin>
+
+
         </plugins>
     </build>
 
     <reporting>
         <plugins>
+            <!--
+            <plugin>
+                 <groupId>org.codehaus.mojo</groupId>
+                 <artifactId>cobertura-maven-plugin</artifactId>
+                 <version>2.0-SNAPSHOT</version>
+             </plugin>
+             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -374,6 +382,31 @@
                 </pluginRepository>
             </pluginRepositories>
             -->
+        </profile>
+        <profile>
+            <id>osx</id>
+            <activation>
+                <property>
+                    <name>os.name</name>
+                    <value>Mac OS X</value>
+                </property>
+            </activation>
+            <properties>
+                <compile.forked>true</compile.forked>
+            </properties>
+        </profile>
+        <profile>
+            <id>Linux-64bit</id>
+            <activation>
+                <property>
+                    <name>os.arch</name>
+                    <value>x86_64</value>
+                </property>
+            </activation>
+            <properties>
+                <compile.forked>true</compile.forked>
+                <surefire.fork.mode>once</surefire.fork.mode>
+            </properties>
         </profile>
         <profile>
             <!-- Skip a bunch of timeconsuming things -->

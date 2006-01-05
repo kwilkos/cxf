@@ -83,7 +83,7 @@
                 <configuration>
                     <source>1.4</source>
                     <target>1.4</target>
-                    <fork>true</fork>
+                    <fork>${compile.forked}</fork>
                 </configuration>
             </plugin>
         </plugins>
