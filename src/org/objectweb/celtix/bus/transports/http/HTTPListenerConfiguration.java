@@ -2,7 +2,7 @@ package org.objectweb.celtix.bus.transports.http;
 
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.configuration.AbstractConfigurationImpl;
+import org.objectweb.celtix.configuration.impl.AbstractConfigurationImpl;
 
 public class HTTPListenerConfiguration extends AbstractConfigurationImpl {
     

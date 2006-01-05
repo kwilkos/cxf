@@ -3,7 +3,7 @@ package org.objectweb.celtix.bus.jaxws;
 import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.configuration.AbstractConfigurationImpl;
+import org.objectweb.celtix.configuration.impl.AbstractConfigurationImpl;
 
 public class ServiceConfiguration extends AbstractConfigurationImpl {
     

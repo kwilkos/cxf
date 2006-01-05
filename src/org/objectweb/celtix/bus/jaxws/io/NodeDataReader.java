@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.jaxws.io;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.concurrent.Future;
 
 import javax.jws.WebParam;
 import javax.xml.namespace.QName;
@@ -12,10 +13,10 @@ import javax.xml.ws.WebServiceException;
 import org.w3c.dom.Node;
 
 import org.objectweb.celtix.bindings.DataReader;
-import org.objectweb.celtix.bus.jaxb.JAXBUtils;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.JAXBUtils;
 
 public class NodeDataReader<T> implements DataReader<T> {
     final JAXBDataBindingCallback callback;
@@ -73,6 +74,13 @@ public class NodeDataReader<T> implements DataReader<T> {
             if (JAXBUtils.isAsync(method)) {
                 Method syncMethod = callback.getSyncMethod();
                 Type gtype = method.getGenericReturnType();
+                
+                if (Future.class.equals(method.getReturnType())) {
+                    Type types[] = method.getGenericParameterTypes();
+                    if (types.length > 0 && types[types.length - 1] instanceof ParameterizedType) {
+                        gtype = types[types.length - 1];
+                    }
+                }
                 if (gtype instanceof ParameterizedType 
                     && ((ParameterizedType)gtype).getActualTypeArguments().length == 1
                     && ((ParameterizedType)gtype).getActualTypeArguments()[0] instanceof Class) {

@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.jaxws;
 
+import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -268,6 +269,17 @@ public final class JAXBEncoderDecoder {
         // JAXB Code Generated.
         assert false;
         throw new IllegalArgumentException("Cannot get Class object from unknown Type");
+    }
+    
+    public static String toString(Object obj) throws JAXBException {
+        String name = obj.getClass().getPackage().getName();
+        JAXBContext context = JAXBContext.newInstance(name);
+        JAXBElement<Object> el = new JAXBElement<Object>(new QName("test"), Object.class, obj);
+        Marshaller m = context.createMarshaller();
+        StringWriter writer = new StringWriter();
+        m.marshal(el, writer);
+        
+        return writer.toString();       
     }
 
 }

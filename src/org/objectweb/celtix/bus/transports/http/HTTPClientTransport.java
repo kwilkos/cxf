@@ -42,11 +42,11 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 public class HTTPClientTransport implements ClientTransport {
 
     // private static final Logger LOG = LogUtils.getL7dLogger(HTTPClientTransport.class);
-    final URL url;
-    final Configuration configuration;
     final HTTPClientPolicy policy;
     final AuthorizationPolicy authPolicy;
     final AuthorizationPolicy proxyAuthPolicy;
+    final Configuration configuration;
+    URL url;
       
     public HTTPClientTransport(Bus bus, EndpointReferenceType ref) throws WSDLException, IOException {
 
@@ -114,7 +114,17 @@ public class HTTPClientTransport implements ClientTransport {
     }
 
     public void shutdown() {
-        //nothing to do
+        if (url != null) {
+            try {
+                URLConnection connect = url.openConnection();
+                if (connect instanceof HttpURLConnection) {
+                    ((HttpURLConnection)connect).disconnect();
+                }
+            } catch (IOException ex) {
+                //ignore
+            }
+            url = null;         
+        }
     }
     
     private Configuration getPortConfiguration(Bus bus, EndpointReferenceType ref) {

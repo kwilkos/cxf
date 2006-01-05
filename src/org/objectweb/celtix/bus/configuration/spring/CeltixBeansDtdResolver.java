@@ -15,6 +15,7 @@ import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.ConfigurationException;
+import org.objectweb.celtix.tools.generators.spring.BeanGenerator;
 
 public class CeltixBeansDtdResolver implements EntityResolver {
 

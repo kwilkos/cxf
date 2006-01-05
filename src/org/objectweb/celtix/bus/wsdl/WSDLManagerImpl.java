@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -133,7 +134,21 @@ public class WSDLManagerImpl implements WSDLManager {
         return def;
     }
 
+    private String createClasspath() {
+        ClassLoader loader = this.getClass().getClassLoader();
+        StringBuffer classpath = new StringBuffer(System.getProperty("java.class.path"));
+        if (loader instanceof URLClassLoader) {
+            URLClassLoader urlloader = (URLClassLoader)loader; 
+            for (URL url : urlloader.getURLs()) {
+                classpath.append(File.pathSeparatorChar);
+                classpath.append(url.toString());
+            }
+        }
+        return classpath.toString();
+    }
+
     private Definition createDefinition(Class<?> sei) {
+        Definition definition = null;
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("createDefinition for class: " + sei.getName());
         }
@@ -146,98 +161,104 @@ public class WSDLManagerImpl implements WSDLManager {
             LOG.log(Level.SEVERE, "WSDL_GENERATION_TMP_DIR_MSG", ex);
             return null;
         }
+        
+        
         /*
          * JAXWSWsdlGenerator generator = new JAXWSWsdlGenerator(sei.getName(),
          * sei.getClassLoader()); Configuration config = new ToolConfig(new
          * String[] {"-wsdl", "-d", tmp.getPath()});
          * generator.setConfiguration(config); generator.generate();
          */
+
         
-        String [] args = new String[] {
-            JavaHelper.getJavaCommand(),
-            "-cp",
-            System.getProperty("java.class.path"),
-            "com.sun.tools.ws.WsGen", 
-            "-d",
-            tmp.getPath(),
-            "-wsdl",
-            sei.getName(),
-        };
-        ForkedCommand fc = new ForkedCommand(args);
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(bout);
-        fc.setOutputStream(ps);
-        int result = 0;
         try {
-            result = fc.execute(120);
-        } catch (ForkedCommandException ex) {
-            LOG.log(Level.SEVERE, "WSDL_GENERATION_FAILURE_MSG", ex);
-            return null;
-        }
-        ps.flush();
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Generator output:\n" + new String(bout.toByteArray()));
-        }
-        if (0 != result) {
-            LOG.log(Level.SEVERE, "WSDL_GENERATION_BAD_RESULT_MSG", result);
-            return null; 
-        }
-
-        // schema and WSDL file should have been created in tmp directory
-
-        File[] generated = tmp.listFiles();
-        File schema = null;
-        File wsdl = null;
-        for (File f : generated) {
-            if (f.isFile()) {
-                if (null == wsdl && f.getName().endsWith(".wsdl")) {
-                    wsdl = f;
-                } else if (null == schema && f.getName().endsWith(".xsd")) {
-                    schema = f;
-                }
-                if (null != schema && null != wsdl) {
-                    break;
-                }
+            String classpath = createClasspath();
+            
+            String [] args = new String[] {
+                JavaHelper.getJavaCommand(),
+                "-cp",
+                classpath,
+                "com.sun.tools.ws.WsGen", 
+                "-d",
+                tmp.getPath(),
+                "-wsdl",
+                sei.getName(),
+            };
+            ForkedCommand fc = new ForkedCommand(args);
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(bout);
+            fc.setOutputStream(ps);
+            int result = 0;
+            try {
+                result = fc.execute(120);
+            } catch (ForkedCommandException ex) {
+                LogUtils.log(LOG, Level.SEVERE, "WSDL_GENERATION_FAILURE_MSG", ex, (Object)null);
+                return null;
             }
-        }
-        if (null == wsdl || null == schema) {
-            LOG.severe("WSDL_SCHEMA_GENERATION_FAILURE_MSG");
-            return null;
-        } else if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Generated " + wsdl.getPath() + " and " + schema.getPath());
-        }
-
-        WSDLFactory wf = getWSDLFactory();
-        Definition definition = null;
-        
-        class Directory {
-            private final File dir;
-            Directory(File d) {
-                dir = d;
+            ps.flush();
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info("Generator output:\n" + new String(bout.toByteArray()));
             }
-            void delete() {
-                File[] entries = dir.listFiles();
-                for (File f : entries) {
-                    if (f.isDirectory()) {
-                        Directory d = new Directory(f);
-                        d.delete();
-                    } 
-                    f.delete();
+            if (0 != result) {
+                LOG.log(Level.SEVERE, "WSDL_GENERATION_BAD_RESULT_MSG", result);
+                return null; 
+            }
+    
+            // schema and WSDL file should have been created in tmp directory
+    
+            File[] generated = tmp.listFiles();
+            File schema = null;
+            File wsdl = null;
+            for (File f : generated) {
+                if (f.isFile()) {
+                    if (null == wsdl && f.getName().endsWith(".wsdl")) {
+                        wsdl = f;
+                    } else if (null == schema && f.getName().endsWith(".xsd")) {
+                        schema = f;
+                    }
+                    if (null != schema && null != wsdl) {
+                        break;
+                    }
                 }
             }
+            if (null == wsdl || null == schema) {
+                LOG.severe("WSDL_SCHEMA_GENERATION_FAILURE_MSG");
+                return null;
+            } else if (LOG.isLoggable(Level.INFO)) {
+                LOG.info("Generated " + wsdl.getPath() + " and " + schema.getPath());
+            }
+    
+            WSDLFactory wf = getWSDLFactory();
+            
+            try {
+                WSDLReader reader = wf.newWSDLReader();
+                reader.setFeature("javax.wsdl.verbose", false);
+                reader.setExtensionRegistry(registry);
+                definition = reader.readWSDL(wsdl.getPath());
+            } catch (WSDLException ex) {
+                LOG.log(Level.SEVERE, "WSDL_UNREADABLE_MSG", ex);
+            }
+        } finally {
+            class Directory {
+                private final File dir;
+                Directory(File d) {
+                    dir = d;
+                }
+                void delete() {
+                    File[] entries = dir.listFiles();
+                    for (File f : entries) {
+                        if (f.isDirectory()) {
+                            Directory d = new Directory(f);
+                            d.delete();
+                        } 
+                        f.delete();
+                    }
+                    dir.delete();
+                }
+            }
+            Directory dir = new Directory(tmp);
+            dir.delete();        
         }
-        try {
-            WSDLReader reader = wf.newWSDLReader();
-            reader.setFeature("javax.wsdl.verbose", false);
-            reader.setExtensionRegistry(registry);
-            definition = reader.readWSDL(wsdl.getPath());
-        } catch (WSDLException ex) {
-            LOG.log(Level.SEVERE, "WSDL_UNREADABLE_MSG", ex);
-        }
-        
-        Directory dir = new Directory(tmp);
-        dir.delete();        
-        
         return definition; 
     }
 }

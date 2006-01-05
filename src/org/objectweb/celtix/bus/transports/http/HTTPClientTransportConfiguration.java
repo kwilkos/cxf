@@ -2,9 +2,9 @@ package org.objectweb.celtix.bus.transports.http;
 
 import javax.wsdl.Port;
 
-import org.objectweb.celtix.bus.configuration.AbstractConfigurationImpl;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlHttpConfigurationProvider;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.impl.AbstractConfigurationImpl;
 
 public class HTTPClientTransportConfiguration extends AbstractConfigurationImpl {
 

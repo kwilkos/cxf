@@ -27,14 +27,14 @@ import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.bindings.soap.SOAPConstants;
-import org.objectweb.celtix.bus.jaxb.JAXBUtils;
-import org.objectweb.celtix.bus.jaxb.WrapperHelper;
 import org.objectweb.celtix.bus.jaxws.io.DetailDataWriter;
 import org.objectweb.celtix.bus.jaxws.io.NodeDataReader;
 import org.objectweb.celtix.bus.jaxws.io.NodeDataWriter;
 import org.objectweb.celtix.bus.jaxws.io.SOAPFaultDataReader;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.JAXBUtils;
+import org.objectweb.celtix.jaxb.WrapperHelper;
 
 public class JAXBDataBindingCallback implements DataBindingCallback {
     
@@ -195,6 +195,10 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     public QName getWebResultQName() {
         if (null != webResultAnnotation) {
             if (getSOAPStyle() == Style.DOCUMENT) {
+                if ("".equals(webResultAnnotation.name())) {
+                    return new QName(webResultAnnotation.targetNamespace(),
+                            "return");
+                }
                 return new QName(webResultAnnotation.targetNamespace(),
                                  webResultAnnotation.name());
             } else {

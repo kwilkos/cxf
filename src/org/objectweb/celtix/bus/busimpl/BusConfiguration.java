@@ -3,8 +3,8 @@ package org.objectweb.celtix.bus.busimpl;
 import java.util.Map;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.configuration.AbstractConfigurationImpl;
 import org.objectweb.celtix.configuration.CommandLineOption;
+import org.objectweb.celtix.configuration.impl.AbstractConfigurationImpl;
 
 public class BusConfiguration extends AbstractConfigurationImpl {
     

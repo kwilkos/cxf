@@ -7,11 +7,11 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.bus.configuration.TypeSchema;
-import org.objectweb.celtix.bus.configuration.TypeSchemaHelper;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.ConfigurationException;
+import org.objectweb.celtix.configuration.impl.TypeSchema;
+import org.objectweb.celtix.configuration.impl.TypeSchemaHelper;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 
 public class JaxbNumberEditor extends CustomNumberEditor {
@@ -27,7 +27,7 @@ public class JaxbNumberEditor extends CustomNumberEditor {
         if (o instanceof Element) {
             Element el = (Element)o;
             QName type = new QName(el.getNamespaceURI(), el.getLocalName());
-            TypeSchema ts = new TypeSchemaHelper().get(type.getNamespaceURI());
+            TypeSchema ts = new TypeSchemaHelper(true).get(type.getNamespaceURI());
             if (null == ts) {
                 throw new ConfigurationException(new Message("JAXB_PROPERTY_EDITOR_EXC", LOG, type));
             }

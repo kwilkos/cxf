@@ -15,9 +15,9 @@ public class WebContextResourceResolver implements ResourceResolver {
         return null;
     }
 
-    public final Object resolve(final String string, final Class clz) {
+    public final <T> T resolve(final String string, final Class<T> clz) {
         if (WebServiceContext.class.isAssignableFrom(clz)) { 
-            return new WebServiceContextImpl();
+            return clz.cast(new WebServiceContextImpl());
         } 
         return null;
     }

@@ -180,7 +180,7 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     @Override
-    public void addPort(QName arg0, URI arg1, String arg2) {
+    public void addPort(QName arg0, String arg1, String arg2) {
         // TODO Auto-generated method stub
         
     }
@@ -202,6 +202,6 @@ public class ServiceImpl extends ServiceDelegate {
     public void setExecutor(Executor e) {
         executor = e;
     }
-   
+
 }
 

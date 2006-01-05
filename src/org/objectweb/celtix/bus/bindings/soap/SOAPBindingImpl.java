@@ -6,7 +6,6 @@ package org.objectweb.celtix.bus.bindings.soap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,11 +80,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
     }
 
-    public Set<URI> getRoles() {
+    public Set<String> getRoles() {
         return null;
     }
 
-    public void setRoles(Set<URI> set) {
+    public void setRoles(Set<String> set) {
         //TODO
     }
 

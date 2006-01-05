@@ -28,13 +28,15 @@ final class JettyHTTPServerEngine {
         new HashMap<Integer, JettyHTTPServerEngine>();
    
     int servantCount;
-    HttpServer server = new HttpServer();
+    HttpServer server;
     SocketListener listener;
     Configuration config;
     HTTPListenerPolicy policy;
     SSLPolicy sslPolicy;
+    int port;
     
-    private JettyHTTPServerEngine(Bus bus, String protocol, int port) {
+    private JettyHTTPServerEngine(Bus bus, String protocol, int p) {
+        port = p;
         config = createConfiguration(bus, port);
         policy = config.getObject(HTTPListenerPolicy.class, "httpListener");
         sslPolicy = config.getObject(SSLPolicy.class, "ssl");
@@ -42,40 +44,36 @@ final class JettyHTTPServerEngine {
             sslPolicy = new SSLPolicy();
             sslPolicy.setUseSecureSockets(true);
         }
-        
-        if (sslPolicy != null && sslPolicy.isUseSecureSockets()) {
-            listener = new SslListener(new InetAddrPort(port));
-            // TODO - set the SSL stuff
-        } else {
-            listener = new SocketListener(new InetAddrPort(port));
-        }
-        
-        if (policy.isSetMinThreads()) {
-            listener.setMinThreads(policy.getMinThreads());
-        }
-        if (policy.isSetMaxThreads()) {
-            listener.setMaxThreads(policy.getMaxThreads());            
-        }
-        if (policy.isSetMaxIdleTimeMs()) {
-            listener.setMaxIdleTimeMs(policy.getMaxIdleTimeMs().intValue());
-        }
-        if (policy.isSetLowResourcePersistTimeMs()) {
-            listener.setLowResourcePersistTimeMs(policy.getLowResourcePersistTimeMs().intValue());
-        }
     }
     
-    private Configuration createConfiguration(Bus bus, int port) {
-        return new HTTPListenerConfiguration(bus, port);
+    private Configuration createConfiguration(Bus bus, int p) {
+        return new HTTPListenerConfiguration(bus, p);
     }
     
-    static synchronized JettyHTTPServerEngine getForPort(Bus bus, String protocol, int port) {
-        
-        JettyHTTPServerEngine ref = portMap.get(port);
+    static synchronized JettyHTTPServerEngine getForPort(Bus bus, String protocol, int p) {
+        JettyHTTPServerEngine ref = portMap.get(p);
         if (ref == null) {
-            ref = new JettyHTTPServerEngine(bus, protocol, port);
-            portMap.put(port, ref);
+            ref = new JettyHTTPServerEngine(bus, protocol, p);
+            portMap.put(p, ref);
         }
         return ref;
+    }
+    static synchronized void destroyForPort(int p) {
+        JettyHTTPServerEngine ref = portMap.remove(p);
+        if (ref != null && ref.server != null) {
+            try {
+                ref.listener.getServerSocket().close();
+                ref.server.stop(true);
+                ref.server.destroy();
+                ref.server = null;
+                ref.listener = null;
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            
+        }
     }
     
     synchronized void addServant(String url, final JettyHTTPServerTransport servant) {
@@ -88,11 +86,32 @@ final class JettyHTTPServerEngine {
             e1.printStackTrace();
         }
         String lpath = nurl.getPath();
-        
-        if (servantCount == 0) {
+
+        if (server == null) {
+            server = new HttpServer();
+            if (sslPolicy != null && sslPolicy.isUseSecureSockets()) {
+                listener = new SslListener(new InetAddrPort(port));
+                // TODO - set the SSL stuff
+            } else {
+                listener = new SocketListener(new InetAddrPort(port));
+            }
+            
+            if (policy.isSetMinThreads()) {
+                listener.setMinThreads(policy.getMinThreads());
+            }
+            if (policy.isSetMaxThreads()) {
+                listener.setMaxThreads(policy.getMaxThreads());            
+            }
+            if (policy.isSetMaxIdleTimeMs()) {
+                listener.setMaxIdleTimeMs(policy.getMaxIdleTimeMs().intValue());
+            }
+            if (policy.isSetLowResourcePersistTimeMs()) {
+                listener.setLowResourcePersistTimeMs(policy.getLowResourcePersistTimeMs().intValue());
+            }
+
             server.addListener(listener);
             try {
-                listener.start();
+                server.start();
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

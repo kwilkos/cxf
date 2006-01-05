@@ -7,12 +7,13 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.bus.jaxb.JAXBUtils;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
+import org.objectweb.celtix.jaxb.JAXBUtils;
+import org.objectweb.celtix.tools.generators.spring.BeanGenerator;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.Resource;
