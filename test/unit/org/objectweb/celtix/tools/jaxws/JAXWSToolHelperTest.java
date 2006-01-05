@@ -57,7 +57,7 @@ public class JAXWSToolHelperTest extends TestCase {
         // test 
         String jaxwsHome = System.getProperty("jaxws.home", "");
         if ("".equals(jaxwsHome)) {
-            System.err.println("skipping test <" + getName() + "> in eclipse environment");           
+            //System.err.println("skipping test <" + getName() + "> in eclipse environment");           
             return;
         }
         URL[] urls = JAXWSToolHelper.getJAXWSClassPath();
