@@ -9,7 +9,7 @@ public class Server extends TestServerBase {
     
     protected void run()  {
         Object implementor = new TestHeaderImpl();
-        String address = "http://localhost:9100/SoapHeaderContext/SoapHeaderPort";
+        String address = "http://localhost:9104/SoapHeaderContext/SoapHeaderPort";
         Endpoint.publish(address, implementor);
     }
     

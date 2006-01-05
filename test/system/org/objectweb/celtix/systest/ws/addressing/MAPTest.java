@@ -12,12 +12,15 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.Handler;
 
-import org.objectweb.celtix.BusException;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.bus.ws.addressing.MAPAggregator;
 import org.objectweb.celtix.bus.ws.addressing.Names;
 import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
+import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
@@ -38,7 +41,7 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
     static final String INBOUND_KEY = "inbound";
     static final String OUTBOUND_KEY = "outbound";
     private static final QName SERVICE_NAME = 
-        new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
+        new QName("http://objectweb.org/hello_world_soap_http", "SOAPServiceAddressing");
     private static final QName PORT_NAME =
         new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
     private static Map<Object, Map<String, String>> messageIDs =
@@ -52,13 +55,16 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
         junit.textui.TestRunner.run(MAPTest.class);
     }
     
-    //--Lifecycle
+    public static Test suite() throws Exception {
+        TestSuite suite = new TestSuite(MAPTest.class);
+        return new ClientServerSetupBase(suite) {
+            public void startServers() throws Exception {
+                assertTrue("server did not launch correctly", launchServer(Server.class));
+            }
+        };
+    }  
 
-    protected void onetimeSetUp() throws BusException {
-        launchServer(Server.class);
-    }
-
-    public void setUp() throws BusException {
+    public void setUp() throws Exception {
         super.setUp();
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         SOAPService service = new SOAPService(wsdl, SERVICE_NAME);

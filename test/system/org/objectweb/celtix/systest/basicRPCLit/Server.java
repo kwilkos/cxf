@@ -9,7 +9,7 @@ public class Server extends TestServerBase {
 
     protected void run()  {
         Object implementor = new GreeterImplRPCLit();
-        String address = "http://localhost:9000/SoapContext/SoapPort";
+        String address = "http://localhost:9002/SOAPServiceRPCLit/SoapPort";
         Endpoint.publish(address, implementor);
     }
 

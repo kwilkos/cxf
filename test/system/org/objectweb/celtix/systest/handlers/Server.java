@@ -12,7 +12,7 @@ public class Server extends TestServerBase {
     
     protected void run()  {
         Object implementor = new HandlerTestImpl();
-        String address = "http://localhost:9000/HandlerTest/SoapPort";
+        String address = "http://localhost:9005/HandlerTest/SoapPort";
         Endpoint.publish(address, implementor);
     }
     

@@ -5,6 +5,10 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
@@ -18,10 +22,16 @@ public class ClientServerTest extends ClientServerTestBase {
     private final QName portName = new QName("http://objectweb.org/hello_world_rpclit",
                                              "SoapPortRPCLit");
 
-    public void onetimeSetUp() {
-        assertTrue("server did not launch correctly", launchServer(Server.class));
-    }
 
+    public static Test suite() throws Exception {
+        TestSuite suite = new TestSuite(ClientServerTest.class);
+        return new ClientServerSetupBase(suite) {
+            public void startServers() throws Exception {
+                assertTrue("server did not launch correctly", launchServer(Server.class));
+            }
+        };
+    }  
+    
     public void testBasicConnection() throws Exception {
 
         URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");

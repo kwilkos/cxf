@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -50,6 +52,26 @@ public class ServerLauncher {
                     ex.printStackTrace();
                 }
             }
+            if (!inProcess) {
+                //wait for process to end...
+                TimeoutCounter tc = new TimeoutCounter(DEFAULT_TIMEOUT);
+                while (!tc.isTimeoutExpired()) {
+                    try {
+                        process.exitValue();
+                        break;
+                    } catch (IllegalThreadStateException ex) {
+                        //ignore, process hasn't ended
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ex1) {
+                            //ignore
+                        }
+                    }
+                }
+                if (tc.isTimeoutExpired()) {
+                    process.destroy();
+                }
+            }
         }
         return serverIsStopped;
     }
@@ -93,7 +115,12 @@ public class ServerLauncher {
             }
         } else {
             List<String> cmd = getCommand();
-    
+
+            if (debug) {
+                System.err.print("CMD: ");
+            }
+            
+            
             ProcessBuilder pb = new ProcessBuilder(cmd);
             pb.redirectErrorStream(true);
             process = pb.start();
@@ -129,47 +156,57 @@ public class ServerLauncher {
     }
 
     private void launchOutputMonitorThread(final InputStream in, final PrintStream out) {
-        Thread t = new Thread() {
-            public void run() {
-                try {
-                    StringBuilder serverOutput = new StringBuilder();
-                    FileOutputStream fos = new FileOutputStream(className + ".out");
-                    PrintStream ps = new PrintStream(fos);
-                    boolean running = true;
-                    for (int ch = in.read(); ch != -1; ch = in.read()) {
-                        serverOutput.append((char)ch);
-                        if (debug) {
-                            System.err.print((char)ch);
-                        }
-                        String s = serverOutput.toString();
-                        if (s.contains("server ready")) {
-                            notifyServerIsReady();
-                        } else if (s.contains("server passed")) {
-                            serverPassed = true;
-                        } else if (s.contains("server stopped")) {
-                            notifyServerIsStopped();
-                            running = false;
-                        } else if (s.contains("failed")) {
-                            notifyServerLaunchFailed();
-                            running = false;
-                        }
-                        if (ch == '\n' || !running) {
-                            synchronized (out) {
-                                ps.print(serverOutput.toString());
-                                serverOutput = new StringBuilder();
-                                ps.flush();
-                            }
-                        }
+        Thread t = new OutputMonitorThread(in, out);
+        t.start();
+    }
+    private class OutputMonitorThread extends Thread {
+        InputStream in;
+        PrintStream out;
+
+        OutputMonitorThread(InputStream i, PrintStream o) {
+            in = i;
+            out = o;
+        }
+
+        public void run() {
+            try {
+                StringBuilder serverOutput = new StringBuilder();
+                String outputDir = System.getProperty("server.output.dir", "target/surefire-reports");
+                FileOutputStream fos = new FileOutputStream(outputDir + className + ".out");
+                PrintStream ps = new PrintStream(fos);
+                boolean running = true;
+                for (int ch = in.read(); ch != -1; ch = in.read()) {
+                    serverOutput.append((char)ch);
+                    if (debug) {
+                        System.err.print((char)ch);
                     }
-                    
-                } catch (IOException ex) {
-                    if (!ex.getMessage().contains("Stream closed")) {
-                        ex.printStackTrace();
+                    String s = serverOutput.toString();
+                    if (s.contains("server ready")) {
+                        notifyServerIsReady();
+                    } else if (s.contains("server passed")) {
+                        serverPassed = true;
+                    } else if (s.contains("server stopped")) {
+                        notifyServerIsStopped();
+                        running = false;
+                    } else if (s.contains("failed")) {
+                        notifyServerLaunchFailed();
+                        running = false;
+                    }
+                    if (ch == '\n' || !running) {
+                        synchronized (out) {
+                            ps.print(serverOutput.toString());
+                            serverOutput = new StringBuilder();
+                            ps.flush();
+                        }
                     }
                 }
+                
+            } catch (IOException ex) {
+                if (!ex.getMessage().contains("Stream closed")) {
+                    ex.printStackTrace();
+                }
             }
-        };
-        t.start();
+        }
     }
 
     void notifyServerIsReady() {
@@ -199,7 +236,18 @@ public class ServerLauncher {
         List<String> cmd = new ArrayList<String>();
         cmd.add(javaExe);
         cmd.add("-classpath");
-        cmd.add(System.getProperty("java.class.path"));
+        
+        ClassLoader loader = this.getClass().getClassLoader();
+        StringBuffer classpath = new StringBuffer(System.getProperty("java.class.path"));
+        if (loader instanceof URLClassLoader) {
+            URLClassLoader urlloader = (URLClassLoader)loader; 
+            for (URL url : urlloader.getURLs()) {
+                classpath.append(File.pathSeparatorChar);
+                classpath.append(url.toString());
+            }
+        }
+        cmd.add(classpath.toString());
+        
         cmd.add("-Djavax.xml.ws.spi.Provider=org.objectweb.celtix.bus.jaxws.spi.ProviderImpl");
         /* REVISIT: this prevents the server from shutting down and causes the test to timeout.
          * It would be good however to get this fixed as it is useful for server debugging. 

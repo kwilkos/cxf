@@ -24,7 +24,7 @@ import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 
 
-@WebService(serviceName = "SOAPService", portName = "SoapPort", 
+@WebService(serviceName = "SOAPServiceAddressing", portName = "SoapPort", 
             name = "Greeter", 
             targetNamespace = "http://objectweb.org/hello_world_soap_http")
 @HandlerChain(file = "./handlers.xml", name = "MAPHandlerChain")

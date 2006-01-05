@@ -6,7 +6,10 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
-import org.objectweb.celtix.BusException;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.header_test.SOAPHeaderService;
 import org.objectweb.header_test.TestHeader;
@@ -27,24 +30,27 @@ public class ClientServerTest extends ClientServerTestBase {
 
     private TestHeader proxy;
     
-    public void onetimeSetUp() { 
-        assertTrue("server did not launch correctly", launchServer(Server.class));
-    }
+    public static Test suite() throws Exception {
+        TestSuite suite = new TestSuite(ClientServerTest.class);
+        return new ClientServerSetupBase(suite) {
+            public void startServers() throws Exception {
+                assertTrue("server did not launch correctly", launchServer(Server.class));
+            }
+        };
+    }  
 
-    public void setUp() throws BusException {
-        try { 
-            super.setUp();
-            
-            URL wsdl = getClass().getResource("/wsdl/soapheader_test.wsdl");
-            assertNotNull(wsdl);
-            
-            SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
-            assertNotNull(service);
-            proxy = service.getPort(portName, TestHeader.class);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail(ex.toString());
-        }
+    public void setUp() throws Exception {
+        super.setUp();
+        
+        URL wsdl = getClass().getResource("/wsdl/soapheader_test.wsdl");
+        assertNotNull(wsdl);
+        
+        SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
+        assertNotNull(service);
+        proxy = service.getPort(portName, TestHeader.class);
+    }
+    public void tearDown() {
+        proxy = null;
     }
     
     public void testInHeader() throws Exception {

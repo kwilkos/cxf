@@ -11,7 +11,12 @@ import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.handler_test.HandlerTest;
 import org.objectweb.handler_test.HandlerTestService;
@@ -30,9 +35,15 @@ public class HandlerInvocationTest extends ClientServerTestBase {
     private HandlerTestService service;
     private HandlerTest handlerTest;
 
-    protected void onetimeSetUp() { 
-        launchServer(Server.class);
-    } 
+
+    public static Test suite() throws Exception {
+        TestSuite suite = new TestSuite(HandlerInvocationTest.class);
+        return new ClientServerSetupBase(suite) {
+            public void startServers() throws Exception {
+                assertTrue("server did not launch correctly", launchServer(Server.class));
+            }
+        };
+    }  
 
 
     public void setUp() throws BusException {

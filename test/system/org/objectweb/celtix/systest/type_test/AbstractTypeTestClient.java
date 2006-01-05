@@ -12,7 +12,6 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceException;
 
-import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 //import org.objectweb.type_test.types.ColourEnum;
 import org.objectweb.type_test.types.DecimalEnum;
@@ -44,27 +43,26 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         perfTestOnly = true;
     }
 
-    public void setUp() throws BusException {
+    public void setUp() throws Exception {
         super.setUp(); 
-        initBus(); 
 
         //
         // Check the name of the wsdlPath to decide whether to test doc
         // literal or rpc literal style.
         //
         URL wsdlLocation = getClass().getResource(wsdlPath);
-        assertNotNull(wsdlLocation);
+        assertNotNull("Could not load wsdl " + wsdlPath, wsdlLocation);
         testDocLiteral = wsdlPath.contains("doclit");
         if (testDocLiteral) {
             org.objectweb.type_test.doc.SOAPService docService =
                 new org.objectweb.type_test.doc.SOAPService(wsdlLocation, serviceName);
             docClient = docService.getPort(portName, org.objectweb.type_test.doc.TypeTestPortType.class);
-            assertNotNull(docClient);
+            assertNotNull("Could not create docClient", docClient);
         } else {
             org.objectweb.type_test.rpc.SOAPService rpcService =
                 new org.objectweb.type_test.rpc.SOAPService(wsdlLocation, serviceName);
             rpcClient = rpcService.getPort(portName, org.objectweb.type_test.rpc.TypeTestPortType.class);
-            assertNotNull(rpcClient);
+            assertNotNull("Could not create rpcClient", rpcClient);
         }
     }
 

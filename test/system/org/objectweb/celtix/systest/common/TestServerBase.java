@@ -8,7 +8,6 @@ import org.objectweb.celtix.Bus;
 
 public abstract class TestServerBase extends Assert {
     
-    private static final Logger LOG = Logger.getLogger(TestServerBase.class.getName());
     private Bus bus;
     
     /** 
@@ -17,19 +16,24 @@ public abstract class TestServerBase extends Assert {
      *
      */
     protected abstract void run();
+
+    protected Logger getLog() {
+        String loggerName = this.getClass().getName();
+        return Logger.getLogger(loggerName);
+    }
     
     
     public void startInProcess() throws Exception {
-        LOG.info("running server");
+        getLog().info("running server");
         run();
-        LOG.info("signal ready");
+        getLog().info("signal ready");
         ready();
     }
     
     public boolean stopInProcess() throws Exception {
         boolean ret = true;
-        if (verify(LOG)) {
-            LOG.info("server passed");
+        if (verify(getLog())) {
+            getLog().info("server passed");
         } else {
             ret = false;
         }
@@ -41,24 +45,24 @@ public abstract class TestServerBase extends Assert {
     
     public void start() {
         try { 
-            LOG.info("running server");
+            getLog().info("running server");
             run();
-            LOG.info("signal ready");
+            getLog().info("signal ready");
             ready();
             
             // wait for a key press then shut 
             // down the server
             //
             System.in.read(); 
-            LOG.info("stopping bus");
-        } catch (Exception ex) {
+            getLog().info("stopping bus");
+        } catch (Throwable ex) {
             ex.printStackTrace();
             startFailed();
         } finally {
-            if (verify(LOG)) {
-                LOG.info("server passed");
+            if (verify(getLog())) {
+                getLog().info("server passed");
             }
-            LOG.info("server stopped");
+            getLog().info("server stopped");
             System.exit(0);
         }
     }
@@ -91,7 +95,7 @@ public abstract class TestServerBase extends Assert {
      * @param log logger to use for diagnostics if assertions fail
      * @return true if assertions hold
      */
-    protected boolean verify(Logger log) {
+    protected boolean verify(Logger l) {
         return true;
     }    
 }

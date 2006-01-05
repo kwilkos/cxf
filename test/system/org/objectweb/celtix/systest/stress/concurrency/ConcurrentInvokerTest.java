@@ -4,7 +4,10 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.BusException;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
@@ -19,22 +22,26 @@ public class ConcurrentInvokerTest extends ClientServerTestBase {
 
     Greeter greeter;
     private final QName serviceName = new QName("http://objectweb.org/hello_world_soap_http",
-                                                "SOAPService");    
+                                                "SOAPServiceConcurrencyTest");    
     private final QName portName = new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ConcurrentInvokerTest.class);
     }
+    public static Test suite() throws Exception {
+        TestSuite suite = new TestSuite(ConcurrentInvokerTest.class);
+        return new ClientServerSetupBase(suite) {
+            public void startServers() throws Exception {
+                assertTrue("server did not launch correctly", launchServer(Server.class));
+            }
+        };
+    }  
 
-    public void setUp() throws BusException {
+    public void setUp() throws Exception {
         super.setUp();
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         SOAPService service = new SOAPService(wsdl, serviceName);
         greeter = service.getPort(portName, Greeter.class);
-    }
-
-    public void onetimeSetUp() { 
-        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
     public void testConcurrentInvocation() throws Exception {
@@ -79,7 +86,7 @@ public class ConcurrentInvokerTest extends ClientServerTestBase {
         // stop the server here, instead of relying on the shutdown hook
         // installed by the base class, as this would be too late to assert
         // via junit that server received the expected number of calls
-        assertTrue("server failed, see log for details", stopAllServers());
+        //assertTrue("server failed, see log for details", stopAllServers());
     }
 
     private class TwoWayInvoker implements Runnable {

@@ -12,7 +12,7 @@ public class SOAPRpcLitServerImpl extends TestServerBase {
     public void run()  {
 
         Object implementor = new SOAPTypeTestImpl();
-        String address = "http://localhost:9000/SOAPService/SOAPPort/";
+        String address = "http://localhost:9006/SOAPService/SOAPPort/";
         Endpoint.publish(address, implementor);
     }
 

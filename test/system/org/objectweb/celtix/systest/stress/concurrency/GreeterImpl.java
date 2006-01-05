@@ -19,7 +19,7 @@ import org.objectweb.hello_world_soap_http.types.NoSuchCodeLit;
 import org.objectweb.hello_world_soap_http.types.SayHiResponse;
 import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
 
-@WebService(serviceName = "SOAPService",
+@WebService(serviceName = "SOAPServiceConcurrencyTest",
             portName = "SoapPort",
             name = "Greeter",
             targetNamespace = "http://objectweb.org/hello_world_soap_http")

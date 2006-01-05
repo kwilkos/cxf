@@ -7,6 +7,10 @@ import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.ws.Holder;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient3;
 import org.objectweb.type_test.types.StructWithAnyArrayLax;
 import org.objectweb.type_test.types.StructWithAnyStrict;
@@ -19,16 +23,16 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient3 {
     public SOAPDocLitClientTypeTest(String name) {
         super(name, SERVICE_NAME, PORT_NAME, WSDL_PATH);
     }
+    public static Test suite() throws Exception {
+        TestSuite suite = new TestSuite(SOAPDocLitClientTypeTest.class);
+        return new ClientServerSetupBase(suite) {
+            public void startServers() throws Exception {
+                boolean ok = launchServer(SOAPDocLitServerImpl.class); 
+                assertTrue("failed to launch server", ok);
+            }
+        };
+    }  
 
-    public void onetimeSetUp()  { 
-        try { 
-            initBus(); 
-            boolean ok = launchServer(SOAPDocLitServerImpl.class); 
-            assertTrue("failed to launch server", ok);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    } 
 
     public void testStructWithAnyStrict() throws Exception {
         SOAPFactory factory = SOAPFactory.newInstance();

@@ -5,12 +5,16 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.objectweb.celtix.hello_world_jms.HelloWorldOneWayPort;
 import org.objectweb.celtix.hello_world_jms.HelloWorldOneWayQueueService;
 import org.objectweb.celtix.hello_world_jms.HelloWorldPortType;
 import org.objectweb.celtix.hello_world_jms.HelloWorldPubSubPort;
 import org.objectweb.celtix.hello_world_jms.HelloWorldPubSubService;
 import org.objectweb.celtix.hello_world_jms.HelloWorldService;
+import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 
 public class ClientServerTest extends ClientServerTestBase {
@@ -18,11 +22,17 @@ public class ClientServerTest extends ClientServerTestBase {
     private QName serviceName; 
     private QName portName;
 
-    public void onetimeSetUp() {
-        assertTrue("server did not launch correctly", launchServer(EmbeddedJMSBrokerLauncher.class));
-        assertTrue("server did not launch correctly", launchServer(Server.class));
-    }
-    
+    public static Test suite() throws Exception {
+        TestSuite suite = new TestSuite(ClientServerTest.class);
+        return new ClientServerSetupBase(suite) {
+            public void startServers() throws Exception {
+                assertTrue("server did not launch correctly", launchServer(EmbeddedJMSBrokerLauncher.class));
+                Thread.sleep(10000);
+                assertTrue("server did not launch correctly", launchServer(Server.class));
+            }
+        };
+    }  
+
     public void testBasicConnection() throws Exception {
         serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms", 
                                  "HelloWorldService");

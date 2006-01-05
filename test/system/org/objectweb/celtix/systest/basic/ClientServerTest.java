@@ -12,6 +12,10 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
@@ -27,11 +31,14 @@ public class ClientServerTest extends ClientServerTestBase {
     private final QName portName = new QName("http://objectweb.org/hello_world_soap_http",
                                              "SoapPort");
 
-    
-    public void onetimeSetUp() { 
-        assertTrue("server did not launch correctly", launchServer(Server.class));
+    public static Test suite() throws Exception {
+        TestSuite suite = new TestSuite(ClientServerTest.class);
+        return new ClientServerSetupBase(suite) {
+            public void startServers() throws Exception {
+                assertTrue("server did not launch correctly", launchServer(Server.class));
+            }
+        };
     }
-    
     public void testBasicConnection() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -43,7 +50,7 @@ public class ClientServerTest extends ClientServerTestBase {
         
         String response1 = new String("Hello Milestone-");
         String response2 = new String("Bonjour");
-        try {                        
+        try {       
             for (int idx = 0; idx < 5; idx++) {
                 String greeting = greeter.greetMe("Milestone-" + idx);
                 assertNotNull("no response received from service", greeting);
@@ -159,7 +166,6 @@ public class ClientServerTest extends ClientServerTestBase {
         
         executor.shutdown();    
     }
-    
     static class MyHandler implements AsyncHandler<GreetMeSometimeResponse> {        
         static int invocationCount;
         private String replyBuffer;
@@ -198,7 +204,7 @@ public class ClientServerTest extends ClientServerTestBase {
             Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
             Future<?> f = greeter.greetMeSometimeAsync("Joe", h);
             int i = 0;
-            while (!f.isDone() && i < 10) {
+            while (!f.isDone() && i < 20) {
                 Thread.sleep(100);
                 i++;
             }
@@ -210,7 +216,6 @@ public class ClientServerTest extends ClientServerTestBase {
         assertEquals(1, MyHandler.invocationCount);       
         executor.shutdown();
     }
-    
     public void testAsyncCallWithHandlerAndMultipleClients() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
