@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
@@ -15,6 +16,7 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 
+import org.objectweb.celtix.buslifecycle.BusLifeCycleListener;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -40,8 +42,39 @@ public abstract class AbstractClientBinding implements ClientBinding {
     
     public AbstractClientBinding(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
         bus = b;
+        bus.getLifeCycleManager().registerLifeCycleListener(new ShutdownListener(this));
         reference = ref;
         transport = null;
+    }
+
+    private static class ShutdownListener 
+        extends WeakReference<AbstractClientBinding> 
+        implements BusLifeCycleListener {
+        
+        ShutdownListener(AbstractClientBinding c) {
+            super(c);
+        }
+
+        public void initComplete() {
+            //nothing
+        }
+
+        public void preShutdown() {
+            if (get() != null) {
+                get().shutdown();
+                clear();
+            }
+        }
+
+        public void postShutdown() {
+            //nothing
+        }
+    }
+    protected void shutdown() {
+        if (transport != null) {
+            transport.shutdown();
+            transport = null;
+        }
     }
     
     protected synchronized ClientTransport getTransport() throws WSDLException, IOException {

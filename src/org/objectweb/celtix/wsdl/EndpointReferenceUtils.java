@@ -319,7 +319,6 @@ public final class EndpointReferenceUtils {
             LOG.fine("    wsdl location: " + attribMap.get(WSDL_LOCATION));
             LOG.fine("    sei class: " + attribMap.get(SEI));
         }
-
         return reference;
     }
 }
