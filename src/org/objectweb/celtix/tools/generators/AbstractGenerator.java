@@ -7,11 +7,11 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 
-import org.objectweb.celtix.tools.Version;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.utils.FileWriterUtil;
+import org.objectweb.celtix.version.Version;
 
 public abstract class AbstractGenerator {
 

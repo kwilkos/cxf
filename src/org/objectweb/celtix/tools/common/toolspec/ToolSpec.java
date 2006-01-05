@@ -26,8 +26,8 @@ import org.objectweb.celtix.tools.common.dom.ExtendedDocumentBuilder;
 public class ToolSpec {
 
     private static final Logger LOG = LogUtils.getL7dLogger(ToolSpec.class);
-    private static ExtendedDocumentBuilder builder = new ExtendedDocumentBuilder();
 
+    private final ExtendedDocumentBuilder builder = new ExtendedDocumentBuilder();
     private Document doc;
     private Tool handler;
 

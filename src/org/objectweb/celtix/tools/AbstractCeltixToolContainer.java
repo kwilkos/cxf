@@ -11,6 +11,7 @@ import org.objectweb.celtix.tools.common.toolspec.parser.BadUsageException;
 import org.objectweb.celtix.tools.common.toolspec.parser.CommandDocument;
 import org.objectweb.celtix.tools.common.toolspec.parser.CommandLineParser;
 import org.objectweb.celtix.tools.common.toolspec.parser.ErrorVisitor;
+import org.objectweb.celtix.version.Version;
 
 public abstract class AbstractCeltixToolContainer extends AbstractToolContainer {
 

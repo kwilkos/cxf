@@ -13,7 +13,7 @@ public final class StAXUtil {
     private static final XMLInputFactory XML_INPUT_FACTORY;
     static {
         XML_INPUT_FACTORY = XMLInputFactory.newInstance();
-        XML_INPUT_FACTORY.setProperty(XML_INPUT_FACTORY.IS_NAMESPACE_AWARE, Boolean.TRUE);
+        XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.TRUE);
     }
 
     private StAXUtil() {

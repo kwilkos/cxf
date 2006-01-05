@@ -169,6 +169,7 @@ public class ClassProcessor {
             reqClassName = model.getPackageName() + AnnotationUtil.capitalize(method.getName());
         }
         
+
         Class reqClass = null;
         try {
             reqClass = AnnotationUtil.loadClass(reqClassName);

@@ -35,7 +35,6 @@ public final class SchemaValidatingSAXParser {
         } catch (org.xml.sax.SAXException saxe) {
             LOG.log(Level.SEVERE, "SAX_PARSER_EXCEPTION_MSG");
         }
-
         setValidating(true);
     }
 
