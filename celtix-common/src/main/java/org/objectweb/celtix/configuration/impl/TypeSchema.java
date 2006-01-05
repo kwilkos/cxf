@@ -383,8 +383,13 @@ public class TypeSchema {
         try {
             uri = new URI(location);
             if (baseURI != null) {
-                base = new URI(baseURI);
-                resolved = base.resolve(uri); 
+                try {
+                    base = new URI(baseURI);
+                    resolved = base.resolve(uri);
+                } catch (URISyntaxException ex) {
+                    base = null;
+                    resolved = null;
+                } 
             }
         } catch (URISyntaxException ex) {
             Message msg = new Message("SCHEMA_LOCATION_ERROR_EXC", LOG, location);
