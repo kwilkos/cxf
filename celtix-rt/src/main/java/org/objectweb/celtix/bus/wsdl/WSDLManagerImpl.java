@@ -141,7 +141,7 @@ public class WSDLManagerImpl implements WSDLManager {
             URLClassLoader urlloader = (URLClassLoader)loader; 
             for (URL url : urlloader.getURLs()) {
                 classpath.append(File.pathSeparatorChar);
-                classpath.append(url.toString());
+                classpath.append(url.getFile());
             }
         }
         return classpath.toString();
