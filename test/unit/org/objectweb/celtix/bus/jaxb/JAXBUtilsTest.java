@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxb;
+package org.objectweb.celtix.jaxb;
 
 
 import junit.framework.TestCase;

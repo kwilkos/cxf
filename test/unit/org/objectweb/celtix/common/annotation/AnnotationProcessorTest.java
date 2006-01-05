@@ -13,7 +13,6 @@ import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
-import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 
 
 public class AnnotationProcessorTest extends TestCase {

@@ -1,7 +1,9 @@
 package org.objectweb.celtix.common.commands;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
+import java.net.URL;
 import java.util.StringTokenizer;
 
 import junit.framework.TestCase;
@@ -95,9 +97,15 @@ public class ForkedCommandTest extends TestCase {
         
     }
     
-    public void testTimeout() {
+    public void testTimeout() throws Exception {
+        URL url = TestCommand.class.getResource("TestCommand.class");
+        File file = new File(url.getFile());
+        file = file.getParentFile();
+        file = new File(file, "../../../../..");
         String[] cmd = new String[] {
             JavaHelper.getJavaCommand(),
+            "-classpath",
+            file.getCanonicalPath(),
             "org.objectweb.celtix.common.commands.TestCommand",
             "-duration",
             "60000",

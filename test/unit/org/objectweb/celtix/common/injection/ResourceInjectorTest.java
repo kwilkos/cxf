@@ -1,32 +1,31 @@
 package org.objectweb.celtix.common.injection;
 
 
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.annotation.Resources;
 import junit.framework.TestCase;
-import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
-import org.objectweb.celtix.resource.ResourceManager;
-import org.objectweb.celtix.resource.ResourceResolver;
 
+import org.easymock.classextension.EasyMock;
+import org.objectweb.celtix.resource.ResourceManager;
 
 public class ResourceInjectorTest extends TestCase {
     private static final String RESOURCE_ONE = "resource one";
     private static final String RESOURCE_TWO = "resource one";
 
-    Map<String, String> resourceMap = new HashMap<String, String>(); 
-
     private ResourceInjector injector; 
         
     public void setUp() { 
-        resourceMap.put("resource1", RESOURCE_ONE); 
-        resourceMap.put("resource2", RESOURCE_TWO); 
 
-        ResourceManager resMgr = new ResourceManagerImpl(); 
-        resMgr.addResourceResolver(new TestResolver());
+        ResourceManager resMgr = EasyMock.createMock(ResourceManager.class);
+        
+        resMgr.resolveResource("resource1", String.class);
+        EasyMock.expectLastCall().andReturn(RESOURCE_ONE);
+        resMgr.resolveResource("resource2", String.class);
+        EasyMock.expectLastCall().andReturn(RESOURCE_TWO);
+        EasyMock.replay(resMgr);
+        
         injector = new ResourceInjector(resMgr); 
     } 
 
@@ -67,15 +66,6 @@ public class ResourceInjectorTest extends TestCase {
         assertEquals(RESOURCE_TWO, target.getResource2()); 
     }
 
-    class TestResolver implements ResourceResolver {
-        public Object resolve(String resourceName, Class<?> resourceType) {
-            assertEquals(String.class, resourceType);
-            return resourceMap.get(resourceName);
-        }
-        public InputStream getAsStream(String name) { 
-            return null;
-        }
-    }    
 }
 
 

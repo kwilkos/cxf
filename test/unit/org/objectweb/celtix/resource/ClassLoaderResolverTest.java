@@ -1,7 +1,5 @@
 package org.objectweb.celtix.resource;
 
-
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -20,7 +18,6 @@ public class ClassLoaderResolverTest extends TestCase {
     private static final String RESOURCE_DATA = "this is the resource data"; 
 
     private String resourceName;
-
     private ClassLoaderResolver clr; 
     
     public void setUp() throws IOException { 
@@ -38,10 +35,16 @@ public class ClassLoaderResolverTest extends TestCase {
         assertNotNull(loader.getResourceAsStream(resourceName));
         assertNull(ClassLoader.getSystemResourceAsStream(resourceName));
         clr = new ClassLoaderResolver(loader);
+    } 
+    
+    public void tearDown() {
+        clr = null;
+        resourceName = null;
     }
  
     public void testResolve() { 
-        assertNull(clr.resolve(resourceName, null)); 
+        assertNull(clr.resolve(resourceName, null));
+        assertNotNull(clr.resolve(resourceName, URL.class));
     } 
 
     public void testGetAsStream() throws IOException { 

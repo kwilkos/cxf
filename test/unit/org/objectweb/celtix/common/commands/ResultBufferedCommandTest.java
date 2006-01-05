@@ -1,8 +1,10 @@
 package org.objectweb.celtix.common.commands;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 import junit.framework.TestCase;
 
@@ -13,8 +15,14 @@ public class ResultBufferedCommandTest extends TestCase {
     
 
     public void testStreamsEmpty() throws IOException {
+        URL url = TestCommand.class.getResource("TestCommand.class");
+        File file = new File(url.getFile());
+        file = file.getParentFile();
+        file = new File(file, "../../../../..");
         String[] cmd = new String[] {
             JavaHelper.getJavaCommand(),
+            "-classpath",
+            file.getCanonicalPath(),
             "org.objectweb.celtix.common.commands.TestCommand",
         };
         ResultBufferedCommand rbc = new ResultBufferedCommand(cmd);
@@ -36,8 +44,14 @@ public class ResultBufferedCommandTest extends TestCase {
     }
     
     public void testStreamsNotEmpty() throws IOException {
+        URL url = TestCommand.class.getResource("TestCommand.class");
+        File file = new File(url.getFile());
+        file = file.getParentFile();
+        file = new File(file, "../../../../..");
         String[] cmd = new String[] {
             JavaHelper.getJavaCommand(),
+            "-classpath",
+            file.getCanonicalPath(),
             "org.objectweb.celtix.common.commands.TestCommand",
             "-out",
             OUT,
