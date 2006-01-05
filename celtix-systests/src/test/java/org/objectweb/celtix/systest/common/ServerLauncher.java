@@ -243,7 +243,7 @@ public class ServerLauncher {
             URLClassLoader urlloader = (URLClassLoader)loader; 
             for (URL url : urlloader.getURLs()) {
                 classpath.append(File.pathSeparatorChar);
-                classpath.append(url.toString());
+                classpath.append(url.getFile());
             }
         }
         cmd.add(classpath.toString());
