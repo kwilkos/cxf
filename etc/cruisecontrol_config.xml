@@ -16,10 +16,14 @@
             </ant>
         </schedule>
         <log dir="/x1/celtix_cruisecontrol/logs/celtix">
-            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/build/testresults"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-common/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-tools/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-api/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-rt/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-systests/target/surefire-reports"/>
         </log>
         <publishers>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/build/testresults" subdirectory="testresults" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/target/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
             <htmlemail mailhost="amereast-ems2.iona.com"
                 returnaddress="celtix-build@objectweb.org"
                 returnname="Celtix Build Machine"
@@ -36,47 +40,4 @@
             </htmlemail>
         </publishers>
     </project>
-
-    <project name="celtix_m2">
-        <bootstrappers>
-            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/celtix"/>
-        </bootstrappers>
-        <modificationset quietperiod="120">
-            <svn localWorkingCopy="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor"/>
-        </modificationset>
-        <listeners>
-            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/celtix_m2/currentbuild.txt"/>
-        </listeners>
-        <schedule interval="120">
-            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/tools/ant/1.6.5/bin/ant"
-                 buildfile="build.xml" target="cruisecontrol.build"
-                 antWorkingDir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor" uselogger="true">
-            </ant>
-        </schedule>
-        <log dir="/x1/celtix_cruisecontrol/logs/celtix_m2">
-            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-common/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-api/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-systests/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-rt/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/celtix-tools/target/surefire-reports"/>
-        </log>
-        <publishers>
-            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/branches/dkulp_refactor/target/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix_m2"/>
-            <htmlemail mailhost="amereast-ems2.iona.com"
-                returnaddress="celtix-build@objectweb.org"
-                returnname="Celtix Build Machine"
-                defaultsuffix="@users.forge.objectweb.org"
-                buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/celtix_m2"
-                skipusers="false"
-                subjectprefix="Celtix Cruisecontrol Build Result: "
-                css="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
-                xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
-                logdir="/x1/celtix_cruisecontrol/logs/celtix_m2"
-                >
-                <always address="celtix-build@objectweb.org" />
-                <failure address="celtix-build@objectweb.org" />
-            </htmlemail>
-        </publishers>
-    </project>
-
 </cruisecontrol>
