@@ -6,8 +6,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.objectweb.celtix</groupId>
     <artifactId>celtix</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.4-milestone4-SNAPSHOT</version>
     <name>Celtix</name>
+    <url>http://celtix.objectweb.org/</url>
 
     <packaging>pom</packaging>
 
@@ -16,7 +17,33 @@
         <developerConnection>scm:svn:svn+ssh://svn.forge.objectweb.org/svnroot/celtix/trunk</developerConnection>
         <url>http://svn.forge.objectweb.org/cgi-bin/viewcvs.cgi/celtix/trunk</url>
     </scm>
-
+    <issueManagement>
+        <url>http://forge.objectweb.org/tracker/?group_id=192</url>
+    </issueManagement>
+    <inceptionYear>2005</inceptionYear>
+    <mailingLists>
+        <mailingList>
+            <name>Celtix Open Source Java ESB Mailing List</name>
+            <subscribe>celtix-subscribe@objectweb.org</subscribe>
+            <unsubscribe>celtix-unsubscribe@objectweb.org</unsubscribe>
+            <post>celtix@objectweb.org</post>
+            <archive>http://mail-archive.objectweb.org/celtix/index.html</archive>
+        </mailingList>
+        <mailingList>
+            <name>Mailing List for Celtix Developers</name>
+            <subscribe>celtix-dev-subscribe@objectweb.org</subscribe>
+            <unsubscribe>celtix-dev-unsubscribe@objectweb.org</unsubscribe>
+            <post>celtix-dev@objectweb.org</post>
+            <archive>http://mail-archive.objectweb.org/celtix-dev/index.html</archive>
+        </mailingList>
+        <mailingList>
+            <name>Mailing list to relay Build related information</name>
+            <subscribe>celtix-build-subscribe@objectweb.org</subscribe>
+            <unsubscribe>celtix-build-unsubscribe@objectweb.org</unsubscribe>
+            <post>celtix-build@objectweb.org</post>
+            <archive>http://mail-archive.objectweb.org/celtix-build/index.html</archive>
+        </mailingList>
+    </mailingLists>
     <licenses>
         <license>
             <name>GNU LESSER GENERAL PUBLIC LICENSE Version 2.1</name>
@@ -34,7 +61,7 @@
 
         <jaxws.version>2.0-JAXWS-2.0-EA3</jaxws.version>
 
-        <antrun.version>1.1-SNAPSHOT</antrun.version>
+        <antrun.version>1.1</antrun.version>
         <assembly.version>2.1-SNAPSHOT</assembly.version>
         <surefire.version>2.1.2-SNAPSHOT</surefire.version>
         <compiler.version>2.0.1-SNAPSHOT</compiler.version>
@@ -355,7 +382,6 @@
                 </property>
             </activation>
             <properties>
-                <antrun.version>1.1</antrun.version>
                 <assembly.version>2.0</assembly.version>
                 <compiler.version>2.0</compiler.version>
                 <javadoc.version>2.0-beta-3</javadoc.version>
