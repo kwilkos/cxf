@@ -1,11 +1,11 @@
 <project name="Celtix">
     <target name="cruisecontrol.build">
-        <mkdir dir="target"/>
-        <exec executable="mvn" dir="${basedir}" output="target/build.out" logError="true">
+        <delete file="build.out"/>
+        <delete file="build.out.clean"/>
+        <exec executable="mvn" dir="${basedir}" output="build.out.clean" logError="true">
             <arg line="clean"/>
         </exec>
-        <mkdir dir="target"/>
-        <exec executable="mvn" dir="${basedir}" failonerror="true" output="target/build.out" logError="true">
+        <exec executable="mvn" dir="${basedir}" failonerror="true" output="build.out" logError="true">
             <arg line="install -Dsurefire.fork.mode=once"/>
         </exec>
     </target>
