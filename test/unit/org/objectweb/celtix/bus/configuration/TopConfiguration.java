@@ -1,5 +1,7 @@
 package org.objectweb.celtix.bus.configuration;
 
+import org.objectweb.celtix.configuration.impl.AbstractConfigurationImpl;
+
 
 public class TopConfiguration extends AbstractConfigurationImpl {
     

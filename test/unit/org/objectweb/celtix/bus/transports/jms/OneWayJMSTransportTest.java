@@ -9,13 +9,10 @@ import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 
-import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.activemq.broker.BrokerContainer;
-import org.activemq.broker.impl.BrokerContainerImpl;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
@@ -46,7 +43,7 @@ public class OneWayJMSTransportTest extends TestCase {
     
     public static Test suite() {
         TestSuite suite = new TestSuite(OneWayJMSTransportTest.class);
-        return  new JMSBrokerSetup(suite);
+        return new JMSBrokerSetup(suite);
     }
 
     public static void main(String[] args) {
@@ -184,54 +181,5 @@ public class OneWayJMSTransportTest extends TestCase {
                                                                                 portName);
         EndpointReferenceUtils.setAddress(ref, address);
         return  factory.createServerTransport(ref);
-    }
-    
-    protected static class JMSBrokerSetup extends TestSetup {
-        Thread jmsBrokerThread;
-        public JMSBrokerSetup(TestSuite suite) {
-            super(suite);
-        }
-        
-        public void setUp() throws Exception {
-            jmsBrokerThread = new JMSEmbeddedBroker("tcp://localhost:61616");
-     
-            jmsBrokerThread.start();
-            Thread.sleep(200L);            
-        }
-        
-        public void tearDown() throws Exception {
-            ((JMSEmbeddedBroker) jmsBrokerThread).shutdownBroker = true;
-            if (jmsBrokerThread != null) {
-                jmsBrokerThread.join(200L);
-            }
-        }
-        
-        class JMSEmbeddedBroker extends Thread {
-            boolean shutdownBroker;
-            final String brokerUrl;
-            
-            
-            public JMSEmbeddedBroker(String url) {
-                brokerUrl = url;
-            }
-            
-            public void run() {
-                try {                
-                    BrokerContainer container = new BrokerContainerImpl();
-                    container.addConnector(brokerUrl);
-                    container.start();
-                    Object lock = new Object();                
-                    
-                    while (!shutdownBroker) {
-                        synchronized (lock) {
-                            lock.wait(200L);
-                        }
-                    }
-                    container.stop();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 }

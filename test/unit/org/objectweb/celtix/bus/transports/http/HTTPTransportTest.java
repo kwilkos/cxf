@@ -13,7 +13,10 @@ import java.util.concurrent.TimeoutException;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 
+import junit.extensions.TestSetup;
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
@@ -53,6 +56,17 @@ public class HTTPTransportTest extends TestCase {
     public HTTPTransportTest(String arg0) {
         super(arg0);
     }
+    
+    public static Test suite() throws Exception {
+        TestSuite suite = new TestSuite(HTTPTransportTest.class);
+        return new TestSetup(suite) {
+            protected void tearDown() throws Exception {
+                super.tearDown();
+                JettyHTTPServerEngine.destroyForPort(9000);
+            }
+        };
+    }
+    
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(HTTPTransportTest.class);

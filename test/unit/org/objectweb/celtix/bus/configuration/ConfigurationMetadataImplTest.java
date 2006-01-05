@@ -17,6 +17,7 @@ import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata.LifecyclePolicy;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
+import org.objectweb.celtix.configuration.impl.ConfigurationMetadataBuilder;
 import org.objectweb.celtix.configuration.types.StringListType;
 
 
@@ -222,7 +223,7 @@ public class ConfigurationMetadataImplTest extends TestCase {
     
     private ConfigurationMetadata buildMetadata(String filename, boolean doValidate) {
         InputStream is = getClass().getResourceAsStream("resources/" + filename);
-        ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder();
+        ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder(true);
         builder.setValidation(doValidate);
         try {
             return builder.build(is); 

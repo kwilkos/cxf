@@ -5,6 +5,8 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.tools.generators.spring.SpringUtils;
+
 public class SpringUtilsTest extends TestCase {
 
     public void testGetBeanClassName() {

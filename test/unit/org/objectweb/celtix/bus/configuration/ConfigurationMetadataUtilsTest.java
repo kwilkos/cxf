@@ -15,6 +15,7 @@ import org.xml.sax.InputSource;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.configuration.ConfigurationException;
+import org.objectweb.celtix.configuration.impl.ConfigurationMetadataUtils;
 
 public class ConfigurationMetadataUtilsTest extends TestCase {
 

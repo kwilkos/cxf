@@ -245,8 +245,9 @@ public class MAPCodecTest extends TestCase {
         EasyMock.expectLastCall().andReturn(marshaller);
         marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
         EasyMock.expectLastCall();
+        IArgumentMatcher matcher = new JAXBEltMatcher();
         for (int i = 0; i < expectedValues.length; i++) {
-            EasyMock.reportMatcher(new JAXBEltMatcher());
+            EasyMock.reportMatcher(matcher);
             EasyMock.eq(header);
             marshaller.marshal(null, header);
             EasyMock.expectLastCall();

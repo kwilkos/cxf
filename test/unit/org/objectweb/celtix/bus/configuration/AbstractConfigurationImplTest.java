@@ -1,15 +1,11 @@
 package org.objectweb.celtix.bus.configuration;
 
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import junit.framework.TestCase;
 
@@ -18,6 +14,8 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
 import org.objectweb.celtix.configuration.Configurator;
+import org.objectweb.celtix.configuration.impl.AbstractConfigurationImpl;
+import org.objectweb.celtix.configuration.impl.DefaultConfigurationProviderFactory;
 
 
 public class AbstractConfigurationImplTest extends TestCase {
@@ -43,45 +41,9 @@ public class AbstractConfigurationImplTest extends TestCase {
         } catch (ConfigurationException ex) {
             assertEquals("DEFAULT_PROVIDER_INSTANTIATION_EXC", ex.getCode()); 
         }
-        
-        String key = "org.objectweb.celtix.bus.configuration.ConfigurationProvider";
-        String className = "org.objectweb.celtix.bus.configuration.TestConfigurationProvider";
-        
-        String cp = System.getProperty("java.class.path");
-        StringTokenizer st = new StringTokenizer(cp, File.pathSeparator);
-        File classesDir = null;
-        while (st.hasMoreTokens()) {
-            String token = st.nextToken();
-            if (token.endsWith("classes-tests")) {
-                classesDir = new File(token);
-                break;
-            }
-        }
-        
-        File mDir = new File(classesDir.getParentFile().getParentFile(), "META-INF");
-        boolean mDirCreated = mDir.mkdir();
-        File sDir = new File(mDir, "services");
-        boolean sDirCreated = sDir.mkdir();
-        File f = new File(sDir, key);
 
-        PrintWriter pw = new PrintWriter(new FileWriter(f));
-        pw.println(className);
-        pw.close();
-        
         factory = DefaultConfigurationProviderFactory.getInstance();
-        try {
-            assertNotNull(factory.createDefaultProvider(null));
-        } catch (Exception ex) {
-            fail();
-        } finally {
-            f.delete();
-            if (sDirCreated) {
-                sDir.delete();
-            }
-            if (mDirCreated) {
-                mDir.delete();
-            }
-        }     
+        assertNotNull(factory.createDefaultProvider(null));
     }
     
     public void testConstruction() {

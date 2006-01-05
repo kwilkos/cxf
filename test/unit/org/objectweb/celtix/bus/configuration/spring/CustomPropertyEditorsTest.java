@@ -15,10 +15,10 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.objectweb.celtix.bus.configuration.LeafConfiguration;
 import org.objectweb.celtix.bus.configuration.TopConfiguration;
-import org.objectweb.celtix.bus.configuration.TypeSchema;
-import org.objectweb.celtix.bus.configuration.TypeSchemaHelper;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
+import org.objectweb.celtix.configuration.impl.TypeSchema;
+import org.objectweb.celtix.configuration.impl.TypeSchemaHelper;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.core.io.UrlResource;
 
@@ -148,7 +148,7 @@ public class CustomPropertyEditorsTest extends TestCase {
         element.getLocalName();
         EasyMock.expectLastCall().andReturn(typename); 
         TypeSchema ts = org.easymock.classextension.EasyMock.createMock(TypeSchema.class);
-        TypeSchemaHelper tsh = new TypeSchemaHelper();
+        TypeSchemaHelper tsh = new TypeSchemaHelper(true);
         tsh.put(testURI, ts);
         ts.unmarshal(new QName(testURI, typename), element);
         EasyMock.expectLastCall().andReturn(value); 
