@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.ws.WebServiceException;
 import org.objectweb.celtix.bindings.BindingManager;
-import org.objectweb.celtix.bus.busimpl.BusFactory;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerFactoryManager;

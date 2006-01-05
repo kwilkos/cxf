@@ -1,12 +1,10 @@
-package org.objectweb.celtix.bus.busimpl;
+package org.objectweb.celtix;
 
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.configuration.CommandLineOption;
 
 /**
