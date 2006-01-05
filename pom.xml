@@ -343,6 +343,7 @@
                 </property>
             </activation>
             <properties>
+                <antrun.version>1.1</antrun.version>
                 <assembly.version>2.0</assembly.version>
                 <compiler.version>2.0</compiler.version>
                 <javadoc.version>2.0-beta-3</javadoc.version>
