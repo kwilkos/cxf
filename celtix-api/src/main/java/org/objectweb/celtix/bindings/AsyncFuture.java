@@ -1,14 +1,10 @@
 package org.objectweb.celtix.bindings;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.xml.ws.ResponseWrapper;
-
-import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
@@ -20,7 +16,6 @@ public class AsyncFuture implements Future<ObjectMessageContext> {
     private final HandlerInvoker handlerInvoker;
     private final DataBindingCallback callback;
     private final ObjectMessageContext context;
-    private ObjectMessageContext replyCtx;
     
     public AsyncFuture(Future<InputStreamMessageContext> fInputStreamMsgContext, 
                        AbstractClientBinding aClientBinding,
@@ -34,26 +29,9 @@ public class AsyncFuture implements Future<ObjectMessageContext> {
         context = ctx;
     }
     
-    public synchronized ObjectMessageContext get() throws InterruptedException, ExecutionException {   
-        if (replyCtx == null) {
-            InputStreamMessageContext ins = futureInputStreamMsgContext.get();  
-            replyCtx = 
-                absClientBinding.getObjectMessageContextAsync(ins, handlerInvoker, 
-                    callback, context);
-                    
-            // wrap the return value if required
-            String returnType = replyCtx.getReturn().getClass().getName();
-            Method m = ((JAXBDataBindingCallback)callback).getMethod();
-            String requiredReturnType = m.getAnnotation(ResponseWrapper.class).className();
-            if (!requiredReturnType.equals(returnType)) {
-                Object wrappedRetVal = ((JAXBDataBindingCallback)callback).createWrapperType(replyCtx, true);
-                replyCtx.setReturn(wrappedRetVal);
-            }
-        }
-        return replyCtx;
-
-        
-        //return absClientBinding.getObjectMessageContextAsync(ins, handlerInvoker, callback, context);
+    public synchronized ObjectMessageContext get() throws InterruptedException, ExecutionException {
+        InputStreamMessageContext ins = futureInputStreamMsgContext.get();
+        return absClientBinding.getObjectMessageContextAsync(ins, handlerInvoker, callback, context);
     }
 
     public boolean cancel(boolean mayInterruptIfRunning) {
