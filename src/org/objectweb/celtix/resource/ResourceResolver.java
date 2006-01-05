@@ -18,7 +18,7 @@ public interface ResourceResolver {
      * @return an instance of the resource or <code>null</code> if the
      * resource cannot be resolved.
      */
-    Object resolve(String resourceName, Class<?> resourceType);
+    <T> T resolve(String resourceName, Class<T> resourceType);
 
 
     /**

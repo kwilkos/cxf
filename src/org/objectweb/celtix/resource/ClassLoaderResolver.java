@@ -1,6 +1,7 @@
 package org.objectweb.celtix.resource;
 
 import java.io.InputStream;
+import java.net.URL;
 
 public class ClassLoaderResolver implements ResourceResolver {
 
@@ -14,7 +15,14 @@ public class ClassLoaderResolver implements ResourceResolver {
         loader = l;
     }
  
-    public Object resolve(String resourceName, Class<?> resourceType) { 
+    public <T> T resolve(String resourceName, Class<T> resourceType) {
+        if (resourceType == null) {
+            return null;
+        }
+        URL url = loader.getResource(resourceName);
+        if (resourceType.isInstance(url)) {
+            return resourceType.cast(url);
+        }
         return null;
     } 
 

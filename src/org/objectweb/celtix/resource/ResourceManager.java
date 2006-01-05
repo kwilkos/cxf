@@ -21,7 +21,7 @@ public interface ResourceManager {
      * @param type type of resource to resolve.
      * @return the resolved resource or null if nothing found.
      */
-    Object resolveResource(String name, Class<?> type);
+    <T> T resolveResource(String name, Class<T> type);
 
 
     /**

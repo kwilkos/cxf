@@ -2,14 +2,18 @@ package org.objectweb.celtix.resource;
 
 
 import java.io.InputStream;
-
+import java.net.URL;
 
 /**
  * Resolve resources from the system class path.
  */
 public class ClasspathResolver implements ResourceResolver {
 
-    public Object resolve(String resourceName, Class<?> resourceType) { 
+    public <T> T resolve(String resourceName, Class<T> resourceType) { 
+        URL url = ClassLoader.getSystemResource(resourceName);
+        if (resourceType.isInstance(url)) {
+            return resourceType.cast(url);
+        }
         return null;
     } 
 
