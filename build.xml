@@ -3,7 +3,7 @@
         <delete file="build.out"/>
         <delete file="build.out.clean"/>
         <exec executable="mvn" dir="${basedir}" failonerror="false" output="build.out.clean" logError="true">
-            <arg line="clean -o"/>
+            <arg line="clean"/>
         </exec>
         <exec executable="mvn" dir="${basedir}" failonerror="true" output="build.out" logError="true">
             <arg line="install -Dsurefire.fork.mode=once"/>
@@ -12,9 +12,14 @@
 
 
     <target name="setup.eclipse">
+	<condition property="bat.ext" value=".bat">
+            <os family="windows"/>
+        </condition>
+        <property name="bat.ext" value=""/>
+
         <property name="eclipse.workspace" value="../workspace"/>
         <property name="eclipse.downloadSources" value="true"/>
-        <exec executable="mvn" dir="${basedir}">
+        <exec executable="mvn${bat.ext}" dir="${basedir}">
             <arg line="eclipse:add-maven-repo -Declipse.workspace=${eclipse.workspace}"/>
         </exec>
 
@@ -57,7 +62,7 @@
         </propertyfile>
 
 
-        <exec executable="mvn" dir="${basedir}">
+        <exec executable="mvn${bat.ext}" dir="${basedir}">
             <arg line="eclipse:eclipse -Declipse.downloadSources=${eclipse.downloadSources}"/>
         </exec>
     </target>
