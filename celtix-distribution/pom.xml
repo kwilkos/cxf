@@ -6,6 +6,7 @@
     <version>0.4-milestone4-SNAPSHOT</version>
     <name>Celtix Distribution</name>
     <url>http://celtix.objectweb.org/</url>
+    <packaging>pom</packaging>
 
     <parent>
         <groupId>org.objectweb.celtix</groupId>
@@ -15,8 +16,6 @@
 
     <properties>
         <topDirectoryLocation>..</topDirectoryLocation>
-        <no.checkstyle>true</no.checkstyle>
-        <no.pmd>true</no.pmd>
     </properties>
 
     <dependencies>
@@ -64,6 +63,28 @@
                 <version>${assembly.version}</version>
                 <executions>
                     <execution>
+                        <id>distribution-src-epl</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>assembly</goal>
+                        </goals>
+                        <configuration>
+                            <descriptor>assembly-src-epl.xml</descriptor>
+                            <finalName>celtix-${project.version}</finalName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>distribution-src-lgpl</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>assembly</goal>
+                        </goals>
+                        <configuration>
+                            <descriptor>assembly-src-lgpl.xml</descriptor>
+                            <finalName>celtix-${project.version}</finalName>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>distribution-bin</id>
                         <phase>package</phase>
                         <goals>
@@ -71,16 +92,7 @@
                         </goals>
                         <configuration>
                             <descriptor>assembly-bin.xml</descriptor>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>distribution-src</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>assembly</goal>
-                        </goals>
-                        <configuration>
-                            <descriptor>assembly-src.xml</descriptor>
+                            <finalName>celtix-${project.version}</finalName>
                         </configuration>
                     </execution>
                 </executions>

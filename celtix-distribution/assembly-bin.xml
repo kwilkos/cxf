@@ -11,14 +11,15 @@
         <include>README.txt</include>
         <include>NOTICE</include>
       </includes>
+      <outputDirectory>celtix</outputDirectory>
     </fileSet>
     <fileSet>
       <directory>src/main/bin</directory>
-      <outputDirectory>bin</outputDirectory>
+      <outputDirectory>celtix/bin</outputDirectory>
     </fileSet>
     <fileSet>
       <directory>src/main/etc</directory>
-      <outputDirectory>etc</outputDirectory>
+      <outputDirectory>celtix/etc</outputDirectory>
       <includes>
         <include>logging.properties</include>
         <include>log4j.properties</include>
@@ -27,7 +28,7 @@
     </fileSet>
     <fileSet>
       <directory>src/main/samples</directory>
-      <outputDirectory>samples</outputDirectory>
+      <outputDirectory>celtix/samples</outputDirectory>
       <excludes>
         <exclude>**/build</exclude>
         <exclude>**/build/**/*</exclude>
@@ -35,7 +36,7 @@
     </fileSet>
     <fileSet>
       <directory>src/site/docs</directory>
-      <outputDirectory>docs</outputDirectory>
+      <outputDirectory>celtix/docs</outputDirectory>
       <includes>
         <include>**/*.pdf</include>
         <include>release_notes.txt</include>
@@ -46,12 +47,12 @@
 
   <dependencySets>
     <dependencySet>
-      <outputDirectory>/lib</outputDirectory>
+      <outputDirectory>celtix/lib</outputDirectory>
       <unpack>false</unpack>
       <scope>runtime</scope>
     </dependencySet>
     <dependencySet>
-      <outputDirectory>/javadoc</outputDirectory>
+      <outputDirectory>celtix/javadoc</outputDirectory>
       <unpack>true</unpack>
       <scope>runtime</scope>
       <includes>
