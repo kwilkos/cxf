@@ -73,7 +73,7 @@
         <surefire-report.version>2.0-beta-2-SNAPSHOT</surefire-report.version>
         <jxr.version>2.0-beta-2-SNAPSHOT</jxr.version>
         <mprojectinfo.version>2.0-beta-3</mprojectinfo.version>
-        <clover.version>2.0-alpha-2-20051221.001118-2</clover.version>
+        <clover.version>2.0</clover.version>
 
         <surefire.fork.mode>none</surefire.fork.mode>
         <systest.surefire.mode>pertest</systest.surefire.mode>
