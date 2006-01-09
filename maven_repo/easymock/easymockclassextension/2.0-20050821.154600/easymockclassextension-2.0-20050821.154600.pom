@@ -3,13 +3,14 @@
   <groupId>easymock</groupId>
   <artifactId>easymockclassextension</artifactId>
   <version>2.0-20051015.151400</version>
-  <name>EasyMock Release Candidate</name>
+  <name>EasyMock Class Extensions</name>
+  <url>http://easymock.sourceforge.net/</url>
 
   <dependencies>
     <dependency>
       <groupId>easymock</groupId>
       <artifactId>easymock</artifactId>
-      <version>2.0-20051015.151400</version>
+      <version>2.0</version>
     </dependency>
     <dependency>
       <groupId>cglib</groupId>

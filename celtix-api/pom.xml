@@ -45,13 +45,8 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.objectweb.celtix</groupId>
-            <artifactId>celtix-codegen-plugin</artifactId>
-            <version>${project.version}</version>
-            <scope>generate-sources</scope>
-        </dependency>
 
+        
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
             <artifactId>celtix-tools</artifactId>
@@ -90,6 +85,9 @@
                 </executions>
                 <configuration>
                     <attach>true</attach>
+                    <bottom>-</bottom>
+                    <header>Celtix API</header>
+                    <footer>Celtix API</footer>
                 </configuration>
             </plugin>
             <plugin>

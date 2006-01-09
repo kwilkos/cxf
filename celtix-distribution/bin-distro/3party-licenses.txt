@@ -1,9 +1,9 @@
 Third Party Software  Version   Link to License
 ------------          -------   ---------------
-Jetty                 5.1.5rc2  APACHE http://jetty.mortbay.org/jetty/LICENSE.TXT
+Jetty                 5.1.8     APACHE http://jetty.mortbay.org/jetty/LICENSE.TXT
 WSDL4J                1.5.1     CPL    http://www.opensource.org/licenses/cpl1.0.php
-JAX-WS Reference Impl 2005-11-04 CDDL  lib/jaxws-ri/20051104/license.txt
-                                       lib/jaxws-ri/20051104/JAXWSv2.0.THIRDPARTYLICENSEREADME.txt
+JAX-WS Reference Impl 2.0-EA3   CDDL   http://www.opensource.org/licenses/cddl1.php
+                                       JAXWSv2.0.THIRDPARTYLICENSEREADME.txt
 Spring                1.2.5     APACHE http://www.apache.org/licenses/LICENSE-2.0.txt
 ActiveMQ              3.2       APACHE http://www.apache.org/licenses/LICENSE-2.0
 Velocity              1.4       APACHE http://www.apache.org/licenses/LICENSE-2.0

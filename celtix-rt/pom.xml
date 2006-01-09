@@ -66,31 +66,31 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
             <version>1.0-rc4</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-management</artifactId>
             <version>1.0-rc4</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jms</artifactId>
             <version>1.1-rc4</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>1.0.1B-rc4</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-core</artifactId>
             <version>3.2</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
             <exclusions>
                 <exclusion>
                     <groupId>xerces</groupId>
@@ -185,13 +185,6 @@
             <artifactId>servlet-api</artifactId>
             <version>2.4</version>
         </dependency>
-        <dependency>
-            <groupId>org.objectweb.celtix</groupId>
-            <artifactId>celtix-codegen-plugin</artifactId>
-            <version>${project.version}</version>
-            <scope>generate-test-sources</scope>
-        </dependency>
-
     </dependencies>
 
 

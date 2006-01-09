@@ -387,10 +387,7 @@
                 <javadoc.version>2.0-beta-3</javadoc.version>
                 <surefire-report.version>2.0-beta-1</surefire-report.version>
                 <jxr.version>2.0-beta-1</jxr.version>
-                <surefire.version>2.1.1</surefire.version>
-
-                <surefire.fork.mode>once</surefire.fork.mode>
-                <systest.surefire.mode>once</systest.surefire.mode>
+                <surefire.version>2.1.2</surefire.version>
             </properties>
             <!--
             <pluginRepositories>

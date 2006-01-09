@@ -6,7 +6,7 @@
     <target name="checkstyle.false" unless="no.checkstyle">
         <taskdef resource="checkstyletask.properties"/>
         <checkstyle config="${baselocation}/checkstyle.xml">
-            <fileset dir="." includes="src/**/*.java" />
+            <fileset dir="." includes="src/**/*.java" excludes="src/**/build/**/*.java"/>
         </checkstyle>
     </target>
 
@@ -16,7 +16,7 @@
     <target name="pmd.false" unless="no.pmd">
         <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask"/>
         <pmd printToConsole="true" targetjdk="1.5" rulesetfiles="${basedir}/.ruleset" failonerror="true" failOnRuleViolation="true">
-            <fileset dir="." includes="src/**/*.java"/>
+            <fileset dir="." includes="src/**/*.java" excludes="src/**/build/**/*.java"/>
         </pmd>
     </target>
 </project>
