@@ -67,19 +67,19 @@ public class RegistrationTest extends ClientServerTestBase {
         
         List<Handler> bindingHandlers = ((BindingProvider)g).getBinding().getHandlerChain();
         assertNotNull(bindingHandlers);
-        assertEquals(2, bindingHandlers.size());
+        assertEquals(1, bindingHandlers.size());
         assertSame(dummyHandler, bindingHandlers.get(0));
     }
     
     public void testChangingServiceHandlerChainDoesNotAffectProxy() { 
         
         List<Handler> proxyHandlers = ((BindingProvider)greeter).getBinding().getHandlerChain();
-        assertEquals(1, proxyHandlers.size());
+        assertEquals(0, proxyHandlers.size());
         
         PortInfoImpl p1 = new PortInfoImpl(serviceName, portName, null);        
         HandlerResolver resolver = service.getHandlerResolver();        
         resolver.getHandlerChain(p1).add(new TestHandler());        
-        assertEquals(1, proxyHandlers.size());
+        assertEquals(0, proxyHandlers.size());
     }
    
 }
