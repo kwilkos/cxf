@@ -32,14 +32,17 @@ private static final Logger LOG =
 #foreach ($method in $intf.Methods)
 
     /* (non-Javadoc)
-     * @see $intf.PackageName.$intf.Name#${method.Name}(#foreach ($parameter in $method.Parameters)$parameter.ClassName  $parameter.Name #if ($velocityCounter != $method.getParameters().size()),#end)#end*
+     * @see $intf.PackageName.$intf.Name#${method.Name}(#foreach ($parameter in $method.Parameters)$parameter.ClassName  $parameter.Name #if ($velocityCount != $method.getParameters().size()),#end)#end*
      */ 
-      
+    #if($method.return.ClassName != "void"
+      $method.return.ClassName ${method.Name}Return ;
+    #end
     public $method.return.ClassName ${method.Name}(${method.getParameterList(false)})
 ###foreach ($parameter in $method.Parameters)$parameter.ClassName  _$parameter.Name #if ($velocityCounter != $method.getParameters().size()),#end#end)
-#if($method.Exceptions.size() > 0) throws #foreach($exception in $method.Exceptions)$exception.ClassName #if($velocityCounter != $method.Exceptions.size()),#end #end #end{ 
+#if($method.Exceptions.size() > 0) throws #foreach($exception in $method.Exceptions)$exception.ClassName #if($velocityCount != $method.Exceptions.size()),#end #end #end{ 
        LOG.info("Executing operation $method.Name");
-    #if ($method.return.ClassName != "void")	// return new ${method.return.ClassName}();
+    #if ($method.return.ClassName != "void")	##// return new ${method.return.ClassName}();
+    return ${method.Name}Return;
     #end
     #if ($method.Exceptions.size() > 0) 
     #foreach($exception in $method.Exceptions)
@@ -48,4 +51,5 @@ private static final Logger LOG =
     #end
 }
 #end
+
 }
