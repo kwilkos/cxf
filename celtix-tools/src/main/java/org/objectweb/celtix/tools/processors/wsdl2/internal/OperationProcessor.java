@@ -100,9 +100,13 @@ public class OperationProcessor  {
 
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT
             && !method.isWrapperStyle()) {
-            name = method.getName() + "Operaion";
+            name = method.getName() + "Response";
         } else {
-            name = method.getReturn().getName();
+            if (method.getReturn().getQName() != null) {
+                name = method.getReturn().getQName().getLocalPart();
+            } else {
+                name = method.getReturn().getName();
+            }
         }
 
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
@@ -218,7 +222,8 @@ public class OperationProcessor  {
             wrapperRequest.setType(ProcessorUtil.getPartType(inputPart));
             wrapperRequest.setTargetNamespace(ProcessorUtil.resolvePartNamespace(inputPart));
             wrapperRequest.setClassName(ProcessorUtil.getFullClzName(wrapperRequest.getTargetNamespace(),
-                                                                     ProcessorUtil.resolvePartType(inputPart),
+                                                                     ProcessorUtil.resolvePartType(inputPart,
+                                                                                                   this.env),
                                                                      userPackage));
         }
         if (outputPart != null) {
@@ -228,7 +233,7 @@ public class OperationProcessor  {
             wrapperResponse.setTargetNamespace(ProcessorUtil.resolvePartNamespace(outputPart));
             wrapperResponse.setClassName(ProcessorUtil.getFullClzName(wrapperResponse.getTargetNamespace(),
                                                                       ProcessorUtil.
-                                                                      resolvePartType(outputPart),
+                                                                      resolvePartType(outputPart, this.env),
                                                                       userPackage));
         }
         
@@ -254,7 +259,7 @@ public class OperationProcessor  {
                 }
             }
         } else {
-            String portTypeName = intf.getPortType().getQName().getLocalPart();
+            String portTypeName = intf.getWebServiceName();
             String operationName = operation.getName();
             binding = CustomizationParser.getInstance().getPortTypeOperationExtension(portTypeName,
                                                                                       operationName);

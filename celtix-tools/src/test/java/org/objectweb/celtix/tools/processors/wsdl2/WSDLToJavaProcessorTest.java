@@ -193,6 +193,24 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals(9, files.length);
     }
 
+    public void testSoapHeader() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/soap_header.wsdl"));
+        env.put(ToolConstants.CFG_PACKAGENAME, "org.objectweb");
+        
+        processor.setEnvironment(env);
+        processor.process();
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File objectweb = new File(org, "objectweb");
+        assertTrue(objectweb.exists());
+
+        File[] files = objectweb.listFiles();
+        assertEquals(14, files.length);
+    }
+
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
     }

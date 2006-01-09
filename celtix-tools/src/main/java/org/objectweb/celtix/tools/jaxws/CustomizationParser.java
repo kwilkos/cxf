@@ -53,6 +53,17 @@ public final class CustomizationParser {
         return parser;
     }
 
+    public void clean() {
+        jaxwsBindings.clear();
+        definitionExtensions.clear();
+        portTypeExtensions.clear();
+        operationExtensions.clear();
+    }
+
+    public void print() {
+        System.err.println("## size of def:" + definitionExtensions.size());
+    }
+
     public JAXWSBinding getDefinitionExtension() {
         if (definitionExtensions.size() > 0) {
             return definitionExtensions.values().iterator().next();

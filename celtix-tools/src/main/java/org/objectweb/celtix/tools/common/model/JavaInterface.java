@@ -2,7 +2,6 @@ package org.objectweb.celtix.tools.common.model;
 
 import java.util.*;
 import javax.jws.soap.SOAPBinding;
-import javax.wsdl.PortType;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 
@@ -22,7 +21,7 @@ public class JavaInterface {
     private final Set<String> imports = new HashSet<String>();
 
     private JAXWSBinding jaxwsBinding = new JAXWSBinding();
-    private PortType portType;
+    private String webserviceName;
     
     public JavaInterface() {
     }
@@ -31,12 +30,12 @@ public class JavaInterface {
         this.model = m;
     }
 
-    public void setPortType(PortType pt) {
-        this.portType = pt;
+    public void setWebServiceName(String wsn) {
+        this.webserviceName = wsn;
     }
 
-    public PortType getPortType() {
-        return this.portType;
+    public String getWebServiceName() {
+        return this.webserviceName;
     }
 
     public void setSOAPStyle(SOAPBinding.Style s) {

@@ -33,7 +33,7 @@ public class SEIAnnotationProcessor {
             JavaAnnotation serviceAnnotation = new JavaAnnotation("WebService");
             serviceAnnotation.addArgument("targetNamespace", intf.getNamespace());
             serviceAnnotation.addArgument("wsdlLocation", intf.getLocation());
-            serviceAnnotation.addArgument("name", intf.getName());
+            serviceAnnotation.addArgument("name", intf.getWebServiceName());
 
             intf.addAnnotation(serviceAnnotation.toString());
 

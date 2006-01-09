@@ -1,5 +1,7 @@
 package org.objectweb.celtix.tools.common.model;
+
 import com.sun.xml.bind.api.TypeReference;
+
 public class JavaParameter extends JavaType {
 
     private boolean holder;
@@ -56,7 +58,7 @@ public class JavaParameter extends JavaType {
     }
     
     public String getPartName() {
-        return getPartName();
+        return this.partName;
     }
     
     public String toString() {

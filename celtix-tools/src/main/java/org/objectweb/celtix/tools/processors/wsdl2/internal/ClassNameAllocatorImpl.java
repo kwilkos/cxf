@@ -27,7 +27,6 @@ public class ClassNameAllocatorImpl implements ClassNameAllocator {
         if (isNameCollision(packageName, className)) {
             fullClzName = className + TYPE_SUFFIX;
         }
-
         collector.addTypesClassName(packageName, className, packageName + "." + fullClzName);
 
         return fullClzName;
@@ -44,7 +43,10 @@ public class ClassNameAllocatorImpl implements ClassNameAllocator {
             String type = porttype.getQName().getLocalPart();
             String pkgName = ProcessorUtil.parsePackageName(ns, packageName);
             String className = ProcessorUtil.mangleNameToClassName(type);
-            String fullClassName = pkgName + className;
+            String fullClassName = pkgName + "." + className;
+            if (packageName == null) {
+                packageName = pkgName;
+            }
             collector.addSeiClassName(packageName, className, fullClassName);
         }
     }

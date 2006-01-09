@@ -39,6 +39,30 @@ public final class ProcessorUtil {
         return mangleNameToClassName(getPartType(part));
     }
 
+    public static QName getElementName(Part part) {
+        if (part == null) {
+            return null;
+        }
+        QName elementName = part.getElementName();
+        if (elementName == null) {
+            elementName = part.getTypeName();
+        }
+        return elementName;
+    }
+
+    public static String resolvePartType(Part part, ProcessorEnvironment env) {
+        if (env != null) {
+            S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get("rawjaxbmodel");
+            com.sun.tools.xjc.api.Mapping mapping = jaxbModel.get(getElementName(part));
+            if (mapping == null) {
+                return resolvePartType(part);
+            }
+            return mapping.getType().getTypeClass().name();
+        } else {
+            return resolvePartType(part);
+        }
+    }
+
     public static String resolvePartNamespace(Part part) {
         QName qname = part.getElementName();
         if (qname == null) {
@@ -144,15 +168,17 @@ public final class ProcessorUtil {
     public static String getFullClzName(String namespace,
                                         String type,
                                         String userPackage) {
-        ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
-        
         String jtype = BuiltInTypesJavaMappingUtil.getJType(namespace, type);
         if (jtype == null) {
-            String packageName = parsePackageName(namespace, userPackage);
-            return collector.getTypesFullClassName(packageName, type);
-        } else {
-            return jtype;
+            ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
+            jtype = collector.getTypesFullClassName(parsePackageName(namespace, userPackage), type);
         }
+
+        if (jtype == null) {
+            jtype = parsePackageName(namespace, userPackage) + "." + type;
+        }
+        
+        return jtype;
     }
 
     public static String getFileOrURLName(String fileOrURL) {

@@ -59,9 +59,12 @@ public class ParameterProcessor {
                                                JavaType.Style style) {
         String name = ProcessorUtil.resolvePartName(part);
         String namespace = ProcessorUtil.resolvePartNamespace(part);
-        String type = ProcessorUtil.resolvePartType(part);
+        String type = ProcessorUtil.resolvePartType(part, this.env);
 
         JavaParameter parameter = new JavaParameter(name, type, namespace);
+        parameter.setPartName(part.getName());
+        parameter.setQName(ProcessorUtil.getElementName(part));
+        
         String userPackage = (String) env.get(ToolConstants.CFG_PACKAGENAME);
         parameter.setClassName(ProcessorUtil.getFullClzName(namespace,
                                                             type,
@@ -85,13 +88,14 @@ public class ParameterProcessor {
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
             targetNamespace = parameter.getTargetNamespace();
             if (!method.isWrapperStyle()) {
-                name = method.getName();
-                partName = parameter.getName();
+                name = parameter.getQName().getLocalPart();
+                partName = parameter.getPartName();
             }
         }
         
         if (method.getSoapStyle() == SOAPBinding.Style.RPC) {
-            partName = parameter.getName();    
+            name = parameter.getPartName();
+            partName = parameter.getPartName();
         }
 
         if (partName != null) {
@@ -112,10 +116,11 @@ public class ParameterProcessor {
     
     private void processReturn(JavaMethod method, Part part) {
         String name = part == null ? "return" : part.getName();
-        String type = part == null ? "void" : ProcessorUtil.resolvePartType(part);
+        String type = part == null ? "void" : ProcessorUtil.resolvePartType(part, this.env);
         String namespace = part == null ? null : ProcessorUtil.resolvePartNamespace(part);
         
         JavaReturn returnType = new JavaReturn(name, type, namespace);
+        returnType.setQName(ProcessorUtil.getElementName(part));
         returnType.setStyle(JavaType.Style.OUT);
         String userPackage = (String) env.get(ToolConstants.CFG_PACKAGENAME);
         if (namespace != null && type != null && !"void".equals(type)) {
@@ -172,12 +177,13 @@ public class ParameterProcessor {
         List<Part> outParts = new ArrayList<Part>();
 
         if (isRequestResponse) {
-            for (Part part : outputParts) {
-                Part outpart = inputPartsMap.get(part.getName());
-                if (outpart == null) {
+            for (Part outpart : outputParts) {
+                Part inpart = inputPartsMap.get(outpart.getName());
+                if (inpart == null) {
+                    outParts.add(outpart);
                     continue;
-                } else if (isSamePart(outpart, part)) {
-                    addParameter(method, getParameterFromPart(method, part, JavaType.Style.INOUT));
+                } else if (isSamePart(inpart, outpart)) {
+                    addParameter(method, getParameterFromPart(method, outpart, JavaType.Style.INOUT));
                     continue;
                 }
                 outParts.add(outpart);
@@ -186,7 +192,7 @@ public class ParameterProcessor {
 
         if (outParts.size() == 1) {
             processReturn(method, outParts.get(0));
-            outParts.clear();
+            return;
         } else if (isRequestResponse && outputParts.size() == 1) {
             processReturn(method, outputParts.iterator().next());
             return;
@@ -196,7 +202,7 @@ public class ParameterProcessor {
         
         if (isRequestResponse) {
             for (Part part : outputParts) {
-                addParameter(method, getParameterFromPart(method, part, JavaType.Style.INOUT));
+                addParameter(method, getParameterFromPart(method, part, JavaType.Style.OUT));
             }
         }
     }
@@ -293,6 +299,7 @@ public class ParameterProcessor {
         JType t = property.type();
         String namespace = property.elementName().getNamespaceURI();
         JavaReturn returnType = new JavaReturn(property.name(), t.fullName(), namespace);
+        returnType.setQName(property.elementName());
         returnType.setStyle(JavaType.Style.OUT);
         return returnType;
     }

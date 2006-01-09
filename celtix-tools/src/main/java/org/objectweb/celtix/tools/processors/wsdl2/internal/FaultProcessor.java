@@ -30,15 +30,16 @@ public class FaultProcessor {
             return;
         }
 
-        Collection<Fault> faultsValue = faults.values();        
+        Collection<Fault> faultsValue = faults.values();
         for (Fault fault : faultsValue) {
             processFault(method, fault);
         }
     }
 
     private boolean isNameCollision(String packageName, String className) {
-        return collector.containTypesClass(packageName, className)
+        boolean collision = collector.containTypesClass(packageName, className)
             || collector.containSeiClass(packageName, className);
+        return collision;
     }
 
     @SuppressWarnings("unchecked")
@@ -68,7 +69,7 @@ public class FaultProcessor {
         
         for (Part part : faultValues) {
             String fName = ProcessorUtil.resolvePartName(part);
-            String fType = ProcessorUtil.resolvePartType(part);
+            String fType = ProcessorUtil.resolvePartType(part, this.env);
             String fNamespace = ProcessorUtil.resolvePartNamespace(part);
             String fPackageName = ProcessorUtil.parsePackageName(fNamespace,
                                                                  (String)env.get(ToolConstants.

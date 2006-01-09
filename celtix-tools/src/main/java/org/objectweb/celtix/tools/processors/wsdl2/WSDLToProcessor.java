@@ -145,10 +145,11 @@ public class WSDLToProcessor implements Processor {
     }
 
     private void parseCustomization() {
+        CustomizationParser customizationParser = CustomizationParser.getInstance();
+        customizationParser.clean();
         if (!env.optionSet(ToolConstants.CFG_BINDING)) {
             return;
         }
-        CustomizationParser customizationParser = CustomizationParser.getInstance();
         customizationParser.parse(env, wsdlDefinition);
     }
 

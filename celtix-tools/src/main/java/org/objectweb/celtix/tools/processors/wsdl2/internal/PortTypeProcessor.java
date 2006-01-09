@@ -24,7 +24,6 @@ public class PortTypeProcessor {
     
     public void process(JavaModel jmodel, PortType portType) throws ToolException {
         JavaInterface intf = new JavaInterface(jmodel);
-        intf.setPortType(portType);
         intf.setJAXWSBinding(customizing(jmodel, portType));
         
         String namespace = portType.getQName().getNamespaceURI();
@@ -38,8 +37,9 @@ public class PortTypeProcessor {
                                     + env.get(ToolConstants.CFG_WSDLURL),
                                     ioe);
         }
-        
-        intf.setName(ProcessorUtil.mangleNameToClassName(portType.getQName().getLocalPart()));
+        String serviceName = portType.getQName().getLocalPart();
+        intf.setWebServiceName(serviceName);
+        intf.setName(ProcessorUtil.mangleNameToClassName(serviceName));
         intf.setNamespace(namespace);
         intf.setPackageName(packageName);
         intf.setLocation(location);

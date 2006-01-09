@@ -1,5 +1,6 @@
 package org.objectweb.celtix.tools.common.model;
 
+import javax.xml.namespace.QName;
 import com.sun.xml.bind.api.TypeReference;
 
 public class JavaType {
@@ -11,6 +12,7 @@ public class JavaType {
     protected String targetNamespace;
     protected Style style;
     protected TypeReference typeRef;
+    private QName qname;
 
     public JavaType() {
     }
@@ -20,6 +22,14 @@ public class JavaType {
         this.type = t;
         this.targetNamespace = tns;
         this.className = t;
+    }
+
+    public void setQName(QName qn) {
+        this.qname = qn;
+    }
+
+    public QName getQName() {
+        return this.qname;
     }
 
     public void setClassName(String clzName) {
