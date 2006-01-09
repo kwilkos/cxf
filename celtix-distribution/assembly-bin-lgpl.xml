@@ -86,6 +86,13 @@
                 <include>**/*</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>target</directory>
+            <outputDirectory>celtix/lib</outputDirectory>
+            <includes>
+                <include>celtix.jar</include>
+            </includes>
+        </fileSet>
     </fileSets>
 
     <dependencySets>

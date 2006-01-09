@@ -22,22 +22,12 @@ if [ -f "${JAVA_HOME}/lib/tools.jar" ]; then
     CLASSPATH=${JAVA_HOME}/lib/tools.jar:$CLASSPATH
 fi
 
-jaxws_home=$celtix_home/lib/jaxws-ri/20051104/
-
-if [ ! -d $jaxws_home ]; then 
-    jaxws_home=$celtix_home/tools/jaxws-ri/20051104/
-    if [ ! -d $jaxws_home ]; then 
-        echo "unable to find JAXWS RI"
-        exit 1
-    fi 
-fi 
-
 log_config=$celtix_home/etc/logging.properties 
 
 if [ "$1" = "-celtix" ]; then
-    $JAVA_HOME/bin/java -cp $celtix_jar -Djaxws.home=$jaxws_home -Djava.util.logging.config.file=$log_config org.objectweb.celtix.tools.WSDLToJava "$@"
+    $JAVA_HOME/bin/java -cp $celtix_jar -Djaxws.home=$celtix_home -Djava.util.logging.config.file=$log_config org.objectweb.celtix.tools.WSDLToJava "$@"
 else 
-    $JAVA_HOME/bin/java -cp $celtix_jar -Djaxws.home=$jaxws_home -Djava.util.logging.config.file=$log_config org.objectweb.celtix.tools.Wsdl2Java "$@"    
+    $JAVA_HOME/bin/java -cp $celtix_jar -Djaxws.home=$celtix_home -Djava.util.logging.config.file=$log_config org.objectweb.celtix.tools.Wsdl2Java "$@"    
 fi
 
 

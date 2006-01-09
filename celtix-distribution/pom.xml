@@ -132,6 +132,11 @@
                                       in="build.xml"
                                       out="${basedir}/target/srcbuild_paths.xml">
                                 </xslt>
+                                <xslt style="${basedir}/manifest_paths.xsl"
+                                      in="build.xml"
+                                      out="${basedir}/target/manifest">
+                                </xslt>
+                                <jar destfile="${basedir}/target/celtix.jar" manifest="${basedir}/target/manifest"/>
                             </tasks>
                         </configuration>
                         <goals>
@@ -154,10 +159,10 @@
                         </goals>
                         <configuration>
                             <descriptors>
-                                <discriptor>assembly-src-epl.xml</discriptor>
-                                <discriptor>assembly-src-lgpl.xml</discriptor>
                                 <discriptor>assembly-bin-epl.xml</discriptor>
                                 <discriptor>assembly-bin-lgpl.xml</discriptor>
+                                <discriptor>assembly-src-epl.xml</discriptor>
+                                <discriptor>assembly-src-lgpl.xml</discriptor>
                             </descriptors>
                             <finalName>celtix-${project.version}</finalName>
                         </configuration>
