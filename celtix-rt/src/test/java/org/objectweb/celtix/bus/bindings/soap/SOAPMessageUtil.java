@@ -68,7 +68,6 @@ public final class SOAPMessageUtil {
         str.append("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ");
         str.append("xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" ");
         str.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
-        str.append("<SOAP-ENV:Header/>");
         str.append("<SOAP-ENV:Body>");
 
         str.append("<ns4:" + wrapName.getLocalPart() + " xmlns:ns4=\"" + wrapName.getNamespaceURI() + "\">");

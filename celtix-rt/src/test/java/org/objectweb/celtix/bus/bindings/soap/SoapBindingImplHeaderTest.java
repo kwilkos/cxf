@@ -11,6 +11,8 @@ import org.w3c.dom.NodeList;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.header_test.TestHeader;
@@ -48,13 +50,14 @@ public class SoapBindingImplHeaderTest extends TestCase {
         Object arg = new TestHeader1();
         objContext.setMessageObjects(arg, arg);
 
-        SOAPMessage msg = binding.getMessageFactory().createMessage();
+        SOAPMessage msg = 
+            binding.marshalMessage(
+                   objContext,
+                   soapContext,
+                   new JAXBDataBindingCallback(testHeader1, 
+                                               DataBindingCallback.Mode.PARTS,
+                                               null));                
         assertNotNull(msg);
-        soapContext.setMessage(msg);
-        SOAPHeaderHandler handler = new SOAPHeaderHandler(binding, false);        
-        //Write the SOAP Headers for testHeader1 operation -test in headers
-        assertTrue(handler.handleMessage(soapContext));
-        
         //Test the Header Part Only
         assertNotNull(msg.getSOAPHeader());
         assertTrue(msg.getSOAPHeader().hasChildNodes());
@@ -74,15 +77,16 @@ public class SoapBindingImplHeaderTest extends TestCase {
         arg1.setRequestType("HeaderVal");
         Object[] args = SOAPMessageUtil.getMessageObjects(testHeader3, arg0, arg1);
         objContext.setMessageObjects(args);
-
-        msg = binding.getMessageFactory().createMessage();
-        assertNotNull(msg);
-        soapContext.setMessage(msg);
-        
         //Write soap headers for testHeader3 operation - tests inout headers
-        assertTrue(handler.handleMessage(soapContext));
-        
+        msg = binding.marshalMessage(
+                   objContext,
+                   soapContext,
+                   new JAXBDataBindingCallback(testHeader3, 
+                                               DataBindingCallback.Mode.PARTS,
+                                               null));                
+
         assertNotNull(msg);
+
         //Test the Header Part Only
         assertNotNull(msg.getSOAPHeader());
         assertTrue(msg.getSOAPHeader().hasChildNodes());
@@ -109,14 +113,17 @@ public class SoapBindingImplHeaderTest extends TestCase {
         
         Object[] args = SOAPMessageUtil.getMessageObjects(testHeader2, null, arg0, arg1);
         objContext.setMessageObjects(args);
-        
-        SOAPMessage msg = binding.getMessageFactory().createMessage();
+        //Write the SOAP Headers for testHeader2 operation - tests out headers        
+        SOAPMessage msg = 
+            binding.marshalMessage(
+                   objContext,
+                   soapContext,
+                   new JAXBDataBindingCallback(testHeader2, 
+                                               DataBindingCallback.Mode.PARTS,
+                                               null));                
+
         assertNotNull(msg);
-        soapContext.setMessage(msg);
-        SOAPHeaderHandler handler = new SOAPHeaderHandler(binding, true);        
-        //Write the SOAP Headers for testHeader2 operation - tests out headers
-        assertTrue(handler.handleMessage(soapContext));
-        
+
         //Test the Header Part Only
         assertNotNull(msg.getSOAPHeader());
         assertTrue(msg.getSOAPHeader().hasChildNodes());
@@ -142,13 +149,16 @@ public class SoapBindingImplHeaderTest extends TestCase {
         
         objContext.setMessageObjects(new Object[0]);
         objContext.setReturn(arg2);
-        
-        msg = binding.getMessageFactory().createMessage();
+        //Write the SOAP Headers for testHeader5 operation - tests headers as return.        
+        msg = binding.marshalMessage(
+                                     objContext,
+                                     soapContext,
+                                     new JAXBDataBindingCallback(testHeader5, 
+                                                                 DataBindingCallback.Mode.PARTS,
+                                                                 null));                
+
         assertNotNull(msg);
-        soapContext.setMessage(msg);
-        //Write the SOAP Headers for testHeader5 operation - tests headers as return.
-        assertTrue(handler.handleMessage(soapContext));
-        
+
         //Test the Header Part Only
         assertNotNull(msg.getSOAPHeader());
         assertTrue(msg.getSOAPHeader().hasChildNodes());
@@ -180,10 +190,14 @@ public class SoapBindingImplHeaderTest extends TestCase {
         soapContext.setMessage(headerMsg);
         soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
         
-        SOAPHeaderHandler handler = new SOAPHeaderHandler(binding, true);        
-        //Read the headers of testHeader3 Operation - tests inout headers
-        assertTrue(handler.handleMessage(soapContext));
+        //Test The InputMessage of testHeader3 Operation
+        binding.unmarshalMessage(soapContext, objContext,
+                                 new JAXBDataBindingCallback(
+                                                             testHeader3,
+                                                             DataBindingCallback.Mode.PARTS,
+                                                             null));
         
+        //Read the headers of testHeader3 Operation - tests inout headers
         Object[] params = objContext.getMessageObjects();
         assertNotNull(params);
         assertNull(objContext.getReturn());
@@ -209,10 +223,13 @@ public class SoapBindingImplHeaderTest extends TestCase {
         soapContext.setMessage(headerMsg);
         soapContext.put(ObjectMessageContext.MESSAGE_INPUT, true);
         
-        SOAPHeaderHandler handler = new SOAPHeaderHandler(binding, false);        
+        binding.unmarshalMessage(soapContext, objContext,
+                                 new JAXBDataBindingCallback(
+                                                             testHeader2,
+                                                             DataBindingCallback.Mode.PARTS,
+                                                             null));
+                
         //Read the SOAP Headers
-        assertTrue(handler.handleMessage(soapContext));
-        
         Object[] params = objContext.getMessageObjects();
         assertNotNull(params);
         assertNull(objContext.getReturn());
@@ -236,7 +253,12 @@ public class SoapBindingImplHeaderTest extends TestCase {
         soapContext.setMessage(headerMsg);
         
         //Test The InputMessage of testHeader3 Operation
-        assertTrue(handler.handleMessage(soapContext));
+        binding.unmarshalMessage(soapContext, objContext,
+                                 new JAXBDataBindingCallback(
+                                                             testHeader5,
+                                                             DataBindingCallback.Mode.PARTS,
+                                                             null));
+
         
         params = objContext.getMessageObjects();
         assertNotNull(params);
