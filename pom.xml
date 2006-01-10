@@ -63,7 +63,8 @@
 
         <antrun.version>1.1</antrun.version>
         <assembly.version>2.1-SNAPSHOT</assembly.version>
-        <surefire.version>2.1.2-SNAPSHOT</surefire.version>
+        <surefire.version>2.1.2</surefire.version>
+        <surefire.systest.version>2.1.2-20060102.125836-4</surefire.systest.version>
         <compiler.version>2.0.1-SNAPSHOT</compiler.version>
         <site.version>2.0-beta-4</site.version>
         <pmd.version>2.0-alpha-3-SNAPSHOT</pmd.version>

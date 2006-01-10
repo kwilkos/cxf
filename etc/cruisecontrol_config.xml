@@ -58,4 +58,47 @@
             </htmlemail>
         </publishers>
     </project>
+    <project name="celtix-distribution">
+        <bootstrappers>
+            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/celtix-distribution"/>
+        </bootstrappers>
+        <modificationset quietperiod="120">
+            <svn localWorkingCopy="/x1/celtix_cruisecontrol/celtix/trunk"/>
+        </modificationset>
+        <listeners>
+            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/celtix-distribution/currentbuild.txt"/>
+        </listeners>
+        <schedule>
+            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/tools/ant/1.6.5/bin/ant"
+                 buildfile="build.xml" target="cruisecontrol.build.distribution"
+                 antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true"
+                 time="0900">
+            </ant>
+            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/tools/ant/1.6.5/bin/ant"
+                 buildfile="build.xml" target="cruisecontrol.build.distribution"
+                 antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true"
+                 time="2100">
+            </ant>
+        </schedule>
+        <log dir="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
+        <publishers>
+            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
+            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/build.out.clean" dest="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
+
+            <htmlemail mailhost="amereast-ems2.iona.com"
+                returnaddress="celtix-build@objectweb.org"
+                returnname="Celtix Build Machine"
+                defaultsuffix="@users.forge.objectweb.org"
+                buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/celtix-distribution"
+                skipusers="false"
+                subjectprefix="Celtix Distribution Cruisecontrol Build Result: "
+                css="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
+                xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
+                logdir="/x1/celtix_cruisecontrol/logs/celtix-distribution"
+                >
+                <always address="celtix-build@objectweb.org" />
+                <failure address="celtix-build@objectweb.org" />
+            </htmlemail>
+        </publishers>
+    </project>
 </cruisecontrol>

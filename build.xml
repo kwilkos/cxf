@@ -9,6 +9,17 @@
             <arg line="install -Dsurefire.fork.mode=once"/>
         </exec>
     </target>
+    <target name="cruisecontrol.build.distribution">
+        <delete file="celtix-distribution/build.out"/>
+        <delete file="celtix-distribution/build.out.clean"/>
+        <exec executable="mvn" dir="${basedir}/celtix-distribution" failonerror="false" output="celtix-distribution/build.out.clean" logError="true">
+            <arg line="clean"/>
+        </exec>
+        <exec executable="mvn" dir="${basedir}/celtix-distribution" failonerror="true" output="celtix-distribution/build.out" logError="true">
+            <arg line="install"/>
+        </exec>
+    </target>
+
 
 
     <target name="setup.eclipse">
