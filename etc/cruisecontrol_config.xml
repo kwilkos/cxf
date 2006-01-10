@@ -26,19 +26,19 @@
             <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
             <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/build.out.clean" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
 
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-common/target/surefire-reports" 
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-common/target/surefire-reports"
                 subdirectory="celtix-common"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-tools/target/surefire-reports" 
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-tools/target/surefire-reports"
                 subdirectory="celtix-tools"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-api/target/surefire-reports" 
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-api/target/surefire-reports"
                 subdirectory="celtix-api"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-rt/target/surefire-reports" 
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-rt/target/surefire-reports"
                 subdirectory="celtix-rt"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-systests/target/surefire-reports" 
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-systests/target/surefire-reports"
                 subdirectory="celtix-systests"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
 
@@ -60,7 +60,7 @@
     </project>
     <project name="celtix-distribution">
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/celtix-distribution"/>
+            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/celtix"/>
         </bootstrappers>
         <modificationset quietperiod="120">
             <svn localWorkingCopy="/x1/celtix_cruisecontrol/celtix/trunk"/>
