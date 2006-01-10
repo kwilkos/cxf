@@ -125,7 +125,7 @@ public class ForkedCommand extends Thread {
                                                                            outputStream == null
                                                                                ? System.out : outputStream);
         ForkedCommandStreamHandler cmdErr = new ForkedCommandStreamHandler(proc.getErrorStream(),
-                                                                           outputStream == null
+                                                                           errorStream == null
                                                                                ? System.err : errorStream);
         cmdErr.start();
         cmdOut.start();

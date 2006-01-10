@@ -78,6 +78,9 @@
             <includes>
                 <include>activemq/**/*</include>
             </includes>
+            <excludes>
+                <exclude>**/var/journal</exclude>
+            </excludes>
         </fileSet>
         <fileSet>
             <directory>target/javadoc</directory>

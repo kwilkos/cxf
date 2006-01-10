@@ -43,7 +43,9 @@ public class JavaToWSDLProcessor implements Processor {
     }
 
     protected void init() {
-        seiClass = AnnotationUtil.loadClass((String)penv.get(ToolConstants.CFG_CLASSNAME));
+        seiClass = AnnotationUtil.loadClass((String)penv.get(ToolConstants.CFG_CLASSNAME),
+                                            seiClass == null ? JavaToWSDLProcessor.class.getClassLoader()
+                                                : getSEIClass().getClassLoader());
     }
 
     protected Class getSEIClass() {

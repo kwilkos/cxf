@@ -201,7 +201,9 @@ public class HTTPClientTransport implements ClientTransport {
                     hc.setInstanceFollowRedirects(true);
                 } else {
                     hc.setInstanceFollowRedirects(false);
-                    hc.setChunkedStreamingMode(2048);
+                    if (policy.isAllowChunking()) {
+                        hc.setChunkedStreamingMode(2048);                        
+                    }
                 }
             }
             setPolicies(headers);

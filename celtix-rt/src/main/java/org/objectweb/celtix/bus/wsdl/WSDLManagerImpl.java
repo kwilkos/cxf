@@ -1,11 +1,8 @@
 package org.objectweb.celtix.bus.wsdl;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,9 +16,6 @@ import org.w3c.dom.Element;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.common.commands.ForkedCommand;
-import org.objectweb.celtix.common.commands.ForkedCommandException;
-import org.objectweb.celtix.common.commands.JavaHelper;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
@@ -134,19 +128,6 @@ public class WSDLManagerImpl implements WSDLManager {
         return def;
     }
 
-    private String createClasspath() {
-        ClassLoader loader = this.getClass().getClassLoader();
-        StringBuffer classpath = new StringBuffer(System.getProperty("java.class.path"));
-        if (loader instanceof URLClassLoader) {
-            URLClassLoader urlloader = (URLClassLoader)loader; 
-            for (URL url : urlloader.getURLs()) {
-                classpath.append(File.pathSeparatorChar);
-                classpath.append(url.getFile());
-            }
-        }
-        return classpath.toString();
-    }
-
     private Definition createDefinition(Class<?> sei) {
         Definition definition = null;
         if (LOG.isLoggable(Level.INFO)) {
@@ -172,33 +153,10 @@ public class WSDLManagerImpl implements WSDLManager {
 
         
         try {
-            String classpath = createClasspath();
-            
-            String [] args = new String[] {
-                JavaHelper.getJavaCommand(),
-                "-cp",
-                classpath,
-                "com.sun.tools.ws.WsGen", 
-                "-d",
-                tmp.getPath(),
-                "-wsdl",
-                sei.getName(),
-            };
-            ForkedCommand fc = new ForkedCommand(args);
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(bout);
-            fc.setOutputStream(ps);
             int result = 0;
-            try {
-                result = fc.execute(120);
-            } catch (ForkedCommandException ex) {
-                LogUtils.log(LOG, Level.SEVERE, "WSDL_GENERATION_FAILURE_MSG", ex, (Object)null);
-                return null;
-            }
-            ps.flush();
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Generator output:\n" + new String(bout.toByteArray()));
-            }
+            org.objectweb.celtix.tools.JavaToWSDL.main(new String[] {"-o",
+                                                                     tmp.getPath() + "/tmp.wsdl",
+                                                                     sei.getName()});
             if (0 != result) {
                 LOG.log(Level.SEVERE, "WSDL_GENERATION_BAD_RESULT_MSG", result);
                 return null; 

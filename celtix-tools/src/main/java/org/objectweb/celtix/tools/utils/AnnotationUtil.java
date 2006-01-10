@@ -1,5 +1,6 @@
 package org.objectweb.celtix.tools.utils;
 
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -7,7 +8,6 @@ import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import org.objectweb.celtix.tools.Java2Wsdl;
 import org.objectweb.celtix.tools.common.ToolException;
 
 public final class AnnotationUtil {
@@ -42,10 +42,10 @@ public final class AnnotationUtil {
         });
     }
 
-    public static synchronized Class loadClass(String className) {
+    public static synchronized Class loadClass(String className, ClassLoader parent) {
         Class clazz = null;
         URL[] urls = ProcessorUtil.pathToURLs(getClassPath());
-        URLClassLoader classLoader = new URLClassLoader(urls, Java2Wsdl.class.getClassLoader());
+        URLClassLoader classLoader = new URLClassLoader(urls, parent);
         try {
             clazz = classLoader.loadClass(className);
         } catch (Exception e) {
@@ -55,7 +55,16 @@ public final class AnnotationUtil {
     }
 
     private static String getClassPath() {
-        return System.getProperty("java.class.path");
+        ClassLoader loader = AnnotationUtil.class.getClassLoader();
+        StringBuffer classpath = new StringBuffer(System.getProperty("java.class.path"));
+        if (loader instanceof URLClassLoader) {
+            URLClassLoader urlloader = (URLClassLoader)loader; 
+            for (URL url : urlloader.getURLs()) {
+                classpath.append(File.pathSeparatorChar);
+                classpath.append(url.getFile());
+            }
+        }
+        return classpath.toString();
     }
 
     public static String capitalize(String name) {

@@ -15,7 +15,6 @@
     <import file="../../../target/srcbuild_paths.xml" optional="true"/>
     <property name="srcbuild.classpath" value=""/>
 
-
     <uptodate property="codegen.notrequired" value="true">
         <srcfiles dir="${wsdl.dir}" includes="*.wsdl"/>
         <srcfiles dir="${wsdl.dir}" includes="*.xsd"/>
@@ -86,16 +85,13 @@
     </target>
 
     <!-- Target to start JMS Broker for JMS samples -->
-    <property name="activemq.home" location="${celtix.home}/lib/activemq/3.2"/>
-    <property name="derby.system.home" location="${build.var.dir}"/>
     <target name="jmsbroker.start">
+        <property name="activemq.home" location="${celtix.home}/lib/activemq/3.2"/>
+        <property name="derby.system.home" location="${build.var.dir}"/>
+
         <java classname="org.activemq.spring.Main" fork="yes" dir="${activemq.home}/bin">
             <classpath>
                 <path refid="celtix.classpath"/>
-                <path location="${activemq.home}/lib/optional/commons-dbcp-1.2.jar"/>
-                <path location="${activemq.home}/lib/optional/commons-pool-1.2.jar"/>
-                <path location="${activemq.home}/lib/optional/commons-collections-2.1.jar"/>
-                <path location="${activemq.home}/lib/optional/derby-10.0.2.1.jar"/>
             </classpath>
             <arg value="${activemq.home}/conf/activemq.xml"/>
             <jvmarg value="-Dactivemq.home=${activemq.home}"/>

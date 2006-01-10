@@ -157,6 +157,15 @@
                     </xs:annotation>      
                 </xs:attribute>
 
+                <xs:attribute name="AllowChunking" type="xs:boolean" use="optional" default="true">
+                    <xs:annotation>
+                        <xs:documentation>
+                        If true, the client is free to use chunking streams if it wants to, but not 
+                        required.  Regular non-chunked requests are OK too.    If false, the client 
+                        must use regular, non-chunked requests in all cases.
+                        </xs:documentation>
+                    </xs:annotation>      
+                </xs:attribute>
 
                 <xs:attribute name="Accept" type="xs:string" use="optional">
                     <xs:annotation>

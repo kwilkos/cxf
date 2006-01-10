@@ -23,6 +23,8 @@
                 <exclude>**/surefire*</exclude>
                 <exclude>**/cobertura.ser</exclude>
                 <exclude>**/bin/*</exclude>
+                <exclude>**/var/journal</exclude>
+                <exclude>**/ActiveMQ/**/*</exclude>
             </excludes>
         </fileSet>
         <fileSet>

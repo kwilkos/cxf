@@ -26,6 +26,10 @@
                 <xsl:copy-of select="*"/>
             </path>
             <property name="srcbuild.classpath" refid="srcbuild.classpath.path"/>
+            <property name="activemq.home">
+                <xsl:attribute name="location">${basedir}/../../../../tools/activemq/3.2</xsl:attribute>
+            </property>
+
         </project>
     </xsl:template>
 
