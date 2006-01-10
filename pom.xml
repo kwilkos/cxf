@@ -383,12 +383,13 @@
                 </property>
             </activation>
             <properties>
-                <assembly.version>2.0</assembly.version>
+                <assembly.version>2.1-SNAPSHOT</assembly.version>
                 <compiler.version>2.0</compiler.version>
                 <javadoc.version>2.0-beta-3</javadoc.version>
                 <surefire-report.version>2.0-beta-1</surefire-report.version>
                 <jxr.version>2.0-beta-1</jxr.version>
                 <surefire.version>2.1.2</surefire.version>
+                <surefire.systest.version>2.1.2</surefire.systest.version>
             </properties>
             <!--
             <pluginRepositories>

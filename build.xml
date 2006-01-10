@@ -3,20 +3,20 @@
         <delete file="build.out"/>
         <delete file="build.out.clean"/>
         <exec executable="mvn" dir="${basedir}" failonerror="false" output="build.out.clean" logError="true">
-            <arg line="clean"/>
+            <arg line="clean -Drelease"/>
         </exec>
         <exec executable="mvn" dir="${basedir}" failonerror="true" output="build.out" logError="true">
-            <arg line="install -Dsurefire.fork.mode=once"/>
+            <arg line="install -Dsurefire.fork.mode=once -Drelease"/>
         </exec>
     </target>
     <target name="cruisecontrol.build.distribution">
         <delete file="celtix-distribution/build.out"/>
         <delete file="celtix-distribution/build.out.clean"/>
         <exec executable="mvn" dir="${basedir}/celtix-distribution" failonerror="false" output="celtix-distribution/build.out.clean" logError="true">
-            <arg line="clean"/>
+            <arg line="clean -Drelease"/>
         </exec>
         <exec executable="mvn" dir="${basedir}/celtix-distribution" failonerror="true" output="celtix-distribution/build.out" logError="true">
-            <arg line="install"/>
+            <arg line="install -Drelease"/>
         </exec>
     </target>
 
