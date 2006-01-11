@@ -31,6 +31,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>dependency-maven-plugin</artifactId>
+                <version>${dependency.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>unpack-javadoc</id>
