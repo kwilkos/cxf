@@ -73,6 +73,11 @@
             <artifactId>jaxws-tools</artifactId>
             <version>${jaxws.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml</groupId>
+            <artifactId>jaxws-rt</artifactId>
+            <version>${jaxws.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
