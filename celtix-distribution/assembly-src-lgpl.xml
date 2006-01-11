@@ -31,6 +31,7 @@
                 <exclude>**/cobertura.ser</exclude>
                 <exclude>**/bin/*</exclude>
                 <exclude>**/var/journal</exclude>
+                <exclude>**/build.out*</exclude>
                 <exclude>**/ActiveMQ</exclude>
                 <exclude>**/ActiveMQ/**/*</exclude>
             </excludes>
