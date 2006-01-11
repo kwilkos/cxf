@@ -25,12 +25,10 @@ public class ImplGenerator extends AbstractGenerator {
     }
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_TYPES)
-            || env.optionSet(ToolConstants.CFG_CLIENT)
-            || env.optionSet(ToolConstants.CFG_INTERFACE)) {
-            return true;
-        } 
-        return false;
+        if (env.optionSet(ToolConstants.CFG_IMPL)) {
+            return false;
+        }
+        return true;
     }
 
     public void generate() throws ToolException {

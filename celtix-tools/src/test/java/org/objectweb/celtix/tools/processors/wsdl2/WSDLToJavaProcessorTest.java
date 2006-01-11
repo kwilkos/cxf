@@ -36,7 +36,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
         File[] files = helloworldsoaphttp.listFiles();
-        assertEquals(files.length, 8);
+        assertEquals(5, files.length);
         files = types.listFiles();
         assertEquals(files.length, 17);
     }
@@ -57,7 +57,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
         File[] files = helloworldsoaphttp.listFiles();
-        assertEquals(files.length, 6);
+        assertEquals(3, files.length);
         files = types.listFiles();
         assertEquals(files.length, 3);
     }
@@ -78,7 +78,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File mapping = new File(artix, "mapping");
         assertTrue(mapping.exists());
         File[] files = mapping.listFiles();
-        assertEquals(files.length, 9);
+        assertEquals(6, files.length);
     }
 
     public void testSchemaImport() throws Exception {
@@ -98,7 +98,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
         File[] files = helloworldsoaphttp.listFiles();
-        assertEquals(files.length, 7);
+        assertEquals(4, files.length);
         files = types.listFiles();
         assertEquals(files.length, 10);
     }
@@ -126,7 +126,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(exceptionCollision.exists());
 
         File[] files = invoiceserver.listFiles();
-        assertEquals(files.length, 15);
+        assertEquals(12, files.length);
         files = invoice.listFiles();
         assertEquals(files.length, 9);
     }
@@ -146,7 +146,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(objectweb.exists());
 
         File[] files = objectweb.listFiles();
-        assertEquals(files.length, 16);
+        assertEquals(13, files.length);
 
         File typeCollision = new File(objectweb, "Greeter_Type.java");
         assertTrue(typeCollision.exists());
@@ -171,7 +171,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(objectweb.exists());
 
         File[] files = objectweb.listFiles();
-        assertEquals(files.length, 9);
+        assertEquals(6, files.length);
     }
 
     public void testHelloWorldExternalBindingFile() throws Exception {
@@ -190,7 +190,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(objectweb.exists());
 
         File[] files = objectweb.listFiles();
-        assertEquals(9, files.length);
+        assertEquals(6, files.length);
     }
 
     public void testSoapHeader() throws Exception {
@@ -208,7 +208,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(objectweb.exists());
 
         File[] files = objectweb.listFiles();
-        assertEquals(14, files.length);
+        assertEquals(11, files.length);
     }
 
     private String getLocation(String wsdlFile) {

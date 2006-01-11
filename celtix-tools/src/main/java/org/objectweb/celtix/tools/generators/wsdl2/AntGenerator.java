@@ -22,15 +22,10 @@ public class AntGenerator extends AbstractGenerator {
     }
 
     public boolean passthrough() {
-        if (!env.optionSet(ToolConstants.CFG_ANT)
-            || env.optionSet(ToolConstants.CFG_IMPL)
-            || env.optionSet(ToolConstants.CFG_TYPES)
-            || env.optionSet(ToolConstants.CFG_SERVER)
-            || env.optionSet(ToolConstants.CFG_INTERFACE)
-            || env.optionSet(ToolConstants.CFG_CLIENT)) {
-            return true;
+        if (env.optionSet(ToolConstants.CFG_ANT)) {
+            return false;
         }
-        return false;
+        return true;
     }
 
     public void generate() throws ToolException {

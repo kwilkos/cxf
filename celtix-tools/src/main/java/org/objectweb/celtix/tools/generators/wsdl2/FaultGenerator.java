@@ -25,10 +25,6 @@ public class FaultGenerator extends AbstractGenerator {
     }
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_TYPES)
-            || env.optionSet(ToolConstants.CFG_INTERFACE)) {
-            return true;
-        }
         return false;
     }
     

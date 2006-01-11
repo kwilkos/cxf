@@ -25,6 +25,9 @@ public class SEIGenerator extends AbstractGenerator {
     }
 
     public boolean passthrough() {
+        if (env.optionSet(ToolConstants.CFG_INTERFACE)) {
+            return false;
+        }
         if (env.optionSet(ToolConstants.CFG_TYPES)) {
             return true;
         } 

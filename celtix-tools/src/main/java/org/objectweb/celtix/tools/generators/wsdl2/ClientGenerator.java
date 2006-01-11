@@ -28,13 +28,10 @@ public class ClientGenerator extends AbstractGenerator {
     }
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_IMPL)
-            || env.optionSet(ToolConstants.CFG_TYPES)
-            || env.optionSet(ToolConstants.CFG_SERVER)
-            || env.optionSet(ToolConstants.CFG_INTERFACE)) {
-            return true;
-        } 
-        return false;
+        if (env.optionSet(ToolConstants.CFG_CLIENT)) {
+            return false;
+        }
+        return true;
     }
 
     public void generate() throws ToolException {
