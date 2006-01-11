@@ -12,6 +12,7 @@ public class JavaType {
     protected String targetNamespace;
     protected Style style;
     protected TypeReference typeRef;
+    protected boolean isHeader;
     private QName qname;
 
     public JavaType() {
@@ -92,6 +93,14 @@ public class JavaType {
 
     public TypeReference getTypeReference() {
         return this.typeRef;
+    }
+
+    public void setHeader(boolean header) {
+        this.isHeader = header;
+    }
+
+    public boolean isHeader() {
+        return this.isHeader;
     }
 
     public String toString() {

@@ -10,6 +10,7 @@ import javax.wsdl.Service;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
+import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.wsdl.extensions.soap.SOAPOperation;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
@@ -17,6 +18,7 @@ import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaModel;
+import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
@@ -144,23 +146,51 @@ public class ServiceProcessor {
                     processor.processMethod(jm, bop.getOperation());
                 }
                 processParameter(jm, bop);
-
             }
         }
     }
 
+    private void setParameterAsHeader(JavaParameter parameter) {
+        parameter.setHeader(true);
+        parameter.getAnnotation().addArgument("header", "true", "");
+    }
+
     private void processParameter(JavaMethod jm, BindingOperation operation) {
         // process input
-        Iterator ite = operation.getBindingInput().getExtensibilityElements().iterator();
+        Iterator inbindings = operation.getBindingInput().getExtensibilityElements().iterator();
         String use = null;
-        while (ite.hasNext()) {
-            Object obj = ite.next();
+        while (inbindings.hasNext()) {
+            Object obj = inbindings.next();
             if (obj instanceof SOAPBody) {
                 SOAPBody soapBody = (SOAPBody)obj;
                 use = soapBody.getUse();
-
+            }
+            if (obj instanceof SOAPHeader) {
+                SOAPHeader soapHeader = (SOAPHeader)obj;
+                for (JavaParameter parameter : jm.getParameters()) {
+                    if (soapHeader.getPart().equals(parameter.getPartName())) {
+                        setParameterAsHeader(parameter);
+                    }
+                }
             }
         }
+        
+        // process output
+        if (operation.getBindingOutput() != null) {
+            Iterator outbindings = operation.getBindingOutput().getExtensibilityElements().iterator();
+            while (outbindings.hasNext()) {
+                Object obj = outbindings.next();
+                if (obj instanceof SOAPHeader) {
+                    SOAPHeader soapHeader = (SOAPHeader)obj;
+                    for (JavaParameter parameter : jm.getParameters()) {
+                        if (soapHeader.getPart().equals(parameter.getPartName())) {
+                            setParameterAsHeader(parameter);
+                        }
+                    }
+                }
+            }
+        }
+
         jm.setSoapUse(getSoapUse(use));
         if (javax.jws.soap.SOAPBinding.Style.RPC == jm.getSoapStyle()
             && javax.jws.soap.SOAPBinding.Use.ENCODED == jm.getSoapUse()) {

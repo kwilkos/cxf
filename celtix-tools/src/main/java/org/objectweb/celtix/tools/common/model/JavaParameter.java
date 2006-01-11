@@ -68,6 +68,9 @@ public class JavaParameter extends JavaType {
             sb.append("\nIS Holder: [Holder Name]:");
             sb.append(holderName);
         }
+        if (isHeader()) {
+            sb.append("\nIS Header");
+        }
         sb.append("\n Annotation:");
         sb.append(annotation);
         
