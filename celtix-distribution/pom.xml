@@ -24,6 +24,12 @@
             <artifactId>celtix-rt</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml</groupId>
+            <artifactId>jaxws-rt</artifactId>
+            <version>${jaxws.version}</version>
+            <scope>package</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -133,11 +139,6 @@
                                       in="build.xml"
                                       out="${basedir}/target/srcbuild_paths.xml">
                                 </xslt>
-                                <xslt style="${basedir}/manifest_paths.xsl"
-                                      in="build.xml"
-                                      out="${basedir}/target/manifest">
-                                </xslt>
-                                <jar destfile="${basedir}/target/celtix.jar" manifest="${basedir}/target/manifest"/>
                             </tasks>
                         </configuration>
                         <goals>
@@ -174,6 +175,18 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <finalName>celtix</finalName>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>

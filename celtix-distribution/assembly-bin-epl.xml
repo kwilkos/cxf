@@ -111,6 +111,13 @@
             <unpack>false</unpack>
             <scope>runtime</scope>
         </dependencySet>
+        <dependencySet>
+            <outputDirectory>celtix/lib</outputDirectory>
+            <unpack>false</unpack>
+            <includes>
+                <include>com.sun.xml:jaxws-rt</include>
+            </includes>
+        </dependencySet>
     </dependencySets>
 
 </assembly>
