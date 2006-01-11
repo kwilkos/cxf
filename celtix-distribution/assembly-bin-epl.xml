@@ -2,11 +2,17 @@
 
     <id>bin-epl</id>
     <formats>
-        <format>tar.gz</format>
-        <format>zip</format>
+        <format>jar</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
+        <fileSet>
+            <includes>
+                <include>Installer.class</include>
+            </includes>
+            <outputDirectory>celtixinstaller</outputDirectory>
+            <directory>target/classes/celtixinstaller</directory>
+        </fileSet>
         <fileSet>
             <includes>
                 <include>README.txt</include>

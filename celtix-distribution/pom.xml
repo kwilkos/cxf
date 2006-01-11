@@ -6,7 +6,7 @@
     <version>0.4-milestone4-SNAPSHOT</version>
     <name>Celtix Distribution</name>
     <url>http://celtix.objectweb.org/</url>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <parent>
         <groupId>org.objectweb.celtix</groupId>
@@ -159,6 +159,11 @@
                             <goal>assembly</goal>
                         </goals>
                         <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>celtixinstaller.Installer</mainClass>
+                                </manifest>
+                            </archive>
                             <descriptors>
                                 <discriptor>assembly-bin-epl.xml</discriptor>
                                 <discriptor>assembly-bin-lgpl.xml</discriptor>

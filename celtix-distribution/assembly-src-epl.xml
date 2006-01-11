@@ -1,11 +1,17 @@
 <assembly>
     <id>src-epl</id>
     <formats>
-        <format>tar.gz</format>
-        <format>zip</format>
+        <format>jar</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
+        <fileSet>
+            <includes>
+                <include>Installer.class</include>
+            </includes>
+            <outputDirectory>celtixinstaller</outputDirectory>
+            <directory>target/classes/celtixinstaller</directory>
+        </fileSet>
         <fileSet>
             <directory>..</directory>
             <outputDirectory>celtix-src</outputDirectory>
@@ -25,6 +31,7 @@
                 <exclude>**/cobertura.ser</exclude>
                 <exclude>**/bin/*</exclude>
                 <exclude>**/var/journal</exclude>
+                <exclude>**/ActiveMQ</exclude>
                 <exclude>**/ActiveMQ/**/*</exclude>
             </excludes>
         </fileSet>
