@@ -236,6 +236,10 @@
                             <name>javax.xml.ws.spi.Provider</name>
                             <value>org.objectweb.celtix.bus.jaxws.spi.ProviderImpl</value>
                         </property>
+                        <property>
+                            <name>activemq.store.dir</name>
+                            <value>${basedir}/target/ActiveMQ</value>
+                        </property>
                     </systemProperties>
                 </configuration>
             </plugin>

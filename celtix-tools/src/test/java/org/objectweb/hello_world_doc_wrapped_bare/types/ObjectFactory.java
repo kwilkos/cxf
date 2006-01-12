@@ -189,7 +189,7 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://objectweb.org/hello_world_doc_wrapped_bare/types", 
                     name = "BareDocument")
     public JAXBElement<String> createBareDocument(String value) {
-        return new JAXBElement<String>(this.BAREDOCUMENTQNAME, String.class, null, value);
+        return new JAXBElement<String>(BAREDOCUMENTQNAME, String.class, null, value);
     }
 
     /**
@@ -199,7 +199,7 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://objectweb.org/hello_world_doc_wrapped_bare/types", 
                     name = "BadRecordLit")
     public JAXBElement<String> createBadRecordLit(String value) {
-        return new JAXBElement<String>(this.BADBRECORDLITQNAME, String.class, null, value);
+        return new JAXBElement<String>(BADBRECORDLITQNAME, String.class, null, value);
     }
 
 }

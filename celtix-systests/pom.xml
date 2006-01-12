@@ -162,8 +162,22 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire.systest.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-booter</artifactId>
+                        <version>1.5.2-20060102.001256-4</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire</artifactId>
+                        <version>1.5.2-20060102.131553-11</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
                 <configuration>
-                    
+
                     <includes>
                         <include>**/*Test.java</include>
                         <!--

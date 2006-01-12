@@ -74,6 +74,7 @@ public final class Installer {
                     && !entry.getName().startsWith("celtixinstaller")) {
                     File file = new File(outputDir, entry.getName());
                     file.mkdirs();
+                    file.setLastModified(entry.getTime());
                 }
             } else if (!entry.getName().startsWith("META-INF")
                        && !entry.getName().startsWith("celtixinstaller")) {
@@ -84,15 +85,15 @@ public final class Installer {
                     executes.add(entry.getName());
                 }
 
+                File outFile = new File(outputDir, entry.getName());
                 if (binary) {
-                    OutputStream out = new FileOutputStream(new File(outputDir, entry.getName()));
+                    OutputStream out = new FileOutputStream(outFile);
                     for (int len = jin.read(buffer); len != -1; len = jin.read(buffer)) {
                         out.write(buffer, 0, len);
                     }
                     out.close();
                 } else {
-                    BufferedWriter writer = new BufferedWriter(
-                        new FileWriter(new File(outputDir, entry.getName())));
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
                     BufferedReader reader = new BufferedReader(new InputStreamReader(jin));
                     for (String s = reader.readLine(); s != null; s = reader.readLine()) {
                         writer.write(s);
@@ -100,6 +101,7 @@ public final class Installer {
                     }
                     writer.close();
                 }
+                outFile.setLastModified(entry.getTime());
             }
         }
 
