@@ -2,6 +2,8 @@ package org.objectweb.celtix.systest.jms;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -26,7 +28,13 @@ public class ClientServerTest extends ClientServerTestBase {
         TestSuite suite = new TestSuite(ClientServerTest.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(EmbeddedJMSBrokerLauncher.class));
+                Map<String, String> props = new HashMap<String, String>();
+                props.put("activemq.store.dir", System.getProperty("activemq.store.dir"));
+                props.put("java.util.logging.config.file",
+                          System.getProperty("java.util.logging.config.file"));
+                
+                assertTrue("server did not launch correctly", launchServer(EmbeddedJMSBrokerLauncher.class,
+                                                                           props));
                 Thread.sleep(10000);
                 assertTrue("server did not launch correctly", launchServer(Server.class));
             }

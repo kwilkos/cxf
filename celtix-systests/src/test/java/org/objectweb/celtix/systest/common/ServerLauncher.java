@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class ServerLauncher {
@@ -29,11 +30,17 @@ public class ServerLauncher {
     private boolean serverIsReady;
     private boolean serverIsStopped;
     private boolean serverLaunchFailed;
+    private Map<String, String> properties;
 
     private final Mutex mutex = new Mutex();
 
     public ServerLauncher(String theClassName) {
         className = theClassName;
+        javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+    }
+    public ServerLauncher(String theClassName, Map<String, String> p) {
+        className = theClassName;
+        properties = p;
         javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
     }
 
@@ -171,7 +178,7 @@ public class ServerLauncher {
         public void run() {
             try {
                 StringBuilder serverOutput = new StringBuilder();
-                String outputDir = System.getProperty("server.output.dir", "target/surefire-reports");
+                String outputDir = System.getProperty("server.output.dir", "target/surefire-reports/");
                 FileOutputStream fos = new FileOutputStream(outputDir + className + ".out");
                 PrintStream ps = new PrintStream(fos);
                 boolean running = true;
@@ -249,6 +256,12 @@ public class ServerLauncher {
         cmd.add(classpath.toString());
         
         cmd.add("-Djavax.xml.ws.spi.Provider=org.objectweb.celtix.bus.jaxws.spi.ProviderImpl");
+        if (null != properties) {
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+                cmd.add("-D" + entry.getKey() + "=" + entry.getValue());
+            }
+        }
+        
         /* REVISIT: this prevents the server from shutting down and causes the test to timeout.
          * It would be good however to get this fixed as it is useful for server debugging. 
          */

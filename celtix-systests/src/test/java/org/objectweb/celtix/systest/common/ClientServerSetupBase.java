@@ -3,6 +3,7 @@ package org.objectweb.celtix.systest.common;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 import junit.extensions.TestSetup;
@@ -53,6 +54,20 @@ public abstract class ClientServerSetupBase extends TestSetup {
         boolean ok = false;
         try { 
             ServerLauncher sl = new ServerLauncher(clz.getName());
+            ok = sl.launchServer();
+            assertTrue("server failed to launch", ok);
+            launchers.add(sl);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            fail("failed to launch server " + clz);
+        }
+        
+        return ok;
+    }
+    public boolean launchServer(Class<?> clz, Map<String, String> props) {
+        boolean ok = false;
+        try { 
+            ServerLauncher sl = new ServerLauncher(clz.getName(), props);
             ok = sl.launchServer();
             assertTrue("server failed to launch", ok);
             launchers.add(sl);

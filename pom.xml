@@ -63,8 +63,7 @@
 
         <antrun.version>1.1</antrun.version>
         <assembly.version>2.1-SNAPSHOT</assembly.version>
-        <surefire.version>2.1.2</surefire.version>
-        <surefire.systest.version>2.1.2-20060102.125836-4</surefire.systest.version>
+        <surefire.version>2.1.3-SNAPSHOT</surefire.version>
         <compiler.version>2.0.1-SNAPSHOT</compiler.version>
         <site.version>2.0-beta-4</site.version>
         <pmd.version>2.0-alpha-3-SNAPSHOT</pmd.version>
@@ -78,7 +77,6 @@
         <dependency.plugin.version>1.0</dependency.plugin.version>
 
         <surefire.fork.mode>none</surefire.fork.mode>
-        <systest.surefire.mode>pertest</systest.surefire.mode>
         <compile.forked>false</compile.forked>
     </properties>
 
@@ -394,7 +392,6 @@
                 <surefire-report.version>2.0-beta-1</surefire-report.version>
                 <jxr.version>2.0-beta-1</jxr.version>
                 <surefire.version>2.1.2</surefire.version>
-                <surefire.systest.version>2.1.2</surefire.systest.version>
             </properties>
             <!--
             <pluginRepositories>
