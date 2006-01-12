@@ -105,14 +105,10 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
         throws Exception {
 
         ObjectMessageContext objMsgContext = clientBinding.createObjectContext();
-        //TODO
-        //RequestConetxts needed to be populated based on JAX-WS mandatory properties
-        //Further copied into ObjectMessageContext so as to decouple context across invocations
         objMsgContext.putAll(getRequestContext());
         
-        //REVISIT this property could be part of the requqest context.
         objMsgContext.put(ObjectMessageContext.REQUEST_PROXY, proxy);
-        
+       
         objMsgContext.setMethod(method);
         objMsgContext.setMessageObjects(parameters);
 

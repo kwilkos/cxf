@@ -168,7 +168,7 @@ public class SOAPClientBindingTest extends TestCase {
     public void testWrite() throws Exception {
         TestClientBinding clientBinding = new TestClientBinding(bus, epr);
         
-        InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralResp.xml");
+        InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
         
         MessageFactory msgFactory = MessageFactory.newInstance();
         SOAPMessage greetMeMsg = msgFactory.createMessage(null,  is);
@@ -177,7 +177,7 @@ public class SOAPClientBindingTest extends TestCase {
         BufferedReader br = 
             new BufferedReader(
                 new InputStreamReader(
-                    getClass().getResourceAsStream("resources/GreetMeDocLiteralResp.xml")));
+                    getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml")));
         
         SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());
         soapCtx.setMessage(greetMeMsg);

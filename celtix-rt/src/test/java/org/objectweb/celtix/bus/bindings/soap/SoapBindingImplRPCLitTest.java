@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 
 import javax.jws.WebService;
@@ -126,16 +127,11 @@ public class SoapBindingImplRPCLitTest extends TestCase {
 
     public void testUnmarshalRPCLitInputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation
-        QName opName = new QName("http://objectweb.org/hello_world_rpclit", "greetMe");
-        QName elName = new QName("http://objectweb.org/hello_world_rpclit", "in");
-        String data = new String("TestSOAPInputMessage");
-        String str = SOAPMessageUtil.createRPCLitSOAPMessage(opName, elName, data);
-
-        ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
+        InputStream is =  getClass().getResourceAsStream("resources/GreetMeRpcLiteralReq.xml");        
         soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
 
         assertNotNull(binding.getMessageFactory());
-        SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
+        SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, is);
         soapContext.setMessage(soapMessage);
         //GreetMe has a IN parameter
         objContext.setMessageObjects(new Object[]{null});
@@ -148,7 +144,7 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         Object[] params = objContext.getMessageObjects();
         assertNotNull(params);
         assertEquals(1, params.length);
-        assertEquals(data, (String)params[0]);
+        assertEquals("TestSOAPRPCLitInputMessage", (String)params[0]);
     }
 
     public void testUnmarshalRPCLitOutputMessage() throws Exception {

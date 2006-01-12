@@ -16,6 +16,7 @@ import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.helpers.NodeUtils;
 import org.objectweb.celtix.jaxb.JAXBUtils;
 
 public class NodeDataReader<T> implements DataReader<T> {
@@ -54,7 +55,7 @@ public class NodeDataReader<T> implements DataReader<T> {
         String wrapperType = isOutBound ? callback.getResponseWrapperType()
             : callback.getRequestWrapperType();
         
-        Node childNode = xmlNode.getFirstChild();
+        Node childNode = NodeUtils.getChildElementNode(xmlNode);
         Object[] methodArgs = objCtx.getMessageObjects();
 
         QName elName = isOutBound ? callback.getResponseWrapperQName()

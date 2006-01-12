@@ -53,6 +53,7 @@ import org.objectweb.celtix.bus.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.helpers.NSStack;
+import org.objectweb.celtix.helpers.NodeUtils;
 
 public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(SOAPBindingImpl.class);
@@ -292,7 +293,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             Node soapEl = soapMessage.getSOAPBody();
 
             if (callback.getSOAPStyle() == Style.RPC) {
-                soapEl = soapEl.getFirstChild();
+                soapEl = NodeUtils.getChildElementNode(soapEl);
             }
 
             getParts(soapEl, callback, objContext, isOutputMsg);
@@ -405,7 +406,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             return;
         }
 
-        Node childNode = xmlNode.getFirstChild();
+        Node childNode = NodeUtils.getChildElementNode(xmlNode);
         if (isOutBound 
             && callback.getWebResult() != null 
             && !callback.getWebResult().header()) {
@@ -649,5 +650,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         return msg;
     }
+    
+
 }
 
