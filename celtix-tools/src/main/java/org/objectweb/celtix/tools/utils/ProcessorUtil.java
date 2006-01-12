@@ -53,6 +53,9 @@ public final class ProcessorUtil {
     public static String resolvePartType(Part part, ProcessorEnvironment env) {
         if (env != null) {
             S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get("rawjaxbmodel");
+            if (jaxbModel == null) {
+                return resolvePartType(part);
+            }
             com.sun.tools.xjc.api.Mapping mapping = jaxbModel.get(getElementName(part));
             if (mapping == null) {
                 return resolvePartType(part);
