@@ -22,7 +22,7 @@ public class ServerLauncher {
 
 
     private final boolean debug = false;
-    private final boolean inProcess = false;
+    private boolean inProcess;
     private TestServerBase inProcessServer;
     
     private final String javaExe;
@@ -36,6 +36,10 @@ public class ServerLauncher {
 
     public ServerLauncher(String theClassName) {
         className = theClassName;
+        // special case handling for WS-Addressing system test to avoid
+        // UUID related issue when server is run as separate process
+        // via maven on Win2k
+        inProcess = "org.objectweb.celtix.systest.ws.addressing.Server".equals(className);
         javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
     }
     public ServerLauncher(String theClassName, Map<String, String> p) {
