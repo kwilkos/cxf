@@ -219,4 +219,8 @@ public final class ProcessorUtil {
         }
         return name;
     }
+
+    public static String getHandlerConfigFileName(String name) {
+        return name + "_handler";
+    }
 }

@@ -39,6 +39,7 @@ public final class CustomizationParser {
     private final Map<BindingsNode, JAXWSBinding>definitionExtensions;
     private final Map<BindingsNode, JAXWSBinding>portTypeExtensions;
     private final Map<BindingsNode, JAXWSBinding>operationExtensions;
+    private Element handlerChains;
 
     private CustomizationParser() {
         definitionExtensions = new HashMap<BindingsNode, JAXWSBinding>();
@@ -60,10 +61,10 @@ public final class CustomizationParser {
         operationExtensions.clear();
     }
 
-    public void print() {
-        System.err.println("## size of def:" + definitionExtensions.size());
+    public Element getHandlerChains() {
+        return this.handlerChains;
     }
-
+    
     public JAXWSBinding getDefinitionExtension() {
         if (definitionExtensions.size() > 0) {
             return definitionExtensions.values().iterator().next();
@@ -129,6 +130,21 @@ public final class CustomizationParser {
         
         for (Element jaxwsBinding : jaxwsBindings) {
             buildTargetNodeMap(jaxwsBinding, "/");
+        }
+        
+        buildHandlerChains();
+    }
+
+    private void buildHandlerChains() {
+        for (Element jaxwsBinding : jaxwsBindings) {
+            NodeList nl = jaxwsBinding.getElementsByTagNameNS(ToolConstants.HANDLER_CHAINS_URI,
+                                                              ToolConstants.HANDLER_CHAINS);
+            if (nl.getLength() == 0) {
+                continue;
+            }
+            //take the first one, anyway its 1 handler-config per customization
+            this.handlerChains = (Element) nl.item(0);
+            return;
         }
     }
 

@@ -2,6 +2,7 @@ package org.objectweb.celtix.tools.common.model;
 
 import java.util.*;
 import javax.jws.soap.SOAPBinding;
+import org.w3c.dom.Element;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 
@@ -22,6 +23,7 @@ public class JavaInterface {
 
     private JAXWSBinding jaxwsBinding = new JAXWSBinding();
     private String webserviceName;
+    private Element handlerChains;
     
     public JavaInterface() {
     }
@@ -142,5 +144,13 @@ public class JavaInterface {
 
     public Iterator<String> getImports() {
         return imports.iterator();
+    }
+
+    public Element getHandlerChains() {
+        return this.handlerChains;
+    }
+
+    public void setHandlerChains(Element elem) {
+        this.handlerChains = elem;
     }
 }

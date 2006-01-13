@@ -15,7 +15,7 @@ public class SEIGenerator extends AbstractGenerator {
     private JavaModel javaModel;
         
     public SEIGenerator() {
-        this.name = "wsdl2.sei.generator.";
+        this.name = ToolConstants.SEI_GENERATOR;
     }
 
     public SEIGenerator(JavaModel jmodel, ProcessorEnvironment env) {
@@ -33,7 +33,11 @@ public class SEIGenerator extends AbstractGenerator {
         } 
         return false;
     }
-    
+
+    private boolean hasHandlerConfig(JavaInterface intf) {
+        return intf.getHandlerChains() != null;
+    }
+
     public void generate() throws ToolException {
         if (passthrough()) {
             return;
@@ -44,12 +48,20 @@ public class SEIGenerator extends AbstractGenerator {
             String interfaceName = (String) iter.next();
             JavaInterface intf = interfaces.get(interfaceName);
 
+            if (hasHandlerConfig(intf)) {
+                HandlerConfigGenerator handlerGen = new HandlerConfigGenerator(intf, getEnvironment());
+                handlerGen.generate();
+
+                if (handlerGen.getHandlerAnnotation() != null) {
+                    intf.addAnnotation(handlerGen.getHandlerAnnotation().toString());
+                    intf.addImport("javax.jws.HandlerChain");
+                }
+            }
             clearAttributes();
             setAttributes("intf", intf);
             setCommonAttributes();
 
             doWrite(SEI_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName()));
-        }        
+        }
     }
-
 }

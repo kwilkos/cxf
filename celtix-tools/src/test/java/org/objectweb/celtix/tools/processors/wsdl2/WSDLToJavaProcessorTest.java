@@ -211,6 +211,27 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals(11, files.length);
     }
 
+    public void testWSAddress() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_addr.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl/ws_address_binding.wsdl"));
+        env.put(ToolConstants.CFG_PACKAGENAME, "org.objectweb");
+        
+        processor.setEnvironment(env);
+        processor.process();
+
+        assertNotNull(output);
+        
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File objectweb = new File(org, "objectweb");
+        assertTrue(objectweb.exists());
+
+        File[] files = objectweb.listFiles();
+        assertEquals(14, files.length);
+        File handlerConfig = new File(objectweb, "Greeter_handler.xml");
+        assertTrue(handlerConfig.exists());
+    }
+
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
     }

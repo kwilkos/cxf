@@ -25,6 +25,7 @@ public class PortTypeProcessor {
     public void process(JavaModel jmodel, PortType portType) throws ToolException {
         JavaInterface intf = new JavaInterface(jmodel);
         intf.setJAXWSBinding(customizing(jmodel, portType));
+        intf.setHandlerChains(CustomizationParser.getInstance().getHandlerChains());
         
         String namespace = portType.getQName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace,

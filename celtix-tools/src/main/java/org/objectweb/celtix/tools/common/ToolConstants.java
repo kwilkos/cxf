@@ -56,6 +56,7 @@ public final class ToolConstants {
     public static final String CLT_GENERATOR = "clt.generator";
     public static final String SERVICE_GENERATOR = "service.generator";
     public static final String ANT_GENERATOR = "ant.generator";
+    public static final String HANDLER_GENERATOR = "handler.generator";
 
     // Binding namespace
     public static final String NS_JAXWS_BINDINGS = "http://java.sun.com/xml/ns/jaxws";
@@ -66,4 +67,8 @@ public final class ToolConstants {
     public static final String JAXWS_BINDING_VERSION = "version";
 
     public static final String ASYNC_METHOD_SUFFIX = "Async";
+    
+    public static final String HANDLER_CHAINS_URI = "http://java.sun.com/xml/ns/javaee";
+    public static final String HANDLER_CHAIN = "handler-chain";
+    public static final String HANDLER_CHAINS = "handler-chains";
 }
