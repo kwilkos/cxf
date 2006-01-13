@@ -34,11 +34,17 @@ public abstract class ClientServerSetupBase extends TestSetup {
         bus = null;
         launchers.clear();
         System.gc();
-        System.gc();
     } 
     
     protected boolean stopAllServers() {
         boolean passed = true;
+        for (ServerLauncher sl : launchers) {
+            try { 
+                sl.signalStop();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
         for (ServerLauncher sl : launchers) {
             try { 
                 passed = passed && sl.stopServer(); 

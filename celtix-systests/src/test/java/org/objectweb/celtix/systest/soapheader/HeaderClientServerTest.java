@@ -21,7 +21,7 @@ import org.objectweb.header_test.types.TestHeader3;
 import org.objectweb.header_test.types.TestHeader3Response;
 import org.objectweb.header_test.types.TestHeader5;
 
-public class ClientServerTest extends ClientServerTestBase {
+public class HeaderClientServerTest extends ClientServerTestBase {
 
     private final QName serviceName = new QName("http://objectweb.org/header_test",
                                                 "SOAPHeaderService");    
@@ -31,7 +31,7 @@ public class ClientServerTest extends ClientServerTestBase {
     private TestHeader proxy;
     
     public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ClientServerTest.class);
+        TestSuite suite = new TestSuite(HeaderClientServerTest.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
                 assertTrue("server did not launch correctly", launchServer(Server.class));
@@ -134,6 +134,6 @@ public class ClientServerTest extends ClientServerTestBase {
     } 
     
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(ClientServerTest.class);
+        junit.textui.TestRunner.run(HeaderClientServerTest.class);
     }
 }

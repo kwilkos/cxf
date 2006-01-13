@@ -19,23 +19,25 @@ import org.objectweb.celtix.hello_world_jms.HelloWorldService;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 
-public class ClientServerTest extends ClientServerTestBase {
+public class JMSClientServerTest extends ClientServerTestBase {
 
     private QName serviceName; 
     private QName portName;
 
     public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ClientServerTest.class);
+        TestSuite suite = new TestSuite(JMSClientServerTest.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
-                Map<String, String> props = new HashMap<String, String>();
-                props.put("activemq.store.dir", System.getProperty("activemq.store.dir"));
-                props.put("java.util.logging.config.file",
+                Map<String, String> props = new HashMap<String, String>();                
+                if (System.getProperty("activemq.store.dir") != null) {
+                    props.put("activemq.store.dir", System.getProperty("activemq.store.dir"));
+                }
+                props.put("java.util.logging.config.file", 
                           System.getProperty("java.util.logging.config.file"));
                 
                 assertTrue("server did not launch correctly", launchServer(EmbeddedJMSBrokerLauncher.class,
                                                                            props));
-                Thread.sleep(10000);
+                //Thread.sleep(10000);
                 assertTrue("server did not launch correctly", launchServer(Server.class));
             }
         };
@@ -118,6 +120,6 @@ public class ClientServerTest extends ClientServerTestBase {
     
     
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(ClientServerTest.class);
+        junit.textui.TestRunner.run(JMSClientServerTest.class);
     }
 }

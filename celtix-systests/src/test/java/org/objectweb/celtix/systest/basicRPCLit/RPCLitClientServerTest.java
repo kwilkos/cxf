@@ -15,7 +15,7 @@ import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.SOAPServiceRPCLit;
 import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
 
-public class ClientServerTest extends ClientServerTestBase {
+public class RPCLitClientServerTest extends ClientServerTestBase {
 
     private final QName serviceName = new QName("http://objectweb.org/hello_world_rpclit",
                                                 "SOAPServiceRPCLit");
@@ -24,7 +24,7 @@ public class ClientServerTest extends ClientServerTestBase {
 
 
     public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ClientServerTest.class);
+        TestSuite suite = new TestSuite(RPCLitClientServerTest.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
                 assertTrue("server did not launch correctly", launchServer(Server.class));
@@ -93,6 +93,6 @@ public class ClientServerTest extends ClientServerTestBase {
     
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(ClientServerTest.class);
+        junit.textui.TestRunner.run(RPCLitClientServerTest.class);
     }
 }

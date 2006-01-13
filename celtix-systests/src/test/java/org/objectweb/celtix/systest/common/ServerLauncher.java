@@ -83,6 +83,13 @@ public class ServerLauncher {
         return serverIsStopped;
     }
 
+    public void signalStop() throws IOException {
+        if (process != null) {
+            process.getOutputStream().write('q');
+            process.getOutputStream().write('\n');
+            process.getOutputStream().flush();
+        }
+    }
     public boolean stopServer() throws IOException {
         if (inProcess) {
             try {
@@ -93,9 +100,13 @@ public class ServerLauncher {
             }
         } else {
             if (process != null) {
-                process.getOutputStream().write('q');
-                process.getOutputStream().write('\n');
-                process.getOutputStream().flush();
+                if (!serverIsStopped) {
+                    try {
+                        signalStop();
+                    } catch (IOException ex) {
+                        //ignore
+                    }
+                }
                 waitForServerToStop();
                 process.destroy();
             }
@@ -242,6 +253,14 @@ public class ServerLauncher {
 
         List<String> cmd = new ArrayList<String>();
         cmd.add(javaExe);
+        
+        if (null != properties) {
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+                cmd.add("-D" + entry.getKey() + "=" + entry.getValue());
+            }
+        }
+
+        cmd.add("-ea");
         cmd.add("-classpath");
         
         ClassLoader loader = this.getClass().getClassLoader();
@@ -256,21 +275,11 @@ public class ServerLauncher {
         cmd.add(classpath.toString());
         
         cmd.add("-Djavax.xml.ws.spi.Provider=org.objectweb.celtix.bus.jaxws.spi.ProviderImpl");
-        if (null != properties) {
-            for (Map.Entry<String, String> entry : properties.entrySet()) {
-                cmd.add("-D" + entry.getKey() + "=" + entry.getValue());
-            }
-        }
         
-        /* REVISIT: this prevents the server from shutting down and causes the test to timeout.
-         * It would be good however to get this fixed as it is useful for server debugging. 
-         */
-        /*
         String loggingPropertiesFile = System.getProperty("java.util.logging.config.file");
         if (null != loggingPropertiesFile) {
             cmd.add("-Djava.util.logging.config.file=" + loggingPropertiesFile);
         } 
-        */ 
      
         cmd.add(className);
 

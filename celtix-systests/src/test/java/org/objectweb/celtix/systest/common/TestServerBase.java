@@ -24,16 +24,16 @@ public abstract class TestServerBase extends Assert {
     
     
     public void startInProcess() throws Exception {
-        getLog().info("running server");
+        System.out.println("running server");
         run();
-        getLog().info("signal ready");
+        System.out.println("signal ready");
         ready();
     }
     
     public boolean stopInProcess() throws Exception {
         boolean ret = true;
         if (verify(getLog())) {
-            getLog().info("server passed");
+            System.out.println("server passed");
         } else {
             ret = false;
         }
@@ -45,24 +45,25 @@ public abstract class TestServerBase extends Assert {
     
     public void start() {
         try { 
-            getLog().info("running server");
+            System.out.println("running server");
             run();
-            getLog().info("signal ready");
+            System.out.println("signal ready");
             ready();
             
             // wait for a key press then shut 
             // down the server
             //
             System.in.read(); 
-            getLog().info("stopping bus");
+            System.out.println("stopping bus");
+            
         } catch (Throwable ex) {
             ex.printStackTrace();
             startFailed();
         } finally {
             if (verify(getLog())) {
-                getLog().info("server passed");
+                System.out.println("server passed");
             }
-            getLog().info("server stopped");
+            System.out.println("server stopped");
             System.exit(0);
         }
     }
