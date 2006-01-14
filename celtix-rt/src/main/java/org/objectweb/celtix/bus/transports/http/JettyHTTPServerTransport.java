@@ -84,7 +84,7 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context)
         throws IOException {
         return new AbstractHTTPServerOutputStreamContext(this, context) {
-            void flushHeaders() throws IOException {
+            protected void flushHeaders() throws IOException {
                 HttpResponse response = (HttpResponse)get(HTTPServerInputStreamContext.HTTP_RESPONSE);
                 
                 Integer i = (Integer)context.get(HTTP_RESPONSE_CODE);

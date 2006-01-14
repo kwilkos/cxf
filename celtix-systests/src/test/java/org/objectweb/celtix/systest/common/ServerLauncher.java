@@ -15,6 +15,9 @@ import java.util.logging.Logger;
 public class ServerLauncher {
 
     public static final int DEFAULT_TIMEOUT = 3 * 60 * 1000;
+
+    private static final boolean DEFAULT_IN_PROCESS = false;
+
     private static final Logger LOG = Logger.getLogger(ServerLauncher.class.getName());
 
     boolean serverPassed;
@@ -22,7 +25,7 @@ public class ServerLauncher {
 
 
     private final boolean debug = false;
-    private boolean inProcess;
+    private boolean inProcess = DEFAULT_IN_PROCESS;
     private TestServerBase inProcessServer;
     
     private final String javaExe;
@@ -35,11 +38,16 @@ public class ServerLauncher {
     private final Mutex mutex = new Mutex();
 
     public ServerLauncher(String theClassName) {
+        this(theClassName, DEFAULT_IN_PROCESS);
+    }
+    public ServerLauncher(String theClassName, boolean inprocess) {
+        inProcess = inprocess;
         className = theClassName;
         // special case handling for WS-Addressing system test to avoid
         // UUID related issue when server is run as separate process
         // via maven on Win2k
         inProcess = "org.objectweb.celtix.systest.ws.addressing.Server".equals(className);
+        inProcess = true;
         javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
     }
     public ServerLauncher(String theClassName, Map<String, String> p) {

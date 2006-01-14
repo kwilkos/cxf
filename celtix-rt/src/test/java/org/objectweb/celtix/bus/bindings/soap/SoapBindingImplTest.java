@@ -53,17 +53,6 @@ public class SoapBindingImplTest extends TestCase {
     public void testGetMessageFactory() throws Exception {
         assertNotNull(binding.getSOAPFactory());
     }
-
-    public void testIsCompatibleWithAddress() throws Exception {
-        String address = new String("http:\\www.iona.com\\soap");
-        assertTrue(binding.isCompatibleWithAddress(address));
-        
-        address = new String("https:\\www.iona.com\\soap");
-        assertTrue(binding.isCompatibleWithAddress(address));
-
-        address = new String("12343254");
-        assertFalse(binding.isCompatibleWithAddress(address));        
-    }
     
     public void testMarshalWrapDocLitInputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation

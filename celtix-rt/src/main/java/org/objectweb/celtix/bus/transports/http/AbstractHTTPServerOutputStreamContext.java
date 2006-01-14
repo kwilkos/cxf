@@ -10,13 +10,13 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 
-abstract class AbstractHTTPServerOutputStreamContext
+public abstract class AbstractHTTPServerOutputStreamContext
     extends MessageContextWrapper
     implements OutputStreamMessageContext {
     
-    final AbstractHTTPServerTransport transport;
-    WrappedOutputStream origOut;
-    OutputStream out;
+    protected final AbstractHTTPServerTransport transport;
+    protected WrappedOutputStream origOut;
+    protected OutputStream out;
     
     public AbstractHTTPServerOutputStreamContext(AbstractHTTPServerTransport tr, MessageContext ctx)
         throws IOException {
@@ -27,10 +27,14 @@ abstract class AbstractHTTPServerOutputStreamContext
         out = origOut;
     }
     
-    abstract void flushHeaders() throws IOException;
+    protected abstract void flushHeaders() throws IOException;
     
     public void setFault(boolean isFault) {
-        put(HTTP_RESPONSE_CODE, 500);
+        if (isFault) {
+            put(HTTP_RESPONSE_CODE, 500);
+        } else {
+            put(HTTP_RESPONSE_CODE, 200);            
+        }
     }
 
     public boolean isFault() {
@@ -53,11 +57,11 @@ abstract class AbstractHTTPServerOutputStreamContext
         out = o;
     }
     
-    class WrappedOutputStream extends FilterOutputStream {
+    protected class WrappedOutputStream extends FilterOutputStream {
         WrappedOutputStream() {
             super(new ByteArrayOutputStream());
         }
-        void resetOut(OutputStream newOut) throws IOException {
+        public void resetOut(OutputStream newOut) throws IOException {
             ByteArrayOutputStream bout = (ByteArrayOutputStream)out;
             if (bout.size() > 0) {
                 bout.writeTo(newOut);

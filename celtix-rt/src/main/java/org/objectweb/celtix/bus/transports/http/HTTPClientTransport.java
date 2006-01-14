@@ -405,6 +405,12 @@ public class HTTPClientTransport implements ClientTransport {
                         origInputStream = connection.getInputStream();
                     }
                 } else {
+                    if (connection.getHeaderField(HTTP_RESPONSE_CODE) != null) {
+                        put(HTTP_RESPONSE_CODE,
+                            Integer.parseInt(connection.getHeaderField(HTTP_RESPONSE_CODE)));
+                    } else {
+                        put(HTTP_RESPONSE_CODE, 200);                        
+                    }
                     origInputStream = connection.getInputStream();
                 }
             

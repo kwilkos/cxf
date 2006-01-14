@@ -85,8 +85,8 @@ public class HTTPTransportTest extends TestCase {
         }
         return total;
     }
-    
-    
+
+   
     public void testInvoke() throws Exception {
         doTestInvoke(false);
         doTestInvoke(false);

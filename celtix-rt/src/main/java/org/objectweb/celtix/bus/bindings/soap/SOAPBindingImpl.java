@@ -1,17 +1,11 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
 
-
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +54,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     protected final MessageFactory msgFactory;
     protected final SOAPFactory soapFactory;
     protected final boolean isServer;
-    private final Collection<String> supportedProtocols = new LinkedList<String>(); 
     private NSStack nsStack;
 
     public SOAPBindingImpl(boolean server) {
@@ -68,12 +61,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             isServer = server;
             msgFactory = MessageFactory.newInstance();
             soapFactory = SOAPFactory.newInstance();
-
-            // REVISIT: these should be read from configuration
-            supportedProtocols.add("http");
-            supportedProtocols.add("https");
-            supportedProtocols.add("jms");
-            supportedProtocols.add("jbi");
 
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SAAJ_FACTORY_CREATION_FAILURE_MSG", se);
@@ -95,20 +82,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
     public void setMTOMEnabled(boolean flag) {
         throw new WebServiceException("MTOM is not supported");
-    }
-
-    public boolean isCompatibleWithAddress(String address) {
-        
-        URL url = null;
-        try {
-            url = new URL(address);
-        } catch (MalformedURLException ex) {
-            LogUtils.log(LOG, Level.SEVERE, "INVALID_ADDRESS_MSG", ex, address);
-            return false;
-        }
-        String protocol = url.getProtocol();
-
-        return supportedProtocols.contains(protocol);
     }
 
     public MessageFactory getMessageFactory() {

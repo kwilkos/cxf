@@ -33,14 +33,14 @@ public abstract class AbstractHTTPServerTransport implements ServerTransport {
     
     private static final long serialVersionUID = 1L;
 
-    EndpointReferenceType reference;
-    String url;
-    String name;
-    URL nurl;
-    ServerTransportCallback callback;
-    Configuration configuration;
-    HTTPServerPolicy policy;
-    final Bus bus;
+    protected EndpointReferenceType reference;
+    protected String url;
+    protected String name;
+    protected URL nurl;
+    protected ServerTransportCallback callback;
+    protected Configuration configuration;
+    protected HTTPServerPolicy policy;
+    protected final Bus bus;
     
     public AbstractHTTPServerTransport(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
         if (b == null) {

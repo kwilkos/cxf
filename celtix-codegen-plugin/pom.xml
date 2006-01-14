@@ -17,6 +17,7 @@
 
     <properties>
         <topDirectoryLocation>..</topDirectoryLocation>
+        <java.source.version>1.4</java.source.version>
     </properties>
 
 
@@ -79,18 +80,4 @@
             <version>${jaxws.version}</version>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${compiler.version}</version>
-                <configuration>
-                    <source>1.4</source>
-                    <target>1.4</target>
-                    <fork>${compile.forked}</fork>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

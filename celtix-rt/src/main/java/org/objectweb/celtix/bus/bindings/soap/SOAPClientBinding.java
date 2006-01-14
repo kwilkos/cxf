@@ -36,10 +36,6 @@ public class SOAPClientBinding extends AbstractClientBinding {
     public Binding getBinding() {
         return soapBinding;
     }
-    
-    public boolean isCompatibleWithAddress(String address) {
-        return soapBinding.isCompatibleWithAddress(address);
-    }
 
     public HandlerInvoker createHandlerInvoker() {
         return new HandlerChainInvoker(getBinding().getHandlerChain()); 

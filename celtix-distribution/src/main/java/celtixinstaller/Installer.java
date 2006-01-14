@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -17,7 +18,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 public final class Installer {
-    static final Set<String> BINARY_EXTS = new TreeSet<String>();
+    static final Set BINARY_EXTS = new TreeSet();
     static {
         BINARY_EXTS.add("jar");
         BINARY_EXTS.add("zip");
@@ -39,7 +40,9 @@ public final class Installer {
         if (s.indexOf("maven_repo") != -1) {
             return true;
         }
-        for (String ext : BINARY_EXTS) {
+        Iterator it = BINARY_EXTS.iterator();
+        while (it.hasNext()) {
+            String ext = (String)it.next();
             if (s.endsWith(ext)) {
                 return true;
             }
@@ -50,6 +53,11 @@ public final class Installer {
     public static void main(String args[]) throws Exception {
         File outputDir = new File(".");
         outputDir = outputDir.getCanonicalFile();
+
+        if (!System.getProperty("java.version").startsWith("1.5")) {
+            System.out.println("WARNING: Installing with Java " + System.getProperty("java.version") + ".");
+            System.out.println("         Celtix requires JDK 1.5 to run.");
+        }
 
         if (args.length != 0) {
             outputDir = new File(args[0]);
@@ -65,7 +73,7 @@ public final class Installer {
 
         byte buffer[] = new byte[4096];
         JarInputStream jin = new JarInputStream(new FileInputStream(url.getFile()));
-        List<String> executes = new ArrayList<String>();
+        List executes = new ArrayList();
 
 
         for (JarEntry entry = jin.getNextJarEntry(); entry != null; entry = jin.getNextJarEntry()) {
@@ -111,7 +119,7 @@ public final class Installer {
             executes.add(0, "chmod");
             executes.add(1, "+x");
 
-            Runtime.getRuntime().exec(executes.toArray(new String[executes.size()]));
+            Runtime.getRuntime().exec((String[])executes.toArray(new String[executes.size()]));
         }
     }
 }

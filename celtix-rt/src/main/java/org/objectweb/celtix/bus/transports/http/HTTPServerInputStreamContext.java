@@ -6,7 +6,7 @@ import java.io.InputStream;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 
-class HTTPServerInputStreamContext
+public class HTTPServerInputStreamContext
     extends GenericMessageContext
     implements InputStreamMessageContext {
 
@@ -17,9 +17,9 @@ class HTTPServerInputStreamContext
     
     private static final long serialVersionUID = 1L;
 
-    final AbstractHTTPServerTransport transport;
-    InputStream origInputStream;
-    InputStream inStream;
+    protected final AbstractHTTPServerTransport transport;
+    protected InputStream origInputStream;
+    protected InputStream inStream;
 
     public HTTPServerInputStreamContext(AbstractHTTPServerTransport tr)
         throws IOException {

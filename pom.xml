@@ -78,6 +78,7 @@
 
         <surefire.fork.mode>none</surefire.fork.mode>
         <compile.forked>false</compile.forked>
+        <java.source.version>1.5</java.source.version>
     </properties>
 
     <modules>
@@ -103,6 +104,13 @@
                 <includes>
                     <include>**</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources-filtered</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
+                <filtering>true</filtering>
             </resource>
             <resource>
                 <directory>target/generated/src/main/resources</directory>
@@ -189,7 +197,7 @@
                             <tasks>
                                 <ant antfile="${topDirectoryLocation}/process-sources.xml" dir="${basedir}" inheritRefs="true">
                                     <target name="checkstyle.${no.checkstyle}"/>
-                                    <target name="pmd.${no.checkstyle}"/>
+                                    <target name="pmd.${no.pmd}"/>
                                     <property name="baselocation" value="${topDirectoryLocation}"/>
                                 </ant>
                             </tasks>
@@ -205,8 +213,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler.version}</version>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>${java.source.version}</source>
+                    <target>${java.source.version}</target>
                     <showDeprecation>true</showDeprecation>
                     <fork>${compile.forked}</fork>
                     <compilerArgument>-Xlint:unchecked,deprecation,fallthrough,finally</compilerArgument>
@@ -268,7 +276,7 @@
                 <artifactId>maven-clover-plugin</artifactId>
                 <version>${clover.version}</version>
                 <configuration>
-                    <jdk>1.5</jdk>
+                    <jdk>${java.source.version}</jdk>
                 </configuration>
             </plugin>
 
@@ -323,7 +331,7 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>${pmd.version}</version>
                 <configuration>
-                    <targetJdk>1.5</targetJdk>
+                    <targetJdk>${java.source.version}</targetJdk>
                     <rulesets>
                         <ruleset>${basedir}/.ruleset</ruleset>
                     </rulesets>

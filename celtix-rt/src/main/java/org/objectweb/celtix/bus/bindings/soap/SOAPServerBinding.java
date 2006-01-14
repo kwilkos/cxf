@@ -63,11 +63,6 @@ public class SOAPServerBinding extends AbstractServerBinding {
         return soapBinding;
     }
     
-    public boolean isCompatibleWithAddress(String address) {
-        return soapBinding.isCompatibleWithAddress(address);
-    }
-    
-
     public HandlerInvoker createHandlerInvoker() {
         return new HandlerChainInvoker(getBinding().getHandlerChain()); 
     }

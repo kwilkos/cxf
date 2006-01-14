@@ -70,6 +70,20 @@ public abstract class ClientServerSetupBase extends TestSetup {
         
         return ok;
     }
+    public boolean launchServer(Class<?> clz, boolean inProcess) {
+        boolean ok = false;
+        try { 
+            ServerLauncher sl = new ServerLauncher(clz.getName(), inProcess);
+            ok = sl.launchServer();
+            assertTrue("server failed to launch", ok);
+            launchers.add(sl);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            fail("failed to launch server " + clz);
+        }
+        
+        return ok;
+    }
     public boolean launchServer(Class<?> clz, Map<String, String> props) {
         boolean ok = false;
         try { 

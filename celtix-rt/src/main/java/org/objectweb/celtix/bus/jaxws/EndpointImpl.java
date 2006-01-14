@@ -166,11 +166,6 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         if (isPublished()) {
             LOG.warning("ENDPOINT_ALREADY_PUBLISHED_MSG");
         }
-        if (!serverBinding.isCompatibleWithAddress(address)) {
-            throw 
-                new IllegalArgumentException(new BusException(new Message("BINDING_INCOMPATIBLE_ADDRESS_EXC",
-                                                                          LOG)));
-        }
         doPublish(address);
     }
 

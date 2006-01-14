@@ -59,7 +59,7 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
         TestSuite suite = new TestSuite(MAPTest.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
+                assertTrue("server did not launch correctly", launchServer(Server.class, true));
             }
         };
     }  

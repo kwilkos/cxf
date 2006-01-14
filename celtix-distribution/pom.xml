@@ -16,6 +16,7 @@
 
     <properties>
         <topDirectoryLocation>..</topDirectoryLocation>
+        <java.source.version>1.4</java.source.version>
     </properties>
 
     <dependencies>

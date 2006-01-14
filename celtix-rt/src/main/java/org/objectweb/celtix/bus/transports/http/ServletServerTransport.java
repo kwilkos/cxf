@@ -86,7 +86,7 @@ class ServletServerTransport extends AbstractHTTPServerTransport {
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context)
         throws IOException {
         return new AbstractHTTPServerOutputStreamContext(this, context) {
-            void flushHeaders() throws IOException {
+            protected void flushHeaders() throws IOException {
                 HttpServletResponse response =
                     (HttpServletResponse)get(HTTPServerInputStreamContext.HTTP_RESPONSE);
                 

@@ -12,15 +12,6 @@ import org.objectweb.celtix.handlers.HandlerInvoker;
 public interface BindingBase {
     
     /**
-     * Returns whether the given addressing information is compatible with
-     * this binding.
-     *
-     * @param address The address to use.
-     * @return whether the given address is compatible.
-     */
-    boolean isCompatibleWithAddress(String address);
-    
-    /**
      * Returns the <code>Binding</code> reference.
      *
      * @return The Binding.
