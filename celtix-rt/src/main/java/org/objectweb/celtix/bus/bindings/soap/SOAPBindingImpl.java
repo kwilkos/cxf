@@ -29,6 +29,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
+import javax.xml.ws.WebFault;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
@@ -181,9 +182,14 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         try {
             msg = SOAPMessageContext.class.isInstance(mc)
-                  && ((SOAPMessageContext)mc).getMessage() != null
-                  ? ((SOAPMessageContext)mc).getMessage()
-                  : initSOAPMessage();
+                    && ((SOAPMessageContext)mc).getMessage() != null
+                    ? ((SOAPMessageContext)mc).getMessage()
+                    : initSOAPMessage();
+                    
+            if (msg.getSOAPBody().hasChildNodes()) {
+                msg.getSOAPBody().removeContents();
+            }
+
             Throwable t = objContext.getException();
 
             SOAPFault fault = msg.getSOAPBody().addFault();
@@ -194,7 +200,15 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 fault.setFaultString(f.getFaultString());
             } else {
                 fault.setFaultCode(SOAPConstants.FAULTCODE_SERVER);
-                fault.setFaultString(t.getMessage());
+                StringBuffer str = new StringBuffer(t.toString());
+                if (!t.getClass().isAnnotationPresent(WebFault.class)) {
+                    str.append("\n");
+                    for (StackTraceElement s : t.getStackTrace()) {
+                        str.append(s.toString());
+                        str.append("\n");
+                    }
+                }
+                fault.setFaultString(str.toString());
             }
 
             DataWriter<Detail> writer = callback.createWriter(Detail.class);
@@ -202,7 +216,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 throw new WebServiceException("Could not marshal fault details");
             }
             writer.write(t, fault.addDetail());
-            if (fault.getDetail().getChildNodes().getLength() == 0) {
+            if (!fault.getDetail().hasChildNodes()) {
                 fault.removeChild(fault.getDetail());
             }
         } catch (SOAPException se) {

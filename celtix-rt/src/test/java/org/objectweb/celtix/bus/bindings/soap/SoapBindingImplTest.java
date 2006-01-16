@@ -261,10 +261,15 @@ public class SoapBindingImplTest extends TestCase {
         soapContext.setMessage(msg);
 
         assertNotNull(msg);
+        Node xmlNode = msg.getSOAPBody();
+        assertNotNull(xmlNode);
+        assertEquals(1, xmlNode.getChildNodes().getLength());
         assertTrue(msg.getSOAPBody().hasFault());
         SOAPFault fault = msg.getSOAPBody().getFault();
         assertNotNull(fault);
-        assertEquals(exMessage, fault.getFaultString());
+        assertEquals(
+                     getExceptionString(ex, exMessage), 
+                     fault.getFaultString());
         assertTrue(fault.hasChildNodes());
         Detail detail = fault.getDetail();
         assertNotNull(detail);
@@ -291,10 +296,16 @@ public class SoapBindingImplTest extends TestCase {
         soapContext.setMessage(msg);
         
         assertNotNull(msg);
+        Node xmlNode = msg.getSOAPBody();
+        assertNotNull(xmlNode);
+        assertEquals(1, xmlNode.getChildNodes().getLength());
+
         assertTrue(msg.getSOAPBody().hasFault());
         SOAPFault fault = msg.getSOAPBody().getFault();
         assertNotNull(fault);
-        assertEquals(se.getMessage(), fault.getFaultString());
+        assertEquals(
+                     getExceptionString(se, se.getMessage()),
+                     fault.getFaultString());
         assertTrue(fault.hasChildNodes());
         NodeList list = fault.getChildNodes();
         assertEquals(2, list.getLength());         
@@ -393,5 +404,23 @@ public class SoapBindingImplTest extends TestCase {
         assertNull(objContext.getReturn());
         assertEquals(1, params.length);
         assertEquals(data, (String)params[0]);
+    }
+    
+    private String getExceptionString(Exception ex, String faultString) {
+        StringBuffer str = new StringBuffer();
+        if (ex != null) {
+            str.append(ex.getClass().getName());
+            str.append(": ");
+        }
+        str.append(faultString);
+        
+        if (!ex.getClass().isAnnotationPresent(WebFault.class)) {
+            str.append("\n");
+            for (StackTraceElement s : ex.getStackTrace()) {
+                str.append(s.toString());
+                str.append("\n");
+            }          
+        }
+        return str.toString();
     }
 }

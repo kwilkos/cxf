@@ -24,6 +24,7 @@ import javax.xml.ws.WebFault;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import junit.framework.TestCase;
@@ -89,16 +90,16 @@ public class SOAPServerBindingTest extends TestCase {
     public void testDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
-        
-        TestServerTransport serverTransport = new TestServerTransport(bus, epr);
 
+        TestServerTransport serverTransport = new TestServerTransport(bus, epr);
+        
         QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");
         QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "requestType");
         String data = new String("TestSOAPInputMessage");
-       
+
         byte[] bArray = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data).getBytes();
-        
         TestInputStreamContext inCtx = new TestInputStreamContext(bArray);
+
         serverBinding.testDispatch(inCtx, serverTransport);
 
         assertNotNull(serverTransport.getOutputStreamContext());
@@ -112,6 +113,12 @@ public class SOAPServerBindingTest extends TestCase {
         String ref = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data);
        
         assertEquals(ref, os.toString());
+        
+        InputStream is = getClass().getResourceAsStream("resources/sayHiDocLiteralReq.xml");
+        inCtx.setInputStream(is);
+        serverBinding.testDispatch(inCtx, serverTransport);
+        assertNotNull(serverTransport.getOutputStreamContext());
+        assertFalse(serverTransport.getOutputStreamContext().isFault());
     }
     
     public void testDispatchOneway() throws Exception {
@@ -136,7 +143,7 @@ public class SOAPServerBindingTest extends TestCase {
 
     }
 
-    public void testFaultDispatch() throws Exception {
+    public void testUserFaultDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint);        
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
@@ -151,10 +158,46 @@ public class SOAPServerBindingTest extends TestCase {
 
         TestOutputStreamContext osc = (TestOutputStreamContext) serverTransport.getOutputStreamContext();
         ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
-        checkFaultMessage(bais, NoSuchCodeLitFault.class, "TestException");
+        checkUserFaultMessage(bais, NoSuchCodeLitFault.class, "TestException");
+    }
+
+    public void testSystemFaultDispatch() throws Exception {
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint);        
+        TestServerTransport serverTransport = new TestServerTransport(bus, epr);
+        InputStream is =  getClass().getResourceAsStream("resources/BadSoapMessage.xml");
+        
+        TestInputStreamContext inCtx = new TestInputStreamContext(null);
+        inCtx.setInputStream(is);
+        serverBinding.testDispatch(inCtx, serverTransport);
+
+        assertNotNull(serverTransport.getOutputStreamContext());
+        assertTrue(serverTransport.getOutputStreamContext().isFault());
+
+        TestOutputStreamContext osc = (TestOutputStreamContext) serverTransport.getOutputStreamContext();
+        ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
+        checkSystemFaultMessage(bais);
+    }
+
+    private void checkSystemFaultMessage(ByteArrayInputStream bais) throws Exception {
+        SOAPMessage msg = MessageFactory.newInstance().createMessage(null,  bais);
+        assertNotNull(msg);
+        Node xmlNode = msg.getSOAPBody();
+        assertNotNull(xmlNode);
+        assertEquals(1, xmlNode.getChildNodes().getLength());
+        
+        assertTrue(msg.getSOAPBody().hasFault());
+        
+        SOAPFault fault = msg.getSOAPBody().getFault();
+        assertNotNull(fault);
+        assertTrue(fault.hasChildNodes());
+        
+        //For Celtix Runtime Exceptions - SOAPFault will not have a Detail Node
+        Detail detail = fault.getDetail();
+        assertNull(detail);
     }
     
-    private void checkFaultMessage(ByteArrayInputStream bais, 
+    private void checkUserFaultMessage(ByteArrayInputStream bais, 
                               Class<? extends Exception> clazz,
                               String faultString) throws Exception {
         
@@ -164,7 +207,10 @@ public class SOAPServerBindingTest extends TestCase {
         SOAPFault fault = msg.getSOAPBody().getFault();
         assertNotNull(fault);
         
-        assertEquals(faultString, fault.getFaultString());
+        StringBuffer str = new StringBuffer(clazz.getName());
+        str.append(": ");
+        str.append(faultString);
+        assertEquals(str.toString(), fault.getFaultString());
         assertTrue(fault.hasChildNodes());
         Detail detail = fault.getDetail();
         assertNotNull(detail);

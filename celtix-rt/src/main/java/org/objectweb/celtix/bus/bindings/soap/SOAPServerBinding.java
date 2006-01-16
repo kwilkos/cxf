@@ -40,6 +40,7 @@ import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
+import org.objectweb.celtix.helpers.NodeUtils;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -233,7 +234,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
         try { 
             SOAPMessageContext soapContext = SOAPMessageContext.class.cast(ctx);
             SOAPMessage msg = soapContext.getMessage();
-            Node node = msg.getSOAPBody().getFirstChild();
+            Node node = NodeUtils.getChildElementNode(msg.getSOAPBody());
+
             ret = new QName(node.getNamespaceURI(), node.getLocalName());
         } catch (SOAPException ex) {
             LOG.log(Level.SEVERE, "OPERATION_NAME_RETREIVAL_FAILURE_MSG", ex);
