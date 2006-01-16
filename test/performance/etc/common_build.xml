@@ -2,6 +2,12 @@
 <!-- common build targets for Celtix demos -->
 <project name="celtix-demo-common">
 
+
+    <!-- Setup for building in a source build -->
+    <import file="../../../celtix-distribution/target/srcbuild_paths.xml" optional="true"/>
+    <property name="srcbuild.classpath" value=""/>
+
+
     <property name="build.dir" location ="${basedir}/build"/>
     <property name="build.classes.dir" location ="${build.dir}/classes"/>
     <property name="build.src.dir" location ="${build.dir}/src"/>
@@ -33,36 +39,20 @@
         <isset property="env.CELTIX_HOME"/>
     </condition>
     <property name="celtix.home" value="../../.."/>
-  
 
-    <property name="celtix.etc.dir" location="${celtix.home}/etc"/>
-    <!-- 
-         First assume we are either in a working copy or in a source
-         distribution, and expect third party libraries in the ../../tools directory.
-         If neither directory exists assume we are in a binary distribution
-         in which case third party tools are located in the ../../lib directory.
-    -->
-  
-
-    <condition property="thirdparty.tools.dir" value="${celtix.home}/tools">
-        <available file="tools" type="dir" filepath="${celtix.home}"/>
-    </condition>
-
-    <condition property="thirdparty.tools.dir" value="${celtix.home}/lib">
-        <available file="lib" type="dir" filepath="${celtix.home}"/>
-    </condition>
-
-    <property name="jaxws.lib.dir" location="${thirdparty.tools.dir}/jaxws-ri/20051104/lib"/>
     <property name="celtix.etc.dir" location="../../etc"/>
 
     <target name="build"  depends="generate.code,compile" description="build demo client and server"/>
 
+    <property name="celtix.lib.dir" value="${celtix.home}/lib"/>
+
     <path id="celtix.build.classpath">
+        <pathelement path="${srcbuild.classpath}"/>
         <pathelement location="${basedir}/build/classes"/>
         <pathelement location="${basedir}/../base/build/classes"/>
         <pathelement location="${celtix.home}/lib/celtix.jar"/>
         <pathelement location="${celtix.home}/build/lib/celtix.jar"/>
-        <fileset dir="${jaxws.lib.dir}">
+        <fileset dir="${celtix.lib.dir}">
             <include name="*.jar"/>
         </fileset>
     </path>
@@ -71,13 +61,6 @@
 
     <path id="celtix.runtime.classpath">
         <path refid="celtix.build.classpath"/>
-        <pathelement location="${thirdparty.tools.dir}/wsdl4j/1.5.1/wsdl4j.jar"/>
-        <fileset dir="${thirdparty.tools.dir}/jetty/5.1.5rc2">
-            <include name="**/*.jar"/>
-        </fileset>
-        <fileset dir="${thirdparty.tools.dir}/spring/1.2.5">
-            <include name="*.jar"/>
-        </fileset>
     </path>
 
     <macrodef name="celtix.perform.run">
@@ -86,9 +69,7 @@
         <sequential>
             <java classname="@{classname}" fork="yes" maxMemory="512M">
                 <jvmarg value="-Xms512M"/>
-                <classpath>
-                    <path refid="celtix.runtime.classpath"/>
-                </classpath>
+                <classpath refid="celtix.runtime.classpath"/>
                 <arg line="@{argline}"/>
                 <!--
                 <assertions>
@@ -162,12 +143,7 @@
             </condition>
             <property name="package.arg.@{file}" value=""/>
             <java failonerror="true" classname="com.sun.tools.ws.WsImport" fork="yes">
-                <classpath>
-                    <fileset dir="${jaxws.lib.dir}">
-                        <include name="*.jar"/>
-                    </fileset>
-                    <path refid="jdk.tools.classpath"/>
-                </classpath>
+                <classpath refid="celtix.build.classpath"/>
                 <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
                 <arg line="${package.arg.@{file}}"/>
                 <arg value="-keep"/>

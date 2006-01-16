@@ -29,6 +29,9 @@
             <property name="activemq.home">
                 <xsl:attribute name="location">${basedir}/../../../../tools/activemq/3.2</xsl:attribute>
             </property>
+            <property name="celtix.lib.dir">
+                <xsl:attribute name="location">${user.home}/.m2/repository</xsl:attribute>
+            </property>
 
         </project>
     </xsl:template>
