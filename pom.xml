@@ -282,6 +282,7 @@
 
 
         </plugins>
+        <defaultGoal>install</defaultGoal>
     </build>
 
     <reporting>
