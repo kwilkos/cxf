@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.jws.WebMethod;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -123,6 +124,12 @@ public final class JAXBEncoderDecoder {
     private static void getClassesForContext(Class<?> theClass, Set<Class> classes, ClassLoader loader) {
         Method methods[] = theClass.getMethods();
         for (Method meth : methods) {
+            //only methods marked as WebMethods are interesting to us
+            WebMethod webMethod = meth.getAnnotation(WebMethod.class);
+            if (webMethod == null) {
+                continue;
+            }
+            
             for (Type t : meth.getGenericParameterTypes()) {
                 addType(t, classes);
             }
@@ -164,6 +171,8 @@ public final class JAXBEncoderDecoder {
                 //ignore
             }
         }
+        
+        
         for (Class intf : theClass.getInterfaces()) {
             getClassesForContext(intf, classes, loader);
         }
