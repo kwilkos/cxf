@@ -35,7 +35,6 @@ public class JavaMethod {
     public void clear() {
         parameters.clear();
         javaReturn = null;
-        annotations.clear();
     }
 
     public String getSignature() {

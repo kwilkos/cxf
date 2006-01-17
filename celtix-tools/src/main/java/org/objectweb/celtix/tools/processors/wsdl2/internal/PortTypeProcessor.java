@@ -17,12 +17,14 @@ import org.objectweb.celtix.tools.utils.ProcessorUtil;
 public class PortTypeProcessor {
 
     private final ProcessorEnvironment env;
+    private List<String> operationMap = new ArrayList<String>();
     
     public PortTypeProcessor(ProcessorEnvironment penv) {
         this.env = penv;
     }
     
     public void process(JavaModel jmodel, PortType portType) throws ToolException {
+        operationMap.clear();
         JavaInterface intf = new JavaInterface(jmodel);
         intf.setJAXWSBinding(customizing(jmodel, portType));
         intf.setHandlerChains(CustomizationParser.getInstance().getHandlerChains());
@@ -48,12 +50,24 @@ public class PortTypeProcessor {
         List operations = portType.getOperations();
         for (Iterator iter = operations.iterator(); iter.hasNext();) {
             Operation operation = (Operation) iter.next();
+            if (isOverloading(operation.getName())) {
+                continue;
+            }
             OperationProcessor operationProcessor = new OperationProcessor(env);
             operationProcessor.process(intf, operation);
         }
         jmodel.setLocation(location);
         jmodel.addInterface(intf.getName() , intf);
        
+    }
+
+    private boolean isOverloading(String operationName) {
+        if (operationMap.contains(operationName)) {
+            return true;
+        } else {
+            operationMap.add(operationName);
+        }
+        return false;
     }
 
     private JAXWSBinding customizing(JavaModel jmodel, PortType portType) {

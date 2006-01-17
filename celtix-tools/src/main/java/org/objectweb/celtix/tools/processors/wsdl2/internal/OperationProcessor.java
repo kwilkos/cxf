@@ -22,6 +22,7 @@ import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 import org.objectweb.celtix.tools.utils.SOAPBindingUtil;
+import org.objectweb.celtix.tools.utils.StringUtils;
 
 public class OperationProcessor  {
     
@@ -38,12 +39,14 @@ public class OperationProcessor  {
         JavaMethod method = new JavaMethod(intf);
         method.setName(operation.getName());
         method.setStyle(operation.getStyle());
-        method.setWrapperStyle(isWrapperStyle(operation));
+        if (method.getStyle() == null) {
+            method.setStyle(OperationType.ONE_WAY);
+        }
 
+        method.setWrapperStyle(isWrapperStyle(operation));
         method.setJAXWSBinding(customizing(intf, operation));
 
         processMethod(method, operation);
-        
         Map<String, Fault> faults = operation.getFaults();
         FaultProcessor faultProcessor = new FaultProcessor(env);
         faultProcessor.process(method, faults);
@@ -90,7 +93,7 @@ public class OperationProcessor  {
     private void addWebMethodAnnotation(JavaMethod method, String methodName) {
         JavaAnnotation methodAnnotation = new JavaAnnotation("WebMethod");
         methodAnnotation.addArgument("operationName", methodName);
-        if (method.getSoapAction() != null) {
+        if (StringUtils.isEmpty(method.getSoapAction())) {
             methodAnnotation.addArgument("action", method.getSoapAction());
         }
         method.addAnnotation("WebMethod", methodAnnotation);
@@ -143,7 +146,7 @@ public class OperationProcessor  {
         if (!isWrapperStyle(operation)) {
             return;
         }
-
+        
         if (wrapperRequest != null) {
             JavaAnnotation wrapperRequestAnnotation = new JavaAnnotation("RequestWrapper");
             wrapperRequestAnnotation.addArgument("localName", wrapperRequest.getType());
@@ -253,9 +256,9 @@ public class OperationProcessor  {
         return true;
     }
 
-    private boolean isRequestResponse(Operation operation) throws ToolException {
+    private boolean isRequestResponse(Operation operation) {
         if (operation.getStyle() == null) {
-            throw new ToolException("can't get operation style for " + operation.getName());
+            return false;
         }
         return OperationType.REQUEST_RESPONSE.equals(operation.getStyle());
     }

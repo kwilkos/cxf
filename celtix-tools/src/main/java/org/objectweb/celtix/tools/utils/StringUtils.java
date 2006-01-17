@@ -41,4 +41,11 @@ public final class StringUtils {
             return new File(spec).toURL();
         }
     }
+
+    public static boolean isEmpty(String str) {
+        if (str == null || str.length() > 0) {
+            return true;
+        }
+        return false;
+    }
 }
