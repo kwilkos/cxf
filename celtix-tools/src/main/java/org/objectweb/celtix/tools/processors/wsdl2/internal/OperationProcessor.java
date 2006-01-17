@@ -105,26 +105,26 @@ public class OperationProcessor  {
             return;
         }
         JavaAnnotation resultAnnotation = new JavaAnnotation("WebResult");
-        String name = null;
         String targetNamespace = null;
+        String name = "return";
 
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT
             && !method.isWrapperStyle()) {
             name = method.getName() + "Response";
-        } else {
-            if (method.getReturn().getQName() != null) {
-                name = method.getReturn().getQName().getLocalPart();
-            } else {
-                name = method.getReturn().getName();
-            }
+        }
+
+        if (method.getSoapStyle() == SOAPBinding.Style.RPC) {
+            name = method.getReturn().getName();
+            targetNamespace = method.getInterface().getNamespace();
         }
 
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
+            if (method.getReturn().getQName() != null) {
+                name = method.getReturn().getQName().getLocalPart();
+            }
             targetNamespace = method.getReturn().getTargetNamespace();
-        } else {
-            targetNamespace = method.getInterface().getNamespace();
         }
-         
+        
         resultAnnotation.addArgument("name", name);
         resultAnnotation.addArgument("targetNamespace", targetNamespace);
         if (method.getSoapStyle() == SOAPBinding.Style.RPC
