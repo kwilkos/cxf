@@ -1,8 +1,5 @@
 package org.objectweb.celtix.tools.utils;
 
-import java.io.*;
-import java.util.*;
-
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
