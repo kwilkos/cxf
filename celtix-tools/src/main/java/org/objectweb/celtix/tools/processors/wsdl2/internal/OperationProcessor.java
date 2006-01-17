@@ -90,6 +90,9 @@ public class OperationProcessor  {
     private void addWebMethodAnnotation(JavaMethod method, String methodName) {
         JavaAnnotation methodAnnotation = new JavaAnnotation("WebMethod");
         methodAnnotation.addArgument("operationName", methodName);
+        if (method.getSoapAction() != null) {
+            methodAnnotation.addArgument("action", method.getSoapAction());
+        }
         method.addAnnotation("WebMethod", methodAnnotation);
         method.getInterface().addImport("javax.jws.WebMethod");
     }
