@@ -18,7 +18,8 @@ public final class NodeUtils {
         }
         
         xmlNode = xmlNode.getFirstChild();
-        while (xmlNode.getNodeType() != Node.ELEMENT_NODE) {
+        while (xmlNode != null 
+               && xmlNode.getNodeType() != Node.ELEMENT_NODE) {
             xmlNode = xmlNode.getNextSibling();
         }
 

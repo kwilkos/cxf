@@ -44,6 +44,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 import org.objectweb.hello_world_soap_http.NotAnnotatedGreeterImpl;
+import org.objectweb.hello_world_soap_http.NotAnnotatedGreeterImplRPCLit;
 
 
 public class SOAPServerBindingTest extends TestCase {
@@ -87,7 +88,7 @@ public class SOAPServerBindingTest extends TestCase {
     }
     */
 
-    public void testDispatch() throws Exception {
+    public void testDocLitDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
 
@@ -114,11 +115,41 @@ public class SOAPServerBindingTest extends TestCase {
        
         assertEquals(ref, os.toString());
         
+        //Doc Literal Case
         InputStream is = getClass().getResourceAsStream("resources/sayHiDocLiteralReq.xml");
         inCtx.setInputStream(is);
         serverBinding.testDispatch(inCtx, serverTransport);
         assertNotNull(serverTransport.getOutputStreamContext());
         assertFalse(serverTransport.getOutputStreamContext().isFault());
+        is.close();
+    }
+
+    public void testRPCLitDispatch() throws Exception {
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImplRPCLit());
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
+        TestServerTransport serverTransport = new TestServerTransport(bus, epr);
+        TestInputStreamContext inCtx = new TestInputStreamContext(null);
+        
+        InputStream is = getClass().getResourceAsStream("resources/sayHiRpcLiteralReq.xml");
+        inCtx.setInputStream(is);
+        serverBinding.testDispatch(inCtx, serverTransport);
+        is.close();
+        
+        TestOutputStreamContext osc = 
+            (TestOutputStreamContext) serverTransport.getOutputStreamContext();        
+        assertNotNull(osc);
+        assertFalse(osc.isFault());
+        
+        ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());        
+        SOAPMessage msg = MessageFactory.newInstance().createMessage(null,  bais);
+        assertNotNull(msg);
+        assertFalse(msg.getSOAPBody().hasFault());        
+        Node xmlNode = msg.getSOAPBody();
+        assertNotNull(xmlNode);
+        assertEquals(1, xmlNode.getChildNodes().getLength());
+        //Check if the Response Node is "sayHiResponse"
+        xmlNode = xmlNode.getFirstChild();
+        assertEquals("sayHiResponse", xmlNode.getLocalName());
     }
     
     public void testDispatchOneway() throws Exception {
