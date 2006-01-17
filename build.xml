@@ -1,29 +1,64 @@
 <project name="Celtix">
+
+    <!-- Targets for cruisecontrol to use -->
     <target name="cruisecontrol.build">
         <delete file="build.out"/>
         <delete file="build.out.clean"/>
         <exec executable="mvn" dir="${basedir}" failonerror="false" output="build.out.clean" logError="true">
             <arg line="clean -Drelease"/>
         </exec>
-        <exec executable="mvn" dir="${basedir}" failonerror="true" output="build.out" logError="true">
+        <exec executable="mvn" dir="${basedir}" failonerror="false" resultproperty="build.result" output="build.out" logError="true">
             <arg line="install -Dsurefire.fork.mode=once -Drelease"/>
         </exec>
+        <condition property="build.failed">
+            <not>
+                <equals arg1="${build.result}" arg2="0"/>
+            </not>
+        </condition>
+        <loadfile property="build.out" srcFile="build.out">
+            <filterchain>
+                <tailfilter lines="25"/>
+            </filterchain>
+        </loadfile>
+        <antcall target="echo.failure"/>
+        <fail if="build.failed">Build Failed</fail>
     </target>
+
+
     <target name="cruisecontrol.build.distribution">
         <delete file="celtix-distribution/build.out"/>
         <delete file="celtix-distribution/build.out.clean"/>
         <exec executable="mvn" dir="${basedir}/celtix-distribution" failonerror="false" output="celtix-distribution/build.out.clean" logError="true">
             <arg line="clean -Drelease"/>
         </exec>
-        <exec executable="mvn" dir="${basedir}/celtix-distribution" failonerror="true" output="celtix-distribution/build.out" logError="true">
+        <exec executable="mvn" dir="${basedir}/celtix-distribution" failonerror="false" resultproperty="build.result"
+            output="celtix-distribution/build.out" logError="true">
             <arg line="install -Drelease"/>
         </exec>
+
+
+        <condition property="build.failed">
+            <not>
+                <equals arg1="${build.result}" arg2="0"/>
+            </not>
+        </condition>
+        <loadfile property="build.out" srcFile="celtix-distribution/build.out">
+            <filterchain>
+                <tailfilter lines="25"/>
+            </filterchain>
+        </loadfile>
+        <antcall target="echo.failure"/>
+        <fail if="build.failed">Build Failed</fail>
+    </target>
+    <target name="echo.failure" if="build.failed">
+        <echo level="error" message="Tail of log: ${build.out}"/>
     </target>
 
 
 
+
     <target name="setup.eclipse">
-	<condition property="bat.ext" value=".bat">
+        <condition property="bat.ext" value=".bat">
             <os family="windows"/>
         </condition>
         <property name="bat.ext" value=""/>
