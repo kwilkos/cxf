@@ -17,7 +17,7 @@ public class Server {
         System.out.println("Server ready...");
 
         Thread.sleep(5 * 60 * 1000);
-        System.out.println("Server exitting");
+        System.out.println("Server exiting");
         System.exit(0);
     }
 }
