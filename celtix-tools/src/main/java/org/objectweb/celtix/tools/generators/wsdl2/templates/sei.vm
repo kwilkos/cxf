@@ -29,6 +29,6 @@ public interface $intf.Name {
     $annotation
     #end
     public $method.return.ClassName ${method.Name}(
-           ${method.ParameterList})#if($method.Exceptions.size() > 0) throws #foreach($exception in $method.Exceptions) $exception.ClassName #if($velocityCounter != $method.Exceptions.size()),#end #end #end;
+           ${method.ParameterList})#if($method.Exceptions.size() > 0) throws #foreach($exception in $method.Exceptions) $exception.ClassName #if($method.Exceptions.size() != $velocityCount),#end #end #end;
 #end
 }

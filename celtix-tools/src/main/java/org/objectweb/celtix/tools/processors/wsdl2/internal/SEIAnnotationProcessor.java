@@ -8,18 +8,9 @@ import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaModel;
+import org.objectweb.celtix.tools.utils.SOAPBindingUtil;
 
 public class SEIAnnotationProcessor {
-
-    private static Map<String, String> bindingMap = new HashMap<String, String>();
-    static {
-        bindingMap.put("RPC", "SOAPBinding.Style.RPC");
-        bindingMap.put("DOCUMENT", "SOAPBinding.Style.DOCUMENT");
-        bindingMap.put("LITERAL", "SOAPBinding.Use.LITERAL");
-        bindingMap.put("ENCODED", "SOAPBinding.Use.ENCODED");
-        bindingMap.put("BARE", "SOAPBinding.ParameterStyle.BARE");
-        bindingMap.put("WRAPPED", "SOAPBinding.ParameterStyle.WRAPPED");
-    }
 
     public SEIAnnotationProcessor(ProcessorEnvironment penv) {
     }
@@ -37,27 +28,32 @@ public class SEIAnnotationProcessor {
 
             intf.addAnnotation(serviceAnnotation.toString());
 
-            processBinding(intf);
-            
-            JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
-            bindingAnnotation.addArgument("style", getBindingAnnotation(intf.getSOAPStyle().toString()), "");
-            bindingAnnotation.addArgument("use", getBindingAnnotation(intf.getSOAPUse().toString()), "");
-            if (intf.getSOAPStyle() == SOAPBinding.Style.DOCUMENT) {
-                bindingAnnotation.addArgument("parameterStyle",
-                                              getBindingAnnotation(intf.
-                                                                   getSOAPParameterStyle().toString()), "");
+            if (processBinding(intf)) {
+                JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
+                String style = SOAPBindingUtil.getBindingAnnotation(intf.getSOAPStyle().toString());
+                bindingAnnotation.addArgument("style", style, "");
+                String use = SOAPBindingUtil.getBindingAnnotation(intf.getSOAPUse().toString());
+                bindingAnnotation.addArgument("use", use, "");
+                if (intf.getSOAPStyle() == SOAPBinding.Style.DOCUMENT) {
+                    String parameterStyle = SOAPBindingUtil.getBindingAnnotation(intf.
+                                                                                 getSOAPParameterStyle().
+                                                                                 toString());
+                    bindingAnnotation.addArgument("parameterStyle", parameterStyle, "");
+                }
+                intf.addAnnotation(bindingAnnotation.toString());
             }
-            intf.addAnnotation(bindingAnnotation.toString());
         }        
     }
 
-    private void processBinding(JavaInterface intf) {
+    private boolean processBinding(JavaInterface intf) {
         boolean isDOC = true;
         boolean isLiteral = true;
         boolean isWrapped = true;
+        int count = 0;
         for (JavaMethod method : intf.getMethods()) {
             if (!method.isWrapperStyle()) {
                 isWrapped = false;
+                count++;
             }
             if (method.getSoapStyle() == SOAPBinding.Style.RPC) {
                 isDOC = false;
@@ -82,9 +78,18 @@ public class SEIAnnotationProcessor {
         } else {
             intf.setSOAPUse(SOAPBinding.Use.ENCODED);
         }
-    }
 
-    public String getBindingAnnotation(String key) {
-        return bindingMap.get(key.toUpperCase());
+        if (intf.getSOAPStyle() == SOAPBinding.Style.DOCUMENT
+            && count != 0
+            && count != intf.getMethods().size()) {
+            return false;
+        }
+
+        if (intf.getSOAPStyle() == SOAPBinding.Style.DOCUMENT
+            && intf.getSOAPUse() == SOAPBinding.Use.LITERAL
+            && intf.getSOAPParameterStyle() == SOAPBinding.ParameterStyle.WRAPPED) {
+            return false;
+        }
+        return true;
     }
 }

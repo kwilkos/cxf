@@ -38,6 +38,24 @@ public class JavaMethod {
         annotations.clear();
     }
 
+    public String getSignature() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(javaReturn.getName());
+        sb.append("#");
+        sb.append(javaInterface.getPackageName());
+        sb.append(".");
+        sb.append(javaInterface.getName());
+        sb.append("#");
+        sb.append(name);
+        sb.append("[");
+        for (JavaParameter param : parameters) {
+            sb.append(param.getName());
+            sb.append(",");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
     public JavaInterface getInterface() {
         return this.javaInterface;
     }
@@ -162,6 +180,9 @@ public class JavaMethod {
     }
 
     public void addAnnotation(String tag, JavaAnnotation annotation) {
+        if (annotation == null) {
+            return;
+        }
         this.annotations.put(tag, annotation);
     }
 
@@ -246,6 +267,9 @@ public class JavaMethod {
         sb.append("\n------------\n");
         sb.append("\nParameter:");
         sb.append(getParameterList());
+        sb.append("\n------------\n");
+        sb.append("\nAnnotations:");
+        sb.append(getAnnotations());
         sb.append("\n========================\n");
         return sb.toString();
     }

@@ -127,9 +127,9 @@ public class ServiceProcessor {
         if (soapBinding != null) {
             jf.setSOAPStyle(getSoapStyle(soapBinding.getStyle()));
         }
-        Iterator ite = jf.getMethods().iterator();
-        while (ite.hasNext()) {
-            JavaMethod jm = (JavaMethod)ite.next();
+        Object[] methods = jf.getMethods().toArray();
+        for (int i = 0; i < methods.length; i++) {
+            JavaMethod jm = (JavaMethod) methods[i];
             if (jm.getName().equals(bop.getName())) {
                 Map prop = getSoapOperationProp(bop);
                 String soapAction = prop.get(soapOPAction) == null ? "" : (String)prop.get(soapOPAction);

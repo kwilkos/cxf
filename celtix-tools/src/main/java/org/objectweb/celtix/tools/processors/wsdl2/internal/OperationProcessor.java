@@ -21,6 +21,7 @@ import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
+import org.objectweb.celtix.tools.utils.SOAPBindingUtil;
 
 public class OperationProcessor  {
     
@@ -48,10 +49,6 @@ public class OperationProcessor  {
         faultProcessor.process(method, faults);
 
         intf.addMethod(method);
-        
-        if (method.getJAXWSBinding().isEnableAsyncMapping()) {
-            addAsyncMethod(method);
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -71,6 +68,19 @@ public class OperationProcessor  {
         addWebMethodAnnotation(method);
         addWrapperAnnotation(method, operation);
         addWebResultAnnotation(method);
+        addSOAPBindingAnnotation(method);
+
+        if (!method.isOneWay() && method.getJAXWSBinding().isEnableAsyncMapping()) {
+            addAsyncMethod(method);
+        }
+    }
+
+    private void addSOAPBindingAnnotation(JavaMethod method) {
+        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT && !method.isWrapperStyle()) {
+            JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
+            bindingAnnotation.addArgument("parameterStyle", SOAPBindingUtil.getBindingAnnotation("BARE"), "");
+            method.addAnnotation("SOAPBinding", bindingAnnotation);
+        }
     }
 
     private void addWebMethodAnnotation(JavaMethod method) {
@@ -297,6 +307,7 @@ public class OperationProcessor  {
         addWebMethodAnnotation(pollingMethod, method.getName());
         pollingMethod.addAnnotation("ResponseWrapper", method.getAnnotationMap().get("ResponseWrapper"));
         pollingMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
+        pollingMethod.addAnnotation("SOAPBinding", method.getAnnotationMap().get("SOAPBinding"));
         
         for (Iterator iter = method.getParameters().iterator(); iter.hasNext();) {
             pollingMethod.addParameter((JavaParameter)iter.next());
@@ -304,7 +315,7 @@ public class OperationProcessor  {
 
         JavaParameter asyncHandler = new JavaParameter();
         asyncHandler.setName("asyncHandler");
-        asyncHandler.setClassName("AsyncHandler<" + wrapperResponse.getClassName() + ">");
+        asyncHandler.setClassName(getAsyncClassName(method, "AsyncHandler"));
         JavaAnnotation asyncHandlerAnnotation = new JavaAnnotation("WebParam");
         asyncHandlerAnnotation.addArgument("name", "asyncHandler");
         asyncHandlerAnnotation.addArgument("targetNamespace", "");
@@ -322,17 +333,34 @@ public class OperationProcessor  {
         callbackMethod.setWrapperStyle(method.isWrapperStyle());
         
         JavaReturn response = new JavaReturn();
-        response.setClassName("Response<" + wrapperResponse.getClassName() + ">");
+        response.setClassName(getAsyncClassName(method, "Response"));
         callbackMethod.setReturn(response);
 
         addWebMethodAnnotation(callbackMethod, method.getName());
         callbackMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
         callbackMethod.addAnnotation("ResponseWrapper", method.getAnnotationMap().get("ResponseWrapper"));
+        callbackMethod.addAnnotation("SOAPBinding", method.getAnnotationMap().get("SOAPBinding"));
 
         for (Iterator iter = method.getParameters().iterator(); iter.hasNext();) {
             callbackMethod.addParameter((JavaParameter)iter.next());
         }
 
         method.getInterface().addMethod(callbackMethod);
+    }
+
+    private String getAsyncClassName(JavaMethod method, String clzName) {
+        String response;
+        if (wrapperResponse != null) {
+            response = wrapperResponse.getClassName();
+        } else {
+            response = method.getReturn().getClassName();
+        }
+
+        StringBuffer sb = new StringBuffer();
+        sb.append(clzName);
+        sb.append("<");
+        sb.append(response);
+        sb.append(">");
+        return sb.toString();
     }
 }

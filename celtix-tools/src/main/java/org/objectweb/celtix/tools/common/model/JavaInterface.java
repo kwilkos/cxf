@@ -89,19 +89,48 @@ public class JavaInterface {
     }
 
     public boolean hasMethod(JavaMethod method) {
-        for (int i = 0; i < methods.size(); i++) {
-            if (method.equals(methods.get(i))) {
-                return true;
+        if (method != null) {
+            String signature = method.getSignature();
+            for (int i = 0; i < methods.size(); i++) {
+                if (signature.equals(methods.get(i).getSignature())) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
+    public int indexOf(JavaMethod method) {
+        if (method != null) {
+            String signature = method.getSignature();
+            for (int i = 0; i < methods.size(); i++) {
+                if (signature.equals(methods.get(i).getSignature())) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public int removeMethod(JavaMethod method) {
+        int index = indexOf(method);
+        if (index > -1) {
+            methods.remove(index);
+        }
+        return index;
+    }
+
+    public void replaceMethod(JavaMethod method) {
+        int index = removeMethod(method);
+        methods.add(index, method);
+    }
+
     public void addMethod(JavaMethod method) throws ToolException {
         if (hasMethod(method)) {
-            throw new ToolException("model.uniqueness, this method already exists");
+            replaceMethod(method);
+        } else {
+            methods.add(method);
         }
-        methods.add(method);
     }
 
     public String getPackageName() {
