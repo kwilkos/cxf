@@ -88,6 +88,7 @@ public class WSDLToProcessor implements Processor {
         }
     }
     
+    @SuppressWarnings("unchecked")
     private void parseImports(Definition def) {
         List importList = new ArrayList();
         Map imports = def.getImports();
