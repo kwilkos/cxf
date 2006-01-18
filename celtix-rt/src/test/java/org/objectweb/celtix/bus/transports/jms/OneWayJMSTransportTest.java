@@ -57,6 +57,7 @@ public class OneWayJMSTransportTest extends TestCase {
     
     public void tearDown() throws Exception {
         //
+        bus.shutdown(false);
     }
     
     public void testOneWayTextQueueJMSTransport() throws Exception {
