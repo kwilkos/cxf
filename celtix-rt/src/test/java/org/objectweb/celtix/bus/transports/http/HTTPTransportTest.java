@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +53,8 @@ public class HTTPTransportTest extends TestCase {
     
     Bus bus;
     private WSDLManager wsdlManager;
+    private WorkQueueManagerImpl queueManager;
+    private ExecutorService executorService;
     
     public HTTPTransportTest(String arg0) {
         super(arg0);
@@ -76,6 +79,15 @@ public class HTTPTransportTest extends TestCase {
         bus = EasyMock.createMock(Bus.class);
         wsdlManager = new WSDLManagerImpl(null);
     }
+    public void tearDown() throws Exception {
+        if (queueManager != null) {
+            queueManager.shutdown(false);
+        }
+        if (executorService != null) {
+            executorService.shutdownNow();
+        }
+    }
+    
     int readBytes(byte bytes[], InputStream ins) throws IOException {
         int len = ins.read(bytes);
         int total = 0;
@@ -189,9 +201,11 @@ public class HTTPTransportTest extends TestCase {
         
         Executor executor =  null;
         if (useAutomaticWorkQueue) {
-            executor = new WorkQueueManagerImpl(bus).getAutomaticWorkQueue();
+            queueManager = new WorkQueueManagerImpl(bus);
+            executor = queueManager.getAutomaticWorkQueue();
         } else {
-            executor = Executors.newFixedThreadPool(1);
+            executorService = Executors.newFixedThreadPool(1);
+            executor = executorService;
         }
         TransportFactory factory = createTransportFactory();
         
@@ -268,9 +282,12 @@ public class HTTPTransportTest extends TestCase {
                     ex.printStackTrace();
                 }
             }
-            public Executor getExecutor() {
+            public synchronized Executor getExecutor() {
                 if (useAutomaticWorkQueue) {
-                    return new WorkQueueManagerImpl(bus).getAutomaticWorkQueue();
+                    if (queueManager == null) {
+                        queueManager = new WorkQueueManagerImpl(bus);
+                    }
+                    return queueManager.getAutomaticWorkQueue();
                 } else {
                     return null;
                 }

@@ -17,7 +17,6 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
 
     public WorkQueueManagerImpl(Bus b) {
         bus = b;
-        autoQueue = createAutomaticWorkQueue();
     }
 
     /*
@@ -25,7 +24,10 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
      * 
      * @see org.objectweb.celtix.workqueue.WorkQueueManager#getAutomaticWorkQueue()
      */
-    public AutomaticWorkQueue getAutomaticWorkQueue() {
+    public synchronized AutomaticWorkQueue getAutomaticWorkQueue() {
+        if (autoQueue == null) {
+            autoQueue = createAutomaticWorkQueue();
+        }
         return autoQueue;
     }
 
@@ -53,9 +55,11 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
      * 
      * @see org.objectweb.celtix.workqueue.WorkQueueManager#shutdown(boolean)
      */
-    public void shutdown(boolean processRemainingTasks) {
+    public synchronized void shutdown(boolean processRemainingTasks) {
         if (null != autoQueue) {
-            autoQueue.shutdown(processRemainingTasks);
+            if (autoQueue != null) {
+                autoQueue.shutdown(processRemainingTasks);
+            }
             synchronized (this) {
                 notifyAll();
             }

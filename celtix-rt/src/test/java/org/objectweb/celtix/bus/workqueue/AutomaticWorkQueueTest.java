@@ -18,11 +18,18 @@ public class AutomaticWorkQueueTest extends TestCase {
 
     public static final int TIMEOUT = 100;
 
+    AutomaticWorkQueueImpl workqueue;
+    public void tearDown() throws Exception {
+        if (workqueue != null) {
+            workqueue.shutdown();
+        }
+    }
+    
     public void testUnboundedConstructor() {
-        AutomaticWorkQueueImpl workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, INITIAL_SIZE,
-                                                                      UNBOUNDED_HIGH_WATER_MARK,
-                                                                      UNBOUNDED_LOW_WATER_MARK,
-                                                                      DEFAULT_DEQUEUE_TIMEOUT);
+        workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, INITIAL_SIZE,
+                                               UNBOUNDED_HIGH_WATER_MARK,
+                                               UNBOUNDED_LOW_WATER_MARK,
+                                               DEFAULT_DEQUEUE_TIMEOUT);
         assertNotNull(workqueue);
         assertEquals(AutomaticWorkQueueImpl.DEFAULT_MAX_QUEUE_SIZE, workqueue.getMaxSize());
         assertEquals(UNBOUNDED_HIGH_WATER_MARK, workqueue.getHighWaterMark());
@@ -30,10 +37,10 @@ public class AutomaticWorkQueueTest extends TestCase {
     }
 
     public void testConstructor() {
-        AutomaticWorkQueueImpl workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
-                                                                      DEFAULT_HIGH_WATER_MARK,
-                                                                      DEFAULT_LOW_WATER_MARK,
-                                                                      DEFAULT_DEQUEUE_TIMEOUT);
+        workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
+                                               DEFAULT_HIGH_WATER_MARK,
+                                               DEFAULT_LOW_WATER_MARK,
+                                               DEFAULT_DEQUEUE_TIMEOUT);
         assertNotNull(workqueue);
         assertEquals(DEFAULT_MAX_QUEUE_SIZE, workqueue.getMaxSize());
         assertEquals(DEFAULT_HIGH_WATER_MARK, workqueue.getHighWaterMark());
@@ -41,10 +48,10 @@ public class AutomaticWorkQueueTest extends TestCase {
     }
 
     public void testEnqueue() {
-        AutomaticWorkQueueImpl workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
-                                                                      DEFAULT_HIGH_WATER_MARK,
-                                                                      DEFAULT_LOW_WATER_MARK,
-                                                                      DEFAULT_DEQUEUE_TIMEOUT);
+        workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
+                                               DEFAULT_HIGH_WATER_MARK,
+                                               DEFAULT_LOW_WATER_MARK,
+                                               DEFAULT_DEQUEUE_TIMEOUT);
 
         try {
             Thread.sleep(100);
@@ -75,10 +82,10 @@ public class AutomaticWorkQueueTest extends TestCase {
     }
 
     public void testEnqueueImmediate() {
-        AutomaticWorkQueueImpl workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
-                                                                      DEFAULT_HIGH_WATER_MARK,
-                                                                      DEFAULT_LOW_WATER_MARK,
-                                                                      DEFAULT_DEQUEUE_TIMEOUT);
+        workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
+                                               DEFAULT_HIGH_WATER_MARK,
+                                               DEFAULT_LOW_WATER_MARK,
+                                               DEFAULT_DEQUEUE_TIMEOUT);
 
         try {
             Thread.sleep(100);
@@ -179,26 +186,27 @@ public class AutomaticWorkQueueTest extends TestCase {
     }
 
     public void testDeadLockEnqueueLoads() {
-        DeadLockThread dead = new DeadLockThread(new AutomaticWorkQueueImpl(500, 1, 2, 2,
-                                                                            DEFAULT_DEQUEUE_TIMEOUT), 200,
+        workqueue = new AutomaticWorkQueueImpl(500, 1, 2, 2,
+                                               DEFAULT_DEQUEUE_TIMEOUT);
+        DeadLockThread dead = new DeadLockThread(workqueue, 200,
                                                  10L);
 
         assertTrue(checkDeadLock(dead));
     }
 
     public void testNonDeadLockEnqueueLoads() {
-        DeadLockThread dead = new DeadLockThread(new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE,
-                                                                            INITIAL_SIZE,
-                                                                            UNBOUNDED_HIGH_WATER_MARK,
-                                                                            UNBOUNDED_LOW_WATER_MARK,
-                                                                            DEFAULT_DEQUEUE_TIMEOUT), 200);
+        workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE,
+                                               INITIAL_SIZE,
+                                               UNBOUNDED_HIGH_WATER_MARK,
+                                               UNBOUNDED_LOW_WATER_MARK,
+                                               DEFAULT_DEQUEUE_TIMEOUT);
+        DeadLockThread dead = new DeadLockThread(workqueue, 200);
 
         assertTrue(checkDeadLock(dead));
     }
 
     public void testThreadPoolShrink() {
-        AutomaticWorkQueueImpl workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, 20, 20, 10,
-                                                                      100L);
+        workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, 20, 20, 10, 100L);
 
         DeadLockThread dead = new DeadLockThread(workqueue, 1000, 5L);
 
@@ -217,9 +225,9 @@ public class AutomaticWorkQueueTest extends TestCase {
     }
 
     public void testThreadPoolShrinkUnbounded() {
-        AutomaticWorkQueueImpl workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, INITIAL_SIZE,
-                                                                      UNBOUNDED_HIGH_WATER_MARK,
-                                                                      DEFAULT_LOW_WATER_MARK, 100L);
+        workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, INITIAL_SIZE,
+                                               UNBOUNDED_HIGH_WATER_MARK,
+                                               DEFAULT_LOW_WATER_MARK, 100L);
 
         DeadLockThread dead = new DeadLockThread(workqueue, 1000, 5L);
         assertTrue("Should be finished, probably deadlocked", checkDeadLock(dead));
@@ -242,8 +250,8 @@ public class AutomaticWorkQueueTest extends TestCase {
     }
 
     public void testShutdown() {
-        AutomaticWorkQueueImpl workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
-                                                                      INITIAL_SIZE, INITIAL_SIZE, 250);
+        workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
+                                               INITIAL_SIZE, INITIAL_SIZE, 250);
 
         assertEquals(0, workqueue.getSize());
         DeadLockThread dead = new DeadLockThread(workqueue, 100, 5L);
@@ -262,6 +270,9 @@ public class AutomaticWorkQueueTest extends TestCase {
         }
         assertEquals(0, workqueue.getSize());
         assertEquals(0, workqueue.getPoolSize());
+        
+        //already shutdown
+        workqueue = null;
     }
 
     private boolean checkCompleted(DeadLockThread dead) {

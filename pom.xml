@@ -77,6 +77,8 @@
         <dependency.plugin.version>1.0</dependency.plugin.version>
 
         <surefire.fork.mode>none</surefire.fork.mode>
+        <surefire.format>brief</surefire.format>
+        <surefire.usefile>false</surefire.usefile>
         <compile.forked>false</compile.forked>
         <java.source.version>1.5</java.source.version>
     </properties>
@@ -229,8 +231,8 @@
                         <include>**/*Test.java</include>
                         <include>**/*TestCase.java</include>
                     </includes>
-                    <reportFormat>brief</reportFormat>
-                    <useFile>false</useFile>
+                    <reportFormat>${surefire.format}</reportFormat>
+                    <useFile>${surefire.usefile}</useFile>
                     <forkMode>${surefire.fork.mode}</forkMode>
 
                     <systemProperties>
