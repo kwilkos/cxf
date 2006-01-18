@@ -443,7 +443,6 @@
             </activation>
             <properties>
                 <compile.forked>true</compile.forked>
-                <surefire.fork.mode>once</surefire.fork.mode>
             </properties>
         </profile>
         <profile>
