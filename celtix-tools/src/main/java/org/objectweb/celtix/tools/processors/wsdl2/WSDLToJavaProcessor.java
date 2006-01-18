@@ -25,7 +25,6 @@ import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.PortTypeProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.SEIAnnotationProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ServiceProcessor;
-//import org.objectweb.celtix.tools.processors.wsdl2.internal.AsyncOperationProcessor;
 
 public class WSDLToJavaProcessor extends WSDLToProcessor {
 
@@ -84,9 +83,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
         SEIAnnotationProcessor seiAnnotationProcessor = new SEIAnnotationProcessor(env);
         seiAnnotationProcessor.process(javaModel);
-
-//         AsyncOperationProcessor asyncProcessor = new AsyncOperationProcessor();
-//         asyncProcessor.process(javaModel);
 
         return javaModel;
     }

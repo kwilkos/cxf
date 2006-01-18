@@ -86,8 +86,10 @@ public class ParameterProcessor {
 
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
             targetNamespace = parameter.getTargetNamespace();
-            if (!method.isWrapperStyle()) {
+            if (parameter.getQName() != null) {
                 name = parameter.getQName().getLocalPart();
+            }
+            if (!method.isWrapperStyle()) {
                 partName = parameter.getPartName();
             }
         }
@@ -286,6 +288,7 @@ public class ParameterProcessor {
         String namespace = property.elementName().getNamespaceURI();
         JavaParameter parameter = new JavaParameter(property.name(), t.fullName(), namespace);
         parameter.setStyle(style);
+        parameter.setQName(property.elementName());
         if (style == JavaType.Style.OUT || style == JavaType.Style.INOUT) {
             parameter.setHolder(true);
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());

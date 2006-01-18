@@ -3,9 +3,13 @@ package org.objectweb.celtix.tools.processors.wsdl2;
 import java.io.*;
 import java.util.*;
 
+import javax.wsdl.Binding;
 import javax.wsdl.Definition;
+import javax.wsdl.Import;
+import javax.wsdl.Message;
 import javax.wsdl.Operation;
 import javax.wsdl.PortType;
+import javax.wsdl.Service;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
@@ -42,6 +46,7 @@ public class WSDLToProcessor implements Processor {
     protected ClassCollectorUtil classNameColletor = ClassCollectorUtil.getInstance();
     List<Schema> schemaList = new ArrayList<Schema>();
     private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
+    private List<Definition> importedDefinitions = new ArrayList<Definition>();
 
     private void parseWSDL(String wsdlURL) throws ToolException {
         try {
@@ -50,8 +55,50 @@ public class WSDLToProcessor implements Processor {
             wsdlReader.setFeature("javax.wsdl.verbose", false);
             registerExtenstions(wsdlReader);
             wsdlDefinition = wsdlReader.readWSDL(wsdlURL);
+            parseImports(wsdlDefinition);
+            buildWSDLDefinition();
         } catch (WSDLException we) {
             throw new ToolException("Can not create wsdl model, due to " + we.getMessage(), we);
+        }
+    }
+
+    private void buildWSDLDefinition() {
+        for (Definition def : importedDefinitions) {
+            this.wsdlDefinition.addNamespace(def.getPrefix(def.getTargetNamespace()),
+                                             def.getTargetNamespace());
+            Object[] services = def.getServices().values().toArray();
+            for (int i = 0; i < services.length; i++) {
+                this.wsdlDefinition.addService((Service)services[i]);
+            }
+
+            Object[] messages = def.getMessages().values().toArray();
+            for (int i = 0; i < messages.length; i++) {
+                this.wsdlDefinition.addMessage((Message)messages[i]);
+            }
+
+            Object[] bindings = def.getBindings().values().toArray();
+            for (int i = 0; i < bindings.length; i++) {
+                this.wsdlDefinition.addBinding((Binding)bindings[i]);
+            }
+            
+            Object[] portTypes = def.getPortTypes().values().toArray();
+            for (int i = 0; i < portTypes.length; i++) {
+                this.wsdlDefinition.addPortType((PortType)portTypes[i]);
+            }
+        }
+    }
+    
+    private void parseImports(Definition def) {
+        List importList = new ArrayList();
+        Map imports = def.getImports();
+        for (Iterator iter = imports.keySet().iterator(); iter.hasNext();) {
+            String uri = (String) iter.next();
+            importList.addAll((List)imports.get(uri));
+        }
+        for (Iterator iter = importList.iterator(); iter.hasNext();) {
+            Import impt = (Import) iter.next();
+            parseImports(impt.getDefinition());
+            importedDefinitions.add(impt.getDefinition());
         }
     }
 
@@ -77,24 +124,33 @@ public class WSDLToProcessor implements Processor {
         }
     }
 
+    private void extractSchema(Definition def) {
+        Types typesElement = def.getTypes();
+        if (typesElement != null) {
+            Iterator ite = typesElement.getExtensibilityElements().iterator();
+            while (ite.hasNext()) {
+                Object obj = ite.next();
+                if (obj instanceof Schema) {
+                    Schema schema = (Schema)obj;
+                    addSchema(schema);
+                }
+            }
+        }
+    }
+    
     private void initJAXBModel() {
-        Types typesElement = wsdlDefinition.getTypes();
+        extractSchema(wsdlDefinition);
+        for (Definition def : importedDefinitions) {
+            extractSchema(def);
+        }
 
-        if (typesElement == null) {
+        if (schemaList.size() == 0) {
             if (env.isVerbose()) {
                 System.err.println("No schema provided in the wsdl file");
             }
             return;
         }
 
-        Iterator ite = typesElement.getExtensibilityElements().iterator();
-        while (ite.hasNext()) {
-            Object obj = ite.next();
-            if (obj instanceof Schema) {
-                Schema schema = (Schema)obj;
-                addSchema(schema);
-            }
-        }
         buildJaxbModel();
     }
     
@@ -131,6 +187,7 @@ public class WSDLToProcessor implements Processor {
     
     @SuppressWarnings("unchecked")
     private void addSchema(Schema schema) {
+
         Map<String, List> imports = schema.getImports();
         if (imports != null && imports.size() > 0) {
             Collection<String> importKeys = imports.keySet();
