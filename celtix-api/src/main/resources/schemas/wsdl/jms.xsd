@@ -7,7 +7,7 @@
            elementFormDefault="qualified"
            attributeFormDefault="unqualified"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-		   jaxb:version="2.0">
+           jaxb:version="2.0">
 
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
 
@@ -28,6 +28,7 @@
                 <xs:attribute name="jndiConnectionFactoryName" type="xs:string" use="required"/>
                 <xs:attribute name="jndiDestinationName" type="xs:string" use="required"/>
                 <xs:attribute name="messageType" type="jms:messageType_Type" use="required"/>
+                <xs:attribute name="jndiReplyDestinationName" type="xs:string" />
 
                 <xs:attribute name="durableSubscriberName" type="xs:string" use="optional"/>
                 <xs:attribute name="messageSelector" type="xs:string" use="optional"/>
@@ -50,6 +51,9 @@
                 <xs:attribute name="java.naming.security.credentials" type="xs:string" />
                 <xs:attribute name="java.naming.language" type="xs:string" />
                 <xs:attribute name="java.naming.applet" type="xs:string" />
+                
+                <xs:attribute name="connectionUserName" type="xs:string" />
+                <xs:attribute name="connectionPassword" type="xs:string" />
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

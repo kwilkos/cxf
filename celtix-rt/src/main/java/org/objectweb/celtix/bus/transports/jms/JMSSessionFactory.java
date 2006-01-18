@@ -1,11 +1,15 @@
 package org.objectweb.celtix.bus.transports.jms;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueSession;
@@ -16,6 +20,7 @@ import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.AbstractTwoStageCache;
+import org.objectweb.celtix.transports.jms.AddressType;
 
 
 /**
@@ -83,21 +88,23 @@ public class JMSSessionFactory {
     private final  Connection theConnection;
     private AbstractTwoStageCache<PooledSession> replyCapableSessionCache;
     private AbstractTwoStageCache<PooledSession> sendOnlySessionCache;
+    private final Destination theReplyDestination;
     private final boolean isQueueConnection;
-    private final String durableName;
-    private final String messageSelector;
+ 
+    private final  AddressType addressExtensor;
 
     /**
      * Constructor.
      *
      * @param connection the shared {Queue|Topic}Connection
      */
-    public JMSSessionFactory(Connection connection, boolean isQConnection, String selector, String dname) {
+    public JMSSessionFactory(Connection connection, 
+                             Destination replyDestination,
+                             AddressType addrExt) {
         theConnection = connection;
-        isQueueConnection = isQConnection;
-        durableName = dname;
-        messageSelector = selector;
-
+        theReplyDestination = replyDestination;
+        addressExtensor = addrExt;
+        isQueueConnection = addressExtensor.getDestinationStyle().value().equals(JMSConstants.JMS_QUEUE);
 
         // create session caches (REVISIT sizes should be configurable)
         //
@@ -197,8 +204,18 @@ public class JMSSessionFactory {
 
                     if (ret != null) {
                         QueueSession session = (QueueSession) ret.session();
-                        ret.destination(session.createTemporaryQueue());
-                        ret.consumer(session.createReceiver((Queue) ret.destination()));
+                        Queue destination = null;
+                        String selector = null;
+                        
+                        if (null != theReplyDestination) {
+                            destination = (Queue)theReplyDestination;
+                            
+                            selector = "JMSCorrelationID = '" + generateUniqueSelector(ret) + "'";
+                        }
+                        
+                        ret.destination(destination);
+                        MessageConsumer consumer = session.createReceiver(destination, selector);
+                        ret.consumer(consumer);
                     } else {
                         // no pooled session available in either cache => create one in
                         // in the reply capable cache
@@ -259,7 +276,7 @@ public class JMSSessionFactory {
         // in which case a new session is always created
         //
         if (isQueueConnection) {
-            ret = createPointToPointReceiveOnlySession(destination);
+            ret = createPointToPointServerSession(destination);
         } else {
             ret = createPubSubSession(false, true, destination);
         }
@@ -341,12 +358,24 @@ public class JMSSessionFactory {
     PooledSession createPointToPointReplyCapableSession() throws JMSException {
         QueueSession session =
             ((QueueConnection)theConnection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createTemporaryQueue();
-
+        Destination destination = null;
+        String selector = null;
+        
+        if (null != theReplyDestination) {
+            destination = theReplyDestination;
+            
+            selector =  "JMSCorrelationID = '" + generateUniqueSelector(session) + "'";
+            
+            
+        } else {
+            destination = session.createTemporaryQueue();
+        }
+        
+        MessageConsumer consumer = session.createReceiver((Queue)destination, selector);
         return new PooledSession(session,
                                  destination,
                                  session.createSender(null),
-                                 session.createReceiver((Queue)destination));
+                                 consumer);
     }
 
 
@@ -369,13 +398,14 @@ public class JMSSessionFactory {
      * @param destination the target destination
      * @return an appropriate pooled session
      */
-    private PooledSession createPointToPointReceiveOnlySession(Destination destination) throws JMSException {
+    private PooledSession createPointToPointServerSession(Destination destination) throws JMSException {
         QueueSession session =
-            ((QueueConnection)theConnection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+            ((QueueConnection)theConnection).createQueueSession(false, Session.CLIENT_ACKNOWLEDGE);
 
 
-        return new PooledSession(session, null, null,
-                                 session.createReceiver((Queue)destination, messageSelector));
+        return new PooledSession(session, destination, session.createSender(null),
+                                 session.createReceiver((Queue)destination, 
+                                 addressExtensor.getMessageSelector()));
     }
 
 
@@ -394,6 +424,8 @@ public class JMSSessionFactory {
                                                                                    Session.AUTO_ACKNOWLEDGE);
         TopicSubscriber sub = null;
         if (consumer) {
+            String messageSelector =  addressExtensor.getMessageSelector();
+            String durableName = addressExtensor.getDurableSubscriberName();
             if (durableName != null) {
                 sub = session.createDurableSubscriber((Topic)destination,
                                                       durableName,
@@ -410,5 +442,21 @@ public class JMSSessionFactory {
                                  null,
                                  producer ? session.createPublisher(null) : null,
                                  sub);
+    }
+    
+    private String generateUniqueSelector(Object obj) {
+        String host = "localhost";
+
+        try {
+            InetAddress addr = InetAddress.getLocalHost();
+            host = addr.getHostName();
+        } catch (UnknownHostException ukex) {
+            //Default to localhost.
+        }
+
+        long time = Calendar.getInstance().getTimeInMillis();
+        return host + "_" 
+            + System.getProperty("user.name") + "_" 
+            + obj + time;    
     }
 }

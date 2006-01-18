@@ -24,6 +24,8 @@ public class PooledSession {
     private final MessageProducer theProducer;
     private MessageConsumer theConsumer;
 
+    private String correlationID;
+
     /**
      * Constructor.
      */
@@ -36,6 +38,7 @@ public class PooledSession {
         theProducer = producer;
         theConsumer = consumer;
     }
+    
 
     /**
      * @return the pooled JMS Session
@@ -76,6 +79,23 @@ public class PooledSession {
         return theConsumer;
     }
 
+    /**
+     * @return messageSelector if any set.
+     */
+    
+    String getCorrelationID() throws JMSException {        
+        if (correlationID == null && theConsumer != null) {
+            //Must be request/reply
+            String selector = theConsumer.getMessageSelector();
+            
+            if (selector != null && selector.startsWith("JMSCorrelationID")) {
+                int i = selector.indexOf('\'');
+                correlationID = selector.substring(i + 1, selector.length() - 1);
+            }       
+        }
+        
+        return correlationID;
+    }
 
     /**
      * @param consumer the consumer to encapsulate

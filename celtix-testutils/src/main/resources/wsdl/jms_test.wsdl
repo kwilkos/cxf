@@ -111,6 +111,72 @@
         </operation>
     </binding>
     
+    <binding name="HWStaticReplyQTextPortBinding" type="tns:HelloWorldPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="greetMe">
+            <soap:operation soapAction="" style="rpc"/>
+            <input name="greetMe">
+                <soap:body 
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </input>
+            <output name="greetMeResponse">
+                <soap:body  
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </output>
+        </operation>
+        <operation name="sayHi">
+            <soap:operation soapAction="" style="rpc"/>
+            <input name="sayHi">
+                <soap:body 
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </input>
+            <output name="sayHiResponse">
+                <soap:body 
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </output>
+        </operation>
+        <operation name="greetMeOneWay">
+            <soap:operation style="rpc"/>
+            <input name="greetMeOneWay">
+                <soap:body 
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </input>
+        </operation>
+    </binding>
+
+    <binding name="HWStaticReplyQBinMsgBinding" type="tns:HelloWorldPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="greetMe">
+            <soap:operation soapAction="" style="rpc"/>
+            <input name="greetMe">
+                <soap:body 
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </input>
+            <output name="greetMeResponse">
+                <soap:body  
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </output>
+        </operation>
+        <operation name="sayHi">
+            <soap:operation soapAction="" style="rpc"/>
+            <input name="sayHi">
+                <soap:body 
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </input>
+            <output name="sayHiResponse">
+                <soap:body 
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </output>
+        </operation>
+        <operation name="greetMeOneWay">
+            <soap:operation style="rpc"/>
+            <input name="greetMeOneWay">
+                <soap:body 
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </input>
+        </operation>
+    </binding>
+    
     
     <binding name="HelloWorldOneWayBinding" type="tns:HelloWorldOneWayPort">
         <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
@@ -141,7 +207,7 @@
                jndiProviderURL="tcp://localhost:61616" 
                initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
                jndiConnectionFactoryName="ConnectionFactory" 
-               jndiDestinationName="dynamicQueues/test.jmstransport"
+               jndiDestinationName="dynamicQueues/test.jmstransport.binary"
                messageType="binary"
                useMessageIDAsCorrelationID="true"
                durableSubscriberName="Celtix_subscriber"
@@ -158,7 +224,42 @@
                    jndiProviderURL="tcp://localhost:61616" 
                    initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
                    jndiConnectionFactoryName="ConnectionFactory" 
-                   jndiDestinationName="dynamicQueues/test.jmstransport"
+                   jndiDestinationName="dynamicQueues/test.jmstransport.text"
+                   messageType="text"
+                   useMessageIDAsCorrelationID="true"   
+                   durableSubscriberName="Celtix_subscriber"
+                   />
+               <soap:address location="http://celtix.objectweb.org/transports/jms"/>
+           </port>
+    </service>
+    
+    <service name="HWStaticReplyQBinMsgService">
+        <port binding="tns:HWStaticReplyQBinMsgBinding" name="HWStaticReplyQBinMsgPort">
+            <jms:address 
+               destinationStyle="queue" 
+               jndiProviderURL="tcp://localhost:61616" 
+               initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
+               jndiConnectionFactoryName="ConnectionFactory" 
+               jndiDestinationName="dynamicQueues/test.jmstransport.binary"
+               jndiReplyDestinationName="dynamicQueues/test.jmstransport.binary.reply"
+               messageType="binary"
+               useMessageIDAsCorrelationID="true"
+               durableSubscriberName="Celtix_subscriber"
+            />
+            <soap:address location="http://celtix.objectweb.org/transports/jms"/>
+        </port>
+    </service>
+
+    <service name="HWStaticReplyQTextMsgService">
+           <port binding="tns:HWStaticReplyQTextPortBinding" name="HWStaticReplyQTextPort">
+
+               <jms:address 
+                   destinationStyle="queue" 
+                   jndiProviderURL="tcp://localhost:61616" 
+                   initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
+                   jndiConnectionFactoryName="ConnectionFactory" 
+                   jndiDestinationName="dynamicQueues/test.jmstransport.text"
+                   jndiReplyDestinationName="dynamicQueues/test.jmstransport.text.reply"
                    messageType="text"
                    useMessageIDAsCorrelationID="true"   
                    durableSubscriberName="Celtix_subscriber"

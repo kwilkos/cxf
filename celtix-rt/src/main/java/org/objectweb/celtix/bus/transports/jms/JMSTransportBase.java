@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.transports.jms;
 
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
@@ -36,6 +35,7 @@ public class JMSTransportBase {
     protected boolean textPayload;
     protected boolean queueDestinationStyle;
     protected Destination targetDestination;
+    protected Destination replyDestination;
     protected JMSSessionFactory sessionFactory;
     protected Bus theBus;
     
@@ -71,8 +71,9 @@ public class JMSTransportBase {
      * @param targetDestination the target destination
      * @param sessionFactory used to get access to a pooled JMS resources
      */
-    protected void connected(Destination target, JMSSessionFactory factory) {
+    protected void connected(Destination target, Destination reply, JMSSessionFactory factory) {
         targetDestination = target;
+        replyDestination = reply;
         sessionFactory = factory;
     }
 
@@ -153,7 +154,7 @@ public class JMSTransportBase {
         headers.setJMSTimeStamp(new Long(message.getJMSTimestamp()));
         headers.setJMSType(message.getJMSType());
         
-        List<JMSPropertyType> props = new ArrayList<JMSPropertyType>();
+        List<JMSPropertyType> props = headers.getProperty();
         Enumeration enm = message.getPropertyNames();
         while (enm.hasMoreElements()) {
             String name = (String)enm.nextElement();
@@ -195,6 +196,15 @@ public class JMSTransportBase {
             ttl = headers.getTimeToLive().longValue();
         }        
         return ttl;
+    }
+    
+    protected String getCorrelationId(JMSHeadersType headers) {
+        String correlationId  = null;
+        if (headers != null  
+            && headers.getJMSCorrelationID() != null) {
+            correlationId = headers.getJMSCorrelationID();
+        }        
+        return correlationId;
     }
     
     protected void setMessageProperties(JMSHeadersType headers, Message message) 

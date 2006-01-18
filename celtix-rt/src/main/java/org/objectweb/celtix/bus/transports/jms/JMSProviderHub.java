@@ -70,20 +70,23 @@ public final class JMSProviderHub {
 
         connection.start();
 
-        Destination destination = (Destination) context.lookup(addrDetails.getJndiDestinationName());
+        Destination requestDestination = 
+                (Destination) context.lookup(
+                                           addrDetails.getJndiDestinationName());
+        Destination replyDestination = (null != addrDetails.getJndiReplyDestinationName())
+            ? (Destination) context.lookup(addrDetails.getJndiReplyDestinationName()) : null;
 
         // create session factory to manage session, reply destination,
         // producer and consumer pooling
         //
-        String destinationStyle = addrDetails.getDestinationStyle().value();
+            
         JMSSessionFactory sf =
             new JMSSessionFactory(connection,
-                                  JMSConstants.JMS_QUEUE.equals(destinationStyle),
-                                  addrDetails.getMessageSelector(),
-                                  addrDetails.getDurableSubscriberName());
+                                  replyDestination,
+                                  addrDetails);
 
         // notify transport that connection is complete
         //
-        transport.connected(destination, sf);
+        transport.connected(requestDestination, replyDestination, sf);
     }
 }

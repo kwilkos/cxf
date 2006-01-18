@@ -103,7 +103,8 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
             if (queueDestinationStyle) {
                 try {
 //                  send reply
-                    Queue replyTo = (Queue)message.getJMSReplyTo();
+                    Queue replyTo = (null != message.getJMSReplyTo()) 
+                        ? (Queue)message.getJMSReplyTo() : (Queue)replyDestination;
                     replySession = sessionFactory.get(false);
 
                     Message reply;
@@ -194,7 +195,7 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
         } catch (JMSException jmsex) {
             //TODO: need to revisit for which exception should we throw.
             throw new IOException(jmsex.getMessage());
-        }
+        } 
     }
 
     class JMSListenerThread extends Thread {
@@ -232,8 +233,6 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
                                 LOG.log(Level.WARNING, "Failed to process incoming message : ", ex);
                             }
                         }
-
-
                     } else {
                         LOG.log(Level.WARNING,
                                                       "Null message received from message consumer.",

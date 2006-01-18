@@ -56,6 +56,7 @@ public class JMSTransportTest extends TestCase {
     
     public void tearDown() throws Exception {
         //
+        bus.shutdown(false);
     }
     
     public void testTwoWayTextQueueJMSTransport() throws Exception {
@@ -69,11 +70,13 @@ public class JMSTransportTest extends TestCase {
         doTestJMSTransport(false,  serviceName, "HelloWorldQueueBinMsgPort", "/wsdl/jms_test.wsdl");       
     }
     
-    public void xtestJMSTransportUsingAutomaticWorkQueue() throws Exception {
-        QName serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms", "HelloWorldService");
-        doTestJMSTransport(true,  serviceName, "HelloWorldPortType", "/wsdl/jms_test.wsdl");
+    public void test2WayStaticReplyQTextMessageJMSTransport() throws Exception {
+        QName serviceName =  
+            new QName("http://celtix.objectweb.org/hello_world_jms", 
+                                     "HWStaticReplyQTextMsgService");
+        doTestJMSTransport(false,  serviceName, "HWStaticReplyQTextPort", "/wsdl/jms_test.wsdl");       
     }
-
+    
     private int readBytes(byte bytes[], InputStream ins) throws IOException {
         int len = ins.read(bytes);
         int total = 0;
@@ -106,7 +109,9 @@ public class JMSTransportTest extends TestCase {
                     ((JMSServerTransport) transport).postDispatch(replyCtx, octx);
                     octx.getOutputStream().close();
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    // ignore exception  we are expecting one exception 
+                    // in dispatch for client request when the server is deactivated.
+                    // 
                 }
             }
             public Executor getExecutor() {
@@ -167,6 +172,8 @@ public class JMSTransportTest extends TestCase {
         assertEquals(new String(outBytes), new String(bytes, 0, total));
         
         outBytes = "Hello World!!!".getBytes();
+        bytes  = new byte[100];
+        
         server.deactivate();
   
         try {
@@ -175,6 +182,7 @@ public class JMSTransportTest extends TestCase {
             octx.getOutputStream().write(outBytes);
             ictx = client.invoke(octx);
             len = ictx.getInputStream().read(bytes);
+
             if (len != -1) {
                 fail("was able to process a message after the servant was deactivated: " + len 
                      + " - " + new String(bytes));
@@ -182,7 +190,12 @@ public class JMSTransportTest extends TestCase {
         } catch (IOException ex) {
             //ignore - this is what we want
         }
+       
         server.activate(callback);
+
+        outBytes = "New String and must match with response".getBytes();
+        //Clean outBytes.
+        bytes  = new byte[100];
         octx = client.createOutputStreamContext(new GenericMessageContext());
         client.finalPrepareOutputStreamContext(octx);
         octx.getOutputStream().write(outBytes);
@@ -191,6 +204,7 @@ public class JMSTransportTest extends TestCase {
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
         server.shutdown();
+        Thread.sleep(200);
     }
     
     private TransportFactory createTransportFactory() throws BusException { 

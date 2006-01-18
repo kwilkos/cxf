@@ -62,7 +62,7 @@ public final class JMSUtils {
     }
 
 
-    private static void populateContextEnvironment(AddressType addrType, Properties env) {
+    protected static void populateContextEnvironment(AddressType addrType, Properties env) {
         String val = addrType.getJavaNamingApplet();
 
         if (val != null) {

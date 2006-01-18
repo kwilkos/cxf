@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Queue;
@@ -29,7 +30,7 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
 public class JMSClientTransport extends JMSTransportBase implements ClientTransport {
-    
+
     private static final Logger LOG = LogUtils.getL7dLogger(JMSClientTransport.class);
 
     public JMSClientTransport(Bus bus, EndpointReferenceType address) throws WSDLException, IOException  {
@@ -37,9 +38,10 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         entry("JMSClientTransport Constructor");
     }
 
-    
-    public void disconnect() {
-        entry("JMSClientTransport disconnect()");
+    //TODO: Revisit for proper implementation and changes if any.
+
+    public void shutdown() {
+        entry("JMSClientTransport shutdown()");
 
         // ensure resources held by session factory are released
         //
@@ -47,22 +49,16 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
             sessionFactory.shutdown();
         }
     }
-    
-    //TODO: Revisit for proper implementation and changes if any.
-    
-    public void shutdown() {
-        this.disconnect();
-    }
-    
+
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
         return new JMSOutputStreamContext(context);
     }
 
-    
+
     public void finalPrepareOutputStreamContext(OutputStreamMessageContext context) throws IOException {
     }
-    
-    public InputStreamMessageContext invoke(OutputStreamMessageContext context) 
+
+    public InputStreamMessageContext invoke(OutputStreamMessageContext context)
         throws IOException {
         //Use the destination style to determine Destination type
         //as checking the instance of Destination is not reliable.
@@ -83,7 +79,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         } catch (Exception ex) {
             //TODO: decide what to do with the exception.
             throw new IOException(ex.getMessage());
-        }  
+        }
     }
 
 
@@ -94,14 +90,14 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
      */
     public void invokeOneway(OutputStreamMessageContext context) throws IOException {
         try {
-            invoke(context, false);   
+            invoke(context, false);
         } catch (Exception ex) {
             throw new IOException(ex.getMessage());
         }
     }
-    
-    public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, 
-                                                         Executor executor) 
+
+    public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context,
+                                                         Executor executor)
         throws IOException {
         return null;
     }
@@ -117,7 +113,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
     private Object invoke(OutputStreamMessageContext context, boolean responseExpected)
         throws JMSException, NamingException {
         entry("JMSClientTransport invoke()");
-       
+
         try {
             JMSProviderHub.connect(this);
         } catch (JMSException ex) {
@@ -126,14 +122,14 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         } catch (NamingException e) {
             LOG.log(Level.FINE, "JMS connect failed with NamingException : ", e);
             throw e;
-        }    
-       
+        }
+
         if (sessionFactory == null) {
             throw new java.lang.IllegalStateException("JMSClientTransport not connected");
         }
 
         PooledSession pooledSession = sessionFactory.get(responseExpected);
-        send(pooledSession, context);
+        send(pooledSession, context, responseExpected);
 
         Object response = null;
 
@@ -153,28 +149,58 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
      * @param request the request buffer
      * @param pooledSession the shared JMS resources
      */
-    private void send(PooledSession pooledSession, 
-                              OutputStreamMessageContext context) 
+    private void send(PooledSession pooledSession,
+                              OutputStreamMessageContext context,
+                              boolean responseExpected)
         throws JMSException {
         Object request;
-        
+
         if (textPayload) {
             request = context.getOutputStream().toString();
         } else {
             request = ((ByteArrayOutputStream) context.getOutputStream()).toByteArray();
         }
-        
-        Message message = marshal(request, pooledSession.session(), pooledSession.destination());
 
-        JMSClientHeadersType headers = 
+        Destination replyTo = pooledSession.destination();
+
+        //We don't want to send temp queue in
+        //replyTo header for oneway calls
+        if (!responseExpected
+            && (jmsAddressDetails.getJndiReplyDestinationName() == null)) {
+            replyTo = null;
+        }
+
+        Message message = marshal(request, pooledSession.session(), replyTo);
+
+        JMSClientHeadersType headers =
             (JMSClientHeadersType) context.get(JMSConstants.JMS_REQUEST_HEADERS);
 
 
         int deliveryMode = getJMSDeliveryMode(headers);
         int priority = getJMSPriority(headers);
         long ttl = getTimeToLive(headers);
+        String correlationID = getCorrelationId(headers);
 
         setMessageProperties(headers, message);
+        if (responseExpected) {
+            String id = pooledSession.getCorrelationID();
+
+            if (id != null) {
+                if (correlationID != null) {
+                    String error = "User cannot set JMSCorrelationID when "
+                        + "making a request/reply invocation using "
+                        + "a static replyTo Queue.";
+                    throw new JMSException(error);
+                }
+
+                correlationID = id;
+            }
+        }
+
+        if (correlationID != null) {
+            message.setJMSCorrelationID(correlationID);
+        }
+
 
         LOG.log(Level.FINE, "client sending request: ",  message);
 
@@ -194,8 +220,8 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
      * @param pooledSession the shared JMS resources
      * @retrun the response buffer
      */
-    private Object receive(PooledSession pooledSession, 
-                           OutputStreamMessageContext context) 
+    private Object receive(PooledSession pooledSession,
+                           OutputStreamMessageContext context)
         throws JMSException {
         Object response = null;
 
@@ -204,7 +230,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
 
         long timeout = 15000L;
 
-        if (headers != null  
+        if (headers != null
                 && headers.getTimeOut() != null) {
             timeout = headers.getTimeOut().longValue();
         }
@@ -217,10 +243,11 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
             response = unmarshal(message);
             return response;
         } else {
-            String error = "JMSClientTransport::receive() timed out. No message available.";
+            String error = "JMSClientTransport.receive() timed out. No message available.";
             LOG.log(Level.SEVERE, error);
             //TODO: Review what exception should we throw.
-            throw new JMSException(error);
+            //throw new JMSException(error);
+            return null;
         }
     }
 }

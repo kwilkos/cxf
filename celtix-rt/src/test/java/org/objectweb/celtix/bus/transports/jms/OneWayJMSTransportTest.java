@@ -59,7 +59,7 @@ public class OneWayJMSTransportTest extends TestCase {
         //
     }
     
-    public void xtestOneWayTextQueueJMSTransport() throws Exception {
+    public void testOneWayTextQueueJMSTransport() throws Exception {
         QName serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms", 
                                                            "HelloWorldOneWayQueueService");
         doOneWayTestJMSTranport(false,  serviceName, "HelloWorldOneWayQueuePort", 
