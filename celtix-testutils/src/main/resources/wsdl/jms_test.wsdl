@@ -204,7 +204,7 @@
         <port binding="tns:HelloWorldQueueBinMsgBinding" name="HelloWorldQueueBinMsgPort">
             <jms:address 
                destinationStyle="queue" 
-               jndiProviderURL="tcp://localhost:61616" 
+               jndiProviderURL="tcp://localhost:61500" 
                initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
                jndiConnectionFactoryName="ConnectionFactory" 
                jndiDestinationName="dynamicQueues/test.jmstransport.binary"
@@ -221,7 +221,7 @@
               
                <jms:address 
                    destinationStyle="queue" 
-                   jndiProviderURL="tcp://localhost:61616" 
+                   jndiProviderURL="tcp://localhost:61500" 
                    initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
                    jndiConnectionFactoryName="ConnectionFactory" 
                    jndiDestinationName="dynamicQueues/test.jmstransport.text"
@@ -237,7 +237,7 @@
         <port binding="tns:HWStaticReplyQBinMsgBinding" name="HWStaticReplyQBinMsgPort">
             <jms:address 
                destinationStyle="queue" 
-               jndiProviderURL="tcp://localhost:61616" 
+               jndiProviderURL="tcp://localhost:61500" 
                initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
                jndiConnectionFactoryName="ConnectionFactory" 
                jndiDestinationName="dynamicQueues/test.jmstransport.binary"
@@ -255,7 +255,7 @@
 
                <jms:address 
                    destinationStyle="queue" 
-                   jndiProviderURL="tcp://localhost:61616" 
+                   jndiProviderURL="tcp://localhost:61500" 
                    initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
                    jndiConnectionFactoryName="ConnectionFactory" 
                    jndiDestinationName="dynamicQueues/test.jmstransport.text"

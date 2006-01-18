@@ -8,12 +8,18 @@ import java.io.File;
 import junit.extensions.TestSetup;
 import junit.framework.TestSuite;
 
-import org.activemq.broker.BrokerContainer;
 import org.activemq.broker.impl.BrokerContainerImpl;
+
 
 class JMSBrokerSetup extends TestSetup {
     JMSEmbeddedBroker jmsBrokerThread;
+    String jmsBrokerUrl = "tcp://localhost:61616";
     String activeMQStorageDir;
+    public JMSBrokerSetup(TestSuite suite, String url) {
+        super(suite);
+        jmsBrokerUrl = url;
+    }
+    
     public JMSBrokerSetup(TestSuite suite) {
         super(suite);
     }
@@ -24,8 +30,10 @@ class JMSBrokerSetup extends TestSetup {
         // timestamp. This is required for proper cleanup. current directory structure 
         // doesn't get deleted due to lock held by jvm is not released even if the broker 
         // is down. 
-        
-        activeMQStorageDir = System.getProperty("activemq.store.dir");
+//        
+//        activeMQStorageDir = System.getProperty("activemq.store.dir");
+//        File f1 =  new File(activeMQStorageDir);
+//        deleteDir(f1);
         if (activeMQStorageDir != null) {
             System.setProperty("activemq.store.dir", 
                                  activeMQStorageDir + "/" + System.currentTimeMillis());
@@ -33,7 +41,7 @@ class JMSBrokerSetup extends TestSetup {
             activeMQStorageDir = "./ActiveMQ";
         }
         
-        jmsBrokerThread = new JMSEmbeddedBroker("tcp://localhost:61616");
+        jmsBrokerThread = new JMSEmbeddedBroker(jmsBrokerUrl);
         jmsBrokerThread.startBroker();
     }
     
@@ -103,9 +111,9 @@ class JMSBrokerSetup extends TestSetup {
         
         public void run() {
             try {  
-                BrokerContainer container;
+                ContainerWapper container;
                 synchronized (this) {
-                    container = new BrokerContainerImpl();
+                    container = new ContainerWapper();
                     container.addConnector(brokerUrl);
                     container.start();
                     Thread.sleep(200);
@@ -116,12 +124,21 @@ class JMSBrokerSetup extends TestSetup {
                         wait(1000);
                     }
                 }
-                container.stop();
+                container.shutdown();
                 container = null;
             } catch (Exception e) {
                 exception = e;
                 e.printStackTrace();
             }
+        }
+        
+       
+    }
+    
+    class ContainerWapper extends  BrokerContainerImpl {
+        
+        public void shutdown() {
+            super.containerShutdown();
         }
     }
 }
