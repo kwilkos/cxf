@@ -167,28 +167,37 @@ public class WSDLToProcessor implements Processor {
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl();
         allocator.setPortTypes(wsdlDefinition.getPortTypes().values(), packageName);
         schemaCompiler.setClassNameAllocator(allocator);
-        
+        int schemaCount = 0;
         for (Schema schema : schemaList) {
+            schemaCount++;
             Element schemaElement = schema.getElement();
-            NodeList nodeList = schemaElement.getElementsByTagName("import");
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Node importNode = nodeList.item(i);
-                Node schemaNode = importNode.getParentNode();
-                schemaNode.removeChild(importNode);
-            }
 
+            int nodeListLen = schemaElement.getElementsByTagNameNS(ToolConstants.SCHEMA_URI,
+                                                                   "import").getLength();
+            for (int i = 0; i < nodeListLen; i++) {
+                removeImportElement(schemaElement);
+            }
+            
             String targetNamespace = schemaElement.getAttribute("targetNamespace");
             if (targetNamespace == null || targetNamespace.trim().length() == 0) {
                 continue;
             }
-            schemaCompiler.parseSchema(targetNamespace + "#types", schemaElement);
+            schemaCompiler.parseSchema(targetNamespace + "#types" + schemaCount, schemaElement);
         }
         rawJaxbModel = schemaCompiler.bind();
     }
-    
+
+    private void removeImportElement(Element element) {
+        NodeList nodeList = element.getElementsByTagNameNS(ToolConstants.SCHEMA_URI, "import");
+        if (nodeList.getLength() > 0) {
+            Node importNode = nodeList.item(0);
+            Node schemaNode = importNode.getParentNode();
+            schemaNode.removeChild(importNode);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private void addSchema(Schema schema) {
-
         Map<String, List> imports = schema.getImports();
         if (imports != null && imports.size() > 0) {
             Collection<String> importKeys = imports.keySet();
