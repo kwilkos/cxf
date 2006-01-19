@@ -62,11 +62,6 @@ public class SOAPClientBindingTest extends TestCase {
         SOAPClientBinding clientBinding = new SOAPClientBinding(bus, epr);
         assertNotNull(clientBinding.createObjectContext());
     }
-
-    public void testCreateBindingMessageContext() throws Exception {
-        TestClientBinding clientBinding = new TestClientBinding(bus, epr);
-        assertNotNull(clientBinding.createBindingMessageContext(null));
-    }
     
     public void testMarshal() throws Exception {
         TestClientBinding clientBinding = new TestClientBinding(bus, epr);

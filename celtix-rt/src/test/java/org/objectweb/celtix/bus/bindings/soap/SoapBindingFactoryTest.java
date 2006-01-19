@@ -3,15 +3,13 @@ package org.objectweb.celtix.bus.bindings.soap;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
+import javax.xml.ws.Binding;
 
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ClientBinding;
-import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
@@ -44,11 +42,10 @@ public class SoapBindingFactoryTest extends TestCase {
         assertTrue(SOAPClientBinding.class.isInstance(clientBinding));
         
         SOAPClientBinding soapClientBinding = (SOAPClientBinding)clientBinding;
-        MessageContext msgCtx = soapClientBinding.createBindingMessageContext(
-            new GenericMessageContext());
-        assertNotNull(msgCtx);
-        assertTrue(SOAPMessageContext.class.isInstance(msgCtx));
-        
+        Binding b = soapClientBinding.getBinding();
+        assertNotNull(b);
+        assertTrue(SOAPBindingImpl.class.isInstance(b));
+               
         bus.shutdown(true);       
     }
     

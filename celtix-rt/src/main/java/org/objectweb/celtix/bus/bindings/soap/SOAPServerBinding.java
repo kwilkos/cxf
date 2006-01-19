@@ -16,7 +16,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.Provider;
@@ -30,16 +29,14 @@ import org.w3c.dom.Node;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
-import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
-
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
-import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.helpers.NodeUtils;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
@@ -60,12 +57,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
         soapBinding = new SOAPBindingImpl(true);
     }
     
-    public Binding getBinding() {
+    public AbstractBindingImpl getBindingImpl() {
         return soapBinding;
-    }
-    
-    public HandlerInvoker createHandlerInvoker() {
-        return new HandlerChainInvoker(getBinding().getHandlerChain()); 
     }
 
     protected ServerTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
@@ -110,11 +103,6 @@ public class SOAPServerBinding extends AbstractServerBinding {
             }
         }
         return super.isFault(objCtx, bindingContext);
-    }
-
-    
-    protected MessageContext createBindingMessageContext(MessageContext orig) {
-        return new SOAPMessageContextImpl(orig);
     }
 
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {

@@ -74,12 +74,14 @@ public class SOAPServerBindingTest extends TestCase {
         assertNotNull(serverBinding.getBinding());
     }
 
+    /*
     public void testCreateObjectContext() throws Exception {
         SOAPServerBinding serverBinding = new SOAPServerBinding(bus, epr, null, null);
         byte[] bArray = new byte[0];
         TestInputStreamContext inCtx = new TestInputStreamContext(bArray);
         assertNotNull(serverBinding.createBindingMessageContext(inCtx));
     }
+    */
 
     /*
     public void testCreateTransport() throws Exception {

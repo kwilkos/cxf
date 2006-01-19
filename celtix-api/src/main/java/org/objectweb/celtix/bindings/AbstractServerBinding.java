@@ -9,9 +9,11 @@ import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.jws.Oneway;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
@@ -52,6 +54,24 @@ public abstract class AbstractServerBinding implements ServerBinding {
         sbeCallback = sbcb;
     }
     
+    // --- BindingBase interface ---
+    
+    public Binding getBinding() {
+        return getBindingImpl();
+    }
+    
+    public ObjectMessageContext createObjectContext() {
+        return new ObjectMessageContextImpl();
+    }
+    
+    public HandlerInvoker createHandlerInvoker() {
+        return getBindingImpl().createHandlerInvoker(); 
+    }
+    
+    // --- BindingBase interface ---
+    
+    // --- ServerBinding interface ---
+        
     public Endpoint getEndpoint() {
         return endpoint;
     }
@@ -75,15 +95,15 @@ public abstract class AbstractServerBinding implements ServerBinding {
     public void deactivate() throws IOException {
         transport.deactivate();
     }
+    
+    // --- ServerBinding interface ---
 
-    public ObjectMessageContext createObjectContext() {
-        return new ObjectMessageContextImpl();
-    }
+    //  --- Methods to be implemented by concrete server bindings ---
+    
+    protected abstract AbstractBindingImpl getBindingImpl();
 
     protected abstract ServerTransport createTransport(EndpointReferenceType ref) 
         throws WSDLException, IOException;
-
-    protected abstract MessageContext createBindingMessageContext(MessageContext orig);
 
     protected abstract void marshal(ObjectMessageContext objCtx, MessageContext replyCtx);
     
@@ -97,6 +117,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
     protected abstract void read(InputStreamMessageContext inCtx, MessageContext context) throws IOException;
 
     protected abstract MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode);
+    
+    // --- Methods to be implemented by concrete server bindings ---
 
     protected OutputStreamMessageContext createOutputStreamContext(ServerTransport t,
                                                                    MessageContext bindingContext)
@@ -109,9 +131,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         throws IOException {
         t.finalPrepareOutputStreamContext(ostreamContext);
     }
-    
-   
-    
+      
     protected boolean isFault(ObjectMessageContext objCtx, MessageContext bindingCtx) {
         return objCtx.getException() != null;
     }
@@ -137,7 +157,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 objContext.putAll(inCtx);
             }
 
-            MessageContext requestCtx = createBindingMessageContext(objContext);
+            MessageContext requestCtx = getBindingImpl().createBindingMessageContext(objContext);
             //Input Message
             requestCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
             
@@ -170,7 +190,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         } catch (RuntimeException ex) {
             objContext.setException(ex);
             if (replyCtx == null) {
-                replyCtx = createBindingMessageContext(objContext);
+                replyCtx = getBindingImpl().createBindingMessageContext(objContext);
                 assert replyCtx != null;
             }
             marshalFault(objContext, replyCtx);
@@ -296,7 +316,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
         objContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
 
-        MessageContext replyCtx = createBindingMessageContext(objContext);
+        MessageContext replyCtx = getBindingImpl().createBindingMessageContext(objContext);
         assert replyCtx != null;
 
         try {

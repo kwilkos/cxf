@@ -41,12 +41,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
-import org.objectweb.celtix.bus.bindings.AbstractBindingImpl;
+import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.helpers.NSStack;
 import org.objectweb.celtix.helpers.NodeUtils;
 
@@ -67,6 +69,14 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             LOG.log(Level.SEVERE, "SAAJ_FACTORY_CREATION_FAILURE_MSG", se);
             throw new WebServiceException(se.getMessage());
         }
+    }
+    
+    protected MessageContext createBindingMessageContext(MessageContext srcCtx) {
+        return new SOAPMessageContextImpl(srcCtx);
+    }
+    
+    protected HandlerInvoker createHandlerInvoker() {
+        return new HandlerChainInvoker(getHandlerChain()); 
     }
 
     public Set<String> getRoles() {

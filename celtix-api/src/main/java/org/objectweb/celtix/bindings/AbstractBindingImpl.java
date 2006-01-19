@@ -1,9 +1,12 @@
-package org.objectweb.celtix.bus.bindings;
+package org.objectweb.celtix.bindings;
 
 import java.util.List;
 
 import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.MessageContext;
+
+import org.objectweb.celtix.handlers.HandlerInvoker;
 
 public abstract class AbstractBindingImpl implements Binding {
 
@@ -25,5 +28,9 @@ public abstract class AbstractBindingImpl implements Binding {
         assert chain != null;
         handlerChain = chain;
     }
+    
+    protected abstract MessageContext createBindingMessageContext(MessageContext orig);
+    
+    protected abstract HandlerInvoker createHandlerInvoker();
 
 }

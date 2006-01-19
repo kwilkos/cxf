@@ -6,22 +6,20 @@ import java.io.OutputStream;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
-import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
-import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
-import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
@@ -40,10 +38,6 @@ public class TestServerBinding extends AbstractServerBinding {
                              ServerBindingEndpointCallback cbFactory) {
         super(b, ref, ep, cbFactory);
         binding = new TestBinding();
-    }
-
-    protected MessageContext createBindingMessageContext(MessageContext ctx) {
-        return new GenericMessageContext();
     }
 
     protected ServerTransport createTransport(EndpointReferenceType ref) 
@@ -90,7 +84,7 @@ public class TestServerBinding extends AbstractServerBinding {
     protected void write(MessageContext context, OutputStreamMessageContext outCtx) throws IOException {
     }
 
-    public Binding getBinding() {
+    public AbstractBindingImpl getBindingImpl() {
         return binding;
     }
 
@@ -112,10 +106,6 @@ public class TestServerBinding extends AbstractServerBinding {
             tsb.fire();
         }
     }
-
-    public HandlerInvoker createHandlerInvoker() { 
-        return new HandlerChainInvoker(getBinding().getHandlerChain()); 
-    } 
 
     protected QName getOperationName(MessageContext ctx) {
         return new QName("blah", currentOperation);

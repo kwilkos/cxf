@@ -49,6 +49,13 @@ public class SoapBindingImplTest extends TestCase {
         
         objContext.setMethod(SOAPMessageUtil.getMethod(Greeter.class, "greetMe"));
     }
+    
+    public void testCreateBindingMessageContext() throws Exception {       
+        binding = new SOAPBindingImpl(false);
+        byte[] bArray = new byte[0];
+        TestInputStreamContext inCtx = new TestInputStreamContext(bArray);
+        assertNotNull(binding.createBindingMessageContext(inCtx));
+    }
 
     public void testGetMessageFactory() throws Exception {
         assertNotNull(binding.getSOAPFactory());

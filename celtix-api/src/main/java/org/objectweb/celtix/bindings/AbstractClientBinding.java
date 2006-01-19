@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.ws.Binding;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
@@ -46,7 +47,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
         reference = ref;
         transport = null;
     }
-
+    
     private static class ShutdownListener 
         extends WeakReference<AbstractClientBinding> 
         implements BusLifeCycleListener {
@@ -70,56 +71,26 @@ public abstract class AbstractClientBinding implements ClientBinding {
             //nothing
         }
     }
-    protected void shutdown() {
-        if (transport != null) {
-            transport.shutdown();
-            transport = null;
-        }
+    
+    // --- BindingBase interface ---
+    
+    public Binding getBinding() {
+        return getBindingImpl();
     }
     
-    protected synchronized ClientTransport getTransport() throws WSDLException, IOException {
-        if (transport == null) {
-            transport = createTransport(reference);
-        }
-        return transport;
-    }
-    
-    protected ClientTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
-        ClientTransport ret = null;
-        try {
-            LOG.info("creating client transport for " + ref);
-          
-            port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
-            List<?> exts = port.getExtensibilityElements();
-            if (exts.size() > 0) {
-                ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
-                
-                TransportFactory factory = bus.getTransportFactoryManager().
-                        getTransportFactory(el.getElementType().getNamespaceURI()); 
-                ret = factory.createClientTransport(ref);
-            }
-        } catch (BusException ex) {
-            LOG.severe("TRANSPORT_FACTORY_RETREIVAL_FAILURE_MSG");
-        }
-        assert ret != null; 
-        return ret;
-    }
-
-    protected void storeAddress(MessageContext context) {
-        context.put(CLIENT_TO_ADDRESS_PROPERTY, reference);
-        context.setScope(CLIENT_TO_ADDRESS_PROPERTY,
-                         MessageContext.Scope.HANDLER);
-        context.put(CLIENT_WSDL_PORT_PROPERTY, port);
-        context.setScope(CLIENT_WSDL_PORT_PROPERTY,
-                         MessageContext.Scope.HANDLER);
-    }
-
-
     public ObjectMessageContext createObjectContext() {
         return new ObjectMessageContextImpl();
     }
-
-    protected abstract MessageContext createBindingMessageContext(MessageContext orig);
+    
+    public HandlerInvoker createHandlerInvoker() {
+        return getBindingImpl().createHandlerInvoker(); 
+    }
+    
+    //  --- BindingBase interface ---
+    
+    // --- Methods to be implemented by concrete client bindings ---
+    
+    protected abstract AbstractBindingImpl getBindingImpl();
     
     protected abstract void marshal(ObjectMessageContext objContext,
                                     MessageContext context,
@@ -140,15 +111,9 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
     protected abstract void read(InputStreamMessageContext inCtx, MessageContext context);
     
-    protected OutputStreamMessageContext createOutputStreamContext(MessageContext bindingContext)
-        throws IOException {
-        return transport.createOutputStreamContext(bindingContext);            
-    }
-    protected void finalPrepareOutputStreamContext(MessageContext bindingContext,
-                                                   OutputStreamMessageContext ostreamContext) 
-        throws IOException {
-        transport.finalPrepareOutputStreamContext(ostreamContext);
-    }
+    // --- Methods to be implemented by concrete client bindings --- 
+    
+    // --- ClientBinding interface ---
     
     public ObjectMessageContext invoke(ObjectMessageContext context,
                                        DataBindingCallback callback)
@@ -158,7 +123,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
         handlerInvoker.setContext(context); 
 
         try { 
-            MessageContext bindingContext = createBindingMessageContext(context);
+            MessageContext bindingContext = getBindingImpl().createBindingMessageContext(context);
 
             try {
                 getTransport();
@@ -202,7 +167,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     assert ins != null;
 
                     context.putAll(ins); 
-                    bindingContext = createBindingMessageContext(context);
+                    bindingContext = getBindingImpl().createBindingMessageContext(context);
                     if (null == bindingContext) {
                         bindingContext = ins;
                     }
@@ -237,7 +202,6 @@ public abstract class AbstractClientBinding implements ClientBinding {
         }        
         return context;
     }
-
     
     public void invokeOneWay(ObjectMessageContext context,
                              DataBindingCallback callback) throws IOException {
@@ -246,7 +210,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
         handlerInvoker.setContext(context); 
         
         try { 
-            MessageContext bindingContext = createBindingMessageContext(context);
+            MessageContext bindingContext = getBindingImpl().createBindingMessageContext(context);
 
             //Input Message For Client
             bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
@@ -303,7 +267,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
         AsyncFuture asyncFuture = null;
 
         try { 
-            MessageContext bindingContext = createBindingMessageContext(context);
+            MessageContext bindingContext = getBindingImpl().createBindingMessageContext(context);
             
 
             //Input Message For Client
@@ -351,6 +315,68 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     
     }
     
+    // --- ClientBinding interface ---
+    
+    // --- helpers ---
+    
+    protected void shutdown() {
+        if (transport != null) {
+            transport.shutdown();
+            transport = null;
+        }
+    }
+    
+    protected synchronized ClientTransport getTransport() throws WSDLException, IOException {
+        if (transport == null) {
+            transport = createTransport(reference);
+        }
+        return transport;
+    }
+    
+    protected ClientTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
+        ClientTransport ret = null;
+        try {
+            LOG.info("creating client transport for " + ref);
+          
+            port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+            List<?> exts = port.getExtensibilityElements();
+            if (exts.size() > 0) {
+                ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
+                
+                TransportFactory factory = bus.getTransportFactoryManager().
+                        getTransportFactory(el.getElementType().getNamespaceURI()); 
+                ret = factory.createClientTransport(ref);
+            }
+        } catch (BusException ex) {
+            LOG.severe("TRANSPORT_FACTORY_RETREIVAL_FAILURE_MSG");
+        }
+        assert ret != null; 
+        return ret;
+    }
+
+    protected void storeAddress(MessageContext context) {
+        context.put(CLIENT_TO_ADDRESS_PROPERTY, reference);
+        context.setScope(CLIENT_TO_ADDRESS_PROPERTY,
+                         MessageContext.Scope.HANDLER);
+        context.put(CLIENT_WSDL_PORT_PROPERTY, port);
+        context.setScope(CLIENT_WSDL_PORT_PROPERTY,
+                         MessageContext.Scope.HANDLER);
+    }
+
+
+    
+    protected OutputStreamMessageContext createOutputStreamContext(MessageContext bindingContext)
+        throws IOException {
+        return transport.createOutputStreamContext(bindingContext);            
+    }
+    protected void finalPrepareOutputStreamContext(MessageContext bindingContext,
+                                                   OutputStreamMessageContext ostreamContext) 
+        throws IOException {
+        transport.finalPrepareOutputStreamContext(ostreamContext);
+    }
+    
+
+    
     public ObjectMessageContext getObjectMessageContextAsync(InputStreamMessageContext ins, 
                                                              HandlerInvoker handlerInvoker, 
                                                              DataBindingCallback callback, 
@@ -359,7 +385,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
         context.putAll(ins); 
         
         try {
-            MessageContext bindingContext = createBindingMessageContext(context);
+            MessageContext bindingContext = getBindingImpl().createBindingMessageContext(context);
             if (null == bindingContext) {
                 bindingContext = ins;
             }
