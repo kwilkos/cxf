@@ -51,6 +51,10 @@ public class XSDToJavaMojo extends AbstractMojo {
                 list.add("-p");
                 list.add(xsdOptions[x].getPackagename());
             }
+            if (xsdOptions[x].getBindingFile() != null) {
+                list.add("-b");
+                list.add(xsdOptions[x].getBindingFile());
+            }
             list.add("-quiet");
             list.add("-d");
             list.add(outputDir);
