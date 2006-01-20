@@ -305,6 +305,7 @@ public class OperationProcessor  {
         pollingMethod.setName(method.getName() + ToolConstants.ASYNC_METHOD_SUFFIX);
         pollingMethod.setStyle(method.getStyle());
         pollingMethod.setWrapperStyle(method.isWrapperStyle());
+        pollingMethod.setSoapAction(method.getSoapAction());
         
         JavaReturn future = new JavaReturn();
         future.setClassName("Future<?>");
@@ -337,6 +338,7 @@ public class OperationProcessor  {
         callbackMethod.setName(method.getName() + ToolConstants.ASYNC_METHOD_SUFFIX);
         callbackMethod.setStyle(method.getStyle());
         callbackMethod.setWrapperStyle(method.isWrapperStyle());
+        callbackMethod.setSoapAction(method.getSoapAction());
         
         JavaReturn response = new JavaReturn();
         response.setClassName(getAsyncClassName(method, "Response"));
