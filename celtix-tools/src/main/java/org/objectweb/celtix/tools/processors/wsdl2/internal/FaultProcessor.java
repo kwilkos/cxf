@@ -5,6 +5,7 @@ import javax.wsdl.Fault;
 import javax.wsdl.Message;
 import javax.wsdl.Part;
 
+import com.sun.tools.xjc.api.S2JJAXBModel;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaException;
@@ -66,19 +67,24 @@ public class FaultProcessor {
         expClass.setName(name);
         expClass.setNamespace(namespace);
         expClass.setPackageName(packageName);
-        
+        S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get(ToolConstants.RAW_JAXB_MODEL);
         for (Part part : faultValues) {
             String fName = ProcessorUtil.resolvePartName(part);
-            String fType = ProcessorUtil.resolvePartType(part, this.env);
+            String fType = ProcessorUtil.resolvePartType(part, jaxbModel);
             String fNamespace = ProcessorUtil.resolvePartNamespace(part);
             String fPackageName = ProcessorUtil.parsePackageName(fNamespace,
                                                                  (String)env.get(ToolConstants.
                                                                                  CFG_PACKAGENAME));
             JavaField fField = new JavaField(fName, fType, fNamespace);
+            fField.setQName(ProcessorUtil.getElementName(part));
             
             if (!method.getInterface().getPackageName().equals(fPackageName)) {
                 fField.setClassName(fPackageName + "." + fType);
             }
+            if (!fType.equals(ProcessorUtil.resolvePartType(part))) {
+                fField.setClassName(ProcessorUtil.resolvePartType(part, jaxbModel, true));
+            }
+
             expClass.addField(fField);
         }
         model.addExceptionClass(name, expClass);

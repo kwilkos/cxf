@@ -66,7 +66,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
     private JavaModel wsdlDefinitionToJavaModel(Definition definition) throws ToolException {
         JavaModel javaModel = new JavaModel();
-        getEnvironment().put("rawjaxbmodel", getRawJaxbModel());
+        getEnvironment().put(ToolConstants.RAW_JAXB_MODEL, getRawJaxbModel());
         
         javaModel.setJAXWSBinding(customizing(definition));
         

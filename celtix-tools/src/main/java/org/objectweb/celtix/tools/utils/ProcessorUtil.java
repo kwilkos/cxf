@@ -9,9 +9,11 @@ import javax.xml.namespace.QName;
 
 import com.sun.tools.xjc.api.Property;
 import com.sun.tools.xjc.api.S2JJAXBModel;
+import com.sun.tools.xjc.api.TypeAndAnnotation;
 import com.sun.xml.bind.api.JAXBRIContext;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
+import org.objectweb.celtix.tools.common.ToolConstants;
 
 public final class ProcessorUtil {
 
@@ -52,7 +54,7 @@ public final class ProcessorUtil {
 
     public static String resolvePartType(Part part, ProcessorEnvironment env) {
         if (env != null) {
-            S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get("rawjaxbmodel");
+            S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get(ToolConstants.RAW_JAXB_MODEL);
             if (jaxbModel == null) {
                 return resolvePartType(part);
             }
@@ -66,6 +68,25 @@ public final class ProcessorUtil {
         }
     }
 
+    public static String resolvePartType(Part part, S2JJAXBModel jaxbModel) {
+        return resolvePartType(part, jaxbModel, false);
+    }
+
+    public static String resolvePartType(Part part, S2JJAXBModel jaxbModel, boolean fullName) {
+        if (jaxbModel == null) {
+            return resolvePartType(part);
+        }
+        com.sun.tools.xjc.api.Mapping mapping = jaxbModel.get(getElementName(part));
+        if (mapping == null) {
+            return resolvePartType(part);
+        }
+        if (fullName) {
+            return mapping.getType().getTypeClass().fullName();
+        } else {
+            return mapping.getType().getTypeClass().name();
+        }
+    }
+    
     public static String resolvePartNamespace(Part part) {
         QName qname = part.getElementName();
         if (qname == null) {
@@ -110,9 +131,7 @@ public final class ProcessorUtil {
         } else {
             return  new File(getAbsolutePath(location)).toURL();
         }
-        
     }
-    
     
     private static String resolvePath(String path) {
         return path.replace('\\', '/');
@@ -123,7 +142,7 @@ public final class ProcessorUtil {
         if (part == null) {
             return new ArrayList<Property>();
         }
-        S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get("rawjaxbmodel");
+        S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get(ToolConstants.RAW_JAXB_MODEL);
         
         QName element;
         element = part.getElementName();
@@ -167,6 +186,37 @@ public final class ProcessorUtil {
         return urls;
     }
 
+
+    public static String getFullClzName(Part part,
+                                        String userPackage,
+                                        S2JJAXBModel jaxbModel,
+                                        boolean boxify) {
+        QName xmlTypeName = getElementName(part);
+        String jtype = BuiltInTypesJavaMappingUtil.getJType(xmlTypeName, jaxbModel, boxify);
+        String namespace = xmlTypeName.getNamespaceURI();
+        String type = resolvePartType(part, jaxbModel);
+
+        if (jtype == null) {
+            ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
+            jtype = collector.getTypesFullClassName(parsePackageName(namespace, userPackage), type);
+        }
+        
+        if (jtype == null) {
+            if (!type.equals(resolvePartType(part))) {
+                jtype = resolvePartType(part, jaxbModel, true);
+            } else {
+                jtype = parsePackageName(namespace, userPackage) + "." + type;
+            }
+        }
+        
+        return jtype;
+    }
+
+    public static String getFullClzName(Part part,
+                                        String userPackage,
+                                        S2JJAXBModel jaxbModel) {
+        return getFullClzName(part, userPackage, jaxbModel, false);
+    }
 
     public static String getFullClzName(String namespace,
                                         String type,
@@ -222,5 +272,13 @@ public final class ProcessorUtil {
 
     public static String getHandlerConfigFileName(String name) {
         return name + "_handler";
+    }
+
+    public static String boxify(QName xmlTypeName, S2JJAXBModel jaxbModel) {
+        TypeAndAnnotation typeAndAnnotation = jaxbModel.getJavaType(xmlTypeName);
+        if (typeAndAnnotation == null) {
+            return null;
+        }
+        return typeAndAnnotation.getTypeClass().boxify().fullName();
     }
 }

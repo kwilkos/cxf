@@ -71,4 +71,6 @@ public final class ToolConstants {
     public static final String HANDLER_CHAINS_URI = "http://java.sun.com/xml/ns/javaee";
     public static final String HANDLER_CHAIN = "handler-chain";
     public static final String HANDLER_CHAINS = "handler-chains";
+
+    public static final String RAW_JAXB_MODEL = "rawjaxbmodel";
 }

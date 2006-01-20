@@ -8,6 +8,7 @@ import javax.xml.namespace.QName;
 
 import com.sun.codemodel.JType;
 import com.sun.tools.xjc.api.Property;
+import com.sun.tools.xjc.api.S2JJAXBModel;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
@@ -65,14 +66,18 @@ public class ParameterProcessor {
         parameter.setQName(ProcessorUtil.getElementName(part));
         
         String userPackage = (String) env.get(ToolConstants.CFG_PACKAGENAME);
-        parameter.setClassName(ProcessorUtil.getFullClzName(namespace,
-                                                            type,
-                                                            userPackage));
+        S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get(ToolConstants.RAW_JAXB_MODEL);
+        parameter.setClassName(ProcessorUtil.getFullClzName(part,
+                                                            userPackage,
+                                                            jaxbModel));
 
         if (style == JavaType.Style.INOUT || style == JavaType.Style.OUT) {
             parameter.setHolder(true);
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());
-            parameter.setHolderClass(parameter.getClassName());
+            parameter.setHolderClass(ProcessorUtil.getFullClzName(part,
+                                                                  userPackage,
+                                                                  jaxbModel,
+                                                                  true));
         }
         parameter.setStyle(style);
         return parameter;
@@ -125,9 +130,10 @@ public class ParameterProcessor {
         returnType.setStyle(JavaType.Style.OUT);
         String userPackage = (String) env.get(ToolConstants.CFG_PACKAGENAME);
         if (namespace != null && type != null && !"void".equals(type)) {
-            returnType.setClassName(ProcessorUtil.getFullClzName(namespace,
-                                                                 type,
-                                                                 userPackage));
+            S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get(ToolConstants.RAW_JAXB_MODEL);
+            returnType.setClassName(ProcessorUtil.getFullClzName(part,
+                                                                 userPackage,
+                                                                 jaxbModel));
         }
         method.setReturn(returnType);
     }
@@ -173,7 +179,6 @@ public class ParameterProcessor {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Map<String, Part> outputPartsMap = outputMessage.getParts();
         Collection<Part> outputParts = outputPartsMap.values();
-
         //figure out output parts that are not present in input parts
         List<Part> outParts = new ArrayList<Part>();
 
@@ -292,7 +297,7 @@ public class ParameterProcessor {
         if (style == JavaType.Style.OUT || style == JavaType.Style.INOUT) {
             parameter.setHolder(true);
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());
-            parameter.setHolderClass(t.boxify().name());
+            parameter.setHolderClass(t.boxify().fullName());
         }
         return parameter;
     }
@@ -317,7 +322,6 @@ public class ParameterProcessor {
                 processInput(method, inputMessage);
             }
         }
-
         if (outputMessage == null) {
             processReturn(method, null);
         } else {
@@ -364,6 +368,8 @@ public class ParameterProcessor {
                 processReturn(method, outputUnlistedParts.get(0));
                 outputPartsMap.remove(outputUnlistedParts.get(0));
                 outputUnlistedParts.clear();
+            } else {
+                processReturn(method, null);
             }
         }
 
@@ -371,13 +377,15 @@ public class ParameterProcessor {
         // first for the ordered list
         int index = 0;
         int size = parameterList.size();
-
         while (index < size) {
             String partName = parameterList.get(index);
             Part part = inputPartsMap.get(partName);
             JavaType.Style style = JavaType.Style.IN;
             if (part == null) {
                 part = outputPartsMap.get(partName);
+                style = JavaType.Style.OUT;
+            } else if (outputPartsMap.get(partName) != null
+                       && isSamePart(part, outputPartsMap.get(partName))) {
                 style = JavaType.Style.INOUT;
             }
             if (part != null) {

@@ -1,9 +1,11 @@
 package org.objectweb.celtix.tools.utils;
 
 import java.util.*;
+import javax.xml.namespace.QName;
+import com.sun.tools.xjc.api.S2JJAXBModel;
+import com.sun.tools.xjc.api.TypeAndAnnotation;
 
 public final class BuiltInTypesJavaMappingUtil {
-
     private static final String XML_SCHEMA_NS = "http://www.w3.org/2000/10/XMLSchema";
     private static final String NS_XMLNS = "http://www.w3.org/2000/xmlns/";
     private static final String NS_XSD = "http://www.w3.org/2001/XMLSchema";
@@ -46,6 +48,25 @@ public final class BuiltInTypesJavaMappingUtil {
     private BuiltInTypesJavaMappingUtil() {
     }
 
+    public static String getJType(QName xmlTypeName, S2JJAXBModel jaxbModel) {
+        return getJType(xmlTypeName, jaxbModel, false);
+    }
+
+    public static String getJType(QName xmlTypeName, S2JJAXBModel jaxbModel, boolean boxify) {
+        if (jaxbModel == null) {
+            return getJType(xmlTypeName.getNamespaceURI(), xmlTypeName.getLocalPart());
+        }
+        TypeAndAnnotation typeAndAnnotation = jaxbModel.getJavaType(xmlTypeName);
+        if (typeAndAnnotation == null) {
+            return getJType(xmlTypeName.getNamespaceURI(), xmlTypeName.getLocalPart());
+        }
+        if (boxify) {
+            return typeAndAnnotation.getTypeClass().boxify().fullName();
+        } else {
+            return typeAndAnnotation.getTypeClass().fullName();
+        }
+    }
+    
     public static String getJType(String nameSpace, String type) {
         if (type == null || nameSpace == null || !nameSpaces.contains(nameSpace.toLowerCase())) {
             return null;
