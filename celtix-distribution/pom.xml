@@ -167,10 +167,10 @@
                                 </manifest>
                             </archive>
                             <descriptors>
-                                <discriptor>assembly-bin-epl.xml</discriptor>
-                                <discriptor>assembly-bin-lgpl.xml</discriptor>
-                                <discriptor>assembly-src-epl.xml</discriptor>
-                                <discriptor>assembly-src-lgpl.xml</discriptor>
+                                <descriptor>assembly-bin-epl.xml</descriptor>
+                                <descriptor>assembly-bin-lgpl.xml</descriptor>
+                                <descriptor>assembly-src-epl.xml</descriptor>
+                                <descriptor>assembly-src-lgpl.xml</descriptor>
                             </descriptors>
                             <finalName>celtix-${project.version}</finalName>
                         </configuration>
