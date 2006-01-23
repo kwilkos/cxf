@@ -54,5 +54,5 @@ public class JavaToWSDLProcessor implements Processor {
     public WSDLModel getModel() {
         return this.model;
     }
-
+   
 }

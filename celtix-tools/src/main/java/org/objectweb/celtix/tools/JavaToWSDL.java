@@ -2,6 +2,8 @@ package org.objectweb.celtix.tools;
 
 import java.util.*;
 
+import javax.wsdl.Definition;
+
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
@@ -15,6 +17,7 @@ public class JavaToWSDL extends AbstractCeltixToolContainer {
 
     static final String TOOL_NAME = "javatowsdl";
     private static String[] args;
+    private static Definition definition;
 
     public JavaToWSDL(ToolSpec toolspec) throws Exception {
         super(TOOL_NAME, toolspec);
@@ -22,6 +25,7 @@ public class JavaToWSDL extends AbstractCeltixToolContainer {
 
     public void execute(boolean exitOnFinish) {
         JavaToWSDLProcessor processor = new JavaToWSDLProcessor();
+        
         try {
             super.execute(exitOnFinish);
             if (!hasInfoOption()) {
@@ -32,6 +36,7 @@ public class JavaToWSDL extends AbstractCeltixToolContainer {
                 }
                 processor.setEnvironment(env);
                 processor.process();
+                definition = processor.getModel().getDefinition();
             }
         } catch (ToolException ex) {
             System.err.println("Error : " + ex.getMessage());
@@ -72,5 +77,10 @@ public class JavaToWSDL extends AbstractCeltixToolContainer {
         if (errors.getErrors().size() > 0) {
             throw new ToolException("Required parameters missing", new BadUsageException(getUsage(), errors));
         }
+    }
+    
+    
+    public static Definition getDefinition() {
+        return definition;
     }
 }

@@ -26,10 +26,13 @@ import org.objectweb.celtix.wsdl.WSDLManager;
  */
 public class WSDLManagerImpl implements WSDLManager {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(WSDLManagerImpl.class);
+    private static final Logger LOG = LogUtils
+            .getL7dLogger(WSDLManagerImpl.class);
 
     final ExtensionRegistry registry;
+
     final WSDLFactory factory;
+
     final WeakHashMap<Object, Definition> definitionsMap;
 
     public WSDLManagerImpl(Bus bus) throws BusException {
@@ -142,8 +145,7 @@ public class WSDLManagerImpl implements WSDLManager {
             LOG.log(Level.SEVERE, "WSDL_GENERATION_TMP_DIR_MSG", ex);
             return null;
         }
-        
-        
+
         /*
          * JAXWSWsdlGenerator generator = new JAXWSWsdlGenerator(sei.getName(),
          * sei.getClassLoader()); Configuration config = new ToolConfig(new
@@ -151,19 +153,17 @@ public class WSDLManagerImpl implements WSDLManager {
          * generator.setConfiguration(config); generator.generate();
          */
 
-        
         try {
             int result = 0;
             org.objectweb.celtix.tools.JavaToWSDL.main(new String[] {"-o",
-                                                                     tmp.getPath() + "/tmp.wsdl",
-                                                                     sei.getName()});
+                    tmp.getPath() + "/tmp.wsdl", sei.getName() });
             if (0 != result) {
                 LOG.log(Level.SEVERE, "WSDL_GENERATION_BAD_RESULT_MSG", result);
-                return null; 
+                return null;
             }
-    
+
             // schema and WSDL file should have been created in tmp directory
-    
+
             File[] generated = tmp.listFiles();
             File schema = null;
             File wsdl = null;
@@ -183,40 +183,46 @@ public class WSDLManagerImpl implements WSDLManager {
                 LOG.severe("WSDL_SCHEMA_GENERATION_FAILURE_MSG");
                 return null;
             } else if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Generated " + wsdl.getPath() + " and " + schema.getPath());
+                LOG.info("Generated " + wsdl.getPath() + " and "
+                        + schema.getPath());
             }
-    
-            WSDLFactory wf = getWSDLFactory();
-            
-            try {
-                WSDLReader reader = wf.newWSDLReader();
-                reader.setFeature("javax.wsdl.verbose", false);
-                reader.setExtensionRegistry(registry);
-                definition = reader.readWSDL(wsdl.getPath());
-            } catch (WSDLException ex) {
-                LOG.log(Level.SEVERE, "WSDL_UNREADABLE_MSG", ex);
-            }
+
+            /*
+             * WSDLFactory wf = getWSDLFactory();
+             * 
+             * try { WSDLReader reader = wf.newWSDLReader();
+             * reader.setFeature("javax.wsdl.verbose", false);
+             * reader.setExtensionRegistry(registry); definition =
+             * reader.readWSDL(wsdl.getPath()); } catch (WSDLException ex) {
+             * LOG.log(Level.SEVERE, "WSDL_UNREADABLE_MSG", ex); }
+             */
+
+            definition = org.objectweb.celtix.tools.JavaToWSDL.getDefinition();
+
         } finally {
             class Directory {
                 private final File dir;
+
                 Directory(File d) {
                     dir = d;
                 }
+
                 void delete() {
                     File[] entries = dir.listFiles();
                     for (File f : entries) {
                         if (f.isDirectory()) {
                             Directory d = new Directory(f);
                             d.delete();
-                        } 
+                        }
                         f.delete();
                     }
                     dir.delete();
                 }
             }
             Directory dir = new Directory(tmp);
-            dir.delete();        
+            dir.delete();
         }
-        return definition; 
+
+        return definition;
     }
 }
