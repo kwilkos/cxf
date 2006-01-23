@@ -30,16 +30,19 @@ class JMSBrokerSetup extends TestSetup {
         // timestamp. This is required for proper cleanup. current directory structure 
         // doesn't get deleted due to lock held by jvm is not released even if the broker 
         // is down. 
-//        
-//        activeMQStorageDir = System.getProperty("activemq.store.dir");
-//        File f1 =  new File(activeMQStorageDir);
-//        deleteDir(f1);
+
+        activeMQStorageDir = System.getProperty("activemq.store.dir");
+        
         if (activeMQStorageDir != null) {
             System.setProperty("activemq.store.dir", 
                                  activeMQStorageDir + "/" + System.currentTimeMillis());
         } else {
             activeMQStorageDir = "./ActiveMQ";
         }
+        
+        //Cleanup
+        File f1 =  new File(activeMQStorageDir);
+        deleteDir(f1);
         
         jmsBrokerThread = new JMSEmbeddedBroker(jmsBrokerUrl);
         jmsBrokerThread.startBroker();
@@ -48,10 +51,9 @@ class JMSBrokerSetup extends TestSetup {
     public void tearDown() throws Exception {
         synchronized (this) {
             jmsBrokerThread.shutdownBroker = true;
-            notifyAll();
         }
         if (jmsBrokerThread != null) {
-            jmsBrokerThread.join(10000L);
+            jmsBrokerThread.join();
         }
         
         jmsBrokerThread = null;

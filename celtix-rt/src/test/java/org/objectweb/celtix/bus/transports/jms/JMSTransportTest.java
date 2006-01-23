@@ -35,7 +35,9 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 public class JMSTransportTest extends TestCase {
 
     private ServerTransportCallback callback;
+    private ServerTransportCallback callback1;
     private Bus bus;
+    private String serverRcvdInOneWayCall;
     
     public JMSTransportTest(String arg0) {
         super(arg0);
@@ -59,6 +61,20 @@ public class JMSTransportTest extends TestCase {
         bus.shutdown(false);
     }
     
+    public void testOneWayTextQueueJMSTransport() throws Exception {
+        QName serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms", 
+                                                           "HelloWorldOneWayQueueService");
+        doOneWayTestJMSTranport(false,  serviceName, "HelloWorldOneWayQueuePort", 
+                                    "/wsdl/jms_test.wsdl");   
+    }
+
+    public void testPubSubJMSTransport() throws Exception {
+        QName serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms", 
+                                                           "HelloWorldPubSubService");
+        doOneWayTestJMSTranport(false,  serviceName, "HelloWorldPubSubPort", 
+                                               "/wsdl/jms_test.wsdl");
+    }
+    
     public void testTwoWayTextQueueJMSTransport() throws Exception {
         QName serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms", "HelloWorldService");
         doTestJMSTransport(false,  serviceName, "HelloWorldPortType", "/wsdl/jms_test.wsdl");       
@@ -67,10 +83,10 @@ public class JMSTransportTest extends TestCase {
     public void testTwoWayBinaryQueueJMSTransport() throws Exception {
         QName serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms", 
                                                            "HelloWorldQueueBinMsgService");
-        doTestJMSTransport(false,  serviceName, "HelloWorldQueueBinMsgPort", "/wsdl/jms_test.wsdl");       
+        doTestJMSTransport(false,  serviceName, "HelloWorldQueueBinMsgPort", "/wsdl/jms_test.wsdl");
     }
     
-    public void xtest2WayStaticReplyQTextMessageJMSTransport() throws Exception {
+    public void test2WayStaticReplyQTextMessageJMSTransport() throws Exception {
         QName serviceName =  
             new QName("http://celtix.objectweb.org/hello_world_jms", 
                                      "HWStaticReplyQTextMsgService");
@@ -99,6 +115,7 @@ public class JMSTransportTest extends TestCase {
                     octx.setOneWay(false);
                     transport.finalPrepareOutputStreamContext(octx);
                     octx.getOutputStream().write(bytes, 0, total);
+                   // System.err.println("Server response : " + (new String(bytes)));
                     octx.getOutputStream().flush();   
                     
                     MessageContext replyCtx = new GenericMessageContext();
@@ -172,7 +189,7 @@ public class JMSTransportTest extends TestCase {
         assertEquals(new String(outBytes), new String(bytes, 0, total));
         
         outBytes = "Hello World!!!".getBytes();
-        bytes  = new byte[100];
+        //bytes  = new byte[100];
         
         server.deactivate();
   
@@ -195,7 +212,7 @@ public class JMSTransportTest extends TestCase {
 
         outBytes = "New String and must match with response".getBytes();
         //Clean outBytes.
-        bytes  = new byte[100];
+       // bytes  = new byte[100];
         octx = client.createOutputStreamContext(new GenericMessageContext());
         client.finalPrepareOutputStreamContext(octx);
         octx.getOutputStream().write(outBytes);
@@ -204,7 +221,85 @@ public class JMSTransportTest extends TestCase {
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
         server.shutdown();
-        Thread.sleep(200);
+        client.shutdown();
+        factory = null;
+        server = null;
+        client= null;
+        System.gc();
+    }
+    
+    public void setupOneWayCallbackObject(final boolean useAutomaticWorkQueue) {
+        callback1 = new ServerTransportCallback() {
+            public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
+                try {
+                    byte bytes[] = new byte[10000];
+                    readBytes(bytes, ctx.getInputStream());
+                    
+                    JMSOutputStreamContext octx = 
+                        (JMSOutputStreamContext) transport.createOutputStreamContext(ctx);
+                    octx.setOneWay(true);
+                    transport.finalPrepareOutputStreamContext(octx);
+                    serverRcvdInOneWayCall = new String(bytes);
+                    
+                    MessageContext replyCtx = new GenericMessageContext();
+                    ctx.put("ObjectMessageContext.MESSAGE_INPUT", Boolean.TRUE);
+                    replyCtx.putAll(ctx);
+                    replyCtx.put("ObjectMessageContext.MESSAGE_INPUT", Boolean.TRUE);
+                    
+                    ((JMSServerTransport) transport).postDispatch(replyCtx, octx);
+                    octx.getOutputStream().close();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+            public Executor getExecutor() {
+                if (useAutomaticWorkQueue) {
+                    return new WorkQueueManagerImpl(bus).getAutomaticWorkQueue();
+                } else {
+                    return null;
+                }
+                
+            }
+        };
+    }
+    
+    public void doOneWayTestJMSTranport(final boolean useAutomaticWorkQueue,
+                                                            QName serviceName, 
+                                                             String portName, 
+                                                             String testWsdlFileName) 
+        throws Exception {
+        
+        String address = "http://localhost:9000/SoapContext/SoapPort";
+        URL wsdlUrl = getClass().getResource(testWsdlFileName);
+        assertNotNull(wsdlUrl);
+               
+        TransportFactory factory = createTransportFactory();
+        setupOneWayCallbackObject(useAutomaticWorkQueue);
+      
+        ServerTransport server = createServerTransport(factory, wsdlUrl, serviceName, 
+                                                       portName, address);
+        
+        
+        server.activate(callback1);
+        
+        ClientTransport client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
+        OutputStreamMessageContext octx = 
+            client.createOutputStreamContext(new GenericMessageContext());
+        client.finalPrepareOutputStreamContext(octx);
+        byte outBytes[] = "Hello World!!!".getBytes(); 
+        octx.getOutputStream().write(outBytes);
+        client.invokeOneway(octx);
+        Thread.sleep(500L);
+        assertEquals(new String(outBytes), 
+                          serverRcvdInOneWayCall.substring(0, outBytes.length));
+        
+        server.shutdown();
+        client.shutdown();
+        factory = null;
+        server = null;
+        client= null;
+        System.gc();
+        
     }
     
     private TransportFactory createTransportFactory() throws BusException { 

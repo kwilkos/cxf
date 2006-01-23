@@ -77,7 +77,7 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
             if (listenerThread != null) {
                 listenerThread.join();
             }
-            
+            sessionFactory.shutdown();
         } catch (InterruptedException e) {
             //Don't do anything...
         } catch (JMSException ex) {
@@ -88,7 +88,11 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
 
     public void shutdown() {
         entry("JMSServerTransport shutdown()");
-        sessionFactory.shutdown();
+        try {
+            this.deactivate();
+        } catch (IOException ex) {
+            // Ignore for now.
+        }
     }
 
     public void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context)

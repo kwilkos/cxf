@@ -32,6 +32,8 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 public class JMSClientTransport extends JMSTransportBase implements ClientTransport {
 
     private static final Logger LOG = LogUtils.getL7dLogger(JMSClientTransport.class);
+    
+    private static final long DEFAULT_RECEIVE_TIMEOUT = 15000;
 
     public JMSClientTransport(Bus bus, EndpointReferenceType address) throws WSDLException, IOException  {
         super(bus, address);
@@ -115,7 +117,9 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         entry("JMSClientTransport invoke()");
 
         try {
-            JMSProviderHub.connect(this);
+            if (null == sessionFactory) {
+                JMSProviderHub.connect(this);
+            }
         } catch (JMSException ex) {
             LOG.log(Level.FINE, "JMS connect failed with JMSException : ", ex);
             throw ex;
@@ -178,8 +182,13 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
 
         int deliveryMode = getJMSDeliveryMode(headers);
         int priority = getJMSPriority(headers);
-        long ttl = getTimeToLive(headers);
         String correlationID = getCorrelationId(headers);
+        long ttl = getTimeToLive(headers);
+        if (ttl <= 0) {
+            ttl = DEFAULT_RECEIVE_TIMEOUT;
+        }       
+        
+        message.setJMSExpiration(ttl);
 
         setMessageProperties(headers, message);
         if (responseExpected) {
@@ -228,7 +237,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         JMSClientHeadersType headers =
             (JMSClientHeadersType) context.get(JMSConstants.JMS_REQUEST_HEADERS);
 
-        long timeout = 15000L;
+        long timeout = DEFAULT_RECEIVE_TIMEOUT;
 
         if (headers != null
                 && headers.getTimeOut() != null) {

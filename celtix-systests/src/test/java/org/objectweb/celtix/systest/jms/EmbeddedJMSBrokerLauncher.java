@@ -9,7 +9,6 @@ public class EmbeddedJMSBrokerLauncher extends TestServerBase {
     
     BrokerContainer container;
     final String brokerUrl1 = "tcp://localhost:61500";            
-    final String brokerUrl2 = "tcp://localhost:61616";            
             
     public void tearDown() throws Exception {
         if (container != null) {
@@ -21,7 +20,6 @@ public class EmbeddedJMSBrokerLauncher extends TestServerBase {
         try {                
             container = new BrokerContainerImpl();
             container.addConnector(brokerUrl1);                    
-            container.addConnector(brokerUrl2);                    
             container.start();
         } catch (Exception e) {
             e.printStackTrace();

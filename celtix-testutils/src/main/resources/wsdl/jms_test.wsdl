@@ -272,7 +272,7 @@
         <port binding="tns:HelloWorldOneWayBinding" name="HelloWorldOneWayQueuePort">
             <jms:address
                 destinationStyle="queue" 
-                jndiProviderURL="tcp://localhost:61616"
+                jndiProviderURL="tcp://localhost:61500"
                 initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
                 jndiConnectionFactoryName="ConnectionFactory" 
                 jndiDestinationName="dynamicQueues/test.jmstransport.oneway"
@@ -288,7 +288,7 @@
             <port binding="tns:HelloWorldPubSubBinding" name="HelloWorldPubSubPort">
                 <jms:address
                     destinationStyle="topic" 
-                    jndiProviderURL="tcp://localhost:61616"
+                    jndiProviderURL="tcp://localhost:61500"
                     initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
                     jndiConnectionFactoryName="ConnectionFactory" 
                     jndiDestinationName="dynamicTopics/test.jmstransport.oneway.topic"
