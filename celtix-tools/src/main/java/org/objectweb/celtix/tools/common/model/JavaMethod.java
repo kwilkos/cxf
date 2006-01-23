@@ -1,8 +1,14 @@
 package org.objectweb.celtix.tools.common.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.OperationType;
+
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 
@@ -19,7 +25,7 @@ public class JavaMethod {
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
     private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
-    private final List<Object> objparas = new ArrayList<Object>();
+    private final List<WSDLWrapperParameter> wrapperParas = new ArrayList<WSDLWrapperParameter>();
     private final List<WSDLException> wsdlExceptions = new ArrayList<WSDLException>();
 
     private JAXWSBinding jaxwsBinding = new JAXWSBinding();
@@ -204,16 +210,16 @@ public class JavaMethod {
         return wsdlExceptions;
     }
 
-    public void addObjectParameter(Object obj) {
+    public void addWSDLWrapperParameter(WSDLWrapperParameter param) {
         // verify that this member does not already exist
-        if (objparas.contains(obj)) {
+        if (wrapperParas.contains(param)) {
             throw new ToolException("model.uniqueness");
         }
-        objparas.add(obj);
+        wrapperParas.add(param);
     }
 
-    public List<Object> getObjectParameters() {
-        return objparas;
+    public List<WSDLWrapperParameter> getWSDLWrapperParameters() {
+        return wrapperParas;
     }
 
     public String getParameterList() {

@@ -24,7 +24,6 @@ public class JavaToWSDLProcessor implements Processor {
 
         init();
         buildModel(model, getSEIClass());
-        model.createJAXBContext();
         final WSDLGenerator generator = new WSDLGenerator(model, penv);
         generator.generate();
     }

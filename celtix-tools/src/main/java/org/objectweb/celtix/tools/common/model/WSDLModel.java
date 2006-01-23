@@ -1,11 +1,6 @@
 package org.objectweb.celtix.tools.common.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
@@ -13,27 +8,36 @@ import javax.jws.soap.SOAPBinding.Use;
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
-import javax.xml.bind.JAXBException;
-
 import com.sun.xml.bind.api.JAXBRIContext;
 import com.sun.xml.bind.api.TypeReference;
-
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
-import org.objectweb.celtix.tools.processors.java2.internal.ClassProcessor;
 
 public class WSDLModel {
     protected JAXBRIContext jaxbContext;
+
     private Definition definition;
+
     private String wsdlLocation;
+
     private String serviceName;
+
     private String targetNameSpace;
+
     private String portTypeName;
+
+    private String portName;
+
     private String packageName;
+
     private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
+
     private final Map<String, String> schemaNSFileMap = new HashMap<String, String>();
-    //default Doc-Lit-Wrapped
+
+    // default Doc-Lit-Wrapped
     private Style style = SOAPBinding.Style.DOCUMENT;
+
     private Use use = SOAPBinding.Use.LITERAL;
+
     private ParameterStyle paraStyle = SOAPBinding.ParameterStyle.WRAPPED;
 
     public WSDLModel() throws ToolException {
@@ -62,12 +66,20 @@ public class WSDLModel {
         return this.serviceName;
     }
 
-    public void setPortyTypeName(String name) {
-        this.portTypeName = name;
+    public String getPortTypeName() {
+        return this.portTypeName;
     }
 
-    public String getPortyTypeName() {
-        return this.portTypeName;
+    public void setPortTypeName(String pname) {
+        this.portTypeName = pname;
+    }
+
+    public void setPortName(String name) {
+        this.portName = name;
+    }
+
+    public String getPortName() {
+        return this.portName;
     }
 
     public void setTargetNameSpace(String space) {
@@ -98,70 +110,57 @@ public class WSDLModel {
         return this.methods;
     }
 
-    public JAXBRIContext createJAXBContext() throws ToolException {
-        List<TypeReference> types = getAllTypeReferences();
+    public void createJAXBContext() throws ToolException {
+        List<TypeReference> types = this.getAllTypeReference();
+
         Class[] clzzs = new Class[types.size()];
         int i = 0;
         for (TypeReference typeref : types) {
-            clzzs[i++] = (Class)typeref.type;
+            clzzs[i++] = (Class) typeref.type;
         }
-
         try {
-            jaxbContext = JAXBRIContext.newInstance(clzzs, types, this.targetNameSpace, false);
-        } catch (JAXBException e) {
-            throw new ToolException("Exception When New JAXBRIContext :" + e.getMessage(), e);
+            jaxbContext = JAXBRIContext.newInstance(clzzs, types, this
+                    .getTargetNameSpace(), false);
+
+        } catch (Exception e) {
+            throw new ToolException("Exception When New JAXBRIContext :"
+                    + e.getMessage(), e);
         }
 
-        return jaxbContext;
     }
 
     /**
      * @return returns non-null list of TypeReference
      */
-    public List<TypeReference> getAllTypeReferences() {
+    public List<TypeReference> getAllTypeReference() {
         List<TypeReference> types = new ArrayList<TypeReference>();
-
         for (JavaMethod m : methods) {
+            for (WSDLWrapperParameter wrapPara : m.getWSDLWrapperParameters()) {
+                if (wrapPara.getTypeReference() != null && m.isWrapperStyle()) {
+                    types.add(wrapPara.getTypeReference());
 
-            Iterator ite1 = m.getObjectParameters().iterator();
-            while (ite1.hasNext()) {
-                Object obj = ite1.next();
-                if (obj instanceof WSDLWrapperParameter) {
-                    WSDLWrapperParameter wrapPara = (WSDLWrapperParameter)obj;
-                    if (wrapPara.getTypeReference() != null
-                        && wrapPara.getTypeReference().type != ClassProcessor.class) {
-                        types.add(wrapPara.getTypeReference());
-                    }
-                    // added for rpc
+                } else {
                     Iterator ite2 = wrapPara.getWrapperChildren().iterator();
                     while (ite2.hasNext()) {
-
-                        JavaParameter jp = (JavaParameter)ite2.next();
+                        JavaParameter jp = (JavaParameter) ite2.next();
                         if (jp.getTypeReference() != null) {
                             types.add(jp.getTypeReference());
+
                         }
                     }
-
                 }
 
-                if (obj instanceof JavaParameter) {
-
-                    JavaParameter jpara = (JavaParameter)obj;
-
-                    if (jpara.getTypeReference() != null) {
-                        types.add(jpara.getTypeReference());
-                    }
-                }
-
-                Iterator ite3 = m.getWSDLExceptions().iterator();
-                while (ite3.hasNext()) {
-                    org.objectweb.celtix.tools.common.model.WSDLException wsdlEx = 
-                        (org.objectweb.celtix.tools.common.model.WSDLException)ite3.next();
-                    types.add(wsdlEx.getDetailTypeReference());
-                }
             }
 
+            Iterator ite3 = m.getWSDLExceptions().iterator();
+            while (ite3.hasNext()) {
+                org.objectweb.celtix.tools.common.model.WSDLException wsdlEx = 
+                    (org.objectweb.celtix.tools.common.model.WSDLException) ite3.next();
+
+                types.add(wsdlEx.getDetailTypeReference());
+            }
         }
+
         return types;
     }
 
@@ -184,7 +183,7 @@ public class WSDLModel {
     public ParameterStyle getParameterStyle() {
         return paraStyle;
     }
-    
+
     public void setPrameterStyle(ParameterStyle pstyle) {
         paraStyle = pstyle;
     }
@@ -192,22 +191,22 @@ public class WSDLModel {
     public Use getUse() {
         return this.use;
     }
-    
+
     public boolean isDocLit() {
         if (this.style == Style.DOCUMENT && this.use == Use.LITERAL) {
             return true;
-        } 
+        }
         return false;
     }
-    
-   
+
     public boolean isWrapped() {
         return this.paraStyle == SOAPBinding.ParameterStyle.WRAPPED;
     }
 
     public boolean isRPC() {
-        return (this.style == SOAPBinding.Style.RPC) && (this.use == SOAPBinding.Use.LITERAL)
-               && (this.paraStyle == SOAPBinding.ParameterStyle.WRAPPED);
+        return (this.style == SOAPBinding.Style.RPC)
+                && (this.use == SOAPBinding.Use.LITERAL)
+                && (this.paraStyle == SOAPBinding.ParameterStyle.WRAPPED);
     }
 
     public Map<String, String> getSchemaNSFileMap() {

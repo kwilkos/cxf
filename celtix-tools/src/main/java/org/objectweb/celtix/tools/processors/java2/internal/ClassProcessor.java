@@ -8,7 +8,6 @@ import java.lang.reflect.Type;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -41,10 +40,13 @@ import org.objectweb.celtix.tools.common.model.WSDLWrapperParameter;
 import org.objectweb.celtix.tools.utils.AnnotationUtil;
 import org.objectweb.celtix.tools.utils.URIParserUtil;
 
+
 public class ClassProcessor {
 
     Class seiClass;
+
     WSDLModel model;
+
     Map<Class, Boolean> useWebMethodClasses = new HashMap<Class, Boolean>();
 
     private final ProcessorEnvironment env;
@@ -59,7 +61,8 @@ public class ClassProcessor {
         populateWSDLInfo(seiClass);
         checkWebMethodUseClass(seiClass);
         for (Method method : seiClass.getMethods()) {
-            if (method.getDeclaringClass().equals(Object.class) || !isOperationToGen(method, seiClass)) {
+            if (method.getDeclaringClass().equals(Object.class)
+                    || !isOperationToGen(method, seiClass)) {
                 continue;
             }
             processMethod(wmodel, method);
@@ -71,7 +74,8 @@ public class ClassProcessor {
             return;
         }
 
-        WebMethod webMethod = AnnotationUtil.getPrivMethodAnnotation(method, WebMethod.class);
+        WebMethod webMethod = AnnotationUtil.getPrivMethodAnnotation(method,
+                WebMethod.class);
         if (webMethod == null || (webMethod != null && webMethod.exclude())) {
             return;
         }
@@ -84,7 +88,8 @@ public class ClassProcessor {
 
         if (!method.getDeclaringClass().equals(seiClass)) {
             try {
-                Method tmp = seiClass.getMethod(method.getName(), (Class[])method.getParameterTypes());
+                Method tmp = seiClass.getMethod(method.getName(),
+                        (Class[]) method.getParameterTypes());
                 operationName = tmp.getName();
             } catch (NoSuchMethodException e) {
                 throw new ToolException(e.getMessage(), e);
@@ -92,11 +97,14 @@ public class ClassProcessor {
         }
 
         if (webMethod != null) {
-            operationName = webMethod.operationName().length() > 0
-                ? webMethod.operationName() : operationName;
+            operationName = webMethod.operationName().length() > 0 ? webMethod
+                    .operationName() : operationName;
         }
 
         javaMethod.setName(operationName);
+        javaMethod.setSoapAction(webMethod.action());
+
+        // To Do Asyn
 
         if (isOneWayMethod(method)) {
             javaMethod.setStyle(OperationType.ONE_WAY);
@@ -115,10 +123,11 @@ public class ClassProcessor {
             processRPC(javaMethod, method);
             break;
         default:
-            throw new ToolException("the method " + method.getName()
-                                    + "SOAPBinding USE STYLE and ParameterStyle is not correct ");
+            throw new ToolException(
+                    "the method "
+                            + method.getName()
+                            + "SOAPBinding USE STYLE and ParameterStyle is not correct ");
         }
-
         wmodel.addJavaMethod(javaMethod);
     }
 
@@ -130,11 +139,11 @@ public class ClassProcessor {
                 result = WSDLConstants.RPC_WRAPPED;
             }
             if (binding.style() == SOAPBinding.Style.DOCUMENT
-                && binding.parameterStyle() == SOAPBinding.ParameterStyle.WRAPPED) {
+                    && binding.parameterStyle() == SOAPBinding.ParameterStyle.WRAPPED) {
                 result = WSDLConstants.DOC_WRAPPED;
             }
             if (binding.style() == SOAPBinding.Style.DOCUMENT
-                && binding.parameterStyle() == SOAPBinding.ParameterStyle.BARE) {
+                    && binding.parameterStyle() == SOAPBinding.ParameterStyle.BARE) {
                 result = WSDLConstants.DOC_BARE;
             }
 
@@ -152,9 +161,19 @@ public class ClassProcessor {
         return result;
     }
 
+    private void setMethodUse(JavaMethod javaMethod, Method method) {
+        SOAPBinding binding = method.getAnnotation(SOAPBinding.class);
+        if (binding != null) {
+            javaMethod.setSoapUse(binding.use());
+        } else {
+            javaMethod.setSoapUse(this.model.getUse());
+        }
+    }
+
     private void processDocWrapped(JavaMethod javaMethod, Method method) {
         javaMethod.setSoapStyle(SOAPBinding.Style.DOCUMENT);
         javaMethod.setWrapperStyle(true);
+        setMethodUse(javaMethod, method);
 
         // process request
         RequestWrapper reqWrapper = method.getAnnotation(RequestWrapper.class);
@@ -162,68 +181,75 @@ public class ClassProcessor {
         String reqName = method.getName();
         String reqNS = model.getTargetNameSpace();
         if (reqWrapper != null) {
-            reqClassName = reqWrapper.className().length() > 0 ? reqWrapper.className() : reqClassName;
-            reqName = reqWrapper.localName().length() > 0 ? reqWrapper.localName() : reqName;
-            reqNS = reqWrapper.targetNamespace().length() > 0 ? reqWrapper.targetNamespace() : reqNS;
+            reqClassName = reqWrapper.className().length() > 0 ? reqWrapper
+                    .className() : reqClassName;
+            reqName = reqWrapper.localName().length() > 0 ? reqWrapper
+                    .localName() : reqName;
+            reqNS = reqWrapper.targetNamespace().length() > 0 ? reqWrapper
+                    .targetNamespace() : reqNS;
         } else {
-            reqClassName = model.getPackageName() + AnnotationUtil.capitalize(method.getName());
+            reqClassName = model.getPackageName()
+                    + AnnotationUtil.capitalize(method.getName());
         }
-        
 
         Class reqClass = null;
         try {
-            reqClass = AnnotationUtil.loadClass(reqClassName, method.getDeclaringClass().getClassLoader());
+            reqClass = AnnotationUtil.loadClass(reqClassName, method
+                    .getDeclaringClass().getClassLoader());
         } catch (Exception e) {
             throw new ToolException("Can Not Load class " + reqClassName, e);
         }
         QName reqQN = new QName(reqNS, reqName);
-        TypeReference typeRef = new TypeReference(reqQN, reqClass, new Annotation[0]);
-        WSDLWrapperParameter reqWrapperPara = new WSDLWrapperParameter(reqName, typeRef, JavaType.Style.IN);
+        TypeReference typeRef = new TypeReference(reqQN, reqClass,
+                new Annotation[0]);
+        WSDLWrapperParameter reqWrapperPara = new WSDLWrapperParameter(reqName,
+                typeRef, JavaType.Style.IN);
         reqWrapperPara.setTargetNamespace(reqNS);
-        javaMethod.addObjectParameter(reqWrapperPara);
+        javaMethod.addWSDLWrapperParameter(reqWrapperPara);
 
-        // process response
-        ResponseWrapper resWrapper = method.getAnnotation(ResponseWrapper.class);
-        String resClassName = "";
-        // rule 3.5 suffix -"Response"
-        String resName = method.getName() + "Response";
-        String resNS = model.getTargetNameSpace();
-        if (resWrapper != null) {
-            resClassName = resWrapper.className();
-            resName = resWrapper.localName().length() > 0 ? resWrapper.localName() : resName;
-            resNS = resWrapper.targetNamespace().length() > 0 ? resWrapper.targetNamespace() : resNS;
-        } else {
-            resClassName = model.getPackageName() + AnnotationUtil.capitalize(method.getName()) + "Response";
-        }
-        Class resClass = null;
-        QName resQN = new QName(resNS, resName);
         WSDLWrapperParameter resWrapperPara = null;
         if (!isOneWayMethod(method)) {
+            // process response
+            ResponseWrapper resWrapper = method
+                    .getAnnotation(ResponseWrapper.class);
+            String resClassName = "";
+            // rule 3.5 suffix -"Response"
+            String resName = method.getName() + "Response";
+            String resNS = model.getTargetNameSpace();
+            if (resWrapper != null) {
+                resClassName = resWrapper.className();
+                resName = resWrapper.localName().length() > 0 ? resWrapper
+                        .localName() : resName;
+                resNS = resWrapper.targetNamespace().length() > 0 ? resWrapper
+                        .targetNamespace() : resNS;
+            } else {
+                resClassName = model.getPackageName()
+                        + AnnotationUtil.capitalize(method.getName())
+                        + "Response";
+            }
+            Class resClass = null;
+            QName resQN = new QName(resNS, resName);
             try {
-                resClass = AnnotationUtil.loadClass(resClassName,
-                                                    method.getDeclaringClass().getClassLoader());
+                resClass = AnnotationUtil.loadClass(resClassName, method
+                        .getDeclaringClass().getClassLoader());
             } catch (Exception e) {
                 throw new ToolException("Can Not Load Class " + resClassName, e);
             }
             typeRef = new TypeReference(resQN, resClass, new Annotation[0]);
-            resWrapperPara = new WSDLWrapperParameter(resName, typeRef, JavaType.Style.OUT);
+            resWrapperPara = new WSDLWrapperParameter(resName, typeRef,
+                    JavaType.Style.OUT);
             resWrapperPara.setTargetNamespace(resNS);
-            javaMethod.addObjectParameter(resWrapperPara);
+            javaMethod.addWSDLWrapperParameter(resWrapperPara);
             WebResult webResult = method.getAnnotation(WebResult.class);
-            JavaParameter returnParameter = getReturnParameter(webResult, method);
+            JavaParameter returnParameter = getReturnParameter(webResult,
+                    method);
             if (returnParameter != null) {
-                /*
-                 * if (webResult.header()) {
-                 * javaMethod.addObjectParameter(returnParameter); } else {
-                 */
                 resWrapperPara.addWrapperChild(returnParameter);
             }
         }
-        List typeList = processWebPara(method);
-        Iterator ite = typeList.iterator();
-        while (ite.hasNext()) {
-            TypeReference typeref = (TypeReference)ite.next();
-            JavaParameter jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref, JavaType.Style.IN);
+        List<JavaParameter> paras = processWebPara(method);
+        for (JavaParameter jp : paras) {
+
             reqWrapperPara.addWrapperChild(jp);
         }
 
@@ -234,51 +260,55 @@ public class ClassProcessor {
     private void processRPC(JavaMethod javaMethod, Method method) {
         javaMethod.setSoapStyle(SOAPBinding.Style.RPC);
         javaMethod.setWrapperStyle(true);
+        setMethodUse(javaMethod, method);
+
         String targetNS = model.getTargetNameSpace();
-        QName reqQN = new QName(targetNS, method.getName());
-        TypeReference typeRef = new TypeReference(reqQN, this.getClass(), new Annotation[0]);
-        WSDLWrapperParameter requestWrapper = new WSDLWrapperParameter(method.getName(), typeRef,
-                                                                       JavaType.Style.IN);
+        WSDLWrapperParameter requestWrapper = new WSDLWrapperParameter();
+        requestWrapper.setName(method.getName());
+        requestWrapper.setStyle(JavaType.Style.IN);
+
         requestWrapper.setTargetNamespace(targetNS);
-        javaMethod.addObjectParameter(requestWrapper);
+        javaMethod.addWSDLWrapperParameter(requestWrapper);
 
         boolean isOneway = method.isAnnotationPresent(Oneway.class);
         if (!isOneway) {
             QName resQN = new QName(targetNS, method.getName() + "Response");
-            typeRef = new TypeReference(resQN, this.getClass(), new Annotation[0]);
-            WSDLWrapperParameter responseWrapper = new WSDLWrapperParameter(method.getName() + "Response",
-                                                                            typeRef, JavaType.Style.OUT);
-            responseWrapper.setTargetNamespace(targetNS);
-            javaMethod.addObjectParameter(responseWrapper);
+            TypeReference typeRef = new TypeReference(resQN, this.getClass(),
+                    new Annotation[0]);
+            WSDLWrapperParameter responseWrapper = new WSDLWrapperParameter();
+            responseWrapper.setName(method.getName() + "Response");
+            responseWrapper.setStyle(JavaType.Style.OUT);
+            javaMethod.addWSDLWrapperParameter(responseWrapper);
 
             Class returnType = method.getReturnType();
-            String resultName = "Return";
+            String resultName = method.getName() + "Response";
             String resultTNS = targetNS;
+            String resultPartName = null;
             WebResult webResult = method.getAnnotation(WebResult.class);
             if (webResult != null) {
-                resultName = webResult.name().length() > 0 && webResult.partName().length() > 0 ? webResult
-                    .partName() : resultName;
-                resultName = webResult.name().length() > 0 ? webResult.name() : resultName;
-                resultName = webResult.partName().length() > 0 ? webResult.partName() : resultName;
-                resultTNS = webResult.targetNamespace().length() > 0
-                    ? webResult.targetNamespace() : resultTNS;
-
+                resultName = webResult.name().length() > 0 ? webResult.name()
+                        : resultName;
+                resultPartName = webResult.partName().length() > 0 ? webResult
+                        .partName() : resultName;
+                resultTNS = webResult.targetNamespace().length() > 0 ? webResult
+                        .targetNamespace()
+                        : resultTNS;
             }
             QName resultQName = new QName(resultTNS, resultName);
             if (returnType != null && (!returnType.getName().equals("void"))) {
-                Annotation[] rann = method.getAnnotations();
+                // Annotation[] rann = method.getAnnotations();
+                Annotation[] rann = new Annotation[0];
                 typeRef = new TypeReference(resultQName, returnType, rann);
-                JavaParameter returnParameter = new JavaParameter(resultName, typeRef, JavaType.Style.OUT);
+                JavaParameter returnParameter = new JavaParameter(resultName,
+                        typeRef, JavaType.Style.OUT);
+                returnParameter.setPartName(resultPartName);
+                returnParameter.setTargetNamespace(resultTNS);
                 responseWrapper.addWrapperChild(returnParameter);
             }
         }
         // get WebParam
-
-        List typeList = processWebPara(method);
-        Iterator ite = typeList.iterator();
-        while (ite.hasNext()) {
-            TypeReference typeref = (TypeReference)ite.next();
-            JavaParameter jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref, JavaType.Style.IN);
+        List<JavaParameter> paras = processWebPara(method);
+        for (JavaParameter jp : paras) {
             requestWrapper.addWrapperChild(jp);
         }
         processExceptions(javaMethod, method);
@@ -288,6 +318,7 @@ public class ClassProcessor {
     private void processDocBare(JavaMethod javaMethod, Method method) {
         javaMethod.setSoapStyle(SOAPBinding.Style.DOCUMENT);
         javaMethod.setWrapperStyle(false);
+        setMethodUse(javaMethod, method);
 
         // process webresult annotation
         String resultName = method.getName() + "Response";
@@ -297,13 +328,13 @@ public class ClassProcessor {
         WebResult webResult = method.getAnnotation(WebResult.class);
 
         if (webResult != null) {
-            resultName = webResult.name().length() > 0 && webResult.partName().length() > 0 ? webResult
-                .partName() : resultName;
-            resultName = webResult.name().length() > 0 ? webResult.name() : resultName;
-            resultName = webResult.partName().length() > 0 ? webResult.partName() : resultName;
-            resultTNS = webResult.targetNamespace().length() > 0 ? webResult.targetNamespace() : resultTNS;
-            resultPartName = webResult.partName().length() > 0 ? webResult.partName() : resultPartName;
+            resultName = webResult.name().length() > 0 ? webResult.name()
+                    : resultName;
 
+            resultTNS = webResult.targetNamespace().length() > 0 ? webResult
+                    .targetNamespace() : resultTNS;
+            resultPartName = webResult.partName().length() > 0 ? webResult
+                    .partName() : resultName;
         }
 
         // get return type class
@@ -311,70 +342,84 @@ public class ClassProcessor {
 
         if (returnType != null && !returnType.getName().equals("void")) {
 
-            Annotation[] anns = method.getAnnotations();
-
-            QName responseQN = new QName(resultTNS, resultName);
-            TypeReference typeref = new TypeReference(responseQN, returnType, anns);
-            JavaParameter jp = new JavaParameter(resultName, typeref, JavaType.Style.OUT);
+            QName resQN = new QName(resultTNS, resultName);
+            TypeReference typeRef = new TypeReference(resQN, returnType,
+                    new Annotation[0]);
+            WSDLWrapperParameter responseWrapper = new WSDLWrapperParameter();
+            responseWrapper.setStyle(JavaType.Style.OUT);
+            responseWrapper.setTargetNamespace(resultTNS);
+            JavaParameter jp = new JavaParameter(resultName, typeRef,
+                    JavaType.Style.OUT);
             jp.setPartName(resultPartName);
-            WSDLWrapperParameter resWrapper = new WSDLWrapperParameter();
-            resWrapper.setName(method.getName() + "Response");
-            resWrapper.addWrapperChild(jp);
-            javaMethod.addObjectParameter(resWrapper);
+            jp.setTargetNamespace(resultTNS);
+            jp.setName(resultName);
+            responseWrapper.addWrapperChild(jp);
+            javaMethod.addWSDLWrapperParameter(responseWrapper);
         }
 
         // processWebparam
-        List typeList = processWebPara(method);
-        WSDLWrapperParameter reqWrapper = new WSDLWrapperParameter();
-        reqWrapper.setName(method.getName() + "Request");
-        Iterator ite = typeList.iterator();
-        while (ite.hasNext()) {
-            TypeReference typeref = (TypeReference)ite.next();
-            JavaParameter jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref, JavaType.Style.IN);
-            reqWrapper.addWrapperChild(jp);
+        WSDLWrapperParameter requestWrapper = new WSDLWrapperParameter();
+        requestWrapper.setName(method.getName());
+        requestWrapper.setStyle(JavaType.Style.IN);
+        javaMethod.addWSDLWrapperParameter(requestWrapper);
+
+        List<JavaParameter> paras = processWebPara(method);
+        for (JavaParameter jp : paras) {
+            requestWrapper.addWrapperChild(jp);
         }
-        javaMethod.addObjectParameter(reqWrapper);
         processExceptions(javaMethod, method);
     }
 
     private JavaParameter getReturnParameter(WebResult webResult, Method method) {
+        boolean isHeader = false;
         String resultName = "Return";
         String resultTNS = model.getTargetNameSpace();
         JavaParameter jpara = null;
         QName resultQName = null;
         if (webResult != null) {
-            resultName = webResult.name().length() > 0 && webResult.partName().length() > 0 ? webResult
-                .partName() : resultName;
-            resultName = webResult.name().length() > 0 ? webResult.name() : resultName;
-            resultName = webResult.partName().length() > 0 ? webResult.partName() : resultName;
-            resultTNS = webResult.targetNamespace().length() > 0 ? webResult.targetNamespace() : resultTNS;
+            resultName = webResult.name().length() > 0
+                    && webResult.partName().length() > 0 ? webResult.partName()
+                    : resultName;
+            resultName = webResult.name().length() > 0 ? webResult.name()
+                    : resultName;
+            resultName = webResult.partName().length() > 0 ? webResult
+                    .partName() : resultName;
+            resultTNS = webResult.targetNamespace().length() > 0 ? webResult
+                    .targetNamespace() : resultTNS;
+            isHeader = webResult.header();
         }
         resultQName = new QName(resultTNS, resultName);
         Class returnType = method.getReturnType();
-        if (resultQName != null && !isOneWayMethod(method) && (returnType != null)
-            && (!returnType.getName().equals("void"))) {
-            Annotation[] annotations = method.getAnnotations();
+        if (resultQName != null && !isOneWayMethod(method)
+                && (returnType != null)
+                && (!returnType.getName().equals("void"))) {
+            // Annotation[] annotations = method.getAnnotations();
+            Annotation[] annotations = new Annotation[0];
             if (resultQName.getLocalPart() != null) {
-                TypeReference rTypeReference = new TypeReference(resultQName, returnType, annotations);
+                TypeReference rTypeReference = new TypeReference(resultQName,
+                        returnType, annotations);
                 jpara = new JavaParameter();
                 jpara.setName(method.getName() + "Response");
                 jpara.setTypeReference(rTypeReference);
                 jpara.setStyle(JavaType.Style.OUT);
+                jpara.setHeader(isHeader);
             }
         }
         return jpara;
     }
 
     @SuppressWarnings("unchecked")
-    private List<TypeReference> processWebPara(Method method) {
+    private List<JavaParameter> processWebPara(Method method) {
         // processWebparam
         Class<?>[] parameterTypes = method.getParameterTypes();
         Type[] parameterGenTypes = method.getGenericParameterTypes();
-        Annotation[][] paraAnns = AnnotationUtil.getPrivParameterAnnotations(method);
-        List<TypeReference> typeList = new ArrayList<TypeReference>();
+        Annotation[][] paraAnns = AnnotationUtil
+                .getPrivParameterAnnotations(method);
+        List<JavaParameter> paras = new ArrayList<JavaParameter>();
         int i = 0;
         for (Class clazzType : parameterTypes) {
             String paraName = "arg" + i;
+            String partName;
             String paraTNS = model.getTargetNameSpace();
             Class clazz = clazzType;
             if (isHoder(clazzType)) {
@@ -382,37 +427,43 @@ public class ClassProcessor {
             }
             for (Annotation anno : paraAnns[i]) {
                 if (anno.annotationType() == WebParam.class) {
-                    WebParam webParam = (WebParam)anno;
-                    paraName = webParam.name().length() > 0 && webParam.partName().length() > 0
-                        ? paraName = webParam.partName() : paraName;
-                    paraName = webParam.name().length() > 0 ? webParam.name() : paraName;
-                    paraName = webParam.partName().length() > 0 ? webParam.partName() : paraName;
-                    paraTNS = webParam.targetNamespace().length() > 0
-                        ? paraTNS = webParam.targetNamespace() : paraTNS;
+                    WebParam webParam = (WebParam) anno;
+                    paraName = webParam.name().length() > 0 ? webParam.name()
+                            : paraName;
+                    partName = webParam.partName().length() > 0 ? webParam
+                            .partName() : paraName;
+                    paraTNS = webParam.targetNamespace().length() > 0 ? paraTNS = webParam
+                            .targetNamespace()
+                            : paraTNS;
 
                     QName requestQN = new QName(paraTNS, paraName);
-                    TypeReference typeref = new TypeReference(requestQN, clazz, paraAnns[i]);
-                    typeList.add(typeref);
-
+                    TypeReference typeref = new TypeReference(requestQN, clazz,
+                            paraAnns[i]);
+                    JavaParameter jp = new JavaParameter(typeref.tagName
+                            .getLocalPart(), typeref, JavaType.Style.IN);
+                    jp.setPartName(partName);
+                    jp.setHeader(webParam.header());
+                    jp.setTargetNamespace(paraTNS);
+                    paras.add(jp);
                 }
 
             }
             i++;
         }
 
-        return typeList;
+        return paras;
     }
 
     @SuppressWarnings("unchecked")
     private void processExceptions(JavaMethod jmethod, Method method) {
         for (Type exception : method.getGenericExceptionTypes()) {
-            if (RemoteException.class.isAssignableFrom((Class)exception)) {
+            if (RemoteException.class.isAssignableFrom((Class) exception)) {
                 continue;
             }
             Annotation[] anns = null;
-            Class exClass = (Class)exception;
+            Class exClass = (Class) exception;
             String exNameSpace = model.getTargetNameSpace();
-            String exName = ((Class)exception).getSimpleName();
+            String exName = ((Class) exception).getSimpleName();
             Class exReturnType = null;
             Method faultInfo = null;
             try {
@@ -424,7 +475,7 @@ public class ClassProcessor {
             }
 
             if (faultInfo != null) {
-                WebFault wf = (WebFault)exClass.getAnnotation(WebFault.class);
+                WebFault wf = (WebFault) exClass.getAnnotation(WebFault.class);
                 exReturnType = faultInfo.getReturnType();
                 anns = faultInfo.getAnnotations();
                 if (wf.targetNamespace().length() > 0) {
@@ -451,12 +502,14 @@ public class ClassProcessor {
             return true;
         }
         Class declareClass = method.getDeclaringClass();
-        WebMethod webMethod = AnnotationUtil.getPrivMethodAnnotation(method, WebMethod.class);
+        WebMethod webMethod = AnnotationUtil.getPrivMethodAnnotation(method,
+                WebMethod.class);
         if (webMethod != null && !webMethod.exclude()) {
             return true;
         }
-        if (AnnotationUtil.getPrivClassAnnotation(declareClass, WebService.class) != null
-            && !useWebMethodClasses.get(declareClass)) {
+        if (AnnotationUtil.getPrivClassAnnotation(declareClass,
+                WebService.class) != null
+                && !useWebMethodClasses.get(declareClass)) {
             return true;
         }
         return false;
@@ -477,7 +530,8 @@ public class ClassProcessor {
                 if (!method.getDeclaringClass().equals(seiClass)) {
                     continue;
                 }
-                webMethod = AnnotationUtil.getPrivMethodAnnotation(method, WebMethod.class);
+                webMethod = AnnotationUtil.getPrivMethodAnnotation(method,
+                        WebMethod.class);
                 if (webMethod != null && !webMethod.exclude()) {
                     existWebMethod = true;
                     break;
@@ -489,36 +543,54 @@ public class ClassProcessor {
     }
 
     private void populateWSDLInfo(Class clazz) {
-        WebService webService = AnnotationUtil.getPrivClassAnnotation(clazz, WebService.class);
+        WebService webService = AnnotationUtil.getPrivClassAnnotation(clazz,
+                WebService.class);
         if (webService == null) {
             throw new ToolException("SEI Class :No Webservice Annotation");
 
         }
         if (webService.endpointInterface().length() > 0) {
             clazz = AnnotationUtil.loadClass(webService.endpointInterface(),
-                                             clazz.getClassLoader());
-            webService = AnnotationUtil.getPrivClassAnnotation(clazz, WebService.class);
+                    clazz.getClassLoader());
+            webService = AnnotationUtil.getPrivClassAnnotation(clazz,
+                    WebService.class);
             if (webService == null) {
                 throw new ToolException("Endpoint Interface :No Webservice ");
             }
         }
 
         String portTypeName = clazz.getSimpleName() + "PortType";
-        model.setPortyTypeName(portTypeName);
+        if (webService.name().length() > 0) {
+            portTypeName = webService.name();
+        }
+
+        model.setPortTypeName(portTypeName);
+
+        String portName = clazz.getSimpleName() + "Port";
+
+        if (webService.portName().length() > 0) {
+            portName = webService.portName();
+        } else if (webService.name().length() > 0) {
+            portName = webService.name() + "Port";
+
+        }
+        model.setPortName(portName);
+
         String serviceName = clazz.getSimpleName() + "Service";
+        if (webService.serviceName().length() > 0) {
+            serviceName = webService.serviceName();
+        }
+        model.setServiceName(serviceName);
+
         String packageName = "";
         if (clazz.getPackage() != null) {
             packageName = clazz.getPackage().getName();
         }
         model.setPackageName(packageName);
 
-        if (webService.serviceName().length() > 0) {
-            serviceName = webService.serviceName();
-        }
-        model.setServiceName(serviceName);
         String targetNamespace = URIParserUtil.getNamespace(packageName);
         if (env.optionSet(ToolConstants.CFG_TNS)) {
-            targetNamespace = (String)env.get(ToolConstants.CFG_TNS);
+            targetNamespace = (String) env.get(ToolConstants.CFG_TNS);
         } else if (webService.targetNamespace().length() > 0) {
             targetNamespace = webService.targetNamespace();
         } else if (targetNamespace == null) {
@@ -529,7 +601,7 @@ public class ClassProcessor {
         model.setWsdllocation(wsdlLocation);
 
         javax.jws.soap.SOAPBinding soapBinding = AnnotationUtil
-            .getPrivClassAnnotation(clazz, javax.jws.soap.SOAPBinding.class);
+                .getPrivClassAnnotation(clazz, javax.jws.soap.SOAPBinding.class);
         if (soapBinding != null) {
             model.setStyle(soapBinding.style());
             model.setUse(soapBinding.use());
@@ -543,9 +615,8 @@ public class ClassProcessor {
     }
 
     private Class getHoldedClass(Class holderClazz, Type type) {
-        Class realClass = Navigator.REFLECTION.erasure(((ParameterizedType)type).getActualTypeArguments()[0]);
-
-        return realClass;
+        return Navigator.REFLECTION.erasure(((ParameterizedType) type)
+                .getActualTypeArguments()[0]);
     }
 
     private boolean isOneWayMethod(Method method) {

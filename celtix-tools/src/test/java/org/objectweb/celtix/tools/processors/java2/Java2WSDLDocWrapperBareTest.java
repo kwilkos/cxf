@@ -16,7 +16,7 @@ public class Java2WSDLDocWrapperBareTest extends ProcessorTestBase {
     }
 
     public void tearDown() {
-        //super.tearDown();
+        super.tearDown();
         processor = null;
     }
 

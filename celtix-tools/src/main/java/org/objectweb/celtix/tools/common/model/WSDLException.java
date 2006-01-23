@@ -5,12 +5,11 @@ import com.sun.xml.bind.api.TypeReference;
 public class WSDLException {
 
     private final Class exceptionClass;
-
+ 
     private final TypeReference typedetail;
-
     public WSDLException(Class exceptionClazz, TypeReference detail) {
         this.typedetail = detail;
-        this.exceptionClass = exceptionClazz;
+        this.exceptionClass = exceptionClazz;    
     }
 
     public Class getExcpetionClass() {
@@ -24,5 +23,7 @@ public class WSDLException {
     public TypeReference getDetailTypeReference() {
         return typedetail;
     }
+    
+   
 
 }

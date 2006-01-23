@@ -16,7 +16,6 @@ public class ProcessorTestBase extends TestCase {
         URL url = ProcessorTestBase.class.getResource(".");
         output = new File(url.getFile());
         output = new File(output, "/resources");
-        
         if (!output.exists()) {
             output.mkdir();
         }
