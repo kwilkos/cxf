@@ -222,10 +222,6 @@ public class JMSTransportTest extends TestCase {
         assertEquals(new String(outBytes), new String(bytes, 0, len));
         server.shutdown();
         client.shutdown();
-        factory = null;
-        server = null;
-        client= null;
-        System.gc();
     }
     
     public void setupOneWayCallbackObject(final boolean useAutomaticWorkQueue) {
@@ -294,12 +290,7 @@ public class JMSTransportTest extends TestCase {
                           serverRcvdInOneWayCall.substring(0, outBytes.length));
         
         server.shutdown();
-        client.shutdown();
-        factory = null;
-        server = null;
-        client= null;
-        System.gc();
-        
+        client.shutdown();        
     }
     
     private TransportFactory createTransportFactory() throws BusException { 
