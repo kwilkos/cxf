@@ -4,14 +4,14 @@
     <groupId>org.objectweb.celtix</groupId>
     <artifactId>celtix-tools</artifactId>
     <packaging>jar</packaging>
-    <version>0.4-milestone4-SNAPSHOT</version>
+    <version>0.4-SNAPSHOT</version>
     <name>Celtix Command Line Tools</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
         <groupId>org.objectweb.celtix</groupId>
         <artifactId>celtix</artifactId>
-        <version>0.4-milestone4-SNAPSHOT</version>
+        <version>0.4-SNAPSHOT</version>
     </parent>
 
     <properties>

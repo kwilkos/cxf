@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.objectweb.celtix</groupId>
     <artifactId>celtix</artifactId>
-    <version>0.4-milestone4-SNAPSHOT</version>
+    <version>0.4-SNAPSHOT</version>
     <name>Celtix</name>
     <url>http://celtix.objectweb.org/</url>
 
@@ -87,6 +87,7 @@
         <mprojectinfo.version>2.0-beta-3</mprojectinfo.version>
         <clover.version>2.0</clover.version>
         <dependency.plugin.version>1.0</dependency.plugin.version>
+        <jar.version>2.1-SNAPSHOT</jar.version>
 
         <surefire.fork.mode>none</surefire.fork.mode>
         <surefire.format>brief</surefire.format>
@@ -150,6 +151,11 @@
             </testResource>
         </testResources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${jar.version}</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -425,6 +431,7 @@
                 <javadoc.version>2.0-beta-3</javadoc.version>
                 <surefire-report.version>2.0-beta-1</surefire-report.version>
                 <jxr.version>2.0-beta-1</jxr.version>
+                <jar.version>2.0</jar.version>
             </properties>
             <!--
             <pluginRepositories>

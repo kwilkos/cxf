@@ -66,6 +66,9 @@
         <property name="eclipse.workspace" value="../workspace"/>
         <property name="eclipse.downloadSources" value="true"/>
         <exec executable="mvn${bat.ext}" dir="${basedir}">
+            <arg line="install -Dfastinstall"/>
+        </exec>
+        <exec executable="mvn${bat.ext}" dir="${basedir}">
             <arg line="eclipse:add-maven-repo -Declipse.workspace=${eclipse.workspace}"/>
         </exec>
 
