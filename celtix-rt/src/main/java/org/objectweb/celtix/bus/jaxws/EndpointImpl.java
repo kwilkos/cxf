@@ -21,8 +21,10 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.Provider;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.handler.Handler;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
@@ -58,15 +60,24 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     public EndpointImpl(Bus b, Object impl, String bindingId) {
         this(b, impl, bindingId, EndpointReferenceUtils.getEndpointReference(b.getWSDLManager(), impl));
     }
+    
     public EndpointImpl(Bus b, Object impl, String bindingId, EndpointReferenceType ref) {
         bus = b;
         implementor = impl;
         reference = ref;
+
+        if (Provider.class.isAssignableFrom(impl.getClass())) {
+            WebServiceProvider wsProvider = 
+                implementor.getClass().getAnnotation(WebServiceProvider.class);
+            if (wsProvider == null) {
+                throw new WebServiceException(
+                           "Provider based implementor must carry a WebServiceProvider annotation");
+            }
+        }
         
         try {
             context = JAXBEncoderDecoder.createJAXBContextForClass(impl.getClass());
         } catch (JAXBException ex1) {
-            // TODO Auto-generated catch block
             ex1.printStackTrace();
             context = null;
         }

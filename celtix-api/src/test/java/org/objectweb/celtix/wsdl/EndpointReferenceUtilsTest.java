@@ -1,6 +1,7 @@
 package org.objectweb.celtix.wsdl;
 
 import java.net.URL;
+import java.util.Map;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -12,6 +13,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.ws.Provider;
+import javax.xml.ws.WebServiceProvider;
+
 import org.w3c.dom.Element;
 
 import junit.framework.TestCase;
@@ -20,6 +25,10 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.addressing.ObjectFactory;
 
 public class EndpointReferenceUtilsTest extends TestCase {
+    
+    private static final QName WSDL_LOCATION = 
+        new QName("http://www.w3.org/2004/08/wsdl-instance", "wsdlLocation");
+    private static final QName SEI = new QName("http://www.w3.org/2004/08/wsdl-instance", "sei");
 
     public EndpointReferenceUtilsTest(String arg0) {
         super(arg0);
@@ -76,6 +85,32 @@ public class EndpointReferenceUtilsTest extends TestCase {
 
     };
 
+    @WebServiceProvider(wsdlLocation = "resources/Test.wsdl",
+                        portName = "TestPort",
+                        serviceName = "TestService",
+                        targetNamespace = "http://schemas.xmlsoap.org/wsdl/soap/http")
+    class TestProvider1 implements Provider<Source> {
+        TestProvider1() {
+            //Complete
+        }
+        
+        public Source invoke(Source source) {
+            return null;
+        }        
+    }
+
+    @WebServiceProvider    
+    class TestProvider2 implements Provider<Source> {
+        TestProvider2() {
+            //Complete
+        }
+        
+        public Source invoke(Source source) {
+            return null;
+        }
+    }
+    
+    
     public void testGetWSDLDefinition() throws Exception  {
         Class cls[] = new Class[] {
             ObjectFactory.class,
@@ -168,4 +203,42 @@ public class EndpointReferenceUtilsTest extends TestCase {
         EndpointReferenceUtils.setAddress(ref, null);
         assertNull(EndpointReferenceUtils.getAddress(ref));
     }
+    
+    public void testGetEndpointReferenceFromProvider() throws Exception {
+        WSDLManager manager = new TestWSDLManager();
+
+        //Test with fully populated WebServiceProvider Annotation 
+        TestProvider1 provider1 = new TestProvider1();
+        
+        EndpointReferenceType ref = 
+            EndpointReferenceUtils.getEndpointReference(manager, provider1);
+        assertNotNull(ref);
+        
+        WebServiceProvider wsp = provider1.getClass().getAnnotation(WebServiceProvider.class);
+        assertNotNull(wsp);
+        assertEquals(wsp.portName(), EndpointReferenceUtils.getPortName(ref));
+        assertNotNull(EndpointReferenceUtils.getServiceName(ref));
+        
+        Map<QName, String> attribMap = ref.getMetadata().getOtherAttributes();
+        assertEquals(wsp.wsdlLocation(), attribMap.get(WSDL_LOCATION));
+        assertEquals(TestProvider1.class.getName(), attribMap.get(SEI));
+        
+        //Test with default values for WebServiceProvider Annotation
+        TestProvider2 provider2 = new TestProvider2();
+        
+        ref =  EndpointReferenceUtils.getEndpointReference(manager, provider2);
+        assertNotNull(ref);
+        
+        assertNull(EndpointReferenceUtils.getPortName(ref));
+        assertNotNull(EndpointReferenceUtils.getServiceName(ref));
+        
+        attribMap = ref.getMetadata().getOtherAttributes();
+        assertNull(attribMap.get(WSDL_LOCATION));
+        assertEquals(TestProvider2.class.getName(), attribMap.get(SEI));
+        
+        //Test for No WebServiceProvider Annotation.
+        ref =  EndpointReferenceUtils.getEndpointReference(manager, ref);
+        assertNull(ref);
+    }
+    
 }

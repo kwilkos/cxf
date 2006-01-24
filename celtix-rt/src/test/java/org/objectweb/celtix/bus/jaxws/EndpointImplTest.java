@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.spi.Provider;
 
@@ -18,6 +19,8 @@ import org.objectweb.celtix.bus.bindings.TestBinding;
 import org.objectweb.celtix.bus.bindings.TestBindingFactory;
 import org.objectweb.celtix.bus.jaxws.spi.ProviderImpl;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
+import org.objectweb.hello_world_soap_http.HelloWorldServiceProvider;
+import org.objectweb.hello_world_soap_http.NotAnnotatedProvider;
 
 public class EndpointImplTest extends TestCase {
     private String epfClassName;
@@ -86,5 +89,21 @@ public class EndpointImplTest extends TestCase {
 
         List<Handler> handlers = endpoint.getBinding().getHandlerChain();
         assertNotNull(handlers);
-    } 
+    }
+    
+    public void testCreatWithProvider() {
+        HelloWorldServiceProvider provider = new  HelloWorldServiceProvider();
+        endpoint = Endpoint.create(TestBinding.TEST_BINDING, provider);
+        assertNotNull(endpoint);
+        
+        NotAnnotatedProvider badProvider = new  NotAnnotatedProvider();
+        try {
+            endpoint = Endpoint.create(TestBinding.TEST_BINDING, badProvider);
+            assertNull(endpoint);
+            //Ideally Should have thrown a WebServiceException
+            //fail("Should have received a exception");
+        } catch (WebServiceException ex) {
+            //Expected Exception
+        }
+    }
 }
