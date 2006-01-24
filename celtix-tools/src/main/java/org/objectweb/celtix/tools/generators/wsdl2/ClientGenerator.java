@@ -15,6 +15,7 @@ import org.objectweb.celtix.tools.generators.AbstractGenerator;
 public class ClientGenerator extends AbstractGenerator {
 
     private static final String CLT_TEMPLATE = TEMPLATE_BASE + "/client.vm";
+
     private JavaModel javaModel;
 
     public ClientGenerator() {
@@ -28,7 +29,8 @@ public class ClientGenerator extends AbstractGenerator {
     }
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_CLIENT)) {
+        if (env.optionSet(ToolConstants.CFG_CLIENT)
+                || env.optionSet(ToolConstants.CFG_ALL)) {
             return false;
         }
         return true;
@@ -44,17 +46,17 @@ public class ClientGenerator extends AbstractGenerator {
         JavaPort jp = null;
 
         for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
-            String interfaceName = (String)iter.next();
+            String interfaceName = (String) iter.next();
             JavaInterface intf = interfaces.get(interfaceName);
 
             Iterator it = javaModel.getServiceClasses().values().iterator();
             while (it.hasNext()) {
                 String serviceName = "";
-                js = (JavaServiceClass)it.next();
+                js = (JavaServiceClass) it.next();
                 Iterator i = js.getPorts().iterator();
                 while (i.hasNext()) {
-                    jp = (JavaPort)i.next();
-                    if (jp.getPortType() == interfaceName) {                  
+                    jp = (JavaPort) i.next();
+                    if (jp.getPortType() == interfaceName) {
                         serviceName = js.getName();
                         break;
                     }
@@ -71,12 +73,13 @@ public class ClientGenerator extends AbstractGenerator {
             setCommonAttributes();
 
             String clientClassName = interfaceName + "Client";
-            
+
             while (isCollision(intf.getPackageName(), clientClassName)) {
                 clientClassName = clientClassName + "_Client";
             }
 
-            doWrite(CLT_TEMPLATE, parseOutputName(intf.getPackageName(), clientClassName));
+            doWrite(CLT_TEMPLATE, parseOutputName(intf.getPackageName(),
+                    clientClassName));
         }
     }
 }

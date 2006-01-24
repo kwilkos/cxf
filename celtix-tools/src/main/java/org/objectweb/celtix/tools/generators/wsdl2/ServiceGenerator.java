@@ -29,12 +29,6 @@ public class ServiceGenerator extends AbstractGenerator {
     }
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_IMPL)
-            || env.optionSet(ToolConstants.CFG_TYPES)
-            || env.optionSet(ToolConstants.CFG_SERVER)
-            || env.optionSet(ToolConstants.CFG_INTERFACE)) {
-            return true;
-        } 
         return false;
     }
     
@@ -48,6 +42,7 @@ public class ServiceGenerator extends AbstractGenerator {
         Iterator ite = serviceClasses.values().iterator();
         
         while (ite.hasNext()) {
+            
             JavaServiceClass js = (JavaServiceClass)ite.next();
             String location = (String)env.get(ToolConstants.CFG_WSDLURL);
             URL url = null;

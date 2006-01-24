@@ -7,9 +7,9 @@
 	  xmlns:ts="http://www.xsume.com/Xutil/ToolSpecification">
 
     <annotation> Examples :
-    wsdltojava HelloWorld.wsdl
-    wsdltojava -e GreetService -p com.iona.greeting Greeting.wsdl
-    wsdltojava -interface -types -i PortType1 -i PortType2 multi_porttypes.wsdl
+    wsdl2java HelloWorld.wsdl
+    wsdl2java -p com.iona.greeting Greeting.wsdl
+    wsdl2java -client HelloWorld.wsdl
     </annotation>
 
     <usage>
@@ -23,7 +23,6 @@
 		    <annotation>[wsdl namespace =]Package Name</annotation>
 		</associatedArgument>
 	    </option>
-
 <!--
 	    <option id="webservice" maxOccurs="unbounded">
 		<annotation>The name of the Web service in the WSDL file being processed.
@@ -58,7 +57,7 @@
 		    <annotation>output-directory</annotation>
 		</associatedArgument>
 	    </option>
-
+<!--
 	    <option id="interface" maxOccurs="1">
 		<annotation>Generates only the interface.</annotation>
 		<switch>interface</switch>
@@ -68,24 +67,24 @@
 		<annotation>Generates code for only the types.</annotation>
 		<switch>types</switch>
 	    </option>
-
+-->
 	    <option id="impl" maxOccurs="1">
 		<annotation>Generate the dummy service implementation.</annotation>
 		<switch>impl</switch>
 	    </option>
 
 	    <option id="server" maxOccurs="1">
-		<annotation>Generates only the server code.</annotation>
+		<annotation>Generates the server code</annotation>
 		<switch>server</switch>
 	    </option>
 
 	    <option id="client" maxOccurs="1">
-		<annotation>Generates only the client code.</annotation>
+		<annotation>Generates the client code.</annotation>
 		<switch>client</switch>
 	    </option>
 
 	    <option id="all" maxOccurs="1">
-		<annotation>Generates code for all interfaces and types.</annotation>
+		<annotation>Generates interfaces,types,service,server,impl,client and ant script.</annotation>
 		<switch>all</switch>
 	    </option>
 	    <!--

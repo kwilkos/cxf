@@ -25,7 +25,8 @@ public class ImplGenerator extends AbstractGenerator {
     }
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_IMPL)) {
+        if (env.optionSet(ToolConstants.CFG_IMPL)
+                || env.optionSet(ToolConstants.CFG_ALL)) {
             return false;
         }
         return true;

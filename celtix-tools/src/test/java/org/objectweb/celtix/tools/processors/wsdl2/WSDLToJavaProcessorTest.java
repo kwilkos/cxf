@@ -36,7 +36,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
         File[] files = helloworldsoaphttp.listFiles();
-        assertEquals(5, files.length);
+        assertEquals(6, files.length);
         files = types.listFiles();
         assertEquals(files.length, 17);
     }

@@ -27,7 +27,8 @@ public class ServerGenerator extends AbstractGenerator {
     }
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_SERVER)) {
+        if (env.optionSet(ToolConstants.CFG_SERVER)
+                || env.optionSet(ToolConstants.CFG_ALL)) {
             return false;
         }
         return true;

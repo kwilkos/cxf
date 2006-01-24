@@ -9,6 +9,7 @@ import org.objectweb.celtix.tools.generators.AbstractGenerator;
 public class AntGenerator extends AbstractGenerator {
 
     private static final String ANT_TEMPLATE = TEMPLATE_BASE + "/build.vm";
+
     private JavaModel javaModel;
 
     public AntGenerator() {
@@ -22,7 +23,8 @@ public class AntGenerator extends AbstractGenerator {
     }
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_ANT)) {
+        if (env.optionSet(ToolConstants.CFG_ANT)
+                || env.optionSet(ToolConstants.CFG_ALL)) {
             return false;
         }
         return true;
@@ -36,7 +38,7 @@ public class AntGenerator extends AbstractGenerator {
         setAttributes("intfs", javaModel.getInterfaces().values());
         setAttributes("wsdlLocation", javaModel.getLocation());
         setCommonAttributes();
-        
-        doWrite(ANT_TEMPLATE, parseOutputName(null,  "build", ".xml"));
+
+        doWrite(ANT_TEMPLATE, parseOutputName(null, "build", ".xml"));
     }
 }
