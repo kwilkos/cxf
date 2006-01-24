@@ -8,9 +8,9 @@
 	  xmlns:ts="http://www.xsume.com/Xutil/ToolSpecification">
 
     <annotation> Examples :
-    javatowsdl HelloWorld
-    javatowsdl -o greeting.wsdl com.iona.test.Greeting
-    javatowsdl -i PortType1 -t http://www.iona.com/schemas com.iona.test.Greeting
+    java2wsdl org.objectweb.hello_world_soap_http.Greeter
+    java2wsdl -o hello.wsdl org.objectweb.hello_world_soap_http.Greeter
+    java2wsdl -o hello.wsdl -t http://celtix.objectweb.org org.objectweb.hello_world_soap_http.Greeter
     </annotation>
 
     <usage>
@@ -23,7 +23,7 @@
 		    <annotation>output-file</annotation>
 		</associatedArgument>
 	    </option>
-
+<!--
 	    <option id="porttype" maxOccurs="1">
 		<annotation>Specify the porttype/interface name to use in the wsdl.</annotation>
 		<switch>i</switch>
@@ -31,7 +31,7 @@
 		    <annotation>port-type-name</annotation>
 		</associatedArgument>
 	    </option>
-
+-->
 	    <option id="tns" maxOccurs="1">
 		<annotation>Specify the target namespace to use in the wsdl.</annotation>
 		<switch>t</switch>
