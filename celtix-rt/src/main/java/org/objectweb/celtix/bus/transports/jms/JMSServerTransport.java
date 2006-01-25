@@ -4,6 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -137,7 +141,16 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
 
                     LOG.log(Level.FINE, "server sending reply: ", reply);
 
-                    sender.send(replyTo, reply, deliveryMode, priority, ttl);
+                    TimeZone tz = new SimpleTimeZone(0, "GMT");
+                    Calendar cal = new GregorianCalendar(tz);
+                    long timeToLive =  message.getJMSExpiration() - cal.getTimeInMillis();
+                    if (timeToLive > 0) {
+                        reply.setJMSExpiration(timeToLive);
+                        ttl = timeToLive;
+                        sender.send(replyTo, reply, deliveryMode, priority, ttl);
+                    } else {
+                        LOG.log(Level.INFO, "Message time to live is already expired skipping response.");
+                    }                    
                 } catch (JMSException ex) {
                     LOG.log(Level.WARNING, "Failed in post dispatch ...", ex);
                     throw new IOException(ex.getMessage());

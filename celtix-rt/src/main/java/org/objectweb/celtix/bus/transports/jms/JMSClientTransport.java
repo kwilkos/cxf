@@ -186,9 +186,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         long ttl = getTimeToLive(headers);
         if (ttl <= 0) {
             ttl = DEFAULT_RECEIVE_TIMEOUT;
-        }       
-        
-        message.setJMSExpiration(ttl);
+        }
 
         setMessageProperties(headers, message);
         if (responseExpected) {
