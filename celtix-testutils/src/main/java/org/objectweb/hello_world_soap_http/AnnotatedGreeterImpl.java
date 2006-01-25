@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.jws.HandlerChain;
 import javax.jws.WebMethod;
+import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
@@ -108,6 +109,20 @@ public class AnnotatedGreeterImpl {
         return context;
     }
 
+    @WebMethod(operationName = "PutLastTradedPrice")
+    public void putLastTradedPriceAsync(
+        @WebParam(name = "body", partName = "body")
+        String body) {
+        //Complete
+    }
+    
+    @WebMethod(operationName = "PutLastTradedPrice")
+    public void putLastTradedPrice(
+        @WebParam(name = "body", partName = "body")
+        String body) {
+        //Complete
+    }
+    
     /**
      * stop eclipse from whinging 
      */

@@ -1,9 +1,11 @@
 package org.objectweb.celtix.bus.jaxws;
 
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Properties;
 
+import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceException;
@@ -105,5 +107,17 @@ public class EndpointImplTest extends TestCase {
         } catch (WebServiceException ex) {
             //Expected Exception
         }
+    }
+    
+    public void testGetMethod() {
+        QName opName = new QName("", "PutLastTradedPrice");
+        //Check if a method by a localPart of opName exists on the Implementor.
+        Method m = EndpointUtils.getMethod(endpoint, opName);
+        
+        assertNotNull(m);
+        
+        opName = new QName("", "putLastTradedPrice");
+        m = EndpointUtils.getMethod(endpoint, opName);
+        assertNull(m);
     }
 }

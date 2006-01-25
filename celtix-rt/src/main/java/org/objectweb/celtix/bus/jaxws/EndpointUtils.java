@@ -68,15 +68,17 @@ public final class EndpointUtils {
             Method[] iMethods = sei.getMethods();
 
             for (Method m : iMethods) {
-                if (m.getName().equals(methodName)) {
-                    iMethod = m;
-                    WebMethod wm = m.getAnnotation(WebMethod.class);
-                    if (wm != null && wm.operationName().equals(methodName)) {
+                WebMethod wm = m.getAnnotation(WebMethod.class);
+
+                if (wm != null && !"".equals(wm.operationName())) {
+                    if (methodName.equals(wm.operationName()) 
+                        && methodName.equalsIgnoreCase(m.getName())) {
+                        iMethod = m;
                         break;
                     }
-                    // assume this is an overloaded version of the method we are
-                    // looking for
-                    // continue searching for a better match
+                } else if (methodName.equals(m.getName())) {
+                    iMethod = m;
+                    break;
                 }
             }
         }
