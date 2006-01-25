@@ -111,7 +111,8 @@ public class OperationProcessor  {
             return;
         }
         JavaAnnotation resultAnnotation = new JavaAnnotation("WebResult");
-        String targetNamespace = null;
+        //fix the bug : targetnamespce is null
+        String targetNamespace = method.getReturn().getTargetNamespace();
         String name = "return";
 
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT
@@ -130,9 +131,13 @@ public class OperationProcessor  {
             }
             targetNamespace = method.getReturn().getTargetNamespace();
         }
+       
         
         resultAnnotation.addArgument("name", name);
         resultAnnotation.addArgument("targetNamespace", targetNamespace);
+        
+        
+        
         if (method.getSoapStyle() == SOAPBinding.Style.RPC
             || (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT && !method.isWrapperStyle())) {
             resultAnnotation.addArgument("partName", method.getReturn().getName());
