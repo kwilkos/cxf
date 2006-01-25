@@ -40,52 +40,63 @@ public class HandlerResolverImplTest extends TestCase {
     public void testGetHandlerChainFromConfiguration() {
         ObjectFactory factory = new ObjectFactory();
         HandlerType h1 = factory.createHandlerType();
-        h1.setClassName(getClass().getPackage().getName() + ".TestHandler");
-        h1.setName("first");
+        h1.setHandlerClass(getClass().getPackage().getName() + ".TestHandler");
+        h1.setHandlerName("first");
         HandlerType h2 = factory.createHandlerType();
-        h2.setClassName(getClass().getPackage().getName() + ".TestHandler");
-        h2.setName("second");
+        h2.setHandlerClass(getClass().getPackage().getName() + ".TestHandler");
+        h2.setHandlerName("second");
         
         HandlerChainType chain = factory.createHandlerChainType();
         List<HandlerType> handlers = chain.getHandler();
         handlers.add(h1);
         handlers.add(h2);
         
-        Configuration conf = createMock(Configuration.class);
-        HandlerResolverImpl res = new HandlerResolverImpl(conf);
-        
-        conf.getObject("handlerChain");
+        Configuration serviceConf = createMock(Configuration.class);
+        HandlerResolverImpl res = new HandlerResolverImpl(serviceConf);
+        Configuration portConf = createMock(Configuration.class);
+        serviceConf.getChild("http://celtix.objectweb.org/bus/jaxws/port-config", 
+                             portInfo.getPortName().getLocalPart());
+        expectLastCall().andReturn(portConf);
+        portConf.getObject("handlerChain");
         expectLastCall().andReturn(chain);
-        replay(conf);
+        replay(serviceConf);
+        replay(portConf);
         
         List<Handler> handlerChain = res.getHandlerChain(portInfo);
         assertNotNull(handlerChain);
         assertEquals(2, handlerChain.size());       
-        verify(conf);
+        verify(serviceConf);
+        verify(portConf);
     }
     
     public void testHandlerClassNotFound() {
         ObjectFactory factory = new ObjectFactory();
         HandlerType h3 = factory.createHandlerType();
-        h3.setClassName("a.b.c.TestHandler");
-        h3.setName("nonExistingClassHandler");
+        h3.setHandlerClass("a.b.c.TestHandler");
+        h3.setHandlerName("nonExistingClassHandler");
         
         HandlerChainType chain = factory.createHandlerChainType();
         List<HandlerType> handlers = chain.getHandler();
         handlers.add(h3);
         
-        Configuration conf = createMock(Configuration.class);
-        HandlerResolverImpl res = new HandlerResolverImpl(conf);
-        conf.getObject("handlerChain");
+        Configuration serviceConf = createMock(Configuration.class);
+        HandlerResolverImpl res = new HandlerResolverImpl(serviceConf);
+        Configuration portConf = createMock(Configuration.class);
+        serviceConf.getChild("http://celtix.objectweb.org/bus/jaxws/port-config", 
+                             portInfo.getPortName().getLocalPart());
+        expectLastCall().andReturn(portConf);
+        portConf.getObject("handlerChain");
         expectLastCall().andReturn(chain);
-        replay(conf);
+        replay(serviceConf);
+        replay(portConf);
         
         try {
             res.getHandlerChain(portInfo);
         } catch (WebServiceException ex) {
             assertTrue(ex.getCause() instanceof ClassNotFoundException);
         }
-        verify(conf);
+        verify(serviceConf);
+        verify(portConf);
     }
     
     /*
@@ -117,24 +128,30 @@ public class HandlerResolverImplTest extends TestCase {
     public void testHandlerInstantiation() {
         ObjectFactory factory = new ObjectFactory();
         HandlerType h5 = factory.createHandlerType();
-        h5.setClassName("javax.xml.ws.handler.Handler");
-        h5.setName("interfaceHandler");
+        h5.setHandlerClass("javax.xml.ws.handler.Handler");
+        h5.setHandlerName("interfaceHandler");
         
         HandlerChainType chain = factory.createHandlerChainType();
         List<HandlerType> handlers = chain.getHandler();
         handlers.add(h5);
         
-        Configuration conf = createMock(Configuration.class);
-        HandlerResolverImpl res = new HandlerResolverImpl(conf);
-        conf.getObject("handlerChain");
+        Configuration serviceConf = createMock(Configuration.class);
+        HandlerResolverImpl res = new HandlerResolverImpl(serviceConf);
+        Configuration portConf = createMock(Configuration.class);
+        serviceConf.getChild("http://celtix.objectweb.org/bus/jaxws/port-config", 
+                             portInfo.getPortName().getLocalPart());
+        expectLastCall().andReturn(portConf);
+        portConf.getObject("handlerChain");
         expectLastCall().andReturn(chain);
-        replay(conf);
+        replay(serviceConf);
+        replay(portConf);
         
         try {
             res.getHandlerChain(portInfo);
         } catch (WebServiceException ex) {
             assertTrue(ex.getCause() instanceof InstantiationException);
         }
-        verify(conf);
+        verify(serviceConf);
+        verify(portConf);
     }
 }

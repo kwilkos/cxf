@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bindings;
 
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.objectweb.celtix.BusException;
 
 import org.objectweb.celtix.buslifecycle.BusLifeCycleListener;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
@@ -84,6 +86,19 @@ public abstract class AbstractClientBinding implements ClientBinding {
     
     public HandlerInvoker createHandlerInvoker() {
         return getBindingImpl().createHandlerInvoker(); 
+    }
+        
+    public void configureSystemHandlers(Configuration portConfiguration) {
+        /*
+            Configuration busConfiguration = bus.getConfiguration();
+            Configuration serviceConfiguration = busConfiguration
+                .getChild("http://celtix.objectweb.org/bus/jaxws/service-config",
+                          EndpointReferenceUtils.getServiceName(reference));
+            Configuration portConfiguration = serviceConfiguration
+                .getChild("http://celtix.objectweb.org/bus/jaxws/port-config",
+                          EndpointReferenceUtils.getPortName(reference));
+            */
+        getBindingImpl().configureSystemHandlers(portConfiguration);
     }
     
     //  --- BindingBase interface ---
@@ -331,7 +346,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
             transport = createTransport(reference);
         }
         return transport;
-    }
+    } 
     
     protected ClientTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
         ClientTransport ret = null;

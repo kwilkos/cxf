@@ -175,6 +175,7 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
         } catch (Exception ex) {
             throw new WebServiceException(ex);
         }
+        binding.configureSystemHandlers(c);
         return binding;
     }
     

@@ -251,6 +251,10 @@
                         <include>**/*Test.java</include>
                         <include>**/*TestCase.java</include>
                     </includes>
+                    <!-- do not exclude **/Abstract*Test.java **/Abstract*TestCase.java -->
+                    <excludes>
+                        <exclude>**/*$*</exclude>
+                    </excludes>
                     <reportFormat>${surefire.format}</reportFormat>
                     <useFile>${surefire.usefile}</useFile>
                     <forkMode>${surefire.fork.mode}</forkMode>

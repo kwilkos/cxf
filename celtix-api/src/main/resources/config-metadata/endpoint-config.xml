@@ -16,11 +16,23 @@
         <cm:name>handlerChain</cm:name>
         <cm:type>jaxws-types:handlerChainType</cm:type>
         <cm:description>
-        Specifies the list of handlers to be used on an endpoint. The list can contain a mix 
+        Specifies the list of handlers to be used for the endpoint. The list can contain a mix 
         of logical and protocol handlers.
         </cm:description>
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
     </cm:configItem>
    
+   <cm:configItem>
+        <cm:name>systemHandlerChain</cm:name>
+        <cm:type>jaxws-types:systemHandlerChainType</cm:type>
+        <cm:description>
+        Specifies the list of system handlers to be used for the endpoint. 
+        System handlers are created along with the client binding and - unlike
+        regular JAX-WS handlers - cannot be changed.
+        Their relative position w.r.t to regular handlers remains the same throughout
+        the lifetime of the binding.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+    </cm:configItem>
 	
 </cm:config>

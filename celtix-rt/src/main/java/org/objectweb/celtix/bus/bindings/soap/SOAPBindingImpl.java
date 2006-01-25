@@ -76,7 +76,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
     
     protected HandlerInvoker createHandlerInvoker() {
-        return new HandlerChainInvoker(getHandlerChain()); 
+        return new HandlerChainInvoker(getHandlerChain(true)); 
     }
 
     public Set<String> getRoles() {

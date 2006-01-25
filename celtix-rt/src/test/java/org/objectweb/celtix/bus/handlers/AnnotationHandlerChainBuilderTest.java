@@ -1,14 +1,7 @@
 package org.objectweb.celtix.bus.handlers;
 
-
-
-
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Future;
 
 import javax.jws.HandlerChain;
@@ -18,7 +11,6 @@ import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
-
 
 import junit.framework.TestCase;
 
@@ -33,9 +25,7 @@ import org.objectweb.hello_world_soap_http.types.GreetMeSometimeResponse;
 import org.objectweb.hello_world_soap_http.types.SayHiResponse;
 import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
 
-
-
-public class HandlerChainBuilderTest extends TestCase {
+public class AnnotationHandlerChainBuilderTest extends TestCase {
 
     Handler[] allHandlers = {EasyMock.createMock(LogicalHandler.class),
                              EasyMock.createMock(Handler.class),
@@ -45,16 +35,7 @@ public class HandlerChainBuilderTest extends TestCase {
     Handler[] protocolHandlers = {allHandlers[1], allHandlers[2]}; 
     AnnotatedGreeterImpl greeterImpl = new AnnotatedGreeterImpl(); 
 
-    HandlerChainBuilder builder = new HandlerChainBuilder();
-
-    public void testChainSorting() {
-
-        List<Handler> sortedHandlerChain = builder.sortHandlers(Arrays.asList(allHandlers));
-        assertSame(logicalHandlers[0], sortedHandlerChain.get(0));
-        assertSame(logicalHandlers[1], sortedHandlerChain.get(1));
-        assertSame(protocolHandlers[0], sortedHandlerChain.get(2));
-        assertSame(protocolHandlers[1], sortedHandlerChain.get(3));
-    }
+    AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
 
 
     public void testBuildHandlerChainWithExistingHandlers() { 
@@ -112,37 +93,6 @@ public class HandlerChainBuilderTest extends TestCase {
         assertEquals(0, chain.size()); 
     } 
 
-    public void testBuilderCallsInit() { 
-        
-        List<Handler> chain = builder.buildHandlerChainFor(AnnotatedGreeterImpl.class); 
-        
-        assertEquals(1, chain.size()); 
-        assertEquals(DummyHandler.class, chain.get(0).getClass()); 
-        DummyHandler dh = (DummyHandler)chain.get(0);
-
-        assertNotNull(dh.getConfig()); 
-        Map cfg = dh.getConfig(); 
-        
-        assertEquals(2, cfg.keySet().size());
-        Iterator iter = cfg.keySet().iterator();
-        assertEquals("foo", iter.next()); 
-        assertEquals("1", cfg.get("foo")); 
-        assertEquals("bar", iter.next()); 
-        assertEquals("2", cfg.get("bar")); 
-    } 
-
-    public void testBuilderCallsInitWithNoInitParams() { 
-
-        List<Handler> chain = builder.buildHandlerChainFor(HandlerChainNoInit.class); 
-        assertEquals(1, chain.size()); 
-        Handler h = chain.get(0); 
-        assertNotNull(h); 
-        assertEquals(h.getClass(), DummyHandler.class); 
-        assertTrue(((DummyHandler)h).initCalled()); 
-        assertEquals(0, ((DummyHandler)h).getConfig().keySet().size()); 
-    } 
-
-
     public void testBuildHandlerChainInvalidFile() { 
 
         try { 
@@ -162,18 +112,6 @@ public class HandlerChainBuilderTest extends TestCase {
             // happy
         } 
     }
-
-    public void testBuilderCannotLoadHandlerClass() { 
-
-        try { 
-            builder.buildHandlerChainFor(NoSuchClassName.class); 
-            fail("did not get expected exception"); 
-        } catch (WebServiceException ex) { 
-            assertNotNull(ex.getCause()); 
-            assertEquals(ClassNotFoundException.class, ex.getCause().getClass());
-            // happy
-        } 
-    } 
     
 }
 

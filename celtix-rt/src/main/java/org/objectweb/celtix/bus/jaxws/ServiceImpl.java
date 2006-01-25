@@ -26,7 +26,7 @@ import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.handlers.HandlerChainBuilder;
+import org.objectweb.celtix.bus.handlers.AnnotationHandlerChainBuilder;
 import org.objectweb.celtix.bus.handlers.HandlerResolverImpl;
 import org.objectweb.celtix.bus.handlers.PortInfoImpl;
 import org.objectweb.celtix.configuration.Configuration;
@@ -147,11 +147,11 @@ public class ServiceImpl extends ServiceDelegate {
     
     private <T> void createHandlerChainForBinding(Class<T> serviceEndpointInterface, 
                                                   QName portName, Binding binding) {
-
+        LOG.fine("loading handler chain for service");
         assert handlerResolver != null; 
         PortInfoImpl portInfo = new PortInfoImpl(serviceName, portName, null);
         List<Handler> handlers = handlerResolver.getHandlerChain(portInfo);
-        HandlerChainBuilder handlerChainBuilder = new HandlerChainBuilder(); 
+        AnnotationHandlerChainBuilder handlerChainBuilder = new AnnotationHandlerChainBuilder(); 
         handlers = handlerChainBuilder.buildHandlerChainFor(serviceEndpointInterface, handlers);
         binding.setHandlerChain(handlers);
     }

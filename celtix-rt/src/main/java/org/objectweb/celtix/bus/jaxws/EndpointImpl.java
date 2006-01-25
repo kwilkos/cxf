@@ -1,10 +1,5 @@
 package org.objectweb.celtix.bus.jaxws;
 
-
-
-
-
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -32,7 +27,8 @@ import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
-import org.objectweb.celtix.bus.handlers.HandlerChainBuilder;
+import org.objectweb.celtix.bus.handlers.AnnotationHandlerChainBuilder;
+import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -90,7 +86,8 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
                 bindingId = el.getElementType().getNamespaceURI();
             }
             serverBinding = createServerBinding(bindingId);
-            configureHandlers();            
+            configureHandlers();
+            configureSystemHandlers();
             injectResources();
         } catch (Exception ex) {
             if (ex instanceof WebServiceException) { 
@@ -294,12 +291,17 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     private void configureHandlers() { 
         
         LOG.fine("loading handler chain for endpoint"); 
-        HandlerChainBuilder builder = new HandlerChainBuilder();
-        List<Handler> chain = builder.buildHandlerChainFromConfiguration(configuration, "handlerChain");
-        if (null == chain) {
+        AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
+        HandlerChainType hc = (HandlerChainType)configuration.getObject("handlerChain");
+        List<Handler> chain = builder.buildHandlerChainFromConfiguration(hc);
+        if (null == chain || chain.size() == 0) {
             chain = builder.buildHandlerChainFor(implementor.getClass()); 
         }
-        serverBinding.getBinding().setHandlerChain(chain); 
+        serverBinding.getBinding().setHandlerChain(chain);
+    }
+    
+    private void configureSystemHandlers() {
+        serverBinding.configureSystemHandlers(configuration); 
     }
 
     public DataBindingCallback createDataBindingCallback(ObjectMessageContext objContext,

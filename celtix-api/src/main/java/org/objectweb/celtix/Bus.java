@@ -3,11 +3,12 @@ package org.objectweb.celtix;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.ws.WebServiceException;
+
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.handlers.HandlerFactoryManager;
 import org.objectweb.celtix.plugins.PluginManager;
 import org.objectweb.celtix.resource.ResourceManager;
 import org.objectweb.celtix.transports.TransportFactoryManager;
@@ -129,14 +130,6 @@ public abstract class Bus {
      * @return Configuration the configuration of this <code>bus</code>.
      */
     public abstract Configuration getConfiguration();
-
-    /** 
-     * Returns the <code>HandlerFactoryManager</code> of this <code>Bus</code>.
-     * 
-     * @return HandlerFactoryManager the handler factory manager of this
-     * <code>Bus</code>.
-     */
-    public abstract HandlerFactoryManager getHandlerFactoryManager();
 
     /** 
      * Returns the <code>TransportFactoryManager</code> of this <code>Bus</code>.

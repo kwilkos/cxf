@@ -7,7 +7,6 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bus.bindings.BindingManagerImpl;
-import org.objectweb.celtix.bus.handlers.HandlerFactoryManagerImpl;
 import org.objectweb.celtix.bus.jaxws.EndpointRegistry;
 import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
@@ -15,7 +14,6 @@ import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.handlers.HandlerFactoryManager;
 import org.objectweb.celtix.plugins.PluginManager;
 import org.objectweb.celtix.resource.ResourceManager;
 import org.objectweb.celtix.transports.TransportFactoryManager;
@@ -27,7 +25,6 @@ public class CeltixBus extends Bus {
     private Configuration configuration;
     private BindingManager bindingManager;
     private Object clientRegistry;
-    private HandlerFactoryManager handlerFactoryManager;
     private EndpointRegistry endpointRegistry;
     private TransportFactoryManager transportFactoryManager;
     private WSDLManager wsdlManager;
@@ -47,7 +44,6 @@ public class CeltixBus extends Bus {
         
         configuration = new BusConfiguration(args, properties);        
         wsdlManager = new WSDLManagerImpl(this);
-        handlerFactoryManager = new HandlerFactoryManagerImpl(this);
         transportFactoryManager = new TransportFactoryManagerImpl(this);
         bindingManager = new BindingManagerImpl(this);
         workQueueManager = new WorkQueueManagerImpl(this);
@@ -120,15 +116,6 @@ public class CeltixBus extends Bus {
      */
     public Configuration getConfiguration() {
         return configuration;
-    }
-    
-    /** 
-     * Returns the <code>HandlerFactoryManager</code> of this <code>Bus</code>.
-     * 
-     * @return HandlerFactoryManager the handler factory manager of this <code>Bus</code>.
-     */
-    public HandlerFactoryManager getHandlerFactoryManager() {
-        return handlerFactoryManager;
     }
 
     /** 

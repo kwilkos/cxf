@@ -54,7 +54,7 @@ public class HandlerChainInvoker implements HandlerInvoker {
 
     public HandlerChainInvoker(List<Handler> hc, ObjectMessageContext ctx, boolean isOutbound) {
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "invoker for chain size: ", hc != null ? hc.size() : 0);
+            LOG.log(Level.FINE, "invoker for chain size: " + (hc != null ? hc.size() : 0));
         }
         
         if (hc != null) { 
@@ -147,7 +147,7 @@ public class HandlerChainInvoker implements HandlerInvoker {
      */
     public void mepComplete() {
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "closing protocol handlers - handler count:", invokedHandlers.size());
+            LOG.log(Level.FINE, "closing protocol handlers - handler count:" + invokedHandlers.size());
         }
         invokeClose(protocolHandlers);
         invokeClose(logicalHandlers);
@@ -211,7 +211,9 @@ public class HandlerChainInvoker implements HandlerInvoker {
             return false;
         }
 
-        LOG.log(Level.FINE, "invoking handlers, direction: ", outbound ? "outbound" : "inbound");        
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "invoking handlers, direction: " + (outbound ? "outbound" : "inbound"));  
+        }
         setMessageOutboundProperty();
 
         if (!outbound) {
@@ -294,7 +296,9 @@ public class HandlerChainInvoker implements HandlerInvoker {
 
     
     private boolean invokeThisHandler(Handler h) {
-        
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "invoking handler of type " + h.getClass().getName());
+        }
         boolean ret = true;
         // when handler processing has been aborted, only invoked on
         // previously invoked handlers

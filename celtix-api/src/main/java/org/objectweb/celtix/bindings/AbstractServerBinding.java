@@ -23,6 +23,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
@@ -66,6 +67,16 @@ public abstract class AbstractServerBinding implements ServerBinding {
     
     public HandlerInvoker createHandlerInvoker() {
         return getBindingImpl().createHandlerInvoker(); 
+    }
+    
+    public void configureSystemHandlers(Configuration endpointConfiguration) {
+        /*
+        Configuration busConfiguration = bus.getConfiguration();
+        QName serviceName = EndpointReferenceUtils.getServiceName(reference);
+        Configuration endpointConfiguration = busConfiguration
+            .getChild("http://celtix.objectweb.org/bus/jaxws/endpoint-config", serviceName);
+            */
+        getBindingImpl().configureSystemHandlers(endpointConfiguration);
     }
     
     // --- BindingBase interface ---
