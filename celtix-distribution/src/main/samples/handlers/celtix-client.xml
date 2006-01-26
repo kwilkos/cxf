@@ -44,14 +44,14 @@
        the client without any handlers installed.
   -->
 
-  <bean id="celtix.{http://www.objectweb.org/handlers}AddNumbersService" class="org.objectweb.celtix.bus.jaxws.service_config.spring.ServiceConfigBean">
+  <bean id="celtix.{http://www.objectweb.org/handlers}AddNumbersService.AddNumbersPort" class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean">
 
       <property name="handlerChain">
           <value>
-              <jaxws-types:handlerChainValue>
+              <jaxws-types:handler-chain>
                  <jaxws-types:handler>
-                      <jaxws-types:name>Small Number Handler</jaxws-types:name>
-                      <jaxws-types:className>demo.handlers.common.SmallNumberHandler</jaxws-types:className>
+                      <jaxws-types:handler-name>Small Number Handler</jaxws-types:handler-name>
+                      <jaxws-types:handler-class>demo.handlers.common.SmallNumberHandler</jaxws-types:handler-class>
                       <jaxws-types:init-param>
                           <jaxws-types:param-name>arg1</jaxws-types:param-name>
                           <jaxws-types:param-value>value1</jaxws-types:param-value>
@@ -61,7 +61,7 @@
                           <jaxws-types:param-value>value2</jaxws-types:param-value>
                       </jaxws-types:init-param>
                   </jaxws-types:handler>
-              </jaxws-types:handlerChainValue>              
+              </jaxws-types:handler-chain>              
           </value>
       </property>
       
