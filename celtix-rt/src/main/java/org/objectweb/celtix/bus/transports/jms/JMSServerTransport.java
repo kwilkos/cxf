@@ -9,6 +9,7 @@ import java.util.GregorianCalendar;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -216,7 +217,6 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
     }
 
     class JMSListenerThread extends Thread {
-        Message message;
         final JMSServerTransport theTransport;
         private final PooledSession listenSession;
 
@@ -229,37 +229,67 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
         public void run() {
             try {
                 while (true) {
-                    message = listenSession.consumer().receive();
-                    if (message != null) {
+                    Message message = listenSession.consumer().receive();
+                    if (message == null) {
+                        LOG.log(Level.WARNING,
+                                "Null message received from message consumer.",
+                                " Exiting ListenerThread::run().");
+                        return;
+                    }
+                    while (message != null) {
                         Executor executor = theTransport.callback.getExecutor();
+                        if (executor == null) {
+                            executor = theTransport.theBus
+                                .getWorkQueueManager().getAutomaticWorkQueue();
+                        }
                         if (executor != null) {
-                            executor.execute(new Runnable() {
-                                public void run() {
-                                    try {
-                                        theTransport.incoming(message);
-                                    } catch (IOException ex) {
-                                        //TODO: Decide what to do if we receive the exception.
-                                        LOG.log(Level.WARNING, "Failed to process incoming message : ", ex);
-                                    }
-                                }
-                            });
+                            try {
+                                executor.execute(new JMSExecutor(theTransport, message));
+                                message = null;
+                            } catch (RejectedExecutionException ree) {
+                                //FIXME - no room left on workqueue, what to do
+                                //for now, loop until it WILL fit on the queue, 
+                                //although we could just dispatch on this thread.
+                            }                            
                         } else {
+                            //shouldn't ever get here....
                             try {
                                 theTransport.incoming(message);
                             } catch (IOException ex) {
                                 LOG.log(Level.WARNING, "Failed to process incoming message : ", ex);
                             }
+                            message = null;
                         }
-                    } else {
-                        LOG.log(Level.WARNING,
-                                                      "Null message received from message consumer.",
-                                                      " Exiting ListenerThread::run().");
-                        break;
                     }
                 }
             } catch (JMSException jmsex) {
+                jmsex.printStackTrace();
+                LOG.log(Level.SEVERE, "Exiting ListenerThread::run(): ", jmsex.getMessage());
+            } catch (Throwable jmsex) {
+                jmsex.printStackTrace();
                 LOG.log(Level.SEVERE, "Exiting ListenerThread::run(): ", jmsex.getMessage());
             }
         }
+    }
+    
+    static class JMSExecutor implements Runnable {
+        Message message;
+        JMSServerTransport transport;
+        
+        JMSExecutor(JMSServerTransport t, Message m) {
+            message = m;
+            transport = t;
+        }
+
+        public void run() {
+            try {
+                transport.incoming(message);
+            } catch (IOException ex) {
+                //TODO: Decide what to do if we receive the exception.
+                LOG.log(Level.WARNING,
+                        "Failed to process incoming message : ", ex);
+            }
+        }
+        
     }
 }

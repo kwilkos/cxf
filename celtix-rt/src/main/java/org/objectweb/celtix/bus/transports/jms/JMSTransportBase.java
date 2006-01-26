@@ -42,7 +42,7 @@ public class JMSTransportBase {
 
     //--Constructors------------------------------------------------------------
     public JMSTransportBase(Bus bus, EndpointReferenceType epr) throws WSDLException {
-        
+        theBus = bus;
         Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), epr);
         List<?> list = port.getExtensibilityElements();
         for (Object ep : list) {
