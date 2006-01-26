@@ -46,7 +46,8 @@ public abstract class AbstractHTTPServerOutputStreamContext
     }
     
     public boolean isOneWay() {
-        return ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
+        Boolean b = (Boolean)get(ONEWAY_MESSAGE_TF);
+        return b == null ? false : b.booleanValue();
     }
 
     public OutputStream getOutputStream() {

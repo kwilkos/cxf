@@ -99,11 +99,41 @@ public class HTTPTransportTest extends TestCase {
     }
 
    
+    public void testInvokeOneway() throws Exception {
+               
+        TransportFactory factory = createTransportFactory();
+      
+        ServerTransport server = createServerTransport(factory, WSDL_URL, SERVICE_NAME,
+                                                       PORT_NAME, ADDRESS);
+        byte[] buffer = new byte[64];
+        activateServer(server, false, 200, buffer, true);
+        
+        ClientTransport client = createClientTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
+        byte outBytes[] = "Hello World!!!".getBytes();
+
+        long start = System.currentTimeMillis();
+        OutputStreamMessageContext octx = doRequest(client, outBytes);
+        client.invokeOneway(octx);
+        long stop = System.currentTimeMillis();
+
+        octx = doRequest(client, outBytes);
+        client.invokeOneway(octx);
+        octx = doRequest(client, outBytes);
+        client.invokeOneway(octx);
+        long stop2 = System.currentTimeMillis();
+        
+        server.deactivate();   
+        client.shutdown();
+        
+        assertTrue("Total one call: " + (stop - start), (stop - start) < 400);
+        assertTrue("Total: " + (stop2 - start), (stop2 - start) < 400);
+        assertEquals(new String(outBytes), new String(buffer, 0, outBytes.length));
+        Thread.sleep(200);
+    } 
     public void testInvoke() throws Exception {
         doTestInvoke(false);
         doTestInvoke(false);
     }
-    
     public void testInvokeUsingAutomaticWorkQueue() throws Exception {
         doTestInvoke(true);
     }
@@ -116,23 +146,6 @@ public class HTTPTransportTest extends TestCase {
         doTestInvokeAsync(true);
     }
     
-    public void testInvokeOneway() throws Exception {
-               
-        TransportFactory factory = createTransportFactory();
-      
-        ServerTransport server = createServerTransport(factory, WSDL_URL, SERVICE_NAME,
-                                                       PORT_NAME, ADDRESS);
-        byte[] buffer = new byte[64];
-        activateServer(server, false, 400, buffer);
-        
-        ClientTransport client = createClientTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
-        byte outBytes[] = "Hello World!!!".getBytes();
-        
-        OutputStreamMessageContext octx = doRequest(client, outBytes);
-        client.invokeOneway(octx);
-        
-        assertEquals(new String(outBytes), new String(buffer, 0, outBytes.length));
-    } 
 
     public void testInputStreamMessageContextCallable() throws Exception {
         HTTPClientTransport.HTTPClientOutputStreamContext octx = 
@@ -148,14 +161,13 @@ public class HTTPTransportTest extends TestCase {
         InputStreamMessageContext result = (InputStreamMessageContext)c.call();
         assertEquals(result, ictx); 
     }
-
     public void doTestInvoke(final boolean useAutomaticWorkQueue) throws Exception {
                
         TransportFactory factory = createTransportFactory();
       
         ServerTransport server = createServerTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
              
-        activateServer(server, useAutomaticWorkQueue, 0, null);
+        activateServer(server, useAutomaticWorkQueue, 0, null, false);
         //short request
         ClientTransport client = createClientTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
         doRequestResponse(client, "Hello World".getBytes());
@@ -188,10 +200,10 @@ public class HTTPTransportTest extends TestCase {
         } catch (IOException ex) {
             //ignore - this is what we want
         }
-        activateServer(server, useAutomaticWorkQueue, 0, null);
+        activateServer(server, useAutomaticWorkQueue, 0, null, false);
         doRequestResponse(client, "Hello World   3".getBytes());
         server.deactivate();        
-        activateServer(server, useAutomaticWorkQueue, 0, null);
+        activateServer(server, useAutomaticWorkQueue, 0, null, false);
         doRequestResponse(client, "Hello World   4".getBytes());
         server.deactivate();   
         client.shutdown();
@@ -210,7 +222,7 @@ public class HTTPTransportTest extends TestCase {
         TransportFactory factory = createTransportFactory();
         
         ServerTransport server = createServerTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
-        activateServer(server, false, 400, null);
+        activateServer(server, false, 400, null, false);
         
         ClientTransport client = createClientTransport(factory, WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
         byte outBytes[] = "Hello World!!!".getBytes();
@@ -258,7 +270,8 @@ public class HTTPTransportTest extends TestCase {
     private void activateServer(ServerTransport server,
                                 final boolean useAutomaticWorkQueue,
                                 final int delay,
-                                final byte[] buffer) throws Exception {
+                                final byte[] buffer,
+                                final boolean oneWay) throws Exception {
         ServerTransportCallback callback = new ServerTransportCallback() {
             public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
                 try {
@@ -267,17 +280,21 @@ public class HTTPTransportTest extends TestCase {
                         bytes = new byte[10000];
                     }
                     int total = readBytes(bytes, ctx.getInputStream());
+                    
+                    OutputStreamMessageContext octx = transport.createOutputStreamContext(ctx);
+                    octx.setOneWay(oneWay);
+                    transport.finalPrepareOutputStreamContext(octx);
+                    
                     if (delay > 0) {                       
                         Thread.sleep(delay);
                     }
                     
-                    OutputStreamMessageContext octx = transport.createOutputStreamContext(ctx);
-                    transport.finalPrepareOutputStreamContext(octx);
-                    octx.getOutputStream().write(bytes, 0, total);
-                    octx.getOutputStream().flush();
-
-                    transport.postDispatch(ctx, octx);
+                    if (!oneWay) {
+                        octx.getOutputStream().write(bytes, 0, total);
+                        octx.getOutputStream().flush();
+                    }
                     octx.getOutputStream().close();
+                    transport.postDispatch(ctx, octx);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

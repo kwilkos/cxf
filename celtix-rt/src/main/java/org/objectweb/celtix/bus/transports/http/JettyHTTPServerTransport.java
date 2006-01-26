@@ -75,7 +75,17 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
             }                
         }
     }    
-    
+    public void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context) {
+        HttpResponse response = (HttpResponse)context.get(HTTPServerInputStreamContext.HTTP_RESPONSE);
+        if (response != null) {
+            try {
+                response.commit();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     
     /**
      * @param context The associated MessageContext.
@@ -94,6 +104,8 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
                     } else {
                         response.setStatus(i.intValue());
                     }
+                } else {
+                    response.setStatus(200);
                 }
                 
                 Map<?, ?> headers = (Map<?, ?>)super.get(HTTP_RESPONSE_HEADERS);
@@ -106,12 +118,16 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
                         }
                     }
                 }
-                origOut.resetOut(new BufferedOutputStream(response.getOutputStream(), 1024));
+                if (!isOneWay()) {
+                    origOut.resetOut(new BufferedOutputStream(response.getOutputStream(), 1024));
+                } else {
+                    response.commit();
+                    context.remove(HTTPServerInputStreamContext.HTTP_RESPONSE);
+                }
             }
         };
     }
-    
-    
+
     void doService(HttpRequest req, HttpResponse resp) throws IOException {
         if (policy.isSetRedirectURL()) {
             resp.sendRedirect(policy.getRedirectURL());
