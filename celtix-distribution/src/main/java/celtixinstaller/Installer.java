@@ -88,8 +88,9 @@ public final class Installer {
                        && !entry.getName().startsWith("celtixinstaller")) {
 
                 boolean binary = isBinary(entry.getName().toLowerCase());
-                if (entry.getName().indexOf("/bin/") != -1
-                    || entry.getName().indexOf("\\bin\\") != -1) {
+                if ((entry.getName().indexOf("/bin/") != -1
+                    || entry.getName().indexOf("\\bin\\") != -1)
+                    && !entry.getName().toLowerCase().endsWith(".bat")) {
                     executes.add(entry.getName());
                 }
 

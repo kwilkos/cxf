@@ -15,8 +15,9 @@ rem
 if exist %CELTIX_HOME%\lib\celtix.jar (
     set CLASSPATH=%CELTIX_HOME%\lib\celtix.jar;%CLASSPATH%
 )
-if exist %CELTIX_HOME%\build\lib\celtix.jar (
-    set CLASSPATH=%CELTIX_HOME%\build\lib\celtix.jar;%CLASSPATH%
+if exist %CELTIX_HOME%\..\..\..\target\srcbuild_env.bat (
+    %CELTIX_HOME%\..\..\..\target\srcbuild_env.bat
+    set CLASSPATH=%CELTIX_CLASSPATH%;%CLASSPATH%
 )
 
 "%JAVA_HOME%\bin\java"  -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" org.objectweb.celtix.tools.WSDLToJava %*

@@ -140,6 +140,16 @@
                                       in="build.xml"
                                       out="${basedir}/target/srcbuild_paths.xml">
                                 </xslt>
+                                <pathconvert property="cp" refid="maven.runtime.classpath"/>
+                                <condition property="output.cp" value="set CELTIX_CLASSPATH=${cp}">
+                                    <os family="windows"/>
+                                </condition>
+                                <condition property="output.ext" value=".bat">
+                                    <os family="windows"/>
+                                </condition>
+                                <property name="output.cp" value="export CELTIX_CLASSPATH=${cp}"/>
+                                <property name="output.ext" value=""/>
+                                <echo file="${basedir}/target/srcbuild_env${output.ext}" message="${output.cp}"/>
                             </tasks>
                         </configuration>
                         <goals>
