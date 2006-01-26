@@ -427,7 +427,7 @@
             </activation>
             <properties>
                 <antrun.version>1.1</antrun.version>
-                <assembly.version>2.0.1-SNAPSHOT</assembly.version>
+                <assembly.version>2.0.1</assembly.version>
                 <surefire.version>2.1.2</surefire.version>
                 <compiler.version>2.0</compiler.version>
                 <site.version>2.0-beta-4</site.version>
@@ -437,7 +437,6 @@
                 <jxr.version>2.0-beta-1</jxr.version>
                 <jar.version>2.0</jar.version>
             </properties>
-            <!--
             <pluginRepositories>
                 <pluginRepository>
                     <id>snapshots</id>
@@ -452,7 +451,6 @@
                     </releases>
                 </pluginRepository>
             </pluginRepositories>
-            -->
         </profile>
         <profile>
             <id>osx</id>
