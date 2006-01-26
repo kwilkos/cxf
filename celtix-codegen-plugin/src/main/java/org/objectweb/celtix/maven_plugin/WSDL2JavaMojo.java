@@ -67,64 +67,87 @@ public class WSDL2JavaMojo extends AbstractMojo {
         }
         String newCp = buf.toString();
         
-        for (int x = 0; x < wsdlOptions.length; x++) {
-            List list = new ArrayList();
-            if (wsdlOptions[x].getPackagenames() != null) {
-                it = wsdlOptions[x].getPackagenames().iterator();
-                while (it.hasNext()) {
-                    list.add("-p");
-                    list.add(it.next().toString());
-                }
-            }
-            // -d specify the dir for generated source code
-            list.add("-verbose");
-            list.add("-d");
-            list.add(outputDir);
-            
-            if (wsdlOptions[x].getExtraargs() != null) {
-                it = wsdlOptions[x].getExtraargs().iterator();
-                while (it.hasNext()) {
-                    list.add(it.next().toString());
-                }
-            }            
-            list.add(wsdlOptions[x].getWsdl());
-            
-            File file = new File(wsdlOptions[x].getWsdl());
-            File doneFile = new File(outputDirFile, "." + file.getName() + ".DONE");
-            if (!doneFile.exists()
-                || file.lastModified() > doneFile.lastModified()) {
-            
-                String cp = System.getProperty("java.class.path");
-                SecurityManager oldSm = System.getSecurityManager();
-                try {
-                    try {
-                        System.setProperty("java.class.path", newCp);
-                        System.setSecurityManager(new NoExitSecurityManager());
-                        
-                        WSDLToJava.main((String[])list.toArray(new String[list.size()]));
-                    } catch (ExitException e) {
-                        if (e.getStatus() == 0) {
-                            doneFile.delete();
-                            doneFile.createNewFile();
-                        } else {
-                            throw e;
-                        }
-                    } finally {
-                        System.setSecurityManager(oldSm);
-                        System.setProperty("java.class.path", cp);
-                    }
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                    throw new MojoExecutionException(e.getMessage(), e);
-                }
-            }
-        }
+        String cp = System.getProperty("java.class.path");
+        SecurityManager oldSm = System.getSecurityManager();
+        try {
+            System.setProperty("java.class.path", newCp);
+            System.setSecurityManager(new NoExitSecurityManager());
         
+            for (int x = 0; x < wsdlOptions.length; x++) {
+                processWsdl(wsdlOptions[x], outputDirFile);
+            }
+        } finally {
+            System.setSecurityManager(oldSm);
+            System.setProperty("java.class.path", cp);
+        }        
         if (project != null && sourceRoot != null) {
             project.addCompileSourceRoot(sourceRoot);
         }
         if (project != null && testSourceRoot != null) {
             project.addTestCompileSourceRoot(testSourceRoot);
         }        
+    }
+    
+    private void processWsdl(WsdlOption wsdlOption, File outputDirFile) throws MojoExecutionException {
+        File file = new File(wsdlOption.getWsdl());
+        File doneFile = new File(outputDirFile, "." + file.getName() + ".DONE");
+        boolean doWork = false;
+        if (!doneFile.exists()) {
+            doWork = true;
+        } else if (file.lastModified() > doneFile.lastModified()) {
+            doWork = true;
+        } else {
+            File files[] = wsdlOption.getDependencies();
+            if (files != null) {
+                for (int z = 0; z < files.length; ++z) {
+                    if (files[z].lastModified() > doneFile.lastModified()) {
+                        doWork = true;
+                    }
+                }
+            }
+        }            
+        
+        if (doWork) {
+            
+            List list = new ArrayList();
+            if (wsdlOption.getPackagenames() != null) {
+                Iterator it = wsdlOption.getPackagenames().iterator();
+                while (it.hasNext()) {
+                    list.add("-p");
+                    list.add(it.next().toString());
+                }
+            }
+            // -d specify the dir for generated source code
+            //list.add("-verbose");
+            list.add("-d");
+            list.add(outputDirFile.toString());
+            
+            if (wsdlOption.getExtraargs() != null) {
+                Iterator it = wsdlOption.getExtraargs().iterator();
+                while (it.hasNext()) {
+                    list.add(it.next().toString());
+                }
+            }            
+            list.add(wsdlOption.getWsdl());            
+            
+            
+            try {
+                try {
+                    WSDLToJava.main((String[])list.toArray(new String[list.size()]));
+                    doneFile.delete();
+                    doneFile.createNewFile();
+                } catch (ExitException e) {
+                    if (e.getStatus() == 0) {
+                        doneFile.delete();
+                        doneFile.createNewFile();
+                    } else {
+                        throw e;
+                    }
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
+                throw new MojoExecutionException(e.getMessage(), e);
+            }
+        }
     }
 }

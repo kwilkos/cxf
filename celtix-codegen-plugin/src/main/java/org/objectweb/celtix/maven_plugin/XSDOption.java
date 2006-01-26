@@ -1,10 +1,12 @@
 package org.objectweb.celtix.maven_plugin;
 
+import java.io.File;
 
 public class XSDOption {
     String xsd;
     String packagename;
     String bindingFile;
+    File dependencies[];
     
     public String getPackagename() {
         return packagename;
@@ -24,7 +26,12 @@ public class XSDOption {
     public void setBindingFile(String bf) {
         this.bindingFile = bf;
     }
-    
+    public void setDependencies(File files[]) {
+        dependencies = files;
+    }
+    public File[] getDependencies() {
+        return dependencies;
+    }
 
 
 }

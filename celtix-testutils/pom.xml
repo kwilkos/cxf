@@ -203,9 +203,21 @@
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_doclit_soap.wsdl</wsdl>
+                                    <dependencies>
+                                        <dependency>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_doclit.wsdl</dependency>
+                                        <dependency>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_1.xsd</dependency>
+                                        <dependency>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_2.xsd</dependency>
+                                        <dependency>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_3.xsd</dependency>
+                                    </dependencies>
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_rpclit_soap.wsdl</wsdl>
+                                    <dependencies>
+                                        <dependency>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_rpclit.wsdl</dependency>
+                                        <dependency>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_1.xsd</dependency>
+                                        <dependency>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_2.xsd</dependency>
+                                        <dependency>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_3.xsd</dependency>
+                                    </dependencies>
                                 </wsdlOption>
                             </wsdlOptions>
                         </configuration>

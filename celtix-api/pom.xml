@@ -103,6 +103,10 @@
                             <xsdOptions>
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/wsdl.xsd</xsd>
+                                    <dependencies>
+                                        <dependency>${basedir}/src/main/resources/schemas/wsdl/jms.xsd</dependency>
+                                        <dependency>${basedir}/src/main/resources/schemas/wsdl/http-conf.xsd</dependency>
+                                    </dependencies>
                                 </xsdOption>
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-context.xsd</xsd>
@@ -118,6 +122,9 @@
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/wsrm.xsd</xsd>
                                     <bindingFile>${basedir}/src/main/resources/schemas/wsdl/wsrm.xjb</bindingFile>
+                                    <dependencies>
+                                        <dependency>${basedir}/src/main/resources/schemas/wsdl/addressing.xsd</dependency>
+                                    </dependencies>
                                 </xsdOption>
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/configuration/std-types.xsd</xsd>

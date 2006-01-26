@@ -25,12 +25,6 @@
             <artifactId>celtix-rt</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.sun.xml</groupId>
-            <artifactId>jaxws-rt</artifactId>
-            <version>${jaxws.version}</version>
-            <scope>package</scope>
-        </dependency>
     </dependencies>
 
     <build>

@@ -69,15 +69,5 @@
             <artifactId>ant-nodeps</artifactId>
             <version>1.6.5</version>
         </dependency>
-        <dependency>
-            <groupId>com.sun.xml</groupId>
-            <artifactId>jaxws-tools</artifactId>
-            <version>${jaxws.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml</groupId>
-            <artifactId>jaxws-rt</artifactId>
-            <version>${jaxws.version}</version>
-        </dependency>
     </dependencies>
 </project>

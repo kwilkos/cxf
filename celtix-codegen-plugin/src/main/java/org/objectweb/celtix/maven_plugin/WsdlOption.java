@@ -1,11 +1,13 @@
 package org.objectweb.celtix.maven_plugin;
 
+import java.io.File;
 import java.util.List;
 
 public class WsdlOption {
     String wsdl;
     List packagenames;
     List extraargs;
+    File dependencies[];
 
     public List getExtraargs() {
         return extraargs;
@@ -30,4 +32,10 @@ public class WsdlOption {
     public void setWsdl(String w) {
         wsdl = w;
     }
+    public void setDependencies(File files[]) {
+        dependencies = files;
+    }
+    public File[] getDependencies() {
+        return dependencies;
+    }    
 }

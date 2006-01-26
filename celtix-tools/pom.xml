@@ -87,12 +87,6 @@
         </dependency>
         <dependency>
             <groupId>com.sun.xml</groupId>
-            <artifactId>jaxws-tools</artifactId>
-            <version>${jaxws.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml</groupId>
             <artifactId>sjsxp</artifactId>
             <version>${jaxws.version}</version>
             <scope>runtime</scope>

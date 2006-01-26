@@ -50,9 +50,6 @@
         <pathelement location="${build.classes.dir}"/>
         <pathelement path="${srcbuild.classpath}"/>
         <pathelement location="${celtix.home}/lib/celtix.jar"/>
-        <fileset dir="${celtix.home}/lib">
-            <include name="*.jar"/>
-        </fileset>
     </path>
 
     <target name="maybe.generate.code" unless="codegen.notrequired">
@@ -188,46 +185,6 @@
         </sequential>
     </macrodef>    
         
-    <macrodef name="wsdl2java_ri">
-        <attribute name="srcdestdir" default="${build.src.dir}"/>
-        <attribute name="destdir" default="${build.classes.dir}"/>
-        <attribute name="file"/>
-        <attribute name="bindingfile" default=""/>
-        <attribute name="dir" default="${wsdl.dir}"/>
-        <attribute name="package" default="NOT_SPECIFIED"/>           
-        <sequential>
-            <mkdir dir="@{destdir}"/>
-            <mkdir dir="@{srcdestdir}"/>
-            <condition property="package.arg.@{file}" value="-p @{package}">
-                <not>
-                    <equals arg1="@{package}" arg2="NOT_SPECIFIED"/>
-                </not>
-            </condition>
-            <property name="package.arg.@{file}" value=""/>
-            <condition property="binding.arg" value="-b @{bindingfile}">
-                <not>
-                    <equals arg1="@{bindingfile}" arg2=""/>
-                </not>
-            </condition>
-            <property name="binding.arg" value=""/>
-            <java failonerror="true" classname="org.objectweb.celtix.tools.Wsdl2Java" fork="yes">
-                <classpath>
-                    <path refid="celtix.classpath" />
-                </classpath>
-                <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
-                <sysproperty key="jaxws.home" value="${celtix.home}"/>
-                <arg line="${package.arg.@{file}}"/>
-                <arg value="-keep"/>
-				<arg line="${binding.arg}"/>
-                <arg value="-s"/>
-                <arg value="@{srcdestdir}"/>
-                <arg value="-d"/>
-                <arg value="@{destdir}"/>
-                <arg value="@{dir}/@{file}"/>
-            </java>  
-        </sequential>
-    </macrodef>
-
     <macrodef name="celtixwar">
         <attribute name="filename"/>
         <attribute name="wsdl"/>

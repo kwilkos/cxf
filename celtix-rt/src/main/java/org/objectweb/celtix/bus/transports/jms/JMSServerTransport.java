@@ -163,7 +163,7 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
                 }
             } else {
                 // we will never receive a non-oneway invocation in pub-sub
-                // domain from Artix client - however a mis-behaving pure JMS
+                // domain from Celtix client - however a mis-behaving pure JMS
                 // client could conceivably make suce an invocation, in which
                 // case we silently discard the reply
                 LOG.log(Level.WARNING,

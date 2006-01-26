@@ -62,9 +62,23 @@ public class XSDToJavaMojo extends AbstractMojo {
             
             File file = new File(xsdOptions[x].getXsd());
             File doneFile = new File(outputDirFile, "." + file.getName() + ".DONE");
-            if (!doneFile.exists()
-                || file.lastModified() > doneFile.lastModified()) {
+            boolean doWork = false;
+            if (!doneFile.exists()) {
+                doWork = true;
+            } else if (file.lastModified() > doneFile.lastModified()) {
+                doWork = true;
+            } else {
+                File files[] = xsdOptions[x].getDependencies();
+                if (files != null) {
+                    for (int z = 0; z < files.length; ++z) {
+                        if (files[x].lastModified() > doneFile.lastModified()) {
+                            doWork = true;
+                        }
+                    }
+                }
+            }
             
+            if (doWork) {
                 SecurityManager oldSm = System.getSecurityManager();
                 try {
                     try {
