@@ -96,8 +96,8 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             portTypeProcessor.process(javaModel, portType);
         }
 
-        ServiceProcessor serviceProcessor = new ServiceProcessor(env);
-        serviceProcessor.process(javaModel, getWSDLDefinition());
+        ServiceProcessor serviceProcessor = new ServiceProcessor(env, getWSDLDefinition());
+        serviceProcessor.process(javaModel);
 
         SEIAnnotationProcessor seiAnnotationProcessor = new SEIAnnotationProcessor(
                 env);

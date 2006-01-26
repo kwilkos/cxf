@@ -19,13 +19,6 @@ if exist %CELTIX_HOME%\build\lib\celtix.jar (
     set CLASSPATH=%CELTIX_HOME%\build\lib\celtix.jar;%CLASSPATH%
 )
 
-IF "%1"=="-celtix" GOTO CELTIX_TOOL
-
-"%JAVA_HOME%\bin\java" -Djaxws.home="%CELTIX_HOME%" -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" org.objectweb.celtix.tools.Java2Wsdl %*
-GOTO END
-
-:CELTIX_TOOL
-
 "%JAVA_HOME%\bin\java"  -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" org.objectweb.celtix.tools.JavaToWSDL %*
 
 @endlocal

@@ -23,8 +23,5 @@ if [ -f "${JAVA_HOME}/lib/tools.jar" ]; then
 fi
 log_config=$celtix_home/etc/logging.properties 
 
-if [ "$1" = "-celtix" ]; then
-    $JAVA_HOME/bin/java -cp $celtix_jar -Djava.util.logging.config.file=$log_config org.objectweb.celtix.tools.JavaToWSDL "$@"
-else 
-    $JAVA_HOME/bin/java -cp $celtix_jar -Djaxws.home=$celtix_home -Djava.util.logging.config.file=$log_config org.objectweb.celtix.tools.Java2Wsdl "$@"    
-fi
+
+$JAVA_HOME/bin/java -cp $celtix_jar -Djava.util.logging.config.file=$log_config org.objectweb.celtix.tools.JavaToWSDL "$@"

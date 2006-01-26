@@ -83,11 +83,6 @@
 		<switch>q</switch>
 	    </option>
 
-	    <!-- TODO: After the JAX-WS java2wsdl tool deprecated, this option should be removed -->
-	    <option id="celtix">
-		<annotation>Indicate it's a celtix wsdl2java tool</annotation>
-		<switch>celtix</switch>
-	    </option>
 
 	</optionGroup>
 

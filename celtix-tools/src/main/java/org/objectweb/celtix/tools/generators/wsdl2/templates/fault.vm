@@ -19,24 +19,24 @@ import javax.xml.ws.WebFault;
 public class $expClass.Name extends Exception {
  #foreach ($field in $expClass.Fields)
     
-    $field.Modifier $field.ClassName $field.Name;
+    $field.Modifier $field.ClassName $paraName;
 
     public $expClass.Name (String message) {
         super(message);
     }
 
-    public $expClass.Name (String message, $field.ClassName $field.Name) {
+    public $expClass.Name (String message, $field.ClassName $paraName) {
         super(message);
-        this.$field.Name = $field.Name;
+        this.$paraName = $paraName;
     }
 
-    public $expClass.Name (String message, $field.ClassName $field.Name, Throwable cause) {
+    public $expClass.Name (String message, $field.ClassName $paraName, Throwable cause) {
         super(message, cause);
-        this.$field.Name = $field.Name;
+        this.$paraName = $paraName;
     }
 
     public $field.ClassName getFaultInfo() {
-        return this.$field.Name;
+        return this.$paraName;
     }
  #end
 }

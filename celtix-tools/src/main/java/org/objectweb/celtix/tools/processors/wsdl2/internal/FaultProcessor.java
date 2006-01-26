@@ -69,7 +69,8 @@ public class FaultProcessor {
         expClass.setPackageName(packageName);
         S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get(ToolConstants.RAW_JAXB_MODEL);
         for (Part part : faultValues) {
-            String fName = ProcessorUtil.resolvePartName(part);
+
+            String fName = part.getName();
             String fType = ProcessorUtil.resolvePartType(part, jaxbModel);
             String fNamespace = ProcessorUtil.resolvePartNamespace(part);
             String fPackageName = ProcessorUtil.parsePackageName(fNamespace,

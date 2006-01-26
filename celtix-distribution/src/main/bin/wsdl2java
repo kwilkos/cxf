@@ -24,11 +24,9 @@ fi
 
 log_config=$celtix_home/etc/logging.properties 
 
-if [ "$1" = "-celtix" ]; then
-    $JAVA_HOME/bin/java -cp $celtix_jar -Djaxws.home=$celtix_home -Djava.util.logging.config.file=$log_config org.objectweb.celtix.tools.WSDLToJava "$@"
-else 
-    $JAVA_HOME/bin/java -cp $celtix_jar -Djaxws.home=$celtix_home -Djava.util.logging.config.file=$log_config org.objectweb.celtix.tools.Wsdl2Java "$@"    
-fi
+
+$JAVA_HOME/bin/java -cp $celtix_jar -Djaxws.home=$celtix_home -Djava.util.logging.config.file=$log_config org.objectweb.celtix.tools.WSDLToJava "$@"
+
 
 
 
