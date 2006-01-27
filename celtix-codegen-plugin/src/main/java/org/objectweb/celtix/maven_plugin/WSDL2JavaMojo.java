@@ -69,12 +69,13 @@ public class WSDL2JavaMojo extends AbstractMojo {
         
         String cp = System.getProperty("java.class.path");
         SecurityManager oldSm = System.getSecurityManager();
+        long timestamp = CodegenUtils.getCodegenTimestamp();
         try {
             System.setProperty("java.class.path", newCp);
             System.setSecurityManager(new NoExitSecurityManager());
         
             for (int x = 0; x < wsdlOptions.length; x++) {
-                processWsdl(wsdlOptions[x], outputDirFile);
+                processWsdl(wsdlOptions[x], outputDirFile, timestamp);
             }
         } finally {
             System.setSecurityManager(oldSm);
@@ -88,10 +89,12 @@ public class WSDL2JavaMojo extends AbstractMojo {
         }        
     }
     
-    private void processWsdl(WsdlOption wsdlOption, File outputDirFile) throws MojoExecutionException {
+    private void processWsdl(WsdlOption wsdlOption,
+                             File outputDirFile,
+                             long cgtimestamp) throws MojoExecutionException {
         File file = new File(wsdlOption.getWsdl());
         File doneFile = new File(outputDirFile, "." + file.getName() + ".DONE");
-        boolean doWork = false;
+        boolean doWork = cgtimestamp > doneFile.lastModified();
         if (!doneFile.exists()) {
             doWork = true;
         } else if (file.lastModified() > doneFile.lastModified()) {

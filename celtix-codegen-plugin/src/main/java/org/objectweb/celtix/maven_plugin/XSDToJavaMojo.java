@@ -45,6 +45,8 @@ public class XSDToJavaMojo extends AbstractMojo {
         File outputDirFile = new File(outputDir);
         outputDirFile.mkdirs();
         
+        long timestamp = CodegenUtils.getCodegenTimestamp();
+        
         for (int x = 0; x < xsdOptions.length; x++) {
             List list = new ArrayList();
             if (xsdOptions[x].getPackagename() != null) {
@@ -62,7 +64,7 @@ public class XSDToJavaMojo extends AbstractMojo {
             
             File file = new File(xsdOptions[x].getXsd());
             File doneFile = new File(outputDirFile, "." + file.getName() + ".DONE");
-            boolean doWork = false;
+            boolean doWork = timestamp > doneFile.lastModified();
             if (!doneFile.exists()) {
                 doWork = true;
             } else if (file.lastModified() > doneFile.lastModified()) {

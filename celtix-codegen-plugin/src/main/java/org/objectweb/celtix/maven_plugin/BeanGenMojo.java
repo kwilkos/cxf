@@ -61,6 +61,7 @@ public class BeanGenMojo extends AbstractMojo {
         String outputDir = testSourceRoot == null ? sourceRoot : testSourceRoot;
         File outputDirFile = new File(outputDir);
         outputDirFile.mkdirs();
+        long timestamp = CodegenUtils.getCodegenTimestamp();
         
         List list = new ArrayList();
         List doneFiles = new ArrayList();
@@ -70,7 +71,8 @@ public class BeanGenMojo extends AbstractMojo {
             File file = new File(beanfiles[x]);
             File doneFile = new File(outputDirFile, "." + file.getName() + ".DONE");
             if (!doneFile.exists()
-                || file.lastModified() > doneFile.lastModified()) {
+                || file.lastModified() > doneFile.lastModified()
+                || timestamp > doneFile.lastModified()) {
                 list.add(beanfiles[x]);
                 doneFiles.add(doneFile);
             }

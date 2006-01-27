@@ -15,7 +15,7 @@ import org.objectweb.celtix.version.Version;
 
 public abstract class AbstractGenerator {
 
-    protected static final String TEMPLATE_BASE = "org/objectweb/celtix/tools/generators/wsdl2/templates";
+    public static final String TEMPLATE_BASE = "org/objectweb/celtix/tools/generators/wsdl2/templates";
     protected ProcessorEnvironment env;
     protected Map<String, Object> attributes = new HashMap<String, Object>();
     protected String name;

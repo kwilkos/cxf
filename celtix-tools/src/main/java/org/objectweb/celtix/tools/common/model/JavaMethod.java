@@ -222,18 +222,19 @@ public class JavaMethod {
         return wrapperParas;
     }
 
-    public String getParameterList() {
+    public List<String> getParameterList() {
         return getParameterList(true);
     }
     
-    public String getParameterList(boolean includeAnnotation) {
+    public List<String> getParameterList(boolean includeAnnotation) {
+        List<String> list = new ArrayList<String>();
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < parameters.size(); i++) {
             JavaParameter parameter = parameters.get(i);
             if (includeAnnotation) {
-                sb.append(parameter.getAnnotation());
+                list.add(parameter.getAnnotation().toString());
             }
-            sb.append("\n");
+            sb.setLength(0);
             if (parameter.isHolder()) {
                 sb.append(parameter.getHolderName());
                 sb.append("<");
@@ -244,11 +245,12 @@ public class JavaMethod {
             }
             sb.append(" ");
             sb.append(parameter.getName());
-            if (i != parameters.size() - 1) {
-                sb.append(",\n");
+            if (i != (parameters.size() - 1)) {
+                sb.append(',');
             }
+            list.add(sb.toString());
         }
-        return sb.toString();
+        return list;
     }
 
     public JAXWSBinding getJAXWSBinding() {
