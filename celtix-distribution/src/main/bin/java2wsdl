@@ -8,11 +8,11 @@ celtix_home=`dirname $0`/..
 celtix_jar=$celtix_home/lib/celtix.jar
 
 if [ ! -f $celtix_jar ]; then 
-    if [ ! -f ../../../target/srcbuild_env ]; then 
+    if [ ! -f $celtix_home/../../target/srcbuild_env ]; then 
         echo "unable to find celtix.jar in $celtix_home/lib"
         exit 1
     else
-        . ../../../target/srcbuild_env
+        . $celtix_home/../../target/srcbuild_env
         celtix_jar=${CELTIX_CLASSPATH}
     fi
 fi 

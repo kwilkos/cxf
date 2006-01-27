@@ -46,8 +46,8 @@ public class SEIAnnotationProcessor {
     }
 
     private boolean processBinding(JavaInterface intf) {
-        boolean isDOC = true;
-        boolean isLiteral = true;
+        SOAPBinding.Style soapStyle = intf.getSOAPStyle();
+        SOAPBinding.Use soapUse = intf.getSOAPUse();
         boolean isWrapped = true;
         int count = 0;
         for (JavaMethod method : intf.getMethods()) {
@@ -55,15 +55,17 @@ public class SEIAnnotationProcessor {
                 isWrapped = false;
                 count++;
             }
-            if (method.getSoapStyle() == SOAPBinding.Style.RPC) {
-                isDOC = false;
+            if (soapStyle == null
+                && method.getSoapStyle() != null) {
+                soapStyle = method.getSoapStyle();
             }
-            if (method.getSoapUse() == SOAPBinding.Use.ENCODED) {
-                isLiteral = false;
+            if (soapUse == null
+                && method.getSoapUse() != null) {
+                soapUse = method.getSoapUse();
             }
         }
 
-        if (isDOC) {
+        if (soapStyle == SOAPBinding.Style.DOCUMENT) {
             intf.setSOAPStyle(SOAPBinding.Style.DOCUMENT);
             if (isWrapped) {
                 intf.setSOAPParameterStyle(SOAPBinding.ParameterStyle.WRAPPED);
@@ -73,7 +75,7 @@ public class SEIAnnotationProcessor {
         } else {
             intf.setSOAPStyle(SOAPBinding.Style.RPC);
         }
-        if (isLiteral) {
+        if (soapUse == SOAPBinding.Use.LITERAL) {
             intf.setSOAPUse(SOAPBinding.Use.LITERAL);
         } else {
             intf.setSOAPUse(SOAPBinding.Use.ENCODED);
