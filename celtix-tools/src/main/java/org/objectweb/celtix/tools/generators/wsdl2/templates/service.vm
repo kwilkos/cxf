@@ -17,15 +17,13 @@ import ${service.PackageName}.${port.InterfaceClass};
  */
 
 @WebServiceClient(name = "${service.Name}", targetNamespace = "$service.Namespace", wsdlLocation = "$wsdlLocation")
-public class ${service.Name}
-    extends Service
-{
+public class ${service.Name} extends Service {
 
     private final static URL WSDL_LOCATION;
     private final static QName SOAPSERVICE = new QName("$service.Namespace", "$service.Name");
-    #foreach ($port in ${service.Ports})
+#foreach ($port in ${service.Ports})
     private final static QName $port.PortName = new QName("$service.Namespace", "$port.PortName");
-    #end
+#end
     static {
         URL url = null;
         try {
@@ -44,7 +42,7 @@ public class ${service.Name}
         super(WSDL_LOCATION, SOAPSERVICE);
     }
 
-    #foreach ($port in $service.Ports)
+#foreach ($port in $service.Ports)
     /**
      * 
      * @return
@@ -54,5 +52,6 @@ public class ${service.Name}
     public ${port.InterfaceClass} get${port.PortName}() {
         return (${port.InterfaceClass})super.getPort($port.PortName, ${port.InterfaceClass}.class);
     }
-    #end
+#end
+
 }

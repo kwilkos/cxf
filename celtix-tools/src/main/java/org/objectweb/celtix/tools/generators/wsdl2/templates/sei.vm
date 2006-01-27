@@ -25,10 +25,10 @@ $annotation
 public interface $intf.Name {
 #foreach ($method in $intf.Methods)
 
-    #foreach ($annotation in $method.Annotations)
+#foreach ($annotation in $method.Annotations)
     $annotation
-    #end
-    public $method.return.ClassName ${method.Name}(
-           ${method.ParameterList})#if($method.Exceptions.size() > 0) throws #foreach($exception in $method.Exceptions) $exception.ClassName #if($method.Exceptions.size() != $velocityCount),#end #end #end;
+#end
+    public $method.return.ClassName ${method.Name}(#if($method.ParameterList.size() > 0)
+       ${method.ParameterList}#end)#if($method.Exceptions.size() > 0) throws #foreach($exception in $method.Exceptions) $exception.ClassName #if($method.Exceptions.size() != $velocityCount),#end #end #end;
 #end
 }
