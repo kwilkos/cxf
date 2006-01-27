@@ -157,6 +157,8 @@ public class ParameterProcessor {
         if (inputParts.size() > 1) {
             processInput(method, inputMessage);
             return;
+        } else if (inputParts.isEmpty()) {
+            return;
         }
         Part part = inputParts.iterator().next();
 
