@@ -71,7 +71,7 @@ public class XSDToJavaMojo extends AbstractMojo {
                 File files[] = xsdOptions[x].getDependencies();
                 if (files != null) {
                     for (int z = 0; z < files.length; ++z) {
-                        if (files[x].lastModified() > doneFile.lastModified()) {
+                        if (files[z].lastModified() > doneFile.lastModified()) {
                             doWork = true;
                         }
                     }
