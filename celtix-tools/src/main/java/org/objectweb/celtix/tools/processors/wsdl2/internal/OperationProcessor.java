@@ -1,6 +1,8 @@
 package org.objectweb.celtix.tools.processors.wsdl2.internal;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.Fault;
@@ -10,6 +12,7 @@ import javax.wsdl.OperationType;
 import javax.wsdl.Part;
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
@@ -25,6 +28,7 @@ import org.objectweb.celtix.tools.utils.SOAPBindingUtil;
 import org.objectweb.celtix.tools.utils.StringUtils;
 
 public class OperationProcessor  {
+    private static final Logger LOG = LogUtils.getL7dLogger(OperationProcessor.class);
     
     private final ProcessorEnvironment env;
     private JavaParameter wrapperRequest;
@@ -40,7 +44,11 @@ public class OperationProcessor  {
         method.setName(operation.getName());
         method.setStyle(operation.getStyle());
         if (method.getStyle() == null) {
-            method.setStyle(OperationType.ONE_WAY);
+            if (operation.getOutput() == null) {
+                method.setStyle(OperationType.ONE_WAY);
+            } else {
+                method.setStyle(OperationType.REQUEST_RESPONSE);
+            }
         }
 
         method.setWrapperStyle(isWrapperStyle(operation));
@@ -60,6 +68,11 @@ public class OperationProcessor  {
         Message inputMessage = operation.getInput() == null ? null : operation.getInput().getMessage();
         Message outputMessage = operation.getOutput() == null ? null : operation.getOutput().getMessage();
 
+        if (inputMessage == null) {
+            LOG.log(Level.WARNING, "NO_INPUT_MESSAGE",
+                    new Object[] {operation.getName(), operation.getInput().getName()});
+        }
+        
         ParameterProcessor paramProcessor = new ParameterProcessor(env);
         method.clear();
         paramProcessor.process(method,
@@ -67,7 +80,7 @@ public class OperationProcessor  {
                                outputMessage,
                                isRequestResponse(operation),
                                parameterOrder);
-        
+        isWrapperStyle(operation);        
         addWebMethodAnnotation(method);
         addWrapperAnnotation(method, operation);
         addWebResultAnnotation(method);
@@ -158,6 +171,7 @@ public class OperationProcessor  {
             wrapperRequestAnnotation.addArgument("targetNamespace", wrapperRequest.getTargetNamespace());
             wrapperRequestAnnotation.addArgument("className", wrapperRequest.getClassName());
             method.addAnnotation("RequestWrapper", wrapperRequestAnnotation);
+            method.getInterface().addImport("javax.xml.ws.RequestWrapper");
         }
         if (wrapperResponse != null) {
             JavaAnnotation wrapperResponseAnnotation = new JavaAnnotation("ResponseWrapper");
@@ -165,10 +179,9 @@ public class OperationProcessor  {
             wrapperResponseAnnotation.addArgument("targetNamespace", wrapperResponse.getTargetNamespace());
             wrapperResponseAnnotation.addArgument("className", wrapperResponse.getClassName());
             method.addAnnotation("ResponseWrapper", wrapperResponseAnnotation);
+            method.getInterface().addImport("javax.xml.ws.ResponseWrapper");
         }
 
-        method.getInterface().addImport("javax.xml.ws.RequestWrapper");
-        method.getInterface().addImport("javax.xml.ws.ResponseWrapper");
     }
 
     @SuppressWarnings("unchecked")
@@ -263,7 +276,7 @@ public class OperationProcessor  {
 
     private boolean isRequestResponse(Operation operation) {
         if (operation.getStyle() == null) {
-            return false;
+            return operation.getOutput() != null;
         }
         return OperationType.REQUEST_RESPONSE.equals(operation.getStyle());
     }

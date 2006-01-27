@@ -19,7 +19,7 @@ public class JavaInterface {
     
     private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
     private final List<String> annotations = new ArrayList<String>();
-    private final Set<String> imports = new HashSet<String>();
+    private final Set<String> imports = new TreeSet<String>();
 
     private JAXWSBinding jaxwsBinding = new JAXWSBinding();
     private String webserviceName;

@@ -2,9 +2,13 @@ package org.objectweb.celtix.tools.processors.wsdl2.internal;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.wsdl.Operation;
 import javax.wsdl.PortType;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
@@ -15,7 +19,8 @@ import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class PortTypeProcessor {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(PortTypeProcessor.class);
+    
     private final ProcessorEnvironment env;
     private List<String> operationMap = new ArrayList<String>();
     
@@ -51,6 +56,7 @@ public class PortTypeProcessor {
         for (Iterator iter = operations.iterator(); iter.hasNext();) {
             Operation operation = (Operation) iter.next();
             if (isOverloading(operation.getName())) {
+                LOG.log(Level.WARNING, "SKIP_OVERLOADED_OPERATION", operation.getName()); 
                 continue;
             }
             OperationProcessor operationProcessor = new OperationProcessor(env);
