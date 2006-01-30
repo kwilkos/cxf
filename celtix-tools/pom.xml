@@ -31,6 +31,13 @@
             <version>2.0-20050821.154600</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>1.5.3</version>
+            <scope>test</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>velocity</groupId>

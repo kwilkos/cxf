@@ -32,6 +32,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>1.5.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.objectweb.celtix</groupId>
             <artifactId>celtix-tools</artifactId>
             <version>${project.version}</version>
