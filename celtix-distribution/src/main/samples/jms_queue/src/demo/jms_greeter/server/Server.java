@@ -1,4 +1,4 @@
-package demo.hwJMS.server;
+package demo.jms_greeter.server;
 
 import javax.xml.ws.Endpoint;
 

@@ -1,12 +1,13 @@
-package demo.hwJMS.server;
+package demo.jms_greeter.server;
 
 import java.util.logging.Logger;
-import org.objectweb.celtix.hello_world_jms.HelloWorldPortType;
+import org.objectweb.celtix.jms_greeter.JMSGreeterPortType;
 
-@javax.jws.WebService(name = "HelloWorldPortType", serviceName = "HelloWorldService",
-                      targetNamespace = "http://celtix.objectweb.org/hello_world_jms",
-                      wsdlLocation = "file:./wsdl/hello_world_jms.wsdl")
-public class GreeterJMSImpl implements HelloWorldPortType {
+@javax.jws.WebService(name = "JMSGreeterPortType", 
+                      serviceName = "JMSGreeterService",
+                      targetNamespace = "http://celtix.objectweb.org/jms_greeter",
+                      wsdlLocation = "file:./wsdl/jms_greeter.wsdl")
+public class GreeterJMSImpl implements JMSGreeterPortType {
 
     private static final Logger LOG = Logger.getLogger(GreeterJMSImpl.class.getPackage().getName());
 

@@ -1,16 +1,16 @@
-package demo.hwJMS.client;
+package demo.jms_greeter.client;
 
 import java.io.File;
 import javax.xml.namespace.QName;
-import org.objectweb.celtix.hello_world_jms.HelloWorldPortType;
-import org.objectweb.celtix.hello_world_jms.HelloWorldService;
+import org.objectweb.celtix.jms_greeter.JMSGreeterPortType;
+import org.objectweb.celtix.jms_greeter.JMSGreeterService;
 
 public final class Client {
 
     private static final QName SERVICE_NAME =
-        new QName("http://celtix.objectweb.org/hello_world_jms", "HelloWorldService");
+        new QName("http://celtix.objectweb.org/jms_greeter", "JMSGreeterService");
     private static final QName PORT_NAME =
-        new QName("http://celtix.objectweb.org/hello_world_jms", "HelloWorldPortType");
+        new QName("http://celtix.objectweb.org/jms_greeter", "JMSGreeterPortType");
 
     private Client() {
     }
@@ -24,8 +24,8 @@ public final class Client {
 
         File wsdl = new File(args[0]);
 
-        HelloWorldService service = new HelloWorldService(wsdl.toURL(), SERVICE_NAME);
-        HelloWorldPortType greeter = (HelloWorldPortType)service.getPort(PORT_NAME, HelloWorldPortType.class);
+        JMSGreeterService service = new JMSGreeterService(wsdl.toURL(), SERVICE_NAME);
+        JMSGreeterPortType greeter = (JMSGreeterPortType)service.getPort(PORT_NAME, JMSGreeterPortType.class);
 
         System.out.println("Invoking sayHi...");
         System.out.println("server responded with: " + greeter.sayHi());
