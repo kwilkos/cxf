@@ -18,96 +18,96 @@ import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.hello_world_soap_http.SOAPService;
 
-public class ClientServerTest extends ClientServerTestBase {
+public class DispatchClientServerTest extends ClientServerTestBase {
 
     private final QName serviceName = new QName("http://objectweb.org/hello_world_soap_http",
-                                                "SOAPService");    
+                                                "SOAPService");
     private final QName portName = new QName("http://objectweb.org/hello_world_soap_http",
-                                             "SoapPort"); 
+                                             "SoapPort");
 
     public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ClientServerTest.class);
+        TestSuite suite = new TestSuite(DispatchClientServerTest.class);
         return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {                
+            public void startServers() throws Exception {
                 assertTrue("server did not launch correctly", launchServer(Server.class));
             }
         };
     }
     public void testSOAPMessage() throws Exception {
-        
+
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
-        
+
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);
-        
+
         InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
         SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
         assertNotNull(soapReqMsg);
-        
-        Dispatch<SOAPMessage> disp = service.createDispatch(portName, 
+
+        Dispatch<SOAPMessage> disp = service.createDispatch(portName,
                                                             SOAPMessage.class, Service.Mode.MESSAGE);
         SOAPMessage soapResMsg = disp.invoke(soapReqMsg);
         assertNotNull(soapResMsg);
-        
+
         String expected = "Hello TestSOAPInputMessage";
-        
-        assertEquals("Response should be : Hello TestSOAPInputMessage", 
-                     expected, soapResMsg.getSOAPBody().getTextContent());        
-    } 
-    
+
+        assertEquals("Response should be : Hello TestSOAPInputMessage",
+                     expected, soapResMsg.getSOAPBody().getTextContent());
+    }
+
     public void testDOMSourceMESSAGE() throws Exception {
-        
+
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
-        
+
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);
-        
+
         InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
-        SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);   
-        
+        SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
+
         DOMSource domReqMsg = new DOMSource(soapReqMsg.getSOAPPart());
-        
+
         assertNotNull(domReqMsg);
-        
-        Dispatch<DOMSource> disp = service.createDispatch(portName, 
+
+        Dispatch<DOMSource> disp = service.createDispatch(portName,
                                                             DOMSource.class, Service.Mode.MESSAGE);
         DOMSource domResMsg = disp.invoke(domReqMsg);
         assertNotNull(domResMsg);
-        
+
         String expected = "Hello TestSOAPInputMessage";
-        
-        assertEquals("Response should be : Hello TestSOAPInputMessage", 
+
+        assertEquals("Response should be : Hello TestSOAPInputMessage",
                      expected, domResMsg.getNode().getFirstChild().getTextContent());
- 
-    } 
-    
+
+    }
+
     public void testDOMSourcePAYLOAD() throws Exception {
-        
+
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
-        
+
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);
-        
+
         InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
-        SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);   
-        
+        SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
+
         DOMSource domReqMsg = new DOMSource(soapReqMsg.getSOAPBody().extractContentAsDocument());
-        
+
         assertNotNull(domReqMsg);
-        
-        Dispatch<DOMSource> disp = service.createDispatch(portName, 
+
+        Dispatch<DOMSource> disp = service.createDispatch(portName,
                                                             DOMSource.class, Service.Mode.PAYLOAD);
         DOMSource domResMsg = disp.invoke(domReqMsg);
         assertNotNull(domResMsg);
-        
+
         String expected = "Hello TestSOAPInputMessage";
-        
-        assertEquals("Response should be : Hello TestSOAPInputMessage", 
+
+        assertEquals("Response should be : Hello TestSOAPInputMessage",
                      expected, domResMsg.getNode().getFirstChild().getTextContent());
- 
-    } 
-    
+
+    }
+
 }

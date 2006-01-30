@@ -104,14 +104,26 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         throws SOAPException {
 
         boolean isInputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
-
         SOAPMessage msg = initSOAPMessage();
+        
         if (!"".equals(callback.getSOAPAction())) {
             msg.getMimeHeaders().setHeader("SOAPAction",
                                            "\"" + callback.getSOAPAction() + "\"");
         }
         
-        if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
+        if (callback.getMode() == DataBindingCallback.Mode.PARTS) {
+            if (callback.getSOAPStyle() == Style.RPC) {
+                nsStack = new NSStack();
+                nsStack.push();
+            }
+            SOAPElement soapElement = addOperationNode(msg.getSOAPBody(), callback, isInputMsg);
+            //add in, out and inout non-header params
+            addParts(soapElement, objContext, isInputMsg, callback);
+            
+            //add in, out and inout header params
+            addHeaderParts(msg.getSOAPHeader(), objContext, isInputMsg, callback);
+            
+        } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
 
             Object src = isInputMsg ? objContext.getReturn() : objContext.getMessageObjects()[0];
             //contains the entire SOAP message
@@ -147,18 +159,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             if (!found) {
                 throw new SOAPException("Could not figure out how to marshal data");
             }
-        } else {
-            if (callback.getSOAPStyle() == Style.RPC) {
-                nsStack = new NSStack();
-                nsStack.push();
-            }
-            SOAPElement soapElement = addOperationNode(msg.getSOAPBody(), callback, isInputMsg);
-            //add in, out and inout non-header params
-            addParts(soapElement, objContext, isInputMsg, callback);
-            
-            //add in, out and inout header params
-            addHeaderParts(msg.getSOAPHeader(), objContext, isInputMsg, callback);
-            
         }
         return msg;
     }
@@ -259,9 +259,20 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
         SOAPMessage soapMessage = soapContext.getMessage();
 
-        Object obj = null;
-        if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {  
+        if (callback.getMode() == DataBindingCallback.Mode.PARTS) {
+            //Assuming No Headers are inserted.
+            Node soapEl = soapMessage.getSOAPBody();
+
+            if (callback.getSOAPStyle() == Style.RPC) {
+                soapEl = NodeUtils.getChildElementNode(soapEl);
+            }
+
+            getParts(soapEl, callback, objContext, isOutputMsg);
+            
+            getHeaderParts(soapMessage.getSOAPHeader(), callback, objContext, isOutputMsg);
+        } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {  
             boolean found = false;
+            Object obj = null;
             for (Class<?> cls : callback.getSupportedFormats()) {
                 if (cls == SOAPMessage.class) {
                     obj = soapMessage;
@@ -286,6 +297,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             
         } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {            
             boolean found = false;
+            Object obj = null;            
             for (Class<?> cls : callback.getSupportedFormats()) {
                 if (cls == DOMSource.class) {
                     DataReader<SOAPBody> reader = callback.createReader(SOAPBody.class);
@@ -303,18 +315,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             } else {
                 objContext.setMessageObjects(obj);                
             }            
-        } else {
-            //Assuming No Headers are inserted.
-            Node soapEl = soapMessage.getSOAPBody();
-
-            if (callback.getSOAPStyle() == Style.RPC) {
-                soapEl = NodeUtils.getChildElementNode(soapEl);
-            }
-
-            getParts(soapEl, callback, objContext, isOutputMsg);
-            
-            getHeaderParts(soapMessage.getSOAPHeader(), callback, objContext, isOutputMsg);
-        }
+        } 
     }
 
     public void unmarshalFault(MessageContext context,

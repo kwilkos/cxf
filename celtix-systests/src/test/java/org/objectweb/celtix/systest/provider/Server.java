@@ -11,11 +11,14 @@ public class Server extends TestServerBase {
         String address = "http://localhost:9002/SOAPServiceRPCLit/SoapPort";
         Endpoint.publish(address, implementor);
         
-        implementor = new HWDOMSourceProvider();
+        implementor = new HWDOMSourceMessageProvider();
         address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort1");
         Endpoint.publish(address, implementor);
+        
+        implementor = new HWDOMSourcePayloadProvider();
+        address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort2");
+        Endpoint.publish(address, implementor);        
     }
-
 
     public static void main(String[] args) {
         try {

@@ -15,14 +15,6 @@ import org.objectweb.hello_world_rpclit.SOAPServiceRPCLit;
 
 public class ProviderClientServerTest extends ClientServerTestBase {
 
-    private final QName serviceName = new QName("http://objectweb.org/hello_world_rpclit",
-                                                "SOAPServiceRPCLit");
-    private final QName portName = new QName("http://objectweb.org/hello_world_rpclit",
-                                             "SoapPortRPCLit");
-
-    //private final QName portName1 = new QName("http://objectweb.org/hello_world_rpclit",
-    //                                    "SoapPortRPCLit1");
-
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(ProviderClientServerTest.class);
         return new ClientServerSetupBase(suite) {
@@ -33,6 +25,11 @@ public class ProviderClientServerTest extends ClientServerTestBase {
     }
 
     public void testMessageModeWithSOAPMessageData() throws Exception {
+        
+        QName serviceName = 
+            new QName("http://objectweb.org/hello_world_rpclit", "SOAPServiceRPCLit");
+        QName portName = 
+            new QName("http://objectweb.org/hello_world_rpclit", "SoapPortRPCLit");
 
         URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
         assertNotNull(wsdl);
@@ -59,14 +56,21 @@ public class ProviderClientServerTest extends ClientServerTestBase {
     }
 
     public void testMessageModeWithDOMSourceData() throws Exception {
-/*
+        QName serviceName = 
+            new QName("http://objectweb.org/hello_world_rpclit", "SOAPServiceRPCLit1");
+        QName portName = 
+            new QName("http://objectweb.org/hello_world_rpclit", "SoapPortRPCLit1");
+
+        URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
+        assertNotNull(wsdl);
+
         SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
         assertNotNull(service);
 
         String response1 = new String("TestGreetMeResponse");
         String response2 = new String("TestSayHiResponse");
         try {
-            GreeterRPCLit greeter = service.getPort(portName1, GreeterRPCLit.class);
+            GreeterRPCLit greeter = service.getPort(portName, GreeterRPCLit.class);
             for (int idx = 0; idx < 2; idx++) {
                 String greeting = greeter.greetMe("Milestone-" + idx);
                 assertNotNull("no response received from service", greeting);
@@ -79,7 +83,36 @@ public class ProviderClientServerTest extends ClientServerTestBase {
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
         }
-*/
+    }
+
+    public void testPayloadModeWithDOMSourceData() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
+        assertNotNull(wsdl);
+
+        QName serviceName = 
+            new QName("http://objectweb.org/hello_world_rpclit", "SOAPServiceRPCLit2");
+        QName portName = 
+            new QName("http://objectweb.org/hello_world_rpclit", "SoapPortRPCLit2");
+
+        SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
+        assertNotNull(service);
+
+        String response1 = new String("TestGreetMeResponse");
+        String response2 = new String("TestSayHiResponse");
+        try {
+            GreeterRPCLit greeter = service.getPort(portName, GreeterRPCLit.class);
+            for (int idx = 0; idx < 1; idx++) {
+                String greeting = greeter.greetMe("Milestone-" + idx);
+                assertNotNull("no response received from service", greeting);
+                assertEquals(response1, greeting);
+
+                String reply = greeter.sayHi();
+                assertNotNull("no response received from service", reply);
+                assertEquals(response2, reply);
+            }
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
     }
     
     public static void main(String[] args) {
