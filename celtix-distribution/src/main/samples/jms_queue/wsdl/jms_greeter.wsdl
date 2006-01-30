@@ -117,7 +117,7 @@
                    jndiProviderURL="tcp://localhost:61616" 
                    initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
                    jndiConnectionFactoryName="ConnectionFactory" 
-                   jndiDestinationName="dynamicQueues/test.celtix.jmstransport"
+                   jndiDestinationName="dynamicQueues/test.celtix.jmstransport.queue"
                    messageType="text"
                    useMessageIDAsCorrelationID="true"   
                    durableSubscriberName="Celtix_subscriber"

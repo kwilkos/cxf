@@ -1,10 +1,8 @@
-Hello World Demo using RPC-Literal Style and JMS tranport.
+JMS Transport Demo using Document-Literal Style.
 ==========================================================
 
-Yes, it's the ever present Hello World demo.  No product is 
-complete without one.  However, this version demonstrates use
-of the RPC-Literal style binding over JMS Transport using 
-pub/sub mechanism.
+This sample demonstrates use of the Document-Literal style
+binding over JMS Transport using pub/sub mechanism.
 
 Please review the README in the samples directory before
 continuing.
@@ -27,7 +25,7 @@ environment by running the script.
 Building and running the demo using ant
 ---------------------------------------
 
-From the samples/hello_world_JMS_pubsub directory, the ant build script
+From the samples/jms_pubsub directory, the ant build script
 can be used to build and run the demo.
 
 Using either UNIX or Windows:
@@ -48,19 +46,19 @@ files, run:
 Buildng the demo using wsdl2java and javac
 ------------------------------------------
 
-From the samples/hello_world_JMS_pubsub directory, first create the target
+From the samples/jms_pubsub directory, first create the target
 directory build/classes and then generate code from the WSDL file.
 
 For UNIX:
   mkdir -p build/classes
 
-  wsdl2java -d build/classes ./wsdl/hello_world_jms.wsdl
+  wsdl2java -d build/classes ./wsdl/jms_greeter.wsdl
 
 For Windows:
   mkdir build\classes
     Must use back slashes.
 
-  wsdl2java -d build\classes .\wsdl\hello_world_jms.wsdl
+  wsdl2java -d build\classes .\wsdl\jms_greeter.wsdl
     May use either forward or back slashes.
 
 Now compile both the generated code and the provided client and
@@ -93,7 +91,7 @@ binary or source release.  In the binary release, <activemq.home.dir> is in
 lib/activemq/3.2.  In the source release, <activemq.home.dir> is in
 tools/activemq/3.2.
 
-From the samples/hello_world_JMS_pubsub directory run the commands, entered on a
+From the samples/jms_pubsub directory run the commands, entered on a
 single command line:
 
 For UNIX (must use forward slashes):
@@ -101,7 +99,7 @@ For UNIX (must use forward slashes):
          demo.hwJMS.server.Server &
 
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
-         demo.hwJMS.client.Client ./wsdl/hello_world_jms.wsdl
+         demo.hwJMS.client.Client ./wsdl/jms_greeter.wsdl
 
 The server process starts in the background.  After running the client,
 use the kill command to terminate the server process.
@@ -112,7 +110,7 @@ For Windows (may use either forward or back slashes):
          demo.hwJMS.server.Server
 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
-       demo.hwJMS.client.Client .\wsdl\hello_world_jms.wsdl
+       demo.hwJMS.client.Client .\wsdl\jms_greeter.wsdl
 
 A new command windows opens for the server process.  After running the
 client, terminate the server process by issuing Ctrl-C in its command window.
