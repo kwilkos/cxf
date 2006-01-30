@@ -2,6 +2,14 @@ Celtix Milestone 3 Release Notes
 
 1. New Features
 
+  Added in Milestone 4:
+    * Migration of Celtix to Maven 2.0 and Source Code Organization Complete.
+    * WS-RM Infrastructure Complete.
+    * Support for JAX-WS Dispatch and Provider API's.
+    * Support for non-wrapper Doc/Literal Style.
+    * Transport and Binding API's Complete.
+    * Celtix WSDLToJava and JavaToWSDL Tools Complete. 
+
   Added in Milestone 3:
     * HTTP 1.1 transport.
     * HTTP servlet transport.
@@ -37,7 +45,7 @@ Celtix Milestone 3 Release Notes
 
 2. Installation Prerequisites 
 
-Before installing Celtix Milestone 3, you must ensure that the following products
+Before installing Celtix Milestone 4, you must ensure that the following products
 with the specified versions are installed on your system:
 
     * Java 5 developer's kit.
@@ -90,19 +98,6 @@ serve 404 (not found) errors to all client connections.
 
 3.2 JMS
 The JMS transport does not currently use policy based configuration, or support WS-Addressing.
-
-3.3 Code generation
-Celtix uses the JAX-WS reference implementation's code generator by default. This code
-generator does not recognize the <jms:address> element (under the <port> element),
-which is used to configure the JMS transport. The reference implementation's code 
-generator will raise an exception indicating that a usable address does not exist in the
-WSDL file.
-To work around this situation, the WSDL file's <port> must include a <soap:address>
-element as well as a <jms:address> child element. The <soap:address> element satisfies
-the code generator's requirements and the <jms:address> element is used to configure
-the JMS transport.
-When configuring a port, Celtix uses the first <address> element. To enable the JMS transport,
-the first <address> element must be a <jms:address> element.
 
 
 4. Reporting Problems
