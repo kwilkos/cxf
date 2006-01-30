@@ -155,17 +155,20 @@ public abstract class AbstractClientBinding implements ClientBinding {
             //Input Message For Client
             context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
             bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
-
-            boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(true);
-
+            boolean continueProcessing = true;
+            
+            continueProcessing = handlerInvoker.invokeLogicalHandlers(true);
+            
             if (continueProcessing) {  
 
                 if (null == bindingContext) {
                     bindingContext = context;
+                    System.out.println("bindingContext == null");
                 } else {
+                    System.out.println("calling marshall");
                     marshal(context, bindingContext, callback);
-                }
-
+                }    
+                
                 continueProcessing = handlerInvoker.invokeProtocolHandlers(true, bindingContext); 
 
                 if (continueProcessing) {
@@ -173,6 +176,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                         createOutputStreamContext(bindingContext);
                     
                     handlerInvoker.invokeStreamHandlers(ostreamContext); 
+                    
 
                     finalPrepareOutputStreamContext(bindingContext, ostreamContext);
                     
@@ -191,7 +195,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
                     handlerInvoker.setInbound();
                     handlerInvoker.setFault(ins.isFault()); 
-                    handlerInvoker.invokeStreamHandlers(ins); 
+                    handlerInvoker.invokeStreamHandlers(ins);                       
                     
                     read(ins, bindingContext);
                     
@@ -212,6 +216,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
             
             context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
             handlerInvoker.invokeLogicalHandlers(true);
+            
         } finally { 
             handlerInvoker.mepComplete();
         }        

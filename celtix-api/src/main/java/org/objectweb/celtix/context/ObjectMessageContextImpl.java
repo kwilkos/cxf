@@ -14,6 +14,7 @@ public class ObjectMessageContextImpl extends GenericMessageContext implements O
         put(ObjectMessageContext.METHOD_PARAMETERS, objects);
         setScope(ObjectMessageContext.METHOD_PARAMETERS, MessageContext.Scope.HANDLER);
     }
+    
 
     public void setReturn(Object retVal) {
         put(ObjectMessageContext.METHOD_RETURN, retVal);
@@ -46,5 +47,25 @@ public class ObjectMessageContextImpl extends GenericMessageContext implements O
         put(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY, Boolean.valueOf(requestor));
         setScope(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY, MessageContext.Scope.HANDLER);
     }
+
+    public Object getMessage() {
+        return get(ObjectMessageContext.METHOD_MESSAGE);
+    }
+
+    public Object getPayload() {
+        return get(ObjectMessageContext.METHOD_PAYLOAD);
+    }
+
+    public void setMessage(Object obj) {
+        put(ObjectMessageContext.METHOD_MESSAGE, obj);
+        setScope(ObjectMessageContext.METHOD_MESSAGE, MessageContext.Scope.HANDLER);    
+    }
+
+    public void setPayload(Object obj) {
+        put(ObjectMessageContext.METHOD_PAYLOAD, obj);
+        setScope(ObjectMessageContext.METHOD_PAYLOAD, MessageContext.Scope.HANDLER);
+        
+    }
+    
 }
 

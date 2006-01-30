@@ -26,7 +26,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.WebFault;
@@ -36,7 +36,6 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPBinding;
 import javax.xml.ws.soap.SOAPFaultException;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -111,33 +110,20 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             msg.getMimeHeaders().setHeader("SOAPAction",
                                            "\"" + callback.getSOAPAction() + "\"");
         }
-        if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
+        if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {       
             //contains the entire SOAP message
             boolean found = false;
             for (Class<?> cls : callback.getSupportedFormats()) {
                 if (cls == SOAPMessage.class) {
+                    msg = (SOAPMessage)objContext.getMessage();
+                    found = true;
+                    break;
+                } else if (cls == DOMSource.class) {
                     DataWriter<SOAPMessage> writer = callback.createWriter(SOAPMessage.class);
-                    writer.write(objContext, msg);
+                    writer.write(objContext.getMessage(), msg);
                     found = true;
                     break;
-                } else if (cls == SOAPPart.class) {
-                    DataWriter<SOAPPart> writer = callback.createWriter(SOAPPart.class);
-                    writer.write(objContext, msg.getSOAPPart());
-                    found = true;
-                    break;
-                } else if (cls == SOAPElement.class) {
-                    DataWriter<SOAPElement> writer = callback.createWriter(SOAPElement.class);
-                    writer.write(objContext, msg.getSOAPPart().getEnvelope());
-                    found = true;
-                    break;
-                } else if (cls == Document.class) {
-                    DataWriter<Document> writer = callback.createWriter(Document.class);
-                    writer.write(objContext, msg.getSOAPPart());
-                    found = true;
-                    break;
-                } else {
-                    //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
-                }
+                } 
             }
             if (!found) {
                 throw new SOAPException("Could not figure out how to marshal data");
@@ -146,24 +132,13 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             //contains the contents of the SOAP:Body
             boolean found = false;
             for (Class<?> cls : callback.getSupportedFormats()) {
-                if (cls == SOAPBody.class) {
+                
+                if (cls == DOMSource.class) {
                     DataWriter<SOAPBody> writer = callback.createWriter(SOAPBody.class);
-                    writer.write(objContext, msg.getSOAPPart().getEnvelope().getBody());
+                    writer.write(objContext.getPayload(), msg.getSOAPBody());
                     found = true;
                     break;
-                } else if (cls == SOAPElement.class) {
-                    DataWriter<SOAPElement> writer = callback.createWriter(SOAPElement.class);
-                    writer.write(objContext, msg.getSOAPPart().getEnvelope().getBody());
-                    found = true;
-                    break;
-                } else if (cls == Element.class) {
-                    DataWriter<Element> writer = callback.createWriter(Element.class);
-                    writer.write(objContext, msg.getSOAPPart().getEnvelope().getBody());
-                    found = true;
-                    break;
-                } else {
-                    //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
-                }
+                }            
             }
             if (!found) {
                 throw new SOAPException("Could not figure out how to marshal data");
@@ -281,10 +256,41 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         SOAPMessage soapMessage = soapContext.getMessage();
 
 
-        if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
-            //TODO - unmarshal to a full message
-        } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {
-            //TODO - unmarshal to payload
+        if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {  
+            boolean found = false;
+            for (Class<?> cls : callback.getSupportedFormats()) {
+                if (cls == SOAPMessage.class) {
+                    objContext.setMessage(soapMessage);
+                    found = true;
+                    break;
+                } else if (cls == DOMSource.class) {
+                    DataReader<SOAPMessage> reader = callback.createReader(SOAPMessage.class);
+                    Object obj = reader.read(0, soapMessage);
+                    objContext.setMessage(obj);
+                    found = true;
+                    break;
+                } 
+            }
+            if (!found) {
+                throw new SOAPException("Could not figure out how to unmarshal data");
+            }
+        } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {            
+            boolean found = false;
+            for (Class<?> cls : callback.getSupportedFormats()) {
+                if (cls == DOMSource.class) {
+                    DataReader<SOAPBody> reader = callback.createReader(SOAPBody.class);
+                    Object obj = reader.read(0, soapMessage.getSOAPBody());
+                    objContext.setPayload(obj);
+                    found = true;
+                    break;
+                } 
+            }
+            if (!found) {
+                throw new SOAPException("Could not figure out how to unmarshal data");
+            }
+            
+            
+            
         } else {
             //Assuming No Headers are inserted.
             Node soapEl = soapMessage.getSOAPBody();

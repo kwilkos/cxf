@@ -77,7 +77,12 @@ public class ServiceImpl extends ServiceDelegate {
 
     public <T> Dispatch<T> createDispatch(QName portName, Class<T> serviceEndpointInterface, 
                                     Service.Mode mode) {
-        return null;
+        EndpointReferenceType ref = 
+            EndpointReferenceUtils.getEndpointReference(wsdlLocation, 
+                                                        serviceName, 
+                                                        portName.getLocalPart());
+        createPortConfiguration(portName, ref);
+        return new DispatchImpl<T>(bus, ref, mode, serviceEndpointInterface);        
     }
 
     public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Service.Mode mode) {
@@ -118,14 +123,8 @@ public class ServiceImpl extends ServiceDelegate {
         
         EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlLocation, 
                 serviceName, portName.getLocalPart());
-             
-        Port port = null;
-        try  {
-            port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
-        } catch (WSDLException ex) {
-            throw new WebServiceException("Could not get port from wsdl", ex);
-        }        
-        PortConfiguration pc = new PortConfiguration(configuration, portName.getLocalPart(), bus, port);
+                     
+        PortConfiguration pc = createPortConfiguration(portName, ref);  
         
         EndpointInvocationHandler endpointHandler = 
                 new EndpointInvocationHandler(bus, ref, this, pc, serviceEndpointInterface);
@@ -177,6 +176,18 @@ public class ServiceImpl extends ServiceDelegate {
         }
         
         return serviceQName;
+    }
+    
+    private PortConfiguration createPortConfiguration(QName portName, EndpointReferenceType ref) {
+        
+        Port port = null;
+        try  {
+            port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+        } catch (WSDLException ex) {
+            throw new WebServiceException("Could not get port from wsdl", ex);
+        }        
+        return new PortConfiguration(configuration, portName.getLocalPart(), bus, port);
+        
     }
 
     @Override
