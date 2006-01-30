@@ -75,7 +75,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
     
     protected HandlerInvoker createHandlerInvoker() {
-        return new HandlerChainInvoker(getHandlerChain(true)); 
+        return new HandlerChainInvoker(getHandlerChain()); 
     }
 
     public Set<String> getRoles() {
@@ -110,17 +110,20 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             msg.getMimeHeaders().setHeader("SOAPAction",
                                            "\"" + callback.getSOAPAction() + "\"");
         }
-        if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {       
+        
+        if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
+
+            Object src = isInputMsg ? objContext.getReturn() : objContext.getMessageObjects()[0];
             //contains the entire SOAP message
             boolean found = false;
             for (Class<?> cls : callback.getSupportedFormats()) {
                 if (cls == SOAPMessage.class) {
-                    msg = (SOAPMessage)objContext.getMessage();
+                    msg = (SOAPMessage)src;
                     found = true;
                     break;
                 } else if (cls == DOMSource.class) {
                     DataWriter<SOAPMessage> writer = callback.createWriter(SOAPMessage.class);
-                    writer.write(objContext.getMessage(), msg);
+                    writer.write(src, msg);
                     found = true;
                     break;
                 } 
@@ -131,11 +134,12 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {
             //contains the contents of the SOAP:Body
             boolean found = false;
+            Object src = isInputMsg ? objContext.getReturn() : objContext.getMessageObjects()[0];
             for (Class<?> cls : callback.getSupportedFormats()) {
-                
+
                 if (cls == DOMSource.class) {
                     DataWriter<SOAPBody> writer = callback.createWriter(SOAPBody.class);
-                    writer.write(objContext.getPayload(), msg.getSOAPBody());
+                    writer.write(src, msg.getSOAPBody());
                     found = true;
                     break;
                 }            
@@ -255,18 +259,17 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
         SOAPMessage soapMessage = soapContext.getMessage();
 
-
+        Object obj = null;
         if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {  
             boolean found = false;
             for (Class<?> cls : callback.getSupportedFormats()) {
                 if (cls == SOAPMessage.class) {
-                    objContext.setMessage(soapMessage);
+                    obj = soapMessage;
                     found = true;
                     break;
                 } else if (cls == DOMSource.class) {
                     DataReader<SOAPMessage> reader = callback.createReader(SOAPMessage.class);
-                    Object obj = reader.read(0, soapMessage);
-                    objContext.setMessage(obj);
+                    obj = reader.read(0, soapMessage);
                     found = true;
                     break;
                 } 
@@ -274,13 +277,19 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             if (!found) {
                 throw new SOAPException("Could not figure out how to unmarshal data");
             }
+            
+            if (isOutputMsg) {
+                objContext.setReturn(obj);
+            } else {
+                objContext.setMessageObjects(obj);                
+            }
+            
         } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {            
             boolean found = false;
             for (Class<?> cls : callback.getSupportedFormats()) {
                 if (cls == DOMSource.class) {
                     DataReader<SOAPBody> reader = callback.createReader(SOAPBody.class);
-                    Object obj = reader.read(0, soapMessage.getSOAPBody());
-                    objContext.setPayload(obj);
+                    obj = reader.read(0, soapMessage.getSOAPBody());
                     found = true;
                     break;
                 } 
@@ -289,8 +298,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 throw new SOAPException("Could not figure out how to unmarshal data");
             }
             
-            
-            
+            if (isOutputMsg) {
+                objContext.setReturn(obj);
+            } else {
+                objContext.setMessageObjects(obj);                
+            }            
         } else {
             //Assuming No Headers are inserted.
             Node soapEl = soapMessage.getSOAPBody();
@@ -394,9 +406,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             if (cls == Node.class) {
                 reader = callback.createReader(Node.class);
                 break;
-            } else {
-                //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
-            }
+            } 
         }
 
         if (reader == null) {

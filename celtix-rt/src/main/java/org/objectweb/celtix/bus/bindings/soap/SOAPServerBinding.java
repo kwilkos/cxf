@@ -11,20 +11,13 @@ import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.ProtocolException;
-import javax.xml.ws.Provider;
-import javax.xml.ws.Service;
-import javax.xml.ws.ServiceMode;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import org.objectweb.celtix.Bus;
@@ -107,11 +100,11 @@ public class SOAPServerBinding extends AbstractServerBinding {
 
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {
         try {
+            DataBindingCallback.Mode mode = sbeCallback.getServiceMode();
             SOAPMessage msg = soapBinding
                 .marshalMessage(objContext,
                                 context,
-                                sbeCallback.createDataBindingCallback(objContext,
-                                                                      DataBindingCallback.Mode.PARTS));
+                                sbeCallback.createDataBindingCallback(objContext, mode));
             ((SOAPMessageContext)context).setMessage(msg);
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_MARSHALLING_FAILURE_MSG", se);
@@ -120,20 +113,20 @@ public class SOAPServerBinding extends AbstractServerBinding {
     }
 
     protected void marshalFault(ObjectMessageContext objContext, MessageContext context) {
+        DataBindingCallback.Mode mode = sbeCallback.getServiceMode();
         SOAPMessage msg = soapBinding
             .marshalFault(objContext, context,
-                          sbeCallback.createDataBindingCallback(objContext,
-                                                                DataBindingCallback.Mode.PARTS));
+                          sbeCallback.createDataBindingCallback(objContext, mode));
         ((SOAPMessageContext)context).setMessage(msg);
     }
     
     protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
         try {
+            DataBindingCallback.Mode mode = sbeCallback.getServiceMode();
             soapBinding.unmarshalMessage(context,
                                          objContext,
                                          sbeCallback
-                                             .createDataBindingCallback(objContext,
-                                                                        DataBindingCallback.Mode.PARTS));
+                                             .createDataBindingCallback(objContext, mode));
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
             throw new ProtocolException(se);
@@ -167,53 +160,6 @@ public class SOAPServerBinding extends AbstractServerBinding {
             LOG.log(Level.SEVERE, "SOAP_PARSING_FAILURE_MSG", se);
             throw new ProtocolException(se);
         }
-    }
-    
-    protected MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode) {
-        SOAPMessageContext soapCtx = (SOAPMessageContext)requestCtx;
-        SOAPMessage msg = soapCtx.getMessage();
-        
-        if (Service.Mode.MESSAGE == mode.value()) {
-            return invokeOnProvider(msg, soapCtx);
-        }
-        
-        SOAPBody body = null;
-        try {
-            body = msg.getSOAPBody();
-        } catch (SOAPException ex) {
-            LOG.log(Level.SEVERE, "SOAP_BODY_RETREIVAL_FAILURE_MSG", ex);
-        }
-        return invokeOnProvider(body, soapCtx);
-    }
-    
-    
-    @SuppressWarnings("unchecked")
-    MessageContext invokeOnProvider(SOAPMessage msg, SOAPMessageContext soapCtx) {
-        Provider<SOAPMessage> provider = (Provider<SOAPMessage>)getEndpoint().getImplementor();
-        SOAPMessage replyMsg = provider.invoke(msg);
-        SOAPMessageContextImpl replyCtx = new SOAPMessageContextImpl(soapCtx);
-        replyCtx.setMessage(replyMsg);
-        return replyCtx;
-    }
-    
-    @SuppressWarnings("unchecked")
-    MessageContext invokeOnProvider(SOAPBody body, SOAPMessageContext soapCtx) {
-        
-        try {
-            Document document = body.extractContentAsDocument();
-            Source request = new DOMSource(document);
-            
-            Provider<Source> provider = (Provider<Source>)getEndpoint().getImplementor();
-            Source reply = provider.invoke(request);
-            assert null != reply;
-            SOAPMessageContext replyCtx = new SOAPMessageContextImpl(soapCtx);
-            assert null != replyCtx;         
-        } catch (SOAPException ex) {
-            LOG.log(Level.SEVERE, "SOAP_BODY_PROVIDER_FAILURE_MSG", ex);
-            throw new ProtocolException(ex);
-        }
-        
-        return null;
     }
     
     protected QName getOperationName(MessageContext ctx) {

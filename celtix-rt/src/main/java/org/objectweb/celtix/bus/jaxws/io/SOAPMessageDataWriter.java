@@ -20,9 +20,9 @@ public class SOAPMessageDataWriter<T> implements DataWriter<T> {
     public void write(Object obj, T output) {
         SOAPMessage dest = (SOAPMessage) output;
         try {
-            if (obj.getClass().isAssignableFrom(DOMSource.class)) {
-                DOMSource dsrc = (DOMSource)obj;
-                dest.getSOAPPart().setContent(dsrc);
+            if (DOMSource.class.isAssignableFrom(obj.getClass())) {
+                DOMSource src = (DOMSource) obj;
+                dest.getSOAPPart().setContent(src);
             }
         } catch (SOAPException se) {
             //TODO

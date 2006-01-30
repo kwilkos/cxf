@@ -21,6 +21,7 @@ import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.handler.Handler;
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactory;
@@ -53,6 +54,11 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     private Executor executor;
     private JAXBContext context;
 
+    //Implementor (Provider) specific members
+    private ServiceMode serviceMode;
+    private WebServiceProvider wsProvider;
+    private Class<?> dataClass;
+    
     public EndpointImpl(Bus b, Object impl, String bindingId) {
         this(b, impl, bindingId, EndpointReferenceUtils.getEndpointReference(b.getWSDLManager(), impl));
     }
@@ -63,12 +69,12 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         reference = ref;
 
         if (Provider.class.isAssignableFrom(impl.getClass())) {
-            WebServiceProvider wsProvider = 
-                implementor.getClass().getAnnotation(WebServiceProvider.class);
+            wsProvider = implementor.getClass().getAnnotation(WebServiceProvider.class);
             if (wsProvider == null) {
                 throw new WebServiceException(
                            "Provider based implementor must carry a WebServiceProvider annotation");
             }
+            serviceMode = implementor.getClass().getAnnotation(ServiceMode.class);
         }
         
         try {
@@ -306,16 +312,53 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
 
     public DataBindingCallback createDataBindingCallback(ObjectMessageContext objContext,
                                                          DataBindingCallback.Mode mode) {
-        return new JAXBDataBindingCallback(objContext.getMethod(),
+        if (mode == DataBindingCallback.Mode.PARTS) {
+            return new JAXBDataBindingCallback(objContext.getMethod(),
                                            mode,
                                            context);
+        }
+        
+        if (dataClass == null) {
+            dataClass = EndpointUtils.getProviderParameterType(this);
+        }
+
+        return new DynamicDataBindingCallback(dataClass, mode);
     }
 
     public Method getMethod(Endpoint endpoint, QName operationName) {
-        return EndpointUtils.getMethod(endpoint, operationName);
+        
+        if (wsProvider == null) {
+            return EndpointUtils.getMethod(endpoint, operationName); 
+        }
+
+        Method invokeMethod = null;
+        if (operationName.getLocalPart().equals("invoke")) {
+
+            try {
+                if (dataClass == null) {
+                    dataClass = EndpointUtils.getProviderParameterType(endpoint);
+                }
+                invokeMethod = implementor.getClass().getMethod("invoke", dataClass);
+            } catch (NoSuchMethodException ex) {
+                //TODO
+            }
+        }
+        return invokeMethod;
     }
 
-    public ServiceMode getServiceMode(Endpoint endpoint) {
-        return EndpointUtils.getServiceMode(endpoint);
+    public DataBindingCallback.Mode getServiceMode() {
+        DataBindingCallback.Mode mode = DataBindingCallback.Mode.PARTS;
+        
+        if (wsProvider != null) {
+            mode = serviceMode != null 
+                    ? DataBindingCallback.Mode.fromServiceMode(serviceMode.value())
+                    : DataBindingCallback.Mode.PAYLOAD;
+        }
+        return mode; 
+    }
+    
+    public WebServiceProvider getWebServiceProvider() {
+        return wsProvider;
     } 
+    
 }

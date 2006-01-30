@@ -7,8 +7,6 @@ import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Document;
 
-
-
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -24,7 +22,7 @@ public class SOAPBodyDataWriter<T> implements DataWriter<T> {
     public void write(Object obj, T output) {
         SOAPBody dest = (SOAPBody)output;
         try {
-            if (obj.getClass().isAssignableFrom(DOMSource.class)) {
+            if (DOMSource.class.isAssignableFrom(obj.getClass())) {
                 DOMSource domSource = (DOMSource)obj;
                 dest.addDocument((Document)domSource.getNode());
             }

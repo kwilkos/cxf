@@ -17,8 +17,8 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
-import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
@@ -127,8 +127,6 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
     protected abstract void read(InputStreamMessageContext inCtx, MessageContext context) throws IOException;
 
-    protected abstract MessageContext invokeOnProvider(MessageContext requestCtx, ServiceMode mode);
-    
     // --- Methods to be implemented by concrete server bindings ---
 
     protected OutputStreamMessageContext createOutputStreamContext(ServerTransport t,
@@ -178,7 +176,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 LOG.log(Level.SEVERE, "REQUEST_UNREADABLE_MSG", ex);
                 throw new WebServiceException(ex);
             }
-            
+
             method = getMethod(requestCtx, objContext);
             assert method != null;
             initObjectContext(objContext, method);
@@ -191,13 +189,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
                     throw new WebServiceException(ex);
                 }
             }
-
-            ServiceMode mode = sbeCallback.getServiceMode(endpoint);
-            if (null != mode) {
-                replyCtx = invokeOnProvider(requestCtx, mode);
-            } else {
-                replyCtx = invokeOnMethod(requestCtx, objContext, invoker);
-            }
+                
+            replyCtx = invokeOnMethod(requestCtx, objContext, invoker);
         } catch (RuntimeException ex) {
             objContext.setException(ex);
             if (replyCtx == null) {
@@ -385,7 +378,10 @@ public abstract class AbstractServerBinding implements ServerBinding {
     
     private Method getMethod(MessageContext requestCtx, ObjectMessageContext objContext) {
         
-        QName operationName = getOperationName(requestCtx); 
+        WebServiceProvider wsProvider = sbeCallback.getWebServiceProvider();
+        QName operationName = wsProvider != null 
+                ? new QName(wsProvider.targetNamespace(), "invoke") 
+                : getOperationName(requestCtx);
 
         if (null == operationName) {
             LOG.severe("CONTEXT_MISSING_OPERATION_NAME_MSG");

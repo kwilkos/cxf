@@ -1,9 +1,9 @@
 package org.objectweb.celtix.bus.jaxws.io;
 
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
 
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
@@ -21,22 +21,21 @@ public class SOAPMessageDataReader<T> implements DataReader<T> {
         SOAPMessage src = (SOAPMessage) input;
         Source obj = null;
         try {
-            obj = src.getSOAPPart().getContent();
-        } catch (SOAPException ex) {
-            return null;
+            if (DOMSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {
+                obj = new DOMSource(src.getSOAPPart());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }       
-        return obj;
-        
+        return obj;        
     }
 
     public Object read(QName name, int idx, T input) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public void readWrapper(ObjectMessageContext objCtx, boolean isOutBound, T input) {
-        // TODO Auto-generated method stub
-
+        //Complete
     }
 
 }

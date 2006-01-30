@@ -14,7 +14,7 @@ public interface ObjectMessageContext extends MessageContext {
     String METHOD_MESSAGE = "org.objectweb.celtix.method.message";
     String METHOD_PAYLOAD = "org.objectweb.celtix.method.payload";
     String METHOD_RETURN = "org.objectweb.celtix.return";
-    String METHOD_FAULT = "org.objectweb.celtix.fault";    
+    String METHOD_FAULT = "org.objectweb.celtix.fault";
 
     Object[] getMessageObjects();
     
@@ -33,14 +33,6 @@ public interface ObjectMessageContext extends MessageContext {
     Throwable getException();
 
     void setRequestorRole(boolean requestor);
-    
-    void setMessage(Object obj);
-    
-    Object getMessage();
-    
-    void setPayload(Object obj);
-    
-    Object getPayload();
 }
 
 

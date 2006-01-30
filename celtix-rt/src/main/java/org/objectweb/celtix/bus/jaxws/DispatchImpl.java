@@ -69,28 +69,15 @@ public class DispatchImpl<T> implements Dispatch<T> {
         // Further copied into ObjectMessageContext so as to decouple context
         // across invocations
         objMsgContext.putAll(getRequestContext());
-        //objMsgContext.setMessageObjects(obj);
-        if (mode == Mode.MESSAGE) {
-            objMsgContext.setMessage(obj);
-        } else if (mode == Mode.PAYLOAD) {
-            objMsgContext.setPayload(obj);
-        }
+        objMsgContext.setMessageObjects(obj);
         
         try {
             objMsgContext = cb.invoke(objMsgContext, callback);
-           
-            if (mode == Mode.MESSAGE) {
-                return cl.cast(objMsgContext.getMessage());
-            } else if (mode == Mode.PAYLOAD) {
-                return cl.cast(objMsgContext.getPayload());
-            }
-            //return cl.cast(objMsgContext.getMessageObjects()[0]);
-           
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         
-        return null;
+        return cl.cast(objMsgContext.getReturn());
     }
 
     public Future<?> invokeAsync(T arg0, AsyncHandler<T> arg1) {

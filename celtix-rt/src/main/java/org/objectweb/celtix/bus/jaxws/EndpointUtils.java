@@ -1,6 +1,8 @@
 package org.objectweb.celtix.bus.jaxws;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -90,6 +92,14 @@ public final class EndpointUtils {
 
         return iMethod;
     }
+    
+    public static Class<?> getProviderParameterType(Endpoint endpoint) {
+        //The Provider Implementor inherits out of Provier<T>
+        Type intfTypes[] = endpoint.getImplementor().getClass().getGenericInterfaces();
+        assert intfTypes.length != 1;
+        Type paramTypes[] = ((ParameterizedType)intfTypes[0]).getActualTypeArguments();
+        return JAXBEncoderDecoder.getClassFromType(paramTypes[0]);       
+    }
 
     private static boolean hasWebServiceAnnotation(Class<?> cls) {
         if (cls == null) {
@@ -146,4 +156,6 @@ public final class EndpointUtils {
 
         return list;        
     }
+    
+    
 }

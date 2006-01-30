@@ -64,6 +64,16 @@ public final class EndpointReferenceUtils {
     }
 
     /**
+     * Gets the wsdl location of the provided endpoint reference.
+     * @param ref the endpoint reference.
+     * @return the wsdl location.
+     */
+    public static String getWSDLLocation(EndpointReferenceType ref) {
+        Map<QName, String> attribMap = ref.getMetadata().getOtherAttributes();
+        return attribMap.get(WSDL_LOCATION);
+    }
+    
+    /**
      * Gets the WSDL definition for the provided endpoint reference.
      * @param manager - the WSDL manager 
      * @param ref - the endpoint reference
@@ -310,6 +320,13 @@ public final class EndpointReferenceUtils {
         }
 
         if (null != url && url.length() > 0) {
+            //REVISIT Resolve the url for all cases
+            if (wsp != null) {                
+                URL wsdlUrl = implementor.getClass().getResource(url);
+                if (wsdlUrl != null) {
+                    url = wsdlUrl.toExternalForm();
+                }
+            }
             attribMap.put(WSDL_LOCATION, url);
         }
 

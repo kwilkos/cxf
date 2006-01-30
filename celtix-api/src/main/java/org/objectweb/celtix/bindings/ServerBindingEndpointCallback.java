@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.ServiceMode;
+import javax.xml.ws.WebServiceProvider;
 
 import org.objectweb.celtix.context.ObjectMessageContext;
 
@@ -36,9 +36,15 @@ public interface ServerBindingEndpointCallback {
     
     
     /**
-     * Returns the ServiceMode used for the given Endpoint
-     * @param endpoint
+     * Returns the ServiceMode used for the given Implementor
      * @return the endpoint's service mode
      */
-    ServiceMode getServiceMode(Endpoint endpoint);
+    DataBindingCallback.Mode getServiceMode();
+    
+    /**
+     * Returns the WebServiceProvider used for the given Endpoint
+     * @return the endpoint's service mode
+     */
+    WebServiceProvider getWebServiceProvider();
+    
 }

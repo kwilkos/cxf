@@ -17,10 +17,11 @@ import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
 
 import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebFault;
+import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 
@@ -32,6 +33,7 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
+import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
 import org.objectweb.celtix.bus.jaxws.EndpointUtils;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -42,6 +44,9 @@ import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
+import org.objectweb.hello_world_soap_http.HWSoapMessageProvider;
+import org.objectweb.hello_world_soap_http.HWSourcePayloadProvider;
+import org.objectweb.hello_world_soap_http.HelloWorldServiceProvider;
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 import org.objectweb.hello_world_soap_http.NotAnnotatedGreeterImpl;
 import org.objectweb.hello_world_soap_http.NotAnnotatedGreeterImplRPCLit;
@@ -90,6 +95,72 @@ public class SOAPServerBindingTest extends TestCase {
     }
     */
 
+    public void testProviderDispatchMessageModeSourceData() throws Exception {
+        HelloWorldServiceProvider provider = new HelloWorldServiceProvider();
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(
+                                                  provider,
+                                                  DataBindingCallback.Mode.MESSAGE,
+                                                  DOMSource.class);
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
+        TestServerTransport serverTransport = new TestServerTransport(bus, epr);        
+        TestInputStreamContext inCtx = new TestInputStreamContext(null);
+        
+        InputStream is = getClass().getResourceAsStream("resources/sayHiDocLiteralReq.xml");
+        inCtx.setInputStream(is);
+
+        serverBinding.testDispatch(inCtx, serverTransport);
+
+        assertEquals(1, provider.getInvokeCount());
+        assertNotNull(serverTransport.getOutputStreamContext());
+        assertFalse(serverTransport.getOutputStreamContext().isFault());
+        OutputStream os = serverTransport.getOutputStreamContext().getOutputStream();
+        assertNotNull(os);
+    }
+
+    public void testProviderDispatchMessageModeSOAPMessageData() throws Exception {
+        HWSoapMessageProvider provider = new HWSoapMessageProvider();
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(
+                                                  provider,
+                                                  DataBindingCallback.Mode.MESSAGE,
+                                                  SOAPMessage.class);
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
+        TestServerTransport serverTransport = new TestServerTransport(bus, epr);        
+        TestInputStreamContext inCtx = new TestInputStreamContext(null);
+        
+        InputStream is = getClass().getResourceAsStream("resources/sayHiDocLiteralReq.xml");
+        inCtx.setInputStream(is);
+
+        serverBinding.testDispatch(inCtx, serverTransport);
+
+        assertEquals(1, provider.getInvokeCount());
+        assertNotNull(serverTransport.getOutputStreamContext());
+        assertFalse(serverTransport.getOutputStreamContext().isFault());
+        OutputStream os = serverTransport.getOutputStreamContext().getOutputStream();
+        assertNotNull(os);
+    }
+
+    public void testProviderDispatchPayloadModeSourceData() throws Exception {
+        HWSourcePayloadProvider provider = new HWSourcePayloadProvider();
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(
+                                                  provider,
+                                                  DataBindingCallback.Mode.PAYLOAD,
+                                                  DOMSource.class);
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
+        TestServerTransport serverTransport = new TestServerTransport(bus, epr);        
+        TestInputStreamContext inCtx = new TestInputStreamContext(null);
+        
+        InputStream is = getClass().getResourceAsStream("resources/sayHiDocLiteralReq.xml");
+        inCtx.setInputStream(is);
+
+        serverBinding.testDispatch(inCtx, serverTransport);
+
+        assertEquals(1, provider.getInvokeCount());
+        assertNotNull(serverTransport.getOutputStreamContext());
+        assertFalse(serverTransport.getOutputStreamContext().isFault());
+        OutputStream os = serverTransport.getOutputStreamContext().getOutputStream();
+        assertNotNull(os);
+    }
+    
     public void testDocLitDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
@@ -307,11 +378,23 @@ public class SOAPServerBindingTest extends TestCase {
     class TestEndpointImpl extends javax.xml.ws.Endpoint implements ServerBindingEndpointCallback {
 
         private final Object implementor;
-
+        private WebServiceProvider wsProvider;
+        private DataBindingCallback.Mode mode;
+        private Class<?> dataClazz;
+        
         TestEndpointImpl(Object impl) {
             implementor = impl;
+            mode = DataBindingCallback.Mode.PARTS;
         }
 
+        TestEndpointImpl(Object impl, 
+                         DataBindingCallback.Mode dataMode,
+                         Class<?> clazz) {
+            implementor = impl;
+            mode = dataMode;
+            dataClazz = clazz;
+        }
+        
         public Binding getBinding() {
             return null;
         }
@@ -364,19 +447,38 @@ public class SOAPServerBindingTest extends TestCase {
         }
 
         public DataBindingCallback createDataBindingCallback(ObjectMessageContext objContext,
-                                                             DataBindingCallback.Mode mode) {
-            return new JAXBDataBindingCallback(objContext.getMethod(),
+                                                             DataBindingCallback.Mode dataMode) {
+            if (dataMode == DataBindingCallback.Mode.PARTS) {
+                return new JAXBDataBindingCallback(objContext.getMethod(),
                                                mode,
                                                null);
+            }
+
+            return new DynamicDataBindingCallback(dataClazz, mode);
         }
+        
         public Method getMethod(Endpoint endpoint, QName operationName) {
+            if (wsProvider != null) {
+                try {
+                    return implementor.getClass().getDeclaredMethod("invoke", dataClazz);
+                } catch (Exception ex) {
+                    //Ignore
+                }
+            }
             return EndpointUtils.getMethod(endpoint, operationName);
         }
 
-        public ServiceMode getServiceMode(Endpoint endpoint) {
-            return EndpointUtils.getServiceMode(endpoint);
+        public DataBindingCallback.Mode getServiceMode() {
+            return mode;
         } 
 
+        public WebServiceProvider getWebServiceProvider() {
+            if (wsProvider == null) {
+                wsProvider = this.getImplementor().getClass().getAnnotation(WebServiceProvider.class);
+            }
+            return wsProvider;
+        } 
+        
     }
     
 }
