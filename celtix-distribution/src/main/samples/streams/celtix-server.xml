@@ -48,12 +48,12 @@
 
       <property name="handlerChain">
           <value>
-              <jaxws-types:handlerChainValue>
+              <jaxws-types:handler-chain >
                  <jaxws-types:handler>
-                      <jaxws-types:name>Compression  Handler</jaxws-types:name>
-                      <jaxws-types:className>demo.streams.common.CompressionStreamHandler</jaxws-types:className>
+                      <jaxws-types:handler-name>Compression  Handler</jaxws-types:handler-name>
+                      <jaxws-types:handler-class>demo.streams.common.CompressionStreamHandler</jaxws-types:handler-class>
                   </jaxws-types:handler>
-              </jaxws-types:handlerChainValue>              
+              </jaxws-types:handler-chain >              
           </value>
       </property>
       
