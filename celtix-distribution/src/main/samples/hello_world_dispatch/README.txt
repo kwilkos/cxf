@@ -4,7 +4,7 @@ Hello World Dispatch Demo using Document/Literal Style
 This demo invokes upon the server through the client side JAX-WS Dispatch interface.
 There are three differnt invocations from the client, the first uses a SOAPMessage, 
 the second uses a DOMSource with MESSAGE mode and the third a DOMSource with PAYLOAD mode.
-The three different messages are constructed by reading in the XML files found in the wsdl directory.
+The three different messages are constructed by reading in the XML files found in the /demo/hwDispatch/client directory.
 
 Please review the README in the samples directory before
 continuing.

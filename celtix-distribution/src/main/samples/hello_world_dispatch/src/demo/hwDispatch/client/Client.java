@@ -20,8 +20,6 @@ public final class Client {
     
     private static final QName PORT_NAME = new QName("http://objectweb.org/hello_world_soap_http", 
                                                      "SoapPort"); 
-    
-    private static final String WSDL_RELV_PATH = "..\\..\\..\\..\\..\\wsdl\\";
 
     private Client() {
     } 
@@ -45,9 +43,10 @@ public final class Client {
         
         SOAPService service = new SOAPService(wsdlURL, SERVICE_NAME); 
         
-        InputStream is1 =  Client.class.getResourceAsStream(WSDL_RELV_PATH + "GreetMeDocLiteralReq1.xml");
-        InputStream is2 =  Client.class.getResourceAsStream(WSDL_RELV_PATH + "GreetMeDocLiteralReq2.xml");
-        InputStream is3 =  Client.class.getResourceAsStream(WSDL_RELV_PATH + "GreetMeDocLiteralReq3.xml");
+        
+        InputStream is1 =  Client.class.getResourceAsStream("GreetMeDocLiteralReq1.xml");
+        InputStream is2 =  Client.class.getResourceAsStream("GreetMeDocLiteralReq2.xml");
+        InputStream is3 =  Client.class.getResourceAsStream("GreetMeDocLiteralReq3.xml");
         
         SOAPMessage soapReq1 = MessageFactory.newInstance().createMessage(null, is1);
         SOAPMessage soapReq2 = MessageFactory.newInstance().createMessage(null, is2);
