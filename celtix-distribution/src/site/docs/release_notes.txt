@@ -97,8 +97,19 @@ serve 404 (not found) errors to all client connections.
 
 
 3.2 JMS
+
+3.2.1 WS-Addressing Support
 The JMS transport does not currently use policy based configuration, or support WS-Addressing.
 
+3.2.2 Pubsub Demo
+The pubsub demo fails when the following is done:
+1. Start JMS Broker, Server and run client this works fine.
+2. Kill JMS Broker, kill server.
+3. Again Start JMS Broker, Server and run client this works fine.
+4. Kill JMS Broker, Kill server.
+5. Start JMS Broker and Start Server, this time Server will hang and will not show "Server Ready"
+
+The work around is to ensure that all of you clean up your database before running the demo.
 
 4. Reporting Problems
 
