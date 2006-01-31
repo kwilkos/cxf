@@ -195,7 +195,9 @@ public final class JAXBEncoderDecoder {
 
             if (elValue.getClass().isAnnotationPresent(XmlRootElement.class)) {
                 String packageName = elValue.getClass().getPackage().getName();
-                Class<?> objectFactory = Class.forName(packageName + ".ObjectFactory");
+                Class<?> objectFactory = Class.forName(packageName + ".ObjectFactory", false, 
+                                                       elValue.getClass().getClassLoader());
+
                 Method methods[] = objectFactory.getDeclaredMethods();
                 for (Method method : methods) {
                     if (method.getParameterTypes().length == 1

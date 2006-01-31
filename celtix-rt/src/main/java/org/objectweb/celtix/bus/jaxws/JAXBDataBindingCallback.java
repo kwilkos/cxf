@@ -280,7 +280,13 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         
         Object wrapperObj = null;
         try {
-            wrapperObj = Class.forName(wrapperType).newInstance();
+            
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            if (loader == null) { 
+                loader = getClass().getClassLoader();
+            } 
+
+            wrapperObj = Class.forName(wrapperType, true, loader).newInstance();
         } catch (Exception ex) {
             throw new WebServiceException("Could not create the wrapper element", ex);
         }

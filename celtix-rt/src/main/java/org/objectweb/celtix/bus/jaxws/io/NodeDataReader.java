@@ -13,6 +13,7 @@ import javax.xml.ws.WebServiceException;
 import org.w3c.dom.Node;
 
 import org.objectweb.celtix.bindings.DataReader;
+import org.objectweb.celtix.bus.jaxws.ClassHelper;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -65,9 +66,9 @@ public class NodeDataReader<T> implements DataReader<T> {
 
         try {
             obj = JAXBEncoderDecoder.unmarshall(callback.getJAXBContext(), childNode,
-                                                elName, Class.forName(wrapperType));
+                                                elName, ClassHelper.forName(wrapperType));
         } catch (ClassNotFoundException e) {
-            throw new WebServiceException("Could not unmarshall wrapped type.");
+            throw new WebServiceException("Could not unmarshall wrapped type: " + e.getMessage());
         }
 
         if (isOutBound && callback.getWebResult() != null) {
