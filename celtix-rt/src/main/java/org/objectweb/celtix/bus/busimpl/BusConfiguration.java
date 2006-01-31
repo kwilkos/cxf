@@ -12,26 +12,15 @@ public class BusConfiguration extends AbstractConfigurationImpl {
     private static final CommandLineOption BUS_ID_OPT;    
     private static final String DEFAULT_BUS_ID = "celtix";
     
-    private final String id;
-
     static {
         BUS_ID_OPT = new CommandLineOption("-BUSid");
     }
     
-    
     BusConfiguration(String[] args, Map<String, Object> properties) {
-        super("config-metadata/bus-config.xml", "celtix");  
-        
-        // get the bus id from the command line arguments        
-        id = getBusId(args, properties);       
+        super("config-metadata/bus-config.xml", getBusId(args, properties));  
     }
 
-    @Override
-    public Object getId() {
-        return id;
-    } 
-    
-    private String getBusId(String[] args, Map<String, Object> properties) {
+    private static String getBusId(String[] args, Map<String, Object> properties) {
 
         String busId = null;
 
