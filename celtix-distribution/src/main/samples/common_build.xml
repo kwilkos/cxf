@@ -44,6 +44,7 @@
         <isset property="env.CELTIX_HOME"/>
     </condition>
     <property name="celtix.home" location="../.."/>
+    <property name="celtix.etc.dir" location="${celtix.home}/etc"/>
 
 
     <path id="celtix.classpath">
