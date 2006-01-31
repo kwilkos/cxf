@@ -96,8 +96,14 @@ public final class EndpointUtils {
     public static Class<?> getProviderParameterType(Endpoint endpoint) {
         //The Provider Implementor inherits out of Provier<T>
         Type intfTypes[] = endpoint.getImplementor().getClass().getGenericInterfaces();
-        assert intfTypes.length != 1;
-        Type paramTypes[] = ((ParameterizedType)intfTypes[0]).getActualTypeArguments();
+        Type providerType = null;
+        for (Type t : intfTypes) {
+            Class<?> clazz = JAXBEncoderDecoder.getClassFromType(t);
+            if (Provider.class == clazz) {
+                providerType = t;
+            }
+        }
+        Type paramTypes[] = ((ParameterizedType)providerType).getActualTypeArguments();
         return JAXBEncoderDecoder.getClassFromType(paramTypes[0]);       
     }
 
