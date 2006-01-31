@@ -57,7 +57,6 @@ sub fixpomfiles {
         }
     }
     close POM;
-    rename $pom, "${pom}.bak";
     open(POM, ">$pom") || die "cannot open $pom: $!\n";
     print POM @new;
     close POM;
