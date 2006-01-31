@@ -3,12 +3,12 @@ Celtix Milestone 3 Release Notes
 1. New Features
 
   Added in Milestone 4:
-    * Migration of Celtix to Maven 2.0 and Source Code Organization Complete.
-    * WS-RM Infrastructure Complete.
+    * Migration of build system to Maven 2.0.
+    * Source Code Organization for better reuse. 
     * Support for JAX-WS Dispatch and Provider API's.
     * Support for non-wrapper Doc/Literal Style.
-    * Transport and Binding API's Complete.
-    * Celtix WSDLToJava and JavaToWSDL Tools Complete. 
+    * Celtix based WSDLToJava and JavaToWSDL commandline Tools.
+    * Infrastructure support for WS-RM.
 
   Added in Milestone 3:
     * HTTP 1.1 transport.
@@ -109,7 +109,8 @@ The pubsub demo fails when the following is done:
 4. Kill JMS Broker, Kill server.
 5. Start JMS Broker and Start Server, this time Server will hang and will not show "Server Ready"
 
-The work around is to ensure that all of you clean up your database before running the demo.
+The work around is to ensure to clean up database before running the demo.
+This can be done by calling "ant clean"
 
 4. Reporting Problems
 
