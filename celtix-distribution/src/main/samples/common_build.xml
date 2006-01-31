@@ -44,6 +44,7 @@
         <isset property="env.CELTIX_HOME"/>
     </condition>
     <property name="celtix.home" location="../.."/>
+    <property name="activemq.home" location="${celtix.home}/lib/activemq/3.2"/>
     <property name="celtix.etc.dir" location="${celtix.home}/etc"/>
 
 
@@ -89,11 +90,12 @@
         <delete file="${codegen.timestamp.file}"/>
         <delete file="demo.log"/>
         <delete file="${wsdl.dir}/async_binding.xml"/>
+        <delete dir="${build.var.dir}"/>
+        <delete dir="${activemq.home}/var"/>
     </target>
 
     <!-- Target to start JMS Broker for JMS samples -->
     <target name="jmsbroker.start">
-        <property name="activemq.home" location="${celtix.home}/lib/activemq/3.2"/>
         <property name="derby.system.home" location="${build.var.dir}"/>
 
         <java classname="org.activemq.spring.Main" fork="yes" dir="${activemq.home}/bin">
@@ -104,6 +106,7 @@
             <jvmarg value="-Dactivemq.home=${activemq.home}"/>
             <jvmarg value="-Dderby.system.home=${derby.system.home}"/>
             <jvmarg value="-Dderby.storage.fileSyncTransactionLog=true"/>
+            <jvmarg value="-Dderby.storage.dir=${build.var.dir}"/>
             <sysproperty key="log4j.configuration" value="file:///${celtix.etc.dir}/log4j.properties"/>
         </java>
     </target>
