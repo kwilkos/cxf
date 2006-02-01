@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
+import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
@@ -149,8 +150,6 @@ public class DispatchImplTest<T> extends TestCase {
     
     class TestClientTransport implements ClientTransport {
         
-        private MessageContext ctx;
-        
         public TestClientTransport(Bus mybus, EndpointReferenceType ref) 
             throws WSDLException, IOException {       
         }
@@ -168,10 +167,6 @@ public class DispatchImplTest<T> extends TestCase {
             throws IOException {
             return null;
         }
-        
-        public MessageContext getTestMessageContext() {
-            return ctx;
-        }
 
         public OutputStreamMessageContext createOutputStreamContext(MessageContext context) 
             throws IOException {
@@ -187,6 +182,22 @@ public class DispatchImplTest<T> extends TestCase {
             // TODO Auto-generated method stub
             
         }
+
+        public EndpointReferenceType getDecoupledEndpoint() throws IOException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        public Port getPort() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        public EndpointReferenceType getTargetEndpoint() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+        
     }
 
 }
