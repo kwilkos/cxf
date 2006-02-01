@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -69,13 +68,13 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             throw new WebServiceException(se.getMessage());
         }
     }
-    
+
     protected MessageContext createBindingMessageContext(MessageContext srcCtx) {
         return new SOAPMessageContextImpl(srcCtx);
     }
-    
+
     protected HandlerInvoker createHandlerInvoker() {
-        return new HandlerChainInvoker(getHandlerChain()); 
+        return new HandlerChainInvoker(getHandlerChain());
     }
 
     public Set<String> getRoles() {
@@ -83,7 +82,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
 
     public void setRoles(Set<String> set) {
-        //TODO
+        // TODO
     }
 
     public boolean isMTOMEnabled() {
@@ -98,83 +97,81 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         return msgFactory;
     }
 
-    public SOAPMessage marshalMessage(ObjectMessageContext objContext,
-                                      MessageContext mc,
-                                      DataBindingCallback callback)
-        throws SOAPException {
+    public void marshal(ObjectMessageContext objContext, MessageContext mc, DataBindingCallback callback) {
 
-        boolean isInputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
-        SOAPMessage msg = initSOAPMessage();
-        
-        if (!"".equals(callback.getSOAPAction())) {
-            msg.getMimeHeaders().setHeader("SOAPAction",
-                                           "\"" + callback.getSOAPAction() + "\"");
+        try {
+            boolean isInputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
+            SOAPMessage msg = initSOAPMessage();
+
+            if (!"".equals(callback.getSOAPAction())) {
+                msg.getMimeHeaders().setHeader("SOAPAction", "\"" + callback.getSOAPAction() + "\"");
+            }
+
+            if (callback.getMode() == DataBindingCallback.Mode.PARTS) {
+                if (callback.getSOAPStyle() == Style.RPC) {
+                    nsStack = new NSStack();
+                    nsStack.push();
+                }
+                SOAPElement soapElement = addOperationNode(msg.getSOAPBody(), callback, isInputMsg);
+                // add in, out and inout non-header params
+                addParts(soapElement, objContext, isInputMsg, callback);
+
+                // add in, out and inout header params
+                addHeaderParts(msg.getSOAPHeader(), objContext, isInputMsg, callback);
+
+            } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
+
+                Object src = isInputMsg ? objContext.getReturn() : objContext.getMessageObjects()[0];
+                // contains the entire SOAP message
+                boolean found = false;
+                for (Class<?> cls : callback.getSupportedFormats()) {
+                    if (cls == SOAPMessage.class) {
+                        msg = (SOAPMessage)src;
+                        found = true;
+                        break;
+                    } else if (cls == DOMSource.class) {
+                        DataWriter<SOAPMessage> writer = callback.createWriter(SOAPMessage.class);
+                        writer.write(src, msg);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    throw new SOAPException("Could not figure out how to marshal data");
+                }
+            } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {
+                // contains the contents of the SOAP:Body
+                boolean found = false;
+                Object src = isInputMsg ? objContext.getReturn() : objContext.getMessageObjects()[0];
+                for (Class<?> cls : callback.getSupportedFormats()) {
+
+                    if (cls == DOMSource.class) {
+                        DataWriter<SOAPBody> writer = callback.createWriter(SOAPBody.class);
+                        writer.write(src, msg.getSOAPBody());
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    throw new SOAPException("Could not figure out how to marshal data");
+                }
+            }
+            ((SOAPMessageContext)mc).setMessage(msg);
+        } catch (SOAPException se) {
+            LOG.log(Level.SEVERE, "SOAP_MARSHALLING_FAILURE_MSG", se);
+            throw new ProtocolException(se);
         }
-        
-        if (callback.getMode() == DataBindingCallback.Mode.PARTS) {
-            if (callback.getSOAPStyle() == Style.RPC) {
-                nsStack = new NSStack();
-                nsStack.push();
-            }
-            SOAPElement soapElement = addOperationNode(msg.getSOAPBody(), callback, isInputMsg);
-            //add in, out and inout non-header params
-            addParts(soapElement, objContext, isInputMsg, callback);
-            
-            //add in, out and inout header params
-            addHeaderParts(msg.getSOAPHeader(), objContext, isInputMsg, callback);
-            
-        } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
-
-            Object src = isInputMsg ? objContext.getReturn() : objContext.getMessageObjects()[0];
-            //contains the entire SOAP message
-            boolean found = false;
-            for (Class<?> cls : callback.getSupportedFormats()) {
-                if (cls == SOAPMessage.class) {
-                    msg = (SOAPMessage)src;
-                    found = true;
-                    break;
-                } else if (cls == DOMSource.class) {
-                    DataWriter<SOAPMessage> writer = callback.createWriter(SOAPMessage.class);
-                    writer.write(src, msg);
-                    found = true;
-                    break;
-                } 
-            }
-            if (!found) {
-                throw new SOAPException("Could not figure out how to marshal data");
-            }
-        } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {
-            //contains the contents of the SOAP:Body
-            boolean found = false;
-            Object src = isInputMsg ? objContext.getReturn() : objContext.getMessageObjects()[0];
-            for (Class<?> cls : callback.getSupportedFormats()) {
-
-                if (cls == DOMSource.class) {
-                    DataWriter<SOAPBody> writer = callback.createWriter(SOAPBody.class);
-                    writer.write(src, msg.getSOAPBody());
-                    found = true;
-                    break;
-                }            
-            }
-            if (!found) {
-                throw new SOAPException("Could not figure out how to marshal data");
-            }
-        }
-        return msg;
     }
-    
-    public SOAPMessage marshalFault(ObjectMessageContext objContext,
-                                    MessageContext mc,
+
+    public void marshalFault(ObjectMessageContext objContext, MessageContext mc,
                                     DataBindingCallback callback) {
 
         SOAPMessage msg = null;
 
         try {
-            msg = SOAPMessageContext.class.isInstance(mc)
-                    && ((SOAPMessageContext)mc).getMessage() != null
-                    ? ((SOAPMessageContext)mc).getMessage()
-                    : initSOAPMessage();
-                    
+            msg = SOAPMessageContext.class.isInstance(mc) && ((SOAPMessageContext)mc).getMessage() != null
+                ? ((SOAPMessageContext)mc).getMessage() : initSOAPMessage();
+
             if (msg.getSOAPBody().hasChildNodes()) {
                 msg.getSOAPBody().removeContents();
             }
@@ -182,7 +179,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             Throwable t = objContext.getException();
 
             SOAPFault fault = msg.getSOAPBody().addFault();
-            //REVIST FaultCode to handle other codes.
+            // REVIST FaultCode to handle other codes.
             if (t instanceof SOAPFaultException) {
                 SOAPFault f = ((SOAPFaultException)t).getFault();
                 fault.setFaultCode(f.getFaultCodeAsName());
@@ -210,10 +207,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "FAULT_MARSHALLING_FAILURE_MSG", se);
-            //Handle UnChecked Exception, Runtime Exception.
+            // Handle UnChecked Exception, Runtime Exception.
         }
-
-        return msg;
+        ((SOAPMessageContext)mc).setMessage(msg);
     }
 
     @SuppressWarnings("unchecked")
@@ -245,108 +241,111 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
         }
     }
-    
-    public void unmarshalMessage(MessageContext mc,
-                                 ObjectMessageContext objContext,
-                                 DataBindingCallback callback)
-        throws SOAPException {
 
-        boolean isOutputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
-        if (!SOAPMessageContext.class.isInstance(mc)) {
-            throw new SOAPException("SOAPMessageContext not available");
+    public void unmarshal(MessageContext mc, ObjectMessageContext objContext,
+                                 DataBindingCallback callback) {
+        try {
+            boolean isOutputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
+            if (!SOAPMessageContext.class.isInstance(mc)) {
+                throw new SOAPException("SOAPMessageContext not available");
+            }
+
+            SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
+            SOAPMessage soapMessage = soapContext.getMessage();
+
+            if (callback.getMode() == DataBindingCallback.Mode.PARTS) {
+                // Assuming No Headers are inserted.
+                Node soapEl = soapMessage.getSOAPBody();
+
+                if (callback.getSOAPStyle() == Style.RPC) {
+                    soapEl = NodeUtils.getChildElementNode(soapEl);
+                }
+
+                getParts(soapEl, callback, objContext, isOutputMsg);
+
+                getHeaderParts(soapMessage.getSOAPHeader(), callback, objContext, isOutputMsg);
+            } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
+                boolean found = false;
+                Object obj = null;
+                for (Class<?> cls : callback.getSupportedFormats()) {
+                    if (cls == SOAPMessage.class) {
+                        obj = soapMessage;
+                        found = true;
+                        break;
+                    } else if (cls == DOMSource.class) {
+                        DataReader<SOAPMessage> reader = callback.createReader(SOAPMessage.class);
+                        obj = reader.read(0, soapMessage);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    throw new SOAPException("Could not figure out how to unmarshal data");
+                }
+
+                if (isOutputMsg) {
+                    objContext.setReturn(obj);
+                } else {
+                    objContext.setMessageObjects(obj);
+                }
+
+            } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {
+                boolean found = false;
+                Object obj = null;
+                for (Class<?> cls : callback.getSupportedFormats()) {
+                    if (cls == DOMSource.class) {
+                        DataReader<SOAPBody> reader = callback.createReader(SOAPBody.class);
+                        obj = reader.read(0, soapMessage.getSOAPBody());
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    throw new SOAPException("Could not figure out how to unmarshal data");
+                }
+
+                if (isOutputMsg) {
+                    objContext.setReturn(obj);
+                } else {
+                    objContext.setMessageObjects(obj);
+                }
+            }
+        } catch (SOAPException se) {
+            LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
+            throw new ProtocolException(se);
         }
-
-        SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
-        SOAPMessage soapMessage = soapContext.getMessage();
-
-        if (callback.getMode() == DataBindingCallback.Mode.PARTS) {
-            //Assuming No Headers are inserted.
-            Node soapEl = soapMessage.getSOAPBody();
-
-            if (callback.getSOAPStyle() == Style.RPC) {
-                soapEl = NodeUtils.getChildElementNode(soapEl);
-            }
-
-            getParts(soapEl, callback, objContext, isOutputMsg);
-            
-            getHeaderParts(soapMessage.getSOAPHeader(), callback, objContext, isOutputMsg);
-        } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {  
-            boolean found = false;
-            Object obj = null;
-            for (Class<?> cls : callback.getSupportedFormats()) {
-                if (cls == SOAPMessage.class) {
-                    obj = soapMessage;
-                    found = true;
-                    break;
-                } else if (cls == DOMSource.class) {
-                    DataReader<SOAPMessage> reader = callback.createReader(SOAPMessage.class);
-                    obj = reader.read(0, soapMessage);
-                    found = true;
-                    break;
-                } 
-            }
-            if (!found) {
-                throw new SOAPException("Could not figure out how to unmarshal data");
-            }
-            
-            if (isOutputMsg) {
-                objContext.setReturn(obj);
-            } else {
-                objContext.setMessageObjects(obj);                
-            }
-            
-        } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {            
-            boolean found = false;
-            Object obj = null;            
-            for (Class<?> cls : callback.getSupportedFormats()) {
-                if (cls == DOMSource.class) {
-                    DataReader<SOAPBody> reader = callback.createReader(SOAPBody.class);
-                    obj = reader.read(0, soapMessage.getSOAPBody());
-                    found = true;
-                    break;
-                } 
-            }
-            if (!found) {
-                throw new SOAPException("Could not figure out how to unmarshal data");
-            }
-            
-            if (isOutputMsg) {
-                objContext.setReturn(obj);
-            } else {
-                objContext.setMessageObjects(obj);                
-            }            
-        } 
     }
 
-    public void unmarshalFault(MessageContext context,
-                               ObjectMessageContext objContext,
-                               DataBindingCallback callback)
-        throws SOAPException {
+    public void unmarshalFault(MessageContext context, ObjectMessageContext objContext,
+                          DataBindingCallback callback) {
+        try {
+            if (!SOAPMessageContext.class.isInstance(context)) {
+                throw new SOAPException("SOAPMessageContext not available");
+            }
 
-        if (!SOAPMessageContext.class.isInstance(context)) {
-            throw new SOAPException("SOAPMessageContext not available");
+            SOAPMessageContext soapContext = SOAPMessageContext.class.cast(context);
+            SOAPMessage soapMessage = soapContext.getMessage();
+
+            SOAPFault fault = soapMessage.getSOAPBody().getFault();
+
+            DataReader<SOAPFault> reader = callback.createReader(SOAPFault.class);
+            if (reader == null) {
+                throw new WebServiceException("Could not unmarshal fault");
+            }
+            Object faultObj = reader.read(null, 0, fault);
+            if (faultObj == null) {
+                faultObj = new ProtocolException(fault.getFaultString());
+            }
+
+            objContext.setException((Throwable)faultObj);
+        } catch (SOAPException se) {
+            LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
+            throw new ProtocolException(se);
         }
-
-        SOAPMessageContext soapContext = SOAPMessageContext.class.cast(context);
-        SOAPMessage soapMessage = soapContext.getMessage();
-
-        SOAPFault fault = soapMessage.getSOAPBody().getFault();
-
-        DataReader<SOAPFault> reader = callback.createReader(SOAPFault.class);
-        if (reader == null) {
-            throw new WebServiceException("Could not unmarshal fault");
-        }
-        Object faultObj = reader.read(null, 0, fault);
-        if (faultObj == null) {
-            faultObj = new ProtocolException(fault.getFaultString());
-        }
-
-        objContext.setException((Throwable)faultObj);
     }
 
     @SuppressWarnings("unchecked")
-    public void parseMessage(InputStream in, MessageContext mc)
-        throws SOAPException, IOException {
+    public void parseMessage(InputStream in, MessageContext mc) throws SOAPException, IOException {
 
         if (!SOAPMessageContext.class.isInstance(mc)) {
             throw new SOAPException("SOAPMessageContext not available");
@@ -381,33 +380,32 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         soapContext.setMessage(soapMessage);
     }
 
-    private SOAPElement addOperationNode(SOAPElement body,
-                                         DataBindingCallback callback,
-                                         boolean isOutBound) throws SOAPException {
+    private SOAPElement addOperationNode(SOAPElement body, DataBindingCallback callback, boolean isOutBound)
+        throws SOAPException {
 
         String responseSuffix = isOutBound ? "Response" : "";
 
         if (callback.getSOAPStyle() == Style.RPC) {
-            String  namespaceURI = callback.getTargetNamespace();
+            String namespaceURI = callback.getTargetNamespace();
             nsStack.add(namespaceURI);
             String prefix = nsStack.getPrefix(namespaceURI);
-            QName operationName = new QName(namespaceURI,
-                                            callback.getOperationName() + responseSuffix, prefix);
+            QName operationName = new QName(namespaceURI, callback.getOperationName() + responseSuffix,
+                                            prefix);
 
             return body.addChildElement(operationName);
         }
         return body;
     }
 
-    private void getParts(Node xmlNode , DataBindingCallback callback,
-                      ObjectMessageContext objCtx, boolean isOutBound) throws SOAPException {
+    private void getParts(Node xmlNode, DataBindingCallback callback, ObjectMessageContext objCtx,
+                          boolean isOutBound) throws SOAPException {
 
         DataReader<Node> reader = null;
         for (Class<?> cls : callback.getSupportedFormats()) {
             if (cls == Node.class) {
                 reader = callback.createReader(Node.class);
                 break;
-            } 
+            }
         }
 
         if (reader == null) {
@@ -421,10 +419,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
 
         Node childNode = NodeUtils.getChildElementNode(xmlNode);
-        if (isOutBound 
-            && callback.getWebResult() != null 
-            && !callback.getWebResult().header()) {
-            
+        if (isOutBound && callback.getWebResult() != null && !callback.getWebResult().header()) {
+
             Object retVal = reader.read(callback.getWebResultQName(), -1, childNode);
             objCtx.setReturn(retVal);
             childNode = childNode.getNextSibling();
@@ -433,22 +429,22 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
         int noArgs = callback.getParamsLength();
 
-        //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
+        // Unmarshal parts of mode that should notbe ignored and are not part of
+        // the SOAP Headers
         Object[] methodArgs = objCtx.getMessageObjects();
-        
+
         for (int idx = 0; idx < noArgs; idx++) {
             WebParam param = callback.getWebParam(idx);
             if ((param.mode() != ignoreParamMode) && !param.header()) {
 
-                QName elName = (callback.getSOAPStyle() == Style.DOCUMENT)
-                                ? new QName(param.targetNamespace(), param.name())
-                                : new QName("", param.partName());
+                QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) ? new QName(param
+                    .targetNamespace(), param.name()) : new QName("", param.partName());
 
                 Object obj = reader.read(elName, idx, childNode);
                 if (param.mode() != WebParam.Mode.IN) {
                     try {
-                        //TO avoid type safety warning the Holder
-                        //needs tobe set as below.
+                        // TO avoid type safety warning the Holder
+                        // needs tobe set as below.
                         methodArgs[idx].getClass().getField("value").set(methodArgs[idx], obj);
                     } catch (Exception ex) {
                         throw new SOAPException("Can not set the part value into the Holder field.");
@@ -461,10 +457,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
     }
 
-    private void addParts(Node xmlNode,
-                           ObjectMessageContext objCtx,
-                           boolean isOutBound,
-                           DataBindingCallback callback) throws SOAPException {
+    private void addParts(Node xmlNode, ObjectMessageContext objCtx, boolean isOutBound,
+                          DataBindingCallback callback) throws SOAPException {
 
         DataWriter<Node> writer = null;
         for (Class<?> cls : callback.getSupportedFormats()) {
@@ -472,7 +466,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 writer = callback.createWriter(Node.class);
                 break;
             } else {
-                //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
+                // TODO - other formats to support?
+                // StreamSource/DOMSource/STaX/etc..
             }
         }
         if (writer == null) {
@@ -485,18 +480,17 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             return;
         }
 
-        //Add the Return Type
-        if (isOutBound 
-            && callback.getWebResult() != null
-            && !callback.getWebResult().header()) {
+        // Add the Return Type
+        if (isOutBound && callback.getWebResult() != null && !callback.getWebResult().header()) {
             writer.write(objCtx.getReturn(), callback.getWebResultQName(), xmlNode);
         }
 
-        //Add the in,inout,out args depend on the inputMode
+        // Add the in,inout,out args depend on the inputMode
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
         int noArgs = callback.getParamsLength();
 
-        //Marshal parts of mode that should notbe ignored and are not part of the SOAP Headers
+        // Marshal parts of mode that should notbe ignored and are not part of
+        // the SOAP Headers
         Object[] args = objCtx.getMessageObjects();
         for (int idx = 0; idx < noArgs; idx++) {
             WebParam param = callback.getWebParam(idx);
@@ -506,70 +500,67 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                     partValue = ((Holder)args[idx]).value;
                 }
 
-                QName elName = (callback.getSOAPStyle() == Style.DOCUMENT)
-                                ? new QName(param.targetNamespace(), param.name())
-                                : new QName("", param.partName());
+                QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) ? new QName(param
+                    .targetNamespace(), param.name()) : new QName("", param.partName());
                 writer.write(partValue, elName, xmlNode);
             }
         }
     }
 
-    private void getHeaderParts(Element header, 
-                                DataBindingCallback callback,
-                                ObjectMessageContext objCtx,
+    private void getHeaderParts(Element header, DataBindingCallback callback, ObjectMessageContext objCtx,
                                 boolean isOutBound) throws SOAPException {
 
         if (header == null || !header.hasChildNodes()) {
             return;
         }
-        
+
         DataReader<Node> reader = null;
         for (Class<?> cls : callback.getSupportedFormats()) {
             if (cls == Node.class) {
                 reader = callback.createReader(Node.class);
                 break;
             } else {
-                //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
+                // TODO - other formats to support?
+                // StreamSource/DOMSource/STaX/etc..
             }
         }
 
         if (reader == null) {
             throw new SOAPException("Could not figure out how to marshal data");
         }
-        
-        if (isOutBound 
-            && callback.getWebResult() != null
-            && callback.getWebResult().header()) {
-            
+
+        if (isOutBound && callback.getWebResult() != null && callback.getWebResult().header()) {
+
             QName elName = callback.getWebResultQName();
-            NodeList headerElems =
-                header.getElementsByTagNameNS(elName.getNamespaceURI(), elName.getLocalPart());
+            NodeList headerElems = header.getElementsByTagNameNS(elName.getNamespaceURI(), elName
+                .getLocalPart());
             assert headerElems.getLength() == 1;
             Node childNode = headerElems.item(0);
-            
+
             Object retVal = reader.read(elName, -1, childNode);
             objCtx.setReturn(retVal);
         }
 
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
         int noArgs = callback.getParamsLength();
-        
-        //Unmarshal parts of mode that should notbe ignored and are not part of the SOAP Headers
+
+        // Unmarshal parts of mode that should notbe ignored and are not part of
+        // the SOAP Headers
         Object[] methodArgs = (Object[])objCtx.getMessageObjects();
         for (int idx = 0; idx < noArgs; idx++) {
             WebParam param = callback.getWebParam(idx);
             if ((param.mode() != ignoreParamMode) && param.header()) {
                 QName elName = new QName(param.targetNamespace(), param.name());
-                NodeList headerElems =
-                        header.getElementsByTagNameNS(elName.getNamespaceURI(), elName.getLocalPart());
+                NodeList headerElems = header.getElementsByTagNameNS(elName.getNamespaceURI(), elName
+                    .getLocalPart());
                 assert headerElems.getLength() == 1;
                 Node childNode = headerElems.item(0);
 
                 Object obj = reader.read(elName, idx, childNode);
                 if (param.mode() != WebParam.Mode.IN) {
                     try {
-                        //TO avoid type safety warning the Holder
-                        //needs tobe set as below.
+                        // TO avoid type safety warning the Holder
+                        // needs tobe set as below.
                         methodArgs[idx].getClass().getField("value").set(methodArgs[idx], obj);
                     } catch (Exception ex) {
                         throw new SOAPException("Can not set the part value into the Holder field.");
@@ -580,40 +571,36 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
         }
     }
-    
-    private void addHeaderParts(SOAPElement header,
-                                ObjectMessageContext objCtx,
-                                boolean isOutBound,
+
+    private void addHeaderParts(SOAPElement header, ObjectMessageContext objCtx, boolean isOutBound,
                                 DataBindingCallback callback) throws SOAPException {
-        
+
         DataWriter<Node> writer = null;
         for (Class<?> cls : callback.getSupportedFormats()) {
             if (cls == Node.class) {
                 writer = callback.createWriter(Node.class);
                 break;
             } else {
-                //TODO - other formats to support? StreamSource/DOMSource/STaX/etc..
+                // TODO - other formats to support?
+                // StreamSource/DOMSource/STaX/etc..
             }
         }
         if (writer == null) {
             throw new SOAPException("Could not figure out how to marshal data");
         }
 
-        if (isOutBound 
-            && callback.getWebResult() != null
-            && callback.getWebResult().header()) {
-            
-            writer.write(objCtx.getReturn(), 
-                         callback.getWebResultQName(), 
-                         header);
+        if (isOutBound && callback.getWebResult() != null && callback.getWebResult().header()) {
+
+            writer.write(objCtx.getReturn(), callback.getWebResultQName(), header);
             addSOAPHeaderAttributes(header, callback.getWebResultQName(), true);
         }
 
-        //Add the in,inout,out args depend on the inputMode
+        // Add the in,inout,out args depend on the inputMode
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
         int noArgs = callback.getParamsLength();
 
-        //Marshal parts of mode that should notbe ignored and are not part of the SOAP Headers
+        // Marshal parts of mode that should notbe ignored and are not part of
+        // the SOAP Headers
         Object[] args = (Object[])objCtx.getMessageObjects();
         for (int idx = 0; idx < noArgs; idx++) {
             WebParam param = callback.getWebParam(idx);
@@ -622,10 +609,10 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 if (param.mode() != WebParam.Mode.IN) {
                     partValue = ((Holder)args[idx]).value;
                 }
-    
+
                 QName elName = new QName(param.targetNamespace(), param.name());
                 writer.write(partValue, elName, header);
-                
+
                 addSOAPHeaderAttributes(header, elName, true);
             }
         }
@@ -634,21 +621,20 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             header.detachNode();
         }
     }
- 
+
     private void addSOAPHeaderAttributes(Element header, QName elName, boolean mustUnderstand) {
-        //Set mustUnderstand Attribute on header parts.
-        NodeList children =
-                header.getElementsByTagNameNS(elName.getNamespaceURI(), elName.getLocalPart());
+        // Set mustUnderstand Attribute on header parts.
+        NodeList children = header.getElementsByTagNameNS(elName.getNamespaceURI(), elName.getLocalPart());
         assert children.getLength() == 1;
-        //Set the mustUnderstand attribute
+        // Set the mustUnderstand attribute
         if (children.item(0) instanceof Element) {
             Element child = (Element)(children.item(0));
             child.setAttribute(SOAPConstants.HEADER_MUSTUNDERSTAND, String.valueOf(mustUnderstand));
         }
 
-        //TODO Actor/Role Attribute.
-    }  
-    
+        // TODO Actor/Role Attribute.
+    }
+
     public SOAPFactory getSOAPFactory() {
         return soapFactory;
     }
@@ -656,7 +642,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     private SOAPMessage initSOAPMessage() throws SOAPException {
 
         SOAPMessage msg = msgFactory.createMessage();
-        msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION,  "true");
+        msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION, "true");
         msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(W3CConstants.NP_SCHEMA_XSD,
                                                                 W3CConstants.NU_SCHEMA_XSD);
         msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(W3CConstants.NP_SCHEMA_XSI,
@@ -664,7 +650,5 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         return msg;
     }
-    
 
 }
-

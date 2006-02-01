@@ -14,10 +14,12 @@ import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.ObjectFactory;
 import org.objectweb.celtix.bus.jaxws.configuration.types.SystemHandlerChainType;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.StreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.handlers.StreamHandler;
 import org.objectweb.celtix.handlers.SystemHandler;
+
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
@@ -236,6 +238,23 @@ public class AbstractBindingImplTest extends TestCase {
         protected HandlerInvoker createHandlerInvoker() {
             return null;
         }
+
+        protected void marshal(ObjectMessageContext objContext, MessageContext context, 
+                               DataBindingCallback callback) {        
+        }
+        
+        protected void marshalFault(ObjectMessageContext objContext, MessageContext context, 
+                               DataBindingCallback callback) {        
+        }
+
+        protected void unmarshal(MessageContext context, ObjectMessageContext objContext, 
+                                 DataBindingCallback callback) {
+        }
+        
+        protected void unmarshalFault(MessageContext context, ObjectMessageContext objContext, 
+                                      DataBindingCallback callback) {
+        }
+        
     }
     
     public static class TestProtocolSystemHandler implements Handler, SystemHandler {

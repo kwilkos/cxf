@@ -20,12 +20,6 @@ public final class BindingManagerImpl implements BindingManager {
         bindingFactories = new ConcurrentHashMap<String, BindingFactory>();
         bus = b;
         
-        // TODO - config instead of hard coded
-        /*
-        loadBindingFactory("org.objectweb.celtix.bus.bindings.soap.SOAPBindingFactory",
-                             "http://schemas.xmlsoap.org/wsdl/soap/",
-                             SOAPBinding.SOAP11HTTP_BINDING); 
-        */
         Object obj = bus.getConfiguration().getObject("bindingFactories");
         
         List<ClassNamespaceMappingType> factoryMappings = ((ClassNamespaceMappingListType)obj).getMap();

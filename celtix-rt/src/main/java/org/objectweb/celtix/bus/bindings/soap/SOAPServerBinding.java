@@ -24,7 +24,6 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
-import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -98,6 +97,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         return super.isFault(objCtx, bindingContext);
     }
 
+    /*
     protected void marshal(ObjectMessageContext objContext, MessageContext context) {
         try {
             DataBindingCallback.Mode mode = sbeCallback.getServiceMode();
@@ -111,7 +111,9 @@ public class SOAPServerBinding extends AbstractServerBinding {
             throw new ProtocolException(se);
         }
     }
+    */
 
+    /*
     protected void marshalFault(ObjectMessageContext objContext, MessageContext context) {
         DataBindingCallback.Mode mode = sbeCallback.getServiceMode();
         SOAPMessage msg = soapBinding
@@ -119,7 +121,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
                           sbeCallback.createDataBindingCallback(objContext, mode));
         ((SOAPMessageContext)context).setMessage(msg);
     }
-    
+    */
+    /*
     protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
         try {
             DataBindingCallback.Mode mode = sbeCallback.getServiceMode();
@@ -132,6 +135,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
             throw new ProtocolException(se);
         }
     }
+    */
     
     protected void write(MessageContext context, OutputStreamMessageContext outCtx) throws IOException {
         

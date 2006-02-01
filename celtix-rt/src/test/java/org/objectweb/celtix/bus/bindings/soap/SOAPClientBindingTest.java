@@ -30,7 +30,6 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.hello_world_soap_http.Greeter;
-import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 
 public class SOAPClientBindingTest extends TestCase {
     Bus bus;
@@ -64,46 +63,6 @@ public class SOAPClientBindingTest extends TestCase {
         assertNotNull(clientBinding.createObjectContext());
     }
     
-    public void testMarshal() throws Exception {
-        TestClientBinding clientBinding = new TestClientBinding(bus, epr);
-        ObjectMessageContext objContext = clientBinding.createObjectContext();
-        assertNotNull(objContext);
-        
-        Method method = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
-        objContext.setMethod(method);
-        String arg0 = new String("TestSOAPInputPMessage");
-        objContext.setMessageObjects(arg0);
-        
-        SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());  
-        soapCtx.put(ObjectMessageContext.MESSAGE_INPUT, false);
-        clientBinding.marshal(objContext, soapCtx);
-        
-        assertNotNull(soapCtx.getMessage());
-    }
-
-    public void testUnmarshal() throws Exception {
-        TestClientBinding clientBinding = new TestClientBinding(bus, epr);
-        ObjectMessageContext objContext = clientBinding.createObjectContext();
-        assertNotNull(objContext);
-        
-        Method method = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
-        InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralResp.xml");
-        MessageFactory msgFactory = MessageFactory.newInstance();
-        SOAPMessage greetMeMsg = msgFactory.createMessage(null,  is);
-        
-        SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());        
-        soapCtx.setMessage(greetMeMsg);
-        soapCtx.put(ObjectMessageContext.MESSAGE_INPUT, true);
-        
-        objContext.setMethod(method);
-        
-        clientBinding.unmarshal(soapCtx, objContext);
-        
-        assertNull(objContext.getMessageObjects());
-        assertNotNull(objContext.getReturn());
-        assertTrue(String.class.isAssignableFrom(objContext.getReturn().getClass()));
-    }
-
     public void testInvokeOneWay() throws Exception {
         TestClientBinding clientBinding = new TestClientBinding(bus, epr);
         ObjectMessageContext objContext = clientBinding.createObjectContext();
@@ -133,21 +92,6 @@ public class SOAPClientBindingTest extends TestCase {
         faultMsg = msgFactory.createMessage(null,  is);
         soapCtx.setMessage(faultMsg);
         assertFalse(clientBinding.hasFault(soapCtx));
-    }
-
-    public void testUnmarshalFault() throws Exception {
-        TestClientBinding clientBinding = new TestClientBinding(bus, epr);
-        ObjectMessageContext objContext = clientBinding.createObjectContext();
-        SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());
-        objContext.setMethod(SOAPMessageUtil.getMethod(Greeter.class, "testDocLitFault"));
-
-        InputStream is =  getClass().getResourceAsStream("resources/NoSuchCodeDocLiteral.xml");
-        MessageFactory msgFactory = MessageFactory.newInstance();
-        SOAPMessage faultMsg = msgFactory.createMessage(null,  is);
-        soapCtx.setMessage(faultMsg);
-        clientBinding.unmarshalFault(soapCtx,  objContext);
-        assertNotNull(objContext.getException());
-        assertTrue(NoSuchCodeLitFault.class.isAssignableFrom(objContext.getException().getClass()));
     }
 
     public void testRead() throws Exception {
@@ -196,24 +140,6 @@ public class SOAPClientBindingTest extends TestCase {
             throws WSDLException, IOException {
             // REVISIT: non-null response callback
             return new TestClientTransport(bus, ref);
-        }
-        
-        public void unmarshalFault(MessageContext context, ObjectMessageContext objContext) {
-            super.unmarshalFault(context, objContext,
-                                 new JAXBDataBindingCallback(objContext.getMethod(),
-                                                             DataBindingCallback.Mode.PARTS, null));
-        }
-
-        public void marshal(ObjectMessageContext objContext, MessageContext context) {
-            super.marshal(objContext, context,
-                          new JAXBDataBindingCallback(objContext.getMethod(),
-                                                      DataBindingCallback.Mode.PARTS, null));
-        }
-        
-        public void unmarshal(MessageContext context, ObjectMessageContext objContext) {
-            super.unmarshal(context, objContext,
-                            new JAXBDataBindingCallback(objContext.getMethod(),
-                                                        DataBindingCallback.Mode.PARTS, null));
         }
         
         public void write(MessageContext context, OutputStreamMessageContext outCtx) {

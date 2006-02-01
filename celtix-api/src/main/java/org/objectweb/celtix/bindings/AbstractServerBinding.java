@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import javax.jws.Oneway;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
-import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
@@ -23,10 +22,8 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
-import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.context.WebServiceContextImpl;
 import org.objectweb.celtix.handlers.HandlerInvoker;
@@ -36,7 +33,7 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_TRANSPORT_PROPERTY;
 
-public abstract class AbstractServerBinding implements ServerBinding {
+public abstract class AbstractServerBinding extends AbstractBindingBase implements ServerBinding {
 
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractServerBinding.class);
 
@@ -55,32 +52,6 @@ public abstract class AbstractServerBinding implements ServerBinding {
         endpoint = ep;
         sbeCallback = sbcb;
     }
-    
-    // --- BindingBase interface ---
-    
-    public Binding getBinding() {
-        return getBindingImpl();
-    }
-    
-    public ObjectMessageContext createObjectContext() {
-        return new ObjectMessageContextImpl();
-    }
-    
-    public HandlerInvoker createHandlerInvoker() {
-        return getBindingImpl().createHandlerInvoker(); 
-    }
-    
-    public void configureSystemHandlers(Configuration endpointConfiguration) {
-        /*
-        Configuration busConfiguration = bus.getConfiguration();
-        QName serviceName = EndpointReferenceUtils.getServiceName(reference);
-        Configuration endpointConfiguration = busConfiguration
-            .getChild("http://celtix.objectweb.org/bus/jaxws/endpoint-config", serviceName);
-            */
-        getBindingImpl().configureSystemHandlers(endpointConfiguration);
-    }
-    
-    // --- BindingBase interface ---
     
     // --- ServerBinding interface ---
         
@@ -116,13 +87,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
 
     protected abstract ServerTransport createTransport(EndpointReferenceType ref) 
         throws WSDLException, IOException;
-
-    protected abstract void marshal(ObjectMessageContext objCtx, MessageContext replyCtx);
     
-    protected abstract void marshalFault(ObjectMessageContext objCtx, MessageContext replyCtx);
-
-    protected abstract void unmarshal(MessageContext requestCtx, ObjectMessageContext objCtx);
-
     protected abstract void write(MessageContext replyCtx, OutputStreamMessageContext outCtx)
         throws IOException;
 
@@ -199,7 +164,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 replyCtx = getBindingImpl().createBindingMessageContext(objContext);
                 assert replyCtx != null;
             }
-            marshalFault(objContext, replyCtx);
+            getBindingImpl().marshalFault(objContext, replyCtx, getDataBindingCallback(objContext));
         } finally {            
             
             try {
@@ -330,7 +295,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
             boolean requiresResponse = true;
             if (continueProcessing) {
                 try {
-                    unmarshal(requestCtx, objContext);
+                    getBindingImpl().unmarshal(requestCtx, objContext, getDataBindingCallback(objContext));
                     
                     Method method = objContext.getMethod();
                     requiresResponse = !isOneWay(method);
@@ -341,7 +306,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
                         && requiresResponse) {
                         switchToResponse(objContext, replyCtx); 
                         if (null == objContext.getException()) {
-                            marshal(objContext, replyCtx);
+                            getBindingImpl().marshal(objContext, replyCtx, 
+                                                     getDataBindingCallback(objContext));
                         } 
                     }
                 } catch (ProtocolException pe) {
@@ -353,7 +319,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
                     }
                 } finally {
                     if (objContext.getException() != null) {
-                        marshalFault(objContext, replyCtx);
+                        getBindingImpl().marshalFault(objContext, replyCtx, 
+                                                      getDataBindingCallback(objContext));
                     }
                 }
             } 
@@ -364,7 +331,8 @@ public abstract class AbstractServerBinding implements ServerBinding {
                 // dispatch path 
                 switchToResponse(objContext, replyCtx); 
                 if (objContext.getException() != null) {
-                    marshalFault(objContext, replyCtx);
+                    getBindingImpl().marshalFault(objContext, replyCtx, 
+                                                  getDataBindingCallback(objContext));
                 }
             }
         } finally {
@@ -419,6 +387,11 @@ public abstract class AbstractServerBinding implements ServerBinding {
             LOG.log(Level.SEVERE, "INIT_OBJ_CONTEXT_FAILED");
             throw new WebServiceException(ex);
         }
+    }
+    
+    private DataBindingCallback getDataBindingCallback(ObjectMessageContext objContext) {
+        DataBindingCallback.Mode mode = sbeCallback.getServiceMode();
+        return sbeCallback.createDataBindingCallback(objContext, mode);
     }
     
     protected void storeTransport(MessageContext context) {

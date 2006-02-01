@@ -55,12 +55,11 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         String arg0 = new String("TestSOAPInputPMessage");
         objContext.setMessageObjects(arg0);
 
-        SOAPMessage msg = binding.marshalMessage(objContext, soapContext,
+        binding.marshal(objContext, soapContext,
                                                  new JAXBDataBindingCallback(objContext.getMethod(),
                                                                              DataBindingCallback.Mode.PARTS,
                                                                              null));
-        //msg.writeTo(System.out);
-        soapContext.setMessage(msg);
+        SOAPMessage msg = soapContext.getMessage();
         assertNotNull(msg);
         assertTrue(msg.getSOAPBody().hasChildNodes());
         NodeList list = msg.getSOAPBody().getChildNodes();
@@ -83,11 +82,11 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         String arg0 = new String("TestSOAPOutputMessage");
         objContext.setReturn(arg0);
 
-        SOAPMessage msg = binding.marshalMessage(objContext, soapContext,
+        binding.marshal(objContext, soapContext,
                                                  new JAXBDataBindingCallback(objContext.getMethod(),
                                                                              DataBindingCallback.Mode.PARTS,
                                                                              null));
-        soapContext.setMessage(msg);
+        SOAPMessage msg = soapContext.getMessage();
         assertNotNull(msg);
         assertTrue(msg.getSOAPBody().hasChildNodes());
         NodeList list = msg.getSOAPBody().getChildNodes();
@@ -136,7 +135,7 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         //GreetMe has a IN parameter
         objContext.setMessageObjects(new Object[]{null});
 
-        binding.unmarshalMessage(soapContext, objContext,
+        binding.unmarshal(soapContext, objContext,
                                  new JAXBDataBindingCallback(objContext.getMethod(),
                                                              DataBindingCallback.Mode.PARTS, null));
 
@@ -160,7 +159,7 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         SOAPMessage soapMessage = binding.getMessageFactory().createMessage(null, in);
         soapContext.setMessage(soapMessage);
 
-        binding.unmarshalMessage(soapContext, objContext,
+        binding.unmarshal(soapContext, objContext,
                                  new JAXBDataBindingCallback(objContext.getMethod(),
                                                              DataBindingCallback.Mode.PARTS, null));
 

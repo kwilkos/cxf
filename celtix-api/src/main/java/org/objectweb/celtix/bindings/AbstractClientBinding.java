@@ -10,22 +10,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
-
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
-import javax.xml.ws.Binding;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-
 import org.objectweb.celtix.buslifecycle.BusLifeCycleListener;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
-import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.ClientTransport;
@@ -37,7 +32,7 @@ import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_TRANSPORT_PROPERTY;
 
 
-public abstract class AbstractClientBinding implements ClientBinding {
+public abstract class AbstractClientBinding extends AbstractBindingBase implements ClientBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractClientBinding.class);
     private static ResponseCorrelator responseCorrelator;
 
@@ -81,39 +76,11 @@ public abstract class AbstractClientBinding implements ClientBinding {
         responseCorrelator = null;
     }
     
-    // --- BindingBase interface ---
-    
-    public Binding getBinding() {
-        return getBindingImpl();
-    }
-    
-    public ObjectMessageContext createObjectContext() {
-        return new ObjectMessageContextImpl();
-    }
-    
-    public HandlerInvoker createHandlerInvoker() {
-        return getBindingImpl().createHandlerInvoker(); 
-    }
-        
-    public void configureSystemHandlers(Configuration portConfiguration) {
-        /*
-            Configuration busConfiguration = bus.getConfiguration();
-            Configuration serviceConfiguration = busConfiguration
-                .getChild("http://celtix.objectweb.org/bus/jaxws/service-config",
-                          EndpointReferenceUtils.getServiceName(reference));
-            Configuration portConfiguration = serviceConfiguration
-                .getChild("http://celtix.objectweb.org/bus/jaxws/port-config",
-                          EndpointReferenceUtils.getPortName(reference));
-            */
-        getBindingImpl().configureSystemHandlers(portConfiguration);
-    }
-    
-    //  --- BindingBase interface ---
-    
     // --- Methods to be implemented by concrete client bindings ---
     
     protected abstract AbstractBindingImpl getBindingImpl();
     
+    /*
     protected abstract void marshal(ObjectMessageContext objContext,
                                     MessageContext context,
                                     DataBindingCallback callback);
@@ -125,7 +92,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
     protected abstract void unmarshalFault(MessageContext context,
                                            ObjectMessageContext objContext,
                                            DataBindingCallback callback);
-    
+    */
     
     protected abstract boolean hasFault(MessageContext context);
 
@@ -169,7 +136,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 if (null == bindingContext) {
                     bindingContext = context;
                 } else {
-                    marshal(context, bindingContext, callback);
+                    getBindingImpl().marshal(context, bindingContext, callback);
                 }    
                 
                 continueProcessing = handlerInvoker.invokeProtocolHandlers(true, bindingContext); 
@@ -203,9 +170,9 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 }
 
                 if (!hasFault(bindingContext)) {
-                    unmarshal(bindingContext, context, callback);
+                    getBindingImpl().unmarshal(bindingContext, context, callback);
                 } else {
-                    unmarshalFault(bindingContext, context, callback);
+                    getBindingImpl().unmarshalFault(bindingContext, context, callback);
                 }
             }
             
@@ -247,7 +214,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
             if (continueProcessing) {  
 
                 if (null != bindingContext) {
-                    marshal(context, bindingContext, callback);
+                    getBindingImpl().marshal(context, bindingContext, callback);
                 } else {
                     bindingContext = context;
                 }
@@ -295,7 +262,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 if (null == bindingContext) {
                     bindingContext = context;
                 } else {
-                    marshal(context, bindingContext, callback);
+                    getBindingImpl().marshal(context, bindingContext, callback);
                 }
 
                 continueProcessing = handlerInvoker.invokeProtocolHandlers(true, bindingContext); 
@@ -423,9 +390,9 @@ public abstract class AbstractClientBinding implements ClientBinding {
             handlerInvoker.invokeProtocolHandlers(true, bindingContext);
     
             if (!hasFault(bindingContext)) {
-                unmarshal(bindingContext, context, callback);
+                getBindingImpl().unmarshal(bindingContext, context, callback);
             } else {
-                unmarshalFault(bindingContext, context, callback);
+                getBindingImpl().unmarshalFault(bindingContext, context, callback);
             }
             context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
             

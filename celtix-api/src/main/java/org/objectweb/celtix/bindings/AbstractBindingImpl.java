@@ -11,6 +11,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bus.jaxws.configuration.types.SystemHandlerChainType;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.handlers.HandlerChainBuilder;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.handlers.StreamHandler;
@@ -168,5 +169,22 @@ public abstract class AbstractBindingImpl implements Binding {
     protected abstract MessageContext createBindingMessageContext(MessageContext orig);
     
     protected abstract HandlerInvoker createHandlerInvoker();
+    
+    protected abstract void marshal(ObjectMessageContext objContext,
+                                    MessageContext context,
+                                    DataBindingCallback callback);
+    
+    protected abstract void marshalFault(ObjectMessageContext objContext,
+                                    MessageContext context,
+                                    DataBindingCallback callback);
+    
+    protected abstract void unmarshal(MessageContext context,
+                                      ObjectMessageContext objContext,
+                                      DataBindingCallback callback);
+    
+    protected abstract void unmarshalFault(MessageContext context,
+                                           ObjectMessageContext objContext,
+                                           DataBindingCallback callback);
+    
 
 }
