@@ -3,6 +3,7 @@ package org.objectweb.celtix.bindings;
 
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -88,11 +89,6 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
     protected abstract ServerTransport createTransport(EndpointReferenceType ref) 
         throws WSDLException, IOException;
     
-    protected abstract void write(MessageContext replyCtx, OutputStreamMessageContext outCtx)
-        throws IOException;
-
-    protected abstract void read(InputStreamMessageContext inCtx, MessageContext context) throws IOException;
-
     // --- Methods to be implemented by concrete server bindings ---
 
     protected OutputStreamMessageContext createOutputStreamContext(ServerTransport t,
@@ -138,7 +134,7 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
             requestCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
             
             try {
-                read(inCtx, requestCtx);
+                getBindingImpl().read(inCtx, requestCtx);
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, "REQUEST_UNREADABLE_MSG", ex);
                 throw new WebServiceException(ex);
@@ -204,7 +200,9 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
             invoker.setOutbound();
             invoker.invokeStreamHandlers(outCtx);
             finalPrepareOutputStreamContext(st, replyContext, outCtx);
-            write(replyContext, outCtx);
+            getBindingImpl().write(replyContext, outCtx);
+            OutputStream os = outCtx.getOutputStream();
+            os.flush();
         }
         
         return outCtx;

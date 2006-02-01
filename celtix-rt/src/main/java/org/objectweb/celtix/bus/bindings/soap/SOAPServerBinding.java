@@ -1,8 +1,6 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +24,6 @@ import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.helpers.NodeUtils;
@@ -95,75 +92,6 @@ public class SOAPServerBinding extends AbstractServerBinding {
             }
         }
         return super.isFault(objCtx, bindingContext);
-    }
-
-    /*
-    protected void marshal(ObjectMessageContext objContext, MessageContext context) {
-        try {
-            DataBindingCallback.Mode mode = sbeCallback.getServiceMode();
-            SOAPMessage msg = soapBinding
-                .marshalMessage(objContext,
-                                context,
-                                sbeCallback.createDataBindingCallback(objContext, mode));
-            ((SOAPMessageContext)context).setMessage(msg);
-        } catch (SOAPException se) {
-            LOG.log(Level.SEVERE, "SOAP_MARSHALLING_FAILURE_MSG", se);
-            throw new ProtocolException(se);
-        }
-    }
-    */
-
-    /*
-    protected void marshalFault(ObjectMessageContext objContext, MessageContext context) {
-        DataBindingCallback.Mode mode = sbeCallback.getServiceMode();
-        SOAPMessage msg = soapBinding
-            .marshalFault(objContext, context,
-                          sbeCallback.createDataBindingCallback(objContext, mode));
-        ((SOAPMessageContext)context).setMessage(msg);
-    }
-    */
-    /*
-    protected void unmarshal(MessageContext context, ObjectMessageContext objContext) {
-        try {
-            DataBindingCallback.Mode mode = sbeCallback.getServiceMode();
-            soapBinding.unmarshalMessage(context,
-                                         objContext,
-                                         sbeCallback
-                                             .createDataBindingCallback(objContext, mode));
-        } catch (SOAPException se) {
-            LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
-            throw new ProtocolException(se);
-        }
-    }
-    */
-    
-    protected void write(MessageContext context, OutputStreamMessageContext outCtx) throws IOException {
-        
-        SOAPMessageContext soapCtx = (SOAPMessageContext)context;
-        try {
-            OutputStream out = outCtx.getOutputStream();
-            soapCtx.getMessage().writeTo(out);
-            out.flush();
-            
-            if (LOG.isLoggable(Level.FINE)) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                soapCtx.getMessage().writeTo(baos);
-                LOG.log(Level.FINE, baos.toString());    
-            }
-        } catch (SOAPException se) {
-            LOG.log(Level.SEVERE, "SOAP_WRITE_FAILURE_MSG", se);
-            throw new ProtocolException(se);
-        }
-    }
-    
-    protected void read(InputStreamMessageContext instr, MessageContext mc) throws IOException {
-
-        try {
-            soapBinding.parseMessage(instr.getInputStream(), mc);
-        } catch (Exception se) {
-            LOG.log(Level.SEVERE, "SOAP_PARSING_FAILURE_MSG", se);
-            throw new ProtocolException(se);
-        }
     }
     
     protected QName getOperationName(MessageContext ctx) {

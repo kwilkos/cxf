@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bindings;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -11,7 +12,9 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bus.jaxws.configuration.types.SystemHandlerChainType;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerChainBuilder;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.handlers.StreamHandler;
@@ -166,25 +169,31 @@ public abstract class AbstractBindingImpl implements Binding {
         return postProtocolSystemHandlers;
     }
     
-    protected abstract MessageContext createBindingMessageContext(MessageContext orig);
+    public abstract MessageContext createBindingMessageContext(MessageContext orig);
     
-    protected abstract HandlerInvoker createHandlerInvoker();
+    public abstract HandlerInvoker createHandlerInvoker();
     
-    protected abstract void marshal(ObjectMessageContext objContext,
-                                    MessageContext context,
+    public abstract void marshal(ObjectMessageContext objContext,
+                                    MessageContext msgContext,
                                     DataBindingCallback callback);
     
-    protected abstract void marshalFault(ObjectMessageContext objContext,
-                                    MessageContext context,
+    public abstract void marshalFault(ObjectMessageContext objContext,
+                                    MessageContext msgContext,
                                     DataBindingCallback callback);
     
-    protected abstract void unmarshal(MessageContext context,
+    public abstract void unmarshal(MessageContext msgContext,
                                       ObjectMessageContext objContext,
                                       DataBindingCallback callback);
     
-    protected abstract void unmarshalFault(MessageContext context,
+    public abstract void unmarshalFault(MessageContext msgContext,
                                            ObjectMessageContext objContext,
                                            DataBindingCallback callback);
+    
+    public abstract void write(MessageContext msgContext, OutputStreamMessageContext outContext) 
+        throws IOException;
+    
+    public abstract void read(InputStreamMessageContext inContext, MessageContext msgContext) 
+        throws IOException;
     
 
 }

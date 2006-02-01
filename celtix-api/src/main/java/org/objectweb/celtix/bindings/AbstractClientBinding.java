@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
@@ -80,26 +82,8 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
     
     protected abstract AbstractBindingImpl getBindingImpl();
     
-    /*
-    protected abstract void marshal(ObjectMessageContext objContext,
-                                    MessageContext context,
-                                    DataBindingCallback callback);
-    
-    protected abstract void unmarshal(MessageContext context,
-                                      ObjectMessageContext objContext,
-                                      DataBindingCallback callback);
-    
-    protected abstract void unmarshalFault(MessageContext context,
-                                           ObjectMessageContext objContext,
-                                           DataBindingCallback callback);
-    */
-    
     protected abstract boolean hasFault(MessageContext context);
-
-    protected abstract void write(MessageContext context, OutputStreamMessageContext outCtx);
-
-    protected abstract void read(InputStreamMessageContext inCtx, MessageContext context);
-    
+   
     // --- Methods to be implemented by concrete client bindings --- 
     
     // --- ClientBinding interface ---
@@ -114,12 +98,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         try { 
             MessageContext bindingContext = getBindingImpl().createBindingMessageContext(context);
 
-            try {
-                getTransport();
-            } catch (WSDLException e) {
-                throw (IOException)(new IOException(e.getMessage()).initCause(e));
-            }
-            assert transport != null : "transport is null";
+            getTransport();
 
             // cache To EPR & WSDL Port in context for use by WS-Addressing 
             // handlers
@@ -150,7 +129,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
 
                     finalPrepareOutputStreamContext(bindingContext, ostreamContext);
                     
-                    write(bindingContext, ostreamContext);
+                    getBindingImpl().write(bindingContext, ostreamContext);
                     
                     InputStreamMessageContext syncResponseContext = 
                         transport.invoke(ostreamContext);
@@ -197,12 +176,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
             //Input Message For Client
             bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
 
-            try {
-                getTransport();
-            } catch (WSDLException e) {
-                throw (IOException)(new IOException(e.getMessage()).initCause(e));
-            }
-            assert transport != null : "transport is null";
+            getTransport();
 
             // cache To EPR & WSDL Port in context for use by WS-Addressing 
             // handlers
@@ -229,7 +203,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
                     if (continueProcessing) { 
                         finalPrepareOutputStreamContext(bindingContext, ostreamContext);
 
-                        write(bindingContext, ostreamContext);
+                        getBindingImpl().write(bindingContext, ostreamContext);
                         transport.invokeOneway(ostreamContext);
                     } 
                 }
@@ -268,12 +242,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
                 continueProcessing = handlerInvoker.invokeProtocolHandlers(true, bindingContext); 
 
                 if (continueProcessing) {
-                    try {
-                        getTransport();
-                    } catch (WSDLException e) {
-                        throw (IOException)(new IOException(e.getMessage()).initCause(e));
-                    }
-                    assert transport != null : "transport is null";
+                    getTransport();
                     
                     OutputStreamMessageContext ostreamContext = 
                         createOutputStreamContext(bindingContext);
@@ -283,7 +252,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
                     
                     finalPrepareOutputStreamContext(bindingContext, ostreamContext);
                     
-                    write(bindingContext, ostreamContext);
+                    getBindingImpl().write(bindingContext, ostreamContext);
                     
                     Future<InputStreamMessageContext> ins = transport.invokeAsync(ostreamContext, executor);
                     asyncFuture = new AsyncFuture(ins, this, callback, handlerInvoker, context);         
@@ -308,10 +277,15 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         }
     }
     
-    protected synchronized ClientTransport getTransport() throws WSDLException, IOException {
+    protected synchronized ClientTransport getTransport() throws IOException {
         if (transport == null) {
-            transport = createTransport(reference);
+            try {
+                transport = createTransport(reference);
+            } catch (WSDLException e) {
+                throw (IOException) (new IOException(e.getMessage()).initCause(e));
+            }            
         }
+        assert transport != null : "transport is null";
         return transport;
     } 
     
@@ -385,7 +359,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
             handlerInvoker.setFault(ins.isFault()); 
             handlerInvoker.invokeStreamHandlers(ins); 
 
-            read(ins, bindingContext);
+            safeRead(ins, bindingContext);
     
             handlerInvoker.invokeProtocolHandlers(true, bindingContext);
     
@@ -429,9 +403,8 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
         handlerInvoker.setInbound();
         handlerInvoker.setFault(inContext.isFault()); 
-        handlerInvoker.invokeStreamHandlers(inContext); 
-    
-        read(inContext, bindingContext);
+        handlerInvoker.invokeStreamHandlers(inContext);
+        safeRead(inContext, bindingContext);       
     
         // REVISIT replace with system handler traversal
         handlerInvoker.invokeProtocolHandlers(true, bindingContext);
@@ -507,6 +480,15 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
                 // REVISIT: log warning and throw exception?
             }
             return responseContext;
+        }
+    }
+    
+    private void safeRead(InputStreamMessageContext inContext, MessageContext msgContext) {
+        try {
+            getBindingImpl().read(inContext, msgContext);
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, "READ_IO_FAILURE_MSG", ex);
+            throw new ProtocolException(ex);
         }
     }
 }

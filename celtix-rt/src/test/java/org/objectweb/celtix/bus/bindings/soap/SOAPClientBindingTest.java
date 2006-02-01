@@ -101,7 +101,7 @@ public class SOAPClientBindingTest extends TestCase {
         tisc.setInputStream(is);
         
         SOAPMessageContext soapCtx = new SOAPMessageContextImpl(new GenericMessageContext());        
-        clientBinding.read(tisc,  soapCtx);
+        clientBinding.getBindingImpl().read(tisc,  soapCtx);
         assertNotNull(soapCtx.getMessage());
     }
 
@@ -123,7 +123,7 @@ public class SOAPClientBindingTest extends TestCase {
         soapCtx.setMessage(greetMeMsg);
         
         TestOutputStreamContext tosc = new TestOutputStreamContext(null, soapCtx);
-        clientBinding.write(soapCtx, tosc);
+        clientBinding.getBindingImpl().write(soapCtx, tosc);
 
         byte[] bArray = tosc.getOutputStreamBytes();
         assertEquals(br.readLine(), (new String(bArray)).trim());
@@ -140,14 +140,6 @@ public class SOAPClientBindingTest extends TestCase {
             throws WSDLException, IOException {
             // REVISIT: non-null response callback
             return new TestClientTransport(bus, ref);
-        }
-        
-        public void write(MessageContext context, OutputStreamMessageContext outCtx) {
-            super.write(context, outCtx);
-        }
-        
-        public void read(InputStreamMessageContext inCtx, MessageContext context) {
-            super.read(inCtx, context);
         }
 
     }

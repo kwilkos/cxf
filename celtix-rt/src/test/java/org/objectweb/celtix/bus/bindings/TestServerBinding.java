@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.bindings;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -201,16 +202,21 @@ public class TestServerBinding extends AbstractServerBinding {
     static class ToyOutputStreamMessageContext extends MessageContextWrapper 
         implements OutputStreamMessageContext {
         private static final long serialVersionUID = 1;
+        private OutputStream outputStream;
         
         ToyOutputStreamMessageContext(MessageContext wrapped) { 
             super(wrapped); 
         } 
 
         public OutputStream getOutputStream() { 
-            return null; 
+            if (null == outputStream) {
+                outputStream = new ByteArrayOutputStream();
+            }
+            return outputStream; 
         }
     
-        public void setOutputStream(OutputStream ins) {
+        public void setOutputStream(OutputStream os) {
+            outputStream = os;
         }
 
         public boolean isFault() { 

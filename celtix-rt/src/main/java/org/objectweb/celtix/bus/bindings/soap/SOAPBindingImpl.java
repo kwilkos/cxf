@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -45,7 +46,9 @@ import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.helpers.NSStack;
 import org.objectweb.celtix.helpers.NodeUtils;
@@ -68,33 +71,15 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             throw new WebServiceException(se.getMessage());
         }
     }
+    
+    // --- AbstractBindingImpl interface ---
 
-    protected MessageContext createBindingMessageContext(MessageContext srcCtx) {
+    public MessageContext createBindingMessageContext(MessageContext srcCtx) {
         return new SOAPMessageContextImpl(srcCtx);
     }
 
-    protected HandlerInvoker createHandlerInvoker() {
+    public HandlerInvoker createHandlerInvoker() {
         return new HandlerChainInvoker(getHandlerChain());
-    }
-
-    public Set<String> getRoles() {
-        return null;
-    }
-
-    public void setRoles(Set<String> set) {
-        // TODO
-    }
-
-    public boolean isMTOMEnabled() {
-        return false;
-    }
-
-    public void setMTOMEnabled(boolean flag) {
-        throw new WebServiceException("MTOM is not supported");
-    }
-
-    public MessageFactory getMessageFactory() {
-        return msgFactory;
     }
 
     public void marshal(ObjectMessageContext objContext, MessageContext mc, DataBindingCallback callback) {
@@ -212,36 +197,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         ((SOAPMessageContext)mc).setMessage(msg);
     }
 
-    @SuppressWarnings("unchecked")
-    public void updateHeaders(MessageContext ctx, SOAPMessage msg) throws SOAPException {
-        if (msg.saveRequired()) {
-            msg.saveChanges();
-        }
-        MimeHeaders headers = msg.getMimeHeaders();
-        Map<String, List<String>> reqHead;
-        String inOutKey = MessageContext.HTTP_REQUEST_HEADERS;
-        if (isServer) {
-            inOutKey = MessageContext.HTTP_RESPONSE_HEADERS;
-        }
-        reqHead = (Map<String, List<String>>)ctx.get(inOutKey);
-        if (reqHead == null) {
-            reqHead = new HashMap<String, List<String>>();
-            ctx.put(inOutKey, reqHead);
-        }
-        Iterator it = headers.getAllHeaders();
-        while (it.hasNext()) {
-            MimeHeader header = (MimeHeader)it.next();
-            if (!"Content-Length".equals(header.getName())) {
-                List<String> vals = reqHead.get(header.getName());
-                if (null == vals) {
-                    vals = new ArrayList<String>();
-                    reqHead.put(header.getName(), vals);
-                }
-                vals.add(header.getValue());
-            }
-        }
-    }
-
     public void unmarshal(MessageContext mc, ObjectMessageContext objContext,
                                  DataBindingCallback callback) {
         try {
@@ -341,6 +296,84 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
             throw new ProtocolException(se);
+        }
+    }
+    
+    public void write(MessageContext msgContext, OutputStreamMessageContext outContext) 
+        throws IOException {
+        SOAPMessageContext soapCtx = (SOAPMessageContext)msgContext;
+        try {
+            soapCtx.getMessage().writeTo(outContext.getOutputStream());
+            
+            if (LOG.isLoggable(Level.FINE)) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                soapCtx.getMessage().writeTo(baos);
+                LOG.log(Level.FINE, baos.toString());    
+            }
+        } catch (SOAPException se) {
+            LOG.log(Level.SEVERE, "SOAP_WRITE_FAILURE_MSG", se);
+            throw new ProtocolException(se);
+        }
+    }
+    
+    public void read(InputStreamMessageContext inCtx, MessageContext context) throws IOException {
+        try {
+            parseMessage(inCtx.getInputStream(), context);
+        } catch (SOAPException se) {
+            LOG.log(Level.SEVERE, "SOAP_PARSING_FAILURE_MSG", se);
+            throw new ProtocolException(se);
+        }
+    }
+    
+    //  --- AbstractBindingImpl interface ---
+    
+    public Set<String> getRoles() {
+        return null;
+    }
+
+    public void setRoles(Set<String> set) {
+        // TODO
+    }
+
+    public boolean isMTOMEnabled() {
+        return false;
+    }
+
+    public void setMTOMEnabled(boolean flag) {
+        throw new WebServiceException("MTOM is not supported");
+    }
+
+    public MessageFactory getMessageFactory() {
+        return msgFactory;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void updateHeaders(MessageContext ctx, SOAPMessage msg) throws SOAPException {
+        if (msg.saveRequired()) {
+            msg.saveChanges();
+        }
+        MimeHeaders headers = msg.getMimeHeaders();
+        Map<String, List<String>> reqHead;
+        String inOutKey = MessageContext.HTTP_REQUEST_HEADERS;
+        if (isServer) {
+            inOutKey = MessageContext.HTTP_RESPONSE_HEADERS;
+        }
+        reqHead = (Map<String, List<String>>)ctx.get(inOutKey);
+        if (reqHead == null) {
+            reqHead = new HashMap<String, List<String>>();
+            ctx.put(inOutKey, reqHead);
+        }
+        Iterator it = headers.getAllHeaders();
+        while (it.hasNext()) {
+            MimeHeader header = (MimeHeader)it.next();
+            if (!"Content-Length".equals(header.getName())) {
+                List<String> vals = reqHead.get(header.getName());
+                if (null == vals) {
+                    vals = new ArrayList<String>();
+                    reqHead.put(header.getName(), vals);
+                }
+                vals.add(header.getValue());
+            }
         }
     }
 

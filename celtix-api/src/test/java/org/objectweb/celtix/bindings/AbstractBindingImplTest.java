@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bindings;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +15,9 @@ import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.ObjectFactory;
 import org.objectweb.celtix.bus.jaxws.configuration.types.SystemHandlerChainType;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.context.StreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.handlers.StreamHandler;
@@ -231,30 +234,38 @@ public class AbstractBindingImplTest extends TestCase {
     
     static class TestBinding extends AbstractBindingImpl {
 
-        protected MessageContext createBindingMessageContext(MessageContext orig) {
+        public MessageContext createBindingMessageContext(MessageContext orig) {
             return null;
         }
 
-        protected HandlerInvoker createHandlerInvoker() {
+        public HandlerInvoker createHandlerInvoker() {
             return null;
         }
 
-        protected void marshal(ObjectMessageContext objContext, MessageContext context, 
+        public void marshal(ObjectMessageContext objContext, MessageContext context, 
                                DataBindingCallback callback) {        
         }
         
-        protected void marshalFault(ObjectMessageContext objContext, MessageContext context, 
+        public void marshalFault(ObjectMessageContext objContext, MessageContext context, 
                                DataBindingCallback callback) {        
         }
 
-        protected void unmarshal(MessageContext context, ObjectMessageContext objContext, 
+        public void unmarshal(MessageContext context, ObjectMessageContext objContext, 
                                  DataBindingCallback callback) {
         }
         
-        protected void unmarshalFault(MessageContext context, ObjectMessageContext objContext, 
+        public void unmarshalFault(MessageContext context, ObjectMessageContext objContext, 
                                       DataBindingCallback callback) {
         }
-        
+
+        public void read(InputStreamMessageContext inContext, MessageContext msgContext)
+            throws IOException {    
+        }
+
+        public void write(MessageContext msgContext, OutputStreamMessageContext outContext)
+            throws IOException {
+        }
+       
     }
     
     public static class TestProtocolSystemHandler implements Handler, SystemHandler {
