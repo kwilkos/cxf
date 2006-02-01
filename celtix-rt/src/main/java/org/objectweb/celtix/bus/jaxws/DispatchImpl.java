@@ -21,15 +21,17 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class DispatchImpl<T> implements Dispatch<T> {
 
+    protected ClientBinding cb;
+    protected DynamicDataBindingCallback callback;
+    
     private Map<String, Object> requestContext;
     private Map<String, Object> responseContext;
-
     private Bus bus;
-    private ClientBinding cb;
     private EndpointReferenceType ref;
     private Mode mode;
-    private DynamicDataBindingCallback callback;
     private Class<T> cl;
+    
+    
 
 
     DispatchImpl(Bus b, EndpointReferenceType r, Service.Mode m, Class<T> clazz) {
@@ -37,12 +39,16 @@ public class DispatchImpl<T> implements Dispatch<T> {
         ref = r;
         mode = Mode.fromServiceMode(m);        
         cl = clazz;
+        cb = null;
+        callback = null;
+    }
+    
+    protected void init() {
         cb = createClientBinding();
-        callback = new DynamicDataBindingCallback(cl, mode);
+        callback = new DynamicDataBindingCallback(cl, mode);   
     }
 
     public Binding getBinding() {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -61,6 +67,10 @@ public class DispatchImpl<T> implements Dispatch<T> {
     }
 
     public T invoke(T obj) {
+        
+        if (cb == null || callback == null) {
+            init();
+        }
 
         ObjectMessageContext objMsgContext = cb.createObjectContext();
         // TODO
@@ -95,7 +105,7 @@ public class DispatchImpl<T> implements Dispatch<T> {
 
     }
 
-    private ClientBinding createClientBinding() {
+    private  ClientBinding createClientBinding() {
         // TODO: Get bindingId from wsdl via the ref
         String bindingId = "http://schemas.xmlsoap.org/wsdl/soap/";
         ClientBinding binding = null;

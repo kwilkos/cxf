@@ -11,7 +11,7 @@ import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 
-class TestOutputStreamContext
+public class TestOutputStreamContext
     extends MessageContextWrapper
     implements OutputStreamMessageContext {
     ByteArrayOutputStream baos;

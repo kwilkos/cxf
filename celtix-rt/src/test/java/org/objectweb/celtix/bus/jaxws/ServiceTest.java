@@ -4,6 +4,10 @@ import java.lang.reflect.Proxy;
 import java.util.Iterator;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.ws.Dispatch;
+import javax.xml.ws.Service;
 import javax.xml.ws.spi.Provider;
 
 import junit.framework.TestCase;
@@ -54,6 +58,23 @@ public class ServiceTest extends TestCase {
         } finally {
             bus.shutdown(true);
         }
+    }
+    
+    public void testCreateDispatch() throws Exception {
+        QName endpoint = new QName("http://objectweb.org/hello_world_soap_http",
+                                   "SoapPort"); 
+        
+        SOAPService service = new SOAPService();
+        assertNotNull(service);
+        Dispatch<SOAPMessage> disp = service.createDispatch(endpoint, 
+                                                                SOAPMessage.class, Service.Mode.MESSAGE);
+        assertNotNull(disp);
+        assertTrue("Should be DispatchImpl class", disp.getClass().isAssignableFrom(DispatchImpl.class));
+        
+        Dispatch<DOMSource> disp2 = service.createDispatch(endpoint, 
+                                                           DOMSource.class, Service.Mode.PAYLOAD);
+        assertNotNull(disp2);
+        assertTrue("Should be DispatchImpl class", disp2.getClass().isAssignableFrom(DispatchImpl.class));
     }
 
 }
