@@ -1,9 +1,8 @@
 package demo.hwDispatch.server;
+
 import java.io.InputStream;
 
-import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -11,9 +10,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceProvider;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 @WebServiceProvider(portName = "SoapPort3", serviceName = "SOAPService3",
                     targetNamespace = "http://objectweb.org/hello_world_soap_http",

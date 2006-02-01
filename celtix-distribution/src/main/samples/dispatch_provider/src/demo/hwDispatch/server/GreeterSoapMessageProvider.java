@@ -1,7 +1,6 @@
 package demo.hwDispatch.server;
 import java.io.InputStream;
 
-import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
