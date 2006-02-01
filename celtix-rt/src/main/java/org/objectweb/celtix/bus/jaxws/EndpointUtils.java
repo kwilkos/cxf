@@ -15,6 +15,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Provider;
 import javax.xml.ws.ServiceMode;
+import javax.xml.ws.WebServiceProvider;
 
 import org.objectweb.celtix.common.logging.LogUtils;
 
@@ -96,15 +97,15 @@ public final class EndpointUtils {
     public static Class<?> getProviderParameterType(Endpoint endpoint) {
         //The Provider Implementor inherits out of Provier<T>
         Type intfTypes[] = endpoint.getImplementor().getClass().getGenericInterfaces();
-        Type providerType = null;
         for (Type t : intfTypes) {
             Class<?> clazz = JAXBEncoderDecoder.getClassFromType(t);
             if (Provider.class == clazz) {
-                providerType = t;
+                Type paramTypes[] = ((ParameterizedType)t).getActualTypeArguments();
+                return JAXBEncoderDecoder.getClassFromType(paramTypes[0]);
             }
         }
-        Type paramTypes[] = ((ParameterizedType)providerType).getActualTypeArguments();
-        return JAXBEncoderDecoder.getClassFromType(paramTypes[0]);       
+        
+        return null;
     }
 
     private static boolean hasWebServiceAnnotation(Class<?> cls) {
@@ -122,8 +123,18 @@ public final class EndpointUtils {
         
         return hasWebServiceAnnotation(cls.getSuperclass());
     }
+    
+    private static boolean hasWebServiceProviderAnnotation(Class<?> cls) {
+        if (cls != null) {
+            return cls.isAnnotationPresent(WebServiceProvider.class);
+        }
+        
+        return false;
+    }
+    
     public static boolean isValidImplementor(Object implementor) {
-        if (implementor instanceof Provider) {
+        if (Provider.class.isAssignableFrom(implementor.getClass())
+            && hasWebServiceProviderAnnotation(implementor.getClass())) {
             return true;
         }
 
