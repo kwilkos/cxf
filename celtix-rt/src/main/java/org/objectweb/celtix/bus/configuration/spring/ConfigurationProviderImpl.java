@@ -33,6 +33,10 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
     private Configuration configuration;
     
     
+    public static void clearBeanFactoriesMap() {
+        beanFactories = null;
+    }
+
     public void init(Configuration c) {
         configuration = c;
         

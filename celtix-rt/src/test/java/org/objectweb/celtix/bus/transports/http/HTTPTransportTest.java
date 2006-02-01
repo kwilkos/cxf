@@ -22,9 +22,11 @@ import junit.framework.TestSuite;
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.transports.TestResponseCallback;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
+import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
@@ -55,6 +57,7 @@ public class HTTPTransportTest extends TestCase {
     private WSDLManager wsdlManager;
     private WorkQueueManagerImpl queueManager;
     private ExecutorService executorService;
+    private TestResponseCallback responseCallback;
     
     public HTTPTransportTest(String arg0) {
         super(arg0);
@@ -288,7 +291,6 @@ public class HTTPTransportTest extends TestCase {
                     if (delay > 0) {                       
                         Thread.sleep(delay);
                     }
-                    
                     if (!oneWay) {
                         octx.getOutputStream().write(bytes, 0, total);
                         octx.getOutputStream().flush();
@@ -321,7 +323,11 @@ public class HTTPTransportTest extends TestCase {
     private void doRequestResponse(ClientTransport client, byte outBytes[]) throws Exception {
         OutputStreamMessageContext octx = doRequest(client, outBytes);
         InputStreamMessageContext ictx = client.invoke(octx);
-        doResponse(client, ictx, outBytes);
+        if (ictx != null) {
+            doResponse(client, ictx, outBytes);
+        } else {
+            doResponse(client, responseCallback.waitForNextResponse(), outBytes); 
+        }
     }
     
     private OutputStreamMessageContext doRequest(ClientTransport client, byte outBytes[]) throws Exception {
@@ -355,6 +361,9 @@ public class HTTPTransportTest extends TestCase {
         EasyMock.expectLastCall().andReturn(wsdlManager);
         bus.getWSDLManager();
         EasyMock.expectLastCall().andReturn(wsdlManager);
+        BusLifeCycleManager lifecycleManager = EasyMock.createNiceMock(BusLifeCycleManager.class);
+        bus.getLifeCycleManager();
+        EasyMock.expectLastCall().andReturn(lifecycleManager);
         bus.getConfiguration();
         EasyMock.expectLastCall().andReturn(bc);
         bc.getObject("transportFactories");
@@ -364,7 +373,10 @@ public class HTTPTransportTest extends TestCase {
         EasyMock.replay(bc); 
         
         TransportFactoryManager tfm = new TransportFactoryManagerImpl(bus);
-        return tfm.getTransportFactory(transportId);   
+        TransportFactory factory = tfm.getTransportFactory(transportId);
+        responseCallback = new TestResponseCallback();
+        factory.setResponseCallback(responseCallback);
+        return factory;
     }
     
     private ClientTransport createClientTransport(TransportFactory factory, URL wsdlUrl, 

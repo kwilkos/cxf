@@ -2,8 +2,12 @@ package org.objectweb.celtix.bus.transports.http;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -17,6 +21,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
+import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransportCallback;
@@ -35,13 +40,54 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
     
     public synchronized void activate(ServerTransportCallback cb) throws IOException {
         callback = cb;
-        engine.addServant(url, this);
+        engine.addServant(url, new AbstractHttpHandler() {
+            public void handle(String pathInContext, String pathParams,
+                               HttpRequest req, HttpResponse resp)
+                throws IOException {
+                if (pathInContext.equals(getName())) {
+                    doService(req, resp);                    
+                }
+            }
+        });
     }
 
     public void deactivate() throws IOException {
-        engine.removeServant(url, this);
+        engine.removeServant(url);
     }
-
+    
+    public void rebase(MessageContext context, EndpointReferenceType decoupledResponseEndpoint)
+        throws IOException {
+        HttpRequest request = 
+            (HttpRequest)context.get(HTTPServerInputStreamContext.HTTP_REQUEST);
+        HttpResponse response = 
+            (HttpResponse)context.get(HTTPServerInputStreamContext.HTTP_RESPONSE);
+        copyHeaders(context, response);
+        response.setStatus(HttpURLConnection.HTTP_ACCEPTED);
+        response.commit();
+        request.setHandled(true);
+        context.put(HTTPServerInputStreamContext.HTTP_RESPONSE, decoupledResponseEndpoint);
+    }
+    
+    public void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context) {
+        Object responseObj =
+            bindingContext.get(HTTPServerInputStreamContext.HTTP_RESPONSE);
+        if (responseObj instanceof HttpResponse) {
+            HttpResponse response = (HttpResponse)responseObj;
+            try {
+                response.commit();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if (responseObj instanceof URLConnection) {
+            try {
+                URLConnection connection = (URLConnection)responseObj;
+                connection.getOutputStream().close();
+                connection.getInputStream().close();
+            } catch (IOException ioe) {
+                LOG.log(Level.WARNING, "DECOUPLED_RESPONSE_FAILED_MSG", ioe);
+            }
+        }
+    }
     
     protected void copyRequestHeaders(MessageContext ctx, Map<String, List<String>> headers) {
         HttpRequest req = (HttpRequest)ctx.get(HTTPServerInputStreamContext.HTTP_REQUEST);
@@ -60,6 +106,20 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
             }
         }        
     }
+    
+    // REVISIT factor out to common shared with HTTPClientTransport
+    protected URLConnection getConnection(URL url) throws IOException {
+        URLConnection connection = url.openConnection();
+        connection.setDoOutput(true);
+
+        if (connection instanceof HttpURLConnection) {
+            HttpURLConnection hc = (HttpURLConnection)connection;
+            hc.setRequestMethod("POST");
+        }
+        connection.setRequestProperty("Content-Type", "text/xml");
+        return connection;
+    }
+
     protected void setPolicies(MessageContext ctx, Map<String, List<String>> headers) {
         super.setPolicies(ctx, headers);
         if (policy.isSetReceiveTimeout()) {
@@ -75,17 +135,20 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
             }                
         }
     }    
-    public void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context) {
-        HttpResponse response = (HttpResponse)context.get(HTTPServerInputStreamContext.HTTP_RESPONSE);
-        if (response != null) {
-            try {
-                response.commit();
-            } catch (IOException e) {
-                e.printStackTrace();
+
+    protected void copyHeaders(MessageContext context, HttpResponse response) {
+        Map<?, ?> headers = (Map<?, ?>)context.get(MessageContext.HTTP_RESPONSE_HEADERS);
+        if (null != headers) {
+            for (Iterator<?> iter = headers.keySet().iterator(); iter.hasNext();) {
+                String header = (String)iter.next();
+                List<?> headerList = (List<?>)headers.get(header);
+                for (Object string : headerList) {
+                    response.addField(header, (String)string);
+                }
             }
         }
+        
     }
-
     
     /**
      * @param context The associated MessageContext.
@@ -93,39 +156,7 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
      */
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context)
         throws IOException {
-        return new AbstractHTTPServerOutputStreamContext(this, context) {
-            protected void flushHeaders() throws IOException {
-                HttpResponse response = (HttpResponse)get(HTTPServerInputStreamContext.HTTP_RESPONSE);
-                
-                Integer i = (Integer)context.get(HTTP_RESPONSE_CODE);
-                if (i != null) {
-                    if (i.intValue() == 500) {
-                        response.setStatus(i.intValue(), "Fault Occurred");
-                    } else {
-                        response.setStatus(i.intValue());
-                    }
-                } else {
-                    response.setStatus(200);
-                }
-                
-                Map<?, ?> headers = (Map<?, ?>)super.get(HTTP_RESPONSE_HEADERS);
-                if (null != headers) {
-                    for (Iterator<?> iter = headers.keySet().iterator(); iter.hasNext();) {
-                        String header = (String)iter.next();
-                        List<?> headerList = (List<?>)headers.get(header);
-                        for (Object string : headerList) {
-                            response.addField(header, (String)string);
-                        }
-                    }
-                }
-                if (!isOneWay()) {
-                    origOut.resetOut(new BufferedOutputStream(response.getOutputStream(), 1024));
-                } else {
-                    response.commit();
-                    context.remove(HTTPServerInputStreamContext.HTTP_RESPONSE);
-                }
-            }
-        };
+        return new HTTPServerOutputStreamContext(this, context);
     }
 
     void doService(HttpRequest req, HttpResponse resp) throws IOException {
@@ -220,5 +251,55 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
         }
     }
 
+    private class HTTPServerOutputStreamContext 
+        extends AbstractHTTPServerOutputStreamContext {
+        
+        HTTPServerOutputStreamContext(AbstractHTTPServerTransport tr, MessageContext ctx) 
+            throws IOException {
+            super(tr, ctx);
+        }
+        protected void flushHeaders() throws IOException {
+            Object responseObj =
+                get(HTTPServerInputStreamContext.HTTP_RESPONSE);
+            OutputStream responseStream = null;
+            if (responseObj instanceof HttpResponse) {
+                HttpResponse response = (HttpResponse)responseObj;
+            
+                Integer i = (Integer)context.get(HTTP_RESPONSE_CODE);
+                if (i != null) {
+                    if (i.intValue() == 500) {
+                        response.setStatus(i.intValue(), "Fault Occurred");
+                    } else {
+                        response.setStatus(i.intValue());
+                    }
+                } else {
+                    response.setStatus(200);
+                }
+            
+                copyHeaders(context, response);
+                responseStream = response.getOutputStream();
+                
+                if (isOneWay()) {
+                    response.commit();
+                    context.remove(HTTPServerInputStreamContext.HTTP_RESPONSE);
+                }
+            } else if (responseObj instanceof EndpointReferenceType) {
+                EndpointReferenceType decoupledResponseEndpoint = 
+                    (EndpointReferenceType)responseObj;
+                // REVISIT: use policy logic from HTTPClientTransport
+                // REVISIT: handle connection closure
+                URL url = new URL(decoupledResponseEndpoint.getAddress().getValue());
+                URLConnection connection = getConnection(url);
+                responseStream = connection.getOutputStream();
+                put(HTTPServerInputStreamContext.HTTP_RESPONSE, connection);
+            } else {
+                LOG.log(Level.WARNING, "UNEXPECTED_RESPONSE_TYPE_MSG", responseObj.getClass());
+                throw new IOException("UNEXPECTED_RESPONSE_TYPE_MSG" + responseObj.getClass());
+            }
 
+            if (!isOneWay()) {
+                origOut.resetOut(new BufferedOutputStream(responseStream, 1024));
+            }
+        }
+    }
 }

@@ -217,28 +217,32 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
                                  MessageContext context) {
         if (isRequestor) {
             // add request-specific MAPs
-
             boolean isOneway = ContextUtils.isOneway(context);
             // ReplyTo, set if null in MAPs or if set to a generic address
             // (anonymous or none) that may not be appropriate for the
             // current invocation
             EndpointReferenceType replyTo = maps.getReplyTo();
-            if (replyTo == null 
-                || Names.WSA_ANONYMOUS_ADDRESS.equals(replyTo.getAddress().getValue())
-                || Names.WSA_NONE_ADDRESS.equals(replyTo.getAddress().getValue())) {
-                // REVISIT: use ReplyTo cached in context by transport
-                replyTo =
-                    ContextUtils.WSA_OBJECT_FACTORY.createEndpointReferenceType();
-                AttributedURIType address =
-                    ContextUtils.getAttributedURI(isOneway
-                                                  ? Names.WSA_NONE_ADDRESS
-                                                  : Names.WSA_ANONYMOUS_ADDRESS);
-                replyTo.setAddress(address);
+            if (ContextUtils.isGenericAddress(replyTo)) {
+                // use ReplyTo provided by transport
+                replyTo = ContextUtils.retrieveReplyTo(context);
+                if (replyTo == null) {
+                    AttributedURIType address =
+                        ContextUtils.getAttributedURI(isOneway
+                                                      ? Names.WSA_NONE_ADDRESS
+                                                      : Names.WSA_ANONYMOUS_ADDRESS);
+                    replyTo =
+                        ContextUtils.WSA_OBJECT_FACTORY.createEndpointReferenceType();
+                    replyTo.setAddress(address);
+                }
                 maps.setReplyTo(replyTo);
             }
             // REVIST Action
             if (!isOneway) {
                 // REVISIT FaultTo if cached by transport in context
+            }
+            // cache correlation ID
+            if (ContextUtils.isOutbound(context)) {
+                ContextUtils.storeCorrelationID(maps.getMessageID(), true, context);
             }
         } else {
             // add response-specific MAPs

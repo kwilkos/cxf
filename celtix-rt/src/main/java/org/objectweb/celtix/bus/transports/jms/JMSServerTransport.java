@@ -68,6 +68,10 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
             throw new IOException(nex.getMessage());
         }
     }
+    
+    public void rebase(MessageContext context, EndpointReferenceType decoupledResponseEndpoint)
+        throws IOException {
+    }
 
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
         return new JMSOutputStreamContext(context);

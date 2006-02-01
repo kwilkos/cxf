@@ -18,6 +18,7 @@ import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
 import org.easymock.IMocksControl;
 
+import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import static org.objectweb.celtix.bus.bindings.soap.SOAPConstants.SOAP_ENV_ENCSTYLE;
@@ -25,6 +26,7 @@ import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_P
 import static org.objectweb.celtix.context.OutputStreamMessageContext.ONEWAY_MESSAGE_TF;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_TRANSPORT_PROPERTY;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
 
@@ -259,7 +261,7 @@ public class MAPAggregatorTest extends TestCase {
                                                 ? new AddressingPropertiesImpl()
                                                 : null;
                 EasyMock.expectLastCall().andReturn(maps);
-                context.get("org.objectweb.celtix.ws.addressing.client.to");
+                context.get(CLIENT_TRANSPORT_PROPERTY);
                 EasyMock.expectLastCall().andReturn(null);
                 context.get(REQUESTOR_ROLE_PROPERTY);
                 EasyMock.expectLastCall().andReturn(Boolean.valueOf(requestor));
@@ -316,7 +318,10 @@ public class MAPAggregatorTest extends TestCase {
     private void setUpUsingAddressing(LogicalMessageContext context,
                                       boolean usingAddressing) {
         Port port = control.createMock(Port.class);
-        context.get("org.objectweb.celtix.ws.addressing.client.port");
+        ClientTransport transport = control.createMock(ClientTransport.class);
+        context.get(CLIENT_TRANSPORT_PROPERTY);
+        EasyMock.expectLastCall().andReturn(transport);
+        transport.getPort();
         EasyMock.expectLastCall().andReturn(port);
         List portExts = control.createMock(List.class);
         port.getExtensibilityElements();

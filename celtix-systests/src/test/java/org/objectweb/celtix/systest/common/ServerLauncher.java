@@ -43,11 +43,6 @@ public class ServerLauncher {
     public ServerLauncher(String theClassName, boolean inprocess) {
         inProcess = inprocess;
         className = theClassName;
-        // special case handling for WS-Addressing system test to avoid
-        // UUID related issue when server is run as separate process
-        // via maven on Win2k
-        inProcess = "org.objectweb.celtix.systest.ws.addressing.Server".equals(className);
-        inProcess = true;
         javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
     }
     public ServerLauncher(String theClassName, Map<String, String> p) {
@@ -218,7 +213,7 @@ public class ServerLauncher {
                     } else if (s.contains("server stopped")) {
                         notifyServerIsStopped();
                         running = false;
-                    } else if (s.contains("failed")) {
+                    } else if (s.contains("server startup failed (not a log message)")) {
                         notifyServerLaunchFailed();
                         running = false;
                     }

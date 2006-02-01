@@ -176,6 +176,7 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
         // REVISIT generate MessageAddressingHeaderRequired fault if an
         // expected header is missing 
         AddressingProperties maps = null;
+        boolean isRequestor = ContextUtils.isRequestor(context);
         try {
             SOAPMessage message = context.getMessage();
             SOAPEnvelope env = message.getSOAPPart().getEnvelope();
@@ -203,13 +204,23 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
                                                  headerElement, 
                                                  unmarshaller));
                         } else if (Names.WSA_REPLYTO_NAME.equals(localName)) {
-                            maps.setReplyTo(decodeMAP(EndpointReferenceType.class,
-                                                      headerElement, 
-                                                      unmarshaller));
+                            EndpointReferenceType replyTo = 
+                                decodeMAP(EndpointReferenceType.class,
+                                          headerElement, 
+                                          unmarshaller);
+                            maps.setReplyTo(replyTo);
+                            if (!ContextUtils.isGenericAddress(replyTo)) {
+                                ContextUtils.rebaseTransport(replyTo, context);
+                            }
                         } else if (Names.WSA_RELATESTO_NAME.equals(localName)) {
                             maps.setRelatesTo(decodeMAP(RelatesToType.class,
                                                         headerElement, 
                                                         unmarshaller));
+                            if (isRequestor) {
+                                ContextUtils.storeCorrelationID(maps.getRelatesTo(),
+                                                                false,
+                                                                context);
+                            }
                         }
                     }
                 }
@@ -247,6 +258,7 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
                                Class<T> clz,
                                SOAPHeader header,
                                Marshaller marshaller) throws JAXBException {
+        LOG.log(Level.INFO, "encoding WSA header {0}", qname);
         if (value != null) {
             marshaller.marshal(new JAXBElement<T>(qname, clz, value), header);
         }

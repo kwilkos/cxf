@@ -17,9 +17,7 @@ import junit.framework.TestSuite;
 
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
-import org.objectweb.celtix.bus.ws.addressing.MAPAggregator;
 import org.objectweb.celtix.bus.ws.addressing.Names;
-import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
@@ -30,14 +28,22 @@ import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.SOAPService;
 
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
 
 
 /**
  * Tests the addition of WS-Addressing Message Addressing Properties.
  */
 public class MAPTest extends ClientServerTestBase implements VerificationCache {
+    /**
+     * Set up configuration for decoupled response endpoint
+     */
+    static { 
+        System.setProperty("celtix.config.file", 
+                           "file:///"
+                           + System.getProperty("user.dir")
+                           + "/src/test/java/org/objectweb/celtix/systest/ws/addressing/client.xml");
+    }
+    
     static final String INBOUND_KEY = "inbound";
     static final String OUTBOUND_KEY = "outbound";
     private static final QName SERVICE_NAME = 
@@ -47,8 +53,6 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
     private static Map<Object, Map<String, String>> messageIDs =
         new HashMap<Object, Map<String, String>>();
     private Greeter greeter;
-    private MAPVerifier mapVerifier;
-    private HeaderVerifier headerVerifier;
     private String verified;
 
     public static void main(String[] args) {
@@ -59,7 +63,11 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
         TestSuite suite = new TestSuite(MAPTest.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class, true));
+                // special case handling for WS-Addressing system test to avoid
+                // UUID related issue when server is run as separate process
+                // via maven on Win2k
+                assertTrue("server did not launch correctly", 
+                           launchServer(Server.class, "Windows 2000".equals(System.getProperty("os.name"))));
             }
         };
     }  
@@ -69,20 +77,15 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         SOAPService service = new SOAPService(wsdl, SERVICE_NAME);
         greeter = (Greeter)service.getPort(PORT_NAME, Greeter.class);
-        BindingProvider provider = (BindingProvider)greeter;
+        BindingProvider provider = (BindingProvider)greeter;        
         List<Handler> handlerChain = provider.getBinding().getHandlerChain();
-        handlerChain.add(0, new MAPAggregator());
-        mapVerifier = new MAPVerifier();
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put(INBOUND_KEY, CLIENT_ADDRESSING_PROPERTIES_INBOUND);
-        params.put(OUTBOUND_KEY, CLIENT_ADDRESSING_PROPERTIES_OUTBOUND);
-        mapVerifier.init(params);
-        mapVerifier.verificationCache = this;
-        handlerChain.add(1, mapVerifier);
-        handlerChain.add(2, new MAPCodec());
-        headerVerifier = new HeaderVerifier();
-        headerVerifier.verificationCache = this;
-        handlerChain.add(3, headerVerifier);
+        for (Object h : handlerChain) {
+            if (h instanceof MAPVerifier) {
+                ((MAPVerifier)h).verificationCache = this;
+            } else if (h instanceof HeaderVerifier) {
+                ((HeaderVerifier)h).verificationCache = this;
+            } 
+        }
     }
 
     public void tearDown() {
@@ -120,7 +123,7 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
             // the previous addition to the request context impacts
             // on all subsequent invocations on this proxy => a duplicate
             // message ID fault is expected
-            try { 
+            try {
                 greeter.greetMe("explicit2");
                 fail("expected ProtocolException on dulicate message ID");
             } catch (ProtocolException pe) {

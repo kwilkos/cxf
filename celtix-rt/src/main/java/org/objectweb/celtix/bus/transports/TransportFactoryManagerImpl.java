@@ -79,6 +79,4 @@ public final class TransportFactoryManagerImpl implements TransportFactoryManage
     public TransportFactory getTransportFactory(String namespace) throws BusException {
         return transportFactories.get(namespace);
     }
-    
-    
 }

@@ -38,12 +38,13 @@ public class JMSTransportBase {
     protected Destination replyDestination;
     protected JMSSessionFactory sessionFactory;
     protected Bus theBus;
+    protected EndpointReferenceType targetEndpoint;    
+    protected Port port;
     
-
     //--Constructors------------------------------------------------------------
     public JMSTransportBase(Bus bus, EndpointReferenceType epr) throws WSDLException {
         theBus = bus;
-        Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), epr);
+        port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), epr);
         List<?> list = port.getExtensibilityElements();
         for (Object ep : list) {
             ExtensibilityElement ext = (ExtensibilityElement)ep;
@@ -56,6 +57,7 @@ public class JMSTransportBase {
         queueDestinationStyle = 
             JMSConstants.JMS_QUEUE.equals(jmsAddressDetails.getDestinationStyle().value());
         LOG.log(Level.FINE, "QUEUE_DESTINATION_STYLE: " + queueDestinationStyle);
+        targetEndpoint = epr;
     }
     
     

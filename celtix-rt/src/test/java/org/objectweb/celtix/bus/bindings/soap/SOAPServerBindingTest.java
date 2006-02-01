@@ -353,6 +353,10 @@ public class SOAPServerBindingTest extends TestCase {
             //nothing to do
         }
 
+        public void rebase(MessageContext context, EndpointReferenceType decoupledResponseEndpoint)
+            throws IOException {
+        }
+
         public OutputStreamMessageContext createOutputStreamContext(MessageContext context) 
             throws IOException {
             osmc = new TestOutputStreamContext(null, context);

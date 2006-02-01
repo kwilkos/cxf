@@ -64,6 +64,10 @@ public abstract class AbstractHTTPServerTransport implements ServerTransport {
         }
         return pol;
     }
+    
+    public void rebase(MessageContext context, EndpointReferenceType decoupledResponseEndpoint)
+        throws IOException {
+    }
 
     public void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context) {
         // Do not need to do anything here. 

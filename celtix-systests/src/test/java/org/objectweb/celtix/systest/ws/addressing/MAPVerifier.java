@@ -1,6 +1,7 @@
 package org.objectweb.celtix.systest.ws.addressing;
 
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.ws.handler.LogicalHandler;
@@ -9,6 +10,8 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
 
 
 /**
@@ -18,8 +21,16 @@ public class MAPVerifier implements LogicalHandler<LogicalMessageContext> {
     VerificationCache verificationCache;
     private Map<String, Object> mapProperties;        
 
+    public MAPVerifier() {
+        mapProperties = new HashMap<String, Object>();
+        mapProperties.put(MAPTest.INBOUND_KEY, CLIENT_ADDRESSING_PROPERTIES_INBOUND);
+        mapProperties.put(MAPTest.OUTBOUND_KEY, CLIENT_ADDRESSING_PROPERTIES_OUTBOUND);
+    }
+    
     public void init(Map<String, Object> params) {
-        mapProperties = params;
+        if (params != null && params.size() > 0) { 
+            mapProperties = params;
+        }
     }
 
     public boolean handleMessage(LogicalMessageContext context) {
@@ -43,7 +54,6 @@ public class MAPVerifier implements LogicalHandler<LogicalMessageContext> {
             (String)mapProperties.get(ContextUtils.isOutbound(context) 
                                       ? MAPTest.OUTBOUND_KEY
                                       : MAPTest.INBOUND_KEY);
-        //System.out.println("map property: " + mapProperty);
         AddressingProperties maps = 
             (AddressingProperties)context.get(mapProperty);
         verificationCache.put(MAPTest.verifyMAPs(maps, this));

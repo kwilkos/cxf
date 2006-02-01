@@ -9,6 +9,7 @@ import java.net.URL;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
+import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
@@ -102,7 +103,7 @@ public class SOAPClientBindingTest extends TestCase {
         assertNotNull(objContext.getReturn());
         assertTrue(String.class.isAssignableFrom(objContext.getReturn().getClass()));
     }
-    
+
     public void testInvokeOneWay() throws Exception {
         TestClientBinding clientBinding = new TestClientBinding(bus, epr);
         ObjectMessageContext objContext = clientBinding.createObjectContext();
@@ -193,6 +194,7 @@ public class SOAPClientBindingTest extends TestCase {
 
         protected ClientTransport createTransport(EndpointReferenceType ref)
             throws WSDLException, IOException {
+            // REVISIT: non-null response callback
             return new TestClientTransport(bus, ref);
         }
         
@@ -225,7 +227,20 @@ public class SOAPClientBindingTest extends TestCase {
     }
     
     class TestClientTransport implements ClientTransport {
+        
         public TestClientTransport(Bus b, EndpointReferenceType ref) {
+        }
+
+        public EndpointReferenceType getTargetEndpoint() {
+            return null;
+        }
+        
+        public EndpointReferenceType getDecoupledEndpoint() throws IOException {
+            return null;
+        }
+        
+        public Port getPort() {
+            return null;
         }
 
         public OutputStreamMessageContext createOutputStreamContext(MessageContext context) 

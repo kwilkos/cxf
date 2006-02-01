@@ -80,7 +80,7 @@ public class HandlerChainInvoker implements HandlerInvoker {
     }
         
     public boolean invokeProtocolHandlers(boolean requestor, MessageContext bindingContext) { 
-        context.setRequestorRole(requestor);
+        bindingContext.put(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY, requestor);
         bindingContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, isOutbound()); 
 
         return invokeHandlerChain(protocolHandlers, bindingContext);
@@ -128,7 +128,7 @@ public class HandlerChainInvoker implements HandlerInvoker {
 
 
     public boolean faultRaised() {
-        return context.getException() != null || faultExpected; 
+        return (context != null && context.getException() != null) || faultExpected; 
     }
     
     public void setFault(Exception pe) { 
@@ -318,7 +318,9 @@ public class HandlerChainInvoker implements HandlerInvoker {
 
 
     private void setMessageOutboundProperty() {
-        context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
+        if (context != null) {
+            context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
+        }
     }
 
     private void changeMessageDirection() { 

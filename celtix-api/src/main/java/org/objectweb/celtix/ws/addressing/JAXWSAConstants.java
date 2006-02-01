@@ -27,17 +27,17 @@ public final class JAXWSAConstants {
         "javax.xml.ws.addressing.context.outbound";
 
     /**
-     * Used by client transport to cache To address in the context
+     * Used by binding to cache ClientTransport in the context
      */
-    public static final String CLIENT_TO_ADDRESS_PROPERTY =
-        "org.objectweb.celtix.ws.addressing.client.to";
+    public static final String CLIENT_TRANSPORT_PROPERTY =
+        "org.objectweb.celtix.ws.addressing.client.transport";
 
     /**
-     * Used by client transport to cache WSDL Port in the context
+     * Used by binding to cache ServerTransport in the context
      */
-    public static final String CLIENT_WSDL_PORT_PROPERTY =
-        "org.objectweb.celtix.ws.addressing.client.port";
-
+    public static final String SERVER_TRANSPORT_PROPERTY =
+        "org.objectweb.celtix.ws.addressing.server.transport";
+    
     /**
      * Used by AddressingBuilder factory method.
      */

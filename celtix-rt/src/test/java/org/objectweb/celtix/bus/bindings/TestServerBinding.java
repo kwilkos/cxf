@@ -14,6 +14,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
+import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -113,8 +114,8 @@ public class TestServerBinding extends AbstractServerBinding {
     
     class TestTransportFactory implements TransportFactory {
 
-        public ClientTransport createClientTransport(EndpointReferenceType address) throws WSDLException,
-            IOException {
+        public ClientTransport createClientTransport(EndpointReferenceType address) 
+            throws WSDLException, IOException {
             return null;
         }
 
@@ -130,6 +131,12 @@ public class TestServerBinding extends AbstractServerBinding {
 
         public void init(Bus b) {
         }
+        
+        /**
+         * @param callback used to report (potentially asynchronous) responses.
+         */
+        public synchronized void setResponseCallback(ResponseCallback callback) {
+        }
     }
 
     class TestServerTransport implements ServerTransport {
@@ -141,6 +148,10 @@ public class TestServerBinding extends AbstractServerBinding {
 
         public void activate(ServerTransportCallback cb) throws IOException {
             callback = cb;
+        }
+        
+        public void rebase(MessageContext context, EndpointReferenceType decoupledResponseEndpoint)
+            throws IOException {
         }
 
         public OutputStreamMessageContext createOutputStreamContext(MessageContext context)

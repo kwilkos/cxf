@@ -86,7 +86,7 @@ public abstract class TestServerBase extends Assert {
     }
     
     protected void startFailed() {
-        System.out.println("server startup failed");
+        System.out.println("server startup failed (not a log message)");
         System.exit(-1);        
     }
 

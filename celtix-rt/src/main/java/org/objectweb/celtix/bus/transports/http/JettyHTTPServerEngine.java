@@ -8,8 +8,6 @@ import java.util.Map;
 
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpHandler;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.SslListener;
@@ -76,7 +74,7 @@ final class JettyHTTPServerEngine {
         }
     }
     
-    synchronized void addServant(String url, final JettyHTTPServerTransport servant) {
+    synchronized void addServant(String url, AbstractHttpHandler handler) {
         
         URL nurl = null;
         try {
@@ -136,20 +134,7 @@ final class JettyHTTPServerEngine {
             e1.printStackTrace();
         }
 
-        HttpHandler handler = new AbstractHttpHandler() {
-            {
-                setName(smap);
-            }
-            public void handle(String pathInContext, String pathParams,
-                               HttpRequest req, HttpResponse resp)
-                throws IOException {
-                // TODO Auto-generated method stub
-                if (pathInContext.equals(getName())) {
-                    servant.doService(req, resp);                    
-                }
-            }
-            
-        };
+        handler.setName(smap);
         context.addHandler(handler);
         try {
             handler.start();
@@ -160,7 +145,7 @@ final class JettyHTTPServerEngine {
         ++servantCount;
     }
     
-    synchronized void removeServant(String url, AbstractHTTPServerTransport servant) throws IOException {
+    synchronized void removeServant(String url) throws IOException {
         URL nurl = new URL(url);
         String lpath = nurl.getPath();
         
@@ -172,18 +157,21 @@ final class JettyHTTPServerEngine {
             servletMap = lpath.substring(idx);
         }
         
-        HttpContext context = server.getContext(contextName);
         boolean found = false;
-        for (HttpHandler handler : context.getHandlers()) {
-            if (servletMap.equals(handler.getName())) {
-                try {
-                    handler.stop();
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+        // REVISIT: how come server can be null?
+        if (server != null) {
+            HttpContext context = server.getContext(contextName);
+            for (HttpHandler handler : context.getHandlers()) {
+                if (servletMap.equals(handler.getName())) {
+                    try {
+                        handler.stop();
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    context.removeHandler(handler);
+                    found = true;
                 }
-                context.removeHandler(handler);
-                found = true;
             }
         }
         if (!found) {

@@ -5,8 +5,8 @@ import java.io.IOException;
 import javax.wsdl.WSDLException;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-
 
 /**
  * The TransportFactory provides methods to create client and server transports.
@@ -19,6 +19,11 @@ public interface TransportFactory {
      * @param bus The bus class this TransportFactory will use.
      */
     void init(Bus bus);
+    
+    /**
+     * @param callback used to report (potentially asynchronous) responses.
+     */
+    void setResponseCallback(ResponseCallback callback);
     
     /**
      * Returns a newly created <code>ServerTransport</code>.

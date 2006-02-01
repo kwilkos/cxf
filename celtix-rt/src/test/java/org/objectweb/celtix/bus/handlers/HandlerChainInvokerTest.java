@@ -59,7 +59,8 @@ public class HandlerChainInvokerTest extends TestCase {
     public void testInvokeEmptyHandlerChain() {
         invoker = new HandlerChainInvoker(new ArrayList<Handler>(), ctx);
         assertTrue(invoker.invokeLogicalHandlers(false));
-        assertTrue(invoker.invokeProtocolHandlers(false, soapContext));
+        //assertTrue(invoker.invokeProtocolHandlers(false, soapContext));
+        assertTrue(doInvokeProtocolHandlers(false));
         assertTrue(invoker.invokeStreamHandlers(EasyMock.createMock(InputStreamMessageContext.class)));
     }
 
@@ -284,7 +285,8 @@ public class HandlerChainInvokerTest extends TestCase {
     public void testMEPComplete() { 
 
         invoker.invokeLogicalHandlers(false); 
-        invoker.invokeProtocolHandlers(false, soapContext); 
+        //invoker.invokeProtocolHandlers(false, soapContext); 
+        doInvokeProtocolHandlers(false);
         invoker.invokeStreamHandlers(EasyMock.createMock(InputStreamMessageContext.class));
         assertEquals(6, invoker.getInvokedHandlers().size()); 
 
@@ -329,7 +331,8 @@ public class HandlerChainInvokerTest extends TestCase {
         //
         logicalHandlers[1].setHandleMessageRet(false);        
         invoker.setInbound();
-        invoker.invokeProtocolHandlers(true, soapContext); 
+        //invoker.invokeProtocolHandlers(true, soapContext);
+        doInvokeProtocolHandlers(true);
         invoker.invokeLogicalHandlers(true); 
 
         assertEquals(2, invoker.getInvokedHandlers().size());
@@ -411,8 +414,13 @@ public class HandlerChainInvokerTest extends TestCase {
         assertEquals(1, logicalHandlers[0].getHandleFaultCount());
         assertEquals(0, logicalHandlers[1].getHandleFaultCount());
     } 
-
-
+ 
+    private boolean doInvokeProtocolHandlers(boolean requestor) {
+        soapContext.put(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY, requestor);
+        EasyMock.expectLastCall().andReturn(null); 
+        EasyMock.replay(soapContext);
+        return invoker.invokeProtocolHandlers(requestor, soapContext);
+    }
     static class TestStreamHandler extends AbstractHandlerBase<StreamMessageContext> 
         implements StreamHandler {
 

@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
 /**
@@ -27,6 +28,16 @@ public interface ServerTransport extends Transport {
      * subsequently the transport could be activated using activate call. 
      */
     void deactivate() throws IOException;
+    
+    /**
+     * Rebase the InputStreamMessageContext on an alternative response destination.
+     * 
+     * @param context the MessageContext
+     * @param decoupledResponseEndpoint the decoupled response endpoint
+     * @throws IOException If there is an error creating the context.
+     */
+    void rebase(MessageContext context, EndpointReferenceType decoupledResponseEndpoint)
+        throws IOException;
     
     /**
      * 

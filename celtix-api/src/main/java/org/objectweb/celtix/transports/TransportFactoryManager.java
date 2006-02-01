@@ -38,5 +38,4 @@ public interface TransportFactoryManager {
      * @throws BusException
      */
     TransportFactory getTransportFactory(String name) throws BusException;
-
 }

@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.ws.addressing;
 
 
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,19 +11,25 @@ import javax.xml.ws.handler.MessageContext;
 import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
 
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.transports.ClientTransport;
+import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.addressing.ObjectFactory;
 import org.objectweb.celtix.ws.addressing.RelatesToType;
 
+import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
+import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_OUT;
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
 import static org.objectweb.celtix.context.OutputStreamMessageContext.ONEWAY_MESSAGE_TF;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_TRANSPORT_PROPERTY;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_TRANSPORT_PROPERTY;
 
 
 /**
@@ -33,18 +40,6 @@ public final class ContextUtils {
     public static final ObjectFactory WSA_OBJECT_FACTORY = new ObjectFactory();
 
     private static final Logger LOG = LogUtils.getL7dLogger(ContextUtils.class);
-
-    /**
-     * Used by client transport to cache To address in the context
-     */
-    private static final String CLIENT_TO_ADDRESS_PROPERTY = 
-        "org.objectweb.celtix.ws.addressing.client.to";
-
-    /**
-     * Used by client transport to cache WSDL Port in the context
-     */
-    private static final String CLIENT_WSDL_PORT_PROPERTY = 
-        "org.objectweb.celtix.ws.addressing.client.port";
  
     /**
      * Used by MAPAggregator to cache bad MAP fault name
@@ -123,6 +118,18 @@ public final class ContextUtils {
                  ? SERVER_ADDRESSING_PROPERTIES_OUTBOUND
                  : SERVER_ADDRESSING_PROPERTIES_INBOUND;
     }
+    
+    /**
+     * Get appropriate context property name for correlation ID.
+     *
+     * @param isOutbound true iff the message is outbound
+     * @return the property name to use when caching the 
+     * correlation ID in the context
+     */
+    public static String getCorrelationIDProperty(boolean isOutbound) {
+        return isOutbound ? CORRELATION_OUT : CORRELATION_IN;
+    }
+
 
     /**
      * Store MAPs in the context.
@@ -234,13 +241,50 @@ public final class ContextUtils {
     }
 
     /**
+     * Retrieve ClientTransport from the context.
+     *
+     * @param context the message context
+     * @returned the retrieved ClientTransport
+     */
+    public static ClientTransport retreiveClientTransport(MessageContext context) {
+        return (ClientTransport)context.get(CLIENT_TRANSPORT_PROPERTY);
+    }
+
+    /**
+     * Retrieve ServerTransport from the context.
+     *
+     * @param context the message context
+     * @returned the retrieved ServerTransport
+     */
+    public static ServerTransport retreiveServerTransport(MessageContext context) {
+        return (ServerTransport)context.get(SERVER_TRANSPORT_PROPERTY);
+    }
+
+    /**
+     * Rebase server transport on replyTo
+     */
+    public static void rebaseTransport(EndpointReferenceType replyTo,
+                                       MessageContext context) {
+        ServerTransport serverTransport = retreiveServerTransport(context);
+        if (serverTransport != null) {
+            try {
+                serverTransport.rebase(context, replyTo);
+            } catch (IOException ioe) {
+                LOG.log(Level.WARNING, "SERVER_TRANSPORT_REBASE_FAILURE_MSG", ioe);
+            }
+        }
+    }
+
+
+    /**
      * Retrieve WSDL Port from the context.
      *
      * @param context the message context
      * @returned the retrieved Port
      */
     public static Port retrievePort(MessageContext context) {
-        return (Port)context.get(CLIENT_WSDL_PORT_PROPERTY);
+        ClientTransport transport = retreiveClientTransport(context);
+        return transport != null ? transport.getPort() : null;
     }
 
     /**
@@ -250,7 +294,25 @@ public final class ContextUtils {
      * @returned the retrieved EPR
      */
     public static EndpointReferenceType retrieveTo(MessageContext context) {
-        return (EndpointReferenceType)context.get(CLIENT_TO_ADDRESS_PROPERTY);
+        ClientTransport transport = retreiveClientTransport(context);
+        return transport != null ? transport.getTargetEndpoint() : null;
+    }
+
+    /**
+     * Retrieve To EPR from the context.
+     *
+     * @param context the message context
+     * @returned the retrieved EPR
+     */
+    public static EndpointReferenceType retrieveReplyTo(MessageContext context) {
+        ClientTransport transport = retreiveClientTransport(context);
+        EndpointReferenceType replyTo = null;
+        try {
+            replyTo = transport != null ? transport.getDecoupledEndpoint() : null;
+        } catch (IOException ioe) {
+            // ignore
+        }
+        return replyTo;
     }
 
     /**
@@ -297,6 +359,59 @@ public final class ContextUtils {
      */
     public static String retrieveMAPFaultReason(MessageContext context) {
         return (String)context.get(MAP_FAULT_REASON_PROPERTY);
+    }
+
+    /**
+     * Store correlation ID in the context
+     *
+     * @param id the correlation ID
+     * @param isOutbound true if message is outbound
+     * @param context the message context
+     */   
+    private static void storeCorrelationID(String id, 
+                                           boolean isOutbound,
+                                           MessageContext context) {
+        context.put(getCorrelationIDProperty(isOutbound), id);
+        context.setScope(getCorrelationIDProperty(isOutbound),
+                         MessageContext.Scope.APPLICATION);
+    }
+
+    /**
+     * Store correlation ID in the context
+     *
+     * @param id the correlation ID
+     * @param isOutbound true if message is outbound
+     * @param context the message context
+     */   
+    public static void storeCorrelationID(RelatesToType id, 
+                                          boolean isOutbound,
+                                          MessageContext context) {
+        storeCorrelationID(id.getValue(), isOutbound, context);
+    }
+    
+    /**
+     * Store correlation ID in the context
+     *
+     * @param id the correlation ID
+     * @param isOutbound true if message is outbound
+     * @param context the message context
+     */   
+    public static void storeCorrelationID(AttributedURIType id, 
+                                          boolean isOutbound,
+                                          MessageContext context) {
+        storeCorrelationID(id.getValue(), isOutbound, context);
+    }
+    
+    /**
+     * Retrieve correlation ID from the context.
+     *
+     * @param context the message context
+     * @param isOutbound true if message is outbound
+     * @returned the retrieved correlation ID
+     */
+    public static String retrieveCorrelationID(MessageContext context, 
+                                               boolean isOutbound) {
+        return (String)context.get(getCorrelationIDProperty(isOutbound));
     }
 }
 

@@ -16,10 +16,12 @@ import javax.jms.QueueSender;
 import javax.jms.Topic;
 import javax.jms.TopicPublisher;
 import javax.naming.NamingException;
+import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -34,8 +36,11 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
     private static final Logger LOG = LogUtils.getL7dLogger(JMSClientTransport.class);
     
     private static final long DEFAULT_RECEIVE_TIMEOUT = 15000;
-
-    public JMSClientTransport(Bus bus, EndpointReferenceType address) throws WSDLException, IOException  {
+    
+    public JMSClientTransport(Bus bus, 
+                              EndpointReferenceType address, 
+                              ResponseCallback callback) 
+        throws WSDLException, IOException  {
         super(bus, address);
         entry("JMSClientTransport Constructor");
     }
@@ -51,7 +56,19 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
             sessionFactory.shutdown();
         }
     }
-
+    
+    public EndpointReferenceType getTargetEndpoint() {
+        return targetEndpoint;
+    }
+    
+    public EndpointReferenceType getDecoupledEndpoint() throws IOException {
+        return null;
+    }
+    
+    public Port getPort() {
+        return port;
+    }
+    
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
         return new JMSOutputStreamContext(context);
     }
@@ -72,12 +89,14 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         }
 
         try {
+            byte[] responseData = null;
             if (textPayload) {
                 String responseString = (String) invoke(context, true);
-                return new JMSInputStreamContext(new ByteArrayInputStream(responseString.getBytes()));
+                responseData = responseString.getBytes();
             } else {
-                return new JMSInputStreamContext(new ByteArrayInputStream((byte[])invoke(context, true)));
+                responseData = (byte[])invoke(context, true);
             }
+            return new JMSInputStreamContext(new ByteArrayInputStream(responseData));
         } catch (Exception ex) {
             //TODO: decide what to do with the exception.
             throw new IOException(ex.getMessage());

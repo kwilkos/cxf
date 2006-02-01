@@ -60,7 +60,6 @@ public class Server extends TestServerBase implements VerificationCache {
             log.log(Level.WARNING, 
                     "MAP/Header verification failed: {0}",
                     verified);
-
         }
         return verified == null;
     }

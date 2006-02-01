@@ -31,6 +31,7 @@ import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.bus.ws.addressing.Names;
+import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.addressing.RelatesToType;
@@ -40,6 +41,8 @@ import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSI
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_TRANSPORT_PROPERTY;
+
 
 
 public class MAPCodecTest extends TestCase {
@@ -100,6 +103,14 @@ public class MAPCodecTest extends TestCase {
 
     public void testResponderInbound() throws Exception {
         SOAPMessageContext context = setUpContext(false, false);
+        boolean proceed = codec.handleMessage(context);
+        assertTrue("expected dispatch to proceed", proceed);
+        control.verify();
+        codec.close(context);
+    }
+    
+    public void testResponderInboundDecoupled() throws Exception {
+        SOAPMessageContext context = setUpContext(false, false, false, true);
         boolean proceed = codec.handleMessage(context);
         assertTrue("expected dispatch to proceed", proceed);
         control.verify();
@@ -177,12 +188,20 @@ public class MAPCodecTest extends TestCase {
     private SOAPMessageContext setUpContext(boolean requestor, 
                                             boolean outbound)
         throws Exception {
-        return setUpContext(requestor, outbound, false); 
+        return setUpContext(requestor, outbound, false, false); 
     }
 
     private SOAPMessageContext setUpContext(boolean requestor, 
                                             boolean outbound,
-                                            boolean invalidMAP) 
+                                            boolean invalidMAP)
+        throws Exception {
+        return setUpContext(requestor, outbound, invalidMAP, false); 
+    }
+
+    private SOAPMessageContext setUpContext(boolean requestor, 
+                                            boolean outbound,
+                                            boolean invalidMAP,
+                                            boolean decoupled) 
         throws Exception {
         SOAPMessageContext context =
             control.createMock(SOAPMessageContext.class);
@@ -191,13 +210,13 @@ public class MAPCodecTest extends TestCase {
         context.get(REQUESTOR_ROLE_PROPERTY);
         EasyMock.expectLastCall().andReturn(Boolean.valueOf(requestor));
         String mapProperty = getMAPProperty(requestor, outbound);
-        AddressingPropertiesImpl maps = getMAPs();
+        AddressingPropertiesImpl maps = getMAPs(decoupled);
         SOAPHeader header = setUpSOAPHeader(context, outbound);
         codec.jaxbContext = control.createMock(JAXBContext.class);
         if (outbound) {
             setUpEncode(context, header, maps, mapProperty, invalidMAP);
         } else {
-            setUpDecode(context, header, maps, mapProperty);
+            setUpDecode(context, header, maps, mapProperty, requestor, decoupled);
         }
         control.replay();
         return context;
@@ -263,7 +282,9 @@ public class MAPCodecTest extends TestCase {
     private void setUpDecode(SOAPMessageContext context, 
                              SOAPHeader header,
                              AddressingPropertiesImpl maps,
-                             String mapProperty) throws Exception {
+                             String mapProperty,
+                             boolean requestor,
+                             boolean decoupled) throws Exception {
         Unmarshaller unmarshaller = control.createMock(Unmarshaller.class);
         codec.jaxbContext.createUnmarshaller();
         EasyMock.expectLastCall().andReturn(unmarshaller);
@@ -288,12 +309,26 @@ public class MAPCodecTest extends TestCase {
                           EndpointReferenceType.class,
                           2,
                           unmarshaller);
+        if (decoupled) {
+            ServerTransport transport = 
+                control.createMock(ServerTransport.class);
+            context.get(SERVER_TRANSPORT_PROPERTY);
+            EasyMock.expectLastCall().andReturn(transport);
+            transport.rebase(context, 
+                             (EndpointReferenceType)expectedValues[2]);
+            EasyMock.expectLastCall();
+        }
         setUpHeaderDecode(headerItr,
                           Names.WSA_RELATESTO_NAME,
                           Names.WSA_RELATESTO_QNAME,
                           RelatesToType.class,
                           3,
                           unmarshaller);
+        if (requestor) {
+            context.put("org.objectweb.celtix.correlation.in", 
+                        ((RelatesToType)expectedValues[3]).getValue());
+            EasyMock.expectLastCall().andReturn(null);
+        }
         EasyMock.eq(mapProperty);
         EasyMock.reportMatcher(new MAPMatcher());
         context.put(mapProperty, maps);
@@ -338,7 +373,7 @@ public class MAPCodecTest extends TestCase {
                  : SERVER_ADDRESSING_PROPERTIES_INBOUND;
     }
 
-    private AddressingPropertiesImpl getMAPs() {
+    private AddressingPropertiesImpl getMAPs(boolean decoupled) {
         AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
         AttributedURIType id = 
             ContextUtils.getAttributedURI("urn:uuid:12345");
@@ -348,7 +383,9 @@ public class MAPCodecTest extends TestCase {
         maps.setTo(to);
         EndpointReferenceType replyTo = new EndpointReferenceType();
         replyTo.setAddress(
-            ContextUtils.getAttributedURI(Names.WSA_ANONYMOUS_ADDRESS));
+            ContextUtils.getAttributedURI(decoupled
+                                          ? "http://localhost:9999/decoupled"
+                                          : Names.WSA_ANONYMOUS_ADDRESS));
         maps.setReplyTo(replyTo);
         RelatesToType relatesTo = new RelatesToType(); 
         relatesTo.setValue("urn:uuid:67890");

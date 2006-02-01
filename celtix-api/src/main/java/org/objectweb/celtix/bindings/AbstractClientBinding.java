@@ -3,7 +3,9 @@ package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
@@ -31,12 +33,13 @@ import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_TO_ADDRESS_PROPERTY;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_WSDL_PORT_PROPERTY;
+import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_TRANSPORT_PROPERTY;
 
 
 public abstract class AbstractClientBinding implements ClientBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractClientBinding.class);
+    private static ResponseCorrelator responseCorrelator;
 
     protected final Bus bus;
     protected final EndpointReferenceType reference;
@@ -70,8 +73,12 @@ public abstract class AbstractClientBinding implements ClientBinding {
         }
 
         public void postShutdown() {
-            //nothing
+            clearResponseCorrelator();
         }
+    }
+
+    public static void clearResponseCorrelator() {
+        responseCorrelator = null;
     }
     
     // --- BindingBase interface ---
@@ -149,7 +156,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
             // cache To EPR & WSDL Port in context for use by WS-Addressing 
             // handlers
-            storeAddress(context);
+            storeTransport(context);
             context.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, false);
         
             //Input Message For Client
@@ -178,30 +185,22 @@ public abstract class AbstractClientBinding implements ClientBinding {
                     
                     write(bindingContext, ostreamContext);
                     
-                    InputStreamMessageContext ins = transport.invoke(ostreamContext);
-                    assert ins != null;
-
-                    context.putAll(ins); 
-                    bindingContext = getBindingImpl().createBindingMessageContext(context);
-                    if (null == bindingContext) {
-                        bindingContext = ins;
+                    InputStreamMessageContext syncResponseContext = 
+                        transport.invoke(ostreamContext);
+                    if (syncResponseContext != null) {
+                        context.putAll(syncResponseContext);
+                        bindingContext = handleResponse(context, 
+                                                        syncResponseContext, 
+                                                        handlerInvoker);
+                    } else {
+                        bindingContext = getResponseCorrelator().getResponse(ostreamContext);
+                        context.putAll(bindingContext);
                     }
-
-                    //Output Message For Client
-                    bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
-                    handlerInvoker.setInbound();
-                    handlerInvoker.setFault(ins.isFault()); 
-                    handlerInvoker.invokeStreamHandlers(ins);                       
-                    
-                    read(ins, bindingContext);
-                    
-                    
                 } else {
                     //Output Message For Client
                     bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
+                    handlerInvoker.invokeProtocolHandlers(true, bindingContext);
                 }
-
-                handlerInvoker.invokeProtocolHandlers(true, bindingContext);
 
                 if (!hasFault(bindingContext)) {
                     unmarshal(bindingContext, context, callback);
@@ -240,7 +239,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
 
             // cache To EPR & WSDL Port in context for use by WS-Addressing 
             // handlers
-            storeAddress(context);
+            storeTransport(context);
             context.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, true);
 
             boolean continueProcessing = handlerInvoker.invokeLogicalHandlers(true);
@@ -361,6 +360,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
                 
                 TransportFactory factory = bus.getTransportFactoryManager().
                         getTransportFactory(el.getElementType().getNamespaceURI()); 
+                factory.setResponseCallback(getResponseCorrelator());
                 ret = factory.createClientTransport(ref);
             }
         } catch (BusException ex) {
@@ -370,16 +370,22 @@ public abstract class AbstractClientBinding implements ClientBinding {
         return ret;
     }
 
-    protected void storeAddress(MessageContext context) {
-        context.put(CLIENT_TO_ADDRESS_PROPERTY, reference);
-        context.setScope(CLIENT_TO_ADDRESS_PROPERTY,
-                         MessageContext.Scope.HANDLER);
-        context.put(CLIENT_WSDL_PORT_PROPERTY, port);
-        context.setScope(CLIENT_WSDL_PORT_PROPERTY,
-                         MessageContext.Scope.HANDLER);
+    protected synchronized ResponseCorrelator getResponseCorrelator() {
+        if (responseCorrelator == null) {
+            responseCorrelator = new ResponseCorrelator();
+        }
+        return responseCorrelator;
     }
 
+    protected void storeTransport(MessageContext context) {
+        context.put(CLIENT_TRANSPORT_PROPERTY, transport);
+        context.setScope(CLIENT_TRANSPORT_PROPERTY,
+                         MessageContext.Scope.HANDLER);    
+    }
 
+    protected String retreiveCorrelationID(MessageContext context) {
+        return (String)context.get(CORRELATION_IN);
+    }
     
     protected OutputStreamMessageContext createOutputStreamContext(MessageContext bindingContext)
         throws IOException {
@@ -405,6 +411,7 @@ public abstract class AbstractClientBinding implements ClientBinding {
             if (null == bindingContext) {
                 bindingContext = ins;
             }
+            
             //Output Message For Client
             bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
             handlerInvoker.setInbound();
@@ -428,5 +435,111 @@ public abstract class AbstractClientBinding implements ClientBinding {
         
         return context;
     }
+    
+    /**
+     * Handle an incoming response to the extent required for correlation
+     * with the corresponding request. Currently this include traversal of
+     * the stream and protocol handler chains, though this will be replaced 
+     * the appropriate system handler logic.
+     *  
+     * @param outContext the outgoing context if available
+     * @param inContext the incoming context
+     * @param handlerInvoker the HanlderInvoker to use for chain traversal
+     * @return the binding-specific context for the incoming dispatch
+     */
+    protected MessageContext handleResponse(MessageContext outContext, 
+                                            InputStreamMessageContext inContext,
+                                            HandlerInvoker handlerInvoker) {
+        MessageContext bindingContext = 
+            getBindingImpl().createBindingMessageContext(outContext != null
+                                                         ? outContext
+                                                         : inContext);
+        if (null == bindingContext) {
+            bindingContext = inContext;
+        }
 
+        //Output Message For Client
+        bindingContext.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
+        handlerInvoker.setInbound();
+        handlerInvoker.setFault(inContext.isFault()); 
+        handlerInvoker.invokeStreamHandlers(inContext); 
+    
+        read(inContext, bindingContext);
+    
+        // REVISIT replace with system handler traversal
+        handlerInvoker.invokeProtocolHandlers(true, bindingContext);
+        
+        // REVISIT allow for system handlers to "consume" the
+        // incoming (presumably out-of-band) message
+        
+        return bindingContext;
+    }
+
+    /**
+     * Inner class to manage correlation of decoupled responses.
+     */
+    protected class ResponseCorrelator implements ResponseCallback {
+        private HandlerInvoker fixedHandlerInvoker;
+        private Map<String, MessageContext> responseMap;
+        
+        protected ResponseCorrelator() {
+            // a fixed snap-shot of the stream and system handler chains
+            // are used, as the incoming (possibly asynchronous) response
+            // cannot yet be corellated with a particular request, hence
+            // may not include any dynamic (i.e. programmatic) changes 
+            // made to the handler chains
+            fixedHandlerInvoker = createHandlerInvoker();
+            responseMap = new HashMap<String, MessageContext>();
+        }
+
+        /**
+         * Used by the ClientTransport to dispatch decoupled responses.
+         * 
+         * @param responseContext context with InputStream containing the
+         * incoming the response
+         */
+        public void dispatch(InputStreamMessageContext responseContext) {
+            assert responseContext != null;
+            MessageContext bindingContext = 
+                handleResponse(null, responseContext, fixedHandlerInvoker);
+            synchronized (this) {
+                String inCorrelation = retreiveCorrelationID(bindingContext);
+                if (inCorrelation != null) {
+                    responseMap.put(inCorrelation, bindingContext);
+                    notifyAll();
+                } else {
+                    // REVISIT: log warning?
+                }
+            }
+        }
+
+        /**
+         * Wait for a correlated response.
+         *  
+         * @param outContext outgoing context containing correlation ID 
+         * property
+         * @return binding-specific context for the correlated response
+         */
+        protected MessageContext getResponse(MessageContext outContext) {
+            String outCorrelation = 
+                (String)outContext.get(ObjectMessageContext.CORRELATION_OUT);
+            MessageContext responseContext = null;
+            if (outCorrelation != null) {
+                synchronized (this) {
+                    responseContext = responseMap.remove(outCorrelation);
+                    while (responseContext == null) {
+                        try {
+                            wait();
+                            responseContext = responseMap.remove(outCorrelation);
+                        } catch (InterruptedException ie) {
+                            // ignore
+                        }
+                    }
+                }
+            } else {
+                // REVISIT: log warning and throw exception?
+            }
+            return responseContext;
+        }
+    }
 }

@@ -34,6 +34,7 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_TRANSPORT_PROPERTY;
 
 public abstract class AbstractServerBinding implements ServerBinding {
 
@@ -156,6 +157,7 @@ public abstract class AbstractServerBinding implements ServerBinding {
         try {
             objContext = createObjectContext();
 
+            storeTransport(objContext); 
             invoker = createHandlerInvoker(); 
             invoker.setContext(objContext); 
             invoker.setInbound(); 
@@ -417,6 +419,12 @@ public abstract class AbstractServerBinding implements ServerBinding {
             LOG.log(Level.SEVERE, "INIT_OBJ_CONTEXT_FAILED");
             throw new WebServiceException(ex);
         }
+    }
+    
+    protected void storeTransport(MessageContext context) {
+        context.put(SERVER_TRANSPORT_PROPERTY, transport);
+        context.setScope(SERVER_TRANSPORT_PROPERTY,
+                         MessageContext.Scope.HANDLER);    
     }
     
     protected abstract QName getOperationName(MessageContext ctx);

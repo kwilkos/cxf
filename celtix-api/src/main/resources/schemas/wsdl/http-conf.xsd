@@ -278,6 +278,14 @@
                     </xs:annotation>      
                 </xs:attribute>
 
+                <xs:attribute name="DecoupledEndpoint" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                        Decoupled endpoint to accept incoming
+			asynchronous responses.
+                        </xs:documentation>
+                    </xs:annotation>      
+                </xs:attribute>
 
                 <!--Proxy server attributes-->
                 <xs:attribute name="ProxyServer" type="xs:string" use="optional">

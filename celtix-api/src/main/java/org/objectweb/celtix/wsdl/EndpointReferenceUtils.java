@@ -230,6 +230,19 @@ public final class EndpointReferenceUtils {
 
         return reference;
     }
+    
+    /**
+     * Create an endpoint reference for the provided .
+     * @param address - address URI
+     * @return EndpointReferenceType - the endpoint reference
+     */
+    public static EndpointReferenceType getEndpointReference(String address) {
+
+        EndpointReferenceType reference = new EndpointReferenceType();
+        setAddress(reference, address);
+
+        return reference;
+    }
 
     /**
      * Get the WebService for the provided class.  If the class
