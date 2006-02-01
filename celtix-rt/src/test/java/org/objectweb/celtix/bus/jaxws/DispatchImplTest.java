@@ -58,55 +58,50 @@ public class DispatchImplTest<T> extends TestCase {
         assertNotNull(dispImpl);
     }
 
-    @SuppressWarnings("unchecked")
     public void testGetRequestContext() throws Exception {
         
-        DispatchImpl dispImpl = 
+        DispatchImpl<SOAPMessage> dispImpl = 
             new DispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class);
         
-        Map m = dispImpl.getRequestContext();
+        Map<String, Object> m = dispImpl.getRequestContext();
         
         assertNotNull(m);   
     }
 
-    @SuppressWarnings("unchecked")
     public void testGetResponseContext() throws Exception {
-        DispatchImpl dispImpl = 
+        DispatchImpl<SOAPMessage> dispImpl = 
             new DispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class);
         
-        Map m = dispImpl.getResponseContext();
+        Map<String, Object> m = dispImpl.getResponseContext();
         
         assertNotNull(m);
     }
 
-    @SuppressWarnings("unchecked")
     public void testInvoke() throws Exception {
         
         InputStream is =  getClass().getResourceAsStream("GreetMeDocLiteralReq.xml");
         SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
         assertNotNull(soapReqMsg);
         
-        TestDispatchImpl dispImpl = 
-            new TestDispatchImpl(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class);
-        SOAPMessage soapRespMsg = (SOAPMessage)dispImpl.invoke(soapReqMsg);
+        TestDispatchImpl<SOAPMessage> dispImpl = 
+            new TestDispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class);
+        SOAPMessage soapRespMsg = dispImpl.invoke(soapReqMsg);
         assertNotNull(soapRespMsg);
         assertEquals("Message should contain TestSOAPInputMessage",
                      soapRespMsg.getSOAPBody().getTextContent(), "TestSOAPInputMessage");    
     }
     
-    class TestDispatchImpl extends DispatchImpl {
+    class TestDispatchImpl<X> extends DispatchImpl<X> {
         
         private Mode mode;
-        private Class<T> cl;
+        private Class<X> cl;
 
-        @SuppressWarnings("unchecked")
-        TestDispatchImpl(Bus b, EndpointReferenceType r, Service.Mode m, Class clazz) {
+        TestDispatchImpl(Bus b, EndpointReferenceType r, Service.Mode m, Class<X> clazz) {
             super(b, r, m, clazz);
             mode = Mode.fromServiceMode(m);
             cl = clazz;
         }
         
-        @SuppressWarnings("unchecked")
         protected void init() {
             try {
                 cb = new TestClientBinding(bus, epr);

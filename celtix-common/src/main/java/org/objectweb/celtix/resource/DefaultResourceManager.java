@@ -48,7 +48,6 @@ public class DefaultResourceManager implements ResourceManager {
     }
 
     
-    @SuppressWarnings("unchecked")
     private <T> T findResource(String name, Class<T> type, boolean asStream) {
         if (LOG.isLoggable(Level.FINE)) { 
             LOG.fine("resolving resource <" + name + ">" + (asStream ? " as stream "  
@@ -58,7 +57,7 @@ public class DefaultResourceManager implements ResourceManager {
         T ret = null; 
         for (ResourceResolver rr : resolvers) { 
             if (asStream) { 
-                ret = (T)rr.getAsStream(name);
+                ret = type.cast(rr.getAsStream(name));
             } else { 
                 ret = rr.resolve(name, type);
             }

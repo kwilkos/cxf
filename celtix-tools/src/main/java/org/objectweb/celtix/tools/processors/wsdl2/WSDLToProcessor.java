@@ -90,14 +90,13 @@ public class WSDLToProcessor implements Processor {
     
     @SuppressWarnings("unchecked")
     private void parseImports(Definition def) {
-        List importList = new ArrayList();
+        List<Import> importList = new ArrayList<Import>();
         Map imports = def.getImports();
         for (Iterator iter = imports.keySet().iterator(); iter.hasNext();) {
             String uri = (String) iter.next();
-            importList.addAll((List)imports.get(uri));
+            importList.addAll((List<Import>)imports.get(uri));
         }
-        for (Iterator iter = importList.iterator(); iter.hasNext();) {
-            Import impt = (Import) iter.next();
+        for (Import impt : importList) {
             parseImports(impt.getDefinition());
             importedDefinitions.add(impt.getDefinition());
         }

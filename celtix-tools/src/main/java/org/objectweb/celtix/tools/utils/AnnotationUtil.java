@@ -15,28 +15,27 @@ public final class AnnotationUtil {
         
     }
 
-    @SuppressWarnings("unchecked")
-    public static <anoClass> anoClass getPrivClassAnnotation(final Class clazz, final Class anoClass) {
-        return (anoClass)AccessController.doPrivileged(new PrivilegedAction() {
-            public Object run() {
+    public static <T extends Annotation> T getPrivClassAnnotation(final Class<?> clazz,
+                                                                  final Class<T> anoClass) {
+        return AccessController.doPrivileged(new PrivilegedAction<T>() {
+            public T run() {
                 return clazz.getAnnotation(anoClass);
             }
         });
     }
 
-    @SuppressWarnings("unchecked")
-    public static <anoClass> anoClass getPrivMethodAnnotation(final Method method, final Class anoClass) {
-        return (anoClass)AccessController.doPrivileged(new PrivilegedAction() {
-            public Object run() {
+    public static <T extends Annotation> T getPrivMethodAnnotation(final Method method,
+                                                                   final Class<T> anoClass) {
+        return AccessController.doPrivileged(new PrivilegedAction<T>() {
+            public T run() {
                 return method.getAnnotation(anoClass);
             }
         });
     }
 
-    @SuppressWarnings("unchecked")
     public static Annotation[][] getPrivParameterAnnotations(final Method method) {
-        return (Annotation[][])AccessController.doPrivileged(new PrivilegedAction() {
-            public Object run() {
+        return (Annotation[][])AccessController.doPrivileged(new PrivilegedAction<Annotation[][]>() {
+            public Annotation[][] run() {
                 return method.getParameterAnnotations();
             }
         });

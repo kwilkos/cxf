@@ -200,7 +200,6 @@ public class HandlerChainInvoker implements HandlerInvoker {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private boolean invokeHandlerChain(List<? extends Handler> handlerChain, MessageContext ctx) { 
         if (handlerChain.isEmpty()) {
             LOG.log(Level.FINEST, "no handlers registered");        

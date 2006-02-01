@@ -256,7 +256,6 @@ public class ClassProcessor {
         processExceptions(javaMethod, method);
     }
 
-    @SuppressWarnings("unchecked")
     private void processRPC(JavaMethod javaMethod, Method method) {
         javaMethod.setSoapStyle(SOAPBinding.Style.RPC);
         javaMethod.setWrapperStyle(true);
@@ -314,7 +313,6 @@ public class ClassProcessor {
         processExceptions(javaMethod, method);
     }
 
-    @SuppressWarnings("unchecked")
     private void processDocBare(JavaMethod javaMethod, Method method) {
         javaMethod.setSoapStyle(SOAPBinding.Style.DOCUMENT);
         javaMethod.setWrapperStyle(false);
@@ -408,7 +406,6 @@ public class ClassProcessor {
         return jpara;
     }
 
-    @SuppressWarnings("unchecked")
     private List<JavaParameter> processWebPara(Method method) {
         // processWebparam
         Class<?>[] parameterTypes = method.getParameterTypes();
@@ -454,16 +451,15 @@ public class ClassProcessor {
         return paras;
     }
 
-    @SuppressWarnings("unchecked")
     private void processExceptions(JavaMethod jmethod, Method method) {
         for (Type exception : method.getGenericExceptionTypes()) {
             if (RemoteException.class.isAssignableFrom((Class) exception)) {
                 continue;
             }
             Annotation[] anns = null;
-            Class exClass = (Class) exception;
+            Class<?> exClass = (Class<?>)exception;
             String exNameSpace = model.getTargetNameSpace();
-            String exName = ((Class) exception).getSimpleName();
+            String exName = exClass.getSimpleName();
             Class exReturnType = null;
             Method faultInfo = null;
             try {
@@ -475,7 +471,7 @@ public class ClassProcessor {
             }
 
             if (faultInfo != null) {
-                WebFault wf = (WebFault) exClass.getAnnotation(WebFault.class);
+                WebFault wf = exClass.getAnnotation(WebFault.class);
                 exReturnType = faultInfo.getReturnType();
                 anns = faultInfo.getAnnotations();
                 if (wf.targetNamespace().length() > 0) {

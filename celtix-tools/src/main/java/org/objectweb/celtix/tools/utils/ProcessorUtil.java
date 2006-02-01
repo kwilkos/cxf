@@ -137,7 +137,6 @@ public final class ProcessorUtil {
         return path.replace('\\', '/');
     }
 
-    @SuppressWarnings("unchecked")
     public static List<? extends Property> getBlock(Part part, ProcessorEnvironment env) {
         if (part == null) {
             return new ArrayList<Property>();

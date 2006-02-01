@@ -3,6 +3,7 @@ package org.objectweb.celtix.tools.generators.java2;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jws.soap.SOAPBinding;
@@ -124,7 +125,6 @@ public class WSDLGenerator {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     private void generateTypes() {
         try {
             wmodel.createJAXBContext();
@@ -154,14 +154,12 @@ public class WSDLGenerator {
                     .newDocumentBuilder();
             Document doc = docBuilder.newDocument();
             Element element = doc.createElement("xsd:schema");
-            java.util.Map schemafileMap = wmodel.getSchemaNSFileMap();
+            Map<String, String> schemafileMap = wmodel.getSchemaNSFileMap();
 
-            Set<java.util.Map.Entry<String, String>> entryset = schemafileMap
-                    .entrySet();
-            Iterator ite = entryset.iterator();
+            Set<Map.Entry<String, String>> entryset = schemafileMap.entrySet();
+            Iterator<Map.Entry<String, String>> ite = entryset.iterator();
             while (ite.hasNext()) {
-                java.util.Map.Entry<String, String> entry = (java.util.Map.Entry<String, String>) ite
-                        .next();
+                Map.Entry<String, String> entry = (Map.Entry<String, String>) ite.next();
                 Element importelement = doc.createElement("xsd:import");
                 importelement.setAttribute("namespace", entry.getKey());
                 importelement.setAttribute("schemaLocation", entry.getValue());
