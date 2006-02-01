@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema targetNamespace="http://celtix.objectweb.org/bus/configuration/wsrm"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           elementFormDefault="qualified" 
+           attributeFormDefault="unqualified"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:tns="http://celtix.objectweb.org/bus/configuration/wsrm"
+           jaxb:version="2.0">
+
+    <xs:annotation>
+        <xs:appinfo>
+            <jaxb:globalBindings generateIsSetMethod="true"/>
+        </xs:appinfo>
+    </xs:annotation>
+    
+    <xs:complexType name="endpointPolicyType">
+        <xs:annotation>
+            <xs:documentation>RM endpoint properties common to
+            a source and destination.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence/>
+    </xs:complexType>
+    
+    <xs:complexType name="sourcePolicyType">
+        <xs:annotation>
+            <xs:documentation>RM source configuration properties. 
+            Used for configuring an RM source.
+            </xs:documentation>
+        </xs:annotation>
+        
+       <xs:sequence>  
+            <xs:element name="sequenceTerminationPolicy" type="tns:sequenceTerminationPolicyType" minOccurs="0"/>
+        </xs:sequence>
+        
+        <xs:attribute name="sequenceExpiration" type="xs:duration" use="optional" default="PT0S">
+            <xs:annotation>
+                <xs:documentation>
+                    Preferred lifetime of a sequence - included in createSequence 
+                    requests issued by an RM source. 
+                    A default of PT0S means that the sequence should never expire.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        <xs:attribute name="acksTo" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    Address to which sequence acknowledgements should be sent. 
+                    If this attribute is not set, defaults to the anonymous address.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        <xs:attribute name="includeOffer" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    Indicates if an RM source should include an offer for an inbound sequence
+                    when issuing a createSequence request.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        <xs:attribute name="offeredSequenceExpiration" type="xs:duration" use="optional" default="PT0S">
+            <xs:annotation>
+                <xs:documentation>
+                    The lifetime of an offered inbound sequence.
+                    A default of PT0S means that the sequence never expires.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+    </xs:complexType>
+    
+    <xs:complexType name="destinationPolicyType">
+        <xs:sequence/>
+    </xs:complexType>
+
+    <xs:complexType name="sequenceTerminationPolicyType">    
+        <xs:attribute name="maxLength" type="xs:unsignedLong" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>
+                    The maximum length of a sequence. 
+                    A value of 0 means the sequence length is unbound.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute> 
+        <xs:attribute name="maxRanges" type="xs:int" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>
+                    The maximum number of acknowledgment ranges tolerated in sequence
+                    acknowledgment. When this value is exceeded the sequence
+                    will be terminated. 
+                    A value of 0 means sequence termination does not depend on
+                    the number of acknowledgment ranges.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        <xs:attribute name="maxUnacknowledged" type="xs:int" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>
+                    The maximum number of unacknowledged messages that can accrue within per
+                    sequence before the sequence is terminated.
+                    A value of 0 means sequence termination does not depend on
+                    the number of unacknowledgment messages.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+    </xs:complexType>
+
+</xs:schema>

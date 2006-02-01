@@ -1,17 +1,18 @@
 package org.objectweb.celtix.bus.jaxws.spi;
 
 import java.net.URL;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.bus.jaxws.EndpointUtils;
 import org.objectweb.celtix.bus.jaxws.ServiceImpl;
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 
 public class ProviderImpl extends javax.xml.ws.spi.Provider {
@@ -30,15 +31,11 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
     public Endpoint createEndpoint(String bindingId, Object implementor) {
         Endpoint ep = null;
         if (EndpointUtils.isValidImplementor(implementor)) {
-            try {
-                ep = new EndpointImpl(Bus.getCurrent(), implementor, bindingId);
-            } catch (Exception ex) {
-                LOG.log(Level.SEVERE, "ENDPOINT_CREATION_FAILED_MSG", ex);
-            }
+            ep = new EndpointImpl(Bus.getCurrent(), implementor, bindingId);
             return ep;
+        } else {
+            throw new WebServiceException(new Message("INVALID_IMPLEMENTOR_EXC", LOG).toString());
         }
-        LOG.severe("INVALID_IMPLEMENTOR_MSG");
-        return null;
     }
 
     @Override

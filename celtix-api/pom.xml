@@ -141,6 +141,9 @@
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/configuration/security.xsd</xsd>
                                 </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/configuration/wsrm-conf.xsd</xsd>
+                                </xsdOption>
                             </xsdOptions>
                             <beanfiles>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/bus-config.xml</beanfile>

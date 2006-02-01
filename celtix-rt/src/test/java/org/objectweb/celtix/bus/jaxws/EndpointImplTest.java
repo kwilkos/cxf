@@ -8,6 +8,7 @@ import java.util.Properties;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.spi.Provider;
 
@@ -96,7 +97,7 @@ public class EndpointImplTest extends TestCase {
         assertNotNull(handlers);
     }
     
-    public void testCreatWithProvider() {
+    public void testCreateWithProvider() {
         HelloWorldServiceProvider provider = new  HelloWorldServiceProvider();
         endpoint = Endpoint.create(TestBinding.TEST_BINDING, provider);
         assertNotNull(endpoint);
@@ -104,13 +105,16 @@ public class EndpointImplTest extends TestCase {
         EndpointImpl impl = (EndpointImpl) endpoint;
         assertNotNull(impl.getWebServiceProvider());
         assertEquals(DataBindingCallback.Mode.MESSAGE, impl.getServiceMode());
-        
+    }
+    
+    public void testBadProvider() {   
         NotAnnotatedProvider badProvider = new  NotAnnotatedProvider();
-
-        endpoint = Endpoint.create(TestBinding.TEST_BINDING, badProvider);
-        assertNull(endpoint);
-        //Ideally Should have thrown a WebServiceException
-        //fail("Should have received a exception");
+        try {
+            Endpoint.create(TestBinding.TEST_BINDING, badProvider);
+            fail("Should have received a exception");
+        } catch (WebServiceException ex) {
+            // expected
+        }
     }
     
     public void testGetMethod() {
