@@ -1,4 +1,4 @@
-Celtix Milestone 3 Release Notes
+Celtix Milestone 4 Release Notes
 
 1. New Features
 
