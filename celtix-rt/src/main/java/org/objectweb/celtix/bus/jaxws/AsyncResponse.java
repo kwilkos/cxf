@@ -15,14 +15,16 @@ import javax.xml.ws.Response;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 
-public class AsyncResponse implements Response {
+public class AsyncResponse<T> implements Response<T> {
     
     private static final Logger LOG = LogUtils.getL7dLogger(AsyncResponse.class);
     private final Future<ObjectMessageContext> fObjMsgContext;
-    private Object result;
+    private T result;
+    private Class<T> cls;
     
-    public AsyncResponse(Future<ObjectMessageContext> futureObjMsgContext) {
-        fObjMsgContext = futureObjMsgContext;     
+    public AsyncResponse(Future<ObjectMessageContext> futureObjMsgContext, Class<T> c) {
+        fObjMsgContext = futureObjMsgContext;
+        cls = c;
     }
     
     public boolean cancel(boolean interrupt) {
@@ -37,27 +39,26 @@ public class AsyncResponse implements Response {
         return fObjMsgContext.isDone();
     }
 
-    public synchronized Object get() throws InterruptedException, ExecutionException {
+    public synchronized T get() throws InterruptedException, ExecutionException {
         if (result == null) {
-            result = fObjMsgContext.get().getReturn();
+            result = cls.cast(fObjMsgContext.get().getReturn());
         } 
         return result;
     }
 
     
-    public Object get(long timeout, TimeUnit unit)
+    public T get(long timeout, TimeUnit unit)
         throws InterruptedException, ExecutionException, TimeoutException {
-        return fObjMsgContext.get(timeout, unit).getReturn();
+        return cls.cast(fObjMsgContext.get(timeout, unit).getReturn());
     }
     
-    public Map getContext() {
+    public Map<String, Object> getContext() {
         try {
             return fObjMsgContext.get();
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "Exception occured getting context", ex);
             return null;
-        }
-        
+        }        
     }
 
 }

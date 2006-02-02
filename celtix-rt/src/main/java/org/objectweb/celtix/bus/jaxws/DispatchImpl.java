@@ -108,7 +108,7 @@ public class DispatchImpl<T> implements Dispatch<T> {
         try {
             Future<ObjectMessageContext> objMsgContextAsynch =
                 cb.invokeAsync(objMsgContext, callback, executor); 
-            Response r = new AsyncResponse(objMsgContextAsynch);
+            Response<T> r = new AsyncResponse<T>(objMsgContextAsynch, cl);
             future = new AsyncCallbackFuture(r, asyncHandler);
             executor.execute(future);
         } catch (Exception ex) {
@@ -119,7 +119,6 @@ public class DispatchImpl<T> implements Dispatch<T> {
         
     }
 
-    @SuppressWarnings("unchecked")
     public Response<T> invokeAsync(T obj) {
         
         if (cb == null || callback == null) {
@@ -130,19 +129,17 @@ public class DispatchImpl<T> implements Dispatch<T> {
         objMsgContext.putAll(getRequestContext());
         objMsgContext.setMessageObjects(obj);
         
-        Response response = null;
+        Response<T> response = null;
         
         try {
             Future<ObjectMessageContext> objMsgContextAsynch =
                 cb.invokeAsync(objMsgContext, callback, executor); 
-            response = new AsyncResponse(objMsgContextAsynch);
+            response = new AsyncResponse<T>(objMsgContextAsynch, cl);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         
         return response;
-        
-
     }
 
     public void invokeOneWay(T obj) {

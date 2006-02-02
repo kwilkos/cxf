@@ -91,35 +91,33 @@ public class DispatchImplTest<T> extends TestCase {
         SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
         assertNotNull(soapReqMsg);
         
-        TestDispatchImpl dispImpl = 
-            new TestDispatchImpl(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
-        SOAPMessage soapRespMsg = (SOAPMessage)dispImpl.invoke(soapReqMsg);
+        TestDispatchImpl<SOAPMessage> dispImpl = 
+            new TestDispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
+        SOAPMessage soapRespMsg = dispImpl.invoke(soapReqMsg);
         assertNotNull(soapRespMsg);
         assertEquals("Message should contain TestSOAPInputMessage",
                      soapRespMsg.getSOAPBody().getTextContent(), "TestSOAPInputMessage");    
     }
     
-    @SuppressWarnings("unchecked")
     public void testInvokeOneWay() throws Exception {
         
         InputStream is =  getClass().getResourceAsStream("GreetMeDocLiteralReq.xml");
         SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
         assertNotNull(soapReqMsg);
         
-        TestDispatchImpl dispImpl = 
-            new TestDispatchImpl(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
+        TestDispatchImpl<SOAPMessage> dispImpl = 
+            new TestDispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
         dispImpl.invokeOneWay(soapReqMsg);   
     }
     
-    @SuppressWarnings("unchecked")
     public void testInvokeAsync() throws Exception {
         
         InputStream is =  getClass().getResourceAsStream("GreetMeDocLiteralReq.xml");
         SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
         assertNotNull(soapReqMsg);
         
-        TestDispatchImpl dispImpl = 
-            new TestDispatchImpl(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
+        TestDispatchImpl<SOAPMessage> dispImpl = 
+            new TestDispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
         Response response = dispImpl.invokeAsync(soapReqMsg);
         assertNotNull(response);        
         SOAPMessage soapRespMsg = (SOAPMessage)response.get();
@@ -127,15 +125,14 @@ public class DispatchImplTest<T> extends TestCase {
                      soapRespMsg.getSOAPBody().getTextContent(), "TestSOAPInputMessage"); 
     }
     
-    @SuppressWarnings("unchecked")
     public void testInvokeAsyncCallback() throws Exception {
         
         InputStream is =  getClass().getResourceAsStream("GreetMeDocLiteralReq.xml");
         SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
         assertNotNull(soapReqMsg);
         
-        TestDispatchImpl dispImpl = 
-            new TestDispatchImpl(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
+        TestDispatchImpl<SOAPMessage> dispImpl = 
+            new TestDispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
         TestHandler testHandler = new TestHandler();
         Future<?> future = dispImpl.invokeAsync(soapReqMsg, testHandler);
         assertNotNull(future);   
@@ -146,14 +143,12 @@ public class DispatchImplTest<T> extends TestCase {
                      testHandler.getReplyBuffer(), "TestSOAPInputMessage"); 
     }
     
-    @SuppressWarnings("unchecked")
-    class TestDispatchImpl extends DispatchImpl {
+    class TestDispatchImpl<X> extends DispatchImpl<X> {
         
         private Mode mode;
-        private Class<?> cl;
+        private Class<X> cl;
 
-        @SuppressWarnings("unchecked")
-        TestDispatchImpl(Bus b, EndpointReferenceType r, Service.Mode m, Class clazz, Executor e) {
+        TestDispatchImpl(Bus b, EndpointReferenceType r, Service.Mode m, Class<X> clazz, Executor e) {
             super(b, r, m, clazz, e);
             mode = Mode.fromServiceMode(m);
             cl = clazz;

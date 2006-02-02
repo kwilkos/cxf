@@ -129,7 +129,7 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
                                                                       context)
                                                                       , service.getExecutor()); 
             
-            Response r = new AsyncResponse(objMsgContextAsynch);
+            Response<?> r = new AsyncResponse<Object>(objMsgContextAsynch, Object.class);
             if (parameters.length > 0 && parameters[parameters.length - 1] instanceof AsyncHandler) {
                 // callback style
                 AsyncCallbackFuture f = new AsyncCallbackFuture(r, 
