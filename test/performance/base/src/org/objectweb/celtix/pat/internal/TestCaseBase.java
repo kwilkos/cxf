@@ -32,6 +32,8 @@ public abstract class TestCaseBase {
 
     protected List<TestResult> results = new ArrayList<TestResult>();
 
+    protected boolean usePipe;
+
     private int numberOfThreads;
     
     private String name;
@@ -39,6 +41,7 @@ public abstract class TestCaseBase {
     private String[] args;
 
     private String faultReason = "no error";
+
 
     
     public TestCaseBase() {
@@ -64,16 +67,16 @@ public abstract class TestCaseBase {
     private void processArgs() {
         int count = 0;
         int argc = args.length; 
-        while (true) {
-            if (count >= argc) {
-                break;
-            }
+        while (count < argc) {
             if ("-WSDL".equals(args[count])) {
                 wsdlPath = args[count + 1];
                 count += 2;
             } else if ("-Service".equals(args[count])) {
                 serviceName = args[count + 1];
                 count += 2;
+            } else if ("-Pipe".equals(args[count])) {
+                usePipe = true;
+                count++;
             } else if ("-Port".equals(args[count])) {
                 portName = args[count + 1];
                 count += 2;
@@ -136,9 +139,11 @@ public abstract class TestCaseBase {
     }
 
     public void tearDown() throws BusException {
-        System.out.println("Bus is going to shutdown");
         if (bus != null) {
+            System.out.println("Bus is going to shutdown");
             bus.shutdown(true);
+            System.out.println("Bus shutdown");
+            bus = null;
         }
     }
 
@@ -185,7 +190,6 @@ public abstract class TestCaseBase {
         int numberOfInvocations = 0;
         long startTime = System.currentTimeMillis();
         long endTime = startTime + amount * 1000;
-        getPort();
         if (usingTime) {
             while (System.currentTimeMillis() < endTime) {
                 doJob();

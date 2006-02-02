@@ -119,6 +119,27 @@ public class BusTest extends TestCase {
         bus.shutdown(true);
     }    
     
+    
+    
+    public void testBusRun() throws Exception {
+        final Bus bus = Bus.init();
+        Thread th = new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(10);
+                    bus.shutdown(true);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (BusException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        };
+        th.start();
+        bus.run();
+    }    
 }
 
 

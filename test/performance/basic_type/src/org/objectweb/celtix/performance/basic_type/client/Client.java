@@ -6,11 +6,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 
 import org.objectweb.celtix.pat.internal.TestCaseBase;
 import org.objectweb.celtix.pat.internal.TestResult;
 import org.objectweb.celtix.performance.basic_type.BasicPortType;
 import org.objectweb.celtix.performance.basic_type.BasicService;
+import org.objectweb.celtix.performance.basic_type.server.Server;
  
 public final class Client extends TestCaseBase {
     
@@ -72,6 +74,7 @@ public final class Client extends TestCaseBase {
             System.out.println("AVG Response Time " + testResult.getAvgResponseTime());
         }
         System.out.println("Celtix client is going to shutdown!");
+        //System.exit(0);
     }
 
     public void doJob() {
@@ -92,6 +95,13 @@ public final class Client extends TestCaseBase {
     }
 
     public void getPort() {
+        if (usePipe) {
+            try {
+                new Server(bus, "pipe://localhost:20000/performance/basic_type/SoapPort");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
         File wsdl = new File(wsdlPath);
         try {
             ss = new BasicService(wsdl.toURL(), SERVICE_NAME);
@@ -99,6 +109,12 @@ public final class Client extends TestCaseBase {
             e.printStackTrace();
         }
         port = ss.getSoapHttpPort();
+        if (usePipe) {
+            javax.xml.ws.BindingProvider provider = (javax.xml.ws.BindingProvider)port;
+            provider.getRequestContext().put(provider.ENDPOINT_ADDRESS_PROPERTY,
+                                             "pipe://localhost:20000/performance/basic_type/SoapPort");
+        }
+
     }
 } 
  

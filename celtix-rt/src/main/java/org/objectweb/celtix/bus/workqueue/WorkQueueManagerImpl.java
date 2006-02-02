@@ -13,6 +13,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
 
     ThreadingModel threadingModel = ThreadingModel.MULTI_THREADED;
     AutomaticWorkQueue autoQueue;
+    boolean inShutdown;
     Bus bus;
 
     public WorkQueueManagerImpl(Bus b) {
@@ -56,21 +57,27 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
      * @see org.objectweb.celtix.workqueue.WorkQueueManager#shutdown(boolean)
      */
     public synchronized void shutdown(boolean processRemainingTasks) {
-        if (null != autoQueue) {
-            if (autoQueue != null) {
-                autoQueue.shutdown(processRemainingTasks);
-            }
-            synchronized (this) {
-                notifyAll();
-            }
+        inShutdown = true;
+        if (autoQueue != null) {
+            autoQueue.shutdown(processRemainingTasks);
+        }
+        synchronized (this) {
+            notifyAll();
         }
     }
 
     public void run() {
         synchronized (this) {
-            while (!autoQueue.isShutdown()) {
+            while (!inShutdown) {
                 try {            
                     wait();
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+            while (autoQueue != null && !autoQueue.isShutdown()) {
+                try {            
+                    Thread.sleep(100);
                 } catch (InterruptedException ex) {
                     // ignore
                 }

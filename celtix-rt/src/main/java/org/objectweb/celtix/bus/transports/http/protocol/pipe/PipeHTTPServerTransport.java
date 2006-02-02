@@ -47,7 +47,6 @@ public class PipeHTTPServerTransport extends AbstractHTTPServerTransport {
 
     public void activate(ServerTransportCallback cb) throws IOException {
         callback = cb;
-        System.out.println("Activate: " + name);
         PipeServer.SERVERS.put(name, this);
     }
 

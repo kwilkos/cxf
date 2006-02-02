@@ -19,7 +19,7 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.transports.http.configuration.HTTPListenerPolicy;
 
 
-final class JettyHTTPServerEngine {
+public final class JettyHTTPServerEngine {
     private static final long serialVersionUID = 1L;
     
     private static Map<Integer, JettyHTTPServerEngine> portMap =
@@ -56,7 +56,7 @@ final class JettyHTTPServerEngine {
         }
         return ref;
     }
-    static synchronized void destroyForPort(int p) {
+    public static synchronized void destroyForPort(int p) {
         JettyHTTPServerEngine ref = portMap.remove(p);
         if (ref != null && ref.server != null) {
             try {
