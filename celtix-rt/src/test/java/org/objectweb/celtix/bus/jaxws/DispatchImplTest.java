@@ -222,7 +222,6 @@ public class DispatchImplTest<T> extends TestCase {
             
         }
 
-        @SuppressWarnings("unchecked")
         public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, 
                                                              Executor e) throws IOException {
             InputStreamMessageContext ismc = ((TestOutputStreamContext)context).createInputStreamContext();
@@ -261,7 +260,8 @@ public class DispatchImplTest<T> extends TestCase {
         
     }
     
-    class TestInputStreamMessageContextFuture implements Future {
+    class TestInputStreamMessageContextFuture
+        implements Future<InputStreamMessageContext> {
         
         private InputStreamMessageContext inputStreamMessageContext;
         
@@ -284,11 +284,11 @@ public class DispatchImplTest<T> extends TestCase {
             return false;
         }
 
-        public Object get() throws InterruptedException, ExecutionException {
+        public InputStreamMessageContext get() throws InterruptedException, ExecutionException {
             return inputStreamMessageContext;         
         }
 
-        public Object get(long timeout, TimeUnit unit) 
+        public InputStreamMessageContext get(long timeout, TimeUnit unit) 
             throws InterruptedException, ExecutionException, TimeoutException {
             return null;
         }
