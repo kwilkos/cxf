@@ -30,7 +30,7 @@ environment by running the script.
 Building and running the demo using ant
 ---------------------------------------
 
-From the samples/hello_world directory, the ant build script
+From the samples/dispatch_provider directory, the ant build script
 can be used to build and run the demo.
 
 Using either UNIX or Windows:
@@ -50,7 +50,7 @@ files, run:
 Buildng the demo using wsdl2java and javac
 ------------------------------------------
 
-From the samples/hello_world directory, first create the target
+From the samples/dispatch_provider directory, first create the target
 directory build/classes and then generate code from the WSDL file.
 
 For UNIX:
