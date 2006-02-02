@@ -4,14 +4,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Response;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.MessageContext;
 
@@ -27,10 +33,12 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
+
 public class DispatchImplTest<T> extends TestCase {
     
     Bus bus;
     EndpointReferenceType epr;
+    Executor executor;
 
     public DispatchImplTest(String name) {
         super(name);
@@ -39,10 +47,10 @@ public class DispatchImplTest<T> extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         bus = Bus.init();
-        
         URL wsdlUrl = getClass().getResource("/wsdl/hello_world.wsdl");
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
         epr = EndpointReferenceUtils.getEndpointReference(wsdlUrl, serviceName, "SoapPort");
+        executor = bus.getWorkQueueManager().getAutomaticWorkQueue();
     }
 
     protected void tearDown() throws Exception {
@@ -53,7 +61,7 @@ public class DispatchImplTest<T> extends TestCase {
         
 
         DispatchImpl dispImpl = 
-            new DispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class);
+            new DispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
         
         assertNotNull(dispImpl);
     }
@@ -61,7 +69,7 @@ public class DispatchImplTest<T> extends TestCase {
     public void testGetRequestContext() throws Exception {
         
         DispatchImpl<SOAPMessage> dispImpl = 
-            new DispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class);
+            new DispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
         
         Map<String, Object> m = dispImpl.getRequestContext();
         
@@ -70,7 +78,7 @@ public class DispatchImplTest<T> extends TestCase {
 
     public void testGetResponseContext() throws Exception {
         DispatchImpl<SOAPMessage> dispImpl = 
-            new DispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class);
+            new DispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
         
         Map<String, Object> m = dispImpl.getResponseContext();
         
@@ -83,21 +91,70 @@ public class DispatchImplTest<T> extends TestCase {
         SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
         assertNotNull(soapReqMsg);
         
-        TestDispatchImpl<SOAPMessage> dispImpl = 
-            new TestDispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class);
-        SOAPMessage soapRespMsg = dispImpl.invoke(soapReqMsg);
+        TestDispatchImpl dispImpl = 
+            new TestDispatchImpl(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
+        SOAPMessage soapRespMsg = (SOAPMessage)dispImpl.invoke(soapReqMsg);
         assertNotNull(soapRespMsg);
         assertEquals("Message should contain TestSOAPInputMessage",
                      soapRespMsg.getSOAPBody().getTextContent(), "TestSOAPInputMessage");    
     }
     
-    class TestDispatchImpl<X> extends DispatchImpl<X> {
+    @SuppressWarnings("unchecked")
+    public void testInvokeOneWay() throws Exception {
+        
+        InputStream is =  getClass().getResourceAsStream("GreetMeDocLiteralReq.xml");
+        SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
+        assertNotNull(soapReqMsg);
+        
+        TestDispatchImpl dispImpl = 
+            new TestDispatchImpl(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
+        dispImpl.invokeOneWay(soapReqMsg);   
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void testInvokeAsync() throws Exception {
+        
+        InputStream is =  getClass().getResourceAsStream("GreetMeDocLiteralReq.xml");
+        SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
+        assertNotNull(soapReqMsg);
+        
+        TestDispatchImpl dispImpl = 
+            new TestDispatchImpl(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
+        Response response = dispImpl.invokeAsync(soapReqMsg);
+        assertNotNull(response);        
+        SOAPMessage soapRespMsg = (SOAPMessage)response.get();
+        assertEquals("Message should contain TestSOAPInputMessage",
+                     soapRespMsg.getSOAPBody().getTextContent(), "TestSOAPInputMessage"); 
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void testInvokeAsyncCallback() throws Exception {
+        
+        InputStream is =  getClass().getResourceAsStream("GreetMeDocLiteralReq.xml");
+        SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
+        assertNotNull(soapReqMsg);
+        
+        TestDispatchImpl dispImpl = 
+            new TestDispatchImpl(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
+        TestHandler testHandler = new TestHandler();
+        Future<?> future = dispImpl.invokeAsync(soapReqMsg, testHandler);
+        assertNotNull(future);   
+        while (!future.isDone()) {
+            //wait till done
+        }        
+        assertEquals("Message should contain TestSOAPInputMessage",
+                     testHandler.getReplyBuffer(), "TestSOAPInputMessage"); 
+    }
+    
+    @SuppressWarnings("unchecked")
+    class TestDispatchImpl extends DispatchImpl {
         
         private Mode mode;
-        private Class<X> cl;
+        private Class<?> cl;
 
-        TestDispatchImpl(Bus b, EndpointReferenceType r, Service.Mode m, Class<X> clazz) {
-            super(b, r, m, clazz);
+        @SuppressWarnings("unchecked")
+        TestDispatchImpl(Bus b, EndpointReferenceType r, Service.Mode m, Class clazz, Executor e) {
+            super(b, r, m, clazz, e);
             mode = Mode.fromServiceMode(m);
             cl = clazz;
         }
@@ -150,17 +207,31 @@ public class DispatchImplTest<T> extends TestCase {
         }
 
         public void invokeOneway(OutputStreamMessageContext context) throws IOException {
+            InputStreamMessageContext ismc = ((TestOutputStreamContext)context).createInputStreamContext();
+            InputStream in = ismc.getInputStream();            
+            try {
+                SOAPMessage soapMessage = MessageFactory.newInstance().createMessage(null, in);
+                assertEquals("Message should contain TestSOAPInputMessage",
+                             soapMessage.getSOAPBody().getTextContent(), 
+                             "TestSOAPInputMessage");                
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SOAPException e) {
+                e.printStackTrace();
+            }
             
         }
 
         public InputStreamMessageContext invoke(OutputStreamMessageContext context) throws IOException {
             return ((TestOutputStreamContext)context).createInputStreamContext();
+            
         }
 
+        @SuppressWarnings("unchecked")
         public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, 
-                                                             Executor executor) 
-            throws IOException {
-            return null;
+                                                             Executor e) throws IOException {
+            InputStreamMessageContext ismc = ((TestOutputStreamContext)context).createInputStreamContext();
+            return new TestInputStreamMessageContextFuture(ismc);
         }
 
         public OutputStreamMessageContext createOutputStreamContext(MessageContext context) 
@@ -193,6 +264,58 @@ public class DispatchImplTest<T> extends TestCase {
             return null;
         }
         
+    }
+    
+    class TestInputStreamMessageContextFuture implements Future {
+        
+        private InputStreamMessageContext inputStreamMessageContext;
+        
+        public TestInputStreamMessageContextFuture(InputStreamMessageContext ismc) {
+            inputStreamMessageContext = ismc;
+        }
+
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        public boolean isCancelled() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        public boolean isDone() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        public Object get() throws InterruptedException, ExecutionException {
+            return inputStreamMessageContext;         
+        }
+
+        public Object get(long timeout, TimeUnit unit) 
+            throws InterruptedException, ExecutionException, TimeoutException {
+            return null;
+        }
+        
+    }
+    
+    class TestHandler implements AsyncHandler<SOAPMessage> {   
+        
+        String replyBuffer;
+        
+        public void handleResponse(Response<SOAPMessage> response) {
+            try {
+                SOAPMessage reply = response.get();
+                replyBuffer = reply.getSOAPBody().getTextContent();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }            
+        } 
+        
+        public String getReplyBuffer() {
+            return replyBuffer;
+        }
     }
 
 }

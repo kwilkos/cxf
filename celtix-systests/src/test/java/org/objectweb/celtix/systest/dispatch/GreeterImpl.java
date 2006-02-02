@@ -6,6 +6,8 @@ import javax.jws.WebService;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
+import junit.framework.TestCase;
+
 import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
@@ -19,7 +21,7 @@ import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
 
 @WebService(serviceName = "SOAPService", portName = "SoapPort", name = "Greeter",
             targetNamespace = "http://objectweb.org/hello_world_soap_http")
-public class GreeterImpl implements Greeter {
+public class GreeterImpl extends TestCase implements Greeter {
 
     public String greetMe(String me) {
         return "Hello " + me;
@@ -45,7 +47,7 @@ public class GreeterImpl implements Greeter {
 
     public void greetMeOneWay(String requestType) {
         System.out.println("*********  greetMeOneWay: " + requestType);
-
+        assertTrue(requestType.equals("TestSOAPInputMessage1"));
     }
     
     public String greetMeSometime(String me) {

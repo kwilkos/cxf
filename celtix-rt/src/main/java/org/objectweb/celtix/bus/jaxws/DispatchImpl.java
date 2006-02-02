@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.jaxws;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
 import javax.xml.ws.AsyncHandler;
@@ -30,17 +31,19 @@ public class DispatchImpl<T> implements Dispatch<T> {
     private EndpointReferenceType ref;
     private Mode mode;
     private Class<T> cl;
+    private Executor executor;
     
     
 
 
-    DispatchImpl(Bus b, EndpointReferenceType r, Service.Mode m, Class<T> clazz) {
+    DispatchImpl(Bus b, EndpointReferenceType r, Service.Mode m, Class<T> clazz, Executor e) {
         bus = b;
         ref = r;
         mode = Mode.fromServiceMode(m);        
         cl = clazz;
         cb = null;
         callback = null;
+        executor = e;
     }
     
     protected void init() {
@@ -90,18 +93,73 @@ public class DispatchImpl<T> implements Dispatch<T> {
         return cl.cast(objMsgContext.getReturn());
     }
 
-    public Future<?> invokeAsync(T arg0, AsyncHandler<T> arg1) {
-        // TODO Auto-generated method stub
-        return null;
+    public Future<?> invokeAsync(T obj, AsyncHandler<T> asyncHandler) {
+        
+        if (cb == null || callback == null) {
+            init();
+        }   
+
+        ObjectMessageContext objMsgContext = cb.createObjectContext();
+        objMsgContext.putAll(getRequestContext());
+        objMsgContext.setMessageObjects(obj);
+        
+        AsyncCallbackFuture future = null;
+        
+        try {
+            Future<ObjectMessageContext> objMsgContextAsynch =
+                cb.invokeAsync(objMsgContext, callback, executor); 
+            Response r = new AsyncResponse(objMsgContextAsynch);
+            future = new AsyncCallbackFuture(r, asyncHandler);
+            executor.execute(future);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        
+        return future;
+        
     }
 
-    public Response<T> invokeAsync(T arg0) {
-        // TODO Auto-generated method stub
-        return null;
+    @SuppressWarnings("unchecked")
+    public Response<T> invokeAsync(T obj) {
+        
+        if (cb == null || callback == null) {
+            init();
+        }
+        
+        ObjectMessageContext objMsgContext = cb.createObjectContext();
+        objMsgContext.putAll(getRequestContext());
+        objMsgContext.setMessageObjects(obj);
+        
+        Response response = null;
+        
+        try {
+            Future<ObjectMessageContext> objMsgContextAsynch =
+                cb.invokeAsync(objMsgContext, callback, executor); 
+            response = new AsyncResponse(objMsgContextAsynch);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        
+        return response;
+        
+
     }
 
-    public void invokeOneWay(T arg0) {
-        // TODO Auto-generated method stub
+    public void invokeOneWay(T obj) {
+        
+        if (cb == null || callback == null) {
+            init();
+        }
+
+        ObjectMessageContext objMsgContext = cb.createObjectContext();
+        objMsgContext.putAll(getRequestContext());
+        objMsgContext.setMessageObjects(obj);
+        
+        try {
+            cb.invokeOneWay(objMsgContext, callback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
     }
 

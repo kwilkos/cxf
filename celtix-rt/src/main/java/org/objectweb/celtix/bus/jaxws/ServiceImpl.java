@@ -82,7 +82,7 @@ public class ServiceImpl extends ServiceDelegate {
                                                         serviceName, 
                                                         portName.getLocalPart());
         createPortConfiguration(portName, ref);
-        return new DispatchImpl<T>(bus, ref, mode, serviceEndpointInterface);        
+        return new DispatchImpl<T>(bus, ref, mode, serviceEndpointInterface, executor);        
     }
 
     public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Service.Mode mode) {
