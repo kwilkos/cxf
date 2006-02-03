@@ -1,6 +1,7 @@
 package org.objectweb.celtix.tools.processors.java2.internal;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -25,7 +26,6 @@ import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
 
 import com.sun.xml.bind.api.TypeReference;
-import com.sun.xml.bind.v2.model.nav.Navigator;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
@@ -419,7 +419,7 @@ public class ClassProcessor {
             String partName;
             String paraTNS = model.getTargetNameSpace();
             Class clazz = clazzType;
-            if (isHoder(clazzType)) {
+            if (isHolder(clazzType)) {
                 clazz = getHoldedClass(clazzType, parameterGenTypes[i]);
             }
             for (Annotation anno : paraAnns[i]) {
@@ -605,14 +605,23 @@ public class ClassProcessor {
         }
     }
 
-    private boolean isHoder(Class cType) {
+    private boolean isHolder(Class cType) {
         return Holder.class.isAssignableFrom(cType);
         // set the actual type argument of Holder in the TypeReference
     }
-
     private Class getHoldedClass(Class holderClazz, Type type) {
-        return Navigator.REFLECTION.erasure(((ParameterizedType) type)
-                .getActualTypeArguments()[0]);
+        ParameterizedType pt = (ParameterizedType)type;
+        return getClass(pt.getActualTypeArguments()[0]);
+    }
+    private Class getClass(Type type) {
+        if (type instanceof Class) {
+            return (Class)type;
+        } else if (type instanceof GenericArrayType) {
+            GenericArrayType gt = (GenericArrayType)type;
+            Class compType = getClass(gt.getGenericComponentType());
+            return java.lang.reflect.Array.newInstance(compType, 0).getClass();
+        }
+        return Object.class;
     }
 
     private boolean isOneWayMethod(Method method) {
