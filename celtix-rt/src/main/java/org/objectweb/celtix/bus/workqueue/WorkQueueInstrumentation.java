@@ -5,22 +5,23 @@ import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.workqueue.WorkQueueManager.ThreadingModel;
 
 public class WorkQueueInstrumentation implements Instrumentation {    
+    private static final String INSTRUMENTED_NAME = "WorkQueue";
+    
     private static int instanceNumber;
-    private static String iName = "WorkQueue";
+    
     private String objectName;
     private WorkQueueManagerImpl wqManager;
     
-    
     public WorkQueueInstrumentation(WorkQueueManagerImpl wq) {
         wqManager = wq;        
-        objectName = iName + instanceNumber;       
+        objectName = INSTRUMENTED_NAME + instanceNumber;       
         instanceNumber++;
     }
     
-    public int getInstanceNumber() {        
-        return 0;
-    } 
-        
+    public static void resetInstanceNumber() {
+        instanceNumber = 0;
+    }
+
     public void shutdown(boolean processRemainingWorkItems) {
         wqManager.shutdown(processRemainingWorkItems); 
     }
@@ -38,7 +39,7 @@ public class WorkQueueInstrumentation implements Instrumentation {
     }
 
     public String getInstrumentationName() {        
-        return iName;
+        return INSTRUMENTED_NAME;
     }
 
     public String getUniqueInstrumentationName() {       

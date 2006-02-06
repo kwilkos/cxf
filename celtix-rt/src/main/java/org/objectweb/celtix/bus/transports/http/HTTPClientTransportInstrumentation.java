@@ -7,16 +7,24 @@ import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 
 public class HTTPClientTransportInstrumentation implements Instrumentation {  
+    private static final String INSTRUMENTATION_NAME = "HTTPClientTransport";
+    
     private static int instanceNumber;
-    private static String iName = "HTTPClientTransport";
+    
     HTTPClientTransport httpClientTransport;
     String objectName;
+    
     public HTTPClientTransportInstrumentation(HTTPClientTransport hcTransport) {
         super();
         httpClientTransport = hcTransport;
-        objectName = iName + instanceNumber; 
+        objectName = INSTRUMENTATION_NAME + instanceNumber; 
         instanceNumber++;
     }
+    
+    public static void resetInstanceNumber() {
+        instanceNumber = 0;
+    }
+    
     
     public HTTPClientPolicy getHTTPClientPolicy() {
         return httpClientTransport.policy;
@@ -40,12 +48,10 @@ public class HTTPClientTransportInstrumentation implements Instrumentation {
     }
    
     public String getInstrumentationName() {
-        // TODO Auto-generated method stub
-        return iName;
+        return INSTRUMENTATION_NAME;
     }
 
     public String getUniqueInstrumentationName() {
-        // TODO Auto-generated method stub
         return objectName;
     }
 }

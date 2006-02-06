@@ -19,12 +19,13 @@ public class InstrumentationManagerTest extends TestCase {
     InstrumentationManager im;    
     
     public void setUp() throws Exception {      
-        bus = Bus.getCurrent();       
-        im = bus.getInstrumentationManager();        
+        WorkQueueInstrumentation.resetInstanceNumber();
+        bus = Bus.init();       
+        im = bus.getInstrumentationManager();
     }
     
     public void tearDown() throws Exception {
-        
+        bus.shutdown(true);        
     }
     
     // try to get WorkQueue information
@@ -35,17 +36,23 @@ public class InstrumentationManagerTest extends TestCase {
         bus.sendEvent(new ComponentCreatedEvent(wqm));
         // TODO should test for the im getInstrumentation 
         List<Instrumentation> list = im.getAllInstrumentation();        
-        assertTrue(list.size() == 2);
+        assertEquals("Too many instrumented items", 2, list.size());
         Instrumentation it1 = list.get(0);
         Instrumentation it2 = list.get(1);
-        assertTrue(WorkQueueInstrumentation.class.isAssignableFrom(it1.getClass()));
-        assertTrue(WorkQueueInstrumentation.class.isAssignableFrom(it2.getClass()));
+        assertTrue("Item 1 not a WorkQueueInstrumentation",
+                   WorkQueueInstrumentation.class.isAssignableFrom(it1.getClass()));
+        assertTrue("Item 2 not a WorkQueueInstrumentation",
+                   WorkQueueInstrumentation.class.isAssignableFrom(it2.getClass()));
         
-        assertTrue(it1.getUniqueInstrumentationName().compareTo(it1.getInstrumentationName() + 0) == 0);
-        assertTrue(it2.getUniqueInstrumentationName().compareTo(it2.getInstrumentationName() + 1) == 0);
+        assertEquals("Item 1's name is not correct",
+                     it1.getInstrumentationName() + "0",
+                     it1.getUniqueInstrumentationName());
+        assertEquals("Item 2's name is not correct",
+                     it2.getInstrumentationName() + "1",
+                     it2.getUniqueInstrumentationName());
         
         bus.sendEvent(new ComponentRemovedEvent(wqm));
-        assertTrue(list.size() == 0);
+        assertEquals("Instrumented stuff not removed from list", 0, list.size());
     }
       
 
