@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.Port;
@@ -15,6 +16,9 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
+import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.Base64Exception;
 import org.objectweb.celtix.common.util.Base64Utility;
@@ -55,6 +59,14 @@ public abstract class AbstractHTTPServerTransport implements ServerTransport {
         nurl = new URL(url);
         name = nurl.getPath();
         policy = getServerPolicy(configuration);
+        
+        try {
+            bus.sendEvent(new ComponentCreatedEvent(this));
+        } catch (BusException e) {
+            LOG.log(Level.SEVERE, 
+                    "HTTPServerTransport send create event to bus error" + e.getMessage());
+        }
+        
     }
     
     private HTTPServerPolicy getServerPolicy(Configuration conf) {
@@ -74,6 +86,12 @@ public abstract class AbstractHTTPServerTransport implements ServerTransport {
     }
     
     public void shutdown() {
+        try {
+            bus.sendEvent(new ComponentRemovedEvent(this));
+        } catch (BusException e) {
+            LOG.log(Level.SEVERE, 
+                    "HTTPServerTransport send create event to bus error" + e.getMessage());
+        }
     }
     
     private Configuration createConfiguration(EndpointReferenceType ref) {

@@ -22,6 +22,8 @@ import junit.framework.TestSuite;
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
+import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.transports.TestResponseCallback;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
@@ -42,6 +44,7 @@ import org.objectweb.celtix.transports.TransportFactoryManager;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.celtix.wsdl.WSDLManager;
+import static org.easymock.EasyMock.isA;
 
 public class HTTPTransportTest extends TestCase {
 
@@ -83,6 +86,10 @@ public class HTTPTransportTest extends TestCase {
         wsdlManager = new WSDLManagerImpl(null);
     }
     public void tearDown() throws Exception {
+        EasyMock.reset(bus);
+        checkBusRemovedEvent();
+        EasyMock.replay(bus);
+        
         if (queueManager != null) {
             queueManager.shutdown(false);
         }
@@ -125,7 +132,10 @@ public class HTTPTransportTest extends TestCase {
         client.invokeOneway(octx);
         long stop2 = System.currentTimeMillis();
         
-        server.deactivate();   
+        server.deactivate();  
+        EasyMock.reset(bus);
+        checkBusRemovedEvent();
+        EasyMock.replay(bus); 
         client.shutdown();
         
         assertTrue("Total one call: " + (stop - start), (stop - start) < 400);
@@ -208,7 +218,10 @@ public class HTTPTransportTest extends TestCase {
         server.deactivate();        
         activateServer(server, useAutomaticWorkQueue, 0, null, false);
         doRequestResponse(client, "Hello World   4".getBytes());
-        server.deactivate();   
+        server.deactivate();  
+        EasyMock.reset(bus);
+        checkBusRemovedEvent();       
+        EasyMock.replay(bus);
         client.shutdown();
     }
     
@@ -270,6 +283,24 @@ public class HTTPTransportTest extends TestCase {
         server.deactivate();        
     }
     
+    private void checkBusCreatedEvent() {       
+        try {
+            bus.sendEvent(isA(ComponentCreatedEvent.class));
+        } catch (BusException e) {                  
+            e.printStackTrace();
+        }
+        EasyMock.expectLastCall();        
+    }
+    
+    private void checkBusRemovedEvent() {       
+        try {
+            bus.sendEvent(isA(ComponentRemovedEvent.class));
+        } catch (BusException e) {                  
+            e.printStackTrace();
+        }
+        EasyMock.expectLastCall();        
+    }
+    
     private void activateServer(ServerTransport server,
                                 final boolean useAutomaticWorkQueue,
                                 final int delay,
@@ -302,6 +333,9 @@ public class HTTPTransportTest extends TestCase {
                 }
             }
             public synchronized Executor getExecutor() {
+                EasyMock.reset(bus);
+                checkBusCreatedEvent();
+                EasyMock.replay(bus);
                 if (useAutomaticWorkQueue) {
                     if (queueManager == null) {
                         queueManager = new WorkQueueManagerImpl(bus);
@@ -398,7 +432,9 @@ public class HTTPTransportTest extends TestCase {
         EasyMock.expectLastCall().andReturn(wsdlManager);
         pc.getString("address");
         EasyMock.expectLastCall().andReturn(address);
-       
+        
+        checkBusCreatedEvent();
+        
         EasyMock.replay(bus);
         EasyMock.replay(bc);
         EasyMock.replay(sc);
@@ -436,7 +472,9 @@ public class HTTPTransportTest extends TestCase {
             EasyMock.expectLastCall().andReturn(bc);
             first = false;
         }
-
+        
+        checkBusCreatedEvent();
+       
         EasyMock.replay(bus);
         EasyMock.replay(bc);
         EasyMock.replay(ec);

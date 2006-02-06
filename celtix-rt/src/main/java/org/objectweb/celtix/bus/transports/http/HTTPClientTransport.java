@@ -19,6 +19,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
@@ -29,7 +31,11 @@ import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
 
 import org.mortbay.http.HttpRequest;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
+import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.GenericMessageContext;
@@ -42,10 +48,9 @@ import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-
 public class HTTPClientTransport implements ClientTransport {
 
-    // private static final Logger LOG = LogUtils.getL7dLogger(HTTPClientTransport.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(HTTPClientTransport.class);
     final HTTPClientPolicy policy;
     final AuthorizationPolicy authPolicy;
     final AuthorizationPolicy proxyAuthPolicy;
@@ -55,7 +60,7 @@ public class HTTPClientTransport implements ClientTransport {
     final Port port;
     final HTTPTransportFactory factory;
     
-    private URL url;
+    URL url;
 
       
     public HTTPClientTransport(Bus b, 
@@ -70,13 +75,20 @@ public class HTTPClientTransport implements ClientTransport {
         targetEndpoint = ref;
         factory = f;
         url = new URL(address);
-        
+         
         port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
         configuration = 
             new HTTPClientTransportConfiguration(portConfiguration, port); 
         policy = getClientPolicy(configuration);
         authPolicy = getAuthPolicy("authorization", configuration);
         proxyAuthPolicy = getAuthPolicy("proxyAuthorization", configuration);
+        
+        try {
+            bus.sendEvent(new ComponentCreatedEvent(this));
+        } catch (BusException e) {
+            LOG.log(Level.SEVERE, 
+                    "HTTPClientTransport send create event to bus error" + e.getMessage());
+        }
     }
     
     private HTTPClientPolicy getClientPolicy(Configuration conf) {
@@ -160,6 +172,12 @@ public class HTTPClientTransport implements ClientTransport {
                 //ignore
             }
             url = null;         
+        }
+        try {
+            bus.sendEvent(new ComponentRemovedEvent(this));
+        } catch (BusException e) {
+            LOG.log(Level.SEVERE, 
+                    "HTTPServerTransport send create event to bus error" + e.getMessage());
         }
     }
     

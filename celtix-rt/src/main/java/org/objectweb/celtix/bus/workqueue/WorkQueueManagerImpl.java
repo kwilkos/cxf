@@ -1,20 +1,24 @@
 package org.objectweb.celtix.bus.workqueue;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
+import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.workqueue.AutomaticWorkQueue;
 import org.objectweb.celtix.workqueue.WorkQueueManager;
 
 public class WorkQueueManagerImpl implements WorkQueueManager {
 
-    private static final Logger LOG = 
+    private static final Logger LOG =
         Logger.getLogger(WorkQueueManagerImpl.class.getName());
 
     ThreadingModel threadingModel = ThreadingModel.MULTI_THREADED;
     AutomaticWorkQueue autoQueue;
     boolean inShutdown;
-    Bus bus;
+    Bus bus;  
 
     public WorkQueueManagerImpl(Bus b) {
         bus = b;
@@ -22,7 +26,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.objectweb.celtix.workqueue.WorkQueueManager#getAutomaticWorkQueue()
      */
     public synchronized AutomaticWorkQueue getAutomaticWorkQueue() {
@@ -34,7 +38,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.objectweb.celtix.workqueue.WorkQueueManager#getThreadingModel()
      */
     public ThreadingModel getThreadingModel() {
@@ -43,7 +47,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.objectweb.celtix.workqueue.WorkQueueManager#setThreadingModel(
      *      org.objectweb.celtix.workqueue.WorkQueueManager.ThreadingModel)
      */
@@ -53,13 +57,21 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.objectweb.celtix.workqueue.WorkQueueManager#shutdown(boolean)
      */
     public synchronized void shutdown(boolean processRemainingTasks) {
         inShutdown = true;
         if (autoQueue != null) {
             autoQueue.shutdown(processRemainingTasks);
+        }
+
+        //sent out remove event.
+        try {
+            bus.sendEvent(new ComponentRemovedEvent(this));
+        } catch (BusException e) {
+            LOG.log(Level.SEVERE, 
+                    "WorkQueue send remove event to bus error" + e.getMessage());
         }
         synchronized (this) {
             notifyAll();
@@ -86,15 +98,23 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
         for (java.util.logging.Handler h : LOG.getHandlers())  {
             h.flush();
         }
+
+        //sent out creation event.
+        try {
+            bus.sendEvent(new ComponentCreatedEvent(this));
+        } catch (BusException e) {
+            LOG.log(Level.SEVERE, 
+                    "WorkQueue send create event to bus error" + e.getMessage());
+        }
     }
 
-    private AutomaticWorkQueue createAutomaticWorkQueue() {
-
+    private AutomaticWorkQueue createAutomaticWorkQueue() {        
+      
         // Configuration configuration = bus.getConfiguration();
 
         // configuration.getInteger("threadpool:initial_threads");
         int initialThreads = 1;
-        
+
         // int lwm = configuration.getInteger("threadpool:low_water_mark");
         int lwm = 5;
 
@@ -108,6 +128,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
         long dequeueTimeout = 2 * 60 * 1000L;
 
         return new AutomaticWorkQueueImpl(maxQueueSize, initialThreads, hwm, lwm, dequeueTimeout);
+                
     }
 
 }
