@@ -9,6 +9,7 @@ import javax.xml.ws.WebServiceException;
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.management.InstrumentationManager;
 import org.objectweb.celtix.plugins.PluginManager;
 import org.objectweb.celtix.resource.ResourceManager;
 import org.objectweb.celtix.transports.TransportFactoryManager;
@@ -116,6 +117,36 @@ public abstract class Bus {
     }
     
     /**
+     * Sends the event specified to the <code>Bus</code>.
+     * @param event The <code>BusEvent</code> to send.
+     * @throws BusException If there is an error sending event to <code>Bus</code>.
+     */
+    public abstract void sendEvent(BusEvent event) throws BusException;
+
+    /**
+     * Adds an event listener to the current <code>Bus</code>.
+     * @param l The <code>BusEvenetListener</code> to be added.
+     * @param filter A <code>BusEventFilter</code> to be applied to the listener.
+     * @throws BusException If there is an error adding listener.
+     */
+    public abstract void addListener(BusEventListener l, BusEventFilter filter)
+        throws BusException;
+
+    /**
+     * Removes the specified event listener from the <code>Bus</code>.
+     * @param l The <code>BusEventListener</code> to be removed.
+     * @throws BusException If there is an error removing the listener.
+     */
+    public abstract void removeListener(BusEventListener l) throws BusException;
+
+    /**
+     * Provides access to <code>BusEventCache</code> associated with the <code>Bus</code>.
+     * @return BusEventCache The <code>BusEventCache</code> object.
+     * @see BusEventCache
+     */
+    public abstract BusEventCache getEventCache();
+
+    /**
      * Shuts down the <code>Bus</code>.
      * 
      * @param wait If <code>true</code>, waits for the <code>Bus</code>
@@ -180,6 +211,13 @@ public abstract class Bus {
      * @return ResourceManager of this <code>Bus</code>.
      */
     public abstract ResourceManager getResourceManager();
+    
+    /**
+     * Returns the <code> InstrumenatationManager </code> of this <code>Bus</code>
+     * 
+     * @return InstrumentationManager of this <code>Bus</code>
+     */
+    public abstract InstrumentationManager getInstrumentationManager();
 
     /**
      * Starts processing bus events, and returns only after the <code>Bus</code> has been shut down
