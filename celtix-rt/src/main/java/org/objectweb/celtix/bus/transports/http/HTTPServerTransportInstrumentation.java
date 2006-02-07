@@ -5,9 +5,10 @@ package org.objectweb.celtix.bus.transports.http;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 
-public class HTTPServerTransportInstrumentation implements Instrumentation {
-    static String iNAME = "HTTPServerTransport";
-    static int instanceNumber;
+public class HTTPServerTransportInstrumentation implements Instrumentation {  
+    private static final String INSTRUMENTED_NAME = "HTTPServerTransport";
+    private static int instanceNumber;
+    
     AbstractHTTPServerTransport httpServerTransport; 
     HTTPServerPolicy policy;
     String objectName;
@@ -15,7 +16,7 @@ public class HTTPServerTransportInstrumentation implements Instrumentation {
     public HTTPServerTransportInstrumentation(AbstractHTTPServerTransport ahsTransport) {
         super();
         httpServerTransport = ahsTransport;
-        objectName = iNAME + instanceNumber;
+        objectName = INSTRUMENTED_NAME + instanceNumber;
         instanceNumber++;
     }
     
@@ -29,19 +30,19 @@ public class HTTPServerTransportInstrumentation implements Instrumentation {
         return httpServerTransport.policy;    
     }
   
+    public static void resetInstanceNumber() {
+        instanceNumber = 0;
+    }
 
-    public Object getComponent() {
-        // TODO Auto-generated method stub
+    public Object getComponent() {        
         return httpServerTransport;
     }  
 
-    public String getInstrumentationName() {
-        // TODO Auto-generated method stub
-        return iNAME;
+    public String getInstrumentationName() {        
+        return INSTRUMENTED_NAME;
     }
 
-    public String getUniqueInstrumentationName() {
-        // TODO Auto-generated method stub
+    public String getUniqueInstrumentationName() {        
         return objectName;
     }
     

@@ -18,13 +18,12 @@ public class BusEventTest extends TestCase {
     public void setUp() throws Exception {
         bel = EasyMock.createMock(BusEventListener.class);
         bef = EasyMock.createMock(BusEventFilter.class);
-        bus = Bus.getCurrent();
-        event = new BusEvent("Test for EventListener", BusEvent.BUS_EVENT); 
-        
+        bus = Bus.init();        
+        event = new BusEvent("Test for EventListener", BusEvent.BUS_EVENT);         
     }
     
     public void tearDown() throws Exception {
-        
+        bus.shutdown(true);
     }
     
     public void testBusSendEvent() throws BusException {
@@ -70,19 +69,26 @@ public class BusEventTest extends TestCase {
         bus.sendEvent(event1);
         bus.sendEvent(event2);
         
-        assertTrue(cache.getEvents().size() == 3);
+        assertEquals("The event cache getEvents size is not correct",
+                     3, cache.getEvents().size());
         
-        assertTrue(cache.getEvents("TEST").size() == 1);
+        assertEquals("The event cache getEvents() size is not correct",
+                     1, cache.getEvents("TEST").size());
                 
         List<BusEvent> events = cache.flushEvents("TEST");
         
-        assertTrue(events.size() == 1);
-        assertTrue(events.get(0).getID().compareTo("TEST") == 0);
+        assertEquals("The event cache flushEvent TEST events size is not correct", 
+                   1, events.size());
         
-        assertTrue(cache.getEvents().size() == 2);
+        assertEquals("The event cache getID is not correct", 
+                     0, events.get(0).getID().compareTo("TEST"));
+        
+        assertEquals("The event cache getEvents size is not correct", 
+                     2, cache.getEvents().size());
         
         cache.flushEvents(BusEvent.class);
-        assertTrue(cache.getEvents().size() == 0);        
+        assertEquals("After flush the event cache getEvents size is not correct", 
+                     0, cache.getEvents().size());        
         
     }
     
