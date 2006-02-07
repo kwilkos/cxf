@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.transports.http;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -137,16 +138,7 @@ public class HTTPClientTransport implements ClientTransport {
     public InputStreamMessageContext invoke(OutputStreamMessageContext context) throws IOException {
         context.getOutputStream().close();
         HTTPClientOutputStreamContext requestContext = (HTTPClientOutputStreamContext)context;
-        InputStreamMessageContext responseContext = null;
-        if (factory.hasDecoupledEndpoint()) {
-            int responseCode = getResponseCode(requestContext.connection);
-            if (responseCode != HttpURLConnection.HTTP_ACCEPTED) {
-                throw new IOException("decoupled HTTP request failed: " + responseCode);
-            }   
-        } else {
-            responseContext = requestContext.createInputStreamContext();
-        }
-        return responseContext;
+        return getResponseContext(requestContext, factory);
     }
 
     public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, 
@@ -155,7 +147,7 @@ public class HTTPClientTransport implements ClientTransport {
         context.getOutputStream().close();
         HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;  
         FutureTask<InputStreamMessageContext> f = new FutureTask<InputStreamMessageContext>(
-            new InputStreamMessageContextCallable(ctx));
+            new InputStreamMessageContextCallable(ctx, factory));
         // client (service) must always have an executor associated with it
         executor.execute(f);
         return f;
@@ -180,6 +172,22 @@ public class HTTPClientTransport implements ClientTransport {
                     "HTTPServerTransport send create event to bus error" + e.getMessage());
         }
     }
+
+    protected static InputStreamMessageContext getResponseContext(
+                                 HTTPClientOutputStreamContext requestContext,
+                                 HTTPTransportFactory factory) 
+        throws IOException {
+        InputStreamMessageContext responseContext = null;
+        if (factory.hasDecoupledEndpoint()) {
+            int responseCode = getResponseCode(requestContext.connection);
+            if (responseCode != HttpURLConnection.HTTP_ACCEPTED) {
+                throw new IOException("decoupled HTTP request failed: " + responseCode);
+            }   
+        } else {
+            responseContext = requestContext.createInputStreamContext();
+        }
+        return responseContext;
+    }
     
     protected static Configuration getPortConfiguration(Bus bus, EndpointReferenceType ref) {
         Configuration busConfiguration = bus.getConfiguration();
@@ -192,7 +200,7 @@ public class HTTPClientTransport implements ClientTransport {
         return portConfiguration;
     }
 
-    private static int getResponseCode(URLConnection connection) throws IOException {
+    protected static int getResponseCode(URLConnection connection) throws IOException {
         int responseCode = HttpURLConnection.HTTP_OK;
         if (connection instanceof HttpURLConnection) {
             HttpURLConnection hc = (HttpURLConnection)connection;
@@ -506,7 +514,6 @@ public class HTTPClientTransport implements ClientTransport {
         extends GenericMessageContext
         implements InputStreamMessageContext {
 
-        InputStream origInputStream;
         InputStream inStream;
   
         public HTTPDecoupledClientInputStreamContext(HttpRequest decoupledResponse)  
@@ -514,9 +521,7 @@ public class HTTPClientTransport implements ClientTransport {
             put(ObjectMessageContext.MESSAGE_INPUT, false);
             put(HTTP_RESPONSE_HEADERS, decoupledResponse.getParameters());
             put(HTTP_RESPONSE_CODE, HttpURLConnection.HTTP_ACCEPTED);
-        
-            origInputStream = decoupledResponse.getInputStream();
-            inStream = origInputStream;
+            inStream = drain(decoupledResponse.getInputStream());
         }
 
         public InputStream getInputStream() {
@@ -534,16 +539,44 @@ public class HTTPClientTransport implements ClientTransport {
         public boolean isFault() {
             return false;
         }
+        
+        private static InputStream drain(InputStream r) throws IOException {        
+            byte[] bytes = new byte[4096];
+            ByteArrayOutputStream w = new ByteArrayOutputStream();
+            try {
+                int offset = 0;
+                int length = r.read(bytes, offset, bytes.length - offset);
+                while (length != -1) {
+                    offset += length;
+
+                    if (offset == bytes.length) {
+                        w.write(bytes, 0, bytes.length);
+                        offset = 0;
+                    }
+                    
+                    length = r.read(bytes, offset, bytes.length - offset);
+                }
+                if (offset != 0) {
+                    w.write(bytes, 0, offset);
+                }
+            } finally {
+                bytes = null;
+            }
+            return new ByteArrayInputStream(w.toByteArray());
+        }
     }
     
     static class InputStreamMessageContextCallable implements Callable<InputStreamMessageContext> {
         private final HTTPClientOutputStreamContext httpClientOutputStreamContext;
+        private final HTTPTransportFactory factory;
         
-        InputStreamMessageContextCallable(HTTPClientOutputStreamContext ctx) {
+        InputStreamMessageContextCallable(HTTPClientOutputStreamContext ctx,
+                                          HTTPTransportFactory f) {
             httpClientOutputStreamContext = ctx;
+            factory = f;
         }
         public InputStreamMessageContext call() throws Exception {
-            return httpClientOutputStreamContext.createInputStreamContext();
+            return getResponseContext(httpClientOutputStreamContext, factory);
         }   
     }
 }

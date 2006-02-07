@@ -12,19 +12,19 @@ encoding/decoding these properties as SOAP Headers.
 An additional demo-specific ProtocolHandler (HeaderSnoop) is used to
 snoop the SOAP Headers and display these to the console.
 
-As you may have seen in other Celtix samples, there are various ways
-of installing handlers in an application. The approach used by this
-sample is to customize the code generation with a bindings XML fragment
-containing the handler definitions. Note that any other approach,
-whether programmatic or driven via configuration, would be equally
-valid.
-
 Normally the WS-Addressing MessageAddressProperties are generated and
 propagated implicitly, without any intravention from the
 application. In certain circumstances however, the application may wish
 to participate in MAP assembly, for example to associate a sequence of
 requests via the RelatesTo header. This demo illustrates both implicit
 and explicit MAP propagation.
+
+This demo also illustrates usage of the decoupled HTTP transport, whereby
+a seperate server->client HTTP connection is used to deliver the responses.
+Note the normal HTTP mode (where the response is delivered on the back-
+channel of the original client->server HTTP connection) may of course also
+be used  with WS-Addressing; in this case the <wsa:ReplyTo> header is set to
+a well-known anonymous URI, "http://www.w3.org/2005/08/addressing/anonymous".
 
 In all other respects this demo is based on the basic hello_world sample,
 illustrating that WS-Addressing usage is independent of the application.
@@ -103,9 +103,11 @@ From the samples/ws_addressing directory run the commands (entered on a single c
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+         -Dceltix.config.file=file:///$CELTIX_HOME/samples/ws_addressing/celtix-server.xml
          demo.ws_addressing.server.Server &
 
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+         -Dceltix.config.file=file:///$CELTIX_HOME/samples/ws_addressing/celtix-client.xml
          demo.ws_addressing.client.Client ./wsdl/hello_world_addr.wsdl
 
 The server process starts in the background.
@@ -113,9 +115,11 @@ The server process starts in the background.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+         -Dceltix.config.file=file:///%CELTIX_HOME%\samples\ws_addressing\celtix-client.xml
          demo.ws_addressing.server.Server
 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+         -Dceltix.config.file=file:///%CELTIX_HOME%\samples\ws_addressing\celtix-client.xml
          demo.ws_addressing.client.Client .\wsdl\hello_world_addr.wsdl
 
 The server process starts in a new command window.

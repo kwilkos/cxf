@@ -61,11 +61,13 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
             (HttpRequest)context.get(HTTPServerInputStreamContext.HTTP_REQUEST);
         HttpResponse response = 
             (HttpResponse)context.get(HTTPServerInputStreamContext.HTTP_RESPONSE);
-        copyHeaders(context, response);
-        response.setStatus(HttpURLConnection.HTTP_ACCEPTED);
-        response.commit();
-        request.setHandled(true);
-        context.put(HTTPServerInputStreamContext.HTTP_RESPONSE, decoupledResponseEndpoint);
+        if (response != null) {
+            copyHeaders(context, response);
+            response.setStatus(HttpURLConnection.HTTP_ACCEPTED);
+            response.commit();
+            request.setHandled(true);
+            context.put(HTTPServerInputStreamContext.HTTP_RESPONSE, decoupledResponseEndpoint);
+        }
     }
     
     public void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context) {
@@ -111,7 +113,7 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
     protected URLConnection getConnection(URL url) throws IOException {
         URLConnection connection = url.openConnection();
         connection.setDoOutput(true);
-
+        connection.setUseCaches(false);
         if (connection instanceof HttpURLConnection) {
             HttpURLConnection hc = (HttpURLConnection)connection;
             hc.setRequestMethod("POST");
@@ -281,7 +283,6 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
                 
                 if (isOneWay()) {
                     response.commit();
-                    context.remove(HTTPServerInputStreamContext.HTTP_RESPONSE);
                 }
             } else if (responseObj instanceof EndpointReferenceType) {
                 EndpointReferenceType decoupledResponseEndpoint = 
@@ -291,13 +292,18 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
                 URL url = new URL(decoupledResponseEndpoint.getAddress().getValue());
                 URLConnection connection = getConnection(url);
                 responseStream = connection.getOutputStream();
-                put(HTTPServerInputStreamContext.HTTP_RESPONSE, connection);
+                
+                if (!isOneWay()) {
+                    put(HTTPServerInputStreamContext.HTTP_RESPONSE, connection);
+                }
             } else {
                 LOG.log(Level.WARNING, "UNEXPECTED_RESPONSE_TYPE_MSG", responseObj.getClass());
                 throw new IOException("UNEXPECTED_RESPONSE_TYPE_MSG" + responseObj.getClass());
             }
 
-            if (!isOneWay()) {
+            if (isOneWay()) {
+                context.remove(HTTPServerInputStreamContext.HTTP_RESPONSE);
+            } else {
                 origOut.resetOut(new BufferedOutputStream(responseStream, 1024));
             }
         }

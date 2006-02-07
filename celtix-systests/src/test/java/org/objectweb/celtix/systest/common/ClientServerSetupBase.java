@@ -12,6 +12,7 @@ import junit.framework.Test;
 import org.objectweb.celtix.Bus;
 
 public abstract class ClientServerSetupBase extends TestSetup {
+    protected String configFileName;
     private final List<ServerLauncher> launchers = new ArrayList<ServerLauncher>();  
     private Bus bus; 
 
@@ -20,6 +21,9 @@ public abstract class ClientServerSetupBase extends TestSetup {
     }
 
     public void setUp() throws Exception {
+        if (configFileName != null) {
+            System.setProperty("celtix.config.file", configFileName);
+        }
         bus = Bus.init();
         Bus.setCurrent(bus);
         startServers();
@@ -34,6 +38,9 @@ public abstract class ClientServerSetupBase extends TestSetup {
         bus = null;
         launchers.clear();
         System.gc();
+        if (configFileName != null) {
+            System.clearProperty("celtix.config.file");
+        }
     } 
     
     protected boolean stopAllServers() {

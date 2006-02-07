@@ -4,15 +4,15 @@
     <import file="../common_build.xml"/>
 
     <target name="client" description="run demo client" depends="build">
-        <celtixrun classname="demo.ws_addressing.client.Client" param1="${basedir}/wsdl/hello_world_addr.wsdl"/>
+        <celtixrun classname="demo.ws_addressing.client.Client" param1="${basedir}/wsdl/hello_world_addr.wsdl"  jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-client.xml"/>
     </target>
 
     <target name="server" description="run demo server" depends="build">
-        <celtixrun classname="demo.ws_addressing.server.Server" param1="${basedir}/wsdl/hello_world_addr.wsdl"/>
+        <celtixrun classname="demo.ws_addressing.server.Server" param1="${basedir}/wsdl/hello_world_addr.wsdl" jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-server.xml"/>
     </target>
 
     <target name="generate.code">
         <echo level="info" message="Generating code using wsdl2java..."/>
-        <wsdl2java file="hello_world_addr.wsdl" bindingfile="${basedir}/wsdl/binding.xml"/>
+        <wsdl2java file="hello_world_addr.wsdl"/>
     </target>
 </project>

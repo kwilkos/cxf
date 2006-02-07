@@ -275,7 +275,6 @@ public final class ContextUtils {
         }
     }
 
-
     /**
      * Retrieve WSDL Port from the context.
      *

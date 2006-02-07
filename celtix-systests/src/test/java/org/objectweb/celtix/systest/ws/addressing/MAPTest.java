@@ -34,15 +34,6 @@ import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSI
  * Tests the addition of WS-Addressing Message Addressing Properties.
  */
 public class MAPTest extends ClientServerTestBase implements VerificationCache {
-    /**
-     * Set up configuration for decoupled response endpoint
-     */
-    static { 
-        System.setProperty("celtix.config.file", 
-                           "file:///"
-                           + System.getProperty("user.dir")
-                           + "/src/test/java/org/objectweb/celtix/systest/ws/addressing/client.xml");
-    }
     
     static final String INBOUND_KEY = "inbound";
     static final String OUTBOUND_KEY = "outbound";
@@ -68,6 +59,14 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
                 // via maven on Win2k
                 assertTrue("server did not launch correctly", 
                            launchServer(Server.class, "Windows 2000".equals(System.getProperty("os.name"))));
+            }
+            
+            public void setUp() throws Exception {
+                // set up configuration for decoupled response endpoint
+                configFileName = "file:///"
+                                 + System.getProperty("user.dir")
+                                 + "/src/test/java/org/objectweb/celtix/systest/ws/addressing/client.xml";
+                super.setUp();
             }
         };
     }  
