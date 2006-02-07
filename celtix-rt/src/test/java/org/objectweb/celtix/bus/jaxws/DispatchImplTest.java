@@ -55,6 +55,10 @@ public class DispatchImplTest<T> extends TestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
+        bus.shutdown(true);
+        bus = null;
+        executor = null;
+        epr = null;
     }
 
     public void testDispatchImpl() throws Exception {

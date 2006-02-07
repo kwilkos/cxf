@@ -136,7 +136,6 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
             throw new BusException(e);
         } catch (InstanceAlreadyExistsException e) {
             // the object existed
-            System.out.println(" InstanceAlreadyExists " + e.getMessage());
             throw new BusException(e);
         } catch (NotCompliantMBeanException e) {            
             throw new BusException(e);

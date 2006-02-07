@@ -21,7 +21,8 @@ public class AutomaticWorkQueueTest extends TestCase {
     AutomaticWorkQueueImpl workqueue;
     public void tearDown() throws Exception {
         if (workqueue != null) {
-            workqueue.shutdown();
+            workqueue.shutdown(true);
+            workqueue = null;
         }
     }
     

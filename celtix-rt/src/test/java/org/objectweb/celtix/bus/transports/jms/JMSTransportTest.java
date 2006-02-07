@@ -38,6 +38,7 @@ public class JMSTransportTest extends TestCase {
     private ServerTransportCallback callback1;
     private Bus bus;
     private String serverRcvdInOneWayCall;
+    private WorkQueueManagerImpl wqm;
     
     public JMSTransportTest(String arg0) {
         super(arg0);
@@ -57,8 +58,10 @@ public class JMSTransportTest extends TestCase {
     }
     
     public void tearDown() throws Exception {
-        //
-        bus.shutdown(false);
+        if (wqm != null) {
+            wqm.shutdown(true);
+        }
+        bus.shutdown(true);
     }
     
     public void testOneWayTextQueueJMSTransport() throws Exception {
@@ -133,7 +136,10 @@ public class JMSTransportTest extends TestCase {
             }
             public Executor getExecutor() {
                 if (useAutomaticWorkQueue) {
-                    return new WorkQueueManagerImpl(bus).getAutomaticWorkQueue();
+                    if (wqm == null) {
+                        wqm = new WorkQueueManagerImpl(bus);
+                    }
+                    return wqm.getAutomaticWorkQueue();
                 } else {
                     return null;
                 }
@@ -250,7 +256,10 @@ public class JMSTransportTest extends TestCase {
             }
             public Executor getExecutor() {
                 if (useAutomaticWorkQueue) {
-                    return new WorkQueueManagerImpl(bus).getAutomaticWorkQueue();
+                    if (wqm == null) {
+                        wqm = new WorkQueueManagerImpl(bus);
+                    }
+                    return wqm.getAutomaticWorkQueue();
                 } else {
                     return null;
                 }
