@@ -425,8 +425,6 @@ public class HTTPTransportTest extends TestCase {
     private void doResponse(ClientTransport client, 
         InputStreamMessageContext ictx, byte outBytes[]) throws Exception {
         byte bytes[] = new byte[10000];
-        System.out.println("bytes: " + bytes);
-        System.out.println("ictx: " + ictx);
         int len = readBytes(bytes, ictx.getInputStream());
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
