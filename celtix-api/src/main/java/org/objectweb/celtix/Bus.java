@@ -118,10 +118,9 @@ public abstract class Bus {
     
     /**
      * Sends the event specified to the <code>Bus</code>.
-     * @param event The <code>BusEvent</code> to send.
-     * @throws BusException If there is an error sending event to <code>Bus</code>.
+     * @param event The <code>BusEvent</code> to send.     
      */
-    public abstract void sendEvent(BusEvent event) throws BusException;
+    public abstract void sendEvent(BusEvent event);
 
     /**
      * Adds an event listener to the current <code>Bus</code>.
