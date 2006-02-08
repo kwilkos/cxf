@@ -54,6 +54,9 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     private Executor executor;
     private JAXBContext context;
 
+    //Implemetor (SEI) specific members
+    private List<Class<?>> seiClass;
+    
     //Implementor (Provider) specific members
     private ServiceMode serviceMode;
     private WebServiceProvider wsProvider;
@@ -360,5 +363,11 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     public WebServiceProvider getWebServiceProvider() {
         return wsProvider;
     } 
-    
+ 
+    public synchronized List<Class<?>> getWebServiceAnnotatedClass() {
+        if (null == seiClass) {
+            seiClass = EndpointUtils.getWebServiceAnnotatedClass(implementor.getClass());
+        }
+        return seiClass;
+    }
 }

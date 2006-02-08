@@ -44,13 +44,13 @@ import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
+import org.objectweb.hello_world_soap_http.DocLitBareImpl;
 import org.objectweb.hello_world_soap_http.HWSoapMessageProvider;
 import org.objectweb.hello_world_soap_http.HWSourcePayloadProvider;
 import org.objectweb.hello_world_soap_http.HelloWorldServiceProvider;
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 import org.objectweb.hello_world_soap_http.NotAnnotatedGreeterImpl;
 import org.objectweb.hello_world_soap_http.NotAnnotatedGreeterImplRPCLit;
-
 
 public class SOAPServerBindingTest extends TestCase {
     Bus bus;
@@ -247,6 +247,24 @@ public class SOAPServerBindingTest extends TestCase {
 
     }
 
+    public void testDocLitBareDispatch() throws Exception {
+        DocLitBareImpl dc = new DocLitBareImpl();
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(dc);
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
+        TestServerTransport serverTransport = new TestServerTransport(bus, epr);
+        TestInputStreamContext inCtx = new TestInputStreamContext(null);
+        
+        InputStream is = getClass().getResourceAsStream("resources/sayHiDocLiteralBareReq.xml");
+        inCtx.setInputStream(is);
+
+        serverBinding.testDispatch(inCtx, serverTransport);
+        is.close();
+        
+        assertEquals(1, dc.getSayHiInvocationCount());
+        assertNotNull(serverTransport.getOutputStreamContext());
+        assertFalse("Should not have a SOAP Fault", serverTransport.getOutputStreamContext().isFault());
+    }
+    
     public void testUserFaultDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint);        
@@ -258,7 +276,7 @@ public class SOAPServerBindingTest extends TestCase {
         serverBinding.testDispatch(inCtx, serverTransport);
 
         assertNotNull(serverTransport.getOutputStreamContext());
-        assertTrue(serverTransport.getOutputStreamContext().isFault());
+        assertTrue("Expecting a SOAP Fault", serverTransport.getOutputStreamContext().isFault());
 
         TestOutputStreamContext osc = (TestOutputStreamContext) serverTransport.getOutputStreamContext();
         ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
@@ -276,7 +294,7 @@ public class SOAPServerBindingTest extends TestCase {
         serverBinding.testDispatch(inCtx, serverTransport);
 
         assertNotNull(serverTransport.getOutputStreamContext());
-        assertTrue(serverTransport.getOutputStreamContext().isFault());
+        assertTrue("Expecting a SOAP Fault", serverTransport.getOutputStreamContext().isFault());
 
         TestOutputStreamContext osc = (TestOutputStreamContext) serverTransport.getOutputStreamContext();
         ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
@@ -464,7 +482,8 @@ public class SOAPServerBindingTest extends TestCase {
         public Method getMethod(Endpoint endpoint, QName operationName) {
             if (wsProvider != null) {
                 try {
-                    return implementor.getClass().getDeclaredMethod("invoke", dataClazz);
+                    return implementor.getClass().getDeclaredMethod(
+                                                     operationName.getLocalPart(), dataClazz);
                 } catch (Exception ex) {
                     //Ignore
                 }
@@ -482,7 +501,10 @@ public class SOAPServerBindingTest extends TestCase {
             }
             return wsProvider;
         } 
-        
+
+        public synchronized List<Class<?>> getWebServiceAnnotatedClass() {
+            return EndpointUtils.getWebServiceAnnotatedClass(getImplementor().getClass());
+        }
     }
     
 }

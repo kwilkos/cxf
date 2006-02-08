@@ -201,4 +201,24 @@ public class EndpointImplTest extends TestCase {
         assertEquals(DataBindingCallback.Mode.PAYLOAD, cb.getMode());
     }
     
+    public void testGetWebServiceAnnotatedClass() {
+        EndpointImpl impl = (EndpointImpl) endpoint;
+        assertNotNull(impl);
+        List<Class<?>> classList = impl.getWebServiceAnnotatedClass();
+
+        assertNotNull(classList);
+        assertEquals(1, classList.size());
+        
+        //Test for provider
+        HelloWorldServiceProvider provider = new  HelloWorldServiceProvider();
+        endpoint = Endpoint.create(TestBinding.TEST_BINDING, provider);
+        assertTrue(endpoint instanceof EndpointImpl);
+        impl = (EndpointImpl) endpoint;
+
+        classList = impl.getWebServiceAnnotatedClass();
+        assertNotNull(classList);
+        assertEquals(0, classList.size());
+    }
+    
+    
 }

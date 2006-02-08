@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
+import java.util.List;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
@@ -109,8 +111,15 @@ public class TestServerBinding extends AbstractServerBinding {
         }
     }
 
-    protected QName getOperationName(MessageContext ctx) {
-        return new QName("blah", currentOperation);
+    protected Method getSEIMethod(List<Class<?>> list, MessageContext ctx) {
+        for (Class<?> c : list) {
+            for (Method m : c.getMethods()) {
+                if (m.getName().equals(currentOperation)) {
+                    return m;
+                }
+            }
+        }
+        return null;
     }
     
     class TestTransportFactory implements TransportFactory {

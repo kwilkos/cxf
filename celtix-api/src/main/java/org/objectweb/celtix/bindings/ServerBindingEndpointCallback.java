@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bindings;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
@@ -46,5 +47,10 @@ public interface ServerBindingEndpointCallback {
      * @return the endpoint's service mode
      */
     WebServiceProvider getWebServiceProvider();
-    
+
+    /**
+     * Returns a collection of class objects that are annotated with WebService annotation.
+     * @return <code>List</code> of <code>Class</code> objects.
+     */
+    List<Class<?>> getWebServiceAnnotatedClass();    
 }

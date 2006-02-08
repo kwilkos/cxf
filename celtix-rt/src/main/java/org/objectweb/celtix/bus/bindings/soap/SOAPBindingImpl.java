@@ -470,8 +470,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             WebParam param = callback.getWebParam(idx);
             if ((param.mode() != ignoreParamMode) && !param.header()) {
 
-                QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) ? new QName(param
-                    .targetNamespace(), param.name()) : new QName("", param.partName());
+                QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) 
+                                ? new QName(param.targetNamespace(), param.name()) 
+                                : new QName("", param.partName());
 
                 Object obj = reader.read(elName, idx, childNode);
                 if (param.mode() != WebParam.Mode.IN) {
@@ -533,8 +534,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                     partValue = ((Holder)args[idx]).value;
                 }
 
-                QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) ? new QName(param
-                    .targetNamespace(), param.name()) : new QName("", param.partName());
+                QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) 
+                                    ? new QName(param.targetNamespace(), param.name()) 
+                                    : new QName("", param.partName());
                 writer.write(partValue, elName, xmlNode);
             }
         }

@@ -55,18 +55,14 @@ public final class EndpointUtils {
 
         // determine the (fully annoated) SEI
         List<Class<?>> list = getWebServiceAnnotatedClass(iClass);
-        //Add the Implementor incase there is no SEI.
-        if (list.size() == 0) {
-            list.add(iClass);
-        }
-        // determine the method in the SEI
 
+        // determine the method in the SEI
         String methodName = operationName.getLocalPart();
         Method iMethod = null;
         
         Iterator<Class<?>> iter = list.iterator();
-        
-        while (iter.hasNext()) {
+        boolean strictMatch = false;
+        while (iter.hasNext() && !strictMatch) {
             Class<?> sei = iter.next();
             Method[] iMethods = sei.getMethods();
 
@@ -77,6 +73,7 @@ public final class EndpointUtils {
                     if (methodName.equals(wm.operationName()) 
                         && methodName.equalsIgnoreCase(m.getName())) {
                         iMethod = m;
+                        strictMatch = true;
                         break;
                     }
                 } else if (methodName.equals(m.getName())) {
@@ -150,27 +147,25 @@ public final class EndpointUtils {
         return false;
     }
     
-    private static List<Class<?>> getWebServiceAnnotatedClass(Class<?> cls) {
+    public static List<Class<?>> getWebServiceAnnotatedClass(Class<?> cls) {
         List<Class<?>> list = new ArrayList<Class<?>>();
 
+        Class<?>[] interfaces = cls.getInterfaces();
+        for (Class<?> c : interfaces) {
+            list.addAll(getWebServiceAnnotatedClass(c));
+        }
+        
         if (!cls.isInterface()) {
             Class<?> superClass = cls.getSuperclass();        
             if (superClass != null) {
-                if (superClass.isAnnotationPresent(WebService.class)) {
-                    list.add(superClass);
-                }
                 list.addAll(getWebServiceAnnotatedClass(superClass));
             }
         }
         
-        Class<?>[] interfaces = cls.getInterfaces();
-        for (Class<?> c : interfaces) {
-            if (c.isAnnotationPresent(WebService.class)) {
-                list.add(c);
-            }
-            list.addAll(getWebServiceAnnotatedClass(c));
-        }
-
+        if (cls.isAnnotationPresent(WebService.class)) {
+            list.add(cls);
+        }                
+        
         return list;        
     }
     

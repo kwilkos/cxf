@@ -62,20 +62,14 @@ public class ClientServerTest extends ClientServerTestBase {
                 assertEquals(response2, reply);
 
                 greeter.greetMeOneWay("Milestone-" + idx);
+                
+                BareDocumentResponse bareres = greeter.testDocLitBare("MySimpleDocument");
+                assertNotNull("no response for operation testDocLitBare", bareres);
+                assertEquals("Celtix", bareres.getCompany());
+                assertTrue(bareres.getId() == 1);                
             }            
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
-        }
-        
-        try {
-            BareDocumentResponse bareres = greeter.testDocLitBare("MySimpleDocument");
-            fail("Should have thrown Exception as SOAP Doc/Lit Bare Style is not yet supported");
-            assertNotNull("no response for operation testDocLitBare", bareres);
-            assertEquals("Celtix", bareres.getCompany());
-            assertTrue(bareres.getId() == 1);
-        } catch (Exception e) {
-            //e.printStackTrace();
-            //Ignore as exception is expected.
         }
     } 
 

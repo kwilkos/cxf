@@ -7,11 +7,14 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.Oneway;
+import javax.jws.WebMethod;
+import javax.jws.WebService;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
@@ -347,25 +350,38 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
     private Method getMethod(MessageContext requestCtx, ObjectMessageContext objContext) {
         
         WebServiceProvider wsProvider = sbeCallback.getWebServiceProvider();
-        QName operationName = wsProvider != null 
-                ? new QName(wsProvider.targetNamespace(), "invoke") 
-                : getOperationName(requestCtx);
+        QName operationName = null;
+        Method method = null;
+        
+        if (null != wsProvider) {
+            operationName = new QName(wsProvider.targetNamespace(), "invoke");
+            method = sbeCallback.getMethod(endpoint, operationName);
+        } else {
+            method = getSEIMethod(sbeCallback.getWebServiceAnnotatedClass(), requestCtx);
+            
+            if (null != method) {
+                WebMethod wm = getWebMethodAnnotation(method);
+                String namespace = getTargetNamespace(method.getDeclaringClass());
+                operationName = null == wm ? new QName(namespace, method.getName()) 
+                                           : new QName(namespace, wm.operationName());
+            }
+        }
 
         if (null == operationName) {
             LOG.severe("CONTEXT_MISSING_OPERATION_NAME_MSG");
             throw new WebServiceException("Request Context does not include operation name");
         }
-        
+
+        LOG.info("retrieved operation name from resuest:" + operationName);        
         if (objContext != null) {
             objContext.put(MessageContext.WSDL_OPERATION, operationName);
         }
-        
-        Method method = sbeCallback.getMethod(endpoint, operationName);
+
         if (method == null) {
             LOG.log(Level.SEVERE, "IMPLEMENTOR_MISSING_METHOD_MSG", operationName);
             throw new WebServiceException("Web method: " + operationName + " not found in implementor.");
         }
-        return method;       
+        return method;
     }
     
     private void initObjectContext(ObjectMessageContext objCtx, Method method) {
@@ -392,12 +408,35 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         return sbeCallback.createDataBindingCallback(objContext, mode);
     }
     
+    private WebMethod getWebMethodAnnotation(Method m) {
+        WebMethod wm = null;
+        
+        if (null != m) {
+            wm = m.getAnnotation(WebMethod.class);
+        }
+        
+        return wm;
+    }
+
+    private String getTargetNamespace(Class<?> cl) {
+        String namespace = "";
+        
+        if (null != cl) {
+            WebService ws = cl.getAnnotation(WebService.class);
+            if (null != ws) {
+                namespace = ws.targetNamespace();
+            }
+        }
+        
+        return namespace;
+    }
+    
     protected void storeTransport(MessageContext context) {
         context.put(SERVER_TRANSPORT_PROPERTY, transport);
         context.setScope(SERVER_TRANSPORT_PROPERTY,
                          MessageContext.Scope.HANDLER);    
     }
     
-    protected abstract QName getOperationName(MessageContext ctx);
+    protected abstract Method getSEIMethod(List<Class<?>> classList, MessageContext ctx); 
 
 }
