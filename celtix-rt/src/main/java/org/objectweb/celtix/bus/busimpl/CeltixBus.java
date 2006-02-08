@@ -216,7 +216,7 @@ public class CeltixBus extends Bus {
     }
 
     @Override
-    public void sendEvent(BusEvent event) throws BusException {
+    public void sendEvent(BusEvent event) {
         eventProcessor.processEvent(event);
     }
 

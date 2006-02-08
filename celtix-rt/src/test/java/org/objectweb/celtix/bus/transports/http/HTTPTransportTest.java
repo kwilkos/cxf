@@ -334,20 +334,16 @@ public class HTTPTransportTest extends TestCase {
     }
         
     private void checkBusCreatedEvent() {       
-        try {
-            bus.sendEvent(isA(ComponentCreatedEvent.class));
-        } catch (BusException e) {                  
-            e.printStackTrace();
-        }
+        
+        bus.sendEvent(isA(ComponentCreatedEvent.class));
+        
         EasyMock.expectLastCall();        
     }
     
     private void checkBusRemovedEvent() {       
-        try {
-            bus.sendEvent(isA(ComponentRemovedEvent.class));
-        } catch (BusException e) {                  
-            e.printStackTrace();
-        }
+        
+        bus.sendEvent(isA(ComponentRemovedEvent.class));
+        
         EasyMock.expectLastCall();        
     }
     

@@ -3,7 +3,6 @@ package org.objectweb.celtix.bus.management;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.Bus;
@@ -27,6 +26,8 @@ import org.objectweb.celtix.management.InstrumentationManager;
  *  Instrumentation components will be registed to InstrumenationManager.
  *  The Instrumentation mananger will send event to notifier the management 
  *  layer to expose the managed component. 
+ *  Instrumentation manager also provider a qurey interface for the instrumentation.
+ *  The JMX layer could query the detail information for instrumentation.
  */
 public class InstrumentationManagerImpl implements InstrumentationManager, BusEventListener {    
     static final Logger LOG = Logger.getLogger(InstrumentationManagerImpl.class.getName());
@@ -53,13 +54,9 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     
     public void regist(Instrumentation is) {
         instrumentations.add(is);        
-        //create the instrumentation creation event
-        try {
-            bus.sendEvent(new InstrumentationCreatedEvent(is));
-        } catch (BusException e) {          
-            LOG.log(Level.SEVERE,
-                    " Send instrumentation create event error !" + e.getMessage());            
-        }
+        //create the instrumentation creation event        
+        bus.sendEvent(new InstrumentationCreatedEvent(is));
+        
     }
 
     public void unregist(Object component) {
@@ -71,12 +68,7 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
                     
             if (it != null) {
                 //create the instrumentation remove event           
-                try {
-                    bus.sendEvent(new InstrumentationRemovedEvent(it));
-                } catch (BusException e) {
-                    LOG.log(Level.SEVERE,
-                        " Send instrumentation remove event error !" + e.getMessage());
-                }            
+                bus.sendEvent(new InstrumentationRemovedEvent(it));               
             }
         }
     }
@@ -109,7 +101,7 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
 
    
     public List<Instrumentation> getAllInstrumentation() {
-        // TODO the 
+        // TODO need to add more qurey interface
         return instrumentations;
     }
    

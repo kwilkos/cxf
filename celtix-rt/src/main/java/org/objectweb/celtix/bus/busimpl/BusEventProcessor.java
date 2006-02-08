@@ -11,10 +11,11 @@ import org.objectweb.celtix.BusEventFilter;
 import org.objectweb.celtix.BusEventListener;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 
 
 public class BusEventProcessor {
-    private static final Logger LOG = Logger.getLogger(BusEventProcessor.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(BusEventProcessor.class);    
     protected Bus theBus;    
     protected List<BusEventListenerInfo> listenerList;
     protected BusEventCache cache;
@@ -58,7 +59,7 @@ public class BusEventProcessor {
     }
 
 
-    public void processEvent(BusEvent e) throws BusException {
+    public void processEvent(BusEvent e) {
         if (e == null) {
             return;
         }
@@ -76,13 +77,9 @@ public class BusEventProcessor {
                     try {
                         li.listener.processEvent(e);
                     } catch (BusException ex) {
-                        LOG.log(Level.WARNING,
-                                "Exception thrown by the listener "
-                                 + "when processing event : "
-                                 + e.getID()
-                                 + "Exception Message : "
-                                 + ex.getMessage());                                                      
-                        throw ex;
+                        //NOTE now just log the exception and not throw the exception to bus
+                        LOG.log(Level.WARNING, "PROCESS_EVENT_FAILURE_MSG", 
+                                new Object[] {li.getClass().getName(), e.getID(), ex}); 
                     }
                 }
             }

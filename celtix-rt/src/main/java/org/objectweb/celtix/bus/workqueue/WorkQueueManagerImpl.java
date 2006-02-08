@@ -1,10 +1,8 @@
 package org.objectweb.celtix.bus.workqueue;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.workqueue.AutomaticWorkQueue;
@@ -67,12 +65,9 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
         }
 
         //sent out remove event.
-        try {
-            bus.sendEvent(new ComponentRemovedEvent(this));
-        } catch (BusException e) {
-            LOG.log(Level.SEVERE, 
-                    "WorkQueue send remove event to bus error" + e.getMessage());
-        }
+        
+        bus.sendEvent(new ComponentRemovedEvent(this));
+       
         synchronized (this) {
             notifyAll();
         }
@@ -99,13 +94,9 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
             h.flush();
         }
 
-        //sent out creation event.
-        try {
-            bus.sendEvent(new ComponentCreatedEvent(this));
-        } catch (BusException e) {
-            LOG.log(Level.SEVERE, 
-                    "WorkQueue send create event to bus error" + e.getMessage());
-        }
+        //sent out creation event.        
+        bus.sendEvent(new ComponentCreatedEvent(this));
+        
     }
 
     private AutomaticWorkQueue createAutomaticWorkQueue() {        
