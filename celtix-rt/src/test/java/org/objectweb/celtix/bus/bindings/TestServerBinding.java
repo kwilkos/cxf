@@ -43,7 +43,7 @@ public class TestServerBinding extends AbstractServerBinding {
         super(b, ref, ep, cbFactory);
         binding = new TestBinding();
     }
-
+    
     protected ServerTransport createTransport(EndpointReferenceType ref) 
         throws WSDLException, IOException {
         TransportFactoryManager tfm = bus.getTransportFactoryManager();

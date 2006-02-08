@@ -18,6 +18,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerChainBuilder;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.handlers.StreamHandler;
+import org.objectweb.celtix.transports.Transport;
 
 public abstract class AbstractBindingImpl implements Binding {
 
@@ -193,6 +194,12 @@ public abstract class AbstractBindingImpl implements Binding {
         throws IOException;
     
     public abstract void read(InputStreamMessageContext inContext, MessageContext msgContext) 
+        throws IOException;
+    
+    public abstract boolean hasFault(MessageContext msgContext);
+    
+    public abstract OutputStreamMessageContext createOutputStreamContext(Transport t, 
+                                                                         MessageContext msgContext)
         throws IOException;
     
 

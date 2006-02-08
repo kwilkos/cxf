@@ -36,7 +36,7 @@ public class ServerBindingTest extends TestCase {
         Endpoint ep = Endpoint.create(TestBinding.TEST_BINDING, implementor);
         ei = (EndpointImpl)ep;
     }
-
+    
     public void tearDown() throws Exception {
         bus.shutdown(true);
         if (null == epfClassName) {

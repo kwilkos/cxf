@@ -52,6 +52,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.helpers.NSStack;
 import org.objectweb.celtix.helpers.NodeUtils;
+import org.objectweb.celtix.transports.Transport;
 
 public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(SOAPBindingImpl.class);
@@ -71,7 +72,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             throw new WebServiceException(se.getMessage());
         }
     }
-    
+
     // --- AbstractBindingImpl interface ---
 
     public MessageContext createBindingMessageContext(MessageContext srcCtx) {
@@ -148,8 +149,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
     }
 
-    public void marshalFault(ObjectMessageContext objContext, MessageContext mc,
-                                    DataBindingCallback callback) {
+    public void marshalFault(ObjectMessageContext objContext, MessageContext mc, 
+                             DataBindingCallback callback) {
 
         SOAPMessage msg = null;
 
@@ -197,8 +198,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         ((SOAPMessageContext)mc).setMessage(msg);
     }
 
-    public void unmarshal(MessageContext mc, ObjectMessageContext objContext,
-                                 DataBindingCallback callback) {
+    public void unmarshal(MessageContext mc, ObjectMessageContext objContext, DataBindingCallback callback) {
         try {
             boolean isOutputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
             if (!SOAPMessageContext.class.isInstance(mc)) {
@@ -272,7 +272,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
 
     public void unmarshalFault(MessageContext context, ObjectMessageContext objContext,
-                          DataBindingCallback callback) {
+                               DataBindingCallback callback) {
         try {
             if (!SOAPMessageContext.class.isInstance(context)) {
                 throw new SOAPException("SOAPMessageContext not available");
@@ -298,24 +298,23 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             throw new ProtocolException(se);
         }
     }
-    
-    public void write(MessageContext msgContext, OutputStreamMessageContext outContext) 
-        throws IOException {
+
+    public void write(MessageContext msgContext, OutputStreamMessageContext outContext) throws IOException {
         SOAPMessageContext soapCtx = (SOAPMessageContext)msgContext;
         try {
             soapCtx.getMessage().writeTo(outContext.getOutputStream());
-            
+
             if (LOG.isLoggable(Level.FINE)) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 soapCtx.getMessage().writeTo(baos);
-                LOG.log(Level.FINE, baos.toString());    
+                LOG.log(Level.FINE, baos.toString());
             }
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_WRITE_FAILURE_MSG", se);
             throw new ProtocolException(se);
         }
     }
-    
+
     public void read(InputStreamMessageContext inCtx, MessageContext context) throws IOException {
         try {
             parseMessage(inCtx.getInputStream(), context);
@@ -324,9 +323,38 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             throw new ProtocolException(se);
         }
     }
-    
-    //  --- AbstractBindingImpl interface ---
-    
+
+    public boolean hasFault(MessageContext msgContext) {
+        boolean hasFault = false;
+        SOAPMessage msg = ((SOAPMessageContext)msgContext).getMessage();
+        assert msg != null;
+        try {
+            hasFault = msg.getSOAPBody().hasFault();
+        } catch (SOAPException se) {
+            LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
+            throw new ProtocolException(se);
+        }
+        return hasFault;
+    }
+
+    public OutputStreamMessageContext createOutputStreamContext(Transport t, MessageContext msgContext)
+        throws IOException {
+        if (msgContext instanceof SOAPMessageContext) {
+            SOAPMessage msg = ((SOAPMessageContext)msgContext).getMessage();
+            try {
+                updateHeaders(msgContext, msg);
+            } catch (SOAPException ex) {
+                IOException io = new IOException(ex.getMessage());
+                io.initCause(ex);
+                throw io;
+            }
+        }
+
+        return t.createOutputStreamContext(msgContext);
+    }
+
+    // --- Abstr actBindingImpl interface ---
+
     public Set<String> getRoles() {
         return null;
     }
@@ -346,7 +374,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     public MessageFactory getMessageFactory() {
         return msgFactory;
     }
-    
+
     @SuppressWarnings("unchecked")
     public void updateHeaders(MessageContext ctx, SOAPMessage msg) throws SOAPException {
         if (msg.saveRequired()) {

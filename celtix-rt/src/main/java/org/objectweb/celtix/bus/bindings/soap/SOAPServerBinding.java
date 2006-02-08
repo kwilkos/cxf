@@ -30,8 +30,6 @@ import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.context.ObjectMessageContext;
-import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.helpers.NodeUtils;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
@@ -72,32 +70,6 @@ public class SOAPServerBinding extends AbstractServerBinding {
             LOG.severe("TRANSPORT_FACTORY_RETREIVAL_FAILURE_MSG");
         }
         return null;
-    }
-    protected OutputStreamMessageContext createOutputStreamContext(ServerTransport t,
-                                                                   MessageContext bindingContext)
-        throws IOException {
-        if (bindingContext instanceof SOAPMessageContext) {
-            SOAPMessage msg = ((SOAPMessageContext)bindingContext).getMessage();
-            try {
-                soapBinding.updateHeaders(bindingContext, msg);
-            } catch (SOAPException ex) {
-                IOException io = new IOException(ex.getMessage());
-                io.initCause(ex);
-                throw io;
-            }
-        }
-        return t.createOutputStreamContext(bindingContext);            
-    }
-    protected boolean isFault(ObjectMessageContext objCtx, MessageContext bindingContext) {
-        if (bindingContext instanceof SOAPMessageContext) {
-            SOAPMessage msg = ((SOAPMessageContext)bindingContext).getMessage();
-            try {
-                return msg.getSOAPPart().getEnvelope().getBody().hasFault();
-            } catch (SOAPException e) {
-                return false;
-            }
-        }
-        return super.isFault(objCtx, bindingContext);
     }
     
     protected Method getSEIMethod(List<Class<?>> classList, MessageContext ctx) {

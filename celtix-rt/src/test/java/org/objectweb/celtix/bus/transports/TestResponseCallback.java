@@ -6,23 +6,23 @@ import org.objectweb.celtix.context.InputStreamMessageContext;
 public class TestResponseCallback implements ResponseCallback {
 
     private InputStreamMessageContext responseContext;
-    private boolean retreived;
+    private boolean retrieved;
     
     public synchronized void dispatch(InputStreamMessageContext respCtx) {
         this.responseContext = respCtx;
-        retreived = false;
+        retrieved = false;
         notify();
     }
     
     public synchronized InputStreamMessageContext waitForNextResponse() {
-        while (responseContext == null || retreived) {
+        while (responseContext == null || retrieved) {
             try {
                 wait();
             } catch (InterruptedException ie) {
                 // ignore
             }
         }
-        retreived = true;
+        retrieved = true;
         return responseContext;
     }
 

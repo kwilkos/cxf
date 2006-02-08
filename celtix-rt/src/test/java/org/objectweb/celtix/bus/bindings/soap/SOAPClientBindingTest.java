@@ -86,12 +86,12 @@ public class SOAPClientBindingTest extends TestCase {
         MessageFactory msgFactory = MessageFactory.newInstance();
         SOAPMessage faultMsg = msgFactory.createMessage(null,  is);
         soapCtx.setMessage(faultMsg);
-        assertTrue(clientBinding.hasFault(soapCtx));
+        assertTrue(clientBinding.getBindingImpl().hasFault(soapCtx));
         
         is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
         faultMsg = msgFactory.createMessage(null,  is);
         soapCtx.setMessage(faultMsg);
-        assertFalse(clientBinding.hasFault(soapCtx));
+        assertFalse(clientBinding.getBindingImpl().hasFault(soapCtx));
     }
 
     public void testRead() throws Exception {
