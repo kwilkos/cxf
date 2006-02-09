@@ -26,27 +26,34 @@ public class SOAPFaultDataReader<T> implements DataReader<T> {
         SOAPFault fault = (SOAPFault)input;
         if (fault.getDetail() != null) {
             NodeList list = fault.getDetail().getChildNodes();
-            assert list.getLength() == 1;
-            
-            QName faultName = new QName(list.item(0).getNamespaceURI(),
-                                        list.item(0).getLocalName());
-            
-            Class<?> clazz = callback.getWebFault(faultName);
-            try {
-                if (clazz != null) {
-                    Class<?> faultInfo = clazz.getMethod("getFaultInfo").getReturnType();
-                    Object obj = JAXBEncoderDecoder.unmarshall(callback.getJAXBContext(), 
-                                                               list.item(0),
-                                                               faultName,
-                                                               faultInfo);
-                    Constructor<?> ctor = clazz.getConstructor(String.class,
-                                                               obj.getClass());
-                    return ctor.newInstance(fault.getFaultString(), obj);
-                } else {
-                    return new SOAPFaultException(fault);
+
+            // Axis includes multiple childNodes.
+            assert list.getLength() > 0;
+            QName faultName;
+            for (int i = 0; i < list.getLength(); i++) {
+                if (list.item(i).getLocalName() == null) {
+                    continue;
                 }
-            } catch (Exception ex) {
-                throw new WebServiceException("error in unmarshal of SOAPFault", ex);
+                faultName = new QName(list.item(i).getNamespaceURI(),
+                                      list.item(i).getLocalName());
+        
+                Class<?> clazz = callback.getWebFault(faultName);
+                try {
+                    if (clazz != null) {
+                        Class<?> faultInfo = clazz.getMethod("getFaultInfo").getReturnType();
+                        Object obj = JAXBEncoderDecoder.unmarshall(callback.getJAXBContext(), 
+                                                                   list.item(i),
+                                                                   faultName,
+                                                                   faultInfo);
+                        Constructor<?> ctor = clazz.getConstructor(String.class,
+                                                                   obj.getClass());
+                        return ctor.newInstance(fault.getFaultString(), obj);
+                    } else {
+                        return new SOAPFaultException(fault);
+                    }
+                } catch (Exception ex) {
+                    throw new WebServiceException("error in unmarshal of SOAPFault", ex);
+                }
             }
         }
         return null;

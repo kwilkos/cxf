@@ -124,7 +124,7 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
             // message ID fault is expected
             try {
                 greeter.greetMe("explicit2");
-                fail("expected ProtocolException on dulicate message ID");
+                fail("expected ProtocolException on duplicate message ID");
             } catch (ProtocolException pe) {
                 assertTrue("expected duplicate message ID failure",
                            "Duplicate Message ID urn:uuid:12345".equals(pe.getMessage()));

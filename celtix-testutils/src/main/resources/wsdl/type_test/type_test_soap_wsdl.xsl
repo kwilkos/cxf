@@ -5,6 +5,7 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:x1="http://objectweb.org/type_test/types"
     xmlns:itst="http://tests.iona.com/ittests"
     xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration">
 
@@ -54,11 +55,11 @@
         xmlns="http://schemas.xmlsoap.org/wsdl/">
     <!-- doc literal style -->
     <xsl:if test="$use_style='document'">
-      <wsdl:import namespace="http://objectweb.org/type_test/doc" location="./type_test_doclit.wsdl"/>
+      <wsdl:import namespace="http://objectweb.org/type_test/doc" location="type_test_doclit.wsdl"/>
     </xsl:if>
     <!-- rpc literal style -->
     <xsl:if test="$use_style='rpc'">
-      <wsdl:import namespace="http://objectweb.org/type_test/rpc" location="./type_test_rpclit.wsdl"/>
+      <wsdl:import namespace="http://objectweb.org/type_test/rpc" location="type_test_rpclit.wsdl"/>
     </xsl:if>
     <wsdl:binding type="tns:TypeTestPortType" name="TypeTestSOAP">
       <soap:binding transport="http://schemas.xmlsoap.org/soap/http">
@@ -77,8 +78,8 @@
         <soap:address>
             <xsl:attribute name="location">http://localhost:<xsl:value-of select="$port"/>/SOAPService/SOAPPort/</xsl:attribute>
         </soap:address>
-        <http-conf:client SendTimeout="120000" ReceiveTimeout="180000"/>
-        <http-conf:server SendTimeout="120000" ReceiveTimeout="180000"/>
+        <!-- Set AllowChunking to false to avoid chunking issue. -->
+        <http-conf:client SendTimeout="90000" AllowChunking="false"/>
       </wsdl:port>
     </wsdl:service>
   </xsl:template>
@@ -86,7 +87,6 @@
   <!-- 1.1 - hardcoded operations -->
   <xsl:template match="/xsd:schema" mode="hardcoded_operations"
         xmlns="http://schemas.xmlsoap.org/wsdl/">
-    <!--
     <wsdl:operation name="testVoid">
       <soap:operation soapAction="">
         <xsl:attribute name="style">
@@ -129,7 +129,6 @@
         </soap:body>
       </wsdl:input>
     </wsdl:operation>
-    -->
   </xsl:template>
 
   <!-- 1.2 - group of test operations -->

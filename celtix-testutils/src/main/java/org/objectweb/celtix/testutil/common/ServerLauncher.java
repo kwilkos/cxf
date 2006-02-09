@@ -1,6 +1,7 @@
-package org.objectweb.celtix.systest.common;
+package org.objectweb.celtix.testutil.common;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +27,7 @@ public class ServerLauncher {
 
     private final boolean debug = false;
     private boolean inProcess = DEFAULT_IN_PROCESS;
-    private TestServerBase inProcessServer;
+    private AbstractTestServerBase inProcessServer;
     
     private final String javaExe;
     private Process process;
@@ -130,7 +131,8 @@ public class ServerLauncher {
             Class<?> cls;
             try {
                 cls = Class.forName(className);
-                Class<? extends TestServerBase> svcls = cls.asSubclass(TestServerBase.class);
+                Class<? extends AbstractTestServerBase> svcls = 
+                    cls.asSubclass(AbstractTestServerBase.class);
                 inProcessServer = svcls.newInstance();
                 inProcessServer.startInProcess();
                 serverIsReady = true;
@@ -197,7 +199,13 @@ public class ServerLauncher {
             try {
                 StringBuilder serverOutput = new StringBuilder();
                 String outputDir = System.getProperty("server.output.dir", "target/surefire-reports/");
-                FileOutputStream fos = new FileOutputStream(outputDir + className + ".out");
+                FileOutputStream fos;
+                try {
+                    fos = new FileOutputStream(outputDir + className + ".out");
+                } catch (FileNotFoundException fex) {
+                    outputDir = System.getProperty("basedir") + "/target/surefire-reports/";
+                    fos = new FileOutputStream(outputDir + className + ".out");
+                }
                 PrintStream ps = new PrintStream(fos);
                 boolean running = true;
                 for (int ch = in.read(); ch != -1; ch = in.read()) {

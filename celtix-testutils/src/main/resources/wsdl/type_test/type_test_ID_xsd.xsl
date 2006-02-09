@@ -6,6 +6,7 @@
     xmlns:wsse="http://schemas.xmlsoap.org/ws/2003/06/secext"
     xmlns:itst="http://tests.iona.com/ittests"
     xmlns:tns="http://objectweb.org/type_test/types"
+    xmlns:x1="http://objectweb.org/type_test/types"
     xmlns="http://www.w3.org/2001/XMLSchema"
     >
 

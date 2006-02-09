@@ -110,13 +110,21 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     }
 
     public void testVoid() throws Exception {
-        //client.testVoid();
+        if (testDocLiteral) {
+            docClient.testVoid();
+        } else {
+            rpcClient.testVoid();
+        }
     }
 
     public void testOneway() throws Exception {
-        //String x = "hello";
-        //String y = "oneway";
-        //client.testOneway(x, y);
+        String x = "hello";
+        String y = "oneway";
+        if (testDocLiteral) {
+            docClient.testOneway(x, y);
+        } else {
+            rpcClient.testOneway(x, y);
+        }
     }
 
     public void testByte() throws Exception {

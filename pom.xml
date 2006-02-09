@@ -105,6 +105,7 @@
         <module>celtix-api</module>
         <module>celtix-rt</module>
         <module>celtix-systests</module>
+        <module>celtix-axisinterop</module>
     </modules>
 
     <build>

@@ -83,7 +83,7 @@
 
     <!-- Nillable elements -->
     <element name="NillableString" type="string" nillable="true"/>
-    <element name="NillableStruct" type="tns:SimpleStruct" nillable="true"/>
+    <element name="NillableStruct" type="x1:SimpleStruct" nillable="true"/>
 
     <!-- Anonymous type elements -->
     <element name="AnonTypeElement">
