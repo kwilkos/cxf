@@ -22,9 +22,9 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
+import javax.xml.ws.ProtocolException;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
-import javax.xml.ws.WebServiceException;
 
 import org.w3c.dom.Node;
 
@@ -171,8 +171,7 @@ public final class JAXBEncoderDecoder {
                 //ignore
             }
         }
-        
-        
+
         for (Class intf : theClass.getInterfaces()) {
             getClassesForContext(intf, classes, loader);
         }
@@ -220,7 +219,7 @@ public final class JAXBEncoderDecoder {
 
             u.marshal(mObj, destNode);
         } catch (Exception ex) {
-            throw new WebServiceException("Marshalling Error", ex);
+            throw new ProtocolException("Marshalling Error", ex);
         }
     }
     
@@ -230,7 +229,6 @@ public final class JAXBEncoderDecoder {
             if (context == null) {
                 context = JAXBContext.newInstance(clazz);
             }
-            
             Unmarshaller u = context.createUnmarshaller();
 
             obj = (clazz != null) ? u.unmarshal(srcNode, clazz) : u.unmarshal(srcNode);
@@ -242,7 +240,7 @@ public final class JAXBEncoderDecoder {
                 }
             }
         } catch (Exception ex) {
-            throw new WebServiceException("Unmarshalling error", ex);
+            throw new ProtocolException("Unmarshalling error", ex);
         }
         return obj;
     }
@@ -261,7 +259,7 @@ public final class JAXBEncoderDecoder {
                 }
             }
         } catch (Exception ex) {
-            throw new WebServiceException("Unmarshalling error", ex);
+            throw new ProtocolException("Unmarshalling error", ex);
         }
         return obj;
     }
@@ -289,8 +287,7 @@ public final class JAXBEncoderDecoder {
         Marshaller m = context.createMarshaller();
         StringWriter writer = new StringWriter();
         m.marshal(el, writer);
-        
+
         return writer.toString();       
     }
-
 }

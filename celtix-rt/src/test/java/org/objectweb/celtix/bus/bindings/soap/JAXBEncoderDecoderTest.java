@@ -7,8 +7,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPFactory;
+import javax.xml.ws.ProtocolException;
 import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.WebServiceException;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -53,8 +53,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
         Node node;
         try {
             JAXBEncoderDecoder.marshall(context, null, inCorrectElName,  elNode);
-            fail("Should have thrown a WebServiceException");
-        } catch (WebServiceException ex) {
+            fail("Should have thrown a ProtocolException");
+        } catch (ProtocolException ex) {
             //expected - not a valid object
         }
 
@@ -107,8 +107,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
         
         try {
             JAXBEncoderDecoder.unmarshall(context, null, null, String.class);
-            fail("Should have received a WebServiceException");
-        } catch (WebServiceException wex) {
+            fail("Should have received a ProtocolException");
+        } catch (ProtocolException pe) {
             //Expected Exception
         }
     } 
