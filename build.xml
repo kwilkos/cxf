@@ -5,10 +5,10 @@
         <delete file="build.out"/>
         <delete file="build.out.clean"/>
         <exec executable="mvn" dir="${basedir}" failonerror="false" output="build.out.clean" logError="true">
-            <arg line="clean -Drelease"/>
+            <arg line="clean"/>
         </exec>
         <exec executable="mvn" dir="${basedir}" failonerror="false" resultproperty="build.result" output="build.out" logError="true">
-            <arg line="install -Dsurefire.fork.mode=once -Drelease"/>
+            <arg line="install -Dsurefire.fork.mode=once"/>
         </exec>
         <condition property="build.failed">
             <not>
