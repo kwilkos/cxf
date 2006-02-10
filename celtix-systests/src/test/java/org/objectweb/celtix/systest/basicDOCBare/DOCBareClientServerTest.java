@@ -65,23 +65,19 @@ public class DOCBareClientServerTest extends ClientServerTestBase {
         TradePriceData priceData = new TradePriceData();
         Holder<TradePriceData> holder = new Holder<TradePriceData>(priceData);
         Method method = claz.getMethod("sayHi", holder.getClass());
-        this.assertNotNull("Can not find SayHi method in generated class ", method);
+        assertNotNull("Can not find SayHi method in generated class ", method);
         Annotation ann = method.getAnnotation(WebMethod.class);
         WebMethod webMethod = (WebMethod)ann;
         assertEquals(webMethod.operationName(), "sayHi");
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        int i = 0;
         Annotation[][] paraAnns = method.getParameterAnnotations();
-        for (Class paraType : parameterTypes) {
-            for (Annotation an : paraAnns[i]) {
+        for (Annotation[] paraType : paraAnns) {
+            for (Annotation an : paraType) {
                 if (an.annotationType() == WebParam.class) {
                     WebParam webParam = (WebParam)an;
                     assertNotSame("", webParam.targetNamespace());
                 }
             }
-            i++;
         }
-
     }
 
     public static void main(String[] args) {

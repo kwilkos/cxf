@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.List;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.ws.Holder;
 
 import org.soapinterop.celtix.InteropTestPortType;
 import org.soapinterop.celtix.SOAPStruct;
@@ -18,8 +19,8 @@ public class CeltixEchoImpl implements InteropTestPortType {
         return in;
     }
 
-    public List<String> echoStringArray(List<String> in) {
-        return in;
+    public void echoStringArray(Holder<List<String>> in) {
+        //nothing to do
     }
 
     public int echoInteger(int in) {
