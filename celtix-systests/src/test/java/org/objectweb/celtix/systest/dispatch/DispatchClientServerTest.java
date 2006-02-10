@@ -1,5 +1,6 @@
 package org.objectweb.celtix.systest.dispatch;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.concurrent.Future;
@@ -8,10 +9,13 @@ import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
+
+import org.xml.sax.InputSource;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -36,6 +40,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
             }
         };
     }
+    
     public void testSOAPMessage() throws Exception {
 
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -91,6 +96,8 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         
         
     }
+    
+
 
     public void testDOMSourceMESSAGE() throws Exception {
 
@@ -149,7 +156,8 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         assertEquals("Response should be : Hello TestSOAPInputMessage3",
                      expected3, tdsh.getReplyBuffer());
     }
-
+    
+  
     public void testDOMSourcePAYLOAD() throws Exception {
 
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -213,6 +221,94 @@ public class DispatchClientServerTest extends ClientServerTestBase {
 
     }
     
+
+    
+    
+    
+    public void testSAXSourceMESSAGE() throws Exception {
+
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull(service);
+
+        InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
+        InputSource inputSource =  new InputSource(is);
+        SAXSource saxSourceReq = new SAXSource(inputSource);
+        assertNotNull(saxSourceReq);
+        
+        InputStream is1 =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq1.xml");
+        InputSource inputSource1 =  new InputSource(is1);
+        SAXSource saxSourceReq1 = new SAXSource(inputSource1);
+        assertNotNull(saxSourceReq1);
+        
+        InputStream is2 =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq2.xml");
+        InputSource inputSource2 =  new InputSource(is2);
+        SAXSource saxSourceReq2 = new SAXSource(inputSource2);
+        assertNotNull(saxSourceReq2);
+        
+        InputStream is3 =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq3.xml");
+        InputSource inputSource3 =  new InputSource(is3);
+        SAXSource saxSourceReq3 = new SAXSource(inputSource3);
+        assertNotNull(saxSourceReq3);
+        
+        
+    
+
+        Dispatch<SAXSource> disp = service.createDispatch(portName,
+                                                            SAXSource.class, Service.Mode.MESSAGE);
+        SAXSource saxSourceResp = disp.invoke(saxSourceReq);
+        assertNotNull(saxSourceResp);
+        String expected = "Hello TestSOAPInputMessage";
+        checkSAXSource(expected, saxSourceResp);
+        
+        disp.invokeOneWay(saxSourceReq1);
+        
+        Response response = disp.invokeAsync(saxSourceReq2);
+        SAXSource saxSourceResp2 = (SAXSource)response.get();
+        assertNotNull(saxSourceResp2);
+        String expected2 = "Hello TestSOAPInputMessage2";
+        checkSAXSource(expected2, saxSourceResp2);
+        
+        
+        TestSAXSourceHandler tssh = new TestSAXSourceHandler();
+        Future fd = disp.invokeAsync(saxSourceReq3, tssh);
+        assertNotNull(fd);
+        while (!fd.isDone()) {
+            //wait
+        }
+        String expected3 = "Hello TestSOAPInputMessage3";
+        SAXSource saxSourceResp3 = tssh.getSAXSource();
+        assertNotNull(saxSourceResp3);
+        checkSAXSource(expected3, saxSourceResp3);
+
+    }
+   
+    
+    private void checkSAXSource(String expected, SAXSource source) {
+        
+        InputSource inputSource =  source.getInputSource();
+        InputStream is = inputSource.getByteStream();
+        
+        int i = 0;
+        StringBuilder sb = new StringBuilder();
+        try {
+            while (i != -1) {
+                i = is.read();
+                sb.append((char)i);           
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        String received = sb.toString();
+        assertTrue("Expected: " + expected, received.contains(expected));
+        
+    }
+    
+    
+    
     class TestSOAPMessageHandler implements AsyncHandler<SOAPMessage> {   
         
         String replyBuffer;
@@ -246,6 +342,24 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         
         public String getReplyBuffer() {
             return replyBuffer;
+        }
+    }
+    
+    class TestSAXSourceHandler implements AsyncHandler<SAXSource> {   
+        
+        SAXSource reply;
+        
+        public void handleResponse(Response<SAXSource> response) {
+            try {
+                reply = response.get();
+   
+            } catch (Exception e) {
+                e.printStackTrace();
+            }            
+        } 
+        
+        public SAXSource getSAXSource() {
+            return reply;
         }
     }
 

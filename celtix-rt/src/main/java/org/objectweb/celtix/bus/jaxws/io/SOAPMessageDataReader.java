@@ -1,9 +1,15 @@
 package org.objectweb.celtix.bus.jaxws.io;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXSource;
+
+import org.xml.sax.InputSource;
 
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
@@ -23,6 +29,12 @@ public class SOAPMessageDataReader<T> implements DataReader<T> {
         try {
             if (DOMSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {
                 obj = new DOMSource(src.getSOAPPart());
+            } else if (SAXSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                src.writeTo(baos);
+                ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+                InputSource inputSource = new InputSource(bais);
+                obj = new SAXSource(inputSource);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
