@@ -53,7 +53,6 @@ public class OperationProcessor  {
 
         method.setWrapperStyle(isWrapperStyle(operation));
         method.setJAXWSBinding(customizing(intf, operation));
-
         processMethod(method, operation);
         Map<String, Fault> faults = operation.getFaults();
         FaultProcessor faultProcessor = new FaultProcessor(env);

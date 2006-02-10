@@ -8,14 +8,10 @@ public class DocLitBareImpl implements PutLastTradedPricePortType {
     int sayHiCount;
     int putLastTradedPriceCount;
     
-    public TradePriceData sayHi(Holder<TradePriceData> inout) {
+    public void sayHi(Holder<TradePriceData> inout) {
         ++sayHiCount;
-
-        TradePriceData ret = new TradePriceData();
-        ret.setTickerPrice(4.5f);
-        ret.setTickerSymbol("OBJECTWEB");
-        inout.value = ret;
-        return ret;
+        inout.value.setTickerPrice(4.5f);
+        inout.value.setTickerSymbol("OBJECTWEB");
     }
     
     public void putLastTradedPrice(TradePriceData body) {

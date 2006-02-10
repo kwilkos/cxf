@@ -32,12 +32,13 @@ public class ParameterProcessor {
                         Message outputMessage,
                         boolean isRequestResponse,
                         List<String> parameterOrder) throws ToolException {
+        
         boolean parameterOrderPresent = false;
 
         if (parameterOrder != null && !parameterOrder.isEmpty()) {
             parameterOrderPresent = true;
         }
-
+        
         if (parameterOrderPresent
             && isValidOrdering(parameterOrder, inputMessage, outputMessage)
             && !method.isWrapperStyle()) {
@@ -183,8 +184,8 @@ public class ParameterProcessor {
         Collection<Part> outputParts = outputPartsMap.values();
         //figure out output parts that are not present in input parts
         List<Part> outParts = new ArrayList<Part>();
-
         if (isRequestResponse) {
+            
             for (Part outpart : outputParts) {
                 Part inpart = inputPartsMap.get(outpart.getName());
                 if (inpart == null) {
@@ -194,22 +195,24 @@ public class ParameterProcessor {
                     addParameter(method, getParameterFromPart(method, outpart, JavaType.Style.INOUT));
                     continue;
                 }
-                outParts.add(outpart);
+                // outParts.add(outpart);
             }
         }
 
+       
         if (outParts.size() == 1) {
             processReturn(method, outParts.get(0));
             return;
-        } else if (isRequestResponse && outputParts.size() == 1) {
+        //--fix bug 304633 outputParts should be outParts--
+        } else if (isRequestResponse && outParts.size() == 1) {
             processReturn(method, outputParts.iterator().next());
             return;
         } else {
             processReturn(method, null);
         }
-        
+        //--fix bug 304633 outputParts should be outParts--
         if (isRequestResponse) {
-            for (Part part : outputParts) {
+            for (Part part : outParts) {
                 addParameter(method, getParameterFromPart(method, part, JavaType.Style.OUT));
             }
         }
@@ -240,14 +243,32 @@ public class ParameterProcessor {
             addVoidReturn(method);
             return;
         }
-
+        method.setReturn(null);       
         if (outputBlock.size() == 1) {
             Property outElement = outputBlock.iterator().next();
-            method.setReturn(getReturnFromProperty(outElement));
+            //method.setReturn(getReturnFromProperty(outElement));
+            //----------fix bug 304633 ---------
+            boolean sameWrapperChild = false;
+            for (Property inElement : inputBlock) {
+                if (isSameWrapperChild(inElement, outElement)) {
+                    addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT));
+                    sameWrapperChild = true;
+                    if (method.getReturn() == null) {
+                        addVoidReturn(method);
+                    }
+                    break;
+                } 
+            }
+            if (!sameWrapperChild) {
+                method.setReturn(getReturnFromProperty(outElement)); 
+            }
+            //-----------------------------
             return;
         }
+        //fix bug 304633 , wrapper style input and output each contain only a single part
         method.setReturn(null);
         for (Property outElement : outputBlock) {
+            //--fix bug---
             if ("return".equals(outElement.elementName().getLocalPart())) {
                 if (method.getReturn() != null) {
                     throw new ToolException("Wrapper style can not have two return types");
@@ -303,7 +324,7 @@ public class ParameterProcessor {
         }
         return parameter;
     }
-            
+      
     private JavaReturn getReturnFromProperty(Property property) {
         JType t = property.type();
         String namespace = property.elementName().getNamespaceURI();
@@ -419,6 +440,7 @@ public class ParameterProcessor {
         return false;
     }
     
+   
     @SuppressWarnings("unchecked")
     private boolean isValidOrdering(List<String> parameterOrder,
                                     Message inputMessage,

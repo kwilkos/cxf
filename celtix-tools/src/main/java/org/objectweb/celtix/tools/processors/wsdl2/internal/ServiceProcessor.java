@@ -48,7 +48,7 @@ public class ServiceProcessor {
     private final int inHEADER = 1;
 
     private final int outHEADER = 2;
-    
+
     private final int resultHeader = 3;
 
     private final int noHEADER = 0;
@@ -66,24 +66,23 @@ public class ServiceProcessor {
         }
         Iterator ite = services.iterator();
         while (ite.hasNext()) {
-            Service service = (Service) ite.next();
+            Service service = (Service)ite.next();
             processService(model, service);
         }
     }
 
     private boolean isNameCollision(String packageName, String className) {
         return collector.containTypesClass(packageName, className)
-                || collector.containSeiClass(packageName, className)
-                || collector.containExceptionClass(packageName, className);
+               || collector.containSeiClass(packageName, className)
+               || collector.containExceptionClass(packageName, className);
     }
 
     private void processService(JavaModel model, Service service) throws ToolException {
         JavaServiceClass sclz = new JavaServiceClass(model);
-        String name = ProcessorUtil.mangleNameToClassName(service.getQName()
-                .getLocalPart());
+        String name = ProcessorUtil.mangleNameToClassName(service.getQName().getLocalPart());
         String namespace = service.getQName().getNamespaceURI();
-        String packageName = ProcessorUtil.parsePackageName(namespace,
-                (String) env.get(ToolConstants.CFG_PACKAGENAME));
+        String packageName = ProcessorUtil.parsePackageName(namespace, (String)env
+            .get(ToolConstants.CFG_PACKAGENAME));
 
         while (isNameCollision(packageName, name)) {
             name = name + "_Service";
@@ -96,7 +95,7 @@ public class ServiceProcessor {
         Map ports = service.getPorts();
 
         for (Iterator ite = ports.values().iterator(); ite.hasNext();) {
-            Port port = (Port) ite.next();
+            Port port = (Port)ite.next();
             JavaPort javaport = processPort(model, port);
             sclz.addPort(javaport);
         }
@@ -119,7 +118,7 @@ public class ServiceProcessor {
 
         Iterator ite = binding.getBindingOperations().iterator();
         while (ite.hasNext()) {
-            BindingOperation bop = (BindingOperation) ite.next();
+            BindingOperation bop = (BindingOperation)ite.next();
             processOperation(model, port, bop);
         }
         return jport;
@@ -145,10 +144,9 @@ public class ServiceProcessor {
         }
     }
 
-    private void processOperation(JavaModel model, Port port,
-            BindingOperation bop) throws ToolException {
-        String portType = ProcessorUtil.mangleNameToClassName(port.getBinding()
-                .getPortType().getQName().getLocalPart());
+    private void processOperation(JavaModel model, Port port, BindingOperation bop) throws ToolException {
+        String portType = ProcessorUtil.mangleNameToClassName(port.getBinding().getPortType().getQName()
+            .getLocalPart());
         JavaInterface jf = model.getInterfaces().get(portType);
         // TODO: extend other bindings
         /*
@@ -163,20 +161,31 @@ public class ServiceProcessor {
          */
         SOAPBinding soapBinding = getSOAPBinding(port.getBinding());
         if (soapBinding != null) {
-            jf.setSOAPStyle(getSoapStyle(soapBinding.getStyle()));
+            //fix bug 304635
+            if (getSoapStyle(soapBinding.getStyle()) == null) {
+                jf.setSOAPStyle(javax.jws.soap.SOAPBinding.Style.DOCUMENT);
+            } else {
+                jf.setSOAPStyle(getSoapStyle(soapBinding.getStyle()));
+            }
         }
         Object[] methods = jf.getMethods().toArray();
         for (int i = 0; i < methods.length; i++) {
-            JavaMethod jm = (JavaMethod) methods[i];
+            JavaMethod jm = (JavaMethod)methods[i];
             if (jm.getName().equals(bop.getName())) {
                 Map prop = getSoapOperationProp(bop);
-                String soapAction = prop.get(soapOPAction) == null ? ""
-                        : (String) prop.get(soapOPAction);
-                String soapStyle = prop.get(soapOPStyle) == null ? ""
-                        : (String) prop.get(soapOPStyle);
+                String soapAction = prop.get(soapOPAction) == null ? "" : (String)prop.get(soapOPAction);
+                String soapStyle = prop.get(soapOPStyle) == null ? "" : (String)prop.get(soapOPStyle);
                 jm.setSoapAction(soapAction);
-                jm.setSoapStyle(getSoapStyle(soapStyle));
-
+                //-- fix bug 304635---------
+                if (getSoapStyle(soapStyle) == null && soapBinding == null) {
+                    throw new ToolException("Operation Binding Style Should Be Defined");
+                }
+                if (getSoapStyle(soapStyle) == null) {
+                    jm.setSoapStyle(jf.getSOAPStyle());
+                } else {
+                    jm.setSoapStyle(getSoapStyle(soapStyle));
+                }
+                //---------------------------------
                 OperationProcessor processor = new OperationProcessor(env);
 
                 int headerType = isNonWrappable(bop);
@@ -191,15 +200,15 @@ public class ServiceProcessor {
                 } else {
                     processor.processMethod(jm, bop.getOperation());
                 }
-                
-                if (headerType  == this.resultHeader) {
-                    JavaAnnotation resultAnno = jm.getAnnotationMap().get(
-                            "WebResult");
+
+                if (headerType == this.resultHeader) {
+                    JavaAnnotation resultAnno = jm.getAnnotationMap().get("WebResult");
                     if (resultAnno != null) {
                         resultAnno.addArgument("header", "true", "");
                     }
                 }
-
+                //fix bug 304634
+                jm.setName(ProcessorUtil.mangleNameToVariableName(jm.getName()));
                 processParameter(jm, bop);
             }
         }
@@ -212,17 +221,16 @@ public class ServiceProcessor {
 
     private void processParameter(JavaMethod jm, BindingOperation operation) {
         // process input
-        Iterator inbindings = operation.getBindingInput()
-                .getExtensibilityElements().iterator();
+        Iterator inbindings = operation.getBindingInput().getExtensibilityElements().iterator();
         String use = null;
         while (inbindings.hasNext()) {
             Object obj = inbindings.next();
             if (obj instanceof SOAPBody) {
-                SOAPBody soapBody = (SOAPBody) obj;
+                SOAPBody soapBody = (SOAPBody)obj;
                 use = soapBody.getUse();
             }
             if (obj instanceof SOAPHeader) {
-                SOAPHeader soapHeader = (SOAPHeader) obj;
+                SOAPHeader soapHeader = (SOAPHeader)obj;
                 for (JavaParameter parameter : jm.getParameters()) {
                     if (soapHeader.getPart().equals(parameter.getPartName())) {
                         setParameterAsHeader(parameter);
@@ -233,15 +241,13 @@ public class ServiceProcessor {
 
         // process output
         if (operation.getBindingOutput() != null) {
-            Iterator outbindings = operation.getBindingOutput()
-                    .getExtensibilityElements().iterator();
+            Iterator outbindings = operation.getBindingOutput().getExtensibilityElements().iterator();
             while (outbindings.hasNext()) {
                 Object obj = outbindings.next();
                 if (obj instanceof SOAPHeader) {
-                    SOAPHeader soapHeader = (SOAPHeader) obj;
+                    SOAPHeader soapHeader = (SOAPHeader)obj;
                     for (JavaParameter parameter : jm.getParameters()) {
-                        if (soapHeader.getPart()
-                                .equals(parameter.getPartName())) {
+                        if (soapHeader.getPart().equals(parameter.getPartName())) {
                             setParameterAsHeader(parameter);
                         }
                     }
@@ -251,29 +257,30 @@ public class ServiceProcessor {
 
         jm.setSoapUse(getSoapUse(use));
         if (javax.jws.soap.SOAPBinding.Style.RPC == jm.getSoapStyle()
-                && javax.jws.soap.SOAPBinding.Use.ENCODED == jm.getSoapUse()) {
+            && javax.jws.soap.SOAPBinding.Use.ENCODED == jm.getSoapUse()) {
             System.err.println("** Unsupported RPC-Encoded Style Use **");
         }
         if (javax.jws.soap.SOAPBinding.Style.RPC == jm.getSoapStyle()
-                && javax.jws.soap.SOAPBinding.Use.LITERAL == jm.getSoapUse()) {
+            && javax.jws.soap.SOAPBinding.Use.LITERAL == jm.getSoapUse()) {
             processRPCLiteralParameter(jm, operation);
         }
         if (javax.jws.soap.SOAPBinding.Style.DOCUMENT == jm.getSoapStyle()
-                && javax.jws.soap.SOAPBinding.Use.LITERAL == jm.getSoapUse()) {
+            && javax.jws.soap.SOAPBinding.Use.LITERAL == jm.getSoapUse()) {
             return;
         }
     }
 
     private Map getSoapOperationProp(BindingOperation bop) {
         Map<String, Object> soapOPProp = new HashMap<String, Object>();
+   
         if (bop.getExtensibilityElements() != null) {
             Iterator ite = bop.getExtensibilityElements().iterator();
             while (ite.hasNext()) {
                 Object obj = ite.next();
                 if (obj instanceof SOAPOperation) {
-                    SOAPOperation soapOP = (SOAPOperation) obj;
-                    soapOPProp
-                            .put(this.soapOPAction, soapOP.getSoapActionURI());
+                    SOAPOperation soapOP = (SOAPOperation)obj;
+                    soapOPProp.put(this.soapOPAction, soapOP.getSoapActionURI());
+
                     soapOPProp.put(this.soapOPStyle, soapOP.getStyle());
                 }
             }
@@ -287,7 +294,7 @@ public class ServiceProcessor {
         while (it.hasNext()) {
             Object obj = it.next();
             if (obj instanceof SOAPAddress) {
-                address = ((SOAPAddress) obj).getLocationURI();
+                address = ((SOAPAddress)obj).getLocationURI();
             }
         }
         return address;
@@ -299,7 +306,7 @@ public class ServiceProcessor {
         while (it.hasNext()) {
             Object obj = it.next();
             if (obj instanceof SOAPBinding) {
-                spbinding = (SOAPBinding) obj;
+                spbinding = (SOAPBinding)obj;
             }
         }
         return spbinding;
@@ -318,15 +325,14 @@ public class ServiceProcessor {
 
         // begin process input
         if (bop.getBindingInput() != null) {
-            Iterator ite = bop.getBindingInput().getExtensibilityElements()
-                    .iterator();
+            Iterator ite = bop.getBindingInput().getExtensibilityElements().iterator();
             while (ite.hasNext()) {
                 Object obj = ite.next();
                 if (obj instanceof SOAPBody) {
                     bodyMessage = getMessage(operationName, true);
                 }
                 if (obj instanceof SOAPHeader) {
-                    header = (SOAPHeader) obj;
+                    header = (SOAPHeader)obj;
                     headerMessage = header.getMessage();
                     if (header.getPart().length() > 0) {
                         containParts = true;
@@ -334,12 +340,9 @@ public class ServiceProcessor {
                 }
             }
 
-            if (headerMessage != null
-                    && bodyMessage != null
-                    && headerMessage.getNamespaceURI().equalsIgnoreCase(
-                            bodyMessage.getQName().getNamespaceURI())
-                    && headerMessage.getLocalPart().equalsIgnoreCase(
-                            bodyMessage.getQName().getLocalPart())) {
+            if (headerMessage != null && bodyMessage != null
+                && headerMessage.getNamespaceURI().equalsIgnoreCase(bodyMessage.getQName().getNamespaceURI())
+                && headerMessage.getLocalPart().equalsIgnoreCase(bodyMessage.getQName().getLocalPart())) {
                 isSameMessage = true;
             }
 
@@ -351,40 +354,36 @@ public class ServiceProcessor {
         }
         isSameMessage = false;
         containParts = false;
-        
+
         // process output
         if (bop.getBindingOutput() != null) {
-            Iterator ite1 = bop.getBindingOutput().getExtensibilityElements()
-                    .iterator();
+            Iterator ite1 = bop.getBindingOutput().getExtensibilityElements().iterator();
             while (ite1.hasNext()) {
                 Object obj = ite1.next();
                 if (obj instanceof SOAPBody) {
                     bodyMessage = getMessage(operationName, false);
                 }
                 if (obj instanceof SOAPHeader) {
-                    header = (SOAPHeader) obj;
+                    header = (SOAPHeader)obj;
                     headerMessage = header.getMessage();
                     if (header.getPart().length() > 0) {
                         containParts = true;
                     }
                 }
             }
-            if (headerMessage != null
-                    && bodyMessage != null
-                    && headerMessage.getNamespaceURI().equalsIgnoreCase(
-                            bodyMessage.getQName().getNamespaceURI())
-                    && headerMessage.getLocalPart().equalsIgnoreCase(
-                            bodyMessage.getQName().getLocalPart())) {
+            if (headerMessage != null && bodyMessage != null
+                && headerMessage.getNamespaceURI().equalsIgnoreCase(bodyMessage.getQName().getNamespaceURI())
+                && headerMessage.getLocalPart().equalsIgnoreCase(bodyMessage.getQName().getLocalPart())) {
                 isSameMessage = true;
                 if (bodyMessage.getParts().size() == 1) {
                     allPartsHeader = true;
                 }
-                
+
             }
             isNonWrappable = isSameMessage && containParts;
             if (isNonWrappable && allPartsHeader) {
                 result = this.resultHeader;
-            } 
+            }
             if (isNonWrappable && !allPartsHeader) {
                 result = this.outHEADER;
             }
@@ -398,10 +397,10 @@ public class ServiceProcessor {
         Iterator ite = definition.getPortTypes().values().iterator();
         Message msg = null;
         while (ite.hasNext()) {
-            PortType portType = (PortType) ite.next();
+            PortType portType = (PortType)ite.next();
             Iterator ite1 = portType.getOperations().iterator();
             while (ite1.hasNext()) {
-                Operation op = (Operation) ite1.next();
+                Operation op = (Operation)ite1.next();
                 if (operationName.equals(op.getName())) {
                     if (isIn) {
                         msg = op.getInput().getMessage();
@@ -416,8 +415,7 @@ public class ServiceProcessor {
         return msg;
     }
 
-    private void processRPCLiteralParameter(JavaMethod jm,
-            BindingOperation operation) {
+    private void processRPCLiteralParameter(JavaMethod jm, BindingOperation operation) {
         // to be done
     }
 }

@@ -53,7 +53,9 @@ public class PortTypeProcessor {
         intf.setLocation(location);
 
         List operations = portType.getOperations();
+       
         for (Iterator iter = operations.iterator(); iter.hasNext();) {
+           
             Operation operation = (Operation) iter.next();
             if (isOverloading(operation.getName())) {
                 LOG.log(Level.WARNING, "SKIP_OVERLOADED_OPERATION", operation.getName()); 

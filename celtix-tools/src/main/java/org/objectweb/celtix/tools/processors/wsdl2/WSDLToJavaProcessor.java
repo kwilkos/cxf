@@ -88,7 +88,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         javaModel.setJAXWSBinding(customizing(definition));
 
         Map portTypes = definition.getPortTypes();
-
+        
         for (Iterator iter = portTypes.keySet().iterator(); iter.hasNext();) {
             PortType portType = (PortType) portTypes.get(iter.next());
             PortTypeProcessor portTypeProcessor = new PortTypeProcessor(
