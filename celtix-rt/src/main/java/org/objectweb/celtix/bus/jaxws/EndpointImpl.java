@@ -34,6 +34,8 @@ import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -42,6 +44,8 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     implements ServerBindingEndpointCallback {
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
+    private static final String ENDPOINT_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/jaxws/endpoint-config";
 
     private final Bus bus;
     private final Configuration configuration;
@@ -86,8 +90,9 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             ex1.printStackTrace();
             context = null;
         }
-                
-        configuration = new EndpointConfiguration(bus, EndpointReferenceUtils.getServiceName(reference));
+        
+        configuration = createConfiguration();
+        
         try {           
             if (null == bindingId) {
                 Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), reference);
@@ -369,5 +374,19 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             seiClass = EndpointUtils.getWebServiceAnnotatedClass(implementor.getClass());
         }
         return seiClass;
+    }
+    
+    private Configuration createConfiguration() {
+        
+        Configuration busCfg = bus.getConfiguration();
+        assert null != busCfg;
+        Configuration cfg = null;
+        String id = EndpointReferenceUtils.getServiceName(reference).toString();
+        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        cfg = cb.getConfiguration(ENDPOINT_CONFIGURATION_URI, id, busCfg);
+        if (null == cfg) {
+            cfg = cb.buildConfiguration(ENDPOINT_CONFIGURATION_URI, id, busCfg);
+        }
+        return cfg;
     }
 }

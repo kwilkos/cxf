@@ -15,14 +15,13 @@ import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.ConfigurationException;
-import org.objectweb.celtix.tools.generators.spring.BeanGenerator;
 
 public class CeltixBeansDtdResolver implements EntityResolver {
 
     private static final String DTD_SYSTEM_ID = 
         "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd";
     private static final String DTD_FILE = "schemas/configuration/celtix-spring-beans.dtd";
-    private static final Logger LOG = LogUtils.getL7dLogger(BeanGenerator.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(CeltixBeansDtdResolver.class);
 
     public InputSource resolveEntity(String publicId, String systemId) throws IOException {
         if (systemId != null && systemId.equals(DTD_SYSTEM_ID)) {

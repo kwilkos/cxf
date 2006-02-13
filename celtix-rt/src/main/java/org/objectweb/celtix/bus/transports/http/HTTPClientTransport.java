@@ -34,8 +34,11 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
+import org.objectweb.celtix.bus.configuration.wsdl.WsdlHttpConfigurationProvider;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
@@ -49,6 +52,15 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 public class HTTPClientTransport implements ClientTransport {
 
     //private static final Logger LOG = LogUtils.getL7dLogger(HTTPClientTransport.class);
+    
+    private static final String SERVICE_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/jaxws/service-config";
+    private static final String PORT_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/jaxws/port-config";
+    private static final String HTTP_CLIENT_CONFIGURATION_URI =
+        "http://celtix.objectweb.org/bus/transports/http/http-client-config";
+    private static final String HTTP_CLIENT_CONFIGURATION_ID = "http-client";
+        
     final HTTPClientPolicy policy;
     final AuthorizationPolicy authPolicy;
     final AuthorizationPolicy proxyAuthPolicy;
@@ -75,8 +87,7 @@ public class HTTPClientTransport implements ClientTransport {
         url = new URL(address);
          
         port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
-        configuration = 
-            new HTTPClientTransportConfiguration(portConfiguration, port); 
+        configuration = createConfiguration(portConfiguration);
         policy = getClientPolicy(configuration);
         authPolicy = getAuthPolicy("authorization", configuration);
         proxyAuthPolicy = getAuthPolicy("proxyAuthorization", configuration);
@@ -182,12 +193,29 @@ public class HTTPClientTransport implements ClientTransport {
     protected static Configuration getPortConfiguration(Bus bus, EndpointReferenceType ref) {
         Configuration busConfiguration = bus.getConfiguration();
         Configuration serviceConfiguration = busConfiguration
-            .getChild("http://celtix.objectweb.org/bus/jaxws/service-config",
-                      EndpointReferenceUtils.getServiceName(ref));
+            .getChild(SERVICE_CONFIGURATION_URI,
+                      EndpointReferenceUtils.getServiceName(ref).toString());
         Configuration portConfiguration = serviceConfiguration
-            .getChild("http://celtix.objectweb.org/bus/jaxws/port-config",
+            .getChild(PORT_CONFIGURATION_URI,
                       EndpointReferenceUtils.getPortName(ref));
         return portConfiguration;
+    }
+    
+    private Configuration createConfiguration(Configuration portCfg) {
+        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        Configuration cfg = cb.getConfiguration(HTTP_CLIENT_CONFIGURATION_URI, 
+                                                HTTP_CLIENT_CONFIGURATION_ID, 
+                                                portCfg); 
+        if (null == cfg) {
+            cfg = cb.buildConfiguration(HTTP_CLIENT_CONFIGURATION_URI,
+                                        HTTP_CLIENT_CONFIGURATION_ID,
+                                        portCfg);            
+        }
+        // register the additional provider
+        if (null != port) {
+            cfg.getProviders().add(new WsdlHttpConfigurationProvider(port, false));
+        }
+        return cfg;
     }
 
     protected static int getResponseCode(URLConnection connection) throws IOException {

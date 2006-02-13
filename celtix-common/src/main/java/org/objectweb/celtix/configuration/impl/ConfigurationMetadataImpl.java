@@ -12,7 +12,7 @@ public class ConfigurationMetadataImpl implements ConfigurationMetadata {
     private final Map<String, ConfigurationItemMetadata> definitions;
     private String namespaceURI;
     
-    protected ConfigurationMetadataImpl() {
+    public ConfigurationMetadataImpl() {
         definitions = new HashMap<String, ConfigurationItemMetadata>();
     }
     

@@ -81,6 +81,13 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
         return null;
     }
     
+    /**
+     * TODO: store the change in the associated bean.
+     */
+    public boolean setObject(String name, Object value) {
+        return false;
+    }
+
     protected Object getBean() {
         return bean;
     }

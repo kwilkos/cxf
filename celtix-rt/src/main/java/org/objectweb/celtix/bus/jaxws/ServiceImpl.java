@@ -26,16 +26,23 @@ import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bus.configuration.wsdl.WsdlPortProvider;
 import org.objectweb.celtix.bus.handlers.AnnotationHandlerChainBuilder;
 import org.objectweb.celtix.bus.handlers.HandlerResolverImpl;
 import org.objectweb.celtix.bus.handlers.PortInfoImpl;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class ServiceImpl extends ServiceDelegate {
 
     private static final Logger LOG = Logger.getLogger(ServiceImpl.class.getName());
+    private static final String SERVICE_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/jaxws/service-config";
+    private static final String PORT_CONFIGURATION_URI =
+        "http://celtix.objectweb.org/bus/jaxws/port-config";
     
     private URL wsdlLocation;
     private QName serviceName;
@@ -51,9 +58,9 @@ public class ServiceImpl extends ServiceDelegate {
      */
     public ServiceImpl(Bus b, URL location, QName name, Class<?> si) {
         bus = b;
-        configuration = new ServiceConfiguration(bus, name);
         wsdlLocation = location;
         serviceName = name;
+        configuration = createConfiguration();
         endpointList = new Vector<QName>();
         handlerResolver = new HandlerResolverImpl(configuration);
         executor = bus.getWorkQueueManager().getAutomaticWorkQueue();
@@ -124,7 +131,7 @@ public class ServiceImpl extends ServiceDelegate {
         EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlLocation, 
                 serviceName, portName.getLocalPart());
                      
-        PortConfiguration pc = createPortConfiguration(portName, ref);  
+        Configuration pc = createPortConfiguration(portName, ref);  
         
         EndpointInvocationHandler endpointHandler = 
                 new EndpointInvocationHandler(bus, ref, this, pc, serviceEndpointInterface);
@@ -177,18 +184,6 @@ public class ServiceImpl extends ServiceDelegate {
         
         return serviceQName;
     }
-    
-    private PortConfiguration createPortConfiguration(QName portName, EndpointReferenceType ref) {
-        
-        Port port = null;
-        try  {
-            port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
-        } catch (WSDLException ex) {
-            throw new WebServiceException("Could not get port from wsdl", ex);
-        }        
-        return new PortConfiguration(configuration, portName.getLocalPart(), bus, port);
-        
-    }
 
     @Override
     public void addPort(QName arg0, String arg1, String arg2) {
@@ -212,6 +207,44 @@ public class ServiceImpl extends ServiceDelegate {
 
     public void setExecutor(Executor e) {
         executor = e;
+    }
+    
+    private Configuration createConfiguration() {
+        
+        Configuration busCfg = bus.getConfiguration();
+        assert null != busCfg;
+        Configuration cfg = null;
+        String id = serviceName.toString();
+        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        cfg = cb.getConfiguration(SERVICE_CONFIGURATION_URI, id, busCfg);
+        if (null == cfg) {
+            cfg = cb.buildConfiguration(SERVICE_CONFIGURATION_URI, id, busCfg);
+        }
+        return cfg;
+    }
+    
+    private Configuration createPortConfiguration(QName portName, EndpointReferenceType ref) {
+        
+        Configuration portCfg = null;
+        String id = portName.getLocalPart();
+        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        portCfg = cb.getConfiguration(PORT_CONFIGURATION_URI, id, 
+                                      configuration); 
+        if (null == portCfg) {
+            portCfg = cb.buildConfiguration(PORT_CONFIGURATION_URI, id, configuration);
+        }
+        
+        // add the additional provider
+ 
+        Port port = null;
+        try  {
+            port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+        } catch (WSDLException ex) {
+            throw new WebServiceException("Could not get port from wsdl", ex);
+        }    
+        portCfg.getProviders().add(new WsdlPortProvider(port));
+        return portCfg;
+        
     }
 
 }

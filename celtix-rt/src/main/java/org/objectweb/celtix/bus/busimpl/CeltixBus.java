@@ -53,7 +53,7 @@ public class CeltixBus extends Bus {
 
         lifeCycleManager = new CeltixBusLifeCycleManager();        
         
-        configuration = new BusConfiguration(args, properties);        
+        configuration = new BusConfigurationBuilder().build(args, properties);        
         wsdlManager = new WSDLManagerImpl(this);
         transportFactoryManager = new TransportFactoryManagerImpl(this);
         bindingManager = new BindingManagerImpl(this);

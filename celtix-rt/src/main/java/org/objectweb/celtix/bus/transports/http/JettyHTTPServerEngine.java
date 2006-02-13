@@ -16,11 +16,15 @@ import org.mortbay.util.InetAddrPort;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.security.SSLPolicy;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.transports.http.configuration.HTTPListenerPolicy;
 
 
 public final class JettyHTTPServerEngine {
     private static final long serialVersionUID = 1L;
+    private static final String HTTP_LISTENER_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/transports/http/http-listener-config";
     
     private static Map<Integer, JettyHTTPServerEngine> portMap =
         new HashMap<Integer, JettyHTTPServerEngine>();
@@ -45,7 +49,15 @@ public final class JettyHTTPServerEngine {
     }
     
     private Configuration createConfiguration(Bus bus, int p) {
-        return new HTTPListenerConfiguration(bus, p);
+        // REVISIT: listener config should not be child of bus configuration
+        Configuration busCfg = bus.getConfiguration();
+        String id = "http-listener." + p;
+        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        Configuration cfg = cb.getConfiguration(HTTP_LISTENER_CONFIGURATION_URI, id, busCfg);
+        if (null == cfg) {
+            cfg = cb.buildConfiguration(HTTP_LISTENER_CONFIGURATION_URI, id, busCfg);
+        }
+        return cfg;
     }
     
     static synchronized JettyHTTPServerEngine getForPort(Bus bus, String protocol, int p) {

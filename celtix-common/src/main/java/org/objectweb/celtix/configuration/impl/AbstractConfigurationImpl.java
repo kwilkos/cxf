@@ -2,8 +2,6 @@ package org.objectweb.celtix.configuration.impl;
 
 
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -11,6 +9,7 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.common.i18n.BundleUtils;
@@ -22,7 +21,6 @@ import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
 import org.objectweb.celtix.configuration.Configurator;
-import org.objectweb.celtix.resource.DefaultResourceManager;
 
 public class AbstractConfigurationImpl implements Configuration {
 
@@ -30,35 +28,21 @@ public class AbstractConfigurationImpl implements Configuration {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AbstractConfigurationImpl.class);
     private Configurator configurator;
     private ConfigurationMetadata model;
-    private Object id;
+    private String id;
     private List<ConfigurationProvider> providers;
 
-    public AbstractConfigurationImpl(String resource, Object instanceId, Configuration parent) {
+    public AbstractConfigurationImpl(ConfigurationMetadata m, String instanceId, Configuration parent) {
+        model = m;
+        id = instanceId;
         configurator = new ConfiguratorImpl(this, parent instanceof AbstractConfigurationImpl 
                                             ? (AbstractConfigurationImpl)parent 
                                             : null);
-        ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder(true);
-
-        InputStream is = null;
-        if (resource != null) {
-            is = loadResource(resource);
-            if (is == null) {
-                throw new ConfigurationException(new Message("METADATA_RESOURCE_EXC", BUNDLE, resource));
-            }
-        }
-
-        if (null != is) {
-            try {
-                model = builder.build(is);
-            } catch (IOException ex) {
-                throw new ConfigurationException(new Message("METADATA_RESOURCE_EXC", BUNDLE, resource), ex);
-            }
-        } else {
-            model = new ConfigurationMetadataImpl();
-        }
-        id = instanceId;
 
         providers = new Vector<ConfigurationProvider>();
+        
+        // temporary:
+        
+        providers.add(new InMemoryProvider());
 
         DefaultConfigurationProviderFactory factory = DefaultConfigurationProviderFactory.getInstance();
         ConfigurationProvider defaultProvider = factory.createDefaultProvider(this);
@@ -67,11 +51,6 @@ public class AbstractConfigurationImpl implements Configuration {
             providers.add(defaultProvider);
         }
     }
-
-    public AbstractConfigurationImpl(String resource, Object instanceId) {
-        this(resource, instanceId, null);
-    }
-
    
     public Object getId() {
         return id;
@@ -130,6 +109,39 @@ public class AbstractConfigurationImpl implements Configuration {
             holder = holder.getParent();
         }
         return definition.getDefaultValue();
+    }
+    
+    /**
+     * Check if property is defined and validate the value.
+     * Then try all providers in turn until one is found that accepts the change.
+     */
+    public boolean setObject(String name, Object value) {
+        ConfigurationItemMetadata definition = model.getDefinition(name);
+        if (null == definition) {
+            throw new ConfigurationException(new Message("ITEM_NOT_DEFINED_EXC", BUNDLE, name));
+        }
+        // TODO: use model to validate value
+       
+        // TODO: check if property can be modified at all:
+        // if it is static, report an error, if it is process or bus accept the change but log a
+        // warning informing the user that the change will take effect only after next bus
+        // or process restart
+ 
+        // try all registered providers in turn to find one that accepts the change
+        boolean accepted = false;
+
+        for (ConfigurationProvider provider : providers) {
+            if (provider.setObject(name, value)) {
+                accepted = true;
+                break;
+            }
+        }
+
+        // TODO: event listeners
+        if (accepted) {
+            //notify listeners
+        }
+        return false;
     }
 
     public boolean getBoolean(String name) {
@@ -264,9 +276,5 @@ public class AbstractConfigurationImpl implements Configuration {
 
     public final Configurator getConfigurator() {
         return configurator;
-    }
-
-    private InputStream loadResource(String resourceName) { 
-        return DefaultResourceManager.instance().getResourceAsStream(resourceName);
     }
 }

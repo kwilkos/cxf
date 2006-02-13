@@ -76,6 +76,17 @@ public interface Configuration {
     Object getObject(String name);
     
     /**
+     * Changes the value of the configuration item identified by the name to the given value.
+     * @throws ConfigurationException if no such item is defined in this configuration's 
+     * metadata model, or if the value is illegal. Returns true if the change was accepted.
+     * 
+     * @param name the name of the configuration item.
+     * @param value the new value for the configuration item.
+     * @return true if the change was accepted.
+     */
+    boolean setObject(String name, Object value);
+    
+    /**
      * Returns the object holding the value for the configuration item with the specified name. 
      * The runtime class of this object is determined by the jaxb mapping of the configuration
      * item's type, e.g. for a boolean item it is an instance of java.lang.Boolean.

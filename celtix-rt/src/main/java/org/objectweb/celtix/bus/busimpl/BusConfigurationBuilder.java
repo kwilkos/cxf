@@ -4,20 +4,30 @@ import java.util.Map;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.configuration.CommandLineOption;
-import org.objectweb.celtix.configuration.impl.AbstractConfigurationImpl;
+import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 
-public class BusConfiguration extends AbstractConfigurationImpl {
+public class BusConfigurationBuilder  {
     
     public static final String BUS_ID_PROPERTY = "org.objectweb.celtix.BusId";
     private static final CommandLineOption BUS_ID_OPT;    
     private static final String DEFAULT_BUS_ID = "celtix";
-    
+    private static final String BUS_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/bus-config";
+
     static {
         BUS_ID_OPT = new CommandLineOption("-BUSid");
     }
     
-    BusConfiguration(String[] args, Map<String, Object> properties) {
-        super("config-metadata/bus-config.xml", getBusId(args, properties));  
+    Configuration build(String[] args, Map<String, Object> properties) {
+        String id = getBusId(args, properties);
+        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder(null);
+        Configuration c = builder.getConfiguration(BUS_CONFIGURATION_URI, id);
+        if (null == c) {
+            c = builder.buildConfiguration(BUS_CONFIGURATION_URI, id);
+        }
+        return c;  
     }
 
     private static String getBusId(String[] args, Map<String, Object> properties) {

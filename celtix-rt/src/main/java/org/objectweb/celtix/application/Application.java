@@ -11,8 +11,8 @@ public final class Application {
     private final PluginManager pluginManager;
     
     private Application() {
-        configuration = new ApplicationConfiguration(); 
         pluginManager = new ApplicationPluginManager();
+        configuration = null;
     }
     
     /** 

@@ -474,10 +474,12 @@ public class HTTPTransportTest extends TestCase {
         
         bus.getConfiguration();
         EasyMock.expectLastCall().andReturn(bc);
-        bc.getChild("http://celtix.objectweb.org/bus/jaxws/service-config", serviceName);
+        bc.getChild("http://celtix.objectweb.org/bus/jaxws/service-config", serviceName.toString());
         EasyMock.expectLastCall().andReturn(sc);
         sc.getChild("http://celtix.objectweb.org/bus/jaxws/port-config", portName);
-        EasyMock.expectLastCall().andReturn(pc);  
+        EasyMock.expectLastCall().andReturn(pc); 
+        pc.getChild("http://celtix.objectweb.org/bus/transports/http/http-client-config", "http-client");
+        EasyMock.expectLastCall().andReturn(null); 
         bus.getWSDLManager();
         EasyMock.expectLastCall().andReturn(wsdlManager);
         pc.getString("address");
@@ -518,14 +520,19 @@ public class HTTPTransportTest extends TestCase {
 
         bus.getConfiguration();
         EasyMock.expectLastCall().andReturn(bc);
-        bc.getChild("http://celtix.objectweb.org/bus/jaxws/endpoint-config", serviceName);
+        bc.getChild("http://celtix.objectweb.org/bus/jaxws/endpoint-config", serviceName.toString());
         EasyMock.expectLastCall().andReturn(ec);
+        ec.getChild("http://celtix.objectweb.org/bus/transports/http/http-server-config", "http-server");
+        EasyMock.expectLastCall().andReturn(null);
         bus.getWSDLManager();
         EasyMock.expectLastCall().andReturn(wsdlManager);
         if (first) {
             //first call will configure the port listener
             bus.getConfiguration();
             EasyMock.expectLastCall().andReturn(bc);
+            bc.getChild("http://celtix.objectweb.org/bus/transports/http/http-listener-config", 
+                        "http-listener.9000");
+            EasyMock.expectLastCall().andReturn(null);
             first = false;
         }
         

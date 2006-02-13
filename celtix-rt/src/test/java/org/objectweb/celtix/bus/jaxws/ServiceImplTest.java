@@ -8,15 +8,19 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.busimpl.CeltixBus;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.workqueue.WorkQueueManager;
 
 public class ServiceImplTest extends TestCase {
 
     public void testHandlerResolverAttribute() {
-        
-        Bus bus = org.easymock.classextension.EasyMock.createMock(CeltixBus.class);        
+        QName sn = new QName("http://objectweb.org/hello_world_soap_http", "Greeter");
+        Bus bus = org.easymock.classextension.EasyMock.createMock(CeltixBus.class); 
+        Configuration bc = EasyMock.createMock(Configuration.class);
         bus.getConfiguration();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn(null); 
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn(bc);
+        bc.getChild("http://celtix.objectweb.org/bus/jaxws/service-config", sn.toString());
+        EasyMock.expectLastCall().andReturn(null);
         WorkQueueManager wm = EasyMock.createMock(WorkQueueManager.class);
         bus.getWorkQueueManager();
         EasyMock.expectLastCall().andReturn(wm);
@@ -24,11 +28,12 @@ public class ServiceImplTest extends TestCase {
         EasyMock.expectLastCall().andReturn(null);
         
         org.easymock.classextension.EasyMock.replay(bus);
+        EasyMock.replay(bc);
         EasyMock.replay(wm);
        
         ServiceImpl s = new ServiceImpl(bus, 
                                         null, 
-                                        new QName("http://objectweb.org/hello_world_soap_http", "Greeter"), 
+                                        sn, 
                                         null);
         
         HandlerResolver defaultResolver = s.getHandlerResolver();

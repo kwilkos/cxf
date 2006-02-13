@@ -39,4 +39,13 @@ public class WsdlHttpConfigurationProvider implements ConfigurationProvider {
         }
         return null;
     }
+
+    /**
+     * TODO
+     */
+    public boolean setObject(String name, Object value) {
+        return false;
+    }
+    
+    
 }

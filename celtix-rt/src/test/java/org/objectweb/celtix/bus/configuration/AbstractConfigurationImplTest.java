@@ -24,7 +24,7 @@ public class AbstractConfigurationImplTest extends TestCase {
 
     public AbstractConfigurationImplTest(String name) {
         super(name);
-        top = new TopConfiguration("top");
+        top = new TopConfigurationBuilder().build("top");
     }
     
     public void testDefaultConfigurationProviderFactory() throws NoSuchMethodException, IOException  {
@@ -54,7 +54,8 @@ public class AbstractConfigurationImplTest extends TestCase {
     }
     
     public void testConfigurators() {
-        AbstractConfigurationImpl topConfiguration = new TopConfiguration("TOP");
+        AbstractConfigurationImpl topConfiguration = 
+            (AbstractConfigurationImpl)new TopConfigurationBuilder().build("TOP");
         Configurator topConfigurator = topConfiguration.getConfigurator();
         assertNotNull(topConfigurator);
         assertTrue(topConfiguration == topConfigurator.getConfiguration());
@@ -62,7 +63,8 @@ public class AbstractConfigurationImplTest extends TestCase {
         Collection<Configurator> topClients = topConfigurator.getClients();
         assertEquals(0, topClients.size());    
         
-        AbstractConfigurationImpl leafConfiguration = new LeafConfiguration(topConfiguration, "LEAF");
+        AbstractConfigurationImpl leafConfiguration = 
+            (AbstractConfigurationImpl)new LeafConfigurationBuilder().build(topConfiguration, "LEAF");
         assertEquals(1, topClients.size());   
         Configurator leafConfigurator = leafConfiguration.getConfigurator();
         assertNotNull(leafConfigurator);

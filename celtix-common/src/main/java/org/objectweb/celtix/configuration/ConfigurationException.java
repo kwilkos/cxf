@@ -7,12 +7,26 @@ public class ConfigurationException extends UncheckedException {
 
     private static final long serialVersionUID = 1L;
 
-    public ConfigurationException(Message message) {
-        super(message);
+
+    /**
+     * Constructs a <code>ConfigurationException</code> with the provided detail message.
+     */
+    public ConfigurationException(Message msg) {
+        super(msg);
     }
 
-    public ConfigurationException(Message msg, Throwable t) {
-        super(msg, t);
+    /**
+     * Constructs a <code>ConfigurationException</code> with the detail message and cause
+     * provided.
+     */
+    public ConfigurationException(Message msg, Throwable cause) {
+        super(msg, cause);
     }
 
+    /**
+     * Constructs a <code>ConfigurationException</code> with the provided cause.
+     */
+    public ConfigurationException(Throwable cause) {
+        super(cause);
+    }
 }
