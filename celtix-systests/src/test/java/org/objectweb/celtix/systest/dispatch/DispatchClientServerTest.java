@@ -10,6 +10,7 @@ import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Response;
@@ -40,7 +41,8 @@ public class DispatchClientServerTest extends ClientServerTestBase {
             }
         };
     }
-    
+ 
+
     public void testSOAPMessage() throws Exception {
 
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -221,10 +223,6 @@ public class DispatchClientServerTest extends ClientServerTestBase {
 
     }
     
-
-    
-    
-    
     public void testSAXSourceMESSAGE() throws Exception {
 
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -252,9 +250,6 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         InputSource inputSource3 =  new InputSource(is3);
         SAXSource saxSourceReq3 = new SAXSource(inputSource3);
         assertNotNull(saxSourceReq3);
-        
-        
-    
 
         Dispatch<SAXSource> disp = service.createDispatch(portName,
                                                             SAXSource.class, Service.Mode.MESSAGE);
@@ -283,6 +278,62 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         assertNotNull(saxSourceResp3);
         checkSAXSource(expected3, saxSourceResp3);
 
+    }    
+    
+    public void testStreamSourceMESSAGE() throws Exception {
+
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull(service);
+
+        InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
+        StreamSource streamSourceReq = new StreamSource(is);
+        assertNotNull(streamSourceReq);
+        
+        InputStream is1 =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq1.xml");
+        StreamSource streamSourceReq1 = new StreamSource(is1);
+        assertNotNull(streamSourceReq1);
+        
+        InputStream is2 =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq2.xml");
+        StreamSource streamSourceReq2 = new StreamSource(is2);
+        assertNotNull(streamSourceReq2);
+        
+        InputStream is3 =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq3.xml");
+        StreamSource streamSourceReq3 = new StreamSource(is3);
+        assertNotNull(streamSourceReq3);
+        
+        
+    
+
+        Dispatch<StreamSource> disp = service.createDispatch(portName,
+                                                            StreamSource.class, Service.Mode.MESSAGE);
+        StreamSource streamSourceResp = disp.invoke(streamSourceReq);
+        assertNotNull(streamSourceResp);
+        String expected = "Hello TestSOAPInputMessage";
+        checkStreamSource(expected, streamSourceResp);
+        
+        disp.invokeOneWay(streamSourceReq1);
+        
+        Response response = disp.invokeAsync(streamSourceReq2);
+        StreamSource streamSourceResp2 = (StreamSource)response.get();
+        assertNotNull(streamSourceResp2);
+        String expected2 = "Hello TestSOAPInputMessage2";
+        checkStreamSource(expected2, streamSourceResp2);
+        
+        
+        TestStreamSourceHandler tssh = new TestStreamSourceHandler();
+        Future fd = disp.invokeAsync(streamSourceReq3, tssh);
+        assertNotNull(fd);
+        while (!fd.isDone()) {
+            //wait
+        }
+        String expected3 = "Hello TestSOAPInputMessage3";
+        StreamSource streamSourceResp3 = tssh.getStreamSource();
+        assertNotNull(streamSourceResp3);
+        checkStreamSource(expected3, streamSourceResp3);
+
     }
    
     
@@ -290,6 +341,26 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         
         InputSource inputSource =  source.getInputSource();
         InputStream is = inputSource.getByteStream();
+        
+        int i = 0;
+        StringBuilder sb = new StringBuilder();
+        try {
+            while (i != -1) {
+                i = is.read();
+                sb.append((char)i);           
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        String received = sb.toString();
+        assertTrue("Expected: " + expected, received.contains(expected));
+        
+    }
+    
+    private void checkStreamSource(String expected, StreamSource source) {
+        
+        InputStream is = source.getInputStream();
         
         int i = 0;
         StringBuilder sb = new StringBuilder();
@@ -359,6 +430,24 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         } 
         
         public SAXSource getSAXSource() {
+            return reply;
+        }
+    }
+    
+    class TestStreamSourceHandler implements AsyncHandler<StreamSource> {   
+        
+        StreamSource reply;
+        
+        public void handleResponse(Response<StreamSource> response) {
+            try {
+                reply = response.get();
+   
+            } catch (Exception e) {
+                e.printStackTrace();
+            }            
+        } 
+        
+        public StreamSource getStreamSource() {
             return reply;
         }
     }

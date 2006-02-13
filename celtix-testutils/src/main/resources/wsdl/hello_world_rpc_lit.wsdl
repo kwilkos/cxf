@@ -122,5 +122,11 @@
             <soap:address location="http://localhost:9002/SOAPServiceRPCLit/SoapPort3"/>
         </wsdl:port>        
     </wsdl:service>
+
+   <wsdl:service name="SOAPServiceRPCLit4">
+        <wsdl:port binding="tns:Greeter_SOAPBinding_RPCLit" name="SoapPortRPCLit4">
+            <soap:address location="http://localhost:9002/SOAPServiceRPCLit/SoapPort4"/>
+        </wsdl:port>        
+    </wsdl:service>
     
 </wsdl:definitions>

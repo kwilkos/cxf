@@ -1,11 +1,14 @@
 package org.objectweb.celtix.bus.jaxws.io;
 
+
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
 import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Document;
+
+
 
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
@@ -25,6 +28,13 @@ public class SOAPBodyDataWriter<T> implements DataWriter<T> {
             if (DOMSource.class.isAssignableFrom(obj.getClass())) {
                 DOMSource domSource = (DOMSource)obj;
                 dest.addDocument((Document)domSource.getNode());
+ /*           } else if (SAXSource.class.isAssignableFrom(obj.getClass())) {
+                SAXSource saxSource = (SAXSource)obj;
+                InputSource inputSource = saxSource.getInputSource();
+                DefaultHandler defaultHandler = (DefaultHandler)saxSource.getXMLReader().getContentHandler();
+                SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+                saxParser.parse(inputSource, defaultHandler);
+ */          
             }
         } catch (SOAPException se) {
             se.printStackTrace();

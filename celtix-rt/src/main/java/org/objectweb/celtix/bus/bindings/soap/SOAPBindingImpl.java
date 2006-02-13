@@ -28,6 +28,7 @@ import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.WebFault;
@@ -116,7 +117,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                         msg = (SOAPMessage)src;
                         found = true;
                         break;
-                    } else if (cls == DOMSource.class || cls == SAXSource.class) {
+                    } else if (cls == DOMSource.class 
+                        || cls == SAXSource.class 
+                        || cls == StreamSource.class) {
                         DataWriter<SOAPMessage> writer = callback.createWriter(SOAPMessage.class);
                         writer.write(src, msg);
                         found = true;
@@ -229,7 +232,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                         obj = soapMessage;
                         found = true;
                         break;
-                    } else if (cls == DOMSource.class || cls == SAXSource.class) {
+                    } else if (cls == DOMSource.class 
+                        || cls == SAXSource.class 
+                        || cls == StreamSource.class) {
                         DataReader<SOAPMessage> reader = callback.createReader(SOAPMessage.class);
                         obj = reader.read(0, soapMessage);
                         found = true;
@@ -250,7 +255,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 boolean found = false;
                 Object obj = null;
                 for (Class<?> cls : callback.getSupportedFormats()) {
-                    if (cls == DOMSource.class || cls == SAXSource.class) {
+                    if (cls == DOMSource.class) {
                         DataReader<SOAPBody> reader = callback.createReader(SOAPBody.class);
                         obj = reader.read(0, soapMessage.getSOAPBody());
                         found = true;

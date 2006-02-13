@@ -5,6 +5,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamSource;
 
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
@@ -26,6 +27,9 @@ public class SOAPMessageDataWriter<T> implements DataWriter<T> {
                 dest.getSOAPPart().setContent(src);
             } else if (SAXSource.class.isAssignableFrom(obj.getClass())) {
                 SAXSource src = (SAXSource) obj;
+                dest.getSOAPPart().setContent(src);
+            } else if (StreamSource.class.isAssignableFrom(obj.getClass())) {
+                StreamSource src = (StreamSource) obj;
                 dest.getSOAPPart().setContent(src);
             }
         } catch (SOAPException se) {

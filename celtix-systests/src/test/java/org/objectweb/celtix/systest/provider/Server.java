@@ -21,7 +21,11 @@ public class Server extends TestServerBase {
         
         implementor = new HWSAXSourceMessageProvider();
         address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort3");
-        Endpoint.publish(address, implementor);  
+        Endpoint.publish(address, implementor); 
+        
+        implementor = new HWStreamSourceMessageProvider();
+        address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort4");
+        Endpoint.publish(address, implementor); 
     }
 
     public static void main(String[] args) {

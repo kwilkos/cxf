@@ -8,6 +8,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamSource;
 
 import org.xml.sax.InputSource;
 
@@ -28,13 +29,22 @@ public class SOAPMessageDataReader<T> implements DataReader<T> {
         Source obj = null;
         try {
             if (DOMSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {
+                
                 obj = new DOMSource(src.getSOAPPart());
+                
             } else if (SAXSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {
+                
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 src.writeTo(baos);
                 ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
                 InputSource inputSource = new InputSource(bais);
                 obj = new SAXSource(inputSource);
+                
+            } else if (StreamSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                src.writeTo(baos);
+                ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+                obj = new StreamSource(bais);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
