@@ -123,16 +123,17 @@ public class SOAPServerBinding extends AbstractServerBinding {
                                     n = nl.item(++nodeIdx);
                                 }
                                 
-                                if (n.getLocalName().equals(param.name())) {
+                                if (n.getLocalName().equals(param.name()) 
+                                    && n.getNamespaceURI().equals(param.targetNamespace())) {
                                     matchFound = true;
                                     ++nodeIdx;
                                 } else {
+                                    matchFound = false;
                                     break;
                                 }
                             }
                             
                             if (matchFound) {
-                                //TODO Check for asyncronouse operation.
                                 op = m;
                                 break;
                             }

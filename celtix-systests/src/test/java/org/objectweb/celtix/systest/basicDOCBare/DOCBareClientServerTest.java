@@ -68,7 +68,7 @@ public class DOCBareClientServerTest extends ClientServerTestBase {
         assertNotNull("Can not find SayHi method in generated class ", method);
         Annotation ann = method.getAnnotation(WebMethod.class);
         WebMethod webMethod = (WebMethod)ann;
-        assertEquals(webMethod.operationName(), "sayHi");
+        assertEquals(webMethod.operationName(), "SayHi");
         Annotation[][] paraAnns = method.getParameterAnnotations();
         for (Annotation[] paraType : paraAnns) {
             for (Annotation an : paraType) {

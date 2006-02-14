@@ -18,20 +18,20 @@
 	<message name="PutLastTradedPriceOutput"/>
 
 	<message name="SayHiInput">
-		<part name="inout" element="x1:inout"/>
+		<part name="body" element="x1:inout"/>
 	</message>
 	<message name="SayHiOutput">
-		<part name="inout" element="x1:inout"/>
+		<part name="body" element="x1:inout"/>
 	</message>
-	
+
 	<portType name="PutLastTradedPricePortType">
 
-		<operation name="sayHi">
+		<operation name="SayHi">
 			<input message="tns:SayHiInput"/>
 			<output message="tns:SayHiOutput"/>
 		</operation>
 	
-		<operation name="putLastTradedPrice">
+		<operation name="PutLastTradedPrice">
 			<input message="tns:PutLastTradedPriceInput"/>
 			<output message="tns:PutLastTradedPriceOutput"/>
 		</operation>
@@ -39,7 +39,7 @@
 	<binding name="PutLastTradedPriceSoapBinding" type="tns:PutLastTradedPricePortType">
 		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
 
-		<operation name="sayHi">
+		<operation name="SayHi">
 			<input>
 				<soap:body use="literal"/>
 			</input>
@@ -48,7 +48,7 @@
 			</output>
 		</operation>
 		
-		<operation name="putLastTradedPrice">
+		<operation name="PutLastTradedPrice">
 			<input>
 				<soap:body use="literal"/>
 			</input>
