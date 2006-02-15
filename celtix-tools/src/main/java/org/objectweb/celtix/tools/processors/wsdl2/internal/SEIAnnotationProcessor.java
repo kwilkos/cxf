@@ -72,10 +72,21 @@ public class SEIAnnotationProcessor {
             } else {
                 intf.setSOAPParameterStyle(SOAPBinding.ParameterStyle.BARE);
             }
+        } else if (soapStyle == null) {
+            intf.setSOAPStyle(SOAPBinding.Style.DOCUMENT);
+            if (isWrapped) {
+                intf.setSOAPParameterStyle(SOAPBinding.ParameterStyle.WRAPPED);
+            } else {
+                intf.setSOAPParameterStyle(SOAPBinding.ParameterStyle.BARE);
+            }
+            
         } else {
             intf.setSOAPStyle(SOAPBinding.Style.RPC);
         }
+        
         if (soapUse == SOAPBinding.Use.LITERAL) {
+            intf.setSOAPUse(SOAPBinding.Use.LITERAL);
+        } else if (soapUse == null) {
             intf.setSOAPUse(SOAPBinding.Use.LITERAL);
         } else {
             intf.setSOAPUse(SOAPBinding.Use.ENCODED);

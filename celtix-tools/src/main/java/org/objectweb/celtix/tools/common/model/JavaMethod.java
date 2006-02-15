@@ -15,6 +15,7 @@ import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 public class JavaMethod {
 
     private String name;
+    private String operationName;
     private JavaReturn javaReturn;
     private OperationType style;
     private String soapAction;
@@ -72,6 +73,16 @@ public class JavaMethod {
     public void setName(String n) {
         this.name = n;
     }
+    
+    public String getOperationName() {
+        return this.operationName;
+    }
+    
+    public void setOperationName(String arg) {
+        this.operationName = arg;
+    }
+    
+    
 
     public JavaReturn getReturn() {
         return javaReturn;

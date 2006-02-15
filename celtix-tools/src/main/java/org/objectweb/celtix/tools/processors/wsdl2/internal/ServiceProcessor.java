@@ -161,7 +161,7 @@ public class ServiceProcessor {
         Object[] methods = jf.getMethods().toArray();
         for (int i = 0; i < methods.length; i++) {
             JavaMethod jm = (JavaMethod)methods[i];
-            if (jm.getName().equals(bop.getName())) {
+            if (jm.getOperationName() != null && jm.getOperationName().equals(bop.getName())) {
                 Map prop = getSoapOperationProp(bop);
                 String soapAction = prop.get(soapOPAction) == null ? "" : (String)prop.get(soapOPAction);
                 String soapStyle = prop.get(soapOPStyle) == null ? "" : (String)prop.get(soapOPStyle);
@@ -195,7 +195,6 @@ public class ServiceProcessor {
                         resultAnno.addArgument("header", "true", "");
                     }
                 }
-                jm.setName(ProcessorUtil.mangleNameToVariableName(jm.getName()));
                 processParameter(jm, bop);
             }
         }

@@ -41,7 +41,8 @@ public class OperationProcessor  {
     @SuppressWarnings("unchecked")
     public void process(JavaInterface intf, Operation operation) throws ToolException {
         JavaMethod method = new JavaMethod(intf);
-        method.setName(operation.getName());
+        method.setName(ProcessorUtil.mangleNameToVariableName(operation.getName()));
+        method.setOperationName(operation.getName());
         method.setStyle(operation.getStyle());
         if (method.getStyle() == null) {
             if (operation.getOutput() == null) {
@@ -104,8 +105,8 @@ public class OperationProcessor  {
         
     private void addWebMethodAnnotation(JavaMethod method, String methodName) {
         JavaAnnotation methodAnnotation = new JavaAnnotation("WebMethod");
-        methodAnnotation.addArgument("operationName", methodName);
-        if (StringUtils.isEmpty(method.getSoapAction())) {
+        methodAnnotation.addArgument("operationName", method.getOperationName());
+        if (!StringUtils.isEmpty(method.getSoapAction())) {
             methodAnnotation.addArgument("action", method.getSoapAction());
         }
         method.addAnnotation("WebMethod", methodAnnotation);
