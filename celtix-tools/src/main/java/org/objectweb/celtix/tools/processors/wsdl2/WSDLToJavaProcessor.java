@@ -62,9 +62,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             return;
         }
         try {
-            // JAXBModel jaxbModel = new JAXBModel(rawJaxbModel);
-            // JCodeModel jcodeModel =
-            // jaxbModel.getS2JJAXBModel().generateCode(null, null);
             if (rawJaxbModel instanceof S2JJAXBModel) {
                 S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel) rawJaxbModel;
                 JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null,

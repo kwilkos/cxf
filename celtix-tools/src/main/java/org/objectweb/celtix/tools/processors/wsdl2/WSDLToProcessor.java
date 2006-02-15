@@ -8,6 +8,7 @@ import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.Message;
 import javax.wsdl.Operation;
+import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
 import javax.wsdl.Types;
@@ -28,6 +29,8 @@ import org.objectweb.celtix.tools.common.Processor;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
+import org.objectweb.celtix.tools.extensions.jms.JMSAddressSerializer;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
@@ -265,9 +268,24 @@ public class WSDLToProcessor implements Processor {
         registerJAXWSBinding(registry, PortType.class);
         registerJAXWSBinding(registry, Operation.class);
 
+        registerJMSAddress(registry, Port.class);
+
         reader.setExtensionRegistry(registry);
     }
 
+    private void registerJMSAddress(ExtensionRegistry registry, Class clz) {
+        registry.registerSerializer(clz,
+                                    ToolConstants.JMS_ADDRESS,
+                                    new JMSAddressSerializer());
+        
+        registry.registerDeserializer(clz,
+                                      ToolConstants.JMS_ADDRESS,
+                                      new JMSAddressSerializer());
+        registry.mapExtensionTypes(clz,
+                                   ToolConstants.JMS_ADDRESS,
+                                   JMSAddress.class);
+    }
+    
     private void registerJAXWSBinding(ExtensionRegistry registry, Class clz) {
         registry.registerSerializer(clz,
                                     ToolConstants.JAXWS_BINDINGS,

@@ -123,7 +123,6 @@ public class OperationProcessor  {
             return;
         }
         JavaAnnotation resultAnnotation = new JavaAnnotation("WebResult");
-        //fix the bug : targetnamespce is null
         String targetNamespace = method.getReturn().getTargetNamespace();
         String name = "return";
 

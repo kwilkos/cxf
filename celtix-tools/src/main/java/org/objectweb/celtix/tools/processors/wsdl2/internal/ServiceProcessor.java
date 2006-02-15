@@ -30,6 +30,7 @@ import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
 import org.objectweb.celtix.tools.utils.ClassCollectorUtil;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
@@ -106,7 +107,7 @@ public class ServiceProcessor {
         JavaPort jport = new JavaPort(port.getName());
         Binding binding = port.getBinding();
         // TODO: extend other bindings
-        jport.setBindingAdress(getSOAPAdress(port));
+        jport.setBindingAdress(getPortAddress(port));
         jport.setBindingName(binding.getQName().getLocalPart());
         jport.setPortType(binding.getPortType().getQName().getLocalPart());
         SOAPBinding spbd = getSOAPBinding(binding);
@@ -149,19 +150,8 @@ public class ServiceProcessor {
             .getLocalPart());
         JavaInterface jf = model.getInterfaces().get(portType);
         // TODO: extend other bindings
-        /*
-         * SOAPBinding soapBinding = getSOAPBinding(port.getBinding()); if
-         * (soapBinding != null) {
-         * jf.setSOAPStyle(getSoapStyle(soapBinding.getStyle())); } Object[]
-         * methods = jf.getMethods().toArray(); for (int i = 0; i <
-         * methods.length; i++) { JavaMethod jm = (JavaMethod) methods[i];
-         * port.getBinding() BindingOperation bop =
-         * port.getBinding().getBindingOperation( jm.getName().toLowerCase(),
-         * null, null); Map prop = getSoapOperationProp(bop);
-         */
         SOAPBinding soapBinding = getSOAPBinding(port.getBinding());
         if (soapBinding != null) {
-            //fix bug 304635
             if (getSoapStyle(soapBinding.getStyle()) == null) {
                 jf.setSOAPStyle(javax.jws.soap.SOAPBinding.Style.DOCUMENT);
             } else {
@@ -176,7 +166,6 @@ public class ServiceProcessor {
                 String soapAction = prop.get(soapOPAction) == null ? "" : (String)prop.get(soapOPAction);
                 String soapStyle = prop.get(soapOPStyle) == null ? "" : (String)prop.get(soapOPStyle);
                 jm.setSoapAction(soapAction);
-                //-- fix bug 304635---------
                 if (getSoapStyle(soapStyle) == null && soapBinding == null) {
                     throw new ToolException("Operation Binding Style Should Be Defined");
                 }
@@ -185,7 +174,6 @@ public class ServiceProcessor {
                 } else {
                     jm.setSoapStyle(getSoapStyle(soapStyle));
                 }
-                //---------------------------------
                 OperationProcessor processor = new OperationProcessor(env);
 
                 int headerType = isNonWrappable(bop);
@@ -207,7 +195,6 @@ public class ServiceProcessor {
                         resultAnno.addArgument("header", "true", "");
                     }
                 }
-                //fix bug 304634
                 jm.setName(ProcessorUtil.mangleNameToVariableName(jm.getName()));
                 processParameter(jm, bop);
             }
@@ -288,7 +275,7 @@ public class ServiceProcessor {
         return soapOPProp;
     }
 
-    private String getSOAPAdress(Port port) {
+    private String getPortAddress(Port port) {
         Iterator it = port.getExtensibilityElements().iterator();
         String address = null;
         while (it.hasNext()) {
@@ -296,10 +283,13 @@ public class ServiceProcessor {
             if (obj instanceof SOAPAddress) {
                 address = ((SOAPAddress)obj).getLocationURI();
             }
+            if (obj instanceof JMSAddress) {
+                address = ((JMSAddress)obj).getAddress();
+            }
         }
         return address;
     }
-
+    
     private SOAPBinding getSOAPBinding(Binding binding) {
         Iterator it = binding.getExtensibilityElements().iterator();
         SOAPBinding spbinding = null;

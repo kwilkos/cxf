@@ -73,4 +73,15 @@ public final class ToolConstants {
     public static final String HANDLER_CHAINS = "handler-chains";
 
     public static final String RAW_JAXB_MODEL = "rawjaxbmodel";
+
+    // JMS adress
+    public static final String NS_JMS_ADDRESS = "http://celtix.objectweb.org/transports/jms";
+    public static final QName  JMS_ADDRESS = new QName(NS_JMS_ADDRESS, "address");
+
+    public static final String JMS_ADDR_DEST_STYLE = "destinationStyle";
+    public static final String JMS_ADDR_JNDI_URL = "jndiProviderURL";
+    public static final String JMS_ADDR_JNDI_FAC = "jndiConnectionFactoryName";
+    public static final String JMS_ADDR_JNDI_DEST = "jndiDestinationName";
+    public static final String JMS_ADDR_MSG_TYPE = "messageType";
+    public static final String JMS_ADDR_INIT_CTX = "initialContextFactory";
 }
