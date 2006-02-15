@@ -33,15 +33,12 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractClientBinding.class);
     private static ResponseCorrelator responseCorrelator;
 
-    protected final Bus bus;
-    protected final EndpointReferenceType reference;
     protected Port port;
     protected ClientTransport transport;
 
     public AbstractClientBinding(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
-        bus = b;
+        super(b, ref);
         bus.getLifeCycleManager().registerLifeCycleListener(new ShutdownListener(this));
-        reference = ref;
         transport = null;
     }
 
@@ -74,7 +71,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
 
     // --- Methods to be implemented by concrete client bindings ---
 
-    protected abstract AbstractBindingImpl getBindingImpl();
+    public abstract AbstractBindingImpl getBindingImpl();
 
     // --- Methods to be implemented by concrete client bindings ---
 

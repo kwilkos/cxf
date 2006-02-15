@@ -43,9 +43,10 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 public final class EndpointImpl extends javax.xml.ws.Endpoint
     implements ServerBindingEndpointCallback {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
-    private static final String ENDPOINT_CONFIGURATION_URI = 
+    public static final String ENDPOINT_CONFIGURATION_URI = 
         "http://celtix.objectweb.org/bus/jaxws/endpoint-config";
+    
+    private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
 
     private final Bus bus;
     private final Configuration configuration;

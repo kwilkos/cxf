@@ -297,7 +297,6 @@ public class HTTPTransportTest extends TestCase {
         OutputStreamMessageContext octx = doRequest(client, outBytes, true, decoupled);
         Future<InputStreamMessageContext> f = client.invokeAsync(octx, executor);
         assertNotNull(f);
-        assertFalse(f.isDone());
         int i = 0;
         while (i < 10) {
             Thread.sleep(100);

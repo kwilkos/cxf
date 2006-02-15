@@ -37,12 +37,13 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class ServiceImpl extends ServiceDelegate {
-
-    private static final Logger LOG = Logger.getLogger(ServiceImpl.class.getName());
-    private static final String SERVICE_CONFIGURATION_URI = 
+    
+    public static final String SERVICE_CONFIGURATION_URI = 
         "http://celtix.objectweb.org/bus/jaxws/service-config";
-    private static final String PORT_CONFIGURATION_URI =
+    public static final String PORT_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/jaxws/port-config";
+    
+    private static final Logger LOG = Logger.getLogger(ServiceImpl.class.getName());
     
     private URL wsdlLocation;
     private QName serviceName;

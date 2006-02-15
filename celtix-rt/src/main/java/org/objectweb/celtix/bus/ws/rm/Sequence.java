@@ -28,8 +28,8 @@ public class Sequence {
     private Date expires;
     private RMSource source;
     private EndpointReferenceType acksTo;
-    private BigInteger nextMessageNumber;
-    private BigInteger lastMessageNumber;
+    private BigInteger currentMessageNumber;
+    private boolean lastMessage;
 
     public enum Type {
         SOURCE, DESTINATION,
@@ -58,9 +58,11 @@ public class Sequence {
      * Constructs a Sequence object for use in RM destinations.
      * 
      * @param i the sequence identifier
+     * @param a the acksTo address
      */
-    public Sequence(Identifier i) {
+    public Sequence(Identifier i, EndpointReferenceType a) {
         this(i, Type.DESTINATION);
+        acksTo = a;
     }
 
     /**
@@ -68,15 +70,16 @@ public class Sequence {
      * 
      * @param i the sequence identifier
      * @param s the RM source
-     * @param a the acksTo address
      * @param duration the lifetime of the sequence
      */
-    public Sequence(Identifier i, RMSource s, EndpointReferenceType a, Expires duration) {
+    public Sequence(Identifier i, RMSource s, Expires duration) {
         this(i, Type.SOURCE);
         source = s;
-        acksTo = a;
 
-        Duration d = duration.getValue();
+        Duration d = null;
+        if (null != duration) {
+            d = duration.getValue();
+        }
 
         if (null != d && (null == PT0S || !PT0S.equals(d))) {
             Date now = new Date();
@@ -84,7 +87,7 @@ public class Sequence {
 
         }
 
-        nextMessageNumber = BigInteger.ONE;
+        currentMessageNumber = BigInteger.ZERO;
     }
 
     /**
@@ -110,12 +113,12 @@ public class Sequence {
      * 
      * @return the last message number.
      */
-    public BigInteger getLastMessageNumber() {
-        return lastMessageNumber;
+    public boolean isLastMessage() {
+        return lastMessage;
     }
     
-    public void setLastMessageNumber(BigInteger l) {
-        lastMessageNumber = l;
+    public void setLastMessage(boolean l) {
+        lastMessage = l;
     }
 
     /**
@@ -148,11 +151,19 @@ public class Sequence {
         }
         BigInteger result = null;
         synchronized (this) {
-            result = nextMessageNumber;
-            nextMessageNumber = nextMessageNumber.add(BigInteger.ONE);
+            currentMessageNumber = currentMessageNumber.add(BigInteger.ONE);
             checkLastMessage();
+            result = currentMessageNumber;
         }
         return result;
+    }
+    
+    /**
+     * Returns the current message number (i.e. the last message number used in a sequence).
+     * @return
+     */
+    public BigInteger getCurrentMessageNumber() {
+        return currentMessageNumber;
     }
 
     /**
@@ -248,13 +259,13 @@ public class Sequence {
      * @return true if all messages have been acknowledged.
      */
     public boolean allAcknowledged() {
-        if (null == lastMessageNumber) {
+        if (lastMessage) {
             return false;
         }
 
         if (acked.getAcknowledgementRange().size() == 1) {
             AcknowledgementRange r = acked.getAcknowledgementRange().get(0);
-            return r.getLower().equals(BigInteger.ONE) && r.getUpper().equals(lastMessageNumber);
+            return r.getLower().equals(BigInteger.ONE) && r.getUpper().equals(currentMessageNumber);
         }
         return false;
     }
@@ -269,11 +280,11 @@ public class Sequence {
         assert null != stp;
         
         if ((!stp.getMaxLength().equals(BigInteger.ZERO) 
-            && stp.getMaxLength().compareTo(nextMessageNumber) < 0)
+            && stp.getMaxLength().compareTo(currentMessageNumber) <= 0)
             || (stp.getMaxRanges() > 0 && acked.getAcknowledgementRange().size() >= stp.getMaxRanges())
             || (stp.getMaxUnacknowledged() > 0 
                 && source.getRetransmissionQueue().countUnacknowledged(this) >= stp.getMaxUnacknowledged())) {
-            lastMessageNumber = nextMessageNumber.subtract(BigInteger.ONE);
+            lastMessage = true;
         }
     }
 }

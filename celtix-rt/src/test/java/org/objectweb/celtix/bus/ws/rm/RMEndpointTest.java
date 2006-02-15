@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.ws.rm;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 
 import static org.easymock.EasyMock.expectLastCall;
@@ -52,7 +53,8 @@ public class RMEndpointTest extends TestCase {
     
     public void testAddGetSequence() {
         RMEndpoint e = new RMEndpoint(handler);
-        Sequence seq = new Sequence(e.generateSequenceIdentifier());
+        EndpointReferenceType a = createMock(EndpointReferenceType.class);
+        Sequence seq = new Sequence(e.generateSequenceIdentifier(), a);
         e.addSequence(seq);
         assertEquals(1, e.map.size()); 
         assertSame(seq, e.getSequence(seq.getIdentifier()));

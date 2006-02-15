@@ -12,6 +12,10 @@ public final class ConfigurationBuilderFactory {
 
     private ConfigurationBuilderFactory() {
     }
+    
+    public static ConfigurationBuilder getBuilder() {
+        return getBuilder(null);
+    }
 
     public static ConfigurationBuilder getBuilder(ClassLoader classLoader) {
 

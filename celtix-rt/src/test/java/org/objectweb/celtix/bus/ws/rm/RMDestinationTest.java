@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceType;
 
@@ -17,15 +18,17 @@ import static org.easymock.classextension.EasyMock.verify;
 public class RMDestinationTest extends TestCase {
     
     private RMHandler handler;
+    private EndpointReferenceType address;
 
     public void setUp() {
         handler = createMock(RMHandler.class);
+        address = createMock(EndpointReferenceType.class);
     }
 
     public void testAddSequence() {
         RMDestination d = new RMDestination(handler);
         Identifier sid = d.generateSequenceIdentifier();
-        Sequence seq = new Sequence(sid);
+        Sequence seq = new Sequence(sid, address);
         d.addSequence(seq);
         assertSame(seq, d.getSequence(sid));
     }
@@ -49,7 +52,7 @@ public class RMDestinationTest extends TestCase {
     public void testAcknowledge() {
         RMDestination d = new RMDestination(handler);
         Identifier sid = d.generateSequenceIdentifier();
-        Sequence seq = new Sequence(sid);
+        Sequence seq = new Sequence(sid, address);
         d.addSequence(seq);
 
         SequenceType st = RMUtils.getWSRMFactory().createSequenceType();

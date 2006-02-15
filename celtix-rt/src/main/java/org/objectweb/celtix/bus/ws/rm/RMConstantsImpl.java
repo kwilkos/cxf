@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+
 import org.objectweb.celtix.ws.rm.RMConstants;
 
 /**
@@ -7,6 +8,14 @@ import org.objectweb.celtix.ws.rm.RMConstants;
  */
 public class RMConstantsImpl implements RMConstants {
 
+    public String getNamespaceURI() {
+        return Names.WSRM_NAMESPACE_NAME;
+    }
+    
+    public String getWSDLNamespaceURI() {
+        return Names.WSRM_WSDL_NAMESPACE_NAME;
+    }
+    
     public String getCreateSequenceAction() {
         return Names.WSRM_CREATE_SEQUENCE_ACTION;
     }
@@ -15,9 +24,22 @@ public class RMConstantsImpl implements RMConstants {
         return Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION;
     }
 
-    public String getNamespaceURI() {
-        return Names.WSRM_NAMESPACE_NAME;
+    public String getCreateSequenceOperationName() {
+        return Names.WSRM_CREATE_SEQUENCE_OPERATION_NAME;
     }
+    
+    public String getTerminateSequenceAction() {
+        return Names.WSRM_TERMINATE_SEQUENCE_ACTION;
+    }
+    
+    public String getTerminateSequenceOperationName() {
+        return Names.WSRM_TERMINATE_SEQUENCE_OPERATION_NAME;
+    }
+    
+    
+    
+
+   
 
     
 

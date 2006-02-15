@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceType;
 
@@ -15,8 +16,8 @@ public class RMDestination extends RMEndpoint {
      * Called by the RM destination when no sequence with the given identifier
      * exists.
      */
-    public void addSequence(Identifier id) {
-        Sequence seq = new Sequence(id);
+    public void addSequence(Identifier id, EndpointReferenceType a) {
+        Sequence seq = new Sequence(id, a);
         addSequence(seq);
     }
     

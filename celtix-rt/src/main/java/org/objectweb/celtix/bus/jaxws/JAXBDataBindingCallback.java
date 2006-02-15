@@ -271,7 +271,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     }
 
     public int getParamsLength() {
-        return method.getParameterTypes().length;
+        return getMethod().getParameterTypes().length;
     }
 
     public Object createWrapperType(ObjectMessageContext objCtx, boolean isOutBound) {
@@ -298,7 +298,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         //Add the in,inout,out args depend on the inputMode
         WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
         
-        int noArgs = method.getParameterTypes().length;
+        int noArgs = getMethod().getParameterTypes().length;
         
         //Unmarshal parts of mode that should not be ignored and are not part of the SOAP Headers
         Object[] args = objCtx.getMessageObjects();

@@ -39,16 +39,13 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
 
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractServerBinding.class);
 
-    protected final Bus bus;
-    protected final EndpointReferenceType reference;
     protected ServerTransport transport;
     protected Endpoint endpoint;
     protected ServerBindingEndpointCallback sbeCallback;
 
     public AbstractServerBinding(Bus b, EndpointReferenceType ref, Endpoint ep,
                                  ServerBindingEndpointCallback sbcb) {
-        bus = b;
-        reference = ref;
+        super(b, ref);
         endpoint = ep;
         sbeCallback = sbcb;
     }
@@ -83,19 +80,13 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
 
     // --- Methods to be implemented by concrete server bindings ---
 
-    protected abstract AbstractBindingImpl getBindingImpl();
+    public abstract AbstractBindingImpl getBindingImpl();
 
     protected abstract ServerTransport createTransport(EndpointReferenceType ref) throws WSDLException,
         IOException;
 
     // --- Methods to be implemented by concrete server bindings ---
 
-    /*
-     * protected OutputStreamMessageContext
-     * createOutputStreamContext(ServerTransport t, MessageContext
-     * bindingContext) throws IOException { return
-     * t.createOutputStreamContext(bindingContext); }
-     */
     protected void finalPrepareOutputStreamContext(ServerTransport t, MessageContext bindingContext,
                                                    OutputStreamMessageContext ostreamContext)
         throws IOException {

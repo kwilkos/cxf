@@ -6,12 +6,29 @@ package org.objectweb.celtix.ws.rm;
 public final class JAXWSRMConstants {
     
     /**
-     * Well-known Property names for WS-RM Properties in Handler
-     * Context.
+     * Used to cache sequence properties in context.
      */
     
-    public static final String RM_PROPERTIES = 
-        "javax.xml.ws.rm.context";
+    public static final String SEQUENCE_PROPERTIES = 
+        "org.objectweb.celtix.ws.rm.sequence";
+    
+    /**
+     * Used to cache client binding in the context.
+     */
+    public static final String ABSTRACT_CLIENT_BINDING_PROPERTY =
+        "org.objectweb.celtix.ws.rm.client.binding";
+
+    /**
+     * Used to cache server binding in the context
+     */
+    public static final String ABSTRACT_SERVER_BINDING_PROPERTY =
+        "org.objectweb.celtix.ws.rm.server.binding";
+    
+    /**
+     * Used to cache srever binding in the context
+     */
+    public static final String WSA_ACTION =
+        "org.objectweb.celtix.ws.addressing.action";
     
     /**
      * Prevents instantiation. 

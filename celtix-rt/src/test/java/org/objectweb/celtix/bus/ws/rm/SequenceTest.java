@@ -43,23 +43,24 @@ public class SequenceTest extends TestCase {
 
     public void testConstructors() throws DatatypeConfigurationException {
         
-        Sequence seq = new Sequence(id);
+        Sequence seq = new Sequence(id, ref);
         assertEquals(Sequence.Type.DESTINATION, seq.getType());
         assertEquals(id, seq.getIdentifier());
-        assertNull(seq.getLastMessageNumber());
-        assertNull(seq.getAcksTo());
+        assertTrue(!seq.isLastMessage());
+        assertSame(ref, seq.getAcksTo());
         assertTrue(!seq.isExpired());
-        assertNull(seq.nextMessageNumber());
+        assertNull(seq.getCurrentMessageNumber());
         assertNotNull(seq.getAcknowledged());
         assertNotNull(seq.getAcknowledged(null));
         assertTrue(!seq.allAcknowledged());
         
-        seq = new Sequence(id, source, ref, expires);
+        seq = new Sequence(id, source, expires);
         assertEquals(Sequence.Type.SOURCE, seq.getType());
         assertEquals(id, seq.getIdentifier());
-        assertNull(seq.getLastMessageNumber());
-        assertNotNull(seq.getAcksTo());
+        assertTrue(!seq.isLastMessage());
+        assertNull(seq.getAcksTo());
         assertTrue(!seq.isExpired());
+        assertEquals(BigInteger.ZERO, seq.getCurrentMessageNumber());
         assertNotNull(seq.getAcknowledged());
         assertNotNull(seq.getAcknowledged(null));
         assertTrue(!seq.allAcknowledged());
@@ -67,27 +68,27 @@ public class SequenceTest extends TestCase {
         DatatypeFactory dbf = DatatypeFactory.newInstance();
         Duration d = dbf.newDuration(0);        
         expires.setValue(d);
-        seq = new Sequence(id, source, ref, expires);
+        seq = new Sequence(id, source, expires);
         assertTrue(!seq.isExpired());
         
         d = dbf.newDuration("PT0S");        
         expires.setValue(d);
-        seq = new Sequence(id, source, ref, expires);
+        seq = new Sequence(id, source, expires);
         assertTrue(!seq.isExpired());
         
         d = dbf.newDuration(1000);        
         expires.setValue(d);
-        seq = new Sequence(id, source, ref, expires);
+        seq = new Sequence(id, source, expires);
         assertTrue(!seq.isExpired());
         
         d = dbf.newDuration("-PT1S");        
         expires.setValue(d);
-        seq = new Sequence(id, source, ref, expires);
+        seq = new Sequence(id, source, expires);
         assertTrue(seq.isExpired());   
     }
     
     public void testSetAcknowledged() {
-        Sequence seq = new Sequence(id, source, ref, expires);
+        Sequence seq = new Sequence(id, source, expires);
         assertEquals(0, seq.getAcknowledged().getAcknowledgementRange().size());
         acknowledge(seq, 1, 2, 3);
         SequenceAcknowledgement ack = seq.getAcknowledged();
@@ -97,14 +98,14 @@ public class SequenceTest extends TestCase {
         assertEquals(3, ack.getAcknowledgementRange().size());
         assertTrue(!seq.isAcknowledged(new BigInteger("3")));
         
-        seq = new Sequence(id);
+        seq = new Sequence(id, ref);
         assertEquals(0, seq.getAcknowledged().getAcknowledgementRange().size());
         acknowledge(seq, 1, 2, 3);
         assertEquals(0, seq.getAcknowledged().getAcknowledgementRange().size());       
     } 
     
     public void testAcknowledgeBasic() {
-        Sequence seq = new Sequence(id);
+        Sequence seq = new Sequence(id, ref);
         List<AcknowledgementRange> ranges = seq.getAcknowledged().getAcknowledgementRange();
         assertEquals(0, ranges.size());
         seq.acknowledge(new BigInteger("1"));
@@ -118,13 +119,13 @@ public class SequenceTest extends TestCase {
         assertEquals(1, r1.getLower().intValue());
         assertEquals(2, r1.getUpper().intValue());
         
-        seq = new Sequence(id, source, ref, expires);
+        seq = new Sequence(id, source, expires);
         seq.acknowledge(BigInteger.TEN);
         assertEquals(0, seq.getAcknowledged().getAcknowledgementRange().size());
     }
     
     public void testAcknowledgeAppendRange() {
-        Sequence seq = new Sequence(id);
+        Sequence seq = new Sequence(id, ref);
         List<AcknowledgementRange> ranges = seq.getAcknowledged().getAcknowledgementRange();        
         seq.acknowledge(new BigInteger("1"));
         seq.acknowledge(new BigInteger("2"));  
@@ -141,7 +142,7 @@ public class SequenceTest extends TestCase {
     }
     
     public void testAcknowledgeInserRange() {
-        Sequence seq = new Sequence(id);
+        Sequence seq = new Sequence(id, ref);
         List<AcknowledgementRange> ranges = seq.getAcknowledged().getAcknowledgementRange();        
         seq.acknowledge(new BigInteger("1"));
         seq.acknowledge(new BigInteger("2"));
@@ -162,7 +163,7 @@ public class SequenceTest extends TestCase {
     }
     
     public void testAcknowledgePrependRange() {
-        Sequence seq = new Sequence(id);
+        Sequence seq = new Sequence(id, ref);
         List<AcknowledgementRange> ranges = seq.getAcknowledged().getAcknowledgementRange();
         seq.acknowledge(new BigInteger("4"));
         seq.acknowledge(new BigInteger("5"));
@@ -178,15 +179,24 @@ public class SequenceTest extends TestCase {
     }
     
     public void testAllAcknowledged() {
-        Sequence seq = new Sequence(id);
-        seq.setLastMessageNumber(new BigInteger("4"));
+        Sequence seq = new Sequence(id, ref);
+        for (int i = 0; i < 4; i++) {
+            seq.nextMessageNumber();
+        }
+        assertTrue(!seq.allAcknowledged());
+        seq.setLastMessage(true);
+        assertTrue(!seq.allAcknowledged());
         for (int i = 1; i < 5; i++) {
             Integer ih = new Integer(i);
             seq.acknowledge(new BigInteger(ih.toString()));
-            assertEquals(i < 4, !seq.allAcknowledged());
+            assertEquals("At i = " + i + ": all messages are acknowledged",
+                         i < 5, !seq.allAcknowledged());
         }
-        seq = new Sequence(id);
-        seq.setLastMessageNumber(new BigInteger("10"));
+        seq = new Sequence(id, ref);
+        for (int i = 0; i < 10; i++) {
+            seq.nextMessageNumber();
+        }
+        seq.setLastMessage(true);
         for (int i = 1; i < 5; i++) {
             Integer ih = new Integer(i);
             seq.acknowledge(new BigInteger(ih.toString()));
@@ -209,48 +219,50 @@ public class SequenceTest extends TestCase {
             RMUtils.getWSRMConfFactory().createSequenceTerminationPolicyType();        
         sp.setSequenceTerminationPolicy(stp);
         
-        seq = new Sequence(id, source, ref, expires);  
-        assertNull(nextSequences(seq, sp, 10));
+        seq = new Sequence(id, source, expires);  
+        assertTrue(!nextSequences(seq, sp, 10));
         
         // termination policy max length = 1
         
-        seq = new Sequence(id, source, ref, expires);  
+        seq = new Sequence(id, source, expires);  
         stp.setMaxLength(BigInteger.ONE);
-        assertEquals(BigInteger.ONE, nextSequences(seq, sp, 10));
+        assertTrue(nextSequences(seq, sp, 10));
+        assertEquals(BigInteger.ONE, seq.getCurrentMessageNumber());
         
         // termination policy max length = 5
         
-        seq = new Sequence(id, source, ref, expires);  
+        seq = new Sequence(id, source, expires);  
         stp.setMaxLength(new BigInteger("5"));
-        assertNull(nextSequences(seq, sp, 2));
+        assertTrue(!nextSequences(seq, sp, 2));
         
         // termination policy max range exceeded
         
-        seq = new Sequence(id, source, ref, expires);  
+        seq = new Sequence(id, source, expires);  
         stp.setMaxLength(null);
         stp.setMaxRanges(new Integer(3));
         acknowledge(seq, 1, 2, 4, 5, 6, 8, 9, 10);
-        assertEquals(BigInteger.ONE, nextSequences(seq, sp, 10));
+        assertTrue(nextSequences(seq, sp, 10));
+        assertEquals(BigInteger.ONE, seq.getCurrentMessageNumber());
         
         // termination policy max range not exceeded
         
-        seq = new Sequence(id, source, ref, expires);  
+        seq = new Sequence(id, source, expires);  
         stp.setMaxLength(null);
         stp.setMaxRanges(new Integer(4));
         acknowledge(seq, 1, 2, 4, 5, 6, 8, 9, 10);
-        assertNull(nextSequences(seq, sp, 10));
+        assertTrue(!nextSequences(seq, sp, 10));
         
         // termination policy max unacknowledged      
     }
     
-    private BigInteger nextSequences(Sequence seq, SourcePolicyType sp, int n) {
+    private boolean nextSequences(Sequence seq, SourcePolicyType sp, int n) {
         reset(source);
         source.getSequenceTerminationPolicy();
         expectLastCall().andReturn(sp.getSequenceTerminationPolicy());
         replay(source);
         
         int i = 0;
-        while (i < n && null == seq.getLastMessageNumber()) {
+        while (i < n && !seq.isLastMessage()) {
             assertNotNull(seq.nextMessageNumber());
             verify(source);
             reset(source);
@@ -259,7 +271,7 @@ public class SequenceTest extends TestCase {
             replay(source);
             i++;
         }
-        return seq.getLastMessageNumber();
+        return seq.isLastMessage();
     }
     
     // this methods needs to be public because of a bug in PMD which otherwise

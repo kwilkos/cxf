@@ -1,10 +1,12 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+import java.io.IOException;
+
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
@@ -61,30 +63,60 @@ public class RMSourceTest extends TestCase {
         verify(c);        
     }
     
-    public void testCreateSequence() {
+    public void testGetSequenceTerminationPolicies() {
+        SourcePolicyType sp = null;
+        Configuration c = createMock(Configuration.class);
+        reset(handler);
+        handler.getConfiguration();
+        expectLastCall().andReturn(c);
+        c.getObject("sourcePolicies");
+        expectLastCall().andReturn(sp);
+        replay(handler);
+        replay(c);  
         RMSource s = new RMSource(handler);
-        assertNull(s.getCurrent());
+        assertNotNull(s.getSequenceTerminationPolicy());
+        verify(handler);
+        verify(c);
+    }
+    
+    public void testCreateSequence() throws IOException {
+        RMSource s = new RMSource(handler);
         Identifier sid = s.generateSequenceIdentifier();
-        EndpointReferenceType a = createMock(EndpointReferenceType.class);
         Expires e = RMUtils.getWSRMFactory().createExpires();
         e.setValue(Sequence.PT0S);
-        s.createSequence(sid, a, e);        
-        Sequence c = s.getCurrent();
-        assertNotNull(c);
-        Sequence seq = s.getSequence(sid);
-        assertNotNull(seq);       
-        assertSame(seq, c);        
+        CreateSequenceResponseType csr = RMUtils.getWSRMFactory().createCreateSequenceResponseType();
+        csr.setIdentifier(sid);
+        csr.setExpires(e);
+       
+        reset(handler);
+        RMService service = createMock(RMService.class);
+        handler.getService();
+        expectLastCall().andReturn(service);
+        service.createSequence(s);
+        expectLastCall().andReturn(csr);
+        
+        replay(handler);
+        replay(service);
+        assertNull(s.getCurrent());
+        s.createSequence();
+        Sequence seq = s.getCurrent();
+        assertNotNull(seq);      
+        assertEquals(seq.getIdentifier(), sid); 
+        
+        verify(handler);
+        verify(service);
+        
     }
+
     
     public void testSetAcknowledged() throws NoSuchMethodException {
         RMSource s = new RMSource(handler);
-        EndpointReferenceType acksTo = createMock(EndpointReferenceType.class);
         Identifier sid1 = s.generateSequenceIdentifier();
         Identifier sid2 = s.generateSequenceIdentifier();
         Expires e = RMUtils.getWSRMFactory().createExpires();
         e.setValue(Sequence.PT0S);
-        s.createSequence(sid1, acksTo, e); 
-        Sequence seq = s.getSequence(sid1);
+        Sequence seq = new Sequence(sid1, s, e); 
+        s.addSequence(seq);
         
         SequenceAcknowledgement ack = RMUtils.getWSRMFactory().createSequenceAcknowledgement();
         ack.setIdentifier(sid1);        

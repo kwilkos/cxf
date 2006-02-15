@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config 
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
+    xmlns:std-types="http://celtix.objectweb.org/configuration/types" 
+    xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata metadata.xsd"
+    namespace="http://celtix.objectweb.org/bus/ws/rm/rm-config">
+
+   <!-- configuration metadata for component RMHandler  -->
+   
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    <cm:configImport location="schemas/configuration/jaxws-types.xsd" namespace="http://celtix.objectweb.org/bus/jaxws/configuration/types"/>
+    
+    <!-- TODO: -->
+    
+</cm:config>

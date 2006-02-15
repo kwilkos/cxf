@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.ws.rm.Identifier;
-import org.objectweb.celtix.ws.rm.RMProperties;
+import org.objectweb.celtix.ws.rm.SequenceType;
 
 public class RetransmissionQueue {
     private Map<Identifier, List<MessageContext>> map;
@@ -19,14 +19,14 @@ public class RetransmissionQueue {
     }
 
     /**
-     * Stores a new message context in the list associated with the sequence's
+     * Store the message context in the list associated with the sequence's
      * identifier.
      * 
      * @param ctx the message context.
      */
     public void put(MessageContext ctx) {
-        RMProperties rmps = RMContextUtils.retrieveRMPs(ctx);
-        Identifier sid = rmps.getSequenceId();
+        SequenceType st = RMContextUtils.retrieveSequenceProperties(ctx);
+        Identifier sid = st.getIdentifier();
         List<MessageContext> items = map.get(sid);
         if (null == items) {
             items = new ArrayList<MessageContext>();
@@ -48,8 +48,8 @@ public class RetransmissionQueue {
         if (null != unacked) {
             for (int i = unacked.size() - 1; i >= 0; i--) {
                 MessageContext ctx = unacked.get(i);
-                RMProperties rmps = RMContextUtils.retrieveRMPs(ctx);
-                BigInteger m = rmps.getMessageNumber();
+                SequenceType st = RMContextUtils.retrieveSequenceProperties(ctx);
+                BigInteger m = st.getMessageNumber();
                 if (seq.isAcknowledged(m)) {
                     unacked.remove(i);
                 }
