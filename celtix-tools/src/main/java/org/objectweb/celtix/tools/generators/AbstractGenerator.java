@@ -38,7 +38,7 @@ public abstract class AbstractGenerator {
             ctx.put(key, attributes.get(key));
         }
 
-        BufferedWriter writer = new BufferedWriter(outputs);
+        VelocityWriter writer = new VelocityWriter(outputs);
         try {
             tmpl.merge(ctx, writer);
             writer.close();

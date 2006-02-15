@@ -38,8 +38,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import com.sun.xml.bind.api.JAXBRIContext;
+
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
@@ -135,7 +138,7 @@ public class WSDLGenerator {
         SchemaOutputResolver resolver = new WSDLOutputResolver(env, wmodel);
 
         try {
-            wmodel.getJaxbContext().generateSchema(resolver);
+            wmodel.getJaxbContext().generateSchema(resolver);             
         } catch (Exception e2) {
             // TODO Auto-generated catch block
             e2.printStackTrace();
@@ -242,12 +245,14 @@ public class WSDLGenerator {
 
                         }
                     } else {
-                        JavaParameter jp = wrapperPara.getWrapperChildren()
-                                .get(0);
-                        addPartByElementName(
+                        /*JavaParameter jp = wrapperPara.getWrapperChildren()
+                                .get(0);*/
+                        for (JavaParameter jp : wrapperPara.getWrapperChildren()) { 
+                            addPartByElementName(
                                 outputMessage,
                                 jp.getPartName(),
                                 new QName(jp.getTargetNamespace(), jp.getName()));
+                        }
                     }
                 }
 
@@ -430,7 +435,6 @@ public class WSDLGenerator {
         List<JavaParameter> headerParams = new ArrayList<JavaParameter>();
 
         splitSoapHeaderBodyParams(param, bodyParams, headerParams);
-
         // if exists soap header,then generate soap body parts
 
         if (headerParams.size() > 0) {
@@ -446,7 +450,6 @@ public class WSDLGenerator {
                     soapHeader = (SOAPHeader) extensionRegistry
                             .createExtension(BindingOutput.class, new QName(
                                     WSDLConstants.SOAP11_NAMESPACE, "header"));
-
                     soapHeader.setMessage(new QName(this.targetNameSpace, param
                             .getName()));
                     soapHeader.setPart(jp.getPartName());
@@ -608,4 +611,11 @@ public class WSDLGenerator {
         output.setName(outputName);
         operation.setOutput(output);
     }
+    
+    /*protected class JAXWSOutputSchemaResolver extends SchemaOutputResolver {
+        public Result createOutput(String namespaceUri, String suggestedFileName) throws IOException {
+            return createOutputFile(namespaceUri, suggestedFileName);
+        }
+    }*/
+    
 }
