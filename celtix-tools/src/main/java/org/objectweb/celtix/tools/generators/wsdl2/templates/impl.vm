@@ -32,7 +32,14 @@ public class ${intf.Name}Impl implements $intf.Name {
     /* (non-Javadoc)
      * @see $intf.PackageName.$intf.Name#${method.Name}(#foreach ($parameter in $method.Parameters)$parameter.ClassName  $parameter.Name #if ($velocityCount != $method.getParameters().size()),#end)#end*
      */
-    public $method.return.ClassName ${method.Name}(${method.getParameterList(false)})
+    public $method.return.ClassName ${method.Name}(#if($method.ParameterListWithoutAnnotation.size() == 0))#end
+#if($method.ParameterListWithoutAnnotation.size() != 0)
+
+#foreach ($param in ${method.ParameterListWithoutAnnotation})
+		$param
+#end
+    )#end
+
 ###foreach ($parameter in $method.Parameters)$parameter.ClassName  _$parameter.Name #if ($velocityCounter != $method.getParameters().size()),#end#end)
 #if($method.Exceptions.size() > 0) throws #foreach($exception in $method.Exceptions)$exception.ClassName #if($velocityCount != $method.Exceptions.size()),#end #end #end
     { 

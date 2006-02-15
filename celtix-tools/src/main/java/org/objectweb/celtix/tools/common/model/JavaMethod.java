@@ -225,6 +225,10 @@ public class JavaMethod {
     public List<String> getParameterList() {
         return getParameterList(true);
     }
+
+    public List<String> getParameterListWithoutAnnotation() {
+        return getParameterList(false);
+    }
     
     public List<String> getParameterList(boolean includeAnnotation) {
         List<String> list = new ArrayList<String>();
