@@ -41,7 +41,7 @@ public class WSDLTOJavaEOLStyleTest extends ProcessorTestBase {
         if (System.getProperty("os.name").toLowerCase().indexOf("windows") >= 0) {
             assertTrue("EOL Style is not correct on windows platform", seiString.indexOf("\r\n") >= 0);
         } else {
-            assertTrue("EOL Style is not correct on unix platform", seiString.indexOf("\r\n") >= 0);
+            assertTrue("EOL Style is not correct on unix platform", seiString.indexOf("\r") < 0);
         }
 
     }
