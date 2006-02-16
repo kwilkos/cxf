@@ -21,14 +21,14 @@ public class JavaMethod {
     private String soapAction;
     private SOAPBinding.Style soapStyle;
     private SOAPBinding.Use soapUse;
+    private WSDLParameter requestParameter;
+    private WSDLParameter responseParameter;
     private boolean wrapperStyle;
     private final JavaInterface javaInterface;
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
     private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
-    private final List<WSDLWrapperParameter> wrapperParas = new ArrayList<WSDLWrapperParameter>();
     private final List<WSDLException> wsdlExceptions = new ArrayList<WSDLException>();
-
     private JAXWSBinding jaxwsBinding = new JAXWSBinding();
     
     public JavaMethod() {
@@ -220,19 +220,21 @@ public class JavaMethod {
     public List<WSDLException> getWSDLExceptions() {
         return wsdlExceptions;
     }
-
-    public void addWSDLWrapperParameter(WSDLWrapperParameter param) {
-        // verify that this member does not already exist
-        if (wrapperParas.contains(param)) {
-            throw new ToolException("model.uniqueness");
-        }
-        wrapperParas.add(param);
+    
+    public void addRequest(WSDLParameter param) {
+        this.requestParameter = param;
     }
-
-    public List<WSDLWrapperParameter> getWSDLWrapperParameters() {
-        return wrapperParas;
+    public WSDLParameter getRequest() {
+        return this.requestParameter;
     }
-
+    
+    public void addResponse(WSDLParameter param) {
+        this.responseParameter = param;
+    }
+    public WSDLParameter getResponse() {
+        return this.responseParameter;
+    }
+    
     public List<String> getParameterList() {
         return getParameterList(true);
     }

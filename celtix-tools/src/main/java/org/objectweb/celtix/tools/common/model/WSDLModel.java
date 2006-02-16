@@ -112,19 +112,16 @@ public class WSDLModel {
 
     public void createJAXBContext() throws ToolException {
         List<TypeReference> types = this.getAllTypeReference();
-
         Class[] clzzs = new Class[types.size()];
         int i = 0;
         for (TypeReference typeref : types) {
-            clzzs[i++] = (Class) typeref.type;
+            clzzs[i++] = (Class)typeref.type;
         }
         try {
-            jaxbContext = JAXBRIContext.newInstance(clzzs, types, this
-                    .getTargetNameSpace(), false);
+            jaxbContext = JAXBRIContext.newInstance(clzzs, types, this.getTargetNameSpace(), false);
 
         } catch (Exception e) {
-            throw new ToolException("Exception When New JAXBRIContext :"
-                    + e.getMessage(), e);
+            throw new ToolException("Exception When New JAXBRIContext :" + e.getMessage(), e);
         }
 
     }
@@ -135,28 +132,40 @@ public class WSDLModel {
     public List<TypeReference> getAllTypeReference() {
         List<TypeReference> types = new ArrayList<TypeReference>();
         for (JavaMethod m : methods) {
-            for (WSDLWrapperParameter wrapPara : m.getWSDLWrapperParameters()) {
-                if (wrapPara.getTypeReference() != null && m.isWrapperStyle()) {
-                    types.add(wrapPara.getTypeReference());
+            WSDLParameter request = m.getRequest();
+            if (request.getTypeReference() != null && m.isWrapperStyle()) {
+                types.add(request.getTypeReference());
+
+            } else {
+                Iterator ite2 = request.getChildren().iterator();
+                while (ite2.hasNext()) {
+                    JavaParameter jp = (JavaParameter)ite2.next();
+                    if (jp.getTypeReference() != null) {
+                        types.add(jp.getTypeReference());
+
+                    }
+                }
+            }
+            if (!m.isOneWay()) {
+                WSDLParameter response = m.getResponse();
+                if (response.getTypeReference() != null && m.isWrapperStyle()) {
+                    types.add(response.getTypeReference());
 
                 } else {
-                    Iterator ite2 = wrapPara.getWrapperChildren().iterator();
+                    Iterator ite2 = response.getChildren().iterator();
                     while (ite2.hasNext()) {
-                        JavaParameter jp = (JavaParameter) ite2.next();
+                        JavaParameter jp = (JavaParameter)ite2.next();
                         if (jp.getTypeReference() != null) {
                             types.add(jp.getTypeReference());
 
                         }
                     }
                 }
-
             }
-
             Iterator ite3 = m.getWSDLExceptions().iterator();
             while (ite3.hasNext()) {
                 org.objectweb.celtix.tools.common.model.WSDLException wsdlEx = 
-                    (org.objectweb.celtix.tools.common.model.WSDLException) ite3.next();
-
+                    (org.objectweb.celtix.tools.common.model.WSDLException)ite3.next();
                 types.add(wsdlEx.getDetailTypeReference());
             }
         }
@@ -204,9 +213,8 @@ public class WSDLModel {
     }
 
     public boolean isRPC() {
-        return (this.style == SOAPBinding.Style.RPC)
-                && (this.use == SOAPBinding.Use.LITERAL)
-                && (this.paraStyle == SOAPBinding.ParameterStyle.WRAPPED);
+        return (this.style == SOAPBinding.Style.RPC) && (this.use == SOAPBinding.Use.LITERAL)
+               && (this.paraStyle == SOAPBinding.ParameterStyle.WRAPPED);
     }
 
     public Map<String, String> getSchemaNSFileMap() {
