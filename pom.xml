@@ -104,7 +104,6 @@
         <module>celtix-testutils</module>
         <module>celtix-api</module>
         <module>celtix-rt</module>
-        <module>celtix-jbi</module>
         <module>celtix-systests</module>
         <module>celtix-axisinterop</module>
     </modules>
