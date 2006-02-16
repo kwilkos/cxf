@@ -21,6 +21,7 @@
             <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-api/target/surefire-reports"/>
             <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-rt/target/surefire-reports"/>
             <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-systests/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-axisinterop/target/surefire-reports"/>
         </log>
         <publishers>
             <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
@@ -45,6 +46,9 @@
 
             <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-systests/target/surefire-reports"
                 subdirectory="celtix-systests"
+                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-axisinterop/target/surefire-reports"
+                subdirectory="celtix-axisinterop"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
 
             <htmlemail mailhost="amereast-ems2.iona.com"
