@@ -38,6 +38,11 @@
             <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-rt/target/surefire-reports"
                 subdirectory="celtix-rt"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-jbi/target/surefire-reports"
+                subdirectory="celtix-jbi"
+                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+
             <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-systests/target/surefire-reports"
                 subdirectory="celtix-systests"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
