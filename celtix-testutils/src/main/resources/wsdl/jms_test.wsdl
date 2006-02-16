@@ -46,7 +46,7 @@
     </portType>
     
     <binding name="HelloWorldPortBinding" type="tns:HelloWorldPortType">
-        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
         <operation name="greetMe">
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
@@ -79,7 +79,7 @@
     </binding>
 
     <binding name="HelloWorldQueueBinMsgBinding" type="tns:HelloWorldPortType">
-        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
         <operation name="greetMe">
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
@@ -112,7 +112,7 @@
     </binding>
     
     <binding name="HWStaticReplyQTextPortBinding" type="tns:HelloWorldPortType">
-        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
         <operation name="greetMe">
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
@@ -145,7 +145,7 @@
     </binding>
 
     <binding name="HWStaticReplyQBinMsgBinding" type="tns:HelloWorldPortType">
-        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
         <operation name="greetMe">
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
@@ -179,7 +179,7 @@
     
     
     <binding name="HelloWorldOneWayBinding" type="tns:HelloWorldOneWayPort">
-        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
@@ -190,7 +190,7 @@
     </binding>
     
      <binding name="HelloWorldPubSubBinding" type="tns:HelloWorldPubSubPort">
-            <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+            <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
             <operation name="greetMeOneWay">
                 <soap:operation style="rpc"/>
                 <input name="greetMeOneWay">
@@ -202,101 +202,84 @@
     
     <service name="HelloWorldQueueBinMsgService">
         <port binding="tns:HelloWorldQueueBinMsgBinding" name="HelloWorldQueueBinMsgPort">
-            <jms:address 
-               destinationStyle="queue" 
-               jndiProviderURL="tcp://localhost:61500" 
-               initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
+            <jms:address
                jndiConnectionFactoryName="ConnectionFactory" 
-               jndiDestinationName="dynamicQueues/test.jmstransport.binary"
-               messageType="binary"
-               useMessageIDAsCorrelationID="true"
-               durableSubscriberName="Celtix_subscriber"
-            />
-            <soap:address location="http://celtix.objectweb.org/transports/jms"/>
+               jndiDestinationName="dynamicQueues/test.jmstransport.binary">
+               <jms:JavaNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JavaNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
+            </jms:address>
+            
+            <jms:client messageType="binary"/>
+            <jms:server durableSubscriberName="Celtix_subscriber"/>
         </port>
     </service>
     
     <service name="HelloWorldService">
            <port binding="tns:HelloWorldPortBinding" name="HelloWorldPort">
-              
-               <jms:address 
-                   destinationStyle="queue" 
-                   jndiProviderURL="tcp://localhost:61500" 
-                   initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
+               <jms:address
                    jndiConnectionFactoryName="ConnectionFactory" 
-                   jndiDestinationName="dynamicQueues/test.jmstransport.text"
-                   messageType="text"
-                   useMessageIDAsCorrelationID="true"   
-                   durableSubscriberName="Celtix_subscriber"
-                   />
-               <soap:address location="http://celtix.objectweb.org/transports/jms"/>
+                   jndiDestinationName="dynamicQueues/test.jmstransport.text">
+                   <jms:JavaNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                   <jms:JavaNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
+               </jms:address>
+            
+               <jms:server durableSubscriberName="Celtix_subscriber"/>
            </port>
     </service>
     
     <service name="HWStaticReplyQBinMsgService">
         <port binding="tns:HWStaticReplyQBinMsgBinding" name="HWStaticReplyQBinMsgPort">
-            <jms:address 
-               destinationStyle="queue" 
-               jndiProviderURL="tcp://localhost:61500" 
-               initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
-               jndiConnectionFactoryName="ConnectionFactory" 
-               jndiDestinationName="dynamicQueues/test.jmstransport.binary"
-               jndiReplyDestinationName="dynamicQueues/test.jmstransport.binary.reply"
-               messageType="binary"
-               useMessageIDAsCorrelationID="true"
-               durableSubscriberName="Celtix_subscriber"
-            />
-            <soap:address location="http://celtix.objectweb.org/transports/jms"/>
+            <jms:address
+                jndiConnectionFactoryName="ConnectionFactory" 
+                jndiDestinationName="dynamicQueues/test.jmstransport.binary"
+                jndiReplyDestinationName="dynamicQueues/test.jmstransport.binary.reply">
+                <jms:JavaNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                <jms:JavaNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
+            </jms:address>
+            
+            <jms:client messageType="binary"/>
+            <jms:server durableSubscriberName="Celtix_subscriber"/>
         </port>
     </service>
 
     <service name="HWStaticReplyQTextMsgService">
            <port binding="tns:HWStaticReplyQTextPortBinding" name="HWStaticReplyQTextPort">
 
-               <jms:address 
-                   destinationStyle="queue" 
-                   jndiProviderURL="tcp://localhost:61500" 
-                   initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
-                   jndiConnectionFactoryName="ConnectionFactory" 
-                   jndiDestinationName="dynamicQueues/test.jmstransport.text"
-                   jndiReplyDestinationName="dynamicQueues/test.jmstransport.text.reply"
-                   messageType="text"
-                   useMessageIDAsCorrelationID="true"   
-                   durableSubscriberName="Celtix_subscriber"
-                   />
-               <soap:address location="http://celtix.objectweb.org/transports/jms"/>
+           <jms:address
+               jndiConnectionFactoryName="ConnectionFactory" 
+               jndiDestinationName="dynamicQueues/test.jmstransport.text"
+               jndiReplyDestinationName="dynamicQueues/test.jmstransport.text.reply">
+               <jms:JavaNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JavaNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
+            </jms:address>
+            
+            <jms:server durableSubscriberName="Celtix_subscriber"/>
            </port>
     </service>
     
     <service name="HelloWorldOneWayQueueService">
         <port binding="tns:HelloWorldOneWayBinding" name="HelloWorldOneWayQueuePort">
             <jms:address
-                destinationStyle="queue" 
-                jndiProviderURL="tcp://localhost:61500"
-                initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
-                jndiConnectionFactoryName="ConnectionFactory" 
-                jndiDestinationName="dynamicQueues/test.jmstransport.oneway"
-                messageType="text"
-                useMessageIDAsCorrelationID="true"   
-                durableSubscriberName="Celtix_Queue_subscriber"
-            />
-            <soap:address location="http://celtix.objectweb.org/transports/jms"/>
+               jndiConnectionFactoryName="ConnectionFactory" 
+               jndiDestinationName="dynamicQueues/test.jmstransport.oneway">
+               <jms:JavaNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JavaNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
+            </jms:address>
+            
+            <jms:server durableSubscriberName="Celtix_subscriber"/>
         </port>
     </service>
     
     <service name="HelloWorldPubSubService">
-            <port binding="tns:HelloWorldPubSubBinding" name="HelloWorldPubSubPort">
-                <jms:address
-                    destinationStyle="topic" 
-                    jndiProviderURL="tcp://localhost:61500"
-                    initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
-                    jndiConnectionFactoryName="ConnectionFactory" 
-                    jndiDestinationName="dynamicTopics/test.jmstransport.oneway.topic"
-                    messageType="text"
-                    useMessageIDAsCorrelationID="true"   
-                />
-                <soap:address location="http://celtix.objectweb.org/transports/jms"/>
-            </port>
+        <port binding="tns:HelloWorldPubSubBinding" name="HelloWorldPubSubPort">
+            <jms:address
+               destinationStyle="topic"
+               jndiConnectionFactoryName="ConnectionFactory" 
+               jndiDestinationName="dynamicTopics/test.jmstransport.oneway.topic">
+               <jms:JavaNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JavaNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
+            </jms:address>
+        </port>
     </service>
     
 </definitions>

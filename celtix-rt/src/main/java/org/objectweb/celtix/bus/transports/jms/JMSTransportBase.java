@@ -20,7 +20,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.transports.jms.AddressType;
+import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
 import org.objectweb.celtix.transports.jms.context.JMSClientHeadersType;
 import org.objectweb.celtix.transports.jms.context.JMSHeadersType;
 import org.objectweb.celtix.transports.jms.context.JMSPropertyType;
@@ -31,8 +31,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 public class JMSTransportBase {
     //--Member Variables--------------------------------------------------------
     private static final Logger LOG = LogUtils.getL7dLogger(JMSTransportBase.class);
-    protected AddressType jmsAddressDetails;
-    protected boolean textPayload;
+    protected JMSAddressPolicyType jmsAddressPolicy;
     protected boolean queueDestinationStyle;
     protected Destination targetDestination;
     protected Destination replyDestination;
@@ -48,14 +47,14 @@ public class JMSTransportBase {
         List<?> list = port.getExtensibilityElements();
         for (Object ep : list) {
             ExtensibilityElement ext = (ExtensibilityElement)ep;
-            if (ext instanceof AddressType) {
-                jmsAddressDetails = (AddressType)ext;
+            if (ext instanceof JMSAddressPolicyType) {
+                jmsAddressPolicy = (JMSAddressPolicyType)ext;
             }
         }
-        textPayload = 
-            JMSConstants.TEXT_MESSAGE_TYPE.equals(jmsAddressDetails.getMessageType().value());
+        //This needs to move in client transport constructor.
+        
         queueDestinationStyle = 
-            JMSConstants.JMS_QUEUE.equals(jmsAddressDetails.getDestinationStyle().value());
+            JMSConstants.JMS_QUEUE.equals(jmsAddressPolicy.getDestinationStyle().value());
         LOG.log(Level.FINE, "QUEUE_DESTINATION_STYLE: " + queueDestinationStyle);
         targetEndpoint = epr;
     }
@@ -63,8 +62,8 @@ public class JMSTransportBase {
     
     //--Methods-----------------------------------------------------------------
 
-    public final AddressType  getJmsAddressDetails() {
-        return jmsAddressDetails;
+    public final JMSAddressPolicyType  getJmsAddressDetails() {
+        return jmsAddressPolicy;
     }
     /**
      * Callback from the JMSProviderHub indicating the ClientTransport has
@@ -89,10 +88,11 @@ public class JMSTransportBase {
      * @param replyTo the ReplyTo destination if any
      * @return a JMS of the appropriate type populated with the given payload
      */
-    protected Message marshal(Object payload, Session session, Destination replyTo) throws JMSException {
+    protected Message marshal(Object payload, Session session, Destination replyTo, 
+                              String messageType) throws JMSException {
         Message message = null;
 
-        if (textPayload) {
+        if (JMSConstants.TEXT_MESSAGE_TYPE.equals(messageType)) {
             message = session.createTextMessage((String) payload);
         } else {
             message = session.createObjectMessage();
@@ -114,10 +114,10 @@ public class JMSTransportBase {
      * @return the unmarshalled message payload, either of type String or
      * byte[] depending on payload type
      */
-    protected Object unmarshal(Message message) throws JMSException {
+    protected Object unmarshal(Message message, String messageType) throws JMSException {
         Object ret = null;
 
-        if (textPayload) {
+        if (JMSConstants.TEXT_MESSAGE_TYPE.equals(messageType)) {
             ret = ((TextMessage) message).getText();
         } else {
             ret = (byte[]) ((ObjectMessage) message).getObject();

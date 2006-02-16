@@ -8,7 +8,8 @@ import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.objectweb.celtix.transports.jms.AddressType;
+import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
+import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
 
 
 /**
@@ -27,7 +28,6 @@ import org.objectweb.celtix.transports.jms.AddressType;
  * @author Eoghan Glynn
  */
 public final class JMSProviderHub {
-    
 
     /**
      * Constructor.
@@ -44,14 +44,18 @@ public final class JMSProviderHub {
     //--Methods-----------------------------------------------------------------
 
     protected static void connect(JMSTransportBase transport) throws JMSException, NamingException {
-        AddressType  addrDetails = transport.getJmsAddressDetails();
+        JMSAddressPolicyType  addrDetails = transport.getJmsAddressDetails();
+        JMSServerBehaviorPolicyType serverPolicy = null;
+        if (transport instanceof JMSServerTransport) {
+            serverPolicy = ((JMSServerTransport) transport).getJMSServerBehaviourPolicy();
+        }
 
         // get JMS connection resources and destination
         //
         Context context = JMSUtils.getInitialContext(addrDetails);
         Connection connection = null;
 
-        //TODO: Connection can use username and password from policy for Durable Subscriber.
+        //TODO: Connection should use username and password from policy for Durable Subscriber.
         
         if (JMSConstants.JMS_QUEUE.equals(addrDetails.getDestinationStyle().value())) {
             QueueConnectionFactory qcf =
@@ -61,11 +65,14 @@ public final class JMSProviderHub {
             TopicConnectionFactory tcf =
                 (TopicConnectionFactory)context.lookup(addrDetails.getJndiConnectionFactoryName());
             connection = tcf.createTopicConnection();
-            //TODO: Need to add username from the policy once we decide on policy work.
-            if (addrDetails.getDurableSubscriberName() != null) {
-                String ext = transport instanceof JMSClientTransport ? "-client" : "-server";
-                connection.setClientID(System.getProperty("user.name" + ext));    
-            }    
+//            //TODO: Need to add username from the policy once we decide on policy work.
+//            // We will pull it from the security policy. Also need to think on this condition as we 
+//            // have dropped the durableSubscriberName attribute from new schema. 
+//            
+//            if (addrDetails.getDurableSubscriberName() != null) {
+//                String ext = transport instanceof JMSClientTransport ? "-client" : "-server";
+//                connection.setClientID(System.getProperty("user.name" + ext));
+//            }    
         }
 
         connection.start();
@@ -73,6 +80,9 @@ public final class JMSProviderHub {
         Destination requestDestination = 
                 (Destination) context.lookup(
                                            addrDetails.getJndiDestinationName());
+        // UBHOLE: Need to decide on who creates the replyDestination. while seperating the policies
+        // we need to decide on the precedence on values from config or wsdl.
+        
         Destination replyDestination = (null != addrDetails.getJndiReplyDestinationName())
             ? (Destination) context.lookup(addrDetails.getJndiReplyDestinationName()) : null;
 
@@ -83,7 +93,8 @@ public final class JMSProviderHub {
         JMSSessionFactory sf =
             new JMSSessionFactory(connection,
                                   replyDestination,
-                                  addrDetails);
+                                  addrDetails,
+                                  serverPolicy);
 
         // notify transport that connection is complete
         //

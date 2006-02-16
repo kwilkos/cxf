@@ -20,7 +20,8 @@ import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.AbstractTwoStageCache;
-import org.objectweb.celtix.transports.jms.AddressType;
+import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
+import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
 
 
 /**
@@ -91,7 +92,8 @@ public class JMSSessionFactory {
     private final Destination theReplyDestination;
     private final boolean isQueueConnection;
  
-    private final  AddressType addressExtensor;
+    private final  JMSAddressPolicyType addressExtensor;
+    private final  JMSServerBehaviorPolicyType jmsServerPolicy;
 
     /**
      * Constructor.
@@ -100,11 +102,13 @@ public class JMSSessionFactory {
      */
     public JMSSessionFactory(Connection connection, 
                              Destination replyDestination,
-                             AddressType addrExt) {
+                             JMSAddressPolicyType addrExt,
+                             JMSServerBehaviorPolicyType serverPolicy) {
         theConnection = connection;
         theReplyDestination = replyDestination;
         addressExtensor = addrExt;
         isQueueConnection = addressExtensor.getDestinationStyle().value().equals(JMSConstants.JMS_QUEUE);
+        jmsServerPolicy = serverPolicy;
 
         // create session caches (REVISIT sizes should be configurable)
         //
@@ -405,7 +409,7 @@ public class JMSSessionFactory {
 
         return new PooledSession(session, destination, session.createSender(null),
                                  session.createReceiver((Queue)destination, 
-                                 addressExtensor.getMessageSelector()));
+                                 jmsServerPolicy.getMessageSelector()));
     }
 
 
@@ -424,8 +428,8 @@ public class JMSSessionFactory {
                                                                                    Session.AUTO_ACKNOWLEDGE);
         TopicSubscriber sub = null;
         if (consumer) {
-            String messageSelector =  addressExtensor.getMessageSelector();
-            String durableName = addressExtensor.getDurableSubscriberName();
+            String messageSelector =  jmsServerPolicy.getMessageSelector();
+            String durableName = jmsServerPolicy.getDurableSubscriberName();
             if (durableName != null) {
                 sub = session.createDurableSubscriber((Topic)destination,
                                                       durableName,

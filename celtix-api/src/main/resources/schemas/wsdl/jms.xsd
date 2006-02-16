@@ -1,77 +1,156 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<xs:schema targetNamespace="http://celtix.objectweb.org/transports/jms"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:jms="http://celtix.objectweb.org/transports/jms"
-           xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-           elementFormDefault="qualified"
-           attributeFormDefault="unqualified"
-           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-           jaxb:version="2.0">
-
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:jms="http://celtix.objectweb.org/transports/jms" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" targetNamespace="http://celtix.objectweb.org/transports/jms" elementFormDefault="qualified" jaxb:version="2.0">
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
-
-
-
-    <xs:complexType name="addressType">
-        <xs:annotation>
-            <xs:documentation>JMS configuration properties.
-            Used for configuring an JMS port.
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:complexContent>
-            <xs:extension base="wsdl:tExtensibilityElement">
-                <xs:attribute name="destinationStyle" type="jms:destinationStyleType" use="required"/>
-                <xs:attribute name="jndiProviderURL" type="xs:anyURI" use="required"/>
-                <xs:attribute name="initialContextFactory" type="xs:string" use="required"/>
-                <xs:attribute name="jndiConnectionFactoryName" type="xs:string" use="required"/>
-                <xs:attribute name="jndiDestinationName" type="xs:string" use="required"/>
-                <xs:attribute name="messageType" type="jms:messageType_Type" use="required"/>
-                <xs:attribute name="jndiReplyDestinationName" type="xs:string" />
-
-                <xs:attribute name="durableSubscriberName" type="xs:string" use="optional"/>
-                <xs:attribute name="messageSelector" type="xs:string" use="optional"/>
-
-                <xs:attribute name="useMessageIDAsCorrelationID" type="xs:boolean" />
-                <xs:attribute name="transactional" type="xs:boolean" />
-
-                <xs:attribute name="java.naming.factory.initial" type="xs:string" />
-                <xs:attribute name="java.naming.provider.url" type="xs:string" />
-                <xs:attribute name="java.naming.factory.object" type="xs:string" />
-                <xs:attribute name="java.naming.factory.state" type="xs:string" />
-                <xs:attribute name="java.naming.factory.url.pkgs" type="xs:string" />
-                <xs:attribute name="java.naming.dns.url" type="xs:string" />
-                <xs:attribute name="java.naming.authoritative" type="xs:string" />
-                <xs:attribute name="java.naming.batchsize" type="xs:string" />
-                <xs:attribute name="java.naming.referral" type="xs:string" />
-                <xs:attribute name="java.naming.security.protocol" type="xs:string" />
-                <xs:attribute name="java.naming.security.authentication" type="xs:string" />
-                <xs:attribute name="java.naming.security.principal" type="xs:string" />
-                <xs:attribute name="java.naming.security.credentials" type="xs:string" />
-                <xs:attribute name="java.naming.language" type="xs:string" />
-                <xs:attribute name="java.naming.applet" type="xs:string" />
-                
-                <xs:attribute name="connectionUserName" type="xs:string" />
-                <xs:attribute name="connectionPassword" type="xs:string" />
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-
-    <xs:element name="address" type="jms:addressType"/>
-
-    <xs:simpleType name="destinationStyleType">
+    <xs:simpleType name="DestinationStyleType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="queue"/>
             <xs:enumeration value="topic"/>
         </xs:restriction>
     </xs:simpleType>
-
-    <xs:simpleType name="messageType_Type">
+   
+   <xs:complexType name="JavaNamingPropertyType">
+        <xs:annotation>
+            <xs:documentation>
+                javaNaming properties name/value pair.
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    Name of Java Naming Property
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="value" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    Value of Java Naming Property
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute> 
+    </xs:complexType>
+    
+    <xs:simpleType name="MessageFormatType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="text"/>
             <xs:enumeration value="binary"/>
         </xs:restriction>
     </xs:simpleType>
-
+    
+    <xs:complexType name="JMSAddressPolicyType">
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+                <xs:sequence>
+                    <xs:element name="JavaNamingProperty" type="jms:JavaNamingPropertyType" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
+                <xs:attribute name="destinationStyle" type="jms:DestinationStyleType" use="optional" default="queue">
+                    <xs:annotation>
+                        <xs:documentation>
+                          JMS Destination style queue or topic.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="jndiConnectionFactoryName" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                          Type of the JNDI Connection factory queueConnectionFactory or topicConnectionFactory.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="jndiDestinationName" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                          Name of the JNDI Destination queue or topic.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="jndiReplyDestinationName" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                          JMS Message Replyto destination when static queues are used for reply.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="connectionUserName" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            UserName to use while creating JMS queue/topic connection.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="connectionPassword" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Password to use while creating JMS queue/topic connection.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="JMSClientBehaviorPolicyType">
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+                <xs:attribute name="messageType" type="jms:MessageFormatType" default="text">
+                    <xs:annotation>
+                        <xs:documentation>Type of the JMS Message payload, currently supported text and binary.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="TimeOut" type="xs:long">
+                    <xs:annotation>
+                        <xs:documentation>Timeout value for client during request-reply</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="JMSServerBehaviorPolicyType">
+        <xs:annotation>
+            <xs:documentation>JMS configuration policy for Celtix Server.
+            These are used for configuring JMS port on Celtix server side.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+                <xs:annotation>
+                    <xs:documentation>Sets selection criteria for messages received by server</xs:documentation>
+                </xs:annotation>
+                <xs:attribute name="messageSelector" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                          JMS Message Selector attribute to filter messages from the queue.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="useMessageIDAsCorrelationID" type="xs:boolean" default="true">
+                    <xs:annotation>
+                        <xs:documentation>
+                          Flag to indicate whether to use JMS Message Id as correlation ID. It is serverside only so should go in ServerPolicy
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="transactional" type="xs:boolean">
+                    <xs:annotation>
+                        <xs:documentation>
+                          Flag to specify whether to use JMS transaction support on server side.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="durableSubscriberName" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                           Specifies the name of the Durable Subscription
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="address" type="jms:JMSAddressPolicyType"/>
+    <xs:element name="client" type="jms:JMSClientBehaviorPolicyType"/>
+    <xs:element name="server" type="jms:JMSServerBehaviorPolicyType"/>
 </xs:schema>

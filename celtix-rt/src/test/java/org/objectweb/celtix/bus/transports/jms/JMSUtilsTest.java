@@ -6,7 +6,8 @@ import javax.naming.Context;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.transports.jms.AddressType;
+import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
+import org.objectweb.celtix.transports.jms.JavaNamingPropertyType;
 
 public class JMSUtilsTest extends TestCase {
 
@@ -31,22 +32,17 @@ public class JMSUtilsTest extends TestCase {
     // This is just a place holder for now it will be chaning in next task 
     // when the new JMS address policies and configurations are introdced.
     public void testpopulateIncomingContextNonNull() throws Exception {
-        AddressType addrType =  new AddressType();
-        String prefix = "java.Naming";
-        addrType.setJavaNamingApplet(prefix);
-        addrType.setJavaNamingAuthoritative(prefix);
-        addrType.setJavaNamingBatchsize("12");
-        addrType.setJavaNamingDnsUrl(prefix);
-        addrType.setJavaNamingFactoryInitial(prefix);
-        addrType.setJavaNamingFactoryState(prefix);
-        addrType.setJavaNamingFactoryUrlPkgs(prefix);
-        addrType.setJavaNamingLanguage(prefix);
-        addrType.setJavaNamingProviderUrl(prefix);
-        addrType.setJavaNamingReferral(prefix);
-        addrType.setJavaNamingSecurityAuthentication(prefix);
-        addrType.setJavaNamingSecurityCredentials(prefix);
-        addrType.setJavaNamingSecurityPrincipal(prefix);
-        addrType.setJavaNamingSecurityProtocol(prefix);
+        JMSAddressPolicyType addrType =  new JMSAddressPolicyType();
+        
+        JavaNamingPropertyType prop = new JavaNamingPropertyType();
+        prop.setName(Context.APPLET);
+        prop.setValue("testValue");
+        addrType.getJavaNamingProperty().add(prop);      
+        
+        prop.setName(Context.BATCHSIZE);
+        prop.setValue("12");
+        addrType.getJavaNamingProperty().add(prop);
+        
         
         Properties env = new Properties();
         assertTrue(env.size() <= 0);

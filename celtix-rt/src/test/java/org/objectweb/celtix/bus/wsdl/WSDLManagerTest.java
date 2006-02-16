@@ -12,7 +12,7 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.transports.jms.AddressType;
+import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
@@ -86,7 +86,7 @@ public class WSDLManagerTest extends TestCase {
         WSDLManager wsdlManager = new WSDLManagerImpl(null);
         JAXBExtensionHelper.addExtensions(wsdlManager.getExtenstionRegistry(),
                                           javax.wsdl.Port.class,
-                                          org.objectweb.celtix.transports.jms.AddressType.class);
+                                          JMSAddressPolicyType.class);
             
         Definition def = wsdlManager.getDefinition(url);
         assertNotNull(def);
@@ -103,7 +103,7 @@ public class WSDLManagerTest extends TestCase {
         WSDLManager wsdlManager = bus.getWSDLManager();
         JAXBExtensionHelper.addExtensions(wsdlManager.getExtenstionRegistry(),
                                           javax.wsdl.Port.class,
-                                          org.objectweb.celtix.transports.jms.AddressType.class);
+                                         JMSAddressPolicyType.class);
         
         QName serviceName = new QName("http://celtix.objectweb.org/hello_world_jms", "HelloWorldService");
         
@@ -114,11 +114,11 @@ public class WSDLManagerTest extends TestCase {
         
         Port port = EndpointReferenceUtils.getPort(wsdlManager, ref);
         List<?> list = port.getExtensibilityElements();
-        AddressType jmsAddressDetails = null;
+        JMSAddressPolicyType jmsAddressDetails = null;
         for (Object ep : list) {
             ExtensibilityElement ext = (ExtensibilityElement)ep;
-            if (ext instanceof AddressType) {
-                jmsAddressDetails = (AddressType)ext;
+            if (ext instanceof JMSAddressPolicyType) {
+                jmsAddressDetails = (JMSAddressPolicyType)ext;
             }
         }
         assertNotNull(jmsAddressDetails);

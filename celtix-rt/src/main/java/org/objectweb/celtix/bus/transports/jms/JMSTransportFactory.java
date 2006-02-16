@@ -11,7 +11,9 @@ import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
-import org.objectweb.celtix.transports.jms.AddressType;
+import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
+import org.objectweb.celtix.transports.jms.JMSClientBehaviorPolicyType;
+import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 
@@ -38,7 +40,13 @@ public class JMSTransportFactory implements TransportFactory {
         try {
             JAXBExtensionHelper.addExtensions(theBus.getWSDLManager().getExtenstionRegistry(),
                                               Port.class,
-                                              AddressType.class);
+                                              JMSAddressPolicyType.class);
+            JAXBExtensionHelper.addExtensions(theBus.getWSDLManager().getExtenstionRegistry(),
+                                              Port.class,
+                                              JMSServerBehaviorPolicyType.class);
+            JAXBExtensionHelper.addExtensions(theBus.getWSDLManager().getExtenstionRegistry(),
+                                              Port.class,
+                                              JMSClientBehaviorPolicyType.class);
         } catch (JAXBException e) {
             e.printStackTrace();
         }

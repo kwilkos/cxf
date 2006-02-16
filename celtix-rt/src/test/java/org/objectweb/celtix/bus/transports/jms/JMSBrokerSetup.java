@@ -3,12 +3,11 @@
  */
 package org.objectweb.celtix.bus.transports.jms;
 
-import java.io.File;
-
 import junit.extensions.TestSetup;
 import junit.framework.TestSuite;
 
 import org.activemq.broker.impl.BrokerContainerImpl;
+import org.activemq.store.vm.VMPersistenceAdapter;
 
 
 class JMSBrokerSetup extends TestSetup {
@@ -26,24 +25,6 @@ class JMSBrokerSetup extends TestSetup {
     
     public void setUp() throws Exception {
         
-        // ActiveMQ will always use new subdirectory for each test run based on the
-        // timestamp. This is required for proper cleanup. current directory structure 
-        // doesn't get deleted due to lock held by jvm is not released even if the broker 
-        // is down. 
-
-        activeMQStorageDir = System.getProperty("activemq.store.dir");
-        
-        if (activeMQStorageDir != null) {
-            System.setProperty("activemq.store.dir", 
-                                 activeMQStorageDir + "/" + System.currentTimeMillis());
-        } else {
-            activeMQStorageDir = "./ActiveMQ";
-        }
-        
-        //Cleanup
-        File f1 =  new File(activeMQStorageDir);
-        deleteDir(f1);
-        
         jmsBrokerThread = new JMSEmbeddedBroker(jmsBrokerUrl);
         jmsBrokerThread.startBroker();
     }
@@ -57,35 +38,7 @@ class JMSBrokerSetup extends TestSetup {
         }
         
         jmsBrokerThread = null;
-        
-        // Clean atleast the ActiveMQ repository from previous run. current run's 
-        // repository is still locked in currnt JVM so cannot be cleaned. This will 
-        // avoid clutter of the repositories. 
-        
-        if (!"./ActiveMQ".equals(activeMQStorageDir) 
-            || null != System.getProperty("activemq.store.dir")) {
-            System.setProperty("activemq.store.dir", activeMQStorageDir);
-        }
-        
-        File f1 =  new File(activeMQStorageDir);
-        deleteDir(f1);
     }
-    
-    private  boolean deleteDir(File dir) {
-        if (dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length;  i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-    
-        // The directory is now empty so delete it
-        return dir.delete();
-    }
-
     
     class JMSEmbeddedBroker extends Thread {
         boolean shutdownBroker;
@@ -117,6 +70,7 @@ class JMSBrokerSetup extends TestSetup {
                 synchronized (this) {
                     container = new ContainerWapper();
                     container.addConnector(brokerUrl);
+                    container.setPersistenceAdapter(new VMPersistenceAdapter());
                     container.start();
                     Thread.sleep(200);
                     notifyAll();

@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.transports.jms;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -13,11 +14,13 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.QueueSender;
+import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicPublisher;
 import javax.naming.NamingException;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
@@ -26,6 +29,7 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
+import org.objectweb.celtix.transports.jms.JMSClientBehaviorPolicyType;
 import org.objectweb.celtix.transports.jms.context.JMSClientHeadersType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
@@ -33,16 +37,37 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class JMSClientTransport extends JMSTransportBase implements ClientTransport {
 
+    
     private static final Logger LOG = LogUtils.getL7dLogger(JMSClientTransport.class);
-    
     private static final long DEFAULT_RECEIVE_TIMEOUT = 15000;
-    
+
+    protected boolean textPayload;
+    private JMSClientBehaviorPolicyType clientBehaviourPolicy;
+
     public JMSClientTransport(Bus bus, 
                               EndpointReferenceType address, 
                               ResponseCallback callback) 
         throws WSDLException, IOException  {
+
         super(bus, address);
-        entry("JMSClientTransport Constructor");
+        //TODO: need to get the client policy here first.
+        //TODO: Need to get SerrverPolicy Here.
+        List<?> list = port.getExtensibilityElements();
+        for (Object ep : list) {
+            ExtensibilityElement ext = (ExtensibilityElement)ep;
+            if (ext instanceof JMSClientBehaviorPolicyType) {
+                clientBehaviourPolicy = (JMSClientBehaviorPolicyType)ext;
+                break;
+            }
+        }
+        
+        if (null == clientBehaviourPolicy) {
+            clientBehaviourPolicy = new JMSClientBehaviorPolicyType();
+        }
+        
+        textPayload = 
+            JMSConstants.TEXT_MESSAGE_TYPE.equals(clientBehaviourPolicy.getMessageType().value());
+        entry("JMSClientTransport Constructor: ResponseCallback object is " + callback);
     }
 
     //TODO: Revisit for proper implementation and changes if any.
@@ -189,11 +214,12 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         //We don't want to send temp queue in
         //replyTo header for oneway calls
         if (!responseExpected
-            && (jmsAddressDetails.getJndiReplyDestinationName() == null)) {
+            && (jmsAddressPolicy.getJndiReplyDestinationName() == null)) {
             replyTo = null;
         }
 
-        Message message = marshal(request, pooledSession.session(), replyTo);
+        Message message = marshal(request, pooledSession.session(), replyTo, 
+                                  clientBehaviourPolicy.getMessageType().value());
 
         JMSClientHeadersType headers =
             (JMSClientHeadersType) context.get(JMSConstants.JMS_REQUEST_HEADERS);
@@ -206,7 +232,9 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         if (ttl <= 0) {
             ttl = DEFAULT_RECEIVE_TIMEOUT;
         }
-
+        
+        message.setJMSExpiration(ttl);
+        
         setMessageProperties(headers, message);
         if (responseExpected) {
             String id = pooledSession.getCorrelationID();
@@ -266,7 +294,9 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
 
         if (message != null) {
             populateIncomingContext(message, context, false);
-            response = unmarshal(message);
+            String messageType = message instanceof TextMessage 
+                        ? JMSConstants.TEXT_MESSAGE_TYPE : JMSConstants.BINARY_MESSAGE_TYPE;
+            response = unmarshal(message, messageType);
             return response;
         } else {
             String error = "JMSClientTransport.receive() timed out. No message available.";

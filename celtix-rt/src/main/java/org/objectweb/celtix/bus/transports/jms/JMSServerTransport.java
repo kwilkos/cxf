@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.concurrent.Executor;
@@ -17,8 +18,10 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.QueueSender;
+import javax.jms.TextMessage;
 import javax.naming.NamingException;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
@@ -26,6 +29,7 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
+import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
 import org.objectweb.celtix.transports.jms.context.JMSServerHeadersType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
@@ -40,12 +44,32 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
     ServerTransportCallback callback;
     private PooledSession listenerSession;
     private Thread listenerThread;
+    private JMSServerBehaviorPolicyType serverBehaviourPolicy;
 
 
     public JMSServerTransport(Bus bus, EndpointReferenceType address)
         throws WSDLException {
         super(bus, address);
+        //TODO: Need to get SerrverPolicy Here.
+        List<?> list = port.getExtensibilityElements();
+        for (Object ep : list) {
+            ExtensibilityElement ext = (ExtensibilityElement)ep;
+            if (ext instanceof JMSServerBehaviorPolicyType) {
+                serverBehaviourPolicy = (JMSServerBehaviorPolicyType)ext;
+                break;
+            }
+        }
+        
+        if (null == serverBehaviourPolicy) {
+            serverBehaviourPolicy = new JMSServerBehaviorPolicyType();
+        }
+        
+        
         entry("JMSServerTransport Constructor");
+    }
+    
+    public JMSServerBehaviorPolicyType getJMSServerBehaviourPolicy() {
+        return serverBehaviourPolicy;
     }
 
     public void activate(ServerTransportCallback transportCB) throws IOException {
@@ -74,6 +98,9 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
     }
 
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
+        //ubhole: This should also put the JMS Response headers info. 
+        // This should come from configuation/context. 
+        // Info. will include the JMSMessage->timeToLive and other relevant info. (if any)
         return new JMSOutputStreamContext(context);
     }
 
@@ -121,12 +148,18 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
                     replySession = sessionFactory.get(false);
 
                     Message reply;
+                    boolean textPayload = message instanceof TextMessage 
+                                    ? true : false;
                     if (textPayload) {
-                        reply = marshal(context.getOutputStream().toString(), replySession.session(), null);
+                        reply = marshal(context.getOutputStream().toString(), 
+                                                replySession.session(), 
+                                                null, 
+                                                JMSConstants.TEXT_MESSAGE_TYPE);
                     } else {
                         reply = marshal(((ByteArrayOutputStream) context.getOutputStream()).toByteArray(),
                                                replySession.session(),
-                                               null);
+                                               null, 
+                                               JMSConstants.BINARY_MESSAGE_TYPE);
                     }
 
                     if (correlationID != null && !"".equals(correlationID)) {
@@ -190,15 +223,17 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
 
             if (correlationID == null
                 || "".equals(correlationID)
-                && jmsAddressDetails.isUseMessageIDAsCorrelationID()) {
+                && serverBehaviourPolicy.isUseMessageIDAsCorrelationID()) {
                 correlationID = message.getJMSMessageID();
             }
 
-            Object request = unmarshal(message);
+            String msgType = message instanceof TextMessage 
+                    ? JMSConstants.TEXT_MESSAGE_TYPE : JMSConstants.BINARY_MESSAGE_TYPE;
+            Object request = unmarshal(message, msgType);
 
             byte[] bytes = null;
 
-            if (textPayload) {
+            if (JMSConstants.TEXT_MESSAGE_TYPE.equals(msgType)) {
                 String requestString = (String)request;
                 LOG.log(Level.FINE, "server received request: ", requestString);
                 bytes = requestString.getBytes();
