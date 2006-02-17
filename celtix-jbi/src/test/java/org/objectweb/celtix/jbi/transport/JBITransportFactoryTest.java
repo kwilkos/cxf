@@ -23,8 +23,8 @@ public class JBITransportFactoryTest extends TestCase {
     private final CeltixServiceUnitManager suMgr = EasyMock.createMock(CeltixServiceUnitManager.class);
     private final EndpointReferenceType endpointRef = EasyMock.createMock(EndpointReferenceType.class);
     
+    
     public void setUp() {
-        
         factory.setDeliveryChannel(channel);
         factory.setServiceUnitManager(suMgr);
     }
@@ -55,7 +55,7 @@ public class JBITransportFactoryTest extends TestCase {
     }
 
   
-    public void disabledtestCreateServerTransport() throws Exception {
+    public void testCreateServerTransport() throws Exception {
         
         ServerTransport st = factory.createServerTransport(endpointRef);
         assertNotNull("server transport must not be null", st);

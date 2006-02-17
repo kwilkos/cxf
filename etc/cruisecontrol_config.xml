@@ -22,6 +22,7 @@
             <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-rt/target/surefire-reports"/>
             <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-systests/target/surefire-reports"/>
             <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-axisinterop/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-jbi/target/surefire-reports"/>
         </log>
         <publishers>
             <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
@@ -39,10 +40,9 @@
             <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-rt/target/surefire-reports"
                 subdirectory="celtix-rt"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-
-	    <!-- artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-jbi/target/surefire-reports"
+	    <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-jbi/target/surefire-reports"
                 subdirectory="celtix-jbi"
-                dest="/x1/celtix_cruisecontrol/logs/celtix"/ -->
+                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
 
             <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-systests/target/surefire-reports"
                 subdirectory="celtix-systests"

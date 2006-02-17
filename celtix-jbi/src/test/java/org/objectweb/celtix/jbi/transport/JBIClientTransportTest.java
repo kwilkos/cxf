@@ -88,7 +88,7 @@ public class JBIClientTransportTest extends TestCase {
     }
     
       
-    public void disabledtestinvoke() throws Exception {
+    public void testinvoke() throws Exception {
 
         MessageExchangeFactory factory = EasyMock.createMock(MessageExchangeFactory.class);
         InOut exchange = EasyMock.createMock(InOut.class);
