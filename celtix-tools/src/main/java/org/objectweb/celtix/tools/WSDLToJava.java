@@ -24,6 +24,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
     private Set getArrayKeys() {
         Set<String> set = new HashSet<String>();
         set.add(ToolConstants.CFG_BINDING);
+        set.add(ToolConstants.CFG_PACKAGENAME);
         return set;
     }
     
@@ -49,6 +50,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
                 env.put(ToolConstants.CFG_CMD_ARG, args);
 
                 validate(env);
+                setPackageAndNamespaces(env);
                 
                 processor.setEnvironment(env);
                 processor.process();
@@ -67,6 +69,23 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
             System.err.println();
             if (isVerboseOn()) {
                 ex.printStackTrace();
+            }
+        }
+    }
+
+    private void setPackageAndNamespaces(ProcessorEnvironment env) {
+        if (env.get(ToolConstants.CFG_PACKAGENAME) != null) {
+            String[] pns = (String[]) env.get(ToolConstants.CFG_PACKAGENAME);
+            for (int j = 0; j < pns.length; j++) {
+                int pos = pns[j].indexOf("=");
+                String packagename = pns[j];
+                if (pos != -1) {
+                    String ns = pns[j].substring(0, pos);
+                    packagename = pns[j].substring(pos + 1);
+                    env.addNamespacePackageMap(ns, packagename);
+                } else {
+                    env.setPackageName(packagename);
+                }
             }
         }
     }

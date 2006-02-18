@@ -2,28 +2,16 @@ package org.objectweb.celtix.tools.processors.wsdl2;
 
 import java.io.*;
 
-import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.WSDLToJava;
 import org.objectweb.celtix.tools.processors.ProcessorTestBase;
 
 public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     
-    private WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
-    
-    public void setUp() throws Exception {
-        super.setUp();
-        env.put(ToolConstants.CFG_OUTPUTDIR,
-                output.getCanonicalPath());
-    }
-
-    public void tearDown() {
-        super.tearDown();
-        processor = null;
-    }
-    
     public void testHelloWorld() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
-        processor.setEnvironment(env);
-        processor.process();
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     getLocation("/wsdl/hello_world.wsdl")};
+        WSDLToJava.main(args);
+
 
         assertNotNull(output);
 
@@ -42,9 +30,9 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testHelloWorldRPCLit() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_rpc_lit.wsdl"));
-        processor.setEnvironment(env);
-        processor.process();
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     getLocation("/wsdl/hello_world_rpc_lit.wsdl")};
+        WSDLToJava.main(args);
 
         assertNotNull(output);
 
@@ -63,9 +51,9 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testDocLitHolder() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/mapping-doc-literal.wsdl"));
-        processor.setEnvironment(env);
-        processor.process();
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     getLocation("/wsdl/mapping-doc-literal.wsdl")};
+        WSDLToJava.main(args);
 
         assertNotNull(output);
 
@@ -82,10 +70,9 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testSchemaImport() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_schema_import.wsdl"));
-        
-        processor.setEnvironment(env);
-        processor.process();
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     getLocation("/wsdl/hello_world_schema_import.wsdl")};
+        WSDLToJava.main(args);
 
         assertNotNull(output);
 
@@ -104,10 +91,10 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
     
     public void testExceptionNameCollision() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/InvoiceServer.wsdl"));
-        
-        processor.setEnvironment(env);
-        processor.process();
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     getLocation("/wsdl/InvoiceServer.wsdl")};
+        WSDLToJava.main(args);
+
 
         assertNotNull(output);
 
@@ -132,11 +119,10 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testAllNameCollision() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_collision.wsdl"));
-        env.put(ToolConstants.CFG_PACKAGENAME, "org.objectweb");
-        
-        processor.setEnvironment(env);
-        processor.process();
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     "-p", "org.objectweb",
+                                     getLocation("/wsdl/hello_world_collision.wsdl")};
+        WSDLToJava.main(args);
 
         assertNotNull(output);
 
@@ -157,11 +143,10 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testHelloWorldAsync() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_async.wsdl"));
-        env.put(ToolConstants.CFG_PACKAGENAME, "org.objectweb");
-        
-        processor.setEnvironment(env);
-        processor.process();
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     "-p", "org.objectweb",
+                                     getLocation("/wsdl/hello_world_async.wsdl")};
+        WSDLToJava.main(args);
 
         assertNotNull(output);
 
@@ -175,12 +160,11 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testHelloWorldExternalBindingFile() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_jaxws_base.wsdl"));
-        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl/hello_world_jaxws_binding.wsdl"));
-        env.put(ToolConstants.CFG_PACKAGENAME, "org.objectweb");
-        
-        processor.setEnvironment(env);
-        processor.process();
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     "-p", "org.objectweb",
+                                     "-b", getLocation("/wsdl/hello_world_jaxws_binding.wsdl"),
+                                     getLocation("/wsdl/hello_world_jaxws_base.wsdl")};
+        WSDLToJava.main(args);
 
         assertNotNull(output);
 
@@ -194,11 +178,10 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testSoapHeader() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/soap_header.wsdl"));
-        env.put(ToolConstants.CFG_PACKAGENAME, "org.objectweb");
-        
-        processor.setEnvironment(env);
-        processor.process();
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     "-p", "org.objectweb",
+                                     getLocation("/wsdl/soap_header.wsdl")};
+        WSDLToJava.main(args);
 
         assertNotNull(output);
 
@@ -211,14 +194,38 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals(11, files.length);
     }
 
-    public void testWSAddress() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_addr.wsdl"));
-        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl/ws_address_binding.wsdl"));
-        env.put(ToolConstants.CFG_PACKAGENAME, "org.objectweb");
-        
-        processor.setEnvironment(env);
-        processor.process();
 
+    public void testNamespacePackageMapping1() throws Exception {
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     "-p",
+                                     "org.objectweb",
+                                     "-p",
+                                     "http://objectweb.org/hello_world_soap_http/types=org.objectweb.types",
+                                     getLocation("/wsdl/hello_world.wsdl")};
+        WSDLToJava.main(args);
+
+        assertNotNull(output);
+        
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File objectweb = new File(org, "objectweb");
+        assertTrue(objectweb.exists());
+        File types = new File(objectweb, "types");
+        assertTrue(types.exists());
+
+        File[] files = objectweb.listFiles();
+        assertEquals(6, files.length);
+        files = types.listFiles();
+        assertEquals(17, files.length);
+    }
+
+    public void testNamespacePackageMapping2() throws Exception {
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     "-p", "org.objectweb",
+                                     "-p", "http://objectweb.org/hello_world_soap_http=com.iona",
+                                     getLocation("/wsdl/hello_world.wsdl")};
+        WSDLToJava.main(args);
+        
         assertNotNull(output);
         
         File org = new File(output, "org");
@@ -227,8 +234,62 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(objectweb.exists());
 
         File[] files = objectweb.listFiles();
+        assertEquals(17, files.length);
+        
+        File com = new File(output, "com");
+        assertTrue(com.exists());
+        File iona = new File(com, "iona");
+        assertTrue(iona.exists());
+
+        files = iona.listFiles();
+        assertEquals(5, files.length);
+    }
+
+    public void testNamespacePackageMapping3() throws Exception {
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     "-p", "http://objectweb.org/hello_world_soap_http=com.iona",
+                                     getLocation("/wsdl/hello_world.wsdl")};
+        WSDLToJava.main(args);
+        
+        assertNotNull(output);
+        
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File objectweb = new File(org, "objectweb");
+        assertTrue(objectweb.exists());
+        File helloworldsoaphttp = new File(objectweb, "hello_world_soap_http");
+        assertTrue(helloworldsoaphttp.exists());
+        File types = new File(helloworldsoaphttp, "types");
+        assertTrue(types.exists());
+        File[] files = types.listFiles();
+        assertEquals(files.length, 17);
+        
+        File com = new File(output, "com");
+        assertTrue(com.exists());
+        File iona = new File(com, "iona");
+        assertTrue(iona.exists());
+
+        files = iona.listFiles();
+        assertEquals(5, files.length);
+    }
+
+    public void testWSAddress() throws Exception {
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     "-p", "ws.address",
+                                     "-b", getLocation("/wsdl/ws_address_binding.wsdl"),
+                                     getLocation("/wsdl/hello_world_addr.wsdl")};
+        WSDLToJava.main(args);
+
+        assertNotNull(output);
+        
+        File ws = new File(output, "ws");
+        assertTrue(ws.exists());
+        File address = new File(ws, "address");
+        assertTrue(address.exists());
+
+        File[] files = address.listFiles();
         assertEquals(14, files.length);
-        File handlerConfig = new File(objectweb, "Greeter_handler.xml");
+        File handlerConfig = new File(address, "Greeter_handler.xml");
         assertTrue(handlerConfig.exists());
     }
 

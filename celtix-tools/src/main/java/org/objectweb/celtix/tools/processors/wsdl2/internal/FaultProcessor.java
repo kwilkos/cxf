@@ -49,8 +49,7 @@ public class FaultProcessor {
         Message faultMessage = fault.getMessage();
         String name = ProcessorUtil.mangleNameToClassName(faultMessage.getQName().getLocalPart());
         String namespace = faultMessage.getQName().getNamespaceURI();
-        String packageName = ProcessorUtil.parsePackageName(namespace,
-                                                            (String)env.get(ToolConstants.CFG_PACKAGENAME));
+        String packageName = ProcessorUtil.parsePackageName(namespace, env.mapPackageName(namespace));
 
         while (isNameCollision(packageName, name)) {
             name = name + "_Exception";
@@ -73,9 +72,8 @@ public class FaultProcessor {
             String fName = part.getName();
             String fType = ProcessorUtil.resolvePartType(part, jaxbModel);
             String fNamespace = ProcessorUtil.resolvePartNamespace(part);
-            String fPackageName = ProcessorUtil.parsePackageName(fNamespace,
-                                                                 (String)env.get(ToolConstants.
-                                                                                 CFG_PACKAGENAME));
+            String fPackageName = ProcessorUtil.parsePackageName(fNamespace, env.mapPackageName(fNamespace));
+
             JavaField fField = new JavaField(fName, fType, fNamespace);
             fField.setQName(ProcessorUtil.getElementName(part));
             

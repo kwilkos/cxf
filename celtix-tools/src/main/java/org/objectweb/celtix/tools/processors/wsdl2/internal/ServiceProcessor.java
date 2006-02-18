@@ -21,7 +21,6 @@ import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
-import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
@@ -82,8 +81,7 @@ public class ServiceProcessor {
         JavaServiceClass sclz = new JavaServiceClass(model);
         String name = ProcessorUtil.mangleNameToClassName(service.getQName().getLocalPart());
         String namespace = service.getQName().getNamespaceURI();
-        String packageName = ProcessorUtil.parsePackageName(namespace, (String)env
-            .get(ToolConstants.CFG_PACKAGENAME));
+        String packageName = ProcessorUtil.parsePackageName(namespace, env.mapPackageName(namespace));
 
         while (isNameCollision(packageName, name)) {
             name = name + "_Service";

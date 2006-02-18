@@ -28,7 +28,6 @@ public class ClassNameAllocatorImpl implements ClassNameAllocator {
             fullClzName = className + TYPE_SUFFIX;
         }
         collector.addTypesClassName(packageName, className, packageName + "." + fullClzName);
-
         return fullClzName;
     }
 

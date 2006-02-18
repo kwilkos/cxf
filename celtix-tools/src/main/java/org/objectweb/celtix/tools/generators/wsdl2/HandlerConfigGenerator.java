@@ -2,11 +2,6 @@ package org.objectweb.celtix.tools.generators.wsdl2;
 
 import java.io.*;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -65,16 +60,6 @@ public class HandlerConfigGenerator extends AbstractGenerator {
     }
 
     private void generateHandlerChainFile(Element hChains, Writer writer) throws ToolException {
-        try {
-            Transformer it = XMLUtil.newTransformer();
-
-            it.setOutputProperty(OutputKeys.METHOD, "xml");
-            it.setOutputProperty(OutputKeys.INDENT, "yes");
-            it.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            it.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            it.transform(new DOMSource(hChains), new StreamResult(writer));
-        } catch (Exception e) {
-            throw new ToolException("generator.nestedGeneratorError", e);
-        }
+        XMLUtil.generateXMLFile(hChains, writer);
     }
 }

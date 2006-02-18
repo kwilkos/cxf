@@ -43,9 +43,9 @@ public final class StringUtils {
     }
 
     public static boolean isEmpty(String str) {
-        if (str == null || str.length() == 0) {
-            return true;
+        if (str != null && str.trim().length() > 0) {
+            return false;
         }
-        return false;
+        return true;
     }
 }

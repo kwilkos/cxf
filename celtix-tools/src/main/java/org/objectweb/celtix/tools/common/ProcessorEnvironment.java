@@ -1,10 +1,13 @@
 package org.objectweb.celtix.tools.common;
 
 import java.util.*;
+import org.objectweb.celtix.tools.utils.URIParserUtil;
 
 public class ProcessorEnvironment {
 
     private Map<String, Object> paramMap;
+    private String packageName;
+    private Map<String, String> namespacePackageMap = new HashMap<String, String>();
 
     public void setParameters(Map<String, Object> map) {
         this.paramMap = map;
@@ -42,5 +45,37 @@ public class ProcessorEnvironment {
         } else {
             return (Boolean) get(ToolConstants.CFG_VERBOSE);
         }
+    }
+
+    public void addNamespacePackageMap(String namespace, String pn) {
+        this.namespacePackageMap.put(namespace, pn);
+    }
+
+    private String mapNamespaceToPackageName(String ns) {
+        return this.namespacePackageMap.get(ns);
+    }
+
+    public boolean hasNamespace(String ns) {
+        return this.namespacePackageMap.containsKey(ns);
+    }
+
+    public void setPackageName(String pkgName) {
+        this.packageName = pkgName;
+    }
+    
+    public String getPackageName() {
+        return this.packageName;
+    }
+
+    public String mapPackageName(String ns) {
+        if (hasNamespace(ns)) {
+            return mapNamespaceToPackageName(ns);
+        } else {
+            return getPackageName();
+        }
+    }
+
+    public String getCustomizedNS(String ns) {
+        return URIParserUtil.getNamespace(mapPackageName(ns));
     }
 }

@@ -19,7 +19,6 @@
 		Also, optionally specify the wsdl namespace mapping to a particular java packagename.</annotation>
 		<switch>p</switch>
 		<associatedArgument placement="afterSpace">
-		    <valuetype>IdentifyString</valuetype>
 		    <annotation>[wsdl namespace =]Package Name</annotation>
 		</associatedArgument>
 	    </option>
@@ -34,7 +33,7 @@
 	    </option>
 -->
 	    <option id="binding" maxOccurs="unbounded">
-		<annotation>Specify external jaxws or jaxb binding files, sperate by space</annotation>
+		<annotation>Specify external jaxws or jaxb binding files, (Each file must have its own -b)</annotation>
 		<switch>b</switch>
 		<associatedArgument placement="afterSpace">
 		    <annotation>binding-name</annotation>

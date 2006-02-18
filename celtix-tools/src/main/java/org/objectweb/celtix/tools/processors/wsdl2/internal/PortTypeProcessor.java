@@ -35,8 +35,8 @@ public class PortTypeProcessor {
         intf.setHandlerChains(CustomizationParser.getInstance().getHandlerChains());
         
         String namespace = portType.getQName().getNamespaceURI();
-        String packageName = ProcessorUtil.parsePackageName(namespace,
-                                                            (String) env.get(ToolConstants.CFG_PACKAGENAME));
+        String packageName = ProcessorUtil.parsePackageName(namespace, env.mapPackageName(namespace));
+
         String location = (String) env.get(ToolConstants.CFG_WSDLURL);
         try {
             location = ProcessorUtil.getAbsolutePath(location);

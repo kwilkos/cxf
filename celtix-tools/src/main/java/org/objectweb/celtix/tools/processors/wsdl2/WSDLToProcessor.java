@@ -38,6 +38,8 @@ import org.objectweb.celtix.tools.jaxws.JAXWSBindingDeserializer;
 import org.objectweb.celtix.tools.jaxws.JAXWSBindingSerializer;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassNameAllocatorImpl;
 import org.objectweb.celtix.tools.utils.ClassCollectorUtil;
+import org.objectweb.celtix.tools.utils.StringUtils;
+import org.objectweb.celtix.tools.utils.XMLUtil;
 
 public class WSDLToProcessor implements Processor {
 
@@ -50,6 +52,7 @@ public class WSDLToProcessor implements Processor {
     List<Schema> schemaList = new ArrayList<Schema>();
     private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
+    private List<String> schemaTargetNamespaces = new ArrayList<String>();
 
     private void parseWSDL(String wsdlURL) throws ToolException {
         try {
@@ -161,32 +164,46 @@ public class WSDLToProcessor implements Processor {
     private void buildJaxbModel() {
         SchemaCompiler schemaCompiler = XJC.createSchemaCompiler();
 
-        String packageName = (String)env.get(ToolConstants.CFG_PACKAGENAME);
-        if (packageName != null && packageName.trim().length() > 0) {
-            schemaCompiler.setDefaultPackageName(packageName);
-        }
-
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl();
-        allocator.setPortTypes(wsdlDefinition.getPortTypes().values(), packageName);
+        allocator.setPortTypes(wsdlDefinition.getPortTypes().values(),
+                               env.mapPackageName(this.wsdlDefinition.getTargetNamespace()));
         schemaCompiler.setClassNameAllocator(allocator);
         int schemaCount = 0;
         for (Schema schema : schemaList) {
             schemaCount++;
             Element schemaElement = schema.getElement();
 
-            int nodeListLen = schemaElement.getElementsByTagNameNS(ToolConstants.SCHEMA_URI,
-                                                                   "import").getLength();
-            for (int i = 0; i < nodeListLen; i++) {
-                removeImportElement(schemaElement);
-            }
-            
             String targetNamespace = schemaElement.getAttribute("targetNamespace");
             if (targetNamespace == null || targetNamespace.trim().length() == 0) {
                 continue;
             }
+            customizeSchema(schemaElement, targetNamespace, schemaCount);
+            
             schemaCompiler.parseSchema(targetNamespace + "#types" + schemaCount, schemaElement);
         }
         rawJaxbModel = schemaCompiler.bind();
+    }
+
+    private boolean isSchemaParsed(String targetNamespace) {
+        if (!schemaTargetNamespaces.contains(targetNamespace)) {
+            schemaTargetNamespaces.add(targetNamespace);
+            return false;
+        } else {
+            return true;
+        }
+    }
+    
+    private void customizeSchema(Element schema, String targetNamespace, int id) {
+        String userPackage = env.mapPackageName(targetNamespace);
+        if (!isSchemaParsed(targetNamespace) && !StringUtils.isEmpty(userPackage)) {
+            Node jaxbBindings = XMLUtil.innerJaxbPackageBinding(schema, userPackage);
+            schema.appendChild(jaxbBindings);
+        }
+
+        int nodeListLen = schema.getElementsByTagNameNS(ToolConstants.SCHEMA_URI, "import").getLength();
+        for (int i = 0; i < nodeListLen; i++) {
+            removeImportElement(schema);
+        }
     }
 
     private void removeImportElement(Element element) {
@@ -198,6 +215,10 @@ public class WSDLToProcessor implements Processor {
         }
     }
 
+    private boolean isSchemaImported(Schema schema) {
+        return schemaList.contains(schema);
+    }
+    
     @SuppressWarnings("unchecked")
     private void addSchema(Schema schema) {
         Map<String, List> imports = schema.getImports();
@@ -206,7 +227,9 @@ public class WSDLToProcessor implements Processor {
             for (String importNamespace : importKeys) {
                 List<SchemaImport> schemaImports = imports.get(importNamespace);
                 for (SchemaImport schemaImport : schemaImports) {
-                    addSchema(schemaImport.getReferencedSchema());
+                    if (!isSchemaImported(schemaImport.getReferencedSchema())) {
+                        addSchema(schemaImport.getReferencedSchema());
+                    }
                 }
             }
         }

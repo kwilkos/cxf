@@ -247,27 +247,21 @@ public class OperationProcessor  {
             || ProcessorUtil.getBlock(outputPart, env) == null) {
             return false;
         }
-        String userPackage = (String)env.get(ToolConstants.CFG_PACKAGENAME);
 
         if (inputPart != null) {
             wrapperRequest = new JavaParameter();
             wrapperRequest.setName(ProcessorUtil.resolvePartName(inputPart));
             wrapperRequest.setType(ProcessorUtil.getPartType(inputPart));
             wrapperRequest.setTargetNamespace(ProcessorUtil.resolvePartNamespace(inputPart));
-            wrapperRequest.setClassName(ProcessorUtil.getFullClzName(wrapperRequest.getTargetNamespace(),
-                                                                     ProcessorUtil.resolvePartType(inputPart,
-                                                                                                   this.env),
-                                                                     userPackage));
+            wrapperRequest.setClassName(ProcessorUtil.getFullClzName(inputPart, this.env));
+                
         }
         if (outputPart != null) {
             wrapperResponse = new JavaParameter();
             wrapperResponse.setName(ProcessorUtil.resolvePartName(outputPart));
             wrapperResponse.setType(ProcessorUtil.getPartType(outputPart));
             wrapperResponse.setTargetNamespace(ProcessorUtil.resolvePartNamespace(outputPart));
-            wrapperResponse.setClassName(ProcessorUtil.getFullClzName(wrapperResponse.getTargetNamespace(),
-                                                                      ProcessorUtil.
-                                                                      resolvePartType(outputPart, this.env),
-                                                                      userPackage));
+            wrapperResponse.setClassName(ProcessorUtil.getFullClzName(outputPart, this.env));
         }
         
         return true;

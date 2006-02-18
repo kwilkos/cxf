@@ -8,9 +8,7 @@ import javax.xml.namespace.QName;
 
 import com.sun.codemodel.JType;
 import com.sun.tools.xjc.api.Property;
-import com.sun.tools.xjc.api.S2JJAXBModel;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
-import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
@@ -66,18 +64,14 @@ public class ParameterProcessor {
         parameter.setPartName(part.getName());
         parameter.setQName(ProcessorUtil.getElementName(part));
         
-        String userPackage = (String) env.get(ToolConstants.CFG_PACKAGENAME);
-        S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get(ToolConstants.RAW_JAXB_MODEL);
         parameter.setClassName(ProcessorUtil.getFullClzName(part,
-                                                            userPackage,
-                                                            jaxbModel));
+                                                            env));
 
         if (style == JavaType.Style.INOUT || style == JavaType.Style.OUT) {
             parameter.setHolder(true);
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());
             parameter.setHolderClass(ProcessorUtil.getFullClzName(part,
-                                                                  userPackage,
-                                                                  jaxbModel,
+                                                                  env,
                                                                   true));
         }
         parameter.setStyle(style);
@@ -129,12 +123,9 @@ public class ParameterProcessor {
         JavaReturn returnType = new JavaReturn(name, type, namespace);
         returnType.setQName(ProcessorUtil.getElementName(part));
         returnType.setStyle(JavaType.Style.OUT);
-        String userPackage = (String) env.get(ToolConstants.CFG_PACKAGENAME);
         if (namespace != null && type != null && !"void".equals(type)) {
-            S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get(ToolConstants.RAW_JAXB_MODEL);
             returnType.setClassName(ProcessorUtil.getFullClzName(part,
-                                                                 userPackage,
-                                                                 jaxbModel));
+                                                                 env));
         }
         method.setReturn(returnType);
     }
@@ -169,7 +160,9 @@ public class ParameterProcessor {
                 // complete
             }
             for (Property item : block) {
-                addParameter(method, getParameterFromProperty(item, JavaType.Style.IN));
+                addParameter(method, getParameterFromProperty(item,
+                                                              JavaType.Style.IN,
+                                                              part));
             }        
         }
     }
@@ -247,7 +240,9 @@ public class ParameterProcessor {
             boolean sameWrapperChild = false;
             for (Property inElement : inputBlock) {
                 if (isSameWrapperChild(inElement, outElement)) {
-                    addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT));
+                    addParameter(method, getParameterFromProperty(outElement,
+                                                                  JavaType.Style.INOUT,
+                                                                  outputPart));
                     sameWrapperChild = true;
                     if (method.getReturn() == null) {
                         addVoidReturn(method);
@@ -256,7 +251,7 @@ public class ParameterProcessor {
                 } 
             }
             if (!sameWrapperChild) {
-                method.setReturn(getReturnFromProperty(outElement)); 
+                method.setReturn(getReturnFromProperty(outElement, outputPart)); 
             }
             return;
         }
@@ -266,19 +261,23 @@ public class ParameterProcessor {
                 if (method.getReturn() != null) {
                     throw new ToolException("Wrapper style can not have two return types");
                 }
-                method.setReturn(getReturnFromProperty(outElement));
+                method.setReturn(getReturnFromProperty(outElement, outputPart));
                 continue;
             }
             boolean sameWrapperChild = false;
             for (Property inElement : inputBlock) {
                 if (isSameWrapperChild(inElement, outElement)) {
-                    addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT));
+                    addParameter(method, getParameterFromProperty(outElement,
+                                                                  JavaType.Style.INOUT,
+                                                                  outputPart));
                     sameWrapperChild = true;
                     break;
                 } 
             }
             if (!sameWrapperChild) {
-                addParameter(method, getParameterFromProperty(outElement, JavaType.Style.OUT));
+                addParameter(method, getParameterFromProperty(outElement,
+                                                              JavaType.Style.OUT,
+                                                              outputPart));
             }
         }
         if (method.getReturn() == null) {
@@ -304,10 +303,13 @@ public class ParameterProcessor {
         return true;
     }
 
-    private JavaParameter getParameterFromProperty(Property property, JavaType.Style style) {
+    private JavaParameter getParameterFromProperty(Property property, JavaType.Style style, Part part) {
         JType t = property.type();
-        String namespace = property.elementName().getNamespaceURI();
-        JavaParameter parameter = new JavaParameter(property.name(), t.fullName(), namespace);
+        String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
+        if (targetNamespace == null) {
+            targetNamespace = property.elementName().getNamespaceURI();
+        }
+        JavaParameter parameter = new JavaParameter(property.name(), t.fullName(), targetNamespace);
         parameter.setStyle(style);
         parameter.setQName(property.elementName());
         if (style == JavaType.Style.OUT || style == JavaType.Style.INOUT) {
@@ -318,10 +320,13 @@ public class ParameterProcessor {
         return parameter;
     }
       
-    private JavaReturn getReturnFromProperty(Property property) {
+    private JavaReturn getReturnFromProperty(Property property, Part part) {
         JType t = property.type();
-        String namespace = property.elementName().getNamespaceURI();
-        JavaReturn returnType = new JavaReturn(property.name(), t.fullName(), namespace);
+        String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
+        if (targetNamespace == null) {
+            targetNamespace = property.elementName().getNamespaceURI();
+        }
+        JavaReturn returnType = new JavaReturn(property.name(), t.fullName(), targetNamespace);
         returnType.setQName(property.elementName());
         returnType.setStyle(JavaType.Style.OUT);
         return returnType;
