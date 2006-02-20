@@ -6,7 +6,7 @@ import org.objectweb.celtix.tools.WSDLToJava;
 import org.objectweb.celtix.tools.processors.ProcessorTestBase;
 
 public class WSDLToJavaProcessorTest extends ProcessorTestBase {
-    
+
     public void testHelloWorld() throws Exception {
         String[] args = new String[]{"-d", output.getCanonicalPath(),
                                      getLocation("/wsdl/hello_world.wsdl")};
@@ -271,6 +271,26 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         files = iona.listFiles();
         assertEquals(5, files.length);
+    }
+
+    public void testExternalJaxbBinding() throws Exception {
+        String[] args = new String[]{"-d", output.getCanonicalPath(),
+                                     "-b", getLocation("/wsdl/hello_world_schema_import.xjb"),
+                                     getLocation("/wsdl/hello_world_schema_import.wsdl")};
+        WSDLToJava.main(args);
+        
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File objectweb = new File(org, "objectweb");
+        assertTrue(objectweb.exists());
+        File[] files = objectweb.listFiles();
+        assertEquals(11, files.length);
+        File helloworldsoaphttp = new File(objectweb, "hello_world_soap_http");
+        assertTrue(helloworldsoaphttp.exists());
+        files = helloworldsoaphttp.listFiles();
+        assertEquals(3, files.length);
     }
 
     public void testWSAddress() throws Exception {

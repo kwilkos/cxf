@@ -1,6 +1,7 @@
 package org.objectweb.celtix.tools.common;
 
 import java.util.*;
+import org.xml.sax.InputSource;
 import org.objectweb.celtix.tools.utils.URIParserUtil;
 
 public class ProcessorEnvironment {
@@ -8,6 +9,7 @@ public class ProcessorEnvironment {
     private Map<String, Object> paramMap;
     private String packageName;
     private Map<String, String> namespacePackageMap = new HashMap<String, String>();
+    private final Map<String, InputSource> jaxbBindingFiles = new HashMap<String, InputSource>();
 
     public void setParameters(Map<String, Object> map) {
         this.paramMap = map;
@@ -77,5 +79,13 @@ public class ProcessorEnvironment {
 
     public String getCustomizedNS(String ns) {
         return URIParserUtil.getNamespace(mapPackageName(ns));
+    }
+
+    public void addJaxbBindingFile(String location, InputSource is) {
+        this.jaxbBindingFiles.put(location, is);
+    }
+
+    public Map<String, InputSource> getJaxbBindingFile() {
+        return this.jaxbBindingFiles;
     }
 }

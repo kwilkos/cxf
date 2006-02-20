@@ -20,7 +20,7 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 
 import org.w3c.dom.*;
-
+import org.xml.sax.InputSource;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.api.SchemaCompiler;
 import com.sun.tools.xjc.api.XJC;
@@ -41,7 +41,7 @@ import org.objectweb.celtix.tools.utils.ClassCollectorUtil;
 import org.objectweb.celtix.tools.utils.StringUtils;
 import org.objectweb.celtix.tools.utils.XMLUtil;
 
-public class WSDLToProcessor implements Processor {
+public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorListener {
 
     protected Definition wsdlDefinition;
     protected ProcessorEnvironment env;
@@ -168,18 +168,21 @@ public class WSDLToProcessor implements Processor {
         allocator.setPortTypes(wsdlDefinition.getPortTypes().values(),
                                env.mapPackageName(this.wsdlDefinition.getTargetNamespace()));
         schemaCompiler.setClassNameAllocator(allocator);
-        int schemaCount = 0;
+        schemaCompiler.setErrorListener(this);
         for (Schema schema : schemaList) {
-            schemaCount++;
             Element schemaElement = schema.getElement();
 
             String targetNamespace = schemaElement.getAttribute("targetNamespace");
             if (targetNamespace == null || targetNamespace.trim().length() == 0) {
                 continue;
             }
-            customizeSchema(schemaElement, targetNamespace, schemaCount);
-            
-            schemaCompiler.parseSchema(targetNamespace + "#types" + schemaCount, schemaElement);
+            customizeSchema(schemaElement, targetNamespace);
+            String systemid = schema.getDocumentBaseURI();
+            schemaCompiler.parseSchema(systemid, schemaElement);
+        }
+        Collection<InputSource> jaxbBindingFiles = env.getJaxbBindingFile().values();
+        for (InputSource bindingFile : jaxbBindingFiles) {
+            schemaCompiler.parseSchema(bindingFile);
         }
         rawJaxbModel = schemaCompiler.bind();
     }
@@ -193,7 +196,7 @@ public class WSDLToProcessor implements Processor {
         }
     }
     
-    private void customizeSchema(Element schema, String targetNamespace, int id) {
+    private void customizeSchema(Element schema, String targetNamespace) {
         String userPackage = env.mapPackageName(targetNamespace);
         if (!isSchemaParsed(targetNamespace) && !StringUtils.isEmpty(userPackage)) {
             Node jaxbBindings = XMLUtil.innerJaxbPackageBinding(schema, userPackage);
@@ -320,5 +323,33 @@ public class WSDLToProcessor implements Processor {
         registry.mapExtensionTypes(clz,
                                    ToolConstants.JAXWS_BINDINGS,
                                    JAXWSBinding.class);
+    }
+
+    public void error(org.xml.sax.SAXParseException exception) {
+        if (this.env.isVerbose()) {
+            exception.printStackTrace();
+        } else {
+            System.err.println("Parsing schema error: \n" + exception.toString());
+        }
+    }
+
+    public void fatalError(org.xml.sax.SAXParseException exception) {
+        if (this.env.isVerbose()) {
+            exception.printStackTrace();
+        } else {
+            System.err.println("Parsing schema fatal error: \n" + exception.toString());
+        }
+    }
+
+    public void info(org.xml.sax.SAXParseException exception) {
+        if (this.env.isVerbose()) {
+            System.err.println("Parsing schema info: " + exception.toString());
+        }
+    }
+
+    public void warning(org.xml.sax.SAXParseException exception) {
+        if (this.env.isVerbose()) {
+            System.err.println("Parsing schema warning " + exception.toString());
+        }
     }
 }

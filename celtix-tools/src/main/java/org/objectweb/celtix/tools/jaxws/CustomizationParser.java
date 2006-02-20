@@ -124,7 +124,7 @@ public final class CustomizationParser {
             try {
                 addBinding(bindingFiles[i]);
             } catch (XMLStreamException xse) {
-                throw new ToolException("StAX parser error, check your JAX-WS binding file(s)", xse);
+                throw new ToolException("StAX parser error, check your external binding file(s)", xse);
             }
         }
         
@@ -199,7 +199,18 @@ public final class CustomizationParser {
         if (isValidJaxwsBindingFile(bindingFile, reader)) {
             Element root = parse(is);
             jaxwsBindings.add(root);
+        } else if (isValidJaxbBindingFile(reader)) {
+            env.addJaxbBindingFile(bindingFile, is);
+        } else {
+            throw new ToolException("Unknown external binding files: " + bindingFile);
         }
+    }
+
+    private boolean isValidJaxbBindingFile(XMLStreamReader reader) {
+        if (ToolConstants.JAXB_BINDINGS.equals(reader.getName())) {
+            return true;
+        }
+        return false;
     }
 
     private boolean isValidJaxwsBindingFile(String bindingLocation, XMLStreamReader reader) {
@@ -220,6 +231,8 @@ public final class CustomizationParser {
                                             + "]is not point to the specified wsdl url ["
                                             + wsdlURL + "]");
                 }
+            } else {
+                return false;
             }
         } catch (MalformedURLException e) {
             throw new ToolException("Can not get wsdl location:", e);
