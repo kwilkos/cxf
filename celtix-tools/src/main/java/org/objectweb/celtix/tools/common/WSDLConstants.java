@@ -17,6 +17,7 @@ public final class WSDLConstants {
     public static final String SOAP12_NAMESPACE = "http://schemas.xmlsoap.org/wsdl/soap12/";
     public static final String SOAP_PREFIX = "soap";
     public static final String SOAP12_PREFIX = "soap12";
+    public static final String JMS_PREFIX = "jms";
     public static final String TNS_PREFIX = "tns";
 
     public static final String BINDING = "Binding";

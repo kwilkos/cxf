@@ -11,11 +11,12 @@ public final class ToolConstants {
     
     public static final String DEFAULT_TEMP_DIR = "gen_tmp";
     public static final String CFG_OUTPUTDIR = "outputdir";
+    public static final String CFG_OUTPUTFILE = "outputfile";
     public static final String CFG_WSDLURL = "wsdlurl";
     public static final String CFG_NAMESPACE = "namespace";
     public static final String CFG_VERBOSE = "verbose";
     public static final String CFG_PORT = "port";
-    public static final String CFG_BINDING = "binding";
+    public static final String CFG_BINDING = "binding";    
     public static final String CFG_WEBSERVICE = "webservice";
     public static final String CFG_SERVER = "server";
     public static final String CFG_CLIENT = "client";
@@ -28,6 +29,7 @@ public final class ToolConstants {
     public static final String CFG_INSTALL_DIR = "install.dir";
     public static final String CFG_PLATFORM_VERSION = "platform.version";
 
+   
     // WSDL2Java Constants
     
     public static final String CFG_TYPES = "types";
@@ -39,7 +41,6 @@ public final class ToolConstants {
     
     // Java2WSDL Constants
     
-    public static final String CFG_OUTPUTFILE = "outputfile";
     public static final String CFG_TNS = "tns";
     public static final String CFG_SCHEMANS = "schemans";
     public static final String CFG_USETYPES = "usetypes";
@@ -47,6 +48,12 @@ public final class ToolConstants {
     public static final String CFG_PORTTYPE = "porttype";
  
 
+    // WSDL2Service Constants
+    public static final String CFG_ADDRESS = "address";
+    public static final String CFG_TRANSPORT = "transport";
+    public static final String CFG_SERVICE = "service";
+    public static final String CFG_BINDING_ATTR = "attrbinding";
+    
     // WSDL2Java Processor Constants
     public static final String SEI_GENERATOR = "sei.generator";
     public static final String FAULT_GENERATOR = "fault.generator";
@@ -74,7 +81,7 @@ public final class ToolConstants {
     public static final String HANDLER_CHAINS = "handler-chains";
 
     public static final String RAW_JAXB_MODEL = "rawjaxbmodel";
-
+    
     // JMS adress
     public static final String NS_JMS_ADDRESS = "http://celtix.objectweb.org/transports/jms";
     public static final QName  JMS_ADDRESS = new QName(NS_JMS_ADDRESS, "address");

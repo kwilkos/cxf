@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<toolspec xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xmlns:xhtml="http://www.w3.org/TR/xhtml1/strict"
+	  xsi:schemaLocation="http://www.xsume.com/Xutil/ToolSpecification http://www.xsume.com/schema/xutil/tool-specification.xsd"
+	  xmlns="http://www.xsume.com/Xutil/ToolSpecification"
+	  xmlns:ts="http://www.xsume.com/Xutil/ToolSpecification">
+
+    <annotation> Examples :
+    wsdl2service HelloWorld.wsdl
+    </annotation>
+
+    <usage>
+	<optionGroup id="options">
+
+   	    <option id="transport" maxOccurs="1">
+		<annotation>If the payload being sent over the wire is SOAP, use -transport soap. For all other payloads use -transport http.</annotation>
+		<switch>transport</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>soap/http</annotation>
+		</associatedArgument>
+	    </option>
+
+   	    <option id="service" minOccurs="1" maxOccurs="1">
+		<annotation>Specifies the name of the generated service.</annotation>
+		<switch>e</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>service-name</annotation>
+		</associatedArgument>
+	    </option>
+
+   	    <option id="port" minOccurs="1" maxOccurs="1">
+		<annotation>Specifies the value of the name attribute of the generated port element, sperate by space</annotation>
+		<switch>p</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>port-name</annotation>
+		</associatedArgument>
+	    </option>
+		
+   	    <option id="attrbinding" minOccurs="1" maxOccurs="1">
+		<annotation>Specifies the name of the binding for which the service is generated, sperate by space</annotation>
+		<switch>n</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>attribute-binding-name</annotation>
+		</associatedArgument>
+	    </option>
+
+   	    <option id="address" minOccurs="0" maxOccurs="1">
+		<annotation>Specifies the value used in the address element of the port, sperate by space</annotation>
+		<switch>a</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>address</annotation>
+		</associatedArgument>
+	    </option>
+
+	    <option id="outputdir" maxOccurs="1">
+		<annotation>The directory in which the code is placed</annotation>
+		<switch>d</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>output-directory</annotation>
+		</associatedArgument>
+	    </option>
+
+   	    <option id="outputfile" maxOccurs="1">
+		<annotation>Generated contract file name, default is to append -service to imported contract file name.</annotation>
+		<switch>o</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>output-file-name</annotation>
+		</associatedArgument>
+	    </option>
+
+	</optionGroup>
+
+	<optionGroup id="common_options">
+	    <option id="help" maxOccurs="1">
+		<annotation>Display detailed information for options.</annotation>
+		<switch>h</switch>
+		<switch>?</switch>
+		<switch>help</switch>
+	    </option>
+	    
+	    <option id="version">
+		<annotation>Display the version of the tool.</annotation>
+		<switch>v</switch>
+	    </option>
+
+	    <option id="verbose">
+		<annotation>Verbose mode</annotation>
+		<switch>verbose</switch>
+		<switch>V</switch>
+	    </option>
+
+	    <option id="quiet">
+		<annotation>Quiet mode</annotation>
+		<switch>quiet</switch>
+		<switch>q</switch>
+	    </option>
+
+	</optionGroup>
+	<argument id="wsdlurl" minOccurs="1" maxOccurs="1">
+	    <annotation>WSDL/SCHEMA URL</annotation>
+	</argument>
+    </usage>
+</toolspec>

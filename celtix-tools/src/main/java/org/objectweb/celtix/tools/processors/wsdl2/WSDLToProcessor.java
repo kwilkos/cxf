@@ -54,7 +54,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
     private List<String> schemaTargetNamespaces = new ArrayList<String>();
 
-    private void parseWSDL(String wsdlURL) throws ToolException {
+    protected void parseWSDL(String wsdlURL) throws ToolException {
         try {
             wsdlFactory = WSDLFactory.newInstance();
             wsdlReader = wsdlFactory.newWSDLReader();
