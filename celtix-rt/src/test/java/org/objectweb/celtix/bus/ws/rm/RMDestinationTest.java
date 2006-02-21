@@ -4,8 +4,9 @@ import java.math.BigInteger;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.bus.configuration.wsrm.DestinationPolicyType;
 import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.addressing200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceType;
 
@@ -23,7 +24,7 @@ public class RMDestinationTest extends TestCase {
     public void setUp() {
         handler = createMock(RMHandler.class);
         address = createMock(EndpointReferenceType.class);
-    }
+    }   
 
     public void testAddSequence() {
         RMDestination d = new RMDestination(handler);
@@ -32,21 +33,36 @@ public class RMDestinationTest extends TestCase {
         d.addSequence(seq);
         assertSame(seq, d.getSequence(sid));
     }
-
+    
     public void testGetDestinationPolicies() {
+        DestinationPolicyType dp = null;
         Configuration c = createMock(Configuration.class);
         reset(handler);
         handler.getConfiguration();
         expectLastCall().andReturn(c);
-        c.getObject("destinationPolicies");
-        expectLastCall().andReturn(null);
+        c.getObject(DestinationPolicyType.class, "destinationPolicies");
+        expectLastCall().andReturn(dp);
         replay(handler);
-        replay(c);
-
+        replay(c);  
         RMDestination d = new RMDestination(handler);
-        assertNull(d.getDestinationPolicies());
+        assertNotNull(d.getDestinationPolicies());
         verify(handler);
         verify(c);
+                
+        reset(handler);
+        reset(c);
+        
+        dp = createMock(DestinationPolicyType.class);
+        handler.getConfiguration();
+        expectLastCall().andReturn(c);
+        c.getObject(DestinationPolicyType.class, "destinationPolicies");         
+        expectLastCall().andReturn(dp);
+        replay(handler);
+        replay(c);  
+        d = new RMDestination(handler);
+        assertNotNull(d.getDestinationPolicies());
+        verify(handler);
+        verify(c);        
     }
 
     public void testAcknowledge() {

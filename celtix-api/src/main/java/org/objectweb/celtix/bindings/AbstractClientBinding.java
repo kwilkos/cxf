@@ -28,6 +28,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_TRANSPORT_PROPERTY;
+import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.ABSTRACT_CLIENT_BINDING_PROPERTY;
 
 public abstract class AbstractClientBinding extends AbstractBindingBase implements ClientBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractClientBinding.class);
@@ -82,6 +83,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
 
         getTransport();
         storeTransport(objectCtx);
+        storeBinding(objectCtx);
 
         Request request = new Request(this, objectCtx);
 
@@ -116,6 +118,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         throws IOException {
         getTransport();
         storeTransport(objectCtx);
+        storeBinding(objectCtx);
 
         Request request = new Request(this, objectCtx);
         request.setOneway(true);
@@ -138,6 +141,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         LOG.info("AbstractClientBinding: invokeAsync");
         getTransport();
         storeTransport(objectCtx);
+        storeBinding(objectCtx);
 
         Request request = new Request(this, objectCtx);
         AsyncFuture asyncFuture = null;
@@ -213,6 +217,11 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
     protected void storeTransport(MessageContext context) {
         context.put(CLIENT_TRANSPORT_PROPERTY, transport);
         context.setScope(CLIENT_TRANSPORT_PROPERTY, MessageContext.Scope.HANDLER);
+    }
+    
+    protected final void storeBinding(MessageContext context) {
+        context.put(ABSTRACT_CLIENT_BINDING_PROPERTY, this);
+        context.setScope(ABSTRACT_CLIENT_BINDING_PROPERTY, MessageContext.Scope.HANDLER);
     }
 
     protected String retreiveCorrelationID(MessageContext context) {

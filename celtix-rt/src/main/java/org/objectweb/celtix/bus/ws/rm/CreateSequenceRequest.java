@@ -16,7 +16,7 @@ import org.objectweb.celtix.ws.rm.wsdl.SequenceAbstractPortType;
 
 public class CreateSequenceRequest extends Request {
     
-    private static final String METHOD_NAME = "createSequence";
+    private static final String METHOD_NAME = "createSequence";    
     
     public CreateSequenceRequest(AbstractBindingBase b, RMSource source) {
         

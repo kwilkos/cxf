@@ -13,11 +13,13 @@ import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
+import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-public class RMServiceTest extends TestCase {
+public class RMProxyTest extends TestCase {
 
     Bus bus;
     EndpointReferenceType epr;
@@ -33,41 +35,43 @@ public class RMServiceTest extends TestCase {
         bus.shutdown(true);
     }
 
-    public void testCreateSequenceOnClient() throws IOException, WSDLException {
+    public void testCreateSequenceOnClient() throws IOException, WSDLException, 
+        SequenceFault, NoSuchMethodException {
+        
         TestClientBinding binding = new TestClientBinding(bus, epr);
         TestClientTransport ct = binding.getClientTransport();
         InputStream is = getClass().getResourceAsStream("resources/spec/CreateSequenceResponse.xml");
         TestInputStreamContext istreamCtx = new TestInputStreamContext();
         istreamCtx.setInputStream(is);
         ct.setInputStreamMessageContext(istreamCtx);
-        System.out.println("Preconfigured input stream context: " + istreamCtx);
-        
-        SourcePolicyType sp = RMUtils.getWSRMConfFactory().createSourcePolicyType();
 
         RMHandler handler = EasyMock.createMock(RMHandler.class);
-        RMSource source = EasyMock.createMock(RMSource.class);
-
+        Configuration config = EasyMock.createMock(Configuration.class);        
+        RMSource source = new RMSource(handler);
+        
         handler.getBinding();
         EasyMock.expectLastCall().andReturn(binding);       
         for (int i = 0; i < 2; i++) {
             handler.getClientBinding();
             EasyMock.expectLastCall().andReturn(binding);
         }
-        source.getSourcePolicies();
-        EasyMock.expectLastCall().andReturn(sp);
-
+        handler.getConfiguration();
+        EasyMock.expectLastCall().andReturn(config);
+        config.getObject(SourcePolicyType.class, "sourcePolicies");
+        EasyMock.expectLastCall().andReturn(null);
+        
         EasyMock.replay(handler);
-        EasyMock.replay(source);
+        EasyMock.replay(config);
 
-        RMService service = new RMService(handler);
+        RMProxy proxy = new RMProxy(handler);
 
-        service.createSequence(source);
+        proxy.createSequence(source);
 
     }
     
-    public void testTerminateSequenceOnClient() throws IOException, WSDLException {
+    public void testTerminateSequenceOnClient() throws IOException, WSDLException, SequenceFault {
         TestClientBinding binding = new TestClientBinding(bus, epr);
-
+        
         RMHandler handler = EasyMock.createMock(RMHandler.class);
         RMSource source = EasyMock.createMock(RMSource.class);
 
@@ -80,7 +84,38 @@ public class RMServiceTest extends TestCase {
 
         EasyMock.replay(handler);
 
-        RMService service = new RMService(handler);
+        RMProxy proxy = new RMProxy(handler);
+
+        Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
+        sid.setValue("TerminatedSequence");
+        Sequence seq = new Sequence(sid, source, null);
+        
+        proxy.terminateSequence(seq);
+    }
+    
+    public void testSequenceInfoOnClient() throws IOException, WSDLException, SequenceFault {
+        
+        TestClientBinding binding = new TestClientBinding(bus, epr);
+
+        TestClientTransport ct = binding.getClientTransport();
+        InputStream is = getClass().getResourceAsStream("resources/spec/SequenceInfoResponse.xml");
+        TestInputStreamContext istreamCtx = new TestInputStreamContext();
+        istreamCtx.setInputStream(is);
+        ct.setInputStreamMessageContext(istreamCtx);
+        
+        RMHandler handler = EasyMock.createMock(RMHandler.class);
+        RMSource source = EasyMock.createMock(RMSource.class);
+
+        handler.getBinding();
+        EasyMock.expectLastCall().andReturn(binding);       
+        for (int i = 0; i < 2; i++) {
+            handler.getClientBinding();
+            EasyMock.expectLastCall().andReturn(binding);
+        }
+
+        EasyMock.replay(handler);
+
+        RMProxy service = new RMProxy(handler);
 
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
         sid.setValue("TerminatedSequence");

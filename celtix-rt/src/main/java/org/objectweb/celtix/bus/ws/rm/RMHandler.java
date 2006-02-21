@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
@@ -15,10 +16,17 @@ import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.handlers.SystemHandler;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.addressing200408.EndpointReferenceType;
+import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
+import org.objectweb.celtix.ws.rm.CreateSequenceType;
+import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
+import org.objectweb.celtix.ws.rm.SequenceType;
+import org.objectweb.celtix.ws.rm.TerminateSequenceType;
+import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemHandler {
@@ -29,7 +37,8 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     
     private RMSource source;
     private RMDestination destination;
-    private RMService service;
+    private RMProxy proxy;
+    private RMServant servant;
     private Configuration configuration;
     
     private AbstractClientBinding clientBinding;
@@ -38,7 +47,8 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     private ServerTransport serverTransport;
     
     public RMHandler() {
-        service = new RMService(this);
+        proxy = new RMProxy(this);
+        servant = new RMServant();
     }
 
     public void close(MessageContext context) {
@@ -58,7 +68,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         if (ContextUtils.isOutbound(context)) {
             handleOutbound(context);
         } else {
-            handleInbound(context);
+            return handleInbound(context);
         }
         return true;
     }
@@ -88,10 +98,6 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             return clientBinding;
         }
         return serverBinding;
-    }
-    
-    public RMService getService() {
-        return service;
     }
     
     
@@ -132,7 +138,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         Configuration busCfg = getBinding().getBus().getConfiguration();
         ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
         Configuration parent;
-        EndpointReferenceType ref = getBinding().getEndpointReference();
+        org.objectweb.celtix.ws.addressing.EndpointReferenceType ref = getBinding().getEndpointReference();
         
         if (ContextUtils.isRequestor(context)) {
             Configuration serviceCfg = builder.getConfiguration(
@@ -160,27 +166,39 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     
     private void handleOutbound(LogicalMessageContext context) {
 
-        // nothing to do if this is a CreateSequence request
+        // nothing to do if this is a CreateSequence, TerminateSequence or SequenceInfo request
         
         String action = RMContextUtils.retrieveAction(context);
-        if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)) {
+        if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)
+            || RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)
+            || RMUtils.getRMConstants().getSequenceInfoAction().equals(action)) {
             return;
         }
         
         Sequence seq = source.getCurrent();
         if (null == seq) {
+            // TODO: better error handling
             try {
-                service.createSequence(source);
+                proxy.createSequence(source);
             } catch (IOException ex) {
                 ex.printStackTrace();
+            } catch (SequenceFault ex) {
+                ex.printStackTrace();
             }
+                
             seq = source.getCurrent();       
         }
         assert null != seq;
         
         // store a sequence type object in the context (incl. getting the next sequence number),
         
-        RMContextUtils.storeSequenceProperties(context, seq);
+        SequenceType s = RMUtils.getWSRMFactory().createSequenceType();
+        s.setIdentifier(seq.getIdentifier());
+        s.setMessageNumber(seq.nextMessageNumber());   
+        if (seq.isLastMessage()) {
+            s.setLastMessage(new SequenceType.LastMessage());
+        }
+        RMContextUtils.storeSequence(context, s);
         
         // tell the source to store a copy of the message in the retransmission
         // queue and schedule the next retransmission
@@ -189,17 +207,63 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         
         
         
-        // add Acknowledgements
-        
-        
-        
-        
-        
-        
+        // add Acknowledgements       
         
     }
     
-    private void handleInbound(LogicalMessageContext context) {
+    private boolean handleInbound(LogicalMessageContext context) {
         
+        // nothing to do if this is a response to a CreateSequence request
+        String action = RMContextUtils.retrieveAction(context);
+        
+        if (RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)) {
+            return true;
+        } else if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)) {
+            Object[] parameters = (Object[])context.get(ObjectMessageContext.METHOD_PARAMETERS);            
+            CreateSequenceType cs = (CreateSequenceType)parameters[0];
+            EndpointReferenceType to = RMUtils.cast(ContextUtils.retrieveTo(context));
+             
+            try {
+                CreateSequenceResponseType csr = servant.createSequence(destination, cs, to);
+                context.put(ObjectMessageContext.METHOD_RETURN, csr);
+            } catch (SequenceFault ex) {
+                // ignore for now
+            }   
+            return false;
+            
+        } else if (RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)) {
+            Object[] parameters = (Object[])context.get(ObjectMessageContext.METHOD_PARAMETERS);            
+            TerminateSequenceType cs = (TerminateSequenceType)parameters[0];
+
+            try {
+                servant.terminateSequence(destination, cs.getIdentifier());
+            } catch (SequenceFault ex) {
+                // ignore for now
+            }
+        }
+        
+        // for application AMD out of band messages
+
+        processAcknowledgments(context);
+        
+        processSequence(context);
+          
+        return true;    
     }
+    
+    private void processAcknowledgments(LogicalMessageContext context) {
+        List<SequenceAcknowledgement> acks = RMContextUtils.retrieveAcknowledgments(context);
+        if (null != acks) {
+            for (SequenceAcknowledgement ack : acks) {
+                source.setAcknowledged(ack);
+            }
+        }      
+    }
+    
+    private void processSequence(LogicalMessageContext context) {
+        SequenceType s = RMContextUtils.retrieveSequence(context);
+        destination.acknowledge(s);
+    }
+    
+    
 }

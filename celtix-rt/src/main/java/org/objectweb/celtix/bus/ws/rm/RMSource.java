@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.ws.rm;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,7 +7,6 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
-import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 
@@ -27,7 +25,7 @@ public class RMSource extends RMEndpoint {
 
     public SourcePolicyType getSourcePolicies() {
         SourcePolicyType sp = (SourcePolicyType)getHandler().getConfiguration()
-            .getObject(SOURCE_POLICIES_PROPERTY_NAME);
+            .getObject(SourcePolicyType.class, SOURCE_POLICIES_PROPERTY_NAME);
         if (null == sp) {
             sp = RMUtils.getWSRMConfFactory().createSourcePolicyType();
         }
@@ -58,22 +56,15 @@ public class RMSource extends RMEndpoint {
     }
 
     /**
-     * Creates a new Sequence object initialising it with data obtained from a
-     * CreateSequenceResponse, and stores it under its sequence identifier.
+     * Stores the sequence under its sequence identifier. and makes this the 
+     * current sequence.
      * 
      * @param id the sequence identifier.
-     * @param expires the lifetime of the sequence.
+     * @param seq the sequence.
      */
-    void createSequence() {
-        CreateSequenceResponseType createSequenceResponse = null;
-        try {
-            createSequenceResponse = getHandler().getService().createSequence(this);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        Sequence seq = new Sequence(createSequenceResponse.getIdentifier(), this, createSequenceResponse
-            .getExpires());
-        addSequence(seq);
+    public void addSequence(Sequence seq) {
+        
+        super.addSequence(seq);
         current = seq;
     }
 

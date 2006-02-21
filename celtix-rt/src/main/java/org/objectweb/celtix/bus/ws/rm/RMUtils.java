@@ -58,4 +58,16 @@ public final class RMUtils {
         return ref;
     }
     
+    public static EndpointReferenceType cast(EndpointReferenceType ref) {
+        return ref;
+    }
+    
+    public static EndpointReferenceType cast(org.objectweb.celtix.ws.addressing.EndpointReferenceType ref) {
+        EndpointReferenceType ref2004 = WSA_FACTORY.createEndpointReferenceType();
+        AttributedURI address2004 = WSA_FACTORY.createAttributedURI();
+        address2004.setValue(ref.getAddress().getValue());
+        address2004.getOtherAttributes().putAll(ref.getOtherAttributes());
+        return ref2004;
+    }
+    
 }

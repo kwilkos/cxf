@@ -39,6 +39,14 @@ public interface RMConstants {
      */
     String getTerminateSequenceOperationName();
     
+    /**
+     * @return SequenceInfo Action
+     */
+    String getSequenceInfoAction();
     
+    /**
+     * @return SequenceInfo operation name
+     */
+    String getSequenceInfoOperationName();  
     
 }

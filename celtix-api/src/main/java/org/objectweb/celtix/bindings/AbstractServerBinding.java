@@ -34,6 +34,7 @@ import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_TRANSPORT_PROPERTY;
+import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.ABSTRACT_SERVER_BINDING_PROPERTY;
 
 public abstract class AbstractServerBinding extends AbstractBindingBase implements ServerBinding {
 
@@ -415,6 +416,11 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
     protected void storeTransport(MessageContext context) {
         context.put(SERVER_TRANSPORT_PROPERTY, transport);
         context.setScope(SERVER_TRANSPORT_PROPERTY, MessageContext.Scope.HANDLER);
+    }
+    
+    protected final void storeBinding(MessageContext context) {
+        context.put(ABSTRACT_SERVER_BINDING_PROPERTY, transport);
+        context.setScope(ABSTRACT_SERVER_BINDING_PROPERTY, MessageContext.Scope.HANDLER);
     }
 
     protected abstract Method getSEIMethod(List<Class<?>> classList, MessageContext ctx); 

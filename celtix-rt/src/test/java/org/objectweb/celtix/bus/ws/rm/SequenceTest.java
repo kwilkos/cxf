@@ -11,13 +11,12 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.addressing200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.ObjectFactory;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
-
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;

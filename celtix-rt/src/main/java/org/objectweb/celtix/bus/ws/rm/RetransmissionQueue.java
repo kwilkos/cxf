@@ -25,7 +25,7 @@ public class RetransmissionQueue {
      * @param ctx the message context.
      */
     public void put(MessageContext ctx) {
-        SequenceType st = RMContextUtils.retrieveSequenceProperties(ctx);
+        SequenceType st = RMContextUtils.retrieveSequence(ctx);
         Identifier sid = st.getIdentifier();
         List<MessageContext> items = map.get(sid);
         if (null == items) {
@@ -48,7 +48,7 @@ public class RetransmissionQueue {
         if (null != unacked) {
             for (int i = unacked.size() - 1; i >= 0; i--) {
                 MessageContext ctx = unacked.get(i);
-                SequenceType st = RMContextUtils.retrieveSequenceProperties(ctx);
+                SequenceType st = RMContextUtils.retrieveSequence(ctx);
                 BigInteger m = st.getMessageNumber();
                 if (seq.isAcknowledged(m)) {
                     unacked.remove(i);

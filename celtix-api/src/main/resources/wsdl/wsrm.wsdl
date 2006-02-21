@@ -54,11 +54,15 @@ No other rights are granted by implication, estoppel or otherwise.
   <wsdl:message name="TerminateSequence">
     <wsdl:part name="terminate" element="rm:TerminateSequence"/>
   </wsdl:message>
+  <wsdl:message name="SequenceFault">
+    <wsdl:part name="fault" element="rm:SequenceFault"/>
+  </wsdl:message>
 
   <wsdl:portType name="SequenceAbstractPortType">
     <wsdl:operation name="CreateSequence">
       <wsdl:input message="tns:CreateSequence" wsa:Action="http://schemas.xmlsoap.org/ws/2005/02/rm/CreateSequence"/>
       <wsdl:output message="tns:CreateSequenceResponse" wsa:Action="http://schemas.xmlsoap.org/ws/2005/02/rm/CreateSequenceResponse"/>
+      <wsdl:fault name="SequenceFault" message="tns:SequenceFault" wsa:Action="http://schemas.xmlsoap.org/ws/2004/08/addressing/fault"/>
     </wsdl:operation>
     <wsdl:operation name="TerminateSequence">
       <wsdl:input message="tns:TerminateSequence" wsa:Action="http://schemas.xmlsoap.org/ws/2005/02/rm/CreateSequenceResponse"/>
@@ -77,7 +81,9 @@ No other rights are granted by implication, estoppel or otherwise.
             <wsdl:output>
                 <soap:body use="literal"/>
             </wsdl:output>
-            <!-- TODO: fault -->
+            <wsdl:fault name="SequenceFault">
+                <soap:fault name="SequenceFault" use="literal"/>
+            </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="TerminateSequence">
             <soap:operation style="document"/>

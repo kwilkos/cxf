@@ -70,7 +70,32 @@
     </xs:complexType>
     
     <xs:complexType name="destinationPolicyType">
+        <xs:annotation>
+            <xs:documentation>RM source configuration properties. 
+            Used for configuring an RM source.
+            </xs:documentation>
+        </xs:annotation>
+        
         <xs:sequence/>
+        
+        <xs:attribute name="sequenceExpiration" type="xs:duration" use="optional" default="PT0S">
+            <xs:annotation>
+                <xs:documentation>
+                    Preferred lifetime of a sequence - can be lower than the duration
+                    requested by the RM source in a CreateSequence request. 
+                    A default of PT0S means that the sequence should never expire.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        
+        <xs:attribute name="acceptOffers" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    Indicates if an RM destination should accept inbound sequence offers.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        
     </xs:complexType>
 
     <xs:complexType name="sequenceTerminationPolicyType">    

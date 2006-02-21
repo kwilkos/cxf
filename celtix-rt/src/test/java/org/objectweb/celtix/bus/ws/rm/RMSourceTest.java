@@ -6,10 +6,10 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
+import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
@@ -37,7 +37,7 @@ public class RMSourceTest extends TestCase {
         reset(handler);
         handler.getConfiguration();
         expectLastCall().andReturn(c);
-        c.getObject("sourcePolicies");
+        c.getObject(SourcePolicyType.class, "sourcePolicies");
         expectLastCall().andReturn(sp);
         replay(handler);
         replay(c);  
@@ -53,7 +53,7 @@ public class RMSourceTest extends TestCase {
         sp = createMock(SourcePolicyType.class);
         handler.getConfiguration();
         expectLastCall().andReturn(c);
-        c.getObject("sourcePolicies");         
+        c.getObject(SourcePolicyType.class, "sourcePolicies");         
         expectLastCall().andReturn(sp);
         replay(handler);
         replay(c);  
@@ -69,7 +69,7 @@ public class RMSourceTest extends TestCase {
         reset(handler);
         handler.getConfiguration();
         expectLastCall().andReturn(c);
-        c.getObject("sourcePolicies");
+        c.getObject(SourcePolicyType.class, "sourcePolicies");
         expectLastCall().andReturn(sp);
         replay(handler);
         replay(c);  
@@ -79,33 +79,18 @@ public class RMSourceTest extends TestCase {
         verify(c);
     }
     
-    public void testCreateSequence() throws IOException {
+    public void testAddSequence() throws IOException, SequenceFault {
         RMSource s = new RMSource(handler);
         Identifier sid = s.generateSequenceIdentifier();
         Expires e = RMUtils.getWSRMFactory().createExpires();
         e.setValue(Sequence.PT0S);
-        CreateSequenceResponseType csr = RMUtils.getWSRMFactory().createCreateSequenceResponseType();
-        csr.setIdentifier(sid);
-        csr.setExpires(e);
-       
-        reset(handler);
-        RMService service = createMock(RMService.class);
-        handler.getService();
-        expectLastCall().andReturn(service);
-        service.createSequence(s);
-        expectLastCall().andReturn(csr);
-        
-        replay(handler);
-        replay(service);
+        Sequence seq = new Sequence(sid, s, e);
         assertNull(s.getCurrent());
-        s.createSequence();
-        Sequence seq = s.getCurrent();
-        assertNotNull(seq);      
-        assertEquals(seq.getIdentifier(), sid); 
-        
-        verify(handler);
-        verify(service);
-        
+        s.addSequence(seq);
+        assertSame(seq, s.getCurrent());
+        Sequence anotherSeq = new Sequence(s.generateSequenceIdentifier(), s, e);
+        s.addSequence(anotherSeq);
+        assertSame(anotherSeq, s.getCurrent());        
     }
 
     

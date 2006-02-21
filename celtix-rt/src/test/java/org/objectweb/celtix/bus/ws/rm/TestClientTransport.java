@@ -46,7 +46,6 @@ class TestClientTransport implements ClientTransport {
     }
 
     public InputStreamMessageContext invoke(OutputStreamMessageContext context) throws IOException {
-        System.out.println("Returning preconfigured input stream context: " + istreamCtx);
         return istreamCtx;
     }
 

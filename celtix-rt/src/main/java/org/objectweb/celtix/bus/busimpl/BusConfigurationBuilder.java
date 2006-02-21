@@ -11,10 +11,11 @@ import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 public class BusConfigurationBuilder  {
     
     public static final String BUS_ID_PROPERTY = "org.objectweb.celtix.BusId";
+    public static final String BUS_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/bus-config";
     private static final CommandLineOption BUS_ID_OPT;    
     private static final String DEFAULT_BUS_ID = "celtix";
-    private static final String BUS_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/bus/bus-config";
+    
 
     static {
         BUS_ID_OPT = new CommandLineOption("-BUSid");

@@ -32,8 +32,24 @@ public class RMConstantsImpl implements RMConstants {
         return Names.WSRM_TERMINATE_SEQUENCE_ACTION;
     }
     
+    public String getTerminateSequenceResponseAction() {
+        return Names.WSRM_TERMINATE_SEQUENCE_RESPONSE_ACTION;
+    }
+    
     public String getTerminateSequenceOperationName() {
         return Names.WSRM_TERMINATE_SEQUENCE_OPERATION_NAME;
+    }
+    
+    public String getSequenceInfoAction() {
+        return Names.WSRM_SEQUENCE_INFO_ACTION;
+    }
+    
+    public String getSequenceInfoResponseAction() {
+        return Names.WSRM_SEQUENCE_INFO_RESPONSE_ACTION;
+    }
+    
+    public String getSequenceInfoOperationName() {
+        return Names.WSRM_SEQUENCE_INFO_OPERATION_NAME;
     }
     
     
