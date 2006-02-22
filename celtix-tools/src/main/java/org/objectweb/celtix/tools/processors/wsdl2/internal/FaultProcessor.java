@@ -1,11 +1,14 @@
 package org.objectweb.celtix.tools.processors.wsdl2.internal;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+
 import javax.wsdl.Fault;
 import javax.wsdl.Message;
 import javax.wsdl.Part;
 
 import com.sun.tools.xjc.api.S2JJAXBModel;
+
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaException;
@@ -14,16 +17,13 @@ import org.objectweb.celtix.tools.common.model.JavaField;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaModel;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
-import org.objectweb.celtix.tools.utils.ClassCollectorUtil;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
-public class FaultProcessor {
+public class FaultProcessor extends AbstractProcessor {
 
-    ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
-    private final ProcessorEnvironment env;
-
+   
     public FaultProcessor(ProcessorEnvironment penv) {
-        this.env = penv;
+      super(penv);
     }
 
     public void process(JavaMethod method, Map<String, Fault> faults) throws ToolException {
@@ -37,7 +37,7 @@ public class FaultProcessor {
         }
     }
 
-    private boolean isNameCollision(String packageName, String className) {
+    private boolean isNameCollision(String packageName, String className) {  
         boolean collision = collector.containTypesClass(packageName, className)
             || collector.containSeiClass(packageName, className);
         return collision;

@@ -10,16 +10,9 @@ public class AntGenerator extends AbstractGenerator {
 
     private static final String ANT_TEMPLATE = TEMPLATE_BASE + "/build.vm";
 
-    private JavaModel javaModel;
-
-    public AntGenerator() {
-        this.name = "wsdl2.ant.generator";
-    }
-
     public AntGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        this();
-        javaModel = jmodel;
-        setEnvironment(env);
+        super(jmodel, env);
+        this.name = ToolConstants.ANT_GENERATOR;
     }
 
     public boolean passthrough() {

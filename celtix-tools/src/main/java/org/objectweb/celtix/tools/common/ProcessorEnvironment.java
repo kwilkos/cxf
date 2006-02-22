@@ -45,7 +45,7 @@ public class ProcessorEnvironment {
         if (get(ToolConstants.CFG_VERBOSE) == null) {
             return false;
         } else {
-            return (Boolean) get(ToolConstants.CFG_VERBOSE);
+            return get(ToolConstants.CFG_VERBOSE) == ToolConstants.CFG_VERBOSE;
         }
     }
 

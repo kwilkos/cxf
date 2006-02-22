@@ -1,6 +1,6 @@
 package org.objectweb.celtix.tools.generators.wsdl2;
 
-import java.io.*;
+import java.io.Writer;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -19,14 +19,12 @@ public class HandlerConfigGenerator extends AbstractGenerator {
     private static final String HANDLER_CHAIN_NAME = "";
     private JavaInterface intf;
     private JavaAnnotation handlerChainAnnotation; 
-    public HandlerConfigGenerator() {
-        this.name = ToolConstants.HANDLER_GENERATOR;
-    }
-
+  
     public HandlerConfigGenerator(JavaInterface i, ProcessorEnvironment env) {
-        this();
+        
+        this.name = ToolConstants.HANDLER_GENERATOR;
         this.intf = i;
-        setEnvironment(env);
+        super.setEnvironment(env);
     }
 
     public JavaAnnotation getHandlerAnnotation() {

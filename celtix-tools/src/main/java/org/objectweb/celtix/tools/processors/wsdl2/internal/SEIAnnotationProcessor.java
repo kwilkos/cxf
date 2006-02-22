@@ -10,9 +10,10 @@ import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaModel;
 import org.objectweb.celtix.tools.utils.SOAPBindingUtil;
 
-public class SEIAnnotationProcessor {
+public class SEIAnnotationProcessor extends AbstractProcessor {
 
     public SEIAnnotationProcessor(ProcessorEnvironment penv) {
+        super(penv);
     }
     
     public void process(JavaModel javaModel) {

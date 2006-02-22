@@ -30,20 +30,15 @@ import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
-import org.objectweb.celtix.tools.utils.ClassCollectorUtil;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
-public class ServiceProcessor {
+public class ServiceProcessor extends AbstractProcessor {
 
-    ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
+    private String soapOPAction = "SOAPACTION";
 
-    private final String soapOPAction = "SOAPACTION";
+    private String soapOPStyle = "STYLE";
 
-    private final String soapOPStyle = "STYLE";
-
-    private final ProcessorEnvironment env;
-
-    private final Definition definition;
+    private Definition definition;
 
     private final int inHEADER = 1;
 
@@ -52,11 +47,15 @@ public class ServiceProcessor {
     private final int resultHeader = 3;
 
     private final int noHEADER = 0;
+    
+    public ServiceProcessor(ProcessorEnvironment penv) {
+        super(penv);
+    }
+    
 
     public ServiceProcessor(ProcessorEnvironment penv, Definition def) {
-        this.env = penv;
+        super(penv);
         this.definition = def;
-
     }
 
     public void process(JavaModel model) throws ToolException {

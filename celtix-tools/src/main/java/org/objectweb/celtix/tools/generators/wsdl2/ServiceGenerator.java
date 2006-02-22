@@ -15,17 +15,10 @@ import org.objectweb.celtix.tools.utils.ProcessorUtil;
 public class ServiceGenerator extends AbstractGenerator {
 
     private static final String SERVICE_TEMPLATE = TEMPLATE_BASE + "/service.vm";
-    private JavaModel javaModel;
-
-
-    public ServiceGenerator() {
-        this.name = "wsdl2.service.generator";
-    }
 
     public ServiceGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        this();
-        javaModel = jmodel;
-        setEnvironment(env);
+        super(jmodel, env);
+        this.name = ToolConstants.SERVICE_GENERATOR;
     }
 
     public boolean passthrough() {

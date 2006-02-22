@@ -12,16 +12,10 @@ import org.objectweb.celtix.tools.generators.AbstractGenerator;
 public class SEIGenerator extends AbstractGenerator {
 
     private static final String SEI_TEMPLATE = TEMPLATE_BASE + "/sei.vm";
-    private JavaModel javaModel;
-        
-    public SEIGenerator() {
-        this.name = ToolConstants.SEI_GENERATOR;
-    }
-
+   
     public SEIGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        this();
-        javaModel = jmodel;
-        setEnvironment(env);
+        super(jmodel, env);
+        this.name = ToolConstants.SEI_GENERATOR;
     }
 
     public boolean passthrough() {

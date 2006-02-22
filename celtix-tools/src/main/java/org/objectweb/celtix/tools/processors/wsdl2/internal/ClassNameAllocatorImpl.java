@@ -6,16 +6,14 @@ import javax.wsdl.PortType;
 
 import com.sun.tools.xjc.api.ClassNameAllocator;
 
-import org.objectweb.celtix.tools.utils.ClassCollectorUtil;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class ClassNameAllocatorImpl implements ClassNameAllocator {
     private static final String TYPE_SUFFIX = "_Type";
     private Collection<PortType> portTypes;
-    private final ClassCollectorUtil collector;
-
-    public ClassNameAllocatorImpl() {
-        collector = ClassCollectorUtil.getInstance();
+    private ClassCollector collector;
+    public ClassNameAllocatorImpl(ClassCollector classCollector) {
+        collector = classCollector;
     }
 
     private boolean isNameCollision(String packageName, String className) {
@@ -27,6 +25,7 @@ public class ClassNameAllocatorImpl implements ClassNameAllocator {
         if (isNameCollision(packageName, className)) {
             fullClzName = className + TYPE_SUFFIX;
         }
+       
         collector.addTypesClassName(packageName, className, packageName + "." + fullClzName);
         return fullClzName;
     }

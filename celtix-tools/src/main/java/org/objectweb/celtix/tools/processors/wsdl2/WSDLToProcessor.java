@@ -1,7 +1,13 @@
 package org.objectweb.celtix.tools.processors.wsdl2;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.wsdl.Binding;
 import javax.wsdl.Definition;
@@ -19,11 +25,14 @@ import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.api.SchemaCompiler;
 import com.sun.tools.xjc.api.XJC;
+
 import org.apache.velocity.app.Velocity;
 import org.objectweb.celtix.tools.common.Processor;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
@@ -36,8 +45,8 @@ import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.jaxws.JAXWSBindingDeserializer;
 import org.objectweb.celtix.tools.jaxws.JAXWSBindingSerializer;
+import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassNameAllocatorImpl;
-import org.objectweb.celtix.tools.utils.ClassCollectorUtil;
 import org.objectweb.celtix.tools.utils.StringUtils;
 import org.objectweb.celtix.tools.utils.XMLUtil;
 
@@ -48,7 +57,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     protected WSDLFactory wsdlFactory;
     protected WSDLReader wsdlReader;
     protected S2JJAXBModel rawJaxbModel;
-    protected ClassCollectorUtil classNameColletor = ClassCollectorUtil.getInstance();
+    protected ClassCollector classColletor;
     List<Schema> schemaList = new ArrayList<Schema>();
     private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
@@ -164,7 +173,9 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     private void buildJaxbModel() {
         SchemaCompiler schemaCompiler = XJC.createSchemaCompiler();
 
-        ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl();
+
+        ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classColletor);
+
         allocator.setPortTypes(wsdlDefinition.getPortTypes().values(),
                                env.mapPackageName(this.wsdlDefinition.getTargetNamespace()));
         schemaCompiler.setClassNameAllocator(allocator);
@@ -252,7 +263,10 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));
         parseCustomization();
         initVelocity();
+        classColletor = new ClassCollector();
+        env.put(ToolConstants.GENERATED_CLASS_COLLECTOR , classColletor);
         initJAXBModel();
+       
     }
 
     public S2JJAXBModel getRawJaxbModel() {

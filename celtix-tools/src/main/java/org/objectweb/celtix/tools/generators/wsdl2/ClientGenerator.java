@@ -15,18 +15,12 @@ import org.objectweb.celtix.tools.generators.AbstractGenerator;
 public class ClientGenerator extends AbstractGenerator {
 
     private static final String CLT_TEMPLATE = TEMPLATE_BASE + "/client.vm";
-
-    private JavaModel javaModel;
-
-    public ClientGenerator() {
-        this.name = "wsdl2.client.generator";
-    }
-
+    
     public ClientGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        this();
-        javaModel = jmodel;
-        setEnvironment(env);
+        super(jmodel, env);
+        this.name = ToolConstants.CLT_GENERATOR;
     }
+
 
     public boolean passthrough() {
         if (env.optionSet(ToolConstants.CFG_CLIENT)

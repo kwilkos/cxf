@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
+import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaExceptionClass;
 import org.objectweb.celtix.tools.common.model.JavaField;
 import org.objectweb.celtix.tools.common.model.JavaModel;
@@ -15,17 +16,11 @@ public class FaultGenerator extends AbstractGenerator {
 
     private static final String FAULT_TEMPLATE = TEMPLATE_BASE + "/fault.vm";
 
-    private JavaModel javaModel;
-
-    public FaultGenerator() {
-        this.name = "wsdl2.fault.generator";
-    }
-
     public FaultGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        this();
-        javaModel = jmodel;
-        setEnvironment(env);
+        super(jmodel, env);
+        this.name = ToolConstants.FAULT_GENERATOR;
     }
+
 
     public boolean passthrough() {
         return false;

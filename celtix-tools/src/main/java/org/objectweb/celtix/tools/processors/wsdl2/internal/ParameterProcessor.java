@@ -17,12 +17,11 @@ import org.objectweb.celtix.tools.common.model.JavaType;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
-public class ParameterProcessor {
+public class ParameterProcessor extends AbstractProcessor {
 
-    private final ProcessorEnvironment env;
-    
+  
     public ParameterProcessor(ProcessorEnvironment penv) {
-        this.env = penv;
+         super(penv);
     }
     
     public void process(JavaMethod method,
@@ -64,15 +63,15 @@ public class ParameterProcessor {
         parameter.setPartName(part.getName());
         parameter.setQName(ProcessorUtil.getElementName(part));
         
-        parameter.setClassName(ProcessorUtil.getFullClzName(part,
-                                                            env));
+        parameter.setClassName(ProcessorUtil.getFullClzName(part, env, this.collector));
 
         if (style == JavaType.Style.INOUT || style == JavaType.Style.OUT) {
             parameter.setHolder(true);
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());
             parameter.setHolderClass(ProcessorUtil.getFullClzName(part,
                                                                   env,
-                                                                  true));
+                                                                  true,
+                                                                  this.collector));
         }
         parameter.setStyle(style);
         return parameter;
@@ -124,8 +123,7 @@ public class ParameterProcessor {
         returnType.setQName(ProcessorUtil.getElementName(part));
         returnType.setStyle(JavaType.Style.OUT);
         if (namespace != null && type != null && !"void".equals(type)) {
-            returnType.setClassName(ProcessorUtil.getFullClzName(part,
-                                                                 env));
+            returnType.setClassName(ProcessorUtil.getFullClzName(part, env, this.collector));
         }
         method.setReturn(returnType);
     }

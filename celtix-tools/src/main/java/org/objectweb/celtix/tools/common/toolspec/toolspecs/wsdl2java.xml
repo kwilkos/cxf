@@ -56,6 +56,21 @@
 		    <annotation>output-directory</annotation>
 		</associatedArgument>
 	    </option>
+	    
+	    <option id="compile" maxOccurs="1">
+		<annotation>Compile the generated file</annotation>
+		<switch>compile</switch>
+	    </option>
+	    
+	    <option id="classdir" maxOccurs="1">
+		<annotation>Specify where to place generated class files</annotation>
+		<switch>classdir</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>compile-classes-directory</annotation>
+		</associatedArgument>
+	    </option>
+	    
+	    
 <!--
 	    <option id="interface" maxOccurs="1">
 		<annotation>Generates only the interface.</annotation>

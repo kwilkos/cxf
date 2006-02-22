@@ -18,14 +18,12 @@ import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
-public class PortTypeProcessor {
+public class PortTypeProcessor extends AbstractProcessor {
     private static final Logger LOG = LogUtils.getL7dLogger(PortTypeProcessor.class);
-    
-    private final ProcessorEnvironment env;
     private List<String> operationMap = new ArrayList<String>();
     
     public PortTypeProcessor(ProcessorEnvironment penv) {
-        this.env = penv;
+        super(penv);
     }
     
     public void process(JavaModel jmodel, PortType portType) throws ToolException {

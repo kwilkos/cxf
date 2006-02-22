@@ -14,11 +14,11 @@ import com.sun.xml.bind.api.JAXBRIContext;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 
 public final class ProcessorUtil {
 
     private ProcessorUtil() {
-        // complete
     }
 
     public static String resolvePartName(Part part) {
@@ -36,7 +36,7 @@ public final class ProcessorUtil {
         }
         return typeName;
     }
-    
+
     public static String resolvePartType(Part part) {
         return mangleNameToClassName(getPartType(part));
     }
@@ -64,13 +64,12 @@ public final class ProcessorUtil {
         if (!env.hasNamespace(origin.getNamespaceURI())) {
             return origin;
         }
-        return new QName(env.getCustomizedNS(origin.getNamespaceURI()),
-                         origin.getLocalPart());
+        return new QName(env.getCustomizedNS(origin.getNamespaceURI()), origin.getLocalPart());
     }
 
     public static String resolvePartType(Part part, ProcessorEnvironment env) {
         if (env != null) {
-            return resolvePartType(part, (S2JJAXBModel) env.get(ToolConstants.RAW_JAXB_MODEL));
+            return resolvePartType(part, (S2JJAXBModel)env.get(ToolConstants.RAW_JAXB_MODEL));
         } else {
             return resolvePartType(part);
         }
@@ -94,7 +93,7 @@ public final class ProcessorUtil {
             return mapping.getType().getTypeClass().name();
         }
     }
-    
+
     public static String resolvePartNamespace(Part part) {
         QName qname = part.getElementName();
         if (qname == null) {
@@ -116,9 +115,9 @@ public final class ProcessorUtil {
     }
 
     public static String parsePackageName(String namespace, String defaultPackageName) {
-        String packageName = (defaultPackageName != null
-                              && defaultPackageName.trim().length() > 0) ? defaultPackageName : null;
-        
+        String packageName = (defaultPackageName != null && defaultPackageName.trim().length() > 0)
+            ? defaultPackageName : null;
+
         if (packageName == null) {
             packageName = URIParserUtil.getPackageName(namespace);
         }
@@ -132,15 +131,15 @@ public final class ProcessorUtil {
             return resolvePath(new File(location).getCanonicalPath());
         }
     }
-    
+
     public static URL getWSDLURL(String location) throws Exception {
         if (location.startsWith("http://")) {
             return new URL(location);
         } else {
-            return  new File(getAbsolutePath(location)).toURL();
+            return new File(getAbsolutePath(location)).toURL();
         }
     }
-    
+
     private static String resolvePath(String path) {
         return path.replace('\\', '/');
     }
@@ -153,11 +152,11 @@ public final class ProcessorUtil {
             return new ArrayList<Property>();
         }
 
-        S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get(ToolConstants.RAW_JAXB_MODEL);
-        
+        S2JJAXBModel jaxbModel = (S2JJAXBModel)env.get(ToolConstants.RAW_JAXB_MODEL);
+
         // QName element = getMappedElementName(part, env);
         QName element = getElementName(part);
-        
+
         if (element != null && jaxbModel != null) {
             com.sun.tools.xjc.api.Mapping mapping = jaxbModel.get(element);
             if (mapping != null) {
@@ -169,7 +168,6 @@ public final class ProcessorUtil {
             return new ArrayList<Property>();
         }
     }
-
 
     public static URL[] pathToURLs(String path) {
         StringTokenizer st = new StringTokenizer(path, File.pathSeparator);
@@ -195,46 +193,56 @@ public final class ProcessorUtil {
         return urls;
     }
 
+    public static String classNameToFilePath(String className) {
+        String str;
+        if (className.indexOf(".") < 0) {
+            return className;
+        } else {
+            str = className.replaceAll("\\.", "/");
+        }
+        return str;
+    }
 
-//     public static String getFullClzName(Part part,
-//                                         String userPackage,
-//                                         S2JJAXBModel jaxbModel,
-//                                         boolean boxify) {
-//         QName xmlTypeName = getElementName(part);
-//         String jtype = BuiltInTypesJavaMappingUtil.getJType(xmlTypeName, jaxbModel, boxify);
-//         String namespace = xmlTypeName.getNamespaceURI();
-//         String type = resolvePartType(part, jaxbModel);
+    // public static String getFullClzName(Part part,
+    // String userPackage,
+    // S2JJAXBModel jaxbModel,
+    // boolean boxify) {
+    // QName xmlTypeName = getElementName(part);
+    // String jtype = BuiltInTypesJavaMappingUtil.getJType(xmlTypeName,
+    // jaxbModel, boxify);
+    // String namespace = xmlTypeName.getNamespaceURI();
+    // String type = resolvePartType(part, jaxbModel);
 
-//         if (jtype == null) {
-//             ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
-//             jtype = collector.getTypesFullClassName(parsePackageName(namespace, userPackage), type);
-//         }
-        
-//         if (jtype == null) {
-//             if (!type.equals(resolvePartType(part))) {
-//                 jtype = resolvePartType(part, jaxbModel, true);
-//             } else {
-//                 jtype = parsePackageName(namespace, userPackage) + "." + type;
-//             }
-//         }
-        
-//         return jtype;
-//     }
+    // if (jtype == null) {
+    // ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
+    // jtype = collector.getTypesFullClassName(parsePackageName(namespace,
+    // userPackage), type);
+    // }
 
-//     public static String getFullClzName(Part part,
-//                                         String userPackage,
-//                                         S2JJAXBModel jaxbModel) {
-//         return getFullClzName(part, userPackage, jaxbModel, false);
-//     }
+    // if (jtype == null) {
+    // if (!type.equals(resolvePartType(part))) {
+    // jtype = resolvePartType(part, jaxbModel, true);
+    // } else {
+    // jtype = parsePackageName(namespace, userPackage) + "." + type;
+    // }
+    // }
+
+    // return jtype;
+    // }
+
+    // public static String getFullClzName(Part part,
+    // String userPackage,
+    // S2JJAXBModel jaxbModel) {
+    // return getFullClzName(part, userPackage, jaxbModel, false);
+    // }
 
     //
     // the non-wrapper style will get the type info from the part directly
     //
-    public static String getFullClzName(Part part,
-                                        ProcessorEnvironment env,
-                                        boolean boxify) {
-        S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get(ToolConstants.RAW_JAXB_MODEL);
-        
+    public static String getFullClzName(Part part, ProcessorEnvironment env, boolean boxify,
+                                        ClassCollector collector) {
+        S2JJAXBModel jaxbModel = (S2JJAXBModel)env.get(ToolConstants.RAW_JAXB_MODEL);
+
         QName xmlTypeName = getElementName(part);
         String jtype = BuiltInTypesJavaMappingUtil.getJType(xmlTypeName, jaxbModel, boxify);
         String namespace = xmlTypeName.getNamespaceURI();
@@ -242,10 +250,9 @@ public final class ProcessorUtil {
         String userPackage = env.mapPackageName(namespace);
 
         if (jtype == null) {
-            ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
             jtype = collector.getTypesFullClassName(parsePackageName(namespace, userPackage), type);
         }
-        
+
         if (jtype == null) {
             if (!type.equals(resolvePartType(part))) {
                 jtype = resolvePartType(part, jaxbModel, true);
@@ -253,30 +260,14 @@ public final class ProcessorUtil {
                 jtype = parsePackageName(namespace, userPackage) + "." + type;
             }
         }
-        
+
         return jtype;
     }
 
-    public static String getFullClzName(Part part,
-                                        ProcessorEnvironment env) {
-        return getFullClzName(part, env, false);
+    public static String getFullClzName(Part part, ProcessorEnvironment env, ClassCollector collector) {
+        return getFullClzName(part, env, false, collector);
+
     }
-
-//     public static String getWrapperFullClzName(String namespace,
-//                                                String type,
-//                                                String userPackage) {
-//         String jtype = BuiltInTypesJavaMappingUtil.getJType(namespace, type);
-//         if (jtype == null) {
-//             ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
-//             jtype = collector.getTypesFullClassName(parsePackageName(namespace, userPackage), type);
-//         }
-
-//         if (jtype == null) {
-//             jtype = parsePackageName(namespace, userPackage) + "." + type;
-//         }
-        
-//         return jtype;
-//     }
 
     public static String getFileOrURLName(String fileOrURL) {
         try {

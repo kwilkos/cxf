@@ -14,16 +14,10 @@ import org.objectweb.celtix.tools.generators.AbstractGenerator;
 public class ServerGenerator extends AbstractGenerator {
 
     private static final String SRV_TEMPLATE = TEMPLATE_BASE + "/server.vm";
-    private JavaModel javaModel;
-
-    public ServerGenerator() {
-        this.name = "wsdl2.server.generator";
-    }
-
+    
     public ServerGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        this();
-        javaModel = jmodel;
-        setEnvironment(env);
+        super(jmodel, env);
+        this.name = ToolConstants.SVR_GENERATOR;
     }
 
     public boolean passthrough() {

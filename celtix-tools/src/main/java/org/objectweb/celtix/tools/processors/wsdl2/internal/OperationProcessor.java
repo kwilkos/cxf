@@ -27,15 +27,15 @@ import org.objectweb.celtix.tools.utils.ProcessorUtil;
 import org.objectweb.celtix.tools.utils.SOAPBindingUtil;
 import org.objectweb.celtix.tools.utils.StringUtils;
 
-public class OperationProcessor  {
+public class OperationProcessor  extends AbstractProcessor {
     private static final Logger LOG = LogUtils.getL7dLogger(OperationProcessor.class);
     
-    private final ProcessorEnvironment env;
+ 
     private JavaParameter wrapperRequest;
     private JavaParameter wrapperResponse;
 
     public OperationProcessor(ProcessorEnvironment penv) {
-        this.env = penv;
+        super(penv);
     }
 
     @SuppressWarnings("unchecked")
@@ -253,15 +253,19 @@ public class OperationProcessor  {
             wrapperRequest.setName(ProcessorUtil.resolvePartName(inputPart));
             wrapperRequest.setType(ProcessorUtil.getPartType(inputPart));
             wrapperRequest.setTargetNamespace(ProcessorUtil.resolvePartNamespace(inputPart));
-            wrapperRequest.setClassName(ProcessorUtil.getFullClzName(inputPart, this.env));
+
+            wrapperRequest.setClassName(ProcessorUtil.getFullClzName(inputPart, this.env, this.collector));
                 
+
         }
         if (outputPart != null) {
             wrapperResponse = new JavaParameter();
             wrapperResponse.setName(ProcessorUtil.resolvePartName(outputPart));
             wrapperResponse.setType(ProcessorUtil.getPartType(outputPart));
             wrapperResponse.setTargetNamespace(ProcessorUtil.resolvePartNamespace(outputPart));
-            wrapperResponse.setClassName(ProcessorUtil.getFullClzName(outputPart, this.env));
+
+            wrapperResponse.setClassName(ProcessorUtil.getFullClzName(outputPart, this.env, this.collector));
+
         }
         
         return true;

@@ -12,16 +12,11 @@ import org.objectweb.celtix.tools.generators.AbstractGenerator;
 public class ImplGenerator extends AbstractGenerator {
 
     private static final String IMPL_TEMPLATE = TEMPLATE_BASE + "/impl.vm";
-    private JavaModel javaModel;
-        
-    public ImplGenerator() {
-        this.name = "wsdl2.impl.generator";
-    }
 
+   
     public ImplGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        this();
-        javaModel = jmodel;
-        setEnvironment(env);
+        super(jmodel, env);
+        this.name = ToolConstants.IMPL_GENERATOR;
     }
 
     public boolean passthrough() {

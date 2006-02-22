@@ -28,6 +28,8 @@ public final class ToolConstants {
     public static final String CFG_CMD_ARG = "args";
     public static final String CFG_INSTALL_DIR = "install.dir";
     public static final String CFG_PLATFORM_VERSION = "platform.version";
+    public static final String CFG_COMPILE = "compile";
+    public static final String CFG_CLASSDIR = "classdir";
 
    
     // WSDL2Java Constants
@@ -64,6 +66,7 @@ public final class ToolConstants {
     public static final String SERVICE_GENERATOR = "service.generator";
     public static final String ANT_GENERATOR = "ant.generator";
     public static final String HANDLER_GENERATOR = "handler.generator";
+    public static final String GENERATED_CLASS_COLLECTOR = "generatedClassCollector";
 
     // Binding namespace
     public static final String NS_JAXWS_BINDINGS = "http://java.sun.com/xml/ns/jaxws";
