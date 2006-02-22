@@ -197,6 +197,6 @@ public abstract class AbstractBindingImpl implements Binding {
     
     public abstract boolean hasFault(MessageContext msgContext);
     
-    public abstract void updateMessageContext(MessageContext msgContext) throws IOException;
+    public abstract void updateMessageContext(MessageContext msgContext);
     
 }

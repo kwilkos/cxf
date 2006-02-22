@@ -2,7 +2,6 @@ package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +20,7 @@ import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeader;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
@@ -55,19 +55,26 @@ import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.helpers.NSStack;
 import org.objectweb.celtix.helpers.NodeUtils;
 
+import static org.objectweb.celtix.bus.bindings.soap.SOAPConstants.FAULTCODE_CLIENT;
+import static org.objectweb.celtix.bus.bindings.soap.SOAPConstants.FAULTCODE_SERVER;
+import static org.objectweb.celtix.bus.bindings.soap.SOAPConstants.FAULTCODE_VERSIONMISMATCH;
+import static org.objectweb.celtix.bus.bindings.soap.SOAPConstants.HEADER_MUSTUNDERSTAND;
+
 public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(SOAPBindingImpl.class);
     protected final MessageFactory msgFactory;
     protected final SOAPFactory soapFactory;
     protected final boolean isServer;
     private NSStack nsStack;
+    private QName faultCode;
 
     public SOAPBindingImpl(boolean server) {
         try {
             isServer = server;
-            msgFactory = MessageFactory.newInstance();
-            soapFactory = SOAPFactory.newInstance();
-
+            msgFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
+            soapFactory = SOAPFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
+            faultCode = isServer ? FAULTCODE_SERVER
+                                 : FAULTCODE_CLIENT;
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SAAJ_FACTORY_CREATION_FAILURE_MSG", se);
             throw new WebServiceException(se.getMessage());
@@ -151,7 +158,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_MARSHALLING_FAILURE_MSG", se);
-            throw new ProtocolException(se);
+            throw SOAPFaultExHelper.createSOAPFaultEx(soapFactory, faultCode, se);
         } 
     }
 
@@ -177,7 +184,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 fault.setFaultCode(f.getFaultCodeAsName());
                 fault.setFaultString(f.getFaultString());
             } else {
-                fault.setFaultCode(SOAPConstants.FAULTCODE_SERVER);
+                fault.setFaultCode(faultCode);
                 StringBuffer str = new StringBuffer(t.toString());
                 if (!t.getClass().isAnnotationPresent(WebFault.class)) {
                     str.append("\n");
@@ -190,12 +197,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
 
             DataWriter<Detail> writer = callback.createWriter(Detail.class);
-            if (writer == null) {
-                throw new WebServiceException("Could not marshal fault details");
-            }
-            writer.write(t, fault.addDetail());
-            if (!fault.getDetail().hasChildNodes()) {
-                fault.removeChild(fault.getDetail());
+            if (writer != null) {
+                writer.write(t, fault.addDetail());
+                if (!fault.getDetail().hasChildNodes()) {
+                    fault.removeChild(fault.getDetail());
+                }
             }
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "FAULT_MARSHALLING_FAILURE_MSG", se);
@@ -243,7 +249,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                     }
                 }
                 if (!found) {
-                    throw new SOAPException("Could not figure out how to unmarshal data");
+                    throw new SOAPException("Cannot unmarshal data");
                 }
 
                 if (isOutputMsg) {
@@ -266,7 +272,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                     }
                 }
                 if (!found) {
-                    throw new SOAPException("Could not figure out how to unmarshal data");
+                    throw new SOAPException("Cannot unmarshal data");
                 }
 
                 if (isOutputMsg) {
@@ -277,7 +283,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
-            throw new ProtocolException(se);
+            throw SOAPFaultExHelper.createSOAPFaultEx(soapFactory, faultCode, se);
         }
     }
 
@@ -300,13 +306,13 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
             Object faultObj = reader.read(null, 0, fault);
             if (faultObj == null) {
-                faultObj = new ProtocolException(fault.getFaultString());
+                faultObj = new SOAPFaultException(fault);
             }
 
             objContext.setException((Throwable)faultObj);
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
-            throw new ProtocolException(se);
+            throw SOAPFaultExHelper.createSOAPFaultEx(soapFactory, faultCode, se);
         }
     }
 
@@ -322,17 +328,51 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_WRITE_FAILURE_MSG", se);
-            throw new ProtocolException(se);
+            throw SOAPFaultExHelper.createSOAPFaultEx(soapFactory, faultCode, se);
         }
     }
-
+    
+    @SuppressWarnings("unchecked")
     public void read(InputStreamMessageContext inCtx, MessageContext context) throws IOException {
+
+        if (!SOAPMessageContext.class.isInstance(context)) {
+            throw SOAPFaultExHelper.createSOAPFaultEx(soapFactory, faultCode, 
+                                                      "SOAPMessageContext not available");
+        }
+        SOAPMessageContext soapCtx = SOAPMessageContext.class.cast(context);
+        SOAPMessage soapMessage;
+        QName code = faultCode;
         try {
-            parseMessage(inCtx.getInputStream(), context);
+            MimeHeaders headers = new MimeHeaders();
+            Map<String, List<String>> httpHeaders;
+            
+            if (isServer) {
+                httpHeaders = (Map<String, List<String>>)soapCtx.get(MessageContext.HTTP_REQUEST_HEADERS);
+            } else {
+                httpHeaders = (Map<String, List<String>>)soapCtx.get(MessageContext.HTTP_RESPONSE_HEADERS);
+            }
+            if (httpHeaders != null) {
+                for (String key : httpHeaders.keySet()) {
+                    if (null != key) {
+                        List<String> values = httpHeaders.get(key);
+                        for (String value : values) {
+                            headers.addHeader(key, value);
+                        }
+                    }
+                }
+            }
+
+            soapMessage = msgFactory.createMessage(headers, inCtx.getInputStream());
+            
+            //Test if it is a valid SOAP 1.1 Message
+            code = FAULTCODE_VERSIONMISMATCH;
+            soapMessage.getSOAPPart().getEnvelope();
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_PARSING_FAILURE_MSG", se);
-            throw new ProtocolException(se);
+            throw SOAPFaultExHelper.createSOAPFaultEx(soapFactory, code, se);
         }
+        
+        soapCtx.setMessage(soapMessage);        
     }
 
     public boolean hasFault(MessageContext msgContext) {
@@ -348,15 +388,13 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         return hasFault;
     }
 
-    public void updateMessageContext(MessageContext msgContext) throws IOException {
+    public void updateMessageContext(MessageContext msgContext) {
         if (msgContext instanceof SOAPMessageContext) {
             SOAPMessage msg = ((SOAPMessageContext)msgContext).getMessage();
             try {
                 updateHeaders(msgContext, msg);
-            } catch (SOAPException ex) {
-                IOException io = new IOException(ex.getMessage());
-                io.initCause(ex);
-                throw io;
+            } catch (SOAPException se) {
+                throw SOAPFaultExHelper.createSOAPFaultEx(soapFactory, faultCode, se); 
             }
         }
     }
@@ -411,42 +449,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 vals.add(header.getValue());
             }
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void parseMessage(InputStream in, MessageContext mc) throws SOAPException, IOException {
-
-        if (!SOAPMessageContext.class.isInstance(mc)) {
-            throw new SOAPException("SOAPMessageContext not available");
-        }
-
-        SOAPMessageContext soapContext = SOAPMessageContext.class.cast(mc);
-        SOAPMessage soapMessage = null;
-        MimeHeaders headers = new MimeHeaders();
-        try {
-            Map<String, List<String>> httpHeaders;
-            if (isServer) {
-                httpHeaders = (Map<String, List<String>>)mc.get(MessageContext.HTTP_REQUEST_HEADERS);
-            } else {
-                httpHeaders = (Map<String, List<String>>)mc.get(MessageContext.HTTP_RESPONSE_HEADERS);
-            }
-            if (httpHeaders != null) {
-                for (String key : httpHeaders.keySet()) {
-                    if (null != key) {
-                        List<String> values = httpHeaders.get(key);
-                        for (String value : values) {
-                            headers.addHeader(key, value);
-                        }
-                    }
-                }
-            }
-
-            soapMessage = msgFactory.createMessage(headers, in);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            LOG.log(Level.INFO, "error in creating soap message", ex);
-        }
-        soapContext.setMessage(soapMessage);
     }
 
     private SOAPElement addOperationNode(SOAPElement body, DataBindingCallback callback, boolean isOutBound)
@@ -700,7 +702,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         // Set the mustUnderstand attribute
         if (children.item(0) instanceof Element) {
             Element child = (Element)(children.item(0));
-            child.setAttribute(SOAPConstants.HEADER_MUSTUNDERSTAND, String.valueOf(mustUnderstand));
+            child.setAttribute(HEADER_MUSTUNDERSTAND, String.valueOf(mustUnderstand));
         }
 
         // TODO Actor/Role Attribute.
@@ -721,5 +723,4 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
         return msg;
     }
-
 }

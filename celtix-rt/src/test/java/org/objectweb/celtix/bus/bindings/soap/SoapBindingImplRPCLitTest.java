@@ -109,8 +109,8 @@ public class SoapBindingImplRPCLitTest extends TestCase {
         String data = new String("TestSOAPInputMessage");
         String str = SOAPMessageUtil.createRPCLitSOAPMessage(opName, elName, data);
 
-        ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
-        binding.parseMessage(in, soapContext);
+        TestInputStreamContext inCtx = new TestInputStreamContext(str.getBytes());
+        binding.read(inCtx, soapContext);
 
         SOAPMessage msg = soapContext.getMessage();
         assertNotNull(msg);

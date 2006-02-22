@@ -56,8 +56,7 @@ public class TestBinding  extends AbstractBindingImpl {
         return false;
     }
 
-    public void updateMessageContext(MessageContext msgContext) 
-        throws IOException {
+    public void updateMessageContext(MessageContext msgContext) {
     }
     
     
