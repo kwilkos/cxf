@@ -10,6 +10,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
@@ -64,6 +67,9 @@ public class HTTPTransportTest extends TestCase {
     private ExecutorService executorService;
     private TestResponseCallback responseCallback;
     private HTTPTransportFactory factory;
+    private Lock partialResponseReceivedLock;
+    private Condition partialResponseReceivedCondition;
+    private boolean partialResponseReceivedNotified;
     
     public HTTPTransportTest(String arg0) {
         super(arg0);
@@ -87,6 +93,9 @@ public class HTTPTransportTest extends TestCase {
     public void setUp() throws BusException {
         bus = EasyMock.createMock(Bus.class);
         wsdlManager = new WSDLManagerImpl(null);
+        partialResponseReceivedLock = new ReentrantLock();
+        partialResponseReceivedCondition = partialResponseReceivedLock.newCondition();
+        partialResponseReceivedNotified = false;
     }
     
     public void tearDown() throws Exception {
@@ -410,6 +419,7 @@ public class HTTPTransportTest extends TestCase {
             assertNull(ictx);
             // discard empty partial response
             responseCallback.waitForNextResponse();
+            signalPartialResponseReceived();
             doResponse(client, responseCallback.waitForNextResponse(), outBytes); 
         } else {
             doResponse(client, ictx, outBytes);
@@ -422,6 +432,28 @@ public class HTTPTransportTest extends TestCase {
         int len = readBytes(bytes, ictx.getInputStream());
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
+    }
+
+    private void awaitPartialResponseReceived() throws Exception {
+        partialResponseReceivedLock.lock();
+        try {
+            while (!partialResponseReceivedNotified) {
+                partialResponseReceivedCondition.await();
+            }
+        } finally {
+            partialResponseReceivedNotified = false;
+            partialResponseReceivedLock.unlock();
+        }
+    }
+    
+    private void signalPartialResponseReceived() throws Exception {
+        partialResponseReceivedLock.lock();
+        try {
+            partialResponseReceivedNotified = true;
+            partialResponseReceivedCondition.signal();
+        } finally {
+            partialResponseReceivedLock.unlock();
+        }
     }
         
     private HTTPTransportFactory createTransportFactory() throws BusException { 
@@ -592,6 +624,9 @@ public class HTTPTransportTest extends TestCase {
                     octx.getOutputStream().flush();
                     octx.getOutputStream().close();
                     assertEquals(ctx.get(HTTPServerInputStreamContext.HTTP_RESPONSE), ref);
+                    if (!oneWay) {
+                        awaitPartialResponseReceived();
+                    }
                 }
                 
                 if (oneWay) {
