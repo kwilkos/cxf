@@ -7,10 +7,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.Port;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.ws.handler.MessageContext;
 import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
 
+import org.objectweb.celtix.bindings.ClientBinding;
+import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bindings.ServerBinding;
+import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
@@ -23,13 +30,13 @@ import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
 import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_OUT;
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
 import static org.objectweb.celtix.context.OutputStreamMessageContext.ONEWAY_MESSAGE_TF;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.BINDING_PROPERTY;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_TRANSPORT_PROPERTY;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_TRANSPORT_PROPERTY;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.TRANSPORT_PROPERTY;
 
 
 /**
@@ -39,8 +46,12 @@ public final class ContextUtils {
 
     public static final ObjectFactory WSA_OBJECT_FACTORY = new ObjectFactory();
 
+    private static final String WS_ADDRESSING_PACKAGE = 
+        EndpointReferenceType.class.getPackage().getName();
     private static final Logger LOG = LogUtils.getL7dLogger(ContextUtils.class);
- 
+
+    private static JAXBContext jaxbContext;
+     
     /**
      * Used by MAPAggregator to cache bad MAP fault name
      */
@@ -107,7 +118,6 @@ public final class ContextUtils {
     public static String getMAPProperty(boolean isRequestor, 
                                         boolean isProviderContext,
                                         boolean isOutbound) {
-
         return isRequestor
                 ? isProviderContext
                  ? CLIENT_ADDRESSING_PROPERTIES
@@ -140,7 +150,7 @@ public final class ContextUtils {
     public static void storeMAPs(AddressingProperties maps,
                                  MessageContext context,
                                  boolean isOutbound) {
-        storeMAPs(maps, context, isOutbound, isRequestor(context), true);
+        storeMAPs(maps, context, isOutbound, isRequestor(context), true, false);
     }
 
     /**
@@ -158,8 +168,28 @@ public final class ContextUtils {
                                  boolean isOutbound, 
                                  boolean isRequestor,
                                  boolean handler) {
+        storeMAPs(maps, context, isOutbound, isRequestor, handler, false);
+    }
+    
+    /**
+     * Store MAPs in the context.
+     *
+     * @param maps the MAPs to store
+     * @param context the message context
+     * @param isOutbound true iff the message is outbound
+     * @param isRequestor true iff the current messaging role is that of
+     * requestor
+     * @param handler true if HANDLER scope, APPLICATION scope otherwise
+     * @param isProviderContext true if the binding provider request context 
+     */
+    public static void storeMAPs(AddressingProperties maps,
+                                 MessageContext context,
+                                 boolean isOutbound, 
+                                 boolean isRequestor,
+                                 boolean handler,
+                                 boolean isProviderContext) {
         if (maps != null) {
-            String mapProperty = getMAPProperty(isRequestor, false, isOutbound);
+            String mapProperty = getMAPProperty(isRequestor, isProviderContext, isOutbound);
             LOG.log(Level.INFO,
                     "associating MAPs with context property {0}",
                     mapProperty);
@@ -170,6 +200,7 @@ public final class ContextUtils {
                              : MessageContext.Scope.APPLICATION);
         }
     }
+
 
     /**
      * @param context the message context
@@ -246,8 +277,11 @@ public final class ContextUtils {
      * @param context the message context
      * @returned the retrieved ClientTransport
      */
-    public static ClientTransport retreiveClientTransport(MessageContext context) {
-        return (ClientTransport)context.get(CLIENT_TRANSPORT_PROPERTY);
+    public static ClientTransport retrieveClientTransport(MessageContext context) {
+        Object transport = context.get(TRANSPORT_PROPERTY);
+        return transport instanceof ClientTransport
+               ? (ClientTransport)transport
+               : null;
     }
 
     /**
@@ -256,21 +290,58 @@ public final class ContextUtils {
      * @param context the message context
      * @returned the retrieved ServerTransport
      */
-    public static ServerTransport retreiveServerTransport(MessageContext context) {
-        return (ServerTransport)context.get(SERVER_TRANSPORT_PROPERTY);
+    public static ServerTransport retrieveServerTransport(MessageContext context) {
+        return (ServerTransport)context.get(TRANSPORT_PROPERTY);
+    }
+    
+    /**
+     * Retrieve ClientBinding from the context.
+     *
+     * @param context the message context
+     * @returned the retrieved ClientBinding
+     */
+    public static ClientBinding retrieveClientBinding(MessageContext context) {
+        return (ClientBinding)context.get(BINDING_PROPERTY);
+    }
+    /**
+     * Retrieve ServerBinding from the context.
+     *
+     * @param context the message context
+     * @returned the retrieved ServerBinding
+     */
+    public static ServerBinding retrieveServerBinding(MessageContext context) {
+        return (ServerBinding)context.get(BINDING_PROPERTY);
     }
 
     /**
      * Rebase server transport on replyTo
+     * 
+     * @param replyTo the decoupled endpoint to rebase on
+     * @param context the message context
      */
     public static void rebaseTransport(EndpointReferenceType replyTo,
                                        MessageContext context) {
-        ServerTransport serverTransport = retreiveServerTransport(context);
-        if (serverTransport != null) {
+        // ensure there is a MAPs instance available for the outbound
+        // partial response that contains appropriate To and ReplyTo
+        // properties (i.e. anonymous & none respectively)
+        AddressingProperties maps = new AddressingPropertiesImpl();
+        maps.setTo(ContextUtils.getAttributedURI(Names.WSA_ANONYMOUS_ADDRESS));
+        maps.setReplyTo(WSA_OBJECT_FACTORY.createEndpointReferenceType());
+        maps.getReplyTo().setAddress(getAttributedURI(Names.WSA_NONE_ADDRESS));
+        storeMAPs(maps, context, true, true, true, true);
+
+        ServerBinding serverBinding = retrieveServerBinding(context);
+        ServerTransport serverTransport = retrieveServerTransport(context);
+        if (serverTransport != null && serverBinding != null) {
             try {
-                serverTransport.rebase(context, replyTo);
-            } catch (IOException ioe) {
-                LOG.log(Level.WARNING, "SERVER_TRANSPORT_REBASE_FAILURE_MSG", ioe);
+                OutputStreamMessageContext outputContext =
+                    serverTransport.rebase(context, replyTo);
+                if (outputContext != null) {
+                    serverBinding.partialResponse(outputContext, 
+                                                  getDataBindingCallback());
+                }
+            } catch (Exception e) {
+                LOG.log(Level.WARNING, "SERVER_TRANSPORT_REBASE_FAILURE_MSG", e);
             }
         }
     }
@@ -282,7 +353,7 @@ public final class ContextUtils {
      * @returned the retrieved Port
      */
     public static Port retrievePort(MessageContext context) {
-        ClientTransport transport = retreiveClientTransport(context);
+        ClientTransport transport = retrieveClientTransport(context);
         return transport != null ? transport.getPort() : null;
     }
 
@@ -293,7 +364,7 @@ public final class ContextUtils {
      * @returned the retrieved EPR
      */
     public static EndpointReferenceType retrieveTo(MessageContext context) {
-        ClientTransport transport = retreiveClientTransport(context);
+        ClientTransport transport = retrieveClientTransport(context);
         return transport != null ? transport.getTargetEndpoint() : null;
     }
 
@@ -304,7 +375,7 @@ public final class ContextUtils {
      * @returned the retrieved EPR
      */
     public static EndpointReferenceType retrieveReplyTo(MessageContext context) {
-        ClientTransport transport = retreiveClientTransport(context);
+        ClientTransport transport = retrieveClientTransport(context);
         EndpointReferenceType replyTo = null;
         try {
             replyTo = transport != null ? transport.getDecoupledEndpoint() : null;
@@ -367,21 +438,6 @@ public final class ContextUtils {
      * @param isOutbound true if message is outbound
      * @param context the message context
      */   
-    private static void storeCorrelationID(String id, 
-                                           boolean isOutbound,
-                                           MessageContext context) {
-        context.put(getCorrelationIDProperty(isOutbound), id);
-        context.setScope(getCorrelationIDProperty(isOutbound),
-                         MessageContext.Scope.APPLICATION);
-    }
-
-    /**
-     * Store correlation ID in the context
-     *
-     * @param id the correlation ID
-     * @param isOutbound true if message is outbound
-     * @param context the message context
-     */   
     public static void storeCorrelationID(RelatesToType id, 
                                           boolean isOutbound,
                                           MessageContext context) {
@@ -402,6 +458,21 @@ public final class ContextUtils {
     }
     
     /**
+     * Store correlation ID in the context
+     *
+     * @param id the correlation ID
+     * @param isOutbound true if message is outbound
+     * @param context the message context
+     */   
+    private static void storeCorrelationID(String id, 
+                                           boolean isOutbound,
+                                           MessageContext context) {
+        context.put(getCorrelationIDProperty(isOutbound), id);
+        context.setScope(getCorrelationIDProperty(isOutbound),
+                         MessageContext.Scope.APPLICATION);
+    }
+    
+    /**
      * Retrieve correlation ID from the context.
      *
      * @param context the message context
@@ -411,6 +482,34 @@ public final class ContextUtils {
     public static String retrieveCorrelationID(MessageContext context, 
                                                boolean isOutbound) {
         return (String)context.get(getCorrelationIDProperty(isOutbound));
+    }
+    
+    /**
+     * @return a JAXBContext
+     */
+    public static JAXBContext getJAXBContext() throws JAXBException {
+        synchronized (ContextUtils.class) {
+            if (jaxbContext == null) {
+                jaxbContext = JAXBContext.newInstance(WS_ADDRESSING_PACKAGE);
+            }
+        }
+        return jaxbContext;
+    }
+
+    /**
+     * @param ctx JAXBContext
+     */
+    public static void setJAXBContext(JAXBContext ctx) throws JAXBException {
+        synchronized (ContextUtils.class) {
+            jaxbContext = ctx;
+        }
+    }
+
+    private static DataBindingCallback getDataBindingCallback() 
+        throws JAXBException {
+        return new JAXBDataBindingCallback(null,
+                                           DataBindingCallback.Mode.PARTS,
+                                           getJAXBContext());
     }
 }
 

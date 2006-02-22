@@ -104,11 +104,11 @@ public class JBIServerTransport implements ServerTransport {
         }
     } 
     
-    public void rebase(MessageContext context, 
+    public OutputStreamMessageContext rebase(MessageContext context, 
                        EndpointReferenceType decoupledResponseEndpoint) 
         throws IOException {
         // TODO Auto-generated method stub
-        
+        return null;   
     }
     
     private void dispatch(MessageExchange exchange, ServerTransportCallback cb) 

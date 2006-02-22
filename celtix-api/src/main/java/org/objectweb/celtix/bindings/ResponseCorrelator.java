@@ -3,7 +3,10 @@ package org.objectweb.celtix.bindings;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 
@@ -11,6 +14,9 @@ import org.objectweb.celtix.handlers.HandlerInvoker;
  * Class to manage correlation of decoupled responses.
  */
 public class ResponseCorrelator implements ResponseCallback {
+
+    private static final Logger LOG = LogUtils.getL7dLogger(ResponseCorrelator.class);
+    
     private HandlerInvoker fixedHandlerInvoker;
     private Map<String, Response> responseMap;
     private AbstractBindingBase binding;
@@ -42,10 +48,12 @@ public class ResponseCorrelator implements ResponseCallback {
         synchronized (this) {
             String inCorrelation = response.getCorrelationId();
             if (inCorrelation != null) {
+                LOG.log(Level.INFO, "response correlation ID: {0}", inCorrelation);
                 responseMap.put(inCorrelation, response);
                 notifyAll();
             } else {
-                // REVISIT: log warning?
+                // this is expected for partial responses
+                LOG.info("no correlation ID in incoming message");
             }
         }
     }
@@ -61,6 +69,7 @@ public class ResponseCorrelator implements ResponseCallback {
         String outCorrelation = request.getCorrelationId();
         Response response = null;
         if (outCorrelation != null) {
+            LOG.log(Level.INFO, "request correlation ID: {0}", outCorrelation);
             synchronized (this) {
                 response = responseMap.remove(outCorrelation);
                 int count = 0;
@@ -75,7 +84,7 @@ public class ResponseCorrelator implements ResponseCallback {
                 }
             }
         } else {
-            // REVISIT: log warning and throw exception?
+            LOG.warning("NO_OUTGOING_CORRELATION_ID_MSG");
         }
         return response;
     }

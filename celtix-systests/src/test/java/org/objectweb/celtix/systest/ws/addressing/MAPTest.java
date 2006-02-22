@@ -57,8 +57,9 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
                 // special case handling for WS-Addressing system test to avoid
                 // UUID related issue when server is run as separate process
                 // via maven on Win2k
+                boolean inProcess = "Windows 2000".equals(System.getProperty("os.name"));
                 assertTrue("server did not launch correctly", 
-                           launchServer(Server.class, "Windows 2000".equals(System.getProperty("os.name"))));
+                           launchServer(Server.class, inProcess));
             }
             
             public void setUp() throws Exception {
@@ -96,10 +97,14 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
     public void testImplicitMAPs() throws Exception {
         try {
             String greeting = greeter.greetMe("implicit1");
-            assertNotNull("no response received from service", greeting);
+            assertEquals("unexpected response received from service", 
+                         "Hello implicit1",
+                         greeting);
             checkVerification();
             greeting = greeter.greetMe("implicit2");
-            assertNotNull("no response received from service", greeting);
+            assertEquals("unexpected response received from service", 
+                         "Hello implicit2",
+                         greeting);
             checkVerification();
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
@@ -116,7 +121,9 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
             maps.setMessageID(id);
             requestContext.put(CLIENT_ADDRESSING_PROPERTIES, maps);
             String greeting = greeter.greetMe("explicit1");
-            assertNotNull("no response received from service", greeting);
+            assertEquals("unexpected response received from service", 
+                         "Hello explicit1",
+                         greeting);
             checkVerification();
 
             // the previous addition to the request context impacts
@@ -135,16 +142,38 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
             maps.setMessageID(null);
             maps.setRelatesTo(ContextUtils.getRelatesTo(id.getValue()));
             greeting = greeter.greetMe("explicit3");
-            assertNotNull("no response received from service", greeting);
+            assertEquals("unexpected response received from service", 
+                         "Hello explicit3",
+                         greeting);
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
         }
     }
 
-    public void testFaultMAPs() throws Exception {
+    public void testMAPsFault() throws Exception {
         try {
             greeter.testDocLitFault("BadRecordLitFault");
             fail("expected fault from service");
+        } catch (BadRecordLitFault brlf) {
+            checkVerification();
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
+    
+    public void testOneway() throws Exception {
+        try {
+            greeter.greetMeOneWay("implicit_oneway1");
+            checkVerification();
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
+    
+    public void testApplicationFault() throws Exception {
+        try {
+            greeter.testDocLitFault("TestBadRecordLit");
+            fail("expected BadRecordLitFault");
         } catch (BadRecordLitFault brlf) {
             checkVerification();
         } catch (UndeclaredThrowableException ex) {
@@ -213,15 +242,24 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
      *
      * @param wsaHeaders a list of the wsa:* headers present in the SOAP
      * message
+     * @param expectFrom true if From header expected
      * @return null if all expected headers present, otherwise an error string.
      */
-    protected static String verifyHeaders(List<String> wsaHeaders) {
+    protected static String verifyHeaders(List<String> wsaHeaders, boolean expectFrom) {
         //System.out.println("verifying headers: " + wsaHeaders);
         if (!wsaHeaders.contains(Names.WSA_MESSAGEID_NAME)) {
             return "expected MessageID header"; 
         }
         if (!wsaHeaders.contains(Names.WSA_TO_NAME)) {
             return "expected To header";
+        }
+        if (!(wsaHeaders.contains(Names.WSA_REPLYTO_NAME)
+              || wsaHeaders.contains(Names.WSA_RELATESTO_NAME))) {
+            return "expected ReplyTo or RelatesTo header";
+        }
+        if (expectFrom 
+            && !wsaHeaders.contains(Names.WSA_FROM_NAME)) {
+            return "expected From header";
         }
         return null;
     }

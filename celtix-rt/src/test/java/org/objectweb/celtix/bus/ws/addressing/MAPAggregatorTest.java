@@ -18,17 +18,24 @@ import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
 import org.easymock.IMocksControl;
 
+import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bindings.ServerBinding;
+import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
+import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
+import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import static org.objectweb.celtix.bus.bindings.soap.SOAPConstants.SOAP_ENV_ENCSTYLE;
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
 import static org.objectweb.celtix.context.OutputStreamMessageContext.ONEWAY_MESSAGE_TF;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.BINDING_PROPERTY;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_TRANSPORT_PROPERTY;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.TRANSPORT_PROPERTY;
+
 
 
 public class MAPAggregatorTest extends TestCase {
@@ -168,6 +175,15 @@ public class MAPAggregatorTest extends TestCase {
         control.verify();
         aggregator.close(context);
     }
+    
+    public void testResponderInboundDecoupled() throws Exception {
+        LogicalMessageContext context = 
+            setUpContext(false, false, false, true, false, true);
+        boolean proceed = aggregator.handleMessage(context);
+        assertTrue("expected dispatch to proceed", proceed);
+        control.verify();
+        aggregator.close(context);
+    }
 
     public void testResponderInboundValidMAPsFault() throws Exception {
         LogicalMessageContext context = setUpContext(false, false, false);
@@ -229,22 +245,45 @@ public class MAPAggregatorTest extends TestCase {
 
     private LogicalMessageContext setUpContext(boolean requestor, 
                                                boolean outbound,
-                                               boolean oneway) {
-        return setUpContext(requestor, outbound, oneway, false, false);
+                                               boolean oneway) 
+        throws Exception {
+        return setUpContext(requestor, outbound, oneway, false, false, false);
     }
 
     private LogicalMessageContext setUpContext(boolean requestor, 
                                                boolean outbound,
                                                boolean oneway,
-                                               boolean usingAddressing) {
-        return setUpContext(requestor, outbound, oneway, usingAddressing, false);
+                                               boolean usingAddressing)
+        throws Exception {
+        return setUpContext(requestor,
+                            outbound,
+                            oneway,
+                            usingAddressing,
+                            false,
+                            false);
     }
 
     private LogicalMessageContext setUpContext(boolean requestor, 
                                                boolean outbound,
                                                boolean oneway,
                                                boolean usingAddressing,
-                                               boolean mapsInContext) {
+                                               boolean mapsInContext) 
+        throws Exception {
+        return setUpContext(requestor,
+                            outbound,
+                            oneway,
+                            usingAddressing,
+                            mapsInContext,
+                            false);
+    }
+
+    private LogicalMessageContext setUpContext(boolean requestor, 
+                                               boolean outbound,
+                                               boolean oneway,
+                                               boolean usingAddressing,
+                                               boolean mapsInContext,
+                                               boolean decoupled) 
+        throws Exception {
         LogicalMessageContext context =
             control.createMock(LogicalMessageContext.class);
         context.get(MESSAGE_OUTBOUND_PROPERTY);
@@ -254,62 +293,10 @@ public class MAPAggregatorTest extends TestCase {
         if (outbound && requestor) {
             setUpUsingAddressing(context, usingAddressing);
             if (usingAddressing) {
-                context.get(REQUESTOR_ROLE_PROPERTY);
-                EasyMock.expectLastCall().andReturn(Boolean.valueOf(requestor));
-                context.get(CLIENT_ADDRESSING_PROPERTIES);
-                AddressingPropertiesImpl maps = mapsInContext 
-                                                ? new AddressingPropertiesImpl()
-                                                : null;
-                EasyMock.expectLastCall().andReturn(maps);
-                context.get(CLIENT_TRANSPORT_PROPERTY);
-                EasyMock.expectLastCall().andReturn(null);
-                context.get(REQUESTOR_ROLE_PROPERTY);
-                EasyMock.expectLastCall().andReturn(Boolean.valueOf(requestor));
-                context.get(ONEWAY_MESSAGE_TF);
-                EasyMock.expectLastCall().andReturn(Boolean.valueOf(oneway));
-                EasyMock.eq(CLIENT_ADDRESSING_PROPERTIES_OUTBOUND);
-                expectedMAPs = maps;
-                expectedTo = Names.WSA_NONE_ADDRESS;
-                expectedReplyTo = oneway 
-                                  ? Names.WSA_NONE_ADDRESS
-                                  : Names.WSA_ANONYMOUS_ADDRESS;
-                EasyMock.reportMatcher(new MAPMatcher());
-                context.put(CLIENT_ADDRESSING_PROPERTIES_OUTBOUND,
-                            mapsInContext
-                            ? maps
-                            : new AddressingPropertiesImpl());
-                EasyMock.expectLastCall().andReturn(null);
-                context.setScope(CLIENT_ADDRESSING_PROPERTIES_OUTBOUND,
-                                 MessageContext.Scope.HANDLER);
+                setUpRequestor(context, oneway, mapsInContext, decoupled);
             } 
         } else if (!requestor) {
-            context.get(REQUESTOR_ROLE_PROPERTY);
-            EasyMock.expectLastCall().andReturn(Boolean.valueOf(requestor));
-            context.get(SERVER_ADDRESSING_PROPERTIES_INBOUND);
-            AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
-            EndpointReferenceType replyTo = new EndpointReferenceType();
-            replyTo.setAddress(
-                ContextUtils.getAttributedURI(Names.WSA_ANONYMOUS_ADDRESS));
-            maps.setReplyTo(replyTo);
-            AttributedURIType id = 
-                ContextUtils.getAttributedURI("urn:uuid:12345");
-            maps.setMessageID(id);
-            EasyMock.expectLastCall().andReturn(maps);
-            if (outbound || aggregator.messageIDs.size() > 0) {
-                context.get(REQUESTOR_ROLE_PROPERTY);
-                EasyMock.expectLastCall().andReturn(Boolean.valueOf(requestor));
-                context.get(SERVER_ADDRESSING_PROPERTIES_INBOUND);
-                EasyMock.expectLastCall().andReturn(maps);
-                EasyMock.eq(SERVER_ADDRESSING_PROPERTIES_OUTBOUND);
-                expectedTo = Names.WSA_ANONYMOUS_ADDRESS;
-                expectedRelatesTo = maps.getMessageID().getValue();
-                EasyMock.reportMatcher(new MAPMatcher());
-                context.put(SERVER_ADDRESSING_PROPERTIES_OUTBOUND,
-                            new AddressingPropertiesImpl());
-                EasyMock.expectLastCall().andReturn(null);
-                context.setScope(SERVER_ADDRESSING_PROPERTIES_OUTBOUND,
-                                 MessageContext.Scope.HANDLER);
-            }
+            setUpResponder(context, outbound, decoupled);
         }
         control.replay();
         return context;
@@ -319,7 +306,7 @@ public class MAPAggregatorTest extends TestCase {
                                       boolean usingAddressing) {
         Port port = control.createMock(Port.class);
         ClientTransport transport = control.createMock(ClientTransport.class);
-        context.get(CLIENT_TRANSPORT_PROPERTY);
+        context.get(TRANSPORT_PROPERTY);
         EasyMock.expectLastCall().andReturn(transport);
         transport.getPort();
         EasyMock.expectLastCall().andReturn(port);
@@ -356,7 +343,96 @@ public class MAPAggregatorTest extends TestCase {
             EasyMock.expectLastCall().andReturn(Boolean.FALSE);
         }
     }
+    
+    private void setUpRequestor(LogicalMessageContext context,
+                                boolean oneway,
+                                boolean mapsInContext,
+                                boolean decoupled) throws Exception {
+        context.get(REQUESTOR_ROLE_PROPERTY);
+        EasyMock.expectLastCall().andReturn(Boolean.TRUE);
+        context.get(CLIENT_ADDRESSING_PROPERTIES);
+        AddressingPropertiesImpl maps = mapsInContext 
+                                        ? new AddressingPropertiesImpl()
+                                        : null;
+        EasyMock.expectLastCall().andReturn(maps);
+        context.get(TRANSPORT_PROPERTY);
+        EasyMock.expectLastCall().andReturn(null);
+        context.get(REQUESTOR_ROLE_PROPERTY);
+        EasyMock.expectLastCall().andReturn(Boolean.TRUE);
+        context.get(ONEWAY_MESSAGE_TF);
+        EasyMock.expectLastCall().andReturn(Boolean.valueOf(oneway));
+        EasyMock.eq(CLIENT_ADDRESSING_PROPERTIES_OUTBOUND);
+        expectedMAPs = maps;
+        expectedTo = Names.WSA_NONE_ADDRESS;
+        expectedReplyTo = oneway 
+                          ? Names.WSA_NONE_ADDRESS
+                          : Names.WSA_ANONYMOUS_ADDRESS;
+        EasyMock.reportMatcher(new MAPMatcher());
+        context.put(CLIENT_ADDRESSING_PROPERTIES_OUTBOUND,
+                    mapsInContext
+                    ? maps
+                    : new AddressingPropertiesImpl());
+        EasyMock.expectLastCall().andReturn(null);
+        context.setScope(CLIENT_ADDRESSING_PROPERTIES_OUTBOUND,
+                         MessageContext.Scope.HANDLER);
+    }
 
+    private void setUpResponder(LogicalMessageContext context,
+                                boolean outbound,
+                                boolean decoupled) throws Exception {
+        context.get(REQUESTOR_ROLE_PROPERTY);
+        EasyMock.expectLastCall().andReturn(Boolean.FALSE);
+        context.get(SERVER_ADDRESSING_PROPERTIES_INBOUND);
+        AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
+        EndpointReferenceType replyTo = new EndpointReferenceType();
+        replyTo.setAddress(
+            ContextUtils.getAttributedURI(decoupled
+                                          ? "http://localhost:9999/decoupled"
+                                          : Names.WSA_ANONYMOUS_ADDRESS));
+        maps.setReplyTo(replyTo);
+        AttributedURIType id = 
+            ContextUtils.getAttributedURI("urn:uuid:12345");
+        maps.setMessageID(id);
+        EasyMock.expectLastCall().andReturn(maps);
+        if (decoupled) {
+            ServerBinding binding = 
+                control.createMock(ServerBinding.class);
+            context.get(BINDING_PROPERTY);
+            EasyMock.expectLastCall().andReturn(binding);
+            ServerTransport transport = 
+                control.createMock(ServerTransport.class);
+            context.get(TRANSPORT_PROPERTY);
+            EasyMock.expectLastCall().andReturn(transport);
+            OutputStreamMessageContext outputContext = 
+                control.createMock(OutputStreamMessageContext.class);
+            transport.rebase(context, replyTo);
+            EasyMock.expectLastCall().andReturn(outputContext);
+            DataBindingCallback callback = 
+                new JAXBDataBindingCallback(null,
+                                            DataBindingCallback.Mode.PARTS,
+                                            ContextUtils.getJAXBContext());
+            EasyMock.reportMatcher(new PartialResponseMatcher());
+            EasyMock.reportMatcher(new PartialResponseMatcher());
+            binding.partialResponse(outputContext, callback);
+            EasyMock.expectLastCall();
+        }
+        if (outbound || aggregator.messageIDs.size() > 0) {
+            context.get(REQUESTOR_ROLE_PROPERTY);
+            EasyMock.expectLastCall().andReturn(Boolean.FALSE);
+            context.get(SERVER_ADDRESSING_PROPERTIES_INBOUND);
+            EasyMock.expectLastCall().andReturn(maps);
+            EasyMock.eq(SERVER_ADDRESSING_PROPERTIES_OUTBOUND);
+            expectedTo = Names.WSA_ANONYMOUS_ADDRESS;
+            expectedRelatesTo = maps.getMessageID().getValue();
+            EasyMock.reportMatcher(new MAPMatcher());
+            context.put(SERVER_ADDRESSING_PROPERTIES_OUTBOUND,
+                        new AddressingPropertiesImpl());
+            EasyMock.expectLastCall().andReturn(null);
+            context.setScope(SERVER_ADDRESSING_PROPERTIES_OUTBOUND,
+                             MessageContext.Scope.HANDLER);
+        }
+    }
+    
     private final class MAPMatcher implements IArgumentMatcher {
         public boolean matches(Object obj) {
             if (obj instanceof AddressingPropertiesImpl) {
@@ -384,4 +460,15 @@ public class MAPAggregatorTest extends TestCase {
             return ret;
         }
     } 
+    
+    private final class PartialResponseMatcher implements IArgumentMatcher {
+        public boolean matches(Object obj) {
+            return true;
+        }    
+
+        public void appendTo(StringBuffer buffer) {
+            buffer.append("partial response args did not match");
+        }
+    } 
+
 }

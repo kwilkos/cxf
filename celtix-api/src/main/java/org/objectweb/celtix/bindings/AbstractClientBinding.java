@@ -27,8 +27,8 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_TRANSPORT_PROPERTY;
-import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.ABSTRACT_CLIENT_BINDING_PROPERTY;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.BINDING_PROPERTY;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.TRANSPORT_PROPERTY;
 
 public abstract class AbstractClientBinding extends AbstractBindingBase implements ClientBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractClientBinding.class);
@@ -82,13 +82,12 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         throws IOException {
 
         getTransport();
-        storeTransport(objectCtx);
-        storeBinding(objectCtx);
+        storeSource(objectCtx);
 
         Request request = new Request(this, objectCtx);
 
         try {
-            OutputStreamMessageContext ostreamCtx = request.process(callback);
+            OutputStreamMessageContext ostreamCtx = request.process(callback, null);
 
             if (null != ostreamCtx) {
 
@@ -117,14 +116,13 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
     public void invokeOneWay(ObjectMessageContext objectCtx, DataBindingCallback callback) 
         throws IOException {
         getTransport();
-        storeTransport(objectCtx);
-        storeBinding(objectCtx);
+        storeSource(objectCtx);
 
         Request request = new Request(this, objectCtx);
         request.setOneway(true);
 
         try {
-            OutputStreamMessageContext ostreamCtx = request.process(callback);
+            OutputStreamMessageContext ostreamCtx = request.process(callback, null);
 
             if (null != ostreamCtx) {
                 transport.invokeOneway(ostreamCtx);
@@ -140,14 +138,13 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         throws IOException {
         LOG.info("AbstractClientBinding: invokeAsync");
         getTransport();
-        storeTransport(objectCtx);
-        storeBinding(objectCtx);
+        storeSource(objectCtx);
 
         Request request = new Request(this, objectCtx);
         AsyncFuture asyncFuture = null;
 
         try {
-            OutputStreamMessageContext ostreamCtx = request.process(callback);
+            OutputStreamMessageContext ostreamCtx = request.process(callback, null);
 
             if (null != ostreamCtx) {
 
@@ -214,17 +211,14 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         return responseCorrelator;
     }
 
-    protected void storeTransport(MessageContext context) {
-        context.put(CLIENT_TRANSPORT_PROPERTY, transport);
-        context.setScope(CLIENT_TRANSPORT_PROPERTY, MessageContext.Scope.HANDLER);
-    }
-    
-    protected final void storeBinding(MessageContext context) {
-        context.put(ABSTRACT_CLIENT_BINDING_PROPERTY, this);
-        context.setScope(ABSTRACT_CLIENT_BINDING_PROPERTY, MessageContext.Scope.HANDLER);
+    protected void storeSource(MessageContext context) {
+        context.put(BINDING_PROPERTY, this);
+        context.setScope(BINDING_PROPERTY, MessageContext.Scope.HANDLER);
+        context.put(TRANSPORT_PROPERTY, transport);
+        context.setScope(TRANSPORT_PROPERTY, MessageContext.Scope.HANDLER);
     }
 
-    protected String retreiveCorrelationID(MessageContext context) {
+    protected String retrieveCorrelationID(MessageContext context) {
         return (String)context.get(CORRELATION_IN);
     }
 

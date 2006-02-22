@@ -12,13 +12,12 @@ import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
-import org.objectweb.celtix.transports.Transport;
 
 public class TestBinding  extends AbstractBindingImpl {  
     public static final String TEST_BINDING = "http://celtix.objectweb.org/bindings/test";
     
     public HandlerInvoker createHandlerInvoker() {
-        return new HandlerChainInvoker(getHandlerChain()); 
+        return new HandlerChainInvoker(getHandlerChain(true)); 
     }
     
     public MessageContext createBindingMessageContext(MessageContext orig) {
@@ -57,9 +56,8 @@ public class TestBinding  extends AbstractBindingImpl {
         return false;
     }
 
-    public OutputStreamMessageContext createOutputStreamContext(Transport t, MessageContext msgContext) 
+    public void updateMessageContext(MessageContext msgContext) 
         throws IOException {
-        return t.createOutputStreamContext(msgContext);
     }
     
     

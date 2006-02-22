@@ -271,7 +271,9 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     }
 
     public int getParamsLength() {
-        return getMethod().getParameterTypes().length;
+        return getMethod() != null 
+               ? getMethod().getParameterTypes().length
+               : 0;
     }
 
     public Object createWrapperType(ObjectMessageContext objCtx, boolean isOutBound) {
@@ -286,7 +288,11 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
                 loader = getClass().getClassLoader();
             } 
 
-            wrapperObj = Class.forName(wrapperType, true, loader).newInstance();
+            if (!"".equals(wrapperType)) {
+                wrapperObj = Class.forName(wrapperType, true, loader).newInstance();
+            } else {
+                return null;
+            }
         } catch (Exception ex) {
             throw new WebServiceException("Could not create the wrapper element", ex);
         }

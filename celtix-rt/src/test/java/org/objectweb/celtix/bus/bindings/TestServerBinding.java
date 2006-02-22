@@ -160,8 +160,10 @@ public class TestServerBinding extends AbstractServerBinding {
             callback = cb;
         }
         
-        public void rebase(MessageContext context, EndpointReferenceType decoupledResponseEndpoint)
+        public OutputStreamMessageContext rebase(MessageContext context,
+                                                 EndpointReferenceType decoupledResponseEndpoint)
             throws IOException {
+            return null;
         }
 
         public OutputStreamMessageContext createOutputStreamContext(MessageContext context)

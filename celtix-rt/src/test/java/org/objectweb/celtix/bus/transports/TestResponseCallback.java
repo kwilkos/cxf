@@ -1,29 +1,30 @@
 package org.objectweb.celtix.bus.transports;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 
 public class TestResponseCallback implements ResponseCallback {
 
-    private InputStreamMessageContext responseContext;
-    private boolean retrieved;
+    private List<InputStreamMessageContext> responseContexts = 
+        new ArrayList<InputStreamMessageContext>();
     
     public synchronized void dispatch(InputStreamMessageContext respCtx) {
-        this.responseContext = respCtx;
-        retrieved = false;
+        responseContexts.add(respCtx);
         notify();
     }
     
     public synchronized InputStreamMessageContext waitForNextResponse() {
-        while (responseContext == null || retrieved) {
+        while (responseContexts.size() == 0) {
             try {
                 wait();
             } catch (InterruptedException ie) {
                 // ignore
             }
         }
-        retrieved = true;
-        return responseContext;
+        return responseContexts.remove(0);
     }
 
 }

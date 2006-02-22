@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -43,10 +42,7 @@ import org.objectweb.celtix.ws.addressing.RelatesToType;
 public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
 
     private static final Logger LOG = LogUtils.getL7dLogger(MAPCodec.class);
-    private static final String WS_ADDRESSING_PACKAGE = 
-        EndpointReferenceType.class.getPackage().getName();
     private static SOAPFactory soapFactory;
-    protected JAXBContext jaxbContext;
 
     /**
      * Constructor.
@@ -134,7 +130,8 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
                 discardMAPs(header);
                 header.addNamespaceDeclaration(Names.WSA_NAMESPACE_PREFIX,
                                                Names.WSA_NAMESPACE_NAME);
-                Marshaller marshaller = getJAXBContext().createMarshaller();
+                Marshaller marshaller = 
+                    ContextUtils.getJAXBContext().createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
                 encodeMAP(maps.getMessageID(), 
                           Names.WSA_MESSAGEID_QNAME,
@@ -183,7 +180,7 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
             SOAPHeader header = env.getHeader();
             if (header != null) {
                 Unmarshaller unmarshaller = 
-                    getJAXBContext().createUnmarshaller();
+                    ContextUtils.getJAXBContext().createUnmarshaller();
                 Iterator headerElements = header.examineAllHeaderElements();
                 while (headerElements.hasNext()) {
                     SOAPHeaderElement headerElement = 
@@ -209,9 +206,6 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
                                           headerElement, 
                                           unmarshaller);
                             maps.setReplyTo(replyTo);
-                            if (!ContextUtils.isGenericAddress(replyTo)) {
-                                ContextUtils.rebaseTransport(replyTo, context);
-                            }
                         } else if (Names.WSA_RELATESTO_NAME.equals(localName)) {
                             maps.setRelatesTo(decodeMAP(RelatesToType.class,
                                                         headerElement, 
@@ -232,16 +226,6 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
         }
 
         return maps;
-    }
-
-    /**
-     * @return a JAXBContext
-     */
-    private synchronized JAXBContext getJAXBContext() throws JAXBException {
-        if (jaxbContext == null) {
-            jaxbContext = JAXBContext.newInstance(WS_ADDRESSING_PACKAGE);
-        }
-        return jaxbContext;
     }
 
     /**

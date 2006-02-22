@@ -9,7 +9,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.Transport;
 
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_TRANSPORT_PROPERTY;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.TRANSPORT_PROPERTY;
 
 public class Request {
     
@@ -23,7 +23,7 @@ public class Request {
         binding = b;
         objectCtx = o;
 
-        transport = (Transport)objectCtx.get(CLIENT_TRANSPORT_PROPERTY);
+        transport = (Transport)objectCtx.get(TRANSPORT_PROPERTY);
 
         handlerInvoker = binding.createHandlerInvoker();
         handlerInvoker.setContext(objectCtx);
@@ -57,14 +57,15 @@ public class Request {
     }
 
     public final void setOneway(boolean oneWay) {
-        objectCtx.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, false);
+        objectCtx.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, oneWay);
     }
     
     public final boolean isOneway() {
         return ((Boolean)objectCtx.get(OutputStreamMessageContext.ONEWAY_MESSAGE_TF)).booleanValue();
     }
 
-    public OutputStreamMessageContext process(DataBindingCallback callback) throws IOException {
+    public OutputStreamMessageContext process(DataBindingCallback callback,
+                                              OutputStreamMessageContext ostreamCtx) throws IOException {
         if (handlerInvoker.invokeLogicalHandlers(true)) {
             bindingCtx = binding.getBindingImpl().createBindingMessageContext(objectCtx);
             bindingCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
@@ -75,9 +76,11 @@ public class Request {
             }  
 
             if (handlerInvoker.invokeProtocolHandlers(true, bindingCtx)) {
-                OutputStreamMessageContext ostreamCtx = 
-                    binding.getBindingImpl().createOutputStreamContext(transport, bindingCtx);
-
+                binding.getBindingImpl().updateMessageContext(bindingCtx);
+                if (ostreamCtx == null) {
+                    ostreamCtx = transport.createOutputStreamContext(bindingCtx);
+                }
+                
                 handlerInvoker.invokeStreamHandlers(ostreamCtx);
                
                 transport.finalPrepareOutputStreamContext(ostreamCtx);

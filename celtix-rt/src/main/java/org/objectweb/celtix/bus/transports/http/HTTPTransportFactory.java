@@ -90,6 +90,13 @@ public class HTTPTransportFactory implements TransportFactory {
         responseCallback = callback;
     }
     
+    /**
+     * @return callback used to report (potentially asynchronous) responses.
+     */
+    public synchronized ResponseCallback getResponseCallback() {
+        return responseCallback;
+    }
+    
     public ServerTransport createServerTransport(EndpointReferenceType address) 
         throws WSDLException, IOException {
         URL url = new URL(EndpointReferenceUtils.getAddress(address));

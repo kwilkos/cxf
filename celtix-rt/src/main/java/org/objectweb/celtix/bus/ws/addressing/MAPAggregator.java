@@ -111,8 +111,7 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
                     ret = hasUsingAddressing(portExts)
                         || hasUsingAddressing(bindingExts);
                 }
-                usingAddressing.set(ret);
-                usingAddressingDetermined.set(true);
+                setUsingAddressing(ret);
             } else {
                 ret = usingAddressing.get();
             }
@@ -152,8 +151,14 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             }
         } else if (!ContextUtils.isRequestor(context)) {
             // responder validates incoming MAPs
-            continueProcessing = validateIncomingMAPs(context); 
-            if (!continueProcessing) {
+            AddressingProperties maps = getMAPs(context, false, false);
+            setUsingAddressing(true);
+            continueProcessing = validateIncomingMAPs(maps, context); 
+            if (continueProcessing) {
+                if (!ContextUtils.isGenericAddress(maps.getReplyTo())) {
+                    ContextUtils.rebaseTransport(maps.getReplyTo(), context);
+                }            
+            } else {
                 // validation failure => dispatch is aborted, response MAPs 
                 // must be aggregated
                 aggregate(context);
@@ -288,12 +293,13 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
 
     /**
      * Validate incoming MAPs
+     * @param maps the incoming MAPs
+     * @param context the messsage context
      * @return true if incoming MAPs are valid
      * @pre inbound message, not requestor
      */
-    private boolean validateIncomingMAPs(MessageContext context) {
+    private boolean validateIncomingMAPs(AddressingProperties maps, MessageContext context) {
         boolean valid = true;
-        AddressingProperties maps = getMAPs(context, false, false);
         if (maps != null) {
             AttributedURIType messageID = maps.getMessageID();
             if (messageID != null
@@ -310,6 +316,16 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             }
         }
         return valid;
+    }
+    
+    /**
+     * Set using addressing flag.
+     * 
+     * @param using true if addressing in use.
+     */
+    private void setUsingAddressing(boolean using) {
+        usingAddressing.set(using);
+        usingAddressingDetermined.set(true);
     }
 }
 

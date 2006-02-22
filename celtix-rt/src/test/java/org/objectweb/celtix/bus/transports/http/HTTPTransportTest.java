@@ -88,6 +88,7 @@ public class HTTPTransportTest extends TestCase {
         bus = EasyMock.createMock(Bus.class);
         wsdlManager = new WSDLManagerImpl(null);
     }
+    
     public void tearDown() throws Exception {
         EasyMock.reset(bus);
         checkBusRemovedEvent();
@@ -201,7 +202,7 @@ public class HTTPTransportTest extends TestCase {
         client.shutdown();
         
         assertTrue("Total one call: " + (stop - start), (stop - start) < 400);
-        assertTrue("Total: " + (stop2 - start), (stop2 - start) < 400);
+        assertTrue("Total: " + (stop2 - start), (stop2 - start) < 600);
         assertEquals(new String(outBytes), new String(buffer, 0, outBytes.length));
         Thread.sleep(200);
     } 
@@ -242,17 +243,13 @@ public class HTTPTransportTest extends TestCase {
             octx.getOutputStream().write(outBytes);
             octx.getOutputStream().close();
             InputStreamMessageContext ictx = client.invoke(octx);
-            if (decoupled) {
-                assertNull(ictx);
-            } else {
-                byte bytes[] = new byte[10000];
-                int len = ictx.getInputStream().read(bytes);
-                if (len != -1
-                    && new String(bytes, 0, len).indexOf("HTTP Status 503") == -1
-                    && new String(bytes, 0, len).indexOf("Error 404") == -1) {
-                    fail("was able to process a message after the servant was deactivated: " + len 
-                         + " - " + new String(bytes));
-                }
+            byte bytes[] = new byte[10000];
+            int len = ictx.getInputStream().read(bytes);
+            if (len != -1
+                && new String(bytes, 0, len).indexOf("HTTP Status 503") == -1
+                && new String(bytes, 0, len).indexOf("Error 404") == -1) {
+                fail("was able to process a message after the servant was deactivated: " + len 
+                     + " - " + new String(bytes));
             }
         } catch (IOException ex) {
             //ignore - this is what we want
@@ -411,6 +408,8 @@ public class HTTPTransportTest extends TestCase {
                             boolean decoupled) throws Exception {                  
         if (decoupled) {
             assertNull(ictx);
+            // discard empty partial response
+            responseCallback.waitForNextResponse();
             doResponse(client, responseCallback.waitForNextResponse(), outBytes); 
         } else {
             doResponse(client, ictx, outBytes);
@@ -424,7 +423,7 @@ public class HTTPTransportTest extends TestCase {
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
     }
-    
+        
     private HTTPTransportFactory createTransportFactory() throws BusException { 
         EasyMock.reset(bus);
         Configuration bc = EasyMock.createMock(Configuration.class);
@@ -584,25 +583,39 @@ public class HTTPTransportTest extends TestCase {
                 }
                 int total = readBytes(bytes, ctx.getInputStream());
                 
+                OutputStreamMessageContext octx = null;
                 if (decoupled) {
                     EndpointReferenceType ref = new EndpointReferenceType();
                     EndpointReferenceUtils.setAddress(ref, DECOUPLED_ADDRESS);
-                    server.rebase(ctx, ref);
+                    octx = server.rebase(ctx, ref);
+                    server.finalPrepareOutputStreamContext(octx);
+                    octx.getOutputStream().flush();
+                    octx.getOutputStream().close();
                     assertEquals(ctx.get(HTTPServerInputStreamContext.HTTP_RESPONSE), ref);
                 }
-                OutputStreamMessageContext octx = transport.createOutputStreamContext(ctx);
-                octx.setOneWay(oneWay);
-                transport.finalPrepareOutputStreamContext(octx);
                 
+                if (oneWay) {
+                    octx = transport.createOutputStreamContext(ctx);
+                    octx.setOneWay(oneWay);
+                    transport.finalPrepareOutputStreamContext(octx);
+                    octx.getOutputStream().close();
+                    transport.postDispatch(ctx, octx);
+                }
+                
+                // simulate implementor call 
                 if (delay > 0) {                       
                     Thread.sleep(delay);
                 }
+                
                 if (!oneWay) {
+                    octx = transport.createOutputStreamContext(ctx);
+                    octx.setOneWay(oneWay);
+                    transport.finalPrepareOutputStreamContext(octx);
                     octx.getOutputStream().write(bytes, 0, total);
                     octx.getOutputStream().flush();
+                    octx.getOutputStream().close();
+                    transport.postDispatch(ctx, octx);
                 }
-                octx.getOutputStream().close();
-                transport.postDispatch(ctx, octx);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

@@ -22,7 +22,6 @@ import org.objectweb.celtix.context.StreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.handlers.StreamHandler;
 import org.objectweb.celtix.handlers.SystemHandler;
-import org.objectweb.celtix.transports.Transport;
 
 
 import static org.easymock.EasyMock.expectLastCall;
@@ -271,9 +270,8 @@ public class AbstractBindingImplTest extends TestCase {
             return false;
         }
 
-        public OutputStreamMessageContext createOutputStreamContext(Transport t, MessageContext msgContext) 
+        public void updateMessageContext(MessageContext msgContext) 
             throws IOException {
-            return null;
         }
         
         

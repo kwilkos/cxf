@@ -27,18 +27,6 @@ public final class JAXWSRMConstants {
         "org.objectweb.celtix.ws.rm.acknowledgements.requested";
     
     /**
-     * Used to cache client binding in the context.
-     */
-    public static final String ABSTRACT_CLIENT_BINDING_PROPERTY =
-        "org.objectweb.celtix.ws.rm.client.binding";
-
-    /**
-     * Used to cache server binding in the context
-     */
-    public static final String ABSTRACT_SERVER_BINDING_PROPERTY =
-        "org.objectweb.celtix.ws.rm.server.binding";
-    
-    /**
      * Used to cache srever binding in the context
      */
     public static final String WSA_ACTION =

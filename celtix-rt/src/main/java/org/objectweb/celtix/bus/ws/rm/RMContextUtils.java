@@ -4,15 +4,10 @@ import java.util.List;
 
 import javax.xml.ws.handler.MessageContext;
 
-import org.objectweb.celtix.bindings.AbstractBindingBase;
-import org.objectweb.celtix.bindings.AbstractClientBinding;
-import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceType;
 
-import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.ABSTRACT_CLIENT_BINDING_PROPERTY;
-import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.ABSTRACT_SERVER_BINDING_PROPERTY;
 import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.ACKS_PROPERTY;
 import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.ACKS_REQUESTED_PROPERTY;
 import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.SEQUENCE_PROPERTY;
@@ -30,22 +25,6 @@ public final class RMContextUtils {
     private RMContextUtils() {
     }
 
-    public static AbstractClientBinding retrieveClientBinding(MessageContext context) {
-        return (AbstractClientBinding)context.get(ABSTRACT_CLIENT_BINDING_PROPERTY);
-    }
-    
-    public static AbstractServerBinding retrieveServerBinding(MessageContext context) {
-        return (AbstractServerBinding)context.get(ABSTRACT_SERVER_BINDING_PROPERTY);
-    }
-    
-    public static AbstractBindingBase retrieveBinding(MessageContext context) {
-        Object o = context.get(ABSTRACT_CLIENT_BINDING_PROPERTY);
-        if (null == o) {
-            o = context.get(ABSTRACT_SERVER_BINDING_PROPERTY);            
-        }
-        return (AbstractBindingBase)o;
-    }
-    
     public static void storeAction(MessageContext context, String action) {
         context.put(WSA_ACTION, action);
     }  

@@ -55,19 +55,19 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
         engine.removeServant(url);
     }
     
-    public void rebase(MessageContext context, EndpointReferenceType decoupledResponseEndpoint)
+    public OutputStreamMessageContext rebase(MessageContext context,
+                                             EndpointReferenceType decoupledResponseEndpoint)
         throws IOException {
+        OutputStreamMessageContext outputContext = null;
         HttpRequest request = 
             (HttpRequest)context.get(HTTPServerInputStreamContext.HTTP_REQUEST);
         HttpResponse response = 
             (HttpResponse)context.get(HTTPServerInputStreamContext.HTTP_RESPONSE);
         if (response != null) {
-            copyHeaders(context, response);
-            response.setStatus(HttpURLConnection.HTTP_ACCEPTED);
-            response.commit();
-            request.setHandled(true);
+            outputContext = new HTTPServerRebasedOutputStreamContext(context, request, response);
             context.put(HTTPServerInputStreamContext.HTTP_RESPONSE, decoupledResponseEndpoint);
         }
+        return outputContext;
     }
     
     public void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context) {
@@ -158,7 +158,7 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
      */
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context)
         throws IOException {
-        return new HTTPServerOutputStreamContext(this, context);
+        return new HTTPServerOutputStreamContext(context);
     }
 
     void doService(HttpRequest req, HttpResponse resp) throws IOException {
@@ -256,9 +256,8 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
     private class HTTPServerOutputStreamContext 
         extends AbstractHTTPServerOutputStreamContext {
         
-        HTTPServerOutputStreamContext(AbstractHTTPServerTransport tr, MessageContext ctx) 
-            throws IOException {
-            super(tr, ctx);
+        HTTPServerOutputStreamContext(MessageContext ctx) throws IOException {
+            super(JettyHTTPServerTransport.this, ctx);
         }
         protected void flushHeaders() throws IOException {
             Object responseObj =
@@ -305,6 +304,31 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
                 context.remove(HTTPServerInputStreamContext.HTTP_RESPONSE);
             } else {
                 origOut.resetOut(new BufferedOutputStream(responseStream, 1024));
+            }
+        }
+    }
+    
+    private class HTTPServerRebasedOutputStreamContext 
+        extends AbstractHTTPServerOutputStreamContext {
+    
+        private HttpRequest request;
+        private HttpResponse response;
+        
+        HTTPServerRebasedOutputStreamContext(MessageContext ctx,
+                                             HttpRequest req,
+                                             HttpResponse resp) throws IOException {
+            super(JettyHTTPServerTransport.this, ctx);
+            request = req;
+            response = resp;
+        }
+        
+        protected void flushHeaders() throws IOException {
+            if (response != null) {
+                copyHeaders(context, response);
+                response.setStatus(HttpURLConnection.HTTP_ACCEPTED, "Accepted");
+                response.commit();
+                request.setHandled(true);
+                origOut.resetOut(new BufferedOutputStream(response.getOutputStream(), 1024));
             }
         }
     }

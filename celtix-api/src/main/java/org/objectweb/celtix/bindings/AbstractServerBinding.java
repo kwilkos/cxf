@@ -33,8 +33,8 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_TRANSPORT_PROPERTY;
-import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.ABSTRACT_SERVER_BINDING_PROPERTY;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.BINDING_PROPERTY;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.TRANSPORT_PROPERTY;
 
 public abstract class AbstractServerBinding extends AbstractBindingBase implements ServerBinding {
 
@@ -77,6 +77,34 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         transport.deactivate();
     }
 
+    /**
+     * Make an initial partial response to an incoming request. The partial
+     * response may only contain 'header' information, and not a 'body'.
+     * 
+     * @param context object message context
+     * @param callback callback for data binding
+     */
+    public void partialResponse(OutputStreamMessageContext outputContext, 
+                                DataBindingCallback callback) throws IOException {
+        ObjectMessageContext objectMessageContext = createObjectContext();
+        objectMessageContext.putAll(outputContext);
+
+        if (callback != null) {
+            Request request = new Request(this, objectMessageContext);
+            request.setOneway(true);
+
+            try {
+                request.process(callback, outputContext);
+                terminateOutputContext(outputContext);
+            } finally {
+                request.complete();
+            }
+        } else {
+            transport.finalPrepareOutputStreamContext(outputContext);
+            terminateOutputContext(outputContext);
+        }
+    }
+    
     // --- ServerBinding interface ---
 
     // --- Methods to be implemented by concrete server bindings ---
@@ -113,7 +141,7 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         try {
             objContext = createObjectContext();
 
-            storeTransport(objContext);
+            storeSource(objContext);
             invoker = createHandlerInvoker();
             invoker.setContext(objContext);
             invoker.setInbound();
@@ -175,15 +203,13 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
                                                          ObjectMessageContext objectContext,
                                                          MessageContext replyContext, boolean isOneWay)
         throws IOException {
-        OutputStreamMessageContext outCtx = null;
+        MessageContext theContext = isOneWay ? objectContext : replyContext;
+        getBindingImpl().updateMessageContext(theContext);
+        OutputStreamMessageContext outCtx = st.createOutputStreamContext(theContext);
+        outCtx.setOneWay(isOneWay);
         if (isOneWay) {
-            outCtx = getBindingImpl().createOutputStreamContext(st, objectContext);
-            outCtx.setOneWay(isOneWay);
             finalPrepareOutputStreamContext(st, null, outCtx);
         } else {
-            outCtx = getBindingImpl().createOutputStreamContext(st, replyContext);
-            outCtx.setOneWay(isOneWay);
-
             if (isFault(objectContext, replyContext)) {
                 outCtx.setFault(true);
             }
@@ -413,16 +439,19 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         return namespace;
     }
     
-    protected void storeTransport(MessageContext context) {
-        context.put(SERVER_TRANSPORT_PROPERTY, transport);
-        context.setScope(SERVER_TRANSPORT_PROPERTY, MessageContext.Scope.HANDLER);
+    private void storeSource(MessageContext context) {
+        context.put(BINDING_PROPERTY, this);
+        context.setScope(BINDING_PROPERTY, MessageContext.Scope.HANDLER);
+        context.put(TRANSPORT_PROPERTY, transport);
+        context.setScope(TRANSPORT_PROPERTY, MessageContext.Scope.HANDLER);
     }
     
-    protected final void storeBinding(MessageContext context) {
-        context.put(ABSTRACT_SERVER_BINDING_PROPERTY, transport);
-        context.setScope(ABSTRACT_SERVER_BINDING_PROPERTY, MessageContext.Scope.HANDLER);
+    private void terminateOutputContext(OutputStreamMessageContext outputContext) 
+        throws IOException {
+        outputContext.getOutputStream().flush();
+        outputContext.getOutputStream().close();
     }
-
+    
     protected abstract Method getSEIMethod(List<Class<?>> classList, MessageContext ctx); 
 
 }

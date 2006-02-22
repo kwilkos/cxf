@@ -355,8 +355,10 @@ public class SOAPServerBindingTest extends TestCase {
             //nothing to do
         }
 
-        public void rebase(MessageContext context, EndpointReferenceType decoupledResponseEndpoint)
+        public OutputStreamMessageContext rebase(MessageContext context,
+                                                 EndpointReferenceType decoupledResponseEndpoint)
             throws IOException {
+            return null;
         }
 
         public OutputStreamMessageContext createOutputStreamContext(MessageContext context) 

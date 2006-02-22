@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.wsdl.WSDLException;
 import javax.xml.ws.Endpoint;
 
+import org.objectweb.celtix.context.OutputStreamMessageContext;
+
 /**
  * ServerBinding
  */
@@ -28,4 +30,14 @@ public interface ServerBinding extends BindingBase {
      * @throws IOException
      */
     void deactivate() throws IOException;
+    
+    /**
+     * Make an initial partial response to an incoming request. The partial
+     * response may only contain 'header' information, and not a 'body'.
+     * 
+     * @param context object message context
+     * @param callback callback for data binding
+     */
+    void partialResponse(OutputStreamMessageContext outputContext, 
+                         DataBindingCallback callback) throws IOException;
 }

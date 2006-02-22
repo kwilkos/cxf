@@ -181,8 +181,17 @@ public class HTTPClientTransport implements ClientTransport {
         InputStreamMessageContext responseContext = null;
         if (factory.hasDecoupledEndpoint()) {
             int responseCode = getResponseCode(requestContext.connection);
-            if (responseCode != HttpURLConnection.HTTP_ACCEPTED) {
-                throw new IOException("decoupled HTTP request failed: " + responseCode);
+            if (responseCode == HttpURLConnection.HTTP_ACCEPTED) {
+                // server transport was rebased on decoupled response endpoint,
+                // dispatch this partial response immediately as it may include
+                // piggybacked content
+                InputStreamMessageContext inputContext =
+                    requestContext.createInputStreamContext();
+                factory.getResponseCallback().dispatch(inputContext);
+            } else {
+                // request failed *before* server transport was rebased on
+                // decoupled response endpoint
+                responseContext = requestContext.createInputStreamContext();
             }   
         } else {
             responseContext = requestContext.createInputStreamContext();

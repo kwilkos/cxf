@@ -54,7 +54,6 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.helpers.NSStack;
 import org.objectweb.celtix.helpers.NodeUtils;
-import org.objectweb.celtix.transports.Transport;
 
 public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(SOAPBindingImpl.class);
@@ -82,7 +81,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
     }
 
     public HandlerInvoker createHandlerInvoker() {
-        return new HandlerChainInvoker(getHandlerChain());
+        return new HandlerChainInvoker(getHandlerChain(true));
     }
 
     public void marshal(ObjectMessageContext objContext, MessageContext mc, DataBindingCallback callback) {
@@ -349,8 +348,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         return hasFault;
     }
 
-    public OutputStreamMessageContext createOutputStreamContext(Transport t, MessageContext msgContext)
-        throws IOException {
+    public void updateMessageContext(MessageContext msgContext) throws IOException {
         if (msgContext instanceof SOAPMessageContext) {
             SOAPMessage msg = ((SOAPMessageContext)msgContext).getMessage();
             try {
@@ -361,8 +359,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 throw io;
             }
         }
-
-        return t.createOutputStreamContext(msgContext);
     }
 
     // --- Abstr actBindingImpl interface ---
