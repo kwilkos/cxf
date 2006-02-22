@@ -1,12 +1,23 @@
 package org.objectweb.celtix.bus.jaxws.io;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPException;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
+
+import org.xml.sax.InputSource;
 
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
@@ -30,8 +41,14 @@ public class SOAPBodyDataReader<T> implements DataReader<T> {
             if (DOMSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {
                 obj = new DOMSource();
                 ((DOMSource)obj).setNode(doc);
-            }
-        } catch (SOAPException se) {
+                
+            } else if (SAXSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {     
+                InputSource inputSource = new InputSource(getSOAPBodyStream(doc));
+                obj = new SAXSource(inputSource);
+            } else if (StreamSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {     
+                obj = new StreamSource(getSOAPBodyStream(doc));
+            } 
+        } catch (Exception se) {
             se.printStackTrace();
         }
         return obj;
@@ -41,9 +58,23 @@ public class SOAPBodyDataReader<T> implements DataReader<T> {
         //Complete
         return null;
     }
-
+    
     public void readWrapper(ObjectMessageContext objCtx, boolean isOutBound, T input) {
         //Complete
+    }
+    
+    private InputStream getSOAPBodyStream(Document doc) throws Exception {
+        System.setProperty(DOMImplementationRegistry.PROPERTY,
+            "com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
+        DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+        DOMImplementationLS impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+        LSOutput output = impl.createLSOutput();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        output.setByteStream(byteArrayOutputStream);
+        LSSerializer writer = impl.createLSSerializer();
+        writer.write(doc, output);
+        byte[] buf = byteArrayOutputStream.toByteArray();
+        return new ByteArrayInputStream(buf);
     }
 
 }

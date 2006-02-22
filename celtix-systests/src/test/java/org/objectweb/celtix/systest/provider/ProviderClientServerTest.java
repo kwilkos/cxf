@@ -144,7 +144,7 @@ public class ProviderClientServerTest extends ClientServerTestBase {
             throw (Exception)ex.getCause();
         }
     }
-    
+
     public void testMessageModeWithStreamSourceData() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
         assertNotNull(wsdl);
@@ -174,6 +174,71 @@ public class ProviderClientServerTest extends ClientServerTestBase {
             throw (Exception)ex.getCause();
         }
     }
+ 
+
+    
+    public void testPayloadModeWithSAXSourceData() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
+        assertNotNull(wsdl);
+
+        QName serviceName = 
+            new QName("http://objectweb.org/hello_world_rpclit", "SOAPServiceRPCLit5");
+        QName portName = 
+            new QName("http://objectweb.org/hello_world_rpclit", "SoapPortRPCLit5");
+
+        SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
+        assertNotNull(service);
+
+        String response1 = new String("TestGreetMeResponse");
+        String response2 = new String("TestSayHiResponse");
+        try {
+            GreeterRPCLit greeter = service.getPort(portName, GreeterRPCLit.class);
+            for (int idx = 0; idx < 1; idx++) {
+                String greeting = greeter.greetMe("Milestone-" + idx);
+                assertNotNull("no response received from service", greeting);
+                assertEquals(response1, greeting);
+
+                String reply = greeter.sayHi();
+                assertNotNull("no response received from service", reply);
+                assertEquals(response2, reply);
+            }
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
+
+ 
+    public void testPayloadModeWithStreamSourceData() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
+        assertNotNull(wsdl);
+
+        QName serviceName = 
+            new QName("http://objectweb.org/hello_world_rpclit", "SOAPServiceRPCLit6");
+        QName portName = 
+            new QName("http://objectweb.org/hello_world_rpclit", "SoapPortRPCLit6");
+
+        SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
+        assertNotNull(service);
+
+        String response1 = new String("TestGreetMeResponse");
+        String response2 = new String("TestSayHiResponse");
+        try {
+            GreeterRPCLit greeter = service.getPort(portName, GreeterRPCLit.class);
+            for (int idx = 0; idx < 1; idx++) {
+                String greeting = greeter.greetMe("Milestone-" + idx);
+                assertNotNull("no response received from service", greeting);
+                assertEquals(response1, greeting);
+
+                String reply = greeter.sayHi();
+                assertNotNull("no response received from service", reply);
+                assertEquals(response2, reply);
+            }
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
+    
+
     
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ProviderClientServerTest.class);

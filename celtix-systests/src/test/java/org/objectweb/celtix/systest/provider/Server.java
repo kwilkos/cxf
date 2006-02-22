@@ -26,6 +26,14 @@ public class Server extends TestServerBase {
         implementor = new HWStreamSourceMessageProvider();
         address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort4");
         Endpoint.publish(address, implementor); 
+        
+        implementor = new HWSAXSourcePayloadProvider();
+        address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort5");
+        Endpoint.publish(address, implementor); 
+        
+        implementor = new HWStreamSourcePayloadProvider();
+        address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort6");
+        Endpoint.publish(address, implementor); 
     }
 
     public static void main(String[] args) {

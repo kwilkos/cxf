@@ -42,7 +42,6 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         };
     }
  
-
     public void testSOAPMessage() throws Exception {
 
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -92,11 +91,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         }
         String expected3 = "Hello TestSOAPInputMessage3";
         assertEquals("Response should be : Hello TestSOAPInputMessage3",
-                     expected3, tsmh.getReplyBuffer());
-        
-        
-        
-        
+                     expected3, tsmh.getReplyBuffer()); 
     }
     
 
@@ -279,6 +274,64 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         checkSAXSource(expected3, saxSourceResp3);
 
     }    
+
+ 
+    public void testSAXSourcePAYLOAD() throws Exception {
+        
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull(service);
+
+        InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralSOAPBodyReq.xml");
+        InputSource inputSource =  new InputSource(is);
+        SAXSource saxSourceReq = new SAXSource(inputSource);
+        assertNotNull(saxSourceReq);
+        
+        InputStream is1 =  getClass().getResourceAsStream("resources/GreetMeDocLiteralSOAPBodyReq1.xml");
+        InputSource inputSource1 =  new InputSource(is1);
+        SAXSource saxSourceReq1 = new SAXSource(inputSource1);
+        assertNotNull(saxSourceReq1);
+        
+        InputStream is2 =  getClass().getResourceAsStream("resources/GreetMeDocLiteralSOAPBodyReq2.xml");
+        InputSource inputSource2 =  new InputSource(is2);
+        SAXSource saxSourceReq2 = new SAXSource(inputSource2);
+        assertNotNull(saxSourceReq2);
+        
+        InputStream is3 =  getClass().getResourceAsStream("resources/GreetMeDocLiteralSOAPBodyReq3.xml");
+        InputSource inputSource3 =  new InputSource(is3);
+        SAXSource saxSourceReq3 = new SAXSource(inputSource3);
+        assertNotNull(saxSourceReq3);
+
+        Dispatch<SAXSource> disp = service.createDispatch(portName,
+                                                            SAXSource.class, Service.Mode.PAYLOAD);
+        SAXSource saxSourceResp = disp.invoke(saxSourceReq);
+        assertNotNull(saxSourceResp);
+        String expected = "Hello TestSOAPInputMessage";
+        checkSAXSource(expected, saxSourceResp);
+        
+        disp.invokeOneWay(saxSourceReq1);
+        
+        Response response = disp.invokeAsync(saxSourceReq2);
+        SAXSource saxSourceResp2 = (SAXSource)response.get();
+        assertNotNull(saxSourceResp2);
+        String expected2 = "Hello TestSOAPInputMessage2";
+        checkSAXSource(expected2, saxSourceResp2);
+        
+        
+        TestSAXSourceHandler tssh = new TestSAXSourceHandler();
+        Future fd = disp.invokeAsync(saxSourceReq3, tssh);
+        assertNotNull(fd);
+        while (!fd.isDone()) {
+            //wait
+        }
+        String expected3 = "Hello TestSOAPInputMessage3";
+        SAXSource saxSourceResp3 = tssh.getSAXSource();
+        assertNotNull(saxSourceResp3);
+        checkSAXSource(expected3, saxSourceResp3);
+
+    }   
     
     public void testStreamSourceMESSAGE() throws Exception {
 
@@ -309,6 +362,59 @@ public class DispatchClientServerTest extends ClientServerTestBase {
 
         Dispatch<StreamSource> disp = service.createDispatch(portName,
                                                             StreamSource.class, Service.Mode.MESSAGE);
+        StreamSource streamSourceResp = disp.invoke(streamSourceReq);
+        assertNotNull(streamSourceResp);
+        String expected = "Hello TestSOAPInputMessage";
+        checkStreamSource(expected, streamSourceResp);
+        
+        disp.invokeOneWay(streamSourceReq1);
+        
+        Response response = disp.invokeAsync(streamSourceReq2);
+        StreamSource streamSourceResp2 = (StreamSource)response.get();
+        assertNotNull(streamSourceResp2);
+        String expected2 = "Hello TestSOAPInputMessage2";
+        checkStreamSource(expected2, streamSourceResp2);
+        
+        
+        TestStreamSourceHandler tssh = new TestStreamSourceHandler();
+        Future fd = disp.invokeAsync(streamSourceReq3, tssh);
+        assertNotNull(fd);
+        while (!fd.isDone()) {
+            //wait
+        }
+        String expected3 = "Hello TestSOAPInputMessage3";
+        StreamSource streamSourceResp3 = tssh.getStreamSource();
+        assertNotNull(streamSourceResp3);
+        checkStreamSource(expected3, streamSourceResp3);
+
+    }
+
+    public void testStreamSourcePAYLOAD() throws Exception {
+
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull(service);
+
+        InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralSOAPBodyReq.xml");
+        StreamSource streamSourceReq = new StreamSource(is);
+        assertNotNull(streamSourceReq);
+        
+        InputStream is1 =  getClass().getResourceAsStream("resources/GreetMeDocLiteralSOAPBodyReq1.xml");
+        StreamSource streamSourceReq1 = new StreamSource(is1);
+        assertNotNull(streamSourceReq1);
+        
+        InputStream is2 =  getClass().getResourceAsStream("resources/GreetMeDocLiteralSOAPBodyReq2.xml");
+        StreamSource streamSourceReq2 = new StreamSource(is2);
+        assertNotNull(streamSourceReq2);
+        
+        InputStream is3 =  getClass().getResourceAsStream("resources/GreetMeDocLiteralSOAPBodyReq3.xml");
+        StreamSource streamSourceReq3 = new StreamSource(is3);
+        assertNotNull(streamSourceReq3);
+
+        Dispatch<StreamSource> disp = service.createDispatch(portName,
+                                                            StreamSource.class, Service.Mode.PAYLOAD);
         StreamSource streamSourceResp = disp.invoke(streamSourceReq);
         assertNotNull(streamSourceResp);
         String expected = "Hello TestSOAPInputMessage";

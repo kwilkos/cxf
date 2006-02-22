@@ -134,8 +134,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 boolean found = false;
                 Object src = isInputMsg ? objContext.getReturn() : objContext.getMessageObjects()[0];
                 for (Class<?> cls : callback.getSupportedFormats()) {
-
-                    if (cls == DOMSource.class) {
+                    if (cls == DOMSource.class
+                        || cls == SAXSource.class 
+                        || cls == StreamSource.class) {
                         DataWriter<SOAPBody> writer = callback.createWriter(SOAPBody.class);
                         writer.write(src, msg.getSOAPBody());
                         found = true;
@@ -148,10 +149,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
             ((SOAPMessageContext)mc).setMessage(msg);
             
+            
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_MARSHALLING_FAILURE_MSG", se);
             throw new ProtocolException(se);
-        }
+        } 
     }
 
     public void marshalFault(ObjectMessageContext objContext, MessageContext mc, 
@@ -255,7 +257,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 boolean found = false;
                 Object obj = null;
                 for (Class<?> cls : callback.getSupportedFormats()) {
-                    if (cls == DOMSource.class) {
+                    if (cls == DOMSource.class
+                        || cls == SAXSource.class 
+                        || cls == StreamSource.class) {
                         DataReader<SOAPBody> reader = callback.createReader(SOAPBody.class);
                         obj = reader.read(0, soapMessage.getSOAPBody());
                         found = true;
@@ -289,6 +293,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             SOAPMessage soapMessage = soapContext.getMessage();
 
             SOAPFault fault = soapMessage.getSOAPBody().getFault();
+            System.out.println("***** SOAPFault:" + fault.getFaultString());
 
             DataReader<SOAPFault> reader = callback.createReader(SOAPFault.class);
             if (reader == null) {
