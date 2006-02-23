@@ -28,28 +28,28 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
     private static final String NEW_FILE_NAME_MODIFIER = "-service";
     private static final String WSDL_FILE_NAME_EXT = ".wsdl";
     private static final String HTTP_PREFIX = "http://localhost:9000";
-    
+
     private Map services;
     private Service service;
     private Map ports;
     private Port port;
     private Binding binding;
-    
+
     public void process() throws ToolException {
         init();
         if (isServicePortExisted()) {
             throw new ToolException("Input server and port already exist in imported contract.");
-        }        
+        }
         if (!isBindingExisted()) {
             throw new ToolException("Input binding does not exist in imported contract.");
         }
         doAppendService();
     }
-    
+
     private boolean isServicePortExisted() {
         return isServiceExisted() && isPortExisted();
     }
-    
+
     private boolean isServiceExisted() {
         services = wsdlDefinition.getServices();
         if (services == null) {
@@ -57,32 +57,32 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
         }
         Iterator it = services.keySet().iterator();
         while (it.hasNext()) {
-            QName serviceQName = (QName) it.next();
-            String serviceName = serviceQName.getLocalPart();  
+            QName serviceQName = (QName)it.next();
+            String serviceName = serviceQName.getLocalPart();
             if (serviceName.equals(env.get(ToolConstants.CFG_SERVICE))) {
-                service = (Service) services.get(serviceQName);
+                service = (Service)services.get(serviceQName);
                 break;
             }
-        }          
-        return (service == null) ? false : true;        
+        }
+        return (service == null) ? false : true;
     }
-    
+
     private boolean isPortExisted() {
-        ports = service.getPorts(); 
-        if (ports == null) {            
+        ports = service.getPorts();
+        if (ports == null) {
             return false;
         }
         Iterator it = ports.keySet().iterator();
         while (it.hasNext()) {
-            String portName = (String) it.next();               
+            String portName = (String)it.next();
             if (portName.equals(env.get(ToolConstants.CFG_PORT))) {
-                port = (Port) ports.get(portName);
+                port = (Port)ports.get(portName);
                 break;
             }
-        }      
+        }
         return (port == null) ? false : true;
     }
-    
+
     private boolean isBindingExisted() {
         Map bindings = wsdlDefinition.getBindings();
         if (bindings == null) {
@@ -90,38 +90,38 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
         }
         Iterator it = bindings.keySet().iterator();
         while (it.hasNext()) {
-            QName bindingQName = (QName) it.next();
+            QName bindingQName = (QName)it.next();
             String bindingName = bindingQName.getLocalPart();
-            String attrBinding = (String) env.get(ToolConstants.CFG_BINDING_ATTR);
+            String attrBinding = (String)env.get(ToolConstants.CFG_BINDING_ATTR);
             if (attrBinding.equals(bindingName)) {
-                binding = (Binding) bindings.get(bindingQName);
+                binding = (Binding)bindings.get(bindingQName);
             }
-        }      
+        }
         return (binding == null) ? false : true;
     }
-    
+
     protected void init() throws ToolException {
-        parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));        
+        parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));
     }
-    
+
     private void doAppendService() throws ToolException {
         if (service == null) {
             service = wsdlDefinition.createService();
-            service.setQName(new QName(WSDLConstants.WSDL_PREFIX, 
-                                       (String) env.get(ToolConstants.CFG_SERVICE)));
+            service
+                .setQName(new QName(WSDLConstants.WSDL_PREFIX, (String)env.get(ToolConstants.CFG_SERVICE)));
         }
         if (port == null) {
             port = wsdlDefinition.createPort();
-            port.setName((String) env.get(ToolConstants.CFG_PORT));
+            port.setName((String)env.get(ToolConstants.CFG_PORT));
             port.setBinding(binding);
-        }        
+        }
         setAddrElement();
         service.addPort(port);
-        wsdlDefinition.addService(service);        
+        wsdlDefinition.addService(service);
 
         WSDLWriter wsdlWriter = wsdlFactory.newWSDLWriter();
         Writer outputWriter = getOutputWriter();
-        try {            
+        try {
             wsdlWriter.writeWSDL(wsdlDefinition, outputWriter);
         } catch (WSDLException wse) {
             throw new ToolException("can not write modified wsdl, due to " + wse.getMessage(), wse);
@@ -131,56 +131,77 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
         } catch (IOException ioe) {
             throw new ToolException("close wsdl output file failed, due to " + ioe.getMessage(), ioe);
         }
-        
+
     }
-    
+
     private void setAddrElement() throws ToolException {
         ExtensionRegistry extReg = this.wsdlReader.getExtensionRegistry();
         if (extReg == null) {
             extReg = wsdlFactory.newPopulatedExtensionRegistry();
         }
-        if ("http".equalsIgnoreCase((String) env.get(ToolConstants.CFG_TRANSPORT))) {
+        if ("http".equalsIgnoreCase((String)env.get(ToolConstants.CFG_TRANSPORT))) {
             SOAPAddress soapAddress = null;
             try {
-                soapAddress = (SOAPAddress) extReg.createExtension(Port.class,
-                                                                   WSDLConstants.NS_SOAP_BINDING_ADDRESS);
+                soapAddress = (SOAPAddress)extReg.createExtension(Port.class,
+                                                                  WSDLConstants.NS_SOAP_BINDING_ADDRESS);
             } catch (WSDLException wse) {
                 throw new ToolException("Create soap address ext element failed, due to " + wse);
             }
             if (env.get(ToolConstants.CFG_ADDRESS) != null) {
-                soapAddress.setLocationURI((String) env.get(ToolConstants.CFG_ADDRESS));
+                soapAddress.setLocationURI((String)env.get(ToolConstants.CFG_ADDRESS));
             } else {
-                soapAddress.setLocationURI(HTTP_PREFIX + "/" + env.get(ToolConstants.CFG_SERVICE) 
-                                           + "/" + env.get(ToolConstants.CFG_PORT));
-            }   
+                soapAddress.setLocationURI(HTTP_PREFIX + "/" + env.get(ToolConstants.CFG_SERVICE) + "/"
+                                           + env.get(ToolConstants.CFG_PORT));
+            }
             port.addExtensibilityElement(soapAddress);
-        } else if ("jms".equalsIgnoreCase((String) env.get(ToolConstants.CFG_TRANSPORT))) {
+        } else if ("jms".equalsIgnoreCase((String)env.get(ToolConstants.CFG_TRANSPORT))) {
             JMSAddress jmsAddress = null;
-            JMSAddressSerializer jmsAddressSerializer = new JMSAddressSerializer(); 
+            JMSAddressSerializer jmsAddressSerializer = new JMSAddressSerializer();
             try {
-                extReg.registerSerializer(JMSAddress.class, ToolConstants.JMS_ADDRESS,
-                                          jmsAddressSerializer);
-                extReg.registerDeserializer(JMSAddress.class, ToolConstants.JMS_ADDRESS,
-                                            jmsAddressSerializer);
-                jmsAddress = (JMSAddress) extReg.createExtension(SOAPAddress.class,
-                                                                 ToolConstants.JMS_ADDRESS);
+                extReg.registerSerializer(JMSAddress.class, ToolConstants.JMS_ADDRESS, jmsAddressSerializer);
+                extReg
+                    .registerDeserializer(JMSAddress.class, ToolConstants.JMS_ADDRESS, jmsAddressSerializer);
+                jmsAddress = (JMSAddress)extReg.createExtension(Port.class, ToolConstants.JMS_ADDRESS);
+                if (env.optionSet(ToolConstants.JMS_ADDR_DEST_STYLE)) {
+                    jmsAddress.setDestinationStyle((String)env.get(ToolConstants.JMS_ADDR_DEST_STYLE));
+                }
+                if (env.optionSet(ToolConstants.JMS_ADDR_INIT_CTX)) {
+                    jmsAddress.setInitialContextFactory((String)env.get(ToolConstants.JMS_ADDR_INIT_CTX));
+                }
+                if (env.optionSet(ToolConstants.JMS_ADDR_JNDI_DEST)) {
+                    jmsAddress.setJndiDestinationName((String)env.get(ToolConstants.JMS_ADDR_JNDI_DEST));
+                }
+                if (env.optionSet(ToolConstants.JMS_ADDR_JNDI_FAC)) {
+                    jmsAddress.setJndiConnectionFactoryName((String)env.get(ToolConstants.JMS_ADDR_JNDI_FAC));
+                }
+                if (env.optionSet(ToolConstants.JMS_ADDR_JNDI_URL)) {
+                    jmsAddress.setJndiProviderURL((String)env.get(ToolConstants.JMS_ADDR_JNDI_URL));
+                }
+                if (env.optionSet(ToolConstants.JMS_ADDR_MSGID_TO_CORRID)) {
+                    jmsAddress.setUseMessageIDAsCorrelationID(Boolean.getBoolean(
+                                     (String) env.get(ToolConstants.JMS_ADDR_MSGID_TO_CORRID)));
+                }
+                if (env.optionSet(ToolConstants.JMS_ADDR_SUBSCRIBER_NAME)) {
+                    jmsAddress.setDurableSubscriberName(
+                                     (String) env.get(ToolConstants.JMS_ADDR_SUBSCRIBER_NAME));
+                }                                
             } catch (WSDLException wse) {
                 throw new ToolException("Create soap address ext element failed, due to " + wse);
             }
-            port.addExtensibilityElement(jmsAddress);    
+            port.addExtensibilityElement(jmsAddress);
         }
     }
-    
-    private Writer getOutputWriter() throws ToolException {        
-        Writer writer = null;        
+
+    private Writer getOutputWriter() throws ToolException {
+        Writer writer = null;
         String newName = null;
         String outputDir;
-        
+
         if (env.get(ToolConstants.CFG_OUTPUTFILE) != null) {
-            newName = (String) env.get(ToolConstants.CFG_OUTPUTFILE);
+            newName = (String)env.get(ToolConstants.CFG_OUTPUTFILE);
         } else {
-            String oldName = (String) env.get(ToolConstants.CFG_WSDLURL);
-            int position = oldName.lastIndexOf("/"); 
+            String oldName = (String)env.get(ToolConstants.CFG_WSDLURL);
+            int position = oldName.lastIndexOf("/");
             if (position < 0) {
                 position = oldName.lastIndexOf("\\");
             }
@@ -188,28 +209,28 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
                 oldName = oldName.substring(position + 1, oldName.length());
             }
             if (oldName.toLowerCase().indexOf(WSDL_FILE_NAME_EXT) >= 0) {
-                newName = oldName.substring(0, oldName.length() - 5)
-                        + NEW_FILE_NAME_MODIFIER + WSDL_FILE_NAME_EXT;               
+                newName = oldName.substring(0, oldName.length() - 5) + NEW_FILE_NAME_MODIFIER
+                          + WSDL_FILE_NAME_EXT;
             } else {
                 newName = oldName + NEW_FILE_NAME_MODIFIER;
             }
         }
         if (env.get(ToolConstants.CFG_OUTPUTDIR) != null) {
-            outputDir = (String) env.get(ToolConstants.CFG_OUTPUTDIR);
-            if (!(outputDir.substring(outputDir.length() - 1).equals("/") 
-                        || outputDir.substring(outputDir.length() - 1).equals("\\"))) {
+            outputDir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
+            if (!(outputDir.substring(outputDir.length() - 1).equals("/") || outputDir
+                .substring(outputDir.length() - 1).equals("\\"))) {
                 outputDir = outputDir + "/";
-            }            
+            }
         } else {
             outputDir = "./";
-        }        
+        }
         FileWriterUtil fw = new FileWriterUtil(outputDir);
         try {
             writer = fw.getWriter("", newName);
         } catch (IOException ioe) {
-            throw new ToolException("Failed to write " + env.get(ToolConstants.CFG_OUTPUTDIR) 
+            throw new ToolException("Failed to write " + env.get(ToolConstants.CFG_OUTPUTDIR)
                                     + System.getProperty("file.seperator") + newName, ioe);
-        }        
+        }
         return writer;
     }
 }

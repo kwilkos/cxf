@@ -1,6 +1,8 @@
 package org.objectweb.celtix.tools.extensions.jms;
 
 import java.io.*;
+import java.lang.reflect.*;
+
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
@@ -23,7 +25,15 @@ public class JMSAddressSerializer implements ExtensionSerializer,
                          PrintWriter pw,
                          Definition def,
                          ExtensionRegistry extReg) throws WSDLException {
-        // TODO
+
+        JMSAddress jmsAddress = (JMSAddress) extension;
+        String elementPrefix = def.getPrefix(ToolConstants.NS_JMS_ADDRESS);
+        StringBuffer sb = new StringBuffer(300);        
+        sb.append(" <" + elementPrefix + ":" + elementType.getLocalPart() + " ");
+        sb.append(jmsAddress.getAttrXMLString());
+        sb.append("/>");
+        pw.print(sb.toString());
+        pw.println();
     }
 
     public ExtensibilityElement unmarshall(Class parentType,

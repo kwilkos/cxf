@@ -53,25 +53,25 @@
 		</associatedArgument>
 	    </option>
 
-	    <option id="outputdir" maxOccurs="1">
-		<annotation>The directory in which the code is placed</annotation>
-		<switch>d</switch>
-		<associatedArgument placement="afterSpace">
-		    <annotation>output-directory</annotation>
-		</associatedArgument>
-	    </option>
-
-   	    <option id="outputfile" maxOccurs="1">
-		<annotation>Generated contract file name, default is to append -service to imported contract file name.</annotation>
+      	<option id="outputfile" maxOccurs="1">
+		<annotation>The wsdl output file name.</annotation>
 		<switch>o</switch>
-		<associatedArgument placement="afterSpace">
-		    <annotation>output-file-name</annotation>
-		</associatedArgument>
-	    </option>
+        <associatedArgument placement="afterSpace">
+        	<annotation>output-file</annotation>
+        </associatedArgument>
+      	</option>
 
-	</optionGroup>
+    	<option id="outputdir" maxOccurs="1">
+        <annotation>The directory in which the generated wsdl is placed</annotation>
+        <switch>d</switch>
+        <associatedArgument placement="afterSpace">
+          	<annotation>output-directory</annotation>
+        </associatedArgument>
+      	</option>
+		</optionGroup>
 
 	<optionGroup id="common_options">
+	
 	    <option id="help" maxOccurs="1">
 		<annotation>Display detailed information for options.</annotation>
 		<switch>h</switch>

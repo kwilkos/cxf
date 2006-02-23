@@ -207,6 +207,13 @@ This policy can be changed by modifying the ending '+' to a '*' in the regular e
 
   <element name="valuetype" type="tool:valuetype_type"/>
 
+  <simpleType name="valueenum_type">
+    <restriction base="string">
+    </restriction>
+  </simpleType>
+
+  <element name="valueenum" type="tool:valueenum_type"/>
+
   <element name="associatedArgument" type="tool:associatedArgument"/>
   <element name="argument" type="tool:trailingArgument"/>
 
@@ -214,6 +221,7 @@ This policy can be changed by modifying the ending '+' to a '*' in the regular e
     <sequence>
       <element ref="tool:valuetype" minOccurs="0"/>
       <element ref="tool:annotation" minOccurs="0"/>
+      <element ref="tool:valueenum" minOccurs="0"/>
     </sequence>
     <attribute name="default" type="token" use="optional"/>
     <attribute name="placement" type="tool:placementType" use="optional" default="afterSpace"/>

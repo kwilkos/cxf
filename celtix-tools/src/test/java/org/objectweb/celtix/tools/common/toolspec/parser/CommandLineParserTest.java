@@ -21,7 +21,7 @@ public class CommandLineParserTest extends TestCase {
 
         parser = new CommandLineParser(toolspec);
     }
-
+    
     public void testValidArguments() throws Exception {
         String[] args = new String[] {"-r", "-n", "test", "arg1"};
         CommandDocument result = parser.parseArguments(args);
@@ -43,6 +43,29 @@ public class CommandLineParserTest extends TestCase {
             assertEquals("Invalid argument value message incorrect", "-n has invalid character!", userError
                 .toString());
         }
+    }
+
+    public void testValidArgumentEnumValue() throws Exception {
+        String[] args = new String[] {"-r", "-e", "true", "arg1"};        
+        CommandDocument result = parser.parseArguments(args);
+        assertEquals("testValidArguments Failed", "true", result.getParameter("enum"));
+    }
+
+    public void testInvalidArgumentEnumValue() throws Exception {
+        try {
+            String[] args = new String[] {"-e", "wrongvalue"};
+            parser.parseArguments(args);
+            fail("testInvalidArgumentEnumValue failed");
+        } catch (BadUsageException ex) {
+            Object[] errors = ex.getErrors().toArray();
+            assertEquals("testInvalidArgumentEnumValu failed", 1, errors.length);
+            CommandLineError error = (CommandLineError)errors[0];
+            assertTrue("Expected InvalidArgumentEnumValu error", error instanceof ErrorVisitor.UserError);
+            ErrorVisitor.UserError userError = (ErrorVisitor.UserError)error;
+            assertEquals("Invalid enum argument value message incorrect", 
+                         "-e wrongvalue not in the enumeration value list!", 
+                         userError.toString());            
+        }        
     }
 
     public void testValidMixedArguments() throws Exception {
@@ -141,7 +164,7 @@ public class CommandLineParserTest extends TestCase {
     }
 
     public void testUsage() throws Exception {
-        String usage = "[ -n <C++ Namespace> ] [ -impl ] -r [ -? ] [ -v ] <wsdlurl> ";
+        String usage = "[ -n <C++ Namespace> ] [ -impl ] [ -e <Enum Value> ] -r [ -? ] [ -v ] <wsdlurl> ";
         String pUsage = parser.getUsage();
         assertEquals("testUsage failed", usage, pUsage);
     }
@@ -152,6 +175,8 @@ public class CommandLineParserTest extends TestCase {
         usage += "Namespace" + lineSeparator + lineSeparator;
         usage += "[ -impl ]" + lineSeparator;
         usage += "impl" + lineSeparator + lineSeparator;
+        usage += "[ -e <Enum Value> ]" + lineSeparator;
+        usage += "enum" + lineSeparator + lineSeparator;
         usage += "-r" + lineSeparator;
         usage += "required" + lineSeparator + lineSeparator;
         usage += "[ -? ]" + lineSeparator;
@@ -159,7 +184,7 @@ public class CommandLineParserTest extends TestCase {
         usage += "[ -v ]" + lineSeparator;
         usage += "version" + lineSeparator + lineSeparator;
         usage += "<wsdlurl>" + lineSeparator;
-        usage += "WSDL/SCHEMA URL" + lineSeparator + lineSeparator;
+        usage += "WSDL/SCHEMA URL" + lineSeparator + lineSeparator;        
         assertEquals("testUsage failed", usage, parser.getDetailedUsage());
     }
 

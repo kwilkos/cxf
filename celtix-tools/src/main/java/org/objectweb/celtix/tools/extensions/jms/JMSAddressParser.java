@@ -10,7 +10,7 @@ public class JMSAddressParser {
     public void parseElement(JMSAddress jmsAddress, Element element) {
         String jndiURL = XMLUtil.getAttribute(element, ToolConstants.JMS_ADDR_JNDI_URL);
         if (jndiURL != null) {
-            jmsAddress.setJndiURL(jndiURL);
+            jmsAddress.setJndiProviderURL(jndiURL);
         }
     }
 }

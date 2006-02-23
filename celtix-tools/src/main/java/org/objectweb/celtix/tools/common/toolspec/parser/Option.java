@@ -1,5 +1,6 @@
 package org.objectweb.celtix.tools.common.toolspec.parser;
 
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,7 +13,7 @@ import org.objectweb.celtix.tools.common.toolspec.Tool;
 public class Option implements TokenConsumer {
 
     private static final Logger LOG = LogUtils.getL7dLogger(Option.class);
-
+    private static final String VALUE_ENUM_SEPARATOR = "|";
     protected Element argument;
     protected Element annotation;
     private final Element element;
@@ -123,6 +124,10 @@ public class Option implements TokenConsumer {
             } else if (hasInvalidCharacter(value)) {
                 errors.add(new ErrorVisitor.UserError(switchArg + " has invalid character!"));
             }
+            if (!isInEnumArgumentValue(value)) {
+                errors.add(new ErrorVisitor.UserError(switchArg + " " 
+                                                      + value + " not in the enumeration value list!"));
+            }
         } else {
             errors.add(new ErrorVisitor.InvalidOption(switchArg));
         }
@@ -148,6 +153,25 @@ public class Option implements TokenConsumer {
             }
         }
         return false;
+    }
+    
+    private boolean isInEnumArgumentValue(String argValue) {
+        boolean result = true;
+        NodeList list = argument.getElementsByTagNameNS(Tool.TOOL_SPEC_PUBLIC_ID, "valueenum");
+        if (list != null && list.getLength() == 1) {
+            result = false;
+            String enumValue = list.item(0).getTextContent();
+            StringTokenizer stk = new StringTokenizer(enumValue, VALUE_ENUM_SEPARATOR);
+            if (stk.countTokens() <= 0) {
+                return result;
+            }
+            while (stk.hasMoreTokens()) {
+                if (argValue.equals(stk.nextToken())) {
+                    result = true;
+                }
+            }
+        }
+        return result;
     }
 
     private boolean isIdentifyString(String value) {

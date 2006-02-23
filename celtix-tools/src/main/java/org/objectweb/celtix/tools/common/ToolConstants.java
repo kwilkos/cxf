@@ -95,4 +95,6 @@ public final class ToolConstants {
     public static final String JMS_ADDR_JNDI_DEST = "jndiDestinationName";
     public static final String JMS_ADDR_MSG_TYPE = "messageType";
     public static final String JMS_ADDR_INIT_CTX = "initialContextFactory";
+    public static final String JMS_ADDR_SUBSCRIBER_NAME = "durableSubscriberName";
+    public static final String JMS_ADDR_MSGID_TO_CORRID = "useMessageIDAsCorrelationID";
 }
