@@ -2,18 +2,19 @@ package org.objectweb.celtix.bus.jaxws.io;
 
 
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPBody;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.Document;
-
-
 
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
@@ -43,7 +44,20 @@ public class SOAPBodyDataWriter<T> implements DataWriter<T> {
                 StreamSource streamSource = (StreamSource)obj;
                 Document doc = getDocBuilder().parse(streamSource.getInputStream());
                 dest.addDocument(doc); 
-            } 
+            } else if (Object.class.isAssignableFrom(obj.getClass())) {
+                
+                JAXBContext context = callback.getJAXBContext();
+                
+                Marshaller u = context.createMarshaller();
+                u.setProperty(Marshaller.JAXB_ENCODING , "UTF-8");
+                u.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+                u.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);  
+                
+                DOMResult domResult = new DOMResult();
+                u.marshal(obj, domResult);
+                dest.addDocument((Document)domResult.getNode());                
+                
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

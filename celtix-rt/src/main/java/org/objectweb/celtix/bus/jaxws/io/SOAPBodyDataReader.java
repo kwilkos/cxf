@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
 import javax.xml.transform.Source;
@@ -40,14 +42,17 @@ public class SOAPBodyDataReader<T> implements DataReader<T> {
     
             if (DOMSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {
                 obj = new DOMSource();
-                ((DOMSource)obj).setNode(doc);
-                
+                ((DOMSource)obj).setNode(doc);          
             } else if (SAXSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {     
                 InputSource inputSource = new InputSource(getSOAPBodyStream(doc));
                 obj = new SAXSource(inputSource);
             } else if (StreamSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {     
                 obj = new StreamSource(getSOAPBodyStream(doc));
-            } 
+            } else if (Object.class.isAssignableFrom(callback.getSupportedFormats()[0])) {           
+                JAXBContext context = callback.getJAXBContext();
+                Unmarshaller u = context.createUnmarshaller();
+                return u.unmarshal(doc);                    
+            }
         } catch (Exception se) {
             se.printStackTrace();
         }

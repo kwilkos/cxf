@@ -14,10 +14,6 @@ import java.util.logging.Logger;
 import javax.jws.WebParam;
 import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.soap.Detail;
 import javax.xml.soap.MessageFactory;
@@ -30,7 +26,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
@@ -43,7 +38,6 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPBinding;
 import javax.xml.ws.soap.SOAPFaultException;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -149,30 +143,14 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 for (Class<?> cls : callback.getSupportedFormats()) {
                     if (cls == DOMSource.class
                         || cls == SAXSource.class 
-                        || cls == StreamSource.class) {
+                        || cls == StreamSource.class
+                        || cls == Object.class) {
                         DataWriter<SOAPBody> writer = callback.createWriter(SOAPBody.class);
                         writer.write(src, msg.getSOAPBody());
                         found = true;
                         break;
-                    }
-                }
-                
-                if (callback.getJAXBContext() != null) {
-                    // JAXB Object
-                    
-                    JAXBContext context = callback.getJAXBContext();
-                    
-                    Marshaller u = context.createMarshaller();
-                    u.setProperty(Marshaller.JAXB_ENCODING , "UTF-8");
-                    u.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-                    u.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);  
-                    
-                    DOMResult domResult = new DOMResult();
-                    u.marshal(src, domResult);
-                    msg.getSOAPBody().addDocument((Document)domResult.getNode());                    
-                    found = true;
-                }
-                
+                    } 
+                }                
                 if (!found) {
                     throw new SOAPException("Could not figure out how to marshal data");
                 }
@@ -183,9 +161,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_MARSHALLING_FAILURE_MSG", se);
             throw SOAPFaultExHelper.createSOAPFaultEx(soapFactory, faultCode, se);
-        } catch (JAXBException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
@@ -291,7 +266,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 for (Class<?> cls : callback.getSupportedFormats()) {
                     if (cls == DOMSource.class
                         || cls == SAXSource.class 
-                        || cls == StreamSource.class) {
+                        || cls == StreamSource.class
+                        || cls == Object.class) {
                         DataReader<SOAPBody> reader = callback.createReader(SOAPBody.class);
                         obj = reader.read(0, soapMessage.getSOAPBody());
                         found = true;
@@ -299,14 +275,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                     }
                 }
                 
-                if (callback.getJAXBContext() != null) {
-                    // JAXB Object              
-                    JAXBContext context = callback.getJAXBContext();
-                    Unmarshaller u = context.createUnmarshaller();
-                    Document doc = soapMessage.getSOAPBody().extractContentAsDocument();
-                    obj = u.unmarshal(doc);                    
-                    found = true;
-                }
+                
                 
                 if (!found) {
                     throw new SOAPException("Cannot unmarshal data");
@@ -321,9 +290,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
             throw SOAPFaultExHelper.createSOAPFaultEx(soapFactory, faultCode, se);
-        } catch (JAXBException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
