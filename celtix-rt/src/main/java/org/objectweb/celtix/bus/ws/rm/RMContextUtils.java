@@ -58,6 +58,7 @@ public final class RMContextUtils {
         context.setScope(ACKS_PROPERTY, MessageContext.Scope.HANDLER);
     }
     
+    @SuppressWarnings("unchecked")
     public static List<SequenceAcknowledgement> retrieveAcknowledgments(MessageContext context) {
         return (List<SequenceAcknowledgement>)context.get(ACKS_PROPERTY); 
     }
@@ -66,7 +67,8 @@ public final class RMContextUtils {
         context.put(ACKS_REQUESTED_PROPERTY, requested);
         context.setScope(ACKS_REQUESTED_PROPERTY, MessageContext.Scope.HANDLER); 
     }
-    
+
+    @SuppressWarnings("unchecked")
     public static List<AckRequestedType> retrieveAcksRequested(MessageContext context) {
         return (List<AckRequestedType>)context.get(ACKS_REQUESTED_PROPERTY); 
     }
