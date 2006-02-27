@@ -63,10 +63,11 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
             }
             
             public void setUp() throws Exception {
-                // set up configuration for decoupled response endpoint
-                configFileName = "file:///"
-                                 + System.getProperty("user.dir")
-                                 + "/src/test/java/org/objectweb/celtix/systest/ws/addressing/client.xml";
+                // set up configuration for decoupled response
+                // endpoint
+                URL url = getClass().getResource("client.xml"); 
+                assertNotNull("cannot find test resource", url);
+                configFileName = url.toString(); 
                 super.setUp();
             }
         };
