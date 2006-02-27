@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.concurrent.Future;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
@@ -25,6 +26,8 @@ import org.objectweb.celtix.systest.basic.Server;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.hello_world_soap_http.SOAPService;
+import org.objectweb.hello_world_soap_http.types.GreetMe;
+import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
 
 public class DispatchClientServerTest extends ClientServerTestBase {
 
@@ -41,7 +44,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
             }
         };
     }
- 
+
     public void testSOAPMessage() throws Exception {
 
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -441,6 +444,47 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         checkStreamSource(expected3, streamSourceResp3);
 
     }
+    
+    public void testJAXBObjectPAYLOAD() throws Exception {
+
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull(service);
+        
+        JAXBContext jc = JAXBContext.newInstance("org.objectweb.hello_world_soap_http.types");  
+        Dispatch<Object> disp = service.createDispatch(portName, jc, Service.Mode.PAYLOAD);
+        
+        String expected = "Hello G.D.M.F.S.O.B";   
+        GreetMe greetMe = new GreetMe();
+        greetMe.setRequestType("G.D.M.F.S.O.B");  
+        
+        Object response = disp.invoke(greetMe);
+        assertNotNull(response);
+        String responseValue = ((GreetMeResponse)response).getResponseType();    
+        assertTrue("Expected string, " + expected , expected.equals(responseValue));
+       
+        disp.invokeOneWay(greetMe);
+        
+        Response response2 = disp.invokeAsync(greetMe);
+        assertNotNull(response2);
+        GreetMeResponse greetMeResponse = (GreetMeResponse)response2.get();
+        String responseValue2 = greetMeResponse.getResponseType();    
+        assertTrue("Expected string, " + expected , expected.equals(responseValue2));
+
+        
+        
+        TestJAXBHandler tjbh = new TestJAXBHandler();
+        Future fd = disp.invokeAsync(greetMe, tjbh);
+        assertNotNull(fd);
+        while (!fd.isDone()) {
+            //wait
+        }
+        String responseValue3 = ((GreetMeResponse)tjbh.getResponse()).getResponseType();
+        assertTrue("Expected string, " + expected , expected.equals(responseValue3));
+ 
+    }
    
     
     private void checkSAXSource(String expected, SAXSource source) {
@@ -554,6 +598,23 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         } 
         
         public StreamSource getStreamSource() {
+            return reply;
+        }
+    }
+    
+    class TestJAXBHandler implements AsyncHandler<Object> {   
+        
+        Object reply;
+        
+        public void handleResponse(Response<Object> response) {
+            try {
+                reply = response.get();  
+            } catch (Exception e) {
+                e.printStackTrace();
+            }            
+        } 
+        
+        public Object getResponse() {
             return reply;
         }
     }

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Dispatch;
@@ -32,6 +33,8 @@ public class DispatchImpl<T> implements Dispatch<T> {
     private Mode mode;
     private Class<T> cl;
     private Executor executor;
+    private JAXBContext context;
+    private boolean initialised;
     
     
 
@@ -44,11 +47,31 @@ public class DispatchImpl<T> implements Dispatch<T> {
         cb = null;
         callback = null;
         executor = e;
+        context = null;
+        initialised = false;
+    }
+    
+    DispatchImpl(Bus b, EndpointReferenceType r, Service.Mode m, 
+                 JAXBContext ctx, Class<T> clazz, Executor e) {
+        bus = b;
+        ref = r;
+        mode = Mode.fromServiceMode(m);        
+        cb = null;
+        callback = null;
+        executor = e;
+        context = ctx;
+        cl = clazz;
+        initialised = false;
     }
     
     protected void init() {
         cb = createClientBinding();
-        callback = new DynamicDataBindingCallback(cl, mode);   
+        if (context == null) {
+            callback = new DynamicDataBindingCallback(cl, mode);   
+        } else {
+            callback = new DynamicDataBindingCallback(context, mode);
+        }
+        initialised = true;
     }
 
     public Binding getBinding() {
@@ -71,7 +94,7 @@ public class DispatchImpl<T> implements Dispatch<T> {
 
     public T invoke(T obj) {
         
-        if (cb == null || callback == null) {
+        if (!initialised) {
             init();
         }
 
@@ -89,13 +112,13 @@ public class DispatchImpl<T> implements Dispatch<T> {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        
+         
         return cl.cast(objMsgContext.getReturn());
     }
 
     public Future<?> invokeAsync(T obj, AsyncHandler<T> asyncHandler) {
         
-        if (cb == null || callback == null) {
+        if (!initialised) {
             init();
         }   
 
@@ -121,7 +144,7 @@ public class DispatchImpl<T> implements Dispatch<T> {
 
     public Response<T> invokeAsync(T obj) {
         
-        if (cb == null || callback == null) {
+        if (!initialised) {
             init();
         }
         
@@ -144,7 +167,7 @@ public class DispatchImpl<T> implements Dispatch<T> {
 
     public void invokeOneWay(T obj) {
         
-        if (cb == null || callback == null) {
+        if (!initialised) {
             init();
         }
 

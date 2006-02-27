@@ -94,7 +94,14 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Service.Mode mode) {
-        return null;
+        
+        EndpointReferenceType ref = 
+            EndpointReferenceUtils.getEndpointReference(wsdlLocation, 
+                                                        serviceName, 
+                                                        portName.getLocalPart());
+        createPortConfiguration(portName, ref);
+        
+        return new DispatchImpl<Object>(bus, ref, mode, context, Object.class, executor);
     }
 
     public QName getServiceName() {

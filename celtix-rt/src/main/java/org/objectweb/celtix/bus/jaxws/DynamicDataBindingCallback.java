@@ -9,6 +9,7 @@ import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.jws.soap.SOAPBinding.Use;
+import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
 
@@ -27,15 +28,27 @@ public class DynamicDataBindingCallback implements DataBindingCallback {
     
     private final Mode mode;
     private final Class<?>[] clazz;
+    private final JAXBContext context;
     
     
     public DynamicDataBindingCallback(Class<?> cls, Mode md) {
         mode = md;
         clazz = new Class<?>[] {cls};
+        context = null;
+    }
+    
+    public DynamicDataBindingCallback(JAXBContext ctx, Mode md) {
+        mode = md;
+        context = ctx;
+        clazz = new Class<?>[] {Object.class};
     }
 
     public Mode getMode() {
         return mode;
+    }
+    
+    public JAXBContext getJAXBContext() {
+        return context;
     }
 
     public Class<?>[] getSupportedFormats() {

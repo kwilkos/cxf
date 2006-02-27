@@ -5,6 +5,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 
@@ -34,6 +35,7 @@ public interface DataBindingCallback {
     };    
 
     Mode getMode();
+    JAXBContext getJAXBContext();
 
     Class<?>[] getSupportedFormats();
     
