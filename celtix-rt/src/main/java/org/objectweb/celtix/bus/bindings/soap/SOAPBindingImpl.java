@@ -298,16 +298,12 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             SOAPMessage soapMessage = soapContext.getMessage();
 
             SOAPFault fault = soapMessage.getSOAPBody().getFault();
-            System.out.println("***** SOAPFault:" + fault.getFaultString());
-
             DataReader<SOAPFault> reader = callback.createReader(SOAPFault.class);
+
             if (reader == null) {
                 throw new WebServiceException("Could not unmarshal fault");
             }
             Object faultObj = reader.read(null, 0, fault);
-            if (faultObj == null) {
-                faultObj = new SOAPFaultException(fault);
-            }
 
             objContext.setException((Throwable)faultObj);
         } catch (SOAPException se) {
