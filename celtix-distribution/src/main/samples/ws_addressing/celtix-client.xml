@@ -18,22 +18,22 @@
         class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean">
       <property name="systemHandlerChain">
           <value>
-              <jaxws-types:preLogical>
-                  <jaxws-types:handler-chain>
+              <jaxws-types:system-handler-chain>
+                  <jaxws-types:preLogical>
                       <jaxws-types:handler>
                           <jaxws-types:handler-name>MAPAggregator</jaxws-types:handler-name>
                           <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.addressing.MAPAggregator</jaxws-types:handler-class>
-                       </jaxws-types:handler>
-                  </jaxws-types:handler-chain>
-              </jaxws-types:preLogical>
-              <jaxws-types:preProtocol>
-                  </jaxws-types:handler-chain>
+                      </jaxws-types:handler>
+                  </jaxws-types:preLogical>
+                  <jaxws-types:postLogical/>
+                  <jaxws-types:preProtocol>
                       <jaxws-types:handler>
                           <jaxws-types:handler-name>MAPCodec</jaxws-types:handler-name>
                           <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec</jaxws-types:handler-class>
                       </jaxws-types:handler>
-                  </jaxws-types:handler-chain>
-              </jaxws-types:preProtocol>
+                  </jaxws-types:preProtocol>
+                  <jaxws-types:postProtocol/>
+              </jaxws-types:system-handler-chain>
           </value>
       </property>
       <property name="handlerChain">
@@ -44,7 +44,7 @@
                       <jaxws-types:handler-class>demo.ws_addressing.common.HeaderSnooper</jaxws-types:handler-class>
                   </jaxws-types:handler>
               </jaxws-types:handler-chain>
-          <value>
+          </value>
       </property>
   </bean>
  
