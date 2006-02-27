@@ -16,7 +16,7 @@ import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
 
 public class Response {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(Request.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(Response.class);
 
     AbstractBindingBase binding;
     ObjectMessageContext objectCtx;
@@ -58,44 +58,50 @@ public class Response {
     }
 
     /**
-     * Handle an incoming response to the extent required for correlation with
-     * the corresponding request. Currently this include traversal of the stream
-     * and protocol handler chains, though this will be replaced the appropriate
-     * system handler logic.
+     * Handle an incoming message at the stream and protocol level. 
      * 
-     * @param outContext the outgoing context if available
-     * @param inContext the incoming context
-     * @param handlerInvoker the HanlderInvoker to use for chain traversal
-     * @return the binding-specific context for the incoming dispatch
+     * @param istreamCtx the inut stream messsage context
      */
-    public void processProtocol(InputStreamMessageContext istreamCtx) {
-        if (null != objectCtx) {
-            objectCtx.putAll(istreamCtx);
-        }
+    public void processProtocol(InputStreamMessageContext istreamCtx) { 
 
+        // Output Message For Client    
+        
+        handlerInvoker.setInbound();
+        handlerInvoker.setFault(istreamCtx.isFault());
+        handlerInvoker.invokeStreamHandlers(istreamCtx);
+        
         if (null == bindingCtx) {
             bindingCtx = binding.getBindingImpl()
-                .createBindingMessageContext(objectCtx != null ? objectCtx : istreamCtx);
+                .createBindingMessageContext(istreamCtx);
+        } else {
+            bindingCtx.putAll(istreamCtx);
         }
         if (null == bindingCtx) {
             bindingCtx = istreamCtx;
         }
-
-        // Output Message For Client
+        
         bindingCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
-        handlerInvoker.setInbound();
-        handlerInvoker.setFault(istreamCtx.isFault());
-        handlerInvoker.invokeStreamHandlers(istreamCtx);
+        
         safeRead(istreamCtx, bindingCtx);
 
-        // REVISIT replace with system handler traversal
         handlerInvoker.invokeProtocolHandlers(true, bindingCtx);
     }
+    
+    /**
+     * Unmarshal and process an incoming message at the logical level.
+     * 
+     * @param callback the data binding callback
+     */
 
     public void processLogical(DataBindingCallback callback) {
-        // REVISIT allow for system handlers to "consume" the
-        // incoming (presumably out-of-band) message
-
+        assert null != bindingCtx;
+        
+        if (null != objectCtx) {
+            objectCtx.putAll(bindingCtx);
+        } else {
+            objectCtx.putAll(bindingCtx);
+        }
+        
         if (!binding.getBindingImpl().hasFault(bindingCtx)) {
             binding.getBindingImpl().unmarshal(bindingCtx, objectCtx, callback);
         } else {
@@ -103,7 +109,7 @@ public class Response {
         }
 
         objectCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
-        handlerInvoker.invokeLogicalHandlers(true);
+        handlerInvoker.invokeLogicalHandlers(true, objectCtx);
     }
 
     private void safeRead(InputStreamMessageContext inContext, MessageContext msgContext) {

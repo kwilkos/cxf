@@ -44,6 +44,7 @@ public class TestHandler<T extends LogicalMessageContext>
 
     public boolean handleMessage(T ctx) {
         methodCalled("handleMessage");
+        printHandlerInfo("handleMessage", isOutbound(ctx));
 
 
         boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
@@ -134,6 +135,7 @@ public class TestHandler<T extends LogicalMessageContext>
 
     public boolean handleFault(T ctx) {
         methodCalled("handleFault");
+        printHandlerInfo("handleFault", isOutbound(ctx));
         //boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         return true;
     }

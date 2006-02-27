@@ -38,21 +38,17 @@ public class HandlerChainInvoker implements HandlerInvoker {
 
     private boolean outbound; 
     private boolean responseExpected = true; 
-    private boolean faultExpected; 
+    private boolean faultExpected;
     private boolean handlerProcessingAborted; 
-    private boolean closed; 
-
-    private ObjectMessageContext context; 
+    private boolean closed;  
 
     public HandlerChainInvoker(List<Handler> hc) {
-        this(hc, null, true);
+        this(hc, true);
     } 
 
-    public HandlerChainInvoker(List<Handler> hc, ObjectMessageContext ctx) {
-        this(hc, ctx, true);
-    } 
+   
 
-    public HandlerChainInvoker(List<Handler> hc, ObjectMessageContext ctx, boolean isOutbound) {
+    public HandlerChainInvoker(List<Handler> hc, boolean isOutbound) {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(Level.FINE, "invoker for chain size: " + (hc != null ? hc.size() : 0));
         }
@@ -69,12 +65,11 @@ public class HandlerChainInvoker implements HandlerInvoker {
             }
         }
         outbound = isOutbound;
-        context = ctx;
     }
 
-    public boolean invokeLogicalHandlers(boolean requestor) {        
-        context.setRequestorRole(requestor);
-        LogicalMessageContextImpl logicalContext = new LogicalMessageContextImpl(context);
+    public boolean invokeLogicalHandlers(boolean requestor, ObjectMessageContext objectCtx) {        
+        objectCtx.setRequestorRole(requestor);
+        LogicalMessageContextImpl logicalContext = new LogicalMessageContextImpl(objectCtx);
         return invokeHandlerChain(logicalHandlers, logicalContext); 
 
     }
@@ -89,7 +84,8 @@ public class HandlerChainInvoker implements HandlerInvoker {
     public boolean invokeStreamHandlers(InputStreamMessageContext ctx) {
         StreamMessageContextImpl sctx = new StreamMessageContextImpl(ctx);
         sctx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
-        return invokeHandlerChain(streamHandlers, new StreamMessageContextImpl(ctx));
+        // return invokeHandlerChain(streamHandlers, new StreamMessageContextImpl(ctx));
+        return invokeHandlerChain(streamHandlers, sctx);
     }
     
     public boolean invokeStreamHandlers(OutputStreamMessageContext ctx) {
@@ -127,12 +123,9 @@ public class HandlerChainInvoker implements HandlerInvoker {
     }
 
 
-    public boolean faultRaised() {
-        return (context != null && context.getException() != null) || faultExpected; 
-    }
-    
-    public void setFault(Exception pe) { 
-        context.setException(pe);
+    public boolean faultRaised(MessageContext context) {
+        return (null != context && null != context.get(ObjectMessageContext.METHOD_FAULT)) 
+            || faultExpected; 
     }
 
     public void setFault(boolean fe) { 
@@ -145,13 +138,13 @@ public class HandlerChainInvoker implements HandlerInvoker {
      * be the reverse order in which they were invoked so use the
      * handler chain directly and not simply the invokedHandler list.
      */
-    public void mepComplete() {
+    public void mepComplete(MessageContext context) {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(Level.FINE, "closing protocol handlers - handler count:" + invokedHandlers.size());
         }
-        invokeClose(protocolHandlers);
-        invokeClose(logicalHandlers);
-        invokeClose(streamHandlers);
+        invokeClose(protocolHandlers, context);
+        invokeClose(logicalHandlers, context);
+        invokeClose(streamHandlers, context);
     }
 
 
@@ -165,15 +158,6 @@ public class HandlerChainInvoker implements HandlerInvoker {
     public boolean isClosed() {
         return closed; 
     }
-
-
-    public ObjectMessageContext getContext() { 
-        return context; 
-    } 
-
-    public void setContext(ObjectMessageContext ctx) { 
-        context = ctx;
-    } 
 
     List getInvokedHandlers() { 
         return Collections.unmodifiableList(invokedHandlers);
@@ -191,7 +175,7 @@ public class HandlerChainInvoker implements HandlerInvoker {
         return streamHandlers;
     }
     
-    private <T extends Handler> void invokeClose(List<T> handlers) {
+    private <T extends Handler> void invokeClose(List<T> handlers, MessageContext context) {
         handlers = reverseHandlerChain(handlers); 
         for (Handler h : handlers) {
             if (closeHandlers.contains(h)) {
@@ -213,7 +197,7 @@ public class HandlerChainInvoker implements HandlerInvoker {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(Level.FINE, "invoking handlers, direction: " + (outbound ? "outbound" : "inbound"));  
         }
-        setMessageOutboundProperty();
+        setMessageOutboundProperty(ctx);
 
         if (!outbound) {
             handlerChain = reverseHandlerChain(handlerChain);
@@ -221,9 +205,9 @@ public class HandlerChainInvoker implements HandlerInvoker {
         
         boolean continueProcessing = true; 
         
-        WebServiceContextImpl.setMessageContext(context); 
+        WebServiceContextImpl.setMessageContext(ctx); 
 
-        if (!faultRaised()) {
+        if (!faultRaised(ctx)) {
             continueProcessing = invokeHandleMessage(handlerChain, ctx);
         } else {
             continueProcessing = invokeHandleFault(handlerChain, ctx);
@@ -235,7 +219,7 @@ public class HandlerChainInvoker implements HandlerInvoker {
             // the next set on handlers and they will be processing in
             // the correct direction.  It would be good refactor it
             // and control all of the processing here.
-            changeMessageDirection(); 
+            changeMessageDirection(ctx); 
             handlerProcessingAborted = true;
         }
         return continueProcessing;        
@@ -284,7 +268,7 @@ public class HandlerChainInvoker implements HandlerInvoker {
         } catch (ProtocolException e) {
             LOG.log(Level.FINE, "handleMessage raised exception", e);
             continueProcessing = false;
-            setFault(e);
+            setFault(ctx, e);
         } catch (RuntimeException e) {
             LOG.log(Level.WARNING, "HANDLER_RAISED_RUNTIME_EXCEPTION", e);
             continueProcessing = false; 
@@ -313,19 +297,16 @@ public class HandlerChainInvoker implements HandlerInvoker {
         if (!invokedHandlers.contains(h)) { 
             invokedHandlers.add(h);
         }
-    } 
-
-
-    private void setMessageOutboundProperty() {
-        if (context != null) {
-            context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
-        }
     }
 
-    private void changeMessageDirection() { 
+    private void changeMessageDirection(MessageContext context) { 
         outbound = !outbound;
-        setMessageOutboundProperty();
+        setMessageOutboundProperty(context);
         context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);   
+    }
+    
+    private void setMessageOutboundProperty(MessageContext context) {
+        context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
     }
     
     private <T extends Handler> List<T> reverseHandlerChain(List<T> handlerChain) {
@@ -333,6 +314,11 @@ public class HandlerChainInvoker implements HandlerInvoker {
         reversedHandlerChain.addAll(handlerChain);
         Collections.reverse(reversedHandlerChain);
         return reversedHandlerChain;
+    }
+    
+    protected final void setFault(MessageContext context, Exception ex) { 
+        context.put(ObjectMessageContext.METHOD_FAULT, ex);
+        context.setScope(ObjectMessageContext.METHOD_FAULT, MessageContext.Scope.HANDLER);
     }
 }
 

@@ -107,6 +107,10 @@ public abstract class TestHandlerBase {
         }
         return handlerInfoList;
     }
+    
+    protected boolean isOutbound(MessageContext ctx) {
+        return (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+    }
 
     private int getMethodCallCount(String methodName) { 
         int ret = 0;

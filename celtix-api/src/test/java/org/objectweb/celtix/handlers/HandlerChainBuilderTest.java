@@ -50,10 +50,8 @@ public class HandlerChainBuilderTest extends TestCase {
         assertEquals(TestProtocolHandler.class, chain.get(3).getClass()); 
         
         TestLogicalHandler tlh = (TestLogicalHandler)chain.get(0);
-        assertTrue(tlh.initCalled);
-        Map cfg = tlh.config;
-        assertNotNull(tlh.config);
-        assertEquals(0, cfg.keySet().size());
+        assertTrue(!tlh.initCalled);
+        assertNull(tlh.config);
     }
 
     public void testBuilderCallsInit() {

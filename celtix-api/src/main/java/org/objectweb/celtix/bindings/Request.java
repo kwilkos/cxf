@@ -26,7 +26,6 @@ public class Request {
         transport = (Transport)objectCtx.get(TRANSPORT_PROPERTY);
 
         handlerInvoker = binding.createHandlerInvoker();
-        handlerInvoker.setContext(objectCtx);
 
         objectCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
         setOneway(false);
@@ -66,7 +65,7 @@ public class Request {
 
     public OutputStreamMessageContext process(DataBindingCallback callback,
                                               OutputStreamMessageContext ostreamCtx) throws IOException {
-        if (handlerInvoker.invokeLogicalHandlers(true)) {
+        if (handlerInvoker.invokeLogicalHandlers(true, objectCtx)) {
             bindingCtx = binding.getBindingImpl().createBindingMessageContext(objectCtx);
             bindingCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
             if (null == bindingCtx) {
@@ -94,13 +93,13 @@ public class Request {
             }
         } else if (!isOneway()) {
             objectCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);
-            handlerInvoker.invokeLogicalHandlers(true);
+            handlerInvoker.invokeLogicalHandlers(true, objectCtx);
         }
         return null;
     }    
 
     public void complete() {
-        handlerInvoker.mepComplete();
+        handlerInvoker.mepComplete(objectCtx);
     }
 
 }

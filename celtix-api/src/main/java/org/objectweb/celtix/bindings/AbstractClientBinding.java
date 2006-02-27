@@ -238,7 +238,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
             response.processProtocol(ins);
             response.processLogical(callback);
         } finally {
-            handlerInvoker.mepComplete();
+            handlerInvoker.mepComplete(objectCtx);
         }
 
         return response.getObjectMessageContext();

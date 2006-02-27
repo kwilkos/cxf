@@ -143,7 +143,6 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
 
             storeSource(objContext);
             invoker = createHandlerInvoker();
-            invoker.setContext(objContext);
             invoker.setInbound();
 
             invoker.invokeStreamHandlers(inCtx);
@@ -215,7 +214,6 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
             }
 
             HandlerInvoker invoker = createHandlerInvoker();
-            invoker.setContext(objectContext);
             invoker.setOutbound();
             invoker.invokeStreamHandlers(outCtx);
             finalPrepareOutputStreamContext(st, replyContext, outCtx);
@@ -244,7 +242,7 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
      */
     private boolean doInvocation(Method method, ObjectMessageContext objContext, MessageContext replyCtx,
                                  HandlerInvoker invoker) {
-
+        
         assert method != null && objContext != null && replyCtx != null;
 
         boolean exceptionCaught = false;
@@ -252,10 +250,11 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         boolean payloadSet = false;
         try {
 
-            continueProcessing = invoker.invokeLogicalHandlers(false);
+            continueProcessing = invoker.invokeLogicalHandlers(false, objContext);
             payloadSet = objContext.get(ObjectMessageContext.MESSAGE_PAYLOAD) != null;
             if (continueProcessing) {
                 new WebServiceContextImpl(objContext);
+                
                 // get parameters from object context and invoke on implementor
                 Object params[] = objContext.getMessageObjects();
                 Object result = method.invoke(getEndpoint().getImplementor(), params);
@@ -280,11 +279,11 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
             // traversal when implementor call raises exception
             if (!isOneWay(method)) {
                 switchToResponse(objContext, replyCtx);
-                invoker.invokeLogicalHandlers(false);
+                invoker.invokeLogicalHandlers(false, objContext);
             }
         }
 
-        return exceptionCaught || invoker.faultRaised() || !(continueProcessing || payloadSet);
+        return exceptionCaught || invoker.faultRaised(objContext) || !(continueProcessing || payloadSet);
     }
 
     private void switchToResponse(ObjectMessageContext ctx, MessageContext replyCtx) {
@@ -345,7 +344,7 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
                 }
             }
         } finally {
-            invoker.mepComplete();
+            invoker.mepComplete(objContext);
         }
 
         return replyCtx;

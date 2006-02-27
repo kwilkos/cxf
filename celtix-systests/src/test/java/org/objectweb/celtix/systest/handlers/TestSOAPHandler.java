@@ -52,6 +52,7 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
 
         try {
             methodCalled("handleMessage"); 
+            printHandlerInfo("handleMessage", isOutbound(ctx));
             Object b  = ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
             boolean outbound = (Boolean)b;
             SOAPMessage msg = ctx.getMessage();
@@ -96,6 +97,7 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
 
     public final boolean handleFault(T ctx) {
         methodCalled("handleFault"); 
+        printHandlerInfo("handleFault", isOutbound(ctx));
         return true;
     }
 

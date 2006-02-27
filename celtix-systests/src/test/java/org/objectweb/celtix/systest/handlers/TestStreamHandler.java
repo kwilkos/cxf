@@ -96,11 +96,4 @@ public class  TestStreamHandler extends TestHandlerBase
             throw new ProtocolException(ex);
         }
     } 
-
-    private boolean isOutbound(MessageContext ctx) {
-        return (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-    }
-
-
-
 }

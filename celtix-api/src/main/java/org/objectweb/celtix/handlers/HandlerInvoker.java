@@ -22,7 +22,7 @@ public interface HandlerInvoker {
      * 
      * @param requestor true if being invoked on the request initiator
      */
-    boolean invokeLogicalHandlers(boolean requestor);
+    boolean invokeLogicalHandlers(boolean requestor, ObjectMessageContext objectContext);
         
     /** 
      * Invoke the protocol handlers. 
@@ -60,7 +60,7 @@ public interface HandlerInvoker {
      * @return true if an exception has been thrown by an invoked
      * handler.
      */
-    boolean faultRaised();
+    boolean faultRaised(MessageContext context);
 
     /** 
      * Is the current message direction outbound
@@ -87,13 +87,6 @@ public interface HandlerInvoker {
      */
     void setOutbound();
 
-
-    /**
-     * set the current exception in this message exchange and set the
-     * invoker into fault processing mode.
-     */
-    void setFault(Exception pe);
-
     /**
      * set the invoker into fault processing mode.  This method is
      * invoked when a client transport indicates that a fault has been
@@ -105,7 +98,7 @@ public interface HandlerInvoker {
     /** 
      * Invoke handlers at the end of an MEP calling close on each.
      */
-    void mepComplete();
+    void mepComplete(MessageContext context);
 
 
     /** 
@@ -117,19 +110,5 @@ public interface HandlerInvoker {
      *
      */
     boolean isClosed();
-
-    /** 
-     * get the context associated with this invoker
-     *
-     * @return the associated context
-     */
-    ObjectMessageContext getContext();
-
-    /** 
-     * assoociate a context with this invoker
-     *
-     * @param ctx the associated context
-     */
-    void setContext(ObjectMessageContext ctx);
 }
 
