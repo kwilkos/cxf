@@ -30,6 +30,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
     public synchronized AutomaticWorkQueue getAutomaticWorkQueue() {
         if (autoQueue == null) {
             autoQueue = createAutomaticWorkQueue();
+            bus.sendEvent(new ComponentCreatedEvent(this));
         }
         return autoQueue;
     }
@@ -95,7 +96,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
         }
 
         //sent out creation event.        
-        bus.sendEvent(new ComponentCreatedEvent(this));
+        
         
     }
 
@@ -119,7 +120,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
         long dequeueTimeout = 2 * 60 * 1000L;
 
         return new AutomaticWorkQueueImpl(maxQueueSize, initialThreads, hwm, lwm, dequeueTimeout);
-                
+               
     }
 
 }

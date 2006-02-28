@@ -100,12 +100,13 @@ public class CeltixBus extends Bus {
      * @throws BusException
      */
     public void shutdown(boolean wait) throws BusException {
-
+        //System.out.println("===Shutdown the bus===");
         lifeCycleManager.preShutdown();
 
         // shutdown in inverse order of construction
 
-        endpointRegistry.shutdown();
+        
+        endpointRegistry.shutdown();        
 
         // transportRegistry.shutdown(wait);
         //
@@ -115,7 +116,7 @@ public class CeltixBus extends Bus {
         // configuration.shutdown();
 
         workQueueManager.shutdown(wait);
-
+        instrumentationManager.shutdown();
         lifeCycleManager.postShutdown();
     }
 

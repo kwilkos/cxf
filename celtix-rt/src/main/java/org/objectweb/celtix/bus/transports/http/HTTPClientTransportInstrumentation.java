@@ -3,9 +3,15 @@ package org.objectweb.celtix.bus.transports.http;
 
 
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
+import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedAttribute;
+import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 
+@ManagedResource(objectName = "HTTPClientTransport", 
+                 description = "The Celtix bus HTTP client side transport componnet ", 
+                 log = true,
+                 logFile = "jmx.log", currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class HTTPClientTransportInstrumentation implements Instrumentation {  
     private static final String INSTRUMENTATION_NAME = "HTTPClientTransport";
     
@@ -38,6 +44,8 @@ public class HTTPClientTransportInstrumentation implements Instrumentation {
         return httpClientTransport.proxyAuthPolicy;
     }        
     
+    @ManagedAttribute(description = "The http request url",
+                      persistPolicy = "OnUpdate")
     public String getUrl() {
         return httpClientTransport.url.toString();
     }

@@ -3,7 +3,9 @@ package org.objectweb.celtix.bus.management;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
@@ -18,6 +20,7 @@ import org.objectweb.celtix.bus.transports.http.HTTPClientTransportInstrumentati
 import org.objectweb.celtix.bus.transports.http.HTTPServerTransportInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationManager;
 
@@ -30,7 +33,7 @@ import org.objectweb.celtix.management.InstrumentationManager;
  *  The JMX layer could query the detail information for instrumentation.
  */
 public class InstrumentationManagerImpl implements InstrumentationManager, BusEventListener {    
-    static final Logger LOG = Logger.getLogger(InstrumentationManagerImpl.class.getName());
+    static final Logger LOG = LogUtils.getL7dLogger(InstrumentationManagerImpl.class);
     private Bus bus;
     private List <Instrumentation> instrumentations;
     private JMXManagedComponentManager jmxManagedComponentManager;
@@ -38,12 +41,18 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     
     public InstrumentationManagerImpl(Bus b) throws BusException {
         bus = b;
+        
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("Setting up InstrumentationManager for BUS");
+        }    
+        
         instrumentations = new LinkedList<Instrumentation>();
-        componentEventFilter = new ComponentEventFilter();
-        // need to register the listeners
-        // configurat to listener        
+        componentEventFilter = new ComponentEventFilter();   
+        // configurat the jmx manager to listener        
         jmxManagedComponentManager = new JMXManagedComponentManager();
-        jmxManagedComponentManager.loadFactories();
+        
+        jmxManagedComponentManager.init();
+        
         bus.addListener((BusEventListener)jmxManagedComponentManager, 
                         jmxManagedComponentManager.getManagementEventFilter());
         
@@ -51,24 +60,38 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
                         componentEventFilter);
     }
     
+    public void shutdown() {
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("Shutdown InstrumentationManager ");
+        }    
+        try { 
+            bus.removeListener((BusEventListener)jmxManagedComponentManager);
+            bus.removeListener((BusEventListener)this);
+        } catch (BusException ex) {
+            LOG.log(Level.SEVERE, "REMOVE_LISTENER_FAILURE_MSG", ex);
+        }
+        jmxManagedComponentManager.shutdown();
+    }
     
-    public void regist(Instrumentation is) {
-        instrumentations.add(is);        
-        //create the instrumentation creation event        
-        bus.sendEvent(new InstrumentationCreatedEvent(is));
-        
+    public void regist(Instrumentation it) {
+        if (it == null) {
+            return;
+        } else {
+            instrumentations.add(it);        
+            //create the instrumentation creation event        
+            bus.sendEvent(new InstrumentationCreatedEvent(it));
+        }        
     }
 
     public void unregist(Object component) {
         for (Iterator<Instrumentation> i = instrumentations.iterator(); i.hasNext();) {
             Instrumentation it = i.next();
             if (it.getComponent() == component) {
-                i.remove();                
-            }
-                    
-            if (it != null) {
-                //create the instrumentation remove event           
-                bus.sendEvent(new InstrumentationRemovedEvent(it));               
+                i.remove();   
+                if (it != null) {
+                    //create the instrumentation remove event           
+                    bus.sendEvent(new InstrumentationRemovedEvent(it));               
+                }
             }
         }
     }
@@ -76,27 +99,34 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     // get the instance and create the right component
     public void processEvent(BusEvent e) throws BusException {
         Instrumentation it;
-        if (e.getID().equals(ComponentCreatedEvent.COMPONENT_CREATED_EVENT)) {
-            Class<?> source = e.getSource().getClass();
-            if (WorkQueueManagerImpl.class.isAssignableFrom(source)) {
-                it = new WorkQueueInstrumentation(
-                              (WorkQueueManagerImpl)e.getSource());
-                regist(it);
-            }
-            if (HTTPClientTransport.class.isAssignableFrom(source)) {
-                it = new HTTPClientTransportInstrumentation(
-                              (HTTPClientTransport)e.getSource());
-                regist(it);
-            }
-            if (AbstractHTTPServerTransport.class.isAssignableFrom(source)) {
-                it = new HTTPServerTransportInstrumentation(
-                               (AbstractHTTPServerTransport)e.getSource());
-                regist(it);
-            }                
+        if (e.getID().equals(ComponentCreatedEvent.COMPONENT_CREATED_EVENT)) {            
+            it = createInstrumentation(e.getSource());
+            regist(it);          
             
         } else if (e.getID().equals(ComponentRemovedEvent.COMPONENT_REMOVED_EVENT)) {           
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info("Instrumetation do unregister things ");
+            }    
             unregist(e.getSource());
         }
+    }
+    
+    //TODO this method could be replaced by some maptable
+    private Instrumentation createInstrumentation(Object component) {
+        Instrumentation it = null;        
+        if (WorkQueueManagerImpl.class.isAssignableFrom(component.getClass())) {
+            it = new WorkQueueInstrumentation(
+                          (WorkQueueManagerImpl)component);            
+        }
+        if (HTTPClientTransport.class.isAssignableFrom(component.getClass())) {
+            it = new HTTPClientTransportInstrumentation(
+                          (HTTPClientTransport)component);            
+        }
+        if (AbstractHTTPServerTransport.class.isAssignableFrom(component.getClass())) {
+            it = new HTTPServerTransportInstrumentation(
+                           (AbstractHTTPServerTransport)component);            
+        }
+        return it;
     }
 
    

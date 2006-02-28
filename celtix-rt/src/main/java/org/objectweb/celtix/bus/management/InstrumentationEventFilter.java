@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.management;
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusEventFilter;
 
+
 /*
  * The event filter used to filter the management events
  * that are processed by the management listener.
@@ -37,7 +38,7 @@ public class InstrumentationEventFilter implements BusEventFilter {
      */
     public boolean isCreateEvent(BusEvent e) {
         boolean result = false;
-        if (e.getClass().equals(InstrumentationCreatedEvent.class)) {
+        if (InstrumentationCreatedEvent.class.isAssignableFrom(e.getClass())) {
             result = true;
         }
         return result;            
@@ -52,7 +53,7 @@ public class InstrumentationEventFilter implements BusEventFilter {
      */
     public boolean isRemovedEvent(BusEvent e) {
         boolean result = false;
-        if (e.getClass().equals(InstrumentationRemovedEvent.class)) {
+        if (InstrumentationRemovedEvent.class.isAssignableFrom(e.getClass())) {
             result = true;
         }
         return result;        

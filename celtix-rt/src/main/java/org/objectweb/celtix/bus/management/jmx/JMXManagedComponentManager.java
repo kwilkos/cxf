@@ -1,24 +1,31 @@
 package org.objectweb.celtix.bus.management.jmx;
 
 
-import java.lang.management.ManagementFactory;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.JMException;
+import javax.management.MBeanException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.management.modelmbean.InvalidTargetObjectTypeException;
+import javax.management.modelmbean.ModelMBeanInfo;
 
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.management.InstrumentationEventFilter;
 import org.objectweb.celtix.bus.management.InstrumentationEventListener;
+import org.objectweb.celtix.bus.management.jmx.export.runtime.ModelMBeanAssembler;
+import org.objectweb.celtix.bus.management.jmx.export.runtime.RunTimeModelMBean;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.management.Instrumentation;
 
 
@@ -26,134 +33,155 @@ import org.objectweb.celtix.management.Instrumentation;
  * The manager class for the JMXManagedComponent which host the JMXManagedComponent
  * It implemenated the ManagementEventListener for the managed component register and unregister
  */
+
+//TODO need to rewrite this ManagedComponent for we would export Dynamically MBean infor out 
 public class JMXManagedComponentManager implements InstrumentationEventListener {
-    private static final Logger LOG = Logger.getLogger(JMXManagedComponentManager.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(JMXManagedComponentManager.class);
    
     private InstrumentationEventFilter meFilter;
-    private MBeanServer mbs;    
-    private final Map<String, JMXManagedComponentFactory> componentFactories;
-    
-    
+    private MBeanServer mbs;
+    private ModelMBeanAssembler mbAssembler; 
+    private MBServerConnectorFactory mcf;
     
     public JMXManagedComponentManager() {
         meFilter = new InstrumentationEventFilter();
-        mbs = ManagementFactory.getPlatformMBeanServer();
-        componentFactories = new ConcurrentHashMap<String, JMXManagedComponentFactory>();
-       // TODO need to read configurate files        
+        // TODO MBeanServer should be get from defalut
+       
+       // mbs = ManagementFactory.getPlatformMBeanServer();
+        
+        
+      
+       // TODO need to read configurate files 
+        
+       
+    }
+    
+    public void init() {
+        
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("Setting up MBeanServer ");
+        }          
+        
+        mbs = MBeanServerFactory.createMBeanServer(JMXUtils.DOMAIN_STRING);
+        mbAssembler = new ModelMBeanAssembler();
+        
+        mcf = new MBServerConnectorFactory();
+        mcf.setMBeanServer(mbs);
+        mcf.setThreaded(true);
+        try {            
+            mcf.createConnector();
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, "START_CONNECTOR_FAILURE_MSG", new Object[]{ex});
+        }
+    }
+    
+    public void shutdown() {
+        try {
+            mcf.destroy();
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, "STOP_CONNECTOR_FAILURE_MSG", new Object[]{ex});
+        }
     }
     
     public InstrumentationEventFilter getManagementEventFilter() {
         return meFilter;
     }
-    
-    // setup the factories for component creatation
-    public void loadFactories() {
-        try {
-            loadJMXManagedComponentFactroy(
-                 "org.objectweb.celtix.bus.management.jmx.model.WorkQueueComponentFactory",
-                 "WorkQueue");
-            loadJMXManagedComponentFactroy(
-                 "org.objectweb.celtix.bus.management.jmx.model.HTTPClientTransportComponentFactory",
-                 "HTTPClientTransport");
-            loadJMXManagedComponentFactroy(
-                 "org.objectweb.celtix.bus.management.jmx.model.HTTPServerTransportComponentFactory",
-                 "HTTPServerTransport");
-        } catch (BusException be) {
-            be.printStackTrace();
-        }    
-
-    }
-    
-    public void loadJMXManagedComponentFactroy(String classname, String objectname) throws BusException { 
-        try {
-            Class<? extends JMXManagedComponentFactory> clazz =
-                Class.forName(classname).asSubclass(JMXManagedComponentFactory.class);    
-            JMXManagedComponentFactory factory = clazz.newInstance();
-            // setup information factory.init(bus);
-            registerJMXManagedComponentFactory(objectname, factory);
-        } catch (ClassNotFoundException e) {
-            throw new BusException(e);
-        } catch (InstantiationException e) {
-            throw new BusException(e);
-        } catch (IllegalAccessException e) {
-            throw new BusException(e);
-        }
-    }
-    
+   
     public void registerMBean(Object object, ObjectName name) {        
         try {
-            mbs.registerMBean(object, name);
             onRegister(name);
+            mbs.registerMBean(object, name);           
         } catch (InstanceAlreadyExistsException e) {            
-            LOG.log(Level.SEVERE, "Object" + name + " InstanceAlreadyExistsException", e);
+            LOG.log(Level.SEVERE, "REGISTER_FAILURE_MSG", new Object[]{name, e});
         } catch (MBeanRegistrationException e) {
-            LOG.log(Level.SEVERE, "Object" + name + " MBeanRegistrationException", e);           
+            LOG.log(Level.SEVERE, "REGISTER_FAILURE_MSG", new Object[]{name, e});          
         } catch (NotCompliantMBeanException e) {
-            LOG.log(Level.SEVERE, "Object" + name + "NotCompliantMBeanException", e);
+            LOG.log(Level.SEVERE, "REGISTER_FAILURE_MSG", new Object[]{name, e});
         }
     }
     
     public void unregisterMBean(ObjectName name) {
+        
         try {
-            mbs.unregisterMBean(name);
             onUnregister(name);
+            mbs.unregisterMBean(name);            
         } catch (JMException e) {
-            LOG.log(Level.SEVERE, "Object" + name + "JMException", e);
+            LOG.log(Level.SEVERE, "UNREGISTER_FAILURE_MSG", new Object[]{name, e});
         }
     }
      
     
-    protected void onRegister(ObjectName objectName) {        
+    protected void onRegister(ObjectName objectName) { 
+        
     }
     
-    protected void onUnregister(ObjectName objectName) {        
+    protected void onUnregister(ObjectName objectName) { 
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("unregistered the object to MBserver" 
+                               + objectName);
+        }   
     }
     
     
-    // find out the related JMX managed component do register and unregister things
+    // find out the related JMX managed component do register and unregister things   
+     
     public void processEvent(BusEvent event) throws BusException {
-        try {
-            if (meFilter.isEventEnabled(event)) {
-                Instrumentation instrumentation = (Instrumentation) event.getSource();
-                if (meFilter.isCreateEvent(event)) {
-                    JMXManagedComponentFactory factory = 
-                        getJMXManagedComponentFactory(
-                            instrumentation.getInstrumentationName());                      
-                    JMXManagedComponent component = factory.createManagedComponent(instrumentation);
-                    mbs.registerMBean(component, component.getObjectName()); 
-                }
+        if (meFilter.isEventEnabled(event)) {
+            Instrumentation instrumentation = (Instrumentation) event.getSource();
+                
+            if (meFilter.isCreateEvent(event)) {
+                    
+                ModelMBeanInfo mbi = mbAssembler.getModelMbeanInfo(instrumentation.getClass());
+                
+                if (mbi != null) {
+                    RunTimeModelMBean rtMBean;
+                    try {
+                        rtMBean = (RunTimeModelMBean)mbs.instantiate(
+                            "org.objectweb.celtix.bus.management.jmx.export.runtime.RunTimeModelMBean");
+                                       
+                        rtMBean.setModelMBeanInfo(mbi);
+                        
+                        rtMBean.setManagedResource(instrumentation, "ObjectReference");
+                                               
+                        registerMBean(rtMBean,
+                            JMXUtils.getObjectName(instrumentation.getUniqueInstrumentationName()));
+                        if (LOG.isLoggable(Level.INFO)) {
+                            LOG.info("registered the object to MBserver" 
+                                               + instrumentation.getUniqueInstrumentationName());
+                        } 
+                            
+                           
+                    } catch (ReflectionException e) {
+                        LOG.log(Level.SEVERE, "INSTANTIANTE_FAILURE_MSG", new Object[]{e});
+                    } catch (MBeanException e) {
+                        LOG.log(Level.SEVERE, "MBEAN_FAILURE_MSG", new Object[]{e});
+                    } catch (InstanceNotFoundException e) {
+                        LOG.log(Level.SEVERE, "SET_MANAGED_RESOURCE_FAILURE_MSG", new Object[]{e});
+                    } catch (InvalidTargetObjectTypeException e) {
+                        LOG.log(Level.SEVERE, "SET_MANAGED_RESOURCE_FAILURE_MSG", new Object[]{e});
+                    }
+                } else {
+                    LOG.log(Level.SEVERE, "GET_MANAGED_INFORMATION_FAILURE_MSG", 
+                            new Object[]{instrumentation.getInstrumentationName()});
+                }                
+            }                
+
            
-                if (meFilter.isRemovedEvent(event)) {
-                    // unregist the component and distroy it.
-                    ObjectName name = JMXManagedComponent.getObjectName(
-                                         instrumentation.getUniqueInstrumentationName());
-                    mbs.unregisterMBean(name);                  
-                }  
-            }
-        } catch (InstanceNotFoundException e) {
-            throw new BusException(e);
-        } catch (MBeanRegistrationException e) {            
-            throw new BusException(e);
-        } catch (InstanceAlreadyExistsException e) {
-            // the object existed
-            throw new BusException(e);
-        } catch (NotCompliantMBeanException e) {            
-            throw new BusException(e);
-        } 
+            if (meFilter.isRemovedEvent(event)) {
+               // unregist the component and distroy it.
+                ObjectName name;                 
+                name = JMXUtils.getObjectName(
+                    instrumentation.getUniqueInstrumentationName());               
+                unregisterMBean(name);
+                if (LOG.isLoggable(Level.INFO)) {
+                    LOG.info("unregistered the object to MBserver" 
+                                       + instrumentation.getUniqueInstrumentationName());
+                }   
+                    
+            }  
+        }       
     }
 
-    void registerJMXManagedComponentFactory(String name,
-        JMXManagedComponentFactory factory) throws BusException {
-        componentFactories.put(name, factory);
-    }
-    
-    void deregisterJMXManagedComponentFactory(String name) throws BusException {
-        componentFactories.remove(name);
-    }    
    
-    JMXManagedComponentFactory getJMXManagedComponentFactory(String name) throws BusException {
-        return componentFactories.get(name);
-    }
-  
 
 }

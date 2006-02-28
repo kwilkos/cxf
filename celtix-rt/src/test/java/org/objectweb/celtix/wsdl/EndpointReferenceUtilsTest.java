@@ -59,7 +59,7 @@ public class EndpointReferenceUtilsTest extends TestCase {
         // fail("Did not expect a port to be found. Did someone fix this?");
 
         assertNotNull("Could not find port", port);
-
+        bus.shutdown(true);
     }
 
 }
