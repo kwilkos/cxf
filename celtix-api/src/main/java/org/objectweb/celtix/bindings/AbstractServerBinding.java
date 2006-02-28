@@ -13,7 +13,9 @@ import java.util.logging.Logger;
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
+import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
@@ -23,6 +25,7 @@ import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -31,7 +34,9 @@ import org.objectweb.celtix.context.WebServiceContextImpl;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
+import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.BINDING_PROPERTY;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.TRANSPORT_PROPERTY;
@@ -110,9 +115,8 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
     // --- Methods to be implemented by concrete server bindings ---
 
     public abstract AbstractBindingImpl getBindingImpl();
-
-    protected abstract ServerTransport createTransport(EndpointReferenceType ref) throws WSDLException,
-        IOException;
+    
+    protected abstract Method getSEIMethod(List<Class<?>> classList, MessageContext ctx); 
 
     // --- Methods to be implemented by concrete server bindings ---
 
@@ -234,6 +238,24 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         if (ostreamContext.getOutputStream() != null) {
             ostreamContext.getOutputStream().close();
         }
+    }
+    
+    protected ServerTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
+        
+        try {
+            Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+            List<?> exts = port.getExtensibilityElements();
+            if (exts.size() > 0) {                
+                ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
+                TransportFactory tf = 
+                    bus.getTransportFactoryManager().
+                        getTransportFactory(el.getElementType().getNamespaceURI());
+                return tf.createServerTransport(ref);
+            }
+        } catch (BusException ex) {
+            LOG.severe("TRANSPORT_FACTORY_RETRIEVAL_FAILURE_MSG");
+        }
+        return null;
     }
 
     /**
@@ -449,8 +471,6 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         throws IOException {
         outputContext.getOutputStream().flush();
         outputContext.getOutputStream().close();
-    }
-    
-    protected abstract Method getSEIMethod(List<Class<?>> classList, MessageContext ctx); 
+    }    
 
 }

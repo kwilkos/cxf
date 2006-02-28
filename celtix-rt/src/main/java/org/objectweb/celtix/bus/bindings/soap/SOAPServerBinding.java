@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -9,9 +8,6 @@ import java.util.logging.Logger;
 
 import javax.jws.WebParam;
 import javax.jws.soap.SOAPBinding;
-import javax.wsdl.Port;
-import javax.wsdl.WSDLException;
-import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -25,16 +21,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.helpers.NodeUtils;
-import org.objectweb.celtix.transports.ServerTransport;
-import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class SOAPServerBinding extends AbstractServerBinding {
     
@@ -52,24 +44,6 @@ public class SOAPServerBinding extends AbstractServerBinding {
     
     public AbstractBindingImpl getBindingImpl() {
         return soapBinding;
-    }
-
-    protected ServerTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
-        
-        try {
-            Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
-            List<?> exts = port.getExtensibilityElements();
-            if (exts.size() > 0) {                
-                ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
-                TransportFactory tf = 
-                    bus.getTransportFactoryManager().
-                        getTransportFactory(el.getElementType().getNamespaceURI());
-                return tf.createServerTransport(ref);
-            }
-        } catch (BusException ex) {
-            LOG.severe("TRANSPORT_FACTORY_RETREIVAL_FAILURE_MSG");
-        }
-        return null;
     }
     
     protected Method getSEIMethod(List<Class<?>> classList, MessageContext ctx) {
