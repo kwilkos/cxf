@@ -14,4 +14,6 @@ public interface InstrumentationManager {
 
     List<Instrumentation> getAllInstrumentation();
 
+    void shutdown();
+
 }
