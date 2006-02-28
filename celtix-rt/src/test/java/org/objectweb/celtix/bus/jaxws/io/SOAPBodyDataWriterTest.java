@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.jaxws.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
@@ -17,6 +18,7 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
+import org.objectweb.hello_world_soap_http.types.GreetMe;
 
 public class SOAPBodyDataWriterTest<T> extends TestCase {
     
@@ -79,6 +81,21 @@ public class SOAPBodyDataWriterTest<T> extends TestCase {
         SOAPBody soapBody = soapBodyDataWriter.getTestSOAPBody();
         assertTrue("TextContent should be TestSOAPInputMessage", 
                    "TestSOAPInputMessage".equals(soapBody.getFirstChild().getTextContent()));
+      
+    }
+    
+    public void testJAXBObjectWrite() throws Exception {
+        
+        JAXBContext jc = JAXBContext.newInstance("org.objectweb.hello_world_soap_http.types");  
+        TestDynamicDataBindingCallback callback =  
+            new TestDynamicDataBindingCallback(jc, Mode.PAYLOAD);        
+        TestSOAPBodyDataWriter<SOAPBody> soapBodyDataWriter = new TestSOAPBodyDataWriter<SOAPBody>(callback);
+        GreetMe greetMe = new GreetMe();
+        greetMe.setRequestType("DIPLO");
+        soapBodyDataWriter.write(greetMe, soapMsg.getSOAPBody());
+        SOAPBody soapBody = soapBodyDataWriter.getTestSOAPBody();
+        assertTrue("TextContent should be DIPLO", 
+                   "DIPLO".equals(soapBody.getFirstChild().getTextContent()));
       
     }
     

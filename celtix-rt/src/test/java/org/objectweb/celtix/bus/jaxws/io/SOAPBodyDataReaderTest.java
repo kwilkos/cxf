@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.jaxws.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
@@ -60,6 +61,18 @@ public class SOAPBodyDataReaderTest<T> extends TestCase {
         StreamSource obj = (StreamSource)soapBodyDataReader.read(0, soapMsg.getSOAPBody());
         assertNotNull(obj);
         checkSource("TestSOAPInputMessage", obj);        
+    }
+    
+    public void testJAXBObjectRead() throws Exception {
+        
+        JAXBContext jc = JAXBContext.newInstance("org.objectweb.hello_world_soap_http.types"); 
+        TestDynamicDataBindingCallback callback =  
+            new TestDynamicDataBindingCallback(jc, Mode.PAYLOAD);        
+        SOAPBodyDataReader<SOAPBody> soapBodyDataReader = new SOAPBodyDataReader<SOAPBody>(callback);
+        Object obj = soapBodyDataReader.read(0, soapMsg.getSOAPBody());
+        assertNotNull(obj);
+        assertTrue("Expect class of type org.objectweb.hello_world_soap_http.types.GreetMe", 
+                   obj.getClass().getName().equals("org.objectweb.hello_world_soap_http.types.GreetMe"));    
     }
     
     private void checkSource(String expected, Source source) {
