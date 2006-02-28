@@ -46,6 +46,11 @@ public final class WSDLConstants {
     public static final QName NS_SOAP_BINDING_ADDRESS = new QName("http://schemas.xmlsoap.org/wsdl/soap/",
                                                                   "address");
     public static final QName NS_SOAP_BINDING = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "binding");
+    public static final QName NS_SOAP_OPERATION = 
+            new QName("http://schemas.xmlsoap.org/wsdl/soap/", "operation");
+    public static final QName NS_SOAP_BODY = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "body");
+    public static final QName NS_SOAP_FAULT = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "fault");
+
     public static final QName NS_SOAP12_BINDING = new QName("http://schemas.xmlsoap.org/wsdl/soap12/",
                                                             "binding");
     public static final QName NS_SOAP12_BINDING_ADDRESS = new QName(

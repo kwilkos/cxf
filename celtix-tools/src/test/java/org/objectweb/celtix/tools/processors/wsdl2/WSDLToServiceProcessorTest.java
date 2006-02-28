@@ -119,7 +119,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
         } catch (Exception e) {
             if (!(e instanceof ToolException
                     && e.toString().indexOf(
-                        "Input server and port already exist in imported contract.") >= 0)) {
+                        "Input service and port already exist in imported contract.") >= 0)) {
                 fail("Do not catch tool exception for service and port exist, "
                      + "catch other unexpected exception!");
             }

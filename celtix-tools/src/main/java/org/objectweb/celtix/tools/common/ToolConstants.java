@@ -56,6 +56,10 @@ public final class ToolConstants {
     public static final String CFG_SERVICE = "service";
     public static final String CFG_BINDING_ATTR = "attrbinding";
     
+    // WSDL2Soap Constants    
+    public static final String CFG_STYLE = "style";
+    public static final String CFG_USE = "use";    
+    
     // WSDL2Java Processor Constants
     public static final String SEI_GENERATOR = "sei.generator";
     public static final String FAULT_GENERATOR = "fault.generator";

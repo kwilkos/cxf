@@ -16,119 +16,119 @@
     <optionGroup id="options">
 
    	    <option id="transport" maxOccurs="1">
-		<annotation>Specify jms for transport over jms.</annotation>
-		<switch>transport</switch>
-		<associatedArgument placement="afterSpace">
-		    <annotation>jms</annotation>
-		    <valueenum>jms</valueenum>
-		</associatedArgument>
+			<annotation>Specify jms for transport over jms.</annotation>
+			<switch>transport</switch>
+			<associatedArgument placement="afterSpace">
+			    <annotation>jms</annotation>
+			    <valueenum>jms</valueenum>
+			</associatedArgument>
 	    </option>
 
    	    <option id="service" minOccurs="1" maxOccurs="1">
-		<annotation>Specifies the name of the generated service.</annotation>
-		<switch>e</switch>
-		<associatedArgument placement="afterSpace">
-		    <annotation>service-name</annotation>
-		</associatedArgument>
+			<annotation>Specifies the name of the generated service.</annotation>
+			<switch>e</switch>
+			<associatedArgument placement="afterSpace">
+			    <annotation>service-name</annotation>
+			</associatedArgument>
 	    </option>
 
    	    <option id="port" minOccurs="1" maxOccurs="1">
-		<annotation>Specifies the value of the name attribute of the generated port element, sperate by space</annotation>
-		<switch>p</switch>
-		<associatedArgument placement="afterSpace">
-		    <annotation>port-name</annotation>
-		</associatedArgument>
+			<annotation>Specifies the value of the name attribute of the generated port element, sperate by space</annotation>
+			<switch>p</switch>
+			<associatedArgument placement="afterSpace">
+			    <annotation>port-name</annotation>
+			</associatedArgument>
 	    </option>
 		
    	    <option id="attrbinding" minOccurs="1" maxOccurs="1">
-		<annotation>Specifies the name of the binding for which the service is generated, sperate by space</annotation>
-		<switch>n</switch>
-		<associatedArgument placement="afterSpace">
-		    <annotation>attribute-binding-name</annotation>
-		</associatedArgument>
+			<annotation>Specifies the name of the binding for which the service is generated, sperate by space</annotation>
+			<switch>n</switch>
+			<associatedArgument placement="afterSpace">
+			    <annotation>attribute-binding-name</annotation>
+			</associatedArgument>
 	    </option>
 
       	<option id="outputfile" maxOccurs="1">
-		<annotation>The wsdl output file name.</annotation>
-		<switch>o</switch>
-        <associatedArgument placement="afterSpace">
-        	<annotation>output-file</annotation>
-        </associatedArgument>
+			<annotation>The wsdl output file name.</annotation>
+			<switch>o</switch>
+	        <associatedArgument placement="afterSpace">
+	        	<annotation>output-file</annotation>
+	        </associatedArgument>
       	</option>
 
     	<option id="outputdir" maxOccurs="1">
-        <annotation>The directory in which the generated wsdl is placed</annotation>
-        <switch>d</switch>
-        <associatedArgument placement="afterSpace">
-        	<annotation>output-directory</annotation>
-        </associatedArgument>
+	        <annotation>The directory in which the generated wsdl is placed</annotation>
+	        <switch>d</switch>
+	        <associatedArgument placement="afterSpace">
+	        	<annotation>output-directory</annotation>
+	        </associatedArgument>
       	</option>
     
     	<option id="destinationStyle" maxOccurs="1">
-        <annotation>JMS destination style (queue/topic) </annotation>
-        <switch>jds</switch>
-        <associatedArgument placement="afterSpace">
-         	<annotation>jms-destionation-Style(queue/topic)</annotation>
-         	<valueenum>queue|topic</valueenum>
-        </associatedArgument>
+	        <annotation>JMS destination style (queue/topic) </annotation>
+	        <switch>jds</switch>
+	        <associatedArgument placement="afterSpace">
+	         	<annotation>jms-destionation-Style(queue/topic)</annotation>
+	         	<valueenum>queue|topic</valueenum>
+	        </associatedArgument>
     	</option>
 
     	<option id="jndiProviderURL" maxOccurs="1">
-        <annotation>JMS JNDI provider URL</annotation>
-        <switch>jpu</switch>
-        <associatedArgument placement="afterSpace">
-          <annotation>jms-jndi-provider-URL</annotation>
-        </associatedArgument>
+	        <annotation>JMS JNDI provider URL</annotation>
+	        <switch>jpu</switch>
+	        <associatedArgument placement="afterSpace">
+	          <annotation>jms-jndi-provider-URL</annotation>
+	        </associatedArgument>
     	</option>
 
     	<option id="initialContextFactory" maxOccurs="1">
-        <annotation>JMS initial context factory</annotation>
-        <switch>jcf</switch>
-        <associatedArgument placement="afterSpace">
-         	<annotation>jms-initial-context-factory</annotation>
-        </associatedArgument>
+	        <annotation>JMS initial context factory</annotation>
+	        <switch>jcf</switch>
+	        <associatedArgument placement="afterSpace">
+	         	<annotation>jms-initial-context-factory</annotation>
+	        </associatedArgument>
     	</option>
 
     	<option id="jndiConnectionFactoryName" maxOccurs="1">
-        <annotation>JMS JNDI connection factory name</annotation>
-        <switch>jfn</switch>
-        <associatedArgument placement="afterSpace">
-         	<annotation>jms-jndi-connection-factory-name</annotation>
-        </associatedArgument>
+	        <annotation>JMS JNDI connection factory name</annotation>
+	        <switch>jfn</switch>
+	        <associatedArgument placement="afterSpace">
+	         	<annotation>jms-jndi-connection-factory-name</annotation>
+	        </associatedArgument>
     	</option>
 
     	<option id="jndiDestinationName" maxOccurs="1">
-        <annotation>JMS JNDI destination name</annotation>
-        <switch>jdn</switch>
-        <associatedArgument placement="afterSpace">
-          	<annotation>jms-jndi-destination-name</annotation>
-        </associatedArgument>
+	        <annotation>JMS JNDI destination name</annotation>
+	        <switch>jdn</switch>
+	        <associatedArgument placement="afterSpace">
+	          	<annotation>jms-jndi-destination-name</annotation>
+	        </associatedArgument>
     	</option>
 
     	<option id="messageType" maxOccurs="1">
-        <annotation>JMS message type(text/binary)</annotation>
-        <switch>jmt</switch>
-        <associatedArgument placement="afterSpace">
-          	<annotation>jms-message-type(text/binary)</annotation>
-          	<valueenum>text|binary</valueenum>
-        </associatedArgument>
+	        <annotation>JMS message type(text/binary)</annotation>
+	        <switch>jmt</switch>
+	        <associatedArgument placement="afterSpace">
+	          	<annotation>jms-message-type(text/binary)</annotation>
+	          	<valueenum>text|binary</valueenum>
+	        </associatedArgument>
     	</option>
 
     	<option id="useMessageIDAsCorrelationID" maxOccurs="1">
-        <annotation>Use MessageID As CorrelationID(true/false)</annotation>
-        <switch>jmc</switch>
-        <associatedArgument placement="afterSpace">
-          	<annotation>use-messageid-as-correlationid(true/false)</annotation>          	
-          	<valueenum>true|false</valueenum>
-        </associatedArgument>
+	        <annotation>Use MessageID As CorrelationID(true/false)</annotation>
+	        <switch>jmc</switch>
+	        <associatedArgument placement="afterSpace">
+	          	<annotation>use-messageid-as-correlationid(true/false)</annotation>          	
+	          	<valueenum>true|false</valueenum>
+	        </associatedArgument>
     	</option>
     	
     	<option id="durableSubscriberName" maxOccurs="1">
-        <annotation>Durable Subscriber Name</annotation>
-        <switch>jsn</switch>
-        <associatedArgument placement="afterSpace">
-          	<annotation>durable-subscriber-name</annotation>
-        </associatedArgument>
+	        <annotation>Durable Subscriber Name</annotation>
+	        <switch>jsn</switch>
+	        <associatedArgument placement="afterSpace">
+	          	<annotation>durable-subscriber-name</annotation>
+	        </associatedArgument>
     	</option>    	
     	
 	</optionGroup>
@@ -136,27 +136,27 @@
     <optionGroup id="common_options">
 	
 	    <option id="help" maxOccurs="1">
-		<annotation>Display detailed information for options.</annotation>
-		<switch>h</switch>
-		<switch>?</switch>
-		<switch>help</switch>
+			<annotation>Display detailed information for options.</annotation>
+			<switch>h</switch>
+			<switch>?</switch>
+			<switch>help</switch>
 	    </option>
 	    
 	    <option id="version">
-		<annotation>Display the version of the tool.</annotation>
-		<switch>v</switch>
+			<annotation>Display the version of the tool.</annotation>
+			<switch>v</switch>
 	    </option>
 
 	    <option id="verbose">
-		<annotation>Verbose mode</annotation>
-		<switch>verbose</switch>
-		<switch>V</switch>
+			<annotation>Verbose mode</annotation>
+			<switch>verbose</switch>
+			<switch>V</switch>
 	    </option>
 
 	    <option id="quiet">
-		<annotation>Quiet mode</annotation>
-		<switch>quiet</switch>
-		<switch>q</switch>
+			<annotation>Quiet mode</annotation>
+			<switch>quiet</switch>
+			<switch>q</switch>
 	    </option>
 
 	</optionGroup>

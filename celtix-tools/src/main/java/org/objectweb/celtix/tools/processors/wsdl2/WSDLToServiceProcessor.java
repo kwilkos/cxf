@@ -38,7 +38,7 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
     public void process() throws ToolException {
         init();
         if (isServicePortExisted()) {
-            throw new ToolException("Input server and port already exist in imported contract.");
+            throw new ToolException("Input service and port already exist in imported contract.");
         }
         if (!isBindingExisted()) {
             throw new ToolException("Input binding does not exist in imported contract.");
