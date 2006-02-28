@@ -55,6 +55,8 @@ public abstract class AbstractTestServerBase extends Assert {
         } finally {
             if (verify(getLog())) {
                 System.out.println("server passed");
+            } else {
+                System.out.println(ServerLauncher.SERVER_FAILED);
             }
             System.out.println("server stopped");
             System.exit(0);
@@ -74,7 +76,7 @@ public abstract class AbstractTestServerBase extends Assert {
     }
     
     protected void startFailed() {
-        System.out.println("server startup failed (not a log message)");
+        System.out.println(ServerLauncher.SERVER_FAILED);
         System.exit(-1);        
     }
 

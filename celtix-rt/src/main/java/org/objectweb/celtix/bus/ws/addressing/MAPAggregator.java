@@ -206,6 +206,10 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
                        ? reference.getAddress()
                        : ContextUtils.getAttributedURI(Names.WSA_NONE_ADDRESS));
         }
+        // Action
+        if (ContextUtils.hasEmptyAction(maps)) {
+            maps.setAction(ContextUtils.getAction(context));
+        }
         return maps;
     }
 
@@ -241,7 +245,6 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
                 }
                 maps.setReplyTo(replyTo);
             }
-            // REVIST Action
             if (!isOneway) {
                 // REVISIT FaultTo if cached by transport in context
             }

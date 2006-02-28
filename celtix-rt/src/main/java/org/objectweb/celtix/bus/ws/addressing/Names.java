@@ -77,9 +77,13 @@ public final class Names {
     public static final String WSA_NONE_ADDRESS =
         WSA_NAMESPACE_NAME + "/none";
 
+    public static final String WSA_FAULT_DELIMITER =
+        "/fault";
     public static final String WSA_DEFAULT_FAULT_ACTION =
-        WSA_NAMESPACE_NAME + "/fault";
-    
+        WSA_NAMESPACE_NAME + WSA_FAULT_DELIMITER;
+    // REVISIT delimiter should be ":" if target namespace is a URN
+    public static final String WSA_ACTION_DELIMITER = "/";
+        
     public static final String WSAW_ACTION_NAME = "Action";
     public static final QName WSAW_ACTION_QNAME = 
         new QName(WSA_NAMESPACE_WSDL_NAME, WSAW_ACTION_NAME);
@@ -122,6 +126,7 @@ public final class Names {
     public static final String SOAP12HTTP_ADDRESSING_BINDING = 
         "http://www.w3.org/2003/05/soap-envelope?addressing=ms";
     
+    public static final String SOAP_ACTION_HEADER = "SOAPAction";
     /**
      * The set of headers understood by the protocol binding.
      */

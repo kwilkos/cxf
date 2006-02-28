@@ -17,8 +17,11 @@ public class ServerLauncher {
 
     public static final int DEFAULT_TIMEOUT = 3 * 60 * 1000;
 
-    private static final boolean DEFAULT_IN_PROCESS = false;
+    protected static final String SERVER_FAILED = 
+        "server startup failed (not a log message)";
 
+    private static final boolean DEFAULT_IN_PROCESS = false;
+    
     private static final Logger LOG = Logger.getLogger(ServerLauncher.class.getName());
 
     boolean serverPassed;
@@ -221,8 +224,8 @@ public class ServerLauncher {
                     } else if (s.contains("server stopped")) {
                         notifyServerIsStopped();
                         running = false;
-                    } else if (s.contains("server startup failed (not a log message)")) {
-                        notifyServerLaunchFailed();
+                    } else if (s.contains(SERVER_FAILED)) {
+                        notifyServerFailed();
                         running = false;
                     }
                     if (ch == '\n' || !running) {
@@ -257,9 +260,9 @@ public class ServerLauncher {
         }
     }
 
-    void notifyServerLaunchFailed() {
+    void notifyServerFailed() {
         synchronized (mutex) {
-            serverLaunchFailed = true;
+            serverIsStopped = true;
             mutex.notifyAll();
         }
     }

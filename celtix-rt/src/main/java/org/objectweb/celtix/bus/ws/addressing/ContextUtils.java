@@ -3,12 +3,16 @@ package org.objectweb.celtix.bus.ws.addressing;
 
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.Port;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.ResponseWrapper;
+import javax.xml.ws.WebFault;
 import javax.xml.ws.handler.MessageContext;
 import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
 
@@ -17,6 +21,7 @@ import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
@@ -272,6 +277,24 @@ public final class ContextUtils {
     }
 
     /**
+     * Helper method to determine if an MAPs Action is empty (a null action
+     * is considered empty, whereas a zero length action suppresses
+     * the propogation of the Action property).
+     *
+     * @param ref the MAPs Action under test
+     * @return true iff the Action is empty
+     */
+    public static boolean hasEmptyAction(AddressingProperties maps) {
+        boolean empty = maps.getAction() == null;
+        if (maps.getAction() != null 
+            && maps.getAction().getValue().length() == 0) {
+            maps.setAction(null);
+            empty = false;
+        } 
+        return empty;
+    }
+
+    /**
      * Retrieve ClientTransport from the context.
      *
      * @param context the message context
@@ -303,6 +326,7 @@ public final class ContextUtils {
     public static ClientBinding retrieveClientBinding(MessageContext context) {
         return (ClientBinding)context.get(BINDING_PROPERTY);
     }
+
     /**
      * Retrieve ServerBinding from the context.
      *
@@ -328,6 +352,7 @@ public final class ContextUtils {
         maps.setTo(ContextUtils.getAttributedURI(Names.WSA_ANONYMOUS_ADDRESS));
         maps.setReplyTo(WSA_OBJECT_FACTORY.createEndpointReferenceType());
         maps.getReplyTo().setAddress(getAttributedURI(Names.WSA_NONE_ADDRESS));
+        maps.setAction(getAttributedURI(""));
         storeMAPs(maps, context, true, true, true, true);
 
         ServerBinding serverBinding = retrieveServerBinding(context);
@@ -485,7 +510,10 @@ public final class ContextUtils {
     }
     
     /**
-     * @return a JAXBContext
+     * Retrieve a JAXBContext for marshalling and unmarshalling JAXB generated
+     * types.
+     *
+     * @return a JAXBContext 
      */
     public static JAXBContext getJAXBContext() throws JAXBException {
         synchronized (ContextUtils.class) {
@@ -497,14 +525,93 @@ public final class ContextUtils {
     }
 
     /**
-     * @param ctx JAXBContext
+     * Set the encapsulated JAXBContext (used by unit tests).
+     * 
+     * @param ctx JAXBContext 
      */
     public static void setJAXBContext(JAXBContext ctx) throws JAXBException {
         synchronized (ContextUtils.class) {
             jaxbContext = ctx;
         }
     }
+    
+    /**
+     * Construct the Action URI.
+     * 
+     * @param context the message context
+     * @return the Action URI
+     */
+    public static AttributedURIType getAction(MessageContext context) {
+        String action = null;
+        // REVISIT: add support for @{Fault}Action annotation (generated
+        // from the wsaw:Action WSDL element)
+        Throwable fault = 
+            (Throwable)context.get(ObjectMessageContext.METHOD_FAULT);
+        Method method = (Method)context.get(ObjectMessageContext.METHOD_OBJ);
+        if (method != null) {
+            if (fault != null) {
+                WebFault webFault = fault.getClass().getAnnotation(WebFault.class);
+                action = getAction(webFault.targetNamespace(),
+                                   method, 
+                                   webFault.name(),
+                                   true);
+            } else {
+                if (ContextUtils.isRequestor(context)) {
+                    RequestWrapper requestWrapper =
+                        method.getAnnotation(RequestWrapper.class);
+                    if (requestWrapper != null) {
+                        action = getAction(requestWrapper.targetNamespace(),
+                                           method,
+                                           requestWrapper.localName(),
+                                           false);
+                    }
+                } else {
+                    ResponseWrapper responseWrapper =
+                        method.getAnnotation(ResponseWrapper.class);
+                    if (responseWrapper != null) {
+                        action = getAction(responseWrapper.targetNamespace(),
+                                           method,
+                                           responseWrapper.localName(),
+                                          false);
+                    }
+                }
+            }
+        }
+        return action != null ? getAttributedURI(action) : null;
+    }
+        
 
+    /**
+     * Construct the Action string.
+     *
+     * @param targetNamespace the target namespace
+     * @param method the method
+     * @param localName the local name
+     * @param isFault true if a fault
+     * @return action string
+     */
+    private static String getAction(String targetNamespace, 
+                                    Method method, 
+                                    String localName,
+                                    boolean isFault) {
+        String action = null;
+        action = targetNamespace;
+        action += Names.WSA_ACTION_DELIMITER;
+        action += method.getDeclaringClass().getSimpleName();
+        if (isFault) {
+            action += method.getName();
+            action += Names.WSA_FAULT_DELIMITER;
+        }
+        action += Names.WSA_ACTION_DELIMITER;
+        action += localName;
+        return action;
+    }
+
+    /**
+     * Get a DataBindingCallback (for use with an outgoing partial response).
+     *
+     * @return a DataBindingCallback
+     */
     private static DataBindingCallback getDataBindingCallback() 
         throws JAXBException {
         return new JAXBDataBindingCallback(null,

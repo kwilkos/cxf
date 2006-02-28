@@ -15,8 +15,10 @@ import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
 //import org.objectweb.hello_world_soap_http.types.ErrorCode;
+import org.objectweb.hello_world_soap_http.types.ErrorCode;
 import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
 import org.objectweb.hello_world_soap_http.types.GreetMeSometimeResponse;
+import org.objectweb.hello_world_soap_http.types.NoSuchCodeLit;
 //import org.objectweb.hello_world_soap_http.types.NoSuchCodeLit;
 import org.objectweb.hello_world_soap_http.types.SayHiResponse;
 import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
@@ -54,7 +56,17 @@ public class GreeterImpl implements Greeter {
     
     public void testDocLitFault(String faultType) throws BadRecordLitFault, NoSuchCodeLitFault {
         verifyMAPs();
-        throw new BadRecordLitFault("TestBadRecordLit", "BadRecordLitFault");
+        if (faultType.equals(BadRecordLitFault.class.getSimpleName())) {
+            throw new BadRecordLitFault("TestBadRecordLit", "BadRecordLitFault");
+        }
+        if (faultType.equals(NoSuchCodeLitFault.class.getSimpleName())) {
+            ErrorCode ec = new ErrorCode();
+            ec.setMajor((short)1);
+            ec.setMinor((short)1);
+            NoSuchCodeLit nscl = new NoSuchCodeLit();
+            nscl.setCode(ec);
+            throw new NoSuchCodeLitFault("TestNoSuchCodeLit", nscl);
+        }
     }
 
     public BareDocumentResponse testDocLitBare(String in) {

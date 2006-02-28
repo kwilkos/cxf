@@ -9,6 +9,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
+import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.Name;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPHeader;
@@ -44,10 +45,12 @@ public class MAPCodecTest extends TestCase {
 
     private static final QName[] EXPECTED_NAMES = 
         new QName[] {Names.WSA_MESSAGEID_QNAME, Names.WSA_TO_QNAME, 
-                     Names.WSA_REPLYTO_QNAME, Names.WSA_RELATESTO_QNAME};
+                     Names.WSA_REPLYTO_QNAME, Names.WSA_RELATESTO_QNAME,
+                     Names.WSA_ACTION_QNAME};
     private static final Class<?>[] EXPECTED_DECLARED_TYPES = 
         new Class<?>[] {AttributedURIType.class, AttributedURIType.class,
-                        EndpointReferenceType.class, RelatesToType.class};
+                        EndpointReferenceType.class, RelatesToType.class, 
+                        AttributedURIType.class};
     private MAPCodec codec;
     private IMocksControl control;
     private Object[] expectedValues;
@@ -90,12 +93,20 @@ public class MAPCodecTest extends TestCase {
 
     public void testRequestorOutboundFault() throws Exception {
         SOAPMessageContext context = setUpContext(true, true);
+        boolean proceed = codec.handleFault(context);
+        assertTrue("expected dispatch to proceed", proceed);
+        control.verify();
+        codec.close(context);
+    }
+    
+    public void testRequestorOutboundPreExistingSOAPAction() throws Exception {
+        SOAPMessageContext context = setUpContext(true, true, false, true);
         boolean proceed = codec.handleMessage(context);
         assertTrue("expected dispatch to proceed", proceed);
         control.verify();
         codec.close(context);
     }
-
+    
     public void testResponderInbound() throws Exception {
         SOAPMessageContext context = setUpContext(false, false);
         boolean proceed = codec.handleMessage(context);
@@ -155,7 +166,15 @@ public class MAPCodecTest extends TestCase {
         control.verify();
         codec.close(context);
     }
-
+    
+    public void testResponderOutboundPreExistingSOAPAction() throws Exception {
+        SOAPMessageContext context = setUpContext(false, true, false, true);
+        boolean proceed = codec.handleMessage(context);
+        assertTrue("expected dispatch to proceed", proceed);
+        control.verify();
+        codec.close(context);
+    }
+    
     public void testRequestorInbound() throws Exception {
         SOAPMessageContext context = setUpContext(true, false);
         boolean proceed = codec.handleMessage(context);
@@ -182,6 +201,17 @@ public class MAPCodecTest extends TestCase {
                                             boolean outbound,
                                             boolean invalidMAP) 
         throws Exception {
+        return setUpContext(requestor, 
+                            outbound,
+                            invalidMAP,
+                            false);
+    }
+    
+    private SOAPMessageContext setUpContext(boolean requestor, 
+                                            boolean outbound,
+                                            boolean invalidMAP,
+                                            boolean preExistingSOAPAction) 
+        throws Exception {
         SOAPMessageContext context =
             control.createMock(SOAPMessageContext.class);
         context.get(MESSAGE_OUTBOUND_PROPERTY);
@@ -190,10 +220,19 @@ public class MAPCodecTest extends TestCase {
         EasyMock.expectLastCall().andReturn(Boolean.valueOf(requestor));
         String mapProperty = getMAPProperty(requestor, outbound);
         AddressingPropertiesImpl maps = getMAPs();
-        SOAPHeader header = setUpSOAPHeader(context, outbound);
+        SOAPMessage message = control.createMock(SOAPMessage.class);
+        context.getMessage();
+        EasyMock.expectLastCall().andReturn(message);
+        SOAPHeader header = setUpSOAPHeader(context, message, outbound);
         ContextUtils.setJAXBContext(control.createMock(JAXBContext.class));
         if (outbound) {
-            setUpEncode(context, header, maps, mapProperty, invalidMAP);
+            setUpEncode(context,
+                        message,
+                        header,
+                        maps,
+                        mapProperty,
+                        invalidMAP,
+                        preExistingSOAPAction);
         } else {
             setUpDecode(context, header, maps, mapProperty, requestor);
         }
@@ -202,11 +241,9 @@ public class MAPCodecTest extends TestCase {
     }
 
     private SOAPHeader setUpSOAPHeader(SOAPMessageContext context, 
+                                       SOAPMessage message,
                                        boolean outbound) 
         throws Exception {
-        SOAPMessage message = control.createMock(SOAPMessage.class);
-        context.getMessage();
-        EasyMock.expectLastCall().andReturn(message);
         SOAPPart part = control.createMock(SOAPPart.class);
         message.getSOAPPart();
         EasyMock.expectLastCall().andReturn(part);
@@ -224,10 +261,12 @@ public class MAPCodecTest extends TestCase {
     }
 
     private void setUpEncode(SOAPMessageContext context,
+                             SOAPMessage message,
                              SOAPHeader header,
                              AddressingPropertiesImpl maps,
                              String mapProperty,
-                             boolean invalidMAP) throws Exception { 
+                             boolean invalidMAP,
+                             boolean preExistingSOAPAction) throws Exception { 
         context.get(mapProperty);
         EasyMock.expectLastCall().andReturn(maps);
         Iterator headerItr = control.createMock(Iterator.class);
@@ -249,6 +288,19 @@ public class MAPCodecTest extends TestCase {
             EasyMock.eq(header);
             marshaller.marshal(null, header);
             EasyMock.expectLastCall();
+        }
+        MimeHeaders mimeHeaders = control.createMock(MimeHeaders.class);
+        message.getMimeHeaders();
+        EasyMock.expectLastCall().andReturn(mimeHeaders);
+        mimeHeaders.getHeader("SOAPAction");
+        if (preExistingSOAPAction) {
+            EasyMock.expectLastCall().andReturn(new String[] {"foobar"});
+            String soapAction =
+                "\"" + ((AttributedURIType)expectedValues[4]).getValue() + "\"";
+            mimeHeaders.setHeader("SOAPAction", soapAction);
+            EasyMock.expectLastCall();
+        } else {
+            EasyMock.expectLastCall().andReturn(null);
         }
         if (invalidMAP) {
             context.get("org.objectweb.celtix.ws.addressing.map.fault.name");
@@ -298,6 +350,12 @@ public class MAPCodecTest extends TestCase {
                         ((RelatesToType)expectedValues[3]).getValue());
             EasyMock.expectLastCall().andReturn(null);
         }
+        setUpHeaderDecode(headerItr,
+                          Names.WSA_ACTION_NAME,
+                          Names.WSA_ACTION_QNAME,
+                          AttributedURIType.class,
+                          4,
+                          unmarshaller);
         EasyMock.eq(mapProperty);
         EasyMock.reportMatcher(new MAPMatcher());
         context.put(mapProperty, maps);
@@ -357,7 +415,10 @@ public class MAPCodecTest extends TestCase {
         RelatesToType relatesTo = new RelatesToType(); 
         relatesTo.setValue("urn:uuid:67890");
         maps.setRelatesTo(relatesTo);
-        expectedValues = new Object[] {id, to, replyTo, relatesTo};
+        AttributedURIType action = 
+            ContextUtils.getAttributedURI("http://foo/bar/SEI/opRequest");
+        maps.setAction(action);
+        expectedValues = new Object[] {id, to, replyTo, relatesTo, action};
         return maps;
     }
 
@@ -399,8 +460,16 @@ public class MAPCodecTest extends TestCase {
             boolean ret = false;
             String expectedMessageID = ((AttributedURIType)expectedValues[0]).getValue();
             String expectedTo = ((AttributedURIType)expectedValues[1]).getValue();
+            String expectedReplyTo = 
+                ((EndpointReferenceType)expectedValues[2]).getAddress().getValue();
+            String expectedRelatesTo = ((RelatesToType)expectedValues[3]).getValue();
+            String expectedAction = ((AttributedURIType)expectedValues[4]).getValue();
             ret = expectedMessageID.equals(other.getMessageID().getValue())
-                  && expectedTo.equals(other.getTo().getValue());
+                  && expectedTo.equals(other.getTo().getValue())
+                  && expectedReplyTo.equals(
+                         other.getReplyTo().getAddress().getValue())
+                  && expectedRelatesTo.equals(other.getRelatesTo().getValue())
+                  && expectedAction.equals(other.getAction().getValue());
             return ret;
         }
     } 

@@ -23,9 +23,10 @@ public abstract class AbstractClientServerSetupBase extends TestSetup {
     public abstract void startServers() throws Exception;
     
     public void tearDown() throws Exception {
-        stopAllServers();
+        boolean serverPassed = stopAllServers();
         launchers.clear();
         System.gc();
+        assertTrue("server failed", serverPassed);
     } 
     
     protected boolean stopAllServers() {

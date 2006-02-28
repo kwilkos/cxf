@@ -12,6 +12,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
+import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.Name;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
@@ -153,6 +154,12 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
                           RelatesToType.class,
                           header,
                           marshaller);
+                encodeMAP(maps.getAction(), 
+                          Names.WSA_ACTION_QNAME,
+                          AttributedURIType.class, 
+                          header, 
+                          marshaller);
+                propogateAction(maps.getAction(), message);
                 applyMAPValidation(context);
             } catch (SOAPException se) {
                 LOG.log(Level.WARNING, "SOAP_HEADER_ENCODE_FAILURE_MSG", se); 
@@ -215,6 +222,10 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
                                                                 false,
                                                                 context);
                             }
+                        } else if (Names.WSA_ACTION_NAME.equals(localName)) {
+                            maps.setAction(decodeMAP(AttributedURIType.class,
+                                                     headerElement, 
+                                                     unmarshaller));
                         }
                     }
                 }
@@ -224,7 +235,6 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
         } catch (JAXBException je) {
             LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", je); 
         }
-
         return maps;
     }
 
@@ -278,6 +288,31 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
             Name headerName = headerElement.getElementName();
             if (Names.WSA_NAMESPACE_NAME.equals(headerName.getURI())) {
                 headerElement.detachNode();
+            }
+        }
+    }
+
+    /**
+     * Propogate action to SOAPAction header
+     *
+     * @param action the Action property
+     * @param message the SOAP message
+     */
+    private void propogateAction(AttributedURIType action, 
+                                 SOAPMessage message) {
+        if (!(action == null || "".equals(action.getValue()))) {
+            MimeHeaders mimeHeaders = message.getMimeHeaders();
+            String[] soapActionHeaders = 
+                mimeHeaders.getHeader(Names.SOAP_ACTION_HEADER);
+            // only propogate to SOAPAction header if currently non-empty
+            if (!(soapActionHeaders == null
+                  || soapActionHeaders.length == 0
+                  || "".equals(soapActionHeaders[0]))) {
+                LOG.log(Level.INFO, 
+                        "encoding wsa:Action in SOAPAction header {0}",
+                        action.getValue());
+                String soapAction = "\"" + action.getValue() + "\"";
+                mimeHeaders.setHeader(Names.SOAP_ACTION_HEADER, soapAction);
             }
         }
     }

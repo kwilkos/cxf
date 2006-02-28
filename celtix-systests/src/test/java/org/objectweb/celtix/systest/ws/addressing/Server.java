@@ -17,7 +17,7 @@ public class Server extends TestServerBase implements VerificationCache {
     protected void run()  {
         GreeterImpl implementor = new GreeterImpl();
         implementor.verificationCache = this;         
-        String address = "http://localhost:9008/SoapContext/SoapPort";
+        String address = "http://localhost:9010/SoapContext/SoapPort";
         Endpoint endpoint = Endpoint.publish(address, implementor);
         List<Handler> handlerChain = endpoint.getBinding().getHandlerChain();
         for (Object h : handlerChain) {

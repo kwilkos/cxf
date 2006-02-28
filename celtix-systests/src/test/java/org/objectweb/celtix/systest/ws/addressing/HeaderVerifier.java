@@ -69,12 +69,6 @@ public class HeaderVerifier implements SOAPHandler<SOAPMessageContext> {
                 Marshaller marshaller = 
                     ContextUtils.getJAXBContext().createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-                /*
-                encode(ContextUtils.getAttributedURI("urn:piggyback_responder"),
-                       Names.WSA_FROM_QNAME,
-                       header, 
-                       marshaller);
-                */
                 AttributedURIType value =
                      ContextUtils.getAttributedURI("urn:piggyback_responder");
                 marshaller.marshal(
@@ -88,19 +82,6 @@ public class HeaderVerifier implements SOAPHandler<SOAPMessageContext> {
             e.printStackTrace();
         }
     }
-
-    /*
-    private <T> void encode(AttributedIURIType value,
-                            QName qname,
-                            SOAPHeader header,
-                            Marshaller marshaller) throws JAXBException {
-        marshaller.marshal(
-              new JAXBElement<AttributedURIType>(qname,
-                                               AttributedURIType.class,
-                                               value),
-            header);
-    }
-    */
 
     private void verify(SOAPMessageContext context) {
         try {
@@ -116,8 +97,10 @@ public class HeaderVerifier implements SOAPHandler<SOAPMessageContext> {
                     }
                 }
             }
+            boolean partialResponse = isIncomingPartialResponse(context)
+                                      || isOutgoingPartialResponse(context);
             verificationCache.put(MAPTest.verifyHeaders(wsaHeaders, 
-                                                        isIncomingPartialResponse(context)));
+                                                        partialResponse));
         } catch (SOAPException se) {
             verificationCache.put("SOAP header verification failed: " + se);
         }

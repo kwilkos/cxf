@@ -54,6 +54,7 @@ public class Response {
     }
     
     public void setHandlerInvoker(HandlerInvoker h) {
+        h.setInbound();
         handlerInvoker = h;
     }
 

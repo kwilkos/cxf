@@ -69,6 +69,7 @@ public class HandlerChainInvoker implements HandlerInvoker {
 
     public boolean invokeLogicalHandlers(boolean requestor, ObjectMessageContext objectCtx) {        
         objectCtx.setRequestorRole(requestor);
+        objectCtx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, isOutbound()); 
         LogicalMessageContextImpl logicalContext = new LogicalMessageContextImpl(objectCtx);
         return invokeHandlerChain(logicalHandlers, logicalContext); 
 

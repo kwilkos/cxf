@@ -15,6 +15,7 @@ public class AddressingPropertiesImpl implements AddressingProperties {
     private AttributedURIType messageID;
     private EndpointReferenceType replyTo;
     private RelatesToType relatesTo;
+    private AttributedURIType action;
 
     /**
      * Accessor for the <b>To</b> property.
@@ -78,5 +79,21 @@ public class AddressingPropertiesImpl implements AddressingProperties {
      */
     public void setRelatesTo(RelatesToType rel) {
         relatesTo = rel;
+    }
+    
+    /**
+     * Accessor for the <b>Action</b> property.
+     * @return current value of Action property
+     */
+    public AttributedURIType getAction() {
+        return action;
+    }
+
+    /**
+     * Mutator for the <b>Action</b> property.
+     * @param iri new value for Action property
+     */
+    public void setAction(AttributedURIType iri) {
+        action = iri;
     }
 }

@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.ws.addressing;
 
 
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
 
@@ -8,6 +9,8 @@ import javax.wsdl.Binding;
 import javax.wsdl.Port;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
+import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
@@ -27,6 +30,7 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import static org.objectweb.celtix.bus.bindings.soap.SOAPConstants.SOAP_ENV_ENCSTYLE;
+import static org.objectweb.celtix.context.ObjectMessageContext.METHOD_OBJ;
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
 import static org.objectweb.celtix.context.OutputStreamMessageContext.ONEWAY_MESSAGE_TF;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.BINDING_PROPERTY;
@@ -46,7 +50,8 @@ public class MAPAggregatorTest extends TestCase {
     private String expectedTo;
     private String expectedReplyTo;
     private String expectedRelatesTo;
-
+    private String expectedAction;
+    
 
     public void setUp() {
         aggregator = new MAPAggregator();
@@ -60,11 +65,21 @@ public class MAPAggregatorTest extends TestCase {
         expectedTo = null;
         expectedReplyTo = null;
         expectedRelatesTo = null;
+        expectedAction = null;
     }
 
     public void testRequestorOutboundUsingAddressingMAPsInContext() 
         throws Exception {
         LogicalMessageContext context = setUpContext(true, true, false, true, true);
+        boolean proceed = aggregator.handleMessage(context);
+        assertTrue("expected dispatch to proceed", proceed);
+        control.verify();
+        aggregator.close(context);
+    }
+    
+    public void testRequestorOutboundUsingAddressingMAPsInContextZeroLengthAction() 
+        throws Exception {
+        LogicalMessageContext context = setUpContext(true, true, false, true, true, true);
         boolean proceed = aggregator.handleMessage(context);
         assertTrue("expected dispatch to proceed", proceed);
         control.verify();
@@ -218,6 +233,15 @@ public class MAPAggregatorTest extends TestCase {
         control.verify();
         aggregator.close(context);
     }
+    
+    public void testResponderOutboundZeroLengthAction() throws Exception {
+        LogicalMessageContext context = 
+            setUpContext(false, true, false, false, false, false, true);
+        boolean proceed = aggregator.handleMessage(context);
+        assertTrue("expected dispatch to proceed", proceed);
+        control.verify();
+        aggregator.close(context);
+    }
 
     public void testResponderOutboundFault() throws Exception {
         LogicalMessageContext context = setUpContext(false, true, false);
@@ -284,6 +308,24 @@ public class MAPAggregatorTest extends TestCase {
                                                boolean mapsInContext,
                                                boolean decoupled) 
         throws Exception {
+        return setUpContext(requestor, 
+                            outbound,
+                            oneway,
+                            usingAddressing,
+                            mapsInContext,
+                            decoupled,
+                            false);
+    }
+    
+    private LogicalMessageContext setUpContext(boolean requestor, 
+                                               boolean outbound,
+                                               boolean oneway,
+                                               boolean usingAddressing,
+                                               boolean mapsInContext,
+                                               boolean decoupled,
+                                               boolean zeroLengthAction) 
+        throws Exception {
+
         LogicalMessageContext context =
             control.createMock(LogicalMessageContext.class);
         context.get(MESSAGE_OUTBOUND_PROPERTY);
@@ -293,10 +335,14 @@ public class MAPAggregatorTest extends TestCase {
         if (outbound && requestor) {
             setUpUsingAddressing(context, usingAddressing);
             if (usingAddressing) {
-                setUpRequestor(context, oneway, mapsInContext, decoupled);
+                setUpRequestor(context, 
+                               oneway, 
+                               mapsInContext,
+                               decoupled,
+                               zeroLengthAction);
             } 
         } else if (!requestor) {
-            setUpResponder(context, outbound, decoupled);
+            setUpResponder(context, outbound, decoupled, zeroLengthAction);
         }
         control.replay();
         return context;
@@ -347,16 +393,28 @@ public class MAPAggregatorTest extends TestCase {
     private void setUpRequestor(LogicalMessageContext context,
                                 boolean oneway,
                                 boolean mapsInContext,
-                                boolean decoupled) throws Exception {
+                                boolean decoupled,
+                                boolean zeroLengthAction) throws Exception {
         context.get(REQUESTOR_ROLE_PROPERTY);
         EasyMock.expectLastCall().andReturn(Boolean.TRUE);
-        context.get(CLIENT_ADDRESSING_PROPERTIES);
         AddressingPropertiesImpl maps = mapsInContext 
                                         ? new AddressingPropertiesImpl()
                                         : null;
+        if (zeroLengthAction) {
+            maps.setAction(ContextUtils.getAttributedURI(""));
+        }
+        context.get(CLIENT_ADDRESSING_PROPERTIES);
         EasyMock.expectLastCall().andReturn(maps);
-        context.get(TRANSPORT_PROPERTY);
+        context.get(TRANSPORT_PROPERTY);        
         EasyMock.expectLastCall().andReturn(null);
+        Method method = SEI.class.getMethod("op", new Class[0]);
+        if (!zeroLengthAction) {
+            context.get(METHOD_OBJ);     
+            EasyMock.expectLastCall().andReturn(method);
+            context.get(REQUESTOR_ROLE_PROPERTY);
+            EasyMock.expectLastCall().andReturn(Boolean.TRUE);
+            expectedAction = "http://foo/bar/SEI/opRequest";
+        }
         context.get(REQUESTOR_ROLE_PROPERTY);
         EasyMock.expectLastCall().andReturn(Boolean.TRUE);
         context.get(ONEWAY_MESSAGE_TF);
@@ -379,10 +437,10 @@ public class MAPAggregatorTest extends TestCase {
 
     private void setUpResponder(LogicalMessageContext context,
                                 boolean outbound,
-                                boolean decoupled) throws Exception {
+                                boolean decoupled,
+                                boolean zeroLengthAction) throws Exception {
         context.get(REQUESTOR_ROLE_PROPERTY);
         EasyMock.expectLastCall().andReturn(Boolean.FALSE);
-        context.get(SERVER_ADDRESSING_PROPERTIES_INBOUND);
         AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
         EndpointReferenceType replyTo = new EndpointReferenceType();
         replyTo.setAddress(
@@ -393,6 +451,10 @@ public class MAPAggregatorTest extends TestCase {
         AttributedURIType id = 
             ContextUtils.getAttributedURI("urn:uuid:12345");
         maps.setMessageID(id);
+        if (zeroLengthAction) {
+            maps.setAction(ContextUtils.getAttributedURI(""));
+        }
+        context.get(SERVER_ADDRESSING_PROPERTIES_INBOUND);
         EasyMock.expectLastCall().andReturn(maps);
         if (decoupled) {
             ServerBinding binding = 
@@ -417,6 +479,14 @@ public class MAPAggregatorTest extends TestCase {
             EasyMock.expectLastCall();
         }
         if (outbound || aggregator.messageIDs.size() > 0) {
+            if (!zeroLengthAction) {
+                Method method = SEI.class.getMethod("op", new Class[0]);
+                context.get(METHOD_OBJ);     
+                EasyMock.expectLastCall().andReturn(method);
+                context.get(REQUESTOR_ROLE_PROPERTY);
+                EasyMock.expectLastCall().andReturn(Boolean.FALSE);
+                expectedAction = "http://foo/bar/SEI/opResponse";
+            }
             context.get(REQUESTOR_ROLE_PROPERTY);
             EasyMock.expectLastCall().andReturn(Boolean.FALSE);
             context.get(SERVER_ADDRESSING_PROPERTIES_INBOUND);
@@ -449,13 +519,26 @@ public class MAPAggregatorTest extends TestCase {
         private boolean compareExpected(AddressingPropertiesImpl other) {
             boolean ret = false;
             if (expectedMAPs == null || expectedMAPs == other) {
-                ret = (expectedTo == null 
-                       || expectedTo.equals(other.getTo().getValue()))
-                      && (expectedReplyTo == null 
-                          || expectedReplyTo.equals(other.getReplyTo().getAddress().getValue()))
-                      && (expectedRelatesTo == null 
-                          || expectedRelatesTo.equals(other.getRelatesTo().getValue()))
-                      && other.getMessageID() != null;
+                boolean toOK = 
+                    expectedTo == null 
+                    || expectedTo.equals(other.getTo().getValue());
+                boolean replyToOK = 
+                    expectedReplyTo == null 
+                    || expectedReplyTo.equals(
+                           other.getReplyTo().getAddress().getValue());
+                boolean relatesToOK =
+                    expectedRelatesTo == null 
+                    || expectedRelatesTo.equals(
+                           other.getRelatesTo().getValue());
+                boolean actionOK =
+                    expectedAction == null
+                    || expectedAction.equals(other.getAction().getValue());
+                boolean messageIdOK = other.getMessageID() != null;
+                ret = toOK 
+                      && replyToOK 
+                      && relatesToOK 
+                      && actionOK
+                      && messageIdOK;
             }
             return ret;
         }
@@ -471,4 +554,9 @@ public class MAPAggregatorTest extends TestCase {
         }
     } 
 
+    private static interface SEI {
+        @RequestWrapper(targetNamespace = "http://foo/bar", className = "SEI", localName = "opRequest")
+        @ResponseWrapper(targetNamespace = "http://foo/bar", className = "SEI", localName = "opResponse")
+        String op();
+    }
 }

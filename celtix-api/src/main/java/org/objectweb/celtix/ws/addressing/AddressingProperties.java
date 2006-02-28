@@ -52,4 +52,16 @@ public interface AddressingProperties {
      * @param relatesTo new value for RelatesTo property
      */
     void setRelatesTo(RelatesToType relatesTo);
+    
+    /**
+     * Accessor for the <b>Action</b> property.
+     * @return current value of Action property
+     */
+    AttributedURIType getAction();
+
+    /**
+     * Mutator for the <b>Action</b> property.
+     * @param iri new value for Action property
+     */
+    void setAction(AttributedURIType iri);
 }

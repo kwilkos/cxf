@@ -25,7 +25,9 @@ import org.objectweb.celtix.ws.addressing.AttributedURIType;
 
 import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
+import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
 import org.objectweb.hello_world_soap_http.SOAPService;
+import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
 
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES;
 
@@ -150,17 +152,6 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
             throw (Exception)ex.getCause();
         }
     }
-
-    public void testMAPsFault() throws Exception {
-        try {
-            greeter.testDocLitFault("BadRecordLitFault");
-            fail("expected fault from service");
-        } catch (BadRecordLitFault brlf) {
-            checkVerification();
-        } catch (UndeclaredThrowableException ex) {
-            throw (Exception)ex.getCause();
-        }
-    }
     
     public void testOneway() throws Exception {
         try {
@@ -173,9 +164,36 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
     
     public void testApplicationFault() throws Exception {
         try {
-            greeter.testDocLitFault("TestBadRecordLit");
-            fail("expected BadRecordLitFault");
+            greeter.testDocLitFault("BadRecordLitFault");
+            fail("expected fault from service");
         } catch (BadRecordLitFault brlf) {
+            checkVerification();
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+        String greeting = greeter.greetMe("intra-fault");
+        assertEquals("unexpected response received from service", 
+                     "Hello intra-fault",
+                     greeting);
+        try {
+            greeter.testDocLitFault("NoSuchCodeLitFault");
+            fail("expected NoSuchCodeLitFault");
+        } catch (NoSuchCodeLitFault nsclf) {
+            checkVerification();
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
+    
+    public void xtestAction() throws Exception {
+        try {
+            // testDocLitBare has an explicit soapAction attribute specified
+            // in the WSDL
+            BareDocumentResponse bareResponse = 
+                greeter.testDocLitBare("MySimpleDocument");
+            assertNotNull("no response for testDocLitBare", bareResponse);
+            assertEquals("Celtix", bareResponse.getCompany());
+            assertTrue(bareResponse.getId() == 1);
             checkVerification();
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
@@ -243,10 +261,10 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
      *
      * @param wsaHeaders a list of the wsa:* headers present in the SOAP
      * message
-     * @param expectFrom true if From header expected
+     * @param parial true if partial response
      * @return null if all expected headers present, otherwise an error string.
      */
-    protected static String verifyHeaders(List<String> wsaHeaders, boolean expectFrom) {
+    protected static String verifyHeaders(List<String> wsaHeaders, boolean partial) {
         //System.out.println("verifying headers: " + wsaHeaders);
         if (!wsaHeaders.contains(Names.WSA_MESSAGEID_NAME)) {
             return "expected MessageID header"; 
@@ -258,9 +276,14 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
               || wsaHeaders.contains(Names.WSA_RELATESTO_NAME))) {
             return "expected ReplyTo or RelatesTo header";
         }
-        if (expectFrom 
-            && !wsaHeaders.contains(Names.WSA_FROM_NAME)) {
-            return "expected From header";
+        if (partial) { 
+            if (!wsaHeaders.contains(Names.WSA_FROM_NAME)) {
+                return "expected From header";
+            }
+        } else {
+            if (!wsaHeaders.contains(Names.WSA_ACTION_NAME)) {
+                return "expected Action header";
+            }            
         }
         return null;
     }
