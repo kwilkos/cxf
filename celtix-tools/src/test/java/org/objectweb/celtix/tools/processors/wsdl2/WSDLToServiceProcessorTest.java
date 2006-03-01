@@ -151,6 +151,6 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
     }
 
     private String getLocation(String wsdlFile) {
-        return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
+        return WSDLToServiceProcessorTest.class.getResource(wsdlFile).getFile();
     }
 }

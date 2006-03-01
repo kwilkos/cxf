@@ -138,7 +138,7 @@ public class WSDLToSoapProcessorTest
     }
 
     private String getLocation(String wsdlFile) {
-        return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
+        return WSDLToSoapProcessorTest.class.getResource(wsdlFile).getFile();
     }
 
 }
