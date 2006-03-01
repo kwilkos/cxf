@@ -34,7 +34,7 @@ import org.objectweb.celtix.management.Instrumentation;
  * It implemenated the ManagementEventListener for the managed component register and unregister
  */
 
-//TODO need to rewrite this ManagedComponent for we would export Dynamically MBean infor out 
+
 public class JMXManagedComponentManager implements InstrumentationEventListener {
     private static final Logger LOG = LogUtils.getL7dLogger(JMXManagedComponentManager.class);
    
@@ -49,8 +49,6 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
        
        // mbs = ManagementFactory.getPlatformMBeanServer();
         
-        
-      
        // TODO need to read configurate files 
         
        

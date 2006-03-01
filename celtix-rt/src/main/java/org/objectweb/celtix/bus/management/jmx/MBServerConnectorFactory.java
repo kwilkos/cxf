@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.management.jmx;
 
 import java.io.IOException;
+import java.rmi.registry.LocateRegistry;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -69,10 +70,16 @@ public class MBServerConnectorFactory {
         if (server == null) {
             server = MBeanServerFactory.createMBeanServer(); 
         }
-        // startup the rmi registry locally
+        // startup the rmi registry locally if we can find the right registry connector
+        
         try {
-            java.rmi.registry.LocateRegistry.createRegistry(9913);
-            
+            try {
+                LocateRegistry.createRegistry(9913);
+            } catch (Exception ex) {
+                // the registry may had been created
+                LocateRegistry.getRegistry(9913);
+            }
+           
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "CREATE_REGISTRY_FAULT_MSG", new Object[]{ex});
         }     

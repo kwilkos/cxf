@@ -23,6 +23,7 @@ public class BusEventTest extends TestCase {
     }
     
     public void tearDown() throws Exception {
+        Thread.sleep(100);
         bus.shutdown(true);
     }
     
