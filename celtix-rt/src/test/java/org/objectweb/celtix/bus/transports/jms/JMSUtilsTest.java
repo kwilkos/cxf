@@ -7,7 +7,7 @@ import javax.naming.Context;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
-import org.objectweb.celtix.transports.jms.JavaNamingPropertyType;
+import org.objectweb.celtix.transports.jms.JMSNamingPropertyType;
 
 public class JMSUtilsTest extends TestCase {
 
@@ -34,14 +34,14 @@ public class JMSUtilsTest extends TestCase {
     public void testpopulateIncomingContextNonNull() throws Exception {
         JMSAddressPolicyType addrType =  new JMSAddressPolicyType();
         
-        JavaNamingPropertyType prop = new JavaNamingPropertyType();
+        JMSNamingPropertyType prop = new JMSNamingPropertyType();
         prop.setName(Context.APPLET);
         prop.setValue("testValue");
-        addrType.getJavaNamingProperty().add(prop);      
+        addrType.getJMSNamingProperty().add(prop);      
         
         prop.setName(Context.BATCHSIZE);
         prop.setValue("12");
-        addrType.getJavaNamingProperty().add(prop);
+        addrType.getJMSNamingProperty().add(prop);
         
         
         Properties env = new Properties();

@@ -29,4 +29,17 @@ public final class JMSConstants {
 
     public static final String JMS_RESPONSE_HEADERS = "org.objectweb.celtix.jms.response.headers";
     public static final String JMS_REQUEST_HEADERS = "org.objectweb.celtix.jms.request.headers";
+    public static final String JMS_SERVER_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/transports/jms/jms-server-config";
+    public static final String JMS_CLIENT_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/transports/jms/jms-client-config";
+    public static final String ENDPOINT_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/jaxws/endpoint-config";
+    public static final String SERVICE_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/jaxws/service-config";
+    public static final String PORT_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/jaxws/port-config";
+    public static final String JMS_CLIENT_CONFIG_ID = "jms-client";
+    public static final String JMS_SERVER_CONFIG_ID = "jms-server";
+    
 }

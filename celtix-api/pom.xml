@@ -171,6 +171,8 @@
                                 <beanfile>${basedir}/src/main/resources/config-metadata/http-server-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/http-client-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/port-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/jms-server-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/jms-client-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/rm-config.xml</beanfile>
                             </beanfiles>
                         </configuration>

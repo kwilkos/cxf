@@ -11,7 +11,7 @@ import javax.naming.NamingException;
 
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
-import org.objectweb.celtix.transports.jms.JavaNamingPropertyType;
+import org.objectweb.celtix.transports.jms.JMSNamingPropertyType;
 
 
 public final class JMSUtils {
@@ -44,10 +44,10 @@ public final class JMSUtils {
 
     protected static void populateContextEnvironment(JMSAddressPolicyType addrType, Properties env) {
         
-        java.util.ListIterator listIter =  addrType.getJavaNamingProperty().listIterator();
+        java.util.ListIterator listIter =  addrType.getJMSNamingProperty().listIterator();
 
         while (listIter.hasNext()) {
-            JavaNamingPropertyType propertyPair = (JavaNamingPropertyType) listIter.next();
+            JMSNamingPropertyType propertyPair = (JMSNamingPropertyType) listIter.next();
             
             if (null != propertyPair.getValue()) {
                 env.setProperty(propertyPair.getName(), propertyPair.getValue());

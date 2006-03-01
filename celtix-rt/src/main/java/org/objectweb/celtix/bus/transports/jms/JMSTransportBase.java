@@ -13,13 +13,16 @@ import  javax.jms.Session;
 import  javax.jms.TextMessage;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
-import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.ws.handler.MessageContext;
 
 
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bus.configuration.wsdl.WsdlJMSConfigurationProvider;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
 import org.objectweb.celtix.transports.jms.context.JMSClientHeadersType;
 import org.objectweb.celtix.transports.jms.context.JMSHeadersType;
@@ -30,6 +33,12 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class JMSTransportBase {
     //--Member Variables--------------------------------------------------------
+    protected static final String SERVICE_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/jaxws/service-config";
+    protected static final String PORT_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/jaxws/port-config";
+    protected static final String ENDPOINT_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/jaxws/endpoint-config";
     private static final Logger LOG = LogUtils.getL7dLogger(JMSTransportBase.class);
     protected JMSAddressPolicyType jmsAddressPolicy;
     protected boolean queueDestinationStyle;
@@ -39,26 +48,72 @@ public class JMSTransportBase {
     protected Bus theBus;
     protected EndpointReferenceType targetEndpoint;    
     protected Port port;
+    protected Configuration configuration;
     
     //--Constructors------------------------------------------------------------
-    public JMSTransportBase(Bus bus, EndpointReferenceType epr) throws WSDLException {
+    public JMSTransportBase(Bus bus, EndpointReferenceType epr, boolean isServer) throws WSDLException {
         theBus = bus;
-        port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), epr);
-        List<?> list = port.getExtensibilityElements();
-        for (Object ep : list) {
-            ExtensibilityElement ext = (ExtensibilityElement)ep;
-            if (ext instanceof JMSAddressPolicyType) {
-                jmsAddressPolicy = (JMSAddressPolicyType)ext;
-            }
-        }
-        //This needs to move in client transport constructor.
+       // Configuration parentConfiguration = getParentConfiguration( isServer);
         
+        port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), epr);
+        
+        configuration = createConfiguration(bus, epr, isServer);
+        jmsAddressPolicy = getAddressPolicy(configuration);
+        targetEndpoint = epr;
         queueDestinationStyle = 
             JMSConstants.JMS_QUEUE.equals(jmsAddressPolicy.getDestinationStyle().value());
-        LOG.log(Level.FINE, "QUEUE_DESTINATION_STYLE: " + queueDestinationStyle);
-        targetEndpoint = epr;
     }
     
+    private JMSAddressPolicyType getAddressPolicy(Configuration conf) {
+        JMSAddressPolicyType pol = conf.getObject(JMSAddressPolicyType.class, "jmsAddress");
+        if (pol == null) {
+            pol = new JMSAddressPolicyType();
+        }
+        return pol;
+    }
+    
+    
+    private Configuration createConfiguration(Bus bus,
+                                                  EndpointReferenceType ref, 
+                                                  boolean isServer) {
+        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        
+        Configuration busConfiguration = bus.getConfiguration();
+        Configuration parent = null;
+        Configuration serviceConfiguration = null;
+        
+        String configURI;
+        String configID;
+        
+        if (isServer) {
+            configURI = JMSConstants.JMS_SERVER_CONFIGURATION_URI;
+            configID = JMSConstants.JMS_SERVER_CONFIG_ID;
+            parent = busConfiguration
+            .getChild(ENDPOINT_CONFIGURATION_URI,
+                      EndpointReferenceUtils.getServiceName(ref).toString());
+        } else {
+            configURI = JMSConstants.JMS_CLIENT_CONFIGURATION_URI;
+            configID = JMSConstants.JMS_CLIENT_CONFIG_ID;
+            serviceConfiguration = busConfiguration
+            .getChild(SERVICE_CONFIGURATION_URI,
+                      EndpointReferenceUtils.getServiceName(ref).toString());
+            parent   = serviceConfiguration
+            .getChild(PORT_CONFIGURATION_URI,
+                      EndpointReferenceUtils.getPortName(ref).toString());
+        }
+        
+        assert null != parent;
+       
+        Configuration cfg = cb.getConfiguration(configURI, configID, parent); 
+        if (null == cfg) {
+            cfg = cb.buildConfiguration(configURI,  configID, parent);            
+        }
+        // register the additional provider
+        if (null != port) {
+            cfg.getProviders().add(new WsdlJMSConfigurationProvider(port, false));
+        }
+        return cfg;
+    }
     
     //--Methods-----------------------------------------------------------------
 

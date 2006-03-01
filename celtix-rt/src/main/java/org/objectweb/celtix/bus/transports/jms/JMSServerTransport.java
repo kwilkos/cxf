@@ -6,7 +6,6 @@ import java.io.IOException;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.concurrent.Executor;
@@ -21,11 +20,11 @@ import javax.jms.QueueSender;
 import javax.jms.TextMessage;
 import javax.naming.NamingException;
 import javax.wsdl.WSDLException;
-import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
@@ -49,23 +48,17 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
 
     public JMSServerTransport(Bus bus, EndpointReferenceType address)
         throws WSDLException {
-        super(bus, address);
-        //TODO: Need to get SerrverPolicy Here.
-        List<?> list = port.getExtensibilityElements();
-        for (Object ep : list) {
-            ExtensibilityElement ext = (ExtensibilityElement)ep;
-            if (ext instanceof JMSServerBehaviorPolicyType) {
-                serverBehaviourPolicy = (JMSServerBehaviorPolicyType)ext;
-                break;
-            }
-        }
-        
-        if (null == serverBehaviourPolicy) {
-            serverBehaviourPolicy = new JMSServerBehaviorPolicyType();
-        }
-        
-        
+        super(bus, address, true);
+        serverBehaviourPolicy = getServerPolicy(configuration); 
         entry("JMSServerTransport Constructor");
+    }
+    
+    private JMSServerBehaviorPolicyType getServerPolicy(Configuration conf) {
+        JMSServerBehaviorPolicyType pol = conf.getObject(JMSServerBehaviorPolicyType.class, "jmsServer");
+        if (pol == null) {
+            pol = new JMSServerBehaviorPolicyType();
+        }
+        return pol;
     }
     
     public JMSServerBehaviorPolicyType getJMSServerBehaviourPolicy() {

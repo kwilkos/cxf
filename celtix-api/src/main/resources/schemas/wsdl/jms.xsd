@@ -8,7 +8,7 @@
         </xs:restriction>
     </xs:simpleType>
    
-   <xs:complexType name="JavaNamingPropertyType">
+   <xs:complexType name="JMSNamingPropertyType">
         <xs:annotation>
             <xs:documentation>
                 javaNaming properties name/value pair.
@@ -42,9 +42,9 @@
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:sequence>
-                    <xs:element name="JavaNamingProperty" type="jms:JavaNamingPropertyType" minOccurs="0" maxOccurs="unbounded" />
+                    <xs:element name="JMSNamingProperty" type="jms:JMSNamingPropertyType" minOccurs="0" maxOccurs="unbounded" />
                 </xs:sequence>
-                <xs:attribute name="destinationStyle" type="jms:DestinationStyleType" use="optional" default="queue">
+                <xs:attribute name="destinationStyle" type="jms:DestinationStyleType" default="queue">
                     <xs:annotation>
                         <xs:documentation>
                           JMS Destination style queue or topic.
@@ -65,21 +65,21 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="jndiReplyDestinationName" type="xs:string" use="optional">
+                <xs:attribute name="jndiReplyDestinationName" type="xs:string">
                     <xs:annotation>
                         <xs:documentation>
                           JMS Message Replyto destination when static queues are used for reply.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="connectionUserName" type="xs:string" use="optional">
+                <xs:attribute name="connectionUserName" type="xs:string">
                     <xs:annotation>
                         <xs:documentation>
                             UserName to use while creating JMS queue/topic connection.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="connectionPassword" type="xs:string" use="optional">
+                <xs:attribute name="connectionPassword" type="xs:string">
                     <xs:annotation>
                         <xs:documentation>
                             Password to use while creating JMS queue/topic connection.
@@ -96,11 +96,6 @@
                 <xs:attribute name="messageType" type="jms:MessageFormatType" default="text">
                     <xs:annotation>
                         <xs:documentation>Type of the JMS Message payload, currently supported text and binary.</xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                <xs:attribute name="TimeOut" type="xs:long">
-                    <xs:annotation>
-                        <xs:documentation>Timeout value for client during request-reply</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -125,14 +120,14 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="useMessageIDAsCorrelationID" type="xs:boolean" default="true">
+                <xs:attribute name="useMessageIDAsCorrelationID" type="xs:boolean" default="false">
                     <xs:annotation>
                         <xs:documentation>
                           Flag to indicate whether to use JMS Message Id as correlation ID. It is serverside only so should go in ServerPolicy
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="transactional" type="xs:boolean">
+                <xs:attribute name="transactional" type="xs:boolean" default="false">
                     <xs:annotation>
                         <xs:documentation>
                           Flag to specify whether to use JMS transaction support on server side.

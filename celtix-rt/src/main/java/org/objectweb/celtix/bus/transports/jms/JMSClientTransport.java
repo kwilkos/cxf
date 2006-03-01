@@ -3,7 +3,6 @@ package org.objectweb.celtix.bus.transports.jms;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -20,12 +19,13 @@ import javax.jms.TopicPublisher;
 import javax.naming.NamingException;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
-import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
+
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
@@ -36,7 +36,6 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
 public class JMSClientTransport extends JMSTransportBase implements ClientTransport {
-
     
     private static final Logger LOG = LogUtils.getL7dLogger(JMSClientTransport.class);
     private static final long DEFAULT_RECEIVE_TIMEOUT = 15000;
@@ -49,27 +48,30 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
                               ResponseCallback callback) 
         throws WSDLException, IOException  {
 
-        super(bus, address);
-        //TODO: need to get the client policy here first.
-        //TODO: Need to get SerrverPolicy Here.
-        List<?> list = port.getExtensibilityElements();
-        for (Object ep : list) {
-            ExtensibilityElement ext = (ExtensibilityElement)ep;
-            if (ext instanceof JMSClientBehaviorPolicyType) {
-                clientBehaviourPolicy = (JMSClientBehaviorPolicyType)ext;
-                break;
-            }
-        }
-        
-        if (null == clientBehaviourPolicy) {
-            clientBehaviourPolicy = new JMSClientBehaviorPolicyType();
-        }
+        super(bus, address, false);
+        clientBehaviourPolicy = getClientPolicy(configuration);
         
         textPayload = 
             JMSConstants.TEXT_MESSAGE_TYPE.equals(clientBehaviourPolicy.getMessageType().value());
+        
+        LOG.log(Level.FINE, "TEXT_MESSAGE_TYPE: " , textPayload);
+        LOG.log(Level.FINE, "QUEUE_DESTINATION_STYLE: " , queueDestinationStyle);
         entry("JMSClientTransport Constructor: ResponseCallback object is " + callback);
     }
 
+    private JMSClientBehaviorPolicyType getClientPolicy(Configuration conf) {
+        JMSClientBehaviorPolicyType pol = conf.getObject(JMSClientBehaviorPolicyType.class, "jmsClient");
+        if (pol == null) {
+            pol = new JMSClientBehaviorPolicyType();
+        }
+        return pol;
+    }
+    
+    public JMSClientBehaviorPolicyType getJMSClientBehaviourPolicy() {
+        
+        return clientBehaviourPolicy;
+    }
+    
     //TODO: Revisit for proper implementation and changes if any.
 
     public void shutdown() {

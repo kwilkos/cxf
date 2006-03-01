@@ -54,25 +54,25 @@ public final class JMSProviderHub {
         //
         Context context = JMSUtils.getInitialContext(addrDetails);
         Connection connection = null;
-
-        //TODO: Connection should use username and password from policy for Durable Subscriber.
         
         if (JMSConstants.JMS_QUEUE.equals(addrDetails.getDestinationStyle().value())) {
             QueueConnectionFactory qcf =
                 (QueueConnectionFactory)context.lookup(addrDetails.getJndiConnectionFactoryName());
-            connection = qcf.createQueueConnection();
+            if (addrDetails.isSetConnectionUserName()) {
+                connection = qcf.createQueueConnection(addrDetails.getConnectionUserName(), 
+                                                       addrDetails.getConnectionPassword());
+            } else {
+                connection = qcf.createQueueConnection();
+            }
         } else {
             TopicConnectionFactory tcf =
                 (TopicConnectionFactory)context.lookup(addrDetails.getJndiConnectionFactoryName());
-            connection = tcf.createTopicConnection();
-//            //TODO: Need to add username from the policy once we decide on policy work.
-//            // We will pull it from the security policy. Also need to think on this condition as we 
-//            // have dropped the durableSubscriberName attribute from new schema. 
-//            
-//            if (addrDetails.getDurableSubscriberName() != null) {
-//                String ext = transport instanceof JMSClientTransport ? "-client" : "-server";
-//                connection.setClientID(System.getProperty("user.name" + ext));
-//            }    
+            if (addrDetails.isSetConnectionUserName()) {
+                connection = tcf.createTopicConnection(addrDetails.getConnectionUserName(), 
+                                                       addrDetails.getConnectionPassword());
+            } else {
+                connection = tcf.createTopicConnection();
+            }
         }
 
         connection.start();
@@ -80,9 +80,7 @@ public final class JMSProviderHub {
         Destination requestDestination = 
                 (Destination) context.lookup(
                                            addrDetails.getJndiDestinationName());
-        // UBHOLE: Need to decide on who creates the replyDestination. while seperating the policies
-        // we need to decide on the precedence on values from config or wsdl.
-        
+
         Destination replyDestination = (null != addrDetails.getJndiReplyDestinationName())
             ? (Destination) context.lookup(addrDetails.getJndiReplyDestinationName()) : null;
 

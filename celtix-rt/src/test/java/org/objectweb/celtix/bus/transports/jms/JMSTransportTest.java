@@ -18,6 +18,9 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 
+import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 import org.objectweb.celtix.configuration.types.ObjectFactory;
@@ -40,6 +43,8 @@ public class JMSTransportTest extends TestCase {
     private String serverRcvdInOneWayCall;
     private WorkQueueManagerImpl wqm;
     
+    
+    
     public JMSTransportTest(String arg0) {
         super(arg0);
     }
@@ -61,7 +66,9 @@ public class JMSTransportTest extends TestCase {
         if (wqm != null) {
             wqm.shutdown(true);
         }
-        bus.shutdown(true);
+        if (bus != null) {
+            bus.shutdown(true);
+        }
     }
     
     public void testOneWayTextQueueJMSTransport() throws Exception {
@@ -159,6 +166,8 @@ public class JMSTransportTest extends TestCase {
         URL wsdlUrl = getClass().getResource(testWsdlFileName);
         assertNotNull(wsdlUrl);
                
+        createConfiguration(wsdlUrl, serviceName, portName);
+        
         TransportFactory factory = createTransportFactory();
       
         ServerTransport server = createServerTransport(factory, wsdlUrl, serviceName, 
@@ -195,7 +204,6 @@ public class JMSTransportTest extends TestCase {
         assertEquals(new String(outBytes), new String(bytes, 0, total));
         
         outBytes = "Hello World!!!".getBytes();
-        //bytes  = new byte[100];
         
         server.deactivate();
   
@@ -217,8 +225,6 @@ public class JMSTransportTest extends TestCase {
         server.activate(callback);
 
         outBytes = "New String and must match with response".getBytes();
-        //Clean outBytes.
-       // bytes  = new byte[100];
         octx = client.createOutputStreamContext(new GenericMessageContext());
         client.finalPrepareOutputStreamContext(octx);
         octx.getOutputStream().write(outBytes);
@@ -277,7 +283,8 @@ public class JMSTransportTest extends TestCase {
         String address = "http://localhost:9000/SoapContext/SoapPort";
         URL wsdlUrl = getClass().getResource(testWsdlFileName);
         assertNotNull(wsdlUrl);
-               
+
+        createConfiguration(wsdlUrl, serviceName, portName);
         TransportFactory factory = createTransportFactory();
         setupOneWayCallbackObject(useAutomaticWorkQueue);
       
@@ -329,8 +336,31 @@ public class JMSTransportTest extends TestCase {
         IOException {
 
         EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlUrl, serviceName,
-                                                                                portName);
+                                                                                portName);        
         EndpointReferenceUtils.setAddress(ref, address);
         return factory.createServerTransport(ref);
-    }    
+    } 
+    
+    // Create bus and populate the configuration for Endpoint, Service and port. 
+    // This test uses all the info. either coming from WSDL or default and do not use
+    // any configuration files.
+    //
+    
+    private void createConfiguration(URL wsdlUrl, QName serviceName,
+                          String portName) throws WSDLException,
+                          IOException, BusException {   
+        assert bus != null;
+        EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlUrl, serviceName,
+                                                                                portName);
+        Configuration busCfg = bus.getConfiguration();
+        assert null != busCfg;
+        Configuration serviceCfg = null;
+        String id = EndpointReferenceUtils.getServiceName(ref).toString();
+        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        cb.buildConfiguration(JMSConstants.ENDPOINT_CONFIGURATION_URI, id, busCfg);
+        serviceCfg = cb.buildConfiguration(JMSConstants.SERVICE_CONFIGURATION_URI, id, busCfg);
+        cb.buildConfiguration(JMSConstants.PORT_CONFIGURATION_URI, 
+                              EndpointReferenceUtils.getPortName(ref).toString(),
+                              serviceCfg);
+    }
 }
