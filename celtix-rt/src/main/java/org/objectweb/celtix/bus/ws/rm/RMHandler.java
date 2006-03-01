@@ -121,12 +121,17 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         
         if (null == clientTransport && null == serverTransport) {
             clientTransport = ContextUtils.retrieveClientTransport(context);
-            serverTransport = ContextUtils.retrieveServerTransport(context);
+            if (null == clientTransport) {
+                serverTransport = ContextUtils.retrieveServerTransport(context);
+            }
         }
         
-        if (null == clientBinding && null == serverBinding) {
+        if (null == clientBinding && null != clientTransport) {
             clientBinding = (AbstractClientBinding)
                 ContextUtils.retrieveClientBinding(context);
+        }
+        
+        if (null == serverBinding && null != serverTransport) {
             serverBinding = (AbstractServerBinding)
                 ContextUtils.retrieveServerBinding(context);
         }

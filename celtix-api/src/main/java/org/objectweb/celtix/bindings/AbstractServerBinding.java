@@ -26,6 +26,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -397,18 +398,19 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         }
 
         if (null == operationName) {
-            LOG.severe("CONTEXT_MISSING_OPERATION_NAME_MSG");
-            throw new WebServiceException("Request Context does not include operation name");
+            Message msg = new Message("CONTEXT_MISSING_OPERATION_NAME_EXC", LOG);
+            LOG.severe(msg.toString());
+            throw new WebServiceException(msg.toString());
         }
-
-        LOG.info("retrieved operation name from resuest:" + operationName);        
+        
         if (objContext != null) {
             objContext.put(MessageContext.WSDL_OPERATION, operationName);
         }
 
         if (method == null) {
-            LOG.log(Level.SEVERE, "IMPLEMENTOR_MISSING_METHOD_MSG", operationName);
-            throw new WebServiceException("Web method: " + operationName + " not found in implementor.");
+            Message msg = new Message("IMPLEMENTOR_MISSING_METHOD_EXC", LOG, operationName);
+            LOG.log(Level.SEVERE, msg.toString());
+            throw new WebServiceException(msg.toString());
         }
         return method;
     }

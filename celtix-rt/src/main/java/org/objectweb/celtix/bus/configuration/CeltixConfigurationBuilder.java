@@ -26,7 +26,8 @@ public class CeltixConfigurationBuilder extends ConfigurationBuilderImpl {
         add("config-metadata/http-listener-config.xml");
         add("config-metadata/http-server-config.xml");        
         add("config-metadata/port-config.xml");
-        add("config-metadata/service-config.xml");   
+        add("config-metadata/service-config.xml");
+        add("config-metadata/rm-config.xml");   
     }
     
     private void add(String resource) {
