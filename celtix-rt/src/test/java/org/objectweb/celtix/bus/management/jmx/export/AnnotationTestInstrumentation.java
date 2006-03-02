@@ -12,7 +12,7 @@ import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource
 
 @ManagedResource(objectName = "bean:name=testBean4", description = "My Managed Bean",
                  persistPolicy = "OnUpdate", currencyTimeLimit = 15 , 
-                 log = true ,
+                 log = false ,
                  logFile = "jmx.log", persistPeriod = 200,
                  persistLocation = "/local/work", persistName = "bar.jmx")
 @ManagedNotifications({@ManagedNotification(name = "My Notification",
