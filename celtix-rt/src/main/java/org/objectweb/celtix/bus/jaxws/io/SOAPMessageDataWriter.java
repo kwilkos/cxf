@@ -13,14 +13,16 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 
 public class SOAPMessageDataWriter<T> implements DataWriter<T> {
 
+    protected SOAPMessage dest;
     final DynamicDataBindingCallback callback;
+    
 
     public SOAPMessageDataWriter(DynamicDataBindingCallback cb) {
         callback = cb;
     }
 
     public void write(Object obj, T output) {
-        SOAPMessage dest = (SOAPMessage) output;
+        dest = (SOAPMessage) output;
         try {
             if (DOMSource.class.isAssignableFrom(obj.getClass())) {
                 DOMSource src = (DOMSource) obj;
