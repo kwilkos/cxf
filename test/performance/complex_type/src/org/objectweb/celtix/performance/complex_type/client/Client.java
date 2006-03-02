@@ -19,6 +19,7 @@ import org.objectweb.celtix.performance.complex_type.types.ColourEnum;
 import org.objectweb.celtix.performance.complex_type.types.NestedComplexType;
 import org.objectweb.celtix.performance.complex_type.types.NestedComplexTypeSeq;
 import org.objectweb.celtix.performance.complex_type.types.SimpleStruct;
+import org.objectweb.celtix.performance.complex_type.server.Server;
 
 public final class Client extends TestCaseBase {
     private static final QName SERVICE_NAME = new QName(
@@ -106,6 +107,15 @@ public final class Client extends TestCaseBase {
     }
 
     public void getPort() {
+        if (usePipe) {
+            try {
+                new Server(bus, "pipe://localhost:20000/performance/complex_type/ComplexPort");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            System.out.println("not using pipe");
+        }
         File wsdl = new File(wsdlPath);
         try {
             cs = new ComplexService(wsdl.toURL(), SERVICE_NAME);
@@ -113,6 +123,11 @@ public final class Client extends TestCaseBase {
             e.printStackTrace();
         }
         port = (ComplexPortType)cs.getPort(PORT_NAME, ComplexPortType.class);
+        if (usePipe) {
+             javax.xml.ws.BindingProvider provider = (javax.xml.ws.BindingProvider)port;
+             provider.getRequestContext().put(provider.ENDPOINT_ADDRESS_PROPERTY,
+                                            "pipe://localhost:20000/performance/complex_type/ComplexPort");
+         }
     }
 
     public void printUsage() {

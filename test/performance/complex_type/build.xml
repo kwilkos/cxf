@@ -8,12 +8,14 @@
 
   <target name="client" description="run complex_type client">
     <property name="param" value=""/>
+    <property name="pipe" value=""/>
+
     <celtix.perform.run classname="org.objectweb.celtix.performance.complex_type.client.Client" argline="-WSDL ${wsdl.dir}/${wsdl.file}
 													 -Amount ${celtix.running.time}
 													 -BasedOn ${celtix.basedon}
 													 -Operation ${celtix.operation}
 													 -PacketSize ${celtix.packet.size}
-													 -Threads ${celtix.threads}"/>
+													 -Threads ${celtix.threads} ${pipe}"/>
   </target> 
 
   <target name="server" description="run complex_type server">

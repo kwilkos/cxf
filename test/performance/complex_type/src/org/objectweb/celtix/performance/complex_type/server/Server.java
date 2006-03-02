@@ -9,14 +9,16 @@ public class Server implements Runnable {
 
     Bus bus;
     
-    
-    protected Server(String[] args) throws Exception {
+    public Server(Bus b, String address) throws Exception {
         System.out.println("Starting Server");
-        
-        bus = Bus.init(args);
+        bus = b;
         Object implementor = new ServerImpl();
-        String address = "http://localhost:20003/performance/complex_type/SoapPort";
         Endpoint.publish(address, implementor);
+        System.out.println("Server published");
+    }
+
+    public Server(String[] args) throws Exception {
+        this(Bus.init(args), "http://localhost:20000/performance/basic_type/SoapPort");
     }
     
     public static void main(String args[]) throws Exception {
