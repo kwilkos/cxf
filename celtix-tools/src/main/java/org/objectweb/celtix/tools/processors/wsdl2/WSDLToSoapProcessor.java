@@ -146,6 +146,7 @@ public class WSDLToSoapProcessor
         binding.addExtensibilityElement(soapBinding);
     }
 
+    @SuppressWarnings("unchecked")
     private void addBindingOperation() throws ToolException {
         /**
          * This method won't do unique operation name checking on portType The

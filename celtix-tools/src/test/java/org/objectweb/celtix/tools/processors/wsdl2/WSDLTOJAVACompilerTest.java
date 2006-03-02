@@ -13,7 +13,7 @@ public class WSDLTOJAVACompilerTest extends ProcessorTestBase {
     }
 
     public void testCompileGeneratedCode() throws Exception {
-        String[] args = new String[]{"-verbose", "-compile", "-classdir", 
+        String[] args = new String[]{"-compile", "-classdir", 
                                      output.getCanonicalPath() + "/classes", 
                                      "-d", output.getCanonicalPath(),
                                      getLocation("/wsdl/hello_world_rpc_lit.wsdl")};
