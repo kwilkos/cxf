@@ -7,6 +7,7 @@ public class XSDOption {
     String packagename;
     String bindingFile;
     File dependencies[];
+    File redundantDirs[];
     
     public String getPackagename() {
         return packagename;
@@ -33,5 +34,10 @@ public class XSDOption {
         return dependencies;
     }
 
-
+    public void setDeleteDirs(File files[]) {
+        redundantDirs = files;
+    }
+    public File[] getDeleteDirs() {
+        return redundantDirs;
+    }
 }

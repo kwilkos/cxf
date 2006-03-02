@@ -46,6 +46,7 @@ public class XSDToJavaMojo extends AbstractMojo {
         outputDirFile.mkdirs();
         
         long timestamp = CodegenUtils.getCodegenTimestamp();
+        boolean result = true;
         
         for (int x = 0; x < xsdOptions.length; x++) {
             List list = new ArrayList();
@@ -97,12 +98,22 @@ public class XSDToJavaMojo extends AbstractMojo {
                         }
                     } finally {
                         System.setSecurityManager(oldSm);
+                        File dirs[] = xsdOptions[x].getDeleteDirs();
+                        if (dirs != null) {
+                            for (int idx = 0; idx < dirs.length; ++idx) {
+                                result = result && deleteDir(dirs[idx]);
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new MojoExecutionException(e.getMessage(), e);
                 }
             }
+        
+            if (!result) {
+                throw new MojoExecutionException("Could not delete redundant dirs");
+            }                
         }
         
         if (project != null && sourceRoot != null) {
@@ -111,5 +122,20 @@ public class XSDToJavaMojo extends AbstractMojo {
         if (project != null && testSourceRoot != null) {
             project.addTestCompileSourceRoot(testSourceRoot);
         }
+    }
+    
+    private boolean deleteDir(File f) {
+        if (f.isDirectory()) {
+            File files[] = f.listFiles();
+            for (int idx = 0; idx < files.length; ++idx) {
+                deleteDir(files[idx]);
+            }
+        }
+        
+        if (f.exists()) {
+            return f.delete();
+        }
+        
+        return true;
     }
 }

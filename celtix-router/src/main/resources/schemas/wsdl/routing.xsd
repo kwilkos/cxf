@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+        xmlns:r="http://celtix.objectweb.org/routing/configuration" 
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+        targetNamespace="http://celtix.objectweb.org/routing/configuration" elementFormDefault="qualified">
+    <import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
+    <element name="route" type="r:routeType"/>
+    <complexType name="routeType">
+        <complexContent>
+            <extension base="wsdl:tExtensibilityElement">
+                <sequence>
+                    <element name="source" type="r:sourceType" minOccurs="0" maxOccurs="unbounded"/>
+                    <element name="propagateInputAttribute" type="r:propagateAttributeType" minOccurs="0" maxOccurs="unbounded"/>
+                    <element name="propagateOutputAttribute" type="r:propagateAttributeType" minOccurs="0" maxOccurs="unbounded"/>
+                    <element name="operation" type="r:operationType" minOccurs="0" maxOccurs="unbounded"/>
+                    <element name="destination" type="r:destinationType" maxOccurs="unbounded"/>
+                </sequence>
+                <attribute name="name" type="NCName" use="required"/>
+                <attribute name="multiRoute" type="r:multiRouteType" use="optional"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <simpleType name="multiRouteType">
+        <restriction base="string">
+            <enumeration value="failover"/>
+            <enumeration value="fanout"/>
+            <enumeration value="loadBalance"/>
+        </restriction>
+    </simpleType>
+    
+    <complexType name="sourceType">
+        <attribute name="service" type="QName" use="required"/>
+        <attribute name="port" type="string" use="required"/>
+    </complexType>
+    <complexType name="propagateAttributeType">
+        <attribute name="name" type="string" use="required"/>
+        <attribute name="target" type="string" use="optional"/>
+    </complexType>
+    <complexType name="operationType">
+        <attribute name="name" type="string" use="required"/>
+        <attribute name="target" type="string" use="optional"/>
+    </complexType>
+    <complexType name="destinationType">
+        <attribute name="operation" type="string" use="optional"/>
+        <attribute name="service" type="QName" use="optional"/>
+        <attribute name="port" type="string" use="optional"/>
+        <attribute name="route" type="QName" use="optional"/>
+        <!-- Optional for all destinations -->
+        <!-- Required for service destinations -->
+        <!-- Required for route destinations -->
+    </complexType>
+    <element name="wsdlUrl" type="r:urlListPolicy"/>
+    <complexType name="urlListPolicy">
+        <sequence>
+            <element name="url" type="string" minOccurs="1" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>    
+</schema>
