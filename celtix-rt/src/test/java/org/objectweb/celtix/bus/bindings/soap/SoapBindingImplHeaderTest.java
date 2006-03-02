@@ -8,6 +8,7 @@ import javax.xml.ws.Holder;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 import junit.framework.TestCase;
 
@@ -57,6 +58,7 @@ public class SoapBindingImplHeaderTest extends TestCase {
                                                DataBindingCallback.Mode.PARTS,
                                                null));                
         SOAPMessage msg = soapContext.getMessage();
+        
         assertNotNull(msg);
         //Test the Header Part Only
         assertNotNull(msg.getSOAPHeader());
@@ -64,7 +66,9 @@ public class SoapBindingImplHeaderTest extends TestCase {
         NodeList list = msg.getSOAPHeader().getChildNodes();
         assertEquals(1, list.getLength());
         Element headerElement = (Element) list.item(0);
-        assertEquals("true", headerElement.getAttribute(SOAPConstants.HEADER_MUSTUNDERSTAND));
+        assertEquals("true", headerElement
+                     .getAttributeNS(SOAPConstants.HEADER_MUSTUNDERSTAND.getNamespaceURI(),
+                                     SOAPConstants.HEADER_MUSTUNDERSTAND.getLocalPart()));
         //TestHeader1 has no child elements.
         assertFalse(headerElement.hasChildNodes());
         
@@ -98,7 +102,12 @@ public class SoapBindingImplHeaderTest extends TestCase {
         assertTrue(headerElement.hasChildNodes());
         list = headerElement.getChildNodes();
         assertEquals(1, list.getLength());
-        assertEquals(arg0.getRequestType(), list.item(0).getNodeValue());
+        headerElement = (Element)list.item(0);
+        assertTrue(headerElement.hasChildNodes());
+        list = headerElement.getChildNodes();
+        assertEquals(1, list.getLength());
+        Text text = (Text)list.item(0);
+        assertEquals(arg1.getRequestType(), text.getData());
     }
   
     public void testMarshalHeaderDocLitOutputMessage() throws Exception {
@@ -132,7 +141,9 @@ public class SoapBindingImplHeaderTest extends TestCase {
         assertEquals(1, list.getLength());
         Element headerElement = (Element) list.item(0);
         //Check for mustUndrstand Attribute
-        assertEquals("true", headerElement.getAttribute(SOAPConstants.HEADER_MUSTUNDERSTAND));
+        assertEquals("true", headerElement
+                     .getAttributeNS(SOAPConstants.HEADER_MUSTUNDERSTAND.getNamespaceURI(),
+                                     SOAPConstants.HEADER_MUSTUNDERSTAND.getLocalPart()));
         
         //TestHeader3 has child elements.
         assertTrue(headerElement.hasChildNodes());
@@ -168,7 +179,9 @@ public class SoapBindingImplHeaderTest extends TestCase {
         assertEquals(1, list.getLength());
         headerElement = (Element) list.item(0);
         //Check for mustUndrstand Attribute
-        assertEquals("true", headerElement.getAttribute(SOAPConstants.HEADER_MUSTUNDERSTAND));
+        assertEquals("true", headerElement
+                     .getAttributeNS(SOAPConstants.HEADER_MUSTUNDERSTAND.getNamespaceURI(),
+                                     SOAPConstants.HEADER_MUSTUNDERSTAND.getLocalPart()));
         
         //TestHeader5 has child elements.
         assertTrue(headerElement.hasChildNodes());

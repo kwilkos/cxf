@@ -73,7 +73,7 @@ public class SOAPServerBindingTest extends TestCase {
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
         epr = EndpointReferenceUtils.getEndpointReference(wsdlUrl, serviceName, "SoapPort");
     }
-
+ 
     public void testGetBinding() throws Exception {
         SOAPServerBinding serverBinding = new SOAPServerBinding(bus, epr, null, null);
         assertNotNull(serverBinding.getBinding());
@@ -144,7 +144,6 @@ public class SOAPServerBindingTest extends TestCase {
         OutputStream os = serverTransport.getOutputStreamContext().getOutputStream();
         assertNotNull(os);
     }
-    
     public void testDocLitDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
@@ -180,7 +179,6 @@ public class SOAPServerBindingTest extends TestCase {
         assertFalse(serverTransport.getOutputStreamContext().isFault());
         is.close();
     }
-
     public void testRPCLitDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImplRPCLit());
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
@@ -197,7 +195,10 @@ public class SOAPServerBindingTest extends TestCase {
         assertNotNull(osc);
         assertFalse(osc.isFault());
         
-        ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());        
+        ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
+        
+        //System.out.println(new String(osc.getOutputStreamBytes()));
+        
         SOAPMessage msg = MessageFactory.newInstance().createMessage(null,  bais);
         assertNotNull(msg);
         assertFalse(msg.getSOAPBody().hasFault());        
@@ -284,7 +285,6 @@ public class SOAPServerBindingTest extends TestCase {
         ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
         checkSystemFaultMessage(bais);
     }
-
     private void checkSystemFaultMessage(ByteArrayInputStream bais) throws Exception {
         SOAPMessage msg = MessageFactory.newInstance().createMessage(null,  bais);
         assertNotNull(msg);
@@ -300,7 +300,9 @@ public class SOAPServerBindingTest extends TestCase {
         
         //For Celtix Runtime Exceptions - SOAPFault will not have a Detail Node
         Detail detail = fault.getDetail();
-        assertNull(detail);
+        if (detail != null) {
+            assertFalse("Detail should be non-existent or empty", detail.hasChildNodes());
+        }
     }
     
     private void checkUserFaultMessage(ByteArrayInputStream bais, 

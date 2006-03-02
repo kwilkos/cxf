@@ -26,6 +26,7 @@ public final class SOAPConstants {
     public static final QName  FAULTCODE_SERVER = 
             new QName(SOAP_ENV_URI, "Server");
 
-    public static final String HEADER_MUSTUNDERSTAND = "SOAP-ENV:mustUnderstand";
+    public static final QName HEADER_MUSTUNDERSTAND = 
+            new QName(SOAP_ENV_URI, "mustUnderstand");
     
 }

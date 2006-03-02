@@ -22,9 +22,11 @@ import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
+import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
@@ -106,13 +108,13 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                     nsStack = new NSStack();
                     nsStack.push();
                 }
+                
+                // add in, out and inout header params
+                addHeaderParts(msg.getSOAPPart().getEnvelope(), objContext, isInputMsg, callback);
+               
                 SOAPElement soapElement = addOperationNode(msg.getSOAPBody(), callback, isInputMsg);
                 // add in, out and inout non-header params
                 addParts(soapElement, objContext, isInputMsg, callback);
-
-                // add in, out and inout header params
-                addHeaderParts(msg.getSOAPHeader(), objContext, isInputMsg, callback);
-
             } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
 
                 Object src = isInputMsg ? objContext.getReturn() : objContext.getMessageObjects()[0];
@@ -465,7 +467,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             QName operationName = new QName(namespaceURI, callback.getOperationName() + responseSuffix,
                                             prefix);
 
-            return body.addChildElement(operationName);
+            SOAPElement el = body.addChildElement(operationName);
+            if (el.lookupPrefix(namespaceURI) == null) {
+                el.addNamespaceDeclaration(prefix, namespaceURI);
+            }
+            return el;
         }
         return body;
     }
@@ -647,9 +653,10 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
     }
 
-    private void addHeaderParts(SOAPElement header, ObjectMessageContext objCtx, boolean isOutBound,
+    private void addHeaderParts(SOAPEnvelope envelope, ObjectMessageContext objCtx, boolean isOutBound,
                                 DataBindingCallback callback) throws SOAPException {
 
+        boolean wroteHeader = false;
         DataWriter<Node> writer = null;
         for (Class<?> cls : callback.getSupportedFormats()) {
             if (cls == Node.class) {
@@ -665,7 +672,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
 
         if (isOutBound && callback.getWebResult() != null && callback.getWebResult().header()) {
-
+            SOAPHeader header = envelope.getHeader();
+            wroteHeader = true;
             writer.write(objCtx.getReturn(), callback.getWebResultQName(), header);
             addSOAPHeaderAttributes(header, callback.getWebResultQName(), true);
         }
@@ -680,6 +688,8 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         for (int idx = 0; idx < noArgs; idx++) {
             WebParam param = callback.getWebParam(idx);
             if ((param.mode() != ignoreParamMode) && param.header()) {
+                SOAPHeader header = envelope.getHeader();
+                wroteHeader = true;
                 Object partValue = args[idx];
                 if (param.mode() != WebParam.Mode.IN) {
                     partValue = ((Holder)args[idx]).value;
@@ -691,20 +701,23 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 addSOAPHeaderAttributes(header, elName, true);
             }
         }
-
-        if (!header.hasChildNodes()) {
-            header.detachNode();
+        if (!wroteHeader) {
+            envelope.removeChild(envelope.getHeader());
         }
     }
 
-    private void addSOAPHeaderAttributes(Element header, QName elName, boolean mustUnderstand) {
+    private void addSOAPHeaderAttributes(SOAPHeader header, QName elName, boolean mustUnderstand) {
         // Set mustUnderstand Attribute on header parts.
         NodeList children = header.getElementsByTagNameNS(elName.getNamespaceURI(), elName.getLocalPart());
         assert children.getLength() == 1;
         // Set the mustUnderstand attribute
         if (children.item(0) instanceof Element) {
             Element child = (Element)(children.item(0));
-            child.setAttribute(HEADER_MUSTUNDERSTAND, String.valueOf(mustUnderstand));
+            String n = header.lookupPrefix(HEADER_MUSTUNDERSTAND.getNamespaceURI());
+            n += ":" + HEADER_MUSTUNDERSTAND.getLocalPart();
+            child.setAttributeNS(HEADER_MUSTUNDERSTAND.getNamespaceURI(),
+                                 HEADER_MUSTUNDERSTAND.getLocalPart(),
+                                 mustUnderstand ? "true" : "false");
         }
 
         // TODO Actor/Role Attribute.

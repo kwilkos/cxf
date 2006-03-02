@@ -178,15 +178,13 @@ public class SoapBindingImplTest extends TestCase {
             assertEquals(SOAPConstants.FAULTCODE_VERSIONMISMATCH, sf.getFaultCodeAsQName());
         }
     }
-
     public void testUnmarshalWrapDocLitInputMessage() throws Exception {
         //Test The InputMessage of GreetMe Operation
         QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");        
         QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "requestType");
         String data = new String("TestSOAPInputMessage");
         String str = SOAPMessageUtil.createWrapDocLitSOAPMessage(wrapName, elName, data);
-        
-        ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes());
+        InputStream in = new ByteArrayInputStream(str.getBytes());
         soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
 
         assertNotNull(binding.getMessageFactory());
@@ -207,7 +205,6 @@ public class SoapBindingImplTest extends TestCase {
         assertEquals(1, params.length);
         assertEquals(data, (String)params[0]);
     }    
-
     public void testUnmarshalWrapDocLitMessageWithInOutVar() throws Exception {
         //Test The testInt Operation of TypeTestPortType SEI
         Method testInt = SOAPMessageUtil.getMethod(TypeTestPortType.class, "testInt");
@@ -445,7 +442,6 @@ public class SoapBindingImplTest extends TestCase {
         assertEquals(1, params.length);
         assertEquals(data, (String)params[0]);
     }
-    
     private String getExceptionString(Exception ex, String faultString) {
         StringBuffer str = new StringBuffer();
         if (ex != null) {

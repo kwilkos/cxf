@@ -110,6 +110,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
             fail("Should have received a ProtocolException");
         } catch (ProtocolException pe) {
             //Expected Exception
+        } catch (Exception ex) {
+            fail("Should have received a ProtocolException, not: " + ex);
         }
     } 
     
