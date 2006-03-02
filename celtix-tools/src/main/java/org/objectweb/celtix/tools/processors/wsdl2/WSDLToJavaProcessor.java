@@ -30,6 +30,8 @@ import org.objectweb.celtix.tools.processors.wsdl2.internal.PortTypeProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.SEIAnnotationProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ServiceProcessor;
 import org.objectweb.celtix.tools.wsdl2.compile.Compiler;
+import org.objectweb.celtix.tools.wsdl2.validate.UniqueBodyPartsValidator;
+import org.objectweb.celtix.tools.wsdl2.validate.WSIBPValidator;
 
 public class WSDLToJavaProcessor extends WSDLToProcessor {
 
@@ -43,8 +45,16 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         addGenerator(ToolConstants.ANT_GENERATOR, new AntGenerator(jmodel, getEnvironment()));
     }
 
+    protected void regisiterValidator() {
+        this.addValidator(new UniqueBodyPartsValidator(this.wsdlDefinition));
+        this.addValidator(new WSIBPValidator(this.wsdlDefinition));
+    }
+    
+    
     public void process() throws ToolException {
         init();
+        regisiterValidator();
+        validateWSDL();
         generateTypes();
         JavaModel jmodel = wsdlDefinitionToJavaModel(getWSDLDefinition());
         if (jmodel == null) {

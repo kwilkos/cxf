@@ -49,6 +49,7 @@ import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassNameAllocatorImpl;
 import org.objectweb.celtix.tools.utils.StringUtils;
 import org.objectweb.celtix.tools.utils.XMLUtil;
+import org.objectweb.celtix.tools.wsdl2.validate.AbstractValidator;
 
 public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorListener {
 
@@ -60,6 +61,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     protected ClassCollector classColletor;
     List<Schema> schemaList = new ArrayList<Schema>();
     private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
+    private final List<AbstractValidator> validators = new ArrayList<AbstractValidator>();
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
     private List<String> schemaTargetNamespaces = new ArrayList<String>();
 
@@ -265,6 +267,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         initVelocity();
         classColletor = new ClassCollector();
         env.put(ToolConstants.GENERATED_CLASS_COLLECTOR , classColletor);
+         
         initJAXBModel();
        
     }
@@ -280,10 +283,24 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     public void addGenerator(String name, AbstractGenerator gen) {
         generators.put(name, gen);
     }
+    
+    public void addValidator(AbstractValidator validator) {
+        this.validators.add(validator);
+    }
+    
 
     public void process() throws ToolException {
     }
-
+    
+    public void validateWSDL() throws ToolException {
+        for (AbstractValidator validator : validators) {
+            if (!validator.isValid()) {
+                throw new ToolException(validator.getErrorMessage());
+            }
+        }
+    }
+    
+    
     protected void doGeneration() throws ToolException {
         for (String genName : generators.keySet()) {
             AbstractGenerator gen = generators.get(genName);
@@ -339,6 +356,9 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
                                    JAXWSBinding.class);
     }
 
+  
+    
+    
     public void error(org.xml.sax.SAXParseException exception) {
         if (this.env.isVerbose()) {
             exception.printStackTrace();
