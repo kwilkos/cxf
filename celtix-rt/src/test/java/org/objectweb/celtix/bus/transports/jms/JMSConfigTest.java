@@ -7,9 +7,11 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
+import org.objectweb.celtix.configuration.impl.TypeSchemaHelper;
 import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
 import org.objectweb.celtix.transports.jms.JMSClientBehaviorPolicyType;
 import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
@@ -30,6 +32,9 @@ public class JMSConfigTest extends TestCase {
     }
     
     public void setUp() throws Exception {
+        TypeSchemaHelper.clearCache();
+        ConfigurationProviderImpl.clearBeanFactoriesMap();
+        ConfigurationBuilderFactory.clearBuilder();
         bus = Bus.init();
     }
     
@@ -38,6 +43,10 @@ public class JMSConfigTest extends TestCase {
         if (System.getProperty("celtix.config.file") != null) {
             System.clearProperty("celtix.config.file");
         }
+
+        TypeSchemaHelper.clearCache();
+        ConfigurationProviderImpl.clearBeanFactoriesMap();
+        ConfigurationBuilderFactory.clearBuilder();
     }
     
     private void createNecessaryConfig(URL wsdlUrl, QName serviceName,
@@ -123,12 +132,14 @@ public class JMSConfigTest extends TestCase {
                    serverPolicy.getDurableSubscriberName() == null);
     }        
     
-    public void xtestClientConfig() throws Exception {
+    public void testClientConfig() throws Exception {
         
         
+        bus.shutdown(true);
         URL clientConfigFileUrl = getClass().getResource("/wsdl/jms_test_config.xml");
         System.setProperty("celtix.config.file", clientConfigFileUrl.toString());
         
+        bus = Bus.init();
         QName serviceName =  new QName("http://celtix.objectweb.org/jms_conf_test", 
                                        "HelloWorldQueueBinMsgService");
         URL wsdlUrl = getClass().getResource("/wsdl/jms_test_no_addr.wsdl");
@@ -151,7 +162,7 @@ public class JMSConfigTest extends TestCase {
         System.setProperty("celtix.config.file", "");
     }
      
-    public void xtestServerConfig() throws Exception {
+    public void testServerConfig() throws Exception {
         
         URL clientConfigFileUrl = getClass().getResource("/wsdl/jms_test_config.xml");
         System.setProperty("celtix.config.file", clientConfigFileUrl.toString());

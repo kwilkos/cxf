@@ -11,6 +11,7 @@ import org.xml.sax.SAXParseException;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.bus.configuration.AbstractConfigurationImplTest;
+import org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.impl.TypeSchema.TypeSchemaErrorHandler;
 
@@ -20,6 +21,12 @@ public class TypeSchemaTest extends TestCase {
     
     public void setUp() {
         TypeSchemaHelper.clearCache();
+        ConfigurationProviderImpl.clearBeanFactoriesMap();
+    }
+    
+    public void tearDown() {
+        TypeSchemaHelper.clearCache();
+        ConfigurationProviderImpl.clearBeanFactoriesMap();
     }
     
     public void testConstructor() {

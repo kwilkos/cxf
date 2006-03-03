@@ -16,6 +16,9 @@ public final class ConfigurationBuilderFactory {
     public static ConfigurationBuilder getBuilder() {
         return getBuilder(null);
     }
+    public static void clearBuilder() {
+        theBuilder = null;
+    }
 
     public static ConfigurationBuilder getBuilder(ClassLoader classLoader) {
 
