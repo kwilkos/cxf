@@ -23,6 +23,9 @@ import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
+import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
+import org.objectweb.celtix.bus.management.counters.TransportCounters;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -32,11 +35,19 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
     
     private static final long serialVersionUID = 1L;
     JettyHTTPServerEngine engine;
+    TransportCounters counters;
     
     public JettyHTTPServerTransport(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
         super(b, ref);
+        counters = new TransportCounters("JettyHTTPServerTransport");
         engine = JettyHTTPServerEngine.getForPort(bus, nurl.getProtocol(), nurl.getPort());
+        bus.sendEvent(new ComponentCreatedEvent(this));
     }
+    
+    public void shutdown() {               
+        bus.sendEvent(new ComponentRemovedEvent(this)); 
+    }
+    
     
     public synchronized void activate(ServerTransportCallback cb) throws IOException {
         callback = cb;
@@ -73,13 +84,25 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
     public void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context) {
         Object responseObj =
             bindingContext.get(HTTPServerInputStreamContext.HTTP_RESPONSE);
+        
+        if (context.isOneWay()) {
+            counters.getRequestOneWay().increase();            
+        }       
+        counters.getRequestTotal().increase();
+
         if (responseObj instanceof HttpResponse) {
             HttpResponse response = (HttpResponse)responseObj;
+            
+            if (response.getStatus() == 500) {
+                counters.getTotalError().increase();
+            } 
+            
             try {
                 response.commit();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            
         } else if (responseObj instanceof URLConnection) {
             try {
                 URLConnection connection = (URLConnection)responseObj;
@@ -89,6 +112,7 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
                 LOG.log(Level.WARNING, "DECOUPLED_RESPONSE_FAILED_MSG", ioe);
             }
         }
+        
     }
     
     protected void copyRequestHeaders(MessageContext ctx, Map<String, List<String>> headers) {

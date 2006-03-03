@@ -9,7 +9,8 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 
-import org.objectweb.celtix.bus.transports.http.AbstractHTTPServerTransport;
+import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
+import org.objectweb.celtix.bus.transports.http.JettyHTTPServerTransport;
 import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.management.Instrumentation;
@@ -55,7 +56,7 @@ public class InstrumentationManagerTest extends TestCase {
                      it2.getUniqueInstrumentationName());
         // sleep for the MBServer connector thread startup 
         try {
-            Thread.sleep(1000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             // do nothing
         }
@@ -63,26 +64,33 @@ public class InstrumentationManagerTest extends TestCase {
         assertEquals("Instrumented stuff not removed from list", 0, list.size());
     }
     
-//  try to get WorkQueue information
+
     public void testMoreInstrumentation() throws BusException {
         //im.getAllInstrumentation();
         WorkQueueManagerImpl wqm = new WorkQueueManagerImpl(bus);
         bus.sendEvent(new ComponentCreatedEvent(wqm));        
-        AbstractHTTPServerTransport aht = 
-            EasyMock.createMock(AbstractHTTPServerTransport.class);
-        bus.sendEvent(new ComponentCreatedEvent(aht));
+        
+        JettyHTTPServerTransport jhst = 
+            EasyMock.createMock(JettyHTTPServerTransport.class);
+        bus.sendEvent(new ComponentCreatedEvent(jhst));
+        
+        HTTPClientTransport hct = 
+            EasyMock.createMock(HTTPClientTransport.class);
+        bus.sendEvent(new ComponentCreatedEvent(hct));
+        
         // TODO should test for the im getInstrumentation 
         List<Instrumentation> list = im.getAllInstrumentation();        
-        assertEquals("Too many instrumented items", 2, list.size());
+        assertEquals("Too many instrumented items", 3, list.size());
         // sleep for the MBServer connector thread startup 
         try {
-            Thread.sleep(1000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             // do nothing
         }
         
         bus.sendEvent(new ComponentRemovedEvent(wqm));
-        bus.sendEvent(new ComponentRemovedEvent(aht));
+        bus.sendEvent(new ComponentRemovedEvent(jhst));
+        bus.sendEvent(new ComponentRemovedEvent(hct));
         assertEquals("Instrumented stuff not removed from list", 0, list.size());
     }
       

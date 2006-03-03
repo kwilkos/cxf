@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.transports.http;
 
 
 
+import org.objectweb.celtix.bus.management.counters.TransportCounters;
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedAttribute;
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
 import org.objectweb.celtix.management.Instrumentation;
@@ -9,21 +10,22 @@ import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 
 @ManagedResource(objectName = "HTTPServerTransport", 
                  description = "The Celtix bus HTTP Server Transport component ", 
-                 log = true,
-                 logFile = "jmx.log", currencyTimeLimit = 15, persistPolicy = "OnUpdate")
+                 currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class HTTPServerTransportInstrumentation implements Instrumentation {  
     private static final String INSTRUMENTED_NAME = "HTTPServerTransport";
     private static int instanceNumber;
     
-    AbstractHTTPServerTransport httpServerTransport; 
+    JettyHTTPServerTransport httpServerTransport; 
     HTTPServerPolicy policy;
     String objectName;
+    TransportCounters counters;
     
-    public HTTPServerTransportInstrumentation(AbstractHTTPServerTransport ahsTransport) {
+    public HTTPServerTransportInstrumentation(JettyHTTPServerTransport hsTransport) {
         super();
-        httpServerTransport = ahsTransport;
+        httpServerTransport = hsTransport;
         objectName = INSTRUMENTED_NAME + instanceNumber;
         instanceNumber++;
+        counters = hsTransport.counters;
     }
     
     @ManagedAttribute(description = "The http server url",
@@ -31,6 +33,24 @@ public class HTTPServerTransportInstrumentation implements Instrumentation {
     //define the basic management operation for the instrumentation
     public String getUrl() {
         return httpServerTransport.url;
+    }
+    
+    @ManagedAttribute(description = "The http server request error",
+                      persistPolicy = "OnUpdate")
+    public int getTotalError() {
+        return counters.getTotalError().getValue();
+    }
+    
+    @ManagedAttribute(description = "The http server total request counter",
+                      persistPolicy = "OnUpdate")
+    public int getRequestTotal() {
+        return counters.getRequestTotal().getValue();
+    }
+    
+    @ManagedAttribute(description = "The http server one way request counter",
+                      persistPolicy = "OnUpdate")
+    public int getRequestOneWay() {
+        return counters.getRequestOneWay().getValue();
     }
     
     // return the policy object ......
@@ -53,7 +73,6 @@ public class HTTPServerTransportInstrumentation implements Instrumentation {
     public String getUniqueInstrumentationName() {        
         return objectName;
     }
-    
-    // TODO need to set up the performance counter
+   
     
 }

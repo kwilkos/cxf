@@ -14,10 +14,10 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.management.jmx.JMXManagedComponentManager;
-import org.objectweb.celtix.bus.transports.http.AbstractHTTPServerTransport;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransportInstrumentation;
 import org.objectweb.celtix.bus.transports.http.HTTPServerTransportInstrumentation;
+import org.objectweb.celtix.bus.transports.http.JettyHTTPServerTransport;
 import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -122,9 +122,9 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
             it = new HTTPClientTransportInstrumentation(
                           (HTTPClientTransport)component);            
         }
-        if (AbstractHTTPServerTransport.class.isAssignableFrom(component.getClass())) {
+        if (JettyHTTPServerTransport.class.isAssignableFrom(component.getClass())) {
             it = new HTTPServerTransportInstrumentation(
-                           (AbstractHTTPServerTransport)component);            
+                           (JettyHTTPServerTransport)component);            
         }
         return it;
     }

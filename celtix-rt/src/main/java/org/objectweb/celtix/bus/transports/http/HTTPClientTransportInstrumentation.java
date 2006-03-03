@@ -19,10 +19,11 @@ public class HTTPClientTransportInstrumentation implements Instrumentation {
     
     HTTPClientTransport httpClientTransport;
     String objectName;
+   
     
     public HTTPClientTransportInstrumentation(HTTPClientTransport hcTransport) {
         super();
-        httpClientTransport = hcTransport;
+        httpClientTransport = hcTransport;        
         objectName = INSTRUMENTATION_NAME + instanceNumber; 
         instanceNumber++;
     }
@@ -49,8 +50,7 @@ public class HTTPClientTransportInstrumentation implements Instrumentation {
     public String getUrl() {
         return httpClientTransport.url.toString();
     }
-
-   
+        
     public Object getComponent() {        
         return httpClientTransport;
     }

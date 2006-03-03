@@ -15,8 +15,6 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
-import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlHttpConfigurationProvider;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.Base64Exception;
@@ -65,9 +63,8 @@ public abstract class AbstractHTTPServerTransport implements ServerTransport {
         
         nurl = new URL(url);
         name = nurl.getPath();
-        policy = getServerPolicy(configuration);
+        policy = getServerPolicy(configuration);       
         
-        bus.sendEvent(new ComponentCreatedEvent(this));
        
         
     }
@@ -90,8 +87,7 @@ public abstract class AbstractHTTPServerTransport implements ServerTransport {
         // Do not need to do anything here. 
     }
     
-    public void shutdown() {
-        bus.sendEvent(new ComponentRemovedEvent(this));        
+    public void shutdown() {               
     }
     
     private Configuration createConfiguration(EndpointReferenceType ref) {
