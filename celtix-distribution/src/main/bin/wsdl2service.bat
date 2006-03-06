@@ -1,6 +1,6 @@
 @echo off 
 rem 
-rem  invoke the Celtix java2wsdl tool
+rem  invoke the Celtix wsdl2service tool
 rem 
 @setlocal
 
@@ -20,7 +20,7 @@ if exist %CELTIX_HOME%\..\..\..\target\srcbuild_env.bat (
     set CLASSPATH=%CELTIX_CLASSPATH%;%CLASSPATH%
 )
 
-"%JAVA_HOME%\bin\java"  -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" org.objectweb.celtix.tools.JavaToWSDL %*
+"%JAVA_HOME%\bin\java"  -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" org.objectweb.celtix.tools.WSDLToService %*
 
 @endlocal
 
