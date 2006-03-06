@@ -22,6 +22,7 @@ public class Compiler {
         compileMethodSignature[0] = (new String[0]).getClass();
         compileMethodSignature[1] = PrintWriter.class;
         try {
+	    System.out.println(">> loader: " + classLoader);
             javacMainClass = classLoader.loadClass("com.sun.tools.javac.Main");
             try {
 
@@ -33,15 +34,19 @@ public class Compiler {
                     }
                     return ((Integer)result).intValue() == 0;
                 } catch (Exception e1) {
-                    throw new ToolException("Compile exception", e1);
+		    e1.printStackTrace();
+		    throw new ToolException("Compile exception", e1);
                 }
             } catch (NoSuchMethodException e2) {
-                throw new ToolException(e2.getMessage(), e2);
+              	    e2.printStackTrace();
+		    throw new ToolException(e2.getMessage(), e2);
             }
         } catch (ClassNotFoundException e3) {
+	    e3.printStackTrace();
             throw new ToolException(e3.getMessage(), e3);
             
         } catch (SecurityException e4) {
+	    e4.printStackTrace();
             throw new ToolException(e4.getMessage() , e4);
         }
     }
