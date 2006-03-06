@@ -15,7 +15,7 @@ public class Compiler {
 
     public boolean internalCompile(String[] args) throws ToolException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
+     
         Class javacMainClass = null;
         Class[] compileMethodSignature;
         compileMethodSignature = new Class[2];
@@ -33,19 +33,15 @@ public class Compiler {
                     }
                     return ((Integer)result).intValue() == 0;
                 } catch (Exception e1) {
-                    e1.printStackTrace();
                     throw new ToolException("Compile exception", e1);
                 }
             } catch (NoSuchMethodException e2) {
-                e2.printStackTrace();
                 throw new ToolException(e2.getMessage(), e2);
             }
         } catch (ClassNotFoundException e3) {
-            e3.printStackTrace();
             throw new ToolException(e3.getMessage(), e3);
-
+            
         } catch (SecurityException e4) {
-            e4.printStackTrace();
             throw new ToolException(e4.getMessage() , e4);
         }
     }
