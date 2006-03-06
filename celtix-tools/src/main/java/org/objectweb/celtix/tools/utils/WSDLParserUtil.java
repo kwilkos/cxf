@@ -1,5 +1,6 @@
 package org.objectweb.celtix.tools.utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,14 +19,16 @@ import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.wsdl.extensions.soap.SOAPOperation;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+import org.objectweb.celtix.tools.common.ToolException;
 
 public final class WSDLParserUtil {
-    
+
     private WSDLParserUtil() {
         // complete
     }
 
-    
     public static List<PortType> getPortTypes(Definition def) {
         List<PortType> portTypes = new ArrayList<PortType>();
         Iterator ite = def.getPortTypes().values().iterator();
@@ -35,8 +38,6 @@ public final class WSDLParserUtil {
         }
         return portTypes;
     }
-
- 
 
     public static List<Part> getInMessageParts(Operation operation) {
         Input input = operation.getInput();
@@ -177,4 +178,15 @@ public final class WSDLParserUtil {
         return null;
     }
 
+    public static Definition getDefinition(File wsdlFile) {
+        try {
+            WSDLFactory wsdlFactory = WSDLFactory.newInstance();           
+            WSDLReader reader = wsdlFactory.newWSDLReader();
+            reader.setFeature("javax.wsdl.verbose", false);
+            return reader.readWSDL(wsdlFile.toURL().toString());
+        } catch (Exception e) {
+            throw new ToolException("Get wsdl definition error", e);
+        }     
+    }   
+   
 }

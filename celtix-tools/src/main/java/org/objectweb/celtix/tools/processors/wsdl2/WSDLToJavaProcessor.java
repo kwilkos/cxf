@@ -110,12 +110,12 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
     }
 
     private JAXWSBinding customizing(Definition def) {
-        List extElements = def.getExtensibilityElements();
         JAXWSBinding binding = CustomizationParser.getInstance().getDefinitionExtension();
         if (binding != null) {
             return binding;
         }
-
+        
+        List extElements = def.getExtensibilityElements();
         if (extElements.size() > 0) {
             Iterator iterator = extElements.iterator();
             while (iterator.hasNext()) {
@@ -125,6 +125,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
                 }
             }
         }
+        
         if (binding == null) {
             binding = new JAXWSBinding();
         }

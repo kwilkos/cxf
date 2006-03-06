@@ -40,8 +40,7 @@ public class TypesGenerator {
         try {
             wmodel.createJAXBContext();
         } catch (Exception e) {
-            System.out.println("Generate Types Error : " + e.getMessage());
-            e.printStackTrace();
+            throw new ToolException("Generate types error", e);
         }
         
         SchemaOutputResolver resolver = new WSDLOutputResolver(env, wmodel);

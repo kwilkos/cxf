@@ -13,6 +13,8 @@ import javax.wsdl.Operation;
 import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
+import javax.wsdl.extensions.http.HTTPAddress;
+import javax.wsdl.extensions.http.HTTPBinding;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
@@ -39,6 +41,8 @@ public class ServiceProcessor extends AbstractProcessor {
     private String soapOPStyle = "STYLE";
 
     private Definition definition;
+    
+    private BindingType bindingType;
 
     private final int inHEADER = 1;
 
@@ -47,6 +51,8 @@ public class ServiceProcessor extends AbstractProcessor {
     private final int resultHeader = 3;
 
     private final int noHEADER = 0;
+    
+    private Object bindingObj;
     
     public ServiceProcessor(ProcessorEnvironment penv) {
         super(penv);
@@ -107,13 +113,27 @@ public class ServiceProcessor extends AbstractProcessor {
         jport.setBindingAdress(getPortAddress(port));
         jport.setBindingName(binding.getQName().getLocalPart());
         jport.setPortType(binding.getPortType().getQName().getLocalPart());
-        SOAPBinding spbd = getSOAPBinding(binding);
         String portType = binding.getPortType().getQName().getLocalPart();
         jport.setPortType(portType);
         jport.setInterfaceClass(ProcessorUtil.mangleNameToClassName(portType));
-        jport.setStyle(getSoapStyle(spbd.getStyle()));
-        jport.setTransURI(spbd.getTransportURI());
-
+        
+        bindingType = getBindingType(binding);
+        
+        if (bindingType == null) {
+            throw new ToolException("Binding : " 
+                                    + binding.getQName() + "MUST specify exactly one protocol");
+        }
+        
+        if (isSoapBinding()) {
+            SOAPBinding spbd = (SOAPBinding)this.bindingObj;
+            jport.setStyle(getSoapStyle(spbd.getStyle()));
+            jport.setTransURI(spbd.getTransportURI());
+        } 
+        
+        /*if (bindingType.name().equals("HTTPBinding")) {
+            // TBD
+        }*/
+        
         Iterator ite = binding.getBindingOperations().iterator();
         while (ite.hasNext()) {
             BindingOperation bop = (BindingOperation)ite.next();
@@ -133,6 +153,7 @@ public class ServiceProcessor extends AbstractProcessor {
     }
 
     private javax.jws.soap.SOAPBinding.Use getSoapUse(String soapUse) {
+        
         if ("".equals(soapUse)) {
             return null;
         } else if ("ENCODED".equalsIgnoreCase(soapUse)) {
@@ -140,6 +161,7 @@ public class ServiceProcessor extends AbstractProcessor {
         } else {
             return javax.jws.soap.SOAPBinding.Use.LITERAL;
         }
+        
     }
 
     private void processOperation(JavaModel model, Port port, BindingOperation bop) throws ToolException {
@@ -147,29 +169,33 @@ public class ServiceProcessor extends AbstractProcessor {
             .getLocalPart());
         JavaInterface jf = model.getInterfaces().get(portType);
         // TODO: extend other bindings
-        SOAPBinding soapBinding = getSOAPBinding(port.getBinding());
-        if (soapBinding != null) {
+     
+        if (isSoapBinding()) {
+            SOAPBinding soapBinding = (SOAPBinding)bindingObj;
             if (getSoapStyle(soapBinding.getStyle()) == null) {
                 jf.setSOAPStyle(javax.jws.soap.SOAPBinding.Style.DOCUMENT);
             } else {
                 jf.setSOAPStyle(getSoapStyle(soapBinding.getStyle()));
             }
         }
+        
         Object[] methods = jf.getMethods().toArray();
         for (int i = 0; i < methods.length; i++) {
             JavaMethod jm = (JavaMethod)methods[i];
             if (jm.getOperationName() != null && jm.getOperationName().equals(bop.getName())) {
-                Map prop = getSoapOperationProp(bop);
-                String soapAction = prop.get(soapOPAction) == null ? "" : (String)prop.get(soapOPAction);
-                String soapStyle = prop.get(soapOPStyle) == null ? "" : (String)prop.get(soapOPStyle);
-                jm.setSoapAction(soapAction);
-                if (getSoapStyle(soapStyle) == null && soapBinding == null) {
-                    throw new ToolException("Operation Binding Style Should Be Defined");
-                }
-                if (getSoapStyle(soapStyle) == null) {
-                    jm.setSoapStyle(jf.getSOAPStyle());
-                } else {
-                    jm.setSoapStyle(getSoapStyle(soapStyle));
+                if (isSoapBinding()) {
+                    Map prop = getSoapOperationProp(bop);
+                    String soapAction = prop.get(soapOPAction) == null ? "" : (String)prop.get(soapOPAction);
+                    String soapStyle = prop.get(soapOPStyle) == null ? "" : (String)prop.get(soapOPStyle);
+                    jm.setSoapAction(soapAction);
+                    if (getSoapStyle(soapStyle) == null && this.bindingObj == null) {
+                        throw new ToolException("Operation Binding Style Should Be Defined");
+                    }
+                    if (getSoapStyle(soapStyle) == null) {
+                        jm.setSoapStyle(jf.getSOAPStyle());
+                    } else {
+                        jm.setSoapStyle(getSoapStyle(soapStyle));
+                    }
                 }
                 OperationProcessor processor = new OperationProcessor(env);
 
@@ -203,6 +229,7 @@ public class ServiceProcessor extends AbstractProcessor {
     }
 
     private void processParameter(JavaMethod jm, BindingOperation operation) {
+        
         // process input
         Iterator inbindings = operation.getBindingInput().getExtensibilityElements().iterator();
         String use = null;
@@ -282,20 +309,33 @@ public class ServiceProcessor extends AbstractProcessor {
             if (obj instanceof JMSAddress) {
                 address = ((JMSAddress)obj).getAddress();
             }
+            
+            if (obj instanceof HTTPAddress) {
+                address = ((HTTPAddress)obj).getLocationURI();
+            }
+            
         }
         return address;
     }
     
-    private SOAPBinding getSOAPBinding(Binding binding) {
+    private BindingType getBindingType(Binding binding) {
         Iterator it = binding.getExtensibilityElements().iterator();
-        SOAPBinding spbinding = null;
         while (it.hasNext()) {
             Object obj = it.next();
             if (obj instanceof SOAPBinding) {
-                spbinding = (SOAPBinding)obj;
+                bindingObj = (SOAPBinding)obj;
+                return BindingType.SOAPBinding;
             }
+            if (obj instanceof HTTPBinding) {
+                bindingObj = (HTTPBinding)obj;
+                return BindingType.HTTPBinding;
+            }
+            //TBD XMLBinding
+            return BindingType.XMLBinding;
+            
+            
         }
-        return spbinding;
+        return null;
     }
 
     private int isNonWrappable(BindingOperation bop) {
@@ -323,7 +363,7 @@ public class ServiceProcessor extends AbstractProcessor {
                     if (header.getPart().length() > 0) {
                         containParts = true;
                     }
-                }
+                } 
             }
 
             if (headerMessage != null && bodyMessage != null
@@ -404,4 +444,16 @@ public class ServiceProcessor extends AbstractProcessor {
     private void processRPCLiteralParameter(JavaMethod jm, BindingOperation operation) {
         // to be done
     }
+    
+    public enum BindingType {
+       HTTPBinding,
+       SOAPBinding,
+       XMLBinding
+    }
+  
+    private boolean isSoapBinding() {
+        return bindingType != null && bindingType.name().equals("SOAPBinding");
+               
+    }
+    
 }

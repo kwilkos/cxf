@@ -39,6 +39,15 @@
 		    <annotation>target-namespace</annotation>
 		</associatedArgument>
 	    </option>
+	    
+	    <option id="servicename" maxOccurs="1">
+		<annotation>Specify the service name to use in the generated wsdl.</annotation>
+		<switch>servicename</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>service-name</annotation>
+		</associatedArgument>
+	    </option>
+	    
 <!--
 	    <option id="schemans" maxOccurs="1">
 		<annotation>Specify the schema namespace to use in the wsdl.</annotation>

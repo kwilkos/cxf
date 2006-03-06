@@ -210,13 +210,19 @@ public class ClassProcessor {
 
         }
         model.setPortName(portName);
-
+        
+        
         String serviceName = clazz.getSimpleName() + "Service";
-        if (webService.serviceName().length() > 0) {
-            serviceName = webService.serviceName();
+        if (env.optionSet(ToolConstants.CFG_SERVICENAME)) {
+            serviceName = (String)env.get(ToolConstants.CFG_SERVICENAME); 
+        } else {         
+            if (webService.serviceName().length() > 0) {
+                serviceName = webService.serviceName();
+            }           
         }
         model.setServiceName(serviceName);
-
+        
+        
         String packageName = "";
         if (clazz.getPackage() != null) {
             packageName = clazz.getPackage().getName();
@@ -231,6 +237,7 @@ public class ClassProcessor {
         } else if (targetNamespace == null) {
             throw new ToolException("Class No Package");
         }
+        
         model.setTargetNameSpace(targetNamespace);
         String wsdlLocation = webService.wsdlLocation();
         model.setWsdllocation(wsdlLocation);

@@ -85,7 +85,6 @@ public class OperationProcessor  extends AbstractProcessor {
         addWrapperAnnotation(method, operation);
         addWebResultAnnotation(method);
         addSOAPBindingAnnotation(method);
-
         if (!method.isOneWay() && method.getJAXWSBinding().isEnableAsyncMapping()) {
             addAsyncMethod(method);
         }
@@ -100,12 +99,12 @@ public class OperationProcessor  extends AbstractProcessor {
     }
 
     private void addWebMethodAnnotation(JavaMethod method) {
-        addWebMethodAnnotation(method, method.getName());
+        addWebMethodAnnotation(method, method.getOperationName());
     }
-        
-    private void addWebMethodAnnotation(JavaMethod method, String methodName) {
+    
+    private void addWebMethodAnnotation(JavaMethod method, String operationName) {
         JavaAnnotation methodAnnotation = new JavaAnnotation("WebMethod");
-        methodAnnotation.addArgument("operationName", method.getOperationName());
+        methodAnnotation.addArgument("operationName", operationName);
         if (!StringUtils.isEmpty(method.getSoapAction())) {
             methodAnnotation.addArgument("action", method.getSoapAction());
         }
@@ -279,7 +278,7 @@ public class OperationProcessor  extends AbstractProcessor {
     }
 
     private JAXWSBinding customizing(JavaInterface intf, Operation operation) {
-        JAXWSBinding binding = new JAXWSBinding();
+        JAXWSBinding binding = null;
         List extElements = operation.getExtensibilityElements();
         if (extElements.size() > 0) {
             Iterator iterator = extElements.iterator();
@@ -295,9 +294,9 @@ public class OperationProcessor  extends AbstractProcessor {
             binding = CustomizationParser.getInstance().getPortTypeOperationExtension(portTypeName,
                                                                                       operationName);
         }
-
+               
         if (binding == null) {
-            return new JAXWSBinding();
+            binding = new JAXWSBinding();
         }
         if (!binding.isSetAsyncMapping() && (intf.getJavaModel().getJAXWSBinding().isEnableAsyncMapping()
             || intf.getJAXWSBinding().isEnableAsyncMapping())) {
@@ -326,7 +325,7 @@ public class OperationProcessor  extends AbstractProcessor {
         future.setClassName("Future<?>");
         pollingMethod.setReturn(future);
 
-        addWebMethodAnnotation(pollingMethod, method.getName());
+        addWebMethodAnnotation(pollingMethod, method.getOperationName());
         pollingMethod.addAnnotation("ResponseWrapper", method.getAnnotationMap().get("ResponseWrapper"));
         pollingMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
         pollingMethod.addAnnotation("SOAPBinding", method.getAnnotationMap().get("SOAPBinding"));
@@ -359,7 +358,7 @@ public class OperationProcessor  extends AbstractProcessor {
         response.setClassName(getAsyncClassName(method, "Response"));
         callbackMethod.setReturn(response);
 
-        addWebMethodAnnotation(callbackMethod, method.getName());
+        addWebMethodAnnotation(callbackMethod, method.getOperationName());
         callbackMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
         callbackMethod.addAnnotation("ResponseWrapper", method.getAnnotationMap().get("ResponseWrapper"));
         callbackMethod.addAnnotation("SOAPBinding", method.getAnnotationMap().get("SOAPBinding"));
