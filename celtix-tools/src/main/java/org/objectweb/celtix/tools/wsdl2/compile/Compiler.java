@@ -22,7 +22,6 @@ public class Compiler {
         compileMethodSignature[0] = (new String[0]).getClass();
         compileMethodSignature[1] = PrintWriter.class;
         try {
-	    System.out.println(">> loader: " + classLoader);
             javacMainClass = classLoader.loadClass("com.sun.tools.javac.Main");
             try {
 
