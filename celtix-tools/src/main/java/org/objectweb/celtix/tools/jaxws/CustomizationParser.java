@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import javax.wsdl.Binding;
+import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Operation;
 import javax.wsdl.PortType;
@@ -45,6 +47,7 @@ public final class CustomizationParser {
         definitionExtensions = new HashMap<BindingsNode, JAXWSBinding>();
         portTypeExtensions = new HashMap<BindingsNode, JAXWSBinding>();
         operationExtensions = new HashMap<BindingsNode, JAXWSBinding>();
+        
     }
     
     public static CustomizationParser getInstance() {
@@ -59,6 +62,7 @@ public final class CustomizationParser {
         definitionExtensions.clear();
         portTypeExtensions.clear();
         operationExtensions.clear();
+        
     }
 
     public Element getHandlerChains() {
@@ -72,7 +76,7 @@ public final class CustomizationParser {
             return null;
         }
     }
-
+    
     public JAXWSBinding getPortTypeExtension(String portTypeName) {
         Collection<BindingsNode> bindingNodes = portTypeExtensions.keySet();
         JAXWSBinding jaxwsBinding = null;
@@ -288,13 +292,20 @@ public final class CustomizationParser {
 
         if (bindingsNode.getParentType().equals(Definition.class)) {
             definitionExtensions.put(bindingsNode, jaxwsBinding);
-        }
+        }     
+
         if (bindingsNode.getParentType().equals(PortType.class)) {
             portTypeExtensions.put(bindingsNode, jaxwsBinding);
         }
+        
         if (bindingsNode.getParentType().equals(Operation.class)) {
             operationExtensions.put(bindingsNode, jaxwsBinding);
         }
+
+        if (bindingsNode.getParentType().equals(BindingOperation.class)) {
+            operationExtensions.put(bindingsNode, jaxwsBinding);
+        }        
+
     }
 
     private BindingsNode evaluateXPathNode(String expression) {
@@ -310,13 +321,22 @@ public final class CustomizationParser {
                 node.setParentType(Definition.class);
                 break;
             }
+            if (parts[i].startsWith("wsdl:binding")) {
+                node.setParentType(Binding.class);
+                node.setNodeName(getNodeName(parts[i]));
+                break;
+            }
             if (parts[i].startsWith("wsdl:portType")) {
                 node.setParentType(PortType.class);
                 node.setNodeName(getNodeName(parts[i]));
                 break;
             }
             if (parts[i].startsWith("wsdl:operation")) {
-                node.setParentType(Operation.class);
+                if (i > 1 && parts[i - 1].startsWith("wsdl:binding")) {
+                    node.setParentType(BindingOperation.class);
+                } else if (i > 1 && parts[i - 1].startsWith("wsdl:portType")) {
+                    node.setParentType(Operation.class);
+                }
                 node.setNodeName(getNodeName(parts[i]));
                 break;
             }

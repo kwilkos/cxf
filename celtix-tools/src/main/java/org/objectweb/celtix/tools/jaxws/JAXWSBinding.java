@@ -10,6 +10,10 @@ public class JAXWSBinding implements ExtensibilityElement, Serializable {
 
     private boolean isSetAsyncMapping;
     private boolean enableAsyncMapping;
+    
+    private boolean isSetMimeEnable;
+    private boolean enableMime;
+    
     private Element element;
     private boolean required;
     private QName elementType;
@@ -60,5 +64,21 @@ public class JAXWSBinding implements ExtensibilityElement, Serializable {
 
     public QName getElementType() {
         return elementType;
+    }
+
+    public boolean isEnableMime() {
+        return enableMime;
+    }
+
+    public void setEnableMime(boolean pEnableMime) {
+        this.enableMime = pEnableMime;
+    }
+
+    public boolean isSetMimeEnable() {
+        return isSetMimeEnable;
+    }
+
+    public void setSetMimeEnable(boolean pIsSetMimeEnable) {
+        this.isSetMimeEnable = pIsSetMimeEnable;
     }
 }

@@ -30,6 +30,7 @@ import org.objectweb.celtix.tools.processors.wsdl2.internal.PortTypeProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.SEIAnnotationProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ServiceProcessor;
 import org.objectweb.celtix.tools.wsdl2.compile.Compiler;
+import org.objectweb.celtix.tools.wsdl2.validate.MIMEBindingValidator;
 import org.objectweb.celtix.tools.wsdl2.validate.UniqueBodyPartsValidator;
 import org.objectweb.celtix.tools.wsdl2.validate.WSIBPValidator;
 
@@ -48,6 +49,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
     protected void regisiterValidator() {
         this.addValidator(new UniqueBodyPartsValidator(this.wsdlDefinition));
         this.addValidator(new WSIBPValidator(this.wsdlDefinition));
+        this.addValidator(new MIMEBindingValidator(this.wsdlDefinition));
     }
     
     

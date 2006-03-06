@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.wsdl.Binding;
+import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.Message;
@@ -40,6 +41,7 @@ import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddressSerializer;
+
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
@@ -325,11 +327,15 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         registerJAXWSBinding(registry, PortType.class);
         registerJAXWSBinding(registry, Operation.class);
 
+        registerJAXWSBinding(registry, Binding.class);
+        registerJAXWSBinding(registry, BindingOperation.class);
+
         registerJMSAddress(registry, Port.class);
 
         reader.setExtensionRegistry(registry);
     }
 
+    
     private void registerJMSAddress(ExtensionRegistry registry, Class clz) {
         registry.registerSerializer(clz,
                                     ToolConstants.JMS_ADDRESS,

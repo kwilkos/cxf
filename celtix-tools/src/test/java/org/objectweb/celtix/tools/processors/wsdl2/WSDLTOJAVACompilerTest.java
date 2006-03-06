@@ -26,7 +26,7 @@ public class WSDLTOJAVACompilerTest extends ProcessorTestBase {
     }
 
     public void tearDown() {
-        //super.tearDown();
+        super.tearDown();
         processor = null;
     }
 

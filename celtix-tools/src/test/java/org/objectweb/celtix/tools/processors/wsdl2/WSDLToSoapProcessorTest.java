@@ -23,7 +23,7 @@ public class WSDLToSoapProcessorTest
         WSDLToSoap.main(args);
 
         File outputFile = new File(output, "hello_world_doc_lit-soapbinding.wsdl");
-        assertTrue("PortType file is not generated", outputFile.exists());
+        assertTrue("New wsdl file is not generated", outputFile.exists());
         FileReader fileReader = new FileReader(outputFile);
         char[] chars = new char[100];
         int size = 0;
@@ -56,7 +56,7 @@ public class WSDLToSoapProcessorTest
         WSDLToSoap.main(args);
 
         File outputFile = new File(output, "hello_world_rpc_lit_newbinding.wsdl");
-        assertTrue("PortType file is not generated", outputFile.exists());
+        assertTrue("New wsdl file is not generated", outputFile.exists());
         FileReader fileReader = new FileReader(outputFile);
         char[] chars = new char[100];
         int size = 0;

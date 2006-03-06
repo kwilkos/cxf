@@ -29,7 +29,8 @@ public class JavaMethod {
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
     private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
     private final List<WSDLException> wsdlExceptions = new ArrayList<WSDLException>();
-    private JAXWSBinding jaxwsBinding = new JAXWSBinding();
+    private JAXWSBinding jaxwsBinding = new JAXWSBinding();    
+    private JAXWSBinding bindingExt = new JAXWSBinding();
     
     public JavaMethod() {
         this.javaInterface = null;
@@ -296,5 +297,13 @@ public class JavaMethod {
         sb.append(getAnnotations());
         sb.append("\n========================\n");
         return sb.toString();
+    }
+
+    public JAXWSBinding getBindingExt() {
+        return bindingExt;
+    }
+
+    public void setBindingExt(JAXWSBinding pBindingExt) {
+        this.bindingExt = pBindingExt;
     }
 }

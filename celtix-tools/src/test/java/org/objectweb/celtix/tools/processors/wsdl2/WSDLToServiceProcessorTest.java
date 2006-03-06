@@ -23,7 +23,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
         WSDLToService.main(args);
 
         File outputFile = new File(output, "hello_world-service.wsdl");
-        assertTrue("PortType file is not generated", outputFile.exists());
+        assertTrue("New wsdl file is not generated", outputFile.exists());
         FileReader fileReader = new FileReader(outputFile);
         char[] chars = new char[100];
         int size = 0;
@@ -50,7 +50,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
         WSDLToService.main(args);
 
         File outputFile = new File(output, "hello_world-service.wsdl");
-        assertTrue("PortType file is not generated", outputFile.exists());
+        assertTrue("New wsdl file is not generated", outputFile.exists());
         FileReader fileReader = new FileReader(outputFile);
         char[] chars = new char[100];
         int size = 0;
@@ -79,7 +79,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
                                       getLocation("/wsdl/jms_test.wsdl")};
         WSDLToService.main(args);
         File outputFile = new File(output, "jms_test-service.wsdl");
-        assertTrue("PortType file is not generated", outputFile.exists());
+        assertTrue("New wsdl file is not generated", outputFile.exists());
         FileReader fileReader = new FileReader(outputFile);
         char[] chars = new char[100];
         int size = 0;

@@ -22,6 +22,8 @@ public class JavaInterface {
     private final Set<String> imports = new TreeSet<String>();
 
     private JAXWSBinding jaxwsBinding = new JAXWSBinding();
+    private JAXWSBinding bindingExt = new JAXWSBinding();
+    
     private String webserviceName;
     private Element handlerChains;
     
@@ -181,5 +183,13 @@ public class JavaInterface {
 
     public void setHandlerChains(Element elem) {
         this.handlerChains = elem;
+    }
+
+    public JAXWSBinding getBindingExt() {
+        return bindingExt;
+    }
+
+    public void setBindingExt(JAXWSBinding pBindingExt) {
+        this.bindingExt = pBindingExt;
     }
 }

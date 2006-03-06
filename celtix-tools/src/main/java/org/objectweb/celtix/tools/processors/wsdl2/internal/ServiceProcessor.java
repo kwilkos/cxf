@@ -3,6 +3,7 @@ package org.objectweb.celtix.tools.processors.wsdl2.internal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.wsdl.Binding;
@@ -15,6 +16,7 @@ import javax.wsdl.PortType;
 import javax.wsdl.Service;
 import javax.wsdl.extensions.http.HTTPAddress;
 import javax.wsdl.extensions.http.HTTPBinding;
+import javax.wsdl.extensions.mime.MIMEMultipartRelated;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
@@ -30,8 +32,11 @@ import org.objectweb.celtix.tools.common.model.JavaModel;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
+import org.objectweb.celtix.tools.common.model.JavaType;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
+import org.objectweb.celtix.tools.jaxws.CustomizationParser;
+import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class ServiceProcessor extends AbstractProcessor {
@@ -137,7 +142,7 @@ public class ServiceProcessor extends AbstractProcessor {
         Iterator ite = binding.getBindingOperations().iterator();
         while (ite.hasNext()) {
             BindingOperation bop = (BindingOperation)ite.next();
-            processOperation(model, port, bop);
+            processOperation(model, port, bop, binding);
         }
         return jport;
     }
@@ -164,12 +169,13 @@ public class ServiceProcessor extends AbstractProcessor {
         
     }
 
-    private void processOperation(JavaModel model, Port port, BindingOperation bop) throws ToolException {
+    private void processOperation(JavaModel model, Port port, BindingOperation bop, 
+                                  Binding binding) throws ToolException {
         String portType = ProcessorUtil.mangleNameToClassName(port.getBinding().getPortType().getQName()
             .getLocalPart());
         JavaInterface jf = model.getInterfaces().get(portType);
         // TODO: extend other bindings
-     
+        doCustomizeBinding(model, jf, binding);
         if (isSoapBinding()) {
             SOAPBinding soapBinding = (SOAPBinding)bindingObj;
             if (getSoapStyle(soapBinding.getStyle()) == null) {
@@ -184,6 +190,7 @@ public class ServiceProcessor extends AbstractProcessor {
             JavaMethod jm = (JavaMethod)methods[i];
             if (jm.getOperationName() != null && jm.getOperationName().equals(bop.getName())) {
                 if (isSoapBinding()) {
+                    doCustomizeOperation(jf, jm, bop);
                     Map prop = getSoapOperationProp(bop);
                     String soapAction = prop.get(soapOPAction) == null ? "" : (String)prop.get(soapOPAction);
                     String soapStyle = prop.get(soapOPStyle) == null ? "" : (String)prop.get(soapOPStyle);
@@ -228,7 +235,7 @@ public class ServiceProcessor extends AbstractProcessor {
         parameter.getAnnotation().addArgument("header", "true", "");
     }
 
-    private void processParameter(JavaMethod jm, BindingOperation operation) {
+    private void processParameter(JavaMethod jm, BindingOperation operation) throws ToolException {
         
         // process input
         Iterator inbindings = operation.getBindingInput().getExtensibilityElements().iterator();
@@ -247,6 +254,10 @@ public class ServiceProcessor extends AbstractProcessor {
                     }
                 }
             }
+            if (obj instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {
+                MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
+                mimeProcessor.process(jm, (MIMEMultipartRelated)obj, JavaType.Style.IN);                 
+            }
         }
 
         // process output
@@ -262,6 +273,10 @@ public class ServiceProcessor extends AbstractProcessor {
                         }
                     }
                 }
+                if (obj instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {
+                    MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
+                    mimeProcessor.process(jm, (MIMEMultipartRelated)obj, JavaType.Style.OUT);                 
+                }                
             }
         }
 
@@ -443,6 +458,78 @@ public class ServiceProcessor extends AbstractProcessor {
 
     private void processRPCLiteralParameter(JavaMethod jm, BindingOperation operation) {
         // to be done
+    }
+    
+    private void doCustomizeBinding(JavaModel jmodel, JavaInterface ji, Binding binding) {
+        JAXWSBinding bindingExt = null;
+        List extElements = binding.getExtensibilityElements();
+        if (extElements.size() > 0) {
+            Iterator iterator = extElements.iterator();
+            while (iterator.hasNext()) {
+                Object obj = iterator.next();
+                if (obj instanceof JAXWSBinding) {
+                    bindingExt = (JAXWSBinding) obj;
+                    ji.setBindingExt(bindingExt);
+                    return;
+                }
+            }
+        } 
+        String portTypeName = binding.getPortType().getQName().getLocalPart();
+        bindingExt = CustomizationParser.getInstance().getPortTypeExtension(portTypeName);
+        if (bindingExt != null) {
+            if (!bindingExt.isSetMimeEnable() && jmodel.getJAXWSBinding().isSetMimeEnable() 
+                        && jmodel.getJAXWSBinding().isEnableMime()) {                
+                bindingExt.setSetMimeEnable(true);
+                bindingExt.setEnableMime(true);                
+            }
+        } else if (jmodel.getJAXWSBinding() != null) {
+            bindingExt = new JAXWSBinding();
+            if (jmodel.getJAXWSBinding().isSetMimeEnable() && jmodel.getJAXWSBinding().isEnableMime()) {
+                bindingExt.setSetMimeEnable(true);
+                bindingExt.setEnableMime(true);
+            }
+        } else {
+            // TBD: There is no extensibilityelement in port type
+            bindingExt = new JAXWSBinding();
+        }
+        ji.setBindingExt(bindingExt);
+    }
+    
+    private void doCustomizeOperation(JavaInterface ji, JavaMethod jm, BindingOperation bo) {
+        JAXWSBinding bindingExt = null;
+        List extElements = bo.getExtensibilityElements();
+        if (extElements.size() > 0) {
+            Iterator iterator = extElements.iterator();
+            while (iterator.hasNext()) {
+                Object obj = iterator.next();
+                if (obj instanceof JAXWSBinding) {
+                    bindingExt = (JAXWSBinding) obj;
+                    jm.setBindingExt(bindingExt);
+                    return;
+                }
+            }
+        } 
+        String portTypeName = ji.getWebServiceName();
+        String operationName = bo.getName();
+        bindingExt = CustomizationParser.getInstance().getPortTypeOperationExtension(portTypeName,
+                                                                                     operationName);        
+        if (bindingExt != null) {
+            if (!bindingExt.isSetMimeEnable() && ji.getBindingExt() != null 
+                    && ji.getBindingExt().isSetMimeEnable() && ji.getBindingExt().isEnableMime()) {
+                bindingExt.setSetMimeEnable(true);
+                bindingExt.setEnableMime(true);                
+            }
+        } else if (ji.getBindingExt() != null) {
+            bindingExt = new JAXWSBinding();
+            if (ji.getBindingExt().isSetMimeEnable() && ji.getBindingExt().isEnableMime()) {
+                bindingExt.setSetMimeEnable(true);
+                bindingExt.setEnableMime(true);
+            }
+        } else {
+            // TBD: There is no extensibilityelement in port type
+            bindingExt = new JAXWSBinding();
+        }
+        jm.setBindingExt(bindingExt);
     }
     
     public enum BindingType {

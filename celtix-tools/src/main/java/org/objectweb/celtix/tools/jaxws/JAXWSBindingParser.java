@@ -37,6 +37,10 @@ public class JAXWSBindingParser {
                     jaxwsBinding.setAsyncMapping(true);
                     jaxwsBinding.setEnableAsyncMapping(isAsync(child));
                 }
+                if (isMIMEElement(child)) {
+                    jaxwsBinding.setSetMimeEnable(true);
+                    jaxwsBinding.setEnableMime(isMIMEEnabled(child));
+                }                
             }
         }
     }
@@ -46,6 +50,14 @@ public class JAXWSBindingParser {
     }
 
     private Boolean isAsync(Node node) {
+        return Boolean.valueOf(node.getTextContent());
+    }
+    
+    private Boolean isMIMEElement(Node node) {
+        return "enableMIMEContent".equals(node.getNodeName());
+    }
+
+    private Boolean isMIMEEnabled(Node node) {
         return Boolean.valueOf(node.getTextContent());
     }
 }

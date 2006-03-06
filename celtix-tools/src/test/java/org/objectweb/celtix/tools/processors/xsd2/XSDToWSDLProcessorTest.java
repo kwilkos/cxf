@@ -21,7 +21,7 @@ public class XSDToWSDLProcessorTest
         XSDToWSDL.main(args);
 
         File outputFile = new File(output, "Invoice_xsd.wsdl");
-        assertTrue("PortType file is not generated", outputFile.exists());
+        assertTrue("New wsdl file is not generated", outputFile.exists());
         FileReader fileReader = new FileReader(outputFile);
         char[] chars = new char[100];
         int size = 0;
