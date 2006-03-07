@@ -241,4 +241,29 @@ public class EndpointReferenceUtilsTest extends TestCase {
         assertNull(ref);
     }
     
+    public void testSetServiceName() throws Exception {
+        QName serviceName1 = new QName("http://objectweb.org/soap_http1", "SOAPService_Test1");
+
+        EndpointReferenceType ref = new EndpointReferenceType();
+        
+        EndpointReferenceUtils.setServiceName(ref, serviceName1);
+        assertEquals(serviceName1, EndpointReferenceUtils.getServiceName(ref));
+
+        EndpointReferenceUtils.setServiceName(ref, null);
+        assertEquals(serviceName1, EndpointReferenceUtils.getServiceName(ref));
+       
+    }
+
+    public void testSetPortName() throws Exception {
+        QName portName1 = new QName("http://objectweb.org/soap_http1", "SoapPort_Test1");
+
+        EndpointReferenceType ref = new EndpointReferenceType();
+
+        EndpointReferenceUtils.setPortName(ref, portName1.toString());
+        assertEquals(portName1, QName.valueOf(EndpointReferenceUtils.getPortName(ref)));
+
+        EndpointReferenceUtils.setPortName(ref, null);
+        assertEquals(portName1, QName.valueOf(EndpointReferenceUtils.getPortName(ref)));
+    }
+    
 }

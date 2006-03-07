@@ -64,6 +64,42 @@ public final class EndpointReferenceUtils {
     }
 
     /**
+     * Sets the service name of the provided endpoint reference. 
+     * @param ref the endpoint reference.
+     * @param serviceName the name of service..
+     */
+    public static void setServiceName(EndpointReferenceType ref, QName serviceName) {
+        if (null != serviceName) {
+            MetadataType mt = ref.getMetadata();
+            if (null == mt) {
+                mt = new MetadataType();
+                ref.setMetadata(mt);
+            }
+            Map<QName, String> attribMap = mt.getOtherAttributes();
+            
+            attribMap.put(SERVICE_NAME, serviceName.toString());
+        }
+    }
+    
+    /**
+     * sets the port name of the provided endpoint reference.
+     * @param ref the endpoint reference.
+     * @param portName the port name.
+     */
+    public static void setPortName(EndpointReferenceType ref, String portName) {
+        if (null != portName) {
+            MetadataType mt = ref.getMetadata();
+            if (null == mt) {
+                mt = new MetadataType();
+                ref.setMetadata(mt);
+            }
+            Map<QName, String> attribMap = mt.getOtherAttributes();
+            
+            attribMap.put(PORT_NAME, portName);
+        }
+    }
+    
+    /**
      * Gets the wsdl location of the provided endpoint reference.
      * @param ref the endpoint reference.
      * @return the wsdl location.

@@ -7,20 +7,20 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
-import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
+import javax.xml.ws.BindingType;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Provider;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.handler.Handler;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
@@ -49,16 +49,20 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
 
     private final Bus bus;
-    private final Configuration configuration;
-    
     private final Object implementor;
-    private final EndpointReferenceType reference;
+    private final String bindingURI;
+    
+    private Configuration configuration;
+    private EndpointReferenceType reference;
     private ServerBinding serverBinding;
     private boolean published;
     private List<Source> metadata;
     private Executor executor;
     private JAXBContext context;
-
+    private Map<String, Object> properties;
+    
+    private boolean doInit;
+    
     //Implemetor (SEI) specific members
     private List<Class<?>> seiClass;
     
@@ -76,49 +80,87 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         implementor = impl;
         reference = ref;
 
+        if (null == bindingId) {
+            BindingType bType = implementor.getClass().getAnnotation(BindingType.class);
+            if (bType != null) {
+                bindingId = bType.value();
+            }
+        }
+
+        if (null == bindingId) {
+            // Use SOAP1.1/HTTP Binding as default. JAX-WS Spec 5.2.1
+            bindingId = SOAPBinding.SOAP11HTTP_BINDING; 
+        }
+        
+        bindingURI = bindingId;
         if (Provider.class.isAssignableFrom(impl.getClass())) {
+            //Provider Implementor
             wsProvider = implementor.getClass().getAnnotation(WebServiceProvider.class);
             if (wsProvider == null) {
                 throw new WebServiceException(
                            "Provider based implementor must carry a WebServiceProvider annotation");
             }
             serviceMode = implementor.getClass().getAnnotation(ServiceMode.class);
-        }
-        
-        try {
-            context = JAXBEncoderDecoder.createJAXBContextForClass(impl.getClass());
-        } catch (JAXBException ex1) {
-            ex1.printStackTrace();
-            context = null;
-        }
-        
-        configuration = createConfiguration();
-        
-        try {           
-            if (null == bindingId) {
-                Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), reference);
-                ExtensibilityElement el = (ExtensibilityElement)port.getExtensibilityElements().get(0);
-                bindingId = el.getElementType().getNamespaceURI();
+        } else {
+            //SEI Implementor
+            try {           
+                injectResources();
+            } catch (Exception ex) {
+                if (ex instanceof WebServiceException) { 
+                    throw (WebServiceException)ex; 
+                }
+                throw new WebServiceException("Creation of Endpoint failed", ex);
             }
-            serverBinding = createServerBinding(bindingId);
+            
+            try {
+                context = JAXBEncoderDecoder.createJAXBContextForClass(impl.getClass());
+            } catch (JAXBException ex1) {
+                ex1.printStackTrace();
+                context = null;
+            }
+        }
+        
+        doInit = true;
+    }
+
+
+    private void init() {
+        try {
+            if (properties != null) {
+                QName val = (QName) properties.get(Endpoint.WSDL_SERVICE);
+                if (null != val) {
+                    EndpointReferenceUtils.setServiceName(reference, val);
+                }
+                
+                val = (QName) properties.get(Endpoint.WSDL_PORT);
+                if (null != val) {
+                    EndpointReferenceUtils.setPortName(reference, val.toString());
+                }
+            }
+            
+            configuration = createConfiguration();
+            serverBinding = createServerBinding(bindingURI);
             configureHandlers();
             configureSystemHandlers();
-            injectResources();
         } catch (Exception ex) {
             if (ex instanceof WebServiceException) { 
                 throw (WebServiceException)ex; 
             }
             throw new WebServiceException("Creation of Endpoint failed", ex);
         }
+        
+        doInit = false;
     }
-
-    
     /*
      * (non-Javadoc)
      * 
      * @see javax.xml.ws.Endpoint#getBinding()
      */
     public Binding getBinding() {
+        //Initialise the Endpoint so HandlerChain is set up on Binding.
+        if (doInit) {
+            init();
+        }
         return serverBinding.getBinding();
     }
 
@@ -169,13 +211,13 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         if (isPublished()) {
             LOG.warning("ENDPOINT_ALREADY_PUBLISHED_MSG");
         }
+
         if (!isContextBindingCompatible(serverContext)) {
             throw new IllegalArgumentException(new BusException(new Message("BINDING_INCOMPATIBLE_CONTEXT_EXC"
                                                                             , LOG)));
         }
 
         // apply all changes to configuration and metadata and (re-)activate
-
         String address = getAddressFromContext(serverContext);
         publish(address);
     }
@@ -190,14 +232,6 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             LOG.warning("ENDPOINT_ALREADY_PUBLISHED_MSG");
         }
         doPublish(address);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.xml.ws.Endpoint#setHandlerChain(java.util.List)
-     */
-    public void setHandlerChain(List<Handler> h) {        
     }
 
     /*
@@ -233,6 +267,10 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     }
     
     public ServerBinding getServerBinding() {
+        if (doInit) {
+            init();
+        }
+
         return serverBinding;
     }
     
@@ -261,6 +299,10 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     }
 
     void doPublish(String address) {
+        if (doInit) {
+            init();
+        }
+
         EndpointReferenceUtils.setAddress(reference, address);
         try {
             serverBinding.activate();
@@ -276,14 +318,13 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
 
     @Override
     public Map<String, Object> getProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        return properties;
     }
 
     @Override
     public void setProperties(Map<String, Object> arg0) {
-        // TODO Auto-generated method stub
-        
+        properties = arg0;
+        doInit = true;
     }
 
 
