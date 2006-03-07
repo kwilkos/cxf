@@ -50,8 +50,9 @@ public final class EndpointReferenceUtils {
      */
     public static QName getServiceName(EndpointReferenceType ref) {
         QName serviceName = null;
-        if (ref.getMetadata() != null) {
-            Map<QName, String> attribMap = ref.getMetadata().getOtherAttributes();
+        MetadataType mt = ref.getMetadata();
+        if (mt != null) {
+            Map<QName, String> attribMap = mt.getOtherAttributes();
             serviceName = QName.valueOf(attribMap.get(SERVICE_NAME));
         }
         return serviceName;
@@ -64,8 +65,9 @@ public final class EndpointReferenceUtils {
      */
     public static String getPortName(EndpointReferenceType ref) {
         String portName = null;
-        if (ref.getMetadata() != null) {
-            Map<QName, String> attribMap = ref.getMetadata().getOtherAttributes();
+        MetadataType mt = ref.getMetadata();
+        if (mt != null) {
+            Map<QName, String> attribMap = mt.getOtherAttributes();
             portName = attribMap.get(PORT_NAME);
         }
         return portName;
