@@ -107,15 +107,35 @@
             <version>${project.version}</version>
         </dependency>
         
-	    <dependency>
-	      <groupId>sun.jdk</groupId>
-	      <artifactId>tools</artifactId>
-	      <version>1.5.0</version>
-	      <scope>system</scope>
-	      <systemPath>${java.home}/../lib/tools.jar</systemPath>
-	    </dependency>
-        
     </dependencies>
+
+
+     <profiles>
+       <profile>
+         <!-- NOTE I: This will not be activated on OS X, since
+	      classes.jar already has the tools in it. 
+	      NOTE II: This will probably break on the IBM JDK.
+	 -->
+         <id>default-tools.jar</id>
+         <activation>
+	   <property>
+             <name>java.vendor</name>
+             <value>Sun Microsystems Inc.</value>
+           </property>
+         </activation>
+         <dependencies>
+         <dependency>
+           <groupId>sun.jdk</groupId>
+           <artifactId>tools</artifactId>
+           <version>1.5.0</version>
+           <scope>system</scope>
+           <systemPath>${java.home}/../lib/tools.jar</systemPath>
+           </dependency>
+         </dependencies>
+       </profile>
+     </profiles>
+
+
      <build>
      <plugins>
               <!--plugin>
