@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -40,15 +41,19 @@ import org.objectweb.celtix.ws.addressing.RelatesToType;
  * Protocol Handler responsible for {en|de}coding the Message Addressing 
  * Properties for {outgo|incom}ing messages.
  */
-public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
+public class MAPCodec 
+    implements SOAPHandler<SOAPMessageContext> {
 
     private static final Logger LOG = LogUtils.getL7dLogger(MAPCodec.class);
     private static SOAPFactory soapFactory;
+    
+    private VersionTransformer transformer;
 
     /**
      * Constructor.
      */
     public MAPCodec() {
+        transformer = new VersionTransformer(this);
     } 
 
     /**
@@ -61,7 +66,7 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
      * @return the set of SOAP headers understood by this handler 
      */
     public Set<QName> getHeaders() {
-        return Names.HEADERS;
+        return VersionTransformer.HEADERS;
     }
     
     /**
@@ -130,35 +135,42 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
                                     : env.addHeader();
                 discardMAPs(header);
                 header.addNamespaceDeclaration(Names.WSA_NAMESPACE_PREFIX,
-                                               Names.WSA_NAMESPACE_NAME);
-                Marshaller marshaller = 
-                    ContextUtils.getJAXBContext().createMarshaller();
+                                               maps.getNamespaceURI());
+                JAXBContext jaxbContext = 
+                    VersionTransformer.getExposedJAXBContext(
+                                                     maps.getNamespaceURI());
+                Marshaller marshaller = jaxbContext.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-                encodeMAP(maps.getMessageID(), 
-                          Names.WSA_MESSAGEID_QNAME,
-                          AttributedURIType.class, 
-                          header, 
-                          marshaller);
-                encodeMAP(maps.getTo(), 
-                          Names.WSA_TO_QNAME,
-                          AttributedURIType.class,  
-                          header, 
-                          marshaller);
-                encodeMAP(maps.getReplyTo(), 
-                          Names.WSA_REPLYTO_QNAME, 
-                          EndpointReferenceType.class,
-                          header,
-                          marshaller);
-                encodeMAP(maps.getRelatesTo(),
-                          Names.WSA_RELATESTO_QNAME,
-                          RelatesToType.class,
-                          header,
-                          marshaller);
-                encodeMAP(maps.getAction(), 
-                          Names.WSA_ACTION_QNAME,
-                          AttributedURIType.class, 
-                          header, 
-                          marshaller);
+                transformer.encodeAsExposed(maps.getNamespaceURI(),
+                                            maps.getMessageID(), 
+                                            Names.WSA_MESSAGEID_NAME,
+                                            AttributedURIType.class, 
+                                            header, 
+                                            marshaller);
+                transformer.encodeAsExposed(maps.getNamespaceURI(),
+                                            maps.getTo(), 
+                                            Names.WSA_TO_NAME,
+                                            AttributedURIType.class,  
+                                            header, 
+                                            marshaller);
+                transformer.encodeAsExposed(maps.getNamespaceURI(),
+                                            maps.getReplyTo(), 
+                                            Names.WSA_REPLYTO_NAME, 
+                                            EndpointReferenceType.class,
+                                            header,
+                                            marshaller);
+                transformer.encodeAsExposed(maps.getNamespaceURI(),
+                                            maps.getRelatesTo(),
+                                            Names.WSA_RELATESTO_NAME,
+                                            RelatesToType.class,
+                                            header,
+                                            marshaller);
+                transformer.encodeAsExposed(maps.getNamespaceURI(),
+                                            maps.getAction(), 
+                                            Names.WSA_ACTION_NAME,
+                                            AttributedURIType.class, 
+                                            header, 
+                                            marshaller);
                 propogateAction(maps.getAction(), message);
                 applyMAPValidation(context);
             } catch (SOAPException se) {
@@ -179,54 +191,73 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
     private AddressingProperties decode(SOAPMessageContext context) {
         // REVISIT generate MessageAddressingHeaderRequired fault if an
         // expected header is missing 
-        AddressingProperties maps = null;
+        AddressingPropertiesImpl maps = null;
         boolean isRequestor = ContextUtils.isRequestor(context);
         try {
             SOAPMessage message = context.getMessage();
             SOAPEnvelope env = message.getSOAPPart().getEnvelope();
             SOAPHeader header = env.getHeader();
             if (header != null) {
-                Unmarshaller unmarshaller = 
-                    ContextUtils.getJAXBContext().createUnmarshaller();
+                Unmarshaller unmarshaller = null;
                 Iterator headerElements = header.examineAllHeaderElements();
                 while (headerElements.hasNext()) {
                     SOAPHeaderElement headerElement = 
                         (SOAPHeaderElement)headerElements.next();
                     Name headerName = headerElement.getElementName();
-                    if (Names.WSA_NAMESPACE_NAME.equals(headerName.getURI())) {
+                    String headerURI = headerName.getURI();
+                    if (unmarshaller == null) {
+                        JAXBContext jaxbContext = 
+                            VersionTransformer.getExposedJAXBContext(headerURI);
+                        unmarshaller = 
+                            jaxbContext.createUnmarshaller();
+                    }
+                    if (transformer.isSupported(headerURI)) {
                         if (maps == null) {
                             maps = new AddressingPropertiesImpl();
+                            maps.exposeAs(headerURI);
                         }
                         String localName = headerName.getLocalName();
                         LOG.log(Level.INFO, "decoding WSA header {0}", localName);
                         if (Names.WSA_MESSAGEID_NAME.equals(localName)) {
-                            maps.setMessageID(decodeMAP(AttributedURIType.class,
-                                                        headerElement, 
-                                                        unmarshaller));
+                            maps.setMessageID(transformer.decodeAsNative(
+                                                      headerURI,
+                                                      AttributedURIType.class,
+                                                      headerElement, 
+                                                      unmarshaller));
                         } else if (Names.WSA_TO_NAME.equals(localName)) {
-                            maps.setTo(decodeMAP(AttributedURIType.class,
-                                                 headerElement, 
-                                                 unmarshaller));
+                            maps.setTo(transformer.decodeAsNative(
+                                                      headerURI,
+                                                      AttributedURIType.class,
+                                                      headerElement, 
+                                                      unmarshaller));
                         } else if (Names.WSA_REPLYTO_NAME.equals(localName)) {
-                            EndpointReferenceType replyTo = 
-                                decodeMAP(EndpointReferenceType.class,
-                                          headerElement, 
-                                          unmarshaller);
-                            maps.setReplyTo(replyTo);
+                            maps.setReplyTo(transformer.decodeAsNative(
+                                                       headerURI,
+                                                       EndpointReferenceType.class,
+                                                       headerElement, 
+                                                       unmarshaller));
                         } else if (Names.WSA_RELATESTO_NAME.equals(localName)) {
-                            maps.setRelatesTo(decodeMAP(RelatesToType.class,
-                                                        headerElement, 
-                                                        unmarshaller));
+                            maps.setRelatesTo(transformer.decodeAsNative(
+                                                       headerURI,
+                                                       RelatesToType.class,
+                                                       headerElement, 
+                                                       unmarshaller));
                             if (isRequestor) {
                                 ContextUtils.storeCorrelationID(maps.getRelatesTo(),
                                                                 false,
                                                                 context);
                             }
                         } else if (Names.WSA_ACTION_NAME.equals(localName)) {
-                            maps.setAction(decodeMAP(AttributedURIType.class,
-                                                     headerElement, 
-                                                     unmarshaller));
+                            maps.setAction(transformer.decodeAsNative(
+                                                      headerURI,
+                                                      AttributedURIType.class,
+                                                      headerElement, 
+                                                      unmarshaller));
                         }
+                    } else {
+                        LOG.log(Level.WARNING, 
+                                "UNSUPPORTED_VERSION_MSG",
+                                headerURI);
                     }
                 }
             }
@@ -247,11 +278,11 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
      * @param header the SOAP header
      * @param marshaller the JAXB marshaller to use
      */
-    private <T> void encodeMAP(T value,
-                               QName qname,
-                               Class<T> clz,
-                               SOAPHeader header,
-                               Marshaller marshaller) throws JAXBException {
+    protected <T> void encodeMAP(T value,
+                                 QName qname,
+                                 Class<T> clz,
+                                 SOAPHeader header,
+                                 Marshaller marshaller) throws JAXBException {
         LOG.log(Level.INFO, "encoding WSA header {0}", qname);
         if (value != null) {
             marshaller.marshal(new JAXBElement<T>(qname, clz, value), header);
@@ -264,11 +295,11 @@ public class MAPCodec implements SOAPHandler<SOAPMessageContext> {
      * @param clz the class
      * @param headerElement the SOAP header element
      * @param marshaller the JAXB marshaller to use
-     * @return the decoded EndpointReference
+     * @return the decoded value
      */
-    private <T> T decodeMAP(Class<T> clz,
-                            SOAPHeaderElement headerElement,
-                            Unmarshaller unmarshaller) throws JAXBException {
+    protected <T> T decodeMAP(Class<T> clz,
+                              SOAPHeaderElement headerElement,
+                              Unmarshaller unmarshaller) throws JAXBException {
         JAXBElement<T> element =
             unmarshaller.unmarshal(headerElement, clz);
         return element.getValue();

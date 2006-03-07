@@ -4,7 +4,7 @@ package org.objectweb.celtix.ws.addressing;
 /**
  * Abstraction of Message Addressing Properties. 
  */
-public interface AddressingProperties {
+public interface AddressingProperties extends AddressingType {
     /**
      * Accessor for the <b>To</b> property.
      * @return current value of To property

@@ -8,8 +8,9 @@ import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
-import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.bus.ws.addressing.Names;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
 
@@ -19,7 +20,8 @@ import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSI
  */
 public class MAPVerifier implements LogicalHandler<LogicalMessageContext> {
     VerificationCache verificationCache;
-    private Map<String, Object> mapProperties;        
+    String exposeAs;
+    private Map<String, Object> mapProperties;
 
     public MAPVerifier() {
         mapProperties = new HashMap<String, Object>();
@@ -50,12 +52,30 @@ public class MAPVerifier implements LogicalHandler<LogicalMessageContext> {
     }
 
     private void verify(LogicalMessageContext context) {
+        boolean isOutbound = ContextUtils.isOutbound(context);
         String mapProperty = 
-            (String)mapProperties.get(ContextUtils.isOutbound(context) 
+            (String)mapProperties.get(isOutbound 
                                       ? MAPTest.OUTBOUND_KEY
                                       : MAPTest.INBOUND_KEY);
-        AddressingProperties maps = 
-            (AddressingProperties)context.get(mapProperty);
+        AddressingPropertiesImpl maps = 
+            (AddressingPropertiesImpl)context.get(mapProperty);
+        if (ContextUtils.isRequestor(context)) {
+            if (isOutbound) {
+                if (exposeAs != null) {
+                    maps.exposeAs(exposeAs);
+                }
+            } else {
+                String expected = exposeAs != null
+                                  ? exposeAs
+                                  : Names.WSA_NAMESPACE_NAME;
+                if (maps.getNamespaceURI() != expected) {
+                    verificationCache.put("Incoming version mismatch"
+                                          + " expected: " + expected
+                                          + " got: " + maps.getNamespaceURI());
+                }
+                exposeAs = null;
+            }
+        }
         verificationCache.put(MAPTest.verifyMAPs(maps, this));
     }
 }

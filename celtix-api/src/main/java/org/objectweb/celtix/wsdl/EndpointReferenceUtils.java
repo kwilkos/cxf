@@ -49,8 +49,12 @@ public final class EndpointReferenceUtils {
      * @return the service name.
      */
     public static QName getServiceName(EndpointReferenceType ref) {
-        Map<QName, String> attribMap = ref.getMetadata().getOtherAttributes();
-        return QName.valueOf(attribMap.get(SERVICE_NAME));
+        QName serviceName = null;
+        if (ref.getMetadata() != null) {
+            Map<QName, String> attribMap = ref.getMetadata().getOtherAttributes();
+            serviceName = QName.valueOf(attribMap.get(SERVICE_NAME));
+        }
+        return serviceName;
     }
     
     /**
@@ -59,8 +63,12 @@ public final class EndpointReferenceUtils {
      * @return the port name.
      */
     public static String getPortName(EndpointReferenceType ref) {
-        Map<QName, String> attribMap = ref.getMetadata().getOtherAttributes();
-        return attribMap.get(PORT_NAME);
+        String portName = null;
+        if (ref.getMetadata() != null) {
+            Map<QName, String> attribMap = ref.getMetadata().getOtherAttributes();
+            portName = attribMap.get(PORT_NAME);
+        }
+        return portName;
     }
 
     /**

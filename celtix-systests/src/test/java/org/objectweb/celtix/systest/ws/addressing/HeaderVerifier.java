@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.soap.Name;
@@ -22,8 +24,10 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.bus.ws.addressing.Names;
+import org.objectweb.celtix.bus.ws.addressing.soap.VersionTransformer;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
+import org.objectweb.celtix.ws.addressing.addressing200408.AttributedURI;
 
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
 
@@ -33,7 +37,8 @@ import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSI
  */
 public class HeaderVerifier implements SOAPHandler<SOAPMessageContext> {
     VerificationCache verificationCache;
-
+    String currentNamespaceURI;
+    
     public void init(Map<String, Object> map) {
     }
 
@@ -66,16 +71,7 @@ public class HeaderVerifier implements SOAPHandler<SOAPMessageContext> {
                 SOAPHeader header = env.getHeader() != null 
                                     ? env.getHeader()
                                     : env.addHeader();
-                Marshaller marshaller = 
-                    ContextUtils.getJAXBContext().createMarshaller();
-                marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-                AttributedURIType value =
-                     ContextUtils.getAttributedURI("urn:piggyback_responder");
-                marshaller.marshal(
-                     new JAXBElement<AttributedURIType>(Names.WSA_FROM_QNAME,
-                                                        AttributedURIType.class,
-                                                        value),
-                     header);
+                marshallFrom("urn:piggyback_responder", header, getMarshaller());
             }
         } catch (Exception e) {
             verificationCache.put("SOAP header addition failed: " + e);
@@ -92,7 +88,7 @@ public class HeaderVerifier implements SOAPHandler<SOAPMessageContext> {
                 Iterator headerElements = header.examineAllHeaderElements();
                 while (headerElements.hasNext()) {
                     Name headerName = ((SOAPHeaderElement)headerElements.next()).getElementName();
-                    if (Names.WSA_NAMESPACE_NAME.equals(headerName.getURI())) {
+                    if (isAddressingNamespace(headerName.getURI())) {
                         wsaHeaders.add(headerName.getLocalName());
                     }
                 }
@@ -105,7 +101,18 @@ public class HeaderVerifier implements SOAPHandler<SOAPMessageContext> {
             verificationCache.put("SOAP header verification failed: " + se);
         }
     }
-
+    
+    private boolean isAddressingNamespace(String namespace) {
+        boolean isAddressing = false;
+        if (Names.WSA_NAMESPACE_NAME.equals(namespace)
+            || VersionTransformer.Names200408.WSA_NAMESPACE_NAME.equals(
+                                                                namespace)) {
+            currentNamespaceURI = namespace;
+            isAddressing = true;
+        }
+        return isAddressing;
+    }
+    
     private boolean isOutgoingPartialResponse(SOAPMessageContext context) {
         AddressingProperties maps = 
             (AddressingProperties)context.get(SERVER_ADDRESSING_PROPERTIES_OUTBOUND);
@@ -121,5 +128,40 @@ public class HeaderVerifier implements SOAPHandler<SOAPMessageContext> {
         return !ContextUtils.isOutbound(context)
                && ContextUtils.isRequestor(context)
                && !body.getChildElements().hasNext();
+    }
+    
+    private Marshaller getMarshaller() throws JAXBException {
+        JAXBContext jaxbContext =
+            VersionTransformer.getExposedJAXBContext(currentNamespaceURI);
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+        return marshaller;
+    }
+
+    private void marshallFrom(String from, SOAPHeader header, Marshaller marshaller) 
+        throws JAXBException {
+        if (Names.WSA_NAMESPACE_NAME.equals(currentNamespaceURI)) {
+            AttributedURIType value =
+                ContextUtils.getAttributedURI("urn:piggyback_responder");
+            marshaller.marshal(
+                new JAXBElement<AttributedURIType>(Names.WSA_FROM_QNAME,
+                                                   AttributedURIType.class,
+                                                   value),
+                header);
+        } else if (VersionTransformer.Names200408.WSA_NAMESPACE_NAME.equals(
+                                                      currentNamespaceURI)) {
+            AttributedURI value =
+                VersionTransformer.Names200408.WSA_OBJECT_FACTORY.createAttributedURI();
+            value.setValue(from);
+            QName qname = new QName(VersionTransformer.Names200408.WSA_NAMESPACE_NAME, 
+                                    Names.WSA_FROM_NAME);
+            marshaller.marshal(
+                new JAXBElement<AttributedURI>(qname,
+                                               AttributedURI.class,
+                                               value),
+                header);
+
+        }
+                                                                          
     }
 }

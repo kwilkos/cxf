@@ -18,6 +18,7 @@ import junit.framework.TestSuite;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.bus.ws.addressing.Names;
+import org.objectweb.celtix.bus.ws.addressing.soap.VersionTransformer;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
@@ -47,6 +48,7 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
         new HashMap<Object, Map<String, String>>();
     private Greeter greeter;
     private String verified;
+    private MAPVerifier mapVerifier;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(MAPTest.class);
@@ -84,7 +86,8 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
         List<Handler> handlerChain = provider.getBinding().getHandlerChain();
         for (Object h : handlerChain) {
             if (h instanceof MAPVerifier) {
-                ((MAPVerifier)h).verificationCache = this;
+                mapVerifier = (MAPVerifier)h;
+                mapVerifier.verificationCache = this;
             } else if (h instanceof HeaderVerifier) {
                 ((HeaderVerifier)h).verificationCache = this;
             } 
@@ -184,7 +187,26 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
             throw (Exception)ex.getCause();
         }
     }
-    
+
+    public void testVersioning() throws Exception {
+        try {
+            mapVerifier.exposeAs = 
+                VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
+            String greeting = greeter.greetMe("versioning1");
+            assertEquals("unexpected response received from service", 
+                         "Hello versioning1",
+                         greeting);
+            checkVerification();
+            greeting = greeter.greetMe("versioning2");
+            assertEquals("unexpected response received from service", 
+                         "Hello versioning2",
+                         greeting);
+            checkVerification();
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
+
     public void xtestAction() throws Exception {
         try {
             // testDocLitBare has an explicit soapAction attribute specified

@@ -215,9 +215,10 @@ public final class ContextUtils {
      * @param isOutbound true iff the message is outbound
      * @return the current addressing properties
      */
-    public static AddressingProperties retrieveMAPs(MessageContext context, 
-                                                    boolean isProviderContext,
-                                                    boolean isOutbound) {
+    public static AddressingPropertiesImpl retrieveMAPs(
+                                                   MessageContext context, 
+                                                   boolean isProviderContext,
+                                                   boolean isOutbound) {
         boolean isRequestor = ContextUtils.isRequestor(context);
         String mapProperty =
             ContextUtils.getMAPProperty(isProviderContext, 
@@ -226,8 +227,8 @@ public final class ContextUtils {
         LOG.log(Level.INFO,
                 "retrieving MAPs from context property {0}",
                 mapProperty);
-        AddressingProperties maps =
-            (AddressingProperties)context.get(mapProperty);
+        AddressingPropertiesImpl maps =
+            (AddressingPropertiesImpl)context.get(mapProperty);
         if (maps != null) {
             LOG.log(Level.INFO, "current MAPs {0}", maps);
         } else if (!isProviderContext) {
@@ -340,19 +341,20 @@ public final class ContextUtils {
     /**
      * Rebase server transport on replyTo
      * 
-     * @param replyTo the decoupled endpoint to rebase on
+     * @param inMAPs the incoming MAPs
      * @param context the message context
      */
-    public static void rebaseTransport(EndpointReferenceType replyTo,
+    public static void rebaseTransport(AddressingProperties inMAPs,
                                        MessageContext context) {
         // ensure there is a MAPs instance available for the outbound
         // partial response that contains appropriate To and ReplyTo
         // properties (i.e. anonymous & none respectively)
-        AddressingProperties maps = new AddressingPropertiesImpl();
+        AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
         maps.setTo(ContextUtils.getAttributedURI(Names.WSA_ANONYMOUS_ADDRESS));
         maps.setReplyTo(WSA_OBJECT_FACTORY.createEndpointReferenceType());
         maps.getReplyTo().setAddress(getAttributedURI(Names.WSA_NONE_ADDRESS));
         maps.setAction(getAttributedURI(""));
+        maps.exposeAs(inMAPs.getNamespaceURI());
         storeMAPs(maps, context, true, true, true, true);
 
         ServerBinding serverBinding = retrieveServerBinding(context);
@@ -360,7 +362,7 @@ public final class ContextUtils {
         if (serverTransport != null && serverBinding != null) {
             try {
                 OutputStreamMessageContext outputContext =
-                    serverTransport.rebase(context, replyTo);
+                    serverTransport.rebase(context, inMAPs.getReplyTo());
                 if (outputContext != null) {
                     serverBinding.partialResponse(outputContext, 
                                                   getDataBindingCallback());

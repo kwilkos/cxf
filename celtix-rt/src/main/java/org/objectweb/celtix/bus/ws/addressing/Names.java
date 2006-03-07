@@ -61,8 +61,10 @@ public final class Names {
     public static final QName WSA_MESSAGEID_QNAME = 
         new QName(WSA_NAMESPACE_NAME, WSA_MESSAGEID_NAME);    
     
+    public static final String WSA_REPLY_NAME = "reply";
+    public static final String WSA_RELATIONSHIP_DELIMITER = "/";
     public static final String WSA_RELATIONSHIP_REPLY = 
-        WSA_NAMESPACE_NAME + "/reply";
+        WSA_NAMESPACE_NAME + WSA_RELATIONSHIP_DELIMITER + WSA_REPLY_NAME;
     
     public static final String WSA_RELATESTO_NAME = "RelatesTo";
     public static final QName WSA_RELATESTO_QNAME =

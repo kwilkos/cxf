@@ -151,12 +151,12 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             }
         } else if (!ContextUtils.isRequestor(context)) {
             // responder validates incoming MAPs
-            AddressingProperties maps = getMAPs(context, false, false);
+            AddressingPropertiesImpl maps = getMAPs(context, false, false);
             setUsingAddressing(true);
             continueProcessing = validateIncomingMAPs(maps, context); 
             if (continueProcessing) {
                 if (!ContextUtils.isGenericAddress(maps.getReplyTo())) {
-                    ContextUtils.rebaseTransport(maps.getReplyTo(), context);
+                    ContextUtils.rebaseTransport(maps, context);
                 }            
             } else {
                 // validation failure => dispatch is aborted, response MAPs 
@@ -173,7 +173,7 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
      * @param context the messsage context
      */
     private void aggregate(LogicalMessageContext context) {
-        AddressingProperties maps = assembleGeneric(context);
+        AddressingPropertiesImpl maps = assembleGeneric(context);
         boolean isRequestor = ContextUtils.isRequestor(context);
         addRoleSpecific(maps, isRequestor, context);
         // outbound property always used to store MAPs, as this handler 
@@ -191,8 +191,8 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
      * @param context the messsage context
      * @return AddressingProperties containing the generic MAPs
      */
-    private AddressingProperties assembleGeneric(MessageContext context) {
-        AddressingProperties maps = getMAPs(context, true, true);
+    private AddressingPropertiesImpl assembleGeneric(MessageContext context) {
+        AddressingPropertiesImpl maps = getMAPs(context, true, true);
         // MessageID
         if (maps.getMessageID() == null) {
             String messageID = URN_UUID + UUID.randomUUID();
@@ -221,7 +221,7 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
      * requestor 
      * @param context the messsage context
      */
-    private void addRoleSpecific(AddressingProperties maps, 
+    private void addRoleSpecific(AddressingPropertiesImpl maps, 
                                  boolean isRequestor,
                                  MessageContext context) {
         if (isRequestor) {
@@ -254,7 +254,8 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             }
         } else {
             // add response-specific MAPs
-            AddressingProperties inMAPs = getMAPs(context, false, false);
+            AddressingPropertiesImpl inMAPs = getMAPs(context, false, false);
+            maps.exposeAs(inMAPs.getNamespaceURI());
             // To taken from ReplyTo in incoming MAPs
             if (inMAPs.getReplyTo() != null) {
                 maps.setTo(inMAPs.getReplyTo().getAddress());
@@ -278,11 +279,11 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
      * @param isOutbound true iff the message is outbound
      * @return AddressingProperties retrieved MAPs
      */
-    private AddressingProperties getMAPs(MessageContext context,
-                                         boolean isProviderContext,
-                                         boolean isOutbound) {
+    private AddressingPropertiesImpl getMAPs(MessageContext context,
+                                             boolean isProviderContext,
+                                             boolean isOutbound) {
 
-        AddressingProperties maps = null;
+        AddressingPropertiesImpl maps = null;
         maps = ContextUtils.retrieveMAPs(context, 
                                          isProviderContext,
                                          isOutbound);

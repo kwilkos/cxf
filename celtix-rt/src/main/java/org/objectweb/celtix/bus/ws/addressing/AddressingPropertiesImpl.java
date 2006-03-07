@@ -16,6 +16,23 @@ public class AddressingPropertiesImpl implements AddressingProperties {
     private EndpointReferenceType replyTo;
     private RelatesToType relatesTo;
     private AttributedURIType action;
+    private String namespaceURI;
+
+    /**
+     * Constructor, defaults to 2005/08 namespace.
+     */
+    public AddressingPropertiesImpl() {
+        this(Names.WSA_NAMESPACE_NAME);
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param uri the namespace URI
+     */
+    public AddressingPropertiesImpl(String uri) {
+        namespaceURI = uri;
+    }
 
     /**
      * Accessor for the <b>To</b> property.
@@ -95,5 +112,23 @@ public class AddressingPropertiesImpl implements AddressingProperties {
      */
     public void setAction(AttributedURIType iri) {
         action = iri;
+    }
+    
+    /**
+     * @return WS-Addressing namespace URI
+     */
+    public String getNamespaceURI() {
+        return namespaceURI;
+    }
+    
+    /**
+     * Used to specify a different WS-Addressing namespace URI, 
+     * so as to cause MAPs to be exposed (i.e. encoded in externalized
+     * message with a different WS-Addressing version).
+     * 
+     * @return WS-Addressing namespace URI
+     */
+    public void exposeAs(String uri) {
+        namespaceURI = uri;
     }
 }

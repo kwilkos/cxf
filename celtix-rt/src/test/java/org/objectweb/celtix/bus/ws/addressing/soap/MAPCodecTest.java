@@ -33,6 +33,8 @@ import org.objectweb.celtix.bus.ws.addressing.Names;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.addressing.RelatesToType;
+import org.objectweb.celtix.ws.addressing.addressing200408.AttributedURI;
+import org.objectweb.celtix.ws.addressing.addressing200408.Relationship;
 
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
@@ -43,28 +45,29 @@ import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSI
 
 public class MAPCodecTest extends TestCase {
 
-    private static final QName[] EXPECTED_NAMES = 
-        new QName[] {Names.WSA_MESSAGEID_QNAME, Names.WSA_TO_QNAME, 
-                     Names.WSA_REPLYTO_QNAME, Names.WSA_RELATESTO_QNAME,
-                     Names.WSA_ACTION_QNAME};
-    private static final Class<?>[] EXPECTED_DECLARED_TYPES = 
-        new Class<?>[] {AttributedURIType.class, AttributedURIType.class,
-                        EndpointReferenceType.class, RelatesToType.class, 
-                        AttributedURIType.class};
     private MAPCodec codec;
     private IMocksControl control;
+    private QName[] expectedNames;
+    private Class<?>[] expectedDeclaredTypes;
     private Object[] expectedValues;
+    //private JAXBElement<?>[] expectedJAXBElements; 
     private int expectedIndex;
+    private String expectedNamespaceURI;
 
     public void setUp() {
         codec = new MAPCodec();
         codec.init(null);
         control = EasyMock.createNiceControl();
-        expectedIndex = 0;
     }
 
     public void tearDown() {
         codec.destroy();
+        expectedNames = null;
+        expectedDeclaredTypes = null;
+        //expectedJAXBElements = null;
+        expectedValues = null;
+        expectedIndex = 0;
+        expectedNamespaceURI = null;
     }
 
     public void testGetHeaders() throws Exception {
@@ -107,6 +110,16 @@ public class MAPCodecTest extends TestCase {
         codec.close(context);
     }
     
+    public void testRequestorOutboundNonNative() throws Exception {
+        String uri = VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
+        SOAPMessageContext context = 
+            setUpContext(true, true, false, false, uri);
+        boolean proceed = codec.handleMessage(context);
+        assertTrue("expected dispatch to proceed", proceed);
+        control.verify();
+        codec.close(context);
+    }
+    
     public void testResponderInbound() throws Exception {
         SOAPMessageContext context = setUpContext(false, false);
         boolean proceed = codec.handleMessage(context);
@@ -130,7 +143,17 @@ public class MAPCodecTest extends TestCase {
         control.verify();
         codec.close(context);
     }
-
+    
+    public void testResponderInboundNonNative() throws Exception {
+        String uri = VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
+        SOAPMessageContext context = 
+            setUpContext(false, false, false, false, uri);
+        boolean proceed = codec.handleMessage(context);
+        assertTrue("expected dispatch to proceed", proceed);
+        control.verify();
+        codec.close(context);
+    }
+    
     public void testResponderOutboundInvalidMAP() throws Exception {
         SOAPMessageContext context = setUpContext(false, true, true);
         try {
@@ -174,6 +197,16 @@ public class MAPCodecTest extends TestCase {
         control.verify();
         codec.close(context);
     }
+
+    public void testResponderOutboundNonNative() throws Exception {
+        String uri = VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
+        SOAPMessageContext context = 
+            setUpContext(false, true, false, false, uri);
+        boolean proceed = codec.handleMessage(context);
+        assertTrue("expected dispatch to proceed", proceed);
+        control.verify();
+        codec.close(context);
+    }
     
     public void testRequestorInbound() throws Exception {
         SOAPMessageContext context = setUpContext(true, false);
@@ -186,6 +219,16 @@ public class MAPCodecTest extends TestCase {
     public void testRequestorInboundFault() throws Exception {
         SOAPMessageContext context = setUpContext(true, false);
         boolean proceed = codec.handleFault(context);
+        assertTrue("expected dispatch to proceed", proceed);
+        control.verify();
+        codec.close(context);
+    }
+    
+    public void testRequestorInboundNonNative() throws Exception {
+        String uri = VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
+        SOAPMessageContext context = 
+            setUpContext(true, false, false, false, uri);
+        boolean proceed = codec.handleMessage(context);
         assertTrue("expected dispatch to proceed", proceed);
         control.verify();
         codec.close(context);
@@ -206,11 +249,24 @@ public class MAPCodecTest extends TestCase {
                             invalidMAP,
                             false);
     }
-    
+
     private SOAPMessageContext setUpContext(boolean requestor, 
                                             boolean outbound,
                                             boolean invalidMAP,
                                             boolean preExistingSOAPAction) 
+        throws Exception {
+        return setUpContext(requestor, 
+                            outbound,
+                            invalidMAP,
+                            preExistingSOAPAction,
+                            Names.WSA_NAMESPACE_NAME);
+    }
+
+    private SOAPMessageContext setUpContext(boolean requestor, 
+                                            boolean outbound,
+                                            boolean invalidMAP,
+                                            boolean preExistingSOAPAction,
+                                            String exposeAs) 
         throws Exception {
         SOAPMessageContext context =
             control.createMock(SOAPMessageContext.class);
@@ -219,12 +275,14 @@ public class MAPCodecTest extends TestCase {
         context.get(REQUESTOR_ROLE_PROPERTY);
         EasyMock.expectLastCall().andReturn(Boolean.valueOf(requestor));
         String mapProperty = getMAPProperty(requestor, outbound);
-        AddressingPropertiesImpl maps = getMAPs();
+        AddressingPropertiesImpl maps = getMAPs(exposeAs, outbound);
         SOAPMessage message = control.createMock(SOAPMessage.class);
         context.getMessage();
         EasyMock.expectLastCall().andReturn(message);
         SOAPHeader header = setUpSOAPHeader(context, message, outbound);
-        ContextUtils.setJAXBContext(control.createMock(JAXBContext.class));
+        JAXBContext jaxbContext = control.createMock(JAXBContext.class);
+        ContextUtils.setJAXBContext(jaxbContext);
+        VersionTransformer.Names200408.setJAXBContext(jaxbContext);
         if (outbound) {
             setUpEncode(context,
                         message,
@@ -275,8 +333,8 @@ public class MAPCodecTest extends TestCase {
         headerItr.hasNext();
         EasyMock.expectLastCall().andReturn(Boolean.FALSE);
         header.addNamespaceDeclaration(Names.WSA_NAMESPACE_PREFIX,
-                                       Names.WSA_NAMESPACE_NAME);
-        EasyMock.expectLastCall().andReturn(null);
+                                       maps.getNamespaceURI());
+        EasyMock.expectLastCall().andReturn(null);        
         Marshaller marshaller = control.createMock(Marshaller.class);
         ContextUtils.getJAXBContext().createMarshaller();
         EasyMock.expectLastCall().andReturn(marshaller);
@@ -287,6 +345,8 @@ public class MAPCodecTest extends TestCase {
             EasyMock.reportMatcher(matcher);
             EasyMock.eq(header);
             marshaller.marshal(null, header);
+            //marshaller.marshal(expectedJAXBElements[i], 
+            //                   header);
             EasyMock.expectLastCall();
         }
         MimeHeaders mimeHeaders = control.createMock(MimeHeaders.class);
@@ -309,7 +369,7 @@ public class MAPCodecTest extends TestCase {
             EasyMock.expectLastCall().andReturn("Duplicate Message ID urn:uuid:12345"); 
         }
     }
-
+    
     private void setUpDecode(SOAPMessageContext context, 
                              SOAPHeader header,
                              AddressingPropertiesImpl maps,
@@ -321,39 +381,57 @@ public class MAPCodecTest extends TestCase {
         Iterator headerItr = control.createMock(Iterator.class);
         header.examineAllHeaderElements();
         EasyMock.expectLastCall().andReturn(headerItr);
+        String uri = maps.getNamespaceURI();
+        boolean exposedAsNative = Names.WSA_NAMESPACE_NAME.equals(uri);
+        boolean exposedAs200408 = 
+            VersionTransformer.Names200408.WSA_NAMESPACE_NAME.equals(uri);
+        assertTrue("unexpected namescape URI: " + uri, 
+                   exposedAsNative || exposedAs200408);
         setUpHeaderDecode(headerItr,
+                          uri,
                           Names.WSA_MESSAGEID_NAME,
-                          Names.WSA_MESSAGEID_QNAME,
-                          AttributedURIType.class,
+                          exposedAsNative
+                          ? AttributedURIType.class
+                          : AttributedURI.class,
                           0,
                           unmarshaller);
         setUpHeaderDecode(headerItr,
+                          uri,
                           Names.WSA_TO_NAME,
-                          Names.WSA_TO_QNAME,
-                          AttributedURIType.class,
+                          exposedAsNative
+                          ? AttributedURIType.class
+                          : AttributedURI.class,
                           1,
                           unmarshaller);
         setUpHeaderDecode(headerItr,
+                          uri,
                           Names.WSA_REPLYTO_NAME,
-                          Names.WSA_REPLYTO_QNAME,
-                          EndpointReferenceType.class,
+                          exposedAsNative
+                          ? EndpointReferenceType.class
+                          : VersionTransformer.Names200408.EPR_TYPE,
                           2,
                           unmarshaller);
         setUpHeaderDecode(headerItr,
+                          uri,
                           Names.WSA_RELATESTO_NAME,
-                          Names.WSA_RELATESTO_QNAME,
-                          RelatesToType.class,
+                          exposedAsNative
+                          ? RelatesToType.class
+                          : Relationship.class,
                           3,
                           unmarshaller);
         if (requestor) {
-            context.put("org.objectweb.celtix.correlation.in", 
-                        ((RelatesToType)expectedValues[3]).getValue());
+            context.put("org.objectweb.celtix.correlation.in",
+                        exposedAsNative
+                        ? ((RelatesToType)expectedValues[3]).getValue()
+                        : ((Relationship)expectedValues[3]).getValue());
             EasyMock.expectLastCall().andReturn(null);
         }
         setUpHeaderDecode(headerItr,
+                          uri,
                           Names.WSA_ACTION_NAME,
-                          Names.WSA_ACTION_QNAME,
-                          AttributedURIType.class,
+                          exposedAsNative
+                          ? AttributedURIType.class
+                          : AttributedURI.class,
                           4,
                           unmarshaller);
         EasyMock.eq(mapProperty);
@@ -365,11 +443,12 @@ public class MAPCodecTest extends TestCase {
     }
 
     private <T> void setUpHeaderDecode(Iterator headerItr,
-                                   String name,
-                                   QName qname,
-                                   Class<T> clz,
-                                   int index,
-                                   Unmarshaller unmarshaller) throws Exception { 
+                                       String uri,
+                                       String name,
+                                       Class<T> clz,
+                                       int index,
+                                       Unmarshaller unmarshaller) 
+        throws Exception { 
         headerItr.hasNext();
         EasyMock.expectLastCall().andReturn(Boolean.TRUE);
         SOAPHeaderElement headerElement = 
@@ -380,12 +459,12 @@ public class MAPCodecTest extends TestCase {
         headerElement.getElementName();
         EasyMock.expectLastCall().andReturn(headerName);
         headerName.getURI();
-        EasyMock.expectLastCall().andReturn(Names.WSA_NAMESPACE_NAME);
+        EasyMock.expectLastCall().andReturn(uri);
         headerName.getLocalName();
         EasyMock.expectLastCall().andReturn(name);
         Object v = expectedValues[index];
         JAXBElement<?> jaxbElement = 
-            new JAXBElement<T>(qname, clz, clz.cast(v));
+            new JAXBElement<T>(new QName(uri, name), clz, clz.cast(v));
         unmarshaller.unmarshal(headerElement, clz);
         EasyMock.expectLastCall().andReturn(jaxbElement);
     }
@@ -400,8 +479,11 @@ public class MAPCodecTest extends TestCase {
                  : SERVER_ADDRESSING_PROPERTIES_INBOUND;
     }
 
-    private AddressingPropertiesImpl getMAPs() {
+    private AddressingPropertiesImpl getMAPs(String uri, boolean outbound) {
         AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
+        boolean exposeAsNative = Names.WSA_NAMESPACE_NAME.equals(uri);
+        boolean exposeAs200408 = 
+            VersionTransformer.Names200408.WSA_NAMESPACE_NAME.equals(uri);
         AttributedURIType id = 
             ContextUtils.getAttributedURI("urn:uuid:12345");
         maps.setMessageID(id);
@@ -409,8 +491,12 @@ public class MAPCodecTest extends TestCase {
             ContextUtils.getAttributedURI("foobar");
         maps.setTo(to);
         EndpointReferenceType replyTo = new EndpointReferenceType();
+        String anonymous = 
+            exposeAsNative
+            ? Names.WSA_ANONYMOUS_ADDRESS
+            : VersionTransformer.Names200408.WSA_ANONYMOUS_ADDRESS;
         replyTo.setAddress(
-            ContextUtils.getAttributedURI(Names.WSA_ANONYMOUS_ADDRESS));
+            ContextUtils.getAttributedURI(anonymous));
         maps.setReplyTo(replyTo);
         RelatesToType relatesTo = new RelatesToType(); 
         relatesTo.setValue("urn:uuid:67890");
@@ -418,28 +504,91 @@ public class MAPCodecTest extends TestCase {
         AttributedURIType action = 
             ContextUtils.getAttributedURI("http://foo/bar/SEI/opRequest");
         maps.setAction(action);
-        expectedValues = new Object[] {id, to, replyTo, relatesTo, action};
+        maps.exposeAs(uri);
+        expectedNamespaceURI = uri;
+
+        expectedNames = 
+            new QName[] {new QName(uri, Names.WSA_MESSAGEID_NAME), 
+                         new QName(uri, Names.WSA_TO_NAME), 
+                         new QName(uri, Names.WSA_REPLYTO_NAME),
+                         new QName(uri, Names.WSA_RELATESTO_NAME),
+                         new QName(uri, Names.WSA_ACTION_NAME)};
+        if (exposeAsNative) {
+            expectedValues = new Object[] {id, to, replyTo, relatesTo, action};
+            expectedDeclaredTypes = 
+                new Class<?>[] {AttributedURIType.class,
+                                AttributedURIType.class,
+                                EndpointReferenceType.class,
+                                RelatesToType.class, 
+                                AttributedURIType.class};
+        } else if (exposeAs200408) {
+            expectedValues = new Object[] {VersionTransformer.convert(id),
+                                           VersionTransformer.convert(to),
+                                           VersionTransformer.convert(replyTo),
+                                           VersionTransformer.convert(relatesTo),
+                                           VersionTransformer.convert(action)};
+            if (!outbound) {
+                // conversion from 2004/08 to 2005/08 anonymous address
+                // occurs transparently in VersionTransformer
+                VersionTransformer.Names200408.EPR_TYPE.cast(expectedValues[2]).
+                    getAddress().setValue(Names.WSA_ANONYMOUS_ADDRESS);
+            }
+            expectedDeclaredTypes = 
+                new Class<?>[] {AttributedURI.class,
+                                AttributedURI.class,
+                                VersionTransformer.Names200408.EPR_TYPE,
+                                Relationship.class, 
+                                AttributedURI.class};
+        } else {
+            fail("unexpected namespace URI: " + uri);
+        }
         return maps;
     }
-
+    
     private final class JAXBEltMatcher implements IArgumentMatcher {
         public boolean matches(Object obj) {
-            QName name = EXPECTED_NAMES[expectedIndex];
-            Class<?> declaredType = EXPECTED_DECLARED_TYPES[expectedIndex];
+            QName name = expectedNames[expectedIndex];
+            Class<?> declaredType = expectedDeclaredTypes[expectedIndex];
             Object value = expectedValues[expectedIndex];
+            boolean ret = false;
             expectedIndex++;
-
             if (obj instanceof JAXBElement) {
                 JAXBElement other = (JAXBElement)obj;
-                return name.equals(other.getName()) 
-                       && declaredType.isAssignableFrom(other.getDeclaredType())
-                       && value.equals(other.getValue());
+                ret = name.equals(other.getName()) 
+                      && declaredType.isAssignableFrom(other.getDeclaredType())
+                      && compare(value, other.getValue());
             }
-            return false;
-        }    
+            return ret;
+        }
 
         public void appendTo(StringBuffer buffer) {
             buffer.append("JAXBElements did not match");
+        }
+        
+        private boolean compare(Object a, Object b) {
+            boolean ret = false;
+            if (a instanceof AttributedURI && b instanceof AttributedURI) {
+                ret = ((AttributedURI)a).getValue().equals(((AttributedURI)b).getValue());
+            } else if (a instanceof AttributedURIType && b instanceof AttributedURIType) {
+                ret = ((AttributedURIType)a).getValue().equals(((AttributedURIType)b).getValue());
+            } else if (a instanceof EndpointReferenceType && b instanceof EndpointReferenceType) {
+                EndpointReferenceType aEPR = (EndpointReferenceType)a;
+                EndpointReferenceType bEPR = (EndpointReferenceType)b;
+                ret = aEPR.getAddress() != null
+                      && bEPR.getAddress() != null
+                      && aEPR.getAddress().getValue().equals(bEPR.getAddress().getValue());
+            } else if (VersionTransformer.Names200408.EPR_TYPE.isInstance(a)
+                       && VersionTransformer.Names200408.EPR_TYPE.isInstance(b)) {
+                ret = VersionTransformer.Names200408.EPR_TYPE.cast(a).getAddress() != null
+                      && VersionTransformer.Names200408.EPR_TYPE.cast(b).getAddress() != null
+                      && VersionTransformer.Names200408.EPR_TYPE.cast(a).getAddress().getValue().equals(
+                             VersionTransformer.Names200408.EPR_TYPE.cast(b).getAddress().getValue());
+            } else if (a instanceof Relationship && b instanceof Relationship) {
+                ret = ((Relationship)a).getValue().equals(((Relationship)b).getValue());
+            } else if (a instanceof RelatesToType && b instanceof RelatesToType) {
+                ret = ((RelatesToType)a).getValue().equals(((RelatesToType)b).getValue());
+            } 
+            return ret;
         }
     }
 
@@ -458,18 +607,40 @@ public class MAPCodecTest extends TestCase {
 
         private boolean compareExpected(AddressingPropertiesImpl other) {
             boolean ret = false;
-            String expectedMessageID = ((AttributedURIType)expectedValues[0]).getValue();
-            String expectedTo = ((AttributedURIType)expectedValues[1]).getValue();
-            String expectedReplyTo = 
-                ((EndpointReferenceType)expectedValues[2]).getAddress().getValue();
-            String expectedRelatesTo = ((RelatesToType)expectedValues[3]).getValue();
-            String expectedAction = ((AttributedURIType)expectedValues[4]).getValue();
-            ret = expectedMessageID.equals(other.getMessageID().getValue())
-                  && expectedTo.equals(other.getTo().getValue())
-                  && expectedReplyTo.equals(
-                         other.getReplyTo().getAddress().getValue())
-                  && expectedRelatesTo.equals(other.getRelatesTo().getValue())
-                  && expectedAction.equals(other.getAction().getValue());
+            String uri = other.getNamespaceURI();
+            boolean exposedAsNative = Names.WSA_NAMESPACE_NAME.equals(uri);
+            boolean exposedAs200408 = 
+                VersionTransformer.Names200408.WSA_NAMESPACE_NAME.equals(uri);
+            if (exposedAsNative || exposedAs200408) {
+                String expectedMessageID = 
+                    exposedAsNative
+                    ? ((AttributedURIType)expectedValues[0]).getValue()
+                    : ((AttributedURI)expectedValues[0]).getValue();
+                String expectedTo =
+                    exposedAsNative
+                    ? ((AttributedURIType)expectedValues[1]).getValue()
+                    : ((AttributedURI)expectedValues[1]).getValue();
+                String expectedReplyTo = 
+                    exposedAsNative
+                    ? ((EndpointReferenceType)expectedValues[2]).getAddress().getValue()
+                    : (VersionTransformer.Names200408.EPR_TYPE.cast(expectedValues[2])).
+                        getAddress().getValue();
+                String expectedRelatesTo = 
+                    exposedAsNative
+                    ? ((RelatesToType)expectedValues[3]).getValue()
+                    : ((Relationship)expectedValues[3]).getValue();
+                String expectedAction =                    
+                    exposedAsNative
+                    ? ((AttributedURIType)expectedValues[4]).getValue()
+                    : ((AttributedURI)expectedValues[4]).getValue();
+                ret = expectedMessageID.equals(other.getMessageID().getValue())
+                      && expectedTo.equals(other.getTo().getValue())
+                      && expectedReplyTo.equals(
+                             other.getReplyTo().getAddress().getValue())
+                      && expectedRelatesTo.equals(other.getRelatesTo().getValue())
+                      && expectedAction.equals(other.getAction().getValue())
+                      && expectedNamespaceURI.equals(other.getNamespaceURI());
+            }
             return ret;
         }
     } 
