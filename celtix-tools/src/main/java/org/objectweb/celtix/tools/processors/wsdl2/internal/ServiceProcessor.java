@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
@@ -24,6 +25,7 @@ import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
@@ -34,6 +36,7 @@ import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
 import org.objectweb.celtix.tools.common.model.JavaType;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.common.toolspec.parser.CommandLineParser;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
 import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
@@ -41,6 +44,8 @@ import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class ServiceProcessor extends AbstractProcessor {
 
+    private static final Logger LOG = LogUtils.getL7dLogger(CommandLineParser.class);
+    
     private String soapOPAction = "SOAPACTION";
 
     private String soapOPStyle = "STYLE";
@@ -254,9 +259,12 @@ public class ServiceProcessor extends AbstractProcessor {
                     }
                 }
             }
-            if (obj instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {
-                MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
-                mimeProcessor.process(jm, (MIMEMultipartRelated)obj, JavaType.Style.IN);                 
+            if (obj instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {                
+                //Commented for future use
+                LOG.warning("The MIME content in wsdl file will be ignored, " 
+                            + "current version does not support MIME content");
+//                MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
+//                mimeProcessor.process(jm, (MIMEMultipartRelated)obj, JavaType.Style.IN);                 
             }
         }
 
@@ -274,8 +282,11 @@ public class ServiceProcessor extends AbstractProcessor {
                     }
                 }
                 if (obj instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {
-                    MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
-                    mimeProcessor.process(jm, (MIMEMultipartRelated)obj, JavaType.Style.OUT);                 
+                    //Commented for future use
+                    LOG.warning("The MIME content in wsdl file will be ignored, " 
+                                + "current version does not support MIME content");
+//                    MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
+//                    mimeProcessor.process(jm, (MIMEMultipartRelated)obj, JavaType.Style.OUT);                 
                 }                
             }
         }

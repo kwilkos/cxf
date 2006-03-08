@@ -33,6 +33,7 @@ import org.objectweb.celtix.tools.wsdl2.compile.Compiler;
 import org.objectweb.celtix.tools.wsdl2.validate.MIMEBindingValidator;
 import org.objectweb.celtix.tools.wsdl2.validate.UniqueBodyPartsValidator;
 import org.objectweb.celtix.tools.wsdl2.validate.WSIBPValidator;
+import org.objectweb.celtix.tools.wsdl2.validate.XMLFormatValidator;
 
 public class WSDLToJavaProcessor extends WSDLToProcessor {
 
@@ -50,6 +51,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         this.addValidator(new UniqueBodyPartsValidator(this.wsdlDefinition));
         this.addValidator(new WSIBPValidator(this.wsdlDefinition));
         this.addValidator(new MIMEBindingValidator(this.wsdlDefinition));
+        this.addValidator(new XMLFormatValidator(this.wsdlDefinition));
     }
     
     

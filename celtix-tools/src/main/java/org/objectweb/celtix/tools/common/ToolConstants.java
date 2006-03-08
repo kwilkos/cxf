@@ -106,4 +106,10 @@ public final class ToolConstants {
     public static final String JMS_ADDR_INIT_CTX = "initialContextFactory";
     public static final String JMS_ADDR_SUBSCRIBER_NAME = "durableSubscriberName";
     public static final String JMS_ADDR_MSGID_TO_CORRID = "useMessageIDAsCorrelationID";
+    
+    // XML Binding
+    public static final String XMLBINDING_ROOTNODE = "rootNode";
+    public static final String NS_XML_FORMAT = "http://celtix.objectweb.org/bindings/xmlformat";
+    public static final QName  XML_FORMAT = new QName(NS_XML_FORMAT, "body");
+    public static final QName  XML_BINDING_FORMAT = new QName(NS_XML_FORMAT, "binding");
 }

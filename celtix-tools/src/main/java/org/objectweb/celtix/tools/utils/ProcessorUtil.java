@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import javax.wsdl.Message;
+import javax.wsdl.Operation;
 import javax.wsdl.Part;
 import javax.xml.namespace.QName;
 
@@ -315,5 +317,72 @@ public final class ProcessorUtil {
             return null;
         }
         return typeAndAnnotation.getTypeClass().boxify().fullName();
+    }
+    
+    public static boolean isWrapperStyle(Operation operation, ProcessorEnvironment env) {
+
+        Message inputMessage = operation.getInput() == null ? null : operation.getInput().getMessage();
+        Message outputMessage = operation.getOutput() == null ? null : operation.getOutput().getMessage();
+
+        Map<String, Part> inputParts = new HashMap<String, Part>();
+        Map<String, Part> outputParts = new HashMap<String, Part>();
+        
+        if (inputMessage != null) {
+            inputParts = inputMessage.getParts();
+        }
+        if (outputMessage != null) {
+            outputParts = outputMessage.getParts();
+        }
+        
+        //
+        // RULE No.1:
+        // The operation's input and output message (if present) each contain only a single part
+        //
+        if (inputParts.size() > 1 || outputParts.size() > 1) {
+            return false;
+        }
+
+        //
+        // RULE No.2:
+        // The input message part refers to a global element decalration whose localname
+        // is equal to the operation name
+        //
+        Part inputPart = null;
+        if (inputParts.size() == 1) {
+            inputPart = inputParts.values().iterator().next();
+            if (inputPart != null) {
+                QName inputElement = inputPart.getElementName();
+                if (inputElement == null) {
+                    return false;
+                } else if (!operation.getName().equals(inputElement.getLocalPart())) {
+                    return false;
+                }
+            }
+        }
+        //
+        // RULE No.3:
+        // The output message part refers to a global element decalration
+        //
+        Part outputPart = null;
+        if (outputParts.size() == 1) {
+            outputPart = outputParts.values().iterator().next();
+            if (outputPart != null) {
+                QName outputElement = outputPart.getElementName();
+                if (outputElement == null) {
+                    return false;
+                }
+            }
+        }
+
+        //
+        // RULE No.4 and No5:
+        // wrapper element should be pure complex type
+        //
+        if (ProcessorUtil.getBlock(inputPart, env) == null
+            || ProcessorUtil.getBlock(outputPart, env) == null) {
+            return false;
+        }
+        
+        return true;
     }
 }

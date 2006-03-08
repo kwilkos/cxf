@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.wsdl.Binding;
+import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
+import javax.wsdl.BindingOutput;
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.Message;
@@ -41,6 +43,11 @@ import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddressSerializer;
+
+import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormat;
+import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatBinding;
+import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatBindingSerializer;
+import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatSerializer;
 
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 import org.objectweb.celtix.tools.jaxws.CustomizationParser;
@@ -331,10 +338,39 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         registerJAXWSBinding(registry, BindingOperation.class);
 
         registerJMSAddress(registry, Port.class);
-
+        
+        registerXMLFormat(registry, BindingInput.class);
+        registerXMLFormat(registry, BindingOutput.class);
+        registerXMLFormatBinding(registry, Binding.class);
+        
         reader.setExtensionRegistry(registry);
     }
 
+    private void registerXMLFormat(ExtensionRegistry registry, Class clz) {
+        registry.registerSerializer(clz,
+                                    ToolConstants.XML_FORMAT,
+                                    new XMLFormatSerializer());
+
+        registry.registerDeserializer(clz,
+                                      ToolConstants.XML_FORMAT,
+                                      new XMLFormatSerializer());
+        registry.mapExtensionTypes(clz,
+                                   ToolConstants.XML_FORMAT,
+                                   XMLFormat.class);
+    }
+    
+    private void registerXMLFormatBinding(ExtensionRegistry registry, Class clz) {
+        registry.registerSerializer(clz,
+                                    ToolConstants.XML_BINDING_FORMAT,
+                                    new XMLFormatBindingSerializer());
+    
+        registry.registerDeserializer(clz,
+                                      ToolConstants.XML_BINDING_FORMAT,
+                                      new XMLFormatBindingSerializer());
+        registry.mapExtensionTypes(clz,
+                                   ToolConstants.XML_BINDING_FORMAT,
+                                   XMLFormatBinding.class);
+    }
     
     private void registerJMSAddress(ExtensionRegistry registry, Class clz) {
         registry.registerSerializer(clz,
