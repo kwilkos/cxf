@@ -219,6 +219,7 @@ public final class JAXBEncoderDecoder {
 
             u.marshal(mObj, destNode);
         } catch (Exception ex) {
+            ex.printStackTrace();
             throw new ProtocolException("Marshalling Error", ex);
         }
     }

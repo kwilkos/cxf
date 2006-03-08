@@ -29,6 +29,7 @@ import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
+import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class HTTPTransportFactory implements TransportFactory {
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPTransportFactory.class);
@@ -69,6 +70,10 @@ public class HTTPTransportFactory implements TransportFactory {
             JAXBExtensionHelper.addExtensions(bus.getWSDLManager().getExtenstionRegistry(),
                                               javax.wsdl.Port.class,
                                               HTTPServerPolicy.class);
+            JAXBExtensionHelper.addExtensions(bus.getWSDLManager().getExtenstionRegistry(),
+                                              javax.wsdl.Port.class,
+                                              AddressType.class);
+
         } catch (JAXBException e) {
             //ignore, we can continue without the extension registered
         }

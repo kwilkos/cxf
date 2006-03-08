@@ -209,7 +209,7 @@ public class HTTPTransportTest extends TestCase {
         checkBusRemovedEvent();
         EasyMock.replay(bus);   
         client.shutdown();
-        
+
         assertTrue("Total one call: " + (stop - start), (stop - start) < 400);
         assertTrue("Total: " + (stop2 - start), (stop2 - start) < 600);
         assertEquals(new String(outBytes), new String(buffer, 0, outBytes.length));
@@ -472,6 +472,9 @@ public class HTTPTransportTest extends TestCase {
         EasyMock.expectLastCall().andReturn(wsdlManager);
         bus.getWSDLManager();
         EasyMock.expectLastCall().andReturn(wsdlManager);
+        bus.getWSDLManager();
+        EasyMock.expectLastCall().andReturn(wsdlManager);
+
         BusLifeCycleManager lifecycleManager = EasyMock.createNiceMock(BusLifeCycleManager.class);
         bus.getLifeCycleManager();
         EasyMock.expectLastCall().andReturn(lifecycleManager);

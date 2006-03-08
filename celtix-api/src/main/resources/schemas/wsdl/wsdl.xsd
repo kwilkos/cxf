@@ -8,7 +8,7 @@
 
     <xs:import namespace="http://celtix.objectweb.org/transports/http/configuration" schemaLocation="http-conf.xsd"/>
     <xs:import namespace="http://celtix.objectweb.org/transports/jms" schemaLocation="jms.xsd"/>
-
+    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/http/" schemaLocation="http.xsd"/>
     <xs:annotation>
         <xs:appinfo>
             <jaxb:schemaBindings>

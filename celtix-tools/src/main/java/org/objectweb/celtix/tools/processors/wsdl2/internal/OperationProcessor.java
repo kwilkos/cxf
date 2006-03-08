@@ -135,7 +135,6 @@ public class OperationProcessor  extends AbstractProcessor {
             name = method.getReturn().getName();
             targetNamespace = method.getInterface().getNamespace();
         }
-
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
             if (method.getReturn().getQName() != null) {
                 name = method.getReturn().getQName().getLocalPart();
@@ -143,7 +142,6 @@ public class OperationProcessor  extends AbstractProcessor {
             targetNamespace = method.getReturn().getTargetNamespace();
         }
        
-        
         resultAnnotation.addArgument("name", name);
         resultAnnotation.addArgument("targetNamespace", targetNamespace);
         

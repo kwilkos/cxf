@@ -188,6 +188,9 @@ public class ServiceProcessor extends AbstractProcessor {
             } else {
                 jf.setSOAPStyle(getSoapStyle(soapBinding.getStyle()));
             }
+        } else {
+            // REVISIT: fix for xml binding
+            jf.setSOAPStyle(javax.jws.soap.SOAPBinding.Style.DOCUMENT);
         }
         
         Object[] methods = jf.getMethods().toArray();
@@ -208,6 +211,9 @@ public class ServiceProcessor extends AbstractProcessor {
                     } else {
                         jm.setSoapStyle(getSoapStyle(soapStyle));
                     }
+                } else {
+                    // REVISIT: fix for xml binding
+                    jm.setSoapStyle(jf.getSOAPStyle());
                 }
                 OperationProcessor processor = new OperationProcessor(env);
 

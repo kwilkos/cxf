@@ -186,6 +186,12 @@
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_xml_bare.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_xml_wrapped.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/hello_world_rpc_lit.wsdl</wsdl>
                                 </wsdlOption>
                                 <wsdlOption>

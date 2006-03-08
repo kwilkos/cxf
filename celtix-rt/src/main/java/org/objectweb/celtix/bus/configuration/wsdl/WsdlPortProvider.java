@@ -9,6 +9,7 @@ import javax.wsdl.extensions.soap.SOAPAddress;
 
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
+import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class WsdlPortProvider implements ConfigurationProvider {
     
@@ -64,6 +65,9 @@ public class WsdlPortProvider implements ConfigurationProvider {
             ExtensibilityElement ext = (ExtensibilityElement)ep;
             if (ext instanceof SOAPAddress) {
                 return ((SOAPAddress)ext).getLocationURI();
+            }
+            if (ext instanceof AddressType) {
+                return ((AddressType)ext).getLocation();
             }
         }
         return null;
