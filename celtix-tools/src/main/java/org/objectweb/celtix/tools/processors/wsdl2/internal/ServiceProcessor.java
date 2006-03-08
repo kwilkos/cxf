@@ -34,7 +34,7 @@ import org.objectweb.celtix.tools.common.model.JavaModel;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
-import org.objectweb.celtix.tools.common.model.JavaType;
+
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.common.toolspec.parser.CommandLineParser;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
@@ -286,7 +286,8 @@ public class ServiceProcessor extends AbstractProcessor {
                     LOG.warning("The MIME content in wsdl file will be ignored, " 
                                 + "current version does not support MIME content");
 //                    MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
-//                    mimeProcessor.process(jm, (MIMEMultipartRelated)obj, JavaType.Style.OUT);                 
+//                    mimeProcessor.process(jm, (MIMEMultipartRelated)obj, JavaType.Style.OUT);
+
                 }                
             }
         }
