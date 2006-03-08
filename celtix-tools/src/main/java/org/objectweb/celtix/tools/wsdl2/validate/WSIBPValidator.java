@@ -34,9 +34,9 @@ public class WSIBPValidator extends AbstractValidator {
                     continue;
                 }
                 BindingOperation bop = WSDLParserUtil.getBindingOperation(operation, def);
-                String style = WSDLParserUtil.getSOAPOperationStyle(bop).equals("") ? WSDLParserUtil
+                String style = "".equals(WSDLParserUtil.getSOAPOperationStyle(bop)) ? WSDLParserUtil
                     .getBindingStyle(bop, def) : WSDLParserUtil.getSOAPOperationStyle(bop);
-                if (style.equalsIgnoreCase("DOCUMENT")) {
+                if ("DOCUMENT".equalsIgnoreCase(style)) {
                     List<Part> partsList = WSDLParserUtil.getInMessageParts(operation);
                     int inmessagePartsCount = partsList.size();
                     SOAPBody soapBody = WSDLParserUtil.getBindingInputSOAPBody(bop);
