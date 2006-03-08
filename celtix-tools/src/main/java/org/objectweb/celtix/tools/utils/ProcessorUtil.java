@@ -205,39 +205,6 @@ public final class ProcessorUtil {
         return str;
     }
 
-    // public static String getFullClzName(Part part,
-    // String userPackage,
-    // S2JJAXBModel jaxbModel,
-    // boolean boxify) {
-    // QName xmlTypeName = getElementName(part);
-    // String jtype = BuiltInTypesJavaMappingUtil.getJType(xmlTypeName,
-    // jaxbModel, boxify);
-    // String namespace = xmlTypeName.getNamespaceURI();
-    // String type = resolvePartType(part, jaxbModel);
-
-    // if (jtype == null) {
-    // ClassCollectorUtil collector = ClassCollectorUtil.getInstance();
-    // jtype = collector.getTypesFullClassName(parsePackageName(namespace,
-    // userPackage), type);
-    // }
-
-    // if (jtype == null) {
-    // if (!type.equals(resolvePartType(part))) {
-    // jtype = resolvePartType(part, jaxbModel, true);
-    // } else {
-    // jtype = parsePackageName(namespace, userPackage) + "." + type;
-    // }
-    // }
-
-    // return jtype;
-    // }
-
-    // public static String getFullClzName(Part part,
-    // String userPackage,
-    // S2JJAXBModel jaxbModel) {
-    // return getFullClzName(part, userPackage, jaxbModel, false);
-    // }
-
     //
     // the non-wrapper style will get the type info from the part directly
     //

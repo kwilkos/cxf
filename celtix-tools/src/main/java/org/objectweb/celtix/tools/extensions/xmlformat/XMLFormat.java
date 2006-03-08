@@ -14,7 +14,6 @@ public class XMLFormat implements ExtensibilityElement, Serializable {
     private Element element;
     private String documentBaseURI;
 
-    // private String rootNode;
     private QName rootNode;
     
     public void setRequired(Boolean r) {
