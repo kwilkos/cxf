@@ -1,6 +1,8 @@
 package org.objectweb.celtix.tools.utils;
 
 import java.io.*;
+import java.util.*;
+import javax.xml.namespace.QName;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -27,13 +29,8 @@ public final class XMLUtil {
         }
     }
 
-    public static String getAttribute(Element el, String attrName) {
-        String sRet = null;
-        Attr   attr = el.getAttributeNode(attrName);
-        if (attr != null) {
-            sRet = attr.getValue();
-        }
-        return sRet;
+    public static Attr getAttribute(Element el, String attrName) {
+        return el.getAttributeNode(attrName);
     }
 
     public static void replaceAttribute(Element element, String attr, String value) {
@@ -117,5 +114,24 @@ public final class XMLUtil {
             System.err.println("## prefix=" + node.getPrefix() + " localname:"
                                + node.getLocalName() + " value=" + node.getNodeValue());
         }
+    }
+    
+    public static QName getNamespace(Map namespaces, String str, String defaultNamespace) {
+        String prefix = null;
+        String localName = null;
+        
+        StringTokenizer tokenizer = new StringTokenizer(str, ":");
+        if (tokenizer.countTokens() == 2) {
+            prefix = tokenizer.nextToken();
+            localName = tokenizer.nextToken();
+        } else if (tokenizer.countTokens() == 1) {
+            localName = tokenizer.nextToken();
+        }
+
+        String namespceURI = defaultNamespace;
+        if (prefix != null) {
+            namespceURI = (String) namespaces.get(prefix);
+        }
+        return new QName(namespceURI, localName);
     }
 }

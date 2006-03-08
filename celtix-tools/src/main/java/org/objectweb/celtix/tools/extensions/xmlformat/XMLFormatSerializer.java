@@ -31,7 +31,7 @@ public class XMLFormatSerializer implements ExtensionSerializer, ExtensionDeseri
         xmlFormat.setElementType(elementType);
         xmlFormat.setDocumentBaseURI(def.getDocumentBaseURI());
         XMLFormatParser xmlBindingParser = new XMLFormatParser();
-        xmlBindingParser.parseElement(xmlFormat, el);
+        xmlBindingParser.parseElement(def, xmlFormat, el);
         return xmlFormat;
     }
 

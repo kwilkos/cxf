@@ -6,7 +6,8 @@ import org.objectweb.hello_world_xml_http.wrapped.Greeter;
 @javax.jws.WebService(name = "Greeter", serviceName = "XMLService", 
                       targetNamespace = "http://objectweb.org/hello_world_xml_http/wrapped", 
                       wsdlLocation = "file:./wsdl/hello_world.wsdl")
-                  
+
+@javax.xml.ws.BindingType(value="http://celtix.objectweb.org/bindings/xmlformat")               
 public class GreeterImpl implements Greeter {
     
     private static final Logger LOG = 

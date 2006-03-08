@@ -41,7 +41,9 @@ public final class XMLBindingSerializer implements ExtensionSerializer,
         Attr rootNode = xmlUtils.getAttribute(el, XML_ROOT_NODE);
         String rootNodeValue = rootNode.getValue();
         if (rootNodeValue != null) {
-            xmlBinding.setRootNode(xmlUtils.getNamespace(def.getNamespaces(), rootNodeValue));
+            xmlBinding.setRootNode(xmlUtils.getNamespace(def.getNamespaces(),
+                                                         rootNodeValue,
+                                                         def.getTargetNamespace()));
         }
 
         return xmlBinding;

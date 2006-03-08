@@ -3,11 +3,11 @@ package org.objectweb.celtix.tools.wsdl2.validate;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Operation;
+import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormat;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatBinding;
@@ -87,13 +87,14 @@ public class XMLFormatValidator
             Object ext = it.next();
             if (ext instanceof XMLFormat) {
                 XMLFormat xmlFormat = (XMLFormat)ext;
-                String rootNodeValue = def.getPrefix(def.getTargetNamespace()) + ":" + bo.getName();
-                if (xmlFormat.getRootNode().equals(rootNodeValue)) {
+                // String rootNodeValue = def.getPrefix(def.getTargetNamespace()) + ":" + bo.getName();
+                QName rootNodeName = new QName(def.getTargetNamespace(), bo.getName());
+                if (xmlFormat.getRootNode().equals(rootNodeName)) {
                     return true;
                 } else {
                     this.errorMessage = errorPath
                                         + ": wrong value of rootNode attribute, the value should be "
-                                        + rootNodeValue;
+                                        + rootNodeName;
                     return false;
                 }
             }

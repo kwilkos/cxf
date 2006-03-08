@@ -132,7 +132,7 @@ public class XMLUtils {
         return el.getAttributeNode(attrName);
     }
 
-    public QName getNamespace(Map namespaces, String str) {
+    public QName getNamespace(Map namespaces, String str, String defaultNamespace) {
         String prefix = null;
         String localName = null;
         
@@ -144,7 +144,7 @@ public class XMLUtils {
             localName = tokenizer.nextToken();
         }
 
-        String namespceURI = "";
+        String namespceURI = defaultNamespace;
         if (prefix != null) {
             namespceURI = (String) namespaces.get(prefix);
         }

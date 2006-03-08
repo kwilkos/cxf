@@ -14,8 +14,8 @@ public class XMLFormat implements ExtensibilityElement, Serializable {
     private Element element;
     private String documentBaseURI;
 
-    private String rootNode;
-    
+    // private String rootNode;
+    private QName rootNode;
     
     public void setRequired(Boolean r) {
         this.required = r;
@@ -33,11 +33,11 @@ public class XMLFormat implements ExtensibilityElement, Serializable {
         return elementType;
     }
 
-    public String getRootNode() {
+    public QName getRootNode() {
         return rootNode;
     }
 
-    public void setRootNode(String pRootNode) {
+    public void setRootNode(QName pRootNode) {
         this.rootNode = pRootNode;
     }
 

@@ -47,7 +47,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         addGenerator(ToolConstants.ANT_GENERATOR, new AntGenerator(jmodel, getEnvironment()));
     }
 
-    protected void regisiterValidator() {
+    protected void registerValidator() {
         this.addValidator(new UniqueBodyPartsValidator(this.wsdlDefinition));
         this.addValidator(new WSIBPValidator(this.wsdlDefinition));
         this.addValidator(new MIMEBindingValidator(this.wsdlDefinition));
@@ -57,7 +57,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
     
     public void process() throws ToolException {
         init();
-        regisiterValidator();
+        registerValidator();
         validateWSDL();
         generateTypes();
         JavaModel jmodel = wsdlDefinitionToJavaModel(getWSDLDefinition());
