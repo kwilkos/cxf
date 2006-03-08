@@ -63,14 +63,14 @@ public class Request {
         return ((Boolean)objectCtx.get(OutputStreamMessageContext.ONEWAY_MESSAGE_TF)).booleanValue();
     }
 
-    public OutputStreamMessageContext process(DataBindingCallback callback,
-                                              OutputStreamMessageContext ostreamCtx) throws IOException {
+    public OutputStreamMessageContext process(OutputStreamMessageContext ostreamCtx) throws IOException {
         if (handlerInvoker.invokeLogicalHandlers(true, objectCtx)) {
             bindingCtx = binding.getBindingImpl().createBindingMessageContext(objectCtx);
             bindingCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
             if (null == bindingCtx) {
                 bindingCtx = objectCtx;
             } else {
+                DataBindingCallback callback = BindingContextUtils.retrieveDataBindingCallback(objectCtx);
                 binding.getBindingImpl().marshal(objectCtx, bindingCtx, callback);
             }  
 

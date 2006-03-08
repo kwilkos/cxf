@@ -11,6 +11,7 @@ import org.objectweb.celtix.bus.jaxws.configuration.types.SystemHandlerChainType
 import org.objectweb.celtix.bus.ws.addressing.MAPAggregator;
 import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
 import org.objectweb.celtix.bus.ws.rm.RMHandler;
+import org.objectweb.celtix.bus.ws.rm.soap.RMSoapHandler;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
@@ -101,12 +102,15 @@ public class TestConfigurator {
             handlerChain = factory.createHandlerChainType();
             handler = factory.createHandlerType();
             handler = factory.createHandlerType();
-            handler.setHandlerClass(RMHandler.class.getName());
-            handler.setHandlerName("logical rm handler");
+            handler.setHandlerClass(RMSoapHandler.class.getName());
+            handler.setHandlerName("protocol rm handler");
             handlerChain.getHandler().add(handler);
+            handler = factory.createHandlerType();
             handler.setHandlerClass(MAPCodec.class.getName());
-            handler.setHandlerName("logical addressing handler");
+            handler.setHandlerName("protocol addressing handler");
             handlerChain.getHandler().add(handler);
+            
+            systemHandlers.setPostProtocol(handlerChain);
             
             config.setObject("systemHandlerChain", systemHandlers);
         }

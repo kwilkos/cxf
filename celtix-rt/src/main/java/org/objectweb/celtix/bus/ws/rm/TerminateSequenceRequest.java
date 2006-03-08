@@ -16,13 +16,11 @@ public class TerminateSequenceRequest extends Request {
         
         super(b, b.createObjectContext());
         getObjectMessageContext().setRequestorRole(true);
-            
+        getObjectMessageContext().setMethod(getMethod());       
         setMessageParameters(seq);
-        
-        setAddressingProperties();
     }
     
-    public DataBindingCallback createDataBindingCallback() {
+    public static Method getMethod() {
         Method method  = null;
         try {
             method = SequenceAbstractPortType.class.getMethod(
@@ -31,6 +29,11 @@ public class TerminateSequenceRequest extends Request {
         } catch (NoSuchMethodException ex) {
             ex.printStackTrace();
         }
+        return method;
+    }
+    
+    public static DataBindingCallback createDataBindingCallback() {
+        Method method  = getMethod();
         return new JAXBDataBindingCallback(method, DataBindingCallback.Mode.PARTS, null);
     }
     
@@ -40,10 +43,5 @@ public class TerminateSequenceRequest extends Request {
         ts.setIdentifier(seq.getIdentifier());
         
         getObjectMessageContext().setMessageObjects(new Object[] {ts});
-    }
-    
-    private void setAddressingProperties() {
-        RMContextUtils.storeAction(getObjectMessageContext(), 
-                                   RMUtils.getRMConstants().getTerminateSequenceAction());    
     }
 }

@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.bindings.DataBindingCallback;
-import org.objectweb.celtix.bus.jaxws.EndpointInvocationHandler;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
@@ -16,7 +16,7 @@ import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 public class RMProxy {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(RMProxy.class);
     private RMHandler handler;
 
     public RMProxy(RMHandler h) {
@@ -27,8 +27,12 @@ public class RMProxy {
         CreateSequenceRequest request = new CreateSequenceRequest(handler.getBinding(), source);
 
         ObjectMessageContext responseCtx = invoke(request.getObjectMessageContext(), 
-                                                  request.createDataBindingCallback());
-        CreateSequenceResponseType csr = (CreateSequenceResponseType)responseCtx.getReturn();
+                                                  CreateSequenceRequest.createDataBindingCallback());
+        Object result = responseCtx.getReturn();
+        if (result instanceof JAXBElement) {
+            result = ((JAXBElement)result).getValue();
+        }
+        CreateSequenceResponseType csr = (CreateSequenceResponseType)result;
         
         Sequence seq = new Sequence(csr.getIdentifier(), source, csr.getExpires());
         source.addSequence(seq);
@@ -38,7 +42,7 @@ public class RMProxy {
     
     public void terminateSequence(Sequence seq) throws IOException {
         TerminateSequenceRequest request = new TerminateSequenceRequest(handler.getBinding(), seq);       
-        invokeOneWay(request.getObjectMessageContext(), request.createDataBindingCallback());
+        invokeOneWay(request.getObjectMessageContext(), CreateSequenceRequest.createDataBindingCallback());
     }
     
     /*

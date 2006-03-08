@@ -6,6 +6,10 @@ import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.Request;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
+import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
+import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceAbstractPortType;
 
 public class SequenceInfoRequest extends Request {
@@ -16,8 +20,11 @@ public class SequenceInfoRequest extends Request {
         
         super(b, b.createObjectContext());
         getObjectMessageContext().setRequestorRole(true);
-        
-        setAddressingProperties();
+        AddressingProperties maps = new AddressingPropertiesImpl();
+        AttributedURIType actionURI = RMUtils.getWSA2005Factory().createAttributedURIType();
+        actionURI.setValue(RMUtils.getRMConstants().getSequenceInfoAction());
+        maps.setAction(actionURI);
+        ContextUtils.storeMAPs(maps, getObjectMessageContext(), true);
     }
     
     public DataBindingCallback createDataBindingCallback() {
@@ -29,10 +36,5 @@ public class SequenceInfoRequest extends Request {
             ex.printStackTrace();
         }
         return new JAXBDataBindingCallback(method, DataBindingCallback.Mode.PARTS, null);
-    }
-    
-    private void setAddressingProperties() {
-        RMContextUtils.storeAction(getObjectMessageContext(), 
-                                   RMUtils.getRMConstants().getSequenceInfoAction());    
     }
 }

@@ -21,7 +21,11 @@ public class TestBinding  extends AbstractBindingImpl {
     }
     
     public MessageContext createBindingMessageContext(MessageContext orig) {
-        return new GenericMessageContext();
+        MessageContext bindingCtx = new GenericMessageContext();
+        if (null != orig) {
+            bindingCtx.putAll(orig);
+        }
+        return bindingCtx;
     }
 
     public void marshal(ObjectMessageContext objContext,

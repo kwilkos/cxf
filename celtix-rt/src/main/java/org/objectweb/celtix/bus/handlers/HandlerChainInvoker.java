@@ -280,15 +280,15 @@ public class HandlerChainInvoker implements HandlerInvoker {
 
     
     private boolean invokeThisHandler(Handler h) {
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "invoking handler of type " + h.getClass().getName());
-        }
         boolean ret = true;
         // when handler processing has been aborted, only invoked on
         // previously invoked handlers
         //
         if (handlerProcessingAborted) {
             ret = invokedHandlers.contains(h);
+        }
+        if (ret && LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "invoking handler of type " + h.getClass().getName());
         }
         return ret; 
     }

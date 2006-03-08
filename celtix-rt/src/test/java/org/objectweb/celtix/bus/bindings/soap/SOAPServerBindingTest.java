@@ -172,6 +172,7 @@ public class SOAPServerBindingTest extends TestCase {
         assertEquals(ref, os.toString());
         
         //Doc Literal Case
+        inCtx.clear();
         InputStream is = getClass().getResourceAsStream("resources/sayHiDocLiteralReq.xml");
         inCtx.setInputStream(is);
         serverBinding.testDispatch(inCtx, serverTransport);

@@ -22,13 +22,12 @@ public class CreateSequenceRequest extends Request {
         
         super(b, b.createObjectContext());
         getObjectMessageContext().setRequestorRole(true);
+        getObjectMessageContext().setMethod(getMethod());
             
         setMessageParameters(source);
-        
-        setAddressingProperties();
     }
     
-    public DataBindingCallback createDataBindingCallback() {
+    public static Method getMethod() {
         Method method  = null;
         try {
             method = SequenceAbstractPortType.class.getMethod(
@@ -37,6 +36,11 @@ public class CreateSequenceRequest extends Request {
         } catch (NoSuchMethodException ex) {
             ex.printStackTrace();
         }
+        return method;
+    }
+    
+    public static DataBindingCallback createDataBindingCallback() {
+        Method method = getMethod();
         return new JAXBDataBindingCallback(method, DataBindingCallback.Mode.PARTS, null);
     }
     
@@ -75,10 +79,5 @@ public class CreateSequenceRequest extends Request {
         }
         
         getObjectMessageContext().setMessageObjects(new Object[] {cs});
-    }
-    
-    private void setAddressingProperties() {
-        RMContextUtils.storeAction(getObjectMessageContext(), 
-                                   RMUtils.getRMConstants().getCreateSequenceAction());    
     }
 }

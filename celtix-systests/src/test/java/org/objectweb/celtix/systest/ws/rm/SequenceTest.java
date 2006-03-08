@@ -3,7 +3,6 @@ package org.objectweb.celtix.systest.ws.rm;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.WebServiceException;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -63,14 +62,11 @@ public class SequenceTest extends ClientServerTestBase {
     // --Tests
 
     public void testOneway() throws Exception {
-        
-        try {
-            greeter.greetMeOneWay("once");
-            greeter.greetMeOneWay("twice");
-            greeter.greetMeOneWay("thrice");
-        } catch (WebServiceException ex) {
-            assertTrue(ex.getMessage().indexOf("Request context does not include operation name.") >= 0);
-        }
+
+        greeter.greetMeOneWay("once");
+        greeter.greetMeOneWay("twice");
+        greeter.greetMeOneWay("thrice");
+
     }
 
 }

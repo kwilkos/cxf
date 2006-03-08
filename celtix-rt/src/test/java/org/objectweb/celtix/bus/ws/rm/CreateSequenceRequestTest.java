@@ -64,10 +64,8 @@ public class CreateSequenceRequestTest extends TestCase {
         CreateSequenceRequest req = new CreateSequenceRequest(binding, source);
         assertNotNull(req);
         
-        assertNotNull(req.createDataBindingCallback());
-        
-        assertEquals(RMUtils.getRMConstants().getCreateSequenceAction(), 
-                     RMContextUtils.retrieveAction(req.getObjectMessageContext()));
+        assertNotNull(CreateSequenceRequest.createDataBindingCallback());
+        assertNotNull(req.getObjectMessageContext().getMethod());
         
         Object[] params = req.getObjectMessageContext().getMessageObjects();
         assertEquals(1, params.length);
@@ -96,11 +94,6 @@ public class CreateSequenceRequestTest extends TestCase {
         
         CreateSequenceRequest req = new CreateSequenceRequest(binding, source);
         assertNotNull(req);
-        
-        assertNotNull(req.createDataBindingCallback());
-        
-        assertEquals(RMUtils.getRMConstants().getCreateSequenceAction(), 
-                     RMContextUtils.retrieveAction(req.getObjectMessageContext()));
         
         Object[] params = req.getObjectMessageContext().getMessageObjects();
         assertEquals(1, params.length);

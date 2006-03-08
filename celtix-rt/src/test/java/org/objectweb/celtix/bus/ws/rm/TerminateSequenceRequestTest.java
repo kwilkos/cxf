@@ -39,10 +39,8 @@ public class TerminateSequenceRequestTest extends TestCase {
         TerminateSequenceRequest req = new TerminateSequenceRequest(binding, seq);
         assertNotNull(req);
         
-        assertNotNull(req.createDataBindingCallback());
-        
-        assertEquals(RMUtils.getRMConstants().getTerminateSequenceAction(), 
-                     RMContextUtils.retrieveAction(req.getObjectMessageContext()));
+        assertNotNull(TerminateSequenceRequest.createDataBindingCallback());
+        assertNotNull(req.getObjectMessageContext().getMethod());
         
         Object[] params = req.getObjectMessageContext().getMessageObjects();
         assertEquals(1, params.length);

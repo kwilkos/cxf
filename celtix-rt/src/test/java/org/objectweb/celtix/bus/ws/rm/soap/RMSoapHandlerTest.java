@@ -258,6 +258,11 @@ public class RMSoapHandlerTest extends TestCase {
                     && localName.equals(name)) {
                     found = true;
                     break;
+                } else if (headerName.getURI().equals(
+                    org.objectweb.celtix.bus.ws.addressing.Names.WSA_NAMESPACE_NAME)
+                    && localName.equals(name)) {
+                    found = true;
+                    break;
                 }
             }
             assertTrue("Could not find header element " + name, found);
@@ -270,7 +275,9 @@ public class RMSoapHandlerTest extends TestCase {
             SOAPHeaderElement headerElement = (SOAPHeaderElement)headerElements.next();
             Name headerName = headerElement.getElementName();
             String localName = headerName.getLocalName();
-            assertEquals(RMUtils.getRMConstants().getNamespaceURI(), headerName.getURI());
+            assertTrue(RMUtils.getRMConstants().getNamespaceURI().equals(headerName.getURI()) 
+                || org.objectweb.celtix.bus.ws.addressing.Names.WSA_NAMESPACE_NAME
+                .equals(headerName.getURI()));
             boolean found = false;
             for (String name : names) {
                 if (localName.equals(name)) {

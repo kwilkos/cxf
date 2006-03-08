@@ -11,7 +11,6 @@ import org.objectweb.celtix.ws.rm.SequenceType;
 import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.ACKS_PROPERTY;
 import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.ACKS_REQUESTED_PROPERTY;
 import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.SEQUENCE_PROPERTY;
-import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.WSA_ACTION;
 
 /**
  * Holder for utility methods relating to contexts.
@@ -24,14 +23,6 @@ public final class RMContextUtils {
      */
     private RMContextUtils() {
     }
-
-    public static void storeAction(MessageContext context, String action) {
-        context.put(WSA_ACTION, action);
-    }  
-    
-    public static String retrieveAction(MessageContext context) {
-        return (String)context.get(WSA_ACTION);
-    }  
     
     public static void storeSequence(MessageContext context, Sequence seq) {
         SequenceType st = RMUtils.getWSRMFactory().createSequenceType();

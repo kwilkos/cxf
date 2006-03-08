@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.ws.rm.soap;
 
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,17 +26,24 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+
+import org.objectweb.celtix.bindings.BindingContextUtils;
+import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.bus.ws.rm.CreateSequenceRequest;
 import org.objectweb.celtix.bus.ws.rm.Names;
 import org.objectweb.celtix.bus.ws.rm.RMContextUtils;
+import org.objectweb.celtix.bus.ws.rm.RMUtils;
+import org.objectweb.celtix.bus.ws.rm.TerminateSequenceRequest;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceType;
 
 
 /**
- * Protocol Handler responsible for {en|de}coding the Message Addressing 
+ * Protocol Handler responsible for {en|de}coding the RM 
  * Properties for {outgo|incom}ing messages.
  */
 public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
@@ -44,6 +52,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
     private static final String WS_RM_PACKAGE = 
         SequenceType.class.getPackage().getName();
     protected JAXBContext jaxbContext;
+    protected JAXBContext jaxbWsaContext;
 
     /**
      * Constructor.
@@ -108,6 +117,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
             encode(context);
         } else {
             decode(context);
+            storeBindingInfo(context);
         }
         return true;
     }
@@ -157,7 +167,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
                                    header,
                                    marshaller);
                 }
-            }
+            }                           
         } catch (SOAPException se) {
             LOG.log(Level.WARNING, "SOAP_HEADER_ENCODE_FAILURE_MSG", se); 
         } catch (JAXBException je) {
@@ -248,9 +258,9 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
                                     QName qname, 
                                     Class<T> clz, 
                                     SOAPHeader header,
-                                    Marshaller marshaller) throws JAXBException {
-        LOG.log(Level.INFO, "encoding RM header {0}", qname);
+                                    Marshaller marshaller) throws JAXBException {        
         if (value != null) {
+            LOG.log(Level.INFO, "encoding " + value + " into RM header {0}", qname);
             marshaller.marshal(new JAXBElement<T>(qname, clz, value), header);
         }
     }
@@ -287,6 +297,53 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
             if (Names.WSRM_NAMESPACE_NAME.equals(headerName.getURI())) {
                 headerElement.detachNode();
             }
+            
+            if (org.objectweb.celtix.bus.ws.addressing.Names.WSA_NAMESPACE_NAME
+                .equals(headerName.getURI())
+                && org.objectweb.celtix.bus.ws.addressing.Names.WSA_ACTION_NAME
+                .equals(headerName.getLocalName())) {
+                headerElement.detachNode();
+            }
+        }
+    }
+    
+    /**
+     * When invoked inbound, check if the action indicates that this is one of the 
+     * RM protocol messages (CreateSequence, CreateSequenceResponse, terminateSequence)
+     * and if so, store method, operation name and data binding callback in the context.
+     * The action has already been extracted from its associated soap header into the
+     * addressing properties as the addressing protocol handler is executed. 
+     * 
+     * @param context
+     */
+    private void storeBindingInfo(MessageContext context) {
+        assert !ContextUtils.isOutbound(context);
+        AttributedURIType actionURI = ContextUtils.getAction(context);
+        String action = null == actionURI ? null : actionURI.getValue();
+        DataBindingCallback callback = null;
+        Method method = null;
+        String operationName = null;
+        boolean rmProtocolMessage = true;
+
+        if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action) 
+            || RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)) {
+            callback = CreateSequenceRequest.createDataBindingCallback();
+            operationName = RMUtils.getRMConstants().getCreateSequenceOperationName();
+            method = CreateSequenceRequest.getMethod();
+        } else if (RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)) {
+            callback = TerminateSequenceRequest.createDataBindingCallback();
+            operationName = RMUtils.getRMConstants().getTerminateSequenceOperationName();
+            method = TerminateSequenceRequest.getMethod();
+        } else {
+            rmProtocolMessage = false;
+        }
+        
+        if (rmProtocolMessage) {
+            BindingContextUtils.storeDispatch(context, false);
+            BindingContextUtils.storeDataBindingCallback(context, callback);
+            BindingContextUtils.storeMethod(context, method);            
+            context.put(MessageContext.WSDL_OPERATION, operationName);
+            
         }
     }
 

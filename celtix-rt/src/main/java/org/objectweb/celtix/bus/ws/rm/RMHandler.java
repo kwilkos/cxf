@@ -2,6 +2,8 @@ package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
@@ -13,6 +15,7 @@ import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
@@ -20,6 +23,8 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.handlers.SystemHandler;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.addressing200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
@@ -30,10 +35,12 @@ import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemHandler {
-    
+       
     public static final String RM_CONFIGURATION_URI = 
         "http://celtix.objectweb.org/bus/ws/rm/rm-config";
     public static final String RM_CONFIGURATION_ID = "rm-handler";
+    
+    private static final Logger LOG = LogUtils.getL7dLogger(RMHandler.class);
     
     private RMSource source;
     private RMDestination destination;
@@ -68,7 +75,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         if (ContextUtils.isOutbound(context)) {
             handleOutbound(context);
         } else {
-            return handleInbound(context);
+            handleInbound(context);
         }
         return true;
     }
@@ -172,11 +179,17 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     }
     
     private void handleOutbound(LogicalMessageContext context) {
-
+        
         // nothing to do if this is a CreateSequence, TerminateSequence or SequenceInfo request
         
-        String action = RMContextUtils.retrieveAction(context);
+        String action = ContextUtils.getAction(context).getValue();
+        
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Action: " + action);
+        }
+        
         if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)
+            || RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)
             || RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)
             || RMUtils.getRMConstants().getSequenceInfoAction().equals(action)) {
             return;
@@ -218,26 +231,44 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         
     }
     
-    private boolean handleInbound(LogicalMessageContext context) {
+    private void handleInbound(LogicalMessageContext context) {
+        
+        LOG.entering(getClass().getName(), "handleInbound");
         
         // nothing to do if this is a response to a CreateSequence request
-        String action = RMContextUtils.retrieveAction(context);
+        String action = ContextUtils.getAction(context).getValue();
+        
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Action: " + action);
+        }
         
         if (RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)) {
-            return true;
+            return;
         } else if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)) {
             Object[] parameters = (Object[])context.get(ObjectMessageContext.METHOD_PARAMETERS);            
             CreateSequenceType cs = (CreateSequenceType)parameters[0];
+            LOG.fine("ContextUtils.retrieveTo returns: " + ContextUtils.retrieveTo(context));
             EndpointReferenceType to = RMUtils.cast(ContextUtils.retrieveTo(context));
              
             try {
+                LOG.fine("dispatching createSequence request to rm servant ...");
                 CreateSequenceResponseType csr = servant.createSequence(destination, cs, to);
                 context.put(ObjectMessageContext.METHOD_RETURN, csr);
+                LOG.fine("Inserted createSequenceResponse into object context");
             } catch (SequenceFault ex) {
                 // ignore for now
-            }   
-            return false;
-            
+                ex.printStackTrace();
+            }
+   
+            AddressingProperties maps = ContextUtils.retrieveMAPs(context, false, false);
+            AttributedURIType actionURI = RMUtils.getWSA2005Factory().createAttributedURIType();
+            actionURI.setValue(RMUtils.getRMConstants().getCreateSequenceResponseAction());
+            maps.setAction(actionURI);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Changed action in context from: " + action 
+                         + " to: " + ContextUtils.getAction(context).getValue());
+            }
+            return;
         } else if (RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)) {
             Object[] parameters = (Object[])context.get(ObjectMessageContext.METHOD_PARAMETERS);            
             TerminateSequenceType cs = (TerminateSequenceType)parameters[0];
@@ -247,15 +278,13 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             } catch (SequenceFault ex) {
                 // ignore for now
             }
-        }
+        } 
         
         // for application AMD out of band messages
 
         processAcknowledgments(context);
         
-        processSequence(context);
-          
-        return true;    
+        processSequence(context);   
     }
     
     private void processAcknowledgments(LogicalMessageContext context) {

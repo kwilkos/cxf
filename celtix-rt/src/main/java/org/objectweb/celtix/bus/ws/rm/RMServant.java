@@ -1,8 +1,11 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+import java.util.logging.Logger;
+
 import javax.xml.datatype.Duration;
 
 import org.objectweb.celtix.bus.configuration.wsrm.DestinationPolicyType;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.ws.addressing.addressing200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.AcceptType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
@@ -13,10 +16,10 @@ import org.objectweb.celtix.ws.rm.OfferType;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 public class RMServant {
-    // private RMHandler handler;
+
+    private static final Logger LOG = LogUtils.getL7dLogger(RMServant.class);
 
     public RMServant() {
-        // handler = h;
     }
     
     /** 
@@ -35,7 +38,11 @@ public class RMServant {
 
         DestinationPolicyType dp = destination.getDestinationPolicies();
         Duration supportedDuration = dp.getSequenceExpiration();
+        if (null == supportedDuration) {
+            supportedDuration = Sequence.PT0S;
+        }
         Expires ex = cs.getExpires();
+        LOG.info("supported duration: "  + supportedDuration);
 
         if (null != ex || supportedDuration.isShorterThan(Sequence.PT0S)) {
             Duration effectiveDuration = supportedDuration;

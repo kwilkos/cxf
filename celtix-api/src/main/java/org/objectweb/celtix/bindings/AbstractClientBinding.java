@@ -83,11 +83,12 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
 
         getTransport();
         storeSource(objectCtx);
+        BindingContextUtils.storeDataBindingCallback(objectCtx, callback);
 
         Request request = new Request(this, objectCtx);
 
         try {
-            OutputStreamMessageContext ostreamCtx = request.process(callback, null);
+            OutputStreamMessageContext ostreamCtx = request.process(null);
 
             if (null != ostreamCtx) {
 
@@ -117,12 +118,13 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         throws IOException {
         getTransport();
         storeSource(objectCtx);
+        BindingContextUtils.storeDataBindingCallback(objectCtx, callback);
 
         Request request = new Request(this, objectCtx);
         request.setOneway(true);
 
         try {
-            OutputStreamMessageContext ostreamCtx = request.process(callback, null);
+            OutputStreamMessageContext ostreamCtx = request.process(null);
 
             if (null != ostreamCtx) {
                 transport.invokeOneway(ostreamCtx);
@@ -139,12 +141,13 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         LOG.info("AbstractClientBinding: invokeAsync");
         getTransport();
         storeSource(objectCtx);
+        BindingContextUtils.storeDataBindingCallback(objectCtx, callback);
 
         Request request = new Request(this, objectCtx);
         AsyncFuture asyncFuture = null;
 
         try {
-            OutputStreamMessageContext ostreamCtx = request.process(callback, null);
+            OutputStreamMessageContext ostreamCtx = request.process(null);
 
             if (null != ostreamCtx) {
 
