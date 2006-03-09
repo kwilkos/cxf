@@ -33,8 +33,8 @@ import org.objectweb.celtix.bus.ws.addressing.Names;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.addressing.RelatesToType;
-import org.objectweb.celtix.ws.addressing.addressing200408.AttributedURI;
-import org.objectweb.celtix.ws.addressing.addressing200408.Relationship;
+import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
+import org.objectweb.celtix.ws.addressing.v200408.Relationship;
 
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;

@@ -3,7 +3,7 @@ package org.objectweb.celtix.bus.ws.rm;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.ws.addressing.addressing200408.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 
 import static org.easymock.EasyMock.expectLastCall;

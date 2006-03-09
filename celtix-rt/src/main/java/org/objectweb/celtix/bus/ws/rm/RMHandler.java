@@ -14,7 +14,9 @@ import org.objectweb.celtix.bindings.AbstractClientBinding;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.bus.jaxws.ServiceImpl;
+import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.bus.ws.addressing.VersionTransformer;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
@@ -25,7 +27,7 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
-import org.objectweb.celtix.ws.addressing.addressing200408.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
@@ -179,7 +181,13 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     }
     
     private void handleOutbound(LogicalMessageContext context) {
-        
+        AddressingPropertiesImpl maps = 
+            ContextUtils.retrieveMAPs(context, false, true);
+        if (maps != null) {
+            // ensure the appropriate version of WS-Addressing is used
+            maps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
+        }
+
         // nothing to do if this is a CreateSequence, TerminateSequence or SequenceInfo request
         
         String action = ContextUtils.getAction(context).getValue();
@@ -248,7 +256,8 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             Object[] parameters = (Object[])context.get(ObjectMessageContext.METHOD_PARAMETERS);            
             CreateSequenceType cs = (CreateSequenceType)parameters[0];
             LOG.fine("ContextUtils.retrieveTo returns: " + ContextUtils.retrieveTo(context));
-            EndpointReferenceType to = RMUtils.cast(ContextUtils.retrieveTo(context));
+            EndpointReferenceType to = 
+                VersionTransformer.convert(ContextUtils.retrieveTo(context));
              
             try {
                 LOG.fine("dispatching createSequence request to rm servant ...");
@@ -261,7 +270,8 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             }
    
             AddressingProperties maps = ContextUtils.retrieveMAPs(context, false, false);
-            AttributedURIType actionURI = RMUtils.getWSA2005Factory().createAttributedURIType();
+            AttributedURIType actionURI =
+                ContextUtils.WSA_OBJECT_FACTORY.createAttributedURIType();
             actionURI.setValue(RMUtils.getRMConstants().getCreateSequenceResponseAction());
             maps.setAction(actionURI);
             if (LOG.isLoggable(Level.FINE)) {
@@ -300,6 +310,5 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         SequenceType s = RMContextUtils.retrieveSequence(context);
         destination.acknowledge(s);
     }
-    
     
 }

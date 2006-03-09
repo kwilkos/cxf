@@ -149,7 +149,7 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/wsrm.wsdl</wsdl>
                                     <packagenames>
-                                        <packagename>http://schemas.xmlsoap.org/ws/2004/08/addressing=org.objectweb.celtix.ws.addressing.addressing200408</packagename>
+                                        <packagename>http://schemas.xmlsoap.org/ws/2004/08/addressing=org.objectweb.celtix.ws.addressing.v200408</packagename>
                                         <packagename>http://schemas.xmlsoap.org/ws/2005/02/rm=org.objectweb.celtix.ws.rm</packagename>
                                         <packagename>org.objectweb.celtix.ws.rm.wsdl</packagename>
                                     </packagenames>

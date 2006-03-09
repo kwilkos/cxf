@@ -52,7 +52,6 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
     private static final String WS_RM_PACKAGE = 
         SequenceType.class.getPackage().getName();
     protected JAXBContext jaxbContext;
-    protected JAXBContext jaxbWsaContext;
 
     /**
      * Constructor.

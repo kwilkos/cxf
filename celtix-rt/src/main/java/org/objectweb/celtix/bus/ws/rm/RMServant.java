@@ -6,7 +6,7 @@ import javax.xml.datatype.Duration;
 
 import org.objectweb.celtix.bus.configuration.wsrm.DestinationPolicyType;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.ws.addressing.addressing200408.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.AcceptType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;

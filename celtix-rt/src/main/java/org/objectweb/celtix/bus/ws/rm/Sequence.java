@@ -12,7 +12,7 @@ import javax.xml.datatype.Duration;
 
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.ws.addressing.addressing200408.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;

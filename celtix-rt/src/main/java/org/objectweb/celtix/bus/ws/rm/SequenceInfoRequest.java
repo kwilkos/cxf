@@ -21,7 +21,8 @@ public class SequenceInfoRequest extends Request {
         super(b, b.createObjectContext());
         getObjectMessageContext().setRequestorRole(true);
         AddressingProperties maps = new AddressingPropertiesImpl();
-        AttributedURIType actionURI = RMUtils.getWSA2005Factory().createAttributedURIType();
+        AttributedURIType actionURI =
+            ContextUtils.WSA_OBJECT_FACTORY.createAttributedURIType();
         actionURI.setValue(RMUtils.getRMConstants().getSequenceInfoAction());
         maps.setAction(actionURI);
         ContextUtils.storeMAPs(maps, getObjectMessageContext(), true);

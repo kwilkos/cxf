@@ -1,7 +1,7 @@
 package org.objectweb.celtix.bus.ws.rm;
 
 import org.objectweb.celtix.bus.configuration.wsrm.DestinationPolicyType;
-import org.objectweb.celtix.ws.addressing.addressing200408.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceType;
 
