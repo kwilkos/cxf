@@ -40,4 +40,5 @@ public interface ServerBinding extends BindingBase {
      */
     void partialResponse(OutputStreamMessageContext outputContext, 
                          DataBindingCallback callback) throws IOException;
+    
 }

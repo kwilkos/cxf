@@ -144,4 +144,9 @@ public class XMLServerBinding extends AbstractServerBinding {
         LOG.log(Level.INFO, "OPERATION_NAME_RETREIVAL", op);
         return op;
     }
+
+    public boolean isBindingCompatible(String address) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

@@ -20,5 +20,9 @@ public class SOAPClientBinding extends AbstractClientBinding {
     
     public AbstractBindingImpl getBindingImpl() {
         return soapBinding;
-    }  
+    } 
+    
+    public boolean isBindingCompatible(String address) {
+        return address.contains("http:");
+    }
 }

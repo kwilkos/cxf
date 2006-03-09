@@ -181,4 +181,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
         }
         return rw;        
     }
+
+    public boolean isBindingCompatible(String address) {
+        return address.contains("http:");
+    }
 }

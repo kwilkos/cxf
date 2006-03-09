@@ -14,6 +14,10 @@ import javax.xml.ws.spi.Provider;
 
 import junit.framework.TestCase;
 
+import org.mortbay.http.HttpContext;
+import org.mortbay.http.HttpServer;
+import org.mortbay.http.SocketListener;
+import org.mortbay.util.InetAddrPort;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingManager;
@@ -22,6 +26,8 @@ import org.objectweb.celtix.bus.bindings.TestBinding;
 import org.objectweb.celtix.bus.bindings.TestBindingFactory;
 import org.objectweb.celtix.bus.jaxws.spi.ProviderImpl;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 import org.objectweb.hello_world_soap_http.HWSourcePayloadProvider;
 import org.objectweb.hello_world_soap_http.HelloWorldServiceProvider;
@@ -76,8 +82,41 @@ public class EndpointImplTest extends TestCase {
         assertTrue(!endpoint.isPublished());
     }
 
-    public void testPublishUsingContext() throws Exception {
-        // TODO
+    public void testPublishUsingHttpContext() throws Exception {
+        
+        assertNotNull(endpoint);
+        assertTrue(!endpoint.isPublished());
+        
+        HttpServer server = new HttpServer();      
+        SocketListener listener = new SocketListener(new InetAddrPort(27220));
+        server.addListener(listener);
+        try {
+            server.start();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        HttpContext context = server.getContext("http://localhost:27220/test");
+        endpoint.publish(context);
+        assertTrue(endpoint.isPublished());
+        
+        listener.stop();
+        server.stop(true);
+        
+        
+    }
+    
+    public void testPublishUsingEndpointReferenceTypeContext() throws Exception {
+        
+        assertNotNull(endpoint);
+        assertTrue(!endpoint.isPublished());
+             
+        EndpointReferenceType context = 
+            EndpointReferenceUtils.getEndpointReference("http://localhost:8080/test");
+        endpoint.publish(context);
+        
+        assertTrue(endpoint.isPublished());       
     }
 
 
@@ -218,7 +257,6 @@ public class EndpointImplTest extends TestCase {
         classList = impl.getWebServiceAnnotatedClass();
         assertNotNull(classList);
         assertEquals(0, classList.size());
-    }
-    
+    }    
     
 }

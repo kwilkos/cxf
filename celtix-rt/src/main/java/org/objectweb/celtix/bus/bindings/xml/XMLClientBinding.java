@@ -18,5 +18,10 @@ public class XMLClientBinding extends AbstractClientBinding {
     
     public AbstractBindingImpl getBindingImpl() {
         return xmlBinding;
+    }
+
+    public boolean isBindingCompatible(String address) {
+        // TODO Auto-generated method stub
+        return false;
     }  
 }

@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.jaxws;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -37,6 +38,7 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.endpoints.ContextInspector;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
@@ -62,6 +64,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     private Map<String, Object> properties;
     
     private boolean doInit;
+    private boolean initialised;
     
     //Implemetor (SEI) specific members
     private List<Class<?>> seiClass;
@@ -220,18 +223,24 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
      * @see javax.xml.ws.Endpoint#publish(java.lang.Object)
      */
     public void publish(Object serverContext) {
+        if (doInit) {
+            init();
+            initialised = true;
+        }
         if (isPublished()) {
             LOG.warning("ENDPOINT_ALREADY_PUBLISHED_MSG");
         }
-
-        if (!isContextBindingCompatible(serverContext)) {
-            throw new IllegalArgumentException(new BusException(new Message("BINDING_INCOMPATIBLE_CONTEXT_EXC"
-                                                                            , LOG)));
-        }
-
         // apply all changes to configuration and metadata and (re-)activate
-        String address = getAddressFromContext(serverContext);
-        publish(address);
+        try {
+            String address = getAddressFromContext(serverContext);
+            if (!isContextBindingCompatible(address)) {
+                throw new IllegalArgumentException(
+                    new BusException(new Message("BINDING_INCOMPATIBLE_CONTEXT_EXC", LOG)));
+            }
+            publish(address);
+        } catch (Exception ex) {
+            throw new WebServiceException(ex);
+        }   
     }
 
     /*
@@ -240,6 +249,9 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
      * @see javax.xml.ws.Endpoint#publish(java.lang.String)
      */
     public void publish(String address) {
+        if (doInit && !initialised) {
+            init();
+        }
         if (isPublished()) {
             LOG.warning("ENDPOINT_ALREADY_PUBLISHED_MSG");
         }
@@ -306,18 +318,46 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
 
     }
 
-    String getAddressFromContext(Object ctx) {
-        return null;
+    String getAddressFromContext(Object ctx) throws Exception {
+        System.out.println("Configuration: " + configuration);
+        List<String> strs = configuration.getStringList("serverContextInspectors");
+        System.out.println("strs: " + strs);
+        Iterator iter = strs.iterator();
+        String address = null;
+        while (iter.hasNext()) {
+            String className = (String)iter.next();
+            
+            try {
+                LOG.log(Level.FINE, "loading context inspector", className);
+
+                Class<? extends ContextInspector> inspectorClass = 
+                    Class.forName(className, true, 
+                                  getContextInspectorClassLoader()).asSubclass(ContextInspector.class);
+
+                ContextInspector inspector = inspectorClass.newInstance();
+                address = inspector.getAddress(ctx);
+                if (address != null) {
+                    return address;
+                }
+            } catch (ClassNotFoundException e) {
+                throw new WebServiceException(
+                    new Message("CONTEXT_INSPECTOR_INSTANTIATION_EXC", LOG).toString(), e);
+            } catch (InstantiationException e) {
+                throw new WebServiceException(
+                    new Message("CONTEXT_INSPECTOR_INSTANTIATION_EXC", LOG).toString(), e);
+            } catch (IllegalAccessException e) {
+                throw new WebServiceException(
+                    new Message("CONTEXT_INSPECTOR_INSTANTIATION_EXC", LOG).toString(), e);
+            }
+        }
+        return address;
     }
 
-    boolean isContextBindingCompatible(Object ctx) {
-        return true;
+    protected boolean isContextBindingCompatible(String address) {
+        return serverBinding.isBindingCompatible(address);    
     }
 
     void doPublish(String address) {
-        if (doInit) {
-            init();
-        }
 
         EndpointReferenceUtils.setAddress(reference, address);
         try {
@@ -444,5 +484,9 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             cfg = cb.buildConfiguration(ENDPOINT_CONFIGURATION_URI, id, busCfg);
         }
         return cfg;
+    }
+    
+    private ClassLoader getContextInspectorClassLoader() {
+        return getClass().getClassLoader();
     }
 }

@@ -35,4 +35,6 @@ public interface BindingBase {
     HandlerInvoker createHandlerInvoker();
     
     void configureSystemHandlers(Configuration c);
+    
+    boolean isBindingCompatible(String address);
 }

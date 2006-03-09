@@ -246,4 +246,8 @@ public class TestServerBinding extends AbstractServerBinding {
         }
 
     }
+
+    public boolean isBindingCompatible(String address) {
+        return address.contains("http:");
+    }
 }
