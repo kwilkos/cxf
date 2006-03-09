@@ -155,7 +155,8 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             setUsingAddressing(true);
             continueProcessing = validateIncomingMAPs(maps, context); 
             if (continueProcessing) {
-                if (!ContextUtils.isGenericAddress(maps.getReplyTo())) {
+                if (ContextUtils.isOneway(context)
+                    || !ContextUtils.isGenericAddress(maps.getReplyTo())) {
                     ContextUtils.rebaseTransport(maps, context);
                 }            
             } else {
@@ -234,7 +235,7 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             if (ContextUtils.isGenericAddress(replyTo)) {
                 // use ReplyTo provided by transport
                 replyTo = ContextUtils.retrieveReplyTo(context);
-                if (replyTo == null) {
+                if (replyTo == null || isOneway) {
                     AttributedURIType address =
                         ContextUtils.getAttributedURI(isOneway
                                                       ? Names.WSA_NONE_ADDRESS

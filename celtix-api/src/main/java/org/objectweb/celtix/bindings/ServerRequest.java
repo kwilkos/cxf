@@ -133,6 +133,7 @@ public class ServerRequest {
 
         binding.getBindingImpl().unmarshal(bindingCtx, objectCtx, getDataBindingCallback());
         state = ServerRequestState.UNMARSHALLED;
+        objectCtx.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, isOneway());
              
         handlerInvoker.invokeLogicalHandlers(isRequestor(), objectCtx);
         
