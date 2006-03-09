@@ -46,16 +46,16 @@ public abstract class AbstractToolContainer implements ToolContainer {
 
     public void setMode(String[] args) {
         for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-q")) {
+            if ("-q".equals(args[i])) {
                 isQuiet = true;
             }
-            if (args[i].equals("-quiet")) {
+            if ("-quiet".equals(args[i])) {
                 isQuiet = true;
             }
-            if (args[i].equals("-V")) {
+            if ("-V".equals(args[i])) {
                 isVerbose = true;
             }
-            if (args[i].equals("-verbose")) {
+            if ("-verbose".equals(args[i])) {
                 isVerbose = true;
             }
         }

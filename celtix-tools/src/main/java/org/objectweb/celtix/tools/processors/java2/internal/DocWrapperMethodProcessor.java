@@ -257,7 +257,7 @@ public class DocWrapperMethodProcessor {
         resultQName = new QName(resultTNS, resultName);
         Class returnType = method.getReturnType();
         if (resultQName != null && !isOneWayMethod(method) && (returnType != null)
-            && (!returnType.getName().equals("void"))) {
+            && (!"void".equals(returnType.getName()))) {
             // Annotation[] annotations = method.getAnnotations();
             Annotation[] annotations = new Annotation[0];
             if (resultQName.getLocalPart() != null) {

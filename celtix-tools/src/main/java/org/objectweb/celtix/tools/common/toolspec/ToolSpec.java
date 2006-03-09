@@ -218,11 +218,11 @@ public class ToolSpec {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("local name is " + el.getLocalName());
             }
-            if (el.getLocalName().equals("argument")) {
+            if ("argument".equals(el.getLocalName())) {
                 if (el.hasAttribute("default")) {
                     return el.getAttribute("default");
                 }
-            } else if (el.getLocalName().equals("option")) {
+            } else if ("option".equals(el.getLocalName())) {
                 NodeList assArgs = el.getElementsByTagNameNS("http://www.xsume.com/Xpipe/ToolSpecification",
                                                              "associatedArgument");
 
@@ -245,7 +245,7 @@ public class ToolSpec {
 
         for (int i = 0; i < list.getLength(); i++) {
             if ((list.item(i).getNodeType() == Node.ELEMENT_NODE)
-                && (list.item(i).getNodeName().equals("annotation"))) {
+                && ("annotation".equals(list.item(i).getNodeName()))) {
                 result = list.item(i).getFirstChild().getNodeValue();
                 break;
             }

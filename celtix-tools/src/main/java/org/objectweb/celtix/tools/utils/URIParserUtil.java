@@ -26,7 +26,7 @@ public final class URIParserUtil {
         String scheme = "";
         if (idx >= 0) {
             scheme = nameSpaceURI.substring(0, idx);
-            if (scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("urn")) {
+            if ("http".equalsIgnoreCase(scheme) || "urn".equalsIgnoreCase(scheme)) {
                 nameSpaceURI = nameSpaceURI.substring(idx + 1);
             }
         }
@@ -50,8 +50,8 @@ public final class URIParserUtil {
         if (idx >= 0) {
             domain = domain.substring(0, idx);
         }
-        List<String> r = reverse(tokenize(domain, scheme.equals("urn") ? ".-" : "."));
-        if (r.get(r.size() - 1).equalsIgnoreCase("www")) {
+        List<String> r = reverse(tokenize(domain, "urn".equals(scheme) ? ".-" : "."));
+        if ("www".equalsIgnoreCase(r.get(r.size() - 1))) {
             // remove leading www
             r.remove(r.size() - 1);
         }

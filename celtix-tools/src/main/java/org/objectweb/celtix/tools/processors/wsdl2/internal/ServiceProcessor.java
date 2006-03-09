@@ -557,7 +557,7 @@ public class ServiceProcessor extends AbstractProcessor {
     }
   
     private boolean isSoapBinding() {
-        return bindingType != null && bindingType.name().equals("SOAPBinding");
+        return bindingType != null && "SOAPBinding".equals(bindingType.name());
                
     }
     

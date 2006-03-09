@@ -164,8 +164,8 @@ public class XSDToWSDLProcessor implements Processor {
         }
         if (env.get(ToolConstants.CFG_OUTPUTDIR) != null) {
             outputDir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
-            if (!(outputDir.substring(outputDir.length() - 1).equals("/") || outputDir
-                .substring(outputDir.length() - 1).equals("\\"))) {
+            if (!("/".equals(outputDir.substring(outputDir.length() - 1))
+                  || "\\".equals(outputDir.substring(outputDir.length() - 1)))) {
                 outputDir = outputDir + "/";
             }
         } else {

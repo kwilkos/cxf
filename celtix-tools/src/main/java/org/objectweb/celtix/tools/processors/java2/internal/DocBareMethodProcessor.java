@@ -57,7 +57,7 @@ public class DocBareMethodProcessor {
         WSDLParameter response = new WSDLParameter();
         //process return 
         Class returnType = method.getReturnType();
-        if (returnType != null && !returnType.getName().equals("void")) {
+        if (returnType != null && !"void".equals(returnType.getName())) {
             QName resQN = new QName(resultTNS, resultName);
             TypeReference typeRef = new TypeReference(resQN, returnType, new Annotation[0]);
             response.setName(method.getName() + "Response");
@@ -95,7 +95,7 @@ public class DocBareMethodProcessor {
             }
         }
         
-        if ((returnType == null || returnType.getName().equals("void")) && isHolder) {
+        if ((returnType == null || "void".equals(returnType.getName())) && isHolder) {
             response.setName(method.getName() + "Response");
             response.setStyle(JavaType.Style.OUT);
             response.setTargetNamespace(resultTNS); 

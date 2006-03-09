@@ -30,11 +30,11 @@ public class MIMEProcessor
                 .getExtensibilityElements().get(0);
             if (extElement instanceof MIMEContent) {
                 MIMEContent mimeContent = (MIMEContent)extElement;
-                if (mimeContent.getType().equals("image/jpeg") 
-                        || mimeContent.getType().equals("image/gif")) {
+                if ("image/jpeg".equals(mimeContent.getType()) 
+                        || "image/gif".equals(mimeContent.getType())) {
                     return "java.awt.Image";
-                } else if (mimeContent.getType().equals("text/xml") 
-                        || mimeContent.getType().equals("application/xml")) {
+                } else if ("text/xml".equals(mimeContent.getType()) 
+                        || "application/xml".equals(mimeContent.getType())) {
                     return "javax.xml.transform.Source";
                 }
             }

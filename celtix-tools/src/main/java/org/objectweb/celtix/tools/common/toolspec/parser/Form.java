@@ -39,7 +39,7 @@ public class Form implements TokenConsumer {
         NodeList children = el.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
-            if (children.item(i).getNodeName().equals("option")) {
+            if ("option".equals(children.item(i).getNodeName())) {
                 options.add(new Option((Element)children.item(i)));
             }
         }

@@ -7,10 +7,11 @@ import java.util.Locale;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
+import org.objectweb.celtix.tools.common.ToolException;
 
 public class ProcessorTestBase extends TestCase {
     
-    private static final int DELETE_RETRY_SLEEP_MILLIS = 10;
+    private static final int RETRY_SLEEP_MILLIS = 10;
     protected ProcessorEnvironment env = new ProcessorEnvironment();
     protected File output;
         
@@ -18,9 +19,7 @@ public class ProcessorTestBase extends TestCase {
         URL url = ProcessorTestBase.class.getResource(".");
         output = new File(url.getFile());
         output = new File(output, "/resources");
-        if (!output.exists()) {
-            output.mkdir();
-        }       
+        mkDir(output);
     }
     
     public void tearDown() {
@@ -28,7 +27,45 @@ public class ProcessorTestBase extends TestCase {
         output = null;
         env = null;
     }
+    
+    private void mkDir(File dir) {
+        if (dir == null) {
+            throw new ToolException("dir attribute is required");
+        }
+        
+        if (dir.isFile()) {
+            throw new ToolException("Unable to create directory as a file "
+                                    + "already exists with that name: "
+                                    + dir.getAbsolutePath());
+        }
 
+        if (!dir.exists()) {
+            boolean result = doMkDirs(dir);
+            if (!result) {
+                String msg = "Directory " + dir.getAbsolutePath()
+                    + " creation was not successful for an unknown reason";
+                throw new ToolException(msg);
+            }
+        }
+    }
+
+    /**
+     * Attempt to fix possible race condition when creating
+     * directories on WinXP, also Windows2000. If the mkdirs does not work,
+     * wait a little and try again.
+     */
+    private boolean doMkDirs(File f) {
+        if (!f.mkdirs()) {
+            try {
+                Thread.sleep(RETRY_SLEEP_MILLIS);
+                return f.mkdirs();
+            } catch (InterruptedException ex) {
+                return f.mkdirs();
+            }
+        }
+        return true;
+    }
+    
     private void removeDir(File d) {
         String[] list = d.list();
         if (list == null) {
@@ -52,7 +89,7 @@ public class ProcessorTestBase extends TestCase {
                 System.gc();
             }
             try {
-                Thread.sleep(DELETE_RETRY_SLEEP_MILLIS);
+                Thread.sleep(RETRY_SLEEP_MILLIS);
             } catch (InterruptedException ex) {
                 // Ignore Exception
             }

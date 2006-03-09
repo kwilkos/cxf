@@ -30,7 +30,7 @@ public class AbstractToolContainerTest extends TestCase {
         try {
             dummyTool.init();
         } catch (ToolException e) {
-            assertTrue(e.getMessage().equals("Tool specification has to be set before initializing"));
+            assertEquals("Tool specification has to be set before initializing", e.getMessage());
             return;
         }
         assertTrue(true);

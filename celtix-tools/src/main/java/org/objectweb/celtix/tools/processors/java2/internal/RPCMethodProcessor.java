@@ -70,7 +70,7 @@ public class RPCMethodProcessor {
                 webResultHeader = webResult.header();
             }
             QName resultQName = new QName(resultTNS, resultName);
-            if (returnType != null && (!returnType.getName().equals("void"))) {
+            if (returnType != null && (!"void".equals(returnType.getName()))) {
                 // Annotation[] rann = method.getAnnotations();
                 Annotation[] rann = new Annotation[0];
                 typeRef = new TypeReference(resultQName, returnType, rann);

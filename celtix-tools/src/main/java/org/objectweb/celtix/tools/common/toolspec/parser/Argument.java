@@ -26,7 +26,7 @@ public class Argument implements TokenConsumer {
             LOG.info("Accepting token stream for argument: " + this);
         }
         int minOccurs;
-        if (element.getAttribute("minOccurs").equals("unbounded")) {
+        if ("unbounded".equals(element.getAttribute("minOccurs"))) {
             minOccurs = 0;
         } else {
             minOccurs = Integer.parseInt(element.getAttribute("minOccurs"));
@@ -70,7 +70,7 @@ public class Argument implements TokenConsumer {
         boolean result = true;
         int minOccurs = 0;
 
-        if (!element.getAttribute("minOccurs").equals("")) {
+        if (!"".equals(element.getAttribute("minOccurs"))) {
             result = numMatches >= Integer.parseInt(element.getAttribute("minOccurs"));
         } else {
             result = numMatches >= minOccurs;
@@ -81,11 +81,11 @@ public class Argument implements TokenConsumer {
     private boolean isNoGreaterThanMaximum() {
         boolean result = true;
         //  int maxOccurs = 1;
-        if (element.getAttribute("maxOccurs").equals("unbounded")
-            || element.getAttribute("maxOccurs").equals("")) {
+        if ("unbounded".equals(element.getAttribute("maxOccurs"))
+            || "".equals(element.getAttribute("maxOccurs"))) {
             return true;
         }
-        if (!element.getAttribute("maxOccurs").equals("")) {
+        if (!"".equals(element.getAttribute("maxOccurs"))) {
             result = numMatches <= Integer.parseInt(element.getAttribute("maxOccurs"));
         }
         return result;

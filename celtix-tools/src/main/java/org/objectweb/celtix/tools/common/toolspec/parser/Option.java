@@ -48,7 +48,7 @@ public class Option implements TokenConsumer {
     }
 
     public boolean hasImmediateArgument() {
-        return hasArgument() && argument.getAttribute("placement").equals("immediate");
+        return hasArgument() && "immediate".equals(argument.getAttribute("placement"));
     }
 
     /**
@@ -215,7 +215,7 @@ public class Option implements TokenConsumer {
         boolean result = true;
         int minOccurs = 0;
 
-        if (!element.getAttribute("minOccurs").equals("")) {
+        if (!"".equals(element.getAttribute("minOccurs"))) {
             result = numMatches >= Integer.parseInt(element.getAttribute("minOccurs"));
         } else {
             result = numMatches >= minOccurs;
@@ -227,8 +227,8 @@ public class Option implements TokenConsumer {
         boolean result = true;
         int maxOccurs = 1;
 
-        if (!element.getAttribute("maxOccurs").equals("")) {
-            result = element.getAttribute("maxOccurs").equals("unbounded")
+        if (!"".equals(element.getAttribute("maxOccurs"))) {
+            result = "unbounded".equals(element.getAttribute("maxOccurs"))
                      || numMatches <= Integer.parseInt(element.getAttribute("maxOccurs"));
         } else {
             result = numMatches <= maxOccurs;

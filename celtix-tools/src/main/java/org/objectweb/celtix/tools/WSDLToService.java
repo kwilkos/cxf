@@ -81,7 +81,7 @@ public class WSDLToService extends AbstractCeltixToolContainer {
         args = pargs;
         String protocol = ""; 
         for (int i = 0; i < pargs.length; i++) {
-            if (pargs[i].equals("-transport")) {
+            if ("-transport".equals(pargs[i])) {
                 protocol = pargs[i + 1];
                 break;
             }
