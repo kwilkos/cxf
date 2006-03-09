@@ -8,7 +8,7 @@ import javax.wsdl.Port;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.bindings.soap.TestOutputStreamContext;
+import org.objectweb.celtix.bus.bindings.TestOutputStreamContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;

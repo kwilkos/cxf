@@ -14,6 +14,7 @@ import org.w3c.dom.NodeList;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bus.bindings.TestInputStreamContext;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;

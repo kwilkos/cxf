@@ -33,6 +33,8 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
+import org.objectweb.celtix.bus.bindings.TestInputStreamContext;
+import org.objectweb.celtix.bus.bindings.TestOutputStreamContext;
 import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
 import org.objectweb.celtix.bus.jaxws.EndpointUtils;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;

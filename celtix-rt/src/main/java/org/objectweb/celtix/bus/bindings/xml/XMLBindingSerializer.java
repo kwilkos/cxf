@@ -12,6 +12,8 @@ import javax.wsdl.extensions.ExtensionSerializer;
 import javax.xml.namespace.QName;
 import org.w3c.dom.*;
 
+import org.objectweb.celtix.helpers.XMLUtils;
+
 public final class XMLBindingSerializer implements ExtensionSerializer,
                                                    ExtensionDeserializer,
                                                    Serializable {

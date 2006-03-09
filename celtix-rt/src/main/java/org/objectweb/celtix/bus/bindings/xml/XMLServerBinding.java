@@ -23,6 +23,7 @@ import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.helpers.NodeUtils;
+import org.objectweb.celtix.helpers.WSDLHelper;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class XMLServerBinding extends AbstractServerBinding {

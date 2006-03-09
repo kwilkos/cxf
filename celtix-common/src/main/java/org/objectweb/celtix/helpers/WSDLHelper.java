@@ -1,8 +1,9 @@
-package org.objectweb.celtix.bus.bindings.xml;
+package org.objectweb.celtix.helpers;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
+
 import javax.jws.WebParam;
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.Binding;
@@ -11,13 +12,7 @@ import javax.wsdl.Input;
 import javax.wsdl.Message;
 import javax.wsdl.Operation;
 import javax.wsdl.Output;
-import javax.wsdl.Port;
-import javax.wsdl.WSDLException;
 import javax.xml.ws.RequestWrapper;
-
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class WSDLHelper {
 
@@ -33,19 +28,6 @@ public class WSDLHelper {
             }
         }
         return null;
-    }
-
-    public BindingOperation getBindingOperation(Bus bus,
-                                                EndpointReferenceType endpointRef,
-                                                String operationName) {
-        Port port = null;
-        try {
-            port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), endpointRef);
-        } catch (WSDLException e) {
-            throw new XMLBindingException("Can not get the port", e);
-        }
-        return getBindingOperation(port.getBinding(),
-                                   operationName);
     }
 
     public Map getParts(Operation operation, boolean out) {

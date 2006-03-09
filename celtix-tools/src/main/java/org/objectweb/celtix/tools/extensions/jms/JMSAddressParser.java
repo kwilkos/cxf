@@ -2,14 +2,16 @@ package org.objectweb.celtix.tools.extensions.jms;
 
 import org.w3c.dom.*;
 
+import org.objectweb.celtix.helpers.XMLUtils;
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.utils.XMLUtil;
 
 public class JMSAddressParser {
 
+    private XMLUtils xmlUtils = new XMLUtils();
+    
     public void parseElement(JMSAddress jmsAddress, Element element) {
         try {
-            Attr jndiURL = XMLUtil.getAttribute(element, ToolConstants.JMS_ADDR_JNDI_URL);
+            Attr jndiURL = xmlUtils.getAttribute(element, ToolConstants.JMS_ADDR_JNDI_URL);
             
             if (jndiURL != null) {
                 jmsAddress.setJndiProviderURL(jndiURL.getValue());

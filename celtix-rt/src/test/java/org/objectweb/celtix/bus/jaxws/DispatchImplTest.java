@@ -25,8 +25,8 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
+import org.objectweb.celtix.bus.bindings.TestOutputStreamContext;
 import org.objectweb.celtix.bus.bindings.soap.SOAPClientBinding;
-import org.objectweb.celtix.bus.bindings.soap.TestOutputStreamContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;

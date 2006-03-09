@@ -16,6 +16,7 @@ import org.objectweb.celtix.bus.bindings.TestOutputStreamContext;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.helpers.XMLUtils;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.hello_world_xml_http.wrapped.Greeter;

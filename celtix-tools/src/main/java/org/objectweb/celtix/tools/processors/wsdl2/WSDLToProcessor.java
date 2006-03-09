@@ -56,8 +56,8 @@ import org.objectweb.celtix.tools.jaxws.JAXWSBindingDeserializer;
 import org.objectweb.celtix.tools.jaxws.JAXWSBindingSerializer;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassNameAllocatorImpl;
+import org.objectweb.celtix.tools.utils.JAXBUtils;
 import org.objectweb.celtix.tools.utils.StringUtils;
-import org.objectweb.celtix.tools.utils.XMLUtil;
 import org.objectweb.celtix.tools.wsdl2.validate.AbstractValidator;
 
 public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorListener {
@@ -73,7 +73,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     private final List<AbstractValidator> validators = new ArrayList<AbstractValidator>();
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
     private List<String> schemaTargetNamespaces = new ArrayList<String>();
-
+    
     protected void parseWSDL(String wsdlURL) throws ToolException {
         try {
             wsdlFactory = WSDLFactory.newInstance();
@@ -221,7 +221,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     private void customizeSchema(Element schema, String targetNamespace) {
         String userPackage = env.mapPackageName(targetNamespace);
         if (!isSchemaParsed(targetNamespace) && !StringUtils.isEmpty(userPackage)) {
-            Node jaxbBindings = XMLUtil.innerJaxbPackageBinding(schema, userPackage);
+            Node jaxbBindings = JAXBUtils.innerJaxbPackageBinding(schema, userPackage);
             schema.appendChild(jaxbBindings);
         }
 

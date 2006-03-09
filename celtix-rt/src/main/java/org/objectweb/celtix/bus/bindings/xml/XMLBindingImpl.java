@@ -11,6 +11,8 @@ import javax.jws.soap.SOAPBinding.Style;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.BindingOutput;
+import javax.wsdl.Port;
+import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import javax.xml.ws.handler.MessageContext;
@@ -29,7 +31,10 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.helpers.NodeUtils;
+import org.objectweb.celtix.helpers.WSDLHelper;
+import org.objectweb.celtix.helpers.XMLUtils;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class XMLBindingImpl extends AbstractBindingImpl {
     private static final Logger LOG = LogUtils.getL7dLogger(XMLBindingImpl.class);
@@ -247,11 +252,9 @@ public class XMLBindingImpl extends AbstractBindingImpl {
         }
     }
 
-    private void addWrapperRoot(XMLMessage xmlMessage, DataBindingCallback callback) {
-        WSDLHelper helper = new WSDLHelper();
-        BindingOperation operation = helper.getBindingOperation(this.bus,
-                                                                this.endpointRef,
-                                                                callback.getOperationName());
+    private void addWrapperRoot(XMLMessage xmlMessage, DataBindingCallback callback) throws WSDLException {
+        BindingOperation operation = getBindingOperation(callback.getOperationName());
+        
         BindingInput input = operation.getBindingInput();
 
         XMLBinding xmlBinding = null;
@@ -276,35 +279,37 @@ public class XMLBindingImpl extends AbstractBindingImpl {
         }
     }
 
-    private void addReturnWrapperRoot(XMLMessage xmlMessage, DataBindingCallback callback) {
-        try {
-            WSDLHelper helper = new WSDLHelper();
-            BindingOperation operation = helper.getBindingOperation(this.bus,
-                                                                    this.endpointRef,
-                                                                    callback.getOperationName());
-            BindingOutput output = operation.getBindingOutput();
-            XMLBinding xmlBinding = null;
-            Iterator ite = output.getExtensibilityElements().iterator();
-            while (ite.hasNext()) {
-                Object obj = ite.next();
-                if (obj instanceof XMLBinding) {
-                    xmlBinding = (XMLBinding)obj;
-                }
+    private void addReturnWrapperRoot(XMLMessage xmlMessage,
+                                      DataBindingCallback callback) throws WSDLException {
+        BindingOperation operation = getBindingOperation(callback.getOperationName());
+
+        BindingOutput output = operation.getBindingOutput();
+        XMLBinding xmlBinding = null;
+        Iterator ite = output.getExtensibilityElements().iterator();
+        while (ite.hasNext()) {
+            Object obj = ite.next();
+            if (obj instanceof XMLBinding) {
+                xmlBinding = (XMLBinding)obj;
             }
-            if (needRootNode(operation, true)) {
-                if (xmlBinding == null || xmlBinding.getRootNode() == null) {
-                    throw new XMLBindingException("Bare style must define the rootNode in this case!");
-                }
-                QName rootNode = xmlBinding.getRootNode();
-                Document doc = xmlMessage.getRoot();
-                String targetNamespace = rootNode.getNamespaceURI() == null
-                    ? callback.getTargetNamespace() : rootNode.getNamespaceURI();
-                Element operationNode = doc.createElementNS(targetNamespace, rootNode.getLocalPart());
-                xmlMessage.appendChild(operationNode);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+        if (needRootNode(operation, true)) {
+            if (xmlBinding == null || xmlBinding.getRootNode() == null) {
+                throw new XMLBindingException("Bare style must define the rootNode in this case!");
+            }
+            QName rootNode = xmlBinding.getRootNode();
+            Document doc = xmlMessage.getRoot();
+            String targetNamespace = rootNode.getNamespaceURI() == null
+                ? callback.getTargetNamespace() : rootNode.getNamespaceURI();
+            Element operationNode = doc.createElementNS(targetNamespace, rootNode.getLocalPart());
+            xmlMessage.appendChild(operationNode);
+        }
+    }
+
+    private BindingOperation getBindingOperation(String operationName) throws WSDLException {
+        WSDLHelper helper = new WSDLHelper();
+        Port port = EndpointReferenceUtils.getPort(this.bus.getWSDLManager(), this.endpointRef);
+        return helper.getBindingOperation(port.getBinding(),
+                                          operationName);
     }
 
     private boolean needRootNode(BindingOperation operation, boolean out) {

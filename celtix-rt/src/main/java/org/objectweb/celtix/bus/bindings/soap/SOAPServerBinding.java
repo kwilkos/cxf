@@ -26,6 +26,7 @@ import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.helpers.NodeUtils;
+import org.objectweb.celtix.helpers.WSDLHelper;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class SOAPServerBinding extends AbstractServerBinding {
@@ -33,6 +34,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(SOAPServerBinding.class);
     
     protected final SOAPBindingImpl soapBinding;
+    protected final WSDLHelper helper;
     
     public SOAPServerBinding(Bus b,
                              EndpointReferenceType ref,
@@ -40,6 +42,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
                              ServerBindingEndpointCallback cbFactory) {
         super(b, ref, ep, cbFactory);
         soapBinding = new SOAPBindingImpl(true);
+        helper = new WSDLHelper();
     }
     
     public AbstractBindingImpl getBindingImpl() {
@@ -51,7 +54,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
         SOAPMessageContext soapContext = SOAPMessageContext.class.cast(ctx);
         SOAPMessage msg = soapContext.getMessage();
         
-        SOAPBinding soapAnnotation = getSOAPBindingAnnotationFromClass(classList);
+        // SOAPBinding soapAnnotation = getSOAPBindingAnnotationFromClass(classList);
+        SOAPBinding soapAnnotation = helper.getBindingAnnotationFromClass(classList);
         
         QName opName = null;
         Method op = null;
@@ -72,7 +76,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
                         //SOAPBinding Annotation could be defined per SEI class or 
                         //per SEI Method in Document Style.
                         if (null == soapAnnotationMethod) {
-                            soapAnnotationMethod = getSOAPBindingAnnotationFromMethod(m);
+                            soapAnnotationMethod = helper.getBindingAnnotationFromMethod(m);
+                            // soapAnnotationMethod = getSOAPBindingAnnotationFromMethod(m);
                         }
 
                         if (null != soapAnnotationMethod 
@@ -86,7 +91,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
                             
                             int nodeIdx = 0;
                             for (Annotation[] a : pa) {
-                                WebParam param = getWebParamAnnotation(a);
+                                WebParam param = helper.getWebParamAnnotation(a);
+                                // WebParam param = getWebParamAnnotation(a);
                                 if (null == param
                                     || param.mode() == WebParam.Mode.OUT
                                     || nodeIdx >= nl.getLength()) {
@@ -114,7 +120,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
                         } else {
                             //WRAPPED Style
                             Node node = NodeUtils.getChildElementNode(msg.getSOAPBody());
-                            RequestWrapper rw = getRequestWrapperAnnotation(m);
+                            // RequestWrapper rw = getRequestWrapperAnnotation(m);
+                            RequestWrapper rw = helper.getRequestWrapperAnnotation(m);
                             //Check for the RequestWrapper name followed by 
                             //Method Name (To avoid asyncronous operations)
                             //The method name check can be removed once JSR181 comes up
@@ -140,47 +147,47 @@ public class SOAPServerBinding extends AbstractServerBinding {
         return op;
     }
     
-    private SOAPBinding getSOAPBindingAnnotationFromClass(List<Class<?>> classList) {
-        SOAPBinding sb = null;
-        for (Class<?> c : classList) {
-            sb = c.getAnnotation(SOAPBinding.class);
-            if (null != sb)  {
-                break;
-            }
-        }
-        return sb;
-    }
+//     private SOAPBinding getSOAPBindingAnnotationFromClass(List<Class<?>> classList) {
+//         SOAPBinding sb = null;
+//         for (Class<?> c : classList) {
+//             sb = c.getAnnotation(SOAPBinding.class);
+//             if (null != sb)  {
+//                 break;
+//             }
+//         }
+//         return sb;
+//     }
 
-    private SOAPBinding getSOAPBindingAnnotationFromMethod(Method m) {
-        SOAPBinding sb = null;
-        if (null != m) {
-            sb = m.getAnnotation(SOAPBinding.class);
-        }
-        return sb;
-    }
+//     private SOAPBinding getSOAPBindingAnnotationFromMethod(Method m) {
+//         SOAPBinding sb = null;
+//         if (null != m) {
+//             sb = m.getAnnotation(SOAPBinding.class);
+//         }
+//         return sb;
+//     }
     
-    private WebParam getWebParamAnnotation(Annotation[] pa) {
-        WebParam wp = null;
+//     private WebParam getWebParamAnnotation(Annotation[] pa) {
+//         WebParam wp = null;
         
-        if (null != pa) {
-            for (Annotation annotation : pa) {
-                if (WebParam.class.equals(annotation.annotationType())) {
-                    wp = (WebParam) annotation;
-                    break;
-                }
-            }
-        }
-        return wp;
-    }
+//         if (null != pa) {
+//             for (Annotation annotation : pa) {
+//                 if (WebParam.class.equals(annotation.annotationType())) {
+//                     wp = (WebParam) annotation;
+//                     break;
+//                 }
+//             }
+//         }
+//         return wp;
+//     }
     
-    private RequestWrapper getRequestWrapperAnnotation(Method m) {
-        RequestWrapper rw = null;
+//     private RequestWrapper getRequestWrapperAnnotation(Method m) {
+//         RequestWrapper rw = null;
         
-        if (null != m) {
-            rw = m.getAnnotation(RequestWrapper.class);
-        }
-        return rw;        
-    }
+//         if (null != m) {
+//             rw = m.getAnnotation(RequestWrapper.class);
+//         }
+//         return rw;        
+//     }
 
     public boolean isBindingCompatible(String address) {
         return address.contains("http:");

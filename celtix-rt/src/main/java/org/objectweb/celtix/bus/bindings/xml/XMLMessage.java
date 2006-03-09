@@ -3,6 +3,8 @@ package org.objectweb.celtix.bus.bindings.xml;
 import java.io.*;
 import org.w3c.dom.*;
 
+import org.objectweb.celtix.helpers.XMLUtils;
+
 public class XMLMessage {
 
     private Document root;

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.bindings.xml;
+package org.objectweb.celtix.helpers;
 
 import java.io.*;
 import java.util.*;
@@ -38,12 +38,8 @@ public class XMLUtils {
         transformerFactory = TransformerFactory.newInstance();
     }
 
-    public Transformer newTransformer() throws XMLBindingException {
-        try {
-            return transformerFactory.newTransformer();
-        } catch (TransformerConfigurationException tex) {
-            throw new XMLBindingException("Unable to create a JAXP transformer", tex);
-        }
+    private Transformer newTransformer() throws TransformerConfigurationException {
+        return transformerFactory.newTransformer();
     }
 
     private DocumentBuilder getParser() {
@@ -95,7 +91,7 @@ public class XMLUtils {
         return this.indent != -1;
     }
     
-    public void writeTo(Node node, OutputStream os) throws XMLBindingException {
+    public void writeTo(Node node, OutputStream os) {
         try {
             Transformer it = newTransformer();
             
@@ -109,10 +105,10 @@ public class XMLUtils {
             it.setOutputProperty(OutputKeys.ENCODING, charset);
             it.transform(new DOMSource(node), new StreamResult(os));
         } catch (Exception e) {
-            throw new XMLBindingException("xml binding exception:", e);
+            e.printStackTrace();
         }
     }
-
+    
     public String toString(Node node) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         writeTo(node, out);
@@ -132,6 +128,33 @@ public class XMLUtils {
         return el.getAttributeNode(attrName);
     }
 
+    public void replaceAttribute(Element element, String attr, String value) {
+        if (element.hasAttribute(attr)) {
+            element.removeAttribute(attr);
+        }
+        element.setAttribute(attr, value);
+    }
+
+    public boolean hasAttribute(Element element, String value) {
+        NamedNodeMap attributes = element.getAttributes();
+        for (int i = 0; i < attributes.getLength(); i++) {
+            Node node = attributes.item(i);
+            if (value.equals(node.getNodeValue())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void printAttributes(Element element) {
+        NamedNodeMap attributes = element.getAttributes();
+        for (int i = 0; i < attributes.getLength(); i++) {
+            Node node = attributes.item(i);
+            System.err.println("## prefix=" + node.getPrefix() + " localname:"
+                               + node.getLocalName() + " value=" + node.getNodeValue());
+        }
+    }
+
     public QName getNamespace(Map namespaces, String str, String defaultNamespace) {
         String prefix = null;
         String localName = null;
@@ -149,5 +172,19 @@ public class XMLUtils {
             namespceURI = (String) namespaces.get(prefix);
         }
         return new QName(namespceURI, localName);
+    }
+
+    public void generateXMLFile(Element element, Writer writer) {
+        try {
+            Transformer it = newTransformer();
+            
+            it.setOutputProperty(OutputKeys.METHOD, "xml");
+            it.setOutputProperty(OutputKeys.INDENT, "yes");
+            it.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            it.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            it.transform(new DOMSource(element), new StreamResult(writer));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
