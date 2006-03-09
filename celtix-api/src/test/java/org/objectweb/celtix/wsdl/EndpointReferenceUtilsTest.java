@@ -1,6 +1,9 @@
 package org.objectweb.celtix.wsdl;
 
+import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.wsdl.Definition;
@@ -14,6 +17,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceProvider;
 
@@ -266,4 +270,29 @@ public class EndpointReferenceUtilsTest extends TestCase {
         assertEquals(portName1, QName.valueOf(EndpointReferenceUtils.getPortName(ref)));
     }
     
+    public void testSetMetaData() throws Exception {
+        EndpointReferenceType ref = new EndpointReferenceType();
+        List<Source> metadata = new ArrayList<Source>();
+        //Read a Schema File
+        InputStream isXsd =  getClass().getResourceAsStream("resources/addressing.xsd");
+        StreamSource ssXsd = new StreamSource(isXsd);
+        metadata.add(ssXsd);
+        
+        //Read a WSDL File
+        InputStream isWSDL =  getClass().getResourceAsStream("resources/hello_world.wsdl");
+        StreamSource ssWSDL = new StreamSource(isWSDL);
+        metadata.add(ssWSDL);
+        
+        EndpointReferenceUtils.setMetadata(ref, metadata);
+        assertNotNull("MetaData should not be empty", ref.getMetadata());
+        List<Object> anyList = ref.getMetadata().getAny();
+        assertNotNull("AnyList in MetaData should not be empty", anyList);
+        assertEquals(2, anyList.size());
+        
+        WSDLManager manager = new TestWSDLManager();
+        assertNotNull("Defintion element should be present", 
+                      EndpointReferenceUtils.getWSDLDefinition(manager, ref));
+        isXsd.close();
+        isWSDL.close();
+    }
 }

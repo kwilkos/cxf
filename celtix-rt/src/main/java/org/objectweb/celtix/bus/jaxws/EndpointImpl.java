@@ -126,18 +126,9 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
 
     private void init() {
         try {
-            if (properties != null) {
-                QName val = (QName) properties.get(Endpoint.WSDL_SERVICE);
-                if (null != val) {
-                    EndpointReferenceUtils.setServiceName(reference, val);
-                }
-                
-                val = (QName) properties.get(Endpoint.WSDL_PORT);
-                if (null != val) {
-                    EndpointReferenceUtils.setPortName(reference, val.toString());
-                }
-            }
-            
+            initProperties();
+            initMetaData();
+
             configuration = createConfiguration();
             serverBinding = createServerBinding(bindingURI);
             configureHandlers();
@@ -151,6 +142,27 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         
         doInit = false;
     }
+    
+    private void initProperties() {
+        if (null != properties) {
+            QName val = (QName) properties.get(Endpoint.WSDL_SERVICE);
+            if (null != val) {
+                EndpointReferenceUtils.setServiceName(reference, val);
+            }
+            
+            val = (QName) properties.get(Endpoint.WSDL_PORT);
+            if (null != val) {
+                EndpointReferenceUtils.setPortName(reference, val.toString());
+            }
+        }
+    }
+    
+    private void initMetaData() {
+        if (null != metadata) {
+            EndpointReferenceUtils.setMetadata(reference, metadata);
+        }
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -240,7 +252,11 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
      * @see javax.xml.ws.Endpoint#setMetadata(java.util.List)
      */
     public void setMetadata(List<Source> m) {
+        if (isPublished()) {
+            throw new IllegalStateException("Endpoint has already been published"); 
+        }
         metadata = m;
+        doInit = true;
     }
 
     /**
@@ -316,12 +332,10 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         }
     }
 
-    @Override
     public Map<String, Object> getProperties() {
         return properties;
     }
 
-    @Override
     public void setProperties(Map<String, Object> arg0) {
         properties = arg0;
         doInit = true;

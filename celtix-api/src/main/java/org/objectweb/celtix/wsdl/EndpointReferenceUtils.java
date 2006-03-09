@@ -1,6 +1,7 @@
 package org.objectweb.celtix.wsdl;
 
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,9 +16,16 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceProvider;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
@@ -115,10 +123,47 @@ public final class EndpointReferenceUtils {
      * @return the wsdl location.
      */
     public static String getWSDLLocation(EndpointReferenceType ref) {
-        Map<QName, String> attribMap = ref.getMetadata().getOtherAttributes();
-        return attribMap.get(WSDL_LOCATION);
+        String wsdlLocation = null;
+        MetadataType mt = ref.getMetadata();
+        if (mt != null) {
+            Map<QName, String> attribMap = mt.getOtherAttributes();
+            wsdlLocation = attribMap.get(WSDL_LOCATION);
+        }
+        return wsdlLocation;
     }
-    
+
+    /**
+     * Sets the metadata on the provided endpoint reference.
+     * @param ref the endpoint reference.
+     * @param the list of metadata source.
+     */
+    public static void setMetadata(EndpointReferenceType ref, List<Source> metadata) {
+        if (null != ref) {
+            MetadataType mt = ref.getMetadata();
+            if (null == mt) {
+                mt = new MetadataType();
+                ref.setMetadata(mt);
+            }
+            List<Object> anyList = mt.getAny();
+            try {
+                TransformerFactory tf = TransformerFactory.newInstance();
+                Transformer transformer = tf.newTransformer();
+                for (Source source : metadata) {
+                    DOMResult domResult = new DOMResult();
+                    transformer.transform(source, domResult);
+                    Node node =  domResult.getNode().getFirstChild();
+                    while (null != node 
+                           && node.getNodeType() != Node.ELEMENT_NODE) {
+                        node = node.getNextSibling();
+                    }
+                    anyList.add(node);
+                }
+            } catch (TransformerException te) {
+                throw new WebServiceException("Populating metadata in EPR failed", te);
+            }
+        }
+    }
+   
     /**
      * Gets the WSDL definition for the provided endpoint reference.
      * @param manager - the WSDL manager 
@@ -129,6 +174,10 @@ public final class EndpointReferenceUtils {
     public static Definition getWSDLDefinition(WSDLManager manager, EndpointReferenceType ref)
         throws WSDLException {
         
+        if (null == manager) {
+            return null;
+        }
+
         MetadataType metadata = ref.getMetadata();
         String location = metadata.getOtherAttributes().get(WSDL_LOCATION);
 
