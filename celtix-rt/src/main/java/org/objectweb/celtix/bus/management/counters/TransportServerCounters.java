@@ -6,7 +6,7 @@ import java.util.List;
 
 
 
-public class TransportCounters {
+public class TransportServerCounters {
     private static final String[] COUNTER_NAMES = {"RequestsTotal",
                                                    "RequestsOneWay",
                                                    "TotalError"};
@@ -15,7 +15,7 @@ public class TransportCounters {
     
     private String owner;
     
-    public TransportCounters(String o) {
+    public TransportServerCounters(String o) {
         owner = o;
         counters = new ArrayList<Counter>();
         initCounters();

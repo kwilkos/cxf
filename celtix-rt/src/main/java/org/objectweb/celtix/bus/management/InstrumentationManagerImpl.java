@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.management;
 
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,16 +14,24 @@ import org.objectweb.celtix.BusEventListener;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
+
 import org.objectweb.celtix.bus.management.jmx.JMXManagedComponentManager;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransportInstrumentation;
 import org.objectweb.celtix.bus.transports.http.HTTPServerTransportInstrumentation;
 import org.objectweb.celtix.bus.transports.http.JettyHTTPServerTransport;
+import org.objectweb.celtix.bus.transports.jms.JMSClientTransport;
+import org.objectweb.celtix.bus.transports.jms.JMSClientTransportInstrumentation;
+import org.objectweb.celtix.bus.transports.jms.JMSServerTransport;
+import org.objectweb.celtix.bus.transports.jms.JMSServerTransportInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
+
+
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationManager;
+
 
 
 /** The basic manager information center for common management model
@@ -34,43 +43,86 @@ import org.objectweb.celtix.management.InstrumentationManager;
  */
 public class InstrumentationManagerImpl implements InstrumentationManager, BusEventListener {    
     static final Logger LOG = LogUtils.getL7dLogger(InstrumentationManagerImpl.class);
+    static final String INSTRUMENTATION_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/bus-config";
+    static final String INSTRUMENTATION_CONFIGURATION_ID = 
+        "InstrumentationControl";
     private Bus bus;
     private List <Instrumentation> instrumentations;
     private JMXManagedComponentManager jmxManagedComponentManager;
     private ComponentEventFilter componentEventFilter;
+    private boolean instrumentationEnabled;
+    private boolean jmxEnabled;
     
     public InstrumentationManagerImpl(Bus b) throws BusException {
+        //InstrumentationPolicyType instrumentation = null;
         bus = b;
+        
+        /*Configuration busConfiguration = bus.getConfiguration();       
+        
+        if (busConfiguration != null) {        
+            instrumentation = 
+                busConfiguration.getObject(InstrumentationPolicyType.class,
+                                           "InstrumentationControl");            
+        } else {
+            System.out.println("instrumentationConf is null ");
+        }
+        
+        if (instrumentation == null) {
+            System.out.println("instrumentation is null");
+            instrumentation = new InstrumentationPolicyType();
+        }
+        
+        //TODO There no effect of the configuration xml change
+        instrumentationEnabled = instrumentation.isInstrumentationEnabled();
+        jmxEnabled = instrumentation.isJMXEnabled();*/
+        instrumentationEnabled = true;
+        jmxEnabled = true;
         
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Setting up InstrumentationManager for BUS");
         }    
         
-        instrumentations = new LinkedList<Instrumentation>();
-        componentEventFilter = new ComponentEventFilter();   
-        // configurat the jmx manager to listener        
-        jmxManagedComponentManager = new JMXManagedComponentManager();
+        // get the configuration
+        if (instrumentationEnabled) {
+            instrumentations = new LinkedList<Instrumentation>();
+            componentEventFilter = new ComponentEventFilter();
+            bus.addListener((BusEventListener)this, 
+                            componentEventFilter);
+        }
         
-        jmxManagedComponentManager.init();
+        if (jmxEnabled) {
+            jmxManagedComponentManager = new JMXManagedComponentManager(bus);
         
-        bus.addListener((BusEventListener)jmxManagedComponentManager, 
+            jmxManagedComponentManager.init();
+        
+            bus.addListener((BusEventListener)jmxManagedComponentManager, 
                         jmxManagedComponentManager.getManagementEventFilter());
+        }
         
-        bus.addListener((BusEventListener)this, 
-                        componentEventFilter);
+        
     }
     
     public void shutdown() {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Shutdown InstrumentationManager ");
-        }    
-        try { 
-            bus.removeListener((BusEventListener)jmxManagedComponentManager);
-            bus.removeListener((BusEventListener)this);
-        } catch (BusException ex) {
-            LOG.log(Level.SEVERE, "REMOVE_LISTENER_FAILURE_MSG", ex);
         }
-        jmxManagedComponentManager.shutdown();
+        if (instrumentationEnabled) {
+            try {
+                bus.removeListener((BusEventListener)this);
+            } catch (BusException ex) {
+                LOG.log(Level.SEVERE, "REMOVE_LISTENER_FAILURE_MSG", ex);
+            }
+        }
+        
+        if (jmxManagedComponentManager != null && jmxEnabled) {
+            try { 
+                bus.removeListener((BusEventListener)jmxManagedComponentManager);               
+            } catch (BusException ex) {
+                LOG.log(Level.SEVERE, "REMOVE_LISTENER_FAILURE_MSG", ex);
+            }
+            jmxManagedComponentManager.shutdown();
+        }
     }
     
     public void regist(Instrumentation it) {
@@ -126,6 +178,15 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
             it = new HTTPServerTransportInstrumentation(
                            (JettyHTTPServerTransport)component);            
         }
+        if (JMSServerTransport.class.isAssignableFrom(component.getClass())) {
+            it = new JMSServerTransportInstrumentation(
+                           (JMSServerTransport)component);
+        }        
+        if (JMSClientTransport.class.isAssignableFrom(component.getClass())) {
+            it = new JMSClientTransportInstrumentation(
+                           (JMSClientTransport)component);
+        }
+        
         return it;
     }
 

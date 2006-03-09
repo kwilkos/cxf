@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.management.jmx;
 
 
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,6 +13,7 @@ import javax.management.JMException;
 import javax.management.MBeanException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 
 
 import javax.management.NotCompliantMBeanException;
@@ -20,6 +22,7 @@ import javax.management.ReflectionException;
 import javax.management.modelmbean.InvalidTargetObjectTypeException;
 import javax.management.modelmbean.ModelMBeanInfo;
 
+import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.management.InstrumentationEventFilter;
@@ -38,21 +41,20 @@ import org.objectweb.celtix.management.Instrumentation;
 
 public class JMXManagedComponentManager implements InstrumentationEventListener {
     private static final Logger LOG = LogUtils.getL7dLogger(JMXManagedComponentManager.class);
-   
+    
+    private boolean platformMBeanServer = true;
+    //private Bus bus;
     private InstrumentationEventFilter meFilter;
     private MBeanServer mbs;
     private ModelMBeanAssembler mbAssembler; 
-    //private MBServerConnectorFactory mcf;
+    private MBServerConnectorFactory mcf;
     
-    public JMXManagedComponentManager() {
+    public JMXManagedComponentManager(Bus b) {
+        //bus = b;
         
         meFilter = new InstrumentationEventFilter();
-        // TODO MBeanServer should be get from defalut
-       
-        mbs = ManagementFactory.getPlatformMBeanServer();
-        
+        // TODO need to read configurate files  
         mbAssembler = new ModelMBeanAssembler();
-       // TODO need to read configurate files 
         
        
     }
@@ -62,28 +64,33 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Setting up MBeanServer ");
         }          
-              
+           
+        if (platformMBeanServer) {
+            mbs = ManagementFactory.getPlatformMBeanServer();
+        } else {
+            // TODO get the configuration and setup the ConnectorFactory
+            mbs = MBeanServerFactory.createMBeanServer(JMXUtils.DOMAIN_STRING);            
+            mcf = new MBServerConnectorFactory();
+            mcf.setMBeanServer(mbs);
+            mcf.setThreaded(true);
+            try {            
+                mcf.createConnector();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, "START_CONNECTOR_FAILURE_MSG", new Object[]{ex});
+            }
+        }
         
-        /*mbs = MBeanServerFactory.createMBeanServer(JMXUtils.DOMAIN_STRING);
-        mbAssembler = new ModelMBeanAssembler();
-        
-        mcf = new MBServerConnectorFactory();
-        mcf.setMBeanServer(mbs);
-        mcf.setThreaded(true);
-        try {            
-            mcf.createConnector();
-        } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "START_CONNECTOR_FAILURE_MSG", new Object[]{ex});
-        }*/
+       
     }
     
-    public void shutdown() {
-        
-        /*try {
-            mcf.destroy();
-        } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "STOP_CONNECTOR_FAILURE_MSG", new Object[]{ex});
-        }*/
+    public void shutdown() { 
+        if (!platformMBeanServer) {
+            try {
+                mcf.destroy();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, "STOP_CONNECTOR_FAILURE_MSG", new Object[]{ex});
+            }
+        }
     }
     
     public InstrumentationEventFilter getManagementEventFilter() {

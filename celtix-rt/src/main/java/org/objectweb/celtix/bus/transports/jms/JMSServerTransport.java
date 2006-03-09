@@ -23,6 +23,9 @@ import javax.wsdl.WSDLException;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
+import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
+import org.objectweb.celtix.bus.management.counters.TransportServerCounters;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -41,16 +44,21 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
         JMSServerTransport.class.getName() + ".CorrelationID";
 
     ServerTransportCallback callback;
+    TransportServerCounters counters;
     private PooledSession listenerSession;
     private Thread listenerThread;
     private JMSServerBehaviorPolicyType serverBehaviourPolicy;
+    private Bus bus;
 
 
-    public JMSServerTransport(Bus bus, EndpointReferenceType address)
+    public JMSServerTransport(Bus b, EndpointReferenceType address)
         throws WSDLException {
-        super(bus, address, true);
-        serverBehaviourPolicy = getServerPolicy(configuration); 
+        super(b, address, true);
+        bus = b;
+        serverBehaviourPolicy = getServerPolicy(configuration);
+        counters = new TransportServerCounters("JMSServerTranpsort");
         entry("JMSServerTransport Constructor");
+        bus.sendEvent(new ComponentCreatedEvent(this));
     }
     
     private JMSServerBehaviorPolicyType getServerPolicy(Configuration conf) {
@@ -124,6 +132,7 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
         } catch (IOException ex) {
             // Ignore for now.
         }
+        bus.sendEvent(new ComponentRemovedEvent(this)); 
     }
 
     public void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context)
@@ -133,7 +142,8 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
         String correlationID = (String) bindingContext.get(JMS_SERVER_TRANSPORT_CORRELATION_ID);
         PooledSession replySession = null;
          // ensure non-oneways in point-to-point domain
-
+        counters.getRequestTotal().increase();
+        
         if (!context.isOneWay()) {
             if (queueDestinationStyle) {
                 try {
@@ -186,7 +196,8 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
                     }                    
                 } catch (JMSException ex) {
                     LOG.log(Level.WARNING, "Failed in post dispatch ...", ex);
-                    throw new IOException(ex.getMessage());
+                    counters.getTotalError().increase();
+                    throw new IOException(ex.getMessage());                    
                 } finally {
                     // house-keeping
                     if (replySession != null) {
@@ -201,7 +212,11 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
                 LOG.log(Level.WARNING,
                                              "discarding reply for non-oneway invocation ",
                                               "with 'topic' destinationStyle");
+                counters.getTotalError().increase();
             }
+        } else { 
+            // counter for oneway request
+            counters.getRequestOneWay().increase();
         }
     }
 

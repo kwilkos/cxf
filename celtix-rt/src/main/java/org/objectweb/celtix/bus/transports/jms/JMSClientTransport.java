@@ -23,6 +23,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.ResponseCallback;
+import org.objectweb.celtix.bus.management.counters.TransportClientCounters;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 
@@ -39,10 +40,11 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
     
     private static final Logger LOG = LogUtils.getL7dLogger(JMSClientTransport.class);
     private static final long DEFAULT_RECEIVE_TIMEOUT = 15000;
-
+    
     protected boolean textPayload;
+    TransportClientCounters counters;
     private JMSClientBehaviorPolicyType clientBehaviourPolicy;
-
+    
     public JMSClientTransport(Bus bus, 
                               EndpointReferenceType address, 
                               ResponseCallback callback) 
@@ -50,7 +52,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
 
         super(bus, address, false);
         clientBehaviourPolicy = getClientPolicy(configuration);
-        
+        counters = new TransportClientCounters("JMSClientTransport");
         textPayload = 
             JMSConstants.TEXT_MESSAGE_TYPE.equals(clientBehaviourPolicy.getMessageType().value());
         
@@ -123,9 +125,11 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
             } else {
                 responseData = (byte[])invoke(context, true);
             }
+            counters.getInvoke().increase();
             return new JMSInputStreamContext(new ByteArrayInputStream(responseData));
         } catch (Exception ex) {
             //TODO: decide what to do with the exception.
+            counters.getInvokeError().increase();
             throw new IOException(ex.getMessage());
         }
     }
@@ -139,7 +143,9 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
     public void invokeOneway(OutputStreamMessageContext context) throws IOException {
         try {
             invoke(context, false);
+            counters.getInvokeOneWay();
         } catch (Exception ex) {
+            counters.getInvokeError().increase();
             throw new IOException(ex.getMessage());
         }
     }

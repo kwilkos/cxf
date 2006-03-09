@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.transports.http;
 
 
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
+import org.objectweb.celtix.bus.management.counters.TransportClientCounters;
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedAttribute;
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
 import org.objectweb.celtix.management.Instrumentation;
@@ -19,6 +20,7 @@ public class HTTPClientTransportInstrumentation implements Instrumentation {
     
     HTTPClientTransport httpClientTransport;
     String objectName;
+    TransportClientCounters counters;
    
     
     public HTTPClientTransportInstrumentation(HTTPClientTransport hcTransport) {
@@ -49,6 +51,30 @@ public class HTTPClientTransportInstrumentation implements Instrumentation {
                       persistPolicy = "OnUpdate")
     public String getUrl() {
         return httpClientTransport.url.toString();
+    }
+    
+    @ManagedAttribute(description = "The http client invoke counter",
+                      persistPolicy = "OnUpdate")
+    public int getInvoke() {
+        return counters.getInvoke().getValue();
+    }
+    
+    @ManagedAttribute(description = "The http client invoke Async counter",
+                      persistPolicy = "OnUpdate")
+    public int getInvokeAsync() {
+        return counters.getInvokeAsync().getValue();
+    }
+    
+    @ManagedAttribute(description = "The http client one way invoke counter",
+                      persistPolicy = "OnUpdate")
+    public int getInvokeOneWay() {
+        return counters.getInvokeOneWay().getValue();
+    }
+    
+    @ManagedAttribute(description = "The http client error invoke counter",
+                      persistPolicy = "OnUpdate")
+    public int getInvokeError() {
+        return counters.getInvokeError().getValue();
     }
         
     public Object getComponent() {        

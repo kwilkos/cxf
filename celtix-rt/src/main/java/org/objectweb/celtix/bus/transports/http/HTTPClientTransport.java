@@ -35,6 +35,7 @@ import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlHttpConfigurationProvider;
+import org.objectweb.celtix.bus.management.counters.TransportClientCounters;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
@@ -71,6 +72,7 @@ public class HTTPClientTransport implements ClientTransport {
     final HTTPTransportFactory factory;
     
     URL url;
+    TransportClientCounters counters;
 
       
     public HTTPClientTransport(Bus b, 
@@ -85,6 +87,7 @@ public class HTTPClientTransport implements ClientTransport {
         targetEndpoint = ref;
         factory = f;
         url = new URL(address);
+        counters = new TransportClientCounters("HTTPClientTransport");
          
         port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
         configuration = createConfiguration(portConfiguration);
@@ -134,28 +137,45 @@ public class HTTPClientTransport implements ClientTransport {
     }
    
     public void invokeOneway(OutputStreamMessageContext context) throws IOException {
-        HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;
-
-        context.getOutputStream().close();
-        ctx.createInputStreamContext().getInputStream().close();
+        try {
+            HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;
+            context.getOutputStream().close();
+            ctx.createInputStreamContext().getInputStream().close();
+            counters.getInvokeOneWay().increase();
+        } catch (Exception ex) {
+            counters.getInvokeError().increase();
+            throw new IOException(ex.getMessage());
+        }
     }
 
     public InputStreamMessageContext invoke(OutputStreamMessageContext context) throws IOException {
-        context.getOutputStream().close();
-        HTTPClientOutputStreamContext requestContext = (HTTPClientOutputStreamContext)context;
-        return getResponseContext(requestContext, factory);
+        try { 
+            context.getOutputStream().close();        
+            HTTPClientOutputStreamContext requestContext = (HTTPClientOutputStreamContext)context;
+            counters.getInvoke().increase();
+            return getResponseContext(requestContext, factory);
+        } catch (Exception ex) {            
+            counters.getInvokeError().increase();
+            throw new IOException(ex.getMessage());
+        }
     }
 
     public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, 
                                                          Executor executor) 
         throws IOException { 
-        context.getOutputStream().close();
-        HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;  
-        FutureTask<InputStreamMessageContext> f = new FutureTask<InputStreamMessageContext>(
-            new InputStreamMessageContextCallable(ctx, factory));
-        // client (service) must always have an executor associated with it
-        executor.execute(f);
-        return f;
+        try {
+            context.getOutputStream().close();
+            HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;  
+            FutureTask<InputStreamMessageContext> f = new FutureTask<InputStreamMessageContext>(
+                new InputStreamMessageContextCallable(ctx, factory));
+            // client (service) must always have an executor associated with it
+            executor.execute(f);
+            counters.getInvokeAsync().increase();
+            return f;
+        } catch (Exception ex) {            
+            counters.getInvokeError().increase();
+            throw new IOException(ex.getMessage());
+        }
     }
 
     public void shutdown() {

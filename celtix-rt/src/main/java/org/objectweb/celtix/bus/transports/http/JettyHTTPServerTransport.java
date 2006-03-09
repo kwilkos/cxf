@@ -25,7 +25,7 @@ import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
-import org.objectweb.celtix.bus.management.counters.TransportCounters;
+import org.objectweb.celtix.bus.management.counters.TransportServerCounters;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -35,11 +35,11 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
     
     private static final long serialVersionUID = 1L;
     JettyHTTPServerEngine engine;
-    TransportCounters counters;
+    TransportServerCounters counters;
     
     public JettyHTTPServerTransport(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
         super(b, ref);
-        counters = new TransportCounters("JettyHTTPServerTransport");
+        counters = new TransportServerCounters("JettyHTTPServerTransport");
         engine = JettyHTTPServerEngine.getForPort(bus, nurl.getProtocol(), nurl.getPort());
         bus.sendEvent(new ComponentCreatedEvent(this));
     }
