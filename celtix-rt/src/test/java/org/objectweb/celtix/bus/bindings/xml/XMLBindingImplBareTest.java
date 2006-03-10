@@ -16,6 +16,7 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bindings.xmlformat.TBody;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -76,12 +77,12 @@ public class XMLBindingImplBareTest extends TestCase {
         BindingInput input = operation.getBindingInput();
         assertNotNull(input);
         
-        XMLBinding xmlBinding = null;
+        TBody xmlBinding = null;
         Iterator ite = input.getExtensibilityElements().iterator();
         while (ite.hasNext()) {
             Object obj = ite.next();
-            if (obj instanceof XMLBinding) {
-                xmlBinding = (XMLBinding)obj;
+            if (obj instanceof TBody) {
+                xmlBinding = (TBody)obj;
             }
         }
         assertNotNull(xmlBinding);

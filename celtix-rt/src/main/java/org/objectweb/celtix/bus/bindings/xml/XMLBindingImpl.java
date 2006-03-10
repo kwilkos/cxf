@@ -24,6 +24,7 @@ import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
+import org.objectweb.celtix.bindings.xmlformat.TBody;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -257,12 +258,12 @@ public class XMLBindingImpl extends AbstractBindingImpl {
         
         BindingInput input = operation.getBindingInput();
 
-        XMLBinding xmlBinding = null;
+        TBody xmlBinding = null;
         Iterator ite = input.getExtensibilityElements().iterator();
         while (ite.hasNext()) {
             Object obj = ite.next();
-            if (obj instanceof XMLBinding) {
-                xmlBinding = (XMLBinding)obj;
+            if (obj instanceof TBody) {
+                xmlBinding = (TBody)obj;
             }
         }
 
@@ -284,12 +285,12 @@ public class XMLBindingImpl extends AbstractBindingImpl {
         BindingOperation operation = getBindingOperation(callback.getOperationName());
 
         BindingOutput output = operation.getBindingOutput();
-        XMLBinding xmlBinding = null;
+        TBody xmlBinding = null;
         Iterator ite = output.getExtensibilityElements().iterator();
         while (ite.hasNext()) {
             Object obj = ite.next();
-            if (obj instanceof XMLBinding) {
-                xmlBinding = (XMLBinding)obj;
+            if (obj instanceof TBody) {
+                xmlBinding = (TBody)obj;
             }
         }
         if (needRootNode(operation, true)) {

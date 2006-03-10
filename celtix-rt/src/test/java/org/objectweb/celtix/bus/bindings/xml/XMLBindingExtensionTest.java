@@ -13,6 +13,7 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.xmlformat.TBody;
 
 public class XMLBindingExtensionTest extends TestCase {
 
@@ -64,12 +65,12 @@ public class XMLBindingExtensionTest extends TestCase {
         BindingInput input = operation.getBindingInput();
         assertNotNull(input);
 
-        XMLBinding xmlBinding = null;
+        TBody xmlBinding = null;
         Iterator ite = input.getExtensibilityElements().iterator();
         while (ite.hasNext()) {
             Object obj = ite.next();
-            if (obj instanceof XMLBinding) {
-                xmlBinding = (XMLBinding)obj;
+            if (obj instanceof TBody) {
+                xmlBinding = (TBody)obj;
             }
         }
         assertNotNull(xmlBinding);

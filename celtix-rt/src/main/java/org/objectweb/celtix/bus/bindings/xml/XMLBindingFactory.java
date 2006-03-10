@@ -4,8 +4,7 @@ import java.io.IOException;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOutput;
 import javax.wsdl.WSDLException;
-import javax.wsdl.extensions.ExtensionRegistry;
-import javax.xml.namespace.QName;
+import javax.xml.bind.JAXBException;
 import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.Bus;
@@ -13,8 +12,9 @@ import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
+import org.objectweb.celtix.bindings.xmlformat.TBody;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-
+import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 
 public class XMLBindingFactory implements BindingFactory {
     
@@ -27,7 +27,17 @@ public class XMLBindingFactory implements BindingFactory {
     
     public void init(Bus b) {
         bus = b;
-        registerXMLBindingExtension(bus.getWSDLManager().getExtenstionRegistry());
+        try {
+            JAXBExtensionHelper.addExtensions(bus.getWSDLManager().getExtenstionRegistry(),
+                                              BindingInput.class,
+                                              TBody.class);
+            JAXBExtensionHelper.addExtensions(bus.getWSDLManager().getExtenstionRegistry(),
+                                              BindingOutput.class,
+                                              TBody.class);
+        } catch (JAXBException e) {
+            //ignore, we can continue without the extension registered
+        }
+        // registerXMLBindingExtension(bus.getWSDLManager().getExtenstionRegistry());
     }
     
     public ClientBinding createClientBinding(EndpointReferenceType reference) 
@@ -42,21 +52,21 @@ public class XMLBindingFactory implements BindingFactory {
         return new XMLServerBinding(bus, reference, ep, cbFactory);
     }
 
-    private void registerXMLBindingExtension(ExtensionRegistry registry) {
-        registerXMLBinding(registry, BindingInput.class);
-        registerXMLBinding(registry, BindingOutput.class);
-    }
+//     private void registerXMLBindingExtension(ExtensionRegistry registry) {
+//         registerXMLBinding(registry, BindingInput.class);
+//         registerXMLBinding(registry, BindingOutput.class);
+//     }
 
-    private void registerXMLBinding(ExtensionRegistry registry, Class clz) {
-        registry.registerSerializer(clz,
-                                    new QName(NS_XML_FORMAT, "body"),
-                                    new XMLBindingSerializer());
+//     private void registerXMLBinding(ExtensionRegistry registry, Class clz) {
+//         registry.registerSerializer(clz,
+//                                     new QName(NS_XML_FORMAT, "body"),
+//                                     new XMLBindingSerializer());
         
-        registry.registerDeserializer(clz,
-                                      new QName(NS_XML_FORMAT, "body"),
-                                      new XMLBindingSerializer());
-        registry.mapExtensionTypes(clz,
-                                   new QName(NS_XML_FORMAT, "body"),
-                                   XMLBinding.class);
-    }
+//         registry.registerDeserializer(clz,
+//                                       new QName(NS_XML_FORMAT, "body"),
+//                                       new XMLBindingSerializer());
+//         registry.mapExtensionTypes(clz,
+//                                    new QName(NS_XML_FORMAT, "body"),
+//                                    XMLBinding.class);
+//     }
 }
