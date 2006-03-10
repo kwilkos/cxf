@@ -144,6 +144,12 @@
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/configuration/wsrm-conf.xsd</xsd>
                                 </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/configuration/j2ee_web_services_1_1.xsd</xsd>
+                                    <dependencies>
+                                    	<dependency>${basedir}/src/main/resources/schemas/configuration/j2ee_1_4.xsd</dependency>
+                                    </dependencies>
+                                </xsdOption>
                             </xsdOptions>
                             <wsdlOptions>
                                 <wsdlOption>

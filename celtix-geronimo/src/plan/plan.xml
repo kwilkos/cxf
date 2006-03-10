@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="geronimo/celtix-deployer/1.2/car"
+    domain="geronimo.maven"
+    server="geronimo">
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>celtix-geronimo</artifactId>
+    <version>0.5-SNAPSHOT</version>
+  </dependency>
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>celtix-api</artifactId>
+    <version>0.5-SNAPSHOT</version>
+  </dependency>
+
+<!-- 
+jaxb-xjc-2.0-JAXWS-2.0-EA3.jar
+jaxb-impl-2.0-JAXWS-2.0-EA3.jar  jaxws-api-2.0-JAXWS-2.0-EA3.jar
+--> 
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>jaxb-api</artifactId>
+    <version>2.0-JAXWS-2.0-EA3</version>
+  </dependency>
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>jaxb-impl</artifactId>
+    <version>2.0-JAXWS-2.0-EA3</version>
+  </dependency>
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>jaxws-api</artifactId>
+    <version>2.0-JAXWS-2.0-EA3</version>
+  </dependency>
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>jaxb-impl</artifactId>
+    <version>2.0-JAXWS-2.0-EA3</version>
+  </dependency>
+  
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>jsr173-api</artifactId>
+    <version>2.0-JAXWS-2.0-EA3</version>
+  </dependency>
+  
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>activation</artifactId>
+    <version>1.0.2</version>
+  </dependency>
+
+  <dependency>
+    <groupId>geronimo</groupId>
+    <artifactId>geronimo-j2ee-builder</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </dependency>
+
+  <dependency>
+    <groupId>geronimo</groupId>
+    <artifactId>geronimo-deployment</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </dependency>
+
+  <dependency>
+    <groupId>geronimo</groupId>
+    <artifactId>geronimo-webservices</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </dependency>
+
+  <gbean name="WebServiceBuilder" class="org.objectweb.celtix.geronimo.builder.CeltixBuilder">
+  	<!-- attribute name="parentId">geronimo/rmi-naming/1.2-SNAPSHOT/car</attribute -->
+  </gbean>
+</configuration>
+
