@@ -3,6 +3,7 @@
     xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
     xmlns:std-types="http://celtix.objectweb.org/configuration/types" 
     xmlns:wsrm-conf="http://celtix.objectweb.org/bus/configuration/wsrm"
+    xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata metadata.xsd"
     namespace="http://celtix.objectweb.org/bus/ws/rm/rm-config">
@@ -11,6 +12,17 @@
    
     <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
     <cm:configImport location="schemas/configuration/wsrm-conf.xsd" namespace="http://celtix.objectweb.org/bus/configuration/wsrm"/>
+    <cm:configImport location="schemas/configuration/wsrm-policy.xsd" namespace="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"/>
+    
+    <cm:configItem>
+        <cm:name>rmAssertion</cm:name>
+        <cm:type>wsrm-policy:RMAssertionType</cm:type>
+        <cm:description>
+            Used for configuring an RM source.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <wsrm-policy:RMAssertion/>
+    </cm:configItem>
     
     <cm:configItem>
         <cm:name>sourcePolicies</cm:name>

@@ -26,10 +26,6 @@ import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.BINDING_PROPERTY;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.TRANSPORT_PROPERTY;
-
 public abstract class AbstractClientBinding extends AbstractBindingBase implements ClientBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractClientBinding.class);
     private static ResponseCorrelator responseCorrelator;
@@ -213,16 +209,11 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         }
         return responseCorrelator;
     }
-
+    
     protected void storeSource(MessageContext context) {
-        context.put(BINDING_PROPERTY, this);
-        context.setScope(BINDING_PROPERTY, MessageContext.Scope.HANDLER);
-        context.put(TRANSPORT_PROPERTY, transport);
-        context.setScope(TRANSPORT_PROPERTY, MessageContext.Scope.HANDLER);
-    }
-
-    protected String retrieveCorrelationID(MessageContext context) {
-        return (String)context.get(CORRELATION_IN);
+        BindingContextUtils.storeBinding(context, this);
+        BindingContextUtils.storeTransport(context, transport);
+        BindingContextUtils.storeBus(context, bus);
     }
 
     protected void finalPrepareOutputStreamContext(MessageContext bindingContext,

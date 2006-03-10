@@ -70,7 +70,7 @@ public class HandlerChainBuilder {
                     .asSubclass(Handler.class);
 
                 Handler handler = handlerClass.newInstance();
-                LOG.fine("adding handler to chain: " + h);
+                LOG.fine("adding handler to chain: " + handler);
                 configureHandler(handler, h);
                 handlerChain.add(handler);
             } catch (ClassNotFoundException e) {

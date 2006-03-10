@@ -1,5 +1,7 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -51,6 +53,31 @@ public class RMEndpoint {
      */
     public Sequence getSequence(Identifier id) {
         return map.get(id);
+    }
+    
+    /**
+     * Returns the collection of all sequences currently maintained by this source.
+     * 
+     * @return the collection of sequences
+     */
+    public Collection<Sequence> getAllSequences() {
+        return map.values();
+    }
+    
+    /**
+     * Returns a collection of all sequences for which have not yet been
+     * completely acknowledged.
+     * 
+     * @return the collection of unacknowledged sequences.
+     */
+    public Collection<Sequence> getAllUnacknowledgedSequences() {
+        Collection<Sequence> seqs = new ArrayList<Sequence>();
+        for (Sequence seq : map.values()) {
+            if (!seq.allAcknowledged()) {
+                seqs.add(seq);
+            }
+        }        
+        return seqs;        
     }
 
     /**

@@ -52,6 +52,9 @@
                 <version>${surefire.version}</version>
                 <configuration>
                     <forkMode>${systest.surefire.fork.mode}</forkMode>
+                    <excludes>
+                        <exclude>**/SequenceTest.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>

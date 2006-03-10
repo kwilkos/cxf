@@ -25,9 +25,6 @@ import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.BINDING_PROPERTY;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.TRANSPORT_PROPERTY;
-
 public abstract class AbstractServerBinding extends AbstractBindingBase implements ServerBinding {
 
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractServerBinding.class);
@@ -196,11 +193,10 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         return null;
     }
 
-    private void storeSource(MessageContext context, ServerTransport st) {
-        context.put(BINDING_PROPERTY, this);
-        context.setScope(BINDING_PROPERTY, MessageContext.Scope.HANDLER);
-        context.put(TRANSPORT_PROPERTY, st);
-        context.setScope(TRANSPORT_PROPERTY, MessageContext.Scope.HANDLER);
+    protected void storeSource(MessageContext context, ServerTransport st) {
+        BindingContextUtils.storeBinding(context, this);
+        BindingContextUtils.storeTransport(context, st);
+        BindingContextUtils.storeBus(context, bus);
     }
     
     private void terminateOutputContext(OutputStreamMessageContext outputContext) 

@@ -1,6 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.xml.ws.handler.MessageContext;
 
@@ -44,23 +44,24 @@ public final class RMContextUtils {
         return (SequenceType)context.get(SEQUENCE_PROPERTY);
     }
     
-    public static void storeAcknowledgments(MessageContext context, List<SequenceAcknowledgement> acks) {
+    public static void storeAcknowledgments(MessageContext context, 
+                                            Collection<SequenceAcknowledgement> acks) {
         context.put(ACKS_PROPERTY, acks);
         context.setScope(ACKS_PROPERTY, MessageContext.Scope.HANDLER);
     }
     
     @SuppressWarnings("unchecked")
-    public static List<SequenceAcknowledgement> retrieveAcknowledgments(MessageContext context) {
-        return (List<SequenceAcknowledgement>)context.get(ACKS_PROPERTY); 
+    public static Collection<SequenceAcknowledgement> retrieveAcknowledgments(MessageContext context) {
+        return (Collection<SequenceAcknowledgement>)context.get(ACKS_PROPERTY); 
     }
     
-    public static void storeAcksRequested(MessageContext context, List<AckRequestedType> requested) {
+    public static void storeAcksRequested(MessageContext context, Collection<AckRequestedType> requested) {
         context.put(ACKS_REQUESTED_PROPERTY, requested);
         context.setScope(ACKS_REQUESTED_PROPERTY, MessageContext.Scope.HANDLER); 
     }
 
     @SuppressWarnings("unchecked")
-    public static List<AckRequestedType> retrieveAcksRequested(MessageContext context) {
-        return (List<AckRequestedType>)context.get(ACKS_REQUESTED_PROPERTY); 
+    public static Collection<AckRequestedType> retrieveAcksRequested(MessageContext context) {
+        return (Collection<AckRequestedType>)context.get(ACKS_REQUESTED_PROPERTY); 
     }
 }

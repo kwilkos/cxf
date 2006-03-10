@@ -44,7 +44,7 @@ public class TestConfigurator {
         if (null == portCfg) {
             portCfg = builder.buildConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, portName, serviceCfg);
         }
-        configureHandlers(portCfg);
+        configureHandlers(portCfg, false);
     }
 
     public void configureServer(QName serviceName) {
@@ -59,7 +59,7 @@ public class TestConfigurator {
             endpointCfg = builder.buildConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, serviceName
                 .toString(), busCfg);
         }
-        configureHandlers(endpointCfg);
+        configureHandlers(endpointCfg, true);
     }
    
 
@@ -71,7 +71,7 @@ public class TestConfigurator {
         return busCfg;
     }
 
-    private void configureHandlers(Configuration config) {
+    private void configureHandlers(Configuration config, boolean isServer) {
         SystemHandlerChainType systemHandlers = config.getObject(SystemHandlerChainType.class,
                                                                  "systemHandlerChain");
 
@@ -101,10 +101,15 @@ public class TestConfigurator {
 
             handlerChain = factory.createHandlerChainType();
             handler = factory.createHandlerType();
-            handler = factory.createHandlerType();
             handler.setHandlerClass(RMSoapHandler.class.getName());
             handler.setHandlerName("protocol rm handler");
             handlerChain.getHandler().add(handler);
+            if (!isServer) {
+                handler = factory.createHandlerType();
+                handler.setHandlerClass(SOAPMessageRecorder.class.getName());
+                handler.setHandlerName("soap message recorder");
+                handlerChain.getHandler().add(handler);
+            }
             handler = factory.createHandlerType();
             handler.setHandlerClass(MAPCodec.class.getName());
             handler.setHandlerName("protocol addressing handler");

@@ -1,20 +1,18 @@
 package org.objectweb.celtix.bus.ws.rm;
 
-import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.objectweb.celtix.bindings.AbstractBindingBase;
-import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.Request;
-import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
-import org.objectweb.celtix.ws.rm.wsdl.SequenceAbstractPortType;
+import org.objectweb.celtix.ws.rm.AckRequestedType;
 
 public class SequenceInfoRequest extends Request {
-    
-    private static final String METHOD_NAME = "sequenceInfo";
     
     public SequenceInfoRequest(AbstractBindingBase b) {
         
@@ -28,14 +26,13 @@ public class SequenceInfoRequest extends Request {
         ContextUtils.storeMAPs(maps, getObjectMessageContext(), true);
     }
     
-    public DataBindingCallback createDataBindingCallback() {
-        Method method  = null;
-        try {
-            method = SequenceAbstractPortType.class.getMethod(
-                METHOD_NAME, (Class[])null);
-        } catch (NoSuchMethodException ex) {
-            ex.printStackTrace();
+    public void requestAcknowledgement(Collection<Sequence> seqs) {
+        List<AckRequestedType> requested = new ArrayList<AckRequestedType>();
+        for (Sequence seq : seqs) {
+            AckRequestedType ar = RMUtils.getWSRMFactory().createAckRequestedType();
+            ar.setIdentifier(seq.getIdentifier());
+            requested.add(ar);
         }
-        return new JAXBDataBindingCallback(method, DataBindingCallback.Mode.PARTS, null);
+        RMContextUtils.storeAcksRequested(getObjectMessageContext(), requested);
     }
 }

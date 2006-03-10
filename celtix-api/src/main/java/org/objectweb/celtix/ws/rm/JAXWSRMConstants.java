@@ -8,7 +8,6 @@ public final class JAXWSRMConstants {
     /**
      * Used to cache sequence properties in context.
      */
-    
     public static final String SEQUENCE_PROPERTY = 
         "org.objectweb.celtix.ws.rm.sequence";
     

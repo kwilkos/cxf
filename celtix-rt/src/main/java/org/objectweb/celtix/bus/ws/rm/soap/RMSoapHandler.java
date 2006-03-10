@@ -3,8 +3,8 @@ package org.objectweb.celtix.bus.ws.rm.soap;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -36,6 +36,7 @@ import org.objectweb.celtix.bus.ws.rm.RMContextUtils;
 import org.objectweb.celtix.bus.ws.rm.RMUtils;
 import org.objectweb.celtix.bus.ws.rm.TerminateSequenceRequest;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
@@ -147,7 +148,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
                                header,
                                marshaller);
             } 
-            List<SequenceAcknowledgement> acks = RMContextUtils.retrieveAcknowledgments(context);
+            Collection<SequenceAcknowledgement> acks = RMContextUtils.retrieveAcknowledgments(context);
             if (null != acks) {
                 for (SequenceAcknowledgement ack : acks) {
                     encodeProperty(ack, 
@@ -157,7 +158,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
                                    marshaller);
                 }
             }
-            List<AckRequestedType> requested = RMContextUtils.retrieveAcksRequested(context);
+            Collection<AckRequestedType> requested = RMContextUtils.retrieveAcksRequested(context);
             if (null != requested) {
                 for (AckRequestedType ar : requested) {
                     encodeProperty(ar, 
@@ -183,8 +184,8 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
      */
     private void decode(SOAPMessageContext context) {        
         try {
-            List<SequenceAcknowledgement> acks = new ArrayList<SequenceAcknowledgement>();
-            List<AckRequestedType> requested = new ArrayList<AckRequestedType>();           
+            Collection<SequenceAcknowledgement> acks = new ArrayList<SequenceAcknowledgement>();
+            Collection<AckRequestedType> requested = new ArrayList<AckRequestedType>();           
             
             SOAPMessage message = context.getMessage();
             SOAPEnvelope env = message.getSOAPPart().getEnvelope();
@@ -317,7 +318,8 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
      */
     private void storeBindingInfo(MessageContext context) {
         assert !ContextUtils.isOutbound(context);
-        AttributedURIType actionURI = ContextUtils.getAction(context);
+        AddressingProperties maps = ContextUtils.retrieveMAPs(context, false, false);
+        AttributedURIType actionURI = null == maps ? null : maps.getAction();
         String action = null == actionURI ? null : actionURI.getValue();
         DataBindingCallback callback = null;
         Method method = null;

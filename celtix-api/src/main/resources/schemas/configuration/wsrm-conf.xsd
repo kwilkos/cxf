@@ -128,6 +128,16 @@
                 </xs:documentation>
             </xs:annotation>      
         </xs:attribute>
+        <xs:attribute name="terminateOnShutdown" type="xs:boolean" use ="optional" default="false">
+        <xs:annotation>
+                <xs:documentation>
+                    Specifies if sequences should be terminated when the bus is shutdown.
+                    If set to true, acknowledegements are requested for all sequences in which not
+                    all messages have been acknowledged so far. Depending on the result, an attempt
+                    is then made to terminates these sequences.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
 </xs:schema>

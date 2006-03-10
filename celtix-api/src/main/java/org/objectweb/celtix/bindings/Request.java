@@ -9,8 +9,6 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
 import org.objectweb.celtix.transports.Transport;
 
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.TRANSPORT_PROPERTY;
-
 public class Request {
     
     private final AbstractBindingBase binding;
@@ -23,7 +21,7 @@ public class Request {
         binding = b;
         objectCtx = o;
 
-        transport = (Transport)objectCtx.get(TRANSPORT_PROPERTY);
+        transport = BindingContextUtils.retrieveTransport(objectCtx);
 
         handlerInvoker = binding.createHandlerInvoker();
 

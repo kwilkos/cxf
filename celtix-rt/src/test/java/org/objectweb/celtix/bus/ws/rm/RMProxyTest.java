@@ -3,6 +3,8 @@ package org.objectweb.celtix.bus.ws.rm;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
@@ -35,7 +37,7 @@ public class RMProxyTest extends TestCase {
         bus.shutdown(true);
     }
 
-    public void testCreateSequenceOnClient() throws IOException, WSDLException, 
+    public void xtestCreateSequenceOnClient() throws IOException, WSDLException, 
         SequenceFault, NoSuchMethodException {
         
         TestClientBinding binding = new TestClientBinding(bus, epr);
@@ -69,7 +71,7 @@ public class RMProxyTest extends TestCase {
 
     }
     
-    public void testTerminateSequenceOnClient() throws IOException, WSDLException, SequenceFault {
+    public void xtestTerminateSequenceOnClient() throws IOException, WSDLException, SequenceFault {
         TestClientBinding binding = new TestClientBinding(bus, epr);
         
         RMHandler handler = EasyMock.createMock(RMHandler.class);
@@ -93,7 +95,34 @@ public class RMProxyTest extends TestCase {
         proxy.terminateSequence(seq);
     }
     
-    public void testSequenceInfoOnClient() throws IOException, WSDLException, SequenceFault {
+    public void testRequestAcknowledgement() throws IOException, WSDLException, SequenceFault {
+        TestClientBinding binding = new TestClientBinding(bus, epr);
+        
+        RMHandler handler = EasyMock.createMock(RMHandler.class);
+        RMSource source = EasyMock.createMock(RMSource.class);
+
+        handler.getBinding();
+        EasyMock.expectLastCall().andReturn(binding);       
+        for (int i = 0; i < 2; i++) {
+            handler.getClientBinding();
+            EasyMock.expectLastCall().andReturn(binding);
+        }
+
+        EasyMock.replay(handler);
+
+        RMProxy proxy = new RMProxy(handler);
+
+        Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
+        sid.setValue("AckRequestedSequence");
+        Sequence seq = new Sequence(sid, source, null);
+        
+        Collection<Sequence> seqs = new ArrayList<Sequence>();
+        seqs.add(seq);
+        
+        proxy.requestAcknowledgement(seqs);
+    }
+    
+    public void xtestSequenceInfoOnClient() throws IOException, WSDLException, SequenceFault {
         
         TestClientBinding binding = new TestClientBinding(bus, epr);
 
@@ -123,6 +152,8 @@ public class RMProxyTest extends TestCase {
         
         service.terminateSequence(seq);
     }
+    
+    
     
     
 }

@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bus.bindings.TestInputStreamContext;
+import org.objectweb.celtix.bus.bindings.TestOutputStreamContext;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -443,6 +444,42 @@ public class SoapBindingImplTest extends TestCase {
         assertEquals(1, params.length);
         assertEquals(data, (String)params[0]);
     }
+    
+    public void testMarshalEmptyBody() throws Exception {
+       
+        soapContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
+
+        binding.marshal(objContext,
+                        soapContext,
+                        null);
+        SOAPMessage msg = soapContext.getMessage();
+        assertNotNull(msg);
+        assertTrue(!msg.getSOAPBody().hasChildNodes());
+        
+        TestOutputStreamContext ostreamCtx = new TestOutputStreamContext(null, soapContext);
+        
+        binding.write(soapContext, ostreamCtx);
+        
+    }
+    
+    public void testUnmarshalEmptyBody() throws Exception {
+        TestInputStreamContext inCtx = new TestInputStreamContext(null);
+        InputStream is =  getClass().getResourceAsStream("resources/EmptyBody.xml");
+        inCtx.setInputStream(is);
+        binding.read(inCtx, soapContext);
+
+        SOAPMessage msg = soapContext.getMessage();
+        assertNotNull(msg);
+        assertTrue(!msg.getSOAPBody().hasChildNodes());
+        
+        assertNull(objContext.getMessageObjects());
+        assertNull(objContext.getReturn());
+        binding.unmarshal(soapContext, objContext, null);
+        assertNull(objContext.getMessageObjects());
+        assertNull(objContext.getReturn());
+    }
+    
+    
     private String getExceptionString(Exception ex, String faultString) {
         StringBuffer str = new StringBuffer();
         if (ex != null) {

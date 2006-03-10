@@ -16,7 +16,7 @@ import javax.xml.ws.WebFault;
 import javax.xml.ws.handler.MessageContext;
 import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
 
-import org.objectweb.celtix.bindings.ClientBinding;
+import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
@@ -35,13 +35,11 @@ import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
 import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_OUT;
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
 import static org.objectweb.celtix.context.OutputStreamMessageContext.ONEWAY_MESSAGE_TF;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.BINDING_PROPERTY;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.TRANSPORT_PROPERTY;
 
 
 /**
@@ -296,49 +294,6 @@ public final class ContextUtils {
     }
 
     /**
-     * Retrieve ClientTransport from the context.
-     *
-     * @param context the message context
-     * @returned the retrieved ClientTransport
-     */
-    public static ClientTransport retrieveClientTransport(MessageContext context) {
-        Object transport = context.get(TRANSPORT_PROPERTY);
-        return transport instanceof ClientTransport
-               ? (ClientTransport)transport
-               : null;
-    }
-
-    /**
-     * Retrieve ServerTransport from the context.
-     *
-     * @param context the message context
-     * @returned the retrieved ServerTransport
-     */
-    public static ServerTransport retrieveServerTransport(MessageContext context) {
-        return (ServerTransport)context.get(TRANSPORT_PROPERTY);
-    }
-    
-    /**
-     * Retrieve ClientBinding from the context.
-     *
-     * @param context the message context
-     * @returned the retrieved ClientBinding
-     */
-    public static ClientBinding retrieveClientBinding(MessageContext context) {
-        return (ClientBinding)context.get(BINDING_PROPERTY);
-    }
-
-    /**
-     * Retrieve ServerBinding from the context.
-     *
-     * @param context the message context
-     * @returned the retrieved ServerBinding
-     */
-    public static ServerBinding retrieveServerBinding(MessageContext context) {
-        return (ServerBinding)context.get(BINDING_PROPERTY);
-    }
-
-    /**
      * Rebase server transport on replyTo
      * 
      * @param inMAPs the incoming MAPs
@@ -357,8 +312,8 @@ public final class ContextUtils {
         maps.exposeAs(inMAPs.getNamespaceURI());
         storeMAPs(maps, context, true, true, true, true);
 
-        ServerBinding serverBinding = retrieveServerBinding(context);
-        ServerTransport serverTransport = retrieveServerTransport(context);
+        ServerBinding serverBinding = BindingContextUtils.retrieveServerBinding(context);
+        ServerTransport serverTransport = BindingContextUtils.retrieveServerTransport(context);
         if (serverTransport != null && serverBinding != null) {
             try {
                 OutputStreamMessageContext outputContext =
@@ -380,7 +335,7 @@ public final class ContextUtils {
      * @returned the retrieved Port
      */
     public static Port retrievePort(MessageContext context) {
-        ClientTransport transport = retrieveClientTransport(context);
+        ClientTransport transport = BindingContextUtils.retrieveClientTransport(context);
         return transport != null ? transport.getPort() : null;
     }
 
@@ -391,7 +346,7 @@ public final class ContextUtils {
      * @returned the retrieved EPR
      */
     public static EndpointReferenceType retrieveTo(MessageContext context) {
-        ClientTransport transport = retrieveClientTransport(context);
+        ClientTransport transport = BindingContextUtils.retrieveClientTransport(context);
         return transport != null ? transport.getTargetEndpoint() : null;
     }
 
@@ -402,7 +357,7 @@ public final class ContextUtils {
      * @returned the retrieved EPR
      */
     public static EndpointReferenceType retrieveReplyTo(MessageContext context) {
-        ClientTransport transport = retrieveClientTransport(context);
+        ClientTransport transport = BindingContextUtils.retrieveClientTransport(context);
         EndpointReferenceType replyTo = null;
         try {
             replyTo = transport != null ? transport.getDecoupledEndpoint() : null;
@@ -491,7 +446,7 @@ public final class ContextUtils {
      * @param isOutbound true if message is outbound
      * @param context the message context
      */   
-    private static void storeCorrelationID(String id, 
+    protected static void storeCorrelationID(String id, 
                                            boolean isOutbound,
                                            MessageContext context) {
         context.put(getCorrelationIDProperty(isOutbound), id);
@@ -547,9 +502,11 @@ public final class ContextUtils {
         String action = null;
         // REVISIT: add support for @{Fault}Action annotation (generated
         // from the wsaw:Action WSDL element)
+        LOG.fine("Determining action");
         Throwable fault = 
             (Throwable)context.get(ObjectMessageContext.METHOD_FAULT);
         Method method = (Method)context.get(ObjectMessageContext.METHOD_OBJ);
+        LOG.fine("method: " + method + ", fault: " + fault);
         if (method != null) {
             if (fault != null) {
                 WebFault webFault = fault.getClass().getAnnotation(WebFault.class);

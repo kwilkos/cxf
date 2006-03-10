@@ -3,8 +3,8 @@ package org.objectweb.celtix.bus.ws.rm.soap;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -34,6 +34,7 @@ import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
 import org.objectweb.celtix.ws.rm.SequenceType;
+
 
 public class RMSoapHandlerTest extends TestCase {
 
@@ -83,7 +84,7 @@ public class RMSoapHandlerTest extends TestCase {
         // one acknowledgment header
 
         context = setupOutboundContext();
-        List<SequenceAcknowledgement> acks = new ArrayList<SequenceAcknowledgement>();
+        Collection<SequenceAcknowledgement> acks = new ArrayList<SequenceAcknowledgement>();
         acks.add(ack1);
         RMContextUtils.storeAcknowledgments(context, acks);
         assertTrue("expected dispatch to proceed", codec.handleMessage(context));
@@ -102,7 +103,7 @@ public class RMSoapHandlerTest extends TestCase {
         // one ack requested header
 
         context = setupOutboundContext();
-        List<AckRequestedType> requested = new ArrayList<AckRequestedType>();
+        Collection<AckRequestedType> requested = new ArrayList<AckRequestedType>();
         requested.add(ar1);
         RMContextUtils.storeAcksRequested(context, requested);
         assertTrue("expected dispatch to proceed", codec.handleMessage(context));
@@ -128,7 +129,6 @@ public class RMSoapHandlerTest extends TestCase {
         ObjectMessageContext objectCtx = new ObjectMessageContextImpl();
         SOAPMessageContext context = (SOAPMessageContext)sb.createBindingMessageContext(objectCtx);
         sb.read(istreamCtx, context);
-        
         assertTrue(codec.handleMessage(context));
         SequenceType st = RMContextUtils.retrieveSequence(context);
         assertNotNull(st);
@@ -150,10 +150,10 @@ public class RMSoapHandlerTest extends TestCase {
         sb.read(istreamCtx, context);
         
         assertTrue(codec.handleMessage(context));
-        List<SequenceAcknowledgement> acks = RMContextUtils.retrieveAcknowledgments(context);
+        Collection<SequenceAcknowledgement> acks = RMContextUtils.retrieveAcknowledgments(context);
         assertNotNull(acks);
         assertEquals(1, acks.size());
-        SequenceAcknowledgement ack = acks.get(0);
+        SequenceAcknowledgement ack = acks.iterator().next();
         assertNotNull(ack);
         assertEquals(ack.getIdentifier().getValue(), SEQ_IDENTIFIER);
         assertEquals(2, ack.getAcknowledgementRange().size());
@@ -172,10 +172,10 @@ public class RMSoapHandlerTest extends TestCase {
         sb.read(istreamCtx, context);
         
         assertTrue(codec.handleMessage(context));
-        List<AckRequestedType> requested = RMContextUtils.retrieveAcksRequested(context);
+        Collection<AckRequestedType> requested = RMContextUtils.retrieveAcksRequested(context);
         assertNotNull(requested);
         assertEquals(1, requested.size());
-        AckRequestedType ar = requested.get(0);
+        AckRequestedType ar = requested.iterator().next();
         assertNotNull(ar);
         assertEquals(ar.getIdentifier().getValue(), SEQ_IDENTIFIER);
 

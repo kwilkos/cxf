@@ -25,18 +25,6 @@ public final class JAXWSAConstants {
         "javax.xml.ws.addressing.context.inbound";
     public static final String SERVER_ADDRESSING_PROPERTIES_OUTBOUND = 
         "javax.xml.ws.addressing.context.outbound";
-
-    /**
-     * Used by binding to cache itseld in the context
-     */
-    public static final String BINDING_PROPERTY =
-        "org.objectweb.celtix.ws.addressing.binding";
-    
-    /**
-     * Used by binding to cache Transport in the context
-     */
-    public static final String TRANSPORT_PROPERTY =
-        "org.objectweb.celtix.ws.addressing.transport";
     
     /**
      * Used by AddressingBuilder factory method.

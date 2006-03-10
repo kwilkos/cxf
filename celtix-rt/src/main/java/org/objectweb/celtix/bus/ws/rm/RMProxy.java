@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,15 +46,15 @@ public class RMProxy {
         invokeOneWay(request.getObjectMessageContext(), CreateSequenceRequest.createDataBindingCallback());
     }
     
-    /*
-    public void acknowledge(Sequence seq) {
-        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding());
+    public void requestAcknowledgement(Collection<Sequence> seqs) throws IOException {
+        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding()); 
+        request.requestAcknowledgement(seqs);
+        invokeOneWay(request.getObjectMessageContext(), null);
     }
-    */
     
     public void sequenceInfo() throws IOException {
         SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding());
-        invokeOneWay(request.getObjectMessageContext(), request.createDataBindingCallback());
+        invokeOneWay(request.getObjectMessageContext(), null);
     }
     
     private ObjectMessageContext invoke(ObjectMessageContext requestCtx, DataBindingCallback callback) 
