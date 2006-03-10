@@ -1,30 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
     configId="geronimo/celtix-deployer/1.2/car"
     domain="geronimo.maven"
     server="geronimo">
 
+
+  <!-- parent config -->
+  <import>
+    <groupId>geronimo</groupId>
+    <type>car</type>
+    <artifactId>j2ee-deployer</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </import>
+  
   <dependency>
-  	<groupId>celtix</groupId>
+    <groupId>celtix</groupId>
     <artifactId>celtix-geronimo</artifactId>
     <version>0.5-SNAPSHOT</version>
   </dependency>
 
   <dependency>
-  	<groupId>celtix</groupId>
+    <groupId>celtix</groupId>
     <artifactId>celtix-api</artifactId>
     <version>0.5-SNAPSHOT</version>
   </dependency>
 
-<!-- 
-jaxb-xjc-2.0-JAXWS-2.0-EA3.jar
-jaxb-impl-2.0-JAXWS-2.0-EA3.jar  jaxws-api-2.0-JAXWS-2.0-EA3.jar
---> 
 
   <dependency>
-  	<groupId>celtix</groupId>
+    <groupId>celtix</groupId>
     <artifactId>jaxb-api</artifactId>
     <version>2.0-JAXWS-2.0-EA3</version>
   </dependency>
@@ -78,8 +83,15 @@ jaxb-impl-2.0-JAXWS-2.0-EA3.jar  jaxws-api-2.0-JAXWS-2.0-EA3.jar
     <version>1.2-SNAPSHOT</version>
   </dependency>
 
+  <dependency>
+    <groupId>geronimo</groupId>
+    <artifactId>geronimo-naming</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </dependency>
+
+
   <gbean name="WebServiceBuilder" class="org.objectweb.celtix.geronimo.builder.CeltixBuilder">
-  	<!-- attribute name="parentId">geronimo/rmi-naming/1.2-SNAPSHOT/car</attribute -->
+    <!-- attribute name="parentId">geronimo/rmi-naming/1.2-SNAPSHOT/car</attribute -->
   </gbean>
 </configuration>
 
