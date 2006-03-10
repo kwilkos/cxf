@@ -286,6 +286,7 @@ public final class ProcessorUtil {
         return typeAndAnnotation.getTypeClass().boxify().fullName();
     }
     
+    @SuppressWarnings("unchecked")
     public static boolean isWrapperStyle(Operation operation, ProcessorEnvironment env) {
 
         Message inputMessage = operation.getInput() == null ? null : operation.getInput().getMessage();

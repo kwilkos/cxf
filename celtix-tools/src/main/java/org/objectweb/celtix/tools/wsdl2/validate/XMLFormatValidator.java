@@ -25,6 +25,7 @@ public class XMLFormatValidator
         return checkXMLBindingFormat();
     }
 
+    @SuppressWarnings("unchecked")
     private boolean checkXMLBindingFormat() {
         Collection<Binding> bindings = def.getBindings().values();
         if (bindings != null) {
@@ -44,6 +45,7 @@ public class XMLFormatValidator
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     private boolean checkXMLFormat(Binding binding) {
         List<BindingOperation> bos = binding.getBindingOperations();
         boolean result = true;
