@@ -20,9 +20,9 @@ public class JMSClientTransportInstrumentation implements Instrumentation {
     TransportClientCounters counters;
    
     
-    public JMSClientTransportInstrumentation(JMSClientTransport jmsTransport) {
-        super();
-        jmsClientTransport = jmsTransport;        
+    public JMSClientTransportInstrumentation(JMSClientTransport jmsTransport) {        
+        jmsClientTransport = jmsTransport;  
+        counters = jmsTransport.counters;
         objectName = INSTRUMENTATION_NAME + instanceNumber; 
         instanceNumber++;
     }

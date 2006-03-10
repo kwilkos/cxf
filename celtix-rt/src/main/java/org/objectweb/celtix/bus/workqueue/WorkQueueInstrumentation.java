@@ -9,9 +9,7 @@ import org.objectweb.celtix.workqueue.WorkQueueManager.ThreadingModel;
 
 @ManagedResource(objectName = "WorkQueue", 
                  description = "The Celtix bus internal thread pool for manangement ", 
-                 log = true,
-                 logFile = "jmx.log", currencyTimeLimit = 15, persistPolicy = "OnUpdate", persistPeriod = 200,
-                 persistLocation = "./persist", persistName = "WorkQueue.jmx")
+                 currencyTimeLimit = 15, persistPolicy = "OnUpdate", persistPeriod = 200)
                  
 public class WorkQueueInstrumentation implements Instrumentation {    
     private static final String INSTRUMENTED_NAME = "WorkQueue";

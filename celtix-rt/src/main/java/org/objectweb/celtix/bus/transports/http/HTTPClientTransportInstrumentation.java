@@ -11,8 +11,7 @@ import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 
 @ManagedResource(objectName = "HTTPClientTransport", 
                  description = "The Celtix bus HTTP client side transport componnet ", 
-                 log = true,
-                 logFile = "jmx.log", currencyTimeLimit = 15, persistPolicy = "OnUpdate")
+                 currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class HTTPClientTransportInstrumentation implements Instrumentation {  
     private static final String INSTRUMENTATION_NAME = "HTTPClientTransport";
     
@@ -23,9 +22,9 @@ public class HTTPClientTransportInstrumentation implements Instrumentation {
     TransportClientCounters counters;
    
     
-    public HTTPClientTransportInstrumentation(HTTPClientTransport hcTransport) {
-        super();
-        httpClientTransport = hcTransport;        
+    public HTTPClientTransportInstrumentation(HTTPClientTransport hcTransport) {        
+        httpClientTransport = hcTransport; 
+        counters = hcTransport.counters;
         objectName = INSTRUMENTATION_NAME + instanceNumber; 
         instanceNumber++;
     }
