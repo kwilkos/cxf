@@ -8,11 +8,13 @@ import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import javax.jws.WebParam;
+
 import org.objectweb.celtix.tools.common.ToolException;
 
 public final class AnnotationUtil {
     private AnnotationUtil() {
-        
+
     }
 
     public static <T extends Annotation> T getPrivClassAnnotation(final Class<?> clazz,
@@ -41,6 +43,11 @@ public final class AnnotationUtil {
         });
     }
 
+    public static synchronized URLClassLoader getClassLoader(ClassLoader parent) {
+        URL[] urls = ProcessorUtil.pathToURLs(getClassPath());
+        return new URLClassLoader(urls, parent);
+    }
+
     public static synchronized Class loadClass(String className, ClassLoader parent) {
         Class clazz = null;
         URL[] urls = ProcessorUtil.pathToURLs(getClassPath());
@@ -57,7 +64,7 @@ public final class AnnotationUtil {
         ClassLoader loader = AnnotationUtil.class.getClassLoader();
         StringBuffer classpath = new StringBuffer(System.getProperty("java.class.path"));
         if (loader instanceof URLClassLoader) {
-            URLClassLoader urlloader = (URLClassLoader)loader; 
+            URLClassLoader urlloader = (URLClassLoader)loader;
             for (URL url : urlloader.getURLs()) {
                 classpath.append(File.pathSeparatorChar);
                 classpath.append(url.getFile());
@@ -73,6 +80,24 @@ public final class AnnotationUtil {
         char chars[] = name.toCharArray();
         chars[0] = Character.toUpperCase(chars[0]);
         return new String(chars);
+    }
+
+    public static WebParam getWebParam(Method method, String paraName) {
+
+        Annotation[][] anno = getPrivParameterAnnotations(method);
+        int count = method.getParameterTypes().length;
+        for (int i = 0; i < count; i++) {
+            for (Annotation ann : anno[i]) {
+                if (ann.annotationType() == WebParam.class) {
+                    WebParam webParam = (WebParam)ann;
+                    if (paraName.equals(webParam.name())) {
+                        return webParam;
+                    }
+                }
+            }
+        }
+        return null;
+
     }
 
 }

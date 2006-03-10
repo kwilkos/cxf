@@ -1,10 +1,15 @@
 package org.objectweb.celtix.tools.processors.wsdl2;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.wsdl.Definition;
 import javax.wsdl.PortType;
@@ -35,6 +40,7 @@ import org.objectweb.celtix.tools.wsdl2.validate.UniqueBodyPartsValidator;
 import org.objectweb.celtix.tools.wsdl2.validate.WSIBPValidator;
 import org.objectweb.celtix.tools.wsdl2.validate.XMLFormatValidator;
 
+
 public class WSDLToJavaProcessor extends WSDLToProcessor {
 
     protected void registerGenerators(JavaModel jmodel) {
@@ -53,8 +59,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         this.addValidator(new MIMEBindingValidator(this.wsdlDefinition));
         this.addValidator(new XMLFormatValidator(this.wsdlDefinition));
     }
-    
-    
+
     public void process() throws ToolException {
         init();
         registerValidator();
@@ -118,7 +123,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         if (binding != null) {
             return binding;
         }
-        
+
         List extElements = def.getExtensibilityElements();
         if (extElements.size() > 0) {
             Iterator iterator = extElements.iterator();
@@ -129,7 +134,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
                 }
             }
         }
-        
+
         if (binding == null) {
             binding = new JAXWSBinding();
         }
@@ -138,44 +143,70 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
     private void compile() throws ToolException {
         ClassCollector classCollector = (ClassCollector)env.get(ToolConstants.GENERATED_CLASS_COLLECTOR);
-        int fileCount = classCollector.getGeneratedFileInfo().size();
-        int index = 0;
+        List<String> argList = new ArrayList<String>();
+
         String javaClasspath = System.getProperty("java.class.path");
+        // hard code celtix.jar
         boolean classpathSetted = javaClasspath != null && (javaClasspath.indexOf("celtix.jar") >= 0);
-        String[] args = new String[fileCount + (classpathSetted ? 2 : 0) + (env.isVerbose() ? 1 : 0)
-                                   + (env.get(ToolConstants.CFG_CLASSDIR) != null ? 2 : 0)];
         if (env.isVerbose()) {
-            args[index] = "-verbose";
-            index++;
+            argList.add("-verbose");
         }
 
         if (!classpathSetted) {
             System.setProperty("java.ext.dirs", this.getClass().getClassLoader().getResource(".").getFile()
                                                 + "../lib/");
         } else {
-            args[index] = "-classpath";
-            index++;
-            args[index] = javaClasspath;
-            index++;
+            argList.add("-classpath");
+            argList.add(javaClasspath);
         }
 
         if (env.get(ToolConstants.CFG_CLASSDIR) != null) {
-            args[index] = "-d";
-            index++;
-            args[index] = (String)env.get(ToolConstants.CFG_CLASSDIR);
-            index++;
+            argList.add("-d");
+            argList.add((String)env.get(ToolConstants.CFG_CLASSDIR));
         }
+
+        Set<String> dirSet = new HashSet<String>();
         Iterator ite = classCollector.getGeneratedFileInfo().iterator();
         while (ite.hasNext()) {
             String fileName = (String)ite.next();
             fileName = fileName.replaceAll("\\.", "/");
-            args[index] = fileName;
-            if (env.get(ToolConstants.CFG_OUTPUTDIR) != null) {
-                args[index] = (String)env.get(ToolConstants.CFG_OUTPUTDIR) + "/" + fileName + ".java";
+            String dirName = fileName.substring(0, fileName.lastIndexOf("/") + 1);
+            String outPutDir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
+            if (!dirSet.contains(dirName)) {
+                String path = outPutDir + "/" + dirName;
+                dirSet.add(path);
+                File file = new File(path);
+                if (file.isDirectory()) {
+                    for (String str : file.list()) {
+                        if (str.endsWith("java")) {
+                            argList.add(path + File.separator + str);
+                        } else {
+                            // copy generated xml file or others to class
+                            // directory
+                            File otherFile = new File(path + File.separator + str);
+                            if (otherFile.isFile() && str.toLowerCase().endsWith("xml")
+                                && env.get(ToolConstants.CFG_CLASSDIR) != null) {
+                                String targetDir = (String)env.get(ToolConstants.CFG_CLASSDIR);
+
+                                File targetFile = new File(targetDir + File.separator + dirName
+                                                           + File.separator + str);
+                                copyXmlFile(otherFile, targetFile);
+                            }
+                        }
+                    }
+                }
             }
 
-            index++;
         }
+
+        String[] args = new String[argList.size()];
+        int i = 0;
+        for (Object obj : argList.toArray()) {
+            String arg = (String)obj;
+            args[i] = arg;
+            i++;
+        }
+
         Compiler compiler = new Compiler(System.out);
 
         if (!compiler.internalCompile(args)) {
@@ -184,4 +215,28 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
     }
 
+    private void copyXmlFile(File from, File to) throws ToolException {
+
+        try {
+            String dir = to.getCanonicalPath()
+                .substring(0, to.getCanonicalPath().lastIndexOf(File.separator));
+            File dirFile = new File(dir);
+            dirFile.mkdirs();
+            FileInputStream input = new FileInputStream(from);
+            FileOutputStream output = new FileOutputStream(to);
+            byte[] b = new byte[1024 * 3];
+            int len = 0;
+            while (len != -1) {
+                len = input.read(b);
+                if (len != -1) {
+                    output.write(b, 0, len);
+                }
+            }
+            output.flush();
+            output.close();
+            input.close();
+        } catch (Exception e) {
+            throw new ToolException("Copy generated file error", e);
+        }
+    }
 }

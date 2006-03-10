@@ -211,6 +211,8 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             schemaCompiler.parseSchema(bindingFile);
         }
         rawJaxbModel = schemaCompiler.bind();
+       
+        
     }
 
     private boolean isSchemaParsed(String targetNamespace) {
@@ -280,6 +282,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     }
 
     protected void init() throws ToolException {
+        
         parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));
         parseCustomization();
         initVelocity();

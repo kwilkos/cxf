@@ -25,7 +25,6 @@ public class ClassNameAllocatorImpl implements ClassNameAllocator {
         if (isNameCollision(packageName, className)) {
             fullClzName = className + TYPE_SUFFIX;
         }
-       
         collector.addTypesClassName(packageName, className, packageName + "." + fullClzName);
         return fullClzName;
     }

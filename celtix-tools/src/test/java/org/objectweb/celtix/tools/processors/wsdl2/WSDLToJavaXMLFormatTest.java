@@ -38,6 +38,6 @@ public class WSDLToJavaXMLFormatTest
     }
 
     private String getLocation(String wsdlFile) {
-        return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
+        return WSDLToJavaXMLFormatTest.class.getResource(wsdlFile).getFile();
     }
 }

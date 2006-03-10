@@ -34,10 +34,10 @@ public class XSDToWSDLProcessorTest
         String serviceString = new String(sb);
         assertTrue(serviceString.indexOf("<wsdl:types>") >= 0);
         assertTrue(serviceString.indexOf("<schema targetNamespace=\"http:/"
-                                         + "/celtix.org/courseware/Invoice\" xmlns=\"http:/"
+                                         + "/objectweb.org/Invoice\" xmlns=\"http:/"
                                          + "/www.w3.org/2001/XMLSchema\" xmlns:soap=\"http:/"
                                          + "/schemas.xmlsoap.org/wsdl/soap/\" xmlns:tns=\"http:/"
-                                         + "/celtix.org/courseware/Invoice\" xmlns:wsdl=\"http:/"
+                                         + "/objectweb.org/Invoice\" xmlns:wsdl=\"http:/"
                                          + "/schemas.xmlsoap.org/wsdl/\">") >= 0);
         assertTrue(serviceString.indexOf("<complexType name=\"InvoiceHeader\">") >= 0);
         
@@ -62,10 +62,10 @@ public class XSDToWSDLProcessorTest
         String serviceString = new String(sb);
         assertTrue(serviceString.indexOf("<wsdl:types>") >= 0);
         assertTrue(serviceString.indexOf("<schema targetNamespace=\"http:/"
-                                         + "/celtix.org/courseware/Invoice\" xmlns=\"http:/"
+                                         + "/objectweb.org/Invoice\" xmlns=\"http:/"
                                          + "/www.w3.org/2001/XMLSchema\" xmlns:soap=\"http:/"
                                          + "/schemas.xmlsoap.org/wsdl/soap/\" xmlns:tns=\"http:/"
-                                         + "/celtix.org/courseware/Invoice\" xmlns:wsdl=\"http:/"
+                                         + "/objectweb.org/Invoice\" xmlns:wsdl=\"http:/"
                                          + "/schemas.xmlsoap.org/wsdl/\">") >= 0);
         assertTrue(serviceString.indexOf("<complexType name=\"InvoiceHeader\">") >= 0);        
     }

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--XSD file template-->
 <!--Created by IONA Artix Designer-->
-<schema targetNamespace="http://celtix.org/courseware/Invoice" 
+<schema targetNamespace="http://objectweb.org/Invoice" 
 	xmlns="http://www.w3.org/2001/XMLSchema" 
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-	xmlns:tns="http://celtix.org/courseware/Invoice" 
+	xmlns:tns="http://objectweb.org/Invoice" 
 	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
     <complexType name="InvoiceHeader">
 	<sequence>
@@ -71,5 +71,5 @@
 	    <enumeration value="Bronze"/>
 	    <enumeration value="Gold"/>
 	</restriction>
-    </simpleType> 
+    </simpleType>    
 </schema>

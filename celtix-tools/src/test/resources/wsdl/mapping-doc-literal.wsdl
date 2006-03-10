@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--WSDL file template-->
-<!--Created by IONA Artix Designer-->
-<definitions name="mapping.wsdl" targetNamespace="http://www.iona.com/artix/mapping" 
+<definitions name="mapping.wsdl" targetNamespace="http://objectweb.org/mapping" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://www.iona.com/artix/mapping" 
+    xmlns:tns="http://objectweb.org/mapping" 
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <types>
-        <schema targetNamespace="http://www.iona.com/artix/mapping" 
+        <schema targetNamespace="http://objectweb.org/mapping" 
             xmlns="http://www.w3.org/2001/XMLSchema">
             <element name="doSomething">
                 <complexType>

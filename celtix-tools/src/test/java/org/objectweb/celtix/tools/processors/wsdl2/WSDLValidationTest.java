@@ -30,6 +30,6 @@ public class WSDLValidationTest extends ProcessorTestBase {
     }
 
     private String getLocation(String wsdlFile) {
-        return WSDLTOJAVACompilerTest.class.getResource(wsdlFile).getFile();
+        return WSDLValidationTest.class.getResource(wsdlFile).getFile();
     }
 }
