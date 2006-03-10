@@ -112,6 +112,14 @@
 		<switch>ant</switch>
 	    </option>
 
+        <option id="nexclude" maxOccurs="unbounded">
+            <annotation>The wsdl namespace to exclude for generating code. This option can be specified multiple times. Also, Optionally specify the java package name to use for this wsdl namespace.</annotation>
+            <switch>nexclude</switch>
+            <associatedArgument placement="afterSpace">
+                <annotation>schema namespace [= java packagename]</annotation>
+            </associatedArgument>
+        </option>
+
 	</optionGroup>
 	<optionGroup id="common_options">
 	    <option id="help" maxOccurs="1">

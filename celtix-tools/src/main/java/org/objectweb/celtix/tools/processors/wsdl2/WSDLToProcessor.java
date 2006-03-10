@@ -198,6 +198,10 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             if (targetNamespace == null || targetNamespace.trim().length() == 0) {
                 continue;
             }
+            if (env.hasExcludeNamespace(targetNamespace) 
+                        && env.getExcludePackageName(targetNamespace) == null) {
+                continue;
+            }            
             customizeSchema(schemaElement, targetNamespace);
             String systemid = schema.getDocumentBaseURI();
             schemaCompiler.parseSchema(systemid, schemaElement);
@@ -220,6 +224,11 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     
     private void customizeSchema(Element schema, String targetNamespace) {
         String userPackage = env.mapPackageName(targetNamespace);
+        if (env.hasExcludeNamespace(targetNamespace) 
+                && env.getExcludePackageName(targetNamespace) != null) {
+            //generate excluded namespace types classes with specified package name
+            userPackage = env.getExcludePackageName(targetNamespace);
+        }        
         if (!isSchemaParsed(targetNamespace) && !StringUtils.isEmpty(userPackage)) {
             Node jaxbBindings = JAXBUtils.innerJaxbPackageBinding(schema, userPackage);
             schema.appendChild(jaxbBindings);

@@ -9,6 +9,7 @@ public class ProcessorEnvironment {
     private Map<String, Object> paramMap;
     private String packageName;
     private Map<String, String> namespacePackageMap = new HashMap<String, String>();
+    private Map<String, String> excludeNamespacePackageMap = new HashMap<String, String>();
     private final Map<String, InputSource> jaxbBindingFiles = new HashMap<String, InputSource>();
 
     public void setParameters(Map<String, Object> map) {
@@ -59,6 +60,18 @@ public class ProcessorEnvironment {
 
     public boolean hasNamespace(String ns) {
         return this.namespacePackageMap.containsKey(ns);
+    }
+
+    public void addExcludeNamespacePackageMap(String namespace, String pn) {
+        this.excludeNamespacePackageMap.put(namespace, pn);
+    }
+
+    public boolean hasExcludeNamespace(String ns) {
+        return this.excludeNamespacePackageMap.containsKey(ns);
+    }
+
+    public String getExcludePackageName(String ns) {
+        return this.excludeNamespacePackageMap.get(ns);
     }
 
     public void setPackageName(String pkgName) {

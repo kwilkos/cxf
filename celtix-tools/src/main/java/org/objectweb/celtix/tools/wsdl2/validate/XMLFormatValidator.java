@@ -89,13 +89,20 @@ public class XMLFormatValidator
                 XMLFormat xmlFormat = (XMLFormat)ext;
                 // String rootNodeValue = def.getPrefix(def.getTargetNamespace()) + ":" + bo.getName();
                 QName rootNodeName = new QName(def.getTargetNamespace(), bo.getName());
-                if (xmlFormat.getRootNode().equals(rootNodeName)) {
-                    return true;
-                } else {
+                if (xmlFormat.getRootNode() != null) {
+                    if (xmlFormat.getRootNode().equals(rootNodeName)) {
+                        return true;
+                    } else {
+                        this.errorMessage = errorPath
+                                            + ": wrong value of rootNode attribute, the value should be "
+                                            + rootNodeName;
+                        return false;
+                    }
+                } else {                    
                     this.errorMessage = errorPath
-                                        + ": wrong value of rootNode attribute, the value should be "
-                                        + rootNodeName;
-                    return false;
+                            + ": empty value of rootNode attribute, the value should be "
+                            + rootNodeName;
+                    return false;                    
                 }
             }
         }

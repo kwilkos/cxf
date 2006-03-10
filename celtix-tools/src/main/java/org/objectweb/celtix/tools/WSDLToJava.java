@@ -25,6 +25,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
         Set<String> set = new HashSet<String>();
         set.add(ToolConstants.CFG_BINDING);
         set.add(ToolConstants.CFG_PACKAGENAME);
+        set.add(ToolConstants.CFG_NEXCLUDE);
         return set;
     }
     
@@ -51,6 +52,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
 
                 validate(env);
                 setPackageAndNamespaces(env);
+                setExcludePackageAndNamespaces(env);
                 
                 processor.setEnvironment(env);
                 processor.process();
@@ -73,6 +75,23 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
         }
     }
 
+    private void setExcludePackageAndNamespaces(ProcessorEnvironment env) {
+        if (env.get(ToolConstants.CFG_NEXCLUDE) != null) {
+            String[] pns = (String[]) env.get(ToolConstants.CFG_NEXCLUDE);
+            for (int j = 0; j < pns.length; j++) {
+                int pos = pns[j].indexOf("=");
+                String excludePackagename = pns[j];
+                if (pos != -1) {
+                    String ns = pns[j].substring(0, pos);
+                    excludePackagename = pns[j].substring(pos + 1);
+                    env.addExcludeNamespacePackageMap(ns, excludePackagename);
+                } else {
+                    env.addExcludeNamespacePackageMap(pns[j], null);
+                }
+            }
+        }
+    }
+    
     private void setPackageAndNamespaces(ProcessorEnvironment env) {
         if (env.get(ToolConstants.CFG_PACKAGENAME) != null) {
             String[] pns = (String[]) env.get(ToolConstants.CFG_PACKAGENAME);
