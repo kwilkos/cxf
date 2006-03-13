@@ -44,6 +44,10 @@ public final class RMContextUtils {
         return (SequenceType)context.get(SEQUENCE_PROPERTY);
     }
     
+    public static void removeSequence(MessageContext context) {
+        context.remove(SEQUENCE_PROPERTY);
+    }
+    
     public static void storeAcknowledgments(MessageContext context, 
                                             Collection<SequenceAcknowledgement> acks) {
         context.put(ACKS_PROPERTY, acks);
@@ -55,6 +59,10 @@ public final class RMContextUtils {
         return (Collection<SequenceAcknowledgement>)context.get(ACKS_PROPERTY); 
     }
     
+    public static void removeAcknowledgments(MessageContext context) {
+        context.remove(ACKS_PROPERTY);
+    }
+    
     public static void storeAcksRequested(MessageContext context, Collection<AckRequestedType> requested) {
         context.put(ACKS_REQUESTED_PROPERTY, requested);
         context.setScope(ACKS_REQUESTED_PROPERTY, MessageContext.Scope.HANDLER); 
@@ -63,5 +71,15 @@ public final class RMContextUtils {
     @SuppressWarnings("unchecked")
     public static Collection<AckRequestedType> retrieveAcksRequested(MessageContext context) {
         return (Collection<AckRequestedType>)context.get(ACKS_REQUESTED_PROPERTY); 
+    }
+    
+    public static void removeAcksRequested(MessageContext context) {
+        context.remove(ACKS_REQUESTED_PROPERTY);
+    }
+    
+    public static void removeRMProperties(MessageContext context) {
+        removeSequence(context);
+        removeAcknowledgments(context);
+        removeAcksRequested(context);
     }
 }

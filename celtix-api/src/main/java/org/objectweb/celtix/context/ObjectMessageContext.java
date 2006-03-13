@@ -35,6 +35,8 @@ public interface ObjectMessageContext extends MessageContext {
     Throwable getException();
 
     void setRequestorRole(boolean requestor);
+    
+    boolean isRequestorRole();
 }
 
 

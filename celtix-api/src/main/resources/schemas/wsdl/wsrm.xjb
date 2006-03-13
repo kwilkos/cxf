@@ -10,7 +10,7 @@
     </jaxb:bindings>
     <jaxb:bindings schemaLocation="addressing.xsd" node="/xs:schema">
         <jaxb:schemaBindings>
-            <jaxb:package name="org.objectweb.celtix.ws.addressing.addressing200408"/>
+            <jaxb:package name="org.objectweb.celtix.ws.addressing.v200408"/>
         </jaxb:schemaBindings>
     </jaxb:bindings>
 </jaxb:bindings>

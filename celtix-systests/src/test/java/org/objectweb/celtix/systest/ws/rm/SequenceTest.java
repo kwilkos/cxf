@@ -161,7 +161,9 @@ public class SequenceTest extends ClientServerTestBase {
                 (SOAPHeaderElement)headerElements.next();
             Name headerName = headerElement.getElementName();
             String localName = headerName.getLocalName(); 
-            if (headerName.getURI().equals(org.objectweb.celtix.bus.ws.addressing.Names.WSA_NAMESPACE_NAME) 
+            if ((headerName.getURI().equals(org.objectweb.celtix.bus.ws.addressing.Names.WSA_NAMESPACE_NAME)
+                || headerName.getURI().equals(org.objectweb.celtix.bus.ws.addressing.VersionTransformer
+                                              .Names200408.WSA_NAMESPACE_NAME))
                 && localName.equals(org.objectweb.celtix.bus.ws.addressing.Names.WSA_ACTION_NAME)) {
                 return headerElement.getTextContent();
             }

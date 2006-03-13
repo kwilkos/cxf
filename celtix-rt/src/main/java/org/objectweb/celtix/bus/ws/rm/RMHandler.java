@@ -26,9 +26,8 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.handlers.SystemHandler;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
-import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
-import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
@@ -252,9 +251,14 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         
         LOG.entering(getClass().getName(), "handleInbound");
         
-        AddressingProperties maps = ContextUtils.retrieveMAPs(context, false, false);
+        AddressingPropertiesImpl maps = ContextUtils.retrieveMAPs(context, false, false);
+        assert null != maps;
+        
+        // ensure the appropriate version of WS-Addressing is used
+        maps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
+
         String action = null;
-        if (maps != null && null != maps.getAction()) {
+        if (null != maps.getAction()) {
             action = maps.getAction().getValue();
         }
         
@@ -269,9 +273,8 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         } else if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)) {
             Object[] parameters = (Object[])context.get(ObjectMessageContext.METHOD_PARAMETERS);            
             CreateSequenceType cs = (CreateSequenceType)parameters[0];
-            LOG.fine("ContextUtils.retrieveTo returns: " + ContextUtils.retrieveTo(context));
-            EndpointReferenceType to = 
-                VersionTransformer.convert(ContextUtils.retrieveTo(context));
+            AttributedURI to = VersionTransformer.convert(maps.getTo());
+            ContextUtils.retrieveTo(context);
              
             try {
                 LOG.fine("dispatching createSequence request to rm servant ...");
@@ -314,7 +317,10 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
         processAcknowledgments(context);
         
-        processSequence(context);   
+        processSequence(context);
+        
+        // clean up
+        RMContextUtils.removeRMProperties(context);
     }
     
     private void processAcknowledgments(LogicalMessageContext context) {
@@ -330,6 +336,8 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         SequenceType s = RMContextUtils.retrieveSequence(context);
         destination.acknowledge(s);
     }
+    
+   
     
 
 }

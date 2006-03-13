@@ -162,14 +162,6 @@
                                         <packagename>http://schemas.xmlsoap.org/ws/2005/02/rm=org.objectweb.celtix.ws.rm</packagename>
                                         <packagename>org.objectweb.celtix.ws.rm.wsdl</packagename>
                                     </packagenames>
-                                    <!--
-                                    <extraargs>
-                                        <extraarg>-b</extraarg>
-                                        <extraarg>${basedir}/src/main/resources/wsdl/wsrm.xjb</extraarg>
-                                        <extraarg>-b</extraarg>
-                                        <extraarg>${basedir}/src/main/resources/wsdl/wsrm.xjws</extraarg>
-                                    </extraargs>
-                                    -->
                                 </wsdlOption>
                             </wsdlOptions>
                             <beanfiles>

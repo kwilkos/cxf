@@ -47,5 +47,10 @@ public class ObjectMessageContextImpl extends GenericMessageContext implements O
         put(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY, Boolean.valueOf(requestor));
         setScope(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY, MessageContext.Scope.HANDLER);
     }
+    
+    public boolean isRequestorRole() {
+        Boolean b = (Boolean)get(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY); 
+        return null == b ? true : b.booleanValue();
+    }
 }
 

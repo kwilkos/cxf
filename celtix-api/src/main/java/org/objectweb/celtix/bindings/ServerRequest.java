@@ -234,7 +234,8 @@ public class ServerRequest {
             LOG.fine("Marshalling fault.");
             marshalFault(replyObjectCtx, replyBindingCtx);
         } else if (null != replyObjectCtx.get(ObjectMessageContext.MESSAGE_PAYLOAD)
-            || state.value() >= ServerRequestState.DISPATCHED.value()) {
+            || state.value() >= ServerRequestState.DISPATCHED.value()
+            || null != replyObjectCtx.get(ObjectMessageContext.METHOD_RETURN)) {
             LOG.fine("Marshalling.");
             marshal(replyObjectCtx, replyBindingCtx);
         }

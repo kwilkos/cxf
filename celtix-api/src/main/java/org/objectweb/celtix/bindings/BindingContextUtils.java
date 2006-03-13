@@ -9,6 +9,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.Transport;
@@ -108,6 +109,10 @@ public final class BindingContextUtils {
      * @return true if a method objetc is stored in the context and it has a Oneway annotation.
      */
     public static boolean isOneway(MessageContext context) {
+        Boolean b = (Boolean)context.get(OutputStreamMessageContext.ONEWAY_MESSAGE_TF);
+        if (null != b) {
+            return b.booleanValue();
+        }
         Method method = BindingContextUtils.retrieveMethod(context);
         if (method != null) {
             return method.getAnnotation(Oneway.class) != null;

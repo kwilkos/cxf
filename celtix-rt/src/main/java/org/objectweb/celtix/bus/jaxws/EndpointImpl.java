@@ -319,9 +319,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     }
 
     String getAddressFromContext(Object ctx) throws Exception {
-        System.out.println("Configuration: " + configuration);
         List<String> strs = configuration.getStringList("serverContextInspectors");
-        System.out.println("strs: " + strs);
         Iterator iter = strs.iterator();
         String address = null;
         while (iter.hasNext()) {

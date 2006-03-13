@@ -6,7 +6,7 @@ import javax.xml.datatype.Duration;
 
 import org.objectweb.celtix.bus.configuration.wsrm.DestinationPolicyType;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 import org.objectweb.celtix.ws.rm.AcceptType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
@@ -30,7 +30,7 @@ public class RMServant {
      */
     public CreateSequenceResponseType createSequence(RMDestination destination,
                                                      CreateSequenceType cs, 
-                                                     EndpointReferenceType to)
+                                                     AttributedURI to)
         throws SequenceFault {
         
         CreateSequenceResponseType csr = RMUtils.getWSRMFactory().createCreateSequenceResponseType();
@@ -59,7 +59,7 @@ public class RMServant {
             System.out.println(offer);
             AcceptType accept = RMUtils.getWSRMFactory().createAcceptType();
             if (dp.isAcceptOffers()) {                
-                accept.setAcksTo(to);
+                accept.setAcksTo(RMUtils.createReference(to.getValue()));
             } else {
                 accept.setAcksTo(RMUtils.createReference(RMUtils.getAddressingConstants().getNoneURI()));
             }
