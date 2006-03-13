@@ -52,6 +52,12 @@ public interface ConfigurationBuilder {
      * @param model the configuration metadata model.
      */
     void addModel(ConfigurationMetadata model);
+
+    /**
+     * Stores the specified configuration model with the builder.
+     * @param resource url to the configuration metadata model.
+     */
+    void addModel(String resource);
     
     /**
      * Returns the configuration metadata model for the given namespace or null if no such

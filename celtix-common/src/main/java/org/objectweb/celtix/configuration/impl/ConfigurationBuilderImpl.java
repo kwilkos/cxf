@@ -1,5 +1,7 @@
 package org.objectweb.celtix.configuration.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -10,6 +12,7 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
+import org.objectweb.celtix.resource.DefaultResourceManager;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
@@ -83,15 +86,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         return models.get(namespaceUri);
     }
 
-
-    /*    
-    private void add(String resource) {
+    public void addModel(String resource) {
         
         InputStream is = null;
         if (resource != null) {
             is = loadResource(resource);
             if (is == null) {
-                throw new ConfigurationException(new Message("METADATA_RESOURCE_EXC", BUNDLE, resource));
+                throw new ConfigurationException(new Message("METADATA_RESOURCE_EXC", 
+                                                             BUNDLE, resource));
             }
         }
         
@@ -101,7 +103,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
             try {
                 model = builder.build(is);
             } catch (IOException ex) {
-                throw new ConfigurationException(new Message("METADATA_RESOURCE_EXC", BUNDLE, resource), ex);
+                throw new ConfigurationException(new Message("METADATA_RESOURCE_EXC", 
+                                                             BUNDLE, resource), ex);
             }
         } else {
             model = new ConfigurationMetadataImpl();
@@ -109,10 +112,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         
         addModel(model);
     }
-    
+
     private InputStream loadResource(String resourceName) { 
         return DefaultResourceManager.instance().getResourceAsStream(resourceName);
     }
-    */
-    
 }

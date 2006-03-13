@@ -95,6 +95,15 @@ public class ConfigurationBuilderImplTest extends TestCase {
         EasyMock.verify(unknownModel); 
     }
     
+    public void testAddModel() throws Exception {
+        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder(null);
+        try {
+            builder.getModel("a.wsdl");
+        } catch (ConfigurationException ex) {
+            assertEquals("METADATA_RESOURCE_EXC", ex.getCode());
+        }
+    }
+    
     public void testGetConfiguration() {
         ConfigurationBuilder builder = new ConfigurationBuilderImpl();
         ConfigurationMetadata model = EasyMock.createMock(ConfigurationMetadata.class);
