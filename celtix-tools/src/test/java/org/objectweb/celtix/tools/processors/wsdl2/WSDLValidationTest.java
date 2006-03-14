@@ -23,10 +23,38 @@ public class WSDLValidationTest extends ProcessorTestBase {
             processor.setEnvironment(env);
             processor.process();
             fail("WSDL Validation Exception Should Be Thrown");
-
         } catch (Exception e) {
             // do nothing
         }
+    }
+
+    public void testMixedStyle() {
+        try {
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_mixed_style.wsdl"));
+            processor.setEnvironment(env);
+            processor.process();
+            fail("WSDL Validation Exception Should Be Thrown");
+        } catch (Exception e) {
+            // do nothing
+        }
+    }
+
+    public void testDocType() {
+        try {
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_doc_lit_type.wsdl"));
+            processor.setEnvironment(env);
+            processor.process();
+            fail("WSDL Validation Exception Should Be Thrown");
+        } catch (Exception e) {
+            // do nothing
+        }
+    }
+
+    public void testValidationHandlerWSDL() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/handler_test.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
     }
 
     private String getLocation(String wsdlFile) {

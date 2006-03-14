@@ -80,27 +80,29 @@ public final class WSDLParserUtil {
         return null;
     }
 
-    public static String getBindingStyle(BindingOperation bop, Definition def) {
-        String style = "DOCUMENT";
+    public static String getBindingStyle(Binding binding) {
+        Iterator ite = binding.getExtensibilityElements().iterator();
+        while (ite.hasNext()) {
+            Object obj = ite.next();
+            if (obj instanceof SOAPBinding) {
+                return ((SOAPBinding)obj).getStyle();
+            }
+        }
+        return "";
+    }
+
+    public static Binding getBinding(BindingOperation bop, Definition def) {
         Iterator ite = def.getBindings().values().iterator();
         while (ite.hasNext()) {
             Binding binding = (Binding)ite.next();
-            BindingOperation bindingOp = binding.getBindingOperation(bop.getName(), null, null);
-            if (bindingOp != null) {
-                Iterator ite2 = bindingOp.getExtensibilityElements().iterator();
-                while (ite2.hasNext()) {
-                    Object obj = ite2.next();
-                    if (obj instanceof SOAPBinding) {
-                        SOAPBinding soapBinding = (SOAPBinding)obj;
-                        style = soapBinding.getStyle();
-                        break;
-                    }
-
+            for (Iterator ite2 = binding.getBindingOperations().iterator(); ite2.hasNext();) {
+                BindingOperation bindingOperation = (BindingOperation)ite2.next();
+                if (bindingOperation.getName().equals(bop)) {
+                    return binding;
                 }
-                break;
             }
         }
-        return style;
+        return null;
     }
 
     public static String getSOAPOperationStyle(BindingOperation bop) {
@@ -180,13 +182,74 @@ public final class WSDLParserUtil {
 
     public static Definition getDefinition(File wsdlFile) {
         try {
-            WSDLFactory wsdlFactory = WSDLFactory.newInstance();           
+            WSDLFactory wsdlFactory = WSDLFactory.newInstance();
             WSDLReader reader = wsdlFactory.newWSDLReader();
             reader.setFeature("javax.wsdl.verbose", false);
             return reader.readWSDL(wsdlFile.toURL().toString());
         } catch (Exception e) {
             throw new ToolException("Get wsdl definition error", e);
-        }     
-    }   
-   
+        }
+    }
+
+    public static boolean isMixedStyle(Binding binding) {
+        Iterator ite = binding.getExtensibilityElements().iterator();
+        String bindingStyle = "";
+        String previousOpStyle = "";
+        String style = "";
+        while (ite.hasNext()) {
+            Object obj = ite.next();
+            if (obj instanceof SOAPBinding) {
+                SOAPBinding soapBinding = (SOAPBinding)obj;
+                bindingStyle = soapBinding.getStyle();
+            }
+        }
+        Iterator ite2 = binding.getBindingOperations().iterator();
+        while (ite2.hasNext()) {
+            BindingOperation bop = (BindingOperation)ite2.next();
+            Iterator ite3 = bop.getExtensibilityElements().iterator();
+            while (ite3.hasNext()) {
+                Object obj = ite3.next();
+
+                if (obj instanceof SOAPOperation) {
+                    SOAPOperation soapOperation = (SOAPOperation)obj;
+                    style = soapOperation.getStyle();
+
+                    if ("".equals(bindingStyle) && "".equals(previousOpStyle) || "".equals(bindingStyle)
+                        && previousOpStyle.equalsIgnoreCase(style)) {
+                        previousOpStyle = style;
+
+                    } else if (!"".equals(bindingStyle) && "".equals(previousOpStyle)
+                               && bindingStyle.equalsIgnoreCase(style)
+                               || bindingStyle.equalsIgnoreCase(previousOpStyle)
+                               && bindingStyle.equalsIgnoreCase(style)) {
+                        previousOpStyle = style;
+                    } else {
+                        return true;
+                    }
+
+                }
+
+            }
+        }
+
+        return false;
+
+    }
+
+    public static String getCanonicalBindingStyle(Binding binding) {
+        String bindingStyle = WSDLParserUtil.getBindingStyle(binding);
+        if (!"".equals(bindingStyle)) {
+            return bindingStyle;
+        }
+        for (Iterator ite2 = binding.getBindingOperations().iterator(); ite2.hasNext();) {
+            BindingOperation bindingOp = (BindingOperation)ite2.next();
+            String bopStyle = WSDLParserUtil.getSOAPOperationStyle(bindingOp);
+            if (!"".equals(bopStyle)) {
+                return bopStyle;
+            } 
+        }
+        return "";
+        
+    }
+
 }
