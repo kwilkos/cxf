@@ -21,23 +21,35 @@ import org.objectweb.celtix.common.logging.LogUtils;
  * Deal with the MBeanServer Connections 
  *
  */
-public class MBServerConnectorFactory {    
+public final class MBServerConnectorFactory {    
         
     public static final String DEFAULT_SERVICE_URL = "service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi";
     
     private static final Logger LOG = LogUtils.getL7dLogger(MBServerConnectorFactory.class);
 
-    private MBeanServer server;
+    private static MBServerConnectorFactory factory;
+    private static MBeanServer server;
 
-    private String serviceUrl = DEFAULT_SERVICE_URL;
+    private static String serviceUrl = DEFAULT_SERVICE_URL;
 
-    private Map environment;
+    private static Map environment;
 
-    private boolean threaded;
+    private static boolean threaded;
 
-    private boolean daemon;
+    private static boolean daemon;
 
-    private JMXConnectorServer connectorServer;
+    private static JMXConnectorServer connectorServer;
+    
+    private MBServerConnectorFactory() {
+        
+    }
+    
+    public static MBServerConnectorFactory getInstance() {
+        if (factory == null) {
+            factory = new MBServerConnectorFactory();
+        } 
+        return factory;        
+    }  
     
     public void setMBeanServer(MBeanServer ms) {
         server = ms;
@@ -85,14 +97,14 @@ public class MBServerConnectorFactory {
         }     
         
         // Create the JMX service URL.
-        JMXServiceURL url = new JMXServiceURL(this.serviceUrl);
+        JMXServiceURL url = new JMXServiceURL(serviceUrl);
 
         // Create the connector server now.
-        this.connectorServer = 
+        connectorServer = 
             JMXConnectorServerFactory.newJMXConnectorServer(url, environment, server);
 
        
-        if (this.threaded) {
+        if (threaded) {
              // Start the connector server asynchronously (in a separate thread).
             Thread connectorThread = new Thread() {
                 public void run() {
@@ -104,23 +116,23 @@ public class MBServerConnectorFactory {
                 }
             };
             
-            connectorThread.setName("JMX Connector Thread [" + this.serviceUrl + "]");
+            connectorThread.setName("JMX Connector Thread [" + serviceUrl + "]");
             connectorThread.setDaemon(daemon);
             connectorThread.start();
         } else {
              // Start the connector server in the same thread.
-            this.connectorServer.start();
+            connectorServer.start();
         }
 
         if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("JMX connector server started: " + this.connectorServer);
+            LOG.info("JMX connector server started: " + connectorServer);
         }    
     }
 
     public void destroy() throws IOException {        
-        this.connectorServer.stop();        
+        connectorServer.stop();        
         if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("JMX connector server stoped: " + this.connectorServer);
+            LOG.info("JMX connector server stoped: " + connectorServer);
         } 
     }
 

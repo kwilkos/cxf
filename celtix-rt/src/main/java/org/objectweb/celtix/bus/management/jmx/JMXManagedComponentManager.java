@@ -70,7 +70,7 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
         } else {
             // TODO get the configuration and setup the ConnectorFactory
             mbs = MBeanServerFactory.createMBeanServer(JMXUtils.DOMAIN_STRING);            
-            mcf = new MBServerConnectorFactory();
+            mcf = MBServerConnectorFactory.getInstance();
             mcf.setMBeanServer(mbs);
             mcf.setThreaded(true);
             try {            

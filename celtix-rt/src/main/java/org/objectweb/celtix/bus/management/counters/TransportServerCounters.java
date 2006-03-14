@@ -1,23 +1,18 @@
 package org.objectweb.celtix.bus.management.counters;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-
 
 public class TransportServerCounters {
     private static final String[] COUNTER_NAMES = {"RequestsTotal",
                                                    "RequestsOneWay",
                                                    "TotalError"};
-    private List<Counter> counters;
+    private Counter[] counters;
     
     
     private String owner;
     
     public TransportServerCounters(String o) {
         owner = o;
-        counters = new ArrayList<Counter>();
+        counters = new Counter[COUNTER_NAMES.length];
         initCounters();
     }
     public String getOwner() {
@@ -25,29 +20,28 @@ public class TransportServerCounters {
     }
            
     public Counter getRequestTotal() {
-        return counters.get(0);
+        return counters[0];
     }
     
     public Counter getRequestOneWay() {
-        return counters.get(1);        
+        return counters[1];        
     }
     
     public Counter getTotalError() {
-        return counters.get(2);
+        return counters[2];
     
     }
     
     private void initCounters() {
         for (int i = 0; i < COUNTER_NAMES.length; i++) {
             Counter c = new Counter(COUNTER_NAMES[i]);
-            counters.add(c);
-        }    
+            counters[i] = c;
+        }   
     }
     
     void resetCounters() {
-        for (Iterator<Counter> i = counters.iterator(); i.hasNext();) {
-            Counter c = i.next();
-            c.reset();
+        for (int i = 0; i < counters.length; i++) {
+            counters[i].reset();
         }
     }    
     

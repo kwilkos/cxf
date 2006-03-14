@@ -15,6 +15,7 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 
+import org.objectweb.celtix.bus.instrumentation.InstrumentationPolicyType;
 import org.objectweb.celtix.bus.management.jmx.JMXManagedComponentManager;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransportInstrumentation;
@@ -27,6 +28,8 @@ import org.objectweb.celtix.bus.transports.jms.JMSServerTransportInstrumentation
 import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
+
 
 
 import org.objectweb.celtix.management.Instrumentation;
@@ -55,18 +58,30 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     private boolean jmxEnabled;
     
     public InstrumentationManagerImpl(Bus b) throws BusException {
-        //InstrumentationPolicyType instrumentation = null;
+        InstrumentationPolicyType instrumentation = null;
+        //JMXConnectorPolicyType connector = null;
         bus = b;
         
-        /*Configuration busConfiguration = bus.getConfiguration();       
+        /*Object obj = bus.getConfiguration().getObject("bindingFactories");
+        
+        List<ClassNamespaceMappingType> factoryMappings = ((ClassNamespaceMappingListType)obj).getMap();
+        for (ClassNamespaceMappingType mapping : factoryMappings) {
+            System.out.println(mapping.getClassname());            
+        }
+        
+        Configuration busConfiguration = bus.getConfiguration(); 
+        connector = (JMXConnectorPolicyType) 
+            bus.getConfiguration().getObject("JMXConnector");
+        
+        if (connector != null) {
+            System.out.println(connector.getJMXSeviceURL());
+        }*/ 
+        Configuration busConfiguration = bus.getConfiguration(); 
         
         if (busConfiguration != null) {        
-            instrumentation = 
-                busConfiguration.getObject(InstrumentationPolicyType.class,
-                                           "InstrumentationControl");            
-        } else {
-            System.out.println("instrumentationConf is null ");
-        }
+            instrumentation = (InstrumentationPolicyType) 
+                busConfiguration.getObject("InstrumentationControl");            
+        } 
         
         if (instrumentation == null) {
             System.out.println("instrumentation is null");
@@ -75,9 +90,9 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         
         //TODO There no effect of the configuration xml change
         instrumentationEnabled = instrumentation.isInstrumentationEnabled();
-        jmxEnabled = instrumentation.isJMXEnabled();*/
-        instrumentationEnabled = true;
-        jmxEnabled = true;
+        jmxEnabled = instrumentation.isJMXEnabled();
+        //instrumentationEnabled = true;
+        //jmxEnabled = true;
         
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Setting up InstrumentationManager for BUS");

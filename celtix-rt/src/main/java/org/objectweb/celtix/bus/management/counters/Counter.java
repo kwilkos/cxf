@@ -20,7 +20,7 @@ public class Counter {
         return value;
     }
     
-    public void increase() {
+    public final void increase() {
         value++;
     }
     
