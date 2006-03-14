@@ -244,10 +244,10 @@ public class SOAPServerBindingTest extends TestCase {
         
         InputStream is = getClass().getResourceAsStream("resources/sayHiDocLiteralBareReq.xml");
         inCtx.setInputStream(is);
-
         serverBinding.testDispatch(inCtx, serverTransport);
         is.close();
         
+        assertEquals(dc.getClass().getInterfaces()[0], serverBinding.getInvokedMethod().getDeclaringClass());
         assertEquals(1, dc.getSayHiInvocationCount());
         assertNotNull(serverTransport.getOutputStreamContext());
         assertFalse("Should not have a SOAP Fault", serverTransport.getOutputStreamContext().isFault());
@@ -288,6 +288,7 @@ public class SOAPServerBindingTest extends TestCase {
         ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
         checkSystemFaultMessage(bais);
     }
+    
     private void checkSystemFaultMessage(ByteArrayInputStream bais) throws Exception {
         SOAPMessage msg = MessageFactory.newInstance().createMessage(null,  bais);
         assertNotNull(msg);
@@ -337,6 +338,8 @@ public class SOAPServerBindingTest extends TestCase {
     
     class TestServerBinding extends SOAPServerBinding {
 
+        private Method m;
+        
         public TestServerBinding(Bus b, EndpointReferenceType ref, Endpoint ep,
                                  ServerBindingEndpointCallback cbFactory) {
             super(b, ref, ep, cbFactory);
@@ -348,6 +351,16 @@ public class SOAPServerBindingTest extends TestCase {
 
         public void testDispatch(InputStreamMessageContext inCtx, ServerTransport t) {
             super.dispatch(inCtx, t);
+        }
+        
+        @Override
+        protected Method getSEIMethod(List<Class<?>> classList, MessageContext ctx) {
+            m = super.getSEIMethod(classList, ctx);
+            return m;
+        }
+        
+        public Method getInvokedMethod() {
+            return m;
         }
     }
 
