@@ -14,13 +14,13 @@ public class RMEndpoint {
     private static final String POLICIES_PROPERTY_NAME = "policies";
     private static final String URN_UUID = "urn:uuid:";
     
-    protected Map<Identifier, Sequence> map;
+    protected Map<String, Sequence> map;
     private RMHandler handler;
     
 
     protected RMEndpoint(RMHandler h) {
         handler = h;
-        map = new HashMap<Identifier, Sequence>();
+        map = new HashMap<String, Sequence>();
     }
     
     
@@ -52,7 +52,7 @@ public class RMEndpoint {
      * @return the sequence.
      */
     public Sequence getSequence(Identifier id) {
-        return map.get(id);
+        return map.get(id.getValue());
     }
     
     /**
@@ -87,6 +87,6 @@ public class RMEndpoint {
      * @param seq the sequence.
      */
     public void addSequence(Sequence seq) {
-        map.put(seq.getIdentifier(), seq);
+        map.put(seq.getIdentifier().getValue(), seq);
     }
 }

@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.ws.rm;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Timer;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -9,6 +10,7 @@ import javax.xml.datatype.Duration;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.bus.configuration.wsrm.AcksPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
@@ -31,38 +33,44 @@ public class SequenceTest extends TestCase {
     Expires expires;
     EndpointReferenceType ref;
     RMSource source;
+    RMDestination destination;
+    RMHandler handler;
  
     public void setUp() {
         expires = factory.createExpires();
         id = factory.createIdentifier();
         id.setValue("seq");
         ref = createMock(EndpointReferenceType.class);
-        source = createMock(RMSource.class);        
+        source = createMock(RMSource.class); 
+        destination = createMock(RMDestination.class);
+        handler = createMock(RMHandler.class);
     }
 
     public void testConstructors() throws DatatypeConfigurationException {
         
-        Sequence seq = new Sequence(id, ref);
+        Sequence seq = new Sequence(id, destination, ref);
         assertEquals(Sequence.Type.DESTINATION, seq.getType());
         assertEquals(id, seq.getIdentifier());
-        assertTrue(!seq.isLastMessage());
+        assertNull(seq.getLastMessageNumber());
         assertSame(ref, seq.getAcksTo());
         assertTrue(!seq.isExpired());
         assertNull(seq.getCurrentMessageNumber());
         assertNotNull(seq.getAcknowledged());
         assertNotNull(seq.getAcknowledged(null));
         assertTrue(!seq.allAcknowledged());
+        assertNotNull(seq.getMonitor());
         
         seq = new Sequence(id, source, expires);
         assertEquals(Sequence.Type.SOURCE, seq.getType());
         assertEquals(id, seq.getIdentifier());
-        assertTrue(!seq.isLastMessage());
+        assertNull(seq.getLastMessageNumber());
         assertNull(seq.getAcksTo());
         assertTrue(!seq.isExpired());
         assertEquals(BigInteger.ZERO, seq.getCurrentMessageNumber());
         assertNotNull(seq.getAcknowledged());
         assertNotNull(seq.getAcknowledged(null));
         assertTrue(!seq.allAcknowledged());
+        assertNull(seq.getMonitor());
         
         DatatypeFactory dbf = DatatypeFactory.newInstance();
         Duration d = dbf.newDuration(0);        
@@ -97,21 +105,33 @@ public class SequenceTest extends TestCase {
         assertEquals(3, ack.getAcknowledgementRange().size());
         assertTrue(!seq.isAcknowledged(new BigInteger("3")));
         
-        seq = new Sequence(id, ref);
+        seq = new Sequence(id, destination, ref);
         assertEquals(0, seq.getAcknowledged().getAcknowledgementRange().size());
         acknowledge(seq, 1, 2, 3);
         assertEquals(0, seq.getAcknowledged().getAcknowledgementRange().size());       
     } 
     
     public void testAcknowledgeBasic() {
-        Sequence seq = new Sequence(id, ref);
+        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
+        destination.getHandler();
+        expectLastCall().andReturn(handler).times(3);
+        // handler.getTimer();
+        // expectLastCall().andReturn(null).times(3);
+        destination.getAcksPolicy();
+        expectLastCall().andReturn(ap).times(3);
+        replay(destination);
+        replay(handler);
+        
+        Sequence seq = new Sequence(id, destination, ref);
         List<AcknowledgementRange> ranges = seq.getAcknowledged().getAcknowledgementRange();
         assertEquals(0, ranges.size());
-        seq.acknowledge(new BigInteger("1"));
+              
+        seq.acknowledge(new BigInteger("1"));        
         assertEquals(1, ranges.size());
         AcknowledgementRange r1 = ranges.get(0);
         assertEquals(1, r1.getLower().intValue());
         assertEquals(1, r1.getUpper().intValue());
+        
         seq.acknowledge(new BigInteger("2"));
         assertEquals(1, ranges.size());
         r1 = ranges.get(0);
@@ -124,7 +144,17 @@ public class SequenceTest extends TestCase {
     }
     
     public void testAcknowledgeAppendRange() {
-        Sequence seq = new Sequence(id, ref);
+        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
+        destination.getHandler();
+        expectLastCall().andReturn(handler).times(5);
+        //handler.getTimer();
+        //expectLastCall().andReturn(null).times(5);
+        destination.getAcksPolicy();
+        expectLastCall().andReturn(ap).times(5);
+        replay(destination);
+        replay(handler);
+        
+        Sequence seq = new Sequence(id, destination, ref);
         List<AcknowledgementRange> ranges = seq.getAcknowledged().getAcknowledgementRange();        
         seq.acknowledge(new BigInteger("1"));
         seq.acknowledge(new BigInteger("2"));  
@@ -140,8 +170,18 @@ public class SequenceTest extends TestCase {
         assertEquals(6, r.getUpper().intValue());  
     }
     
-    public void testAcknowledgeInserRange() {
-        Sequence seq = new Sequence(id, ref);
+    public void testAcknowledgeInsertRange() {
+        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
+        destination.getHandler();
+        expectLastCall().andReturn(handler).times(5);
+        //handler.getTimer();
+        //expectLastCall().andReturn(null).times(5);
+        destination.getAcksPolicy();
+        expectLastCall().andReturn(ap).times(5);
+        replay(destination);
+        replay(handler);
+        
+        Sequence seq = new Sequence(id, destination, ref);
         List<AcknowledgementRange> ranges = seq.getAcknowledged().getAcknowledgementRange();        
         seq.acknowledge(new BigInteger("1"));
         seq.acknowledge(new BigInteger("2"));
@@ -161,8 +201,18 @@ public class SequenceTest extends TestCase {
         assertEquals(10, r.getUpper().intValue());  
     }
     
-    public void testAcknowledgePrependRange() {
-        Sequence seq = new Sequence(id, ref);
+    public void testAcknowledgePrependRange() { 
+        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
+        destination.getHandler();
+        expectLastCall().andReturn(handler).times(4);
+        //handler.getTimer();
+        //expectLastCall().andReturn(null).times(4);
+        destination.getAcksPolicy();
+        expectLastCall().andReturn(ap).times(4);
+        replay(destination);
+        replay(handler);
+        
+        Sequence seq = new Sequence(id, destination, ref);
         List<AcknowledgementRange> ranges = seq.getAcknowledged().getAcknowledgementRange();
         seq.acknowledge(new BigInteger("4"));
         seq.acknowledge(new BigInteger("5"));
@@ -178,24 +228,35 @@ public class SequenceTest extends TestCase {
     }
     
     public void testAllAcknowledged() {
-        Sequence seq = new Sequence(id, ref);
+        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
+        destination.getHandler();
+        expectLastCall().andReturn(handler).times(11);
+        //handler.getTimer();
+        //expectLastCall().andReturn(null).times(11);
+        destination.getAcksPolicy();
+        expectLastCall().andReturn(ap).times(11);
+        replay(destination);
+        replay(handler);
+        
+        Sequence seq = new Sequence(id, destination, ref);        
         for (int i = 0; i < 4; i++) {
             seq.nextMessageNumber();
         }
         assertTrue(!seq.allAcknowledged());
-        seq.setLastMessage(true);
+        seq.setLastMessageNumber(new BigInteger("4"));
         assertTrue(!seq.allAcknowledged());
         for (int i = 1; i < 5; i++) {
             Integer ih = new Integer(i);
             seq.acknowledge(new BigInteger(ih.toString()));
             assertEquals("At i = " + i + ": all messages are acknowledged",
-                         i < 5, !seq.allAcknowledged());
+                         i < 4, !seq.allAcknowledged());
         }
-        seq = new Sequence(id, ref);
+        
+        seq = new Sequence(id, destination, ref);
         for (int i = 0; i < 10; i++) {
             seq.nextMessageNumber();
         }
-        seq.setLastMessage(true);
+        seq.setLastMessageNumber(BigInteger.TEN);
         for (int i = 1; i < 5; i++) {
             Integer ih = new Integer(i);
             seq.acknowledge(new BigInteger(ih.toString()));
@@ -229,7 +290,6 @@ public class SequenceTest extends TestCase {
         assertEquals(BigInteger.ONE, seq.getCurrentMessageNumber());
         
         // termination policy max length = 5
-        
         seq = new Sequence(id, source, expires);  
         stp.setMaxLength(new BigInteger("5"));
         assertTrue(!nextSequences(seq, sp, 2));
@@ -251,7 +311,109 @@ public class SequenceTest extends TestCase {
         acknowledge(seq, 1, 2, 4, 5, 6, 8, 9, 10);
         assertTrue(!nextSequences(seq, sp, 10));
         
-        // termination policy max unacknowledged      
+        // termination policy max unacknowledged 
+    }
+    
+    public void testMonitor() {
+        Timer t = new Timer();
+        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
+        destination.getHandler();
+        expectLastCall().andReturn(handler).times(15);
+        handler.getTimer();
+        expectLastCall().andReturn(t).times(15);
+        destination.getAcksPolicy();
+        expectLastCall().andReturn(ap).times(15);
+        replay(destination);
+        replay(handler);
+        
+        
+        Sequence seq = new Sequence(id, destination, ref);
+        SequenceMonitor monitor = seq.getMonitor();
+        assertNotNull(monitor);
+        monitor.setMonitorInterval(500);
+        
+        assertEquals(0, monitor.getMPM());
+        
+        BigInteger mn = BigInteger.ONE;
+        
+        for (int i = 0; i < 10; i++) {
+            seq.acknowledge(mn);
+            mn = mn.add(BigInteger.ONE);
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+        int mpm1 = monitor.getMPM();
+        assertTrue(mpm1 > 0);
+        
+        for (int i = 0; i < 5; i++) {
+            seq.acknowledge(mn);
+            mn = mn.add(BigInteger.ONE);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+        int mpm2 = monitor.getMPM();
+        assertTrue(mpm2 > 0);
+        assertTrue(mpm1 > mpm2);
+    }
+    
+    public void testAcknowledgeImmediate() {
+        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
+        destination.getHandler();
+        expectLastCall().andReturn(handler).times(1);
+        //handler.getTimer();
+        //expectLastCall().andReturn(null).times(1);
+        destination.getAcksPolicy();
+        expectLastCall().andReturn(ap).times(1);
+        replay(destination);
+        replay(handler);
+        
+        Sequence seq = new Sequence(id, destination, ref);
+        assertTrue(!seq.sendAcknowledgement());
+              
+        seq.acknowledge(new BigInteger("1")); 
+        
+        assertTrue(seq.sendAcknowledgement());
+        seq.acknowledgmentSent();
+        assertFalse(seq.sendAcknowledgement());
+    }
+    
+    public void testAcknowledgeDeferred() {
+        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
+        ap.setIntraMessageThreshold(0);
+        ap.setDeferredBy(200);
+        Timer timer = new Timer();
+        destination.getHandler();
+        expectLastCall().andReturn(handler).times(3);
+        handler.getTimer();
+        expectLastCall().andReturn(timer).times(1);
+        destination.getAcksPolicy();
+        expectLastCall().andReturn(ap).times(3);
+        replay(destination);
+        replay(handler);
+        
+        Sequence seq = new Sequence(id, destination, ref);
+        assertTrue(!seq.sendAcknowledgement());
+              
+        seq.acknowledge(new BigInteger("1")); 
+        seq.acknowledge(new BigInteger("2"));
+        seq.acknowledge(new BigInteger("3"));
+        
+        assertFalse(seq.sendAcknowledgement());
+        
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException ex) {
+            // ignore
+        }
+        assertTrue(seq.sendAcknowledgement());
+        seq.acknowledgmentSent();
+        assertFalse(seq.sendAcknowledgement());
     }
     
     private boolean nextSequences(Sequence seq, SourcePolicyType sp, int n) {
@@ -261,7 +423,7 @@ public class SequenceTest extends TestCase {
         replay(source);
         
         int i = 0;
-        while (i < n && !seq.isLastMessage()) {
+        while ((i < n) && (null == seq.getLastMessageNumber())) {
             assertNotNull(seq.nextMessageNumber());
             verify(source);
             reset(source);
@@ -270,12 +432,12 @@ public class SequenceTest extends TestCase {
             replay(source);
             i++;
         }
-        return seq.isLastMessage();
+        return null != seq.getLastMessageNumber();
     }
     
-    // this methods needs to be public because of a bug in PMD which otherwise
+    // this methods cannot be private because of a bug in PMD which otherwise
     // would report it as an 'unused private method' 
-    public void acknowledge(Sequence seq, int... messageNumbers) {
+    protected void acknowledge(Sequence seq, int... messageNumbers) {
         SequenceAcknowledgement ack = factory.createSequenceAcknowledgement();
         int i = 0;
         while (i < messageNumbers.length) {

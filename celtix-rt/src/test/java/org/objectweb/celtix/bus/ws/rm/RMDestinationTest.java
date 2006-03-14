@@ -29,7 +29,7 @@ public class RMDestinationTest extends TestCase {
     public void testAddSequence() {
         RMDestination d = new RMDestination(handler);
         Identifier sid = d.generateSequenceIdentifier();
-        Sequence seq = new Sequence(sid, address);
+        Sequence seq = new Sequence(sid, d, address);
         d.addSequence(seq);
         assertSame(seq, d.getSequence(sid));
     }
@@ -68,8 +68,19 @@ public class RMDestinationTest extends TestCase {
     public void testAcknowledge() {
         RMDestination d = new RMDestination(handler);
         Identifier sid = d.generateSequenceIdentifier();
-        Sequence seq = new Sequence(sid, address);
+        Sequence seq = new Sequence(sid, d, address);
         d.addSequence(seq);
+        
+        
+        DestinationPolicyType dp = null;
+        Configuration c = createMock(Configuration.class);
+        reset(handler);
+        handler.getConfiguration();
+        expectLastCall().andReturn(c);
+        c.getObject(DestinationPolicyType.class, "destinationPolicies");
+        expectLastCall().andReturn(dp);
+        replay(handler);
+        replay(c);  
 
         SequenceType st = RMUtils.getWSRMFactory().createSequenceType();
         st.setIdentifier(sid);

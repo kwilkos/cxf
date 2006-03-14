@@ -54,12 +54,16 @@ public class RMEndpointTest extends TestCase {
     public void testAddGetSequence() {
         RMEndpoint e = new RMEndpoint(handler);
         EndpointReferenceType a = createMock(EndpointReferenceType.class);
-        Sequence seq = new Sequence(e.generateSequenceIdentifier(), a);
+        RMDestination destination = createMock(RMDestination.class);
+        Sequence seq = new Sequence(e.generateSequenceIdentifier(), destination, a);
         e.addSequence(seq);
         assertEquals(1, e.map.size()); 
         assertSame(seq, e.getSequence(seq.getIdentifier()));
         Identifier other = e.generateSequenceIdentifier();
         assertNull(e.getSequence(other));
+        other.setValue(seq.getIdentifier().getValue());
+        assertNotNull(e.getSequence(other));
+        assertSame(seq, e.getSequence(other));
     }
     
     

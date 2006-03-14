@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.xml.ws.handler.MessageContext;
@@ -27,8 +28,8 @@ public final class RMContextUtils {
     public static void storeSequence(MessageContext context, Sequence seq) {
         SequenceType st = RMUtils.getWSRMFactory().createSequenceType();
         st.setIdentifier(seq.getIdentifier());
-        st.setMessageNumber(seq.nextMessageNumber());   
-        if (seq.isLastMessage()) {
+        st.setMessageNumber(seq.getCurrentMessageNumber());   
+        if (seq.getCurrentMessageNumber().equals(seq.getLastMessageNumber())) {
             st.setLastMessage(new SequenceType.LastMessage());
         }
         context.put(SEQUENCE_PROPERTY, st);
@@ -52,6 +53,19 @@ public final class RMContextUtils {
                                             Collection<SequenceAcknowledgement> acks) {
         context.put(ACKS_PROPERTY, acks);
         context.setScope(ACKS_PROPERTY, MessageContext.Scope.HANDLER);
+    }
+    
+    public static void storeAcknowledgment(MessageContext context, 
+                                            Sequence seq) {
+        Collection<SequenceAcknowledgement> acks = retrieveAcknowledgments(context);
+        if (null == acks) {
+            acks = new ArrayList<SequenceAcknowledgement>();
+            context.put(ACKS_PROPERTY, acks);
+            context.setScope(ACKS_PROPERTY, MessageContext.Scope.HANDLER);
+        }
+        SequenceAcknowledgement ack = seq.getAcknowledged();
+        acks.add(ack);
+        seq.acknowledgmentSent();
     }
     
     @SuppressWarnings("unchecked")

@@ -4,6 +4,7 @@ package org.objectweb.celtix.bus.ws.addressing.soap;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -13,6 +14,7 @@ import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 
 import org.objectweb.celtix.bus.ws.addressing.Names;
+import org.objectweb.celtix.common.logging.LogUtils;
 
 // importation convention: if the same class name is used for 
 // 2005/08 and 2004/08, then the former version is imported
@@ -49,7 +51,8 @@ public class VersionTransformer
     extends org.objectweb.celtix.bus.ws.addressing.VersionTransformer {
 
     public static final Set<QName> HEADERS;
-
+    private static final Logger LOG = LogUtils.getL7dLogger(VersionTransformer.class);
+    
     protected MAPCodec codec;
     
     /**
@@ -127,6 +130,9 @@ public class VersionTransformer
                                 Unmarshaller unmarshaller) 
         throws JAXBException {
         T ret = null;
+        LOG.fine("decodeAsNative: encodedAs: " + encodedAs);
+        LOG.fine("                class: " + clz.getName());
+
         if (NATIVE_VERSION.equals(encodedAs)) {
             ret = codec.decodeMAP(clz, headerElement, unmarshaller);
         } else if (Names200408.WSA_NAMESPACE_NAME.equals(encodedAs)) {

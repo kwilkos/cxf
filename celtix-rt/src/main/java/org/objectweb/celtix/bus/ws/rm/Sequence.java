@@ -1,8 +1,10 @@
 package org.objectweb.celtix.bus.ws.rm;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,6 +12,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 
+import org.objectweb.celtix.bus.configuration.wsrm.AcksPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
@@ -27,9 +30,14 @@ public class Sequence {
     private final Identifier id;
     private Date expires;
     private RMSource source;
+    private RMDestination destination;
     private EndpointReferenceType acksTo;
     private BigInteger currentMessageNumber;
-    private boolean lastMessage;
+    private BigInteger lastMessageNumber;
+    private SequenceMonitor monitor;
+    private boolean acknowledgeOnNextOccasion;
+    private List<DeferredAcknowledgment> deferredAcknowledgments;
+
 
     public enum Type {
         SOURCE, DESTINATION,
@@ -58,11 +66,14 @@ public class Sequence {
      * Constructs a Sequence object for use in RM destinations.
      * 
      * @param i the sequence identifier
+     * @param d the RM destination
      * @param a the acksTo address
      */
-    public Sequence(Identifier i, EndpointReferenceType a) {
+    public Sequence(Identifier i, RMDestination d, EndpointReferenceType a) {
         this(i, Type.DESTINATION);
+        destination = d;
         acksTo = a;
+        monitor = new SequenceMonitor();
     }
 
     /**
@@ -113,14 +124,19 @@ public class Sequence {
      * 
      * @return the last message number.
      */
-    public boolean isLastMessage() {
-        return lastMessage;
+    public BigInteger getLastMessageNumber() {
+        return lastMessageNumber;
+    }    
+    
+    /**
+     * Sets the last message number.
+     * 
+     * @return the last message number.
+     */
+    public void setLastMessageNumber(BigInteger l) {
+        lastMessageNumber = l;
     }
     
-    public void setLastMessage(boolean l) {
-        lastMessage = l;
-    }
-
     /**
      * Returns the acksTo address for this sequence.
      * 
@@ -128,6 +144,15 @@ public class Sequence {
      */
     EndpointReferenceType getAcksTo() {
         return acksTo;
+    }
+    
+    /**
+     * Returns the monitor for this sequence.
+     * 
+     * @return the sequence monitor.
+     */
+    public SequenceMonitor getMonitor() {
+        return monitor;
     }
 
     /**
@@ -146,6 +171,8 @@ public class Sequence {
      * @return the next message number.
      */
     public BigInteger nextMessageNumber() {
+        // TODO
+        assert null == lastMessageNumber;
         if (Type.DESTINATION == type) {
             return null;
         }
@@ -173,9 +200,13 @@ public class Sequence {
      * @param messageNumber the number of the received message
      */
     public void acknowledge(BigInteger messageNumber) {
+        
         if (Type.SOURCE == type) {
             return;
         }
+        
+        monitor.acknowledgeMessage();
+        
         boolean done = false;
         int i = 0;
         for (; i < acked.getAcknowledgementRange().size(); i++) {
@@ -201,6 +232,10 @@ public class Sequence {
             range.setUpper(messageNumber);
             acked.getAcknowledgementRange().add(i, range);
         }
+        
+        // schedule acknowledgement
+        
+        scheduleAcknowledgement();
     }
 
     /**
@@ -259,15 +294,26 @@ public class Sequence {
      * @return true if all messages have been acknowledged.
      */
     public boolean allAcknowledged() {
-        if (lastMessage) {
+        if (null == lastMessageNumber) {
             return false;
         }
 
-        if (acked.getAcknowledgementRange().size() == 1) {
+        if (acked.getAcknowledgementRange().size() == 1) {         
             AcknowledgementRange r = acked.getAcknowledgementRange().get(0);
-            return r.getLower().equals(BigInteger.ONE) && r.getUpper().equals(currentMessageNumber);
+            return r.getLower().equals(BigInteger.ONE) && r.getUpper().equals(lastMessageNumber);
         }
         return false;
+    }
+
+    /**
+     * Called after an acknowledgement header for this sequence has been added to an outgoing message.
+     */
+    public void acknowledgmentSent() {
+        acknowledgeOnNextOccasion = false;
+    }
+
+    public boolean sendAcknowledgement() {
+        return acknowledgeOnNextOccasion;
     }
 
     /**
@@ -275,7 +321,6 @@ public class Sequence {
      * and if so sets the lastMessageNumber property.
      */
     private void checkLastMessage() {
-
         SequenceTerminationPolicyType stp = source.getSequenceTerminationPolicy();
         assert null != stp;
         
@@ -283,8 +328,47 @@ public class Sequence {
             && stp.getMaxLength().compareTo(currentMessageNumber) <= 0)
             || (stp.getMaxRanges() > 0 && acked.getAcknowledgementRange().size() >= stp.getMaxRanges())
             || (stp.getMaxUnacknowledged() > 0 
-                && source.getRetransmissionQueue().countUnacknowledged(this) >= stp.getMaxUnacknowledged())) {
-            lastMessage = true;
+                && source.getRetransmissionQueue().countUnacknowledged(this) 
+                >= stp.getMaxUnacknowledged())) {            
+            setLastMessageNumber(currentMessageNumber);
+        }
+    }
+   
+    private void scheduleAcknowledgement() {
+        AcksPolicyType ap = destination.getAcksPolicy();
+        int delay = ap.getDeferredBy();
+        if (delay > 0 && getMonitor().getMPM() >= ap.getIntraMessageThreshold()) {
+            scheduleDeferredAcknowledgement(delay);
+        } else {
+            scheduleImmediateAcknowledgement();
+        }
+    }
+
+
+    public void scheduleImmediateAcknowledgement() {
+        acknowledgeOnNextOccasion = true;
+    }
+
+    private void scheduleDeferredAcknowledgement(int delay) {
+        if (null == deferredAcknowledgments) {
+            deferredAcknowledgments = new ArrayList<DeferredAcknowledgment>();
+        }
+        long now = System.currentTimeMillis();
+        long expectedExecutionTime = now + delay;
+        for (DeferredAcknowledgment da : deferredAcknowledgments) {
+            if (da.scheduledExecutionTime() <= expectedExecutionTime) {
+                return;
+            }
+        }
+        DeferredAcknowledgment da = new DeferredAcknowledgment();
+        deferredAcknowledgments.add(da);
+        destination.getHandler().getTimer().schedule(da, delay);
+    }
+
+    final class DeferredAcknowledgment extends TimerTask {
+
+        public void run() {
+            Sequence.this.scheduleImmediateAcknowledgement();
         }
     }
 }
