@@ -15,7 +15,6 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 
-import org.objectweb.celtix.bus.instrumentation.InstrumentationPolicyType;
 import org.objectweb.celtix.bus.management.jmx.JMXManagedComponentManager;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransportInstrumentation;
@@ -28,7 +27,7 @@ import org.objectweb.celtix.bus.transports.jms.JMSServerTransportInstrumentation
 import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.configuration.Configuration;
+
 
 
 
@@ -58,7 +57,7 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     private boolean jmxEnabled;
     
     public InstrumentationManagerImpl(Bus b) throws BusException {
-        InstrumentationPolicyType instrumentation = null;
+        //InstrumentationPolicyType instrumentation = null;
         //JMXConnectorPolicyType connector = null;
         bus = b;
         
@@ -75,7 +74,7 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         
         if (connector != null) {
             System.out.println(connector.getJMXSeviceURL());
-        }*/ 
+        } 
         Configuration busConfiguration = bus.getConfiguration(); 
         
         if (busConfiguration != null) {        
@@ -90,9 +89,9 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         
         //TODO There no effect of the configuration xml change
         instrumentationEnabled = instrumentation.isInstrumentationEnabled();
-        jmxEnabled = instrumentation.isJMXEnabled();
-        //instrumentationEnabled = true;
-        //jmxEnabled = true;
+        jmxEnabled = instrumentation.isJMXEnabled();*/
+        instrumentationEnabled = true;
+        jmxEnabled = true;
         
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Setting up InstrumentationManager for BUS");
