@@ -1,6 +1,7 @@
 package org.objectweb.celtix.tools.processors.wsdl2;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
 
 import org.objectweb.celtix.tools.WSDLToService;
 import org.objectweb.celtix.tools.common.ToolConstants;

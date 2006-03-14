@@ -9,9 +9,11 @@ import java.util.logging.Logger;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
+import javax.wsdl.BindingOutput;
 import javax.wsdl.Definition;
 import javax.wsdl.Message;
 import javax.wsdl.Operation;
+import javax.wsdl.Part;
 import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
@@ -27,6 +29,7 @@ import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
+import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
@@ -34,6 +37,7 @@ import org.objectweb.celtix.tools.common.model.JavaModel;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
+import org.objectweb.celtix.tools.common.model.JavaType;
 
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.common.toolspec.parser.CommandLineParser;
@@ -245,7 +249,7 @@ public class ServiceProcessor extends AbstractProcessor {
         parameter.setHeader(true);
         parameter.getAnnotation().addArgument("header", "true", "");
     }
-
+       
     private void processParameter(JavaMethod jm, BindingOperation operation) throws ToolException {
         
         // process input
@@ -259,10 +263,29 @@ public class ServiceProcessor extends AbstractProcessor {
             }
             if (obj instanceof SOAPHeader) {
                 SOAPHeader soapHeader = (SOAPHeader)obj;
+                boolean found = false;
                 for (JavaParameter parameter : jm.getParameters()) {
                     if (soapHeader.getPart().equals(parameter.getPartName())) {
                         setParameterAsHeader(parameter);
+                        found = true;
                     }
+                }                
+                if (Boolean.valueOf((String)env.get(ToolConstants.CFG_EXTRA_SOAPHEADER)).booleanValue() 
+                                                    && !found) {
+                    //Header can't be found in java method parameters, in different message
+                    //other than messages used in porttype operation
+                    ParameterProcessor processor = new ParameterProcessor(this.env);
+                    Part exPart = this.definition.getMessage(
+                                       soapHeader.getMessage()).getPart(soapHeader.getPart());
+                    JavaType.Style jpStyle = JavaType.Style.IN;
+                    if (isInOutParam(soapHeader.getPart(), operation.getBindingOutput())) {
+                        jpStyle = JavaType.Style.INOUT;
+                    }
+                    JavaParameter jp = processor.addParameterFromBinding(jm, exPart, jpStyle);
+                    if (soapHeader.getPart() != null && soapHeader.getPart().length() > 0) {
+                        jp.getAnnotation().addArgument("partName", soapHeader.getPart());
+                    }
+                    setParameterAsHeader(jp);
                 }
             }
             if (obj instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {                
@@ -281,11 +304,26 @@ public class ServiceProcessor extends AbstractProcessor {
                 Object obj = outbindings.next();
                 if (obj instanceof SOAPHeader) {
                     SOAPHeader soapHeader = (SOAPHeader)obj;
+                    boolean found = false;
                     for (JavaParameter parameter : jm.getParameters()) {
                         if (soapHeader.getPart().equals(parameter.getPartName())) {
                             setParameterAsHeader(parameter);
+                            found = true;
                         }
                     }
+                    if (jm.getReturn().getName().equals(soapHeader.getPart())) {
+                        found = true;
+                    }
+                    if (Boolean.valueOf((String)env.get(ToolConstants.CFG_EXTRA_SOAPHEADER)).booleanValue() 
+                                                        && !found) { 
+                        //Header can't be found in java method parameters, in different message  
+                        //other than messages used in porttype operation
+                        ParameterProcessor processor = new ParameterProcessor(this.env);
+                        Part exPart = this.definition.getMessage(
+                                           soapHeader.getMessage()).getPart(soapHeader.getPart());
+                        JavaParameter jp = processor.addParameterFromBinding(jm, exPart, JavaType.Style.OUT);
+                        setParameterAsHeader(jp);
+                    }                    
                 }
                 if (obj instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {
                     //Commented for future use
@@ -561,4 +599,17 @@ public class ServiceProcessor extends AbstractProcessor {
                
     }
     
+    private boolean isInOutParam(String inPartName, BindingOutput bop) {
+        Iterator it = bop.getExtensibilityElements().iterator();
+        while (it.hasNext()) {
+            Object obj = it.next(); 
+            if (obj instanceof SOAPHeader) {
+                String outPartName = ((SOAPHeader) obj).getPart();
+                if (inPartName.equals(outPartName)) {
+                    return true;
+                }                
+            }
+        }
+        return false;
+    }
 }

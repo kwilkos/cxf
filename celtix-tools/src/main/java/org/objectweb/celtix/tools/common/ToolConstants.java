@@ -30,7 +30,7 @@ public final class ToolConstants {
     public static final String CFG_PLATFORM_VERSION = "platform.version";
     public static final String CFG_COMPILE = "compile";
     public static final String CFG_CLASSDIR = "classdir";
-
+    public static final String CFG_EXTRA_SOAPHEADER = "exsoapheader";
    
     // WSDL2Java Constants
     

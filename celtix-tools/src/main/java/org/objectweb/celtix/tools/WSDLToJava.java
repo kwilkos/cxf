@@ -132,6 +132,10 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
                 }
             }
         }
+        
+        if (!env.optionSet(ToolConstants.CFG_EXTRA_SOAPHEADER)) {
+            env.put(ToolConstants.CFG_EXTRA_SOAPHEADER, "false");
+        }
     }
 
     protected void setAntProperties(ProcessorEnvironment env) {

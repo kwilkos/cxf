@@ -17,44 +17,45 @@ import org.objectweb.celtix.tools.common.model.JavaType;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
-public class ParameterProcessor extends AbstractProcessor {
+public class ParameterProcessor
+    extends AbstractProcessor {
 
-  
     public ParameterProcessor(ProcessorEnvironment penv) {
-         super(penv);
+        super(penv);
     }
-    
-    public void process(JavaMethod method,
-                        Message inputMessage,
-                        Message outputMessage,
-                        boolean isRequestResponse,
-                        List<String> parameterOrder) throws ToolException {
-        
+
+    public void process(JavaMethod method, Message inputMessage, Message outputMessage,
+                        boolean isRequestResponse, List<String> parameterOrder)
+        throws ToolException {
+
         boolean parameterOrderPresent = false;
 
         if (parameterOrder != null && !parameterOrder.isEmpty()) {
             parameterOrderPresent = true;
         }
-        
-        if (parameterOrderPresent
-            && isValidOrdering(parameterOrder, inputMessage, outputMessage)
+
+        if (parameterOrderPresent && isValidOrdering(parameterOrder, inputMessage, outputMessage)
             && !method.isWrapperStyle()) {
-            buildParamModelsWithOrdering(method,
-                                         inputMessage,
-                                         outputMessage,
-                                         isRequestResponse,
+            buildParamModelsWithOrdering(method, inputMessage, outputMessage, isRequestResponse,
                                          parameterOrder);
         } else {
-            buildParamModelsWithoutOrdering(method,
-                                            inputMessage,
-                                            outputMessage,
-                                            isRequestResponse);
+            buildParamModelsWithoutOrdering(method, inputMessage, outputMessage, isRequestResponse);
         }
     }
+    /**
+     * This method will be used by binding processor to change 
+     * existing generated java method of porttype
+     * @param method
+     * @param part
+     * @param style
+     * @throws ToolException
+     */
+    public JavaParameter addParameterFromBinding(JavaMethod method, Part part, JavaType.Style style)
+        throws ToolException {
+        return addParameter(method, getParameterFromPart(method, part, style));
+    }
 
-    private JavaParameter getParameterFromPart(JavaMethod method,
-                                               Part part,
-                                               JavaType.Style style) {
+    private JavaParameter getParameterFromPart(JavaMethod method, Part part, JavaType.Style style) {
         String name = ProcessorUtil.resolvePartName(part);
         String namespace = ProcessorUtil.resolvePartNamespace(part);
         String type = ProcessorUtil.resolvePartType(part, this.env);
@@ -62,22 +63,19 @@ public class ParameterProcessor extends AbstractProcessor {
         JavaParameter parameter = new JavaParameter(name, type, namespace);
         parameter.setPartName(part.getName());
         parameter.setQName(ProcessorUtil.getElementName(part));
-        
+
         parameter.setClassName(ProcessorUtil.getFullClzName(part, env, this.collector));
 
         if (style == JavaType.Style.INOUT || style == JavaType.Style.OUT) {
             parameter.setHolder(true);
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());
-            parameter.setHolderClass(ProcessorUtil.getFullClzName(part,
-                                                                  env,
-                                                                  true,
-                                                                  this.collector));
+            parameter.setHolderClass(ProcessorUtil.getFullClzName(part, env, true, this.collector));
         }
         parameter.setStyle(style);
         return parameter;
     }
 
-    private void addParameter(JavaMethod method, JavaParameter parameter) throws ToolException {
+    private JavaParameter addParameter(JavaMethod method, JavaParameter parameter) throws ToolException {
         JavaAnnotation webParamAnnotation = new JavaAnnotation("WebParam");
         String name = parameter.getName();
         String targetNamespace = method.getInterface().getNamespace();
@@ -92,7 +90,7 @@ public class ParameterProcessor extends AbstractProcessor {
                 partName = parameter.getPartName();
             }
         }
-        
+
         if (method.getSoapStyle() == SOAPBinding.Style.RPC) {
             name = parameter.getPartName();
             partName = parameter.getPartName();
@@ -101,24 +99,27 @@ public class ParameterProcessor extends AbstractProcessor {
         if (partName != null) {
             webParamAnnotation.addArgument("partName", partName);
         }
-        if (parameter.getStyle() == JavaType.Style.OUT || parameter.getStyle() == JavaType.Style.INOUT) {
+        if (parameter.getStyle() == JavaType.Style.OUT
+            || parameter.getStyle() == JavaType.Style.INOUT) {
             webParamAnnotation.addArgument("mode", "Mode." + parameter.getStyle().toString(), "");
         }
         webParamAnnotation.addArgument("name", name);
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
             webParamAnnotation.addArgument("targetNamespace", targetNamespace);
         }
-        
+
         parameter.setAnnotation(webParamAnnotation);
-        
+
         method.addParameter(parameter);
+        
+        return parameter;
     }
-    
+
     private void processReturn(JavaMethod method, Part part) {
         String name = part == null ? "return" : part.getName();
         String type = part == null ? "void" : ProcessorUtil.resolvePartType(part, this.env);
         String namespace = part == null ? null : ProcessorUtil.resolvePartNamespace(part);
-        
+
         JavaReturn returnType = new JavaReturn(name, type, namespace);
         returnType.setQName(ProcessorUtil.getElementName(part));
         returnType.setStyle(JavaType.Style.OUT);
@@ -129,8 +130,7 @@ public class ParameterProcessor extends AbstractProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    private void processInput(JavaMethod method,
-                              Message inputMessage) throws ToolException {
+    private void processInput(JavaMethod method, Message inputMessage) throws ToolException {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Collection<Part> inputParts = inputPartsMap.values();
         for (Part part : inputParts) {
@@ -138,10 +138,8 @@ public class ParameterProcessor extends AbstractProcessor {
         }
     }
 
-
     @SuppressWarnings("unchecked")
-    private void processWrappedInput(JavaMethod method,
-                                     Message inputMessage) throws ToolException {
+    private void processWrappedInput(JavaMethod method, Message inputMessage) throws ToolException {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Collection<Part> inputParts = inputPartsMap.values();
         if (inputParts.size() > 1) {
@@ -158,39 +156,35 @@ public class ParameterProcessor extends AbstractProcessor {
                 // complete
             }
             for (Property item : block) {
-                addParameter(method, getParameterFromProperty(item,
-                                                              JavaType.Style.IN,
-                                                              part));
-            }        
+                addParameter(method, getParameterFromProperty(item, JavaType.Style.IN, part));
+            }
         }
     }
-    
+
     @SuppressWarnings("unchecked")
-    private void processOutput(JavaMethod method,
-                               Message inputMessage,
-                               Message outputMessage,
+    private void processOutput(JavaMethod method, Message inputMessage, Message outputMessage,
                                boolean isRequestResponse) throws ToolException {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Map<String, Part> outputPartsMap = outputMessage.getParts();
         Collection<Part> outputParts = outputPartsMap.values();
-        //figure out output parts that are not present in input parts
+        // figure out output parts that are not present in input parts
         List<Part> outParts = new ArrayList<Part>();
         if (isRequestResponse) {
-            
+
             for (Part outpart : outputParts) {
                 Part inpart = inputPartsMap.get(outpart.getName());
                 if (inpart == null) {
                     outParts.add(outpart);
                     continue;
                 } else if (isSamePart(inpart, outpart)) {
-                    addParameter(method, getParameterFromPart(method, outpart, JavaType.Style.INOUT));
+                    addParameter(method,
+                                 getParameterFromPart(method, outpart, JavaType.Style.INOUT));
                     continue;
                 }
                 // outParts.add(outpart);
             }
         }
 
-       
         if (outParts.size() == 1) {
             processReturn(method, outParts.get(0));
             return;
@@ -207,49 +201,46 @@ public class ParameterProcessor extends AbstractProcessor {
         }
     }
 
-        
     @SuppressWarnings("unchecked")
-    private void processWrappedOutput(JavaMethod method,
-                                      Message inputMessage,
-                                      Message outputMessage,
-                                      boolean isRequestResponse) throws ToolException {
+    private void processWrappedOutput(JavaMethod method, Message inputMessage,
+                                      Message outputMessage, boolean isRequestResponse)
+        throws ToolException {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Map<String, Part> outputPartsMap = outputMessage.getParts();
         Collection<Part> outputParts = outputPartsMap.values();
         Collection<Part> inputParts = inputPartsMap.values();
-            
+
         if (inputPartsMap.size() > 1 || outputPartsMap.size() > 1) {
             processOutput(method, inputMessage, outputMessage, isRequestResponse);
             return;
         }
-        
+
         Part inputPart = inputParts.iterator().next();
         Part outputPart = outputParts.iterator().next();
         List<? extends Property> inputBlock = ProcessorUtil.getBlock(inputPart, env);
         List<? extends Property> outputBlock = ProcessorUtil.getBlock(outputPart, env);
-            
+
         if (outputBlock == null || outputBlock.size() == 0) {
             addVoidReturn(method);
             return;
         }
-        method.setReturn(null);       
+        method.setReturn(null);
         if (outputBlock.size() == 1) {
             Property outElement = outputBlock.iterator().next();
             boolean sameWrapperChild = false;
             for (Property inElement : inputBlock) {
                 if (isSameWrapperChild(inElement, outElement)) {
-                    addParameter(method, getParameterFromProperty(outElement,
-                                                                  JavaType.Style.INOUT,
+                    addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT,
                                                                   outputPart));
                     sameWrapperChild = true;
                     if (method.getReturn() == null) {
                         addVoidReturn(method);
                     }
                     break;
-                } 
+                }
             }
             if (!sameWrapperChild) {
-                method.setReturn(getReturnFromProperty(outElement, outputPart)); 
+                method.setReturn(getReturnFromProperty(outElement, outputPart));
             }
             return;
         }
@@ -265,16 +256,14 @@ public class ParameterProcessor extends AbstractProcessor {
             boolean sameWrapperChild = false;
             for (Property inElement : inputBlock) {
                 if (isSameWrapperChild(inElement, outElement)) {
-                    addParameter(method, getParameterFromProperty(outElement,
-                                                                  JavaType.Style.INOUT,
+                    addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT,
                                                                   outputPart));
                     sameWrapperChild = true;
                     break;
-                } 
+                }
             }
             if (!sameWrapperChild) {
-                addParameter(method, getParameterFromProperty(outElement,
-                                                              JavaType.Style.OUT,
+                addParameter(method, getParameterFromProperty(outElement, JavaType.Style.OUT,
                                                               outputPart));
             }
         }
@@ -301,7 +290,8 @@ public class ParameterProcessor extends AbstractProcessor {
         return true;
     }
 
-    private JavaParameter getParameterFromProperty(Property property, JavaType.Style style, Part part) {
+    private JavaParameter getParameterFromProperty(Property property, JavaType.Style style,
+                                                   Part part) {
         JType t = property.type();
         String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         if (targetNamespace == null) {
@@ -317,7 +307,7 @@ public class ParameterProcessor extends AbstractProcessor {
         }
         return parameter;
     }
-      
+
     private JavaReturn getReturnFromProperty(Property property, Part part) {
         JType t = property.type();
         String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
@@ -329,11 +319,10 @@ public class ParameterProcessor extends AbstractProcessor {
         returnType.setStyle(JavaType.Style.OUT);
         return returnType;
     }
-    
-    private void buildParamModelsWithoutOrdering(JavaMethod method,
-                                                 Message inputMessage,
-                                                 Message outputMessage,
-                                                 boolean isRequestResponse) throws ToolException {
+
+    private void buildParamModelsWithoutOrdering(JavaMethod method, Message inputMessage,
+                                                 Message outputMessage, boolean isRequestResponse)
+        throws ToolException {
         if (inputMessage != null) {
             if (method.isWrapperStyle()) {
                 processWrappedInput(method, inputMessage);
@@ -353,10 +342,8 @@ public class ParameterProcessor extends AbstractProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    private void buildParamModelsWithOrdering(JavaMethod method,
-                                              Message inputMessage,
-                                              Message outputMessage,
-                                              boolean isRequestResponse,
+    private void buildParamModelsWithOrdering(JavaMethod method, Message inputMessage,
+                                              Message outputMessage, boolean isRequestResponse,
                                               List<String> parameterList) throws ToolException {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Map<String, Part> outputPartsMap = outputMessage.getParts();
@@ -435,11 +422,9 @@ public class ParameterProcessor extends AbstractProcessor {
         }
         return false;
     }
-    
-   
+
     @SuppressWarnings("unchecked")
-    private boolean isValidOrdering(List<String> parameterOrder,
-                                    Message inputMessage,
+    private boolean isValidOrdering(List<String> parameterOrder, Message inputMessage,
                                     Message outputMessage) {
         Iterator<String> params = parameterOrder.iterator();
 

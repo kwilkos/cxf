@@ -120,6 +120,15 @@
             </associatedArgument>
         </option>
 
+        <option id="exsoapheader" maxOccurs="1">
+            <annotation>To enable processing of extended soap header message binding</annotation>
+            <switch>exsh</switch>
+            <associatedArgument placement="afterSpace">
+                <annotation>enable extended soap header message binding (true, false)</annotation>
+                <valueenum>true|false</valueenum>
+            </associatedArgument>
+        </option>
+
 	</optionGroup>
 	<optionGroup id="common_options">
 	    <option id="help" maxOccurs="1">
