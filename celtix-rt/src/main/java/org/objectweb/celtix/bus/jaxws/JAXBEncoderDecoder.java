@@ -28,6 +28,8 @@ import javax.xml.ws.ResponseWrapper;
 
 import org.w3c.dom.Node;
 
+import org.objectweb.celtix.common.util.StringUtils;
+
 /**
  * JAXBEncoderDecoder
  * @author apaibir
@@ -235,7 +237,7 @@ public final class JAXBEncoderDecoder {
             
             if (obj instanceof JAXBElement<?>) {
                 JAXBElement<?> el = (JAXBElement<?>)obj;
-                if (el.getName().equals(elName)) {
+                if (isSame(el.getName(), elName)) {
                     obj = el.getValue();
                 }
             }
@@ -243,6 +245,16 @@ public final class JAXBEncoderDecoder {
             throw new ProtocolException("Unmarshalling error", ex);
         }
         return obj;
+    }
+
+    private static boolean isSame(QName messageQName, QName methodQName) {
+        boolean same = false;
+        if (StringUtils.isEmpty(messageQName.getNamespaceURI())) {
+            same = messageQName.getLocalPart().equals(methodQName.getLocalPart());
+        } else {
+            same = messageQName.equals(methodQName);
+        }
+        return same;
     }
 
     public static Object unmarshall(JAXBContext context, Node srcNode, QName elName) {

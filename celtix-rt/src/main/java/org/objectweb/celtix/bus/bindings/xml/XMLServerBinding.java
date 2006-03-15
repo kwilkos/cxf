@@ -101,9 +101,8 @@ public class XMLServerBinding extends AbstractServerBinding {
                                 while (n.getNodeType() != Node.ELEMENT_NODE) {
                                     n = nl.item(++nodeIdx);
                                 }
-                                
-                                if (n.getLocalName().equals(param.name()) 
-                                    && n.getNamespaceURI().equals(param.targetNamespace())) {
+
+                                if (isMethodMatch(n, param)) {
                                     matchFound = true;
                                     ++nodeIdx;
                                 } else {
@@ -144,6 +143,19 @@ public class XMLServerBinding extends AbstractServerBinding {
         }
         LOG.log(Level.INFO, "OPERATION_NAME_RETREIVAL", op);
         return op;
+    }
+
+    private boolean isMethodMatch(Node node, WebParam param) {
+        boolean found = false;
+        String nNS = node.getNamespaceURI();
+        if (nNS != null) {
+            if (param.name().equals(node.getLocalName()) && nNS.equals(param.targetNamespace())) {
+                found = true;
+            }
+        } else if (param.name().equals(node.getLocalName())) {
+            found = true;
+        }
+        return found;
     }
 
     public boolean isBindingCompatible(String address) {
