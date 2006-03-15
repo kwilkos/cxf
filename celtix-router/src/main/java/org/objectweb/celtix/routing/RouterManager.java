@@ -1,8 +1,10 @@
 package org.objectweb.celtix.routing;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.wsdl.Definition;
 import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.Bus;
@@ -23,11 +25,13 @@ public final class RouterManager {
         "config-metadata/router-config.xml";
     private final Bus bus;
     private final Configuration config;
-    private RouterFactory factory;    
+    private RouterFactory factory;
+    private List<Definition> wsdlModelList;
     
     public RouterManager(Bus b) {
         bus = b;
         config = createConfiguration();
+        wsdlModelList = new ArrayList<Definition>();
     }
 
     private Configuration createConfiguration() {
@@ -53,7 +57,7 @@ public final class RouterManager {
             List<String> wsdlUrlList = getRouteWSDLList();
             for (String wsdlUrl : wsdlUrlList) {
                 URL url = getClass().getResource(wsdlUrl);
-                bus.getWSDLManager().getDefinition(url);
+                wsdlModelList.add(bus.getWSDLManager().getDefinition(url));
             }
         } catch (Exception we) {
             throw new WebServiceException("Could not load router wsdl", we);
@@ -61,9 +65,11 @@ public final class RouterManager {
     }
     
     public void init() {
-        loadWSDL();
         factory = new RouterFactory();
         factory.init(bus);
+        loadWSDL();
+        
+        factory.addRoutes(wsdlModelList);
     }
     
     public List<String> getRouteWSDLList() {
@@ -84,6 +90,7 @@ public final class RouterManager {
             Bus.setCurrent(bus);
             RouterManager rm = new RouterManager(bus);
             rm.init();
+            bus.run();
         } catch (BusException be) {
             throw new WebServiceException("Could not initialize bus", be);
         }

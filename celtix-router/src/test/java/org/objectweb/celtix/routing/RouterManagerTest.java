@@ -5,12 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.wsdl.WSDLException;
-
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.common.i18n.Exception;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class RouterManagerTest extends TestCase {
@@ -57,16 +54,11 @@ public class RouterManagerTest extends TestCase {
         List<String> urlList = rm.getRouteWSDLList();
         WSDLManager wsdlManager = Bus.getCurrent().getWSDLManager();
         
-        try {
-            for (String wsdlUrl : urlList) {
-                URL url = getClass().getResource(wsdlUrl);
-                assertNotNull("Should have a valid wsdl definition", 
-                              wsdlManager.getDefinition(url));
-            }
-        } catch (WSDLException we) {
-            fail("Should not have thrown a wsdl exception");
+        for (String wsdlUrl : urlList) {
+            URL url = getClass().getResource(wsdlUrl);
+            assertNotNull("Should have a valid wsdl definition", 
+                          wsdlManager.getDefinition(url));
         }
-        
         assertNotNull("Router Factory should be intialized", rm.getRouterFactory());
     }
     
