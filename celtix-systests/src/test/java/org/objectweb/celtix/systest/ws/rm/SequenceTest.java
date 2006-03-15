@@ -20,7 +20,10 @@ import junit.framework.TestSuite;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
+import org.objectweb.celtix.bus.busimpl.BusConfigurationBuilder;
 import org.objectweb.celtix.bus.ws.rm.Names;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.hello_world_soap_http.Greeter;
@@ -55,6 +58,13 @@ public class SequenceTest extends ClientServerTestBase {
                 // via maven on Win2k
                 assertTrue("server did not launch correctly", launchServer(Server.class, "Windows 2000"
                     .equals(System.getProperty("os.name"))));
+            }
+            
+            public void setUp() throws Exception {
+                // avoid re-using a previously created configuration for a bus with id "celtix"
+                ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
+                builder.buildConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI, "celtix");
+                super.setUp();
             }
         };
     }
