@@ -37,13 +37,16 @@ import com.sun.tools.xjc.api.SchemaCompiler;
 import com.sun.tools.xjc.api.XJC;
 
 import org.apache.velocity.app.Velocity;
+
+import org.objectweb.celtix.common.util.StringUtils;
+
 import org.objectweb.celtix.tools.common.Processor;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
+
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddressSerializer;
-
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormat;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatBinding;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatBindingSerializer;
@@ -57,7 +60,6 @@ import org.objectweb.celtix.tools.jaxws.JAXWSBindingSerializer;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassNameAllocatorImpl;
 import org.objectweb.celtix.tools.utils.JAXBUtils;
-import org.objectweb.celtix.tools.utils.StringUtils;
 import org.objectweb.celtix.tools.wsdl2.validate.AbstractValidator;
 
 public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorListener {

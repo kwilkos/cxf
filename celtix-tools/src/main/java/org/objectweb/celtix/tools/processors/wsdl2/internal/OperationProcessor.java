@@ -13,6 +13,7 @@ import javax.wsdl.Part;
 import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.util.StringUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
@@ -25,7 +26,6 @@ import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 import org.objectweb.celtix.tools.utils.SOAPBindingUtil;
-import org.objectweb.celtix.tools.utils.StringUtils;
 
 public class OperationProcessor  extends AbstractProcessor {
     private static final Logger LOG = LogUtils.getL7dLogger(OperationProcessor.class);
