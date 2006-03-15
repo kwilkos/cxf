@@ -317,6 +317,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         String[] args = new String[]{"-d", output.getCanonicalPath(),
                                      "-nexclude", 
                                      "http://objectweb.org/test/types=com.iona",
+                                     "-nexclude",
+                                     "http://objectweb.org/Invoice",
                                      getLocation("/wsdl/hello_world_exclude.wsdl")};
         WSDLToJava.main(args);
         
@@ -325,9 +327,14 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(com.exists());
         File iona = new File(com, "iona");
         assertTrue(iona.exists());
-
         File[] files = iona.listFiles();
         assertEquals(17, files.length);
+
+        File org = new File(output, "org");
+        File objectweb = new File(org, "objectweb");
+        File invoice = new File(objectweb, "Invoice");
+        assertTrue(!invoice.exists());
+        
     }
 
     public void testExcludeNSWithoutPackageName() throws Exception {

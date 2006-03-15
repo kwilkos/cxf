@@ -8,6 +8,7 @@
     targetNamespace="http://objectweb.org/hello_world_soap_http" name="HelloWorld">
     <wsdl:types>
         <schema targetNamespace="http://objectweb.org/test/types" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://objectweb.org/test/types" elementFormDefault="qualified">
+        	<import namespace="http://objectweb.org/Invoice" schemaLocation="Invoice.xsd"/>
             <element name="sayHi">
                 <complexType/>
             </element>
