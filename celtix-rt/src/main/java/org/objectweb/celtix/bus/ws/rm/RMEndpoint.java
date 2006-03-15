@@ -51,7 +51,7 @@ public class RMEndpoint {
      * @param id the sequence identifier.
      * @return the sequence.
      */
-    public Sequence getSequence(Identifier id) {
+    public Sequence getSequence(Identifier id) {        
         return map.get(id.getValue());
     }
     

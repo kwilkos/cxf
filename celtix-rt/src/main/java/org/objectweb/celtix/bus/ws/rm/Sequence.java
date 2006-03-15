@@ -60,6 +60,7 @@ public class Sequence {
         id = i;
         type = t;
         acked = RMUtils.getWSRMFactory().createSequenceAcknowledgement();
+        acked.setIdentifier(id);
     }
 
     /**

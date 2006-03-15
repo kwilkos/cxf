@@ -83,18 +83,18 @@ public class RMSource extends RMEndpoint {
     }
 
     /**
-     * Stores the received acknowledgement in the Sequence object identified in
-     * the <code>SequenceAcknowldegement</code> parameter. Then evicts any
+     * Stores the received acknowledgment in the Sequence object identified in
+     * the <code>SequenceAcknowldgement</code> parameter. Then evicts any
      * acknowledged messages from the retransmission queue and requests sequence
      * termination if necessary.
      * 
-     * @param acknowledgement
+     * @param acknowledgment
      */
-    public void setAcknowledged(SequenceAcknowledgement acknowledgement) {
-        Identifier sid = acknowledgement.getIdentifier();
-        Sequence seq = getSequence(sid);
+    public void setAcknowledged(SequenceAcknowledgement acknowledgment) {
+        Identifier sid = acknowledgment.getIdentifier();
+        Sequence seq = getSequence(sid);        
         if (null != seq) {
-            seq.setAcknowledged(acknowledgement);
+            seq.setAcknowledged(acknowledgment);
             retransmissionQueue.evict(seq);
         }
     }

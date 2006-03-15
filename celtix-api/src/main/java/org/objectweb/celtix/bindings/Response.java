@@ -46,6 +46,10 @@ public class Response {
         return objectCtx;
     }
     
+    public MessageContext getBindingMessageContext() {
+        return bindingCtx;
+    }
+    
     public void setObjectMessageContext(ObjectMessageContext o) {
         objectCtx = o;
         if (null != bindingCtx) {

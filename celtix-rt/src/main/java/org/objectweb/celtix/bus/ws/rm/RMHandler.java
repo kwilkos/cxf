@@ -24,6 +24,7 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.SystemHandler;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
@@ -220,7 +221,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         
         // not for partial responses to oneway requests
 
-        if (!(isServerSide() && BindingContextUtils.isOneway(context))) {
+        if (!(isServerSide() && BindingContextUtils.isOnewayTransport(context))) {
             Sequence seq = source.getCurrent();
             if (null == seq) {
                 // TODO: better error handling
@@ -256,7 +257,14 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             AttributedURI to = VersionTransformer.convert(maps.getTo());
             assert null != to;
             addAcknowledgements(context, to);
-        }     
+        } 
+        
+        // indicate to the binding that a response is expected from the transport although 
+        // the web method is a oneway method
+        
+        if (!isServerSide() && BindingContextUtils.isOnewayMethod(context)) {
+            context.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, Boolean.FALSE);
+        }
 
     }
 
@@ -330,7 +338,10 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
         processAcknowledgmentRequests(context);
 
-        processSequence(context);
+        // only for application messages 
+        if (null != action) {
+            processSequence(context);
+        }
 
         // clean up
         RMContextUtils.removeRMProperties(context);
@@ -347,8 +358,6 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
     private void processSequence(LogicalMessageContext context) {        
         SequenceType s = RMContextUtils.retrieveSequence(context);
-        LOG.info("destination acknowledging receipt of message " + s.getMessageNumber().intValue()
-                 + " in sequence " + s.getIdentifier().getValue());
         destination.acknowledge(s);
     }
 

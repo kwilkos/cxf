@@ -123,7 +123,20 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
             OutputStreamMessageContext ostreamCtx = request.process(null);
 
             if (null != ostreamCtx) {
-                transport.invokeOneway(ostreamCtx);
+                // one of the (system handlers) may have indicated that it expects 
+                // headers to be piggybacked in the response 
+                // if this is the case, use the transports invoke rather than invokeOneway
+                // to give the handlers a chance to process these headers
+                
+                if (BindingContextUtils.isOnewayTransport(ostreamCtx)) {
+                    transport.invokeOneway(ostreamCtx);
+                } else {
+                    LOG.fine("Sending message as a twoway request as required by system handlers.");
+                    InputStreamMessageContext istreamCtx = transport.invoke(ostreamCtx);
+                    Response response = new Response(request);     
+                    response.processProtocol(istreamCtx);
+                    response.processLogical(null);
+                }                
             }
 
         } finally {

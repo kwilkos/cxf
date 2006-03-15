@@ -56,7 +56,7 @@ public final class BindingContextUtils {
     public static DataBindingCallback retrieveDataBindingCallback(MessageContext context) {
         return (DataBindingCallback)context.get(DATABINDING_CALLBACK_PROPERTY);
     }
-    
+        
     /**
      * Store server binding endpoint callback in message context.
      *
@@ -106,16 +106,27 @@ public final class BindingContextUtils {
      * with a Oneway annotation.
      * 
      * @param context
-     * @return true if a method objetc is stored in the context and it has a Oneway annotation.
+     * @return true if a method object is stored in the context and it has a Oneway annotation.
      */
-    public static boolean isOneway(MessageContext context) {
-        Boolean b = (Boolean)context.get(OutputStreamMessageContext.ONEWAY_MESSAGE_TF);
-        if (null != b) {
-            return b.booleanValue();
-        }
+    public static boolean isOnewayMethod(MessageContext context) {
         Method method = BindingContextUtils.retrieveMethod(context);
         if (method != null) {
             return method.getAnnotation(Oneway.class) != null;
+        }
+        return false;
+    }
+    
+    /**
+     * Checks if a the oneway property is set in the context if its value is true
+     * (indicating that no response is expected from the transport).
+     * 
+     * @param context
+     * @return true if a method object is stored in the context and it has a Oneway annotation.
+     */
+    public static boolean isOnewayTransport(MessageContext context) {
+        Boolean b = (Boolean)context.get(OutputStreamMessageContext.ONEWAY_MESSAGE_TF);
+        if (null != b) {
+            return b.booleanValue();
         }
         return false;
     }

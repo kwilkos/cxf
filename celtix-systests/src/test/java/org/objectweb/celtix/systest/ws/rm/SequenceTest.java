@@ -111,11 +111,16 @@ public class SequenceTest extends ClientServerTestBase {
         verifyActions(expectedActions, true);
         verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);  
         
-        // createSequenceResponse only
-        assertEquals(1, inboundMessages.size());
-        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION}; 
+        // createSequenceResponse plus three partial responses
+        assertEquals(4, inboundMessages.size());
+        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null}; 
         verifyActions(expectedActions, false);
-        verifyMessageNumbers(new String[] {null}, false);  
+        verifyMessageNumbers(new String[] {null, null, null, null}, false);
+        assertNull(getAcknowledgment(inboundMessages.get(0)));
+        for (int i = 1; i < 4; i++) {
+            assertNotNull(getAcknowledgment(inboundMessages.get(i)));
+        }
+        
     }
     
     
@@ -193,6 +198,23 @@ public class SequenceTest extends ClientServerTestBase {
                                                                       "MessageNumber")).next();
         return se.getTextContent();
     }
+    
+    private SOAPElement getAcknowledgment(SOAPMessage msg) throws Exception {
+        SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
+        SOAPHeader header = env.getHeader();
+        Iterator headerElements = header.examineAllHeaderElements();
+        while (headerElements.hasNext()) {
+            SOAPHeaderElement headerElement = 
+                (SOAPHeaderElement)headerElements.next();
+            Name headerName = headerElement.getElementName();
+            String localName = headerName.getLocalName(); 
+            if (headerName.getURI().equals(Names.WSRM_NAMESPACE_NAME) 
+                && localName.equals(Names.WSRM_SEQUENCE_ACK_NAME)) {
+                return (SOAPElement)header.getChildElements().next();                   
+            }
+        }
+        return null;
+    }    
    
 
 }
