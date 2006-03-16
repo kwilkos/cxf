@@ -74,10 +74,8 @@ public class SequenceTest extends ClientServerTestBase {
 
         bus = Bus.init();
 
-        System.out.println("------- before configureClient");
         TestConfigurator tc = new TestConfigurator();
         tc.configureClient(SERVICE_NAME, PORT_NAME.getLocalPart());
-        System.out.println("------- after configureClient");
 
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         SOAPService service = new SOAPService(wsdl, SERVICE_NAME);

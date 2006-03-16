@@ -34,8 +34,6 @@ public class TestConfigurator {
     public void configureClient(String busId, QName serviceName, String portName) {
         Configuration busCfg = getBusConfiguration(busId);
 
-        System.out.println("------- bugCfg: " + busCfg);
-
         String id = serviceName.toString() + "/" + portName;
 
         Configuration portCfg = builder.getConfiguration(ServiceImpl.PORT_CONFIGURATION_URI,
