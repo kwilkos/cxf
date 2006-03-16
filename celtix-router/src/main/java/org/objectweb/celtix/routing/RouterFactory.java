@@ -119,7 +119,6 @@ public class RouterFactory {
     }
     
     public Router createRouter(Definition model, RouteType route) {
-        //Router router = new Router();
-        return new Router();
+        return new Router(model, route);
     }
 }
