@@ -171,6 +171,7 @@ public class WSDLToXMLProcessor extends WSDLToProcessor {
         binding.addExtensibilityElement(xmlBinding);
     }
 
+    @SuppressWarnings("unchecked")
     private void addBindingOperation() throws ToolException {
         List<Operation> ops = portType.getOperations();
         for (Operation op : ops) {
