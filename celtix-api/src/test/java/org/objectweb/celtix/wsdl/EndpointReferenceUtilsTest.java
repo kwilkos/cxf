@@ -87,6 +87,10 @@ public class EndpointReferenceUtilsTest extends TestCase {
             return reader.readWSDL(url);
         }
 
+        public void shutdown() {
+            // do nothing            
+        }
+
     };
 
     @WebServiceProvider(wsdlLocation = "resources/Test.wsdl",

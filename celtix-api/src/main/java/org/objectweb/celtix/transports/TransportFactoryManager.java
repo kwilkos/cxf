@@ -38,4 +38,9 @@ public interface TransportFactoryManager {
      * @throws BusException
      */
     TransportFactory getTransportFactory(String name) throws BusException;
+    
+    /**
+     * Shuts down the TransportFactoryManager and do clean up things.
+     */
+    void shutdown();
 }

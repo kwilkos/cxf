@@ -39,4 +39,9 @@ public interface BindingManager {
      * @throws BusException If there is an error retrieving the BindingFactory.
      */
     BindingFactory getBindingFactory(String name) throws BusException;
+    
+    /**
+     * Shuts down the BindingManager and do clean up things.
+     */
+    void shutdown();
 }

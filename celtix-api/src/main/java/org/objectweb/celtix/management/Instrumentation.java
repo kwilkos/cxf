@@ -9,7 +9,8 @@ public interface Instrumentation {
 
     /**
      * get the Instrumentation Name, this name is base on class 
-     * which implement instrumentation interface      
+     * which implement instrumentation interface
+     * @return the instrumentation name      
      */
     String getInstrumentationName();    
     
@@ -21,7 +22,8 @@ public interface Instrumentation {
     
     /**
      * get the unique Instrumentation Name, this name is base on class instance
-     * which implement instrumentation interface  
+     * which implement instrumentation interface
+     * @return the instrumentation name and instance number  
      */
     String getUniqueInstrumentationName();
        

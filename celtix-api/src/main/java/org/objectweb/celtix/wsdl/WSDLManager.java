@@ -65,4 +65,9 @@ public interface WSDLManager {
      * @return the wsdl Definition
      */
     Definition getDefinition(Class<?> sei) throws WSDLException;
+    
+    /**
+     * Shouts down the WSDL manager, and do clean up things
+     */
+    void shutdown();
 }
