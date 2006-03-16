@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 
 import javax.jws.WebParam;
+import javax.jws.WebResult;
+import javax.jws.soap.SOAPBinding;
 import javax.xml.ws.Holder;
 
 import org.objectweb.celtix.tools.WSDLToJava;
@@ -42,6 +44,32 @@ public class WSDLToJavaExSoapHeaderTest
         assertEquals("INOUT", webParamAnno.mode().name());
         assertEquals(true, webParamAnno.header());
         assertEquals("inoutHeader", webParamAnno.partName());
+    }
+
+    public void testSoapHeaderBinding() throws Exception {
+        String[] args = new String[] {"-d", output.getCanonicalPath(), "-compile",
+                                      getLocation("/wsdl/soapheader_test.wsdl")};
+        WSDLToJava.main(args);
+
+        Class clz = classLoader.loadClass("org.objectweb.header_test.TestHeader");
+        Class paramClz = classLoader.loadClass("org.objectweb.header_test.types.TestHeader5");
+        assertEquals(5, clz.getMethods().length);
+        
+        Method method = clz.getMethod("testHeader5", new Class[] {paramClz});
+        if (method == null) {
+            fail("Missing method testHeader5 of TestHeader class!");
+        }
+
+        SOAPBinding soapBindingAnno = AnnotationUtil.getPrivMethodAnnotation(method, SOAPBinding.class);
+        assertEquals("BARE", soapBindingAnno.parameterStyle().name());
+
+        WebResult webResultAnno = AnnotationUtil.getWebResult(method);
+        if (webResultAnno == null) {
+            fail("Missing 'in' WebParam Annotation of method testHeader5!");
+        }        
+        assertEquals(true, webResultAnno.header());
+        assertEquals("outHeader", webResultAnno.partName());
+        assertEquals("testHeader5", webResultAnno.name());
     }
 
     private String getLocation(String wsdlFile) {

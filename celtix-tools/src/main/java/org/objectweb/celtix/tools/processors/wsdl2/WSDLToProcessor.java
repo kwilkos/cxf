@@ -1,6 +1,8 @@
 package org.objectweb.celtix.tools.processors.wsdl2;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,7 +41,6 @@ import com.sun.tools.xjc.api.XJC;
 import org.apache.velocity.app.Velocity;
 
 import org.objectweb.celtix.common.util.StringUtils;
-
 import org.objectweb.celtix.tools.common.Processor;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
@@ -51,6 +52,8 @@ import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormat;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatBinding;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatBindingSerializer;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatSerializer;
+import org.objectweb.celtix.tools.extensions.xmlformat.XMLHttpAddress;
+import org.objectweb.celtix.tools.extensions.xmlformat.XMLHttpSerializer;
 
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 import org.objectweb.celtix.tools.jaxws.CustomizationParser;
@@ -59,10 +62,13 @@ import org.objectweb.celtix.tools.jaxws.JAXWSBindingDeserializer;
 import org.objectweb.celtix.tools.jaxws.JAXWSBindingSerializer;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassNameAllocatorImpl;
+import org.objectweb.celtix.tools.utils.FileWriterUtil;
 import org.objectweb.celtix.tools.utils.JAXBUtils;
 import org.objectweb.celtix.tools.wsdl2.validate.AbstractValidator;
 
 public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorListener {
+
+    protected static final String WSDL_FILE_NAME_EXT = ".wsdl";
 
     protected Definition wsdlDefinition;
     protected ProcessorEnvironment env;
@@ -75,7 +81,50 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     private final List<AbstractValidator> validators = new ArrayList<AbstractValidator>();
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
     private List<String> schemaTargetNamespaces = new ArrayList<String>();
-    
+
+    protected Writer getOutputWriter(String newNameExt) throws ToolException {
+        Writer writer = null;
+        String newName = null;
+        String outputDir;
+
+        if (env.get(ToolConstants.CFG_OUTPUTFILE) != null) {
+            newName = (String)env.get(ToolConstants.CFG_OUTPUTFILE);
+        } else {
+            String oldName = (String)env.get(ToolConstants.CFG_WSDLURL);
+            int position = oldName.lastIndexOf("/");
+            if (position < 0) {
+                position = oldName.lastIndexOf("\\");
+            }
+            if (position >= 0) {
+                oldName = oldName.substring(position + 1, oldName.length());
+            }
+            if (oldName.toLowerCase().indexOf(WSDL_FILE_NAME_EXT) >= 0) {
+                newName = oldName.substring(0, oldName.length() - 5) + newNameExt
+                          + WSDL_FILE_NAME_EXT;
+            } else {
+                newName = oldName + newNameExt;
+            }
+        }
+        if (env.get(ToolConstants.CFG_OUTPUTDIR) != null) {
+            outputDir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
+            if (!("/".equals(outputDir.substring(outputDir.length() - 1))
+                  || "\\".equals(outputDir.substring(outputDir.length() - 1)))) {
+                outputDir = outputDir + "/";
+            }
+        } else {
+            outputDir = "./";
+        }
+        FileWriterUtil fw = new FileWriterUtil(outputDir);
+        try {
+            writer = fw.getWriter("", newName);
+        } catch (IOException ioe) {
+            throw new ToolException("Failed to write " + env.get(ToolConstants.CFG_OUTPUTDIR)
+                                    + System.getProperty("file.seperator") + newName, ioe);
+        }
+        return writer;
+    }
+
+
     protected void parseWSDL(String wsdlURL) throws ToolException {
         try {
             wsdlFactory = WSDLFactory.newInstance();
@@ -92,8 +141,8 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
 
     private void buildWSDLDefinition() {
         for (Definition def : importedDefinitions) {
-            this.wsdlDefinition.addNamespace(def.getPrefix(def.getTargetNamespace()),
-                                             def.getTargetNamespace());
+            this.wsdlDefinition.addNamespace(def.getPrefix(def.getTargetNamespace()), def
+                .getTargetNamespace());
             Object[] services = def.getServices().values().toArray();
             for (int i = 0; i < services.length; i++) {
                 this.wsdlDefinition.addService((Service)services[i]);
@@ -108,20 +157,20 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             for (int i = 0; i < bindings.length; i++) {
                 this.wsdlDefinition.addBinding((Binding)bindings[i]);
             }
-            
+
             Object[] portTypes = def.getPortTypes().values().toArray();
             for (int i = 0; i < portTypes.length; i++) {
                 this.wsdlDefinition.addPortType((PortType)portTypes[i]);
             }
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private void parseImports(Definition def) {
         List<Import> importList = new ArrayList<Import>();
         Map imports = def.getImports();
         for (Iterator iter = imports.keySet().iterator(); iter.hasNext();) {
-            String uri = (String) iter.next();
+            String uri = (String)iter.next();
             importList.addAll((List<Import>)imports.get(uri));
         }
         for (Import impt : importList) {
@@ -165,7 +214,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             }
         }
     }
-    
+
     private void initJAXBModel() {
         extractSchema(wsdlDefinition);
         for (Definition def : importedDefinitions) {
@@ -181,16 +230,15 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
 
         buildJaxbModel();
     }
-    
+
     @SuppressWarnings("unchecked")
     private void buildJaxbModel() {
         SchemaCompiler schemaCompiler = XJC.createSchemaCompiler();
 
-
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classColletor);
 
-        allocator.setPortTypes(wsdlDefinition.getPortTypes().values(),
-                               env.mapPackageName(this.wsdlDefinition.getTargetNamespace()));
+        allocator.setPortTypes(wsdlDefinition.getPortTypes().values(), env.mapPackageName(this.wsdlDefinition
+            .getTargetNamespace()));
         schemaCompiler.setClassNameAllocator(allocator);
         schemaCompiler.setErrorListener(this);
         for (Schema schema : schemaList) {
@@ -200,10 +248,10 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             if (targetNamespace == null || targetNamespace.trim().length() == 0) {
                 continue;
             }
-            if (env.hasExcludeNamespace(targetNamespace) 
-                        && env.getExcludePackageName(targetNamespace) == null) {
+            if (env.hasExcludeNamespace(targetNamespace)
+                && env.getExcludePackageName(targetNamespace) == null) {
                 continue;
-            }            
+            }
             customizeSchema(schemaElement, targetNamespace);
             String systemid = schema.getDocumentBaseURI();
             schemaCompiler.parseSchema(systemid, schemaElement);
@@ -213,8 +261,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             schemaCompiler.parseSchema(bindingFile);
         }
         rawJaxbModel = schemaCompiler.bind();
-       
-        
+
     }
 
     private boolean isSchemaParsed(String targetNamespace) {
@@ -225,14 +272,14 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             return true;
         }
     }
-    
+
     private void customizeSchema(Element schema, String targetNamespace) {
         String userPackage = env.mapPackageName(targetNamespace);
-        if (env.hasExcludeNamespace(targetNamespace) 
-                && env.getExcludePackageName(targetNamespace) != null) {
-            //generate excluded namespace types classes with specified package name
+        if (env.hasExcludeNamespace(targetNamespace) && env.getExcludePackageName(targetNamespace) != null) {
+            // generate excluded namespace types classes with specified package
+            // name
             userPackage = env.getExcludePackageName(targetNamespace);
-        }        
+        }
         if (!isSchemaParsed(targetNamespace) && !StringUtils.isEmpty(userPackage)) {
             Node jaxbBindings = JAXBUtils.innerJaxbPackageBinding(schema, userPackage);
             schema.appendChild(jaxbBindings);
@@ -256,7 +303,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     private boolean isSchemaImported(Schema schema) {
         return schemaList.contains(schema);
     }
-    
+
     @SuppressWarnings("unchecked")
     private void addSchema(Schema schema) {
         Map<String, List> imports = schema.getImports();
@@ -284,15 +331,15 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     }
 
     protected void init() throws ToolException {
-        
+
         parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));
         parseCustomization();
         initVelocity();
         classColletor = new ClassCollector();
-        env.put(ToolConstants.GENERATED_CLASS_COLLECTOR , classColletor);
-         
+        env.put(ToolConstants.GENERATED_CLASS_COLLECTOR, classColletor);
+
         initJAXBModel();
-       
+
     }
 
     public S2JJAXBModel getRawJaxbModel() {
@@ -306,15 +353,14 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     public void addGenerator(String name, AbstractGenerator gen) {
         generators.put(name, gen);
     }
-    
+
     public void addValidator(AbstractValidator validator) {
         this.validators.add(validator);
     }
-    
 
     public void process() throws ToolException {
     }
-    
+
     public void validateWSDL() throws ToolException {
         for (AbstractValidator validator : validators) {
             if (!validator.isValid()) {
@@ -322,8 +368,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             }
         }
     }
-    
-    
+
     protected void doGeneration() throws ToolException {
         for (String genName : generators.keySet()) {
             AbstractGenerator gen = generators.get(genName);
@@ -338,7 +383,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     public ProcessorEnvironment getEnvironment() {
         return this.env;
     }
-    
+
     private void registerExtenstions(WSDLReader reader) {
         ExtensionRegistry registry = reader.getExtensionRegistry();
         if (registry == null) {
@@ -352,69 +397,51 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         registerJAXWSBinding(registry, BindingOperation.class);
 
         registerJMSAddress(registry, Port.class);
-        
+
         registerXMLFormat(registry, BindingInput.class);
         registerXMLFormat(registry, BindingOutput.class);
         registerXMLFormatBinding(registry, Binding.class);
-        
+        registerXMLHttpAddress(registry, Port.class);
+
         reader.setExtensionRegistry(registry);
     }
 
     private void registerXMLFormat(ExtensionRegistry registry, Class clz) {
-        registry.registerSerializer(clz,
-                                    ToolConstants.XML_FORMAT,
-                                    new XMLFormatSerializer());
+        registry.registerSerializer(clz, ToolConstants.XML_FORMAT, new XMLFormatSerializer());
 
-        registry.registerDeserializer(clz,
-                                      ToolConstants.XML_FORMAT,
-                                      new XMLFormatSerializer());
-        registry.mapExtensionTypes(clz,
-                                   ToolConstants.XML_FORMAT,
-                                   XMLFormat.class);
+        registry.registerDeserializer(clz, ToolConstants.XML_FORMAT, new XMLFormatSerializer());
+        registry.mapExtensionTypes(clz, ToolConstants.XML_FORMAT, XMLFormat.class);
     }
-    
+
     private void registerXMLFormatBinding(ExtensionRegistry registry, Class clz) {
-        registry.registerSerializer(clz,
-                                    ToolConstants.XML_BINDING_FORMAT,
-                                    new XMLFormatBindingSerializer());
-    
-        registry.registerDeserializer(clz,
-                                      ToolConstants.XML_BINDING_FORMAT,
-                                      new XMLFormatBindingSerializer());
-        registry.mapExtensionTypes(clz,
-                                   ToolConstants.XML_BINDING_FORMAT,
-                                   XMLFormatBinding.class);
-    }
-    
-    private void registerJMSAddress(ExtensionRegistry registry, Class clz) {
-        registry.registerSerializer(clz,
-                                    ToolConstants.JMS_ADDRESS,
-                                    new JMSAddressSerializer());
-        
-        registry.registerDeserializer(clz,
-                                      ToolConstants.JMS_ADDRESS,
-                                      new JMSAddressSerializer());
-        registry.mapExtensionTypes(clz,
-                                   ToolConstants.JMS_ADDRESS,
-                                   JMSAddress.class);
-    }
-    
-    private void registerJAXWSBinding(ExtensionRegistry registry, Class clz) {
-        registry.registerSerializer(clz,
-                                    ToolConstants.JAXWS_BINDINGS,
-                                    new JAXWSBindingSerializer());
-        
-        registry.registerDeserializer(clz,
-                                      ToolConstants.JAXWS_BINDINGS,
-                                      new JAXWSBindingDeserializer());
-        registry.mapExtensionTypes(clz,
-                                   ToolConstants.JAXWS_BINDINGS,
-                                   JAXWSBinding.class);
+        registry.registerSerializer(clz, ToolConstants.XML_BINDING_FORMAT, new XMLFormatBindingSerializer());
+
+        registry
+            .registerDeserializer(clz, ToolConstants.XML_BINDING_FORMAT, new XMLFormatBindingSerializer());
+        registry.mapExtensionTypes(clz, ToolConstants.XML_BINDING_FORMAT, XMLFormatBinding.class);
     }
 
-  
-    
-    
+    private void registerXMLHttpAddress(ExtensionRegistry registry, Class clz) {
+        registry.registerSerializer(clz, ToolConstants.XML_HTTP_ADDRESS, new XMLHttpSerializer());
+
+        registry.registerDeserializer(clz, ToolConstants.XML_HTTP_ADDRESS, new XMLHttpSerializer());
+        registry.mapExtensionTypes(clz, ToolConstants.XML_HTTP_ADDRESS, XMLHttpAddress.class);
+    }
+
+    private void registerJMSAddress(ExtensionRegistry registry, Class clz) {
+        registry.registerSerializer(clz, ToolConstants.JMS_ADDRESS, new JMSAddressSerializer());
+
+        registry.registerDeserializer(clz, ToolConstants.JMS_ADDRESS, new JMSAddressSerializer());
+        registry.mapExtensionTypes(clz, ToolConstants.JMS_ADDRESS, JMSAddress.class);
+    }
+
+    private void registerJAXWSBinding(ExtensionRegistry registry, Class clz) {
+        registry.registerSerializer(clz, ToolConstants.JAXWS_BINDINGS, new JAXWSBindingSerializer());
+
+        registry.registerDeserializer(clz, ToolConstants.JAXWS_BINDINGS, new JAXWSBindingDeserializer());
+        registry.mapExtensionTypes(clz, ToolConstants.JAXWS_BINDINGS, JAXWSBinding.class);
+    }
+
     public void error(org.xml.sax.SAXParseException exception) {
         if (this.env.isVerbose()) {
             exception.printStackTrace();
@@ -442,4 +469,5 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             System.err.println("Parsing schema warning " + exception.toString());
         }
     }
+
 }

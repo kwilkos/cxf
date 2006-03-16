@@ -22,9 +22,6 @@
   <wsdl:message name="greetMeRequest">
     <wsdl:part element="tns:requestType" name="me"/>
   </wsdl:message>
-  <wsdl:message name="greetMeResponse">
-    <wsdl:part element="tns:responseType" name="theResponse"/>
-  </wsdl:message>
 
   <wsdl:portType name="Greeter">
     <wsdl:operation name="sayHi">

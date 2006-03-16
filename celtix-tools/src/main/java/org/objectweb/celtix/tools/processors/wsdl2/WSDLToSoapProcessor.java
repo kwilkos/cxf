@@ -28,13 +28,10 @@ import javax.xml.namespace.QName;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.WSDLConstants;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
-import org.objectweb.celtix.tools.utils.FileWriterUtil;
 
-public class WSDLToSoapProcessor
-    extends WSDLToProcessor {
+public class WSDLToSoapProcessor extends WSDLToProcessor {
 
     private static final String NEW_FILE_NAME_MODIFIER = "-soapbinding";
-    private static final String WSDL_FILE_NAME_EXT = ".wsdl";
 
     private ExtensionRegistry extReg;
 
@@ -54,7 +51,7 @@ public class WSDLToSoapProcessor
             throw new ToolException("For rpc style binding, soap name space (-n) must be provided.");
         }
         extReg = this.wsdlReader.getExtensionRegistry();
-        doAppendService();
+        doAppendBinding();
     }
 
     private boolean isPortTypeExisted() {
@@ -103,7 +100,7 @@ public class WSDLToSoapProcessor
         parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));
     }
 
-    private void doAppendService() throws ToolException {
+    private void doAppendBinding() throws ToolException {
         if (binding == null) {
             binding = wsdlDefinition.createBinding();
             binding.setQName(new QName(wsdlDefinition.getTargetNamespace(), (String)env
@@ -116,7 +113,7 @@ public class WSDLToSoapProcessor
         wsdlDefinition.addBinding(binding);
 
         WSDLWriter wsdlWriter = wsdlFactory.newWSDLWriter();
-        Writer outputWriter = getOutputWriter();
+        Writer outputWriter = getOutputWriter(NEW_FILE_NAME_MODIFIER);
         try {
             wsdlWriter.writeWSDL(wsdlDefinition, outputWriter);
         } catch (WSDLException wse) {
@@ -125,8 +122,7 @@ public class WSDLToSoapProcessor
         try {
             outputWriter.close();
         } catch (IOException ioe) {
-            throw new ToolException("close wsdl output file failed, due to " + ioe.getMessage(),
-                                    ioe);
+            throw new ToolException("close wsdl output file failed, due to " + ioe.getMessage(), ioe);
         }
     }
 
@@ -136,8 +132,7 @@ public class WSDLToSoapProcessor
         }
         SOAPBinding soapBinding = null;
         try {
-            soapBinding = (SOAPBinding)extReg.createExtension(Binding.class,
-                                                              WSDLConstants.NS_SOAP_BINDING);
+            soapBinding = (SOAPBinding)extReg.createExtension(Binding.class, WSDLConstants.NS_SOAP_BINDING);
         } catch (WSDLException wse) {
             throw new ToolException("Create soap binding ext element failed, due to " + wse);
         }
@@ -231,8 +226,7 @@ public class WSDLToSoapProcessor
         return soapBody;
     }
 
-    private void addSoapFaults(Operation op, BindingOperation bindingOperation)
-        throws ToolException {
+    private void addSoapFaults(Operation op, BindingOperation bindingOperation) throws ToolException {
         Map faults = op.getFaults();
         Iterator it = faults.keySet().iterator();
         while (it.hasNext()) {
@@ -251,8 +245,7 @@ public class WSDLToSoapProcessor
         }
         SOAPFault soapFault = null;
         try {
-            soapFault = (SOAPFault)extReg.createExtension(BindingFault.class,
-                                                          WSDLConstants.NS_SOAP_FAULT);
+            soapFault = (SOAPFault)extReg.createExtension(BindingFault.class, WSDLConstants.NS_SOAP_FAULT);
         } catch (WSDLException wse) {
             throw new ToolException("Create soap fault ext element failed, due to " + wse);
         }
@@ -265,45 +258,4 @@ public class WSDLToSoapProcessor
         bf.addExtensibilityElement(soapFault);
     }
 
-    private Writer getOutputWriter() throws ToolException {
-        Writer writer = null;
-        String newName = null;
-        String outputDir;
-
-        if (env.get(ToolConstants.CFG_OUTPUTFILE) != null) {
-            newName = (String)env.get(ToolConstants.CFG_OUTPUTFILE);
-        } else {
-            String oldName = (String)env.get(ToolConstants.CFG_WSDLURL);
-            int position = oldName.lastIndexOf("/");
-            if (position < 0) {
-                position = oldName.lastIndexOf("\\");
-            }
-            if (position >= 0) {
-                oldName = oldName.substring(position + 1, oldName.length());
-            }
-            if (oldName.toLowerCase().indexOf(WSDL_FILE_NAME_EXT) >= 0) {
-                newName = oldName.substring(0, oldName.length() - 5) + NEW_FILE_NAME_MODIFIER
-                          + WSDL_FILE_NAME_EXT;
-            } else {
-                newName = oldName + NEW_FILE_NAME_MODIFIER;
-            }
-        }
-        if (env.get(ToolConstants.CFG_OUTPUTDIR) != null) {
-            outputDir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
-            if (!("/".equals(outputDir.substring(outputDir.length() - 1))
-                  || "\\".equals(outputDir.substring(outputDir.length() - 1)))) {
-                outputDir = outputDir + "/";
-            }
-        } else {
-            outputDir = "./";
-        }
-        FileWriterUtil fw = new FileWriterUtil(outputDir);
-        try {
-            writer = fw.getWriter("", newName);
-        } catch (IOException ioe) {
-            throw new ToolException("Failed to write " + env.get(ToolConstants.CFG_OUTPUTDIR)
-                                    + System.getProperty("file.seperator") + newName, ioe);
-        }
-        return writer;
-    }
 }

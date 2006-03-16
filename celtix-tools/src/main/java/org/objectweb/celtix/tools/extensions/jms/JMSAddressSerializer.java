@@ -13,6 +13,7 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.*;
 
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.utils.XMLParserUtil;
 
 public class JMSAddressSerializer implements ExtensionSerializer,
                                              ExtensionDeserializer,
@@ -27,9 +28,8 @@ public class JMSAddressSerializer implements ExtensionSerializer,
                          ExtensionRegistry extReg) throws WSDLException {
 
         JMSAddress jmsAddress = (JMSAddress) extension;
-        String elementPrefix = def.getPrefix(ToolConstants.NS_JMS_ADDRESS);
         StringBuffer sb = new StringBuffer(300);        
-        sb.append(" <" + elementPrefix + ":" + elementType.getLocalPart() + " ");
+        sb.append(" <" + XMLParserUtil.writeQName(def, elementType) + " ");
         sb.append(jmsAddress.getAttrXMLString());
         sb.append("/>");
         pw.print(sb.toString());

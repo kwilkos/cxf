@@ -1,7 +1,6 @@
 package org.objectweb.celtix.tools.extensions.xmlformat;
 
 import java.io.PrintWriter;
-import java.io.Serializable;
 
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
@@ -16,17 +15,16 @@ import org.w3c.dom.Element;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.utils.XMLParserUtil;
 
-public class XMLFormatSerializer implements ExtensionSerializer, ExtensionDeserializer, Serializable {
+public class XMLHttpSerializer implements ExtensionSerializer, ExtensionDeserializer {
 
     public void marshall(Class parentType, QName elementType, ExtensibilityElement extension, PrintWriter pw,
                          Definition def, ExtensionRegistry extReg) throws WSDLException {
 
-        XMLFormat xmlFormat = (XMLFormat)extension;
+        XMLHttpAddress xmlHttpAddress = (XMLHttpAddress)extension;
         StringBuffer sb = new StringBuffer(300);
         sb.append("<" + XMLParserUtil.writeQName(def, elementType) + " ");
-        if (xmlFormat.getRootNode() != null) {
-            sb.append(ToolConstants.XMLBINDING_ROOTNODE + "=\""
-                      + XMLParserUtil.writeQName(def, xmlFormat.getRootNode()) + "\"");
+        if (xmlHttpAddress.getLocation() != null) {
+            sb.append(ToolConstants.XMLBINDING_HTTP_LOCATION + "=\"" + xmlHttpAddress.getLocation() + "\"");
         }
         sb.append(" />");
         pw.print(sb.toString());
@@ -36,13 +34,12 @@ public class XMLFormatSerializer implements ExtensionSerializer, ExtensionDeseri
     public ExtensibilityElement unmarshall(Class parentType, QName elementType, Element el, Definition def,
                                            ExtensionRegistry extReg) throws WSDLException {
 
-        XMLFormat xmlFormat = (XMLFormat)extReg.createExtension(parentType, elementType);
-        xmlFormat.setElement(el);
-        xmlFormat.setElementType(elementType);
-        xmlFormat.setDocumentBaseURI(def.getDocumentBaseURI());
-        XMLFormatParser xmlBindingParser = new XMLFormatParser();
-        xmlBindingParser.parseElement(def, xmlFormat, el);
-        return xmlFormat;
+        XMLHttpAddress xmlHttpAddress = (XMLHttpAddress)extReg.createExtension(parentType, elementType);
+        xmlHttpAddress.setElement(el);
+        xmlHttpAddress.setElementType(elementType);
+        xmlHttpAddress.setDocumentBaseURI(def.getDocumentBaseURI());
+        xmlHttpAddress.setLocation(el.getAttribute(ToolConstants.XMLBINDING_HTTP_LOCATION));
+        return xmlHttpAddress;
     }
 
 }

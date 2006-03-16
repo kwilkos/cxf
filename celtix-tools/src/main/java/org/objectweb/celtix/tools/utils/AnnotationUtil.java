@@ -9,6 +9,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 
 import org.objectweb.celtix.tools.common.ToolException;
 
@@ -98,6 +99,16 @@ public final class AnnotationUtil {
         }
         return null;
 
+    }
+
+    public static WebResult getWebResult(Method method) {
+
+        Annotation ann = method.getAnnotation(WebResult.class);
+        if (ann == null) {
+            return null;
+        } else {
+            return (WebResult)ann;
+        }
     }
 
 }

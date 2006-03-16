@@ -45,6 +45,8 @@ public final class WSDLConstants {
     public static final QName QNAME_DOCUMENTATION = new QName(NS_WSDL, "documentation");
     public static final QName NS_SOAP_BINDING_ADDRESS = new QName("http://schemas.xmlsoap.org/wsdl/soap/",
                                                                   "address");
+    public static final QName NS_XMLHTTP_BINDING_ADDRESS = new QName("http://schemas.xmlsoap.org/wsdl/http/",
+                                                                     "address");
     public static final QName NS_SOAP_BINDING = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "binding");
     public static final QName NS_SOAP_OPERATION = 
             new QName("http://schemas.xmlsoap.org/wsdl/soap/", "operation");

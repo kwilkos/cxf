@@ -109,7 +109,12 @@ public final class ToolConstants {
     
     // XML Binding
     public static final String XMLBINDING_ROOTNODE = "rootNode";
+    public static final String XMLBINDING_HTTP_LOCATION = "location";
     public static final String NS_XML_FORMAT = "http://celtix.objectweb.org/bindings/xmlformat";
+    public static final String XML_FORMAT_PREFIX = "xformat";
+    public static final String NS_XML_HTTP = "http://schemas.xmlsoap.org/wsdl/http/";
+    public static final String XML_HTTP_PREFIX = "http";
+    public static final QName  XML_HTTP_ADDRESS = new QName(NS_XML_HTTP, "address");
     public static final QName  XML_FORMAT = new QName(NS_XML_FORMAT, "body");
     public static final QName  XML_BINDING_FORMAT = new QName(NS_XML_FORMAT, "binding");
 }

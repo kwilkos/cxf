@@ -12,20 +12,21 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
+import org.objectweb.celtix.tools.utils.XMLParserUtil;
+
 public class XMLFormatBindingSerializer implements ExtensionDeserializer, ExtensionSerializer {
 
-    public void marshall(Class parentType, QName elementType, ExtensibilityElement extension,
-                         PrintWriter pw, Definition def, ExtensionRegistry extReg)
-        throws WSDLException {
+    public void marshall(Class parentType, QName elementType, ExtensibilityElement extension, PrintWriter pw,
+                         Definition def, ExtensionRegistry extReg) throws WSDLException {
 
+        pw.print("<" + XMLParserUtil.writeQName(def, elementType) + "/>");
+        pw.println();
     }
 
-    public ExtensibilityElement unmarshall(Class parentType, QName elementType, Element el,
-                                           Definition def, ExtensionRegistry extReg)
-        throws WSDLException {
+    public ExtensibilityElement unmarshall(Class parentType, QName elementType, Element el, Definition def,
+                                           ExtensionRegistry extReg) throws WSDLException {
 
-        XMLFormatBinding xmlFormatBinding = (XMLFormatBinding)extReg.createExtension(parentType,
-                                                                                     elementType);
+        XMLFormatBinding xmlFormatBinding = (XMLFormatBinding)extReg.createExtension(parentType, elementType);
         xmlFormatBinding.setElement(el);
         xmlFormatBinding.setElementType(elementType);
         xmlFormatBinding.setDocumentBaseURI(def.getDocumentBaseURI());

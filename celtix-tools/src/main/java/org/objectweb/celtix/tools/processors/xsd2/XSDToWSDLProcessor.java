@@ -32,9 +32,9 @@ import org.objectweb.celtix.tools.utils.FileWriterUtil;
 
 public class XSDToWSDLProcessor implements Processor {
 
-    private static final String WSDL_FILE_NAME_EXT = ".wsdl";
     private static final String XSD_FILE_NAME_EXT = ".xsd";
-
+    private static final String WSDL_FILE_NAME_EXT = ".wsdl";
+    
     private Definition wsdlDefinition;
     private ExtensionRegistry registry;
     private WSDLFactory wsdlFactory;
@@ -96,8 +96,8 @@ public class XSDToWSDLProcessor implements Processor {
         Element targetElement = (Element)sourceElement.cloneNode(true);
 
         this.wsdlDefinition.setTargetNamespace((String)env.get(ToolConstants.CFG_NAMESPACE));
-        this.wsdlDefinition.setQName(new QName(WSDLConstants.NS_WSDL, (String)env
-            .get(ToolConstants.CFG_NAME)));
+        this.wsdlDefinition
+            .setQName(new QName(WSDLConstants.NS_WSDL, (String)env.get(ToolConstants.CFG_NAME)));
 
         Types types = this.wsdlDefinition.createTypes();
         ExtensibilityElement extElement;
@@ -106,11 +106,10 @@ public class XSDToWSDLProcessor implements Processor {
             registerJAXWSBinding(Definition.class);
             registerJAXWSBinding(Types.class);
             registerJAXWSBinding(Schema.class);
-            extElement = registry.createExtension(Types.class,
-                                                  new QName(WSDLConstants.XSD_NAMESPACE, "schema"));
+            extElement = registry.createExtension(Types.class, new QName(WSDLConstants.XSD_NAMESPACE,
+                                                                         "schema"));
         } catch (WSDLException wse) {
-            throw new ToolException("can not create schema extension, due to " + wse.getMessage(),
-                                    wse);
+            throw new ToolException("can not create schema extension, due to " + wse.getMessage(), wse);
         }
         ((Schema)extElement).setElement(targetElement);
         types.addExtensibilityElement(extElement);
@@ -118,6 +117,7 @@ public class XSDToWSDLProcessor implements Processor {
 
         WSDLWriter wsdlWriter = wsdlFactory.newWSDLWriter();
         Writer outputWriter = getOutputWriter();
+
         try {
             wsdlWriter.writeWSDL(wsdlDefinition, outputWriter);
         } catch (WSDLException wse) {
@@ -126,20 +126,17 @@ public class XSDToWSDLProcessor implements Processor {
         try {
             outputWriter.close();
         } catch (IOException ioe) {
-            throw new ToolException("close wsdl output file failed, due to " + ioe.getMessage(),
-                                    ioe);
+            throw new ToolException("close wsdl output file failed, due to " + ioe.getMessage(), ioe);
         }
     }
 
     private void registerJAXWSBinding(Class clz) {
-        registry
-            .registerSerializer(clz, ToolConstants.JAXWS_BINDINGS, new JAXWSBindingSerializer());
+        registry.registerSerializer(clz, ToolConstants.JAXWS_BINDINGS, new JAXWSBindingSerializer());
 
-        registry.registerDeserializer(clz, ToolConstants.JAXWS_BINDINGS,
-                                      new JAXWSBindingDeserializer());
+        registry.registerDeserializer(clz, ToolConstants.JAXWS_BINDINGS, new JAXWSBindingDeserializer());
         registry.mapExtensionTypes(clz, ToolConstants.JAXWS_BINDINGS, JAXWSBinding.class);
     }
-
+    
     private Writer getOutputWriter() throws ToolException {
         Writer writer = null;
         String newName = null;
@@ -180,4 +177,5 @@ public class XSDToWSDLProcessor implements Processor {
         }
         return writer;
     }
+
 }

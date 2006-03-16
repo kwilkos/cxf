@@ -21,12 +21,9 @@ import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddressSerializer;
 
-import org.objectweb.celtix.tools.utils.FileWriterUtil;
-
 public class WSDLToServiceProcessor extends WSDLToProcessor {
 
     private static final String NEW_FILE_NAME_MODIFIER = "-service";
-    private static final String WSDL_FILE_NAME_EXT = ".wsdl";
     private static final String HTTP_PREFIX = "http://localhost:9000";
 
     private Map services;
@@ -120,7 +117,7 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
         wsdlDefinition.addService(service);
 
         WSDLWriter wsdlWriter = wsdlFactory.newWSDLWriter();
-        Writer outputWriter = getOutputWriter();
+        Writer outputWriter = getOutputWriter(NEW_FILE_NAME_MODIFIER);
         try {
             wsdlWriter.writeWSDL(wsdlDefinition, outputWriter);
         } catch (WSDLException wse) {
@@ -178,13 +175,13 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
                     jmsAddress.setJndiProviderURL((String)env.get(ToolConstants.JMS_ADDR_JNDI_URL));
                 }
                 if (env.optionSet(ToolConstants.JMS_ADDR_MSGID_TO_CORRID)) {
-                    jmsAddress.setUseMessageIDAsCorrelationID(Boolean.getBoolean(
-                                     (String) env.get(ToolConstants.JMS_ADDR_MSGID_TO_CORRID)));
+                    jmsAddress.setUseMessageIDAsCorrelationID(Boolean.getBoolean((String)env
+                        .get(ToolConstants.JMS_ADDR_MSGID_TO_CORRID)));
                 }
                 if (env.optionSet(ToolConstants.JMS_ADDR_SUBSCRIBER_NAME)) {
-                    jmsAddress.setDurableSubscriberName(
-                                     (String) env.get(ToolConstants.JMS_ADDR_SUBSCRIBER_NAME));
-                }                                
+                    jmsAddress.setDurableSubscriberName((String)env
+                        .get(ToolConstants.JMS_ADDR_SUBSCRIBER_NAME));
+                }
             } catch (WSDLException wse) {
                 throw new ToolException("Create soap address ext element failed, due to " + wse);
             }
@@ -192,45 +189,4 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
         }
     }
 
-    private Writer getOutputWriter() throws ToolException {
-        Writer writer = null;
-        String newName = null;
-        String outputDir;
-
-        if (env.get(ToolConstants.CFG_OUTPUTFILE) != null) {
-            newName = (String)env.get(ToolConstants.CFG_OUTPUTFILE);
-        } else {
-            String oldName = (String)env.get(ToolConstants.CFG_WSDLURL);
-            int position = oldName.lastIndexOf("/");
-            if (position < 0) {
-                position = oldName.lastIndexOf("\\");
-            }
-            if (position >= 0) {
-                oldName = oldName.substring(position + 1, oldName.length());
-            }
-            if (oldName.toLowerCase().indexOf(WSDL_FILE_NAME_EXT) >= 0) {
-                newName = oldName.substring(0, oldName.length() - 5) + NEW_FILE_NAME_MODIFIER
-                          + WSDL_FILE_NAME_EXT;
-            } else {
-                newName = oldName + NEW_FILE_NAME_MODIFIER;
-            }
-        }
-        if (env.get(ToolConstants.CFG_OUTPUTDIR) != null) {
-            outputDir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
-            if (!("/".equals(outputDir.substring(outputDir.length() - 1))
-                  || "\\".equals(outputDir.substring(outputDir.length() - 1)))) {
-                outputDir = outputDir + "/";
-            }
-        } else {
-            outputDir = "./";
-        }
-        FileWriterUtil fw = new FileWriterUtil(outputDir);
-        try {
-            writer = fw.getWriter("", newName);
-        } catch (IOException ioe) {
-            throw new ToolException("Failed to write " + env.get(ToolConstants.CFG_OUTPUTDIR)
-                                    + System.getProperty("file.seperator") + newName, ioe);
-        }
-        return writer;
-    }
 }
