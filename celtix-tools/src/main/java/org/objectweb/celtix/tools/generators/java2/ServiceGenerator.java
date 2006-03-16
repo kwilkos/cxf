@@ -14,6 +14,7 @@ import org.objectweb.celtix.tools.common.WSDLConstants;
 import org.objectweb.celtix.tools.common.model.WSDLModel;
 
 public class ServiceGenerator {
+    private static final String ADDRESS_URI = "http://localhost/changme";
     private WSDLModel wmodel;
     private Definition definition;
     private ExtensionRegistry extensionRegistry;
@@ -38,8 +39,7 @@ public class ServiceGenerator {
         try {
             soapAddress = (SOAPAddress)extensionRegistry
                 .createExtension(Port.class, new QName(WSDLConstants.SOAP11_NAMESPACE, "address"));
-            soapAddress.setLocationURI("http://localhost/changme");
-
+            soapAddress.setLocationURI(ADDRESS_URI);
         } catch (WSDLException e) {
             throw new ToolException("Error " + e.getMessage(), e);
         }
@@ -47,5 +47,4 @@ public class ServiceGenerator {
         service.addPort(port);
         definition.addService(service);
     }
-
 }

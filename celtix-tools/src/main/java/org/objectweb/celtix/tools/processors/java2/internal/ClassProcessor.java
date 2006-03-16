@@ -81,7 +81,10 @@ public class ClassProcessor {
         javaMethod.setSoapAction(webMethod.action());
 
         // To Do Asyn
-
+        if (isAsynMethod(method)) {
+            return;
+        }
+        
         if (isOneWayMethod(method)) {
             javaMethod.setStyle(OperationType.ONE_WAY);
         } else {
@@ -180,7 +183,7 @@ public class ClassProcessor {
         checkWebMethodUseClass(clz.getSuperclass());
     }
 
-    private void populateWSDLInfo(Class clazz) {   
+    private void populateWSDLInfo(Class clazz) {
         WebService webService = AnnotationUtil.getPrivClassAnnotation(clazz, WebService.class);
         if (webService == null) {
             throw new ToolException("SEI Class :No Webservice Annotation");
@@ -210,19 +213,17 @@ public class ClassProcessor {
 
         }
         model.setPortName(portName);
-        
-        
+
         String serviceName = clazz.getSimpleName() + "Service";
         if (env.optionSet(ToolConstants.CFG_SERVICENAME)) {
-            serviceName = (String)env.get(ToolConstants.CFG_SERVICENAME); 
-        } else {         
+            serviceName = (String)env.get(ToolConstants.CFG_SERVICENAME);
+        } else {
             if (webService.serviceName().length() > 0) {
                 serviceName = webService.serviceName();
-            }           
+            }
         }
         model.setServiceName(serviceName);
-        
-        
+
         String packageName = "";
         if (clazz.getPackage() != null) {
             packageName = clazz.getPackage().getName();
@@ -237,7 +238,7 @@ public class ClassProcessor {
         } else if (targetNamespace == null) {
             throw new ToolException("Class No Package");
         }
-        
+
         model.setTargetNameSpace(targetNamespace);
         String wsdlLocation = webService.wsdlLocation();
         model.setWsdllocation(wsdlLocation);
@@ -249,11 +250,16 @@ public class ClassProcessor {
             model.setUse(soapBinding.use());
             model.setPrameterStyle(soapBinding.parameterStyle());
         }
-        
-        
+
     }
 
-  
+    private boolean isAsynMethod(Method method) {
+        return method.getReturnType().equals(java.util.concurrent.Future.class)
+            && method.getName().endsWith("Async")
+            || method.getReturnType().equals(javax.xml.ws.Response.class)
+            && method.getName().endsWith("Async");
+          
+    }
 
     private boolean isOneWayMethod(Method method) {
         return method.isAnnotationPresent(Oneway.class);
