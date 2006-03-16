@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.handler.PortInfo;
@@ -14,16 +15,20 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.handlers.HandlerChainBuilder;
 
 public class HandlerResolverImpl implements HandlerResolver {
+    public static final String PORT_CONFIGURATION_URI =
+        "http://celtix.objectweb.org/bus/jaxws/port-config";
 
     private final Map<PortInfo, List<Handler>> handlerMap = new HashMap<PortInfo, List<Handler>>();
-    private Configuration serviceConfiguration;
+    private Configuration busConfiguration;
+    private QName service;
 
-    public HandlerResolverImpl(Configuration c) {
-        serviceConfiguration = c;
+    public HandlerResolverImpl(Configuration pBusConfiguration, QName pService) {
+        this.busConfiguration = pBusConfiguration;
+        this.service = pService;
     }
 
     public HandlerResolverImpl() {
-        this(null);
+        this(null, null);
     }
 
     public List<Handler> getHandlerChain(PortInfo portInfo) {
@@ -38,12 +43,15 @@ public class HandlerResolverImpl implements HandlerResolver {
 
     private List<Handler> createHandlerChain(PortInfo portInfo) {
 
-        Configuration portConfiguration = null;
         List<Handler> chain = null;
-        if (null != serviceConfiguration) {
-            portConfiguration = serviceConfiguration
-                .getChild("http://celtix.objectweb.org/bus/jaxws/port-config", portInfo.getPortName()
-                    .getLocalPart());
+        Configuration portConfiguration = null;
+        String id = portInfo.getPortName().getLocalPart();
+        if (service != null) {
+            id = service.toString() + "/" + portInfo.getPortName().getLocalPart();
+        }
+        if (null != busConfiguration) {
+            portConfiguration = busConfiguration
+                .getChild(PORT_CONFIGURATION_URI, id);
         }
         if (null != portConfiguration) {
             HandlerChainBuilder builder = new HandlerChainBuilder();

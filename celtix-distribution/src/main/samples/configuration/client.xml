@@ -7,7 +7,7 @@
     xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"
     xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration">
 
-  <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService.SoapPort" 
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService/SoapPort" 
         class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean">
 
       <property name="address">
@@ -19,7 +19,7 @@
       </property>
   </bean>
 
-  <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService.SoapPort.http-client"
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService/SoapPort.http-client"
         class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
       
       <property name="authorization">

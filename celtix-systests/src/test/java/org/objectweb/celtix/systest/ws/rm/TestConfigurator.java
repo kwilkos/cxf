@@ -24,7 +24,7 @@ public class TestConfigurator {
 
     public TestConfigurator() {
         builder = ConfigurationBuilderFactory.getBuilder();
-        
+
     }
 
     public void configureClient(QName serviceName, String portName) {
@@ -33,16 +33,16 @@ public class TestConfigurator {
 
     public void configureClient(String busId, QName serviceName, String portName) {
         Configuration busCfg = getBusConfiguration(busId);
-        Configuration serviceCfg = builder.getConfiguration(ServiceImpl.SERVICE_CONFIGURATION_URI,
-                                                            serviceName.toString(), busCfg);
-        if (null == serviceCfg) {
-            serviceCfg = builder.buildConfiguration(ServiceImpl.SERVICE_CONFIGURATION_URI, serviceName
-                .toString(), busCfg);
-        }
-        Configuration portCfg = builder.getConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, portName,
-                                                         serviceCfg);
+
+        System.out.println("------- bugCfg: " + busCfg);
+
+        String id = serviceName.toString() + "/" + portName;
+
+        Configuration portCfg = builder.getConfiguration(ServiceImpl.PORT_CONFIGURATION_URI,
+                                                         id,
+                                                         busCfg);
         if (null == portCfg) {
-            portCfg = builder.buildConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, portName, serviceCfg);
+            portCfg = builder.buildConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, id, busCfg);
         }
         configureHandlers(portCfg, false);
     }
@@ -61,7 +61,7 @@ public class TestConfigurator {
         }
         configureHandlers(endpointCfg, true);
     }
-   
+
 
     private Configuration getBusConfiguration(String busId) {
         Configuration busCfg = builder.getConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI, busId);
@@ -114,20 +114,20 @@ public class TestConfigurator {
             handler.setHandlerClass(MAPCodec.class.getName());
             handler.setHandlerName("protocol addressing handler");
             handlerChain.getHandler().add(handler);
-            
+
             systemHandlers.setPostProtocol(handlerChain);
-            
+
             config.setObject("systemHandlerChain", systemHandlers);
         }
-        
-        rmConfiguration = builder.getConfiguration(RMHandler.RM_CONFIGURATION_URI, 
-                                                   RMHandler.RM_CONFIGURATION_ID, 
+
+        rmConfiguration = builder.getConfiguration(RMHandler.RM_CONFIGURATION_URI,
+                                                   RMHandler.RM_CONFIGURATION_ID,
                                                    config);
         if (rmConfiguration == null) {
-            rmConfiguration = builder.buildConfiguration(RMHandler.RM_CONFIGURATION_URI, 
-                                                         RMHandler.RM_CONFIGURATION_ID, 
+            rmConfiguration = builder.buildConfiguration(RMHandler.RM_CONFIGURATION_URI,
+                                                         RMHandler.RM_CONFIGURATION_ID,
                                                          config);
         }
-        
+
     }
 }

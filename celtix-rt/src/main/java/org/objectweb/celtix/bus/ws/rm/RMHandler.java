@@ -108,7 +108,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     public AbstractServerBinding getServerBinding() {
         return serverBinding;
     }
-    
+
     public boolean isServerSide() {
         return null != serverBinding;
     }
@@ -173,11 +173,10 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         org.objectweb.celtix.ws.addressing.EndpointReferenceType ref = getBinding().getEndpointReference();
 
         if (ContextUtils.isRequestor(context)) {
-            Configuration serviceCfg = builder.getConfiguration(ServiceImpl.SERVICE_CONFIGURATION_URI,
-                                                                EndpointReferenceUtils.getServiceName(ref)
-                                                                    .toString(), busCfg);
-            parent = builder.getConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, EndpointReferenceUtils
-                .getPortName(ref), serviceCfg);
+            String id = EndpointReferenceUtils.getServiceName(ref).toString()
+                + "/" + EndpointReferenceUtils.getPortName(ref);
+            parent = builder.getConfiguration(ServiceImpl.PORT_CONFIGURATION_URI,
+                                                                id, busCfg);
         } else {
             parent = builder.getConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, EndpointReferenceUtils
                 .getServiceName(ref).toString(), busCfg);
@@ -194,12 +193,12 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     private void handleOutbound(LogicalMessageContext context) {
         LOG.entering(getClass().getName(), "handleOutbound");
 
-        AddressingPropertiesImpl maps = 
+        AddressingPropertiesImpl maps =
             ContextUtils.retrieveMAPs(context, false, true);
-        
+
         // ensure the appropriate version of WS-Addressing is used
         maps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
-        
+
         String action = null;
         if (maps != null && null != maps.getAction()) {
             action = maps.getAction().getValue();
@@ -218,7 +217,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             || RMUtils.getRMConstants().getSequenceInfoAction().equals(action)) {
             return;
         }
-        
+
         // not for partial responses to oneway requests
 
         if (!(isServerSide() && BindingContextUtils.isOnewayTransport(context))) {
@@ -252,16 +251,16 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
 
         // add Acknowledgements
-        
+
         if (null != destination) {
             AttributedURI to = VersionTransformer.convert(maps.getTo());
             assert null != to;
             addAcknowledgements(context, to);
-        } 
-        
-        // indicate to the binding that a response is expected from the transport although 
+        }
+
+        // indicate to the binding that a response is expected from the transport although
         // the web method is a oneway method
-        
+
         if (!isServerSide() && BindingContextUtils.isOnewayMethod(context)) {
             context.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, Boolean.FALSE);
         }
@@ -338,7 +337,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
         processAcknowledgmentRequests(context);
 
-        // only for application messages 
+        // only for application messages
         if (null != action) {
             processSequence(context);
         }
@@ -356,7 +355,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
     }
 
-    private void processSequence(LogicalMessageContext context) {        
+    private void processSequence(LogicalMessageContext context) {
         SequenceType s = RMContextUtils.retrieveSequence(context);
         destination.acknowledge(s);
     }
@@ -374,13 +373,13 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             }
         }
     }
-    
+
     private void addAcknowledgements(LogicalMessageContext context, AttributedURI to) {
 
         RMContextUtils.removeAcknowledgments(context);
 
         for (Sequence seq : destination.getAllSequences()) {
-            if (seq.sendAcknowledgement() 
+            if (seq.sendAcknowledgement()
                 && (seq.getAcksTo().getAddress().getValue().equals(RMUtils.getAddressingConstants()
                                                                    .getAnonymousURI())
                     || to.equals(seq.getAcksTo().getAddress().getValue()))) {
@@ -390,7 +389,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
                     LOG.fine("no need to add an acknowledgements for sequence "
                              + seq.getIdentifier().getValue());
                 } else {
-                    LOG.fine("sequences acksTo (" + seq.getAcksTo().getAddress().getValue() 
+                    LOG.fine("sequences acksTo (" + seq.getAcksTo().getAddress().getValue()
                              + ") does not match to (" + to.getValue() + ")");
                 }
             }

@@ -6,7 +6,7 @@
     xmlns:ct="http://celtix.objectweb.org/configuration/types"
     xmlns:jms="http://celtix.objectweb.org/transports/jms">
 
-  <bean id="celtix.{http://celtix.objectweb.org/jms_conf_test}HelloWorldQueueBinMsgService.HelloWorldQueueBinMsgPort.jms-client"
+  <bean id="celtix.{http://celtix.objectweb.org/jms_conf_test}HelloWorldQueueBinMsgService/HelloWorldQueueBinMsgPort.jms-client"
         class="org.objectweb.celtix.bus.transports.jms.jms_client_config.spring.JmsClientConfigBean">
       
       <property name="jmsClient">

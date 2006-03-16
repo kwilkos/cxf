@@ -8,7 +8,7 @@
     xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration"
     xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types">
 
-  <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPServiceAddressing.SoapPort.http-client"
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPServiceAddressing/SoapPort.http-client"
         class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
       
       <property name="httpClient">
@@ -19,7 +19,7 @@
 
   </bean>
 
-  <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPServiceAddressing.SoapPort" 
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPServiceAddressing/SoapPort" 
         class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean">
 
       <property name="handlerChain">

@@ -50,7 +50,7 @@ import static org.easymock.EasyMock.isA;
 
 public class HTTPTransportTest extends TestCase {
 
-    private static final QName SERVICE_NAME = new 
+    private static final QName SERVICE_NAME = new
         QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
     private static final String PORT_NAME = "SoapPort";
     private static final String ADDRESS = "http://localhost:9000/SoapContext/SoapPort";
@@ -58,9 +58,9 @@ public class HTTPTransportTest extends TestCase {
     private static final int DECOUPLED_PORT = 9999;
 
     private static final URL WSDL_URL = HTTPTransportTest.class.getResource("/wsdl/hello_world.wsdl");
-    
+
     private static boolean first = true;
-    
+
     Bus bus;
     private WSDLManager wsdlManager;
     private WorkQueueManagerImpl queueManager;
@@ -70,11 +70,11 @@ public class HTTPTransportTest extends TestCase {
     private Lock partialResponseReceivedLock;
     private Condition partialResponseReceivedCondition;
     private boolean partialResponseReceivedNotified;
-    
+
     public HTTPTransportTest(String arg0) {
         super(arg0);
     }
-    
+
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(HTTPTransportTest.class);
         return new TestSetup(suite) {
@@ -84,12 +84,12 @@ public class HTTPTransportTest extends TestCase {
             }
         };
     }
-    
+
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(HTTPTransportTest.class);
     }
-    
+
     public void setUp() throws BusException {
         bus = EasyMock.createMock(Bus.class);
         wsdlManager = new WSDLManagerImpl(null);
@@ -97,12 +97,12 @@ public class HTTPTransportTest extends TestCase {
         partialResponseReceivedCondition = partialResponseReceivedLock.newCondition();
         partialResponseReceivedNotified = false;
     }
-    
+
     public void tearDown() throws Exception {
         EasyMock.reset(bus);
         checkBusRemovedEvent();
         EasyMock.replay(bus);
-        
+
         if (queueManager != null) {
             queueManager.shutdown(false);
         }
@@ -111,7 +111,7 @@ public class HTTPTransportTest extends TestCase {
         }
         JettyHTTPServerEngine.destroyForPort(DECOUPLED_PORT);
     }
-    
+
     int readBytes(byte bytes[], InputStream ins) throws IOException {
         int len = ins.read(bytes);
         int total = 0;
@@ -122,20 +122,20 @@ public class HTTPTransportTest extends TestCase {
         return total;
     }
 
-   
+
     public void testInvokeOneway() throws Exception {
         doTestInvokeOneway(false);
-    } 
-    
+    }
+
     public void testInvokeOnewayDecoupled() throws Exception {
         doTestInvokeOneway(true);
-    } 
-    
+    }
+
     public void testInvoke() throws Exception {
         doTestInvoke(false);
         doTestInvoke(false);
     }
-    
+
     public void testInvokeDecoupled() throws Exception {
         doTestInvoke(false, true);
     }
@@ -148,48 +148,48 @@ public class HTTPTransportTest extends TestCase {
         doTestInvoke(true, true);
     }
 
-    public void testInvokeAsync() throws Exception {      
+    public void testInvokeAsync() throws Exception {
         doTestInvokeAsync(false);
     }
-    
-    public void testInvokeAsyncDecoupled() throws Exception {      
+
+    public void testInvokeAsyncDecoupled() throws Exception {
         doTestInvokeAsync(false, true);
     }
-    
-    public void testInvokeAsyncUsingAutomaticWorkQueue() throws Exception {      
+
+    public void testInvokeAsyncUsingAutomaticWorkQueue() throws Exception {
         doTestInvokeAsync(true);
     }
-    
-    public void testInvokeAsyncDecoupledUsingAutomaticWorkQueue() throws Exception {      
+
+    public void testInvokeAsyncDecoupledUsingAutomaticWorkQueue() throws Exception {
         doTestInvokeAsync(true, true);
     }
 
     public void testInputStreamMessageContextCallable() throws Exception {
         factory = createTransportFactory();
-        HTTPClientTransport.HTTPClientOutputStreamContext octx = 
+        HTTPClientTransport.HTTPClientOutputStreamContext octx =
             EasyMock.createMock(HTTPClientTransport.HTTPClientOutputStreamContext.class);
         HTTPClientTransport.HTTPClientInputStreamContext ictx =
             EasyMock.createMock(HTTPClientTransport.HTTPClientInputStreamContext.class);
         octx.createInputStreamContext();
         EasyMock.expectLastCall().andReturn(ictx);
         EasyMock.replay(octx);
-        
+
         Callable c = new HTTPClientTransport.InputStreamMessageContextCallable(octx, factory);
         assertNotNull(c);
         InputStreamMessageContext result = (InputStreamMessageContext)c.call();
-        assertEquals(result, ictx); 
+        assertEquals(result, ictx);
     }
-    
+
     public void doTestInvokeOneway(boolean decoupled) throws Exception {
-        
+
         factory = createTransportFactory();
-      
-        ServerTransport server = 
+
+        ServerTransport server =
             createServerTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
         byte[] buffer = new byte[64];
         activateServer(server, false, 200, buffer, true, decoupled);
-        
-        ClientTransport client = 
+
+        ClientTransport client =
             createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS, decoupled);
         byte outBytes[] = "Hello World!!!".getBytes();
 
@@ -203,49 +203,49 @@ public class HTTPTransportTest extends TestCase {
         octx = doRequest(client, outBytes, false, decoupled);
         client.invokeOneway(octx);
         long stop2 = System.currentTimeMillis();
-        
-        server.deactivate(); 
+
+        server.deactivate();
         EasyMock.reset(bus);
         checkBusRemovedEvent();
-        EasyMock.replay(bus);   
+        EasyMock.replay(bus);
         client.shutdown();
 
         assertTrue("Total one call: " + (stop - start), (stop - start) < 400);
         assertTrue("Total: " + (stop2 - start), (stop2 - start) < 600);
         assertEquals(new String(outBytes), new String(buffer, 0, outBytes.length));
         Thread.sleep(200);
-    } 
+    }
 
     public void doTestInvoke(final boolean useAutomaticWorkQueue) throws Exception {
         doTestInvoke(useAutomaticWorkQueue, false);
     }
-    
-    public void doTestInvoke(final boolean useAutomaticWorkQueue, 
+
+    public void doTestInvoke(final boolean useAutomaticWorkQueue,
                              final boolean decoupled) throws Exception {
-               
+
         factory = createTransportFactory();
-      
-        ServerTransport server = 
+
+        ServerTransport server =
             createServerTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
-             
+
         activateServer(server, useAutomaticWorkQueue, 0, null, false, decoupled);
         //short request
-        ClientTransport client = 
+        ClientTransport client =
             createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS, decoupled);
         doRequestResponse(client, "Hello World".getBytes(), true, decoupled);
-        
+
         //long request
         byte outBytes[] = new byte[5000];
         for (int x = 0; x < outBytes.length; x++) {
             outBytes[x] = (byte)('a' + (x % 26));
         }
-        client = 
+        client =
             createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS, decoupled);
         doRequestResponse(client, outBytes, false, decoupled);
-        
+
         server.deactivate();
         outBytes = "HelloWorld".getBytes();
- 
+
         try {
             OutputStreamMessageContext octx = client.createOutputStreamContext(new GenericMessageContext());
             client.finalPrepareOutputStreamContext(octx);
@@ -257,7 +257,7 @@ public class HTTPTransportTest extends TestCase {
             if (len != -1
                 && new String(bytes, 0, len).indexOf("HTTP Status 503") == -1
                 && new String(bytes, 0, len).indexOf("Error 404") == -1) {
-                fail("was able to process a message after the servant was deactivated: " + len 
+                fail("was able to process a message after the servant was deactivated: " + len
                      + " - " + new String(bytes));
             }
         } catch (IOException ex) {
@@ -265,22 +265,22 @@ public class HTTPTransportTest extends TestCase {
         }
         activateServer(server, useAutomaticWorkQueue, 0, null, false, decoupled);
         doRequestResponse(client, "Hello World   3".getBytes(), false, decoupled);
-        server.deactivate();        
+        server.deactivate();
         activateServer(server, useAutomaticWorkQueue, 0, null, false, decoupled);
         doRequestResponse(client, "Hello World   4".getBytes(), false, decoupled);
-        server.deactivate();  
+        server.deactivate();
         EasyMock.reset(bus);
-        checkBusRemovedEvent();       
+        checkBusRemovedEvent();
         EasyMock.replay(bus);
         client.shutdown();
     }
-    
+
     public void doTestInvokeAsync(final boolean useAutomaticWorkQueue) throws Exception {
         doTestInvokeAsync(useAutomaticWorkQueue, false);
     }
-    
+
     public void doTestInvokeAsync(final boolean useAutomaticWorkQueue, boolean decoupled) throws Exception {
-        
+
         Executor executor =  null;
         if (useAutomaticWorkQueue) {
             queueManager = new WorkQueueManagerImpl(bus);
@@ -290,15 +290,15 @@ public class HTTPTransportTest extends TestCase {
             executor = executorService;
         }
         factory = createTransportFactory();
-        
-        ServerTransport server = 
+
+        ServerTransport server =
             createServerTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
         activateServer(server, false, 400, null, false, decoupled);
-        
-        ClientTransport client = 
+
+        ClientTransport client =
             createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS, decoupled);
         byte outBytes[] = "Hello World!!!".getBytes();
-        
+
         // wait then read without blocking
         OutputStreamMessageContext octx = doRequest(client, outBytes, true, decoupled);
         Future<InputStreamMessageContext> f = client.invokeAsync(octx, executor);
@@ -307,27 +307,27 @@ public class HTTPTransportTest extends TestCase {
         while (i < 10) {
             Thread.sleep(100);
             if (f.isDone()) {
-                break;                
+                break;
             }
             i++;
         }
         assertTrue(f.isDone());
         InputStreamMessageContext ictx = f.get();
         doResponse(client, ictx, outBytes, decoupled);
-        
+
         // blocking read (on new thread)
-        octx = doRequest(client, outBytes, false, decoupled);        
+        octx = doRequest(client, outBytes, false, decoupled);
         f = client.invokeAsync(octx, executor);
         ictx = f.get();
         assertTrue(f.isDone());
         doResponse(client, ictx, outBytes, decoupled);
-        
+
         // blocking read times out
         boolean timeoutImplemented = false;
         if (timeoutImplemented) {
-            octx = doRequest(client, outBytes, false, decoupled);        
+            octx = doRequest(client, outBytes, false, decoupled);
             f = client.invokeAsync(octx, executor);
-            try {            
+            try {
                 ictx = f.get(200, TimeUnit.MILLISECONDS);
                 fail("Expected TimeoutException not thrown.");
             } catch (TimeoutException ex) {
@@ -335,23 +335,23 @@ public class HTTPTransportTest extends TestCase {
             }
             assertTrue(!f.isDone());
         }
-        server.deactivate();        
+        server.deactivate();
     }
-        
-    private void checkBusCreatedEvent() {       
-        
+
+    private void checkBusCreatedEvent() {
+
         bus.sendEvent(isA(ComponentCreatedEvent.class));
-        
-        EasyMock.expectLastCall();        
+
+        EasyMock.expectLastCall();
     }
-    
-    private void checkBusRemovedEvent() {       
-        
+
+    private void checkBusRemovedEvent() {
+
         bus.sendEvent(isA(ComponentRemovedEvent.class));
-        
-        EasyMock.expectLastCall();        
+
+        EasyMock.expectLastCall();
     }
-    
+
     private void activateServer(ServerTransport server,
                                 final boolean useAutomaticWorkQueue,
                                 final int delay,
@@ -368,40 +368,40 @@ public class HTTPTransportTest extends TestCase {
         Configuration bc = EasyMock.createMock(Configuration.class);
         bus.getConfiguration();
         EasyMock.expectLastCall().andReturn(bc);
-        server.activate(callback);        
+        server.activate(callback);
     }
 
-    private void doRequestResponse(ClientTransport client, 
-                                   byte outBytes[], 
-                                   boolean initial, 
+    private void doRequestResponse(ClientTransport client,
+                                   byte outBytes[],
+                                   boolean initial,
                                    boolean decoupled)
         throws Exception {
         OutputStreamMessageContext octx = doRequest(client, outBytes, initial, decoupled);
         InputStreamMessageContext ictx = client.invoke(octx);
         doResponse(client, ictx, outBytes, decoupled);
     }
-    
-    private OutputStreamMessageContext doRequest(ClientTransport client, 
-                                                 byte outBytes[], 
-                                                 boolean initial, 
+
+    private OutputStreamMessageContext doRequest(ClientTransport client,
+                                                 byte outBytes[],
+                                                 boolean initial,
                                                  boolean decoupled) throws Exception {
         if (decoupled) {
             if (initial) {
                 assertFalse(((HTTPTransportFactory)factory).hasDecoupledEndpoint());
                 EasyMock.reset(bus);
-                Configuration lc = EasyMock.createMock(Configuration.class);      
+                Configuration lc = EasyMock.createMock(Configuration.class);
                 bus.getConfiguration();
                 EasyMock.expectLastCall().andReturn(lc);
                 EasyMock.replay(bus);
             }
-            
+
             EndpointReferenceType decoupledEndpoint = client.getDecoupledEndpoint();
             assertNotNull(decoupledEndpoint);
             assertNotNull(decoupledEndpoint.getAddress());
             assertEquals(decoupledEndpoint.getAddress().getValue(), DECOUPLED_ADDRESS);
             assertTrue(((HTTPTransportFactory)factory).hasDecoupledEndpoint());
 
-            if (initial) {             
+            if (initial) {
                 EasyMock.verify(bus);
             }
         }
@@ -410,23 +410,23 @@ public class HTTPTransportTest extends TestCase {
         octx.getOutputStream().write(outBytes);
         return octx;
     }
- 
-    private void doResponse(ClientTransport client, 
-                            InputStreamMessageContext ictx, 
+
+    private void doResponse(ClientTransport client,
+                            InputStreamMessageContext ictx,
                             byte outBytes[],
-                            boolean decoupled) throws Exception {                  
+                            boolean decoupled) throws Exception {
         if (decoupled) {
             assertNull(ictx);
             // discard empty partial response
             responseCallback.waitForNextResponse();
             signalPartialResponseReceived();
-            doResponse(client, responseCallback.waitForNextResponse(), outBytes); 
+            doResponse(client, responseCallback.waitForNextResponse(), outBytes);
         } else {
             doResponse(client, ictx, outBytes);
         }
     }
-    
-    private void doResponse(ClientTransport client, 
+
+    private void doResponse(ClientTransport client,
         InputStreamMessageContext ictx, byte outBytes[]) throws Exception {
         byte bytes[] = new byte[10000];
         int len = readBytes(bytes, ictx.getInputStream());
@@ -445,7 +445,7 @@ public class HTTPTransportTest extends TestCase {
             partialResponseReceivedLock.unlock();
         }
     }
-    
+
     private void signalPartialResponseReceived() throws Exception {
         partialResponseReceivedLock.lock();
         try {
@@ -455,11 +455,11 @@ public class HTTPTransportTest extends TestCase {
             partialResponseReceivedLock.unlock();
         }
     }
-        
-    private HTTPTransportFactory createTransportFactory() throws BusException { 
+
+    private HTTPTransportFactory createTransportFactory() throws BusException {
         EasyMock.reset(bus);
         Configuration bc = EasyMock.createMock(Configuration.class);
-        
+
         String transportId = "http://celtix.objectweb.org/transports/http/configuration";
         ObjectFactory of = new ObjectFactory();
         ClassNamespaceMappingListType mappings = of.createClassNamespaceMappingListType();
@@ -467,7 +467,7 @@ public class HTTPTransportTest extends TestCase {
         mapping.setClassname("org.objectweb.celtix.bus.transports.http.HTTPTransportFactory");
         mapping.getNamespace().add(transportId);
         mappings.getMap().add(mapping);
-        
+
         bus.getWSDLManager();
         EasyMock.expectLastCall().andReturn(wsdlManager);
         bus.getWSDLManager();
@@ -481,66 +481,62 @@ public class HTTPTransportTest extends TestCase {
         bus.getConfiguration();
         EasyMock.expectLastCall().andReturn(bc);
         bc.getObject("transportFactories");
-        EasyMock.expectLastCall().andReturn(mappings);    
+        EasyMock.expectLastCall().andReturn(mappings);
         // check the transportFactoryManager create event
         checkBusCreatedEvent();
         EasyMock.replay(bus);
-        EasyMock.replay(bc); 
-        
+        EasyMock.replay(bc);
+
         TransportFactoryManager tfm = new TransportFactoryManagerImpl(bus);
         HTTPTransportFactory f = (HTTPTransportFactory)tfm.getTransportFactory(transportId);
         responseCallback = new TestResponseCallback();
         f.setResponseCallback(responseCallback);
         return f;
     }
-    
-    private ClientTransport createClientTransport(URL wsdlUrl, 
+
+    private ClientTransport createClientTransport(URL wsdlUrl,
                                                   QName serviceName,
-                                                  String portName, 
+                                                  String portName,
                                                   String address,
-                                                  boolean decoupled) 
+                                                  boolean decoupled)
         throws WSDLException, IOException {
         EasyMock.reset(bus);
-        
+
         Configuration bc = EasyMock.createMock(Configuration.class);
-        Configuration sc = EasyMock.createMock(Configuration.class);
         Configuration pc = EasyMock.createMock(Configuration.class);
-        
+
         bus.getConfiguration();
         EasyMock.expectLastCall().andReturn(bc);
-        bc.getChild("http://celtix.objectweb.org/bus/jaxws/service-config", serviceName.toString());
-        EasyMock.expectLastCall().andReturn(sc);
-        sc.getChild("http://celtix.objectweb.org/bus/jaxws/port-config", portName);
-        EasyMock.expectLastCall().andReturn(pc); 
+        String id = serviceName.toString() + "/" + portName;
+        bc.getChild("http://celtix.objectweb.org/bus/jaxws/port-config", id);
+        EasyMock.expectLastCall().andReturn(pc);
         pc.getChild("http://celtix.objectweb.org/bus/transports/http/http-client-config", "http-client");
-        EasyMock.expectLastCall().andReturn(null); 
+        EasyMock.expectLastCall().andReturn(null);
         bus.getWSDLManager();
         EasyMock.expectLastCall().andReturn(wsdlManager);
         pc.getString("address");
         EasyMock.expectLastCall().andReturn(address);
-        
+
         checkBusCreatedEvent();
-        
+
         EasyMock.replay(bus);
         EasyMock.replay(bc);
-        EasyMock.replay(sc);
         EasyMock.replay(pc);
-        
+
         EndpointReferenceType ref = EndpointReferenceUtils
             .getEndpointReference(wsdlUrl, serviceName, portName);
         ClientTransport transport = factory.createClientTransport(ref);
         if (decoupled) {
             ((HTTPClientTransport)transport).policy.setDecoupledEndpoint(DECOUPLED_ADDRESS);
         }
-       
+
         EasyMock.verify(bus);
         EasyMock.verify(bc);
-        EasyMock.verify(sc);
         EasyMock.verify(pc);
         return transport;
-        
+
     }
-    
+
     private ServerTransport createServerTransport(URL wsdlUrl,
                                                   QName serviceName,
                                                   String portName,
@@ -564,14 +560,14 @@ public class HTTPTransportTest extends TestCase {
             //first call will configure the port listener
             bus.getConfiguration();
             EasyMock.expectLastCall().andReturn(bc);
-            bc.getChild("http://celtix.objectweb.org/bus/transports/http/http-listener-config", 
+            bc.getChild("http://celtix.objectweb.org/bus/transports/http/http-listener-config",
                         "http-listener.9000");
             EasyMock.expectLastCall().andReturn(null);
             first = false;
         }
-        
+
         checkBusCreatedEvent();
-       
+
         EasyMock.replay(bus);
         EasyMock.replay(bc);
         EasyMock.replay(ec);
@@ -584,11 +580,11 @@ public class HTTPTransportTest extends TestCase {
         EasyMock.verify(bus);
         EasyMock.verify(bc);
         EasyMock.verify(ec);
-        
+
         return transport;
 
     }
-    
+
     private class TestServerTransportCallback implements ServerTransportCallback {
         private ServerTransport server;
         private boolean useAutomaticWorkQueue;
@@ -596,7 +592,7 @@ public class HTTPTransportTest extends TestCase {
         private byte[] buffer;
         private boolean oneWay;
         private boolean decoupled;
-        
+
         TestServerTransportCallback(ServerTransport s,
                                     boolean uaq,
                                     int d,
@@ -610,7 +606,7 @@ public class HTTPTransportTest extends TestCase {
             oneWay = ow;
             decoupled = dc;
         }
-        
+
         public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
             try {
                 byte[] bytes = buffer;
@@ -618,7 +614,7 @@ public class HTTPTransportTest extends TestCase {
                     bytes = new byte[10000];
                 }
                 int total = readBytes(bytes, ctx.getInputStream());
-                
+
                 OutputStreamMessageContext octx = null;
                 if (decoupled) {
                     EndpointReferenceType ref = new EndpointReferenceType();
@@ -632,7 +628,7 @@ public class HTTPTransportTest extends TestCase {
                         awaitPartialResponseReceived();
                     }
                 }
-                
+
                 if (oneWay) {
                     octx = transport.createOutputStreamContext(ctx);
                     octx.setOneWay(oneWay);
@@ -640,12 +636,12 @@ public class HTTPTransportTest extends TestCase {
                     octx.getOutputStream().close();
                     transport.postDispatch(ctx, octx);
                 }
-                
-                // simulate implementor call 
-                if (delay > 0) {                       
+
+                // simulate implementor call
+                if (delay > 0) {
                     Thread.sleep(delay);
                 }
-                
+
                 if (!oneWay) {
                     octx = transport.createOutputStreamContext(ctx);
                     octx.setOneWay(oneWay);

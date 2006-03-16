@@ -37,22 +37,21 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class ServiceImpl extends ServiceDelegate {
-    
-    public static final String SERVICE_CONFIGURATION_URI = 
+
+    public static final String SERVICE_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/jaxws/service-config";
     public static final String PORT_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/jaxws/port-config";
-    
+
     private static final Logger LOG = Logger.getLogger(ServiceImpl.class.getName());
-    
+
     private URL wsdlLocation;
     private QName serviceName;
     private final List<QName> endpointList;
     private final Bus bus;
-    private final Configuration configuration;
-    private HandlerResolver handlerResolver; 
+    private HandlerResolver handlerResolver;
     private Executor executor;
-    
+
     /**
      * Create a new Service.
      * @throws WebServiceException If there is an exception creating Service.
@@ -61,21 +60,20 @@ public class ServiceImpl extends ServiceDelegate {
         bus = b;
         wsdlLocation = location;
         serviceName = name;
-        configuration = createConfiguration();
         endpointList = new Vector<QName>();
-        handlerResolver = new HandlerResolverImpl(configuration);
+        handlerResolver = new HandlerResolverImpl(bus.getConfiguration(), serviceName);
         executor = bus.getWorkQueueManager().getAutomaticWorkQueue();
     }
-    
+
     public void createPort(QName portName, URI bindingId, String endpointAddress) {
-        throw new UnsupportedOperationException("addPort not yet supported");        
-    }   
-    
+        throw new UnsupportedOperationException("addPort not yet supported");
+    }
+
     public <T> T getPort(QName portName, Class<T> serviceEndpointInterface) {
         if (portName == null) {
             throw new WebServiceException("No endpoint specified.");
         }
-        
+
         return createPort(portName, serviceEndpointInterface);
     }
 
@@ -83,24 +81,24 @@ public class ServiceImpl extends ServiceDelegate {
         return createPort(null, serviceEndpointInterface);
     }
 
-    public <T> Dispatch<T> createDispatch(QName portName, Class<T> serviceEndpointInterface, 
+    public <T> Dispatch<T> createDispatch(QName portName, Class<T> serviceEndpointInterface,
                                     Service.Mode mode) {
-        EndpointReferenceType ref = 
-            EndpointReferenceUtils.getEndpointReference(wsdlLocation, 
-                                                        serviceName, 
+        EndpointReferenceType ref =
+            EndpointReferenceUtils.getEndpointReference(wsdlLocation,
+                                                        serviceName,
                                                         portName.getLocalPart());
         createPortConfiguration(portName, ref);
-        return new DispatchImpl<T>(bus, ref, mode, serviceEndpointInterface, executor);        
+        return new DispatchImpl<T>(bus, ref, mode, serviceEndpointInterface, executor);
     }
 
     public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Service.Mode mode) {
-        
-        EndpointReferenceType ref = 
-            EndpointReferenceUtils.getEndpointReference(wsdlLocation, 
-                                                        serviceName, 
+
+        EndpointReferenceType ref =
+            EndpointReferenceUtils.getEndpointReference(wsdlLocation,
+                                                        serviceName,
                                                         portName.getLocalPart());
         createPortConfiguration(portName, ref);
-        
+
         return new DispatchImpl<Object>(bus, ref, mode, context, Object.class, executor);
     }
 
@@ -120,7 +118,7 @@ public class ServiceImpl extends ServiceDelegate {
 
         LOG.log(Level.FINE, "creating port for portName", portName);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
-                
+
         //Assuming Annotation is Present
         javax.jws.WebService wsAnnotation = serviceEndpointInterface.getAnnotation(WebService.class);
 
@@ -131,50 +129,50 @@ public class ServiceImpl extends ServiceDelegate {
         if (wsdlLocation == null) {
             throw new WebServiceException("No wsdl url specified");
         }
-        
+
         if (serviceName == null) {
             serviceName = getServiceName(wsAnnotation);
         }
-        
-        EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlLocation, 
+
+        EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlLocation,
                 serviceName, portName.getLocalPart());
-                     
-        Configuration pc = createPortConfiguration(portName, ref);  
-        
-        EndpointInvocationHandler endpointHandler = 
-                new EndpointInvocationHandler(bus, ref, this, pc, serviceEndpointInterface);
-        
+
+        Configuration portConfiguration = createPortConfiguration(portName, ref);
+
+        EndpointInvocationHandler endpointHandler =
+                new EndpointInvocationHandler(bus, ref, this, portConfiguration, serviceEndpointInterface);
+
         createHandlerChainForBinding(serviceEndpointInterface, portName, endpointHandler.getBinding());
-        
+
         Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(),
-                                            new Class[] {serviceEndpointInterface, Remote.class, 
+                                            new Class[] {serviceEndpointInterface, Remote.class,
                                                          BindingProvider.class},
                                             endpointHandler);
-        
+
         LOG.log(Level.FINE, "created proxy", obj);
-                
+
         endpointList.add(portName);
-        
+
         return serviceEndpointInterface.cast(obj);
     }
 
-    
-    private <T> void createHandlerChainForBinding(Class<T> serviceEndpointInterface, 
+
+    private <T> void createHandlerChainForBinding(Class<T> serviceEndpointInterface,
                                                   QName portName, Binding binding) {
         LOG.fine("loading handler chain for service");
-        assert handlerResolver != null; 
+        assert handlerResolver != null;
         PortInfoImpl portInfo = new PortInfoImpl(serviceName, portName, null);
         List<Handler> handlers = handlerResolver.getHandlerChain(portInfo);
-        AnnotationHandlerChainBuilder handlerChainBuilder = new AnnotationHandlerChainBuilder(); 
+        AnnotationHandlerChainBuilder handlerChainBuilder = new AnnotationHandlerChainBuilder();
         handlers = handlerChainBuilder.buildHandlerChainFor(serviceEndpointInterface, handlers);
         binding.setHandlerChain(handlers);
     }
-    
+
     private URL getWsdlLocation(WebService wsAnnotation) {
 
         URL url = null;
         if (wsAnnotation != null) {
-            try { 
+            try {
                 url = new URL(wsAnnotation.wsdlLocation());
             } catch (java.net.MalformedURLException mue) {
                 mue.printStackTrace();
@@ -182,21 +180,21 @@ public class ServiceImpl extends ServiceDelegate {
         }
         return url;
     }
-    
+
     private QName getServiceName(WebService wsAnnotation) {
 
-        QName serviceQName = null;        
+        QName serviceQName = null;
         if (wsAnnotation != null) {
             serviceQName = new QName(wsAnnotation.targetNamespace(), wsAnnotation.serviceName());
         }
-        
+
         return serviceQName;
     }
 
     @Override
     public void addPort(QName arg0, String arg1, String arg2) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -216,43 +214,31 @@ public class ServiceImpl extends ServiceDelegate {
     public void setExecutor(Executor e) {
         executor = e;
     }
-    
-    private Configuration createConfiguration() {
-        
-        Configuration busCfg = bus.getConfiguration();
-        assert null != busCfg;
-        Configuration cfg = null;
-        String id = serviceName.toString();
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
-        cfg = cb.getConfiguration(SERVICE_CONFIGURATION_URI, id, busCfg);
-        if (null == cfg) {
-            cfg = cb.buildConfiguration(SERVICE_CONFIGURATION_URI, id, busCfg);
-        }
-        return cfg;
-    }
-    
+
+    //find the configuration for the port as a child of the bus configuration, or have
+    //the builder create it if it does not exist yet
     private Configuration createPortConfiguration(QName portName, EndpointReferenceType ref) {
-        
+
         Configuration portCfg = null;
-        String id = portName.getLocalPart();
+        String id = serviceName.toString() + "/" + portName.getLocalPart();
         ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
-        portCfg = cb.getConfiguration(PORT_CONFIGURATION_URI, id, 
-                                      configuration); 
+        portCfg = cb.getConfiguration(PORT_CONFIGURATION_URI, id,
+                                      bus.getConfiguration());
         if (null == portCfg) {
-            portCfg = cb.buildConfiguration(PORT_CONFIGURATION_URI, id, configuration);
+            portCfg = cb.buildConfiguration(PORT_CONFIGURATION_URI, id, bus.getConfiguration());
         }
-        
+
         // add the additional provider
- 
+
         Port port = null;
         try  {
             port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
         } catch (WSDLException ex) {
             throw new WebServiceException("Could not get port from wsdl", ex);
-        }    
+        }
         portCfg.getProviders().add(new WsdlPortProvider(port));
         return portCfg;
-        
+
     }
 
 }

@@ -24,19 +24,19 @@ public class HandlerResolverImplTest extends TestCase {
         new QName("http://objectweb.org/hello_world_soap_http", "SOAP_Service"),
         "Greeter_SOAPBinding");
 
-    public void testGetHandlerChain() { 
+    public void testGetHandlerChain() {
         List<Handler> handlerChain = resolver.getHandlerChain(portInfo);
         assertNotNull(handlerChain);
         assertEquals(0, handlerChain.size());
-        
+
         Handler handler = createMock(Handler.class);
         handlerChain.add(handler);
-        
+
         handlerChain = resolver.getHandlerChain(portInfo);
         assertEquals(1, handlerChain.size());
         assertSame(handler, handlerChain.get(0));
     }
-    
+
     public void testGetHandlerChainFromConfiguration() {
         ObjectFactory factory = new ObjectFactory();
         HandlerType h1 = factory.createHandlerType();
@@ -45,77 +45,79 @@ public class HandlerResolverImplTest extends TestCase {
         HandlerType h2 = factory.createHandlerType();
         h2.setHandlerClass(getClass().getPackage().getName() + ".TestHandler");
         h2.setHandlerName("second");
-        
+
         HandlerChainType chain = factory.createHandlerChainType();
         List<HandlerType> handlers = chain.getHandler();
         handlers.add(h1);
         handlers.add(h2);
-        
-        Configuration serviceConf = createMock(Configuration.class);
-        HandlerResolverImpl res = new HandlerResolverImpl(serviceConf);
+
+        Configuration busConfiguration = createMock(Configuration.class);
+        QName service = new QName("http://objectweb.org/hello_world_soap_http", "SOAP_Service");
+        HandlerResolverImpl res = new HandlerResolverImpl(busConfiguration, service);
         Configuration portConf = createMock(Configuration.class);
-        serviceConf.getChild("http://celtix.objectweb.org/bus/jaxws/port-config", 
-                             portInfo.getPortName().getLocalPart());
+        String id = service.toString() + "/" + portInfo.getPortName().getLocalPart();
+        busConfiguration.getChild(HandlerResolverImpl.PORT_CONFIGURATION_URI, id);
         expectLastCall().andReturn(portConf);
         portConf.getObject("handlerChain");
         expectLastCall().andReturn(chain);
-        replay(serviceConf);
+        replay(busConfiguration);
         replay(portConf);
-        
+
         List<Handler> handlerChain = res.getHandlerChain(portInfo);
         assertNotNull(handlerChain);
-        assertEquals(2, handlerChain.size());       
-        verify(serviceConf);
+        assertEquals(2, handlerChain.size());
+        verify(busConfiguration);
         verify(portConf);
     }
-    
+
     public void testHandlerClassNotFound() {
         ObjectFactory factory = new ObjectFactory();
         HandlerType h3 = factory.createHandlerType();
         h3.setHandlerClass("a.b.c.TestHandler");
         h3.setHandlerName("nonExistingClassHandler");
-        
+
         HandlerChainType chain = factory.createHandlerChainType();
         List<HandlerType> handlers = chain.getHandler();
         handlers.add(h3);
-        
-        Configuration serviceConf = createMock(Configuration.class);
-        HandlerResolverImpl res = new HandlerResolverImpl(serviceConf);
+
+        Configuration busConfiguration = createMock(Configuration.class);
+        QName service = new QName("http://objectweb.org/hello_world_soap_http", "SOAP_Service");
+        HandlerResolverImpl res = new HandlerResolverImpl(busConfiguration, service);
         Configuration portConf = createMock(Configuration.class);
-        serviceConf.getChild("http://celtix.objectweb.org/bus/jaxws/port-config", 
-                             portInfo.getPortName().getLocalPart());
+        String id = service.toString() + "/" + portInfo.getPortName().getLocalPart();
+        busConfiguration.getChild(HandlerResolverImpl.PORT_CONFIGURATION_URI, id);
         expectLastCall().andReturn(portConf);
         portConf.getObject("handlerChain");
         expectLastCall().andReturn(chain);
-        replay(serviceConf);
+        replay(busConfiguration);
         replay(portConf);
-        
+
         try {
             res.getHandlerChain(portInfo);
         } catch (WebServiceException ex) {
             assertTrue(ex.getCause() instanceof ClassNotFoundException);
         }
-        verify(serviceConf);
+        verify(busConfiguration);
         verify(portConf);
     }
-    
+
     /*
     public void testHandlerIllegalAccess() {
         ObjectFactory factory = new ObjectFactory();
         HandlerType h4 = factory.createHandlerType();
         h4.setClassName("org.objectweb.celtix.bus.jaxb.JAXBUtils");
         h4.setName("privateConstructor");
-        
+
         HandlerChainType chain = factory.createHandlerChainType();
         List<HandlerType> handlers = chain.getHandler();
         handlers.add(h4);
-        
+
         Configuration conf = createMock(Configuration.class);
         HandlerResolverImpl res = new HandlerResolverImpl(conf);
         conf.getObject("handlerChain");
         expectLastCall().andReturn(chain);
         replay(conf);
-        
+
         try {
             res.getHandlerChain(portInfo);
         } catch (WebServiceException ex) {
@@ -124,34 +126,35 @@ public class HandlerResolverImplTest extends TestCase {
         verify(conf);
     }
     */
-    
+
     public void testHandlerInstantiation() {
         ObjectFactory factory = new ObjectFactory();
         HandlerType h5 = factory.createHandlerType();
         h5.setHandlerClass("javax.xml.ws.handler.Handler");
         h5.setHandlerName("interfaceHandler");
-        
+
         HandlerChainType chain = factory.createHandlerChainType();
         List<HandlerType> handlers = chain.getHandler();
         handlers.add(h5);
-        
-        Configuration serviceConf = createMock(Configuration.class);
-        HandlerResolverImpl res = new HandlerResolverImpl(serviceConf);
+
+        Configuration busConfiguration = createMock(Configuration.class);
+        QName service = new QName("http://objectweb.org/hello_world_soap_http", "SOAP_Service");
+        HandlerResolverImpl res = new HandlerResolverImpl(busConfiguration, service);
         Configuration portConf = createMock(Configuration.class);
-        serviceConf.getChild("http://celtix.objectweb.org/bus/jaxws/port-config", 
-                             portInfo.getPortName().getLocalPart());
+        String id = service.toString() + "/" + portInfo.getPortName().getLocalPart();
+        busConfiguration.getChild(HandlerResolverImpl.PORT_CONFIGURATION_URI, id);
         expectLastCall().andReturn(portConf);
         portConf.getObject("handlerChain");
         expectLastCall().andReturn(chain);
-        replay(serviceConf);
+        replay(busConfiguration);
         replay(portConf);
-        
+
         try {
             res.getHandlerChain(portInfo);
         } catch (WebServiceException ex) {
             assertTrue(ex.getCause() instanceof InstantiationException);
         }
-        verify(serviceConf);
+        verify(busConfiguration);
         verify(portConf);
     }
 }

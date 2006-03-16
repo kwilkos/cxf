@@ -33,11 +33,11 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class JMSTransportBase {
     //--Member Variables--------------------------------------------------------
-    protected static final String SERVICE_CONFIGURATION_URI = 
+    protected static final String SERVICE_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/jaxws/service-config";
-    protected static final String PORT_CONFIGURATION_URI = 
+    protected static final String PORT_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/jaxws/port-config";
-    protected static final String ENDPOINT_CONFIGURATION_URI = 
+    protected static final String ENDPOINT_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/jaxws/endpoint-config";
     private static final Logger LOG = LogUtils.getL7dLogger(JMSTransportBase.class);
     protected JMSAddressPolicyType jmsAddressPolicy;
@@ -46,24 +46,24 @@ public class JMSTransportBase {
     protected Destination replyDestination;
     protected JMSSessionFactory sessionFactory;
     protected Bus theBus;
-    protected EndpointReferenceType targetEndpoint;    
+    protected EndpointReferenceType targetEndpoint;
     protected Port port;
     protected Configuration configuration;
-    
+
     //--Constructors------------------------------------------------------------
     public JMSTransportBase(Bus bus, EndpointReferenceType epr, boolean isServer) throws WSDLException {
         theBus = bus;
        // Configuration parentConfiguration = getParentConfiguration( isServer);
-        
+
         port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), epr);
-        
+
         configuration = createConfiguration(bus, epr, isServer);
         jmsAddressPolicy = getAddressPolicy(configuration);
         targetEndpoint = epr;
-        queueDestinationStyle = 
+        queueDestinationStyle =
             JMSConstants.JMS_QUEUE.equals(jmsAddressPolicy.getDestinationStyle().value());
     }
-    
+
     private JMSAddressPolicyType getAddressPolicy(Configuration conf) {
         JMSAddressPolicyType pol = conf.getObject(JMSAddressPolicyType.class, "jmsAddress");
         if (pol == null) {
@@ -71,20 +71,20 @@ public class JMSTransportBase {
         }
         return pol;
     }
-    
-    
+
+
     private Configuration createConfiguration(Bus bus,
-                                                  EndpointReferenceType ref, 
+                                                  EndpointReferenceType ref,
                                                   boolean isServer) {
         ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
-        
+
         Configuration busConfiguration = bus.getConfiguration();
         Configuration parent = null;
-        Configuration serviceConfiguration = null;
-        
+        //Configuration serviceConfiguration = null;
+
         String configURI;
         String configID;
-        
+
         if (isServer) {
             configURI = JMSConstants.JMS_SERVER_CONFIGURATION_URI;
             configID = JMSConstants.JMS_SERVER_CONFIG_ID;
@@ -94,19 +94,17 @@ public class JMSTransportBase {
         } else {
             configURI = JMSConstants.JMS_CLIENT_CONFIGURATION_URI;
             configID = JMSConstants.JMS_CLIENT_CONFIG_ID;
-            serviceConfiguration = busConfiguration
-            .getChild(SERVICE_CONFIGURATION_URI,
-                      EndpointReferenceUtils.getServiceName(ref).toString());
-            parent   = serviceConfiguration
-            .getChild(PORT_CONFIGURATION_URI,
-                      EndpointReferenceUtils.getPortName(ref).toString());
+            String id = EndpointReferenceUtils.getServiceName(ref).toString()
+                + "/" + EndpointReferenceUtils.getPortName(ref);
+            parent   = busConfiguration
+            .getChild(PORT_CONFIGURATION_URI, id);
         }
-        
+
         assert null != parent;
-       
-        Configuration cfg = cb.getConfiguration(configURI, configID, parent); 
+
+        Configuration cfg = cb.getConfiguration(configURI, configID, parent);
         if (null == cfg) {
-            cfg = cb.buildConfiguration(configURI,  configID, parent);            
+            cfg = cb.buildConfiguration(configURI,  configID, parent);
         }
         // register the additional provider
         if (null != port) {
@@ -114,7 +112,7 @@ public class JMSTransportBase {
         }
         return cfg;
     }
-    
+
     //--Methods-----------------------------------------------------------------
 
     public final JMSAddressPolicyType  getJmsAddressDetails() {
@@ -143,7 +141,7 @@ public class JMSTransportBase {
      * @param replyTo the ReplyTo destination if any
      * @return a JMS of the appropriate type populated with the given payload
      */
-    protected Message marshal(Object payload, Session session, Destination replyTo, 
+    protected Message marshal(Object payload, Session session, Destination replyTo,
                               String messageType) throws JMSException {
         Message message = null;
 
@@ -185,9 +183,9 @@ public class JMSTransportBase {
     protected final void entry(String trace) {
         LOG.log(Level.FINE, trace);
     }
-    
-    protected JMSHeadersType populateIncomingContext(Message message, 
-                                                             MessageContext context, 
+
+    protected JMSHeadersType populateIncomingContext(Message message,
+                                                             MessageContext context,
                                                              boolean isServer)  throws JMSException {
         JMSHeadersType headers = null;
         if (isServer) {
@@ -201,7 +199,7 @@ public class JMSTransportBase {
                 headers = new JMSClientHeadersType();
             }
         }
-        
+
         headers.setJMSCorrelationID(message.getJMSCorrelationID());
         headers.setJMSDeliveryMode(new Integer(message.getJMSDeliveryMode()));
         headers.setJMSExpiration(new Long(message.getJMSExpiration()));
@@ -210,7 +208,7 @@ public class JMSTransportBase {
         headers.setJMSRedelivered(Boolean.valueOf(message.getJMSRedelivered()));
         headers.setJMSTimeStamp(new Long(message.getJMSTimestamp()));
         headers.setJMSType(message.getJMSType());
-        
+
         List<JMSPropertyType> props = headers.getProperty();
         Enumeration enm = message.getPropertyNames();
         while (enm.hasMoreElements()) {
@@ -221,58 +219,58 @@ public class JMSTransportBase {
             prop.setValue(val);
             props.add(prop);
         }
-        
+
         return headers;
     }
-    
+
     protected int getJMSDeliveryMode(JMSHeadersType headers) {
         int deliveryMode = Message.DEFAULT_DELIVERY_MODE;
-        
-        if (headers != null  
+
+        if (headers != null
                 && headers.getJMSDeliveryMode() != null) {
             deliveryMode = headers.getJMSDeliveryMode().intValue();
         }
         return deliveryMode;
     }
-    
+
     protected int getJMSPriority(JMSHeadersType headers) {
         int priority = Message.DEFAULT_PRIORITY;
-        
-        if (headers != null  
+
+        if (headers != null
                 && headers.getJMSPriority() != null) {
             priority = headers.getJMSPriority().intValue();
-        }        
+        }
         return priority;
     }
-    
+
     protected long getTimeToLive(JMSHeadersType headers) {
         long ttl = Message.DEFAULT_TIME_TO_LIVE;
-        
-        if (headers != null  
+
+        if (headers != null
                 && headers.getTimeToLive() != null) {
             ttl = headers.getTimeToLive().longValue();
-        }        
+        }
         return ttl;
     }
-    
+
     protected String getCorrelationId(JMSHeadersType headers) {
         String correlationId  = null;
-        if (headers != null  
+        if (headers != null
             && headers.getJMSCorrelationID() != null) {
             correlationId = headers.getJMSCorrelationID();
-        }        
+        }
         return correlationId;
     }
-    
-    protected void setMessageProperties(JMSHeadersType headers, Message message) 
+
+    protected void setMessageProperties(JMSHeadersType headers, Message message)
         throws JMSException {
-        
-        if (headers != null  
+
+        if (headers != null
                 && headers.getProperty() != null) {
             List<JMSPropertyType> props = headers.getProperty();
             for (int x = 0; x < props.size(); x++) {
                 message.setStringProperty(props.get(x).getName(), props.get(x).getValue());
             }
-        }        
+        }
     }
 }

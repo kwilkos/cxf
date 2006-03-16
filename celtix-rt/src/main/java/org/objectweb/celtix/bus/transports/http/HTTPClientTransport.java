@@ -53,15 +53,13 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 public class HTTPClientTransport implements ClientTransport {
 
     //private static final Logger LOG = LogUtils.getL7dLogger(HTTPClientTransport.class);
-    
-    private static final String SERVICE_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/bus/jaxws/service-config";
-    private static final String PORT_CONFIGURATION_URI = 
+
+    private static final String PORT_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/jaxws/port-config";
     private static final String HTTP_CLIENT_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/transports/http/http-client-config";
     private static final String HTTP_CLIENT_CONFIGURATION_ID = "http-client";
-        
+
     final HTTPClientPolicy policy;
     final AuthorizationPolicy authPolicy;
     final AuthorizationPolicy proxyAuthPolicy;
@@ -70,14 +68,14 @@ public class HTTPClientTransport implements ClientTransport {
     final Bus bus;
     final Port port;
     final HTTPTransportFactory factory;
-    
+
     URL url;
     TransportClientCounters counters;
 
-      
-    public HTTPClientTransport(Bus b, 
-                               EndpointReferenceType ref, 
-                               HTTPTransportFactory f) 
+
+    public HTTPClientTransport(Bus b,
+                               EndpointReferenceType ref,
+                               HTTPTransportFactory f)
         throws WSDLException, IOException {
 
         bus = b;
@@ -88,18 +86,18 @@ public class HTTPClientTransport implements ClientTransport {
         factory = f;
         url = new URL(address);
         counters = new TransportClientCounters("HTTPClientTransport");
-         
+
         port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
         configuration = createConfiguration(portConfiguration);
         policy = getClientPolicy(configuration);
         authPolicy = getAuthPolicy("authorization", configuration);
         proxyAuthPolicy = getAuthPolicy("proxyAuthorization", configuration);
-        
-        
+
+
         bus.sendEvent(new ComponentCreatedEvent(this));
-       
+
     }
-    
+
     private HTTPClientPolicy getClientPolicy(Configuration conf) {
         HTTPClientPolicy pol = conf.getObject(HTTPClientPolicy.class, "httpClient");
         if (pol == null) {
@@ -114,11 +112,11 @@ public class HTTPClientTransport implements ClientTransport {
         }
         return pol;
     }
-       
+
     public EndpointReferenceType getTargetEndpoint() {
-        return targetEndpoint;     
+        return targetEndpoint;
     }
-    
+
     public EndpointReferenceType getDecoupledEndpoint() throws IOException {
         return factory.getDecoupledEndpoint(policy.getDecoupledEndpoint());
     }
@@ -126,7 +124,7 @@ public class HTTPClientTransport implements ClientTransport {
     public Port getPort() {
         return port;
     }
-    
+
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
         return new HTTPClientOutputStreamContext(url, policy, authPolicy, proxyAuthPolicy, context);
     }
@@ -135,7 +133,7 @@ public class HTTPClientTransport implements ClientTransport {
         HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;
         ctx.flushHeaders();
     }
-   
+
     public void invokeOneway(OutputStreamMessageContext context) throws IOException {
         try {
             HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;
@@ -149,30 +147,30 @@ public class HTTPClientTransport implements ClientTransport {
     }
 
     public InputStreamMessageContext invoke(OutputStreamMessageContext context) throws IOException {
-        try { 
-            context.getOutputStream().close();        
+        try {
+            context.getOutputStream().close();
             HTTPClientOutputStreamContext requestContext = (HTTPClientOutputStreamContext)context;
             counters.getInvoke().increase();
             return getResponseContext(requestContext, factory);
-        } catch (Exception ex) {            
+        } catch (Exception ex) {
             counters.getInvokeError().increase();
             throw new IOException(ex.getMessage());
         }
     }
 
-    public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, 
-                                                         Executor executor) 
-        throws IOException { 
+    public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context,
+                                                         Executor executor)
+        throws IOException {
         try {
             context.getOutputStream().close();
-            HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;  
+            HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;
             FutureTask<InputStreamMessageContext> f = new FutureTask<InputStreamMessageContext>(
                 new InputStreamMessageContextCallable(ctx, factory));
             // client (service) must always have an executor associated with it
             executor.execute(f);
             counters.getInvokeAsync().increase();
             return f;
-        } catch (Exception ex) {            
+        } catch (Exception ex) {
             counters.getInvokeError().increase();
             throw new IOException(ex.getMessage());
         }
@@ -188,15 +186,15 @@ public class HTTPClientTransport implements ClientTransport {
             } catch (IOException ex) {
                 //ignore
             }
-            url = null;         
+            url = null;
         }
-        
-        bus.sendEvent(new ComponentRemovedEvent(this));        
+
+        bus.sendEvent(new ComponentRemovedEvent(this));
     }
 
     protected static InputStreamMessageContext getResponseContext(
                                  HTTPClientOutputStreamContext requestContext,
-                                 HTTPTransportFactory factory) 
+                                 HTTPTransportFactory factory)
         throws IOException {
         InputStreamMessageContext responseContext = null;
         if (factory.hasDecoupledEndpoint()) {
@@ -212,33 +210,32 @@ public class HTTPClientTransport implements ClientTransport {
                 // request failed *before* server transport was rebased on
                 // decoupled response endpoint
                 responseContext = requestContext.createInputStreamContext();
-            }   
+            }
         } else {
             responseContext = requestContext.createInputStreamContext();
         }
         return responseContext;
     }
-    
+
     protected static Configuration getPortConfiguration(Bus bus, EndpointReferenceType ref) {
         Configuration busConfiguration = bus.getConfiguration();
-        Configuration serviceConfiguration = busConfiguration
-            .getChild(SERVICE_CONFIGURATION_URI,
-                      EndpointReferenceUtils.getServiceName(ref).toString());
-        Configuration portConfiguration = serviceConfiguration
+        String id = EndpointReferenceUtils.getServiceName(ref).toString()
+            + "/" + EndpointReferenceUtils.getPortName(ref);
+        Configuration portConfiguration = busConfiguration
             .getChild(PORT_CONFIGURATION_URI,
-                      EndpointReferenceUtils.getPortName(ref));
+                      id);
         return portConfiguration;
     }
-    
+
     private Configuration createConfiguration(Configuration portCfg) {
         ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
-        Configuration cfg = cb.getConfiguration(HTTP_CLIENT_CONFIGURATION_URI, 
-                                                HTTP_CLIENT_CONFIGURATION_ID, 
-                                                portCfg); 
+        Configuration cfg = cb.getConfiguration(HTTP_CLIENT_CONFIGURATION_URI,
+                                                HTTP_CLIENT_CONFIGURATION_ID,
+                                                portCfg);
         if (null == cfg) {
             cfg = cb.buildConfiguration(HTTP_CLIENT_CONFIGURATION_URI,
                                         HTTP_CLIENT_CONFIGURATION_ID,
-                                        portCfg);            
+                                        portCfg);
         }
         // register the additional provider
         if (null != port) {
@@ -254,13 +251,13 @@ public class HTTPClientTransport implements ClientTransport {
             responseCode = hc.getResponseCode();
         } else {
             if (connection.getHeaderField(HTTP_RESPONSE_CODE) != null) {
-                responseCode = 
+                responseCode =
                     Integer.parseInt(connection.getHeaderField(HTTP_RESPONSE_CODE));
             }
         }
         return responseCode;
     }
-    
+
     protected static class HTTPClientOutputStreamContext
         extends MessageContextWrapper
         implements OutputStreamMessageContext {
@@ -324,7 +321,7 @@ public class HTTPClientTransport implements ClientTransport {
                 } else {
                     hc.setInstanceFollowRedirects(false);
                     if (policy.isAllowChunking()) {
-                        hc.setChunkedStreamingMode(2048);                        
+                        hc.setChunkedStreamingMode(2048);
                     }
                 }
             }
@@ -389,38 +386,38 @@ public class HTTPClientTransport implements ClientTransport {
             }
             if (policy.isSetConnection()) {
                 headers.put("Connection",
-                            Arrays.asList(new String[] {policy.getConnection().value()}));                
+                            Arrays.asList(new String[] {policy.getConnection().value()}));
             }
             if (policy.isSetAccept()) {
                 headers.put("Accept",
-                            Arrays.asList(new String[] {policy.getAccept()}));                
+                            Arrays.asList(new String[] {policy.getAccept()}));
             }
             if (policy.isSetAcceptEncoding()) {
                 headers.put("Accept-Encoding",
-                            Arrays.asList(new String[] {policy.getAcceptEncoding()}));                
+                            Arrays.asList(new String[] {policy.getAcceptEncoding()}));
             }
             if (policy.isSetAcceptLanguage()) {
                 headers.put("Accept-Language",
-                            Arrays.asList(new String[] {policy.getAcceptLanguage()}));                
+                            Arrays.asList(new String[] {policy.getAcceptLanguage()}));
             }
             if (policy.isSetContentType()) {
                 headers.put("Content-Type",
-                            Arrays.asList(new String[] {policy.getContentType()}));                
+                            Arrays.asList(new String[] {policy.getContentType()}));
             }
             if (policy.isSetCookie()) {
                 headers.put("Cookie",
-                            Arrays.asList(new String[] {policy.getCookie()}));                
+                            Arrays.asList(new String[] {policy.getCookie()}));
             }
             if (policy.isSetBrowserType()) {
                 headers.put("BrowserType",
-                            Arrays.asList(new String[] {policy.getBrowserType()}));                
+                            Arrays.asList(new String[] {policy.getBrowserType()}));
             }
             if (policy.isSetReferer()) {
                 headers.put("Referer",
-                            Arrays.asList(new String[] {policy.getReferer()}));                
+                            Arrays.asList(new String[] {policy.getReferer()}));
             }
         }
-        
+
         @SuppressWarnings("unchecked")
         void flushHeaders() throws IOException {
             Map<String, List<String>> headers = (Map<String, List<String>>)super.get(HTTP_REQUEST_HEADERS);
@@ -430,7 +427,7 @@ public class HTTPClientTransport implements ClientTransport {
                     for (String string : headerList) {
                         connection.addRequestProperty(header, string);
                     }
-                } 
+                }
             }
             origOut.resetOut(new BufferedOutputStream(connection.getOutputStream(), 1024));
         }
@@ -442,15 +439,15 @@ public class HTTPClientTransport implements ClientTransport {
         public boolean isFault() {
             return false;
         }
-        
+
         public void setOneWay(boolean isOneWay) {
             put(ONEWAY_MESSAGE_TF, isOneWay);
         }
-        
+
         public boolean isOneWay() {
             return ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
         }
-        
+
         public OutputStream getOutputStream() {
             return out;
         }
@@ -465,7 +462,7 @@ public class HTTPClientTransport implements ClientTransport {
             }
             return inputStreamContext;
         }
-        
+
         private class WrappedOutputStream extends FilterOutputStream {
             WrappedOutputStream() {
                 super(new ByteArrayOutputStream());
@@ -478,7 +475,7 @@ public class HTTPClientTransport implements ClientTransport {
                 out = newOut;
             }
 
-            
+
             public void close() throws IOException {
                 out.flush();
                 if (inputStreamContext != null) {
@@ -493,17 +490,17 @@ public class HTTPClientTransport implements ClientTransport {
         implements InputStreamMessageContext {
 
         private static final long serialVersionUID = 1L;
-        
+
         final URLConnection connection;
         InputStream origInputStream;
         InputStream inStream;
-        private boolean initialised; 
+        private boolean initialised;
 
         public HTTPClientInputStreamContext(URLConnection con) throws IOException {
             connection = con;
             initialise();
         }
-        
+
         /**
          * Calling getHeaderFields on the connection implicitly gets
          * the InputStream from the connection.  Getting the
@@ -512,7 +509,7 @@ public class HTTPClientTransport implements ClientTransport {
          * before the binding is finished with it.  For this reason it
          * is necessary to initialise the InputStreamContext lazily.
          * When the OutputStream associated with this connection is
-         * closed, it will invoke on this initialise method.  
+         * closed, it will invoke on this initialise method.
          */
         void initialise()  throws IOException {
             if (!initialised) {
@@ -528,25 +525,25 @@ public class HTTPClientTransport implements ClientTransport {
                 } else {
                     origInputStream = connection.getInputStream();
                 }
-            
+
                 inStream = origInputStream;
                 initialised = true;
             }
-        } 
+        }
 
         public InputStream getInputStream() {
             try {
                 initialise();
-            } catch (IOException ex) { 
-                throw new RuntimeException(ex); 
-            } 
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
             return inStream;
         }
 
         public void setInputStream(InputStream ins) {
             inStream = ins;
         }
-        
+
         public void setFault(boolean isFault) {
             //nothing to do
         }
@@ -556,14 +553,14 @@ public class HTTPClientTransport implements ClientTransport {
             return ((Integer)get(HTTP_RESPONSE_CODE)).intValue() == 500;
         }
     }
-    
+
     static class HTTPDecoupledClientInputStreamContext
         extends GenericMessageContext
         implements InputStreamMessageContext {
 
         InputStream inStream;
-  
-        public HTTPDecoupledClientInputStreamContext(HttpRequest decoupledResponse)  
+
+        public HTTPDecoupledClientInputStreamContext(HttpRequest decoupledResponse)
             throws IOException {
             put(ObjectMessageContext.MESSAGE_INPUT, false);
             put(HTTP_RESPONSE_HEADERS, decoupledResponse.getParameters());
@@ -578,7 +575,7 @@ public class HTTPClientTransport implements ClientTransport {
         public void setInputStream(InputStream ins) {
             inStream = ins;
         }
-    
+
         public void setFault(boolean isFault) {
             //nothing to do
         }
@@ -586,8 +583,8 @@ public class HTTPClientTransport implements ClientTransport {
         public boolean isFault() {
             return false;
         }
-        
-        private static InputStream drain(InputStream r) throws IOException {        
+
+        private static InputStream drain(InputStream r) throws IOException {
             byte[] bytes = new byte[4096];
             ByteArrayOutputStream w = new ByteArrayOutputStream();
             try {
@@ -600,7 +597,7 @@ public class HTTPClientTransport implements ClientTransport {
                         w.write(bytes, 0, bytes.length);
                         offset = 0;
                     }
-                    
+
                     length = r.read(bytes, offset, bytes.length - offset);
                 }
                 if (offset != 0) {
@@ -612,11 +609,11 @@ public class HTTPClientTransport implements ClientTransport {
             return new ByteArrayInputStream(w.toByteArray());
         }
     }
-    
+
     static class InputStreamMessageContextCallable implements Callable<InputStreamMessageContext> {
         private final HTTPClientOutputStreamContext httpClientOutputStreamContext;
         private final HTTPTransportFactory factory;
-        
+
         InputStreamMessageContextCallable(HTTPClientOutputStreamContext ctx,
                                           HTTPTransportFactory f) {
             httpClientOutputStreamContext = ctx;
@@ -624,6 +621,6 @@ public class HTTPClientTransport implements ClientTransport {
         }
         public InputStreamMessageContext call() throws Exception {
             return getResponseContext(httpClientOutputStreamContext, factory);
-        }   
+        }
     }
 }

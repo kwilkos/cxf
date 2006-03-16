@@ -36,10 +36,10 @@ public class SequenceTest extends ClientServerTestBase {
 
     private static final String APP_NAMESPACE = "http://objectweb.org/hello_world_soap_http";
     private static final String GREETMEONEWAY_ACTION = APP_NAMESPACE + "/types/Greeter/greetMeOneWay";
-    
+
     private static final QName SERVICE_NAME = new QName(APP_NAMESPACE, "SOAPServiceAddressing");
     private static final QName PORT_NAME = new QName(APP_NAMESPACE, "SoapPort");
-  
+
     private Greeter greeter;
     private Bus bus;
     private List<SOAPMessage> outboundMessages;
@@ -59,7 +59,7 @@ public class SequenceTest extends ClientServerTestBase {
                 assertTrue("server did not launch correctly", launchServer(Server.class, "Windows 2000"
                     .equals(System.getProperty("os.name"))));
             }
-            
+
             public void setUp() throws Exception {
                 // avoid re-using a previously created configuration for a bus with id "celtix"
                 ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
@@ -71,11 +71,13 @@ public class SequenceTest extends ClientServerTestBase {
 
     public void setUp() throws Exception {
         super.setUp();
-        
+
         bus = Bus.init();
-             
+
+        System.out.println("------- before configureClient");
         TestConfigurator tc = new TestConfigurator();
         tc.configureClient(SERVICE_NAME, PORT_NAME.getLocalPart());
+        System.out.println("------- after configureClient");
 
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         SOAPService service = new SOAPService(wsdl, SERVICE_NAME);
@@ -111,53 +113,53 @@ public class SequenceTest extends ClientServerTestBase {
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
         greeter.greetMeOneWay("thrice");
-        
+
         // three application messages plus createSequence
         assertEquals(4, outboundMessages.size());
-        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, 
-                                                 GREETMEONEWAY_ACTION, 
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION,
                                                  GREETMEONEWAY_ACTION,
-                                                 GREETMEONEWAY_ACTION};  
+                                                 GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION};
         verifyActions(expectedActions, true);
-        verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);  
-        
+        verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
+
         // createSequenceResponse plus three partial responses
         assertEquals(4, inboundMessages.size());
-        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null}; 
+        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
         verifyActions(expectedActions, false);
         verifyMessageNumbers(new String[] {null, null, null, null}, false);
         assertNull(getAcknowledgment(inboundMessages.get(0)));
         for (int i = 1; i < 4; i++) {
             assertNotNull(getAcknowledgment(inboundMessages.get(i)));
         }
-        
+
     }
-    
-    
+
+
     private void verifyActions(String[] expectedActions, boolean outbound) throws Exception {
         List<SOAPMessage> messages = outbound ? outboundMessages : inboundMessages;
         assertEquals(expectedActions.length, messages.size());
-        for (int i = 0; i < expectedActions.length; i++) { 
+        for (int i = 0; i < expectedActions.length; i++) {
             String action = getAction(messages.get(i));
             if (null == expectedActions[i]) {
                 assertNull(action);
             } else {
-                assertEquals((outbound ? "Outbound " : "Inbound") 
+                assertEquals((outbound ? "Outbound " : "Inbound")
                              + " message " + (i + 1) + " does not contain expected action header"
                              + System.getProperty("line.separator"),
                              expectedActions[i], action);
             }
         }
     }
-    
-    private void verifyMessageNumbers(String[] expectedMessageNumbers, boolean outbound) 
+
+    private void verifyMessageNumbers(String[] expectedMessageNumbers, boolean outbound)
         throws Exception {
         List<SOAPMessage> messages = outbound ? outboundMessages : inboundMessages;
         assertEquals(expectedMessageNumbers.length, messages.size());
-        for (int i = 0; i < expectedMessageNumbers.length; i++) { 
+        for (int i = 0; i < expectedMessageNumbers.length; i++) {
             SOAPElement se = getSequence(messages.get(i));
             if (null == expectedMessageNumbers[i]) {
-                assertNull(se); 
+                assertNull(se);
             } else {
                 assertEquals((outbound ? "Outbound " : "Inbound")
                              + " message " + (i + 1) + " does not contain expected message number "
@@ -166,16 +168,16 @@ public class SequenceTest extends ClientServerTestBase {
             }
         }
     }
-    
+
     private String getAction(SOAPMessage msg) throws Exception {
         SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
         SOAPHeader header = env.getHeader();
         Iterator headerElements = header.examineAllHeaderElements();
         while (headerElements.hasNext()) {
-            SOAPHeaderElement headerElement = 
+            SOAPHeaderElement headerElement =
                 (SOAPHeaderElement)headerElements.next();
             Name headerName = headerElement.getElementName();
-            String localName = headerName.getLocalName(); 
+            String localName = headerName.getLocalName();
             if ((headerName.getURI().equals(org.objectweb.celtix.bus.ws.addressing.Names.WSA_NAMESPACE_NAME)
                 || headerName.getURI().equals(org.objectweb.celtix.bus.ws.addressing.VersionTransformer
                                               .Names200408.WSA_NAMESPACE_NAME))
@@ -185,46 +187,46 @@ public class SequenceTest extends ClientServerTestBase {
         }
         return null;
     }
-    
+
     private SOAPElement getSequence(SOAPMessage msg) throws Exception {
         SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
         SOAPHeader header = env.getHeader();
         Iterator headerElements = header.examineAllHeaderElements();
         while (headerElements.hasNext()) {
-            SOAPHeaderElement headerElement = 
+            SOAPHeaderElement headerElement =
                 (SOAPHeaderElement)headerElements.next();
             Name headerName = headerElement.getElementName();
-            String localName = headerName.getLocalName(); 
-            if (headerName.getURI().equals(Names.WSRM_NAMESPACE_NAME) 
+            String localName = headerName.getLocalName();
+            if (headerName.getURI().equals(Names.WSRM_NAMESPACE_NAME)
                 && localName.equals(Names.WSRM_SEQUENCE_NAME)) {
                 return (SOAPElement)header.getChildElements().next();
             }
         }
         return null;
     }
-    
+
     private String getMessageNumber(SOAPElement elem) throws Exception {
-        SOAPElement se = (SOAPElement)elem.getChildElements(new QName(Names.WSRM_NAMESPACE_NAME, 
+        SOAPElement se = (SOAPElement)elem.getChildElements(new QName(Names.WSRM_NAMESPACE_NAME,
                                                                       "MessageNumber")).next();
         return se.getTextContent();
     }
-    
+
     private SOAPElement getAcknowledgment(SOAPMessage msg) throws Exception {
         SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
         SOAPHeader header = env.getHeader();
         Iterator headerElements = header.examineAllHeaderElements();
         while (headerElements.hasNext()) {
-            SOAPHeaderElement headerElement = 
+            SOAPHeaderElement headerElement =
                 (SOAPHeaderElement)headerElements.next();
             Name headerName = headerElement.getElementName();
-            String localName = headerName.getLocalName(); 
-            if (headerName.getURI().equals(Names.WSRM_NAMESPACE_NAME) 
+            String localName = headerName.getLocalName();
+            if (headerName.getURI().equals(Names.WSRM_NAMESPACE_NAME)
                 && localName.equals(Names.WSRM_SEQUENCE_ACK_NAME)) {
-                return (SOAPElement)header.getChildElements().next();                   
+                return (SOAPElement)header.getChildElements().next();
             }
         }
         return null;
-    }    
-   
+    }
+
 
 }
