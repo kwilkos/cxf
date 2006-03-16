@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import org.objectweb.celtix.bus.configuration.wsrm.EndpointPolicyType;
+import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.ws.rm.Identifier;
 
 public class RMEndpoint {
 
     private static final String POLICIES_PROPERTY_NAME = "policies";
-    private static final String URN_UUID = "urn:uuid:";
     
     protected Map<String, Sequence> map;
     private RMHandler handler;
@@ -35,7 +34,7 @@ public class RMEndpoint {
      * @return the sequence identifier.
      */
     public Identifier generateSequenceIdentifier() {
-        String sequenceID = URN_UUID + UUID.randomUUID();
+        String sequenceID = ContextUtils.generateUUID();
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
         sid.setValue(sequenceID);        
         return sid;

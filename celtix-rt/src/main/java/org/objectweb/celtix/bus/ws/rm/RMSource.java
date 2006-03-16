@@ -5,8 +5,12 @@ import java.util.Set;
 
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
+import org.objectweb.celtix.buslifecycle.BusLifeCycleListener;
+import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.workqueue.WorkQueue;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 
@@ -19,7 +23,20 @@ public class RMSource extends RMEndpoint {
 
     RMSource(RMHandler h) {
         super(h);
+        Bus bus = h.getBinding().getBus();
+        WorkQueue workQueue =
+            bus.getWorkQueueManager().getAutomaticWorkQueue();
+        bus.getLifeCycleManager().registerLifeCycleListener(new BusLifeCycleListener() {
+            public void initComplete() {      
+            }
+            public void postShutdown() {      
+            }
+            public void preShutdown() {
+                shutdown();
+            }
+        });
         retransmissionQueue = new RetransmissionQueue();
+        retransmissionQueue.start(workQueue);
         offeredIdentifiers = new HashSet<Identifier>();
     }
 
@@ -76,15 +93,14 @@ public class RMSource extends RMEndpoint {
      */
     public void addUnacknowledged(MessageContext context) {
 
-        MessageContext clone = getHandler().getBinding().createObjectContext();
+        ObjectMessageContext clone = getHandler().getBinding().createObjectContext();
         clone.putAll(context);
-        getRetransmissionQueue().put(clone);
-        // TODO: schedule retransmission
+        getRetransmissionQueue().cacheUnacknowledged(clone);
     }
 
     /**
      * Stores the received acknowledgment in the Sequence object identified in
-     * the <code>SequenceAcknowldgement</code> parameter. Then evicts any
+     * the <code>SequenceAcknowldgement</code> parameter. Then purges any
      * acknowledged messages from the retransmission queue and requests sequence
      * termination if necessary.
      * 
@@ -95,7 +111,7 @@ public class RMSource extends RMEndpoint {
         Sequence seq = getSequence(sid);        
         if (null != seq) {
             seq.setAcknowledged(acknowledgment);
-            retransmissionQueue.evict(seq);
+            retransmissionQueue.purgeAcknowledged(seq);
         }
     }
 
@@ -103,5 +119,9 @@ public class RMSource extends RMEndpoint {
         Identifier sid = generateSequenceIdentifier();
         offeredIdentifiers.add(sid);
         return sid;
+    }
+    
+    public void shutdown() {
+        retransmissionQueue.shutdown();
     }
 }

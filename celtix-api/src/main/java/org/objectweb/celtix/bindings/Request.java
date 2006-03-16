@@ -62,7 +62,14 @@ public class Request {
     }
 
     public OutputStreamMessageContext process(OutputStreamMessageContext ostreamCtx) throws IOException {
-        if (handlerInvoker.invokeLogicalHandlers(true, objectCtx)) {
+        return process(ostreamCtx, false);
+    }
+    
+    public OutputStreamMessageContext process(OutputStreamMessageContext ostreamCtx,
+                                              boolean logicalChainTraversed) 
+        throws IOException {
+        if (logicalChainTraversed
+            || handlerInvoker.invokeLogicalHandlers(true, objectCtx)) {
             bindingCtx = binding.getBindingImpl().createBindingMessageContext(objectCtx);
             bindingCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
             if (null == bindingCtx) {

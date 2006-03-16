@@ -4,6 +4,7 @@ package org.objectweb.celtix.bus.ws.addressing;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,6 +53,12 @@ public final class ContextUtils {
     private static final String WS_ADDRESSING_PACKAGE = 
         EndpointReferenceType.class.getPackage().getName();
     private static final Logger LOG = LogUtils.getL7dLogger(ContextUtils.class);
+    
+    /**
+     * Used to fabricate a Uniform Resource Name from a UUID string
+     */
+    private static final String URN_UUID = "urn:uuid:";
+
 
     private static JAXBContext jaxbContext;
      
@@ -490,6 +497,14 @@ public final class ContextUtils {
         synchronized (ContextUtils.class) {
             jaxbContext = ctx;
         }
+    }
+    
+    
+    /**
+     * @return a generated UUID
+     */
+    public static String generateUUID() {
+        return URN_UUID + UUID.randomUUID();
     }
     
     /**

@@ -1,6 +1,9 @@
 package org.objectweb.celtix.bus.workqueue;
 
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import junit.framework.TestCase;
 
@@ -204,6 +207,38 @@ public class AutomaticWorkQueueTest extends TestCase {
         DeadLockThread dead = new DeadLockThread(workqueue, 200);
 
         assertTrue(checkDeadLock(dead));
+    }
+    
+    public void testSchedule() throws Exception {
+        workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, INITIAL_SIZE,
+                                               UNBOUNDED_HIGH_WATER_MARK,
+                                               UNBOUNDED_LOW_WATER_MARK,
+                                               DEFAULT_DEQUEUE_TIMEOUT);
+        final Lock runLock = new ReentrantLock();
+        final Condition runCondition = runLock.newCondition();
+        long start = System.currentTimeMillis();
+        Runnable doNothing = new Runnable() {
+            public void run() {
+                runLock.lock();
+                try {
+                    runCondition.signal();
+                } finally {
+                    runLock.unlock();
+                }
+            }
+        };
+        
+        workqueue.schedule(doNothing, 5000);
+        
+        runLock.lock();
+        try {
+            runCondition.await();
+        } finally {
+            runLock.unlock();
+        }
+        
+        assertTrue("expected delay",
+                   System.currentTimeMillis() - start >= 4950);
     }
 
     public void testThreadPoolShrink() {

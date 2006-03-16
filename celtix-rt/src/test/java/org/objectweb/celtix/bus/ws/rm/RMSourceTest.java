@@ -4,8 +4,13 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.AbstractClientBinding;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
+import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.workqueue.AutomaticWorkQueue;
+import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
@@ -13,6 +18,8 @@ import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
+import static org.easymock.classextension.EasyMock.createNiceMock;
+import static org.easymock.classextension.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.reset;
 import static org.easymock.classextension.EasyMock.verify;
@@ -20,13 +27,14 @@ import static org.easymock.classextension.EasyMock.verify;
 public class RMSourceTest extends TestCase {
     
     private RMHandler handler;
+    private RMSource s;
     
     public void setUp() {
         handler = createMock(RMHandler.class);
+        s = createSource(handler);
     }
     
     public void testRMSourceConstructor() {
-        RMSource s = new RMSource(handler);
         assertNotNull(s.getRetransmissionQueue());
         assertNull(s.getCurrent());
     }
@@ -41,7 +49,6 @@ public class RMSourceTest extends TestCase {
         expectLastCall().andReturn(sp);
         replay(handler);
         replay(c);  
-        RMSource s = new RMSource(handler);
         assertNotNull(s.getSourcePolicies());
         verify(handler);
         verify(c);
@@ -49,7 +56,9 @@ public class RMSourceTest extends TestCase {
         
         reset(handler);
         reset(c);
-        
+
+        s = createSource(handler);
+        reset(handler);
         sp = createMock(SourcePolicyType.class);
         handler.getConfiguration();
         expectLastCall().andReturn(c);
@@ -57,7 +66,6 @@ public class RMSourceTest extends TestCase {
         expectLastCall().andReturn(sp);
         replay(handler);
         replay(c);  
-        s = new RMSource(handler);
         assertNotNull(s.getSourcePolicies());
         verify(handler);
         verify(c);        
@@ -73,14 +81,12 @@ public class RMSourceTest extends TestCase {
         expectLastCall().andReturn(sp);
         replay(handler);
         replay(c);  
-        RMSource s = new RMSource(handler);
         assertNotNull(s.getSequenceTerminationPolicy());
         verify(handler);
         verify(c);
     }
     
     public void testAddSequence() throws IOException, SequenceFault {
-        RMSource s = new RMSource(handler);
         Identifier sid = s.generateSequenceIdentifier();
         Expires e = RMUtils.getWSRMFactory().createExpires();
         e.setValue(Sequence.PT0S);
@@ -95,7 +101,6 @@ public class RMSourceTest extends TestCase {
 
     
     public void testSetAcknowledged() throws NoSuchMethodException {
-        RMSource s = new RMSource(handler);
         Identifier sid1 = s.generateSequenceIdentifier();
         Identifier sid2 = s.generateSequenceIdentifier();
         Expires e = RMUtils.getWSRMFactory().createExpires();
@@ -109,5 +114,28 @@ public class RMSourceTest extends TestCase {
         assertSame(ack, seq.getAcknowledged());
         ack.setIdentifier(sid2);
         s.setAcknowledged(ack);   
+    }
+    
+    private RMSource createSource(RMHandler h) {
+        AbstractClientBinding binding = createNiceMock(AbstractClientBinding.class);
+        h.getBinding();
+        expectLastCall().andReturn(binding);
+        Bus bus = createNiceMock(Bus.class);
+        binding.getBus();
+        expectLastCall().andReturn(bus);
+        WorkQueueManager wqm = createNiceMock(WorkQueueManager.class);
+        bus.getWorkQueueManager();
+        expectLastCall().andReturn(wqm);
+        AutomaticWorkQueue workQueue = createNiceMock(AutomaticWorkQueue.class);
+        wqm.getAutomaticWorkQueue();
+        expectLastCall().andReturn(workQueue);
+        BusLifeCycleManager lcm = createNiceMock(BusLifeCycleManager.class);
+        bus.getLifeCycleManager();
+        expectLastCall().andReturn(lcm);
+        replay(h);
+        replay(binding);
+        replay(bus);
+        replay(wqm);
+        return new RMSource(h);
     }
 }

@@ -201,6 +201,15 @@ public class MAPAggregatorTest extends TestCase {
         control.verify();
         aggregator.close(context);
     }
+    
+    public void testResponderInboundOneway() throws Exception {
+        LogicalMessageContext context = 
+            setUpContext(false, false, true, true, false, true);
+        boolean proceed = aggregator.handleMessage(context);
+        assertTrue("expected dispatch to proceed", proceed);
+        control.verify();
+        aggregator.close(context);
+    }
 
     public void testResponderInboundValidMAPsFault() throws Exception {
         LogicalMessageContext context = setUpContext(false, false, false);
@@ -344,7 +353,11 @@ public class MAPAggregatorTest extends TestCase {
                                zeroLengthAction);
             } 
         } else if (!requestor) {
-            setUpResponder(context, outbound, decoupled, zeroLengthAction);
+            setUpResponder(context,
+                           oneway,
+                           outbound,
+                           decoupled,
+                           zeroLengthAction);
         }
         control.replay();
         return context;
@@ -438,6 +451,7 @@ public class MAPAggregatorTest extends TestCase {
     }
 
     private void setUpResponder(LogicalMessageContext context,
+                                boolean oneway,
                                 boolean outbound,
                                 boolean decoupled,
                                 boolean zeroLengthAction) throws Exception {
@@ -458,7 +472,9 @@ public class MAPAggregatorTest extends TestCase {
         }
         context.get(SERVER_ADDRESSING_PROPERTIES_INBOUND);
         EasyMock.expectLastCall().andReturn(maps);
-        if (decoupled) {
+        if (oneway || decoupled) {
+            context.get(ONEWAY_MESSAGE_TF);
+            EasyMock.expectLastCall().andReturn(Boolean.valueOf(oneway));
             ServerBinding binding = 
                 control.createMock(ServerBinding.class);
             context.get(BINDING_PROPERTY);

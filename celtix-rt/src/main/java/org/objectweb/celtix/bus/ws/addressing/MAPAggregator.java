@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,11 +31,6 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
     private static final Logger LOG = 
         LogUtils.getL7dLogger(MAPAggregator.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
-
-    /**
-     * Used to fabricate a Uniform Resource Name from a UUID string
-     */
-    private static final String URN_UUID = "urn:uuid:";
 
     protected final Map<String, String> messageIDs = 
         new HashMap<String, String>();
@@ -196,7 +190,7 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
         AddressingPropertiesImpl maps = getMAPs(context, true, true);
         // MessageID
         if (maps.getMessageID() == null) {
-            String messageID = URN_UUID + UUID.randomUUID();
+            String messageID = ContextUtils.generateUUID();
             maps.setMessageID(ContextUtils.getAttributedURI(messageID));
         }
         // To
@@ -310,6 +304,9 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             if (messageID != null
                 && messageIDs.put(messageID.getValue(), 
                                   messageID.getValue()) != null) {
+                LOG.log(Level.WARNING,
+                        "DUPLICATE_MESSAGE_ID_MSG",
+                        messageID.getValue());
                 String reason =
                     BUNDLE.getString("DUPLICATE_MESSAGE_ID_MSG");
                 String l7dReason = 

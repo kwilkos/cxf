@@ -49,7 +49,11 @@ public class RMProxyTest extends TestCase {
 
         RMHandler handler = EasyMock.createMock(RMHandler.class);
         Configuration config = EasyMock.createMock(Configuration.class);        
+        handler.getBinding();
+        EasyMock.expectLastCall().andReturn(binding);
+        EasyMock.replay(handler);
         RMSource source = new RMSource(handler);
+        EasyMock.reset(handler);
         
         handler.getBinding();
         EasyMock.expectLastCall().andReturn(binding);       

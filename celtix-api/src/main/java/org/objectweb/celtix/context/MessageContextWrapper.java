@@ -11,7 +11,6 @@ public class MessageContextWrapper implements MessageContext {
     
     public MessageContextWrapper(MessageContext ctx) {
         context = ctx;
-        //System.out.println("created context: " + this);
     }
 
     public String toString() {
@@ -80,5 +79,13 @@ public class MessageContextWrapper implements MessageContext {
 
     public MessageContext getWrappedContext() { 
         return context;
+    }
+    
+    public static MessageContext unwrap(MessageContext ctx) { 
+        MessageContext wrapper = ctx;
+        while (wrapper instanceof MessageContextWrapper) {
+            wrapper = ((MessageContextWrapper)wrapper).getWrappedContext();
+        }
+        return wrapper;
     }
 }

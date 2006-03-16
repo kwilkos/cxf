@@ -92,8 +92,24 @@ public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements Automa
             }
         }    
     }
-    
-   
+
+    /* (non-Javadoc)
+     * @see org.objectweb.celtix.workqueue.WorkQueue#schedule(java.lang.Runnable, long)
+     */
+    public void schedule(final Runnable work, final long delay) {
+        // temporary implementation, replace with shared long-lived scheduler
+        // task
+        execute(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException ie) {
+                    // ignore
+                }
+                work.run();
+            }
+        });
+    }
     
     // AutomaticWorkQueue interface
     

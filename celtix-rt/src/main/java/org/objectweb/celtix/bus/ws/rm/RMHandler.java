@@ -6,6 +6,7 @@ import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PreDestroy;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
@@ -23,6 +24,7 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
+import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.SystemHandler;
@@ -85,6 +87,13 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         return true;
     }
 
+    @PreDestroy
+    public void shutdown() {
+        if (source != null) {
+            source.shutdown();
+        }
+    }
+    
     public Configuration getConfiguration() {
         return configuration;
     }
@@ -132,16 +141,6 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     }
 
     private void initialise(MessageContext context) {
-        if (ContextUtils.isOutbound(context)) {
-            if (ContextUtils.isRequestor(context) && null == source) {
-                source = new RMSource(this);
-            }
-        } else {
-            if (!ContextUtils.isRequestor(context) && null == destination) {
-                destination = new RMDestination(this);
-            }
-        }
-
         if (null == clientTransport && null == serverTransport) {
             clientTransport = BindingContextUtils.retrieveClientTransport(context);
             if (null == clientTransport) {
@@ -160,6 +159,18 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         if (null == configuration) {
             configuration = createConfiguration(context);
         }
+        
+        if (ContextUtils.isOutbound(context)) {
+            if (ContextUtils.isRequestor(context) && null == source) {
+                // REVISIT share sources across handler chanins
+                source = new RMSource(this);
+            }
+        } else {
+            if (!ContextUtils.isRequestor(context) && null == destination) {
+                // REVISIT share destinations across handler chanins
+                destination = new RMDestination(this);
+            }
+        } 
 
         if (null == timer) {
             timer = new Timer();
@@ -246,12 +257,14 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             // retransmission
             // queue and schedule the next retransmission
 
-            source.addUnacknowledged(context);
+            source.addUnacknowledged(MessageContextWrapper.unwrap(context));
 
         }
 
-        // add Acknowledgements
 
+        
+        // add Acknowledgements       
+        
         if (null != destination) {
             AttributedURI to = VersionTransformer.convert(maps.getTo());
             assert null != to;
@@ -264,7 +277,6 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         if (!isServerSide() && BindingContextUtils.isOnewayMethod(context)) {
             context.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, Boolean.FALSE);
         }
-
     }
 
     private void handleInbound(LogicalMessageContext context) {
@@ -273,9 +285,6 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
         AddressingPropertiesImpl maps = ContextUtils.retrieveMAPs(context, false, false);
         assert null != maps;
-
-        // ensure the appropriate version of WS-Addressing is used
-        maps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
 
         String action = null;
         if (null != maps.getAction()) {
