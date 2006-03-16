@@ -27,8 +27,11 @@ public final class JMSConstants {
     public static final String JMS_CONNECTION_PASSWORD = "connectionPassword";
     
 
-    public static final String JMS_RESPONSE_HEADERS = "org.objectweb.celtix.jms.response.headers";
-    public static final String JMS_REQUEST_HEADERS = "org.objectweb.celtix.jms.request.headers";
+    public static final String JMS_SERVER_HEADERS = "org.objectweb.celtix.jms.server.headers";
+    public static final String JMS_CLIENT_REQUEST_HEADERS = "org.objectweb.celtix.jms.client.request.headers";
+    public static final String JMS_CLIENT_RESPONSE_HEADERS = 
+        "org.objectweb.celtix.jms.client.response.headers";
+    public static final String JMS_CLIENT_RECEIVE_TIMEOUT = "org.objectweb.celtix.jms.client.timeout";
     public static final String JMS_SERVER_CONFIGURATION_URI = 
         "http://celtix.objectweb.org/bus/transports/jms/jms-server-config";
     public static final String JMS_CLIENT_CONFIGURATION_URI = 

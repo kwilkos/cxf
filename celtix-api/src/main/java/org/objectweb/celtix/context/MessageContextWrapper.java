@@ -1,6 +1,7 @@
 package org.objectweb.celtix.context;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,11 +56,21 @@ public class MessageContextWrapper implements MessageContext {
     public Object remove(Object arg0) {
         return context.remove(arg0);
     }
-
+    
+    @SuppressWarnings("unchecked")
     public void putAll(Map<? extends String, ? extends Object> arg0) {
         context.putAll(arg0);
+        
+        if (arg0 instanceof MessageContext) {
+            Iterator<String> iter = ((MessageContext) arg0).keySet().iterator();
+            
+            while (iter.hasNext()) {
+                String obj = iter.next();
+                context.setScope(obj, ((MessageContext) arg0).getScope(obj));
+            }
+        }
     }
-
+    
     public void clear() {
         context.clear();
     }

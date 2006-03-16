@@ -45,16 +45,6 @@ public class JMSInputStreamContextTest extends TestCase {
         assertTrue("Should get the same InputStream that was passed : Another String ", 
                 ANOTHER_STRING_STRING.equals(new String(retResult)));
          
-        JMSOutputStreamContext outCtx = new JMSOutputStreamContext(inCtx);
-         
-        outCtx.put("TestProperty", "MustExist");
-         
-        inCtx.setMatchingOutCtx(outCtx);
-         
-        String retProp = (String) inCtx.getMatchingOutCtx().get("TestProperty");
-         
-        assertTrue("Should get the same outContext back", "MustExist".equals(retProp));
-         
         inCtx.setFault(true);
          
         assertFalse(inCtx.isFault());

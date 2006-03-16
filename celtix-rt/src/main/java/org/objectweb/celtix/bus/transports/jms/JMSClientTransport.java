@@ -31,7 +31,7 @@ import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.jms.JMSClientBehaviorPolicyType;
-import org.objectweb.celtix.transports.jms.context.JMSClientHeadersType;
+import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
@@ -39,7 +39,8 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 public class JMSClientTransport extends JMSTransportBase implements ClientTransport {
     
     private static final Logger LOG = LogUtils.getL7dLogger(JMSClientTransport.class);
-    private static final long DEFAULT_RECEIVE_TIMEOUT = 15000;
+    private static final long DEFAULT_RECEIVE_TIMEOUT = 0;
+    //15000;
     
     protected boolean textPayload;
     TransportClientCounters counters;
@@ -126,7 +127,18 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
                 responseData = (byte[])invoke(context, true);
             }
             counters.getInvoke().increase();
-            return new JMSInputStreamContext(new ByteArrayInputStream(responseData));
+            JMSInputStreamContext respContext = 
+                new JMSInputStreamContext(new ByteArrayInputStream(responseData));
+            
+            if (context.containsKey(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS)) {
+                JMSMessageHeadersType responseHdr = 
+                    (JMSMessageHeadersType) context.remove(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS);
+                respContext.put(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS, responseHdr);
+                respContext.setScope(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS, 
+                                     MessageContext.Scope.APPLICATION);
+            }
+                        
+            return respContext;
         } catch (Exception ex) {
             //TODO: decide what to do with the exception.
             counters.getInvokeError().increase();
@@ -228,9 +240,10 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
 
         Message message = marshal(request, pooledSession.session(), replyTo, 
                                   clientBehaviourPolicy.getMessageType().value());
+      //  message.get
 
-        JMSClientHeadersType headers =
-            (JMSClientHeadersType) context.get(JMSConstants.JMS_REQUEST_HEADERS);
+        JMSMessageHeadersType headers =
+            (JMSMessageHeadersType) context.get(JMSConstants.JMS_CLIENT_REQUEST_HEADERS);
 
 
         int deliveryMode = getJMSDeliveryMode(headers);
@@ -240,8 +253,6 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         if (ttl <= 0) {
             ttl = DEFAULT_RECEIVE_TIMEOUT;
         }
-        
-        message.setJMSExpiration(ttl);
         
         setMessageProperties(headers, message);
         if (responseExpected) {
@@ -254,23 +265,26 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
                         + "a static replyTo Queue.";
                     throw new JMSException(error);
                 }
-
                 correlationID = id;
             }
         }
 
         if (correlationID != null) {
             message.setJMSCorrelationID(correlationID);
+        } else {
+            //No message correlation id is set. Whatever comeback will be accepted as responses.
+            // We assume that it will only happen in case of the temp. reply queue.
         }
-
 
         LOG.log(Level.FINE, "client sending request: ",  message);
 
         if (queueDestinationStyle) {
             QueueSender sender = (QueueSender) pooledSession.producer();
+            sender.setTimeToLive(ttl);
             sender.send((Queue) targetDestination, message, deliveryMode, priority, ttl);
         } else {
             TopicPublisher publisher = (TopicPublisher) pooledSession.producer();
+            publisher.setTimeToLive(ttl);
             publisher.publish((Topic) targetDestination, message, deliveryMode, priority, ttl);
         }
     }
@@ -286,22 +300,21 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
                            OutputStreamMessageContext context)
         throws JMSException {
         Object response = null;
-
-        JMSClientHeadersType headers =
-            (JMSClientHeadersType) context.get(JMSConstants.JMS_REQUEST_HEADERS);
-
+        
         long timeout = DEFAULT_RECEIVE_TIMEOUT;
 
-        if (headers != null
-                && headers.getTimeOut() != null) {
-            timeout = headers.getTimeOut().longValue();
-        }
+        Long receiveTimeout = (Long)context.get(JMSConstants.JMS_CLIENT_RECEIVE_TIMEOUT);
 
+        if (receiveTimeout != null) {
+            timeout = receiveTimeout.longValue();
+        }
+        
         Message message = pooledSession.consumer().receive(timeout);
         LOG.log(Level.FINE, "client received reply: " , message);
 
         if (message != null) {
-            populateIncomingContext(message, context, false);
+            
+            populateIncomingContext(message, context, JMSConstants.JMS_CLIENT_RESPONSE_HEADERS);
             String messageType = message instanceof TextMessage 
                         ? JMSConstants.TEXT_MESSAGE_TYPE : JMSConstants.BINARY_MESSAGE_TYPE;
             response = unmarshal(message, messageType);

@@ -32,7 +32,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
-import org.objectweb.celtix.transports.jms.context.JMSServerHeadersType;
+import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
@@ -40,8 +40,6 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
     static final Logger LOG = LogUtils.getL7dLogger(JMSServerTransport.class);
     private static final String JMS_SERVER_TRANSPORT_MESSAGE =
         JMSServerTransport.class.getName() + ".IncomingMessage";
-    private static final String JMS_SERVER_TRANSPORT_CORRELATION_ID =
-        JMSServerTransport.class.getName() + ".CorrelationID";
 
     ServerTransportCallback callback;
     TransportServerCounters counters;
@@ -101,9 +99,6 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
     }
 
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
-        //ubhole: This should also put the JMS Response headers info. 
-        // This should come from configuation/context. 
-        // Info. will include the JMSMessage->timeToLive and other relevant info. (if any)
         return new JMSOutputStreamContext(context);
     }
 
@@ -139,7 +134,6 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
         throws IOException {
 
         Message message = (Message) bindingContext.get(JMS_SERVER_TRANSPORT_MESSAGE);
-        String correlationID = (String) bindingContext.get(JMS_SERVER_TRANSPORT_CORRELATION_ID);
         PooledSession replySession = null;
          // ensure non-oneways in point-to-point domain
         counters.getRequestTotal().increase();
@@ -167,33 +161,44 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
                                                JMSConstants.BINARY_MESSAGE_TYPE);
                     }
 
+                    String correlationID = message.getJMSCorrelationID();
+
+                    if (correlationID == null
+                        || "".equals(correlationID)
+                        && serverBehaviourPolicy.isUseMessageIDAsCorrelationID()) {
+                        correlationID = message.getJMSMessageID();
+                    }
+                    
                     if (correlationID != null && !"".equals(correlationID)) {
                         reply.setJMSCorrelationID(correlationID);
                     }
 
                     QueueSender sender = (QueueSender)replySession.producer();
 
-                    JMSServerHeadersType headers =
-                        (JMSServerHeadersType) context.get(JMSConstants.JMS_RESPONSE_HEADERS);
-
+                    JMSMessageHeadersType headers =
+                        (JMSMessageHeadersType) context.get(JMSConstants.JMS_SERVER_HEADERS);
+           
                     int deliveryMode = getJMSDeliveryMode(headers);
                     int priority = getJMSPriority(headers);
                     long ttl = getTimeToLive(headers);
 
-                    setMessageProperties(headers, message);
+                    setMessageProperties(headers, reply);
 
                     LOG.log(Level.FINE, "server sending reply: ", reply);
 
-                    TimeZone tz = new SimpleTimeZone(0, "GMT");
-                    Calendar cal = new GregorianCalendar(tz);
-                    long timeToLive =  message.getJMSExpiration() - cal.getTimeInMillis();
-                    if (timeToLive > 0) {
-                        reply.setJMSExpiration(timeToLive);
-                        ttl = timeToLive;
+                    long timeToLive = 0;
+                    if (message.getJMSExpiration() > 0) {
+                        TimeZone tz = new SimpleTimeZone(0, "GMT");
+                        Calendar cal = new GregorianCalendar(tz);
+                        timeToLive =  message.getJMSExpiration() - cal.getTimeInMillis();
+                    }
+                    
+                    if (timeToLive >= 0) {
+                        ttl = ttl > 0 ? ttl : timeToLive;
                         sender.send(replyTo, reply, deliveryMode, priority, ttl);
                     } else {
                         LOG.log(Level.INFO, "Message time to live is already expired skipping response.");
-                    }                    
+                    }
                 } catch (JMSException ex) {
                     LOG.log(Level.WARNING, "Failed in post dispatch ...", ex);
                     counters.getTotalError().increase();
@@ -229,13 +234,7 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
     protected void incoming(Message message) throws IOException {
         try {
             LOG.log(Level.FINE, "server received request: ", message);
-            String correlationID = message.getJMSCorrelationID();
-
-            if (correlationID == null
-                || "".equals(correlationID)
-                && serverBehaviourPolicy.isUseMessageIDAsCorrelationID()) {
-                correlationID = message.getJMSMessageID();
-            }
+           
 
             String msgType = message instanceof TextMessage 
                     ? JMSConstants.TEXT_MESSAGE_TYPE : JMSConstants.BINARY_MESSAGE_TYPE;
@@ -252,11 +251,10 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
             }
 
             JMSInputStreamContext context = new JMSInputStreamContext(new ByteArrayInputStream(bytes));
-            populateIncomingContext(message, context, true);
+            populateIncomingContext(message, context, JMSConstants.JMS_SERVER_HEADERS);
 
 
             context.put(JMS_SERVER_TRANSPORT_MESSAGE, message);
-            context.put(JMS_SERVER_TRANSPORT_CORRELATION_ID, correlationID);
             callback.dispatch(context, this);
 
         } catch (JMSException jmsex) {

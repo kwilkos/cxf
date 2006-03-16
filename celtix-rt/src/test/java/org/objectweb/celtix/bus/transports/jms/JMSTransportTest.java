@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.transports.jms;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.wsdl.WSDLException;
@@ -32,18 +33,19 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.transports.TransportFactoryManager;
+import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
+import org.objectweb.celtix.transports.jms.context.JMSPropertyType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class JMSTransportTest extends TestCase {
 
+    public static final String JMSTRANSPORT_SKIP_RESPONSE = "JMSTransport.skipResponse";
     private ServerTransportCallback callback;
     private ServerTransportCallback callback1;
     private Bus bus;
     private String serverRcvdInOneWayCall;
     private WorkQueueManagerImpl wqm;
-
-
 
     public JMSTransportTest(String arg0) {
         super(arg0);
@@ -113,48 +115,63 @@ public class JMSTransportTest extends TestCase {
         return total;
     }
 
-    public void setupCallbackObject(final boolean useAutomaticWorkQueue) {
-        callback = new ServerTransportCallback() {
-            public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
-                try {
-                    byte bytes[] = new byte[10000];
-                    int total = readBytes(bytes, ctx.getInputStream());
 
-                    JMSOutputStreamContext octx =
-                        (JMSOutputStreamContext) transport.createOutputStreamContext(ctx);
-                    octx.setOneWay(false);
-                    transport.finalPrepareOutputStreamContext(octx);
-                    octx.getOutputStream().write(bytes, 0, total);
-                   // System.err.println("Server response : " + (new String(bytes)));
-                    octx.getOutputStream().flush();
+    public class TestServerTransportCallback implements ServerTransportCallback {
+        boolean useAutomaticWorkQueue;
 
-                    MessageContext replyCtx = new GenericMessageContext();
-                    ctx.put("ObjectMessageContext.MESSAGE_INPUT", Boolean.TRUE);
-                    replyCtx.putAll(ctx);
-                    replyCtx.put("ObjectMessageContext.MESSAGE_INPUT", Boolean.TRUE);
+        public TestServerTransportCallback(boolean useAutoWQ) {
+            useAutomaticWorkQueue = useAutoWQ;
+        }
 
-                    ((JMSServerTransport) transport).postDispatch(replyCtx, octx);
-                    octx.getOutputStream().close();
-                } catch (Exception ex) {
-                    // ignore exception  we are expecting one exception
-                    // in dispatch for client request when the server is deactivated.
-                    //
-                }
-            }
-            public Executor getExecutor() {
-                if (useAutomaticWorkQueue) {
-                    if (wqm == null) {
-                        wqm = new WorkQueueManagerImpl(bus);
+        public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
+
+            try {
+                byte bytes[] = new byte[10000];
+                if (ctx.containsKey(JMSConstants.JMS_SERVER_HEADERS)) {
+                    JMSMessageHeadersType msgHdr =
+                        (JMSMessageHeadersType) ctx.get(JMSConstants.JMS_SERVER_HEADERS);
+                    if (msgHdr.getProperty().contains(JMSTRANSPORT_SKIP_RESPONSE)) {
+                        //no need to process the response.
+                        return;                    
                     }
-                    return wqm.getAutomaticWorkQueue();
-                } else {
-                    return null;
                 }
 
+                int total = readBytes(bytes, ctx.getInputStream());
+
+                JMSOutputStreamContext octx =
+                    (JMSOutputStreamContext) transport.createOutputStreamContext(ctx);
+                octx.setOneWay(false);
+                transport.finalPrepareOutputStreamContext(octx);
+                octx.getOutputStream().write(bytes, 0, total);
+                octx.getOutputStream().flush();
+
+                MessageContext replyCtx = new GenericMessageContext();
+                ctx.put("ObjectMessageContext.MESSAGE_INPUT", Boolean.TRUE);
+                replyCtx.putAll(ctx);
+                replyCtx.put("ObjectMessageContext.MESSAGE_INPUT", Boolean.TRUE);
+
+                ((JMSServerTransport) transport).postDispatch(replyCtx, octx);
+                octx.getOutputStream().close();
+            } catch (Exception ex) {
+             //
             }
-        };
+        }
+
+        public Executor getExecutor() {
+            if (useAutomaticWorkQueue) {
+                if (wqm == null) {
+                    wqm = new WorkQueueManagerImpl(bus);
+                }
+                return wqm.getAutomaticWorkQueue();
+            } else {
+                return null;
+            }
+        }
     }
 
+    public void setupCallbackObject(final boolean useAutomaticWorkQueue) {
+        callback = new TestServerTransportCallback(useAutomaticWorkQueue);
+    }
 
     public void doTestJMSTransport(final boolean useAutomaticWorkQueue,
                         QName serviceName,
@@ -167,7 +184,6 @@ public class JMSTransportTest extends TestCase {
         assertNotNull(wsdlUrl);
 
         createConfiguration(wsdlUrl, serviceName, portName);
-
         TransportFactory factory = createTransportFactory();
 
         ServerTransport server = createServerTransport(factory, wsdlUrl, serviceName,
@@ -177,12 +193,11 @@ public class JMSTransportTest extends TestCase {
         server.activate(callback);
 
         ClientTransport client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
-        OutputStreamMessageContext octx =
-            client.createOutputStreamContext(new GenericMessageContext());
-        client.finalPrepareOutputStreamContext(octx);
+
+        OutputStreamMessageContext octx = null;
         byte outBytes[] = "Hello World!!!".getBytes();
-        octx.getOutputStream().write(outBytes);
-        InputStreamMessageContext ictx = client.invoke(octx);
+        InputStreamMessageContext ictx = doClientInvoke(client, octx, outBytes, false);
+
         byte bytes[] = new byte[10000];
         int len = ictx.getInputStream().read(bytes);
         assertTrue("Did not read anything " + len, len > 0);
@@ -193,11 +208,8 @@ public class JMSTransportTest extends TestCase {
         for (int x = 0; x < outBytes.length; x++) {
             outBytes[x] = (byte)('a' + (x % 26));
         }
-        client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
-        octx = client.createOutputStreamContext(new GenericMessageContext());
-        client.finalPrepareOutputStreamContext(octx);
-        octx.getOutputStream().write(outBytes);
-        ictx = client.invoke(octx);
+
+        ictx = doClientInvoke(client, octx, outBytes, false);
         int total = readBytes(bytes, ictx.getInputStream());
 
         assertTrue("Did not read anything " + total, total > 0);
@@ -208,10 +220,7 @@ public class JMSTransportTest extends TestCase {
         server.deactivate();
 
         try {
-            octx = client.createOutputStreamContext(new GenericMessageContext());
-            client.finalPrepareOutputStreamContext(octx);
-            octx.getOutputStream().write(outBytes);
-            ictx = client.invoke(octx);
+            ictx = doClientInvoke(client, octx, outBytes, true);
             len = ictx.getInputStream().read(bytes);
 
             if (len != -1) {
@@ -225,15 +234,40 @@ public class JMSTransportTest extends TestCase {
         server.activate(callback);
 
         outBytes = "New String and must match with response".getBytes();
-        octx = client.createOutputStreamContext(new GenericMessageContext());
-        client.finalPrepareOutputStreamContext(octx);
-        octx.getOutputStream().write(outBytes);
-        ictx = client.invoke(octx);
+        ictx = doClientInvoke(client, octx, outBytes, false);
         len = ictx.getInputStream().read(bytes);
         assertTrue("Did not read anything " + len, len > 0);
         assertEquals(new String(outBytes), new String(bytes, 0, len));
         server.shutdown();
         client.shutdown();
+    }
+
+    public InputStreamMessageContext doClientInvoke(ClientTransport client,
+                                                    OutputStreamMessageContext octx,
+                                                    byte[] outBytes,
+                                                    boolean insertContextInfo)
+        throws Exception {
+        octx = client.createOutputStreamContext(new GenericMessageContext());
+        client.finalPrepareOutputStreamContext(octx);
+        octx.getOutputStream().write(outBytes);
+        if (insertContextInfo) {
+            insertContextInfo(octx);
+        }
+        return client.invoke(octx);
+    }
+
+    public void insertContextInfo(OutputStreamMessageContext octx) {
+        //Set time to live and default receive timeout so as to timeout the client
+        JMSMessageHeadersType requestHeader = new JMSMessageHeadersType();
+        requestHeader.setTimeToLive(100L);
+        List<JMSPropertyType> props = requestHeader.getProperty();
+        JMSPropertyType skipResponseProperty = new JMSPropertyType();
+        skipResponseProperty.setName("JMSTransportTest.skipResponse");
+        skipResponseProperty.setValue("true");
+        props.add(skipResponseProperty);
+        octx.put(JMSConstants.JMS_CLIENT_REQUEST_HEADERS, requestHeader);
+        octx.put(JMSConstants.JMS_CLIENT_RECEIVE_TIMEOUT, new Long(10));
+
     }
 
     public void setupOneWayCallbackObject(final boolean useAutomaticWorkQueue) {

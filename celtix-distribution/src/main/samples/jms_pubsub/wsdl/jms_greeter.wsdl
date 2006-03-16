@@ -47,14 +47,15 @@
            <wsdl:port binding="tns:JMSGreeterPortBinding" name="GreeterPort">
                <jms:address
                    destinationStyle="topic"
-                   jndiProviderURL="tcp://localhost:61616" 
-                   initialContextFactory="org.activemq.jndi.ActiveMQInitialContextFactory" 
                    jndiConnectionFactoryName="ConnectionFactory" 
                    jndiDestinationName="dynamicTopics/test.celtix.jmstransport.topic"
-                   messageType="text"
-                   useMessageIDAsCorrelationID="true"   
-                   durableSubscriberName="Celtix_subscriber"
-                />
+                   >
+                   
+                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                   <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61616"/>
+                   
+                   
+                </jms:address>
            </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

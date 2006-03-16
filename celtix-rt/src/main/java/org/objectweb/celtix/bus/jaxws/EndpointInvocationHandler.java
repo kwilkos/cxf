@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -19,6 +20,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
@@ -36,7 +38,8 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
     
     private final ClientBinding clientBinding;
-    private Map<String, Object> requestContext;
+   // private Map<String, Object> requestContext;
+    private ThreadLocal requestContext;
     private Map<String, Object> responseContext;
     
     private final Class<?> portTypeInterface;
@@ -85,13 +88,19 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
         return clientBinding.getBinding();
     }
     
+    
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getRequestContext() {
         if (requestContext == null) {
             //REVISIT Need to Create a Request/ResponseContext classs to derive out of a
             //ContextBase class.
-            requestContext = new HashMap<String, Object>();
+            requestContext = new ThreadLocal() {
+                protected synchronized Object initialValue() {
+                    return new HashMap<String, Object>();
+                }
+            };
         }
-        return requestContext;
+        return (Map<String, Object>) requestContext.get();
     }
     
     public Map<String, Object> getResponseContext() {
@@ -106,6 +115,7 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
 
         ObjectMessageContext objMsgContext = clientBinding.createObjectContext();
         objMsgContext.putAll(getRequestContext());
+        
         
         objMsgContext.put(ObjectMessageContext.REQUEST_PROXY, proxy);
        
@@ -160,15 +170,30 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
             }
         }
         
+        populateResponseContext(objMsgContext);
+                
         return objMsgContext.getReturn();
     }
+    
+    private void populateResponseContext(MessageContext ctx) {
+        
+        Iterator<String> iter  = ctx.keySet().iterator();
+        Map<String, Object> respCtx = getResponseContext();
+        while (iter.hasNext()) {
+            String obj = iter.next();
+            if (MessageContext.Scope.APPLICATION.compareTo(ctx.getScope(obj)) == 0) {
+                respCtx.put(obj, ctx.get(obj));
+            }
+        }
+    }
+    
     
     protected ClientBinding createBinding(EndpointReferenceType ref, Configuration c) {
 
         ClientBinding binding = null;
         try {
             
-            String bindingId = c.getString("bindingId");            
+            String bindingId = c.getString("bindingId");
             BindingFactory factory = bus.getBindingManager().getBindingFactory(bindingId);
             assert factory != null : "unable to find binding factory for " + bindingId;
             binding = factory.createClientBinding(ref);

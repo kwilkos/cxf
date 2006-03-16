@@ -24,10 +24,8 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
-import org.objectweb.celtix.transports.jms.context.JMSClientHeadersType;
-import org.objectweb.celtix.transports.jms.context.JMSHeadersType;
+import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
 import org.objectweb.celtix.transports.jms.context.JMSPropertyType;
-import org.objectweb.celtix.transports.jms.context.JMSServerHeadersType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
@@ -184,20 +182,16 @@ public class JMSTransportBase {
         LOG.log(Level.FINE, trace);
     }
 
-    protected JMSHeadersType populateIncomingContext(Message message,
-                                                             MessageContext context,
-                                                             boolean isServer)  throws JMSException {
-        JMSHeadersType headers = null;
-        if (isServer) {
-            headers = (JMSServerHeadersType) context.get(JMSConstants.JMS_RESPONSE_HEADERS);
-            if (headers == null) {
-                headers = new JMSServerHeadersType();
-            }
-        } else {
-            headers = (JMSClientHeadersType) context.get(JMSConstants.JMS_REQUEST_HEADERS);
-            if (headers == null) {
-                headers = new JMSClientHeadersType();
-            }
+    protected JMSMessageHeadersType populateIncomingContext(Message message,
+                                                     MessageContext context,
+                                                     String headerType)  throws JMSException {
+        JMSMessageHeadersType headers = null;
+
+        headers = (JMSMessageHeadersType) context.get(headerType);
+
+        if (headers == null) {
+            headers = new JMSMessageHeadersType();
+            context.put(headerType, headers);
         }
 
         headers.setJMSCorrelationID(message.getJMSCorrelationID());
@@ -223,50 +217,45 @@ public class JMSTransportBase {
         return headers;
     }
 
-    protected int getJMSDeliveryMode(JMSHeadersType headers) {
+    protected int getJMSDeliveryMode(JMSMessageHeadersType headers) {
         int deliveryMode = Message.DEFAULT_DELIVERY_MODE;
 
-        if (headers != null
-                && headers.getJMSDeliveryMode() != null) {
-            deliveryMode = headers.getJMSDeliveryMode().intValue();
+        if (headers != null && headers.isSetJMSDeliveryMode()) {
+            deliveryMode = headers.getJMSDeliveryMode();
         }
         return deliveryMode;
     }
 
-    protected int getJMSPriority(JMSHeadersType headers) {
+    protected int getJMSPriority(JMSMessageHeadersType headers) {
         int priority = Message.DEFAULT_PRIORITY;
-
-        if (headers != null
-                && headers.getJMSPriority() != null) {
-            priority = headers.getJMSPriority().intValue();
+        if (headers != null && headers.isSetJMSPriority()) {
+            priority = headers.getJMSPriority();
         }
         return priority;
     }
 
-    protected long getTimeToLive(JMSHeadersType headers) {
-        long ttl = Message.DEFAULT_TIME_TO_LIVE;
-
-        if (headers != null
-                && headers.getTimeToLive() != null) {
-            ttl = headers.getTimeToLive().longValue();
+    protected long getTimeToLive(JMSMessageHeadersType headers) {
+        long ttl = -1;
+        if (headers != null && headers.isSetTimeToLive()) {
+            ttl = headers.getTimeToLive();
         }
         return ttl;
     }
 
-    protected String getCorrelationId(JMSHeadersType headers) {
+    protected String getCorrelationId(JMSMessageHeadersType headers) {
         String correlationId  = null;
         if (headers != null
-            && headers.getJMSCorrelationID() != null) {
+            && headers.isSetJMSCorrelationID()) {
             correlationId = headers.getJMSCorrelationID();
         }
         return correlationId;
     }
 
-    protected void setMessageProperties(JMSHeadersType headers, Message message)
+    protected void setMessageProperties(JMSMessageHeadersType headers, Message message)
         throws JMSException {
 
         if (headers != null
-                && headers.getProperty() != null) {
+                && headers.isSetProperty()) {
             List<JMSPropertyType> props = headers.getProperty();
             for (int x = 0; x < props.size(); x++) {
                 message.setStringProperty(props.get(x).getName(), props.get(x).getValue());
