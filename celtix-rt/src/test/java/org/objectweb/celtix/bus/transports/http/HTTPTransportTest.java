@@ -482,7 +482,8 @@ public class HTTPTransportTest extends TestCase {
         EasyMock.expectLastCall().andReturn(bc);
         bc.getObject("transportFactories");
         EasyMock.expectLastCall().andReturn(mappings);    
-        
+        // check the transportFactoryManager create event
+        checkBusCreatedEvent();
         EasyMock.replay(bus);
         EasyMock.replay(bc); 
         

@@ -51,9 +51,18 @@ public class CeltixBus extends Bus {
     public void initialize(String[] args, Map<String, Object> properties)
         throws BusException {
 
+        
         lifeCycleManager = new CeltixBusLifeCycleManager();        
         
         configuration = new BusConfigurationBuilder().build(args, properties);        
+        
+        // register a event cache for all bus events
+        eventCache = new BusEventCacheImpl(this);
+        //TODO: shall we add BusEventProcessor to a celtix bus registry?
+        eventProcessor = new BusEventProcessor(this, eventCache);
+
+        instrumentationManager = new InstrumentationManagerImpl(this); 
+        
         wsdlManager = new WSDLManagerImpl(this);
         transportFactoryManager = new TransportFactoryManagerImpl(this);
         bindingManager = new BindingManagerImpl(this);
@@ -64,13 +73,6 @@ public class CeltixBus extends Bus {
         // clientRegistry = new ClientRegistry(this);
 
         endpointRegistry = new EndpointRegistry(this);
-
-        //register a event cache for all bus events
-        eventCache = new BusEventCacheImpl(this);
-        //TODO: shall we add BusEventProcessor to a celtix bus registry?
-        eventProcessor = new BusEventProcessor(this, eventCache);
-
-        instrumentationManager = new InstrumentationManagerImpl(this);   
        
         Bus.setCurrent(this);
 
@@ -108,7 +110,9 @@ public class CeltixBus extends Bus {
         
         endpointRegistry.shutdown();        
 
-        // transportRegistry.shutdown(wait);
+        transportFactoryManager.shutdown();
+        bindingManager.shutdown();
+        wsdlManager.shutdown();
         //
         // handlerRegistry.shutdown(wait);
         // clientRegistry.shutdown(wait);

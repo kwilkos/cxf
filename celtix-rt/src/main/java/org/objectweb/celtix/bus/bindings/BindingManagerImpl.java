@@ -8,12 +8,14 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.BindingManager;
+import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
+import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 
 public final class BindingManagerImpl implements BindingManager {
 
-    private final Map<String, BindingFactory> bindingFactories;
+    final Map<String, BindingFactory> bindingFactories;
     private final Bus bus;
     
     public BindingManagerImpl(Bus b) throws BusException {
@@ -30,6 +32,8 @@ public final class BindingManagerImpl implements BindingManager {
             namespaceList.toArray(namespaces);
             loadBindingFactory(classname, namespaces);
         }
+        
+        bus.sendEvent(new ComponentCreatedEvent(this));
     }
     
     private void loadBindingFactory(String className, String ...namespaceURIs) throws BusException {
@@ -63,6 +67,10 @@ public final class BindingManagerImpl implements BindingManager {
     
     public BindingFactory getBindingFactory(String name) throws BusException {
         return bindingFactories.get(name);
+    }
+    
+    public void shutdown() {
+        bus.sendEvent(new ComponentRemovedEvent(this));
     }
         
 }

@@ -12,10 +12,14 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusEventListener;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.bindings.BindingManagerImpl;
+import org.objectweb.celtix.bus.bindings.BindingManagerInstrumentation;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 
 import org.objectweb.celtix.bus.management.jmx.JMXManagedComponentManager;
+import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
+import org.objectweb.celtix.bus.transports.TransportFactoryManagerInstrumentation;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransportInstrumentation;
 import org.objectweb.celtix.bus.transports.http.HTTPServerTransportInstrumentation;
@@ -26,13 +30,12 @@ import org.objectweb.celtix.bus.transports.jms.JMSServerTransport;
 import org.objectweb.celtix.bus.transports.jms.JMSServerTransportInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
+import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
+import org.objectweb.celtix.bus.wsdl.WSDLManagerInstrumentation;
 import org.objectweb.celtix.common.logging.LogUtils;
-
-
-
-
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationManager;
+
 
 
 
@@ -141,6 +144,7 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     
     public void regist(Instrumentation it) {
         if (it == null) {
+            // can't find the right instrumentation ,just return
             return;
         } else {
             instrumentations.add(it);        
@@ -177,9 +181,21 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         }
     }
     
-    //TODO this method could be replaced by some maptable
+    
     private Instrumentation createInstrumentation(Object component) {
-        Instrumentation it = null;        
+        Instrumentation it = null; 
+        if (BindingManagerImpl.class.isAssignableFrom(component.getClass())) {
+            it = new BindingManagerInstrumentation(
+                          (BindingManagerImpl)component);
+        }
+        if (TransportFactoryManagerImpl.class.isAssignableFrom(component.getClass())) {
+            it = new TransportFactoryManagerInstrumentation(
+                          (TransportFactoryManagerImpl)component);
+        }
+        if (WSDLManagerImpl.class.isAssignableFrom(component.getClass())) {
+            it = new WSDLManagerInstrumentation(
+                          (WSDLManagerImpl)component);
+        }
         if (WorkQueueManagerImpl.class.isAssignableFrom(component.getClass())) {
             it = new WorkQueueInstrumentation(
                           (WorkQueueManagerImpl)component);            
@@ -209,6 +225,6 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         // TODO need to add more qurey interface
         return instrumentations;
     }
-   
+      
 
 }

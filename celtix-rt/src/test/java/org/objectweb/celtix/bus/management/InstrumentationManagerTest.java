@@ -28,7 +28,7 @@ public class InstrumentationManagerTest extends TestCase {
     }
     
     public void tearDown() throws Exception {
-        bus.shutdown(true);        
+        //test case had done the bus.shutdown         
     }
     
     // try to get WorkQueue information
@@ -39,10 +39,12 @@ public class InstrumentationManagerTest extends TestCase {
         bus.sendEvent(new ComponentCreatedEvent(wqm));
         //NOTE: now the bus WorkQueueManager is lazy load , if WorkQueueManager 
         //create with bus , this test could be failed.
-        List<Instrumentation> list = im.getAllInstrumentation();        
-        assertEquals("Too many instrumented items", 2, list.size());
-        Instrumentation it1 = list.get(0);
-        Instrumentation it2 = list.get(1);
+        List<Instrumentation> list = im.getAllInstrumentation();   
+        //NOTE: change for the BindingManager and TransportFactoryManager instrumentation 
+        // create with the bus.
+        assertEquals("Too many instrumented items", 5, list.size());
+        Instrumentation it1 = list.get(3);
+        Instrumentation it2 = list.get(4);
         assertTrue("Item 1 not a WorkQueueInstrumentation",
                    WorkQueueInstrumentation.class.isAssignableFrom(it1.getClass()));
         assertTrue("Item 2 not a WorkQueueInstrumentation",
@@ -61,6 +63,8 @@ public class InstrumentationManagerTest extends TestCase {
             // do nothing
         }
         bus.sendEvent(new ComponentRemovedEvent(wqm));
+        assertEquals("Instrumented stuff not removed from list", 3, list.size());
+        bus.shutdown(true);
         assertEquals("Instrumented stuff not removed from list", 0, list.size());
     }
     
@@ -80,7 +84,7 @@ public class InstrumentationManagerTest extends TestCase {
         
         // TODO should test for the im getInstrumentation 
         List<Instrumentation> list = im.getAllInstrumentation();        
-        assertEquals("Too many instrumented items", 3, list.size());
+        assertEquals("Too many instrumented items", 6, list.size());
         // sleep for the MBServer connector thread startup 
         try {
             Thread.sleep(100);
@@ -91,6 +95,8 @@ public class InstrumentationManagerTest extends TestCase {
         bus.sendEvent(new ComponentRemovedEvent(wqm));
         bus.sendEvent(new ComponentRemovedEvent(jhst));
         bus.sendEvent(new ComponentRemovedEvent(hct));
+        assertEquals("Instrumented stuff not removed from list", 3, list.size());
+        bus.shutdown(true);
         assertEquals("Instrumented stuff not removed from list", 0, list.size());
     }
       

@@ -147,6 +147,10 @@ public class TestServerBinding extends AbstractServerBinding {
          */
         public synchronized void setResponseCallback(ResponseCallback callback) {
         }
+
+        public void shutdown() {
+           //do nothing  
+        }
     }
 
     class TestServerTransport implements ServerTransport {

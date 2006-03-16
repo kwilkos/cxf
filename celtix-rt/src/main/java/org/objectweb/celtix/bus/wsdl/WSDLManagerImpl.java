@@ -16,6 +16,8 @@ import org.w3c.dom.Element;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
+import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
@@ -34,8 +36,11 @@ public class WSDLManagerImpl implements WSDLManager {
     final WSDLFactory factory;
 
     final WeakHashMap<Object, Definition> definitionsMap;
+    
+    final Bus bus;
 
-    public WSDLManagerImpl(Bus bus) throws BusException {
+    public WSDLManagerImpl(Bus b) throws BusException {
+        bus = b;
         try {
             factory = WSDLFactory.newInstance();
             registry = factory.newPopulatedExtensionRegistry();
@@ -43,6 +48,10 @@ public class WSDLManagerImpl implements WSDLManager {
             throw new BusException(e);
         }
         definitionsMap = new WeakHashMap<Object, Definition>();
+        // null check for the unit test
+        if (bus != null) {
+            bus.sendEvent(new ComponentCreatedEvent(this));
+        }
     }
 
     public WSDLFactory getWSDLFactory() {
@@ -224,5 +233,11 @@ public class WSDLManagerImpl implements WSDLManager {
         }
 
         return definition;
+    }
+
+    public void shutdown() {
+        if (bus != null) {
+            bus.sendEvent(new ComponentRemovedEvent(this));
+        }
     }
 }

@@ -6,6 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
+import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 import org.objectweb.celtix.transports.TransportFactory;
@@ -13,7 +15,7 @@ import org.objectweb.celtix.transports.TransportFactoryManager;
 
 public final class TransportFactoryManagerImpl implements TransportFactoryManager {
 
-    private final Map<String, TransportFactory> transportFactories;
+    final Map<String, TransportFactory> transportFactories;
     private final Bus bus;
       
     public TransportFactoryManagerImpl(Bus b) throws BusException {
@@ -35,6 +37,7 @@ public final class TransportFactoryManagerImpl implements TransportFactoryManage
             namespaceList.toArray(namespaces);
             loadTransportFactory(classname, namespaces);
         }
+        bus.sendEvent(new ComponentCreatedEvent(this));
     }
     
     public void loadTransportFactory(String classname, String ... namespaces) throws BusException {
@@ -78,5 +81,9 @@ public final class TransportFactoryManagerImpl implements TransportFactoryManage
      */
     public TransportFactory getTransportFactory(String namespace) throws BusException {
         return transportFactories.get(namespace);
+    }
+
+    public void shutdown() {
+        bus.sendEvent(new ComponentRemovedEvent(this));        
     }
 }
