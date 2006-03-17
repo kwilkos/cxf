@@ -234,6 +234,34 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals("header_info", webParamAnno.partName());
   
     }
+    
+    public void testHolderHeader() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_holder.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+        Class clz = classLoader.loadClass("org.objectweb.hello_world_holder.Greeter");
+        assertEquals(1, clz.getMethods().length);
+
+        SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
+        assertEquals("BARE", soapBindingAnno.parameterStyle().name());
+        assertEquals("LITERAL", soapBindingAnno.use().name());
+        assertEquals("DOCUMENT", soapBindingAnno.style().name());
+
+        Class para = classLoader.loadClass("org.objectweb.hello_world_holder.types.GreetMe");
+        Method method = clz.getMethod("sayHi", new Class[] {para, Holder.class});
+        assertEquals("SayHi", method.getReturnType().getSimpleName());
+        
+        WebParam webParamAnno = AnnotationUtil.getWebParam(method, "greetMe");
+        assertEquals(true, webParamAnno.header());
+        
+        webParamAnno = AnnotationUtil.getWebParam(method, "sayHi");
+        assertEquals("INOUT", webParamAnno.mode().name());
+  
+    }
+
+    
+    
 
     public void testNamespacePackageMapping1() throws Exception {
         env.setPackageName("org.celtix");

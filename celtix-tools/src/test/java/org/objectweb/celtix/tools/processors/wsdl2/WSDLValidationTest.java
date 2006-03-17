@@ -57,6 +57,15 @@ public class WSDLValidationTest extends ProcessorTestBase {
 
     }
 
+    
+    public void testValidationHandlerWSDL2() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/addNumbers.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+    }
+    
+    
     private String getLocation(String wsdlFile) {
         return WSDLValidationTest.class.getResource(wsdlFile).getFile();
     }

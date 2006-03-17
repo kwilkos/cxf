@@ -119,6 +119,7 @@ public class OperationProcessor  extends AbstractProcessor {
             method.getInterface().addImport("javax.jws.Oneway");
             return;
         }
+       
         if ("void".equals(method.getReturn().getType())) {
             return;
         }

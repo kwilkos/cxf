@@ -27,7 +27,8 @@ public class WSDLToJavaExSoapHeaderTest
     }
 
     public void testSoapBindingDiffMessage() throws Exception {
-        String[] args = new String[] {"-d", output.getCanonicalPath(), "-exsh", "true", "-compile",
+        String[] args = new String[] {"-d", output.getCanonicalPath(), 
+                                      "-exsh", "true", "-compile",
                                       getLocation("/wsdl/soapheader_test.wsdl")};
         WSDLToJava.main(args);
 

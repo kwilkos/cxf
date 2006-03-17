@@ -14,6 +14,7 @@ import javax.wsdl.Operation;
 import javax.wsdl.Part;
 import javax.wsdl.PortType;
 import javax.wsdl.extensions.soap.SOAPBody;
+import javax.wsdl.extensions.soap.SOAPHeader;
 
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.utils.WSDLParserUtil;
@@ -42,7 +43,7 @@ public class WSIBPValidator extends AbstractValidator {
             }
         }
         return true;
-      
+
     }
 
     public boolean checkR2201() {
@@ -56,9 +57,10 @@ public class WSIBPValidator extends AbstractValidator {
                 BindingOperation bop = WSDLParserUtil.getBindingOperation(operation, def);
                 Binding binding = WSDLParserUtil.getBinding(bop, def);
                 String bindingStyle = binding != null ? WSDLParserUtil.getBindingStyle(binding) : "";
-          
+
                 String style = "".equals(WSDLParserUtil.getSOAPOperationStyle(bop))
                     ? bindingStyle : WSDLParserUtil.getSOAPOperationStyle(bop);
+
                 if ("DOCUMENT".equalsIgnoreCase(style)) {
                     List<Part> partsList = WSDLParserUtil.getInMessageParts(operation);
                     int inmessagePartsCount = partsList.size();
@@ -66,6 +68,12 @@ public class WSIBPValidator extends AbstractValidator {
                     if (soapBody != null) {
                         List parts = soapBody.getParts();
                         int boundPartSize = parts == null ? inmessagePartsCount : parts.size();
+                        SOAPHeader soapHeader = WSDLParserUtil.getBindingInputSOAPHeader(bop);
+                        boundPartSize = soapHeader != null
+                                        && soapHeader.getMessage().equals(
+                                                                          operation.getInput().getMessage()
+                                                                              .getQName())
+                            ? boundPartSize - 1 : boundPartSize;
 
                         if (parts != null) {
                             Iterator partsIte = parts.iterator();
@@ -99,6 +107,12 @@ public class WSIBPValidator extends AbstractValidator {
                     if (soapBody != null) {
                         List parts = soapBody.getParts();
                         int boundPartSize = parts == null ? outmessagePartsCount : parts.size();
+                        SOAPHeader soapHeader = WSDLParserUtil.getBindingOutputSOAPHeader(bop);
+                        boundPartSize = soapHeader != null
+                                        && soapHeader.getMessage().equals(
+                                                                          operation.getOutput().getMessage()
+                                                                              .getQName())
+                            ? boundPartSize - 1 : boundPartSize;
                         if (parts != null) {
                             Iterator partsIte = parts.iterator();
                             while (partsIte.hasNext()) {
@@ -125,7 +139,6 @@ public class WSIBPValidator extends AbstractValidator {
                             return false;
                         }
                     }
-
                 }
 
             }
@@ -147,11 +160,10 @@ public class WSIBPValidator extends AbstractValidator {
                 Operation operation = (Operation)ite2.next();
                 if (operation.getInput() != null && operation.getInput().getMessage() != null) {
                     Message inMess = operation.getInput().getMessage();
-                 
+
                     for (Iterator ite3 = inMess.getParts().values().iterator(); ite3.hasNext();) {
                         Part p = (Part)ite3.next();
-                        if (style.equalsIgnoreCase(SOAPBinding.Style.RPC.name())
-                            && p.getTypeName() == null) {
+                        if (style.equalsIgnoreCase(SOAPBinding.Style.RPC.name()) && p.getTypeName() == null) {
                             errorMessage = "An rpc-literal binding in a DESCRIPTION MUST refer, "
                                            + "in its soapbind:body element(s), only to "
                                            + "wsdl:part element(s) that have been defined "
@@ -159,7 +171,7 @@ public class WSIBPValidator extends AbstractValidator {
                             return false;
                         }
 
-                        if (style.equalsIgnoreCase(SOAPBinding.Style.DOCUMENT.name()) 
+                        if (style.equalsIgnoreCase(SOAPBinding.Style.DOCUMENT.name())
                             && p.getElementName() == null) {
                             errorMessage = "A document-literal binding in a DESCRIPTION MUST refer, "
                                            + "in each of its soapbind:body element(s),"
@@ -174,8 +186,7 @@ public class WSIBPValidator extends AbstractValidator {
                     Message outMess = operation.getOutput().getMessage();
                     for (Iterator ite3 = outMess.getParts().values().iterator(); ite3.hasNext();) {
                         Part p = (Part)ite3.next();
-                        if (style.equalsIgnoreCase(SOAPBinding.Style.RPC.name())
-                            && p.getTypeName() == null) {
+                        if (style.equalsIgnoreCase(SOAPBinding.Style.RPC.name()) && p.getTypeName() == null) {
                             errorMessage = "An rpc-literal binding in a DESCRIPTION MUST refer, "
                                            + "in its soapbind:body element(s), only to "
                                            + "wsdl:part element(s) that have been defined "
@@ -183,7 +194,7 @@ public class WSIBPValidator extends AbstractValidator {
                             return false;
                         }
 
-                        if (style.equalsIgnoreCase(SOAPBinding.Style.DOCUMENT.name()) 
+                        if (style.equalsIgnoreCase(SOAPBinding.Style.DOCUMENT.name())
                             && p.getElementName() == null) {
                             errorMessage = "A document-literal binding in a DESCRIPTION MUST refer, "
                                            + "in each of its soapbind:body element(s),"

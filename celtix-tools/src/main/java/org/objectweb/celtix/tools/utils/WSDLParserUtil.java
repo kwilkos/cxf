@@ -213,6 +213,9 @@ public final class WSDLParserUtil {
                 if (obj instanceof SOAPOperation) {
                     SOAPOperation soapOperation = (SOAPOperation)obj;
                     style = soapOperation.getStyle();
+                    if (style == null) {
+                        style = "";
+                    }
 
                     if ("".equals(bindingStyle) && "".equals(previousOpStyle) || "".equals(bindingStyle)
                         && previousOpStyle.equalsIgnoreCase(style)) {
@@ -223,6 +226,8 @@ public final class WSDLParserUtil {
                                || bindingStyle.equalsIgnoreCase(previousOpStyle)
                                && bindingStyle.equalsIgnoreCase(style)) {
                         previousOpStyle = style;
+                    } else if (!"".equals(bindingStyle) && "".equals(style) && "".equals(previousOpStyle)) {
+                        continue;
                     } else {
                         return true;
                     }
@@ -246,10 +251,10 @@ public final class WSDLParserUtil {
             String bopStyle = WSDLParserUtil.getSOAPOperationStyle(bindingOp);
             if (!"".equals(bopStyle)) {
                 return bopStyle;
-            } 
+            }
         }
         return "";
-        
+
     }
 
 }

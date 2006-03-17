@@ -17,16 +17,14 @@ import org.objectweb.celtix.tools.common.model.JavaType;
 import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
-public class ParameterProcessor
-    extends AbstractProcessor {
+public class ParameterProcessor extends AbstractProcessor {
 
     public ParameterProcessor(ProcessorEnvironment penv) {
         super(penv);
     }
 
     public void process(JavaMethod method, Message inputMessage, Message outputMessage,
-                        boolean isRequestResponse, List<String> parameterOrder)
-        throws ToolException {
+                        boolean isRequestResponse, List<String> parameterOrder) throws ToolException {
 
         boolean parameterOrderPresent = false;
 
@@ -42,9 +40,11 @@ public class ParameterProcessor
             buildParamModelsWithoutOrdering(method, inputMessage, outputMessage, isRequestResponse);
         }
     }
+
     /**
-     * This method will be used by binding processor to change 
-     * existing generated java method of porttype
+     * This method will be used by binding processor to change existing
+     * generated java method of porttype
+     * 
      * @param method
      * @param part
      * @param style
@@ -99,8 +99,7 @@ public class ParameterProcessor
         if (partName != null) {
             webParamAnnotation.addArgument("partName", partName);
         }
-        if (parameter.getStyle() == JavaType.Style.OUT
-            || parameter.getStyle() == JavaType.Style.INOUT) {
+        if (parameter.getStyle() == JavaType.Style.OUT || parameter.getStyle() == JavaType.Style.INOUT) {
             webParamAnnotation.addArgument("mode", "Mode." + parameter.getStyle().toString(), "");
         }
         webParamAnnotation.addArgument("name", name);
@@ -111,7 +110,7 @@ public class ParameterProcessor
         parameter.setAnnotation(webParamAnnotation);
 
         method.addParameter(parameter);
-        
+
         return parameter;
     }
 
@@ -177,18 +176,21 @@ public class ParameterProcessor
                     outParts.add(outpart);
                     continue;
                 } else if (isSamePart(inpart, outpart)) {
-                    addParameter(method,
-                                 getParameterFromPart(method, outpart, JavaType.Style.INOUT));
+                    addParameter(method, getParameterFromPart(method, outpart, JavaType.Style.INOUT));
+                    continue;
+                } else if (!isSamePart(inpart, outpart)) {
+                    outParts.add(outpart);
                     continue;
                 }
                 // outParts.add(outpart);
             }
         }
-
-        if (outParts.size() == 1) {
+  
+    /*    if (outParts.size() == 1) {
             processReturn(method, outParts.get(0));
             return;
-        } else if (isRequestResponse && outParts.size() == 1) {
+        } else*/ 
+        if (isRequestResponse && outParts.size() == 1) {
             processReturn(method, outputParts.iterator().next());
             return;
         } else {
@@ -202,9 +204,8 @@ public class ParameterProcessor
     }
 
     @SuppressWarnings("unchecked")
-    private void processWrappedOutput(JavaMethod method, Message inputMessage,
-                                      Message outputMessage, boolean isRequestResponse)
-        throws ToolException {
+    private void processWrappedOutput(JavaMethod method, Message inputMessage, Message outputMessage,
+                                      boolean isRequestResponse) throws ToolException {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Map<String, Part> outputPartsMap = outputMessage.getParts();
         Collection<Part> outputParts = outputPartsMap.values();
@@ -263,8 +264,7 @@ public class ParameterProcessor
                 }
             }
             if (!sameWrapperChild) {
-                addParameter(method, getParameterFromProperty(outElement, JavaType.Style.OUT,
-                                                              outputPart));
+                addParameter(method, getParameterFromProperty(outElement, JavaType.Style.OUT, outputPart));
             }
         }
         if (method.getReturn() == null) {
@@ -290,8 +290,7 @@ public class ParameterProcessor
         return true;
     }
 
-    private JavaParameter getParameterFromProperty(Property property, JavaType.Style style,
-                                                   Part part) {
+    private JavaParameter getParameterFromProperty(Property property, JavaType.Style style, Part part) {
         JType t = property.type();
         String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         if (targetNamespace == null) {
@@ -342,9 +341,9 @@ public class ParameterProcessor
     }
 
     @SuppressWarnings("unchecked")
-    private void buildParamModelsWithOrdering(JavaMethod method, Message inputMessage,
-                                              Message outputMessage, boolean isRequestResponse,
-                                              List<String> parameterList) throws ToolException {
+    private void buildParamModelsWithOrdering(JavaMethod method, Message inputMessage, Message outputMessage,
+                                              boolean isRequestResponse, List<String> parameterList)
+        throws ToolException {
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Map<String, Part> outputPartsMap = outputMessage.getParts();
 
@@ -390,8 +389,8 @@ public class ParameterProcessor
             if (part == null) {
                 part = outputPartsMap.get(partName);
                 style = JavaType.Style.OUT;
-            } else if (outputPartsMap.get(partName) != null
-                       && isSamePart(part, outputPartsMap.get(partName))) {
+            } else if (outputPartsMap.get(partName) != null 
+                && isSamePart(part, outputPartsMap.get(partName))) {
                 style = JavaType.Style.INOUT;
             }
             if (part != null) {
@@ -411,12 +410,12 @@ public class ParameterProcessor
 
     private boolean isSamePart(Part part1, Part part2) {
         QName qname1 = part1.getElementName();
-        QName qname2 = part1.getElementName();
+        QName qname2 = part2.getElementName();
         if (qname1 != null && qname2 != null) {
             return qname1.equals(qname2);
         }
         qname1 = part1.getTypeName();
-        qname2 = part1.getTypeName();
+        qname2 = part2.getTypeName();
         if (qname1 != null && qname2 != null) {
             return qname1.equals(qname2);
         }
@@ -424,8 +423,8 @@ public class ParameterProcessor
     }
 
     @SuppressWarnings("unchecked")
-    private boolean isValidOrdering(List<String> parameterOrder, Message inputMessage,
-                                    Message outputMessage) {
+    private boolean isValidOrdering(List<String> parameterOrder, 
+                                    Message inputMessage, Message outputMessage) {
         Iterator<String> params = parameterOrder.iterator();
 
         Collection<Part> inputParts = inputMessage.getParts().values();
