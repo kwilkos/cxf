@@ -15,6 +15,8 @@ import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
+import javax.xml.ws.WebFault;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 
 import org.w3c.dom.*;
@@ -116,9 +118,44 @@ public class XMLBindingImpl extends AbstractBindingImpl {
         }
     }
     
-    public void marshalFault(ObjectMessageContext objContext, MessageContext mc, 
+    public void marshalFault(ObjectMessageContext objContext,
+                             MessageContext mc, 
                              DataBindingCallback callback) {
-        // TODO
+        XMLMessage msg = null;
+        
+        try {
+            msg = XMLMessageContext.class.isInstance(mc) && ((XMLMessageContext)mc).getMessage() != null
+                ? ((XMLMessageContext)mc).getMessage() : initXMLMessage();
+            if (msg.hasChildNodes()) {
+                msg.removeContents();
+            }
+            
+            Throwable t = objContext.getException();
+            
+            XMLFault fault = msg.addFault();
+            // REVIST FaultCode to handle other codes.
+            StringBuffer str = new StringBuffer(t.toString());
+            if (!t.getClass().isAnnotationPresent(WebFault.class)) {
+                str.append("\n");
+                for (StackTraceElement s : t.getStackTrace()) {
+                    str.append(s.toString());
+                    str.append("\n");
+                }
+            }
+            fault.addFaultString(str.toString());
+
+            DataWriter<XMLFault> writer = callback.createWriter(XMLFault.class);
+            if (writer != null) {
+                writer.write(t, fault);
+                if (fault.getFaultDetail() != null && !fault.getFaultDetail().hasChildNodes()) {
+                    fault.removeChild(fault.getFaultDetail());
+                }
+            }
+        } catch (XMLBindingException se) {
+            LOG.log(Level.SEVERE, "FAULT_MARSHALLING_FAILURE_MSG", se);
+            // Handle UnChecked Exception, Runtime Exception.
+        }
+        ((XMLMessageContext)mc).setMessage(msg);
     }
 
     public void unmarshal(MessageContext mc, ObjectMessageContext objContext, DataBindingCallback callback) {
@@ -152,7 +189,31 @@ public class XMLBindingImpl extends AbstractBindingImpl {
     
     public void unmarshalFault(MessageContext context, ObjectMessageContext objContext,
                                DataBindingCallback callback) {
-        // TODO
+        try {
+            if (!XMLMessageContext.class.isInstance(context)) {
+                throw new XMLBindingException("XMLMessageContext not available");
+            }
+            
+            XMLMessageContext xmlContext = XMLMessageContext.class.cast(context);
+            XMLMessage xmlMessage = xmlContext.getMessage();
+            
+            XMLFault fault = xmlMessage.getFault();
+            if (fault == null) {
+                fault = xmlMessage.addFault();
+                fault.addFaultString("Unknow fault raised, the fault is null");
+            }
+            DataReader<XMLFault> reader = callback.createReader(XMLFault.class);
+            
+            if (reader == null) {
+                throw new WebServiceException("Could not unmarshal fault");
+            }
+            Object faultObj = reader.read(null, 0, fault);
+            
+            objContext.setException((Throwable)faultObj);
+        } catch (Exception se) {
+            LOG.log(Level.SEVERE, "XML_UNMARSHALLING_FAILURE_MSG", se);
+            throw new XMLBindingException("XML binding unmarshal fault exception", se);
+        }
     }
 
     public void write(MessageContext msgContext, OutputStreamMessageContext outContext) throws IOException {
@@ -185,8 +246,9 @@ public class XMLBindingImpl extends AbstractBindingImpl {
     }
 
     public boolean hasFault(MessageContext msgContext) {
-        // TODO
-        return false;
+        XMLMessage msg = ((XMLMessageContext)msgContext).getMessage();
+        assert msg != null;
+        return msg.hasFault();
     }
 
     public void updateMessageContext(MessageContext msgContext) {

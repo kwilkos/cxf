@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 import javax.xml.namespace.QName;
 import org.objectweb.hello_world_xml_http.wrapped.Greeter;
+import org.objectweb.hello_world_xml_http.wrapped.PingMeFault;
 import org.objectweb.hello_world_xml_http.wrapped.XMLService;
 
 public final class Client {
@@ -49,7 +50,15 @@ public final class Client {
         port.greetMeOneWay(System.getProperty("user.name"));
         System.out.println("No response from server as method is OneWay");
         System.out.println();
-     
+
+        try {
+            System.out.println("Invoking pingMe, expecting exception...");
+            port.pingMe();
+        } catch (PingMeFault ex) {
+            System.out.println("Expected exception: PingMeFault has occurred.");
+            System.out.println(ex.toString());
+        }
+                
         System.exit(0); 
     }
 

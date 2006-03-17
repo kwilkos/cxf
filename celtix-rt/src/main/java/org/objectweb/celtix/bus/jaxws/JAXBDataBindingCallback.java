@@ -27,14 +27,18 @@ import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.bindings.soap.SOAPConstants;
+import org.objectweb.celtix.bus.bindings.xml.XMLFault;
 import org.objectweb.celtix.bus.jaxws.io.DetailDataWriter;
 import org.objectweb.celtix.bus.jaxws.io.NodeDataReader;
 import org.objectweb.celtix.bus.jaxws.io.NodeDataWriter;
 import org.objectweb.celtix.bus.jaxws.io.SOAPFaultDataReader;
+import org.objectweb.celtix.bus.jaxws.io.XMLFaultReader;
+import org.objectweb.celtix.bus.jaxws.io.XMLFaultWriter;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.jaxb.JAXBUtils;
 import org.objectweb.celtix.jaxb.WrapperHelper;
+
 
 public class JAXBDataBindingCallback implements DataBindingCallback {
     
@@ -79,6 +83,8 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
             return new NodeDataWriter<T>(this);
         } else if (cls == Detail.class) {
             return new DetailDataWriter<T>(this);
+        } else if (cls == XMLFault.class) {
+            return new XMLFaultWriter<T>(this);
         }
         // TODO Auto-generated method stub
         return null;
@@ -89,6 +95,8 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
             return new NodeDataReader<T>(this);
         } else if (cls == SOAPFault.class) { 
             return new SOAPFaultDataReader<T>(this);
+        } else if (cls == XMLFault.class) {
+            return new XMLFaultReader<T>(this);
         }
         // TODO Auto-generated method stub
         return null;

@@ -218,7 +218,6 @@ public final class JAXBEncoderDecoder {
                 mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
                     .newInstance(elNname, mObj.getClass(), mObj);
             }
-
             u.marshal(mObj, destNode);
         } catch (Exception ex) {
             throw new ProtocolException("Marshalling Error", ex);

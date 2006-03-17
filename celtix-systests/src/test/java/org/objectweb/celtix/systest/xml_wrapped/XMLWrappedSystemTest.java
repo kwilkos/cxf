@@ -10,6 +10,7 @@ import junit.framework.TestSuite;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.hello_world_xml_http.wrapped.Greeter;
+import org.objectweb.hello_world_xml_http.wrapped.PingMeFault;
 import org.objectweb.hello_world_xml_http.wrapped.XMLService;
 
 public class XMLWrappedSystemTest extends ClientServerTestBase {
@@ -55,6 +56,26 @@ public class XMLWrappedSystemTest extends ClientServerTestBase {
             throw (Exception)ex.getCause();
         }
     }
+
+    public void testFaults() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl");
+        assertNotNull(wsdl);
+        
+        XMLService service = new XMLService(wsdl, serviceName);
+        assertNotNull(service);
+
+        Greeter greeter = service.getPort(portName, Greeter.class);
+        for (int idx = 0; idx < 2; idx++) {
+            try {
+                greeter.pingMe();
+                fail("Should have thrown PingMeFault exception");
+            } catch (PingMeFault nslf) {
+                assertNotNull(nslf.getFaultInfo());
+                assertEquals(1, nslf.getFaultInfo().getMinor());
+                assertEquals(2, nslf.getFaultInfo().getMajor());
+            } 
+        }
+    } 
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(XMLWrappedSystemTest.class);

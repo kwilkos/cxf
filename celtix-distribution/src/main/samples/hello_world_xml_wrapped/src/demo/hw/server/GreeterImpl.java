@@ -2,6 +2,8 @@ package demo.hw.server;
 
 import java.util.logging.Logger;
 import org.objectweb.hello_world_xml_http.wrapped.Greeter;
+import org.objectweb.hello_world_xml_http.wrapped.PingMeFault;
+import org.objectweb.hello_world_xml_http.wrapped.types.FaultDetail;
 
 @javax.jws.WebService(name = "Greeter", serviceName = "XMLService",
                       targetNamespace = "http://objectweb.org/hello_world_xml_http/wrapped",
@@ -39,5 +41,14 @@ public class GreeterImpl implements Greeter {
         LOG.info("Executing operation sayHi");
         System.out.println("Executing operation sayHi\n");
         return "Bonjour";
+    }
+
+    public void pingMe() throws PingMeFault {
+        FaultDetail faultDetail = new FaultDetail();
+        faultDetail.setMajor((short)2);
+        faultDetail.setMinor((short)1);
+        LOG.info("Executing operation pingMe, throwing PingMeFault exception");
+        System.out.println("Executing operation pingMe, throwing PingMeFault exception\n");
+        throw new PingMeFault("PingMeFault raised by server", faultDetail);
     }
 }

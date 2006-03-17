@@ -18,7 +18,6 @@ import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 
 public class XMLBindingFactory implements BindingFactory {
     
-    static final String NS_XML_FORMAT = "http://celtix.objectweb.org/bindings/xmlformat";
     private Bus bus;
     
     public XMLBindingFactory() {
@@ -37,7 +36,6 @@ public class XMLBindingFactory implements BindingFactory {
         } catch (JAXBException e) {
             //ignore, we can continue without the extension registered
         }
-        // registerXMLBindingExtension(bus.getWSDLManager().getExtenstionRegistry());
     }
     
     public ClientBinding createClientBinding(EndpointReferenceType reference) 
@@ -51,22 +49,4 @@ public class XMLBindingFactory implements BindingFactory {
         throws WSDLException, IOException {
         return new XMLServerBinding(bus, reference, ep, cbFactory);
     }
-
-//     private void registerXMLBindingExtension(ExtensionRegistry registry) {
-//         registerXMLBinding(registry, BindingInput.class);
-//         registerXMLBinding(registry, BindingOutput.class);
-//     }
-
-//     private void registerXMLBinding(ExtensionRegistry registry, Class clz) {
-//         registry.registerSerializer(clz,
-//                                     new QName(NS_XML_FORMAT, "body"),
-//                                     new XMLBindingSerializer());
-        
-//         registry.registerDeserializer(clz,
-//                                       new QName(NS_XML_FORMAT, "body"),
-//                                       new XMLBindingSerializer());
-//         registry.mapExtensionTypes(clz,
-//                                    new QName(NS_XML_FORMAT, "body"),
-//                                    XMLBinding.class);
-//     }
 }

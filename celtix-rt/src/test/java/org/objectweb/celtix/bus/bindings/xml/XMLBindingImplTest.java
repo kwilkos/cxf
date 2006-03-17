@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import javax.jws.WebResult;
+import javax.xml.ws.WebFault;
 
 import org.w3c.dom.*;
 
@@ -17,6 +18,8 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.helpers.XMLUtils;
 import org.objectweb.hello_world_xml_http.wrapped.Greeter;
+import org.objectweb.hello_world_xml_http.wrapped.PingMeFault;
+import org.objectweb.hello_world_xml_http.wrapped.types.FaultDetail;
 
 public class XMLBindingImplTest extends TestCase {
     private XMLBindingImpl binding;
@@ -172,5 +175,119 @@ public class XMLBindingImplTest extends TestCase {
                                                                        null);
         WebResult resultAnnotation  = callback.getWebResultAnnotation();
         assertEquals("responseType", resultAnnotation.name());
+    }
+
+    public void testWrappedMarshalFault() throws Exception {
+
+        xmlContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
+
+        String exMessage = new String("Test Exception");
+        FaultDetail ec = new FaultDetail();
+        ec.setMajor((short)2);
+        ec.setMinor((short)1);
+        PingMeFault ex = new PingMeFault(exMessage, ec);
+        objContext.setException(ex);
+
+        binding.marshalFault(objContext,
+                             xmlContext,
+                             new JAXBDataBindingCallback(objContext.getMethod(),
+                                                         DataBindingCallback.Mode.PARTS,
+                                                         null));
+        XMLMessage msg = xmlContext.getMessage();
+
+        assertNotNull(msg);
+        Node xmlNode = msg.getRoot();
+
+        assertNotNull(xmlNode);
+        assertEquals(1, xmlNode.getChildNodes().getLength());
+        assertTrue(msg.hasFault());
+        XMLFault fault = msg.getFault();
+        assertNotNull(fault);
+        assertEquals(getExceptionString(ex, exMessage), 
+                     fault.getFaultString());
+
+        assertTrue(fault.hasChildNodes());
+        Node detail = fault.getFaultDetail();
+        assertNotNull(detail);
+        
+        NodeList list = detail.getChildNodes();
+        assertEquals(1, list.getLength()); 
+        
+        WebFault wfAnnotation = ex.getClass().getAnnotation(WebFault.class);
+        assertEquals(wfAnnotation.targetNamespace(), list.item(0).getNamespaceURI());
+        assertEquals(wfAnnotation.name(), list.item(0).getLocalName());
+    }
+
+    public void testMarshalSystemFaults() throws Exception {
+        xmlContext.put(ObjectMessageContext.MESSAGE_INPUT, false);
+
+        XMLBindingException se = new XMLBindingException("XML Binding  Exception");
+        objContext.setException(se);
+
+        binding.marshalFault(objContext, 
+                             xmlContext,
+                             new JAXBDataBindingCallback(objContext.getMethod(),
+                                                         DataBindingCallback.Mode.PARTS,
+                                                         null));
+        XMLMessage msg = xmlContext.getMessage();
+        
+        assertNotNull(msg);
+        Node xmlNode = msg.getRoot();
+        assertNotNull(xmlNode);
+        assertEquals(1, xmlNode.getChildNodes().getLength());
+
+        assertTrue(msg.hasFault());
+        XMLFault fault = msg.getFault();
+        assertNotNull(fault);
+        assertEquals(getExceptionString(se, se.getMessage()),
+                     fault.getFaultString());
+        assertTrue(fault.hasChildNodes());
+        NodeList list = fault.getFaultRoot().getChildNodes();
+        assertEquals(1, list.getLength());         
+    }
+
+    public void testUnmarshalDocLiteralUserFaults() throws Exception {
+        xmlContext.put(ObjectMessageContext.MESSAGE_INPUT, true);
+        objContext.setMethod(ClassUtils.getMethod(Greeter.class, "pingMe"));
+
+        InputStream is =  getClass().getResourceAsStream("resources/xmlfault.xml");
+        XMLMessage faultMsg = binding.getMessageFactory().createMessage(is);
+        xmlContext.setMessage(faultMsg);
+
+        binding.unmarshalFault(xmlContext,
+                               objContext,
+                               new JAXBDataBindingCallback(objContext.getMethod(),
+                                                           DataBindingCallback.Mode.PARTS,
+                                                           null));
+        assertNotNull(objContext.getException());
+        Object faultEx = objContext.getException();
+        
+        assertTrue(PingMeFault.class.isAssignableFrom(faultEx.getClass()));
+        PingMeFault nscf = (PingMeFault)faultEx;
+        assertNotNull(nscf.getFaultInfo());
+        FaultDetail faultInfo = nscf.getFaultInfo();
+
+        assertEquals(faultInfo.getMajor(), (short)2);
+        assertEquals(faultInfo.getMinor(), (short)1);
+        assertEquals("org.objectweb.hello_world_xml_http.wrapped.PingMeFault: PingMeFault raised by server",
+                     nscf.getMessage());
+    }
+
+    private String getExceptionString(Exception ex, String faultString) {
+        StringBuffer str = new StringBuffer();
+        if (ex != null) {
+            str.append(ex.getClass().getName());
+            str.append(": ");
+        }
+        str.append(faultString);
+        
+        if (!ex.getClass().isAnnotationPresent(WebFault.class)) {
+            str.append("\n");
+            for (StackTraceElement s : ex.getStackTrace()) {
+                str.append(s.toString());
+                str.append("\n");
+            }          
+        }
+        return str.toString();
     }
 }

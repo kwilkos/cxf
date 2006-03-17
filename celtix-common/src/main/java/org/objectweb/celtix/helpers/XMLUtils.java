@@ -187,4 +187,32 @@ public class XMLUtils {
             e.printStackTrace();
         }
     }
+
+    public Element createElementNS(Node node, QName name) {
+        return createElementNS(node.getOwnerDocument(), name.getNamespaceURI(), name.getLocalPart());
+    }
+
+    public Element createElementNS(Document root, QName name) {
+        return createElementNS(root, name.getNamespaceURI(), name.getLocalPart());
+    }
+    
+    public Element createElementNS(Document root, String namespaceURI, String qualifiedName) {
+        return root.createElementNS(namespaceURI, qualifiedName);
+    }
+
+    public Text createTextNode(Document root, String data) {
+        return root.createTextNode(data);
+    }
+
+    public Text createTextNode(Node node, String data) {
+        return createTextNode(node.getOwnerDocument(), data);
+    }
+
+    public void removeContents(Node node) {
+        NodeList list = node.getChildNodes();
+        for (int i = 0; i < list.getLength(); i++) {
+            Node entry = list.item(i);
+            node.removeChild(entry);
+        }
+    }
 }

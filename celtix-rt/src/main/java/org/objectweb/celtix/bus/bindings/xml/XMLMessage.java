@@ -9,6 +9,7 @@ public class XMLMessage {
 
     private Document root;
     private XMLUtils xmlUtils = new XMLUtils();
+    private XMLFault xmlFault;
 
     public XMLMessage() {
         this.root = xmlUtils.newDocument();
@@ -30,5 +31,38 @@ public class XMLMessage {
         if (root != null) {
             root.appendChild(child);
         }
+    }
+
+    public boolean hasChildNodes() {
+        return this.root.hasChildNodes();
+    }
+
+    public void removeContents() {
+        xmlUtils.removeContents(this.root);
+    }
+
+    public void setFault(XMLFault fault) {
+        this.xmlFault = fault;
+    }
+    
+    //  Creates a new XMLFault object and adds it to this XML Message root object.
+    public XMLFault addFault() {
+        xmlFault = new XMLFault();
+        Node faultRoot = xmlUtils.createElementNS(this.root, XMLConstants.XML_FAULT_ROOT);
+        appendChild(faultRoot);
+        xmlFault.setFaultRoot(faultRoot);
+        return xmlFault;
+    }
+    
+    public XMLFault getFault() {
+        return this.xmlFault;
+    }
+
+    public boolean hasFault() {
+        return this.xmlFault != null;
+    }
+
+    public String toString() {
+        return xmlUtils.toString(this.root);
     }
 }
