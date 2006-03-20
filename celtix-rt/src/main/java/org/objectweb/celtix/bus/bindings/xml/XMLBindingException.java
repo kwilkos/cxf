@@ -1,6 +1,8 @@
 package org.objectweb.celtix.bus.bindings.xml;
 
-public class XMLBindingException extends RuntimeException {
+import javax.xml.ws.ProtocolException;
+
+public class XMLBindingException extends  ProtocolException {
     
     private static final long serialVersionUID = -4418907917249006910L;
 

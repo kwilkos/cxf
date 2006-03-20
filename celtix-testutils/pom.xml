@@ -130,6 +130,12 @@
                                     <param name="inc_xsd_path" expression="."/>
                                     <param name="use_style" expression="document"/>
                                 </xslt>
+                                <xslt style="${test.resources.dir}/wsdl/type_test/type_test_xml_wsdl.xsl"
+                                      in="${test.resources.dir}/wsdl/type_test/type_test.xsd"
+                                      out="${generated.resources.test}/wsdl/type_test/type_test_xml.wsdl">
+                                    <param name="inc_wsdl_path" expression="."/>
+                                    <param name="port" expression="9008"/>
+                                </xslt>
                                 <xslt style="${test.resources.dir}/wsdl/type_test/type_test_soap_wsdl.xsl"
                                       in="${test.resources.dir}/wsdl/type_test/type_test.xsd"
                                       out="${generated.resources.test}/wsdl/type_test/type_test_doclit_soap.wsdl">
@@ -208,6 +214,15 @@
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/soapheader_test.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_xml.wsdl</wsdl>
+                                    <dependencies>
+                                        <dependency>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_doclit.wsdl</dependency>
+                                        <dependency>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_1.xsd</dependency>
+                                        <dependency>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_2.xsd</dependency>
+                                        <dependency>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_3.xsd</dependency>
+                                    </dependencies>
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_doclit_soap.wsdl</wsdl>

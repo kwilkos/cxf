@@ -257,61 +257,57 @@ public class XMLBindingImpl extends AbstractBindingImpl {
 
     private void getParts(Node xmlNode, DataBindingCallback callback, ObjectMessageContext objCtx,
                           boolean isOutBound) throws XMLBindingException {
-        try {
-            DataReader<Node> reader = null;
-            for (Class<?> cls : callback.getSupportedFormats()) {
-                if (cls == Node.class) {
-                    reader = callback.createReader(Node.class);
-                    break;
+        DataReader<Node> reader = null;
+        for (Class<?> cls : callback.getSupportedFormats()) {
+            if (cls == Node.class) {
+                reader = callback.createReader(Node.class);
+                break;
+            }
+        }
+
+        if (reader == null) {
+            throw new XMLBindingException("Could not figure out how to marshal data");
+        }
+        if (callback.getSOAPStyle() == Style.DOCUMENT
+            && callback.getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
+            reader.readWrapper(objCtx, isOutBound, xmlNode);
+            return;
+        }
+
+        Node childNode = NodeUtils.getChildElementNode(xmlNode);
+
+        if (isOutBound && callback.getWebResult() != null) {
+            Object retVal = reader.read(callback.getWebResultQName(), -1, childNode);
+            objCtx.setReturn(retVal);
+            childNode = childNode.getNextSibling();
+        }
+
+        WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
+        int noArgs = callback.getParamsLength();
+        Object[] methodArgs = objCtx.getMessageObjects();
+
+        for (int idx = 0; idx < noArgs; idx++) {
+            WebParam param = callback.getWebParam(idx);
+            if (param.mode() != ignoreParamMode) {
+                QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) 
+                    ? new QName(param.targetNamespace(), param.name()) 
+                    : new QName("", param.partName());
+
+                Object obj = reader.read(elName, idx, childNode);
+                if (param.mode() != WebParam.Mode.IN) {
+                    try {
+                        // TO avoid type safety warning the Holder
+                        // needs tobe set as below.
+                        methodArgs[idx].getClass().getField("value").set(methodArgs[idx], obj);
+                    } catch (Exception ex) {
+                        throw new XMLBindingException("Can not set the part value into the Holder field.",
+                                                      ex);
+                    }
+                } else {
+                    methodArgs[idx] = obj;
                 }
-            }
-
-            if (reader == null) {
-                throw new XMLBindingException("Could not figure out how to marshal data");
-            }
-            if (callback.getSOAPStyle() == Style.DOCUMENT
-                && callback.getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
-                reader.readWrapper(objCtx, isOutBound, xmlNode);
-                return;
-            }
-
-            Node childNode = NodeUtils.getChildElementNode(xmlNode);
-
-            if (isOutBound && callback.getWebResult() != null) {
-                Object retVal = reader.read(callback.getWebResultQName(), -1, childNode);
-                objCtx.setReturn(retVal);
                 childNode = childNode.getNextSibling();
             }
-
-            WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
-            int noArgs = callback.getParamsLength();
-            Object[] methodArgs = objCtx.getMessageObjects();
-
-            for (int idx = 0; idx < noArgs; idx++) {
-                WebParam param = callback.getWebParam(idx);
-                if (param.mode() != ignoreParamMode) {
-                    QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) 
-                        ? new QName(param.targetNamespace(), param.name()) 
-                        : new QName("", param.partName());
-
-                    Object obj = reader.read(elName, idx, childNode);
-                    if (param.mode() != WebParam.Mode.IN) {
-                        try {
-                            // TO avoid type safety warning the Holder
-                            // needs tobe set as below.
-                            methodArgs[idx].getClass().getField("value").set(methodArgs[idx], obj);
-                        } catch (Exception ex) {
-                            throw new XMLBindingException("Can not set the part value into the Holder field.",
-                                                          ex);
-                        }
-                    } else {
-                        methodArgs[idx] = obj;
-                    }
-                    childNode = childNode.getNextSibling();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
