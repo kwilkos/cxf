@@ -63,12 +63,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.sun.xml</groupId>
-            <artifactId>sjsxp</artifactId>
-            <version>${jaxws.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
             <version>1.0-rc4</version>
@@ -152,11 +146,11 @@
                 </exclusion>
                 <exclusion>
                     <groupId>stax</groupId>
-                    <artifactId>stax-api</artifactId>
+                    <artifactId>stax</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>stax</groupId>
-                    <artifactId>stax</artifactId>
+                    <artifactId>stax-api</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>xmlbeans</groupId>
