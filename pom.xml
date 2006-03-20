@@ -20,6 +20,21 @@
     <issueManagement>
         <url>http://forge.objectweb.org/tracker/?group_id=192</url>
     </issueManagement>
+
+    <distributionManagement>
+        <!-- After deploy, you need to go to http://forge.objectweb.org/projects/maven/ and hit the Push button -->
+        <repository>
+            <id>objectweb</id>
+            <name>Object Web Maven Repository</name>
+            <url>scp://jupiter.objectweb.org/var/lib/gforge/chroot/home/groups/maven/htdocs/maven2</url>
+        </repository>
+        <snapshotRepository>
+            <id>objectweb-snapshot</id>
+            <name>ObjectWeb Maven Snapshot Repository</name>
+            <url>scp://jupiter.objectweb.org/var/lib/gforge/chroot/home/groups/maven/htdocs/maven2-snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <inceptionYear>2005</inceptionYear>
     <mailingLists>
         <mailingList>
@@ -78,7 +93,7 @@
         <!--
         <surefire.version>2.1.3-SNAPSHOT</surefire.version>
         <compiler.version>2.0.1-SNAPSHOT</compiler.version>
-	-->
+    -->
         <compiler.version>2.0.1-SNAPSHOT</compiler.version>
         <site.version>2.0-beta-4</site.version>
         <pmd.version>2.0-alpha-3-SNAPSHOT</pmd.version>
