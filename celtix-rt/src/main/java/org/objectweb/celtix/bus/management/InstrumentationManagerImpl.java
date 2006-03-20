@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusEventListener;
@@ -17,6 +16,8 @@ import org.objectweb.celtix.bus.bindings.BindingManagerInstrumentation;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 
+import org.objectweb.celtix.bus.instrumentation.InstrumentationPolicyType;
+import org.objectweb.celtix.bus.instrumentation.MBServerPolicyType;
 import org.objectweb.celtix.bus.management.jmx.JMXManagedComponentManager;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerInstrumentation;
@@ -33,8 +34,12 @@ import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
 import org.objectweb.celtix.bus.wsdl.WSDLManagerInstrumentation;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationManager;
+
 
 
 
@@ -49,9 +54,9 @@ import org.objectweb.celtix.management.InstrumentationManager;
 public class InstrumentationManagerImpl implements InstrumentationManager, BusEventListener {    
     static final Logger LOG = LogUtils.getL7dLogger(InstrumentationManagerImpl.class);
     static final String INSTRUMENTATION_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/bus/bus-config";
+        "http://celtix.objectweb.org/bus/instrumentation/instrumentation-config";
     static final String INSTRUMENTATION_CONFIGURATION_ID = 
-        "InstrumentationControl";
+        "Instrumentation";
     private Bus bus;
     private List <Instrumentation> instrumentations;
     private JMXManagedComponentManager jmxManagedComponentManager;
@@ -60,41 +65,33 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     private boolean jmxEnabled;
     
     public InstrumentationManagerImpl(Bus b) throws BusException {
-        //InstrumentationPolicyType instrumentation = null;
-        //JMXConnectorPolicyType connector = null;
+        InstrumentationPolicyType instrumentation = null;
+        MBServerPolicyType mbserver = null;
+        
         bus = b;
         
-        /*Object obj = bus.getConfiguration().getObject("bindingFactories");
+        Configuration itConfiguration = getConfiguration(bus.getConfiguration());
         
-        List<ClassNamespaceMappingType> factoryMappings = ((ClassNamespaceMappingListType)obj).getMap();
-        for (ClassNamespaceMappingType mapping : factoryMappings) {
-            System.out.println(mapping.getClassname());            
-        }
+        instrumentation = (InstrumentationPolicyType) 
+                itConfiguration.getObject("InstrumentationControl");
         
-        Configuration busConfiguration = bus.getConfiguration(); 
-        connector = (JMXConnectorPolicyType) 
-            bus.getConfiguration().getObject("JMXConnector");
-        
-        if (connector != null) {
-            System.out.println(connector.getJMXSeviceURL());
-        } 
-        Configuration busConfiguration = bus.getConfiguration(); 
-        
-        if (busConfiguration != null) {        
-            instrumentation = (InstrumentationPolicyType) 
-                busConfiguration.getObject("InstrumentationControl");            
-        } 
-        
-        if (instrumentation == null) {
-            System.out.println("instrumentation is null");
+        if (instrumentation == null) {            
             instrumentation = new InstrumentationPolicyType();
         }
         
+        mbserver = (MBServerPolicyType) 
+            itConfiguration.getObject("MBServer");
+        
+        if (mbserver == null) {
+            mbserver = new MBServerPolicyType();
+            System.out.println(mbserver.getJMXConnector().getJMXSeviceURL());
+        } 
+        
         //TODO There no effect of the configuration xml change
         instrumentationEnabled = instrumentation.isInstrumentationEnabled();
-        jmxEnabled = instrumentation.isJMXEnabled();*/
-        instrumentationEnabled = true;
-        jmxEnabled = true;
+        jmxEnabled = instrumentation.isJMXEnabled();
+        //instrumentationEnabled = true;
+        //jmxEnabled = true;
         
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Setting up InstrumentationManager for BUS");
@@ -111,7 +108,7 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         if (jmxEnabled) {
             jmxManagedComponentManager = new JMXManagedComponentManager(bus);
         
-            jmxManagedComponentManager.init();
+            jmxManagedComponentManager.init(mbserver);
         
             bus.addListener((BusEventListener)jmxManagedComponentManager, 
                         jmxManagedComponentManager.getManagementEventFilter());
@@ -120,6 +117,21 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         
     }
     
+    private Configuration getConfiguration(Configuration configuration) {
+        
+        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        
+        Configuration itCfg = cb.getConfiguration(INSTRUMENTATION_CONFIGURATION_URI, 
+                                                  INSTRUMENTATION_CONFIGURATION_ID, 
+                                                configuration);
+        if (null == itCfg) {
+            itCfg = cb.buildConfiguration(INSTRUMENTATION_CONFIGURATION_URI, 
+                                          INSTRUMENTATION_CONFIGURATION_ID, 
+                                        configuration);           
+        }
+        return itCfg;
+    }
+
     public void shutdown() {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Shutdown InstrumentationManager ");
@@ -171,11 +183,14 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         Instrumentation it;
         if (e.getID().equals(ComponentCreatedEvent.COMPONENT_CREATED_EVENT)) {            
             it = createInstrumentation(e.getSource());
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info("Instrumetation register " + e.getSource().getClass().getName());
+            }   
             regist(it);          
             
         } else if (e.getID().equals(ComponentRemovedEvent.COMPONENT_REMOVED_EVENT)) {           
             if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Instrumetation do unregister things ");
+                LOG.info("Instrumetation unregister " + e.getSource().getClass().getName());
             }    
             unregist(e.getSource());
         }

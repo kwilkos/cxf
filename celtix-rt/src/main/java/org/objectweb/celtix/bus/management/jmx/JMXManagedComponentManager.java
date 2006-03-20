@@ -25,6 +25,7 @@ import javax.management.modelmbean.ModelMBeanInfo;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.instrumentation.MBServerPolicyType;
 import org.objectweb.celtix.bus.management.InstrumentationEventFilter;
 import org.objectweb.celtix.bus.management.InstrumentationEventListener;
 import org.objectweb.celtix.bus.management.jmx.export.runtime.ModelMBeanAssembler;
@@ -41,9 +42,8 @@ import org.objectweb.celtix.management.Instrumentation;
 
 public class JMXManagedComponentManager implements InstrumentationEventListener {
     private static final Logger LOG = LogUtils.getL7dLogger(JMXManagedComponentManager.class);
-    
-    private boolean platformMBeanServer = true;
-    //private Bus bus;
+   
+    private boolean platformMBeanServer;
     private InstrumentationEventFilter meFilter;
     private MBeanServer mbs;
     private ModelMBeanAssembler mbAssembler; 
@@ -59,20 +59,22 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
        
     }
     
-    public void init() {
+    public void init(MBServerPolicyType mbpt) {
                 
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Setting up MBeanServer ");
         }          
-           
-        if (platformMBeanServer) {
+        
+        platformMBeanServer = mbpt.isPlatformMBeanServer();
+        if (mbpt.isPlatformMBeanServer()) {
             mbs = ManagementFactory.getPlatformMBeanServer();
         } else {
             // TODO get the configuration and setup the ConnectorFactory
             mbs = MBeanServerFactory.createMBeanServer(JMXUtils.DOMAIN_STRING);            
             mcf = MBServerConnectorFactory.getInstance();
             mcf.setMBeanServer(mbs);
-            mcf.setThreaded(true);
+            mcf.setThreaded(mbpt.getJMXConnector().isThreaded());
+            mcf.setDaemon(mbpt.getJMXConnector().isDaemon());
             try {            
                 mcf.createConnector();
             } catch (IOException ex) {
@@ -80,7 +82,6 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
             }
         }
         
-       
     }
     
     public void shutdown() { 
