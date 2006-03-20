@@ -143,7 +143,10 @@
                                 </xsdOption>
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/configuration/wsrm-conf.xsd</xsd>
-                                </xsdOption>
+                                </xsdOption>                                
+                                 <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/instrumentation.xsd</xsd>
+                                </xsdOption>                                                                
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/configuration/wsrm-policy.xsd</xsd>
                                 </xsdOption>
@@ -174,7 +177,10 @@
                                 <beanfile>${basedir}/src/main/resources/config-metadata/port-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/jms-server-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/jms-client-config.xml</beanfile>
-                                <beanfile>${basedir}/src/main/resources/config-metadata/rm-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/rm-config.xml</beanfile>                                
+                                
+                                <beanfile>${basedir}/src/main/resources/config-metadata/instrumentation-config.xml</beanfile>
+                                
                             </beanfiles>
                         </configuration>
                         <goals>
