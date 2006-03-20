@@ -2,7 +2,7 @@
 <wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
     xmlns:tns="http://objectweb.org/hello_world_soap_http"
-    xmlns:x1="http://objectweb.org/hello_world_soap_http/types"
+    xmlns:x1="http://objectweb.org/test/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     targetNamespace="http://objectweb.org/hello_world_soap_http" name="HelloWorld">

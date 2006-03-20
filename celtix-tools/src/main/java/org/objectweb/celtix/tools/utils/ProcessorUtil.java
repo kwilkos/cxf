@@ -16,6 +16,7 @@ import com.sun.xml.bind.api.JAXBRIContext;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 
 public final class ProcessorUtil {
@@ -149,7 +150,8 @@ public final class ProcessorUtil {
     //
     // the wrapper style will get the type info from the properties in the block
     //
-    public static List<? extends Property> getBlock(Part part, ProcessorEnvironment env) {
+    public static List<? extends Property> getBlock(Part part, ProcessorEnvironment env) 
+        throws ToolException {
         if (part == null) {
             return new ArrayList<Property>();
         }
@@ -164,7 +166,9 @@ public final class ProcessorUtil {
             if (mapping != null) {
                 return mapping.getWrapperStyleDrilldown();
             } else {
-                return new ArrayList<Property>();
+                throw new ToolException("Missing element " + element.toString() + " in wsdl:types of part "
+                                        + part.getName() + ", please check!");
+                // return new ArrayList<Property>();
             }
         } else {
             return new ArrayList<Property>();
@@ -285,26 +289,27 @@ public final class ProcessorUtil {
         }
         return typeAndAnnotation.getTypeClass().boxify().fullName();
     }
-    
+
     @SuppressWarnings("unchecked")
-    public static boolean isWrapperStyle(Operation operation, ProcessorEnvironment env) {
+    public static boolean isWrapperStyle(Operation operation, ProcessorEnvironment env) throws ToolException {
 
         Message inputMessage = operation.getInput() == null ? null : operation.getInput().getMessage();
         Message outputMessage = operation.getOutput() == null ? null : operation.getOutput().getMessage();
 
         Map<String, Part> inputParts = new HashMap<String, Part>();
         Map<String, Part> outputParts = new HashMap<String, Part>();
-        
+
         if (inputMessage != null) {
             inputParts = inputMessage.getParts();
         }
         if (outputMessage != null) {
             outputParts = outputMessage.getParts();
         }
-        
+
         //
         // RULE No.1:
-        // The operation's input and output message (if present) each contain only a single part
+        // The operation's input and output message (if present) each contain
+        // only a single part
         //
         if (inputParts.size() > 1 || outputParts.size() > 1) {
             return false;
@@ -312,7 +317,8 @@ public final class ProcessorUtil {
 
         //
         // RULE No.2:
-        // The input message part refers to a global element decalration whose localname
+        // The input message part refers to a global element decalration whose
+        // localname
         // is equal to the operation name
         //
         Part inputPart = null;
@@ -346,11 +352,11 @@ public final class ProcessorUtil {
         // RULE No.4 and No5:
         // wrapper element should be pure complex type
         //
-        if (ProcessorUtil.getBlock(inputPart, env) == null
+        if (ProcessorUtil.getBlock(inputPart, env) == null 
             || ProcessorUtil.getBlock(outputPart, env) == null) {
             return false;
         }
-        
+
         return true;
     }
 }
