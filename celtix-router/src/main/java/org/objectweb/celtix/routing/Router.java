@@ -2,18 +2,21 @@ package org.objectweb.celtix.routing;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.wsdl.Binding;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
-import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.ws.Endpoint;
 import javax.xml.ws.WebServiceException;
 
+import org.objectweb.celtix.bus.configuration.wsdl.WsdlPortProvider;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.routing.configuration.DestinationType;
@@ -26,16 +29,16 @@ public class Router {
     
     protected final Definition wsdlModel;
     protected final RouteType route;
-    protected List<Service> sourceServices;
-    protected List<Service> destServices;
-    protected Map<Service, Port> sourcePortMap;
-    protected Map<Service, Port> destPortMap;
+    protected Map<QName, Port> sourcePortMap;
+    protected Map<QName, Port> destPortMap;
+    protected List<Endpoint> epList;
     
     public Router(Definition model , RouteType rt) {
         wsdlModel = model;
         route = rt;
         getSourceServicesAndPorts();
         getDestinationServicesAndPorts();
+        epList = new ArrayList<Endpoint>(sourcePortMap.size());
     }
     
     public Definition getWSDLModel() {
@@ -47,27 +50,77 @@ public class Router {
     }
     
     public void init() {
-        for (Service s : sourceServices) {
-            Port p = sourcePortMap.get(s);
-            //TODO Config For Pass Through         
-            if (isSameBindingId(p.getBinding())) {
-                //PassThroughProvider)
+        List<SourceType> stList = route.getSource();
+        
+        List<Source> metadata = createMetadata();
+        for (SourceType st : stList) {
+            Port p = sourcePortMap.get(st.getService());
+            Map<String, Object> properties = createEndpointProperties(st.getService(), p.getName());
+            //TODO Config For Pass Through
+            WsdlPortProvider portProvider = new WsdlPortProvider(p);
+            String srcBindingId = (String) portProvider.getObject("bindingId");
+            Object implementor = null;
+            if (isSameBindingId(srcBindingId)) {
+                //Pass Through Mode
+                implementor = new StreamSourceMessageProvider(wsdlModel, route);
             } else {
                 //CodeGenerated Servant
             }
+
+            Endpoint sourceEP = Endpoint.create(srcBindingId, implementor);
+            sourceEP.setMetadata(metadata);
+            sourceEP.setProperties(properties);
+            epList.add(sourceEP);            
+        }
+    }
+
+    public void publish() {
+        for (Endpoint ep : epList) {
+            Port port = (Port) sourcePortMap.get(ep.getProperties().get(Endpoint.WSDL_SERVICE));
+            WsdlPortProvider portProvider = new WsdlPortProvider(port);
+            ep.publish((String) portProvider.getObject("address"));
         }
     }
     
-    private void getSourceServicesAndPorts() {
-        if (null == sourceServices) {
-            sourceServices = new ArrayList<Service>();
+    protected boolean isSameBindingId(String srcId) {        
+        Collection<Port> destPorts = destPortMap.values();
+        for (Port destPort : destPorts) {
+            WsdlPortProvider portProvider = new WsdlPortProvider(destPort);
+            String destId = (String) portProvider.getObject("bindingId");
+            
+            if (null == srcId
+                && null == destId
+                || srcId.equals(destId)) {
+                continue;
+            } else {
+                return false;
+            }
         }
+        
+        return true;
+    }
+
+
+    private Map<String, Object> createEndpointProperties(QName serviceName, String portName) {
+        Map<String, Object> props = new HashMap<String, Object>(2);
+        props.put(Endpoint.WSDL_SERVICE, serviceName);
+        props.put(Endpoint.WSDL_PORT, portName);
+        return props;
+    }
+
+    private List<Source> createMetadata() {
+        List<Source> metadata = new ArrayList<Source>();
+        metadata.add(new StreamSource(wsdlModel.getDocumentBaseURI()));
+        return metadata;
+    }
+    
+    private void getSourceServicesAndPorts() {
+        List<SourceType> stList = route.getSource();
         
         if (null == sourcePortMap) {
-            sourcePortMap = new Hashtable<Service, Port>();
+            sourcePortMap = new HashMap<QName, Port>(stList.size());
         }
-        
-        List<SourceType> stList = route.getSource();
+
         for (SourceType st : stList) {
             Service sourceService = wsdlModel.getService(st.getService());
             if (null == sourceService) {
@@ -80,22 +133,18 @@ public class Router {
                 throw new WebServiceException(
                             new Message("UNDEFINED_PORT", LOG, st.getPort()).toString());                
             }
-            sourceServices.add(sourceService);
-            sourcePortMap.put(sourceService, sourcePort);
+            sourcePortMap.put(sourceService.getQName(), sourcePort);
         }
     }
     
     private void getDestinationServicesAndPorts() {
-        if (null == destServices) {
-            destServices = new ArrayList<Service>();
-        }
+        List<DestinationType> dtList = route.getDestination();
         
         if (null == destPortMap) {
-            destPortMap = new Hashtable<Service, Port>();
+            destPortMap = new HashMap<QName, Port>(dtList.size());
         }
-        
-        List<DestinationType> stList = route.getDestination();
-        for (DestinationType dt : stList) {
+
+        for (DestinationType dt : dtList) {
             Service destService = wsdlModel.getService(dt.getService());
             if (null == destService) {
                 throw new WebServiceException(
@@ -107,42 +156,7 @@ public class Router {
                 throw new WebServiceException(
                             new Message("UNDEFINED_PORT", LOG, dt.getPort()).toString());                
             }
-            destServices.add(destService);
-            destPortMap.put(destService, destPort);
+            destPortMap.put(destService.getQName(), destPort);
         }
-    }
-    
-    @SuppressWarnings("unchecked")
-    protected boolean isSameBindingId(Binding sourceBinding) {
-
-        List<ExtensibilityElement> srcExtList = sourceBinding.getExtensibilityElements();
-        
-        String srcId = null;
-        if (srcExtList.size() > 0) {
-            ExtensibilityElement srcExtEl = srcExtList.get(0);
-            srcId = srcExtEl.getElementType().getNamespaceURI();
-        }
-        
-        Collection<Port> destPorts = destPortMap.values();
-        for (Port destPort : destPorts) {            
-            Binding destBinding = destPort.getBinding();
-            List<ExtensibilityElement> destExtList = destBinding.getExtensibilityElements();
-
-            String destId = null;
-            if (destExtList.size() > 0) {
-                ExtensibilityElement destExtEl = destExtList.get(0);
-                destId = destExtEl.getElementType().getNamespaceURI();
-            }
-            
-            if (null == srcId
-                && null == destId
-                || srcId.equals(destId)) {
-                continue;
-            } else {
-                return false;
-            }
-        }
-        
-        return true;
     }
 }
