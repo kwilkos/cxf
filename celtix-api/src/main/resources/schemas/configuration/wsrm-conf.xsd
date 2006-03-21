@@ -14,6 +14,15 @@
         </xs:appinfo>
     </xs:annotation>
     
+    <!--
+        global elements 
+            - can be referenced from other parts of this schema or from other schema documents
+            - can appear as root element in valid documents
+    -->
+    <xs:element name="endpointPolicy" type="tns:endpointPolicyType"/>
+    <xs:element name="sourcePolicy" type="tns:sourcePolicyType"/>
+    <xs:element name="destinationPolicy" type="tns:destinationPolicyType"/>
+    
     <xs:complexType name="endpointPolicyType">
         <xs:annotation>
             <xs:documentation>RM endpoint properties common to
@@ -22,6 +31,8 @@
         </xs:annotation>
         <xs:sequence/>
     </xs:complexType>
+    
+    
     
     <xs:complexType name="sourcePolicyType">
         <xs:annotation>

@@ -19,8 +19,8 @@ import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 public class TestConfigurator {
 
     private static final String DEFAULT_BUS_ID = "celtix";
+
     private ConfigurationBuilder builder;
-    private Configuration rmConfiguration;
 
     public TestConfigurator() {
         builder = ConfigurationBuilderFactory.getBuilder();
@@ -32,16 +32,7 @@ public class TestConfigurator {
     }
 
     public void configureClient(String busId, QName serviceName, String portName) {
-        Configuration busCfg = getBusConfiguration(busId);
-
-        String id = serviceName.toString() + "/" + portName;
-
-        Configuration portCfg = builder.getConfiguration(ServiceImpl.PORT_CONFIGURATION_URI,
-                                                         id,
-                                                         busCfg);
-        if (null == portCfg) {
-            portCfg = builder.buildConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, id, busCfg);
-        }
+        Configuration portCfg = createPortConfiguration(busId, serviceName, portName);
         configureHandlers(portCfg, false);
     }
 
@@ -50,17 +41,22 @@ public class TestConfigurator {
     }
 
     public void configureServer(String busId, QName serviceName) {
-        Configuration busCfg = getBusConfiguration(busId);
-        Configuration endpointCfg = builder.getConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI,
-                                                             serviceName.toString(), busCfg);
-        if (null == endpointCfg) {
-            endpointCfg = builder.buildConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, serviceName
-                .toString(), busCfg);
-        }
+        Configuration endpointCfg = createEndpointConfiguration(busId, serviceName);
         configureHandlers(endpointCfg, true);
     }
-
-
+    
+    private Configuration createEndpointConfiguration(String busId, QName serviceName) {
+        Configuration busCfg = getBusConfiguration(busId);
+        return builder.buildConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, 
+                                                               serviceName.toString(), busCfg);
+    }
+    
+    private Configuration createPortConfiguration(String busId, QName serviceName, String portName) {
+        Configuration busCfg = getBusConfiguration(busId);
+        String id = serviceName.toString() + "/" + portName;
+        return builder.buildConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, id, busCfg);
+    }
+    
     private Configuration getBusConfiguration(String busId) {
         Configuration busCfg = builder.getConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI, busId);
         if (null == busCfg) {
@@ -81,6 +77,8 @@ public class TestConfigurator {
             HandlerChainType handlerChain = null;
             HandlerType handler = null;
 
+            boolean withRM = true;
+            
             // pre-logical
 
             handlerChain = factory.createHandlerChainType();
@@ -88,20 +86,24 @@ public class TestConfigurator {
             handler.setHandlerClass(MAPAggregator.class.getName());
             handler.setHandlerName("logical addressing handler");
             handlerChain.getHandler().add(handler);
-            handler = factory.createHandlerType();
-            handler.setHandlerClass(RMHandler.class.getName());
-            handler.setHandlerName("logical rm handler");
-            handlerChain.getHandler().add(handler);
+            if (withRM) {
+                handler = factory.createHandlerType();
+                handler.setHandlerClass(RMHandler.class.getName());
+                handler.setHandlerName("logical rm handler");
+                handlerChain.getHandler().add(handler);
+            }
 
             systemHandlers.setPreLogical(handlerChain);
 
             // post-protocol
 
             handlerChain = factory.createHandlerChainType();
-            handler = factory.createHandlerType();
-            handler.setHandlerClass(RMSoapHandler.class.getName());
-            handler.setHandlerName("protocol rm handler");
-            handlerChain.getHandler().add(handler);
+            if (withRM) {
+                handler = factory.createHandlerType();
+                handler.setHandlerClass(RMSoapHandler.class.getName());
+                handler.setHandlerName("protocol rm handler");
+                handlerChain.getHandler().add(handler);
+            }
             if (!isServer) {
                 handler = factory.createHandlerType();
                 handler.setHandlerClass(SOAPMessageRecorder.class.getName());
@@ -117,15 +119,11 @@ public class TestConfigurator {
 
             config.setObject("systemHandlerChain", systemHandlers);
         }
+        
+        // create rm handler configuration 
 
-        rmConfiguration = builder.getConfiguration(RMHandler.RM_CONFIGURATION_URI,
-                                                   RMHandler.RM_CONFIGURATION_ID,
-                                                   config);
-        if (rmConfiguration == null) {
-            rmConfiguration = builder.buildConfiguration(RMHandler.RM_CONFIGURATION_URI,
-                                                         RMHandler.RM_CONFIGURATION_ID,
-                                                         config);
-        }
-
+        builder.buildConfiguration(RMHandler.RM_CONFIGURATION_URI,
+                                   RMHandler.RM_CONFIGURATION_ID,
+                                   config);
     }
 }

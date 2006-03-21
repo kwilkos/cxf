@@ -286,6 +286,11 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     public void stop() {
         if (!isPublished()) {
             LOG.warning("ENDPOINT_INACTIVE_MSG");
+        } 
+        try {
+            serverBinding.deactivate();
+        } catch (IOException ex) {
+            throw new WebServiceException(ex);
         }
         published = false;
     }

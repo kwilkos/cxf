@@ -1,101 +1,84 @@
 package org.objectweb.celtix.systest.ws.rm;
 
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.jws.WebService;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
-import org.objectweb.hello_world_soap_http.BadRecordLitFault;
-import org.objectweb.hello_world_soap_http.Greeter;
-import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
-import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
-import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
-import org.objectweb.hello_world_soap_http.types.GreetMeSometimeResponse;
-import org.objectweb.hello_world_soap_http.types.SayHiResponse;
-import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
+import org.objectweb.celtix.greeter_control.Greeter;
+import org.objectweb.celtix.greeter_control.PingMeFault;
+import org.objectweb.celtix.greeter_control.types.FaultDetail;
+import org.objectweb.celtix.greeter_control.types.GreetMeResponse;
+import org.objectweb.celtix.greeter_control.types.PingMeResponse;
+import org.objectweb.celtix.greeter_control.types.SayHiResponse;
 
 
-@WebService(serviceName = "SOAPServiceAddressing", portName = "SoapPort", 
+
+@WebService(serviceName = "GreeterService", portName = "GreeterPort", 
             name = "Greeter", 
-            targetNamespace = "http://objectweb.org/hello_world_soap_http")
+            targetNamespace = "http://celtix.objectweb.org/greeter_control")
 public class GreeterImpl implements Greeter {
+    private static final Logger LOG = Logger.getLogger(GreeterImpl.class.getName());
     
-    public String greetMe(String me) {
+    public String greetMe(String me) { 
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("Invoking greetMe with parameters(s): " + me);
+        }
         return "Hello " + me;
     }
 
-    public void greetMeOneWay(String requestType) {   
+    public void greetMeOneWay(String requestType) {  
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("Invoking greetMeOneWay with parameters(s): " + requestType);
+        }
     }
 
     public String sayHi() {
+        LOG.info("Invoking sayHi");
         return "Bonjour";
     }
+
+    public void pingMe() throws PingMeFault {
+        LOG.info("Invoking pingMe");
+        FaultDetail faultDetail = new FaultDetail();
+        faultDetail.setMajor((short)2);
+        faultDetail.setMinor((short)1);
+        throw new PingMeFault("PingMeFault raised by server", faultDetail);       
+    }
     
-    public void testDocLitFault(String faultType) throws BadRecordLitFault, NoSuchCodeLitFault {
-        throw new BadRecordLitFault("TestBadRecordLit", "BadRecordLitFault");
+    public Future<?> greetMeAsync(String requestType, AsyncHandler<GreetMeResponse> asyncHandler) {
+        // not called
+        return null;
+    }
+    public Response<GreetMeResponse> greetMeAsync(String requestType) {
+        // not called
+        return null;
+    }
+    
+    public Response<PingMeResponse> pingMeAsync() {
+        // not called
+        return null;
     }
 
-    public BareDocumentResponse testDocLitBare(String in) {
-        BareDocumentResponse res = new BareDocumentResponse();
-        res.setCompany("Celtix");
-        res.setId(1);
-        return res;
+    public Future<?> pingMeAsync(AsyncHandler<PingMeResponse> asyncHandler) {
+        // not called
+        return null;
     }
 
-    public String greetMeSometime(String me) {
-        return "How are you " + me;
-    }
-    
-    public Future<?>  greetMeSometimeAsync(String requestType, 
-                                           AsyncHandler<GreetMeSometimeResponse> asyncHandler) { 
-        return null; 
-        /*not called */
-    }
-    
-    public Response<GreetMeSometimeResponse> greetMeSometimeAsync(String requestType) { 
-        return null; 
-        /*not called */
-    }
-    
-    public Response<TestDocLitFaultResponse> testDocLitFaultAsync(String faultType) {  
-        return null; 
-        /*not called */
-    }
-    
-    public Future<?> testDocLitFaultAsync(String faultType, AsyncHandler ah) {  
-        return null; 
-        /*not called */
-    }
-    
-    public Future<?> testDocLitBareAsync(String bare, AsyncHandler ah) {
+    public Response<SayHiResponse> sayHiAsync() {
+        // not called
         return null;
-        /* not called */
     }
-    
-    public Response<BareDocumentResponse> testDocLitBareAsync(String bare) {
+
+    public Future<?> sayHiAsync(AsyncHandler<SayHiResponse> asyncHandler) {
+        // not called
         return null;
-        /* not called */
     }
     
-    public Future<?> greetMeAsync(String requestType, AsyncHandler<GreetMeResponse> asyncHandler) { 
-        return null; 
-        /*not called */
-    }
     
-    public Response<GreetMeResponse> greetMeAsync(String requestType) { 
-        return null; 
-        /*not called */
-    }
     
-    public Future<?> sayHiAsync(AsyncHandler<SayHiResponse> asyncHandler) { 
-        return null; 
-        /*not called */
-    }
-    
-    public Response<SayHiResponse> sayHiAsync() { 
-        return null; 
-        /*not called */
-    }
-    
+   
 }

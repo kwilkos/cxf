@@ -60,7 +60,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     private ClientTransport clientTransport;
     private ServerTransport serverTransport;
 
-    public RMHandler() {
+    public RMHandler() {        
         proxy = new RMProxy(this);
         servant = new RMServant();
     }
@@ -178,6 +178,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     }
 
     private Configuration createConfiguration(MessageContext context) {
+        
         Configuration busCfg = getBinding().getBus().getConfiguration();
         ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
         Configuration parent;
@@ -203,11 +204,10 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
     private void handleOutbound(LogicalMessageContext context) {
         LOG.entering(getClass().getName(), "handleOutbound");
-
         AddressingPropertiesImpl maps =
             ContextUtils.retrieveMAPs(context, false, true);
 
-        // ensure the appropriate version of WS-Addressing is used
+        // ensure the appropriate version of WS-Addressing is used       
         maps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
 
         String action = null;
@@ -306,10 +306,8 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             ContextUtils.retrieveTo(context);
 
             try {
-                LOG.fine("dispatching createSequence request to rm servant ...");
                 CreateSequenceResponseType csr = servant.createSequence(destination, cs, to);
                 context.put(ObjectMessageContext.METHOD_RETURN, csr);
-                LOG.fine("Inserted createSequenceResponse into object context");
             } catch (SequenceFault ex) {
                 // ignore for now
                 ex.printStackTrace();

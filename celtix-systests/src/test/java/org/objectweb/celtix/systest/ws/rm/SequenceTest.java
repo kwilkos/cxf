@@ -18,30 +18,36 @@ import javax.xml.ws.handler.Handler;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bus.busimpl.BusConfigurationBuilder;
 import org.objectweb.celtix.bus.ws.rm.Names;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
+import org.objectweb.celtix.greeter_control.Control;
+import org.objectweb.celtix.greeter_control.ControlService;
+import org.objectweb.celtix.greeter_control.Greeter;
+import org.objectweb.celtix.greeter_control.GreeterService;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
-import org.objectweb.hello_world_soap_http.Greeter;
-import org.objectweb.hello_world_soap_http.SOAPService;
+
 
 /**
- * Tests the addition of WS-Addressing Message Addressing Properties.
+ * Tests Reliable Messaging.
  */
 public class SequenceTest extends ClientServerTestBase {
 
-    private static final String APP_NAMESPACE = "http://objectweb.org/hello_world_soap_http";
+    private static final String APP_NAMESPACE = "http://celtix.objectweb.org/greeter_control";
     private static final String GREETMEONEWAY_ACTION = APP_NAMESPACE + "/types/Greeter/greetMeOneWay";
 
-    private static final QName SERVICE_NAME = new QName(APP_NAMESPACE, "SOAPServiceAddressing");
-    private static final QName PORT_NAME = new QName(APP_NAMESPACE, "SoapPort");
+    private static final QName CONTROL_SERVICE_NAME = new QName(APP_NAMESPACE, "ControlService");
+    private static final QName SERVICE_NAME = new QName(APP_NAMESPACE, "GreeterService");
+    private static final QName CONTROL_PORT_NAME = new QName(APP_NAMESPACE, "ControlPort");
+    private static final QName PORT_NAME = new QName(APP_NAMESPACE, "GreeterPort");
 
+    private GreeterService greeterService;
     private Greeter greeter;
-    private Bus bus;
+    private Control control;
+    private String currentConfiguration;
     private List<SOAPMessage> outboundMessages;
     private List<SOAPMessage> inboundMessages;
 
@@ -64,52 +70,27 @@ public class SequenceTest extends ClientServerTestBase {
                 // avoid re-using a previously created configuration for a bus with id "celtix"
                 ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
                 builder.buildConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI, "celtix");
+                
                 super.setUp();
+                
             }
         };
     }
 
-    public void setUp() throws Exception {
-        super.setUp();
-
-        bus = Bus.init();
-
-        TestConfigurator tc = new TestConfigurator();
-        tc.configureClient(SERVICE_NAME, PORT_NAME.getLocalPart());
-
-        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
-        SOAPService service = new SOAPService(wsdl, SERVICE_NAME);
-        greeter = service.getPort(PORT_NAME, Greeter.class);
-
-        BindingProvider provider = (BindingProvider)greeter;
-        AbstractBindingImpl abi = (AbstractBindingImpl)provider.getBinding();
-        List<Handler> handlerChain = abi.getPostProtocolSystemHandlers();
-        assertTrue(handlerChain.size() > 0);
-        boolean found = false;
-        for (Handler h : handlerChain) {
-            if (h instanceof SOAPMessageRecorder) {
-                SOAPMessageRecorder recorder = (SOAPMessageRecorder)h;
-                outboundMessages = new ArrayList<SOAPMessage>();
-                recorder.setOutboundMessages(outboundMessages);
-                inboundMessages = new ArrayList<SOAPMessage>();
-                recorder.setInboundMessages(inboundMessages);
-                found = true;
-                break;
-            }
-        }
-        assertTrue("Could not find SOAPMessageRecorder in post protocol handler chain", found);
+    // --- tests ---
+    
+    public void xtestSetup() {
+        createControl();
+        assertNotNull(control);
+        control.stopGreeter();
     }
-
-    public void tearDown() throws Exception {
-        bus.shutdown(true);
-    }
-
-    // --Tests
 
     public void testOneway() throws Exception {
 
+        setupEndpoints("");
+        
         greeter.greetMeOneWay("once");
-        greeter.greetMeOneWay("twice");
+        greeter.greetMeOneWay("twice"); 
         greeter.greetMeOneWay("thrice");
 
         // three application messages plus createSequence
@@ -130,8 +111,49 @@ public class SequenceTest extends ClientServerTestBase {
         for (int i = 1; i < 4; i++) {
             assertNotNull(getAcknowledgment(inboundMessages.get(i)));
         }
-
     }
+    
+    public void testOnewayDeferredAcks() throws Exception {
+
+        setupEndpoints("anonymous-deferred");
+        
+        greeter.greetMeOneWay("once");
+        greeter.greetMeOneWay("twice");
+        
+        try {
+            Thread.sleep(5 * 1000);
+        } catch (InterruptedException ex) {
+            // ignore
+        }
+        
+        greeter.greetMeOneWay("thrice");
+        
+
+        // three application messages plus createSequence
+        assertEquals(4, outboundMessages.size());
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION,
+                                                 GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION};
+        verifyActions(expectedActions, true);
+        verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
+
+        // createSequenceResponse plus three partial responses, only the last 
+        // one should include a sequence acknowledgment
+        
+        assertEquals(4, inboundMessages.size());
+        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
+        verifyActions(expectedActions, false);
+        verifyMessageNumbers(new String[] {null, null, null, null}, false);
+        for (int i = 0; i < 3; i++) {
+            assertNull("Inbound message " + (i + 1) + " contains sequence acknowledgment header",
+                       getAcknowledgment(inboundMessages.get(i)));
+        }
+        assertNotNull("Inbound message 4 does not contain sequence acknowledgment header ",
+                      getAcknowledgment(inboundMessages.get(3)));
+    }
+    
+    // --- test helpers ---
 
 
     private void verifyActions(String[] expectedActions, boolean outbound) throws Exception {
@@ -224,6 +246,58 @@ public class SequenceTest extends ClientServerTestBase {
             }
         }
         return null;
+    }
+    
+    private void createControl() {
+        if (null == control) {
+            URL wsdl = getClass().getResource("/wsdl/greeter_control.wsdl");
+            ControlService controlService = new ControlService(wsdl, CONTROL_SERVICE_NAME);
+            control = controlService.getPort(CONTROL_PORT_NAME, Control.class);
+                     
+        }
+    }
+    
+    private void setupEndpoints(String configuration) {
+       
+        if (configuration != null && configuration.equals(currentConfiguration)) {
+            return;
+        }
+        
+        createControl();
+        
+        control.stopGreeter();             
+        control.startGreeter(configuration);
+        
+        if (null != configuration && configuration.length() > 0) {
+            ControlImpl.setConfigFileProperty(configuration);
+        }
+        
+        TestConfigurator tc = new TestConfigurator();
+        tc.configureClient(SERVICE_NAME, PORT_NAME.getLocalPart());
+        
+        URL wsdl = getClass().getResource("/wsdl/greeter_control.wsdl");
+        greeterService = new GreeterService(wsdl, SERVICE_NAME); 
+        
+        greeter = greeterService.getPort(PORT_NAME, Greeter.class);
+
+        BindingProvider provider = (BindingProvider)greeter;
+        AbstractBindingImpl abi = (AbstractBindingImpl)provider.getBinding();
+        List<Handler> handlerChain = abi.getPostProtocolSystemHandlers();
+        assertTrue(handlerChain.size() > 0);
+        boolean found = false;
+        for (Handler h : handlerChain) {
+            if (h instanceof SOAPMessageRecorder) {
+                SOAPMessageRecorder recorder = (SOAPMessageRecorder)h;
+                outboundMessages = new ArrayList<SOAPMessage>();
+                recorder.setOutboundMessages(outboundMessages);
+                inboundMessages = new ArrayList<SOAPMessage>();
+                recorder.setInboundMessages(inboundMessages);
+                found = true;
+                break;
+            }
+        }
+        assertTrue("Could not find SOAPMessageRecorder in post protocol handler chain", found);
+        currentConfiguration = configuration;
     }
 
 

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM 
+     "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
+    xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"
+    xmlns:wsrm-conf="http://celtix.objectweb.org/bus/configuration/wsrm"
+    xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types">
+
+    <bean id="celtix.{http://celtix.objectweb.org/greeter_control}GreeterService.rm-handler" 
+        class="org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean">    
+        
+        <property name="destinationPolicies">
+            <value>
+                <wsrm-conf:destinationPolicy>
+                    <wsrm-conf:acksPolicy intraMessageThreshold="0" deferredBy="4000"/>                    
+                </wsrm-conf:destinationPolicy>
+            </value>
+        </property>  
+    </bean>
+ 
+
+</beans>

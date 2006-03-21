@@ -40,7 +40,17 @@ public class ConfiguratorImpl implements Configurator {
         return hook;
     }
     
-    public void registerClient(Configurator c) {       
+    public void registerClient(Configurator c) { 
+        // replace an existing client hook if it has the same namespace and id
+        Object clientId = c.getConfiguration().getId();
+        String clientNamepace = c.getConfiguration().getModel().getNamespaceURI();
+        for (Configurator client : clients) {
+            if (clientId.equals(client.getConfiguration().getId())
+                && clientNamepace.equals(client.getConfiguration().getModel().getNamespaceURI())) {
+                clients.remove(client);
+                break;
+            }
+        }
         clients.add(c);
     }
     public void unregisterClient(Configurator c) {

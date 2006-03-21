@@ -183,12 +183,8 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
             }
         } 
         
-        if (LOG.isLoggable(Level.FINE)) {
-            if (null == bean) {
-                LOG.fine("Could not find matching bean definition"); 
-            } else {
-                LOG.fine("Using configuration from bean with id " + beanName.getName());
-            }
+        if (null == bean && LOG.isLoggable(Level.INFO)) {
+            LOG.info("Could not find matching bean definition for component " + ref.getName());
         }
     }
 }
