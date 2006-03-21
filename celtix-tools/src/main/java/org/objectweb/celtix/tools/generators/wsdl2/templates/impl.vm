@@ -25,7 +25,7 @@ import ${import};
                       
 public class ${intf.Name}Impl implements $intf.Name {
 
-	private static final Logger LOG = 
+    private static final Logger LOG = 
         Logger.getLogger(${intf.Name}Impl.class.getPackage().getName());
 
 #foreach ($method in $intf.Methods)
@@ -36,7 +36,7 @@ public class ${intf.Name}Impl implements $intf.Name {
 #if($method.ParameterListWithoutAnnotation.size() != 0)
 
 #foreach ($param in ${method.ParameterListWithoutAnnotation})
-		$param
+        $param
 #end
     )#end
 
@@ -44,7 +44,7 @@ public class ${intf.Name}Impl implements $intf.Name {
 #if($method.Exceptions.size() > 0) throws #foreach($exception in $method.Exceptions)$exception.ClassName #if($velocityCount != $method.Exceptions.size()),#end #end #end
     { 
        LOG.info("Executing operation $method.Name");
-#if ($method.return.ClassName != "void")	##// return new ${method.return.ClassName}();
+#if ($method.return.ClassName != "void")    ##// return new ${method.return.ClassName}();
     return null;
 #end
 #if ($method.Exceptions.size() > 0) 

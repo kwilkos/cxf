@@ -32,7 +32,7 @@ public interface $intf.Name {
 #if($method.ParameterList.size() != 0)
 
 #foreach ($param in ${method.ParameterList})
-		$param
+        $param
 #end
     )#end#if($method.Exceptions.size() > 0) throws#foreach($exception in $method.Exceptions) $exception.ClassName#if($method.Exceptions.size() != $velocityCount),#end#end#end;
 #end

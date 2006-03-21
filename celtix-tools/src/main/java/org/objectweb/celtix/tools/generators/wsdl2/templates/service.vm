@@ -6,7 +6,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebEndpoint;
 import javax.xml.ws.WebServiceClient;
-#foreach ($port in ${service.Ports})	
+#foreach ($port in ${service.Ports})    
 import ${service.PackageName}.${port.InterfaceClass};
 #end
 /**
@@ -20,7 +20,7 @@ import ${service.PackageName}.${port.InterfaceClass};
 public class ${service.Name} extends Service {
 
     private final static URL WSDL_LOCATION;
-    private final static QName SOAPSERVICE = new QName("$service.Namespace", "$service.Name");
+    private final static QName SERVICE = new QName("$service.Namespace", "$service.Name");
 #foreach ($port in ${service.Ports})
     private final static QName $port.PortName = new QName("$service.Namespace", "$port.PortName");
 #end
@@ -39,7 +39,7 @@ public class ${service.Name} extends Service {
     }
 
     public ${service.Name}() {
-        super(WSDL_LOCATION, SOAPSERVICE);
+        super(WSDL_LOCATION, SERVICE);
     }
 
 #foreach ($port in $service.Ports)
