@@ -113,6 +113,11 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             }
         }
         
+        if (bus != null) {
+            //NOTE  EndpointRegistry need to check the Registry instrumentation is created
+            bus.getEndpointRegistry().registerEndpoint(this);
+        }
+        
         doInit = true;
     }
     

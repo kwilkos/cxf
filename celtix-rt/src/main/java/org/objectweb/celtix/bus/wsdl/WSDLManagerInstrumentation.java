@@ -1,17 +1,20 @@
 package org.objectweb.celtix.bus.wsdl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import javax.wsdl.Binding;
 import javax.wsdl.Definition;
+import javax.wsdl.Operation;
 import javax.wsdl.PortType;
 import javax.xml.namespace.QName;
 
-
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedAttribute;
+import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedOperation;
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
 import org.objectweb.celtix.management.Instrumentation;
 
@@ -24,13 +27,13 @@ public class WSDLManagerInstrumentation implements Instrumentation {
     private String objectName;
     private WSDLManagerImpl wsdlManager;
     private WeakHashMap<Object, Definition> definitionsMap;
-    private Definition definition;
+   
     
-
     public WSDLManagerInstrumentation(WSDLManagerImpl wsdl) {
         wsdlManager = wsdl;
         objectName = INSTRUMENTED_NAME + instanceNumber;
-        definitionsMap = wsdlManager.definitionsMap;        
+        definitionsMap = wsdlManager.definitionsMap; 
+        instanceNumber++;        
     }
     
     public static void resetInstanceNumber() {
@@ -38,63 +41,101 @@ public class WSDLManagerInstrumentation implements Instrumentation {
     }
     // get the wsdl model information 
     
-    @ManagedAttribute(description = "The celtix bus provider the Service",
+    @ManagedAttribute(description = "The celtix bus WSDL provider the Service",
                       persistPolicy = "OnUpdate")
     public String[] getServices() {
         List<String> strList = new ArrayList<String>();
-        for (Iterator<Definition> it = definitionsMap.values().iterator();
+        Set<Definition> defSet = new HashSet<Definition>(definitionsMap.values());     
+        for (Iterator<Definition> it = defSet.iterator();
             it.hasNext();) {
-            definition = it.next();
-            String defName = definition.getQName().toString();          
+            Definition definition = it.next();
+            String defName = "Definition: " + definition.getQName().toString();          
             for (Iterator jt = definition.getServices().keySet().iterator();
                 jt.hasNext();) {
                 QName serviceQName = (QName)jt.next();
-                String serviceName = defName + ":" + serviceQName.toString();
-                strList.add(serviceName);
+                String name = defName + " Service: " + serviceQName.toString();
+                strList.add(name);
             }                
         }
         String[] strings = new String[strList.size()];
         return strList.toArray(strings);
     }
     
-    @ManagedAttribute(description = "The celtix bus provider the Bindings",
+    @ManagedAttribute(description = "The celtix bus WSDL provider the Bindings",
                       persistPolicy = "OnUpdate")
     public String[] getBindings() {       
-        List<String> strList = new ArrayList<String>(); 
-        for (Iterator<Definition> it = definitionsMap.values().iterator();
+        List<String> strList = new ArrayList<String>();
+        Set<Definition> defSet = new HashSet<Definition>(definitionsMap.values());
+        for (Iterator<Definition> it = defSet.iterator();
             it.hasNext();) {
-            definition = it.next();
-            String defName = definition.getQName().toString();
+            Definition definition = it.next();
+            String defName = "Definition: " + definition.getQName().toString();
             for (Iterator jt = definition.getBindings().values().iterator();
                 jt.hasNext();) {
                 Binding binding = (Binding)jt.next();
-                String serviceName = defName + ":" + binding.getQName().toString();
-                strList.add(serviceName);
+                String name = defName + " Binding: " + binding.getQName().toString();
+                strList.add(name);
             }                
         }
         String[] strings = new String[strList.size()];
         return strList.toArray(strings);
     }
     
-    @ManagedAttribute(description = "The celtix bus provider the PortTypes",
+    @ManagedAttribute(description = "The celtix bus WSDL provider the PortTypes",
                       persistPolicy = "OnUpdate")
     public String[] getPortTypes() {
         List<String> strList = new ArrayList<String>();
-        for (Iterator<Definition> it = definitionsMap.values().iterator();
+        Set<Definition> defSet = new HashSet<Definition>(definitionsMap.values());        
+        for (Iterator<Definition> it = defSet.iterator();
             it.hasNext();) {
-            definition = it.next();
-            String defName = definition.getQName().toString();
+            Definition definition = it.next();
+            String defName = "Definition: " + definition.getQName().toString();
             for (Iterator jt = definition.getPortTypes().values().iterator();
                 jt.hasNext();) {
-                PortType port = (PortType)jt.next();
-                String serviceName = defName + ":" + port.getQName().toString();
-                strList.add(serviceName);
+                PortType port = (PortType)jt.next();               
+                String name = defName + " PortType: " + port.getQName().toString();
+                strList.add(name);
             }                
         }
         String[] strings = new String[strList.size()];
         return strList.toArray(strings);
     }
     
+    // get the address 
+    
+    @ManagedOperation(currencyTimeLimit = 30, 
+                      description = "The celtix bus WSDL defined service and port provider operation")
+    public String[] getOperation(String def, String pt) {
+        List<String> strList = new ArrayList<String>();
+        Definition definition = null;
+        PortType port = null;
+        Set<Definition> defSet = new HashSet<Definition>(definitionsMap.values());
+        for (Iterator<Definition> it = defSet.iterator();
+            it.hasNext();) {
+            definition = it.next();
+            if (def.compareTo(definition.getQName().getLocalPart()) == 0) {
+                for (Iterator jt = definition.getPortTypes().values().iterator();
+                        jt.hasNext();) {                    
+                    port = (PortType)jt.next();
+                    if (pt.compareTo(port.getQName().getLocalPart()) == 0) {
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        if (definition != null && port != null) {
+            for (Iterator it = port.getOperations().iterator(); it.hasNext();) {
+                Operation opt = (Operation)it.next();
+                String name = "Operation: " + opt.getName();
+                strList.add(name);
+            }                
+        }
+        String[] strings = new String[strList.size()];
+        return strList.toArray(strings);
+    }
+    
+       
     public String getInstrumentationName() {
         return INSTRUMENTED_NAME;
     }

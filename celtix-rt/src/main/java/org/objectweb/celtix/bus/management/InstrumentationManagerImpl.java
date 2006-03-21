@@ -18,6 +18,8 @@ import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 
 import org.objectweb.celtix.bus.instrumentation.InstrumentationPolicyType;
 import org.objectweb.celtix.bus.instrumentation.MBServerPolicyType;
+import org.objectweb.celtix.bus.jaxws.EndpointRegistryImpl;
+import org.objectweb.celtix.bus.jaxws.EndpointRegistryInstrumentation;
 import org.objectweb.celtix.bus.management.jmx.JMXManagedComponentManager;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerInstrumentation;
@@ -86,12 +88,9 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
             mbserver = new MBServerPolicyType();
             System.out.println(mbserver.getJMXConnector().getJMXSeviceURL());
         } 
-        
-        //TODO There no effect of the configuration xml change
+               
         instrumentationEnabled = instrumentation.isInstrumentationEnabled();
-        jmxEnabled = instrumentation.isJMXEnabled();
-        //instrumentationEnabled = true;
-        //jmxEnabled = true;
+        jmxEnabled = instrumentation.isJMXEnabled();       
         
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Setting up InstrumentationManager for BUS");
@@ -230,6 +229,10 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         if (JMSClientTransport.class.isAssignableFrom(component.getClass())) {
             it = new JMSClientTransportInstrumentation(
                            (JMSClientTransport)component);
+        }
+        if (EndpointRegistryImpl.class.isAssignableFrom(component.getClass())) {
+            it = new EndpointRegistryInstrumentation(
+                           (EndpointRegistryImpl)component);
         }
         
         return it;

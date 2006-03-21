@@ -9,6 +9,7 @@ import javax.xml.ws.WebServiceException;
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.jaxws.EndpointRegistry;
 import org.objectweb.celtix.management.InstrumentationManager;
 import org.objectweb.celtix.plugins.PluginManager;
 import org.objectweb.celtix.resource.ResourceManager;
@@ -217,6 +218,14 @@ public abstract class Bus {
      * @return InstrumentationManager of this <code>Bus</code>
      */
     public abstract InstrumentationManager getInstrumentationManager();
+    
+    /**
+     * Returns the BusID  of this <code>Bus</code>
+     * 
+     * @return String BusID of this <code>Bus</code>
+     */
+    public abstract String getBusID();
+    
 
     /**
      * Starts processing bus events, and returns only after the <code>Bus</code> has been shut down
@@ -224,7 +233,12 @@ public abstract class Bus {
      *
      */
     public abstract void run();
-
+    
+    /**
+     * Get the Endpoint Registry from bus , which contains the jaxws endpoint reference
+     */
+    public abstract EndpointRegistry getEndpointRegistry();
+    
     public abstract void initialize(String[] args,
             Map<String, Object> properties) throws BusException;
 

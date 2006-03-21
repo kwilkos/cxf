@@ -16,11 +16,10 @@ public final class JMXUtils {
     private JMXUtils() {        
     }
     
-    //org.objectweb.celtix.instrumentation:type=Componnet,name=QuotedQName,bus=busIdentifier
-    //TODO should get the busIdentifier
-    public static ObjectName getObjectName(String name) {        
+    //org.objectweb.celtix:type=Componnet,name=QuotedQName,bus=busIdentifier    
+    public static ObjectName getObjectName(String name, String busID) {        
         try {
-            return new ObjectName(DOMAIN_STRING + ":Type=" + name);
+            return new ObjectName(DOMAIN_STRING + ":Type=" + name + ",Bus=" + busID);
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "OBJECT_NAME_FALUE_MSG", new Object[]{name, ex});
         }

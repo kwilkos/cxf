@@ -11,7 +11,7 @@ import org.objectweb.celtix.BusEventListener;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bus.bindings.BindingManagerImpl;
-import org.objectweb.celtix.bus.jaxws.EndpointRegistry;
+import org.objectweb.celtix.bus.jaxws.EndpointRegistryImpl;
 import org.objectweb.celtix.bus.management.InstrumentationManagerImpl;
 import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
@@ -19,6 +19,7 @@ import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.jaxws.EndpointRegistry;
 import org.objectweb.celtix.management.InstrumentationManager;
 import org.objectweb.celtix.plugins.PluginManager;
 import org.objectweb.celtix.resource.ResourceManager;
@@ -32,7 +33,7 @@ public class CeltixBus extends Bus {
     private Configuration configuration;
     private BindingManager bindingManager;
     private Object clientRegistry;
-    private EndpointRegistry endpointRegistry;
+    private EndpointRegistryImpl endpointRegistry;
     private TransportFactoryManager transportFactoryManager;
     private WSDLManager wsdlManager;
     private PluginManager pluginManager;
@@ -42,6 +43,8 @@ public class CeltixBus extends Bus {
     private InstrumentationManager instrumentationManager;
     private BusEventCache eventCache;
     private BusEventProcessor eventProcessor;
+    private String busID;
+   
     
     /**
      * Used by the <code>BusFactory</code> to initialize a new bus.
@@ -55,6 +58,8 @@ public class CeltixBus extends Bus {
         lifeCycleManager = new CeltixBusLifeCycleManager();        
         
         configuration = new BusConfigurationBuilder().build(args, properties);        
+        
+        busID = (String) configuration.getId();
         
         // register a event cache for all bus events
         eventCache = new BusEventCacheImpl(this);
@@ -72,7 +77,7 @@ public class CeltixBus extends Bus {
         // create and initialise the remaining objects:
         // clientRegistry = new ClientRegistry(this);
 
-        endpointRegistry = new EndpointRegistry(this);
+        endpointRegistry = new EndpointRegistryImpl(this);
        
         Bus.setCurrent(this);
 
@@ -107,7 +112,6 @@ public class CeltixBus extends Bus {
 
         // shutdown in inverse order of construction
 
-        
         endpointRegistry.shutdown();        
 
         transportFactoryManager.shutdown();
@@ -186,7 +190,7 @@ public class CeltixBus extends Bus {
      *
      * @return EndpointRegistry the endpoint registry of this <code>Bus</code>.
      */
-    Object getEndpointRegistry() {
+    public EndpointRegistry getEndpointRegistry() {
         return endpointRegistry;
     }
 
@@ -238,6 +242,11 @@ public class CeltixBus extends Bus {
     @Override
     public BusEventCache getEventCache() {
         return eventCache;
+    }
+
+    @Override
+    public String getBusID() {
+        return busID;
     }
     
 }

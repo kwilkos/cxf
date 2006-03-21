@@ -47,20 +47,22 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
     private InstrumentationEventFilter meFilter;
     private MBeanServer mbs;
     private ModelMBeanAssembler mbAssembler; 
-    private MBServerConnectorFactory mcf;
+    private MBServerConnectorFactory mcf;    
+    private Bus bus;
+    private String busID;
     
     public JMXManagedComponentManager(Bus b) {
-        //bus = b;
-        
-        meFilter = new InstrumentationEventFilter();
-        // TODO need to read configurate files  
+        bus = b;
+        busID = bus.getBusID();
+        meFilter = new InstrumentationEventFilter();        
         mbAssembler = new ModelMBeanAssembler();
         
        
     }
     
     public void init(MBServerPolicyType mbpt) {
-                
+        // get the init information from configuration
+        
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Setting up MBeanServer ");
         }          
@@ -155,7 +157,7 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
                         rtMBean.setManagedResource(instrumentation, "ObjectReference");
                                                
                         registerMBean(rtMBean,
-                            JMXUtils.getObjectName(instrumentation.getUniqueInstrumentationName()));
+                            JMXUtils.getObjectName(instrumentation.getUniqueInstrumentationName(), busID));
                         if (LOG.isLoggable(Level.INFO)) {
                             LOG.info("registered the object to MBserver" 
                                                + instrumentation.getUniqueInstrumentationName());
@@ -182,7 +184,7 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
                // unregist the component and distroy it.
                 ObjectName name;                 
                 name = JMXUtils.getObjectName(
-                    instrumentation.getUniqueInstrumentationName());               
+                    instrumentation.getUniqueInstrumentationName(), busID);               
                 unregisterMBean(name);
                 if (LOG.isLoggable(Level.INFO)) {
                     LOG.info("unregistered the object to MBserver" 
