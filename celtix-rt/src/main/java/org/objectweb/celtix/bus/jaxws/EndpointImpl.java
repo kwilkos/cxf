@@ -295,12 +295,6 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         return reference;
     }
 
-    private boolean isSameBinding(String b1, String b2) throws BusException {
-        BindingFactory f1 = bus.getBindingManager().getBindingFactory(b1);
-        BindingFactory f2 = bus.getBindingManager().getBindingFactory(b2);
-        return f1.equals(f2);
-    }
-    
     private String getBindingIdFromWSDL() {
         Port port = null;
         try {
@@ -319,18 +313,12 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
                 bindingId = bType.value();
             }
         }
-
+        
         String bindingIdFromWSDL = null;
-        try {
+        if (bindingId == null) {
             bindingIdFromWSDL = getBindingIdFromWSDL();
-            if (bindingIdFromWSDL != null && bindingId != null
-                && !isSameBinding(bindingId, bindingIdFromWSDL)) {
-                LOG.log(Level.SEVERE, "BINDING_ID_NOT_IDENTICAL_MSG", bindingIdFromWSDL + " <> " + bindingId);
-            }
-        } catch (Exception we) {
-            throw new WebServiceException("Can not resolve the binding id.", we);
         }
-
+        
         if (null == bindingId && null != bindingIdFromWSDL) {
             bindingId = bindingIdFromWSDL;
         }
@@ -340,9 +328,6 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             bindingId = SOAPBinding.SOAP11HTTP_BINDING; 
         }
         
-        // bindingURI = bindingId;
-
-
         BindingFactory factory = bus.getBindingManager().getBindingFactory(bindingId);
         if (null == factory) {
             throw new BusException(new Message("BINDING_FACTORY_MISSING_EXC", LOG, bindingId));
