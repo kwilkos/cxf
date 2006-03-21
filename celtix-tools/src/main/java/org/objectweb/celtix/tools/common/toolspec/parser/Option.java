@@ -144,7 +144,7 @@ public class Option implements TokenConsumer {
 
             if ("IdentifyString".equals(valuetypeStr)) {
                 return !isIdentifyString(argValue);
-            } else if ("NamingSpacePackageString".equals(valuetypeStrcd .)) {
+            } else if ("NamingSpacePackageString".equals(valuetypeStr)) {
                 return !isNamingSpacePackageString(argValue);
             } else if ("Digital".equals(valuetypeStr)) {
                 for (int i = 0; i < argValue.length(); i++) {
