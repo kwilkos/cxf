@@ -25,7 +25,7 @@
         <!-- After deploy, you need to go to http://forge.objectweb.org/projects/maven/ and hit the Push button -->
         <repository>
             <id>objectweb</id>
-            <name>Object Web Maven Repository</name>
+            <name>ObjectWeb Maven Repository</name>
             <url>scp://jupiter.objectweb.org/var/lib/gforge/chroot/home/groups/maven/htdocs/maven2</url>
         </repository>
         <snapshotRepository>
@@ -279,6 +279,7 @@
                     <reportFormat>${surefire.format}</reportFormat>
                     <useFile>${surefire.usefile}</useFile>
                     <forkMode>${surefire.fork.mode}</forkMode>
+                    <childDelegation>false</childDelegation>
 
                     <systemProperties>
                         <property>

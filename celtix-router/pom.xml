@@ -54,18 +54,18 @@
             <scope>test</scope>
         </dependency>
 
-    <dependency>
-      <groupId>javax.xml</groupId>
-      <artifactId>jaxws-api</artifactId>
+		<dependency>
+			<groupId>javax.xml</groupId>
+			<artifactId>jaxws-api</artifactId>
             <version>${jaxws.version}</version>
-    </dependency>
-    <!-- TEMP REMOVED-->
-    <!--
+        </dependency>
         <dependency>
             <groupId>javax.xml</groupId>
             <artifactId>jaxb-api</artifactId>
             <version>${jaxws.version}</version>
         </dependency>
+    <!-- TEMP REMOVED-->
+    <!--
     <dependency>
       <groupId>wsdl4j</groupId>
       <artifactId>wsdl4j</artifactId>
@@ -118,15 +118,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire.version}</version>
-                <configuration>
-                    <forkMode>none</forkMode>
-                </configuration>
             </plugin>
         </plugins>
     </build>

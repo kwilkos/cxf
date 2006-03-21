@@ -8,7 +8,7 @@
             <arg line="clean"/>
         </exec>
         <exec executable="mvn" dir="${basedir}" failonerror="false" resultproperty="build.result" output="build.out" logError="true">
-            <arg line="install -Dsurefire.fork.mode=once"/>
+            <arg line="install -Dsurefire.fork.mode=once -Drelease"/>
         </exec>
         <condition property="build.failed">
             <not>

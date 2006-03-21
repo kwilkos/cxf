@@ -149,10 +149,6 @@
                     <artifactId>stax</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>stax</groupId>
-                    <artifactId>stax-api</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>xmlbeans</groupId>
                     <artifactId>xmlpublic</artifactId>
                 </exclusion>
