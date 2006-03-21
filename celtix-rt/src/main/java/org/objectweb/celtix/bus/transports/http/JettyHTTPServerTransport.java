@@ -186,15 +186,19 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
     }
 
     void doService(HttpRequest req, HttpResponse resp) throws IOException {
+        
         if (policy.isSetRedirectURL()) {
             resp.sendRedirect(policy.getRedirectURL());
             resp.commit();
             req.setHandled(true);
             return;
-        }
+        }    
+
         
-        if ("GET".equals(req.getMethod())) {
+        
+        if ("GET".equals(req.getMethod()) && req.getURI().toString().toLowerCase().endsWith("?wsdl")) {
             try {
+                
                 Definition def = EndpointReferenceUtils.getWSDLDefinition(bus.getWSDLManager(), reference);
                 resp.addField("Content-Type", "text/xml");
                 bus.getWSDLManager().getWSDLFactory().newWSDLWriter().writeWSDL(def, resp.getOutputStream());
@@ -256,6 +260,7 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.info("Service http request on thread: " + Thread.currentThread());
             }
+            
             HTTPServerInputStreamContext ctx = new HTTPServerInputStreamContext(this) {
                 public void initContext() throws IOException {
                     super.initContext();

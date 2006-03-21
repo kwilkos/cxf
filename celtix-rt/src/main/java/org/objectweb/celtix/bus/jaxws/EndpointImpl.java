@@ -21,6 +21,7 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Provider;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.WebServicePermission;
 import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.soap.SOAPBinding;
@@ -243,6 +244,11 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
      * @see javax.xml.ws.Endpoint#publish(java.lang.String)
      */
     public void publish(String address) {
+        
+        SecurityManager security = System.getSecurityManager();
+        if (security != null) {
+            security.checkPermission(new WebServicePermission("endpointPublish"));    
+        }
         if (doInit && !initialised) {
             init();
         }
@@ -382,7 +388,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
 
     void doPublish(String address) {
 
-        EndpointReferenceUtils.setAddress(reference, address);
+        EndpointReferenceUtils.setAddress(reference, address);      
         try {
             serverBinding.activate();
             published = true;
