@@ -26,10 +26,9 @@ public class RouterFactory {
     private static final Logger LOG = LogUtils.getL7dLogger(RouterFactory.class);
     
     private Bus bus;
-    private List<Router> routerList;
     
     public RouterFactory() {
-        routerList = new ArrayList<Router>();
+        //Complete
     }
    
     public void init(Bus b) {
@@ -48,25 +47,26 @@ public class RouterFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public void addRoutes(List<Definition> modelList) {
-        for (Definition def : modelList) {
-            List<ExtensibilityElement> extList = def.getExtensibilityElements();
-            for (ExtensibilityElement extEl : extList) {
-                if (extEl instanceof RouteType) {
-                    RouteType rt = (RouteType)extEl;
-                    if (isValidRoute(def, rt)) {
-                        Router router = createRouter(def, rt);
-                        routerList.add(router);
-                    } else {
-                        //throw new WebServiceException(
-                        //            new Message("UNSUPPORTED_ROUTE", LOG, rt.getName()).toString());
-                        if (LOG.isLoggable(Level.SEVERE)) {
-                            LOG.log(Level.SEVERE, "UNSUPPORTED_ROUTE", rt.getName());
-                        }
+    public List<Router> addRoutes(Definition def) {
+        List<Router> routerList = new ArrayList<Router>();
+        List<ExtensibilityElement> extList = def.getExtensibilityElements();
+        for (ExtensibilityElement extEl : extList) {
+            if (extEl instanceof RouteType) {
+                RouteType rt = (RouteType)extEl;
+                if (isValidRoute(def, rt)) {
+                    Router router = createRouter(def, rt);
+                    routerList.add(router);
+                } else {
+                    //throw new WebServiceException(
+                    //            new Message("UNSUPPORTED_ROUTE", LOG, rt.getName()).toString());
+                    if (LOG.isLoggable(Level.SEVERE)) {
+                        LOG.log(Level.SEVERE, "UNSUPPORTED_ROUTE", rt.getName());
                     }
                 }
             }
         }
+
+        return routerList;
     }
     
     @SuppressWarnings("unchecked")

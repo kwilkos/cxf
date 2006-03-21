@@ -14,9 +14,7 @@ import javax.xml.ws.Provider;
 import junit.framework.TestCase;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlPortProvider;
-import org.objectweb.celtix.routing.configuration.DestinationType;
 import org.objectweb.celtix.routing.configuration.RouteType;
-import org.objectweb.celtix.routing.configuration.SourceType;
 
 public class RouterTest extends TestCase {
 
@@ -71,9 +69,10 @@ public class RouterTest extends TestCase {
         QName destSrv = new QName("http://objectweb.org/HWRouter", "HTTPSoapServiceDestination");
         String destPort = new String("HTTPSoapPortDestination");
 
-        RouteType rt = createRouteType("route_0", 
-                                       sourceSrv, sourcePort, 
-                                       destSrv, destPort);
+        RouteType rt = 
+            RouteTypeUtil.createRouteType("route_0", 
+                                           sourceSrv, sourcePort, 
+                                           destSrv, destPort);
         
         TestRouter router = new TestRouter(def, rt);
         router.init();
@@ -93,9 +92,10 @@ public class RouterTest extends TestCase {
                                               QName sourceSrv, String sourcePort, 
                                               QName destSrv, String destPort,
                                               boolean isSameBinding) {
-        RouteType rt = createRouteType("route_0", 
-                                       sourceSrv, sourcePort, 
-                                       destSrv, destPort);
+        RouteType rt = 
+            RouteTypeUtil.createRouteType("route_0", 
+                                           sourceSrv, sourcePort, 
+                                           destSrv, destPort);
         
         TestRouter router = new TestRouter(def, rt);
         assertNotNull("WSDL Model should be set for the router", router.getWSDLModel());
@@ -116,28 +116,6 @@ public class RouterTest extends TestCase {
         //Check For Same Binding
         assertEquals(isSameBinding, 
                    router.testIsSameBindingId(p));        
-    }
-    
-    private RouteType createRouteType(String routeName, 
-                                      QName srcService, String srcPort, 
-                                      QName destService, String destPort) {
-        SourceType st = new SourceType();
-        st.setService(srcService);
-        st.setPort(srcPort);
-        
-        DestinationType dt = new DestinationType();
-        dt.setPort(destPort);
-        dt.setService(destService);
-        
-        RouteType rt = new RouteType();
-        rt.setName(routeName);
-
-        List<SourceType> sList = rt.getSource();
-        sList.add(st);
-        List<DestinationType> dList = rt.getDestination();
-        dList.add(dt);
-        
-        return rt;
     }
     
     public static void main(String[] args) {

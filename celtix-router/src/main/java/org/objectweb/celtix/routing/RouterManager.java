@@ -14,7 +14,7 @@ import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.routing.configuration.UrlListPolicy;
 
-public final class RouterManager {
+public class RouterManager {
     public static final String ROUTING_CONFIGURATION_URI = 
         "http://celtix.objectweb.org/routing/configuration";
     public static final String ROUTING_CONFIGURATION_ID = 
@@ -27,11 +27,13 @@ public final class RouterManager {
     private final Configuration config;
     private RouterFactory factory;
     private List<Definition> wsdlModelList;
+    private List<Router> routerList;
     
     public RouterManager(Bus b) {
         bus = b;
         config = createConfiguration();
         wsdlModelList = new ArrayList<Definition>();
+        routerList = new ArrayList<Router>();
     }
 
     private Configuration createConfiguration() {
@@ -63,13 +65,26 @@ public final class RouterManager {
             throw new WebServiceException("Could not load router wsdl", we);
         }
     }
+
+    private void addRoutes() {
+        for (Definition def : wsdlModelList) {
+            List<Router> rList = factory.addRoutes(def);
+            routerList.addAll(rList);
+        }
+    }
+    
+    protected void publishRoutes() {
+        for (Router r : routerList) {
+            r.publish();
+        }
+    }
     
     public void init() {
         factory = new RouterFactory();
         factory.init(bus);
         loadWSDL();
-        
-        factory.addRoutes(wsdlModelList);
+        addRoutes();
+        publishRoutes();
     }
     
     public List<String> getRouteWSDLList() {
@@ -83,6 +98,10 @@ public final class RouterManager {
     public RouterFactory getRouterFactory() {
         return factory;
     }
+
+    public List<Router> getRouters() {
+        return routerList;
+    }
     
     public static void main(String[] args) {
         try {
@@ -95,5 +114,4 @@ public final class RouterManager {
             throw new WebServiceException("Could not initialize bus", be);
         }
     }
-        
 }

@@ -70,7 +70,8 @@ public class Router {
             Endpoint sourceEP = Endpoint.create(srcBindingId, implementor);
             sourceEP.setMetadata(metadata);
             sourceEP.setProperties(properties);
-            epList.add(sourceEP);            
+            //TODO Set Executor on endpoint.
+            epList.add(sourceEP);
         }
     }
 

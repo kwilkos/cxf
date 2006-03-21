@@ -1,6 +1,5 @@
 package org.objectweb.celtix.routing;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +31,10 @@ public class RouterFactoryTest extends TestCase {
         TestRouterFactory factory = new TestRouterFactory();
         factory.init(bus);
         
-        List<Definition> modelList = new ArrayList<Definition>();
         Definition def = bus.getWSDLManager().getDefinition(getClass().getResource("/wsdl/router.wsdl"));
-        modelList.add(def);
-        
-        factory.addRoutes(modelList);        
+
+        List<Router> rList = factory.addRoutes(def);
+        assertEquals(1, rList.size());
         assertEquals(1, factory.routerCount);
     }
     
