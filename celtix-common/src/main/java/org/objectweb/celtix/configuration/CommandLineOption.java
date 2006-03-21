@@ -12,6 +12,7 @@ public class CommandLineOption {
     private Object value;
         
     public CommandLineOption(String optionName) {
+        name = optionName;
     }
     
     public String toString() {
@@ -40,5 +41,11 @@ public class CommandLineOption {
     }
     
     public void initialize(String[]args) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].compareTo(name) == 0 && i < args.length - 1) {
+                value = args[i + 1];
+                break;
+            }
+        }
     }
 }
