@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
@@ -82,20 +84,8 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         bus = b;
         implementor = impl;
         reference = ref;
-
-        if (null == bindingId) {
-            BindingType bType = implementor.getClass().getAnnotation(BindingType.class);
-            if (bType != null) {
-                bindingId = bType.value();
-            }
-        }
-
-        if (null == bindingId) {
-            // Use SOAP1.1/HTTP Binding as default. JAX-WS Spec 5.2.1
-            bindingId = SOAPBinding.SOAP11HTTP_BINDING; 
-        }
-        
         bindingURI = bindingId;
+
         if (Provider.class.isAssignableFrom(impl.getClass())) {
             //Provider Implementor
             wsProvider = implementor.getClass().getAnnotation(WebServiceProvider.class);
@@ -125,8 +115,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         
         doInit = true;
     }
-
-
+    
     private void init() {
         try {
             initProperties();
@@ -305,8 +294,54 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     public EndpointReferenceType getEndpointReferenceType() {
         return reference;
     }
+
+    private boolean isSameBinding(String b1, String b2) throws BusException {
+        BindingFactory f1 = bus.getBindingManager().getBindingFactory(b1);
+        BindingFactory f2 = bus.getBindingManager().getBindingFactory(b2);
+        return f1.equals(f2);
+    }
     
+    private String getBindingIdFromWSDL() {
+        Port port = null;
+        try {
+            port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), reference);
+        } catch (WSDLException we) {
+            return null;
+        }
+        return ((ExtensibilityElement)port.getExtensibilityElements().get(0)).
+            getElementType().getNamespaceURI();
+    }
+
     ServerBinding createServerBinding(String bindingId) throws BusException, WSDLException, IOException {
+        if (null == bindingId) {
+            BindingType bType = implementor.getClass().getAnnotation(BindingType.class);
+            if (bType != null) {
+                bindingId = bType.value();
+            }
+        }
+
+        String bindingIdFromWSDL = null;
+        try {
+            bindingIdFromWSDL = getBindingIdFromWSDL();
+            if (bindingIdFromWSDL != null && bindingId != null
+                && !isSameBinding(bindingId, bindingIdFromWSDL)) {
+                LOG.log(Level.SEVERE, "BINDING_ID_NOT_IDENTICAL_MSG", bindingIdFromWSDL + " <> " + bindingId);
+            }
+        } catch (Exception we) {
+            throw new WebServiceException("Can not resolve the binding id.", we);
+        }
+
+        if (null == bindingId && null != bindingIdFromWSDL) {
+            bindingId = bindingIdFromWSDL;
+        }
+        
+        if (null == bindingId) {
+            // Use SOAP1.1/HTTP Binding as default. JAX-WS Spec 5.2.1
+            bindingId = SOAPBinding.SOAP11HTTP_BINDING; 
+        }
+        
+        // bindingURI = bindingId;
+
 
         BindingFactory factory = bus.getBindingManager().getBindingFactory(bindingId);
         if (null == factory) {

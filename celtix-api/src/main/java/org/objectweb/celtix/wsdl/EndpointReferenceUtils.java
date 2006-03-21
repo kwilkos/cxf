@@ -220,7 +220,9 @@ public final class EndpointReferenceUtils {
     public static Port getPort(WSDLManager manager, EndpointReferenceType ref) throws WSDLException {
 
         Definition def = getWSDLDefinition(manager, ref);
-        assert def != null : "unable to find definition for reference " + ref;
+        if (def == null) {
+            throw new WSDLException(WSDLException.OTHER_ERROR, "unable to find definition for reference");
+        }
 
         MetadataType metadata = ref.getMetadata();
         for (Object objMeta : metadata.getAny()) {
