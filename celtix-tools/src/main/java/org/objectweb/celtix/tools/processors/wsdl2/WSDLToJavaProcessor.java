@@ -77,12 +77,12 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
     }
 
     private void generateTypes() throws ToolException {
-        if (rawJaxbModel == null) {
+        if (rawJaxbModelGenCode == null) {
             return;
         }
         try {
-            if (rawJaxbModel instanceof S2JJAXBModel) {
-                S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModel;
+            if (rawJaxbModelGenCode instanceof S2JJAXBModel) {
+                S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
                 JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
                 String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
                 FileCodeWriter fileCodeWriter = new FileCodeWriter(new File(dir));

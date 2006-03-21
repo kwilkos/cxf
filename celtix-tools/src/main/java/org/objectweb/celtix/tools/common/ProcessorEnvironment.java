@@ -101,4 +101,8 @@ public class ProcessorEnvironment {
     public Map<String, InputSource> getJaxbBindingFile() {
         return this.jaxbBindingFiles;
     }
+
+    public boolean isExcludeNamespaceEnabled() {        
+        return excludeNamespacePackageMap.size() > 0;
+    }
 }

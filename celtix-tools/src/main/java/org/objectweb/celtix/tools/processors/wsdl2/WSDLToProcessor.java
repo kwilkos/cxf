@@ -75,6 +75,8 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     protected WSDLFactory wsdlFactory;
     protected WSDLReader wsdlReader;
     protected S2JJAXBModel rawJaxbModel;
+    protected S2JJAXBModel rawJaxbModelGenCode;
+
     protected ClassCollector classColletor;
     List<Schema> schemaList = new ArrayList<Schema>();
     private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
@@ -233,35 +235,52 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
 
     @SuppressWarnings("unchecked")
     private void buildJaxbModel() {
-        SchemaCompiler schemaCompiler = XJC.createSchemaCompiler();
-
+        SchemaCompiler schemaCompiler = XJC.createSchemaCompiler();        
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classColletor);
 
         allocator.setPortTypes(wsdlDefinition.getPortTypes().values(), env.mapPackageName(this.wsdlDefinition
             .getTargetNamespace()));
         schemaCompiler.setClassNameAllocator(allocator);
         schemaCompiler.setErrorListener(this);
+        
+        SchemaCompiler schemaCompilerGenCode = schemaCompiler;
+        if (env.isExcludeNamespaceEnabled()) {            
+            schemaCompilerGenCode = XJC.createSchemaCompiler();
+            schemaCompilerGenCode.setClassNameAllocator(allocator);
+            schemaCompilerGenCode.setErrorListener(this);        
+        }
         for (Schema schema : schemaList) {
+            boolean skipGenCode = false;
             Element schemaElement = schema.getElement();
-
+            
             String targetNamespace = schemaElement.getAttribute("targetNamespace");
             if (targetNamespace == null || targetNamespace.trim().length() == 0) {
                 continue;
             }
             if (env.hasExcludeNamespace(targetNamespace)
                 && env.getExcludePackageName(targetNamespace) == null) {
-                continue;
+                skipGenCode = true;
             }
             customizeSchema(schemaElement, targetNamespace);
-            String systemid = schema.getDocumentBaseURI();
+            String systemid = schema.getDocumentBaseURI();            
             schemaCompiler.parseSchema(systemid, schemaElement);
+            if (env.isExcludeNamespaceEnabled() && !skipGenCode) {
+                schemaCompilerGenCode.parseSchema(systemid, schemaElement);
+            }
         }
         Collection<InputSource> jaxbBindingFiles = env.getJaxbBindingFile().values();
         for (InputSource bindingFile : jaxbBindingFiles) {
             schemaCompiler.parseSchema(bindingFile);
+            if (env.isExcludeNamespaceEnabled()) {
+                schemaCompilerGenCode.parseSchema(bindingFile);
+            }
         }
         rawJaxbModel = schemaCompiler.bind();
-
+        if (env.isExcludeNamespaceEnabled()) {
+            rawJaxbModelGenCode = schemaCompilerGenCode.bind();
+        } else {
+            rawJaxbModelGenCode = rawJaxbModel;
+        }
     }
 
     private boolean isSchemaParsed(String targetNamespace) {

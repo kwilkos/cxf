@@ -126,7 +126,7 @@ public class WSDLToJavaMIMETest
 //    }
     
     public void testDummy() {
-        System.out.println("Dummy test, the true test will be enabled in future release!");        
+        System.out.print("");
     }
     
 }
