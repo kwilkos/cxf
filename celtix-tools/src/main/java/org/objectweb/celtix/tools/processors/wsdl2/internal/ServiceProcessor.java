@@ -343,7 +343,7 @@ public class ServiceProcessor extends AbstractProcessor {
         }
         if (javax.jws.soap.SOAPBinding.Style.RPC == jm.getSoapStyle()
             && javax.jws.soap.SOAPBinding.Use.LITERAL == jm.getSoapUse()) {
-            processRPCLiteralParameter(jm, operation);
+            return;
         }
         if (javax.jws.soap.SOAPBinding.Style.DOCUMENT == jm.getSoapStyle()
             && javax.jws.soap.SOAPBinding.Use.LITERAL == jm.getSoapUse()) {
@@ -512,10 +512,6 @@ public class ServiceProcessor extends AbstractProcessor {
         return msg;
     }
 
-    private void processRPCLiteralParameter(JavaMethod jm, BindingOperation operation) {
-        // to be done
-    }
-    
     private void doCustomizeBinding(JavaModel jmodel, JavaInterface ji, Binding binding) {
         JAXWSBinding bindingExt = null;
         List extElements = binding.getExtensibilityElements();

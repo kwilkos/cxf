@@ -186,10 +186,7 @@ public class ParameterProcessor extends AbstractProcessor {
             }
         }
   
-    /*    if (outParts.size() == 1) {
-            processReturn(method, outParts.get(0));
-            return;
-        } else*/ 
+
         if (isRequestResponse && outParts.size() == 1) {
             processReturn(method, outputParts.iterator().next());
             return;

@@ -29,9 +29,11 @@ import org.objectweb.celtix.tools.utils.AnnotationUtil;
 
 public class DocBareMethodProcessor {
     private WSDLModel model;
+
     public DocBareMethodProcessor(WSDLModel wmodel) {
         model = wmodel;
     }
+
     public void processDocBare(JavaMethod javaMethod, Method method) {
         boolean isHolder = false;
         javaMethod.setSoapStyle(SOAPBinding.Style.DOCUMENT);
@@ -53,9 +55,9 @@ public class DocBareMethodProcessor {
         }
 
         // get return type class
-       
+
         WSDLParameter response = new WSDLParameter();
-        //process return 
+        // process return
         Class returnType = method.getReturnType();
         if (returnType != null && !"void".equals(returnType.getName())) {
             QName resQN = new QName(resultTNS, resultName);
@@ -71,13 +73,12 @@ public class DocBareMethodProcessor {
             response.addChildren(jp);
             javaMethod.addResponse(response);
         }
-        
 
         // processWebparam
         WSDLParameter request = new WSDLParameter();
         request.setName(method.getName());
         request.setStyle(JavaType.Style.IN);
-        javaMethod.addRequest(request);  
+        javaMethod.addRequest(request);
         List<JavaParameter> paras = processWebPara(method);
         for (JavaParameter jp : paras) {
             // requestWrapper.addWrapperChild(jp);
@@ -88,19 +89,19 @@ public class DocBareMethodProcessor {
                 request.addChildren(jp);
                 response.addChildren(jp);
                 isHolder = true;
-            } 
+            }
             if (jp.getStyle() == JavaType.Style.OUT) {
                 isHolder = true;
                 response.addChildren(jp);
             }
         }
-        
+
         if ((returnType == null || "void".equals(returnType.getName())) && isHolder) {
             response.setName(method.getName() + "Response");
             response.setStyle(JavaType.Style.OUT);
-            response.setTargetNamespace(resultTNS); 
+            response.setTargetNamespace(resultTNS);
             javaMethod.addResponse(response);
-        }       
+        }
         processExceptions(javaMethod, method);
     }
 
@@ -112,13 +113,25 @@ public class DocBareMethodProcessor {
             javaMethod.setSoapUse(this.model.getUse());
         }
     }
-    
+
     private List<JavaParameter> processWebPara(Method method) {
         // processWebparam
         Class<?>[] parameterTypes = method.getParameterTypes();
         Type[] parameterGenTypes = method.getGenericParameterTypes();
         Annotation[][] paraAnns = AnnotationUtil.getPrivParameterAnnotations(method);
         List<JavaParameter> paras = new ArrayList<JavaParameter>();
+        // DocumentBare_criteria defined jaxws spec 3.6.2.2
+        // criteria 1 - it must have at most one in or in/out non_header
+        boolean criteria1 = false;
+        // criteria 2 - if it has a return type other than void
+        // it must have no in/out or out non-header parameters
+        boolean criteria2 = true;
+        // criteria 3 - if it has a return type of void
+        // it must have at most one in/out or out-header parameter
+        boolean criteria3 = false;
+        // for doc_bare criteria3
+        int nonHeaderParamCount = 0;
+
         int i = 0;
         for (Class clazzType : parameterTypes) {
             String paraName = "arg" + i;
@@ -132,6 +145,23 @@ public class DocBareMethodProcessor {
             for (Annotation anno : paraAnns[i]) {
                 if (anno.annotationType() == WebParam.class) {
                     WebParam webParam = (WebParam)anno;
+
+                    if (!webParam.header()
+                        && (webParam.mode() == WebParam.Mode.IN || webParam.mode() == WebParam.Mode.INOUT)) {
+                        criteria1 = true;
+                    }
+
+                    if (!method.getReturnType().getName().equalsIgnoreCase("void") && !webParam.header()
+                        && (webParam.mode() == WebParam.Mode.OUT || webParam.mode() == WebParam.Mode.INOUT)) {
+                        criteria2 = false;
+
+                    }
+
+                    if (method.getReturnType().getName().equalsIgnoreCase("void") && !webParam.header()
+                        && (webParam.mode() == WebParam.Mode.OUT || webParam.mode() == WebParam.Mode.INOUT)) {
+                        nonHeaderParamCount++;
+                    }
+
                     paraName = webParam.name().length() > 0 ? webParam.name() : paraName;
                     partName = webParam.partName().length() > 0 ? webParam.partName() : paraName;
                     paraTNS = webParam.targetNamespace().length() > 0
@@ -145,8 +175,8 @@ public class DocBareMethodProcessor {
                             jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref,
                                                    JavaType.Style.INOUT);
                         } else {
-                            jp = new JavaParameter(typeref.tagName.getLocalPart(), 
-                                                   typeref, JavaType.Style.OUT);
+                            jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref,
+                                                   JavaType.Style.OUT);
                         }
                     } else {
                         jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref, JavaType.Style.IN);
@@ -160,11 +190,24 @@ public class DocBareMethodProcessor {
             }
             i++;
         }
-
+        if (!criteria1) {
+            throw new ToolException("it must have at most one in or "
+                                    + "in/out non_header in Doc_bare method");
+        }
+        if (!criteria2) {
+            throw new ToolException("If it has a return type of void it "
+                                    + "must have at most one in/out or out-header "
+                                    + "parameter in Doc_bare method");
+        }
+        criteria3 = nonHeaderParamCount <= 1 ? true : false;
+        if (!criteria3) {
+            throw new ToolException("if it has a return type of void "
+                                    + "it must have at most one in/out or out-header "
+                                    + "parameter in Doc_bare method");
+        }
         return paras;
     }
-    
-    
+
     private void processExceptions(JavaMethod jmethod, Method method) {
         for (Type exception : method.getGenericExceptionTypes()) {
             if (RemoteException.class.isAssignableFrom((Class)exception)) {
@@ -207,8 +250,6 @@ public class DocBareMethodProcessor {
         }
     }
 
-    
-
     private boolean isHolder(Class cType) {
         return Holder.class.isAssignableFrom(cType);
         // set the actual type argument of Holder in the TypeReference
@@ -218,7 +259,7 @@ public class DocBareMethodProcessor {
         ParameterizedType pt = (ParameterizedType)type;
         return getClass(pt.getActualTypeArguments()[0]);
     }
-    
+
     private Class getClass(Type type) {
         if (type instanceof Class) {
             return (Class)type;
@@ -229,5 +270,5 @@ public class DocBareMethodProcessor {
         }
         return Object.class;
     }
-  
+
 }
