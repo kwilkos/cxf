@@ -3,7 +3,6 @@ package demo.jms_greeter.client;
 import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -75,16 +74,16 @@ public final class Client {
 
         if (bp != null) {
             Map<String, Object> responseContext = bp.getResponseContext();
-            JMSMessageHeadersType responseHdr =
-                 (JMSMessageHeadersType) responseContext.get("org.objectweb.celtix.jms.client.response.headers");
+            JMSMessageHeadersType responseHdr = (JMSMessageHeadersType) responseContext.get(
+                                       "org.objectweb.celtix.jms.client.response.headers");
             if (responseHdr == null) {
                 System.out.println("response Header should not be null");
                 System.out.println();
                 System.exit(1);
             }
 
-            if ("JMS_QUEUE_SAMPLE_CORRELATION_ID".equals(responseHdr.getJMSCorrelationID()) &&
-                responseHdr.getProperty() != null) {
+            if ("JMS_QUEUE_SAMPLE_CORRELATION_ID".equals(responseHdr.getJMSCorrelationID())
+                && responseHdr.getProperty() != null) {
                 System.out.println("Received expected contents in response context");
             } else {
                 System.out.println("Received wrong contents in response context");
