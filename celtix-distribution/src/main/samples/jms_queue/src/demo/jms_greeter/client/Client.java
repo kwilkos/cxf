@@ -67,7 +67,7 @@ public final class Client {
             requestHeader.getProperty().add(propType);
             requestContext.put("org.objectweb.celtix.jms.client.request.headers", requestHeader);
             //To override the default receive timeout.
-            requestContext.put("org.objectweb.celtix.jms.client.timeout", new Long(10));
+            requestContext.put("org.objectweb.celtix.jms.client.timeout", new Long(1000));
         }
 
         System.out.println("Invoking sayHi with JMS Context information ...");
