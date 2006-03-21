@@ -37,6 +37,15 @@
 	<switch>r</switch>
       </option>
 
+	<option id="packagename" maxOccurs="unbounded">
+          <annotation>The java package name to use for the generated code.Also, optionally specify the wsdl namespace mapping to a particular java packagename.</annotation>
+          <switch>p</switch>
+              <associatedArgument placement="afterSpace">
+                  <valuetype>NamingSpacePackageString</valuetype>
+                  <annotation>[wsdl namespace =]Package Name</annotation>
+              </associatedArgument>
+      </option>
+
     </optionGroup>
 
     <optionGroup id="common_options">
@@ -47,6 +56,8 @@
 	<switch>v</switch>
       </option>
     </optionGroup>
+
+
 
     <argument id="wsdlurl" minOccurs="1" maxOccurs="1">
       <annotation>WSDL/SCHEMA URL</annotation>

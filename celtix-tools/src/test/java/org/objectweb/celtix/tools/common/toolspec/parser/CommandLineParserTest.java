@@ -163,8 +163,44 @@ public class CommandLineParserTest extends TestCase {
         }
     }
 
+    
+    public void testInvalidPackageName() {
+
+        try {
+            String[] args = new String[]{
+                "-p", "/test", "arg1"
+            };
+            parser.parseArguments(args);
+            fail("testInvalidPackageName failed");
+        } catch (BadUsageException ex) {
+            Object[] errors = ex.getErrors().toArray();
+            assertEquals("testInvalidPackageName failed", 1, errors.length);
+            CommandLineError error = (CommandLineError) errors[0];
+            assertTrue("Expected InvalidArgumentValue error", error instanceof ErrorVisitor.UserError);
+            ErrorVisitor.UserError userError = (ErrorVisitor.UserError) error;
+            assertEquals("Invalid argument value message incorrect",
+                    "-p has invalid character!", userError.toString());
+        }
+
+    }
+
+    public void testvalidPackageName() throws Exception {
+
+        String[] args = new String[]{
+            "-p", "http://www.iona.com/hello_world_soap_http=com.iona", "-r", "arg1"
+        };
+        CommandDocument result = parser.parseArguments(args);
+        assertEquals("testValidPackageName Failed",
+                     "http://www.iona.com/hello_world_soap_http=com.iona",
+                     result.getParameter("packagename"));
+
+    }
+    
+    
     public void testUsage() throws Exception {
-        String usage = "[ -n <C++ Namespace> ] [ -impl ] [ -e <Enum Value> ] -r [ -? ] [ -v ] <wsdlurl> ";
+        String usage =
+            "[ -n <C++ Namespace> ] [ -impl ] [ -e <Enum Value> ] -r "
+            + "[ -p <[wsdl namespace =]Package Name> ]* [ -? ] [ -v ] <wsdlurl> ";
         String pUsage = parser.getUsage();
         assertEquals("testUsage failed", usage, pUsage);
     }
@@ -179,6 +215,10 @@ public class CommandLineParserTest extends TestCase {
         usage += "enum" + lineSeparator + lineSeparator;
         usage += "-r" + lineSeparator;
         usage += "required" + lineSeparator + lineSeparator;
+        usage += "[ -p <[wsdl namespace =]Package Name> ]" + lineSeparator;
+        usage += "The java package name to use for the generated code."
+            + "Also, optionally specify the wsdl namespace mapping to a particular java packagename."
+            + lineSeparator + lineSeparator;
         usage += "[ -? ]" + lineSeparator;
         usage += "help" + lineSeparator + lineSeparator;
         usage += "[ -v ]" + lineSeparator;

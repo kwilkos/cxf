@@ -144,6 +144,8 @@ public class Option implements TokenConsumer {
 
             if ("IdentifyString".equals(valuetypeStr)) {
                 return !isIdentifyString(argValue);
+            } else if ("NamingSpacePackageString".equals(valuetypeStrcd .)) {
+                return !isNamingSpacePackageString(argValue);
             } else if ("Digital".equals(valuetypeStr)) {
                 for (int i = 0; i < argValue.length(); i++) {
                     if (!Character.isDigit(argValue.charAt(i))) {
@@ -187,6 +189,16 @@ public class Option implements TokenConsumer {
         return true;
     }
 
+    private boolean isNamingSpacePackageString(String value) {
+        if (value.indexOf("=") < 0) {
+            return isIdentifyString(value);
+        } else {
+            String packageName = value.substring(value.indexOf("=") + 1, value.length());
+            return isIdentifyString(packageName);
+        }
+    }
+
+    
     public boolean isSatisfied(ErrorVisitor errors) {
         if (errors.getErrors().size() > 0) {
             return false;

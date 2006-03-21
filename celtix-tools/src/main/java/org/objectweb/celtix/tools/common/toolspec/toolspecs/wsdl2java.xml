@@ -19,6 +19,7 @@
 		Also, optionally specify the wsdl namespace mapping to a particular java packagename.</annotation>
 		<switch>p</switch>
 		<associatedArgument placement="afterSpace">
+			<valuetype>NamingSpacePackageString</valuetype>
 		    <annotation>[wsdl namespace =]Package Name</annotation>
 		</associatedArgument>
 	    </option>
