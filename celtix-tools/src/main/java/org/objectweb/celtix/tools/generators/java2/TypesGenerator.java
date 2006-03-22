@@ -1,5 +1,6 @@
 package org.objectweb.celtix.tools.generators.java2;
 
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -24,9 +25,9 @@ import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.WSDLConstants;
 import org.objectweb.celtix.tools.common.model.WSDLModel;
-
+import org.objectweb.celtix.tools.processors.java2.JavaToWSDLProcessor;
 public class TypesGenerator {
-    private static final Logger LOG = LogUtils.getL7dLogger(TypesGenerator.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
     private WSDLModel wmodel;
     private Definition definition;
     private ExtensionRegistry extensionRegistry;

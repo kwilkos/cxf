@@ -28,10 +28,10 @@ import org.objectweb.celtix.tools.common.model.JavaType;
 import org.objectweb.celtix.tools.common.model.WSDLException;
 import org.objectweb.celtix.tools.common.model.WSDLModel;
 import org.objectweb.celtix.tools.common.model.WSDLParameter;
+import org.objectweb.celtix.tools.processors.java2.JavaToWSDLProcessor;
 import org.objectweb.celtix.tools.utils.AnnotationUtil;
-
 public class DocBareMethodProcessor {
-    private static final Logger LOG = LogUtils.getL7dLogger(DocBareMethodProcessor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
     private WSDLModel model;
 
     public DocBareMethodProcessor(WSDLModel wmodel) {

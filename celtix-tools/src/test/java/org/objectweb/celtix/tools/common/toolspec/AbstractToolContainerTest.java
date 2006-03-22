@@ -1,7 +1,7 @@
 package org.objectweb.celtix.tools.common.toolspec;
 
 import junit.framework.TestCase;
-
+import org.objectweb.celtix.tools.common.ToolException;
 public class AbstractToolContainerTest extends TestCase {
     private DummyToolContainer dummyTool;
 

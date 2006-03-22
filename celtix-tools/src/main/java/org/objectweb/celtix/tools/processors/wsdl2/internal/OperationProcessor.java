@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.Fault;
@@ -15,7 +14,6 @@ import javax.wsdl.OperationType;
 import javax.wsdl.Part;
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.StringUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
@@ -31,9 +29,7 @@ import org.objectweb.celtix.tools.utils.ProcessorUtil;
 import org.objectweb.celtix.tools.utils.SOAPBindingUtil;
 
 public class OperationProcessor  extends AbstractProcessor {
-    private static final Logger LOG = LogUtils.getL7dLogger(OperationProcessor.class);
-    
- 
+   
     private JavaParameter wrapperRequest;
     private JavaParameter wrapperResponse;
 

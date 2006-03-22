@@ -1,7 +1,7 @@
 package org.objectweb.celtix.tools.processors.wsdl2;
 
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.processors.ProcessorTestBase;
 
 public class WSDLToJavaXMLFormatTest

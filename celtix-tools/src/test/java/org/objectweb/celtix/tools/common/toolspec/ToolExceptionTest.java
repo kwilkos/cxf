@@ -1,7 +1,7 @@
 package org.objectweb.celtix.tools.common.toolspec;
 
 import junit.framework.TestCase;
-
+import org.objectweb.celtix.tools.common.ToolException;
 public class ToolExceptionTest extends TestCase {
     public void testMassMethod() {
         ToolException e = new ToolException("e");

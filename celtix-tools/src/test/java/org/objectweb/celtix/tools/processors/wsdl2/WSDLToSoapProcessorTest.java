@@ -5,7 +5,7 @@ import java.io.FileReader;
 
 import org.objectweb.celtix.tools.WSDLToSoap;
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.processors.ProcessorTestBase;
 
 public class WSDLToSoapProcessorTest
@@ -93,7 +93,7 @@ public class WSDLToSoapProcessorTest
             fail("Do not catch expected tool exception for binding exist!");
         } catch (Exception e) {
             if (!(e instanceof ToolException && e.toString()
-                .indexOf("Input binding already exist in imported contract.") >= 0)) {
+                .indexOf("Input binding already exist in imported contract") >= 0)) {
                 fail("Do not catch tool exception for binding exist, "
                      + "catch other unexpected exception!");
             }
@@ -111,7 +111,7 @@ public class WSDLToSoapProcessorTest
             fail("Do not catch expected tool exception for  binding not exist!");
         } catch (Exception e) {
             if (!(e instanceof ToolException && e.toString()
-                .indexOf("Input port type does not exist in imported contract.") >= 0)) {
+                .indexOf("Input port type does not exist in imported contract") >= 0)) {
                 fail("Do not catch tool exception for port type not exist, "
                      + "catch other unexpected exception!");
             }
@@ -130,7 +130,7 @@ public class WSDLToSoapProcessorTest
             fail("Do not catch expected tool exception for name space missing!");
         } catch (Exception e) {
             if (!(e instanceof ToolException && e.toString()
-                .indexOf("For rpc style binding, soap name space (-n) must be provided.") >= 0)) {
+                .indexOf("For rpc style binding, soap binding namespace (-n) must be provided") >= 0)) {
                 fail("Do not catch tool exception for binding exist, "
                      + "catch other unexpected exception!");
             }

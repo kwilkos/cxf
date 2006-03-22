@@ -5,7 +5,7 @@ import java.io.FileReader;
 
 import org.objectweb.celtix.tools.WSDLToService;
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.processors.ProcessorTestBase;
 
 public class WSDLToServiceProcessorTest extends ProcessorTestBase {
@@ -116,11 +116,11 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
 
         try {
             processor.process();
-            fail("Do not catch expected tool exception for service and port exist!");
+            fail("Do not catch expected tool exception for service and port exist");
         } catch (Exception e) {
             if (!(e instanceof ToolException
                     && e.toString().indexOf(
-                        "Input service and port already exist in imported contract.") >= 0)) {
+                        "Input service and port already exist in imported contract") >= 0)) {
                 fail("Do not catch tool exception for service and port exist, "
                      + "catch other unexpected exception!");
             }
@@ -144,7 +144,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
             fail("Do not catch expected tool exception for  binding not exist!");
         } catch (Exception e) {
             if (!(e instanceof ToolException
-                    && e.toString().indexOf("Input binding does not exist in imported contract.") >= 0)) {
+                    && e.toString().indexOf("Input binding does not exist in imported contract") >= 0)) {
                 fail("Do not catch tool exception for binding not exist, "
                      + "catch other unexpected exception!");
             }

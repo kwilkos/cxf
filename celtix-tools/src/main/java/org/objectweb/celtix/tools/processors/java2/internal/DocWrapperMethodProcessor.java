@@ -31,10 +31,11 @@ import org.objectweb.celtix.tools.common.model.JavaType;
 import org.objectweb.celtix.tools.common.model.WSDLException;
 import org.objectweb.celtix.tools.common.model.WSDLModel;
 import org.objectweb.celtix.tools.common.model.WSDLParameter;
+import org.objectweb.celtix.tools.processors.java2.JavaToWSDLProcessor;
 import org.objectweb.celtix.tools.utils.AnnotationUtil;
 
 public class DocWrapperMethodProcessor {
-    private static final Logger LOG = LogUtils.getL7dLogger(DocWrapperMethodProcessor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
     private WSDLModel model;
 
     public DocWrapperMethodProcessor(WSDLModel wmodel) {
