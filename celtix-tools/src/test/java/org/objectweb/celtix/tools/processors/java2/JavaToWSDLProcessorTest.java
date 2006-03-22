@@ -6,10 +6,10 @@ import javax.wsdl.Definition;
 import javax.wsdl.Service;
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.helpers.WSDLHelper;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.processors.ProcessorTestBase;
 import org.objectweb.celtix.tools.processors.wsdl2.WSDLToJavaProcessor;
-import org.objectweb.celtix.tools.utils.WSDLParserUtil;
 
 public class JavaToWSDLProcessorTest extends ProcessorTestBase {
 
@@ -17,7 +17,8 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     private WSDLToJavaProcessor wj2Processor;
     private String tns = "org.objectweb.asyn_lit";
     private String serviceName = "celtixService";
-
+    private WSDLHelper wsdlHelper = new WSDLHelper();
+    
     public void setUp() throws Exception {
         super.setUp();
         wj2Processor = new WSDLToJavaProcessor();
@@ -53,7 +54,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         File wsdlFile = new File(output, "asyn.wsdl");
         assertTrue("Fail to generate wsdl file", wsdlFile.exists());
 
-        Definition def = WSDLParserUtil.getDefinition(wsdlFile);
+        Definition def = wsdlHelper.getDefinition(wsdlFile);
         Service wsdlService = def.getService(new QName(tns, serviceName));
         assertNotNull("Generate WSDL Service Error", wsdlService);
 
@@ -81,7 +82,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         File wsdlFile = new File(output, "doc_wrapped_bare.wsdl");
         assertTrue("Fail to generate wsdl file", wsdlFile.exists());
         
-        Definition def = WSDLParserUtil.getDefinition(wsdlFile);
+        Definition def = wsdlHelper.getDefinition(wsdlFile);
         Service wsdlService = def.getService(new QName(tns, serviceName));
         assertNotNull("Generate WSDL Service Error", wsdlService);
         
@@ -109,7 +110,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         File wsdlFile = new File(output, "doc_lit.wsdl");
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
         
-        Definition def = WSDLParserUtil.getDefinition(wsdlFile);
+        Definition def = wsdlHelper.getDefinition(wsdlFile);
         Service wsdlService = def.getService(new QName(tns, serviceName));
         assertNotNull("Generate WSDL Service Error", wsdlService);
         
@@ -137,7 +138,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         File wsdlFile = new File(output, "rpc_lit.wsdl");
         assertTrue(wsdlFile.exists());
         
-        Definition def = WSDLParserUtil.getDefinition(wsdlFile);
+        Definition def = wsdlHelper.getDefinition(wsdlFile);
         Service wsdlService = def.getService(new QName(tns, serviceName));
         assertNotNull("Generate WSDL Service Error", wsdlService);
         
