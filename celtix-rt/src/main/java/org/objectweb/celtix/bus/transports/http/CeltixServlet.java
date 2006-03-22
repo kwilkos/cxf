@@ -2,10 +2,12 @@ package org.objectweb.celtix.bus.transports.http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +41,10 @@ public class CeltixServlet extends HttpServlet {
     static final String HTTP_RESPONSE =
         CeltixServlet.class.getName() + ".RESPONSE";
     
-    Bus bus;
-    Map<String, ServletServerTransport> servantMap 
+    static final Map<String, WeakReference<Bus>> BUS_MAP = new Hashtable<String, WeakReference<Bus>>();
+    
+    protected Bus bus;
+    protected Map<String, ServletServerTransport> servantMap 
         = new HashMap<String, ServletServerTransport>();
 
     public void init(ServletConfig servletConfig) throws ServletException {
@@ -51,24 +55,33 @@ public class CeltixServlet extends HttpServlet {
         if (null != busid) {
             list.add("-BUSid");
             list.add(busid);
+            WeakReference<Bus> ref = BUS_MAP.get(busid);
+            if (null != ref) {
+                bus = ref.get();
+            }
         }
         try {
-            bus = Bus.init(list.toArray(new String[list.size()]));
-            
-            TransportFactory factory = new ServletTransportFactory(this);
-            factory.init(bus);
-            bus.getTransportFactoryManager()
-                .registerTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/",
-                                          factory);
-            bus.getTransportFactoryManager()
-                .registerTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/http",
-                                          factory);
-            bus.getTransportFactoryManager()
-                .registerTransportFactory("http://celtix.objectweb.org/transports/http/configuration",
-                                          factory);
+            if (null == bus) {
+                bus = Bus.init(list.toArray(new String[list.size()]));
+                
+                TransportFactory factory = new ServletTransportFactory(this);
+                factory.init(bus);
+                bus.getTransportFactoryManager()
+                    .registerTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/",
+                                              factory);
+                bus.getTransportFactoryManager()
+                    .registerTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/http",
+                                              factory);
+                bus.getTransportFactoryManager()
+                    .registerTransportFactory("http://celtix.objectweb.org/transports/http/configuration",
+                                              factory);
+            }
         } catch (BusException ex) {
             // TODO Auto-generated catch block
             ex.printStackTrace();
+        }
+        if (null != busid) {
+            BUS_MAP.put(busid, new WeakReference<Bus>(bus));
         }
 
         InputStream ins = servletConfig.getServletContext()
@@ -98,34 +111,26 @@ public class CeltixServlet extends HttpServlet {
                 // TODO Auto-generated catch block
                 ex.printStackTrace();
             }
-        } else {
-            throw new ServletException("Could not get resource /WEB-INF/celtix-servlet.xml");
         }
     }
-    
-    private void loadEndpoint(ServletConfig servletConfig, Node node) {
+
+    public void loadEndpoint(String implName,
+                             String serviceName,
+                             String wsdlName,
+                             String portName,
+                             String urlPat) {
+
         try {
-            Element el = (Element)node;
-            String implName = el.getAttribute("implementation");
-            String serviceName = el.getAttribute("service");
-            String wsdlName = el.getAttribute("wsdl");
-            String portName = el.getAttribute("port");
-            String urlPat = el.getAttribute("url-pattern");
-            /*
-            String intfName = el.getAttribute("interface");
-            String name = el.getAttribute("name");
-            */
-            
             URL url = null;
             if (wsdlName != null) {
                 try {
-                    url = servletConfig.getServletContext().getResource(wsdlName);
+                    url = getServletConfig().getServletContext().getResource(wsdlName);
                 } catch (MalformedURLException ex) {
                     try {
                         url = new URL(wsdlName);
                     } catch (MalformedURLException ex2) {
                         try {
-                            url = servletConfig.getServletContext().getResource("/" + wsdlName);
+                            url = getServletConfig().getServletContext().getResource("/" + wsdlName);
                         } catch (MalformedURLException ex3) {
                             url = null;
                         }
@@ -158,11 +163,29 @@ public class CeltixServlet extends HttpServlet {
         } catch (IllegalAccessException ex) {
             // TODO Auto-generated catch block
             ex.printStackTrace();
-        }
+        }    
+    }
+
+    public void loadEndpoint(ServletConfig servletConfig, Node node) {
+        Element el = (Element)node;
+        String implName = el.getAttribute("implementation");
+        String serviceName = el.getAttribute("service");
+        String wsdlName = el.getAttribute("wsdl");
+        String portName = el.getAttribute("port");
+        String urlPat = el.getAttribute("url-pattern");
+        /*
+        String intfName = el.getAttribute("interface");
+        String name = el.getAttribute("name");
+        */
+
+        loadEndpoint(implName, serviceName, wsdlName, portName, urlPat);
     }
 
     public void destroy() {
         try {
+            String s = bus.getBusID();
+            BUS_MAP.remove(s);
+            
             bus.shutdown(true);
         } catch (BusException ex) {
             ex.printStackTrace();
@@ -202,7 +225,7 @@ public class CeltixServlet extends HttpServlet {
     }
 
     
-    class ServletTransportFactory extends HTTPTransportFactory {
+    public static class ServletTransportFactory extends HTTPTransportFactory {
         CeltixServlet servlet;
         ServletTransportFactory(CeltixServlet serv) {
             servlet = serv;
