@@ -12,13 +12,14 @@ import javax.wsdl.extensions.ExtensionSerializer;
 import javax.xml.namespace.QName;
 import org.w3c.dom.*;
 
+import org.objectweb.celtix.helpers.XMLUtils;
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.utils.XMLParserUtil;
 
 public class JMSAddressSerializer implements ExtensionSerializer,
                                              ExtensionDeserializer,
                                              Serializable {
     public static final long serialVersionUID = 1;
+    XMLUtils xmlUtils = new XMLUtils();
     
     public void marshall(Class parentType,
                          QName elementType,
@@ -29,7 +30,7 @@ public class JMSAddressSerializer implements ExtensionSerializer,
 
         JMSAddress jmsAddress = (JMSAddress) extension;
         StringBuffer sb = new StringBuffer(300);        
-        sb.append(" <" + XMLParserUtil.writeQName(def, elementType) + " ");
+        sb.append(" <" + xmlUtils.writeQName(def, elementType) + " ");
         sb.append(jmsAddress.getAttrXMLString());
         sb.append("/>");
         pw.print(sb.toString());

@@ -16,12 +16,13 @@ import javax.wsdl.PortType;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.wsdl.extensions.soap.SOAPHeader;
 
+import org.objectweb.celtix.helpers.WSDLHelper;
 import org.objectweb.celtix.tools.common.ToolException;
-import org.objectweb.celtix.tools.utils.WSDLParserUtil;
 
 public class WSIBPValidator extends AbstractValidator {
     private List<String> operationMap = new ArrayList<String>();
-
+    private WSDLHelper wsdlHelper = new WSDLHelper();
+    
     public WSIBPValidator(Definition def) {
         super(def);
     }
@@ -47,28 +48,28 @@ public class WSIBPValidator extends AbstractValidator {
     }
 
     public boolean checkR2201() {
-        for (PortType portType : WSDLParserUtil.getPortTypes(def)) {
+        for (PortType portType : wsdlHelper.getPortTypes(def)) {
             Iterator ite = portType.getOperations().iterator();
             while (ite.hasNext()) {
                 Operation operation = (Operation)ite.next();
                 if (isOverloading(operation.getName())) {
                     continue;
                 }
-                BindingOperation bop = WSDLParserUtil.getBindingOperation(operation, def);
-                Binding binding = WSDLParserUtil.getBinding(bop, def);
-                String bindingStyle = binding != null ? WSDLParserUtil.getBindingStyle(binding) : "";
+                BindingOperation bop = wsdlHelper.getBindingOperation(def, operation.getName());
+                Binding binding = wsdlHelper.getBinding(bop, def);
+                String bindingStyle = binding != null ? wsdlHelper.getBindingStyle(binding) : "";
 
-                String style = "".equals(WSDLParserUtil.getSOAPOperationStyle(bop))
-                    ? bindingStyle : WSDLParserUtil.getSOAPOperationStyle(bop);
+                String style = "".equals(wsdlHelper.getSOAPOperationStyle(bop))
+                    ? bindingStyle : wsdlHelper.getSOAPOperationStyle(bop);
 
                 if ("DOCUMENT".equalsIgnoreCase(style)) {
-                    List<Part> partsList = WSDLParserUtil.getInMessageParts(operation);
+                    List<Part> partsList = wsdlHelper.getInMessageParts(operation);
                     int inmessagePartsCount = partsList.size();
-                    SOAPBody soapBody = WSDLParserUtil.getBindingInputSOAPBody(bop);
+                    SOAPBody soapBody = wsdlHelper.getBindingInputSOAPBody(bop);
                     if (soapBody != null) {
                         List parts = soapBody.getParts();
                         int boundPartSize = parts == null ? inmessagePartsCount : parts.size();
-                        SOAPHeader soapHeader = WSDLParserUtil.getBindingInputSOAPHeader(bop);
+                        SOAPHeader soapHeader = wsdlHelper.getBindingInputSOAPHeader(bop);
                         boundPartSize = soapHeader != null
                                         && soapHeader.getMessage().equals(
                                                                           operation.getInput().getMessage()
@@ -102,12 +103,12 @@ public class WSIBPValidator extends AbstractValidator {
                         }
                     }
 
-                    int outmessagePartsCount = WSDLParserUtil.getOutMessageParts(operation).size();
-                    soapBody = WSDLParserUtil.getBindingOutputSOAPBody(bop);
+                    int outmessagePartsCount = wsdlHelper.getOutMessageParts(operation).size();
+                    soapBody = wsdlHelper.getBindingOutputSOAPBody(bop);
                     if (soapBody != null) {
                         List parts = soapBody.getParts();
                         int boundPartSize = parts == null ? outmessagePartsCount : parts.size();
-                        SOAPHeader soapHeader = WSDLParserUtil.getBindingOutputSOAPHeader(bop);
+                        SOAPHeader soapHeader = wsdlHelper.getBindingOutputSOAPHeader(bop);
                         boundPartSize = soapHeader != null
                                         && soapHeader.getMessage().equals(
                                                                           operation.getOutput().getMessage()
@@ -118,7 +119,7 @@ public class WSIBPValidator extends AbstractValidator {
                             while (partsIte.hasNext()) {
                                 String partName = (String)partsIte.next();
                                 boolean isDefined = false;
-                                for (Part part : WSDLParserUtil.getOutMessageParts(operation)) {
+                                for (Part part : wsdlHelper.getOutMessageParts(operation)) {
                                     if (partName.equalsIgnoreCase(part.getName())) {
                                         isDefined = true;
                                         break;
@@ -152,7 +153,7 @@ public class WSIBPValidator extends AbstractValidator {
         for (Iterator ite = def.getBindings().values().iterator(); ite.hasNext();) {
             Binding binding = (Binding)ite.next();
 
-            String style = WSDLParserUtil.getCanonicalBindingStyle(binding);
+            String style = wsdlHelper.getCanonicalBindingStyle(binding);
 
             //
 
@@ -216,7 +217,7 @@ public class WSIBPValidator extends AbstractValidator {
         while (ite.hasNext()) {
             Object obj = ite.next();
             Binding binding = (Binding)obj;
-            if (WSDLParserUtil.isMixedStyle(binding)) {
+            if (wsdlHelper.isMixedStyle(binding)) {
                 this.errorMessage = "Mixted style ,Wrong WSDL";
                 return false;
             }

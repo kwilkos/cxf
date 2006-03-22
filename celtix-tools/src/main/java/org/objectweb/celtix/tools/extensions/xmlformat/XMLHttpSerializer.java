@@ -12,17 +12,18 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
+import org.objectweb.celtix.helpers.XMLUtils;
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.utils.XMLParserUtil;
 
 public class XMLHttpSerializer implements ExtensionSerializer, ExtensionDeserializer {
 
+    XMLUtils xmlUtils = new XMLUtils();
     public void marshall(Class parentType, QName elementType, ExtensibilityElement extension, PrintWriter pw,
                          Definition def, ExtensionRegistry extReg) throws WSDLException {
 
         XMLHttpAddress xmlHttpAddress = (XMLHttpAddress)extension;
         StringBuffer sb = new StringBuffer(300);
-        sb.append("<" + XMLParserUtil.writeQName(def, elementType) + " ");
+        sb.append("<" + xmlUtils.writeQName(def, elementType) + " ");
         if (xmlHttpAddress.getLocation() != null) {
             sb.append(ToolConstants.XMLBINDING_HTTP_LOCATION + "=\"" + xmlHttpAddress.getLocation() + "\"");
         }

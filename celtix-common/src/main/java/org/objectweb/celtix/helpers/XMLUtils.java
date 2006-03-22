@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -214,5 +215,9 @@ public class XMLUtils {
             Node entry = list.item(i);
             node.removeChild(entry);
         }
+    }
+    
+    public String writeQName(Definition def, QName qname) {
+        return def.getPrefix(qname.getNamespaceURI()) + ":" + qname.getLocalPart();
     }
 }

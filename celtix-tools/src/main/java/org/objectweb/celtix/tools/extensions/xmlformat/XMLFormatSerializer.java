@@ -13,20 +13,22 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
+import org.objectweb.celtix.helpers.XMLUtils;
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.utils.XMLParserUtil;
 
 public class XMLFormatSerializer implements ExtensionSerializer, ExtensionDeserializer, Serializable {
 
+    XMLUtils xmlUtils = new XMLUtils();
+    
     public void marshall(Class parentType, QName elementType, ExtensibilityElement extension, PrintWriter pw,
                          Definition def, ExtensionRegistry extReg) throws WSDLException {
 
         XMLFormat xmlFormat = (XMLFormat)extension;
         StringBuffer sb = new StringBuffer(300);
-        sb.append("<" + XMLParserUtil.writeQName(def, elementType) + " ");
+        sb.append("<" + xmlUtils.writeQName(def, elementType) + " ");
         if (xmlFormat.getRootNode() != null) {
             sb.append(ToolConstants.XMLBINDING_ROOTNODE + "=\""
-                      + XMLParserUtil.writeQName(def, xmlFormat.getRootNode()) + "\"");
+                      + xmlUtils.writeQName(def, xmlFormat.getRootNode()) + "\"");
         }
         sb.append(" />");
         pw.print(sb.toString());

@@ -12,14 +12,16 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.tools.utils.XMLParserUtil;
+import org.objectweb.celtix.helpers.XMLUtils;
 
 public class XMLFormatBindingSerializer implements ExtensionDeserializer, ExtensionSerializer {
 
+    XMLUtils xmlUtils = new XMLUtils();
+    
     public void marshall(Class parentType, QName elementType, ExtensibilityElement extension, PrintWriter pw,
                          Definition def, ExtensionRegistry extReg) throws WSDLException {
 
-        pw.print("<" + XMLParserUtil.writeQName(def, elementType) + "/>");
+        pw.print("<" + xmlUtils.writeQName(def, elementType) + "/>");
         pw.println();
     }
 
