@@ -1,8 +1,15 @@
 package org.objectweb.celtix.tools.utils;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 import javax.wsdl.Message;
 import javax.wsdl.Operation;
@@ -14,13 +21,14 @@ import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.api.TypeAndAnnotation;
 import com.sun.xml.bind.api.JAXBRIContext;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 
 public final class ProcessorUtil {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(ProcessorUtil.class);
     private ProcessorUtil() {
     }
 
@@ -166,8 +174,12 @@ public final class ProcessorUtil {
             if (mapping != null) {
                 return mapping.getWrapperStyleDrilldown();
             } else {
-                throw new ToolException("Missing element " + element.toString() + " in wsdl:types of part "
-                                        + part.getName() + ", please check!");
+                org.objectweb.celtix.common.i18n.Message msg = 
+                    new org.objectweb.celtix.common.i18n.Message("ELEMENT_MISSING", 
+                                                                 LOG, 
+                                                                 new Object[]{element.toString(), 
+                                                                              part.getName()});
+                throw new ToolException(msg);
                 // return new ArrayList<Property>();
             }
         } else {

@@ -8,15 +8,15 @@ import javax.wsdl.extensions.mime.MIMEContent;
 import javax.wsdl.extensions.mime.MIMEMultipartRelated;
 import javax.wsdl.extensions.mime.MIMEPart;
 
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaType;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
-public class MIMEProcessor
-    extends AbstractProcessor {
+public class MIMEProcessor extends AbstractProcessor {
 
     public MIMEProcessor(ProcessorEnvironment penv) {
         super(penv);
@@ -26,15 +26,13 @@ public class MIMEProcessor
         if (mPart.getExtensibilityElements().size() > 1) {
             return "javax.activation.DataHandler";
         } else {
-            ExtensibilityElement extElement = (ExtensibilityElement)mPart
-                .getExtensibilityElements().get(0);
+            ExtensibilityElement extElement = (ExtensibilityElement)mPart.getExtensibilityElements().get(0);
             if (extElement instanceof MIMEContent) {
                 MIMEContent mimeContent = (MIMEContent)extElement;
-                if ("image/jpeg".equals(mimeContent.getType()) 
-                        || "image/gif".equals(mimeContent.getType())) {
+                if ("image/jpeg".equals(mimeContent.getType()) || "image/gif".equals(mimeContent.getType())) {
                     return "java.awt.Image";
-                } else if ("text/xml".equals(mimeContent.getType()) 
-                        || "application/xml".equals(mimeContent.getType())) {
+                } else if ("text/xml".equals(mimeContent.getType())
+                           || "application/xml".equals(mimeContent.getType())) {
                     return "javax.xml.transform.Source";
                 }
             }
@@ -42,8 +40,7 @@ public class MIMEProcessor
         return "javax.activation.DataHandler";
     }
 
-    public void process(JavaMethod jm, MIMEMultipartRelated ext, JavaType.Style style)
-        throws ToolException {
+    public void process(JavaMethod jm, MIMEMultipartRelated ext, JavaType.Style style) throws ToolException {
         List mimeParts = ext.getMIMEParts();
         Iterator itParts = mimeParts.iterator();
         while (itParts.hasNext()) {
@@ -55,14 +52,11 @@ public class MIMEProcessor
                     MIMEContent mimeContent = (MIMEContent)extElement;
                     String mimeJavaType = getJavaTypeForMimeType(mPart);
                     if (JavaType.Style.IN.equals(style)) {
-                        String paramName = ProcessorUtil.mangleNameToVariableName(mimeContent
-                            .getPart());
+                        String paramName = ProcessorUtil.mangleNameToVariableName(mimeContent.getPart());
                         JavaParameter jp = jm.getParameter(paramName);
                         if (jp == null) {
-                            throw new ToolException(
-                                            "MIME part "
-                                                + mimeContent.getPart()
-                                                + " could not be mapped to available parts in portType!");
+                            Message message = new Message("MIMEPART_CANNOT_MAP", LOG, mimeContent.getPart());
+                            throw new ToolException(message);
                         }
                         if (!jp.getClassName().equals(mimeJavaType)) {
                             // jp.setType(mimeJavaType);
@@ -74,14 +68,12 @@ public class MIMEProcessor
                             // javaReturn will be set to void and
                             // all output parameter will be treated as the
                             // holder class
-                            String paramName = ProcessorUtil.mangleNameToVariableName(mimeContent
-                                .getPart());
+                            String paramName = ProcessorUtil.mangleNameToVariableName(mimeContent.getPart());
                             JavaParameter jp = jm.getParameter(paramName);
                             if (jp == null) {
-                                throw new ToolException(
-                                            "MIME part "
-                                                + mimeContent.getPart()
-                                                + " could not be mapped to available parts in portType!");
+                                Message message = new Message("MIMEPART_CANNOT_MAP", LOG, mimeContent
+                                    .getPart());
+                                throw new ToolException(message);
                             } else {
                                 if (!jp.getClassName().equals(mimeJavaType)) {
                                     // jp.setType(mimeJavaType);

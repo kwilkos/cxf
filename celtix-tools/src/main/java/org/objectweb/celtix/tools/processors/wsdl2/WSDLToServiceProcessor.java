@@ -12,12 +12,12 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.xml.WSDLWriter;
-
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.WSDLConstants;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddressSerializer;
 
@@ -35,10 +35,12 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
     public void process() throws ToolException {
         init();
         if (isServicePortExisted()) {
-            throw new ToolException("Input service and port already exist in imported contract.");
+            Message msg = new Message("SERVICE_PORT_EXIST", LOG);
+            throw new ToolException(msg);
         }
         if (!isBindingExisted()) {
-            throw new ToolException("Input binding does not exist in imported contract.");
+            Message msg = new Message("BINDING_NOT_EXIST", LOG);
+            throw new ToolException(msg);
         }
         doAppendService();
     }
@@ -121,12 +123,14 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
         try {
             wsdlWriter.writeWSDL(wsdlDefinition, outputWriter);
         } catch (WSDLException wse) {
-            throw new ToolException("can not write modified wsdl, due to " + wse.getMessage(), wse);
+            Message msg = new Message("FAIl_TO_WRITE_WSDL", LOG);
+            throw new ToolException(msg, wse);
         }
         try {
             outputWriter.close();
         } catch (IOException ioe) {
-            throw new ToolException("close wsdl output file failed, due to " + ioe.getMessage(), ioe);
+            Message msg = new Message("FAIL_TO_CLOSE_WSDL_FILE", LOG);
+            throw new ToolException(msg, ioe);
         }
 
     }
@@ -142,7 +146,8 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
                 soapAddress = (SOAPAddress)extReg.createExtension(Port.class,
                                                                   WSDLConstants.NS_SOAP_BINDING_ADDRESS);
             } catch (WSDLException wse) {
-                throw new ToolException("Create soap address ext element failed, due to " + wse);
+                Message msg = new Message("FAIl_TO_CREATE_SOAPADDRESS", LOG);
+                throw new ToolException(msg, wse);
             }
             if (env.get(ToolConstants.CFG_ADDRESS) != null) {
                 soapAddress.setLocationURI((String)env.get(ToolConstants.CFG_ADDRESS));
@@ -183,7 +188,8 @@ public class WSDLToServiceProcessor extends WSDLToProcessor {
                         .get(ToolConstants.JMS_ADDR_SUBSCRIBER_NAME));
                 }
             } catch (WSDLException wse) {
-                throw new ToolException("Create soap address ext element failed, due to " + wse);
+                Message msg = new Message("FAIL_TO_CREATE_SOAP_ADDRESS", LOG);
+                throw new ToolException(msg, wse);
             }
             port.addExtensibilityElement(jmsAddress);
         }

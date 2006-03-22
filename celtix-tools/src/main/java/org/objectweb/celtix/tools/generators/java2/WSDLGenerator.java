@@ -26,11 +26,10 @@ public class WSDLGenerator {
         wmodel = model;
         env = penv;
         definition = model.getDefinition();
-
         try {
             wsdlFactory = WSDLFactory.newInstance();
         } catch (javax.wsdl.WSDLException e) {
-            throw new ToolException("Generate definition error ", e);
+            throw new ToolException(e.getMessage(), e);
         }
     }
 
@@ -70,14 +69,13 @@ public class WSDLGenerator {
         try {
             outstream = new java.io.FileOutputStream(file);
         } catch (java.io.FileNotFoundException e) {
-            throw new ToolException("Create WSDL file error", e);
+            throw new ToolException(e.getMessage(), e);
         }
 
         try {
             writer.writeWSDL(this.definition, outstream);
-
         } catch (javax.wsdl.WSDLException e) {
-            throw new ToolException("Generate definition error ", e);
+            throw new ToolException(e.getMessage(), e);
         }
         return true;
     }

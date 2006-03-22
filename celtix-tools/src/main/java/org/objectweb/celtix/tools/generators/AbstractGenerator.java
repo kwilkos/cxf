@@ -6,21 +6,25 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaModel;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 import org.objectweb.celtix.tools.utils.FileWriterUtil;
 import org.objectweb.celtix.version.Version;
 
 public abstract class AbstractGenerator {
-
+   
     public static final String TEMPLATE_BASE = "org/objectweb/celtix/tools/generators/wsdl2/templates";
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractGenerator.class);
     protected ProcessorEnvironment env;
     protected JavaModel javaModel;
     protected Map<String, Object> attributes = new HashMap<String, Object>();
@@ -44,7 +48,8 @@ public abstract class AbstractGenerator {
         try {
             tmpl = Velocity.getTemplate(templateName);
         } catch (Exception e) {
-            throw new ToolException("Can not find velocity tempalte file: " + templateName, e);
+            Message msg = new Message("TEMPLATE_MISSING", LOG, templateName);
+            throw new ToolException(msg, e);
         }
 
         VelocityContext ctx = new VelocityContext();
@@ -59,7 +64,8 @@ public abstract class AbstractGenerator {
             tmpl.merge(ctx, writer);
             writer.close();
         } catch (Exception e) {
-            throw new ToolException("velocity engin write errors", e);
+            Message msg = new Message("VELOCITY_ENGINE_WRITE_ERRORS", LOG);
+            throw new ToolException(msg, e);
         }
     }
 
@@ -80,7 +86,8 @@ public abstract class AbstractGenerator {
         try {
             writer = fw.getWriter(packageName, filename + ext);
         } catch (IOException ioe) {
-            throw new ToolException("Failed to write " + packageName + "." + filename + ext, ioe);
+            Message msg = new Message("FAIL_TO_WRITE_FILE", LOG, packageName + "." + filename + ext);
+            throw new ToolException(msg, ioe);
         }
 
         return writer;

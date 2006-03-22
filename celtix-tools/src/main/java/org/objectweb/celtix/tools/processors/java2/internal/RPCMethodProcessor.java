@@ -31,9 +31,11 @@ import org.objectweb.celtix.tools.utils.AnnotationUtil;
 public class RPCMethodProcessor {
 
     private WSDLModel model;
+
     public RPCMethodProcessor(WSDLModel wmodel) {
         model = wmodel;
     }
+
     public void process(JavaMethod javaMethod, Method method) {
         javaMethod.setSoapStyle(SOAPBinding.Style.RPC);
         javaMethod.setWrapperStyle(true);
@@ -97,7 +99,7 @@ public class RPCMethodProcessor {
             javaMethod.setSoapUse(this.model.getUse());
         }
     }
-    
+
     private List<JavaParameter> processWebPara(Method method) {
         // processWebparam
         Class<?>[] parameterTypes = method.getParameterTypes();
@@ -130,8 +132,8 @@ public class RPCMethodProcessor {
                             jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref,
                                                    JavaType.Style.INOUT);
                         } else {
-                            jp = new JavaParameter(typeref.tagName.getLocalPart(), 
-                                                   typeref, JavaType.Style.OUT);
+                            jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref,
+                                                   JavaType.Style.OUT);
                         }
                     } else {
                         jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref, JavaType.Style.IN);
@@ -148,8 +150,7 @@ public class RPCMethodProcessor {
 
         return paras;
     }
-    
-    
+
     private void processExceptions(JavaMethod jmethod, Method method) {
         for (Type exception : method.getGenericExceptionTypes()) {
             if (RemoteException.class.isAssignableFrom((Class)exception)) {
@@ -182,17 +183,10 @@ public class RPCMethodProcessor {
             QName exQName = new QName(exNameSpace, exName);
             TypeReference tf = new TypeReference(exQName, exReturnType, anns);
             WSDLException wsdlEx = new WSDLException(exClass, tf);
-
-            try {
-                jmethod.addWSDLException(wsdlEx);
-            } catch (Exception e) {
-                throw new ToolException("Exception Is Not Unique");
-            }
+            jmethod.addWSDLException(wsdlEx);
 
         }
     }
-
-    
 
     private boolean isHolder(Class cType) {
         return Holder.class.isAssignableFrom(cType);
@@ -203,7 +197,7 @@ public class RPCMethodProcessor {
         ParameterizedType pt = (ParameterizedType)type;
         return getClass(pt.getActualTypeArguments()[0]);
     }
-    
+
     private Class getClass(Type type) {
         if (type instanceof Class) {
             return (Class)type;

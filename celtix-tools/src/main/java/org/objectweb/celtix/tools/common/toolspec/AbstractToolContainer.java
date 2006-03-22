@@ -3,13 +3,17 @@ package org.objectweb.celtix.tools.common.toolspec;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.toolspec.parser.BadUsageException;
 import org.objectweb.celtix.tools.common.toolspec.parser.CommandDocument;
 import org.objectweb.celtix.tools.common.toolspec.parser.CommandLineParser;
-
 public abstract class AbstractToolContainer implements ToolContainer {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractToolContainer.class);
     private static boolean isVerbose;
     private static String arguments[];
 
@@ -64,7 +68,9 @@ public abstract class AbstractToolContainer implements ToolContainer {
     public void init() throws ToolException {
         // initialize
         if (toolspec == null) {
-            throw new ToolException("Tool specification has to be set before initializing");
+            Message message = new Message("TOOLSPEC_NOT_INITIALIZED", LOG);
+            LOG.log(Level.SEVERE, message.toString());
+            throw new ToolException(message);
         }
     }
 

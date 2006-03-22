@@ -1,13 +1,17 @@
 package org.objectweb.celtix.tools.generators.wsdl2;
 
+import java.util.logging.Logger;
+
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaModel;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
+import org.objectweb.celtix.tools.processors.wsdl2.WSDLToProcessor;
 
 public class AntGenerator extends AbstractGenerator {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(WSDLToProcessor.class);
     private static final String ANT_TEMPLATE = TEMPLATE_BASE + "/build.vm";
 
     public AntGenerator(JavaModel jmodel, ProcessorEnvironment env) {

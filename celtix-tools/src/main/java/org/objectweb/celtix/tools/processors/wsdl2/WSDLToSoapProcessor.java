@@ -25,9 +25,10 @@ import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.WSDLConstants;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 
 public class WSDLToSoapProcessor extends WSDLToProcessor {
 
@@ -42,13 +43,17 @@ public class WSDLToSoapProcessor extends WSDLToProcessor {
     public void process() throws ToolException {
         init();
         if (isBindingExisted()) {
-            throw new ToolException("Input binding already exist in imported contract.");
+
+            Message msg = new Message("BINDING_ALREADY_EXIST", LOG);
+            throw new ToolException(msg);
         }
         if (!isPortTypeExisted()) {
-            throw new ToolException("Input port type does not exist in imported contract.");
+            Message msg = new Message("PORTTYPE_NOT_EXIST", LOG);
+            throw new ToolException(msg);
         }
         if (!nameSpaceCheck()) {
-            throw new ToolException("For rpc style binding, soap name space (-n) must be provided.");
+            Message msg = new Message("SOAPBINDING_STYLE_NOT_PROVIEDED", LOG);
+            throw new ToolException(msg);
         }
         extReg = this.wsdlReader.getExtensionRegistry();
         doAppendBinding();
@@ -117,12 +122,15 @@ public class WSDLToSoapProcessor extends WSDLToProcessor {
         try {
             wsdlWriter.writeWSDL(wsdlDefinition, outputWriter);
         } catch (WSDLException wse) {
-            throw new ToolException("can not write modified wsdl, due to " + wse.getMessage(), wse);
+            Message msg = new Message("FAIL_TO_WRITE_WSDL", LOG);
+            throw new ToolException(msg);
+
         }
         try {
             outputWriter.close();
         } catch (IOException ioe) {
-            throw new ToolException("close wsdl output file failed, due to " + ioe.getMessage(), ioe);
+            Message msg = new Message("PORTTYPE_NOT_EXIST", LOG);
+            throw new ToolException(msg);
         }
     }
 
@@ -134,7 +142,8 @@ public class WSDLToSoapProcessor extends WSDLToProcessor {
         try {
             soapBinding = (SOAPBinding)extReg.createExtension(Binding.class, WSDLConstants.NS_SOAP_BINDING);
         } catch (WSDLException wse) {
-            throw new ToolException("Create soap binding ext element failed, due to " + wse);
+            Message msg = new Message("FAIL_TO_CREATE_SOAPBINDING", LOG);
+            throw new ToolException(msg, wse);
         }
         soapBinding.setStyle((String)env.get(ToolConstants.CFG_STYLE));
         soapBinding.setTransportURI(WSDLConstants.NS_SOAP11_HTTP_BINDING);
@@ -181,7 +190,8 @@ public class WSDLToSoapProcessor extends WSDLToProcessor {
             soapOperation = (SOAPOperation)extReg.createExtension(BindingOperation.class,
                                                                   WSDLConstants.NS_SOAP_OPERATION);
         } catch (WSDLException wse) {
-            throw new ToolException("Create soap operation ext element failed, due to " + wse);
+            Message msg = new Message("FAIL_TO_CREATE_SOAPBINDING", LOG);
+            throw new ToolException(msg, wse);
         }
         soapOperation.setStyle((String)env.get(ToolConstants.CFG_STYLE));
         soapOperation.setSoapActionURI("");
@@ -216,7 +226,8 @@ public class WSDLToSoapProcessor extends WSDLToProcessor {
         try {
             soapBody = (SOAPBody)extReg.createExtension(parent, WSDLConstants.NS_SOAP_BODY);
         } catch (WSDLException wse) {
-            throw new ToolException("Create soap body ext element failed, due to " + wse);
+            Message msg = new Message("FAIL_TO_CREATE_SOAPBINDING", LOG);
+            throw new ToolException(msg, wse);
         }
         soapBody.setUse((String)env.get(ToolConstants.CFG_USE));
         if (WSDLConstants.RPC.equalsIgnoreCase((String)env.get(ToolConstants.CFG_STYLE))
@@ -247,7 +258,8 @@ public class WSDLToSoapProcessor extends WSDLToProcessor {
         try {
             soapFault = (SOAPFault)extReg.createExtension(BindingFault.class, WSDLConstants.NS_SOAP_FAULT);
         } catch (WSDLException wse) {
-            throw new ToolException("Create soap fault ext element failed, due to " + wse);
+            Message msg = new Message("FAIL_TO_CREATE_SOAPBINDING", LOG);
+            throw new ToolException(msg, wse);
         }
         soapFault.setName(bf.getName());
         soapFault.setUse((String)env.get(ToolConstants.CFG_USE));

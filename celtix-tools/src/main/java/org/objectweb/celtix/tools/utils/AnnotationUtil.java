@@ -7,17 +7,21 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.logging.Logger;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ToolException;
 
 public final class AnnotationUtil {
+    private static final Logger LOG = LogUtils.getL7dLogger(AnnotationUtil.class);
     private AnnotationUtil() {
 
     }
-
+    
     public static <T extends Annotation> T getPrivClassAnnotation(final Class<?> clazz,
                                                                   final Class<T> anoClass) {
         return AccessController.doPrivileged(new PrivilegedAction<T>() {
@@ -56,7 +60,8 @@ public final class AnnotationUtil {
         try {
             clazz = classLoader.loadClass(className);
         } catch (Exception e) {
-            throw new ToolException("Can not found class <" + className + "> in classpath");
+            Message msg = new Message("FAIL_TO_LOAD_CLASS", LOG, className);
+            throw new ToolException(msg, e);
         }
         return clazz;
     }

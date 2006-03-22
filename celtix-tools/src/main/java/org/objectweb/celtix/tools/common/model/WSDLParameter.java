@@ -3,14 +3,17 @@ package org.objectweb.celtix.tools.common.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.sun.xml.bind.api.TypeReference;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaType.Style;
-
+import org.objectweb.celtix.tools.processors.java2.JavaToWSDLProcessor;
 public class WSDLParameter {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
     protected String name;
     protected String type;
     protected String className;
@@ -82,7 +85,8 @@ public class WSDLParameter {
 
     public void addChildren(JavaParameter jp) {
         if (parts.contains(jp)) {
-            throw new ToolException("Part is already exist !");
+            Message message = new Message("PART_ALREADY_EXIST", LOG, jp.getName());
+            throw new ToolException(message);
         }
         parts.add(jp);
     }

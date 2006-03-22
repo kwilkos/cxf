@@ -2,6 +2,7 @@ package org.objectweb.celtix.tools.generators.java2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.Binding;
@@ -17,15 +18,18 @@ import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.WSDLConstants;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.WSDLModel;
 import org.objectweb.celtix.tools.common.model.WSDLParameter;
+import org.objectweb.celtix.tools.processors.java2.JavaToWSDLProcessor;
 
 public class BindingGenerator {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
     private WSDLModel wmodel;
     private Definition definition;
     private ExtensionRegistry extensionRegistry;
@@ -96,7 +100,7 @@ public class BindingGenerator {
                 soapFault.setUse("literal");
                 soapFault.setName(ex.getExcpetionClass().getSimpleName());
             } catch (WSDLException e) {
-                throw new ToolException("Error " + e.getMessage(), e);
+                throw new ToolException(e.getMessage(), e);
             }
             bindingFault.addExtensibilityElement(soapFault);
 
@@ -111,7 +115,7 @@ public class BindingGenerator {
                 .createExtension(BindingOperation.class, new QName(WSDLConstants.SOAP11_NAMESPACE,
                                                                    "operation"));
         } catch (WSDLException e) {
-            throw new ToolException("Error " + e.getMessage(), e);
+            throw new ToolException(e.getMessage(), e);
         }
 
         return soapOperation;
@@ -134,13 +138,14 @@ public class BindingGenerator {
                                                                new QName(WSDLConstants.SOAP11_NAMESPACE,
                                                                          "body"));
         } catch (WSDLException e1) {
-            throw new ToolException("Error " + e1.getMessage(), e1);
+            throw new ToolException(e1.getMessage(), e1);
         }
 
         if (jmethod.getSoapUse() == SOAPBinding.Use.LITERAL) {
             body.setUse("literal");
         } else {
-            throw new ToolException("Encoded use is not supported");
+            Message msg = new Message("ENCODED_USE_NOT_SUPPORTED", LOG);
+            throw new ToolException(msg);
         }
 
         List<JavaParameter> bodyParams = new ArrayList<JavaParameter>();
@@ -167,7 +172,7 @@ public class BindingGenerator {
                     soapHeader.setUse("literal");
 
                 } catch (WSDLException e) {
-                    throw new ToolException("Error " + e.getMessage(), e);
+                    throw new ToolException(e.getMessage(), e);
                 }
             }
 
@@ -197,13 +202,14 @@ public class BindingGenerator {
                                                                new QName(WSDLConstants.SOAP11_NAMESPACE,
                                                                          "body"));
         } catch (WSDLException e1) {
-            throw new ToolException("Error " + e1.getMessage(), e1);
+            throw new ToolException(e1.getMessage(), e1);
         }
 
         if (jmethod.getSoapUse() == SOAPBinding.Use.LITERAL) {
             body.setUse("literal");
         } else {
-            throw new ToolException("Encoded use is not supported");
+            Message msg = new Message("ENCODED_USE_NOT_SUPPORTED", LOG);
+            throw new ToolException(msg);
         }
 
         List<JavaParameter> bodyParams = new ArrayList<JavaParameter>();
@@ -232,7 +238,7 @@ public class BindingGenerator {
                     soapHeader.setUse("literal");
 
                 } catch (WSDLException e) {
-                    throw new ToolException("Error " + e.getMessage(), e);
+                    throw new ToolException(e.getMessage(), e);
                 }
             }
 

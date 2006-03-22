@@ -7,11 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.wsdl.Binding;
-//import javax.wsdl.BindingFault;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.BindingOutput;
-//import javax.wsdl.Fault;
 import javax.wsdl.Input;
 import javax.wsdl.Operation;
 import javax.wsdl.Output;
@@ -23,9 +21,10 @@ import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.WSDLConstants;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormat;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatBinding;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLHttpAddress;
@@ -49,13 +48,16 @@ public class WSDLToXMLProcessor extends WSDLToProcessor {
     public void process() throws ToolException {
         init();
         if (isBindingExisted()) {
-            throw new ToolException("Input binding already exist in imported contract.");
+            Message msg = new Message("BINDING_ALREADY_EXIST", LOG);
+            throw new ToolException(msg);
         }
         if (!isPortTypeExisted()) {
-            throw new ToolException("Input port type does not exist in imported contract.");
+            Message msg = new Message("PORTTYPE_NOT_EXIST", LOG);
+            throw new ToolException(msg);
         }
         if (isServicePortExisted()) {
-            throw new ToolException("Input service and port already exist in imported contract.");
+            Message msg = new Message("SERVICE_PORT_EXIST", LOG);
+            throw new ToolException(msg);
         }
         extReg = this.wsdlReader.getExtensionRegistry();
         doAppendBinding();
@@ -166,7 +168,8 @@ public class WSDLToXMLProcessor extends WSDLToProcessor {
             xmlBinding = (XMLFormatBinding)extReg.createExtension(Binding.class,
                                                                   ToolConstants.XML_BINDING_FORMAT);
         } catch (WSDLException wse) {
-            throw new ToolException("Create xml binding ext element failed, due to " + wse);
+            Message msg = new Message("FAIL_TO_CREATE_XMLBINDING", LOG);
+            throw new ToolException(msg);
         }
         binding.addExtensibilityElement(xmlBinding);
     }
@@ -218,7 +221,8 @@ public class WSDLToXMLProcessor extends WSDLToProcessor {
         try {
             xmlFormat = (XMLFormat)extReg.createExtension(clz, ToolConstants.XML_FORMAT);
         } catch (WSDLException wse) {
-            throw new ToolException("Create xml format body ext element failed, due to " + wse);
+            Message msg = new Message("FAIL_TO_CREATE_XMLBINDING", LOG);
+            throw new ToolException(msg);
         }
         xmlFormat.setRootNode(new QName(wsdlDefinition.getTargetNamespace(), operationName));
         return xmlFormat;
@@ -250,7 +254,8 @@ public class WSDLToXMLProcessor extends WSDLToProcessor {
             xmlHttpAddress = (XMLHttpAddress)extReg.createExtension(Port.class,
                                                                     WSDLConstants.NS_XMLHTTP_BINDING_ADDRESS);
         } catch (WSDLException wse) {
-            throw new ToolException("Create soap address ext element failed, due to " + wse);
+            Message msg = new Message("FAIl_TO_CREATE_SOAPADDRESS", LOG);
+            throw new ToolException(msg);
         }
         if (env.get(ToolConstants.CFG_ADDRESS) != null) {
             xmlHttpAddress.setLocation((String)env.get(ToolConstants.CFG_ADDRESS));
@@ -267,12 +272,14 @@ public class WSDLToXMLProcessor extends WSDLToProcessor {
         try {
             wsdlWriter.writeWSDL(wsdlDefinition, outputWriter);
         } catch (WSDLException wse) {
-            throw new ToolException("can not write modified wsdl, due to " + wse.getMessage(), wse);
+            Message msg = new Message("FAIL_TO_WRITE_WSDL", LOG);
+            throw new ToolException(msg);
         }
         try {
             outputWriter.close();
         } catch (IOException ioe) {
-            throw new ToolException("close wsdl output file failed, due to " + ioe.getMessage(), ioe);
+            Message msg = new Message("FAIL_TO_CLOSE_WSDL_FILE", LOG);
+            throw new ToolException(msg);
         }
     }
 

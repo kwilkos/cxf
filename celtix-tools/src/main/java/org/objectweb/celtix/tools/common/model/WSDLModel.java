@@ -1,6 +1,12 @@
 package org.objectweb.celtix.tools.common.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
@@ -8,11 +14,17 @@ import javax.jws.soap.SOAPBinding.Use;
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
+
 import com.sun.xml.bind.api.JAXBRIContext;
 import com.sun.xml.bind.api.TypeReference;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
+
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.tools.common.ToolException;
+import org.objectweb.celtix.tools.processors.java2.JavaToWSDLProcessor;
 
 public class WSDLModel {
+    private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
     protected JAXBRIContext jaxbContext;
 
     private Definition definition;
@@ -32,7 +44,7 @@ public class WSDLModel {
     private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
 
     private final Map<String, String> schemaNSFileMap = new HashMap<String, String>();
-
+  
     // default Doc-Lit-Wrapped
     private Style style = SOAPBinding.Style.DOCUMENT;
 
@@ -45,7 +57,8 @@ public class WSDLModel {
             WSDLFactory wsdlFactory = WSDLFactory.newInstance();
             definition = wsdlFactory.newDefinition();
         } catch (WSDLException e) {
-            throw new ToolException("New WSDL model failed", e);
+            Message message =  new Message("FAIL_TO_CREATE_WSDL_DEFINITION", LOG);
+            throw new ToolException(message, e);
         }
     }
 
@@ -121,7 +134,8 @@ public class WSDLModel {
             jaxbContext = JAXBRIContext.newInstance(clzzs, types, this.getTargetNameSpace(), false);
 
         } catch (Exception e) {
-            throw new ToolException("Exception When New JAXBRIContext :" + e.getMessage(), e);
+            Message message = new Message("CREATE_JAXBRICONTEXT_EXCEPTION", LOG);
+            throw new ToolException(message, e);
         }
 
     }

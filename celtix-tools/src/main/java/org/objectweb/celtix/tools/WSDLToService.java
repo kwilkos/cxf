@@ -4,9 +4,10 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.toolspec.ToolRunner;
 import org.objectweb.celtix.tools.common.toolspec.ToolSpec;
 import org.objectweb.celtix.tools.common.toolspec.parser.BadUsageException;
@@ -26,7 +27,7 @@ public class WSDLToService extends AbstractCeltixToolContainer {
     private Set getArrayKeys() {
         return new HashSet<String>();
     }
-    
+
     public void execute(boolean exitOnFinish) {
         WSDLToServiceProcessor processor = new WSDLToServiceProcessor();
         try {
@@ -38,11 +39,11 @@ public class WSDLToService extends AbstractCeltixToolContainer {
                 if (isVerboseOn()) {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
                 }
-                
+
                 env.put(ToolConstants.CFG_CMD_ARG, args);
 
                 validate(env);
-                
+
                 processor.setEnvironment(env);
                 processor.process();
             }
@@ -65,21 +66,23 @@ public class WSDLToService extends AbstractCeltixToolContainer {
     }
 
     private void validate(ProcessorEnvironment env) throws ToolException {
-        String outdir = (String) env.get(ToolConstants.CFG_OUTPUTDIR);
+        String outdir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
         if (outdir != null) {
             File dir = new File(outdir);
             if (!dir.exists()) {
-                throw new ToolException("Specified direcotry [" + outdir + "] is not exist");
+                Message msg = new Message("DIRECTORY_NOT_EXIST", LOG, outdir);
+                throw new ToolException(msg);
             }
             if (!dir.isDirectory()) {
-                throw new ToolException("Specified direcotry [" + outdir + "] is not a direcotry");
+                Message msg = new Message("NOT_A_DIRECTORY", LOG, outdir);
+                throw new ToolException(msg);
             }
-        }               
+        }
     }
 
     public static void main(String[] pargs) {
         args = pargs;
-        String protocol = ""; 
+        String protocol = "";
         for (int i = 0; i < pargs.length; i++) {
             if ("-transport".equals(pargs[i])) {
                 protocol = pargs[i + 1];
@@ -91,10 +94,8 @@ public class WSDLToService extends AbstractCeltixToolContainer {
         }
         try {
             String toolSpecFile = ToolConstants.TOOLSPECS_BASE + "wsdl2service_" + protocol + ".xml";
-            ToolRunner.runTool(WSDLToService.class,
-                               WSDLToService.class.getResourceAsStream(toolSpecFile),
-                               false,
-                               args);
+            ToolRunner.runTool(WSDLToService.class, WSDLToService.class.getResourceAsStream(toolSpecFile),
+                               false, args);
         } catch (BadUsageException ex) {
             getInstance().printUsageException(TOOL_NAME, ex);
         } catch (Exception ex) {
@@ -111,7 +112,8 @@ public class WSDLToService extends AbstractCeltixToolContainer {
             errors.add(new ErrorVisitor.UserError("WSDL/SCHEMA URL has to be specified"));
         }
         if (errors.getErrors().size() > 0) {
-            throw new ToolException("Required parameters missing", new BadUsageException(getUsage(), errors));
+            Message msg = new Message("PARAMETER_MISSING", LOG);
+            throw new ToolException(msg, new BadUsageException(getUsage(), errors));
         }
     }
 }

@@ -18,9 +18,10 @@ import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.writer.FileCodeWriter;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaModel;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.wsdl2.AntGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.ClientGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.FaultGenerator;
@@ -42,7 +43,7 @@ import org.objectweb.celtix.tools.wsdl2.validate.XMLFormatValidator;
 
 
 public class WSDLToJavaProcessor extends WSDLToProcessor {
-
+  
     protected void registerGenerators(JavaModel jmodel) {
         addGenerator(ToolConstants.SEI_GENERATOR, new SEIGenerator(jmodel, getEnvironment()));
         addGenerator(ToolConstants.FAULT_GENERATOR, new FaultGenerator(jmodel, getEnvironment()));
@@ -67,7 +68,8 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         generateTypes();
         JavaModel jmodel = wsdlDefinitionToJavaModel(getWSDLDefinition());
         if (jmodel == null) {
-            throw new ToolException("Can not create java model from wsdl model");
+            Message msg = new Message("FAIL_TO_CREATE_JAVA_MODEL", LOG);
+            throw new ToolException(msg);
         }
         registerGenerators(jmodel);
         doGeneration();
@@ -91,7 +93,9 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
                 return;
             }
         } catch (IOException e) {
-            throw new ToolException("Build type failed", e);
+            Message msg = new Message("FAIL_TO_GENERATE_TYPES", LOG);
+            throw new ToolException(msg);
+            
         }
     }
 
@@ -210,7 +214,8 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         Compiler compiler = new Compiler(System.out);
 
         if (!compiler.internalCompile(args)) {
-            throw new ToolException("Compile generated code failed");
+            Message msg = new Message("FAIL_TO_COMPILE_GENERATE_CODES", LOG);
+            throw new ToolException(msg);
         }
 
     }
@@ -236,7 +241,8 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             output.close();
             input.close();
         } catch (Exception e) {
-            throw new ToolException("Copy generated file error", e);
+            Message msg = new Message("FAIL_TO_COPY_GENERATED_RESOURCE_FILE", LOG);
+            throw new ToolException(msg, e);
         }
     }
 }

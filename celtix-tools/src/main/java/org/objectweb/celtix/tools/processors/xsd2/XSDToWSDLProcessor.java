@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Types;
@@ -18,20 +19,21 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.Processor;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.WSDLConstants;
 import org.objectweb.celtix.tools.common.dom.ExtendedDocumentBuilder;
-
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.jaxws.JAXWSBindingDeserializer;
 import org.objectweb.celtix.tools.jaxws.JAXWSBindingSerializer;
 import org.objectweb.celtix.tools.utils.FileWriterUtil;
 
 public class XSDToWSDLProcessor implements Processor {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(XSDToWSDLProcessor.class);
     private static final String XSD_FILE_NAME_EXT = ".xsd";
     private static final String WSDL_FILE_NAME_EXT = ".wsdl";
     
@@ -68,7 +70,8 @@ public class XSDToWSDLProcessor implements Processor {
             wsdlFactory = WSDLFactory.newInstance();
             wsdlDefinition = wsdlFactory.newDefinition();
         } catch (WSDLException we) {
-            throw new ToolException("Can not create wsdl model, due to " + we.getMessage(), we);
+            Message msg = new Message("FAIL_TO_CREATE_WSDL_DEFINITION", LOG);
+            throw new ToolException(msg, we);
         }
     }
 
@@ -77,7 +80,8 @@ public class XSDToWSDLProcessor implements Processor {
         try {
             in = new FileInputStream(xsdUrl);
         } catch (IOException ioe) {
-            throw new ToolException("Open xsd file faied, due to " + ioe.getMessage(), ioe);
+            Message msg = new Message("FAIL_TO_OPEN_XSD_FILE", LOG);
+            throw new ToolException(msg, ioe);
         }
         if (in == null) {
             throw new NullPointerException("Cannot create a ToolSpec object from a null stream");
@@ -86,7 +90,8 @@ public class XSDToWSDLProcessor implements Processor {
             xsdBuilder.setValidating(false);
             this.xsdDoc = xsdBuilder.parse(in);
         } catch (Exception ex) {
-            throw new ToolException("Failure when parsing toolspec stream", ex);
+            Message msg = new Message("FAIL_TO_PARSE_TOOLSPEC", LOG);
+            throw new ToolException(msg, ex);
         }
     }
 
@@ -109,7 +114,8 @@ public class XSDToWSDLProcessor implements Processor {
             extElement = registry.createExtension(Types.class, new QName(WSDLConstants.XSD_NAMESPACE,
                                                                          "schema"));
         } catch (WSDLException wse) {
-            throw new ToolException("can not create schema extension, due to " + wse.getMessage(), wse);
+            Message msg = new Message("FAIL_TO_CREATE_SCHEMA_EXTENSION", LOG);
+            throw new ToolException(msg, wse);
         }
         ((Schema)extElement).setElement(targetElement);
         types.addExtensibilityElement(extElement);
@@ -121,12 +127,14 @@ public class XSDToWSDLProcessor implements Processor {
         try {
             wsdlWriter.writeWSDL(wsdlDefinition, outputWriter);
         } catch (WSDLException wse) {
-            throw new ToolException("can not write modified wsdl, due to " + wse.getMessage(), wse);
+            Message msg = new Message("FAIL_TO_WRITE_WSDL", LOG);
+            throw new ToolException(msg, wse);
         }
         try {
             outputWriter.close();
         } catch (IOException ioe) {
-            throw new ToolException("close wsdl output file failed, due to " + ioe.getMessage(), ioe);
+            Message msg = new Message("FAIL_TO_CLOSE_WSDL_FILE", LOG);
+            throw new ToolException(msg, ioe);
         }
     }
 
@@ -172,8 +180,9 @@ public class XSDToWSDLProcessor implements Processor {
         try {
             writer = fw.getWriter("", newName);
         } catch (IOException ioe) {
-            throw new ToolException("Failed to write " + env.get(ToolConstants.CFG_OUTPUTDIR)
-                                    + System.getProperty("file.seperator") + newName, ioe);
+            Message msg = new Message("FAIl_TO_WRITE_FILE", LOG, env.get(ToolConstants.CFG_OUTPUTDIR)
+                                    + System.getProperty("file.seperator") + newName);
+            throw new ToolException(msg, ioe);
         }
         return writer;
     }

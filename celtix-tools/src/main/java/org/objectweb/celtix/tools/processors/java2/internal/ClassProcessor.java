@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
@@ -11,16 +12,20 @@ import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.OperationType;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.WSDLConstants;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.WSDLModel;
+import org.objectweb.celtix.tools.processors.java2.JavaToWSDLProcessor;
 import org.objectweb.celtix.tools.utils.AnnotationUtil;
 import org.objectweb.celtix.tools.utils.URIParserUtil;
 
 public class ClassProcessor {
+    private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
 
     Class seiClass;
 
@@ -80,7 +85,7 @@ public class ClassProcessor {
         javaMethod.setName(operationName);
         javaMethod.setSoapAction(webMethod.action());
 
-        // To Do Asyn
+        
         if (isAsynMethod(method)) {
             return;
         }
@@ -105,8 +110,8 @@ public class ClassProcessor {
             rpcMethodProcessor.process(javaMethod, method);
             break;
         default:
-            throw new ToolException("the method " + method.getName()
-                                    + "SOAPBinding USE STYLE and ParameterStyle is not correct ");
+            Message message = new Message("SOAPUSESTYLE_PARAMETERSTYLE_ERROR", LOG, method.getName());
+            throw new ToolException(message);
         }
         wmodel.addJavaMethod(javaMethod);
     }
@@ -186,14 +191,16 @@ public class ClassProcessor {
     private void populateWSDLInfo(Class clazz) {
         WebService webService = AnnotationUtil.getPrivClassAnnotation(clazz, WebService.class);
         if (webService == null) {
-            throw new ToolException("SEI Class :No Webservice Annotation");
+            Message message = new Message("SEI_CLASS_NO_WEBSERVICE_ANNOTATED", LOG);
+            throw new ToolException(message);
 
         }
         if (webService.endpointInterface().length() > 0) {
             clazz = AnnotationUtil.loadClass(webService.endpointInterface(), clazz.getClassLoader());
             webService = AnnotationUtil.getPrivClassAnnotation(clazz, WebService.class);
             if (webService == null) {
-                throw new ToolException("Endpoint Interface :No Webservice ");
+                Message message = new Message("SEI_INTERFACE_NO_WEBSERVICE_ANNOTATED", LOG);
+                throw new ToolException(message);
             }
         }
 
@@ -236,7 +243,8 @@ public class ClassProcessor {
         } else if (webService.targetNamespace().length() > 0) {
             targetNamespace = webService.targetNamespace();
         } else if (targetNamespace == null) {
-            throw new ToolException("Class No Package");
+            Message message = new Message("SEI_CLASS_HASNO_PACKAGE", LOG);
+            throw new ToolException(message);
         }
 
         model.setTargetNameSpace(targetNamespace);

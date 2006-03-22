@@ -1,16 +1,21 @@
 package org.objectweb.celtix.tools.processors.java2;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.Processor;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.WSDLModel;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.java2.WSDLGenerator;
 import org.objectweb.celtix.tools.processors.java2.internal.ClassProcessor;
 import org.objectweb.celtix.tools.utils.AnnotationUtil;
 
 public class JavaToWSDLProcessor implements Processor {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
     private WSDLModel model;
     private ProcessorEnvironment penv;
     private Class seiClass;
@@ -19,7 +24,9 @@ public class JavaToWSDLProcessor implements Processor {
         try {
             model = new WSDLModel();
         } catch (Exception e) {
-            throw new ToolException("Build WSDL Model Fail");
+            Message msg = new Message("FAIL_TO_BUILD_WSDLMODEL", LOG);
+            LOG.log(Level.SEVERE, msg.toString());
+            throw new ToolException(msg);
         }
 
         init();

@@ -1,4 +1,5 @@
 package org.objectweb.celtix.tools.processors.java2.internal;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -7,6 +8,7 @@ import java.lang.reflect.Type;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.jws.Oneway;
 import javax.jws.WebParam;
@@ -20,6 +22,8 @@ import javax.xml.ws.WebFault;
 
 import com.sun.xml.bind.api.TypeReference;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
@@ -30,10 +34,13 @@ import org.objectweb.celtix.tools.common.model.WSDLParameter;
 import org.objectweb.celtix.tools.utils.AnnotationUtil;
 
 public class DocWrapperMethodProcessor {
+    private static final Logger LOG = LogUtils.getL7dLogger(DocWrapperMethodProcessor.class);
     private WSDLModel model;
+
     public DocWrapperMethodProcessor(WSDLModel wmodel) {
         model = wmodel;
     }
+
     public void process(JavaMethod javaMethod, Method method) {
         javaMethod.setSoapStyle(SOAPBinding.Style.DOCUMENT);
         javaMethod.setWrapperStyle(true);
@@ -56,7 +63,9 @@ public class DocWrapperMethodProcessor {
         try {
             reqClass = AnnotationUtil.loadClass(reqClassName, method.getDeclaringClass().getClassLoader());
         } catch (Exception e) {
-            throw new ToolException("Can Not Load class " + reqClassName, e);
+
+            Message msg = new Message("LOAD_CLASS_ERROR", LOG, reqClassName);
+            throw new ToolException(msg, e);
         }
         QName reqQN = new QName(reqNS, reqName);
         TypeReference typeRef = new TypeReference(reqQN, reqClass, new Annotation[0]);
@@ -86,7 +95,8 @@ public class DocWrapperMethodProcessor {
                 resClass = AnnotationUtil
                     .loadClass(resClassName, method.getDeclaringClass().getClassLoader());
             } catch (Exception e) {
-                throw new ToolException("Can Not Load Class " + resClassName, e);
+                Message msg = new Message("LOAD_CLASS_ERROR", LOG, resClassName);
+                throw new ToolException(msg, e);
             }
             typeRef = new TypeReference(resQN, resClass, new Annotation[0]);
             response = new WSDLParameter(resName, typeRef, JavaType.Style.OUT);
@@ -118,7 +128,7 @@ public class DocWrapperMethodProcessor {
             javaMethod.setSoapUse(this.model.getUse());
         }
     }
-    
+
     private List<JavaParameter> processWebPara(Method method) {
         // processWebparam
         Class<?>[] parameterTypes = method.getParameterTypes();
@@ -151,8 +161,8 @@ public class DocWrapperMethodProcessor {
                             jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref,
                                                    JavaType.Style.INOUT);
                         } else {
-                            jp = new JavaParameter(typeref.tagName.getLocalPart(), 
-                                                   typeref, JavaType.Style.OUT);
+                            jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref,
+                                                   JavaType.Style.OUT);
                         }
                     } else {
                         jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref, JavaType.Style.IN);
@@ -169,8 +179,7 @@ public class DocWrapperMethodProcessor {
 
         return paras;
     }
-    
-    
+
     private void processExceptions(JavaMethod jmethod, Method method) {
         for (Type exception : method.getGenericExceptionTypes()) {
             if (RemoteException.class.isAssignableFrom((Class)exception)) {
@@ -204,16 +213,10 @@ public class DocWrapperMethodProcessor {
             TypeReference tf = new TypeReference(exQName, exReturnType, anns);
             WSDLException wsdlEx = new WSDLException(exClass, tf);
 
-            try {
-                jmethod.addWSDLException(wsdlEx);
-            } catch (Exception e) {
-                throw new ToolException("Exception Is Not Unique");
-            }
+            jmethod.addWSDLException(wsdlEx);
 
         }
     }
-
-    
 
     private boolean isHolder(Class cType) {
         return Holder.class.isAssignableFrom(cType);
@@ -224,7 +227,7 @@ public class DocWrapperMethodProcessor {
         ParameterizedType pt = (ParameterizedType)type;
         return getClass(pt.getActualTypeArguments()[0]);
     }
-    
+
     private Class getClass(Type type) {
         if (type instanceof Class) {
             return (Class)type;
@@ -239,7 +242,7 @@ public class DocWrapperMethodProcessor {
     private boolean isOneWayMethod(Method method) {
         return method.isAnnotationPresent(Oneway.class);
     }
-    
+
     private JavaParameter getReturnParameter(WebResult webResult, Method method) {
         boolean isHeader = false;
         String resultName = "Return";
@@ -271,8 +274,5 @@ public class DocWrapperMethodProcessor {
         }
         return jpara;
     }
-
-    
-    
 
 }

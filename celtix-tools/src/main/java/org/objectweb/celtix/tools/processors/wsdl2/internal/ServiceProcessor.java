@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
@@ -38,8 +39,6 @@ import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
 import org.objectweb.celtix.tools.common.model.JavaType;
-
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.common.toolspec.parser.CommandLineParser;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
 import org.objectweb.celtix.tools.jaxws.CustomizationParser;
@@ -134,8 +133,10 @@ public class ServiceProcessor extends AbstractProcessor {
         bindingType = getBindingType(binding);
         
         if (bindingType == null) {
-            throw new ToolException("Binding : " 
-                                    + binding.getQName() + "MUST specify exactly one protocol");
+            org.objectweb.celtix.common.i18n.Message msg = 
+                new org.objectweb.celtix.common.i18n.Message("BINDING_SPECIFY_ONE_PROTOCOL", 
+                                                             LOG, binding.getQName());
+            throw new ToolException(msg);
         }
         
         if (isSoapBinding()) {
@@ -208,7 +209,9 @@ public class ServiceProcessor extends AbstractProcessor {
                     String soapStyle = prop.get(soapOPStyle) == null ? "" : (String)prop.get(soapOPStyle);
                     jm.setSoapAction(soapAction);
                     if (getSoapStyle(soapStyle) == null && this.bindingObj == null) {
-                        throw new ToolException("Operation Binding Style Should Be Defined");
+                        org.objectweb.celtix.common.i18n.Message msg = 
+                            new org.objectweb.celtix.common.i18n.Message("BINDING_STYLE_NOT_DEFINED", LOG);
+                        throw new ToolException(msg);
                     }
                     if (getSoapStyle(soapStyle) == null) {
                         jm.setSoapStyle(jf.getSOAPStyle());

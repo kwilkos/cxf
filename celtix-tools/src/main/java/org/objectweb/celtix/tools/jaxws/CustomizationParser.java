@@ -3,6 +3,7 @@ package org.objectweb.celtix.tools.jaxws;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.logging.Logger;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
@@ -25,6 +26,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.StringUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
@@ -33,7 +36,7 @@ import org.objectweb.celtix.tools.utils.ProcessorUtil;
 import org.objectweb.celtix.tools.utils.StAXUtil;
 
 public final class CustomizationParser {
-    
+    private static final Logger LOG = LogUtils.getL7dLogger(CustomizationParser.class);
     private static CustomizationParser parser;
     private ProcessorEnvironment env;
     private final Set<Element> jaxwsBindings = new HashSet<Element>();
@@ -128,7 +131,8 @@ public final class CustomizationParser {
             try {
                 addBinding(bindingFiles[i]);
             } catch (XMLStreamException xse) {
-                throw new ToolException("StAX parser error, check your external binding file(s)", xse);
+                Message msg = new Message("STAX_PASER_ERROR", LOG);
+                throw new ToolException(msg, xse);
             }
         }
         
@@ -162,7 +166,8 @@ public final class CustomizationParser {
             try {
                 evaluateBindingsNode(bindings, expression);
             } catch (WSDLException we) {
-                throw new ToolException("Exception during parsing external jaxws binding file(s)", we);
+                Message msg = new Message("PARSE_BININDINGFILE_EXCEPTION", LOG);
+                throw new ToolException(msg, we);
             }
         }
 
@@ -206,7 +211,8 @@ public final class CustomizationParser {
         } else if (isValidJaxbBindingFile(reader)) {
             env.addJaxbBindingFile(bindingFile, is);
         } else {
-            throw new ToolException("Unknown external binding files: " + bindingFile);
+            Message msg = new Message("UNKONW_BINDING_FILE", LOG, bindingFile);
+            throw new ToolException(msg);
         }
     }
 
@@ -230,16 +236,15 @@ public final class CustomizationParser {
                 wsdlLocation = ProcessorUtil.absolutize(ProcessorUtil.getFileOrURLName(wsdlLocation));
                     
                 if (!StringUtils.getURL(wsdlURL).equals(StringUtils.getURL(wsdlLocation))) {
-                    throw new ToolException("External binding file ["
-                                            + wsdlLocation
-                                            + "]is not point to the specified wsdl url ["
-                                            + wsdlURL + "]");
+                    Message msg = new Message("NOT_POINTTO_URL", LOG, new Object[]{wsdlLocation, wsdlURL});
+                    throw new ToolException(msg);
                 }
             } else {
                 return false;
             }
         } catch (MalformedURLException e) {
-            throw new ToolException("Can not get wsdl location:", e);
+            Message msg = new Message("CAN_NOT_GET_WSDL_LOCATION", LOG);
+            throw new ToolException(msg, e);
         }
         return true;
     }

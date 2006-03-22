@@ -41,7 +41,7 @@ public class ServiceGenerator {
                 .createExtension(Port.class, new QName(WSDLConstants.SOAP11_NAMESPACE, "address"));
             soapAddress.setLocationURI(ADDRESS_URI);
         } catch (WSDLException e) {
-            throw new ToolException("Error " + e.getMessage(), e);
+            throw new ToolException(e.getMessage(), e);
         }
         port.addExtensibilityElement(soapAddress);
         service.addPort(port);

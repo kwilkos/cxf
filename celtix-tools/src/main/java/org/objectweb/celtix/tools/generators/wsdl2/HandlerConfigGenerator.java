@@ -5,12 +5,11 @@ import java.io.Writer;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import org.objectweb.celtix.helpers.XMLUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 

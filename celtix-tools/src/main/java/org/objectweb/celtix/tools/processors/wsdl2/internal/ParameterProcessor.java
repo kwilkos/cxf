@@ -1,6 +1,11 @@
 package org.objectweb.celtix.tools.processors.wsdl2.internal;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.Message;
 import javax.wsdl.Part;
@@ -8,13 +13,14 @@ import javax.xml.namespace.QName;
 
 import com.sun.codemodel.JType;
 import com.sun.tools.xjc.api.Property;
+
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaReturn;
 import org.objectweb.celtix.tools.common.model.JavaType;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class ParameterProcessor extends AbstractProcessor {
@@ -185,7 +191,6 @@ public class ParameterProcessor extends AbstractProcessor {
                 // outParts.add(outpart);
             }
         }
-  
 
         if (isRequestResponse && outParts.size() == 1) {
             processReturn(method, outputParts.iterator().next());
@@ -246,7 +251,9 @@ public class ParameterProcessor extends AbstractProcessor {
         for (Property outElement : outputBlock) {
             if ("return".equals(outElement.elementName().getLocalPart())) {
                 if (method.getReturn() != null) {
-                    throw new ToolException("Wrapper style can not have two return types");
+                    org.objectweb.celtix.common.i18n.Message msg = 
+                        new org.objectweb.celtix.common.i18n.Message("WRAPPER_STYLE_TWO_RETURN_TYPES", LOG);
+                    throw new ToolException(msg);
                 }
                 method.setReturn(getReturnFromProperty(outElement, outputPart));
                 continue;

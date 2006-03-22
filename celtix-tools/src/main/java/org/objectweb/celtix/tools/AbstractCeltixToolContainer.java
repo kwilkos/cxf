@@ -1,11 +1,20 @@
 package org.objectweb.celtix.tools;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.toolspec.AbstractToolContainer;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.common.toolspec.ToolSpec;
 import org.objectweb.celtix.tools.common.toolspec.parser.BadUsageException;
 import org.objectweb.celtix.tools.common.toolspec.parser.CommandDocument;
@@ -14,7 +23,7 @@ import org.objectweb.celtix.tools.common.toolspec.parser.ErrorVisitor;
 import org.objectweb.celtix.version.Version;
 
 public abstract class AbstractCeltixToolContainer extends AbstractToolContainer {
-
+    protected static final Logger LOG = LogUtils.getL7dLogger(AbstractCeltixToolContainer.class);
     private static AbstractCeltixToolContainer instance;
     
     private final String name;

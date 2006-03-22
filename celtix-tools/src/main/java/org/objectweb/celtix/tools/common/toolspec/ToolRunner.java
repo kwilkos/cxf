@@ -1,9 +1,15 @@
 package org.objectweb.celtix.tools.common.toolspec;
 
-import java.io.*;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.tools.common.ToolException;
 public final class ToolRunner {
+    private static final Logger LOG = LogUtils.getL7dLogger(ToolRunner.class);
     private ToolRunner() {
         // utility class - never constructed
     }
@@ -33,7 +39,9 @@ public final class ToolRunner {
                                                                 new ToolSpec(toolspecStream, validate)
                                                             });
             } catch (Exception ex) {
-                throw new ToolException(clz.getName() + " could not be constructed", ex);
+                Message message = new Message("CLZ_CANNOT_BE_CONSTRUCTED", LOG, clz.getName());
+                LOG.log(Level.SEVERE, message.toString());
+                throw new ToolException(message, ex);
             }
 
             try {
@@ -44,7 +52,9 @@ public final class ToolRunner {
                 throw ex;
             }
         } else {
-            throw new ToolException(clz.getName() + " should implement the ToolContainer interface");
+            Message message = new Message("CLZ_SHOULD_IMPLEMENT_INTERFACE", LOG, clz.getName());
+            LOG.log(Level.SEVERE, message.toString());
+            throw new ToolException(message);
         }
 
     }

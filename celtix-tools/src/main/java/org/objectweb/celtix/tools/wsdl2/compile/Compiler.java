@@ -3,10 +3,15 @@ package org.objectweb.celtix.tools.wsdl2.compile;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import java.util.logging.Logger;
+
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.tools.common.ToolException;
+import org.objectweb.celtix.tools.processors.wsdl2.WSDLToProcessor;
 
 public class Compiler {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(WSDLToProcessor.class);
     private OutputStream out;
 
     public Compiler(OutputStream o) {
@@ -33,7 +38,8 @@ public class Compiler {
                     }
                     return ((Integer)result).intValue() == 0;
                 } catch (Exception e1) {
-                    throw new ToolException("Compile exception", e1);
+                    Message msg = new Message("FAIL_TO_COMPILE_GENERATE_CODES", LOG);
+                    throw new ToolException(msg, e1);
                 }
             } catch (NoSuchMethodException e2) {
                 throw new ToolException(e2.getMessage(), e2);

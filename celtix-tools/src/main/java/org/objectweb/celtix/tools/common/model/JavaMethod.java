@@ -5,15 +5,19 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.OperationType;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
+import org.objectweb.celtix.tools.processors.wsdl2.WSDLToProcessor;
 
 public class JavaMethod {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(WSDLToProcessor.class);
     private String name;
     private String operationName;
     private JavaReturn javaReturn;
@@ -29,9 +33,9 @@ public class JavaMethod {
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
     private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
     private final List<WSDLException> wsdlExceptions = new ArrayList<WSDLException>();
-    private JAXWSBinding jaxwsBinding = new JAXWSBinding();    
+    private JAXWSBinding jaxwsBinding = new JAXWSBinding();
     private JAXWSBinding bindingExt = new JAXWSBinding();
-    
+
     public JavaMethod() {
         this.javaInterface = null;
     }
@@ -74,16 +78,14 @@ public class JavaMethod {
     public void setName(String n) {
         this.name = n;
     }
-    
+
     public String getOperationName() {
         return this.operationName;
     }
-    
+
     public void setOperationName(String arg) {
         this.operationName = arg;
     }
-    
-    
 
     public JavaReturn getReturn() {
         return javaReturn;
@@ -112,8 +114,8 @@ public class JavaMethod {
             if (paramInList.isIN() || paramInList.isINOUT()) {
                 removeParameter(paramInList);
             } else {
-                throw new ToolException("model.uniqueness, following parameter already exist:\n"
-                                        + param.toString());
+                Message message = new Message("PARAMETER_ALREADY_EXIST", LOG, param.getName());
+                throw new ToolException(message);
             }
         }
         parameters.add(param);
@@ -143,7 +145,8 @@ public class JavaMethod {
 
     public void addException(JavaException exception) {
         if (hasException(exception)) {
-            throw new ToolException("model.uniqueness");
+            Message message = new Message("EXCEPTION_ALREADY_EXIST", LOG, exception.getName());
+            throw new ToolException(message);
         }
         exceptions.add(exception);
     }
@@ -206,14 +209,16 @@ public class JavaMethod {
     public Collection<JavaAnnotation> getAnnotations() {
         return this.annotations.values();
     }
-    
+
     public Map<String, JavaAnnotation> getAnnotationMap() {
         return this.annotations;
     }
 
     public void addWSDLException(WSDLException exception) {
         if (wsdlExceptions.contains(exception)) {
-            throw new ToolException("exception.uniqueness");
+            Message message = new Message("EXCEPTION_ALREADY_EXIST", LOG, 
+                                          exception.getDetailType().getName());
+            throw new ToolException(message);
         }
         wsdlExceptions.add(exception);
     }
@@ -221,21 +226,23 @@ public class JavaMethod {
     public List<WSDLException> getWSDLExceptions() {
         return wsdlExceptions;
     }
-    
+
     public void addRequest(WSDLParameter param) {
         this.requestParameter = param;
     }
+
     public WSDLParameter getRequest() {
         return this.requestParameter;
     }
-    
+
     public void addResponse(WSDLParameter param) {
         this.responseParameter = param;
     }
+
     public WSDLParameter getResponse() {
         return this.responseParameter;
     }
-    
+
     public List<String> getParameterList() {
         return getParameterList(true);
     }
@@ -243,7 +250,7 @@ public class JavaMethod {
     public List<String> getParameterListWithoutAnnotation() {
         return getParameterList(false);
     }
-    
+
     public List<String> getParameterList(boolean includeAnnotation) {
         List<String> list = new ArrayList<String>();
         StringBuffer sb = new StringBuffer();
@@ -274,7 +281,7 @@ public class JavaMethod {
     public JAXWSBinding getJAXWSBinding() {
         return this.jaxwsBinding;
     }
-    
+
     public void setJAXWSBinding(JAXWSBinding binding) {
         if (binding != null) {
             this.jaxwsBinding = binding;

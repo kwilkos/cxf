@@ -1,11 +1,15 @@
 package org.objectweb.celtix.tools;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Set;
 
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.toolspec.ToolRunner;
 import org.objectweb.celtix.tools.common.toolspec.ToolSpec;
 import org.objectweb.celtix.tools.common.toolspec.parser.BadUsageException;
@@ -14,7 +18,8 @@ import org.objectweb.celtix.tools.common.toolspec.parser.ErrorVisitor;
 import org.objectweb.celtix.tools.processors.wsdl2.WSDLToJavaProcessor;
 
 public class WSDLToJava extends AbstractCeltixToolContainer {
-    static final String TOOL_NAME = "wsdltojava";
+    
+    private static final String TOOL_NAME = "wsdltojava";
     private static String[] args;
 
     public WSDLToJava(ToolSpec toolspec) throws Exception {
@@ -114,10 +119,12 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
         if (outdir != null) {
             File dir = new File(outdir);
             if (!dir.exists()) {
-                throw new ToolException("Specified direcotry [" + outdir + "] is not exist");
+                Message msg = new Message("DIRECTORY_NOT_EXIST", LOG, outdir);
+                throw new ToolException(msg);
             }
             if (!dir.isDirectory()) {
-                throw new ToolException("Specified direcotry [" + outdir + "] is not a direcotry");
+                Message msg = new Message("NOT_A_DIRECTORY", LOG, outdir);
+                throw new ToolException(msg);
             }
         }
 
@@ -126,9 +133,11 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
             for (int i = 0; i < bindings.length; i++) {
                 File binding = new File(bindings[i]);
                 if (!binding.exists()) {
-                    throw new ToolException("Specified binding file [" + bindings[i] + "] is not exist");
+                    Message msg = new Message("FILE_NOT_EXIST", LOG, binding);
+                    throw new ToolException(msg);
                 } else if (binding.isDirectory()) {
-                    throw new ToolException("Specified binding file [" + bindings[i] + "] is not a file");
+                    Message msg = new Message("NOT_A_FILE", LOG, binding);
+                    throw new ToolException(msg);
                 }
             }
         }
@@ -183,7 +192,8 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
             errors.add(new ErrorVisitor.UserError("WSDL/SCHEMA URL has to be specified"));
         }
         if (errors.getErrors().size() > 0) {
-            throw new ToolException("Required parameters missing", new BadUsageException(getUsage(), errors));
+            Message msg = new Message("PARAMETER_MISSING", LOG);
+            throw new ToolException(msg, new BadUsageException(getUsage(), errors));
         }
     }
 }

@@ -4,7 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.common.logging.LogUtils;
-
+import org.objectweb.celtix.tools.common.ToolException;
 public class ToolSupport implements Tool {
 
     private static final Logger LOG = LogUtils.getL7dLogger(ToolSupport.class);

@@ -3,17 +3,20 @@ package org.objectweb.celtix.tools.generators.wsdl2;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaModel;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class ServiceGenerator extends AbstractGenerator {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractGenerator.class);
     private static final String SERVICE_TEMPLATE = TEMPLATE_BASE + "/service.vm";
 
     public ServiceGenerator(JavaModel jmodel, ProcessorEnvironment env) {
@@ -42,7 +45,8 @@ public class ServiceGenerator extends AbstractGenerator {
             try {
                 url = ProcessorUtil.getWSDLURL(location);
             } catch (Exception e) {
-                throw new ToolException("Can not get WSDL location from: " + location, e);
+                Message message = new Message("FAIL_TO_GET_WSDL", LOG, location);
+                throw new ToolException(message, e);
             }
 
             clearAttributes();

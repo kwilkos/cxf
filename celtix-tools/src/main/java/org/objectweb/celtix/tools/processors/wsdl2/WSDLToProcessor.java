@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
@@ -33,19 +35,20 @@ import javax.wsdl.xml.WSDLReader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 import org.xml.sax.InputSource;
+
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.api.SchemaCompiler;
 import com.sun.tools.xjc.api.XJC;
 
 import org.apache.velocity.app.Velocity;
-
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.StringUtils;
 import org.objectweb.celtix.tools.common.Processor;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
-
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddressSerializer;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormat;
@@ -54,7 +57,6 @@ import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatBindingSerialize
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatSerializer;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLHttpAddress;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLHttpSerializer;
-
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
@@ -67,7 +69,7 @@ import org.objectweb.celtix.tools.utils.JAXBUtils;
 import org.objectweb.celtix.tools.wsdl2.validate.AbstractValidator;
 
 public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorListener {
-
+    protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToProcessor.class);
     protected static final String WSDL_FILE_NAME_EXT = ".wsdl";
 
     protected Definition wsdlDefinition;
@@ -120,8 +122,13 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         try {
             writer = fw.getWriter("", newName);
         } catch (IOException ioe) {
-            throw new ToolException("Failed to write " + env.get(ToolConstants.CFG_OUTPUTDIR)
-                                    + System.getProperty("file.seperator") + newName, ioe);
+            org.objectweb.celtix.common.i18n.Message msg = 
+                new org.objectweb.celtix.common.i18n.Message("FAIL_TO_WRITE_FILE", 
+                                                             LOG, 
+                                                             env.get(ToolConstants.CFG_OUTPUTDIR) 
+                                                             + System.getProperty("file.seperator") 
+                                                             + newName);
+            throw new ToolException(msg, ioe);
         }
         return writer;
     }
@@ -137,7 +144,9 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             parseImports(wsdlDefinition);
             buildWSDLDefinition();
         } catch (WSDLException we) {
-            throw new ToolException("Can not create wsdl model, due to " + we.getMessage(), we);
+            org.objectweb.celtix.common.i18n.Message msg = 
+                new org.objectweb.celtix.common.i18n.Message("FAIL_TO_CREATE_WSDL_DEFINITION", LOG);
+            throw new ToolException(msg, we);
         }
     }
 
@@ -199,7 +208,10 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
 
             Velocity.init(props);
         } catch (Exception e) {
-            throw new ToolException("Can't initialize velocity engine", e);
+            org.objectweb.celtix.common.i18n.Message msg = 
+                new org.objectweb.celtix.common.i18n.Message("FAIL_TO_INITIALIZE_VELOCITY_ENGINE", LOG);
+            LOG.log(Level.SEVERE, msg.toString());
+            throw new ToolException(msg, e);
         }
     }
 

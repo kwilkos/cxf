@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaExceptionClass;
 import org.objectweb.celtix.tools.common.model.JavaField;
 import org.objectweb.celtix.tools.common.model.JavaModel;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 

@@ -20,7 +20,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.dom.ExtendedDocumentBuilder;
 
 public class ToolSpec {
@@ -46,7 +48,8 @@ public class ToolSpec {
             builder.setValidating(validate);
             this.doc = builder.parse(in);
         } catch (Exception ex) {
-            throw new ToolException("Failure when parsing toolspec stream", ex);
+            Message message = new Message("FAIL_TO_PARSING_TOOLSPCE_STREAM", LOG);
+            throw new ToolException(message, ex);
         }
     }
 
@@ -97,7 +100,8 @@ public class ToolSpec {
             try {
                 handler = (Tool)Class.forName(handlerClz).newInstance();
             } catch (Exception ex) {
-                throw new ToolException("Handler could not be instantiated: " + handlerClz, ex);
+                Message message = new Message("FAIL_TO_INSTANTIATE_HANDLER", LOG, handlerClz);
+                throw new ToolException(message, ex);
             }
         }
         return handler;
@@ -114,7 +118,8 @@ public class ToolSpec {
             try {
                 handler = (Tool)Class.forName(handlerClz, true, loader).newInstance();
             } catch (Exception ex) {
-                throw new ToolException("Handler could not be instantiated: " + handlerClz, ex);
+                Message message = new Message("FAIL_TO_INSTANTIATE_HANDLER", LOG, handlerClz);
+                throw new ToolException(message, ex);
             }
         }
         return handler;

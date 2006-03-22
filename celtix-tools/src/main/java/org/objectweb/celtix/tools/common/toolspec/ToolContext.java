@@ -2,7 +2,7 @@ package org.objectweb.celtix.tools.common.toolspec;
 
 import java.io.*;
 import org.w3c.dom.Document;
-
+import org.objectweb.celtix.tools.common.ToolException;
 public interface ToolContext {
 
     /**

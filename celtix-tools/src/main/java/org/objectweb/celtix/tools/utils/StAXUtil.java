@@ -1,15 +1,20 @@
 package org.objectweb.celtix.tools.utils;
 
-import java.net.*;
+import java.net.URL;
+import java.util.logging.Logger;
+
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+
 import org.xml.sax.InputSource;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ToolException;
 
 public final class StAXUtil {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(StAXUtil.class);
     private static final XMLInputFactory XML_INPUT_FACTORY;
     static {
         XML_INPUT_FACTORY = XMLInputFactory.newInstance();
@@ -38,7 +43,8 @@ public final class StAXUtil {
             return XML_INPUT_FACTORY.createXMLStreamReader(source.getSystemId(),
                                                          new URL(source.getSystemId()).openStream());
         } catch (Exception e) {
-            throw new ToolException("stax.cantCreate", e);
+            Message msg = new Message("FAIL_TO_CREATE_STAX", LOG);
+            throw new ToolException(msg, e);
         }
     }
 }

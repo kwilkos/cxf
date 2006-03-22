@@ -1,25 +1,25 @@
 package org.objectweb.celtix.tools.processors.wsdl2.internal;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.wsdl.Operation;
 import javax.wsdl.PortType;
 
-import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaModel;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
 import org.objectweb.celtix.tools.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class PortTypeProcessor extends AbstractProcessor {
-    private static final Logger LOG = LogUtils.getL7dLogger(PortTypeProcessor.class);
     private List<String> operationMap = new ArrayList<String>();
     
     public PortTypeProcessor(ProcessorEnvironment penv) {
@@ -39,9 +39,8 @@ public class PortTypeProcessor extends AbstractProcessor {
         try {
             location = ProcessorUtil.getAbsolutePath(location);
         } catch (IOException ioe) {
-            throw new ToolException("Can not find wsdl absolute location from "
-                                    + env.get(ToolConstants.CFG_WSDLURL),
-                                    ioe);
+            Message msg = new Message("CANNOT_FIND_WSDL", LOG, env.get(ToolConstants.CFG_WSDLURL));
+            throw new ToolException(msg, ioe);
         }
         String serviceName = portType.getQName().getLocalPart();
         intf.setWebServiceName(serviceName);

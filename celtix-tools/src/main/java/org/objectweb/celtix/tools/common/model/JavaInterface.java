@@ -3,7 +3,7 @@ package org.objectweb.celtix.tools.common.model;
 import java.util.*;
 import javax.jws.soap.SOAPBinding;
 import org.w3c.dom.Element;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 
 public class JavaInterface {

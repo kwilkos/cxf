@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -18,6 +19,8 @@ import javax.xml.ws.WebFault;
 
 import com.sun.xml.bind.api.TypeReference;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
@@ -28,6 +31,7 @@ import org.objectweb.celtix.tools.common.model.WSDLParameter;
 import org.objectweb.celtix.tools.utils.AnnotationUtil;
 
 public class DocBareMethodProcessor {
+    private static final Logger LOG = LogUtils.getL7dLogger(DocBareMethodProcessor.class);
     private WSDLModel model;
 
     public DocBareMethodProcessor(WSDLModel wmodel) {
@@ -191,19 +195,17 @@ public class DocBareMethodProcessor {
             i++;
         }
         if (!criteria1) {
-            throw new ToolException("it must have at most one in or "
-                                    + "in/out non_header in Doc_bare method");
+            Message message = new Message("DOC_BARE_METHOD_CRITERIA1", LOG);
+            throw new ToolException(message);
         }
         if (!criteria2) {
-            throw new ToolException("If it has a return type of void it "
-                                    + "must have at most one in/out or out-header "
-                                    + "parameter in Doc_bare method");
+            Message message = new Message("DOC_BARE_METHOD_CRITERIA2", LOG);
+            throw new ToolException(message);
         }
         criteria3 = nonHeaderParamCount <= 1 ? true : false;
         if (!criteria3) {
-            throw new ToolException("if it has a return type of void "
-                                    + "it must have at most one in/out or out-header "
-                                    + "parameter in Doc_bare method");
+            Message message = new Message("DOC_BARE_METHOD_CRITERIA3", LOG);
+            throw new ToolException(message);
         }
         return paras;
     }
@@ -241,11 +243,7 @@ public class DocBareMethodProcessor {
             TypeReference tf = new TypeReference(exQName, exReturnType, anns);
             WSDLException wsdlEx = new WSDLException(exClass, tf);
 
-            try {
-                jmethod.addWSDLException(wsdlEx);
-            } catch (Exception e) {
-                throw new ToolException("Exception Is Not Unique");
-            }
+            jmethod.addWSDLException(wsdlEx);
 
         }
     }

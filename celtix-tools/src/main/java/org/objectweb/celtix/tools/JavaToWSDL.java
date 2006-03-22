@@ -1,12 +1,13 @@
 package org.objectweb.celtix.tools;
 
-import java.util.*;
+import java.util.HashSet;
 
 import javax.wsdl.Definition;
 
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.toolspec.ToolRunner;
 import org.objectweb.celtix.tools.common.toolspec.ToolSpec;
 import org.objectweb.celtix.tools.common.toolspec.parser.BadUsageException;
@@ -14,8 +15,8 @@ import org.objectweb.celtix.tools.common.toolspec.parser.ErrorVisitor;
 import org.objectweb.celtix.tools.processors.java2.JavaToWSDLProcessor;
 
 public class JavaToWSDL extends AbstractCeltixToolContainer {
-
-    static final String TOOL_NAME = "javatowsdl";
+   
+    private static final String TOOL_NAME = "javatowsdl";
     private static String[] args;
     private static Definition definition;
 
@@ -75,7 +76,8 @@ public class JavaToWSDL extends AbstractCeltixToolContainer {
 
     public void checkParams(ErrorVisitor errors) throws ToolException {
         if (errors.getErrors().size() > 0) {
-            throw new ToolException("Required parameters missing", new BadUsageException(getUsage(), errors));
+            Message msg = new Message("PARAMETER_MISSSING", LOG);
+            throw new ToolException(msg, new BadUsageException(getUsage(), errors));
         }
     }
     

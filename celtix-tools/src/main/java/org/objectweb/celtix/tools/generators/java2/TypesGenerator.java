@@ -3,6 +3,8 @@ package org.objectweb.celtix.tools.generators.java2;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Types;
@@ -12,17 +14,19 @@ import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.WSDLConstants;
 import org.objectweb.celtix.tools.common.model.WSDLModel;
 
 public class TypesGenerator {
+    private static final Logger LOG = LogUtils.getL7dLogger(TypesGenerator.class);
     private WSDLModel wmodel;
     private Definition definition;
     private ExtensionRegistry extensionRegistry;
@@ -36,11 +40,12 @@ public class TypesGenerator {
         
     }
     public void generate() {
-       
+        Message msg = new Message("GENERATE_TYPES_ERROR", LOG);
         try {
             wmodel.createJAXBContext();
         } catch (Exception e) {
-            throw new ToolException("Generate types error", e);
+            LOG.log(Level.SEVERE, "Create jaxbContext error");
+            throw new ToolException(msg, e);
         }
         
         SchemaOutputResolver resolver = new WSDLOutputResolver(env, wmodel);
@@ -48,8 +53,7 @@ public class TypesGenerator {
         try {
             wmodel.getJaxbContext().generateSchema(resolver);
         } catch (Exception e2) {
-            // TODO Auto-generated catch block
-            e2.printStackTrace();
+            throw new ToolException(msg, e2);
         }
 
         Types types = definition.createTypes();
@@ -79,10 +83,8 @@ public class TypesGenerator {
             schema.setElement(element);
             types.addExtensibilityElement(schema);
             definition.setTypes(types);
-        } catch (javax.wsdl.WSDLException e1) {
-            throw new ToolException("Generate types error ", e1);
-        } catch (ParserConfigurationException e) {
-            throw new ToolException("Generate types error ", e);
+        } catch (Exception e) {
+            throw new ToolException(msg, e);
         }
 
         definition.setTargetNamespace(wmodel.getTargetNameSpace());

@@ -1,5 +1,5 @@
 package org.objectweb.celtix.tools.common.toolspec;
-
+import org.objectweb.celtix.tools.common.ToolException;
 public interface Tool {
 
     String TOOL_SPEC_PUBLIC_ID = "http://www.xsume.com/Xutil/ToolSpecification";

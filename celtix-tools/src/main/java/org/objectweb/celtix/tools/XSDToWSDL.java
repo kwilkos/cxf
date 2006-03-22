@@ -4,9 +4,10 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.common.toolspec.ToolException;
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.toolspec.ToolRunner;
 import org.objectweb.celtix.tools.common.toolspec.ToolSpec;
 import org.objectweb.celtix.tools.common.toolspec.parser.BadUsageException;
@@ -68,10 +69,12 @@ public class XSDToWSDL extends AbstractCeltixToolContainer {
         if (outdir != null) {
             File dir = new File(outdir);
             if (!dir.exists()) {
-                throw new ToolException("Specified direcotry [" + outdir + "] is not exist");
+                Message msg = new Message("DIRECTORY_NOT_EXIST", LOG, outdir);
+                throw new ToolException(msg);
             }
             if (!dir.isDirectory()) {
-                throw new ToolException("Specified direcotry [" + outdir + "] is not a direcotry");
+                Message msg = new Message("NOT_A_DIRECTORY", LOG, outdir);
+                throw new ToolException(msg);
             }
         }        
     }
@@ -97,8 +100,8 @@ public class XSDToWSDL extends AbstractCeltixToolContainer {
             errors.add(new ErrorVisitor.UserError("XSD URL has to be specified"));
         }
         if (errors.getErrors().size() > 0) {
-            throw new ToolException("Required parameters missing",
-                                    new BadUsageException(getUsage(), errors));
+            Message msg = new Message("PARAMETER_MISSING", LOG);
+            throw new ToolException(msg, new BadUsageException(getUsage(), errors));
         }
     }
 

@@ -1,5 +1,5 @@
 package org.objectweb.celtix.tools.common.toolspec;
-
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.toolspec.parser.BadUsageException;
 
 public interface ToolContainer {
