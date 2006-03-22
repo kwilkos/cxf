@@ -52,7 +52,7 @@ public class RetransmissionQueueTest extends TestCase {
                      0,
                      queue.getUnacknowledged().size());
         assertEquals("unexpected base retransmission interval",
-                     6 * 3000L,
+                     3000L,
                      queue.getBaseRetransmissionInterval());
         assertEquals("unexpected exponential backoff",
                      2,

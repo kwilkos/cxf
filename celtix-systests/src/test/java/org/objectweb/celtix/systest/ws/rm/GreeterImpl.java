@@ -34,6 +34,13 @@ public class GreeterImpl implements Greeter {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Invoking greetMeOneWay with parameters(s): " + requestType);
         }
+        try {
+            // sleep will ensure a spurious resend if partial response containing
+            // ACK is not completed *before* the implementor is invoked
+            Thread.sleep(15 * 1000);
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     public String sayHi() {

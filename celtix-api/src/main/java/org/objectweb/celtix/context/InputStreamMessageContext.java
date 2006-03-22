@@ -7,6 +7,8 @@ import javax.xml.ws.handler.MessageContext;
 
 public interface InputStreamMessageContext extends MessageContext {
 
+    String ASYNC_ONEWAY_DISPATCH = "org.objectweb.celtix.async.oneway.dispatch";
+    
     InputStream getInputStream();
     
     void setInputStream(InputStream ins);

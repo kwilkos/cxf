@@ -23,6 +23,7 @@ import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.management.counters.TransportServerCounters;
@@ -268,6 +269,7 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
                     origInputStream = inStream;
                 }
             };
+            BindingContextUtils.storeAsyncOnewayDispatch(ctx, true);
             ctx.put(HTTPServerInputStreamContext.HTTP_REQUEST, req);
             ctx.put(HTTPServerInputStreamContext.HTTP_RESPONSE, resp);
             ctx.initContext();
@@ -315,13 +317,13 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
             } else if (responseObj instanceof EndpointReferenceType) {
                 EndpointReferenceType decoupledResponseEndpoint = 
                     (EndpointReferenceType)responseObj;
-                // REVISIT: use policy logic from HTTPClientTransport
-                // REVISIT: handle connection closure
-                URL url = new URL(decoupledResponseEndpoint.getAddress().getValue());
-                URLConnection connection = getConnection(url);
-                responseStream = connection.getOutputStream();
                 
                 if (!isOneWay()) {
+                    // REVISIT: use policy logic from HTTPClientTransport
+                    // REVISIT: handle connection closure
+                    URL url = new URL(decoupledResponseEndpoint.getAddress().getValue());
+                    URLConnection connection = getConnection(url);
+                    responseStream = connection.getOutputStream();
                     put(HTTPServerInputStreamContext.HTTP_RESPONSE, connection);
                 }
             } else {

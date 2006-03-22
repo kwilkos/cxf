@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -124,7 +125,7 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         BindingContextUtils.storeServerBindingEndpointCallback(istreamCtx, sbeCallback);
         BindingContextUtils.storeEndpoint(istreamCtx, endpoint);
         
-        ServerRequest inMsg = new ServerRequest(this, istreamCtx);         
+        final ServerRequest inMsg = new ServerRequest(this, istreamCtx);         
         
         Exception inboundException = null;
         
@@ -157,22 +158,27 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
    
         // everything was OK: dispatch to implementor
         
-        LOG.log(Level.INFO, "Before invoking on implementor");
+        Runnable invoker = new Runnable() {
+            public void run() {
+                LOG.log(Level.INFO, "Before invoking on implementor");
+                assert null != inMsg.getObjectCtx();
+                inMsg.doInvocation(endpoint);
+                LOG.log(Level.INFO, "After invoking on implementor");
+            }
+        };
         
-        assert null != inMsg.getObjectCtx();
-        // doInvocation(inMsg.getObjectCtx()); 
-        inMsg.doInvocation(endpoint);
-        
-        LOG.log(Level.INFO, "After invoking on implementor");
-        
-        if (inMsg.isOneway()) {
-            return;
+        if (inMsg.isOneway() 
+            && BindingContextUtils.retrieveAsyncOnewayDispatch(istreamCtx)) {
+            // invoke implementor asynchronously
+            executeAsync(invoker);
+        } else {
+            // invoke implementor directly
+            invoker.run();
+            if (!inMsg.isOneway()) {
+                // process response 
+                inMsg.processOutbound(t, null);
+            }
         }
-        
-        // process response 
-        
-        inMsg.processOutbound(t, null); 
-        
     }
     
     protected ServerTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
@@ -205,4 +211,16 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         outputContext.getOutputStream().close();
     }  
 
+    private void executeAsync(Runnable command) {
+        Executor executor = 
+            getEndpoint().getExecutor() != null
+            ? getEndpoint().getExecutor() 
+            : getBus().getWorkQueueManager().getAutomaticWorkQueue(); 
+        try {
+            executor.execute(command);
+        } catch (RejectedExecutionException ree) {
+            LOG.log(Level.WARNING, "ONEWAY_FALLBACK_TO_DIRECT_MSG", ree);
+            command.run();
+        }
+    }
 }

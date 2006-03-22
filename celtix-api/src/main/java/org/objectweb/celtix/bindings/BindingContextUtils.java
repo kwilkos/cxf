@@ -21,6 +21,7 @@ import static org.objectweb.celtix.bindings.JAXWSConstants.DISPATCH_PROPERTY;
 import static org.objectweb.celtix.bindings.JAXWSConstants.ENDPOINT_PROPERTY;
 import static org.objectweb.celtix.bindings.JAXWSConstants.SERVER_BINDING_ENDPOINT_CALLBACK_PROPERTY;
 import static org.objectweb.celtix.bindings.JAXWSConstants.TRANSPORT_PROPERTY;
+import static org.objectweb.celtix.context.InputStreamMessageContext.ASYNC_ONEWAY_DISPATCH;
 import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
 
 
@@ -185,6 +186,29 @@ public final class BindingContextUtils {
         return null == b || b.booleanValue();
     }
     
+    /**
+     * Store async oneway dispatch property in message context.
+     *
+     * @param context the message context
+     * @param async value of the dispatch property
+     */
+    public static void storeAsyncOnewayDispatch(MessageContext context, boolean async) {
+        context.put(ASYNC_ONEWAY_DISPATCH, async ? Boolean.TRUE : Boolean.FALSE);
+        context.setScope(ASYNC_ONEWAY_DISPATCH, MessageContext.Scope.HANDLER); 
+    }
+   
+    /**
+     * Retrieve value of async oneway dispatch property from message context.
+     *
+     * @param context the message context
+     * @returned the value of async oneway dispatch property
+     */
+    public static boolean retrieveAsyncOnewayDispatch(MessageContext context) {
+        Boolean b = (Boolean)context.get(ASYNC_ONEWAY_DISPATCH);
+        return null == b || b.booleanValue();
+    }
+
+
     /**
      * Store transport in message context.
      *

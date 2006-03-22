@@ -27,10 +27,7 @@ import org.objectweb.celtix.ws.rm.SequenceType;
 
 public class RetransmissionQueue {
     private static final Logger LOG = LogUtils.getL7dLogger(RetransmissionQueue.class);
-    // temporary value to suppress spurious resends caused by 15 second delay
-    // on the dispatch by Jetty of the first incoming HTTP request after a 
-    // partial response
-    private static final long DEFAULT_BASE_RETRANSMISSION_INTERVAL = 6 * 3000L;
+    private static final long DEFAULT_BASE_RETRANSMISSION_INTERVAL = 3000L;
     private static final int DEFAULT_EXPONENTIAL_BACKOFF = 2;
 
     private WorkQueue workQueue;
