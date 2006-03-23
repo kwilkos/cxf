@@ -148,6 +148,9 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
                 new org.objectweb.celtix.common.i18n.Message("FAIL_TO_CREATE_WSDL_DEFINITION", LOG);
             throw new ToolException(msg, we);
         }
+        
+        
+        
     }
 
     private void buildWSDLDefinition() {

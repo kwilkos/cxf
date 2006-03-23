@@ -41,8 +41,9 @@ import org.objectweb.celtix.tools.processors.wsdl2.validators.UniqueBodyPartsVal
 import org.objectweb.celtix.tools.processors.wsdl2.validators.WSIBPValidator;
 import org.objectweb.celtix.tools.processors.wsdl2.validators.XMLFormatValidator;
 
+
 public class WSDLToJavaProcessor extends WSDLToProcessor {
-  
+
     protected void registerGenerators(JavaModel jmodel) {
         addGenerator(ToolConstants.SEI_GENERATOR, new SEIGenerator(jmodel, getEnvironment()));
         addGenerator(ToolConstants.FAULT_GENERATOR, new FaultGenerator(jmodel, getEnvironment()));
@@ -64,6 +65,10 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         init();
         registerValidator();
         validateWSDL();
+        if (isSOAP12Binding(wsdlDefinition)) {
+            Message msg = new Message("SOAP12_UNSUPPORTED", LOG);
+            throw new ToolException(msg);
+        }
         generateTypes();
         JavaModel jmodel = wsdlDefinitionToJavaModel(getWSDLDefinition());
         if (jmodel == null) {
@@ -94,7 +99,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         } catch (IOException e) {
             Message msg = new Message("FAIL_TO_GENERATE_TYPES", LOG);
             throw new ToolException(msg);
-            
+
         }
     }
 
@@ -244,4 +249,17 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             throw new ToolException(msg, e);
         }
     }
+
+    private boolean isSOAP12Binding(Definition def) {
+        String namespace = "";
+        for (Iterator ite = def.getNamespaces().values().iterator(); ite.hasNext();) {
+            namespace = (String)ite.next();
+            if (namespace != null
+                && namespace.toLowerCase().indexOf("http://schemas.xmlsoap.org/wsdl/soap12") >= 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
