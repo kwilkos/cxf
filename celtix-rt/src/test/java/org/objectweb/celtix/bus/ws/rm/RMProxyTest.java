@@ -14,6 +14,8 @@ import junit.framework.TestCase;
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.bindings.TestClientTransport;
+import org.objectweb.celtix.bus.bindings.TestInputStreamContext;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -37,10 +39,10 @@ public class RMProxyTest extends TestCase {
         bus.shutdown(true);
     }
 
-    public void xtestCreateSequenceOnClient() throws IOException, WSDLException, 
+    public void testCreateSequenceOnClient() throws IOException, WSDLException, 
         SequenceFault, NoSuchMethodException {
         
-        TestClientBinding binding = new TestClientBinding(bus, epr);
+        TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
         TestClientTransport ct = binding.getClientTransport();
         InputStream is = getClass().getResourceAsStream("resources/spec/CreateSequenceResponse.xml");
         TestInputStreamContext istreamCtx = new TestInputStreamContext();
@@ -75,8 +77,8 @@ public class RMProxyTest extends TestCase {
 
     }
     
-    public void xtestTerminateSequenceOnClient() throws IOException, WSDLException, SequenceFault {
-        TestClientBinding binding = new TestClientBinding(bus, epr);
+    public void testTerminateSequenceOnClient() throws IOException, WSDLException, SequenceFault {
+        TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
         
         RMHandler handler = EasyMock.createMock(RMHandler.class);
         RMSource source = EasyMock.createMock(RMSource.class);
@@ -100,7 +102,7 @@ public class RMProxyTest extends TestCase {
     }
     
     public void testRequestAcknowledgement() throws IOException, WSDLException, SequenceFault {
-        TestClientBinding binding = new TestClientBinding(bus, epr);
+        TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
         
         RMHandler handler = EasyMock.createMock(RMHandler.class);
         RMSource source = EasyMock.createMock(RMSource.class);
@@ -126,9 +128,9 @@ public class RMProxyTest extends TestCase {
         proxy.requestAcknowledgement(seqs);
     }
     
-    public void xtestSequenceInfoOnClient() throws IOException, WSDLException, SequenceFault {
+    public void testSequenceInfoOnClient() throws IOException, WSDLException, SequenceFault {
         
-        TestClientBinding binding = new TestClientBinding(bus, epr);
+        TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
 
         TestClientTransport ct = binding.getClientTransport();
         InputStream is = getClass().getResourceAsStream("resources/spec/SequenceInfoResponse.xml");

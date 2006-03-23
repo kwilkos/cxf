@@ -218,7 +218,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
 
     public void unmarshal(MessageContext mc, ObjectMessageContext objContext, DataBindingCallback callback) {
         if (null == callback) {
-            LOG.fine("Suppresss unmarshalling - no data binding callback.");
+            LOG.fine("Suppress unmarshalling - no data binding callback.");
             return;
         }
         try {

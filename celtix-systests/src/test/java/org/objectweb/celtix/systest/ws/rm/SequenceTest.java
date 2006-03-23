@@ -78,14 +78,8 @@ public class SequenceTest extends ClientServerTestBase {
     }
 
     // --- tests ---
-    
-    public void xtestSetup() {
-        createControl();
-        assertNotNull(control);
-        control.stopGreeter();
-    }
 
-    public void testOneway() throws Exception {
+    public void testOnewayAnonymousAcks() throws Exception {
 
         setupEndpoints("");
         
@@ -113,7 +107,7 @@ public class SequenceTest extends ClientServerTestBase {
         }
     }
     
-    public void testOnewayDeferredAcks() throws Exception {
+    public void testOnewayDeferredAnonymousAcks() throws Exception {
 
         setupEndpoints("anonymous-deferred");
         
@@ -153,6 +147,56 @@ public class SequenceTest extends ClientServerTestBase {
                       getAcknowledgment(inboundMessages.get(3)));
     }
     
+    public void testOnewayAnonymousAcksSequenceLength1() throws Exception {
+
+        setupEndpoints("anonymous-seqlength1");
+        
+        greeter.greetMeOneWay("once");
+        greeter.greetMeOneWay("twice"); 
+
+        // two application messages plus two createSequence
+
+        assertEquals(4, outboundMessages.size());
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION,
+                                                 GREETMEONEWAY_ACTION,
+                                                 Names.WSRM_CREATE_SEQUENCE_ACTION,
+                                                 GREETMEONEWAY_ACTION};
+        verifyActions(expectedActions, true);
+        verifyMessageNumbers(new String[] {null, "1", null, "1"}, true);
+        verifyLastMessage(new boolean[] {false, true, false, true}, true);
+
+        
+        // createSequenceResponse plus partial response ||: 2
+
+        assertEquals(4, inboundMessages.size());
+        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
+                                        null, 
+                                        Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
+                                        null};
+        verifyActions(expectedActions, false);
+        verifyMessageNumbers(new String[] {null, null, null, null}, false);
+        verifyLastMessage(new boolean[] {false, false, false, false}, false);
+        
+        int i = 0;
+        while (i < 4) {
+            assertNull(getAcknowledgment(inboundMessages.get(i++)));
+            assertNotNull(getAcknowledgment(inboundMessages.get(i++)));
+        }
+    }
+    
+    public void xtestOnewayNonAnonymous() throws Exception {
+
+        
+    }
+    
+    public void xtestTwowayNonAnonymous() throws Exception {
+        
+    }
+    
+    public void xtestTwowayNonAnonymousDeferred() throws Exception {
+        
+    }
+    
     // --- test helpers ---
 
 
@@ -185,6 +229,24 @@ public class SequenceTest extends ClientServerTestBase {
                              + " message " + (i + 1) + " does not contain expected message number "
                          + expectedMessageNumbers[i],
                          expectedMessageNumbers[i], getMessageNumber(se));
+            }
+        }
+    }
+    
+    private void verifyLastMessage(boolean[] expectedLastMessages, boolean outbound) throws Exception {
+        List<SOAPMessage> messages = outbound ? outboundMessages : inboundMessages;
+        assertEquals(expectedLastMessages.length, messages.size());
+        for (int i = 0; i < expectedLastMessages.length; i++) {
+            SOAPElement se = getSequence(messages.get(i));
+            if (null == se) {
+                if (expectedLastMessages[i]) {
+                    fail((outbound ? "Outbound " : "Inbound") + " message " + (i + 1)
+                         + " contains last message element.");
+                }
+            } else {
+                assertEquals((outbound ? "Outbound " : "Inbound") + " message " + (i + 1)
+                             + " does not contain expected last message element", expectedLastMessages[i],
+                             getLastMessage(se));
             }
         }
     }
@@ -229,6 +291,12 @@ public class SequenceTest extends ClientServerTestBase {
         SOAPElement se = (SOAPElement)elem.getChildElements(new QName(Names.WSRM_NAMESPACE_NAME,
                                                                       "MessageNumber")).next();
         return se.getTextContent();
+    }
+    
+    private boolean getLastMessage(SOAPElement elem) throws Exception {
+        SOAPElement se = (SOAPElement)elem.getChildElements(new QName(Names.WSRM_NAMESPACE_NAME,
+                                                                      "LastMessage")).next();
+        return null != se;
     }
 
     private SOAPElement getAcknowledgment(SOAPMessage msg) throws Exception {

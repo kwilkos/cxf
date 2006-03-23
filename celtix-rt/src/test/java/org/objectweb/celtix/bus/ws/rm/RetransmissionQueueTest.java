@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import junit.framework.TestCase;
 
 import org.easymock.IMocksControl;
@@ -12,9 +11,10 @@ import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.workqueue.WorkQueue;
 import org.objectweb.celtix.ws.rm.Identifier;
+import org.objectweb.celtix.ws.rm.RMProperties;
 import org.objectweb.celtix.ws.rm.SequenceType;
 
-import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.SEQUENCE_PROPERTY;
+import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.RM_PROPERTIES_OUTBOUND;
 
 
 /**
@@ -383,6 +383,30 @@ public class RetransmissionQueueTest extends TestCase {
     private SequenceType setUpSequenceType(ObjectMessageContext context,
                                            String sid,
                                            BigInteger messageNumber) {
+        RMProperties rmps = control.createMock(RMProperties.class);
+        if (context != null) {
+            context.get(RM_PROPERTIES_OUTBOUND);
+            EasyMock.expectLastCall().andReturn(rmps);
+            
+        } 
+        SequenceType sequence = control.createMock(SequenceType.class);
+        if (context != null) {
+            rmps.getSequence();
+            EasyMock.expectLastCall().andReturn(sequence);
+        }
+        if (messageNumber != null) {
+            sequence.getMessageNumber();
+            EasyMock.expectLastCall().andReturn(messageNumber);
+        } else {
+            Identifier id = control.createMock(Identifier.class);
+            sequence.getIdentifier();
+            EasyMock.expectLastCall().andReturn(id);
+            id.getValue();
+            EasyMock.expectLastCall().andReturn(sid);
+        }
+        return sequence;
+                
+        /*
         SequenceType sequence = control.createMock(SequenceType.class);
         if (context != null) {
             context.get(SEQUENCE_PROPERTY);
@@ -399,6 +423,7 @@ public class RetransmissionQueueTest extends TestCase {
             EasyMock.expectLastCall().andReturn(sid);
         }
         return sequence;
+        */
     }
     
     private Sequence setUpSequence(String sid, 

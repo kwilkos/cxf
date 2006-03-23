@@ -11,7 +11,6 @@
 package org.objectweb.celtix.bus.bindings;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 import org.objectweb.celtix.context.GenericMessageContext;
@@ -29,15 +28,24 @@ public class TestInputStreamContext
     private static final long serialVersionUID = 1L;
     private final byte[] byteArray;
     private InputStream inputStream;
-    public TestInputStreamContext(byte[] bArray) throws IOException {
+    
+    public TestInputStreamContext() {
+        this(null);
+    }
+    
+    public TestInputStreamContext(byte[] bArray) {
         byteArray = bArray;
+        // put(ObjectMessageContext.MESSAGE_INPUT, false);
     }
 
     public InputStream getInputStream() {
-        if (inputStream != null) {
+        if (null != inputStream) {
             return inputStream;
         }
-        return new ByteArrayInputStream(byteArray);
+        if (null != byteArray) {
+            return new ByteArrayInputStream(byteArray);
+        }
+        return null;
     }
 
     public void setInputStream(InputStream ins) {

@@ -17,16 +17,12 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
-import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
-import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
-import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
-import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.transports.TransportFactoryManager;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -41,7 +37,7 @@ public class TestServerBinding extends AbstractServerBinding {
                              Endpoint ep,
                              ServerBindingEndpointCallback cbFactory) {
         super(b, ref, ep, cbFactory);
-        binding = new TestBinding();
+        binding = new TestBinding(this);
     }
     
     protected ServerTransport createTransport(EndpointReferenceType ref) 
@@ -121,75 +117,8 @@ public class TestServerBinding extends AbstractServerBinding {
         }
         return null;
     }
+
     
-    class TestTransportFactory implements TransportFactory {
-
-        public ClientTransport createClientTransport(EndpointReferenceType address) 
-            throws WSDLException, IOException {
-            return null;
-        }
-
-        public ServerTransport createServerTransport(EndpointReferenceType address) throws WSDLException,
-            IOException {
-            return new TestServerTransport();
-        }
-
-        public ServerTransport createTransientServerTransport(EndpointReferenceType address)
-            throws WSDLException, IOException {
-            return null;
-        }
-
-        public void init(Bus b) {
-        }
-        
-        /**
-         * @param callback used to report (potentially asynchronous) responses.
-         */
-        public synchronized void setResponseCallback(ResponseCallback callback) {
-        }
-
-        public void shutdown() {
-           //do nothing  
-        }
-    }
-
-    class TestServerTransport implements ServerTransport {
-
-        private ServerTransportCallback callback;
-
-        public void shutdown() {
-        }
-
-        public void activate(ServerTransportCallback cb) throws IOException {
-            callback = cb;
-        }
-        
-        public OutputStreamMessageContext rebase(MessageContext context,
-                                                 EndpointReferenceType decoupledResponseEndpoint)
-            throws IOException {
-            return null;
-        }
-
-        public OutputStreamMessageContext createOutputStreamContext(MessageContext context)
-            throws IOException {
-            return new ToyOutputStreamMessageContext(new GenericMessageContext());
-        }
-
-        public void deactivate() throws IOException {
-        }
-
-        public void finalPrepareOutputStreamContext(OutputStreamMessageContext context) throws IOException {
-        }
-        
-        public void postDispatch(MessageContext bindingContext, 
-                                           OutputStreamMessageContext context) throws IOException {
-            
-        }
-
-        public void fire() {
-            callback.dispatch(new ToyInputStreamMessageContext(new GenericMessageContext()), this);
-        }
-    }
 
     static class ToyInputStreamMessageContext extends MessageContextWrapper 
         implements InputStreamMessageContext {

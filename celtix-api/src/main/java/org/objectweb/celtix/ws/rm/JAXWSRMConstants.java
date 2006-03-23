@@ -6,30 +6,16 @@ package org.objectweb.celtix.ws.rm;
 public final class JAXWSRMConstants {
     
     /**
-     * Used to cache sequence properties in context.
+     * Used to cache outbound RM properties in context.
      */
-    public static final String SEQUENCE_PROPERTY = 
-        "org.objectweb.celtix.ws.rm.sequence";
+    public static final String RM_PROPERTIES_OUTBOUND = 
+        "org.objectweb.celtix.ws.rm.context.outbound";
     
     /**
-     * Used to cache acknowledgements in context.
+     * Used to cache inbound RM properties in context.
      */
-    
-    public static final String ACKS_PROPERTY = 
-        "org.objectweb.celtix.ws.rm.acknowledgements";
-    
-    /**
-     * Used to cache acknowledgment requests in context.
-     */
-    
-    public static final String ACKS_REQUESTED_PROPERTY = 
-        "org.objectweb.celtix.ws.rm.acknowledgements.requested";
-    
-    /**
-     * Used to cache srever binding in the context
-     */
-    public static final String WSA_ACTION =
-        "org.objectweb.celtix.ws.addressing.action";
+    public static final String RM_PROPERTIES_INBOUND = 
+        "org.objectweb.celtix.ws.rm.context.inbound";
     
     /**
      * Prevents instantiation. 

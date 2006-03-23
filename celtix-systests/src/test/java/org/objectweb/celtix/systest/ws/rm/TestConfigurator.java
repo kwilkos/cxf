@@ -124,6 +124,6 @@ public class TestConfigurator {
 
         builder.buildConfiguration(RMHandler.RM_CONFIGURATION_URI,
                                    RMHandler.RM_CONFIGURATION_ID,
-                                   config);
+                                   config);        
     }
 }

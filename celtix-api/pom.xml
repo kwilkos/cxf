@@ -91,6 +91,7 @@
                 </executions>
                 <configuration>
                     <attach>true</attach>
+                    <quiet>true</quiet>
                     <bottom>-</bottom>
                     <header>Celtix API</header>
                     <footer>Celtix API</footer>

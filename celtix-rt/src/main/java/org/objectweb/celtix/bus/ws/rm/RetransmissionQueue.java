@@ -68,7 +68,8 @@ public class RetransmissionQueue {
     private Resender getDefaultResender() {   
         return new Resender() {
             public void resend(ObjectMessageContext context) {
-                SequenceType st = RMContextUtils.retrieveSequence(context);
+                SequenceType st = RMContextUtils.retrieveRMProperties(context, true)
+                      .getSequence();
                 if (st != null) {
                     LOG.log(Level.INFO, "RESEND_MSG", st.getMessageNumber());
                 }
@@ -130,7 +131,7 @@ public class RetransmissionQueue {
      */
     protected ResendCandidate cacheUnacknowledged(ObjectMessageContext ctx) {
         ResendCandidate candidate = null;
-        SequenceType st = RMContextUtils.retrieveSequence(ctx);
+        SequenceType st = RMContextUtils.retrieveRMProperties(ctx, true).getSequence();
         Identifier sid = st.getIdentifier();
         synchronized (this) {
             String key = sid.getValue();
@@ -157,8 +158,8 @@ public class RetransmissionQueue {
         if (null != sequenceCandidates) {
             for (int i = sequenceCandidates.size() - 1; i >= 0; i--) {
                 ResendCandidate candidate = sequenceCandidates.get(i);
-                SequenceType st = 
-                    RMContextUtils.retrieveSequence(candidate.getContext());
+                SequenceType st = RMContextUtils.retrieveRMProperties(candidate.getContext(), true)
+                    .getSequence();
                 BigInteger m = st.getMessageNumber();
                 if (seq.isAcknowledged(m)) {
                     sequenceCandidates.remove(i);

@@ -1,15 +1,11 @@
 package org.objectweb.celtix.bus.bindings;
 
-import java.io.*;
-
-
+import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+
 import javax.wsdl.Port;
-
 import javax.xml.ws.handler.MessageContext;
-
-import org.w3c.dom.*;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -18,10 +14,17 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class TestClientTransport implements ClientTransport {
-        
-    public TestClientTransport(Bus b, EndpointReferenceType ref) {
-    }
 
+    private InputStreamMessageContext istreamCtx;
+    
+    public TestClientTransport() {
+        
+    }
+    
+    public TestClientTransport(Bus bus, EndpointReferenceType ref) {        
+    }
+    
+    
     public EndpointReferenceType getTargetEndpoint() {
         return null;
     }
@@ -47,6 +50,9 @@ public class TestClientTransport implements ClientTransport {
     }
 
     public InputStreamMessageContext invoke(OutputStreamMessageContext context) throws IOException {
+        if (null != istreamCtx) {
+            return istreamCtx;
+        }
         return ((TestOutputStreamContext)context).createInputStreamContext();
     }
 
@@ -57,6 +63,10 @@ public class TestClientTransport implements ClientTransport {
 
     public void shutdown() {
         //nothing to do
+    }
+    
+    public void setInputStreamMessageContext(InputStreamMessageContext i) {
+        istreamCtx = i;
     }
 }
 

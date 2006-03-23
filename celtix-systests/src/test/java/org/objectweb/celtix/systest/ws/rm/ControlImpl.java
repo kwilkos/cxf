@@ -31,7 +31,7 @@ public class ControlImpl implements Control {
             setConfigFileProperty(configuration);
         }
         
-        TestConfigurator tc = new TestConfigurator();
+        TestConfigurator tc = new TestConfigurator();        
         tc.configureServer(serviceName);
         
         GreeterImpl implementor = new GreeterImpl();

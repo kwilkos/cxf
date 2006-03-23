@@ -135,7 +135,7 @@ public class Sequence {
      * @return the last message number.
      */
     public void setLastMessageNumber(BigInteger l) {
-        lastMessageNumber = l;
+        lastMessageNumber = l;        
     }
     
     /**
@@ -145,7 +145,7 @@ public class Sequence {
      */
     EndpointReferenceType getAcksTo() {
         return acksTo;
-    }
+    }   
     
     /**
      * Returns the monitor for this sequence.
@@ -249,6 +249,10 @@ public class Sequence {
         if (Type.SOURCE == type) {
             acked = acknowledgement;
         }
+        
+        // TODO: if all messages are acknowledged and the sequence is closed 
+        // (i.e. a LastMessage had been sent)
+        // terminate this sequence
     }
 
     /**
@@ -321,7 +325,7 @@ public class Sequence {
      * Checks if the current message should be the last message in this sequence
      * and if so sets the lastMessageNumber property.
      */
-    private void checkLastMessage() {
+    private void checkLastMessage() {        
         SequenceTerminationPolicyType stp = source.getSequenceTerminationPolicy();
         assert null != stp;
         
@@ -332,6 +336,9 @@ public class Sequence {
                 && source.getRetransmissionQueue().countUnacknowledged(this) 
                 >= stp.getMaxUnacknowledged())) {            
             setLastMessageNumber(currentMessageNumber);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine(currentMessageNumber + " should be the last message in this sequence.");
+            }
         }
     }
    

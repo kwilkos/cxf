@@ -35,6 +35,7 @@ import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
+import org.objectweb.celtix.ws.rm.RMProperties;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceType;
 import org.objectweb.celtix.ws.rm.TerminateSequenceType;
@@ -89,8 +90,8 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
     @PreDestroy
     public void shutdown() {
-        if (source != null) {
-            source.shutdown();
+        if (null != getSource()) {
+            getSource().shutdown();
         }
     }
     
@@ -132,21 +133,35 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     public RMProxy getProxy() {
         return proxy;
     }
+    
+    public RMServant getServant() {
+        return servant;
+    }
+    
+    protected RMSource getSource() {
+        return source;        
+    }
+    
+    protected RMDestination getDestination() {
+        return destination;
+    }
 
-    private void open(LogicalMessageContext context) {
+    protected void open(LogicalMessageContext context) {
 
         initialise(context);
 
         // TODO begin transaction
     }
 
-    private void initialise(MessageContext context) {
+    protected void initialise(MessageContext context) {
         if (null == clientTransport && null == serverTransport) {
             clientTransport = BindingContextUtils.retrieveClientTransport(context);
             if (null == clientTransport) {
                 serverTransport = BindingContextUtils.retrieveServerTransport(context);
             }
         }
+        
+        assert null != serverTransport || null != clientTransport;
 
         if (null == clientBinding && null != clientTransport) {
             clientBinding = (AbstractClientBinding)BindingContextUtils.retrieveClientBinding(context);
@@ -155,29 +170,26 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         if (null == serverBinding && null != serverTransport) {
             serverBinding = (AbstractServerBinding)BindingContextUtils.retrieveServerBinding(context);
         }
+        
+        assert null != serverBinding || null != clientBinding;
 
         if (null == configuration) {
             configuration = createConfiguration(context);
-        }
-        
-        if (ContextUtils.isOutbound(context)) {
-            if (ContextUtils.isRequestor(context) && null == source) {
-                // REVISIT share sources across handler chanins
-                source = new RMSource(this);
-            }
-        } else {
-            if (!ContextUtils.isRequestor(context) && null == destination) {
-                // REVISIT share destinations across handler chanins
-                destination = new RMDestination(this);
-            }
         } 
+        
+        if (ContextUtils.isOutbound(context) && null == getSource()) {
+            // REVISIT share sources across handler chains
+            source = new RMSource(this);
+        } else if (!ContextUtils.isOutbound(context) && null == getDestination()) {
+            destination = new RMDestination(this);
+        }
 
         if (null == timer) {
             timer = new Timer();
         }
     }
 
-    private Configuration createConfiguration(MessageContext context) {
+    protected Configuration createConfiguration(MessageContext context) {
         
         Configuration busCfg = getBinding().getBus().getConfiguration();
         ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
@@ -202,10 +214,11 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
     }
 
-    private void handleOutbound(LogicalMessageContext context) {
+    protected void handleOutbound(LogicalMessageContext context) {
         LOG.entering(getClass().getName(), "handleOutbound");
         AddressingPropertiesImpl maps =
             ContextUtils.retrieveMAPs(context, false, true);
+        
 
         // ensure the appropriate version of WS-Addressing is used       
         maps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
@@ -229,35 +242,49 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             return;
         }
 
+        RMPropertiesImpl rmps = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(context, true);
+        if (null == rmps) {
+            rmps = new RMPropertiesImpl();
+            RMContextUtils.storeRMProperties(context, rmps, true);
+        }
+        
+        
         // not for partial responses to oneway requests
 
         if (!(isServerSide() && BindingContextUtils.isOnewayTransport(context))) {
-            Sequence seq = source.getCurrent();
+            Sequence seq = getSource().getCurrent();
             if (null == seq) {
                 // TODO: better error handling
                 try {
-                    proxy.createSequence(source);
+                    getProxy().createSequence(getSource());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 } catch (SequenceFault ex) {
                     ex.printStackTrace();
                 }
 
-                seq = source.getCurrent();
+                seq = getSource().getCurrent();
             }
             assert null != seq;
 
-            // increase message number and store a sequence type object in the
+            // increase message number and store a sequence type object in
             // context
 
             seq.nextMessageNumber();
-            RMContextUtils.storeSequence(context, seq);
+            rmps.setSequence(seq);
+            
+            // if this was the last message in the sequence, reset the current sequence so
+            // that a new one will be created next time the handler in invoked
+            
+            if (null != seq.getLastMessageNumber()) {
+                source.setCurrent(null);
+            }
 
             // tell the source to store a copy of the message in the
             // retransmission
             // queue and schedule the next retransmission
 
-            source.addUnacknowledged(MessageContextWrapper.unwrap(context));
+            getSource().addUnacknowledged(MessageContextWrapper.unwrap(context));
 
         }
 
@@ -265,10 +292,11 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         
         // add Acknowledgements       
         
-        if (null != destination) {
+        if (null != getDestination()) {
             AttributedURI to = VersionTransformer.convert(maps.getTo());
             assert null != to;
-            addAcknowledgements(context, to);
+            RMPropertiesImpl rmpsIn = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(context, false);
+            addAcknowledgements(rmps, rmpsIn, to);
         }
 
         // indicate to the binding that a response is expected from the transport although
@@ -279,10 +307,12 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
     }
 
-    private void handleInbound(LogicalMessageContext context) {
+    protected void handleInbound(LogicalMessageContext context) {
 
         LOG.entering(getClass().getName(), "handleInbound");
 
+        RMProperties rmps = RMContextUtils.retrieveRMProperties(context, false);
+        
         AddressingPropertiesImpl maps = ContextUtils.retrieveMAPs(context, false, false);
         assert null != maps;
 
@@ -306,7 +336,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             ContextUtils.retrieveTo(context);
 
             try {
-                CreateSequenceResponseType csr = servant.createSequence(destination, cs, to);
+                CreateSequenceResponseType csr = getServant().createSequence(getDestination(), cs, to);
                 context.put(ObjectMessageContext.METHOD_RETURN, csr);
             } catch (SequenceFault ex) {
                 // ignore for now
@@ -323,7 +353,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             maps.setAction(actionURI);
             ContextUtils.storeMAPs(maps, context, true, false, true, true);
             if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Changed action in context from: " + action + " to: " + maps.getAction().getValue());
+                LOG.fine("Set action for outbound addressing properties to: " + maps.getAction().getValue());
             }
 
             return;
@@ -332,46 +362,47 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             TerminateSequenceType cs = (TerminateSequenceType)parameters[0];
 
             try {
-                servant.terminateSequence(destination, cs.getIdentifier());
+                getServant().terminateSequence(getDestination(), cs.getIdentifier());
             } catch (SequenceFault ex) {
                 // ignore for now
             }
         }
 
-        // for application AMD out of band messages
+        // for application AND out of band messages
 
-        processAcknowledgments(context);
+        if (null != rmps) {
+            processAcknowledgments(rmps);
 
-        processAcknowledgmentRequests(context);
+            processAcknowledgmentRequests(rmps);
 
-        // only for application messages
-        if (null != action) {
-            processSequence(context);
-        }
-
-        // clean up
-        RMContextUtils.removeRMProperties(context);
-    }
-
-    private void processAcknowledgments(LogicalMessageContext context) {
-        Collection<SequenceAcknowledgement> acks = RMContextUtils.retrieveAcknowledgments(context);
-        if (null != acks) {
-            for (SequenceAcknowledgement ack : acks) {
-                source.setAcknowledged(ack);
+            // only for application messages
+            if (null != action) {
+                processSequence(rmps);
             }
         }
     }
 
-    private void processSequence(LogicalMessageContext context) {
-        SequenceType s = RMContextUtils.retrieveSequence(context);
-        destination.acknowledge(s);
+    private void processAcknowledgments(RMProperties rmps) {
+        Collection<SequenceAcknowledgement> acks = rmps.getAcks();
+        if (null != acks) {
+            for (SequenceAcknowledgement ack : acks) {
+                getSource().setAcknowledged(ack);
+            }
+        }
     }
 
-    private void processAcknowledgmentRequests(LogicalMessageContext context) {
-        Collection<AckRequestedType> requested = RMContextUtils.retrieveAcksRequested(context);
+    private void processSequence(RMProperties rmps) {
+        SequenceType s = rmps.getSequence();
+        if (null != s) {
+            getDestination().acknowledge(s);
+        }
+    }
+
+    private void processAcknowledgmentRequests(RMProperties rmps) {
+        Collection<AckRequestedType> requested = rmps.getAcksRequested();
         if (null != requested) {
             for (AckRequestedType ar : requested) {
-                Sequence seq = destination.getSequence(ar.getIdentifier());
+                Sequence seq = getDestination().getSequence(ar.getIdentifier());
                 if (null != seq) {
                     seq.scheduleImmediateAcknowledgement();
                 } else {
@@ -381,16 +412,14 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
     }
 
-    private void addAcknowledgements(LogicalMessageContext context, AttributedURI to) {
+    private void addAcknowledgements(RMPropertiesImpl rmpsOut, RMPropertiesImpl rmpsIn, AttributedURI to) {
 
-        RMContextUtils.removeAcknowledgments(context);
-
-        for (Sequence seq : destination.getAllSequences()) {
+        for (Sequence seq : getDestination().getAllSequences()) {
             if (seq.sendAcknowledgement()
-                && (seq.getAcksTo().getAddress().getValue().equals(RMUtils.getAddressingConstants()
-                                                                   .getAnonymousURI())
+                && ((seq.getAcksTo().getAddress().getValue().equals(RMUtils.getAddressingConstants()
+                    .getAnonymousURI()) && null != rmpsIn && rmpsIn.matchSequence(seq))
                     || to.equals(seq.getAcksTo().getAddress().getValue()))) {
-                RMContextUtils.storeAcknowledgment(context, seq);
+                rmpsOut.addAck(seq);
             } else if (LOG.isLoggable(Level.FINE)) {
                 if (!seq.sendAcknowledgement()) {
                     LOG.fine("no need to add an acknowledgements for sequence "
@@ -403,7 +432,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
 
         if (LOG.isLoggable(Level.FINE)) {
-            Collection<SequenceAcknowledgement> acks = RMContextUtils.retrieveAcknowledgments(context);
+            Collection<SequenceAcknowledgement> acks = rmpsOut.getAcks();
             if (null == acks) {
                 LOG.fine("No acknowledgements added.");
             } else {

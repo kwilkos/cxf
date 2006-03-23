@@ -16,6 +16,27 @@ import org.objectweb.celtix.handlers.HandlerInvoker;
 public class TestBinding  extends AbstractBindingImpl {  
     public static final String TEST_BINDING = "http://celtix.objectweb.org/bindings/test";
     
+    private final TestClientBinding clientBinding;
+    private final TestServerBinding serverBinding;
+    
+    public TestBinding(TestClientBinding tcb) {
+        clientBinding = tcb; 
+        serverBinding = null;
+    }
+    
+    public TestBinding(TestServerBinding tsb) {
+        serverBinding = tsb; 
+        clientBinding = null;
+    }
+    
+    public TestClientBinding getClientBinding() {
+        return clientBinding;
+    }
+    
+    public TestServerBinding getServerBinding() {
+        return serverBinding;
+    }
+    
     public HandlerInvoker createHandlerInvoker() {
         return new HandlerChainInvoker(getHandlerChain(true)); 
     }

@@ -33,12 +33,14 @@ import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.bus.ws.rm.CreateSequenceRequest;
 import org.objectweb.celtix.bus.ws.rm.Names;
 import org.objectweb.celtix.bus.ws.rm.RMContextUtils;
+import org.objectweb.celtix.bus.ws.rm.RMPropertiesImpl;
 import org.objectweb.celtix.bus.ws.rm.RMUtils;
 import org.objectweb.celtix.bus.ws.rm.TerminateSequenceRequest;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
+import org.objectweb.celtix.ws.rm.RMProperties;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceType;
 
@@ -128,6 +130,11 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
      * @param context the message context.
      */
     private void encode(SOAPMessageContext context) {
+        RMProperties rmps = RMContextUtils.retrieveRMProperties(context, true);
+        if (null == rmps) {
+            // nothing to encode
+            return;
+        }
         SOAPMessage message = context.getMessage();
         try {
             SOAPEnvelope env = message.getSOAPPart().getEnvelope();
@@ -140,7 +147,8 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
                                            Names.WSRM_NAMESPACE_NAME);
             Marshaller marshaller = getJAXBContext().createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-            SequenceType seq = RMContextUtils.retrieveSequence(context);
+           
+            SequenceType seq = rmps.getSequence();
             if (null != seq) {
                 encodeProperty(seq, 
                                Names.WSRM_SEQUENCE_QNAME, 
@@ -148,7 +156,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
                                header,
                                marshaller);
             } 
-            Collection<SequenceAcknowledgement> acks = RMContextUtils.retrieveAcknowledgments(context);
+            Collection<SequenceAcknowledgement> acks = rmps.getAcks();
             if (null != acks) {
                 for (SequenceAcknowledgement ack : acks) {
                     encodeProperty(ack, 
@@ -158,7 +166,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
                                    marshaller);
                 }
             }
-            Collection<AckRequestedType> requested = RMContextUtils.retrieveAcksRequested(context);
+            Collection<AckRequestedType> requested = rmps.getAcksRequested();
             if (null != requested) {
                 for (AckRequestedType ar : requested) {
                     encodeProperty(ar, 
@@ -182,7 +190,9 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
      * @param the decoded MAPs
      * @exception SOAPFaultException if decoded MAPs are invalid 
      */
-    private void decode(SOAPMessageContext context) {        
+    private void decode(SOAPMessageContext context) { 
+        RMProperties rmps = new RMPropertiesImpl();
+        
         try {
             Collection<SequenceAcknowledgement> acks = new ArrayList<SequenceAcknowledgement>();
             Collection<AckRequestedType> requested = new ArrayList<AckRequestedType>();           
@@ -206,7 +216,8 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
                             SequenceType s = decodeProperty(SequenceType.class,
                                                             headerElement,
                                                             unmarshaller);
-                            RMContextUtils.storeSequence(context, s);
+                            
+                            rmps.setSequence(s);
                         } else if (Names.WSRM_SEQUENCE_ACK_NAME.equals(localName)) {
                             SequenceAcknowledgement ack = decodeProperty(SequenceAcknowledgement.class,
                                                             headerElement,
@@ -221,10 +232,10 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
                     }
                 }
                 if (acks.size() > 0) {
-                    RMContextUtils.storeAcknowledgments(context, acks);
+                    rmps.setAcks(acks);
                 }
                 if (requested.size() > 0) {
-                    RMContextUtils.storeAcksRequested(context, requested);
+                    rmps.setAcksRequested(requested);
                 }
             }
         } catch (SOAPException se) {
@@ -232,6 +243,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
         } catch (JAXBException je) {
             LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", je); 
         }
+        RMContextUtils.storeRMProperties(context, rmps, false);
     }
 
 

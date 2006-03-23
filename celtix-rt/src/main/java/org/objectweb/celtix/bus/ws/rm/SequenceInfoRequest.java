@@ -33,6 +33,7 @@ public class SequenceInfoRequest extends Request {
             ar.setIdentifier(seq.getIdentifier());
             requested.add(ar);
         }
-        RMContextUtils.storeAcksRequested(getObjectMessageContext(), requested);
+        RMPropertiesImpl rmps = new RMPropertiesImpl();        
+        rmps.setAcksRequested(requested);
     }
 }

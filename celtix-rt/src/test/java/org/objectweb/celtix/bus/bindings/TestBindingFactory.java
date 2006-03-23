@@ -1,5 +1,8 @@
 package org.objectweb.celtix.bus.bindings;
 
+import java.io.IOException;
+
+import javax.wsdl.WSDLException;
 import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.Bus;
@@ -16,8 +19,9 @@ public class TestBindingFactory implements BindingFactory {
         init(b);
     }
 
-    public ClientBinding createClientBinding(EndpointReferenceType reference) {
-        return null;
+    public ClientBinding createClientBinding(EndpointReferenceType reference) 
+        throws IOException, WSDLException {
+        return new TestClientBinding(bus, reference);
     }
 
     public ServerBinding createServerBinding(EndpointReferenceType reference,

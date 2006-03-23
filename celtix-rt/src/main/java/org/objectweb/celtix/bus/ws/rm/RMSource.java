@@ -64,12 +64,20 @@ public class RMSource extends RMEndpoint {
     }
 
     /**
-     * Returns the current sequence
+     * Returns the current sequence.
      * 
      * @return the current sequence.
      */
     Sequence getCurrent() {
         return current;
+    }
+    
+    /**
+     * Sets the current sequence.
+     * @param s the current sequence.
+     */
+    void setCurrent(Sequence s) {
+        current = s;
     }
 
     /**
