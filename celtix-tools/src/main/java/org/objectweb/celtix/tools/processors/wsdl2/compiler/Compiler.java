@@ -1,4 +1,4 @@
-package org.objectweb.celtix.tools.wsdl2.compile;
+package org.objectweb.celtix.tools.processors.wsdl2.compiler;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;

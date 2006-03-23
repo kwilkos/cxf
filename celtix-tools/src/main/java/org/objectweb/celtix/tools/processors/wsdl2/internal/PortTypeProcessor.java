@@ -15,8 +15,8 @@ import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaModel;
-import org.objectweb.celtix.tools.jaxws.CustomizationParser;
-import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
+import org.objectweb.celtix.tools.extensions.jaxws.CustomizationParser;
+import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class PortTypeProcessor extends AbstractProcessor {

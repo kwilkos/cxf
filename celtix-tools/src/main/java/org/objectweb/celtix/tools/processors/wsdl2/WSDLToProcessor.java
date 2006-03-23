@@ -49,6 +49,10 @@ import org.objectweb.celtix.tools.common.Processor;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
+import org.objectweb.celtix.tools.extensions.jaxws.CustomizationParser;
+import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBinding;
+import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBindingDeserializer;
+import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBindingSerializer;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddressSerializer;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormat;
@@ -58,15 +62,11 @@ import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatSerializer;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLHttpAddress;
 import org.objectweb.celtix.tools.extensions.xmlformat.XMLHttpSerializer;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
-import org.objectweb.celtix.tools.jaxws.CustomizationParser;
-import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
-import org.objectweb.celtix.tools.jaxws.JAXWSBindingDeserializer;
-import org.objectweb.celtix.tools.jaxws.JAXWSBindingSerializer;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassNameAllocatorImpl;
+import org.objectweb.celtix.tools.processors.wsdl2.validators.AbstractValidator;
 import org.objectweb.celtix.tools.utils.FileWriterUtil;
 import org.objectweb.celtix.tools.utils.JAXBUtils;
-import org.objectweb.celtix.tools.wsdl2.validate.AbstractValidator;
 
 public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorListener {
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToProcessor.class);

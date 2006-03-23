@@ -23,8 +23,8 @@ import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaMethod;
 import org.objectweb.celtix.tools.common.model.JavaParameter;
 import org.objectweb.celtix.tools.common.model.JavaReturn;
-import org.objectweb.celtix.tools.jaxws.CustomizationParser;
-import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
+import org.objectweb.celtix.tools.extensions.jaxws.CustomizationParser;
+import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 import org.objectweb.celtix.tools.utils.SOAPBindingUtil;
 

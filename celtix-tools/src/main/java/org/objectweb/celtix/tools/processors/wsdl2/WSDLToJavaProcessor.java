@@ -22,6 +22,8 @@ import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaModel;
+import org.objectweb.celtix.tools.extensions.jaxws.CustomizationParser;
+import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.generators.wsdl2.AntGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.ClientGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.FaultGenerator;
@@ -29,18 +31,15 @@ import org.objectweb.celtix.tools.generators.wsdl2.ImplGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.SEIGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.ServerGenerator;
 import org.objectweb.celtix.tools.generators.wsdl2.ServiceGenerator;
-import org.objectweb.celtix.tools.jaxws.CustomizationParser;
-import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
+import org.objectweb.celtix.tools.processors.wsdl2.compiler.Compiler;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.PortTypeProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.SEIAnnotationProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ServiceProcessor;
-import org.objectweb.celtix.tools.wsdl2.compile.Compiler;
-import org.objectweb.celtix.tools.wsdl2.validate.MIMEBindingValidator;
-import org.objectweb.celtix.tools.wsdl2.validate.UniqueBodyPartsValidator;
-import org.objectweb.celtix.tools.wsdl2.validate.WSIBPValidator;
-import org.objectweb.celtix.tools.wsdl2.validate.XMLFormatValidator;
-
+import org.objectweb.celtix.tools.processors.wsdl2.validators.MIMEBindingValidator;
+import org.objectweb.celtix.tools.processors.wsdl2.validators.UniqueBodyPartsValidator;
+import org.objectweb.celtix.tools.processors.wsdl2.validators.WSIBPValidator;
+import org.objectweb.celtix.tools.processors.wsdl2.validators.XMLFormatValidator;
 
 public class WSDLToJavaProcessor extends WSDLToProcessor {
   

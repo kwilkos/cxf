@@ -13,7 +13,7 @@ import javax.wsdl.OperationType;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ToolException;
-import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
+import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.processors.wsdl2.WSDLToProcessor;
 
 public class JavaMethod {

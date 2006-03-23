@@ -1,4 +1,4 @@
-package org.objectweb.celtix.tools.wsdl2.validate;
+package org.objectweb.celtix.tools.processors.wsdl2.validators;
 
 import java.util.HashMap;
 import java.util.Iterator;

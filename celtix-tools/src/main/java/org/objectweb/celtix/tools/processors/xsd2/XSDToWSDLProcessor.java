@@ -27,9 +27,9 @@ import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.WSDLConstants;
 import org.objectweb.celtix.tools.common.dom.ExtendedDocumentBuilder;
-import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
-import org.objectweb.celtix.tools.jaxws.JAXWSBindingDeserializer;
-import org.objectweb.celtix.tools.jaxws.JAXWSBindingSerializer;
+import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBinding;
+import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBindingDeserializer;
+import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBindingSerializer;
 import org.objectweb.celtix.tools.utils.FileWriterUtil;
 
 public class XSDToWSDLProcessor implements Processor {

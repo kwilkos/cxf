@@ -40,9 +40,9 @@ import org.objectweb.celtix.tools.common.model.JavaPort;
 import org.objectweb.celtix.tools.common.model.JavaServiceClass;
 import org.objectweb.celtix.tools.common.model.JavaType;
 import org.objectweb.celtix.tools.common.toolspec.parser.CommandLineParser;
+import org.objectweb.celtix.tools.extensions.jaxws.CustomizationParser;
+import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
-import org.objectweb.celtix.tools.jaxws.CustomizationParser;
-import org.objectweb.celtix.tools.jaxws.JAXWSBinding;
 import org.objectweb.celtix.tools.utils.ProcessorUtil;
 
 public class ServiceProcessor extends AbstractProcessor {

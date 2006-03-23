@@ -1,4 +1,4 @@
-package org.objectweb.celtix.tools.jaxws;
+package org.objectweb.celtix.tools.extensions.jaxws;
 
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
