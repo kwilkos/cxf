@@ -15,13 +15,17 @@ fi
 #
 # add the jdk's tools.jar to the classpath
 #
-if [ -f "${JAVA_HOME}/lib/tools.jar" ]; then
-    tool_path=${JAVA_HOME}/lib/tools.jar
+
+sun_tool_path=${JAVA_HOME}/lib/tools.jar
+
+if [ ! -f $sun_tool_path ]; then
+    echo "Please set JAVA_HOME to point a J2SE 5.0 Development Kit"
+    exit 1
 fi
 
 log_config=$celtix_home/etc/logging.properties 
 
-celtix_classpath=${celtix_jar}:${CLASSPATH}:${tool_path}
+celtix_classpath=${celtix_jar}:${CLASSPATH}:${sun_tool_path}
 
 $JAVA_HOME/bin/java -cp ${celtix_classpath} -Djaxws.home=$celtix_home -Djava.util.logging.config.file=$log_config org.objectweb.celtix.tools.WSDLToJava "$@"
 

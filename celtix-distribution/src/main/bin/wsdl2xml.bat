@@ -1,6 +1,6 @@
 @echo off 
 rem 
-rem  invoke the Celtix wsdl2java tool
+rem  invoke the Celtix wsdl2xml tool
 rem 
 @setlocal
 
@@ -14,7 +14,7 @@ if not exist %CELTIX_HOME%\lib\celtix.jar goto no_celtix_jar
 
 set CELTIX_JAR=%CELTIX_HOME%\lib\celtix.jar
 
-"%JAVA_HOME%\bin\java" -cp %CELTIX_JAR%;%SUN_TOOL_PATH%;%CLASSPATH% -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" org.objectweb.celtix.tools.WSDLToJava %*
+"%JAVA_HOME%\bin\java" -cp %CELTIX_JAR%;%SUN_TOOL_PATH%;%CLASSPATH% -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" org.objectweb.celtix.tools.WSDLToXML %*
 
 @endlocal
 
