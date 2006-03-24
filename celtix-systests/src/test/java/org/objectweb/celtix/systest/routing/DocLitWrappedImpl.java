@@ -1,4 +1,4 @@
-package org.objectweb.celtix.systest.routing.passthrough;
+package org.objectweb.celtix.systest.routing;
 
 import org.objectweb.hello_world_doc_lit.Greeter;
 import org.objectweb.hello_world_doc_lit.PingMeFault;

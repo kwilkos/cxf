@@ -1,15 +1,40 @@
 package org.objectweb.celtix.systest.routing.passthrough;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.systest.common.TestServerBase;
+import org.objectweb.celtix.systest.routing.DocLitWrappedImpl;
 
 public class Server extends TestServerBase {
 
     protected void run()  {
+        QName serviceName = new QName("http://objectweb.org/hello_world_doc_lit", "SOAPService");
+        QName portName = new QName("http://objectweb.org/hello_world_doc_lit", "SOAPPort");
+        
+        String address = "http://localhost:9002/HTTPSoapServiceDestination/HTTPSoapPortDestination";
+        createAndpublishEndpoint(address, serviceName, portName);
+
+        serviceName = new QName("http://objectweb.org/hello_world_doc_lit", "SOAPService");
+        portName = new QName("http://objectweb.org/hello_world_doc_lit", "SOAPPort");
+        address = new String("http://localhost:9003/JMSSoapServiceDestination/JMSSoapPortDestination");
+        createAndpublishEndpoint(address, serviceName, portName);
+    }
+    
+    private void createAndpublishEndpoint(String address, 
+                                          QName serviceName,
+                                          QName portName) {
         Object implementor = new DocLitWrappedImpl();
-        String address = "http://localhost:9003/HTTPSoapServiceDestination/HTTPSoapPortDestination";
-        Endpoint.publish(address, implementor);
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(Endpoint.WSDL_SERVICE, serviceName);
+        props.put(Endpoint.WSDL_PORT, portName);
+        
+        Endpoint ep = Endpoint.create(implementor);
+        ep.setProperties(props);
+        ep.publish(address);
     }
 
     public static void main(String[] args) {
