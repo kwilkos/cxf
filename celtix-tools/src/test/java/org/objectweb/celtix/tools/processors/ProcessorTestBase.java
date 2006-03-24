@@ -2,6 +2,7 @@ package org.objectweb.celtix.tools.processors;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Locale;
 
 import junit.framework.TestCase;
@@ -105,16 +106,19 @@ public class ProcessorTestBase extends TestCase {
     }
     
     protected String getClassPath() {
-        String jarFileDirectory = getClass().getClassLoader().getResource(".").getFile() + "../lib/";
-
-        File file = new File(jarFileDirectory);
-        String[] files = file.list();
-        String classPath = "";
-        for (String str : files) {
-            classPath = classPath + jarFileDirectory + File.separatorChar + str
-                        + System.getProperty("path.separator");
+        ClassLoader loader = getClass().getClassLoader();
+        StringBuffer classPath = new StringBuffer();
+        if (loader instanceof URLClassLoader) {
+            URLClassLoader urlLoader = (URLClassLoader)loader;
+            for (URL url : urlLoader.getURLs()) {
+                String file = url.getFile();
+                if (file.indexOf("junit") == -1) {
+                    classPath.append(url.getFile());
+                    classPath.append(System.getProperty("path.separator"));
+                }
+            }
         }
-        return classPath;
+        return classPath.toString();
     }
       
 }
