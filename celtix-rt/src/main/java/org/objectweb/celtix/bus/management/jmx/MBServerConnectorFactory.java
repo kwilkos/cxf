@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bus.management.jmx;
 
 import java.io.IOException;
-import java.rmi.registry.LocateRegistry;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -82,9 +81,9 @@ public final class MBServerConnectorFactory {
         if (server == null) {
             server = MBeanServerFactory.createMBeanServer(); 
         }
+        // Now registry need to startup outside of the JVM
         // startup the rmi registry locally if we can find the right registry connector
-        
-        try {
+        /*try {
             try {
                 LocateRegistry.createRegistry(9913);
             } catch (Exception ex) {
@@ -94,11 +93,11 @@ public final class MBServerConnectorFactory {
            
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "CREATE_REGISTRY_FAULT_MSG", new Object[]{ex});
-        }     
+        }*/     
         
         // Create the JMX service URL.
         JMXServiceURL url = new JMXServiceURL(serviceUrl);
-
+        
         // Create the connector server now.
         connectorServer = 
             JMXConnectorServerFactory.newJMXConnectorServer(url, environment, server);

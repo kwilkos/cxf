@@ -77,6 +77,7 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
             mcf.setMBeanServer(mbs);
             mcf.setThreaded(mbpt.getJMXConnector().isThreaded());
             mcf.setDaemon(mbpt.getJMXConnector().isDaemon());
+            mcf.setServiceUrl(mbpt.getJMXConnector().getJMXServiceURL());
             try {            
                 mcf.createConnector();
             } catch (IOException ex) {

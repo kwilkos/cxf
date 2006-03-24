@@ -18,7 +18,7 @@
         <!-- attribute values are defaulted -->
         <im:instrumentation>
         <im:InstrumentationEnabled>true</im:InstrumentationEnabled>
-        <im:JMXEnabled>true</im:JMXEnabled>
+        <im:JMXEnabled>false</im:JMXEnabled>
         </im:instrumentation>
     </cm:configItem>
     
@@ -32,7 +32,7 @@
         	<im:JMXConnector>
         		<im:Threaded>false</im:Threaded>
         		<im:Daemon>false</im:Daemon>
-        		<im:JMXSeviceURL>service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi</im:JMXSeviceURL>
+        		<im:JMXServiceURL>service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi</im:JMXServiceURL>
         	</im:JMXConnector>
         </im:MBServer>        
     </cm:configItem>   

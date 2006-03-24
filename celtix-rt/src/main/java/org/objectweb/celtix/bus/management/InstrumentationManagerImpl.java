@@ -85,8 +85,7 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
             itConfiguration.getObject("MBServer");
         
         if (mbserver == null) {
-            mbserver = new MBServerPolicyType();
-            System.out.println(mbserver.getJMXConnector().getJMXSeviceURL());
+            mbserver = new MBServerPolicyType();            
         } 
                
         instrumentationEnabled = instrumentation.isInstrumentationEnabled();

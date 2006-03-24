@@ -16,7 +16,7 @@
 		<xs:sequence>                  
         	<xs:element name="Threaded" type="xs:boolean"/>
         	<xs:element name="Daemon" type="xs:boolean"/>
-        	<xs:element name="JMXSeviceURL" type="xs:string"/>        
+        	<xs:element name="JMXServiceURL" type="xs:string"/>        
         </xs:sequence>
     </xs:complexType>
     

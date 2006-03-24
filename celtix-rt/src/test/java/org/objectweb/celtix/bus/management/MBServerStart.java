@@ -1,15 +1,17 @@
 package org.objectweb.celtix.bus.management;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusException;
 
 
 public class MBServerStart {
     protected MBServerStart() {        
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws BusException {
         // Create the InstrumentationsManager
-        Bus bus = Bus.getCurrent();
+        Bus bus = Bus.init(args);
+        System.out.println("BusID is " + bus.getBusID());
         //AutomaticWorkQueue awq = 
         bus.getWorkQueueManager().getAutomaticWorkQueue();
         //need to use awq to run the programe 
