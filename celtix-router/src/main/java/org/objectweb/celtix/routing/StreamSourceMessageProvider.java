@@ -45,8 +45,6 @@ public class StreamSourceMessageProvider implements Provider<StreamSource> {
         if (doInit) {
             init();
         }
-        assert dList.size() != 1;
-
         //TODO Set Request/Response Context like Transport Attributes.
         //TODO Use Async API        
         return dList.get(0).invoke(request);

@@ -77,10 +77,10 @@ public abstract class AbstractClientServerSetupBase extends TestSetup {
         
         return ok;
     }
-    public boolean launchServer(Class<?> clz, Map<String, String> props) {
+    public boolean launchServer(Class<?> clz, Map<String, String> props, String[] args) {
         boolean ok = false;
         try { 
-            ServerLauncher sl = new ServerLauncher(clz.getName(), props);
+            ServerLauncher sl = new ServerLauncher(clz.getName(), props, args);
             ok = sl.launchServer();
             assertTrue("server failed to launch", ok);
             launchers.add(sl);

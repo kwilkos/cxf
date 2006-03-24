@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class ServerLauncher {
     private boolean serverIsStopped;
     private boolean serverLaunchFailed;
     private Map<String, String> properties;
+    private String[] serverArgs;
 
     private final Mutex mutex = new Mutex();
 
@@ -49,9 +51,10 @@ public class ServerLauncher {
         className = theClassName;
         javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
     }
-    public ServerLauncher(String theClassName, Map<String, String> p) {
+    public ServerLauncher(String theClassName, Map<String, String> p, String[] args) {
         className = theClassName;
         properties = p;
+        serverArgs = args;
         javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
     }
 
@@ -136,7 +139,12 @@ public class ServerLauncher {
                 cls = Class.forName(className);
                 Class<? extends AbstractTestServerBase> svcls = 
                     cls.asSubclass(AbstractTestServerBase.class);
-                inProcessServer = svcls.newInstance();
+                if (null == serverArgs) {
+                    inProcessServer = svcls.newInstance();
+                } else {
+                    Constructor ctor = svcls.getConstructor(serverArgs.getClass());
+                    inProcessServer = (AbstractTestServerBase) ctor.newInstance(new Object[] {serverArgs});
+                }
                 inProcessServer.startInProcess();
                 serverIsReady = true;
             } catch (Exception ex) {
@@ -298,8 +306,14 @@ public class ServerLauncher {
         if (null != loggingPropertiesFile) {
             cmd.add("-Djava.util.logging.config.file=" + loggingPropertiesFile);
         } 
-     
+
         cmd.add(className);
+
+        if (null != serverArgs) {
+            for (String s : serverArgs) {
+                cmd.add(s);
+            }
+        }
 
         return cmd;
     }

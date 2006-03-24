@@ -106,7 +106,6 @@ public class RouterManager {
     public static void main(String[] args) {
         try {
             Bus bus = Bus.init(args);
-            Bus.setCurrent(bus);
             RouterManager rm = new RouterManager(bus);
             rm.init();
             bus.run();

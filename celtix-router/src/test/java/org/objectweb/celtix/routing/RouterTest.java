@@ -83,7 +83,9 @@ public class RouterTest extends TestCase {
         Map<String, Object> props = ep.getProperties();
         assertNotNull("Should have a wsdl model", props);
         assertEquals(sourceSrv,  props.get(Endpoint.WSDL_SERVICE));
-        assertEquals(sourcePort, props.get(Endpoint.WSDL_PORT));
+        QName portName = (QName) props.get(Endpoint.WSDL_PORT);
+        assertEquals(sourceSrv.getNamespaceURI(), portName.getNamespaceURI());
+        assertEquals(sourcePort, portName.getLocalPart());
         Object impl = ep.getImplementor();
         assertTrue("Should be instance of Provider<Source>", impl instanceof Provider);
     }

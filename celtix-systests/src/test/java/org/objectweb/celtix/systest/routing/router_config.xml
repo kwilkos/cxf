@@ -6,28 +6,16 @@
     xmlns:ct="http://celtix.objectweb.org/configuration/types"
     xmlns:rt-conf="http://celtix.objectweb.org/routing/configuration">
 
-  <bean id="celtix1.router"
+  <bean id="celtix-st.router"
         class="org.objectweb.celtix.routing.configuration.spring.ConfigurationBean">
 
       <property name="routesWSDL">
           <value>
               <rt-conf:wsdlUrl>
-                  <rt-conf:url>a.wsdl</rt-conf:url>
+                  <rt-conf:url>/wsdl/router_noimport.wsdl</rt-conf:url>
               </rt-conf:wsdlUrl>
           </value>
       </property>
   </bean>
-
-  <bean id="celtix2.router"
-        class="org.objectweb.celtix.routing.configuration.spring.ConfigurationBean">
-
-      <property name="routesWSDL">
-          <value>
-              <rt-conf:wsdlUrl>
-                  <rt-conf:url>/wsdl/soapheader_test.wsdl</rt-conf:url>
-                  <rt-conf:url>/wsdl/router.wsdl</rt-conf:url>
-              </rt-conf:wsdlUrl>
-          </value>
-      </property>
-  </bean>
+<!--Add another bean id for e.g celtix-st2.router for starting a router with another bus-->
 </beans>

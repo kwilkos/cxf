@@ -55,6 +55,7 @@ public class RouterFactory {
                 RouteType rt = (RouteType)extEl;
                 if (isValidRoute(def, rt)) {
                     Router router = createRouter(def, rt);
+                    router.init();
                     routerList.add(router);
                 } else {
                     //throw new WebServiceException(

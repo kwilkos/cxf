@@ -14,6 +14,8 @@ public class RouterManagerTest extends TestCase {
     private Map<String, Object> properties;
     public void setUp() {
         properties = new HashMap<String, Object>();
+        URL routerConfigFileUrl = getClass().getResource("resources/router_config1.xml");
+        System.setProperty("celtix.config.file", routerConfigFileUrl.toString());        
     }
 
     public void tearDown() throws Exception {
@@ -25,12 +27,9 @@ public class RouterManagerTest extends TestCase {
     }
     
     public void testGetRouterWSDLList() throws Exception {
-        URL routerConfigFileUrl = getClass().getResource("resources/router_config1.xml");
-        System.setProperty("celtix.config.file", routerConfigFileUrl.toString());
         
         properties.put("org.objectweb.celtix.BusId", "celtix1");
         Bus bus = Bus.init(null, properties);
-        Bus.setCurrent(bus);
         
         RouterManager rm = new RouterManager(bus);
         List<String> urlList = rm.getRouteWSDLList();
@@ -40,13 +39,9 @@ public class RouterManagerTest extends TestCase {
     }
 
     public void testInit() throws Exception {
-
-        URL routerConfigFileUrl = getClass().getResource("resources/router_config2.xml");
-        System.setProperty("celtix.config.file", routerConfigFileUrl.toString());
         
         properties.put("org.objectweb.celtix.BusId", "celtix2");
         Bus bus = Bus.init(null, properties);
-        Bus.setCurrent(bus);
         
         TestRouterManager rm = new TestRouterManager(bus);
         rm.init();

@@ -18,12 +18,15 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceProvider;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -47,6 +50,18 @@ public final class EndpointReferenceUtils {
     private static final QName SERVICE_NAME = new QName("http://www.w3.org/2004/08/wsdl", "service");
     private static final QName PORT_NAME = new QName("http://www.w3.org/2004/08/wsdl", "port");
 
+    private static final Transformer XML_TRANSFORMER;
+    static {
+        Transformer transformer = null;
+        try {
+            TransformerFactory tf = TransformerFactory.newInstance();
+            transformer = tf.newTransformer();            
+        } catch (TransformerConfigurationException tce) {
+            throw new WebServiceException("Could not create transformer", tce);
+        }
+        XML_TRANSFORMER = transformer;
+    }
+    
     private EndpointReferenceUtils() {
         // Utility class - never constructed
     }
@@ -146,12 +161,24 @@ public final class EndpointReferenceUtils {
             }
             List<Object> anyList = mt.getAny();
             try {
-                TransformerFactory tf = TransformerFactory.newInstance();
-                Transformer transformer = tf.newTransformer();
                 for (Source source : metadata) {
-                    DOMResult domResult = new DOMResult();
-                    transformer.transform(source, domResult);
-                    Node node =  domResult.getNode().getFirstChild();
+                    Node node = null;
+                    if (!(source instanceof DOMSource)) {
+                        DOMResult domResult = new DOMResult();
+                        domResult.setSystemId(source.getSystemId());
+                        
+                        XML_TRANSFORMER.transform(source, domResult);
+
+                        node = domResult.getNode();
+                    } else {
+                        node = ((DOMSource)node).getNode();
+                    }
+
+                    if (node instanceof Document) {
+                        ((Document)node).setDocumentURI(source.getSystemId());
+                        node =  node.getFirstChild();
+                    }
+
                     while (null != node 
                            && node.getNodeType() != Node.ELEMENT_NODE) {
                         node = node.getNextSibling();

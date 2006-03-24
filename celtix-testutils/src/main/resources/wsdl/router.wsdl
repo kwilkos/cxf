@@ -10,12 +10,12 @@
 	
 	<service name="HTTPSoapServiceSource">
 		<port name="HTTPSoapPortSource" binding="tns1:Greeter_SOAPBinding">
-			<soap:address location="http://localhost:9001"/>
+			<soap:address location="http://localhost:9001/SOAPDocLitService/SoapPort"/>
 		</port>
 	</service>
 	<service name="HTTPSoapServiceDestination">
 		<port name="HTTPSoapPortDestination" binding="tns1:Greeter_SOAPBinding">
-			<soap:address location="http://localhost:9002"/>
+			<soap:address location="http://localhost:9003/HTTPSoapServiceDestination/HTTPSoapPortDestination"/>
 		</port>
 	</service>
 	

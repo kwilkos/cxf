@@ -54,9 +54,8 @@ public class Router {
         
         List<Source> metadata = createMetadata();
         for (SourceType st : stList) {
-            Port p = sourcePortMap.get(st.getService());
-            Map<String, Object> properties = createEndpointProperties(st.getService(), p.getName());
             //TODO Config For Pass Through
+            Port p = sourcePortMap.get(st.getService());
             WsdlPortProvider portProvider = new WsdlPortProvider(p);
             String srcBindingId = (String) portProvider.getObject("bindingId");
             Object implementor = null;
@@ -68,6 +67,9 @@ public class Router {
             }
 
             Endpoint sourceEP = Endpoint.create(srcBindingId, implementor);
+
+            Map<String, Object> properties = 
+                createEndpointProperties(st.getService(), p.getName());            
             sourceEP.setMetadata(metadata);
             sourceEP.setProperties(properties);
             //TODO Set Executor on endpoint.
@@ -105,7 +107,7 @@ public class Router {
     private Map<String, Object> createEndpointProperties(QName serviceName, String portName) {
         Map<String, Object> props = new HashMap<String, Object>(2);
         props.put(Endpoint.WSDL_SERVICE, serviceName);
-        props.put(Endpoint.WSDL_PORT, portName);
+        props.put(Endpoint.WSDL_PORT, new QName(serviceName.getNamespaceURI(), portName));
         return props;
     }
 
