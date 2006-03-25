@@ -15,6 +15,7 @@
 			<xs:element name="configItem" type="tns:configItemType" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="namespace" type="xs:anyURI" use="required"/>
+		<xs:attribute name="parentNamespace" type="xs:anyURI" use="optional"/>
 	</xs:complexType>
 	<xs:complexType name="importType">
 		<xs:attribute name="namespace" type="xs:anyURI" use="required"/>

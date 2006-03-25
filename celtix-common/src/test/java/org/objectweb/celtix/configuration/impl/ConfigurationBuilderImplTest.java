@@ -123,9 +123,71 @@ public class ConfigurationBuilderImplTest extends TestCase {
         assertNull(builder.getConfiguration(HTTP_LISTENER_CONFIGURATION_URI, 
                                             HTTP_LISTENER_CONFIGURATION_ID, parent));
     }
-    
-   
-    
+
+    public void testInvalidParentConfiguration() {
+        String id = "celtix";
+        ConfigurationBuilder builder = new ConfigurationBuilderImpl();
+        ConfigurationMetadataImpl model = new ConfigurationMetadataImpl();
+        model.setNamespaceURI(BUS_CONFIGURATION_URI);
+        model.setParentNamespaceURI(null);
+        builder.addModel(model);
+        model = new ConfigurationMetadataImpl();
+        model.setNamespaceURI(HTTP_LISTENER_CONFIGURATION_URI);
+        model.setParentNamespaceURI(BUS_CONFIGURATION_URI);
+        builder.addModel(model);
+        
+        Configuration parent = builder.buildConfiguration(BUS_CONFIGURATION_URI, id, null);
+        assertNotNull(parent);
+
+        try {
+            builder.buildConfiguration(HTTP_LISTENER_CONFIGURATION_URI, 
+                                       HTTP_LISTENER_CONFIGURATION_ID, null);
+            fail("Did not throw expected exception");
+        } catch (ConfigurationException e) {
+            String expectedErrorMsg = "Configuration " + HTTP_LISTENER_CONFIGURATION_URI
+                + " is not a valid top configuration.";
+            assertEquals("Unexpected exception message", expectedErrorMsg, e.getMessage());
+        } catch (Exception e) {
+            fail("Caught unexpected exception");
+        }
+    }
+
+    /*    
+    public void testInvalidChildConfiguration() {
+        String id = "celtix";
+        ConfigurationBuilder builder = new ConfigurationBuilderImpl();
+        ConfigurationMetadataImpl model = new ConfigurationMetadataImpl();
+        model.setNamespaceURI(BUS_CONFIGURATION_URI);
+        model.setParentNamespaceURI(null);
+        builder.addModel(model);
+        model = new ConfigurationMetadataImpl();
+        model.setNamespaceURI(HTTP_LISTENER_CONFIGURATION_URI);
+        model.setParentNamespaceURI(BUS_CONFIGURATION_URI);
+        builder.addModel(model);
+        
+        Configuration parent = builder.buildConfiguration(BUS_CONFIGURATION_URI, id, null);
+        assertNotNull(parent);
+
+        //build a http configuration that is the child of bus config
+        Configuration wrongParent = builder.buildConfiguration(HTTP_LISTENER_CONFIGURATION_URI, 
+                                       HTTP_LISTENER_CONFIGURATION_ID, parent);
+
+        assertNotNull(parent);
+
+        try {
+            builder.buildConfiguration(HTTP_LISTENER_CONFIGURATION_URI, 
+                                       HTTP_LISTENER_CONFIGURATION_ID, wrongParent);
+            fail("Did not throw expected exception");
+        } catch (ConfigurationException e) {
+            String expectedErrorMsg = "Configuration " + HTTP_LISTENER_CONFIGURATION_URI
+                + " is not a valid child configuration of " + HTTP_LISTENER_CONFIGURATION_URI + ".";
+            assertEquals("Unexpected exception message", expectedErrorMsg, e.getMessage());
+        } catch (Exception e) {
+            fail("Caught unexpected exception");
+        }
+    }
+    */
+
     public void testBuildConfiguration() throws Exception {
                                                        
         String id = "celtix";
