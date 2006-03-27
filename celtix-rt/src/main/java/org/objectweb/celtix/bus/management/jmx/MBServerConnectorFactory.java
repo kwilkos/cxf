@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.management.jmx;
 
 import java.io.IOException;
+import java.rmi.registry.LocateRegistry;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -43,6 +44,30 @@ public final class MBServerConnectorFactory {
         
     }
     
+    private int getURLLocalHostPort(String url) {        
+        int portStart = url.indexOf("localhost") + 10;
+        int portEnd;
+        int port = 0;
+        if (portStart > 0) {
+            portEnd = indexNotOfNumber(url, portStart);
+            if (portEnd > portStart) {
+                final String portString = url.substring(portStart, portEnd);
+                port = Integer.parseInt(portString);               
+            }
+        }
+        return port;
+    }
+    
+    private static int indexNotOfNumber(String str, int index) {
+        int i = 0;
+        for (i = index; i < str.length(); i++) {
+            if (str.charAt(i) < '0' || str.charAt(i) > '9') {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
     public static MBServerConnectorFactory getInstance() {
         if (factory == null) {
             factory = new MBServerConnectorFactory();
@@ -81,22 +106,26 @@ public final class MBServerConnectorFactory {
         if (server == null) {
             server = MBeanServerFactory.createMBeanServer(); 
         }
-        // Now registry need to startup outside of the JVM
-        // startup the rmi registry locally if we can find the right registry connector
-        /*try {
-            try {
-                LocateRegistry.createRegistry(9913);
-            } catch (Exception ex) {
-                // the registry may had been created
-                LocateRegistry.getRegistry(9913);
-            }
-           
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "CREATE_REGISTRY_FAULT_MSG", new Object[]{ex});
-        }*/     
         
         // Create the JMX service URL.
-        JMXServiceURL url = new JMXServiceURL(serviceUrl);
+        JMXServiceURL url = new JMXServiceURL(serviceUrl);       
+        
+        // if the URL is localhost, start up an Registry
+        if (serviceUrl.indexOf("localhost") > -1
+            && url.getProtocol().compareToIgnoreCase("rmi") == 0) {
+            try {
+                int port = getURLLocalHostPort(serviceUrl);
+                try {
+                    LocateRegistry.createRegistry(port);
+                } catch (Exception ex) {
+                    // the registry may had been created
+                    LocateRegistry.getRegistry(port);
+                }
+               
+            } catch (Exception ex) {
+                LOG.log(Level.SEVERE, "CREATE_REGISTRY_FAULT_MSG", new Object[]{ex});
+            }
+        }
         
         // Create the connector server now.
         connectorServer = 
