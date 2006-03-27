@@ -134,6 +134,11 @@ public class HTTPTransportFactory implements TransportFactory {
         return decoupledEndpoint != null;
     }
 
+    protected Bus getBus() {
+        return bus;
+    }
+    
+    
     private void shutdown() {
         if (decoupledURL != null && decoupledEngine != null) {
             try {

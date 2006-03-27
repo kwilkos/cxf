@@ -50,6 +50,10 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
 
     public Configuration getConfiguration(String namespaceUri, String id, Configuration parent) {
+        if (parent == null) {
+            return null;
+        }
+
         Configuration c = parent.getChild(namespaceUri, id);
         if (null == c && null == getModel(namespaceUri)) {
             throw new ConfigurationException(new Message("UNKNOWN_NAMESPACE_EXC", BUNDLE, namespaceUri));

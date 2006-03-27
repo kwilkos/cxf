@@ -6,6 +6,7 @@ import com.sun.java.xml.ns.j2ee.PortComponentHandlerType;
 
 public class PortInfo {
 
+    private String serviceName;
     private String portName;
     private String seiInterfaceName;
     private String wsdlFile;
@@ -45,5 +46,22 @@ public class PortInfo {
         return handlers;
     }
     
+    public String getServiceName() {
+        return serviceName;
+    }
     
+    public void setServiceName(String sn) {
+        serviceName = sn;        
+    }
+
+    /*
+    private String serviceName;
+    private String portName;
+    private String seiInterfaceName;
+    private String wsdlFile;
+    private String servletLink;
+     */
+    public String toString() {
+        return "[" + serviceName + ":" + portName + ":" + seiInterfaceName + ":" + wsdlFile + "]";
+    }
 }

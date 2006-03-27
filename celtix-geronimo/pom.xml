@@ -42,11 +42,11 @@
             <artifactId>celtix-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- dependency>
+        <dependency>
             <groupId>org.objectweb.celtix</groupId>
             <artifactId>celtix-rt</artifactId>
             <version>${project.version}</version>
-        </dependency -->
+        </dependency>
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
             <artifactId>celtix-testutils</artifactId>

@@ -5,7 +5,7 @@
 
   <webservice-description>
         <webservice-description-name>HelloService</webservice-description-name>
-	<wsdl-file>WEB-INF/wsdl/hello_world.wsdl</wsdl-file>
+	<wsdl-file>file:./wsdl/hello_world.wsdl</wsdl-file>
 	<jaxrpc-mapping-file>WEB-INF/mapping.xml</jaxrpc-mapping-file>
         <port-component>
             <port-component-name>Hello</port-component-name>

@@ -3,7 +3,7 @@
     <fileset name="all" enabled="false" check-config-name="Sun Checks" local="false">
         <file-match-pattern match-pattern="." include-pattern="true"/>
     </fileset>
-    <fileset name="all" enabled="true" check-config-name="Celtix Checks" local="false">
+    <fileset name="all" enabled="true" check-config-name="Celtix Checkstyle" local="false">
         <file-match-pattern match-pattern=".java$" include-pattern="true"/>
     </fileset>
 </fileset-config>
