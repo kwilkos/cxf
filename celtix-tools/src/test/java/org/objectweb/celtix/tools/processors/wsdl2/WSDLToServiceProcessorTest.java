@@ -1,11 +1,16 @@
 package org.objectweb.celtix.tools.processors.wsdl2;
 
 import java.io.File;
-import java.io.FileReader;
+import java.util.Iterator;
+
+import javax.wsdl.Service;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.tools.WSDLToService;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
+import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
 import org.objectweb.celtix.tools.processors.ProcessorTestBase;
 
 public class WSDLToServiceProcessorTest extends ProcessorTestBase {
@@ -16,90 +21,162 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
     }
 
     public void testNewService() throws Exception {
-        String[] args = new String[] {"-transport", "http", "-e", "serviceins", "-p", "portins",
-                                      "-n", "Greeter_SOAPBinding", "-a",
+        String[] args = new String[] {"-transport", "http", "-e", "serviceins", "-p", "portins", "-n",
+                                      "Greeter_SOAPBinding", "-a",
                                       "http://localhost:9000/newservice/newport", "-d",
-                                      output.getCanonicalPath(),
-                                      getLocation("/wsdl/hello_world.wsdl")};
+                                      output.getCanonicalPath(), getLocation("/wsdl/hello_world.wsdl")};
         WSDLToService.main(args);
 
         File outputFile = new File(output, "hello_world-service.wsdl");
         assertTrue("New wsdl file is not generated", outputFile.exists());
-        FileReader fileReader = new FileReader(outputFile);
-        char[] chars = new char[100];
-        int size = 0;
-        StringBuffer sb = new StringBuffer();
-        while (size < outputFile.length()) {
-            int readLen = fileReader.read(chars);
-            sb.append(chars, 0, readLen);
-            size = size + readLen;
+        WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
+        processor.setEnvironment(env);
+        try {
+            processor.parseWSDL(outputFile.getAbsolutePath());
+            Service service = processor.getWSDLDefinition().getService(
+                                                                       new QName(processor
+                                                                           .getWSDLDefinition()
+                                                                           .getTargetNamespace(),
+                                                                                 "serviceins"));
+            if (service == null) {
+                fail("Element wsdl:service serviceins Missed!");
+            }
+            Iterator it = service.getPort("portins").getExtensibilityElements().iterator();
+            if (service == null) {
+                fail("Element wsdl:port portins Missed!");
+            }
+            boolean found = false;
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if (obj instanceof SOAPAddress) {
+                    SOAPAddress soapAddress = (SOAPAddress)obj;
+                    if (soapAddress.getLocationURI() != null
+                        && soapAddress.getLocationURI().equals("http://localhost:9000/newservice/newport")) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                fail("Element soap:address of service port Missed!");
+            }
+        } catch (ToolException e) {
+            fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
         }
-
-        String serviceString = new String(sb);
-        assertTrue(serviceString.indexOf("<wsdl:service name=\"serviceins\">") >= 0);
-        assertTrue(serviceString
-            .indexOf("<wsdl:port name=\"portins\" binding=\"tns:Greeter_SOAPBinding\">") >= 0);
-        assertTrue(serviceString
-            .indexOf("<soap:address location=\"http://localhost:9000/newservice/newport\"/>") >= 0);
     }
 
     public void testDefaultLocation() throws Exception {
 
-        String[] args = new String[] {"-transport", "http", "-e", "serviceins", "-p", "portins",
-                                      "-n", "Greeter_SOAPBinding", "-d", output.getCanonicalPath(),
+        String[] args = new String[] {"-transport", "http", "-e", "serviceins", "-p", "portins", "-n",
+                                      "Greeter_SOAPBinding", "-d", output.getCanonicalPath(),
                                       getLocation("/wsdl/hello_world.wsdl")};
         WSDLToService.main(args);
 
         File outputFile = new File(output, "hello_world-service.wsdl");
         assertTrue("New wsdl file is not generated", outputFile.exists());
-        FileReader fileReader = new FileReader(outputFile);
-        char[] chars = new char[100];
-        int size = 0;
-        StringBuffer sb = new StringBuffer();
-        while (size < outputFile.length()) {
-            int readLen = fileReader.read(chars);
-            sb.append(chars, 0, readLen);
-            size = size + readLen;
+        WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
+        processor.setEnvironment(env);
+        try {
+            processor.parseWSDL(outputFile.getAbsolutePath());
+            Service service = processor.getWSDLDefinition().getService(
+                                                                       new QName(processor
+                                                                           .getWSDLDefinition()
+                                                                           .getTargetNamespace(),
+                                                                                 "serviceins"));
+            if (service == null) {
+                fail("Element wsdl:service serviceins Missed!");
+            }
+            Iterator it = service.getPort("portins").getExtensibilityElements().iterator();
+            if (service == null) {
+                fail("Element wsdl:port portins Missed!");
+            }
+            boolean found = false;
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if (obj instanceof SOAPAddress) {
+                    SOAPAddress soapAddress = (SOAPAddress)obj;
+                    if (soapAddress.getLocationURI() != null
+                        && soapAddress.getLocationURI().equals("http://localhost:9000/serviceins/portins")) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                fail("Element soap:address of service port Missed!");
+            }
+        } catch (ToolException e) {
+            fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
         }
-        String serviceString = new String(sb);
-        assertTrue(serviceString
-            .indexOf("<soap:address location=\"http://localhost:9000/serviceins/portins\"/>") >= 0);
     }
 
     public void testJMSNewService() throws Exception {
-        String[] args = new String[] {"-transport", "jms", "-e", "serviceins", "-p", "portins",
-                                      "-n", "HelloWorldPortBinding", 
-                                      "-jpu", "tcp://localhost:61616", 
-                                      "-jcf", "org.activemq.jndi.ActiveMQInitialContextFactory", 
-                                      "-jfn", "ConnectionFactory", 
-                                      "-jdn", "dynamicQueues/test.celtix.jmstransport.queue", 
-                                      "-jmt", "text", 
-                                      "-jmc", "false", 
-                                      "-jsn", "Celtix_Queue_subscriber", 
-                                      "-d", output.getCanonicalPath(),
-                                      getLocation("/wsdl/jms_test.wsdl")};
+        String[] args = new String[] {"-transport", "jms", "-e", "serviceins", "-p", "portins", "-n",
+                                      "HelloWorldPortBinding", "-jpu", "tcp://localhost:61616", "-jcf",
+                                      "org.activemq.jndi.ActiveMQInitialContextFactory", "-jfn",
+                                      "ConnectionFactory", "-jdn",
+                                      "dynamicQueues/test.celtix.jmstransport.queue", "-jmt", "text", "-jmc",
+                                      "false", "-jsn", "Celtix_Queue_subscriber", "-d",
+                                      output.getCanonicalPath(), getLocation("/wsdl/jms_test.wsdl")};
         WSDLToService.main(args);
         File outputFile = new File(output, "jms_test-service.wsdl");
         assertTrue("New wsdl file is not generated", outputFile.exists());
-        FileReader fileReader = new FileReader(outputFile);
-        char[] chars = new char[100];
-        int size = 0;
-        StringBuffer sb = new StringBuffer();
-        while (size < outputFile.length()) {
-            int readLen = fileReader.read(chars);
-            sb.append(chars, 0, readLen);
-            size = size + readLen;
+        WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
+        processor.setEnvironment(env);
+        try {
+            processor.parseWSDL(outputFile.getAbsolutePath());
+            Service service = processor.getWSDLDefinition().getService(
+                                                                       new QName(processor
+                                                                           .getWSDLDefinition()
+                                                                           .getTargetNamespace(),
+                                                                                 "serviceins"));
+            if (service == null) {
+                fail("Element wsdl:service serviceins Missed!");
+            }
+            Iterator it = service.getPort("portins").getExtensibilityElements().iterator();
+            if (service == null) {
+                fail("Element wsdl:port portins Missed!");
+            }
+            boolean found = false;
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if (obj instanceof JMSAddress) {
+                    JMSAddress jmsAddress = (JMSAddress)obj;
+                    if (!(jmsAddress.getDestinationStyle() != null && jmsAddress.getDestinationStyle()
+                        .equals("queue"))) {
+                        break;
+                    }
+                    if (!(jmsAddress.getDurableSubscriberName() != null && jmsAddress
+                        .getDurableSubscriberName().equals("Celtix_Queue_subscriber"))) {
+                        break;
+                    }
+                    if (!(jmsAddress.getInitialContextFactory() != null && jmsAddress
+                        .getInitialContextFactory()
+                        .equals("org.activemq.jndi.ActiveMQInitialContextFactory"))) {
+                        break;
+                    }
+                    if (!(jmsAddress.getJndiDestinationName() != null && jmsAddress.getJndiDestinationName()
+                        .equals("dynamicQueues/test.celtix.jmstransport.queue"))) {
+                        break;
+                    }
+                    if (!(jmsAddress.getJndiProviderURL() != null && jmsAddress.getJndiProviderURL()
+                        .equals("tcp://localhost:61616"))) {
+                        break;
+                    }
+                    if (!(jmsAddress.getMessageType() != null && jmsAddress.getMessageType().equals("text") 
+                        && !jmsAddress.isUseMessageIDAsCorrelationID())) {
+                        break;
+                    }
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                fail("Element jms:address of service port Missed!");
+            }
+        } catch (ToolException e) {
+            fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
         }
-        String serviceString = new String(sb);
-        assertTrue(serviceString.indexOf("<jms:address " 
-                        + "destinationStyle=\"queue\" " 
-                        + "initialContextFactory=\"org.activemq.jndi.ActiveMQInitialContextFactory\" "  
-                        + "jndiConnectionFactoryName=\"ConnectionFactory\" "  
-                        + "messageType=\"text\" " 
-                        + "jndiProviderURL=\"tcp://localhost:61616\" "  
-                        + "jndiDestinationName=\"dynamicQueues/test.celtix.jmstransport.queue\" " 
-                        + "durableSubscriberName=\"Celtix_Queue_subscriber\" " 
-                        + "useMessageIDAsCorrelationID=\"false\" />") >= 0);
     }
 
     public void testServiceExist() throws Exception {
@@ -118,9 +195,8 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
             processor.process();
             fail("Do not catch expected tool exception for service and port exist");
         } catch (Exception e) {
-            if (!(e instanceof ToolException
-                    && e.toString().indexOf(
-                        "Input service and port already exist in imported contract") >= 0)) {
+            if (!(e instanceof ToolException && e.toString()
+                .indexOf("Input service and port already exist in imported contract") >= 0)) {
                 fail("Do not catch tool exception for service and port exist, "
                      + "catch other unexpected exception!");
             }
@@ -143,8 +219,8 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
             processor.process();
             fail("Do not catch expected tool exception for  binding not exist!");
         } catch (Exception e) {
-            if (!(e instanceof ToolException
-                    && e.toString().indexOf("Input binding does not exist in imported contract") >= 0)) {
+            if (!(e instanceof ToolException && e.toString()
+                .indexOf("Input binding does not exist in imported contract") >= 0)) {
                 fail("Do not catch tool exception for binding not exist, "
                      + "catch other unexpected exception!");
             }

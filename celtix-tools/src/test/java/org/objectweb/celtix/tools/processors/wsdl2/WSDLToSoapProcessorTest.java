@@ -1,85 +1,168 @@
 package org.objectweb.celtix.tools.processors.wsdl2;
 
 import java.io.File;
-import java.io.FileReader;
+import java.util.Iterator;
+
+import javax.wsdl.Binding;
+import javax.wsdl.BindingFault;
+import javax.wsdl.BindingInput;
+import javax.wsdl.BindingOperation;
+import javax.wsdl.extensions.soap.SOAPBinding;
+import javax.wsdl.extensions.soap.SOAPBody;
+import javax.wsdl.extensions.soap.SOAPFault;
+import javax.wsdl.extensions.soap.SOAPOperation;
+import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.tools.WSDLToSoap;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.processors.ProcessorTestBase;
 
-public class WSDLToSoapProcessorTest
-    extends ProcessorTestBase {
+public class WSDLToSoapProcessorTest extends ProcessorTestBase {
 
     public void setUp() throws Exception {
         super.setUp();
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
     }
-    
+
     public void testDocLitWithFault() throws Exception {
-        String[] args = new String[] {"-i", "Greeter", "-d",
-                                      output.getCanonicalPath(),
+        String[] args = new String[] {"-i", "Greeter", "-d", output.getCanonicalPath(),
                                       getLocation("/wsdl/hello_world_doc_lit.wsdl")};
         WSDLToSoap.main(args);
 
         File outputFile = new File(output, "hello_world_doc_lit-soapbinding.wsdl");
         assertTrue("New wsdl file is not generated", outputFile.exists());
-        FileReader fileReader = new FileReader(outputFile);
-        char[] chars = new char[100];
-        int size = 0;
-        StringBuffer sb = new StringBuffer();
-        while (size < outputFile.length()) {
-            int readLen = fileReader.read(chars);
-            sb.append(chars, 0, readLen);
-            size = size + readLen;
+        WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
+        processor.setEnvironment(env);
+        try {
+            processor.parseWSDL(outputFile.getAbsolutePath());
+            Binding binding = processor.getWSDLDefinition().getBinding(
+                                                                       new QName(processor
+                                                                           .getWSDLDefinition()
+                                                                           .getTargetNamespace(),
+                                                                                 "Greeter_Binding"));
+            if (binding == null) {
+                fail("Element wsdl:binding Greeter_Binding Missed!");
+            }
+            Iterator it = binding.getExtensibilityElements().iterator();
+            boolean found = false;
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if (obj instanceof SOAPBinding 
+                    && ((SOAPBinding)obj).getStyle().equalsIgnoreCase("document")) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                fail("Element soap:binding Missed!");
+            }
+            BindingOperation bo = binding.getBindingOperation("pingMe", null, null);
+            if (bo == null) {
+                fail("Element <wsdl:operation name=\"pingMe\"> Missed!");
+            }
+            it = bo.getExtensibilityElements().iterator();
+            found = false;
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if (obj instanceof SOAPOperation
+                    && ((SOAPOperation)obj).getStyle().equalsIgnoreCase("document")) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                fail("Element soap:operation Missed!");
+            }
+            BindingFault fault = bo.getBindingFault("pingMeFault");
+            if (fault == null) {
+                fail("Element <wsdl:fault name=\"pingMeFault\"> Missed!");
+            }
+            it = fault.getExtensibilityElements().iterator();
+            found = false;
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if (obj instanceof SOAPFault) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                fail("Element soap:fault Missed!");
+            }
+        } catch (ToolException e) {
+            fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
         }
-        String bindingString = new String(sb);
-        assertTrue(bindingString.indexOf("<wsdl:binding name=\"Greeter_Binding\" " 
-                                         + "type=\"tns:Greeter\">") >= 0);
-        assertTrue(bindingString.indexOf("<soap:binding style=\"document\" transport=\"http:/" 
-                                         + "/schemas.xmlsoap.org/soap/http\"/>") >= 0);
-        assertTrue(bindingString.indexOf("<wsdl:operation name=\"pingMe\">") >= 0);
-        assertTrue(bindingString.indexOf("<soap:operation soapAction=\"\" style=\"document\"/>") >= 0);
-        assertTrue(bindingString.indexOf("<wsdl:fault name=\"pingMeFault\">") >= 0);
-        assertTrue(bindingString.indexOf("<soap:fault name=\"pingMeFault\" " 
-                                         + "use=\"literal\"/>") >= 0);
-        
     }
 
     public void testRpcLitWithoutFault() throws Exception {
         String[] args = new String[] {"-i", "GreeterRPCLit", "-n",
                                       "http://objectweb.org/hello_world_rpclit_test", "-b",
-                                      "Greeter_SOAPBinding_NewBinding", "-style", "rpc", "-use",
-                                      "literal", "-d", output.getCanonicalPath(), "-o",
+                                      "Greeter_SOAPBinding_NewBinding", "-style", "rpc", "-use", "literal",
+                                      "-d", output.getCanonicalPath(), "-o",
                                       "hello_world_rpc_lit_newbinding.wsdl",
                                       getLocation("/wsdl/hello_world_rpc_lit.wsdl")};
         WSDLToSoap.main(args);
 
         File outputFile = new File(output, "hello_world_rpc_lit_newbinding.wsdl");
         assertTrue("New wsdl file is not generated", outputFile.exists());
-        FileReader fileReader = new FileReader(outputFile);
-        char[] chars = new char[100];
-        int size = 0;
-        StringBuffer sb = new StringBuffer();
-        while (size < outputFile.length()) {
-            int readLen = fileReader.read(chars);
-            sb.append(chars, 0, readLen);
-            size = size + readLen;
+
+        WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
+        processor.setEnvironment(env);
+        try {
+            processor.parseWSDL(outputFile.getAbsolutePath());
+            Binding binding = processor.getWSDLDefinition()
+                .getBinding(
+                            new QName(processor.getWSDLDefinition().getTargetNamespace(),
+                                      "Greeter_SOAPBinding_NewBinding"));
+            if (binding == null) {
+                fail("Element wsdl:binding Greeter_SOAPBinding_NewBinding Missed!");
+            }
+            Iterator it = binding.getExtensibilityElements().iterator();
+            boolean found = false;
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if (obj instanceof SOAPBinding && ((SOAPBinding)obj).getStyle().equalsIgnoreCase("rpc")) {
+                    found = true;
+                    break;
+
+                }
+            }
+            if (!found) {
+                fail("Element soap:binding style=rpc Missed!");
+            }
+            BindingOperation bo = binding.getBindingOperation("sendReceiveData", null, null);
+            if (bo == null) {
+                fail("Element <wsdl:operation name=\"sendReceiveData\"> Missed!");
+            }
+            it = bo.getExtensibilityElements().iterator();
+            found = false;
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if (obj instanceof SOAPOperation && ((SOAPOperation)obj).getStyle().equalsIgnoreCase("rpc")) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                fail("Element soap:operation style=rpc Missed!");
+            }
+            BindingInput bi = bo.getBindingInput();
+            it = bi.getExtensibilityElements().iterator();
+            found = false;
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if (obj instanceof SOAPBody && ((SOAPBody)obj).getUse().equalsIgnoreCase("literal")) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                fail("Element soap:body use=literal Missed!");
+            }
+        } catch (ToolException e) {
+            fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
         }
-        String bindingString = new String(sb);
-        assertTrue(bindingString
-            .indexOf("<wsdl:binding name=\"Greeter_SOAPBinding_NewBinding\" " 
-                     + "type=\"tns:GreeterRPCLit\">") >= 0);
-        assertTrue(bindingString.indexOf("<soap:binding style=\"rpc\" transport=\"http:/"
-                                         + "/schemas.xmlsoap.org/soap/http\"/>") >= 0);
-        assertTrue(bindingString.indexOf("<wsdl:operation name=\"sendReceiveData\">") >= 0);
-        assertTrue(bindingString.indexOf("<soap:operation soapAction=\"\" style=\"rpc\"/>") >= 0);
-        assertTrue(bindingString.indexOf("<wsdl:input name=\"SendReceiveDataRequest\">") >= 0);
-        assertTrue(bindingString.indexOf("<soap:body use=\"literal\" namespace=\"http:/" 
-                                         + "/objectweb.org/hello_world_rpclit_test\"/>") >= 0);
-        assertTrue(bindingString.indexOf("<wsdl:output name=\"SendReceiveDataResponse\">") >= 0);
-        assertTrue(bindingString.indexOf("<soap:body use=\"literal\" namespace=\"http:/" 
-                                         + "/objectweb.org/hello_world_rpclit_test\"/>") >= 0);
     }
 
     public void testBindingExist() throws Exception {
@@ -94,8 +177,7 @@ public class WSDLToSoapProcessorTest
         } catch (Exception e) {
             if (!(e instanceof ToolException && e.toString()
                 .indexOf("Input binding already exist in imported contract") >= 0)) {
-                fail("Do not catch tool exception for binding exist, "
-                     + "catch other unexpected exception!");
+                fail("Do not catch tool exception for binding exist, " + "catch other unexpected exception!");
             }
         }
     }
@@ -131,8 +213,7 @@ public class WSDLToSoapProcessorTest
         } catch (Exception e) {
             if (!(e instanceof ToolException && e.toString()
                 .indexOf("For rpc style binding, soap binding namespace (-n) must be provided") >= 0)) {
-                fail("Do not catch tool exception for binding exist, "
-                     + "catch other unexpected exception!");
+                fail("Do not catch tool exception for binding exist, " + "catch other unexpected exception!");
             }
         }
     }
