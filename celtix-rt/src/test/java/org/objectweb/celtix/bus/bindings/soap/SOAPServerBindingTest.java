@@ -252,6 +252,24 @@ public class SOAPServerBindingTest extends TestCase {
         assertNotNull(serverTransport.getOutputStreamContext());
         assertFalse("Should not have a SOAP Fault", serverTransport.getOutputStreamContext().isFault());
     }
+   
+    public void testDocLitBareNoParamDispatch() throws Exception {
+        DocLitBareImpl dc = new DocLitBareImpl();
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(dc);
+        TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
+        TestServerTransport serverTransport = new TestServerTransport(bus, epr);
+        TestInputStreamContext inCtx = new TestInputStreamContext(null);
+        
+        InputStream is = getClass().getResourceAsStream("resources/EmptyBody.xml");
+        inCtx.setInputStream(is);
+        serverBinding.testDispatch(inCtx, serverTransport);
+        is.close();
+        
+        assertEquals(dc.getClass().getInterfaces()[0], serverBinding.getInvokedMethod().getDeclaringClass());
+        assertEquals(1, dc.getBareNoParamCount());
+        assertNotNull(serverTransport.getOutputStreamContext());
+        assertFalse("Should not have a SOAP Fault", serverTransport.getOutputStreamContext().isFault());
+    }
     
     public void testUserFaultDispatch() throws Exception {
         TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());

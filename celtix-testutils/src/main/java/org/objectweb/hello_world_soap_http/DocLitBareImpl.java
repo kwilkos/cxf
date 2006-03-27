@@ -9,6 +9,7 @@ import org.objectweb.hello_world_doc_lit_bare.types.TradePriceData;
 public class DocLitBareImpl implements PutLastTradedPricePortType {
     int sayHiCount;
     int putLastTradedPriceCount;
+    int bareNoParamCallCount;
     
     public void sayHi(Holder<TradePriceData> inout) {
         ++sayHiCount;
@@ -26,5 +27,14 @@ public class DocLitBareImpl implements PutLastTradedPricePortType {
     
     public int getPutLastTradedPriceCount() {
         return putLastTradedPriceCount; 
-    }    
+    }
+    
+    public String bareNoParam() {
+        bareNoParamCallCount++;
+        return "testSuccess";
+    }
+    
+    public int getBareNoParamCount() {
+        return bareNoParamCallCount;
+    }
 }

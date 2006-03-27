@@ -12,5 +12,9 @@ public class PutLastTradedPriceImpl implements PutLastTradedPricePortType {
         System.out.println("-----TradePriceData TickerSymbol : ----- " + body.getTickerSymbol());
 
     }
+    
+    public String bareNoParam() {
+        return "testResponse";
+    }
    
 }

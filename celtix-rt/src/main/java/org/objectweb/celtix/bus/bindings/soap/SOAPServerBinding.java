@@ -67,7 +67,11 @@ public class SOAPServerBinding extends AbstractServerBinding {
             } else {
                 //DOC Stylle, Literal Use 
                 NodeList nl = msg.getSOAPBody().getChildNodes();
-                boolean matchFound = false;
+                
+                NodeList hl = null;
+                if (msg.getSOAPHeader() != null) {
+                    hl = msg.getSOAPHeader().getChildNodes();
+                }
                 
                 for (Class<?> cl : classList) {
                     for (Method m : cl.getMethods()) {
@@ -82,36 +86,18 @@ public class SOAPServerBinding extends AbstractServerBinding {
                             && soapAnnotationMethod.parameterStyle() == SOAPBinding.ParameterStyle.BARE) {
                             //BARE ParameterStyle
                             Annotation[][] pa = m.getParameterAnnotations();
-                            if (null == pa
-                                || pa.length == 0) {
-                                continue;
-                            }
-
-                            int nodeIdx = 0;
-                            for (Annotation[] a : pa) {
-                                WebParam param = helper.getWebParamAnnotation(a);
-                                if (null == param
-                                    || param.mode() == WebParam.Mode.OUT
-                                    || nodeIdx >= nl.getLength()) {
-                                    break;
-                                }
-                                Node n = nl.item(nodeIdx);
-                                while (n.getNodeType() != Node.ELEMENT_NODE) {
-                                    n = nl.item(++nodeIdx);
-                                }
-                                if (n.getLocalName().equals(param.name()) 
-                                    && n.getNamespaceURI().equals(param.targetNamespace())) {
-                                    matchFound = true;
-                                    ++nodeIdx;
-                                } else {
-                                    matchFound = false;
-                                    break;
-                                }
-                            }
-
-                            if (matchFound) {
+                            if (pa.length == 0 && nl.getLength() == 0 
+                                && (hl != null && hl.getLength() == 0)) {
                                 return m;
                             }
+
+                            //TODO: Following logic needs to be changed to check the header list also.
+                            //
+                            
+                            if (matchParamsForDocLitBare(pa, nl, hl)) {
+                                return m;
+                            }
+
                         } else {
                             //WRAPPED Style
                             Node node = NodeUtils.getChildElementNode(msg.getSOAPBody());
@@ -139,6 +125,46 @@ public class SOAPServerBinding extends AbstractServerBinding {
         }
         
         return op;
+    }
+    
+    public boolean matchParamsForDocLitBare(Annotation[][] pa, NodeList bodyList, NodeList headerList) {
+        int nodeIdx = 0;
+        boolean matchFound = false;
+        NodeList matchingList = bodyList;
+        
+        for (Annotation[] a : pa) {
+            WebParam param = helper.getWebParamAnnotation(a);
+            
+            if (param.header()) {
+                if (headerList != null) {
+                    matchingList = headerList;    
+                } else {
+                    return matchFound;
+                }
+            }
+            
+            if (null == param
+                || param.mode() == WebParam.Mode.OUT
+                || nodeIdx >= matchingList.getLength()) {
+                break;
+            }
+            
+            Node n = matchingList.item(nodeIdx);
+            while (n.getNodeType() != Node.ELEMENT_NODE) {
+                n = matchingList.item(++nodeIdx);
+            }
+            
+            if (n.getLocalName().equals(param.name()) 
+                && n.getNamespaceURI().equals(param.targetNamespace())) {
+                matchFound = true;
+                ++nodeIdx;
+            } else {
+                matchFound = false;
+                break;
+            }
+        }
+
+        return matchFound;
     }
     
     public boolean isBindingCompatible(String address) {
