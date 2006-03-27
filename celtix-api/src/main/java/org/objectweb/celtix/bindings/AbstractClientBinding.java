@@ -206,7 +206,9 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
 
                 TransportFactory factory = bus.getTransportFactoryManager()
                     .getTransportFactory(el.getElementType().getNamespaceURI());
-                factory.setResponseCallback(getResponseCorrelator());
+                if (getBindingImpl().getHandlerChain(true).size() > 0) {
+                    factory.setResponseCallback(getResponseCorrelator());
+                }
                 ret = factory.createClientTransport(ref);
             }
         } catch (BusException ex) {

@@ -11,6 +11,7 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
+import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
@@ -19,6 +20,7 @@ import org.objectweb.celtix.bus.bindings.TestInputStreamContext;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -48,14 +50,14 @@ public class RMProxyTest extends TestCase {
         TestInputStreamContext istreamCtx = new TestInputStreamContext();
         istreamCtx.setInputStream(is);
         ct.setInputStreamMessageContext(istreamCtx);
-
-        RMHandler handler = EasyMock.createMock(RMHandler.class);
-        Configuration config = EasyMock.createMock(Configuration.class);        
+        
+        IMocksControl control = EasyMock.createNiceControl();
+        RMHandler handler = control.createMock(RMHandler.class);
         handler.getBinding();
         EasyMock.expectLastCall().andReturn(binding);
-        EasyMock.replay(handler);
+        control.replay();
         RMSource source = new RMSource(handler);
-        EasyMock.reset(handler);
+        control.reset();
         
         handler.getBinding();
         EasyMock.expectLastCall().andReturn(binding);       
@@ -64,16 +66,29 @@ public class RMProxyTest extends TestCase {
             EasyMock.expectLastCall().andReturn(binding);
         }
         handler.getConfiguration();
+        Configuration config = control.createMock(Configuration.class);
         EasyMock.expectLastCall().andReturn(config);
+        SourcePolicyType sp = control.createMock(SourcePolicyType.class);
         config.getObject(SourcePolicyType.class, "sourcePolicies");
-        EasyMock.expectLastCall().andReturn(null);
+        EasyMock.expectLastCall().andReturn(sp);
+        sp.isIncludeOffer();
+        EasyMock.expectLastCall().andReturn(false);
         
-        EasyMock.replay(handler);
-        EasyMock.replay(config);
+        org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType replyToEPR = 
+            control.createMock(org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType.class);
+        AttributedURI replyToAddress = control.createMock(AttributedURI.class);
+        replyToEPR.getAddress();
+        EasyMock.expectLastCall().andReturn(replyToAddress);
+        replyToAddress.getValue();
+        EasyMock.expectLastCall().andReturn(Names.WSA_NONE_ADDRESS);  
+        
+        control.replay();
 
         RMProxy proxy = new RMProxy(handler);
 
-        proxy.createSequence(source);
+        proxy.createSequence(source, replyToEPR, null);
+        
+        control.verify();
 
     }
     

@@ -56,11 +56,19 @@ public class RMServant {
         
         OfferType offer = cs.getOffer();
         if (null != offer) {
-            System.out.println(offer);
             AcceptType accept = RMUtils.getWSRMFactory().createAcceptType();
-            if (dp.isAcceptOffers()) {                
+            if (dp.isAcceptOffers()) {
+                RMSource source = destination.getHandler().getSource();
+                LOG.fine("Accepting inbound sequence offer");
                 accept.setAcksTo(RMUtils.createReference(to.getValue()));
+                Sequence seq = new Sequence(offer.getIdentifier(), source, offer.getExpires(), csr
+                    .getIdentifier());
+                source.addSequence(seq);
+                source.setCurrent(csr.getIdentifier(), seq);      
+                LOG.fine("Making offered sequence the current sequence for responses to "
+                         + csr.getIdentifier().getValue());
             } else {
+                LOG.fine("Refusing inbound sequence offer"); 
                 accept.setAcksTo(RMUtils.createReference(RMUtils.getAddressingConstants().getNoneURI()));
             }
             csr.setAccept(accept);

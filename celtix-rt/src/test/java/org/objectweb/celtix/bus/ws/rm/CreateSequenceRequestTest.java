@@ -9,12 +9,14 @@ import javax.xml.ws.handler.Handler;
 
 import junit.framework.TestCase;
 
+import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
+import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.OfferType;
@@ -28,6 +30,7 @@ public class CreateSequenceRequestTest extends TestCase {
     private AbstractBindingBase binding;
     private HandlerChainInvoker hci;
     private SourcePolicyType sp;
+    private IMocksControl control;
     
     static {
         Duration d = null;
@@ -42,8 +45,9 @@ public class CreateSequenceRequestTest extends TestCase {
     
     public void setUp() {
         objectCtx = new ObjectMessageContextImpl(); 
-        source = EasyMock.createMock(RMSource.class);
-        binding = EasyMock.createMock(AbstractBindingBase.class);
+        control = EasyMock.createNiceControl();
+        source = control.createMock(RMSource.class);
+        binding = control.createMock(AbstractBindingBase.class);
         hci = new HandlerChainInvoker(new ArrayList<Handler>());
         sp = RMUtils.getWSRMConfFactory().createSourcePolicyType();
         
@@ -58,10 +62,15 @@ public class CreateSequenceRequestTest extends TestCase {
     
     public void testDefaultConstruction() {     
         
-        EasyMock.replay(source);
-        EasyMock.replay(binding);
+        Identifier offeredSid = RMUtils.getWSRMFactory().createIdentifier();
+        source.generateSequenceIdentifier();        
+        EasyMock.expectLastCall().andReturn(offeredSid);
         
-        CreateSequenceRequest req = new CreateSequenceRequest(binding, source);
+        control.replay();    
+        EndpointReferenceType replyTo = 
+            RMUtils.createReference(RMUtils.getAddressingConstants().getAnonymousURI());
+        
+        CreateSequenceRequest req = new CreateSequenceRequest(binding, source, replyTo);
         assertNotNull(req);
         
         assertNotNull(CreateSequenceRequest.createDataBindingCallback());
@@ -74,25 +83,28 @@ public class CreateSequenceRequestTest extends TestCase {
         assertEquals(RMUtils.getAddressingConstants().getAnonymousURI(),
                      cs.getAcksTo().getAddress().getValue());
         assertNull(cs.getExpires());
-        assertNull(cs.getOffer());
         
-        EasyMock.verify(source);
-        EasyMock.verify(binding);
+        // default is to include offers
+        
+        OfferType offer = cs.getOffer();
+        assertNotNull(offer);
+        assertNull(offer.getExpires());
+        assertNotNull(offer.getIdentifier());
+        
+        control.verify();
     }
     
     public void testNonDefaultConstruction() {     
-        Identifier offeredSid = RMUtils.getWSRMFactory().createIdentifier();
-        source.offer();        
-        EasyMock.expectLastCall().andReturn(offeredSid);
-        EasyMock.replay(source);
-        EasyMock.replay(binding);
         
+        EndpointReferenceType replyTo = EasyMock.createMock(EndpointReferenceType.class);
+        
+        control.replay();
+                
         sp.setAcksTo(NON_ANONYMOUS_ACKSTO_ADDRESS);
         sp.setSequenceExpiration(ONE_DAY);
-        sp.setIncludeOffer(true);
-        sp.setOfferedSequenceExpiration(Sequence.PT0S);
+        sp.setIncludeOffer(false);
         
-        CreateSequenceRequest req = new CreateSequenceRequest(binding, source);
+        CreateSequenceRequest req = new CreateSequenceRequest(binding, source, replyTo);
         assertNotNull(req);
         
         Object[] params = req.getObjectMessageContext().getMessageObjects();
@@ -102,11 +114,8 @@ public class CreateSequenceRequestTest extends TestCase {
         assertEquals(NON_ANONYMOUS_ACKSTO_ADDRESS,
                      cs.getAcksTo().getAddress().getValue());
         assertEquals(ONE_DAY, cs.getExpires().getValue());
-        OfferType offer = cs.getOffer();
-        assertEquals(Sequence.PT0S, offer.getExpires().getValue());
-        assertNotNull(offer.getIdentifier());
+        assertNull(cs.getOffer());
         
-        EasyMock.verify(source);
-        EasyMock.verify(binding);
+        control.verify();
     }
 }

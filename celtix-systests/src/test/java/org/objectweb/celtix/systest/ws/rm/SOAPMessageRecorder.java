@@ -1,5 +1,6 @@
 package org.objectweb.celtix.systest.ws.rm;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,8 +15,17 @@ import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 
 public class SOAPMessageRecorder implements SOAPHandler<SOAPMessageContext> {
     
-    private List<SOAPMessage> outbound;
-    private List<SOAPMessage> inbound;
+    private static List<SOAPMessage> outbound;
+    private static List<SOAPMessage> inbound;
+    
+    public SOAPMessageRecorder() {
+        if (null == outbound) {
+            outbound = new ArrayList<SOAPMessage>();
+        }
+        if (null == inbound) {
+            inbound = new ArrayList<SOAPMessage>();
+        }
+    }
     
     public void init(Map<String, Object> map) {
     }
@@ -43,14 +53,6 @@ public class SOAPMessageRecorder implements SOAPHandler<SOAPMessageContext> {
     
     protected List<SOAPMessage> getOutboundMessages() {
         return outbound;
-    }
-    
-    protected void setInboundMessages(List<SOAPMessage> msgs) {
-        inbound = msgs;
-    }
-    
-    protected void setOutboundMessages(List<SOAPMessage> msgs) {
-        outbound = msgs;
     }
     
     private void record(SOAPMessageContext context) {

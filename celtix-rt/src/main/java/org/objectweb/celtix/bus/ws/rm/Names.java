@@ -15,6 +15,9 @@ public final class Names {
     public static final String WSRM_NAMESPACE_NAME = 
         "http://schemas.xmlsoap.org/ws/2005/02/rm";
     
+    public static final String WSA_NAMESPACE_NAME = 
+        "http://schemas.xmlsoap.org/ws/2004/08/addressing";
+    
     public static final String WSRM_NAMESPACE_PREFIX = "wsrm";
     
     public static final String WSRM_WSDL_NAMESPACE_NAME = 
@@ -70,6 +73,11 @@ public final class Names {
     
     public static final QName WSRM_ACK_REQUESTED_QNAME =
         new QName(WSRM_NAMESPACE_NAME, WSRM_ACK_REQUESTED_NAME);
+    
+    public static final String WSA_ANONYMOUS_ADDRESS = 
+        WSA_NAMESPACE_NAME + "/anonymous";
+    public static final String WSA_NONE_ADDRESS =
+        WSA_NAMESPACE_NAME + "/none";
     
     
     /**

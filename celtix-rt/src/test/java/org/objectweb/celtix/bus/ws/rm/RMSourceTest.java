@@ -93,10 +93,26 @@ public class RMSourceTest extends TestCase {
         Sequence seq = new Sequence(sid, s, e);
         assertNull(s.getCurrent());
         s.addSequence(seq);
-        assertSame(seq, s.getCurrent());
+        assertNull(s.getCurrent());
         Sequence anotherSeq = new Sequence(s.generateSequenceIdentifier(), s, e);
         s.addSequence(anotherSeq);
-        assertSame(anotherSeq, s.getCurrent());        
+        assertNull(s.getCurrent());
+    }
+
+    public void testCurrent() {
+        Identifier sid = s.generateSequenceIdentifier();
+        Sequence seq = new Sequence(sid, s, null);
+        assertNull(s.getCurrent());
+        Identifier inSid = s.generateSequenceIdentifier();
+        assertNull(s.getCurrent(inSid));
+        s.setCurrent(seq);
+        assertNotNull(s.getCurrent());
+        assertSame(seq, s.getCurrent());
+        assertNull(s.getCurrent(inSid));
+        s.setCurrent(inSid, seq);
+        assertNotNull(s.getCurrent(inSid));
+        assertSame(seq, s.getCurrent(inSid));
+        assertNull(s.getCurrent(sid));
     }
 
     

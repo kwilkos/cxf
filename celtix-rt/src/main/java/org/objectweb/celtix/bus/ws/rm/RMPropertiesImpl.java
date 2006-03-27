@@ -55,14 +55,5 @@ public class RMPropertiesImpl implements RMProperties {
         acks.add(ack);
         seq.acknowledgmentSent();
     }
-    
-    protected boolean matchSequence(Sequence seq) {
-        return null != sequence 
-            && sequence.getIdentifier().getValue().equals(seq.getIdentifier().getValue());
-    }
-    
-    
-    
-    
-    
+  
 }

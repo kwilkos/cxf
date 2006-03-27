@@ -13,6 +13,7 @@ import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
+import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.OfferType;
@@ -22,7 +23,7 @@ public class CreateSequenceRequest extends Request {
     
     private static final String METHOD_NAME = "createSequence";    
     
-    public CreateSequenceRequest(AbstractBindingBase b, RMSource source) {
+    public CreateSequenceRequest(AbstractBindingBase b, RMSource source, EndpointReferenceType replyTo) {
         
         super(b, b.createObjectContext());
         getObjectMessageContext().setRequestorRole(true);
@@ -35,7 +36,7 @@ public class CreateSequenceRequest extends Request {
         maps.setAction(actionURI);
         ContextUtils.storeMAPs(maps, getObjectMessageContext(), true, true, true, true);
             
-        setMessageParameters(source);
+        setMessageParameters(source, replyTo);
     }
     
     public static Method getMethod() {
@@ -55,21 +56,34 @@ public class CreateSequenceRequest extends Request {
         return new JAXBDataBindingCallback(method, DataBindingCallback.Mode.PARTS, null);
     }
     
-    private void setMessageParameters(RMSource source) {
+    protected OfferType getIncludedOffer() {
+        Object[] params = getObjectMessageContext().getMessageObjects();
+        if (null == params || params.length < 1) {
+            return null;
+        }
+        return ((CreateSequenceType)params[0]).getOffer();
+    }
+    
+    private void setMessageParameters(RMSource source, EndpointReferenceType replyTo) {
         SourcePolicyType sourcePolicies = source.getSourcePolicies();
         assert null != sourcePolicies;
         
         CreateSequenceType cs = RMUtils.getWSRMFactory().createCreateSequenceType();
         
         String address = sourcePolicies.getAcksTo();
-        if (null == address) {
-            address = RMUtils.getAddressingConstants().getAnonymousURI();
+        EndpointReferenceType acksTo = null;
+        if (null != address) {
+            acksTo = RMUtils.createReference(address);
+        } else {
+            // for oneways
+            if (Names.WSA_NONE_ADDRESS.equals(replyTo.getAddress().getValue())) {
+                acksTo = RMUtils.createReference(Names.WSA_ANONYMOUS_ADDRESS);
+            } else {
+                acksTo = replyTo; 
+            }
         }
-        // cannot use EndpointReferenceUtils to create and initialise reference as
-        // this uses the latest version of the addressing spec
-        cs.setAcksTo(RMUtils.createReference(address));
-        // param.setAcksTo(EndpointReferenceUtils.getEndpointReference(address));
-       
+        cs.setAcksTo(acksTo);
+
         Duration d = sourcePolicies.getSequenceExpiration();
         if (null != d) {
             Expires expires = RMUtils.getWSRMFactory().createExpires();
@@ -85,7 +99,7 @@ public class CreateSequenceRequest extends Request {
                 expires.setValue(d);  
                 offer.setExpires(expires);
             }
-            offer.setIdentifier(source.offer());
+            offer.setIdentifier(source.generateSequenceIdentifier());
             cs.setOffer(offer);
         }
         

@@ -12,7 +12,10 @@ import javax.xml.ws.WebServiceException;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
+import org.objectweb.celtix.ws.rm.Identifier;
+import org.objectweb.celtix.ws.rm.OfferType;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 public class RMProxy {
@@ -24,8 +27,12 @@ public class RMProxy {
         handler = h;
     }
 
-    public CreateSequenceResponseType createSequence(RMSource source) throws IOException, SequenceFault {
-        CreateSequenceRequest request = new CreateSequenceRequest(handler.getBinding(), source);
+    public CreateSequenceResponseType createSequence(RMSource source, 
+                                                     EndpointReferenceType replyTo, 
+                                                     Identifier i) 
+        throws IOException, SequenceFault {
+        CreateSequenceRequest request = new CreateSequenceRequest(handler.getBinding(), source, replyTo);
+        OfferType o = request.getIncludedOffer();
 
         ObjectMessageContext responseCtx = invoke(request.getObjectMessageContext(), 
                                                   CreateSequenceRequest.createDataBindingCallback());
@@ -37,6 +44,17 @@ public class RMProxy {
         
         Sequence seq = new Sequence(csr.getIdentifier(), source, csr.getExpires());
         source.addSequence(seq);
+        source.setCurrent(i, seq);
+        
+        if (null != o) {
+            assert null != csr.getAccept();
+            RMDestination dest = source.getHandler().getDestination();
+            String address = csr.getAccept().getAcksTo().getAddress().getValue();
+            if (!RMUtils.getAddressingConstants().getNoneURI().equals(address)) {
+                Sequence ds = new Sequence(o.getIdentifier(), dest, csr.getAccept().getAcksTo());
+                dest.addSequence(ds);
+            }
+        }
         
         return csr;
     }

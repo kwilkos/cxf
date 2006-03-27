@@ -37,6 +37,7 @@ public class Sequence {
     private SequenceMonitor monitor;
     private boolean acknowledgeOnNextOccasion;
     private List<DeferredAcknowledgment> deferredAcknowledgments;
+    private Identifier offeringId;
 
 
     public enum Type {
@@ -77,14 +78,21 @@ public class Sequence {
         monitor = new SequenceMonitor();
     }
 
+ 
+    public Sequence(Identifier i, RMSource s, Expires duration) {
+        this(i, s, duration, null);
+    }
+
     /**
      * Constructs a Sequence object for use in RM sources.
      * 
      * @param i the sequence identifier
      * @param s the RM source
      * @param duration the lifetime of the sequence
+     * @param oi  the identifier of the sequence that was creates on behalf of the 
+     * CreateSequenceRequest that includes htis sequence's identifier as an offer.
      */
-    public Sequence(Identifier i, RMSource s, Expires duration) {
+    public Sequence(Identifier i, RMSource s, Expires duration, Identifier oi) {
         this(i, Type.SOURCE);
         source = s;
 
@@ -100,7 +108,36 @@ public class Sequence {
         }
 
         currentMessageNumber = BigInteger.ZERO;
+        offeringId = oi;
     }
+    
+    public String toString() {
+        return id.getValue();
+    }
+    
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;            
+        }
+        if (other instanceof Sequence) {
+            Sequence otherSeq = (Sequence)other;
+            return otherSeq.getIdentifier().getValue().equals(getIdentifier().getValue());
+        }        
+        return false;
+    }
+    
+    public static boolean identifierEquals(Identifier id1, Identifier id2) {
+        if (null == id1) {
+            return null == id2;
+        } else {
+            return null != id2 && id1.getValue().equals(id2.getValue());
+        }
+    }
+    
+    public int hashCode() {
+        return getIdentifier().getValue().hashCode();
+    }
+   
 
     /**
      * Returns the type of this sequence.
@@ -118,6 +155,18 @@ public class Sequence {
      */
     public Identifier getIdentifier() {
         return id;
+    }
+    
+    /**
+     * Returns true if this sequence was constructed from an offer for an inbound sequence
+     * includes in the CreateSequenceRequest in response to which the sequence with
+     * the specified identifier was created.
+     * 
+     * @param id the sequence identifier
+     * @return true if the sequence was constructed from an offer.
+     */
+    public boolean offeredBy(Identifier sid) {
+        return null != offeringId && offeringId.getValue().equals(sid.getValue());
     }
 
     /**

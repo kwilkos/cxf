@@ -1,7 +1,7 @@
 package org.objectweb.celtix.bus.ws.rm;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.ws.handler.MessageContext;
 
@@ -17,9 +17,9 @@ import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 public class RMSource extends RMEndpoint {
 
     private static final String SOURCE_POLICIES_PROPERTY_NAME = "sourcePolicies";
-    private Sequence current;
+    private static final String REQUESTOR_SEQUENCE_ID = "";
+    private Map<String, Sequence> current; 
     private final RetransmissionQueue retransmissionQueue;
-    private Set<Identifier> offeredIdentifiers;
 
     RMSource(RMHandler h) {
         super(h);
@@ -35,9 +35,10 @@ public class RMSource extends RMEndpoint {
                 shutdown();
             }
         });
+        current = new HashMap<String, Sequence>();
         retransmissionQueue = new RetransmissionQueue();
         retransmissionQueue.start(workQueue);
-        offeredIdentifiers = new HashSet<Identifier>();
+       
     }
 
     public SourcePolicyType getSourcePolicies() {
@@ -64,33 +65,39 @@ public class RMSource extends RMEndpoint {
     }
 
     /**
-     * Returns the current sequence.
+     * Returns the current sequence used by a client side source.
      * 
      * @return the current sequence.
      */
     Sequence getCurrent() {
-        return current;
+        return getCurrent(null);
     }
     
     /**
-     * Sets the current sequence.
+     * Sets the current sequence used by a client side source.
      * @param s the current sequence.
      */
     void setCurrent(Sequence s) {
-        current = s;
+        setCurrent(null, s);
     }
-
+    
     /**
-     * Stores the sequence under its sequence identifier. and makes this the 
-     * current sequence.
+     * Returns the current sequence used by a server side source for responses to a message
+     * sent as part of the inbound sequence with the specified identifier.
      * 
-     * @param id the sequence identifier.
-     * @param seq the sequence.
+     * @return the current sequence.
      */
-    public void addSequence(Sequence seq) {
-        
-        super.addSequence(seq);
-        current = seq;
+    Sequence getCurrent(Identifier i) {        
+        return current.get(i == null ? REQUESTOR_SEQUENCE_ID : i.getValue());
+    }
+    
+    /**
+     * Sets the current sequence used by a server side source for responses to a message
+     * sent as part of the inbound sequence with the specified identifier.
+     * @param s the current sequence.
+     */
+    void setCurrent(Identifier i, Sequence s) {        
+        current.put(i == null ? REQUESTOR_SEQUENCE_ID : i.getValue(), s);
     }
 
     /**
@@ -121,12 +128,6 @@ public class RMSource extends RMEndpoint {
             seq.setAcknowledged(acknowledgment);
             retransmissionQueue.purgeAcknowledged(seq);
         }
-    }
-
-    public Identifier offer() {
-        Identifier sid = generateSequenceIdentifier();
-        offeredIdentifiers.add(sid);
-        return sid;
     }
     
     public void shutdown() {

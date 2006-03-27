@@ -47,6 +47,9 @@ public class SequenceTest extends TestCase {
     }
 
     public void testConstructors() throws DatatypeConfigurationException {
+
+        Identifier otherId = factory.createIdentifier();
+        otherId.setValue("otherSeq");
         
         Sequence seq = new Sequence(id, destination, ref);
         assertEquals(Sequence.Type.DESTINATION, seq.getType());
@@ -59,6 +62,7 @@ public class SequenceTest extends TestCase {
         assertNotNull(seq.getAcknowledged(null));
         assertTrue(!seq.allAcknowledged());
         assertNotNull(seq.getMonitor());
+        assertFalse(seq.offeredBy(otherId));
         
         seq = new Sequence(id, source, expires);
         assertEquals(Sequence.Type.SOURCE, seq.getType());
@@ -71,6 +75,11 @@ public class SequenceTest extends TestCase {
         assertNotNull(seq.getAcknowledged(null));
         assertTrue(!seq.allAcknowledged());
         assertNull(seq.getMonitor());
+        assertFalse(seq.offeredBy(otherId));
+        
+        seq = new Sequence(id, source, expires, otherId);
+        assertTrue(seq.offeredBy(otherId));
+        assertFalse(seq.offeredBy(id));
         
         DatatypeFactory dbf = DatatypeFactory.newInstance();
         Duration d = dbf.newDuration(0);        
@@ -92,6 +101,21 @@ public class SequenceTest extends TestCase {
         expires.setValue(d);
         seq = new Sequence(id, source, expires);
         assertTrue(seq.isExpired());   
+    }
+    
+    public void testEqualsAndHashCode() {
+        Sequence seq = new Sequence(id, source, expires);
+        Sequence otherSeq = null;
+        assertTrue(!seq.equals(otherSeq));
+        otherSeq = new Sequence(id, source, expires);
+        assertEquals(seq, otherSeq);
+        assertEquals(seq.hashCode(), otherSeq.hashCode());
+        Identifier otherId = factory.createIdentifier();
+        otherId.setValue("otherSeq");
+        otherSeq = new Sequence(otherId, source, expires);
+        assertTrue(!seq.equals(otherSeq));
+        assertTrue(seq.hashCode() != otherSeq.hashCode()); 
+        assertTrue(!seq.equals(this));
     }
     
     public void testSetAcknowledged() {

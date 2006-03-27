@@ -14,7 +14,7 @@
         <property name="destinationPolicies">
             <value>
                 <wsrm-conf:destinationPolicy>
-                    <wsrm-conf:acksPolicy intraMessageThreshold="0" deferredBy="4000"/>                    
+                    <wsrm-conf:acksPolicy intraMessageThreshold="0" deferredBy="2000"/>                    
                 </wsrm-conf:destinationPolicy>
             </value>
         </property>  
