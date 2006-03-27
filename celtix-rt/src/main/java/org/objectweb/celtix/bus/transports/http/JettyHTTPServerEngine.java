@@ -146,7 +146,11 @@ public final class JettyHTTPServerEngine {
             e1.printStackTrace();
         }
 
-        handler.setName(smap);
+        if ("".equals(smap) && "".equals(contextName)) {
+            handler.setName("/");
+        } else {
+            handler.setName(smap);
+        }
         context.addHandler(handler);
         try {
             handler.start();
@@ -168,7 +172,10 @@ public final class JettyHTTPServerEngine {
             contextName = lpath.substring(0, idx);
             servletMap = lpath.substring(idx);
         }
-        
+        if ("".equals(servletMap) && "".equals(contextName)) {
+            servletMap = "/";
+        }
+
         boolean found = false;
         // REVISIT: how come server can be null?
         if (server != null) {

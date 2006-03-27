@@ -136,8 +136,9 @@ public class HTTPTransportTest extends TestCase {
         doTestInvoke(false);
     }
 
+
     public void testInvokeDecoupled() throws Exception {
-        doTestInvoke(false, true);
+        doTestInvoke(false, true, ADDRESS);
     }
 
     public void testInvokeUsingAutomaticWorkQueue() throws Exception {
@@ -145,7 +146,7 @@ public class HTTPTransportTest extends TestCase {
     }
 
     public void testInvokeDecoupledUsingAutomaticWorkQueue() throws Exception {
-        doTestInvoke(true, true);
+        doTestInvoke(true, true, ADDRESS);
     }
 
     public void testInvokeAsync() throws Exception {
@@ -217,21 +218,22 @@ public class HTTPTransportTest extends TestCase {
     }
 
     public void doTestInvoke(final boolean useAutomaticWorkQueue) throws Exception {
-        doTestInvoke(useAutomaticWorkQueue, false);
+        doTestInvoke(useAutomaticWorkQueue, false, ADDRESS);
     }
 
     public void doTestInvoke(final boolean useAutomaticWorkQueue,
-                             final boolean decoupled) throws Exception {
+                             final boolean decoupled,
+                             final String address) throws Exception {
 
         factory = createTransportFactory();
 
         ServerTransport server =
-            createServerTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
+            createServerTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, address);
 
         activateServer(server, useAutomaticWorkQueue, 0, null, false, decoupled);
         //short request
         ClientTransport client =
-            createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS, decoupled);
+            createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, address, decoupled);
         doRequestResponse(client, "Hello World".getBytes(), true, decoupled);
 
         //long request
@@ -240,7 +242,7 @@ public class HTTPTransportTest extends TestCase {
             outBytes[x] = (byte)('a' + (x % 26));
         }
         client =
-            createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS, decoupled);
+            createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, address, decoupled);
         doRequestResponse(client, outBytes, false, decoupled);
 
         server.deactivate();
@@ -337,6 +339,18 @@ public class HTTPTransportTest extends TestCase {
         }
         server.deactivate();
     }
+    
+    public void testInvokeNoContext() throws Exception {
+        boolean oldFirst = first;
+        try {
+            first = true;
+            doTestInvoke(false, false, "http://localhost:9888");
+        } finally {
+            first = oldFirst;
+            JettyHTTPServerEngine.destroyForPort(9888);
+        }
+    }
+    
 
     private void checkBusCreatedEvent() {
 
@@ -543,6 +557,8 @@ public class HTTPTransportTest extends TestCase {
                                                   String address)
         throws WSDLException, IOException {
 
+        URL url = new URL(address);
+        
         EasyMock.reset(bus);
 
         Configuration bc = EasyMock.createMock(Configuration.class);
@@ -561,7 +577,7 @@ public class HTTPTransportTest extends TestCase {
             bus.getConfiguration();
             EasyMock.expectLastCall().andReturn(bc);
             bc.getChild("http://celtix.objectweb.org/bus/transports/http/http-listener-config",
-                        "http-listener.9000");
+                        "http-listener." + url.getPort());
             EasyMock.expectLastCall().andReturn(null);
             first = false;
         }
