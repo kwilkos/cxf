@@ -18,10 +18,10 @@ public class Server extends TestServerBase {
         String address = "http://localhost:9002/HTTPSoapServiceDestination/HTTPSoapPortDestination";
         createAndpublishEndpoint(address, serviceName, portName);
 
-        serviceName = new QName("http://objectweb.org/hello_world_doc_lit", "SOAPService");
-        portName = new QName("http://objectweb.org/hello_world_doc_lit", "SOAPPort");
-        address = new String("http://localhost:9003/JMSSoapServiceDestination/JMSSoapPortDestination");
-        createAndpublishEndpoint(address, serviceName, portName);
+        serviceName = new QName("http://objectweb.org/hello_world_doc_lit", "SOAPService4");
+        portName = new QName("http://objectweb.org/hello_world_doc_lit", "SOAPPort4");
+        address = new String("http://localhost:0/JMSService/JMSPort");
+        createAndpublishEndpoint(address, serviceName, portName);        
     }
     
     private void createAndpublishEndpoint(String address, 

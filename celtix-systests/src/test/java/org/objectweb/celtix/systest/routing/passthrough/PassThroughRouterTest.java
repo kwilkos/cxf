@@ -16,6 +16,7 @@ public class PassThroughRouterTest extends ClientServerTestBase {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(SOAPHTTPToSOAPHTTPRouter.class);
         suite.addTestSuite(SOAPJMSToSOAPHTTPRouter.class);
+        suite.addTestSuite(SOAPHTTPToSOAPJMSRouter.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
                 Map<String, String> props = new HashMap<String, String>();                
@@ -25,13 +26,14 @@ public class PassThroughRouterTest extends ClientServerTestBase {
                 props.put("java.util.logging.config.file", 
                           System.getProperty("java.util.logging.config.file"));
                 
-                assertTrue("server did not launch correctly", launchServer(EmbeddedJMSBrokerLauncher.class,
-                                                                           props, null));
+                assertTrue("JMS Broker did not launch correctly", 
+                           launchServer(EmbeddedJMSBrokerLauncher.class,
+                                        props, null));
                 
-                assertTrue("server did not launch correctly",
+                assertTrue("Remote server did not launch correctly",
                            launchServer(Server.class, false));
 
-                assertTrue("server did not launch correctly",
+                assertTrue("Router did not launch correctly",
                            launchServer(RouterServer.class,
                                         null,
                                         new String[]{"org.objectweb.celtix.BusId", "celtix-st"}));
