@@ -17,23 +17,15 @@
 
 	<optionGroup id="options">
 	    <option id="outputfile" maxOccurs="1">
-		<annotation>The wsdl output file name.</annotation>
+		<annotation>Specify the output wsdl file name</annotation>
 		<switch>o</switch>
 		<associatedArgument placement="afterSpace">
 		    <annotation>output-file</annotation>
 		</associatedArgument>
 	    </option>
-<!--
-	    <option id="porttype" maxOccurs="1">
-		<annotation>Specify the porttype/interface name to use in the wsdl.</annotation>
-		<switch>i</switch>
-		<associatedArgument placement="afterSpace">
-		    <annotation>port-type-name</annotation>
-		</associatedArgument>
-	    </option>
--->
+
 	    <option id="tns" maxOccurs="1">
-		<annotation>Specify the target namespace to use in the wsdl.</annotation>
+		<annotation>Specify the target namespace to use in the wsdl</annotation>
 		<switch>t</switch>
 		<associatedArgument placement="afterSpace">
 		    <annotation>target-namespace</annotation>
@@ -41,30 +33,13 @@
 	    </option>
 	    
 	    <option id="servicename" maxOccurs="1">
-		<annotation>Specify the service name to use in the generated wsdl.</annotation>
+		<annotation>Specify the service name to use in the generated wsdl</annotation>
 		<switch>servicename</switch>
 		<associatedArgument placement="afterSpace">
 		    <annotation>service-name</annotation>
 		</associatedArgument>
 	    </option>
-	    
-<!--
-	    <option id="schemans" maxOccurs="1">
-		<annotation>Specify the schema namespace to use in the wsdl.</annotation>
-		<switch>x</switch>
-		<associatedArgument placement="afterSpace">
-		    <annotation>schema-namespace</annotation>
-		</associatedArgument>
-	    </option>
-
-	    <option id="usetypes" maxOccurs="1">
-		<annotation>Specify whether to use types instead of elements in the wsdl. If not specified,
-		uses element.
-		</annotation>
-		<switch>useTypes</switch>
-	    </option>
--->
-
+	      
 	</optionGroup>
 
 	<optionGroup id="common_options">
@@ -96,7 +71,7 @@
 	</optionGroup>
 
 	<argument id="classname" minOccurs="1" maxOccurs="1">
-	    <annotation>class-name</annotation>
+	    <annotation>SEI class name</annotation>
 	</argument>
     </usage>
 </toolspec>

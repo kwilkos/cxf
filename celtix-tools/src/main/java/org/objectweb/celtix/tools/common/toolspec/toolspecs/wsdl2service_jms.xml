@@ -162,7 +162,7 @@
 	</optionGroup>
 	
 	<argument id="wsdlurl" minOccurs="1" maxOccurs="1">
-	    <annotation>WSDL/SCHEMA URL</annotation>
+	    <annotation>WSDL URL</annotation>
 	</argument>
 	
   </usage>

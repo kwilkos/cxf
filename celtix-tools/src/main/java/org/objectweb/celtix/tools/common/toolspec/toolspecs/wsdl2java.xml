@@ -23,16 +23,7 @@
 		    <annotation>[wsdl namespace =]Package Name</annotation>
 		</associatedArgument>
 	    </option>
-<!--
-	    <option id="webservice" maxOccurs="unbounded">
-		<annotation>The name of the Web service in the WSDL file being processed.
-		Also, optionally specify the port name to use.</annotation>
-		<switch>e</switch>
-		<associatedArgument placement="afterSpace">
-		    <annotation>web-service-name[:port-name(s) delimited by commas]</annotation>
-		</associatedArgument>
-	    </option>
--->
+
 	    <option id="binding" maxOccurs="unbounded">
 		<annotation>Specify external jaxws or jaxb binding files, (Each file must have its own -b)</annotation>
 		<switch>b</switch>
@@ -40,16 +31,7 @@
 		    <annotation>binding-name</annotation>
 		</associatedArgument>
 	    </option>
-<!--
-	    <option id="porttype" maxOccurs="unbounded">
-		<annotation>Specify the portType to use.
-		This option can be specified multiple times.</annotation>
-		<switch>i</switch>
-		<associatedArgument placement="afterSpace">
-		    <annotation>port-type-name</annotation>
-		</associatedArgument>
-	    </option>
--->
+
 	    <option id="outputdir" maxOccurs="1">
 		<annotation>The directory in which the code is placed</annotation>
 		<switch>d</switch>
@@ -71,18 +53,6 @@
 		</associatedArgument>
 	    </option>
 	    
-	    
-<!--
-	    <option id="interface" maxOccurs="1">
-		<annotation>Generates only the interface.</annotation>
-		<switch>interface</switch>
-	    </option>
-
-	    <option id="types" maxOccurs="1">
-		<annotation>Generates code for only the types.</annotation>
-		<switch>types</switch>
-	    </option>
--->
 	    <option id="impl" maxOccurs="1">
 		<annotation>Generate the dummy service implementation.</annotation>
 		<switch>impl</switch>
@@ -102,12 +72,7 @@
 		<annotation>Generates interfaces,types,service,server,impl,client and ant script.</annotation>
 		<switch>all</switch>
 	    </option>
-	    <!--
-		<option id="sample" maxOccurs="1">
-		<annotation>Generate Sample Demo Client.</annotation>
-		<switch>sample</switch>
-		</option>
-	    --> 		
+	    		
 	    <option id="ant" maxOccurs="1">
 		<annotation>ant script generation.</annotation>
 		<switch>ant</switch>
@@ -158,7 +123,7 @@
 
 	</optionGroup>
 	<argument id="wsdlurl" minOccurs="1" maxOccurs="1">
-	    <annotation>WSDL/SCHEMA URL</annotation>
+	    <annotation>WSDL URL</annotation>
 	</argument>
     </usage>
 </toolspec>

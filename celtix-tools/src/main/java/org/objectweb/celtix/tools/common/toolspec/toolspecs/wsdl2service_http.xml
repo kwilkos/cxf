@@ -45,7 +45,7 @@
 				</associatedArgument>
 		    </option>
 	
-	   	    <option id="address" minOccurs="0" maxOccurs="1">
+	   	    <option id="address" maxOccurs="1">
 				<annotation>Specifies the value used in the address element of the port, sperate by space</annotation>
 				<switch>a</switch>
 				<associatedArgument placement="afterSpace">
@@ -54,7 +54,7 @@
 		    </option>
 	
 	      	<option id="outputfile" maxOccurs="1">
-				<annotation>The wsdl output file name.</annotation>
+				<annotation>Sepcify output wsdl  file name.</annotation>
 				<switch>o</switch>
 		        <associatedArgument placement="afterSpace">
 		        	<annotation>output-file</annotation>
@@ -80,7 +80,7 @@
 		    </option>
 		    
 		    <option id="version">
-				<annotation>Display the version of the tool.</annotation>
+				<annotation>Display the version of the tool</annotation>
 				<switch>v</switch>
 		    </option>
 	
@@ -98,7 +98,7 @@
 		</optionGroup>
 		
 		<argument id="wsdlurl" minOccurs="1" maxOccurs="1">
-		    <annotation>WSDL/SCHEMA URL</annotation>
+		    <annotation>WSDL URL</annotation>
 		</argument>
 		
 	</usage>
