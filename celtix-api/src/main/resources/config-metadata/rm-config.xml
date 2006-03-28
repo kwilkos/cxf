@@ -21,7 +21,10 @@
             Used for configuring an RM source.
         </cm:description>
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
-        <wsrm-policy:RMAssertion/>
+        <wsrm-policy:RMAssertion>
+            <wsrm-policy:BaseRetransmissionInterval Milliseconds="3000"/>
+            <wsrm-policy:ExponentialBackoff base="2"/>
+        </wsrm-policy:RMAssertion>
     </cm:configItem>
     
     <cm:configItem>

@@ -18,7 +18,6 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.bindings.TestClientTransport;
 import org.objectweb.celtix.bus.bindings.TestInputStreamContext;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
-import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 import org.objectweb.celtix.ws.rm.Identifier;
@@ -41,9 +40,7 @@ public class RMProxyTest extends TestCase {
         bus.shutdown(true);
     }
 
-    public void testCreateSequenceOnClient() throws IOException, WSDLException, 
-        SequenceFault, NoSuchMethodException {
-        
+    public void testCreateSequenceOnClient() throws Exception {
         TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
         TestClientTransport ct = binding.getClientTransport();
         InputStream is = getClass().getResourceAsStream("resources/spec/CreateSequenceResponse.xml");
@@ -52,45 +49,46 @@ public class RMProxyTest extends TestCase {
         ct.setInputStreamMessageContext(istreamCtx);
         
         IMocksControl control = EasyMock.createNiceControl();
+        
         RMHandler handler = control.createMock(RMHandler.class);
-        handler.getBinding();
-        EasyMock.expectLastCall().andReturn(binding);
-        control.replay();
-        RMSource source = new RMSource(handler);
-        control.reset();
-        
-        handler.getBinding();
-        EasyMock.expectLastCall().andReturn(binding);       
-        for (int i = 0; i < 2; i++) {
-            handler.getClientBinding();
-            EasyMock.expectLastCall().andReturn(binding);
-        }
-        handler.getConfiguration();
-        Configuration config = control.createMock(Configuration.class);
-        EasyMock.expectLastCall().andReturn(config);
-        SourcePolicyType sp = control.createMock(SourcePolicyType.class);
-        config.getObject(SourcePolicyType.class, "sourcePolicies");
-        EasyMock.expectLastCall().andReturn(sp);
-        sp.isIncludeOffer();
-        EasyMock.expectLastCall().andReturn(false);
-        
+        RMProxy proxy = new RMProxy(handler);
+        RMSource source = control.createMock(RMSource.class);
         org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType replyToEPR = 
             control.createMock(org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType.class);
         AttributedURI replyToAddress = control.createMock(AttributedURI.class);
+        SourcePolicyType sp = control.createMock(SourcePolicyType.class);
+        
+        Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
+        sid.setValue("s1");
+        Identifier inSid = null;        
+      
+        handler.getBinding();
+        EasyMock.expectLastCall().andReturn(binding);  
+        source.getSourcePolicies();
+        EasyMock.expectLastCall().andReturn(sp);
+        sp.getAcksTo();
+        EasyMock.expectLastCall().andReturn(null);
+        sp.getSequenceExpiration();
+        EasyMock.expectLastCall().andReturn(null);
+        sp.isIncludeOffer();
+        EasyMock.expectLastCall().andReturn(false);
+        handler.getClientBinding();
+        EasyMock.expectLastCall().andReturn(binding).times(2);
+        
         replyToEPR.getAddress();
         EasyMock.expectLastCall().andReturn(replyToAddress);
         replyToAddress.getValue();
-        EasyMock.expectLastCall().andReturn(Names.WSA_NONE_ADDRESS);  
-        
+        EasyMock.expectLastCall().andReturn(Names.WSA_NONE_ADDRESS);
+        source.addSequence(EasyMock.isA(Sequence.class));
+        source.setCurrent(EasyMock.same(inSid), EasyMock.isA(Sequence.class));        
+
         control.replay();
-
-        RMProxy proxy = new RMProxy(handler);
-
-        proxy.createSequence(source, replyToEPR, null);
+        
+        proxy.createSequence(source, replyToEPR, inSid);
         
         control.verify();
-
     }
+    
     
     public void testTerminateSequenceOnClient() throws IOException, WSDLException, SequenceFault {
         TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);

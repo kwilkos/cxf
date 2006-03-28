@@ -20,6 +20,7 @@ import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
+import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 
 public class Sequence {
     public static final Duration PT0S;
@@ -392,8 +393,12 @@ public class Sequence {
     }
    
     private void scheduleAcknowledgement() {
+        RMAssertionType rma = destination.getRMAssertion();
+        int delay = 0;
+        if (null != rma.getAcknowledgementInterval()) {
+            delay = rma.getAcknowledgementInterval().getMilliseconds().intValue();
+        }
         AcksPolicyType ap = destination.getAcksPolicy();
-        int delay = ap.getDeferredBy();
         if (delay > 0 && getMonitor().getMPM() >= ap.getIntraMessageThreshold()) {
             scheduleDeferredAcknowledgement(delay);
         } else {

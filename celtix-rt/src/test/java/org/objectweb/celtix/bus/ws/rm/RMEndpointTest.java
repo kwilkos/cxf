@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
+import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
@@ -48,7 +49,24 @@ public class RMEndpointTest extends TestCase {
         assertNull(e.getPolicies()); 
         verify(handler);
         verify(c);
+    }
+    
+    public void testGetRMAssertion() {
+        Configuration c = createMock(Configuration.class);
+        reset(handler);
+        handler.getConfiguration();
+        expectLastCall().andReturn(c);
+        c.getObject(RMAssertionType.class, "rmAssertion");
+        expectLastCall().andReturn(null);
+        replay(handler);
+        replay(c);
         
+        RMEndpoint e = new RMEndpoint(handler);
+        RMAssertionType rma = e.getRMAssertion();
+        assertNotNull(rma);
+        
+        verify(handler);
+        verify(c);
     }
     
     public void testAddGetSequence() {

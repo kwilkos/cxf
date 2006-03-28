@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
 
+
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
@@ -14,6 +15,7 @@ import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
+import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 import static org.easymock.EasyMock.expectLastCall;
@@ -148,10 +150,36 @@ public class RMSourceTest extends TestCase {
         BusLifeCycleManager lcm = createNiceMock(BusLifeCycleManager.class);
         bus.getLifeCycleManager();
         expectLastCall().andReturn(lcm);
+        Configuration c = createMock(Configuration.class);
+        h.getConfiguration();
+        expectLastCall().andReturn(c);
+        // RMAssertionType rma = createMock(RMAssertionType.class);
+        c.getObject(RMAssertionType.class, "rmAssertion");
+        expectLastCall().andReturn(null);
+        /*
+        BaseRetransmissionInterval bri = createMock(BaseRetransmissionInterval.class);
+        rma.getBaseRetransmissionInterval();
+        expectLastCall().andReturn(bri);
+        bri.getMilliseconds();
+        expectLastCall().andReturn(new BigInteger("3000"));
+        ExponentialBackoff eb = createMock(ExponentialBackoff.class);
+        rma.getExponentialBackoff();
+        expectLastCall().andReturn(eb);
+        Map<QName, String> oa = new HashMap<QName, String>();
+        oa.put(RetransmissionQueue.EXPONENTIAL_BACKOFF_BASE_ATTR, "2");
+        eb.getOtherAttributes();
+        expectLastCall().andReturn(oa);
+        */
+   
         replay(h);
         replay(binding);
         replay(bus);
         replay(wqm);
+        replay(c);
+        //replay(rma);
+        //replay(bri);
+        //replay(eb);
+        
         return new RMSource(h);
     }
 }

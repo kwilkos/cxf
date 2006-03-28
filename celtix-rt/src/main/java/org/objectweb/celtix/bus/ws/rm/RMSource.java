@@ -36,7 +36,9 @@ public class RMSource extends RMEndpoint {
             }
         });
         current = new HashMap<String, Sequence>();
-        retransmissionQueue = new RetransmissionQueue();
+        
+        retransmissionQueue = new RetransmissionQueue(getRMAssertion());
+        
         retransmissionQueue.start(workQueue);
        
     }

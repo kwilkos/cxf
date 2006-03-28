@@ -159,19 +159,11 @@
                 <xs:documentation>
                     Restricts the deferred sending of acknowledgments to the case where the stream of incoming 
                     messages is steady, i.e. the number of messages for one destination per minute stays above the 
-                    specified threshold (only effective if deferredBy is greater 0).
+                    specified threshold (only effective if the AcknowledgmentInterval specified in the
+                    RMAssertion is greater 0).
                 </xs:documentation>
             </xs:annotation>      
         </xs:attribute> 
-        <xs:attribute name="deferredBy" type="xs:int" use="optional" default="0">
-            <xs:annotation>
-                <xs:documentation>
-                    The time in milliseconds by which sending acknowledgments may be deferred.
-                    A value of 0 means sequence that acknowledgments are to be sent as soon as possible, 
-                    i.e. either with the response or piggybacked with the HTTP status response.                     
-                </xs:documentation>
-            </xs:annotation>      
-        </xs:attribute>
     </xs:complexType>
 
 </xs:schema>

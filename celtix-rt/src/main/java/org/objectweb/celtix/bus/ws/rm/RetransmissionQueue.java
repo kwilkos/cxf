@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bindings.AbstractBindingBase;
@@ -24,11 +25,17 @@ import org.objectweb.celtix.workqueue.WorkQueue;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceType;
+import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 
 public class RetransmissionQueue {
+    
+    public static final QName EXPONENTIAL_BACKOFF_BASE_ATTR = new QName(RMHandler.RM_CONFIGURATION_URI, 
+        "exponentialBackoffBase");
+    public static final String DEFAULT_BASE_RETRANSMISSION_INTERVAL = "3000";
+    public static final String DEFAULT_EXPONENTIAL_BACKOFF = "2";
+    
     private static final Logger LOG = LogUtils.getL7dLogger(RetransmissionQueue.class);
-    private static final long DEFAULT_BASE_RETRANSMISSION_INTERVAL = 3000L;
-    private static final int DEFAULT_EXPONENTIAL_BACKOFF = 2;
+   
 
     private WorkQueue workQueue;
     private long baseRetransmissionInterval;
@@ -42,9 +49,19 @@ public class RetransmissionQueue {
      * Constructor.
      */
     public RetransmissionQueue() {
-        this(DEFAULT_BASE_RETRANSMISSION_INTERVAL, 
-             DEFAULT_EXPONENTIAL_BACKOFF);
+        this(Long.parseLong(DEFAULT_BASE_RETRANSMISSION_INTERVAL), 
+             Integer.parseInt(DEFAULT_EXPONENTIAL_BACKOFF));
     }
+    
+    /**
+     * Constructor.
+     */
+    public RetransmissionQueue(RMAssertionType rma) {
+        this(rma.getBaseRetransmissionInterval().getMilliseconds().longValue(),
+             Integer.parseInt(rma.getExponentialBackoff().getOtherAttributes()
+                              .get(EXPONENTIAL_BACKOFF_BASE_ATTR)));
+    }
+    
 
     /**
      * Constructor.

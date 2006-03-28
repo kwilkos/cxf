@@ -9,6 +9,7 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceType;
+import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
@@ -71,14 +72,16 @@ public class RMDestinationTest extends TestCase {
         Sequence seq = new Sequence(sid, d, address);
         d.addSequence(seq);
         
-        
-        DestinationPolicyType dp = null;
         Configuration c = createMock(Configuration.class);
         reset(handler);
         handler.getConfiguration();
         expectLastCall().andReturn(c);
+        c.getObject(RMAssertionType.class, "rmAssertion");
+        expectLastCall().andReturn(null);
+        handler.getConfiguration();
+        expectLastCall().andReturn(c);
         c.getObject(DestinationPolicyType.class, "destinationPolicies");
-        expectLastCall().andReturn(dp);
+        expectLastCall().andReturn(null);
         replay(handler);
         replay(c);  
 

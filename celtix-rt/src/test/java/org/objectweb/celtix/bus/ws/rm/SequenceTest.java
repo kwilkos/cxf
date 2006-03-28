@@ -19,6 +19,10 @@ import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.ObjectFactory;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
+import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
+import org.objectweb.celtix.ws.rm.policy.RMAssertionType.AcknowledgementInterval;
+import org.objectweb.celtix.ws.rm.policy.RMAssertionType.BaseRetransmissionInterval;
+import org.objectweb.celtix.ws.rm.policy.RMAssertionType.ExponentialBackoff;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
@@ -35,6 +39,8 @@ public class SequenceTest extends TestCase {
     RMSource source;
     RMDestination destination;
     RMHandler handler;
+    RMAssertionType rma;
+    AcksPolicyType ap;
  
     public void setUp() {
         expires = factory.createExpires();
@@ -44,6 +50,17 @@ public class SequenceTest extends TestCase {
         source = createMock(RMSource.class); 
         destination = createMock(RMDestination.class);
         handler = createMock(RMHandler.class);
+        ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
+        rma = RMUtils.getWSRMPolicyFactory().createRMAssertionType();
+        BaseRetransmissionInterval bri =
+            RMUtils.getWSRMPolicyFactory().createRMAssertionTypeBaseRetransmissionInterval();
+        bri.setMilliseconds(new BigInteger("3000"));
+        rma.setBaseRetransmissionInterval(bri);
+        ExponentialBackoff eb = 
+            RMUtils.getWSRMPolicyFactory().createRMAssertionTypeExponentialBackoff();
+        eb.getOtherAttributes().put(RetransmissionQueue.EXPONENTIAL_BACKOFF_BASE_ATTR,
+                                    RetransmissionQueue.DEFAULT_EXPONENTIAL_BACKOFF);
+        
     }
 
     public void testConstructors() throws DatatypeConfigurationException {
@@ -136,11 +153,10 @@ public class SequenceTest extends TestCase {
     } 
     
     public void testAcknowledgeBasic() {
-        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
         destination.getHandler();
         expectLastCall().andReturn(handler).times(3);
-        // handler.getTimer();
-        // expectLastCall().andReturn(null).times(3);
+        destination.getRMAssertion();
+        expectLastCall().andReturn(rma).times(3);
         destination.getAcksPolicy();
         expectLastCall().andReturn(ap).times(3);
         replay(destination);
@@ -168,11 +184,11 @@ public class SequenceTest extends TestCase {
     }
     
     public void testAcknowledgeAppendRange() {
-        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
+   
         destination.getHandler();
         expectLastCall().andReturn(handler).times(5);
-        //handler.getTimer();
-        //expectLastCall().andReturn(null).times(5);
+        destination.getRMAssertion();
+        expectLastCall().andReturn(rma).times(5);
         destination.getAcksPolicy();
         expectLastCall().andReturn(ap).times(5);
         replay(destination);
@@ -195,11 +211,10 @@ public class SequenceTest extends TestCase {
     }
     
     public void testAcknowledgeInsertRange() {
-        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
         destination.getHandler();
         expectLastCall().andReturn(handler).times(5);
-        //handler.getTimer();
-        //expectLastCall().andReturn(null).times(5);
+        destination.getRMAssertion();
+        expectLastCall().andReturn(rma).times(5);
         destination.getAcksPolicy();
         expectLastCall().andReturn(ap).times(5);
         replay(destination);
@@ -226,11 +241,10 @@ public class SequenceTest extends TestCase {
     }
     
     public void testAcknowledgePrependRange() { 
-        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
         destination.getHandler();
         expectLastCall().andReturn(handler).times(4);
-        //handler.getTimer();
-        //expectLastCall().andReturn(null).times(4);
+        destination.getRMAssertion();
+        expectLastCall().andReturn(rma).times(4);
         destination.getAcksPolicy();
         expectLastCall().andReturn(ap).times(4);
         replay(destination);
@@ -252,11 +266,10 @@ public class SequenceTest extends TestCase {
     }
     
     public void testAllAcknowledged() {
-        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
         destination.getHandler();
         expectLastCall().andReturn(handler).times(11);
-        //handler.getTimer();
-        //expectLastCall().andReturn(null).times(11);
+        destination.getRMAssertion();
+        expectLastCall().andReturn(rma).times(11);
         destination.getAcksPolicy();
         expectLastCall().andReturn(ap).times(11);
         replay(destination);
@@ -340,11 +353,12 @@ public class SequenceTest extends TestCase {
     
     public void testMonitor() {
         Timer t = new Timer();
-        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
         destination.getHandler();
         expectLastCall().andReturn(handler).times(15);
         handler.getTimer();
         expectLastCall().andReturn(t).times(15);
+        destination.getRMAssertion();
+        expectLastCall().andReturn(rma).times(15);
         destination.getAcksPolicy();
         expectLastCall().andReturn(ap).times(15);
         replay(destination);
@@ -387,11 +401,10 @@ public class SequenceTest extends TestCase {
     }
     
     public void testAcknowledgeImmediate() {
-        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
         destination.getHandler();
         expectLastCall().andReturn(handler).times(1);
-        //handler.getTimer();
-        //expectLastCall().andReturn(null).times(1);
+        destination.getRMAssertion();
+        expectLastCall().andReturn(rma).times(1);        
         destination.getAcksPolicy();
         expectLastCall().andReturn(ap).times(1);
         replay(destination);
@@ -408,14 +421,19 @@ public class SequenceTest extends TestCase {
     }
     
     public void testAcknowledgeDeferred() {
-        AcksPolicyType ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
         ap.setIntraMessageThreshold(0);
-        ap.setDeferredBy(200);
+        AcknowledgementInterval ai = 
+            RMUtils.getWSRMPolicyFactory().createRMAssertionTypeAcknowledgementInterval();
+        ai.setMilliseconds(new BigInteger("200"));
+        rma.setAcknowledgementInterval(ai);        
+       
         Timer timer = new Timer();
         destination.getHandler();
         expectLastCall().andReturn(handler).times(3);
         handler.getTimer();
         expectLastCall().andReturn(timer).times(1);
+        destination.getRMAssertion();
+        expectLastCall().andReturn(rma).times(3);
         destination.getAcksPolicy();
         expectLastCall().andReturn(ap).times(3);
         replay(destination);

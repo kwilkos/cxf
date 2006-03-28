@@ -6,18 +6,38 @@
     xmlns:ct="http://celtix.objectweb.org/configuration/types"
     xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"
     xmlns:wsrm-conf="http://celtix.objectweb.org/bus/configuration/wsrm"
+    xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
     xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types">
 
-    <bean id="celtix.{http://celtix.objectweb.org/greeter_control}GreeterService.rm-handler" 
-        class="org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean">    
-        
+    <bean id="rm-handler-all" abstract="true">  
         <property name="destinationPolicies">
             <value>
                 <wsrm-conf:destinationPolicy>
-                    <wsrm-conf:acksPolicy intraMessageThreshold="0" deferredBy="2000"/>                    
+                    <wsrm-conf:acksPolicy intraMessageThreshold="0"/>                    
                 </wsrm-conf:destinationPolicy>
             </value>
-        </property>  
+        </property>
+        
+        <property name="rmAssertion">
+            <value>
+                <wsrm-policy:RMAssertion>         
+                    <wsrm-policy:BaseRetransmissionInterval Milliseconds="10000"/>           
+                    <wsrm-policy:AcknowledgementInterval Milliseconds="2000"/>                                                        
+                </wsrm-policy:RMAssertion>
+            </value>
+        </property>   
+    </bean>   
+    
+    <bean id="celtix.{http://celtix.objectweb.org/greeter_control}GreeterService.rm-handler" 
+        class="org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean"
+        parent="rm-handler-all">   
+         
+    </bean>
+    
+    <bean id="celtix.{http://celtix.objectweb.org/greeter_control}GreeterService/GreeterPort.rm-handler" 
+        class="org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean"
+        parent="rm-handler-all">   
+         
     </bean>
  
 
