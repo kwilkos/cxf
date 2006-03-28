@@ -97,15 +97,6 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             serviceMode = implementor.getClass().getAnnotation(ServiceMode.class);
         } else {
             //SEI Implementor
-            try {           
-                injectResources();
-            } catch (Exception ex) {
-                if (ex instanceof WebServiceException) { 
-                    throw (WebServiceException)ex; 
-                }
-                throw new WebServiceException("Creation of Endpoint failed", ex);
-            }
-            
             try {
                 context = JAXBEncoderDecoder.createJAXBContextForClass(impl.getClass());
             } catch (JAXBException ex1) {
@@ -124,6 +115,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     
     private void init() {
         try {
+            injectResources();
             initProperties();
             initMetaData();
 

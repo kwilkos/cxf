@@ -1,20 +1,24 @@
 package org.objectweb.celtix.routing;
-//import java.io.InputStream;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Provider;
 import javax.xml.ws.Service;
 import javax.xml.ws.ServiceMode;
+import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceProvider;
+import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.routing.configuration.DestinationType;
 import org.objectweb.celtix.routing.configuration.RouteType;
@@ -28,6 +32,11 @@ public class StreamSourceMessageProvider implements Provider<StreamSource> {
     private final URL wsdlLocation;
     private boolean doInit;
 
+    /**
+     * Injectable context.
+     */
+    @Resource
+    private WebServiceContext wsCtx;
     
     public StreamSourceMessageProvider(Definition model, RouteType rt) {
         wsdlModel = model;
@@ -40,14 +49,27 @@ public class StreamSourceMessageProvider implements Provider<StreamSource> {
             throw new WebServiceException("Invalid wsdl url", mue);
         }
     }
-
+    
+    @Resource
+    public void setContext(WebServiceContext ctx) { 
+        wsCtx = ctx;
+    }
+    
     public StreamSource invoke(StreamSource request) {
         if (doInit) {
             init();
         }
+        
+        Dispatch<StreamSource> dispatch = dList.get(0);
+
         //TODO Set Request/Response Context like Transport Attributes.
-        //TODO Use Async API        
-        return dList.get(0).invoke(request);
+        updateRequestContext(dispatch.getRequestContext());
+
+        //TODO Use Async API
+        StreamSource resp = dispatch.invoke(request);
+        
+        updateWebServiceContext(dispatch.getResponseContext());
+        return resp;
     }
     
     protected synchronized void init() {
@@ -79,4 +101,17 @@ public class StreamSourceMessageProvider implements Provider<StreamSource> {
                                       StreamSource.class, 
                                       Service.Mode.MESSAGE);
     }
+    
+    private void updateRequestContext(Map<String, Object> reqCtx) {
+        MessageContext sourceMsgCtx = wsCtx.getMessageContext();
+        reqCtx.put(BindingProvider.USERNAME_PROPERTY, 
+                   sourceMsgCtx.get(BindingProvider.USERNAME_PROPERTY));
+        reqCtx.put(BindingProvider.PASSWORD_PROPERTY, 
+                   sourceMsgCtx.get(BindingProvider.PASSWORD_PROPERTY));        
+    }
+    
+    private void updateWebServiceContext(Map<String, Object> respCtx) {
+        //TODO
+    }
+    
 }

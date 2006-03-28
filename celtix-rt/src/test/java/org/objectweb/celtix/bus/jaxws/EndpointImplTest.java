@@ -121,12 +121,22 @@ public class EndpointImplTest extends TestCase {
 
 
     public void testResourceInjectionApplicationContext() { 
-        
-     
         // WebServiceContext is specified by a resource annotation.
         // This should be inject when the endpoing is published.
-        //
+        //i.e in context of Endpoint.publish.
+        //Such injection should not happen for Endpoint.create.
+        //JAX_WS Spec 5.2.1.
+        
         WebServiceContext ctx = servant.getContext();
+        assertNull(ctx);
+        try {
+            String address = "http://localhost:8080/test";
+            endpoint.publish(address);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.getCause() instanceof BusException);
+            assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
+        }
+        ctx = servant.getContext();
         assertNotNull(ctx);
     }
 
