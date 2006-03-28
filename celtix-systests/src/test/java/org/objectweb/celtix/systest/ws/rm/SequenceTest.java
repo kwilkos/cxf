@@ -80,7 +80,7 @@ public class SequenceTest extends ClientServerTestBase {
 
     // --- tests ---
 
-    public void xtestOnewayAnonymousAcks() throws Exception {
+    public void testOnewayAnonymousAcks() throws Exception {
 
         setupEndpoints("");
         
@@ -110,7 +110,7 @@ public class SequenceTest extends ClientServerTestBase {
         }
     }
     
-    public void xtestOnewayDeferredAnonymousAcks() throws Exception {
+    public void testOnewayDeferredAnonymousAcks() throws Exception {
 
         setupEndpoints("anonymous-deferred");
         
