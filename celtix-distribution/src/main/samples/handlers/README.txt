@@ -107,24 +107,29 @@ build/classes and then generate code from the WSDL file.
 For UNIX:
   mkdir -p build/classes
 
-  wsdl2java -d build/classes ./wsdl/addNumbers.wsdl
+  wsdl2java -d build/classes -compile ./wsdl/addNumbers.wsdl
 
 For Windows:
   mkdir build\classes
     Must use back slashes.
 
-  wsdl2java -d build\classes .\wsdl\addNumbers.wsdl
-
+  wsdl2java -d build\classes -compile .\wsdl\addNumbers.wsdl
     May use either forward or back slashes.
 
-Now compile both the generated code and the provided client and
-server applications with the commands:
+Now compile the provided client and server applications with the commands:
 
+For UNIX:  
+  
+  export classpath=$classpath:$CELTIX_HOME/lib/celtix.jar:./build/classes
   javac -d build/classes src/demo/handlers/common/*.java
   javac -d build/classes src/demo/handlers/client/*.java
   javac -d build/classes src/demo/handlers/server/*.java
 
-Windows may use either forward or back slashes.
+For Windows:
+  set classpath=%classpath%;%CELTIX_HOME%\lib\celtix.jar:.\build\classes
+  javac -d build\classes src\demo\handlers\common\*.java
+  javac -d build\classes src\demo\handlers\client\*.java
+  javac -d build\classes src\demo\handlers\server\*.java
 
 Finally, copy the demo_handlers.xml file from the src/demo/handlers/common
 directory into the build/classes/demo/handlers/common directory.

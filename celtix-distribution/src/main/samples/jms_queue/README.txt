@@ -52,22 +52,27 @@ directory build/classes and then generate code from the WSDL file.
 For UNIX:
   mkdir -p build/classes
 
-  wsdl2java -d build/classes ./wsdl/jms_greeter.wsdl
+  wsdl2java -d build/classes -compile ./wsdl/jms_greeter.wsdl
 
 For Windows:
   mkdir build\classes
     Must use back slashes.
 
-  wsdl2java -d build\classes .\wsdl\jms_greeter.wsdl
+  wsdl2java -d build\classes -compile .\wsdl\jms_greeter.wsdl
     May use either forward or back slashes.
 
-Now compile both the generated code and the provided client and
-server applications with the commands:
+Now compile the provided client and server applications with the commands:
 
-  javac -d build/classes src/demo/hwJMS/client/*.java
-  javac -d build/classes src/demo/hwJMS/server/*.java
+For UNIX:  
+  
+  export classpath=$classpath:$CELTIX_HOME/lib/celtix.jar:./build/classes
+  javac -d build/classes src/demo/jms_greeter/client/*.java
+  javac -d build/classes src/demo/jms_greeter/server/*.java
 
-Windows may use either forward or back slashes.
+For Windows:
+  set classpath=%classpath%;%CELTIX_HOME%\lib\celtix.jar:.\build\classes
+  javac -d build\classes src\demo\jms_greeter\client\*.java
+  javac -d build\classes src\demo\jms_greeter\server\*.java
 
 
 

@@ -52,13 +52,13 @@ command to generate classes required in the async case.
 
 For UNIX:
   mkdir -p build/classes
-
+  cp ./wsdl/async_binding.xml.tmpl ./wsdl/async_binding.xml
   wsdl2java -d build/classes -b ./wsdl/async_binding.xml ./wsdl/hello_world_async.wsdl
 
 For Windows:
   mkdir build\classes
     Must use back slashes.
-
+  copy .\wsdl\async_binding.xml.tmpl .\wsdl\async_binding.xml
   wsdl2java -d build\classes -b .\wsdl\async_binding.xml .\wsdl\hello_world_async.wsdl
     May use either forward or back slashes.
 
