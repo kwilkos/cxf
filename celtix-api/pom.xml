@@ -4,7 +4,7 @@
     <groupId>org.objectweb.celtix</groupId>
     <artifactId>celtix-api</artifactId>
     <packaging>jar</packaging>
-    <version>0.5-SNAPSHOT</version>
+    <version>1.0-beta-1-SNAPSHOT</version>
     <name>Celtix Public API</name>
     <url>http://celtix.objectweb.org/</url>
 
@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.objectweb.celtix</groupId>
         <artifactId>celtix</artifactId>
-        <version>0.5-SNAPSHOT</version>
+        <version>1.0-beta-1-SNAPSHOT</version>
     </parent>
 
     <properties>
