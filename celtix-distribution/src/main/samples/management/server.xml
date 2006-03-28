@@ -22,11 +22,11 @@
       <property name="MBServer">
 	  <value>
 	     <im:MBServer>
-	        <im:PlatformMBeanServer>true</im:PlatformMBeanServer>
+	        <im:PlatformMBeanServer>false</im:PlatformMBeanServer>
 		<im:JMXConnector>
 		   <im:Threaded>true</im:Threaded>
 		   <im:Daemon>false</im:Daemon>
-		   <im:JMXServiceURL>service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi/server</im:JMXServiceURL>
+		   <im:JMXServiceURL>service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/server</im:JMXServiceURL>
 		 </im:JMXConnector>
 	      </im:MBServer>
 	  </value>

@@ -53,6 +53,9 @@ To explore the celtix managed components
 The server JMX Service URL is:
   service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/server  
 
+The client JMX Service URL is:
+  service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/client
+
 To remove the code generated from the WSDL file and the .class
 files, run:
 
@@ -93,9 +96,6 @@ Running the demo using java
 From the samples/hello_world directory run the commands, entered on a
 single command line:
 
-start the rmi registry for JMXConnectorServer registering
-    rmiregistry 9913  (in the background or another window)
-
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
 	-Dceltix.config.file=file:///$CELTIX_HOME/samples/management/server.xml
@@ -124,8 +124,13 @@ client, terminate the server process by issuing Ctrl-C in its command window.
 
 To explore the celtix managed components   
   jconsole  (in the background or another window)
+  
   The Server JMX Service URL is:
   service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/server
+  
+  The Client JMX Service URL is:
+  service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/client
+  
 
 To remove the code generated from the WSDL file and the .class
 files, either delete the build directory and its contents or run:
