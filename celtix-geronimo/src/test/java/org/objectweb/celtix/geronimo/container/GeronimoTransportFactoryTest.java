@@ -24,7 +24,7 @@ public class GeronimoTransportFactoryTest extends TestCase {
     private EndpointReferenceType addr; 
     
     public void setUp() throws Exception { 
-        container = new CeltixWebServiceContainer();
+        container = new CeltixWebServiceContainer(null);
         addr = new EndpointReferenceType();
         AttributedURIType uri = new AttributedURIType(); 
         uri.setValue("http://not.there.iona.com/wibbly/wobbly/wonder");
@@ -63,7 +63,7 @@ public class GeronimoTransportFactoryTest extends TestCase {
         
         Thread t = new Thread() {
             public void run() {
-                CeltixWebServiceContainer cntr1 = new CeltixWebServiceContainer();
+                CeltixWebServiceContainer cntr1 = new CeltixWebServiceContainer(null);
                 assertSame(null, factory.getCurrentContainer());
                 factory.setCurrentContainer(cntr1);
                 assertSame(cntr1, factory.getCurrentContainer());

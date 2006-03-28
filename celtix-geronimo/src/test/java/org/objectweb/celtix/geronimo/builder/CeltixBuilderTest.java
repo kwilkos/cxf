@@ -13,10 +13,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.kernel.StoredObject;
 import org.easymock.classextension.EasyMock;
-import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.geronimo.MockBusFactory;
-import org.objectweb.celtix.transports.TransportFactory;
-import org.objectweb.celtix.transports.TransportFactoryManager;
 import org.objectweb.hello_world_soap_http.Greeter;
 
 public class CeltixBuilderTest extends TestCase {
@@ -32,7 +29,6 @@ public class CeltixBuilderTest extends TestCase {
     private PortInfo portInfo; 
     
     private CeltixBuilder builder;
-    private Bus mockBus; 
     
     private MockBusFactory mockBusFactory = new MockBusFactory(); 
     
@@ -48,38 +44,12 @@ public class CeltixBuilderTest extends TestCase {
         portInfo.setPortName(PORT_NAME);
         portInfo.setWsdlFile(WSDL_FILE);
 
-        mockBus = mockBusFactory.createMockBus();
+        mockBusFactory.createMockBus();
         builder = new CeltixBuilder(mockBusFactory.getBus());
     }
     
     
-    public void testStart() throws Exception {
-    
-        TransportFactoryManager tfm = EasyMock.createMock(TransportFactoryManager.class);
-        
-        // initialise bus 
-        // register transport factory
-        mockBus.getTransportFactoryManager();
-        EasyMock.expectLastCall().andReturn(tfm);
-        
-        tfm.registerTransportFactory(EasyMock.eq("http://schemas.xmlsoap.org/wsdl/soap/"),
-                EasyMock.isA(TransportFactory.class));
-        tfm.registerTransportFactory(EasyMock.eq("http://schemas.xmlsoap.org/wsdl/soap/http"),
-                EasyMock.isA(TransportFactory.class));
-        tfm.registerTransportFactory(EasyMock.eq("http://celtix.objectweb.org/transports/http/configuration"),
-                EasyMock.isA(TransportFactory.class));
-        
-        mockBusFactory.replay();
-        EasyMock.replay(tfm);
-        
-        CeltixBuilder cb = new CeltixBuilder(mockBus);
-        cb.doStart();
-
-        EasyMock.verify(mockBus);
-        EasyMock.verify(tfm);
-
-    }
-    
+     
     
     public void testGetGBeanInfo() { 
         
@@ -104,13 +74,7 @@ public class CeltixBuilderTest extends TestCase {
        
         EasyMock.replay(gbeanData);
         mockBusFactory.replay();
-        /*
-        EasyMock.replay(loader); 
-        EasyMock.replay(mockBus);
-        EasyMock.replay(mockBindingMgr);
-        EasyMock.replay(bindingFact);
-        EasyMock.replay(mockServerBinding);
-        */
+       
         builder.configurePOJO(gbeanData, moduleFile, portInfo, Greeter.class.getName(),
                               getClass().getClassLoader());
         

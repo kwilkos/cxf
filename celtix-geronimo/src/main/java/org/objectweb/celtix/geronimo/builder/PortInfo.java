@@ -1,16 +1,19 @@
 package org.objectweb.celtix.geronimo.builder;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.sun.java.xml.ns.j2ee.PortComponentHandlerType;
 
-public class PortInfo {
+public class PortInfo implements Serializable {
 
     private String serviceName;
     private String portName;
     private String seiInterfaceName;
     private String wsdlFile;
     private String servletLink;
+    // TODO: will have to construct handlers when the container becomes active 
+    //
     private List<PortComponentHandlerType> handlers;
    
     public String getPortName() {

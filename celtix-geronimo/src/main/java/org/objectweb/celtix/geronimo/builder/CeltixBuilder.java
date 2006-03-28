@@ -3,13 +3,8 @@ package org.objectweb.celtix.geronimo.builder;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +15,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.QName;
 import javax.xml.ws.handler.Handler;
 
 import com.sun.java.xml.ns.j2ee.PortComponentType;
@@ -31,20 +25,14 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.StoredObject;
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.geronimo.container.CeltixWebServiceContainer;
-import org.objectweb.celtix.geronimo.container.GeronimoTransportFactory;
-import org.objectweb.celtix.transports.TransportFactoryManager;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
-public class CeltixBuilder implements WebServiceBuilder, GBeanLifecycle {
+public class CeltixBuilder implements WebServiceBuilder {
 
     public static final GBeanInfo GBEAN_INFO;
     static final String WEB_SERVICE_CONTAINER_ATTR = "webServiceContainer";
@@ -53,8 +41,6 @@ public class CeltixBuilder implements WebServiceBuilder, GBeanLifecycle {
     
     private final Bus bus;
     private JAXBContext ctx;
-    private GeronimoTransportFactory factory = new GeronimoTransportFactory();
-    private Collection<EndpointImpl> activeEndpoints = new ArrayList<EndpointImpl>();
     
     
     static {
@@ -149,56 +135,23 @@ public class CeltixBuilder implements WebServiceBuilder, GBeanLifecycle {
             
             LOG.info("configuring POJO webservice: " + pi + " sei: " + seiClassName);
             
-            Class<?> seiClass = loadSEI(seiClassName, classLoader);
-            targetGBean.setAttribute(POJO_CLASS_ATTR, seiClassName); 
+            // verify that the class is loadable
+            loadSEI(seiClassName, classLoader);
+            targetGBean.setAttribute(POJO_CLASS_ATTR, implClassName);
+            // TODO: add support for handlers defined in the webservice.xml
+            
             /*List<Handler> handlers =*/ buildHandlerChain(portInfo);
             
-            CeltixWebServiceContainer container = new CeltixWebServiceContainer();
-            
-            URL url = resolveWSDL(portInfo.getWsdlFile(), classLoader); 
-            assert url != null; 
-            
-            EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(url,
-                    QName.valueOf(portInfo.getServiceName()),
-                    portInfo.getPortName());
-            
-            factory.setCurrentContainer(container);
-            EndpointImpl ep = new EndpointImpl(bus, createDelegatingProxyFor(seiClass), 
-                                               "http://schemas.xmlsoap.org/wsdl/soap/http", ref);
-            LOG.fine("publishing endpoint " + ep);
-            ep.publish("http://localhost/"); 
-            registerActiveEndpoint(ep);
-            
+            CeltixWebServiceContainer container = new CeltixWebServiceContainer(portInfo);           
             targetGBean.setAttribute(WEB_SERVICE_CONTAINER_ATTR, new StoredObject(container));
+            
         } catch (IOException ex) {
             throw new DeploymentException("unable to store CeltixWebServiceContainer", ex);
         } finally {
-            if (factory != null) {
-                factory.setCurrentContainer(null);
-            }
             Thread.currentThread().setContextClassLoader(orig);
         }
     }
 
-    private URL resolveWSDL(String resource, ClassLoader loader) { 
-        
-        try {
-            return new URL(resource);
-        } catch (MalformedURLException ex) {
-            return loader.getResource(resource);
-        }
-    }
-    
-    
-    private Object createDelegatingProxyFor(Class<?> seiClass) {
-        return Proxy.newProxyInstance(seiClass.getClassLoader(), new Class<?>[] {seiClass},
-                                      new DelegatingProxyInvocationHandler());
-    }
-    
-    private void registerActiveEndpoint(EndpointImpl endpoint) {
-        activeEndpoints.add(endpoint);
-    }
-    
     
     public void configureEJB(GBeanData targetGBean, JarFile moduleFile, Object portInfo, 
                              ClassLoader classLoader)
@@ -208,23 +161,9 @@ public class CeltixBuilder implements WebServiceBuilder, GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-        
-        TransportFactoryManager tfm = bus.getTransportFactoryManager();
-        factory.init(getBus());
-        tfm.registerTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/",
-                factory);
-        tfm.registerTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/http",
-                factory);
-        tfm.registerTransportFactory("http://celtix.objectweb.org/transports/http/configuration",
-                factory);
-
     }
 
     public void doStop() throws Exception {
-        
-        for (EndpointImpl ep : activeEndpoints) {
-            ep.stop();
-        }
     }
 
     public void doFail() {
@@ -255,10 +194,4 @@ public class CeltixBuilder implements WebServiceBuilder, GBeanLifecycle {
         return bus;
     }
     
-    static class DelegatingProxyInvocationHandler implements InvocationHandler {
-        public Object invoke(Object proxy, Method method, Object[] args) {
-            System.out.println(this + " invoking method " + method);
-            return null;
-        }
-    }
 }
