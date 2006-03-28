@@ -10,9 +10,9 @@ public class HTTPServerInputStreamContext
     extends GenericMessageContext
     implements InputStreamMessageContext {
 
-    static final String HTTP_REQUEST =
+    public static final String HTTP_REQUEST =
         HTTPServerInputStreamContext.class.getName() + ".REQUEST";
-    static final String HTTP_RESPONSE =
+    public static final String HTTP_RESPONSE =
         HTTPServerInputStreamContext.class.getName() + ".RESPONSE";
     
     private static final long serialVersionUID = 1L;

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.transports.http;
+package org.objectweb.celtix.bus.jaxws.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +16,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -30,7 +29,6 @@ import org.xml.sax.SAXException;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.jaxws.EndpointImpl;
-import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -221,19 +219,6 @@ public class CeltixServlet extends HttpServlet {
             tp.doGet(request, response);
         } catch (IOException ex) {
             throw new ServletException(ex.getMessage());
-        }
-    }
-
-    
-    public static class ServletTransportFactory extends HTTPTransportFactory {
-        CeltixServlet servlet;
-        ServletTransportFactory(CeltixServlet serv) {
-            servlet = serv;
-        }
-        public ServerTransport createServerTransport(EndpointReferenceType address)
-            throws WSDLException, IOException {
-        
-            return new ServletServerTransport(bus, address, servlet);
         }
     }
 

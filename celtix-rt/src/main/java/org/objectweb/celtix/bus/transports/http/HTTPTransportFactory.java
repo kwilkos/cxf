@@ -34,13 +34,13 @@ import org.xmlsoap.schemas.wsdl.http.AddressType;
 public class HTTPTransportFactory implements TransportFactory {
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPTransportFactory.class);
     
-    Bus bus;
+    protected Bus bus;
     
-    private String decoupledAddress;
-    private URL decoupledURL;
-    private JettyHTTPServerEngine decoupledEngine;
-    private EndpointReferenceType decoupledEndpoint;
-    private ResponseCallback responseCallback;
+    protected String decoupledAddress;
+    protected URL decoupledURL;
+    protected JettyHTTPServerEngine decoupledEngine;
+    protected EndpointReferenceType decoupledEndpoint;
+    protected ResponseCallback responseCallback;
       
     /* surefire runs in a classloader that won't allow the URL 
      * class to load the Handler.   We'll need to manually add 
