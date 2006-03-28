@@ -21,11 +21,12 @@ public class CeltixWebServiceContainer implements WebServiceContainer, GBeanLife
     private static final Logger LOG = Logger.getLogger(CeltixWebServiceContainer.class.getName());
     
     private final PortInfo portInfo; 
-    private final transient  GeronimoTransportFactory factory = new GeronimoTransportFactory();
 
+    private transient  GeronimoTransportFactory factory;
     private transient GeronimoServerTransport serverTransport;
     private transient EndpointImpl publishedEndpoint;
     private transient Bus bus; 
+    private transient boolean started; 
     
     
     public CeltixWebServiceContainer(PortInfo pi) {
@@ -35,32 +36,43 @@ public class CeltixWebServiceContainer implements WebServiceContainer, GBeanLife
     public void invoke(Request request, Response response) throws Exception {
 
         Object target = request.getAttribute(WebServiceContainer.POJO_INSTANCE);
+        assert target != null : "target object not available in request"; 
         
-        if (!isEndpointPublished()) {            
-            publishEndpoint(target);
+        ClassLoader origLoader = Thread.currentThread().getContextClassLoader();
+        
+        try {
+            Thread.currentThread().setContextClassLoader(target.getClass().getClassLoader());
+            if (!isEndpointPublished()) {
+                doStart();
+                publishEndpoint(target);
+            }            
+            serverTransport.invoke(request, response);
+        } finally { 
+            Thread.currentThread().setContextClassLoader(origLoader);
         }
-      
-        serverTransport.invoke(request, response);
     }
 
     
     public void getWsdl(Request request, Response response) throws Exception {
         // TODO Auto-generated method stub
-        System.out.println(this + " getWsdl called " + request.getParameters());
-        
+        System.out.println(this + " getWsdl called " + request.getParameters());       
     }
 
     public void doStart() throws Exception {
         
+        if (started) {
+            return;
+        }
+        
         TransportFactoryManager tfm = getBus().getTransportFactoryManager();
-        factory.init(getBus());
+        getTransportFactory().init(getBus());
         tfm.registerTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/",
                 factory);
         tfm.registerTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/http",
                 factory);
         tfm.registerTransportFactory("http://celtix.objectweb.org/transports/http/configuration",
                 factory);
-
+        started = true;
     }
 
     public void doStop() throws Exception {
@@ -107,8 +119,11 @@ public class CeltixWebServiceContainer implements WebServiceContainer, GBeanLife
                 QName.valueOf(portInfo.getServiceName()),
                 portInfo.getPortName());
 
+        GeronimoTransportFactory tfactory = getTransportFactory(); 
+        assert tfactory != null : "failed to get transport factory";
+        
         try {
-            factory.setCurrentContainer(this);
+            tfactory.setCurrentContainer(this);
             EndpointImpl ep = new EndpointImpl(getBus(), target,
                                                "http://schemas.xmlsoap.org/wsdl/soap/http", ref);
             LOG.fine("publishing endpoint " + ep);
@@ -117,7 +132,7 @@ public class CeltixWebServiceContainer implements WebServiceContainer, GBeanLife
             
             assert serverTransport != null : "server transport not initialized";
         } finally {
-            factory.setCurrentContainer(null);
+            tfactory.setCurrentContainer(null);
         }
     }
     
@@ -131,4 +146,10 @@ public class CeltixWebServiceContainer implements WebServiceContainer, GBeanLife
     }
     
 
+    private synchronized GeronimoTransportFactory getTransportFactory() {
+        if (factory == null) {
+            factory = new GeronimoTransportFactory();
+        }
+        return factory;
+    }
 }

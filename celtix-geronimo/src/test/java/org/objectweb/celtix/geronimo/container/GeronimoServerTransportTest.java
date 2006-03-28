@@ -2,6 +2,7 @@ package org.objectweb.celtix.geronimo.container;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.HashMap;
@@ -141,18 +142,27 @@ public class GeronimoServerTransportTest extends TestCase {
 
     public void testCreateOutputStreamContext() throws IOException {
 
-        MessageContext mc = EasyMock.createMock(MessageContext.class); 
+        MessageContext mc = EasyMock.createMock(MessageContext.class);
+        Response resp = EasyMock.createNiceMock(Response.class);
+        resp.setStatusCode(200);
+        EasyMock.expect(resp.getOutputStream()).andReturn(EasyMock.createNiceMock(OutputStream.class)); 
+        
+        EasyMock.expect(mc.get(GeronimoInputStreamMessageContext.RESPONSE))
+                .andReturn(resp);
+        
+        EasyMock.expect(mc.get("foo")).andReturn("ret");
+        EasyMock.replay(mc);
+        EasyMock.replay(resp);
         
         OutputStreamMessageContext outctx = transport.createOutputStreamContext(mc);
         
         assertNotNull("received null context from the transoprt", outctx);
         assertTrue("incorrect type for context" + outctx.getClass(), 
-                   outctx instanceof GeronimoOutputStreamMessageContext);
+                   outctx instanceof GeronimoOutputStreamServerMessageContext);
+
+        assertNotNull("no outputstream in context", outctx.getOutputStream());
         
         // check that context passed in has been wrapped.
-        EasyMock.expect(mc.get("foo")).andReturn("ret");
-        
-        EasyMock.replay(mc);
         
         outctx.get("foo");
         EasyMock.verify(mc);

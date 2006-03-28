@@ -64,7 +64,7 @@ public class GeronimoServerTransport extends AbstractHTTPServerTransport
     }
 
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
-        return new GeronimoOutputStreamMessageContext(context);
+        return new GeronimoOutputStreamServerMessageContext(context);
     }
 
     public void finalPrepareOutputStreamContext(OutputStreamMessageContext context) throws IOException {
