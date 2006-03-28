@@ -6,7 +6,7 @@
     <property name="wsdl.dir" location="${basedir}/wsdl"/>
     <property name="wsdl.file" value="jms_greeter.wsdl"/>
 
-    <target name="client" description="run demo client">
+    <target name="client" description="run demo client" depends="build">
         <property name="param1" value=""/>
         <property name="param2" value=""/>
         <property name="param3" value=""/>
@@ -14,7 +14,7 @@
     </target>
     
 
-    <target name="server" description="run demo server">
+    <target name="server" description="run demo server" depends="build">
         <celtixrun classname="demo.jms_greeter.server.Server" jvmarg1="-Dceltix.config.file=file:///${basedir}/wsdl/jms_greeter_config.xml" param1="${basedir}/wsdl/jms_greeter.wsdl"/>
     </target>
 

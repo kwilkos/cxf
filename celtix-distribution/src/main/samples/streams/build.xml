@@ -3,13 +3,13 @@
 
     <import file="../common_build.xml"/>
 
-    <target name="client" description="run demo client">
+    <target name="client" description="run demo client" depends="build">
         <property name="param" value=""/>
         <celtixrun classname="demo.streams.client.Client"
         param1="${basedir}/wsdl/hello_world.wsdl"  jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-client.xml"/>
     </target> 
 
-    <target name="server" description="run demo server">
+    <target name="server" description="run demo server" depends="build">
         <celtixrun classname="demo.streams.server.Server" param1="${basedir}}/wsdl/hello_world.wsdl"   
 		   jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-server.xml"/>
     </target>

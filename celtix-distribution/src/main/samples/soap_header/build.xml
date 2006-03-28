@@ -3,12 +3,12 @@
 
     <import file="../common_build.xml"/>
 
-    <target name="client" description="run demo client">
+    <target name="client" description="run demo client" depends="build">
         <property name="param" value=""/>
         <celtixrun classname="demo.soap_header.client.Client" param1="${basedir}/wsdl/soap_header.wsdl" param2="${op}" param3="${param}"/>
     </target>
 
-    <target name="server" description="run demo server">
+    <target name="server" description="run demo server" depends="build">
         <celtixrun classname="demo.soap_header.server.Server" param1="${basedir}/wsdl/soap_header.wsdl"/>
     </target>
 
@@ -22,7 +22,7 @@
         <celtixwar wsdl="soap_header.wsdl" filename="soapheader.war"/>
 	</target>
 
-    <target name="client-servlet" description="run demo client hitting servlet">
+    <target name="client-servlet" description="run demo client hitting servlet" depends="build">
         <property name="param" value=""/>
         <celtixrun classname="demo.soap_header.client.Client" param1="${base.url}/soapheader/celtix/soap_header" param2="${op}" param3="${param}"/>
     </target>           
