@@ -69,7 +69,7 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export classpath=$CLASSPATH:$CELTIX_HOME/lib/celtix.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CELTIX_HOME/lib/celtix.jar:./build/classes
   javac -d build/classes src/demo/hwDispatch/client/*.java
   javac -d build/classes src/demo/hwDispatch/server/*.java
 

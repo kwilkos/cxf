@@ -65,7 +65,7 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export classpath=$CLASSPATH:$CELTIX_HOME/lib/celtix.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CELTIX_HOME/lib/celtix.jar:./build/classes
   javac -d build/classes src/demo/hw/client/*.java
   javac -d build/classes src/demo/hw/server/*.java
 
