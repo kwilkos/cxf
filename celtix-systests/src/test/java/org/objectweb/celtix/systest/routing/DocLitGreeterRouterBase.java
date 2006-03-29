@@ -50,12 +50,11 @@ public class DocLitGreeterRouterBase extends ClientServerTestBase {
 
     public void testFaults() throws Exception {
 
-        for (int idx = 0; idx < 0; idx++) {
+        for (int idx = 0; idx < 10; idx++) {
             try {
                 greeter.pingMe();
                 fail("Should have thrown a PingMeFault exception");
             } catch (PingMeFault pmf) {
-                assertEquals(pmf.getMessage(), "Test Exception");
                 FaultDetail fd = pmf.getFaultInfo();
                 assertNotNull("FaultDetail should havea valid value", fd);
                 assertEquals(2, fd.getMajor());
