@@ -25,6 +25,11 @@
             <artifactId>celtix-rt</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
+            <artifactId>celtix-geronimo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
