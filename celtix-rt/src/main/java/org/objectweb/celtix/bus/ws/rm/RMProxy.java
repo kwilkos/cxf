@@ -28,10 +28,10 @@ public class RMProxy {
     }
 
     public CreateSequenceResponseType createSequence(RMSource source, 
-                                                     EndpointReferenceType replyTo, 
+                                                     EndpointReferenceType acksTo, 
                                                      Identifier i) 
         throws IOException, SequenceFault {
-        CreateSequenceRequest request = new CreateSequenceRequest(handler.getBinding(), source, replyTo);
+        CreateSequenceRequest request = new CreateSequenceRequest(handler.getBinding(), source, acksTo);
         OfferType o = request.getIncludedOffer();
 
         ObjectMessageContext responseCtx = invoke(request.getObjectMessageContext(), 
@@ -60,8 +60,9 @@ public class RMProxy {
     }
     
     public void terminateSequence(Sequence seq) throws IOException {
-        TerminateSequenceRequest request = new TerminateSequenceRequest(handler.getBinding(), seq);       
-        invokeOneWay(request.getObjectMessageContext(), CreateSequenceRequest.createDataBindingCallback());
+        TerminateSequenceRequest request = new TerminateSequenceRequest(handler.getBinding(), seq);
+        
+        invokeOneWay(request.getObjectMessageContext(), TerminateSequenceRequest.createDataBindingCallback());
     }
     
     public void requestAcknowledgement(Collection<Sequence> seqs) throws IOException {
@@ -84,17 +85,20 @@ public class RMProxy {
         } else {
             // wait for changes on the transport decoupling -
             // server transport should allow to send this out of band request
+            LOG.severe("Not implemented yet.");
         } 
         return responseCtx;
     }
     
     private void invokeOneWay(ObjectMessageContext requestCtx, DataBindingCallback callback)
-        throws IOException {
-        if (handler.getClientBinding() != null) {
+        throws IOException {        
+        
+        if (handler.getClientBinding() != null) {            
             handler.getClientBinding().invokeOneWay(requestCtx, callback);
         } else {
             // wait for changes on the transport decoupling -
             // server transport should allow to send this out of band request
+            LOG.severe("Not implemented yet.");
         }
     }
     

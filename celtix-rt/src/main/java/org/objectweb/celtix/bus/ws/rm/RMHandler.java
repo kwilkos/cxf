@@ -32,6 +32,7 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
+import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
@@ -235,88 +236,75 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             LOG.fine("Action: " + action);
         }
 
+        boolean isApplicationMessage = true;
+        
         if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)
             || RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)
             || RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)
             || RMUtils.getRMConstants().getSequenceInfoAction().equals(action)) {
-            return;
+            isApplicationMessage = false;
         }
 
-        RMPropertiesImpl rmpsOut = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(context, true);
-        if (null == rmpsOut) {
-            rmpsOut = new RMPropertiesImpl();
-            RMContextUtils.storeRMProperties(context, rmpsOut, true);
-        }
-        RMPropertiesImpl rmpsIn = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(context, false);
-        Identifier inSeqId = null;
-        if (null != rmpsIn && null != rmpsIn.getSequence()) {
-            inSeqId = rmpsIn.getSequence().getIdentifier();            
-        }
-        LOG.fine("inbound sequence: " + (null == inSeqId ? "null" : inSeqId.getValue()));
-        
-        // not for partial responses to oneway requests
-
-        if (!(isServerSide() && BindingContextUtils.isOnewayTransport(context))) {
-            
-            if (!ContextUtils.isRequestor(context)) {
-                assert null != inSeqId;
+        if (isApplicationMessage) {
+            RMPropertiesImpl rmpsOut = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(context, true);
+            if (null == rmpsOut) {
+                rmpsOut = new RMPropertiesImpl();
+                RMContextUtils.storeRMProperties(context, rmpsOut, true);
             }
-            Sequence seq = getSource().getCurrent(inSeqId);
+            RMPropertiesImpl rmpsIn = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(context, false);
+            Identifier inSeqId = null;
+            if (null != rmpsIn && null != rmpsIn.getSequence()) {
+                inSeqId = rmpsIn.getSequence().getIdentifier();
+            }
+            LOG.fine("inbound sequence: " + (null == inSeqId ? "null" : inSeqId.getValue()));
 
-            if (null == seq) {
-                // TODO: better error handling
-                try {
-                    getProxy().createSequence(getSource(), 
-                        VersionTransformer.convert(maps.getReplyTo()), inSeqId);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                } catch (SequenceFault ex) {
-                    ex.printStackTrace();
+            // not for partial responses to oneway requests
+
+            if (!(isServerSide() && BindingContextUtils.isOnewayTransport(context))) {
+
+                if (!ContextUtils.isRequestor(context)) {
+                    assert null != inSeqId;
+                }
+                
+                // get the current sequence, requesting the creation of a new one if necessary
+                
+                Sequence seq = getSequence(inSeqId, context, maps);
+                assert null != seq;
+
+                // increase message number and store a sequence type object in
+                // context
+
+                seq.nextMessageNumber();
+                rmpsOut.setSequence(seq);
+
+                // if this was the last message in the sequence, reset the
+                // current sequence so that a new one will be created next 
+                // time the handler is invoked
+
+                if (null != seq.getLastMessageNumber()) {
+                    source.setCurrent(null);
                 }
 
-                seq = getSource().getCurrent();
-            }
-            assert null != seq;
+                // tell the source to store a copy of the message in the
+                // retransmission
+                // queue and schedule the next retransmission
 
-            // increase message number and store a sequence type object in
-            // context
+                getSource().addUnacknowledged(MessageContextWrapper.unwrap(context));
 
-            seq.nextMessageNumber();
-            rmpsOut.setSequence(seq);
-            
-            // if this was the last message in the sequence, reset the current sequence so
-            // that a new one will be created next time the handler in invoked
-            
-            if (null != seq.getLastMessageNumber()) {
-                source.setCurrent(null);
             }
 
-            // tell the source to store a copy of the message in the
-            // retransmission
-            // queue and schedule the next retransmission
+            // add Acknowledgements
 
-            getSource().addUnacknowledged(MessageContextWrapper.unwrap(context));
-
-        }
-
-
-        
-        // add Acknowledgements       
-        
-        if (null != getDestination()) {
-            AttributedURI to = VersionTransformer.convert(maps.getTo());
-            assert null != to;
-            addAcknowledgements(rmpsOut, inSeqId, to);
+            if (null != getDestination()) {
+                AttributedURI to = VersionTransformer.convert(maps.getTo());
+                assert null != to;
+                addAcknowledgements(rmpsOut, inSeqId, to);
+            }
         }
 
         // indicate to the binding that a response is expected from the transport although
         // the web method is a oneway method
 
-        /*
-        if (!isServerSide() && BindingContextUtils.isOnewayMethod(context)) {
-            context.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, Boolean.FALSE);
-        }
-        */
         if (BindingContextUtils.isOnewayMethod(context)) {
             context.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, Boolean.FALSE);
         }
@@ -453,6 +441,40 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
                 LOG.fine("Added " + acks.size() + " acknowledgements.");
             }
         }
+    }
+    
+    private Sequence getSequence(Identifier inSeqId, 
+                                 LogicalMessageContext context, 
+                                 AddressingPropertiesImpl maps) {
+        Sequence seq = getSource().getCurrent(inSeqId);
+
+        if (null == seq) {
+            // TODO: better error handling
+            try {
+                EndpointReferenceType acksTo = null;
+                if (isServerSide()) {
+                    AddressingPropertiesImpl inMaps = ContextUtils
+                        .retrieveMAPs(context, false, false);
+                    inMaps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
+                    acksTo = RMUtils.createReference(inMaps.getTo().getValue());
+                } else {
+                    acksTo = VersionTransformer.convert(maps.getReplyTo());
+                    // for oneways
+                    if (Names.WSA_NONE_ADDRESS.equals(acksTo.getAddress().getValue())) {
+                        acksTo = RMUtils.createReference(Names.WSA_ANONYMOUS_ADDRESS);
+                    }
+                }
+
+                getProxy().createSequence(getSource(), acksTo, inSeqId);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (SequenceFault ex) {
+                ex.printStackTrace();
+            }
+
+            seq = getSource().getCurrent();
+        }
+        return seq;
     }
 
 }

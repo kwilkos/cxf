@@ -6,6 +6,10 @@ import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.Request;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
+import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
+import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.rm.TerminateSequenceType;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceAbstractPortType;
 
@@ -16,7 +20,14 @@ public class TerminateSequenceRequest extends Request {
         
         super(b, b.createObjectContext());
         getObjectMessageContext().setRequestorRole(true);
-        getObjectMessageContext().setMethod(getMethod());       
+        getObjectMessageContext().setMethod(getMethod()); 
+        
+        AddressingProperties maps = new AddressingPropertiesImpl();
+        AttributedURIType actionURI = ContextUtils.WSA_OBJECT_FACTORY.createAttributedURIType();
+        actionURI.setValue(RMUtils.getRMConstants().getTerminateSequenceAction());
+        maps.setAction(actionURI);
+        ContextUtils.storeMAPs(maps, getObjectMessageContext(), true, true, true, true);
+        
         setMessageParameters(seq);
     }
     

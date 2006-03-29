@@ -156,33 +156,51 @@ public class SequenceTest extends ClientServerTestBase {
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice"); 
 
-        // two application messages plus two createSequence
+        // two application messages plus two createSequence plus teo terminateSequence
 
-        assertEquals(4, outboundMessages.size());
+        assertEquals(6, outboundMessages.size());
         String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION,
                                                  GREETMEONEWAY_ACTION,
+                                                 Names.WSRM_TERMINATE_SEQUENCE_ACTION,
                                                  Names.WSRM_CREATE_SEQUENCE_ACTION,
-                                                 GREETMEONEWAY_ACTION};
+                                                 GREETMEONEWAY_ACTION,
+                                                 Names.WSRM_TERMINATE_SEQUENCE_ACTION};
         verifyActions(expectedActions, true);
-        verifyMessageNumbers(new String[] {null, "1", null, "1"}, true);
-        verifyLastMessage(new boolean[] {false, true, false, true}, true);
+        verifyMessageNumbers(new String[] {null, "1", null, null, "1", null}, true);
+        verifyLastMessage(new boolean[] {false, true, false, false, true, false}, true);
 
         
-        // createSequenceResponse message plus partial response ||: 2
+        // createSequenceResponse message plus partial responses to 
+        // greetMeOneWay and terminateSequence ||: 2
 
-        assertEquals(4, inboundMessages.size());
+        for (int i = 0; i < 10; i++) {
+            if (inboundMessages.size() < 6) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            } else {
+                break;
+            }
+        }
+        assertEquals(6, inboundMessages.size());
         expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
-                                        null, 
+                                        null,
+                                        null,
                                         Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
+                                        null,
                                         null};
         verifyActions(expectedActions, false);
-        verifyMessageNumbers(new String[] {null, null, null, null}, false);
-        verifyLastMessage(new boolean[] {false, false, false, false}, false);
+        verifyMessageNumbers(new String[] {null, null, null, null, null, null}, false);
+        verifyLastMessage(new boolean[] {false, false, false, false, false, false}, false);
         
-        int i = 0;
-        while (i < 4) {
-            assertNull(getAcknowledgment(inboundMessages.get(i++)));
-            assertNotNull(getAcknowledgment(inboundMessages.get(i++)));
+        for (int i = 0; i < 6; i++) {
+            if (i % 3 == 1) {
+                assertNotNull(getAcknowledgment(inboundMessages.get(i)));
+            } else {
+                assertNull(getAcknowledgment(inboundMessages.get(i)));
+            }
         }
     }
     
@@ -228,6 +246,58 @@ public class SequenceTest extends ClientServerTestBase {
         verifyLastMessage(new boolean[8], false);     
         for (int i = 0; i < 8; i++) {
             if (i % 2 != 0 && i > 1) {
+                assertNotNull("Inbound message " + i + " does not contain expected acknowledgement",
+                              getAcknowledgment(inboundMessages.get(i)));
+            } else {
+                assertNull("Inbound message " + i + " contains unexpected acknowledgement",
+                           getAcknowledgment(inboundMessages.get(i)));
+            }
+        }
+    }
+    
+    // enable after server transport api has changed to support 
+    // requests being send from a server side 
+    
+    public void xtestTwowayNonAnonymousNoOffer() throws Exception {
+        setupEndpoints("twoway-no-offer");
+
+        greeter.greetMe("one");
+        greeter.greetMe("two");
+        
+        // CreateSequence and two greetMe messages
+        // plus a CreateSequenceResponse
+        // TODO there should be partial responses to the decoupled responses!
+        
+        assertEquals(4, outboundMessages.size());
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION,
+                                                 GREETME_ACTION,
+                                                 Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION,
+                                                 GREETME_ACTION};
+        verifyActions(expectedActions, true);
+        verifyMessageNumbers(new String[] {null, "1", null, "2"}, true);
+        verifyLastMessage(new boolean[] {false, false, false, false}, true);
+        for (int i = 0; i < 3; i++) {
+            assertNull(getAcknowledgment(outboundMessages.get(i)));
+        }
+        assertNotNull(getAcknowledgment(outboundMessages.get(3)));
+                  
+        // createSequenceResponse plus 2 greetMeResponse messages plus 
+        // one partial response for each of the four messages plus
+        // CreateSequence request
+
+        assertEquals(7, inboundMessages.size());
+        expectedActions = new String[] {null,
+                                        Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
+                                        null,
+                                        Names.WSRM_CREATE_SEQUENCE_ACTION,
+                                        GREETME_RESPONSE_ACTION, 
+                                        null,
+                                        GREETME_RESPONSE_ACTION};
+        verifyActions(expectedActions, false);
+        verifyMessageNumbers(new String[] {null, null, null, null, null, "1", null, "2"}, false);
+        verifyLastMessage(new boolean[7], false);     
+        for (int i = 0; i < 8; i++) {
+            if (i == 4 || i == 6) {
                 assertNotNull("Inbound message " + i + " does not contain expected acknowledgement",
                               getAcknowledgment(inboundMessages.get(i)));
             } else {

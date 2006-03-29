@@ -1,7 +1,10 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.ws.handler.MessageContext;
 
@@ -9,6 +12,8 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleListener;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.workqueue.WorkQueue;
 import org.objectweb.celtix.ws.rm.Identifier;
@@ -16,6 +21,7 @@ import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 
 public class RMSource extends RMEndpoint {
 
+    private static final Logger LOG = LogUtils.getL7dLogger(RMSource.class);
     private static final String SOURCE_POLICIES_PROPERTY_NAME = "sourcePolicies";
     private static final String REQUESTOR_SEQUENCE_ID = "";
     private Map<String, Sequence> current; 
@@ -129,6 +135,14 @@ public class RMSource extends RMEndpoint {
         if (null != seq) {
             seq.setAcknowledged(acknowledgment);
             retransmissionQueue.purgeAcknowledged(seq);
+            if (seq.allAcknowledged()) {
+                try {
+                    getHandler().getProxy().terminateSequence(seq); 
+                } catch (IOException ex) {
+                    Message msg = new Message("SEQ_TERMINATION_FAILURE", LOG, seq.getIdentifier());
+                    LOG.log(Level.SEVERE, msg.toString(), ex);
+                }
+            }
         }
     }
     

@@ -23,7 +23,8 @@ public class CreateSequenceRequest extends Request {
     
     private static final String METHOD_NAME = "createSequence";    
     
-    public CreateSequenceRequest(AbstractBindingBase b, RMSource source, EndpointReferenceType replyTo) {
+    public CreateSequenceRequest(AbstractBindingBase b, RMSource source, 
+                                 EndpointReferenceType defaultAcksTo) {
         
         super(b, b.createObjectContext());
         getObjectMessageContext().setRequestorRole(true);
@@ -36,7 +37,7 @@ public class CreateSequenceRequest extends Request {
         maps.setAction(actionURI);
         ContextUtils.storeMAPs(maps, getObjectMessageContext(), true, true, true, true);
             
-        setMessageParameters(source, replyTo);
+        setMessageParameters(source, defaultAcksTo);
     }
     
     public static Method getMethod() {
@@ -64,7 +65,7 @@ public class CreateSequenceRequest extends Request {
         return ((CreateSequenceType)params[0]).getOffer();
     }
     
-    private void setMessageParameters(RMSource source, EndpointReferenceType replyTo) {
+    private void setMessageParameters(RMSource source, EndpointReferenceType defaultAcksTo) {
         SourcePolicyType sourcePolicies = source.getSourcePolicies();
         assert null != sourcePolicies;
         
@@ -75,12 +76,7 @@ public class CreateSequenceRequest extends Request {
         if (null != address) {
             acksTo = RMUtils.createReference(address);
         } else {
-            // for oneways
-            if (Names.WSA_NONE_ADDRESS.equals(replyTo.getAddress().getValue())) {
-                acksTo = RMUtils.createReference(Names.WSA_ANONYMOUS_ADDRESS);
-            } else {
-                acksTo = replyTo; 
-            }
+            acksTo = defaultAcksTo; 
         }
         cs.setAcksTo(acksTo);
 
