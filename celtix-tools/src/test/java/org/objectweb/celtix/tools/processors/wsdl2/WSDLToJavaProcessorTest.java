@@ -324,21 +324,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         processor.process();
     }
 
-    public void testCommandLine() throws Exception {
-        String[] args = new String[]{"-compile", "-d", output.getCanonicalPath(),
-                                     "-classdir", output.getCanonicalPath() + "/classes",
-                                     "-p",
-                                     "org.celtix",
-                                     "-p",
-                                     "http://objectweb.org/hello_world_soap_http/types=org.objectweb.types",
-                                     getLocation("/wsdl/hello_world.wsdl")};
-        WSDLToJava.main(args);
-
-        Class clz = classLoader.loadClass("org.celtix.Greeter");
-        assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
-        clz = classLoader.loadClass("org.objectweb.types.GreetMe");
-    }
-
+    
    
     public void testExcludeNSWithPackageName() throws Exception {
 
@@ -378,6 +364,24 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(!com.exists());
 
     }
+    public void testCommandLine() throws Exception {
+        String[] args = new String[]{"-compile", "-d", output.getCanonicalPath(),
+                                     "-classdir", output.getCanonicalPath() + "/classes",
+                                     "-p",
+                                     "org.celtix",
+                                     "-p",
+                                     "http://objectweb.org/hello_world_soap_http/types=org.objectweb.types",
+                                     "-client",
+                                     "-server",
+                                     "-impl",
+                                     getLocation("/wsdl/hello_world.wsdl")};
+        WSDLToJava.main(args);
+
+        Class clz = classLoader.loadClass("org.celtix.Greeter");
+        assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
+        clz = classLoader.loadClass("org.objectweb.types.GreetMe");
+    }
+    
     
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();

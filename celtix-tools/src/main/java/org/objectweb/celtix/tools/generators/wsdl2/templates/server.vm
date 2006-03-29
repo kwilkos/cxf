@@ -10,9 +10,9 @@ import javax.xml.ws.Endpoint;
  * 
  */
  
-public class ${intf.Name}Server {
+public class ${serverClassName}{
 
-    protected ${intf.Name}Server() throws Exception {
+    protected ${serverClassName}() throws Exception {
         System.out.println("Starting Server");
         Object implementor = new ${intf.Name}Impl();
         String address = "${address}";
@@ -20,7 +20,7 @@ public class ${intf.Name}Server {
     }
     
     public static void main(String args[]) throws Exception { 
-        new ${intf.Name}Server();
+        new ${serverClassName}();
         System.out.println("Server ready..."); 
         
         Thread.sleep(5 * 60 * 1000); 
