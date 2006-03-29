@@ -89,7 +89,7 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export classpath=$classpath:$CELTIX_HOME/lib/celtix.jar:./build/classes
+  export classpath=$CLASSPATH:$CELTIX_HOME/lib/celtix.jar:./build/classes
   javac -d build/classes src/demo/ws_addressing/common/*.java
   javac -d build/classes src/demo/ws_addressing/client/*.java
   javac -d build/classes src/demo/ws_addressing/server/*.java
