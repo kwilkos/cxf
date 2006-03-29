@@ -45,3 +45,15 @@ For Windows:
 
 Save a copy of this script in the Celtix samples directory.  Run the
 script prior to building and running the demos.
+
+
+Basic Setup for Building and Running the Demos in a Servlet Container
+=====================================================================
+
+Since Celtix requires JDK/JRE 5.0, you must use a servlet container
+that is compatible with this JDK/JRE.  A suitable servlet container is
+Tomcat 5.5 or above.
+
+Be certain to start the servlet container under an environment in which
+the JAVA_HOME environment variable points to the JDK/JRE 5.0 installation
+and the JAVA_HOME bin directory is included in the system PATH.

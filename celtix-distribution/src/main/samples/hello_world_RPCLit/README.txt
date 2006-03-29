@@ -107,3 +107,46 @@ To remove the code generated from the WSDL file and the .class
 files, either delete the build directory and its contents or run:
 
   ant clean
+
+
+
+Building and running the demo in a servlet container
+----------------------------------------------------
+
+From the samples/hello_world_RPCLit directory, the ant build script
+can be used to create the war file that is deployed into the
+servlet container.
+
+Build the war file with the command:
+
+  ant war
+    
+
+The war file will be included in the directory
+samples/hello_world_RPCLit/build/war.  Simply copy the war file into
+the servlet container's deployment directory.  For example,
+with Tomcat copy the war file into the directory
+<installationDirectory>/webapps.  The servlet container will
+extract the war and deploy the application.
+
+Using ant, run the client application with the command:
+
+  ant client-servlet -Dbase.url=http://localhost:#
+
+Where # is the TCP/IP port used by the servlet container,
+e.g., 8080.
+
+Using java, run the client application with the command:
+
+  For UNIX:
+    
+    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+         demo.hello_world.client.Client http://localhost:#/helloworldrpclit/celtix/hello_world_rpclit
+
+  For Windows:
+
+    java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+       demo.hello_world.client.Client http://localhost:#/helloworldrpclit/celtix/hello_world_rpclit
+
+Where # is the TCP/IP port used by the servlet container,
+e.g., 8080.

@@ -64,15 +64,11 @@ public class CeltixServlet extends HttpServlet {
                 
                 TransportFactory factory = new ServletTransportFactory(this);
                 factory.init(bus);
-                bus.getTransportFactoryManager()
-                    .registerTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/",
-                                              factory);
-                bus.getTransportFactoryManager()
-                    .registerTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/http",
-                                              factory);
-                bus.getTransportFactoryManager()
-                    .registerTransportFactory("http://celtix.objectweb.org/transports/http/configuration",
-                                              factory);
+                registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/soap/");
+                registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/soap/http");
+                registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/http/");
+                registerTransport(factory, "http://celtix.objectweb.org/bindings/xmlformat");
+                registerTransport(factory, "http://celtix.objectweb.org/transports/http/configuration");
             }
         } catch (BusException ex) {
             // TODO Auto-generated catch block
@@ -112,6 +108,11 @@ public class CeltixServlet extends HttpServlet {
         }
     }
 
+    private void registerTransport(TransportFactory factory, String namespace) throws BusException {
+        this.bus.getTransportFactoryManager().registerTransportFactory(namespace,
+                                                                  factory);
+    }
+
     public void loadEndpoint(String implName,
                              String serviceName,
                              String wsdlName,
@@ -148,7 +149,7 @@ public class CeltixServlet extends HttpServlet {
                     EndpointReferenceUtils.getEndpointReference(bus.getWSDLManager(),
                                                             impl);
             }
-            EndpointImpl ep = new EndpointImpl(bus, impl, "http://schemas.xmlsoap.org/wsdl/soap/http", ref);
+            EndpointImpl ep = new EndpointImpl(bus, impl, null, ref);
             
             //doesn't really matter what URL is used here
             ep.publish("http://localhost" + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat); 

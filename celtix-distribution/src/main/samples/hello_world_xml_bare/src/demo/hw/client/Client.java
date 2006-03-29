@@ -32,7 +32,8 @@ public final class Client {
         } else {
             wsdlURL = new URL(args[0]);
         }
-        
+
+        System.out.println(wsdlURL);
         XMLService service = new XMLService(wsdlURL, SERVICE_NAME);
         Greeter greeter = (Greeter)service.getPort(PORT_NAME, Greeter.class);
 

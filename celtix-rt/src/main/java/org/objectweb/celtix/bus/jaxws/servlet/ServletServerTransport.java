@@ -25,6 +25,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 class ServletServerTransport extends AbstractHTTPServerTransport {
 
@@ -131,6 +132,10 @@ class ServletServerTransport extends AbstractHTTPServerTransport {
                     if (el instanceof SOAPAddress) {
                         SOAPAddress add = (SOAPAddress)el;
                         add.setLocationURI(req.getRequestURL().toString());
+                    }
+                    if (el instanceof AddressType) {
+                        AddressType add = (AddressType)el;
+                        add.setLocation(req.getRequestURL().toString());
                     }
                 }
                 
