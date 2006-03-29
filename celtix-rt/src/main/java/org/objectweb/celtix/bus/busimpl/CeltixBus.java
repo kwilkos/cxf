@@ -79,9 +79,11 @@ public class CeltixBus extends Bus {
 
         endpointRegistry = new EndpointRegistryImpl(this);
        
-        Bus.setCurrent(this);
-
+        Bus.setCurrent(this);        
+       
         lifeCycleManager.initComplete();
+        //send bus component created event
+        this.sendEvent(new ComponentCreatedEvent(this));
     }
 
     /**
@@ -117,7 +119,7 @@ public class CeltixBus extends Bus {
         transportFactoryManager.shutdown();
         bindingManager.shutdown();
         wsdlManager.shutdown();
-        //
+        this.sendEvent(new ComponentRemovedEvent(this));
         // handlerRegistry.shutdown(wait);
         // clientRegistry.shutdown(wait);
         // bindingManager.shutdown(wait);

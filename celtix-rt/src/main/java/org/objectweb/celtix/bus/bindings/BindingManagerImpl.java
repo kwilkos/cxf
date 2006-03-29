@@ -8,8 +8,6 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.BindingManager;
-import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
-import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 
@@ -31,9 +29,8 @@ public final class BindingManagerImpl implements BindingManager {
             String[] namespaces = new String[namespaceList.size()];
             namespaceList.toArray(namespaces);
             loadBindingFactory(classname, namespaces);
-        }
+        }       
         
-        bus.sendEvent(new ComponentCreatedEvent(this));
     }
     
     private void loadBindingFactory(String className, String ...namespaceURIs) throws BusException {
@@ -70,7 +67,7 @@ public final class BindingManagerImpl implements BindingManager {
     }
     
     public void shutdown() {
-        bus.sendEvent(new ComponentRemovedEvent(this));
+        //no nothing to do
     }
         
 }

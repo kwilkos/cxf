@@ -42,9 +42,9 @@ public class InstrumentationManagerTest extends TestCase {
         List<Instrumentation> list = im.getAllInstrumentation();   
         //NOTE: change for the BindingManager and TransportFactoryManager instrumentation 
         // create with the bus.
-        assertEquals("Too many instrumented items", 5, list.size());
-        Instrumentation it1 = list.get(3);
-        Instrumentation it2 = list.get(4);
+        assertEquals("Too many instrumented items", 4, list.size());
+        Instrumentation it1 = list.get(2);
+        Instrumentation it2 = list.get(3);
         assertTrue("Item 1 not a WorkQueueInstrumentation",
                    WorkQueueInstrumentation.class.isAssignableFrom(it1.getClass()));
         assertTrue("Item 2 not a WorkQueueInstrumentation",
@@ -63,7 +63,7 @@ public class InstrumentationManagerTest extends TestCase {
             // do nothing
         }
         bus.sendEvent(new ComponentRemovedEvent(wqm));
-        assertEquals("Instrumented stuff not removed from list", 3, list.size());
+        assertEquals("Instrumented stuff not removed from list", 2, list.size());
         bus.shutdown(true);
         assertEquals("Instrumented stuff not removed from list", 0, list.size());
     }
@@ -84,7 +84,7 @@ public class InstrumentationManagerTest extends TestCase {
         
         // TODO should test for the im getInstrumentation 
         List<Instrumentation> list = im.getAllInstrumentation();        
-        assertEquals("Too many instrumented items", 6, list.size());
+        assertEquals("Too many instrumented items", 5, list.size());
         // sleep for the MBServer connector thread startup 
         try {
             Thread.sleep(100);
@@ -95,7 +95,7 @@ public class InstrumentationManagerTest extends TestCase {
         bus.sendEvent(new ComponentRemovedEvent(wqm));
         bus.sendEvent(new ComponentRemovedEvent(jhst));
         bus.sendEvent(new ComponentRemovedEvent(hct));
-        assertEquals("Instrumented stuff not removed from list", 3, list.size());
+        assertEquals("Instrumented stuff not removed from list", 2, list.size());
         bus.shutdown(true);
         assertEquals("Instrumented stuff not removed from list", 0, list.size());
     }

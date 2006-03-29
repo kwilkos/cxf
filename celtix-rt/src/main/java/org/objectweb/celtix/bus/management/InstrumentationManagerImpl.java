@@ -11,8 +11,8 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusEventListener;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.bus.bindings.BindingManagerImpl;
-import org.objectweb.celtix.bus.bindings.BindingManagerInstrumentation;
+import org.objectweb.celtix.bus.busimpl.CeltixBus;
+import org.objectweb.celtix.bus.busimpl.CeltixBusInstrumentation;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 
@@ -21,8 +21,6 @@ import org.objectweb.celtix.bus.instrumentation.MBServerPolicyType;
 import org.objectweb.celtix.bus.jaxws.EndpointRegistryImpl;
 import org.objectweb.celtix.bus.jaxws.EndpointRegistryInstrumentation;
 import org.objectweb.celtix.bus.management.jmx.JMXManagedComponentManager;
-import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
-import org.objectweb.celtix.bus.transports.TransportFactoryManagerInstrumentation;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransportInstrumentation;
 import org.objectweb.celtix.bus.transports.http.HTTPServerTransportInstrumentation;
@@ -197,14 +195,10 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     
     private Instrumentation createInstrumentation(Object component) {
         Instrumentation it = null; 
-        if (BindingManagerImpl.class.isAssignableFrom(component.getClass())) {
-            it = new BindingManagerInstrumentation(
-                          (BindingManagerImpl)component);
-        }
-        if (TransportFactoryManagerImpl.class.isAssignableFrom(component.getClass())) {
-            it = new TransportFactoryManagerInstrumentation(
-                          (TransportFactoryManagerImpl)component);
-        }
+        if (CeltixBus.class.isAssignableFrom(component.getClass())) {
+            it = new CeltixBusInstrumentation(
+                          (CeltixBus)component);
+        }        
         if (WSDLManagerImpl.class.isAssignableFrom(component.getClass())) {
             it = new WSDLManagerInstrumentation(
                           (WSDLManagerImpl)component);
