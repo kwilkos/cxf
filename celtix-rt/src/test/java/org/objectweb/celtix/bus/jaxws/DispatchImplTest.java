@@ -17,9 +17,11 @@ import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.ProtocolException;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import junit.framework.TestCase;
 
@@ -101,6 +103,30 @@ public class DispatchImplTest<T> extends TestCase {
         assertNotNull(soapRespMsg);
         assertEquals("Message should contain TestSOAPInputMessage",
                      soapRespMsg.getSOAPBody().getTextContent(), "TestSOAPInputMessage");    
+    }
+
+    public void testInvokeForFaults() throws Exception {
+        
+        InputStream is =  
+            getClass().getResourceAsStream("../bindings/soap/resources/BadRecordDocLiteral.xml");
+        SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
+        assertNotNull(soapReqMsg);
+        
+        TestDispatchImpl<SOAPMessage> dispImpl = 
+            new TestDispatchImpl<SOAPMessage>(bus, epr, Service.Mode.MESSAGE, SOAPMessage.class, executor);
+        try {
+            dispImpl.invoke(soapReqMsg);
+            fail("Expecting a instance of ProtocolException");
+        } catch (ProtocolException pe) {
+            assertTrue("Should be instance of SOAPFaultException", pe instanceof SOAPFaultException);
+            SOAPFaultException sfe = (SOAPFaultException)pe;
+            assertNotNull("Should have a details obj", sfe.getFault());
+            assertEquals(
+                         new QName("http://schemas.xmlsoap.org/soap/envelope/", "Server"), 
+                         sfe.getFault().getFaultCodeAsQName());
+            assertEquals("Test Exception", sfe.getFault().getFaultString());
+        }
+        is.close();
     }
     
     public void testInvokeOneWay() throws Exception {

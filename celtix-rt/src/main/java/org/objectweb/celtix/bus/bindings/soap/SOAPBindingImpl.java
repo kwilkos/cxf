@@ -182,15 +182,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
 
             Throwable t = objContext.getException();
-
-            SOAPFault fault = msg.getSOAPBody().addFault();
-            // REVIST FaultCode to handle other codes.
             if (t instanceof SOAPFaultException) {
-                SOAPFault f = ((SOAPFaultException)t).getFault();
-                fault.setFaultCode(f.getFaultCodeAsName());
-                fault.setFaultString(f.getFaultString());
+                msg.getSOAPBody().addChildElement(((SOAPFaultException)t).getFault());
             } else {
-                fault.setFaultCode(faultCode);
                 StringBuffer str = new StringBuffer(t.toString());
                 if (!t.getClass().isAnnotationPresent(WebFault.class)) {
                     str.append("\n");
@@ -199,14 +193,15 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                         str.append("\n");
                     }
                 }
-                fault.setFaultString(str.toString());
-            }
 
-            DataWriter<Detail> writer = callback.createWriter(Detail.class);
-            if (writer != null) {
-                writer.write(t, fault.addDetail());
-                if (!fault.getDetail().hasChildNodes()) {
-                    fault.removeChild(fault.getDetail());
+                SOAPFault fault = msg.getSOAPBody().addFault(faultCode, str.toString());
+
+                DataWriter<Detail> writer = callback.createWriter(Detail.class);
+                if (writer != null) {
+                    writer.write(t, fault.addDetail());
+                    if (!fault.getDetail().hasChildNodes()) {
+                        fault.removeChild(fault.getDetail());
+                    }
                 }
             }
         } catch (SOAPException se) {
@@ -314,11 +309,16 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             SOAPFault fault = soapMessage.getSOAPBody().getFault();
             DataReader<SOAPFault> reader = callback.createReader(SOAPFault.class);
 
-            if (reader == null) {
-                throw new WebServiceException("Could not unmarshal fault");
+            Object faultObj = null;
+            if (null != reader) {
+                LOG.log(Level.INFO, "SOAP_FAULT_NO_READER");
+                faultObj = reader.read(null, 0, fault);
             }
-            Object faultObj = reader.read(null, 0, fault);
-
+            if (null == faultObj) {
+                LOG.log(Level.INFO, "SOAP_FAULT_UNMARSHALLING_MSG", fault.getElementQName().toString());
+                faultObj = new SOAPFaultException(fault);
+            }
+            
             objContext.setException((Throwable)faultObj);
         } catch (SOAPException se) {
             LOG.log(Level.SEVERE, "SOAP_UNMARSHALLING_FAILURE_MSG", se);
@@ -330,7 +330,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         SOAPMessageContext soapCtx = (SOAPMessageContext)msgContext;
         try {
             soapCtx.getMessage().writeTo(outContext.getOutputStream());
-
             if (LOG.isLoggable(Level.FINE)) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 soapCtx.getMessage().writeTo(baos);
@@ -373,7 +372,6 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
 
             soapMessage = msgFactory.createMessage(headers, inCtx.getInputStream());
-            
             //Test if it is a valid SOAP 1.1 Message
             code = FAULTCODE_VERSIONMISMATCH;
             soapMessage.getSOAPPart().getEnvelope();

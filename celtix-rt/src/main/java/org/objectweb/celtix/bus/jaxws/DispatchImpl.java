@@ -4,11 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Dispatch;
+import javax.xml.ws.ProtocolException;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceException;
@@ -18,11 +21,13 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class DispatchImpl<T> implements Dispatch<T> {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
+    
     protected ClientBinding cb;
     protected DynamicDataBindingCallback callback;
     
@@ -94,6 +99,10 @@ public class DispatchImpl<T> implements Dispatch<T> {
 
     public T invoke(T obj) {
         
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("Dispatch: invoke called");
+        }
+        
         if (!initialised) {
             init();
         }
@@ -110,13 +119,20 @@ public class DispatchImpl<T> implements Dispatch<T> {
         try {
             objMsgContext = cb.invoke(objMsgContext, callback);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throwWebServiceException(ex);
+        } finally {
+            //Update Response Context 
+            throwProtocolException(objMsgContext.getException());
         }
-         
+
         return cl.cast(objMsgContext.getReturn());
     }
 
     public Future<?> invokeAsync(T obj, AsyncHandler<T> asyncHandler) {
+        
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("Dispatch: callback invokeAsync called");
+        }
         
         if (!initialised) {
             init();
@@ -135,14 +151,18 @@ public class DispatchImpl<T> implements Dispatch<T> {
             future = new AsyncCallbackFuture(r, asyncHandler);
             executor.execute(future);
         } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+            throwWebServiceException(ex);
+        } 
         
         return future;
         
     }
 
     public Response<T> invokeAsync(T obj) {
+
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("Dispatch: polling invokeAsync called");
+        }
         
         if (!initialised) {
             init();
@@ -159,13 +179,17 @@ public class DispatchImpl<T> implements Dispatch<T> {
                 cb.invokeAsync(objMsgContext, callback, executor); 
             response = new AsyncResponse<T>(objMsgContextAsynch, cl);
         } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+            throwWebServiceException(ex);
+        } 
         
         return response;
     }
 
     public void invokeOneWay(T obj) {
+        
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info("Dispatch: invokeOneWay called");
+        }
         
         if (!initialised) {
             init();
@@ -178,8 +202,8 @@ public class DispatchImpl<T> implements Dispatch<T> {
         try {
             cb.invokeOneWay(objMsgContext, callback);
         } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+            throwWebServiceException(ex);
+        } 
 
     }
 
@@ -197,4 +221,27 @@ public class DispatchImpl<T> implements Dispatch<T> {
         return binding;
     }
 
+    private void throwWebServiceException(Throwable t) {
+        if (null != t) {
+            LOG.log(Level.SEVERE, "DISPATCH_INVOKE_EXC", cl.getSimpleName());
+            throw isJAXWSException(t) 
+                  ? (WebServiceException)t 
+                  : new WebServiceException(t);
+        }
+    }
+    
+    private void throwProtocolException(Throwable t) {
+        if (null != t) {
+            LOG.log(Level.SEVERE, "DISPATCH_INVOKE_EXC", cl.getSimpleName());
+            throw isJAXWSException(t) 
+                  ? (WebServiceException)t 
+                  : new ProtocolException(t);
+        }
+    }
+    
+    private boolean isJAXWSException(Throwable t) {
+        return ProtocolException.class.isAssignableFrom(t.getClass()) 
+               || WebServiceException.class.isAssignableFrom(t.getClass());
+    }
+    
 }
