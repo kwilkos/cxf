@@ -12,7 +12,7 @@ basic componnet information through the JMX MBeanServer.
 When setting up the JMX MBServer, you need to do the following:
 1. Set the MBServer to use either the PlatformMBeanServer or your prefered
    MBeanServer implementation.
-2. Specify the connector URL which the manager client connecot uses to
+2. Specify the connector URL which the manager console uses to
    connect to the MBServer.
 3. Set the connector to run in a seperated thread or to run in the deamon
    mode. 
