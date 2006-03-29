@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.wsdl.WSDLException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
@@ -22,6 +24,8 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+
+import static org.easymock.classextension.EasyMock.*;
 
 public class RMProxyTest extends TestCase {
 
@@ -39,7 +43,7 @@ public class RMProxyTest extends TestCase {
         bus.shutdown(true);
     }
 
-    public void testCreateSequenceOnClient() throws Exception {
+    public void testCreateSequenceOnClientNoOfferIncluded() throws Exception {
         TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
         TestClientTransport ct = binding.getClientTransport();
         InputStream is = getClass().getResourceAsStream("resources/spec/CreateSequenceResponse.xml");
@@ -70,6 +74,112 @@ public class RMProxyTest extends TestCase {
         EasyMock.expectLastCall().andReturn(false);
         handler.getClientBinding();
         EasyMock.expectLastCall().andReturn(binding).times(2);
+
+        control.replay();
+        
+        proxy.createSequence(source, RMUtils.createReference(Names.WSA_ANONYMOUS_ADDRESS), inSid);
+        
+        control.verify();
+    }
+    
+    public void testCreateSequenceOnClientOfferAccepted() throws Exception {
+        TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
+        TestClientTransport ct = binding.getClientTransport();
+        InputStream is = getClass().getResourceAsStream("resources/CreateSequenceResponseOfferAccepted.xml");
+        TestInputStreamContext istreamCtx = new TestInputStreamContext();
+        istreamCtx.setInputStream(is);
+        ct.setInputStreamMessageContext(istreamCtx);
+        
+        IMocksControl control = EasyMock.createNiceControl();
+        
+        RMHandler handler = control.createMock(RMHandler.class);
+        RMProxy proxy = new RMProxy(handler);
+        RMSource source = control.createMock(RMSource.class);
+        SourcePolicyType sp = control.createMock(SourcePolicyType.class);
+        RMDestination dest = control.createMock(RMDestination.class);
+        
+        Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
+        sid.setValue("s1");
+        Identifier inSid = null;  
+        Duration osd = DatatypeFactory.newInstance().newDuration("PT24H");
+        assertNotNull(osd);
+        Identifier offeredSid = RMUtils.getWSRMFactory().createIdentifier();
+        offeredSid.setValue("s1Offer");
+      
+        handler.getBinding();
+        EasyMock.expectLastCall().andReturn(binding);  
+        source.getSourcePolicies();
+        EasyMock.expectLastCall().andReturn(sp);
+        sp.getAcksTo();
+        EasyMock.expectLastCall().andReturn(null);
+        sp.getSequenceExpiration();
+        EasyMock.expectLastCall().andReturn(null);
+        sp.isIncludeOffer();
+        EasyMock.expectLastCall().andReturn(true);   
+        sp.getOfferedSequenceExpiration();
+        EasyMock.expectLastCall().andReturn(null);
+        source.generateSequenceIdentifier();
+        expectLastCall().andReturn(offeredSid);
+        handler.getClientBinding();
+        EasyMock.expectLastCall().andReturn(binding).times(2);
+        
+        source.getHandler();
+        expectLastCall().andReturn(handler);
+        handler.getDestination();
+        expectLastCall().andReturn(dest);
+        dest.addSequence(isA(Sequence.class));
+
+        control.replay();
+        
+        proxy.createSequence(source, RMUtils.createReference(Names.WSA_ANONYMOUS_ADDRESS), inSid);
+        
+        control.verify();
+    }
+    
+    public void testCreateSequenceOnClientOfferRejected() throws Exception {
+        TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
+        TestClientTransport ct = binding.getClientTransport();
+        InputStream is = getClass().getResourceAsStream("resources/CreateSequenceResponseOfferAccepted.xml");
+        TestInputStreamContext istreamCtx = new TestInputStreamContext();
+        istreamCtx.setInputStream(is);
+        ct.setInputStreamMessageContext(istreamCtx);
+        
+        IMocksControl control = EasyMock.createNiceControl();
+        
+        RMHandler handler = control.createMock(RMHandler.class);
+        RMProxy proxy = new RMProxy(handler);
+        RMSource source = control.createMock(RMSource.class);
+        SourcePolicyType sp = control.createMock(SourcePolicyType.class);
+        RMDestination dest = control.createMock(RMDestination.class);
+        
+        Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
+        sid.setValue("s1");
+        Identifier inSid = null;  
+        Duration osd = DatatypeFactory.newInstance().newDuration("PT24H");
+        Identifier offeredSid = RMUtils.getWSRMFactory().createIdentifier();
+        offeredSid.setValue("s1Offer");
+      
+        handler.getBinding();
+        EasyMock.expectLastCall().andReturn(binding);  
+        source.getSourcePolicies();
+        EasyMock.expectLastCall().andReturn(sp);
+        sp.getAcksTo();
+        EasyMock.expectLastCall().andReturn(null);
+        sp.getSequenceExpiration();
+        EasyMock.expectLastCall().andReturn(null);
+        sp.isIncludeOffer();
+        EasyMock.expectLastCall().andReturn(true);   
+        sp.getOfferedSequenceExpiration();
+        EasyMock.expectLastCall().andReturn(osd);
+        source.generateSequenceIdentifier();
+        expectLastCall().andReturn(offeredSid);
+        handler.getClientBinding();
+        EasyMock.expectLastCall().andReturn(binding).times(2);
+        
+        source.getHandler();
+        expectLastCall().andReturn(handler);
+        handler.getDestination();
+        expectLastCall().andReturn(dest);
 
         control.replay();
         

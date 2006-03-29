@@ -66,8 +66,4 @@ public final class RMUtils {
         ref.setAddress(value);
         return ref;
     }
-    
-    public static EndpointReferenceType cast(EndpointReferenceType ref) {
-        return ref;
-    }    
 }

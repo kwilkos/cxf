@@ -69,7 +69,7 @@ public class RMServant {
                          + csr.getIdentifier().getValue());
             } else {
                 LOG.fine("Refusing inbound sequence offer"); 
-                accept.setAcksTo(RMUtils.createReference(RMUtils.getAddressingConstants().getNoneURI()));
+                accept.setAcksTo(RMUtils.createReference(Names.WSA_NONE_ADDRESS));
             }
             csr.setAccept(accept);
         }

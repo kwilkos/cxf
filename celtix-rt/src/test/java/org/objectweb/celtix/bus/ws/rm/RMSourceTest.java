@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
+import java.math.BigInteger;
 
 
 import junit.framework.TestCase;
@@ -10,11 +11,15 @@ import org.objectweb.celtix.bindings.AbstractClientBinding;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.workqueue.AutomaticWorkQueue;
 import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
+import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
+import org.objectweb.celtix.ws.rm.SequenceType;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
@@ -116,9 +121,42 @@ public class RMSourceTest extends TestCase {
         assertSame(seq, s.getCurrent(inSid));
         assertNull(s.getCurrent(sid));
     }
+    
+    public void testAddUnacknowledged() {
+        reset(handler);
+        ObjectMessageContext ctx = new ObjectMessageContextImpl();  
+        RMPropertiesImpl rmps = new RMPropertiesImpl();
+        SequenceType seq = createNiceMock(SequenceType.class);
+        Identifier sid = createNiceMock(Identifier.class);
+        rmps.setSequence(seq);
+        RMContextUtils.storeRMProperties(ctx, rmps, true);
+        
+        AbstractClientBinding binding = createNiceMock(AbstractClientBinding.class);
+        handler.getBinding();
+        expectLastCall().andReturn(binding);
+        ObjectMessageContext clone =  new ObjectMessageContextImpl();
+        binding.createObjectContext();
+        expectLastCall().andReturn(clone);
+        seq.getIdentifier();
+        expectLastCall().andReturn(sid);
+        sid.getValue();
+        expectLastCall().andReturn("s1");
+        
+        replay(handler);
+        replay(binding);
+        replay(seq);
+        replay(sid);
+        
+        s.addUnacknowledged(ctx);
+        
+        verify(handler);
+        verify(binding);
+        verify(seq);
+        verify(sid);
+    }
 
     
-    public void testSetAcknowledged() throws NoSuchMethodException {
+    public void testSetAcknowledged() throws NoSuchMethodException, IOException {
         Identifier sid1 = s.generateSequenceIdentifier();
         Identifier sid2 = s.generateSequenceIdentifier();
         Expires e = RMUtils.getWSRMFactory().createExpires();
@@ -131,7 +169,53 @@ public class RMSourceTest extends TestCase {
         s.setAcknowledged(ack);
         assertSame(ack, seq.getAcknowledged());
         ack.setIdentifier(sid2);
-        s.setAcknowledged(ack);   
+        s.setAcknowledged(ack);  
+        
+        reset(handler);
+        seq.setLastMessageNumber(BigInteger.TEN);
+        ack = RMUtils.getWSRMFactory().createSequenceAcknowledgement();
+        ack.setIdentifier(sid1);
+        AcknowledgementRange range = 
+            RMUtils.getWSRMFactory().createSequenceAcknowledgementAcknowledgementRange();
+
+        range.setLower(BigInteger.ONE);
+        range.setUpper(BigInteger.TEN);
+        ack.getAcknowledgementRange().add(range);
+        
+        RMProxy proxy = createNiceMock(RMProxy.class);    
+        handler.getProxy();
+        expectLastCall().andReturn(proxy);
+        proxy.terminateSequence(seq);
+        expectLastCall();
+        
+        replay(handler);
+        replay(proxy);
+        
+        s.setAcknowledged(ack);
+        
+        verify(handler);
+        verify(proxy);
+        
+        reset(handler);
+        reset(proxy);
+        
+        handler.getProxy();
+        expectLastCall().andReturn(proxy);
+        proxy.terminateSequence(seq);
+        expectLastCall().andThrow(new IOException("can't terminate sequence"));
+        
+        replay(handler);
+        replay(proxy);
+        
+        s.setAcknowledged(ack);
+        
+        verify(handler);
+        verify(proxy);      
+        
+    }
+    
+    public void testShutdown() {
+        s.shutdown();
     }
     
     private RMSource createSource(RMHandler h) {
@@ -153,32 +237,14 @@ public class RMSourceTest extends TestCase {
         Configuration c = createMock(Configuration.class);
         h.getConfiguration();
         expectLastCall().andReturn(c);
-        // RMAssertionType rma = createMock(RMAssertionType.class);
         c.getObject(RMAssertionType.class, "rmAssertion");
         expectLastCall().andReturn(null);
-        /*
-        BaseRetransmissionInterval bri = createMock(BaseRetransmissionInterval.class);
-        rma.getBaseRetransmissionInterval();
-        expectLastCall().andReturn(bri);
-        bri.getMilliseconds();
-        expectLastCall().andReturn(new BigInteger("3000"));
-        ExponentialBackoff eb = createMock(ExponentialBackoff.class);
-        rma.getExponentialBackoff();
-        expectLastCall().andReturn(eb);
-        Map<QName, String> oa = new HashMap<QName, String>();
-        oa.put(RetransmissionQueue.EXPONENTIAL_BACKOFF_BASE_ATTR, "2");
-        eb.getOtherAttributes();
-        expectLastCall().andReturn(oa);
-        */
    
         replay(h);
         replay(binding);
         replay(bus);
         replay(wqm);
         replay(c);
-        //replay(rma);
-        //replay(bri);
-        //replay(eb);
         
         return new RMSource(h);
     }

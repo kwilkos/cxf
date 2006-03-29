@@ -47,6 +47,7 @@ public interface RMConstants {
     /**
      * @return SequenceInfo operation name
      */
+    /*
     String getSequenceInfoOperationName();  
-    
+    */
 }
