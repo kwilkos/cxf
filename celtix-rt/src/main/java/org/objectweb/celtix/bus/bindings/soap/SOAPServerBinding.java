@@ -87,7 +87,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
                             //BARE ParameterStyle
                             Annotation[][] pa = m.getParameterAnnotations();
                             if (pa.length == 0 && nl.getLength() == 0 
-                                && (hl != null && hl.getLength() == 0)) {
+                                && ((hl != null && hl.getLength() == 0) || hl == null)) {
                                 return m;
                             }
 
@@ -135,7 +135,7 @@ public class SOAPServerBinding extends AbstractServerBinding {
         for (Annotation[] a : pa) {
             WebParam param = helper.getWebParamAnnotation(a);
             
-            if (param.header()) {
+            if (null != param && param.header()) {
                 if (headerList != null) {
                     matchingList = headerList;    
                 } else {
