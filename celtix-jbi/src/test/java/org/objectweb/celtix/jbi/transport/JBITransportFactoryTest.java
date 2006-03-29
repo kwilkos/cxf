@@ -9,6 +9,8 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
+import org.objectweb.celtix.bindings.ClientBinding;
+import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.jbi.se.CeltixServiceUnitManager;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
@@ -90,12 +92,21 @@ public class JBITransportFactoryTest extends TestCase {
         EasyMock.replay(endpointRef);
         EasyMock.replay(metaData);
         
-        ClientTransport ct = factory.createClientTransport(endpointRef);
+        ClientBinding clientBinding = EasyMock.createMock(ClientBinding.class);
+        ResponseCallback responseCallback = EasyMock.createMock(ResponseCallback.class);
+        clientBinding.createResponseCallback();
+        EasyMock.expectLastCall().andReturn(responseCallback);
+        
+        EasyMock.replay(clientBinding);
+        
+        ClientTransport ct = factory.createClientTransport(endpointRef, clientBinding);
         assertNotNull("server transport must not be null", ct);
         assertSame("transport must JBIClientTransport", JBIClientTransport.class, ct.getClass());
+        assertSame("unexpected response callback", responseCallback, ct.getResponseCallback());
 
         EasyMock.verify(endpointRef);
         EasyMock.verify(metaData);
+        EasyMock.verify(clientBinding);
     
     }
 

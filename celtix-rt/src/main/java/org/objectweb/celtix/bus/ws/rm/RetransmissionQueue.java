@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bindings.Request;
+import org.objectweb.celtix.bindings.Response;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -23,19 +25,20 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.workqueue.WorkQueue;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.ws.rm.AckRequestedType;
 import org.objectweb.celtix.ws.rm.Identifier;
+import org.objectweb.celtix.ws.rm.RMProperties;
 import org.objectweb.celtix.ws.rm.SequenceType;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 
 public class RetransmissionQueue {
-    
-    public static final QName EXPONENTIAL_BACKOFF_BASE_ATTR = new QName(RMHandler.RM_CONFIGURATION_URI, 
-        "exponentialBackoffBase");
+    public static final QName EXPONENTIAL_BACKOFF_BASE_ATTR = 
+        new QName(RMHandler.RM_CONFIGURATION_URI, "exponentialBackoffBase");
     public static final String DEFAULT_BASE_RETRANSMISSION_INTERVAL = "3000";
     public static final String DEFAULT_EXPONENTIAL_BACKOFF = "2";
+    private static final Logger LOG =
+        LogUtils.getL7dLogger(RetransmissionQueue.class);
     
-    private static final Logger LOG = LogUtils.getL7dLogger(RetransmissionQueue.class);
-   
 
     private WorkQueue workQueue;
     private long baseRetransmissionInterval;
@@ -84,27 +87,24 @@ public class RetransmissionQueue {
      */
     private Resender getDefaultResender() {   
         return new Resender() {
-            public void resend(ObjectMessageContext context) {
-                SequenceType st = RMContextUtils.retrieveRMProperties(context, true)
-                      .getSequence();
+            public void resend(ObjectMessageContext context, 
+                               boolean requestAcknowledge) {
+                RMProperties properties = 
+                    RMContextUtils.retrieveRMProperties(context, true);
+                SequenceType st = properties.getSequence();
                 if (st != null) {
                     LOG.log(Level.INFO, "RESEND_MSG", st.getMessageNumber());
                 }
                 try {
-                    AddressingProperties maps = 
-                        ContextUtils.retrieveMAPs(context, false, true);
-                    String uuid = ContextUtils.generateUUID();
-                    maps.setMessageID(ContextUtils.getAttributedURI(uuid));
-                    AbstractBindingBase binding = (AbstractBindingBase)
-                        BindingContextUtils.retrieveBinding(context);
-                    Request request = new Request(binding, context);
-                    request.setOneway(ContextUtils.isOneway(context));
+                    refreshMAPs(context);
+                    refreshRMProperties(context, requestAcknowledge);
+                    Request request = createRequest(context);
                     OutputStreamMessageContext outputStreamContext =
                         request.process(null, true);
                     ClientTransport transport = 
                         BindingContextUtils.retrieveClientTransport(context);
-                    if (request.isOneway()) {
-                        transport.invokeOneway(outputStreamContext);
+                    if (BindingContextUtils.isOnewayMethod(context)) {
+                        invokePartial(request, transport, outputStreamContext);
                     } else {
                         InputStreamMessageContext inputStreamContext =
                             transport.invoke(outputStreamContext);
@@ -120,6 +120,74 @@ public class RetransmissionQueue {
         };
     };
     
+    /**
+     * Refresh the MAPs with a new message ID (to avoid the resend being
+     * rejected by the receiver-side WS-Addressing layer as a duplicate).
+     * 
+     * @param context the message context
+     */
+    private void refreshMAPs(MessageContext context) {
+        AddressingProperties maps = 
+            ContextUtils.retrieveMAPs(context, false, true);
+        String uuid = ContextUtils.generateUUID();
+        maps.setMessageID(ContextUtils.getAttributedURI(uuid));
+    }
+    
+    /**
+     * Refresh the RM Properties with an AckRequested if necessary.
+     * Currently the first resend for each sequence on each initiator iteration
+     * includes an AckRequested. The idea is that a timely ACK may cause some of
+     * of the resend to be avoided.
+     * 
+     * @param context the message context
+     * @param requestAcknowledge true if an AckRequested header should be included 
+     */
+    private void refreshRMProperties(MessageContext context, boolean requestAcknowledge) {
+        RMProperties properties =
+            RMContextUtils.retrieveRMProperties(context, true);
+        List<AckRequestedType> requests = null;
+        if (requestAcknowledge) {
+            requests = new ArrayList<AckRequestedType>();
+            requests.add(RMUtils.getWSRMFactory().createAckRequestedType());
+            Identifier id = properties.getSequence().getIdentifier();
+            requests.get(0).setIdentifier(id);
+        } 
+        properties.setAcksRequested(requests);
+    }
+    
+    /**
+     * Create a request for retransmission.
+     * 
+     * @param context
+     * @return an appropriate Request for the context
+     */
+    private Request createRequest(ObjectMessageContext context) {
+        AbstractBindingBase binding = (AbstractBindingBase)
+            BindingContextUtils.retrieveBinding(context);
+        Request request = new Request(binding, context);
+        request.setOneway(ContextUtils.isOneway(context));
+        return request;
+    }
+
+    /**
+     * Invoke a oneway operation, allowing for a partial response.
+     * 
+     * @param request the request
+     * @param transport the client transport 
+     * @param outputStreamContext the output stream message context
+     */
+    private void invokePartial(Request request,
+                               ClientTransport transport,
+                               OutputStreamMessageContext outputStreamContext)
+        throws IOException {
+        InputStreamMessageContext inputStreamContext =
+            transport.invoke(outputStreamContext);
+        Response response = new Response(request);     
+        response.processProtocol(inputStreamContext);
+        response.processLogical(null);
+    }
+
+
     /**
      * Plug in replacement resend logic (facilitates unit testing).
      *  
@@ -148,7 +216,8 @@ public class RetransmissionQueue {
      */
     protected ResendCandidate cacheUnacknowledged(ObjectMessageContext ctx) {
         ResendCandidate candidate = null;
-        SequenceType st = RMContextUtils.retrieveRMProperties(ctx, true).getSequence();
+        SequenceType st = 
+            RMContextUtils.retrieveRMProperties(ctx, true).getSequence();
         Identifier sid = st.getIdentifier();
         synchronized (this) {
             String key = sid.getValue();
@@ -175,8 +244,9 @@ public class RetransmissionQueue {
         if (null != sequenceCandidates) {
             for (int i = sequenceCandidates.size() - 1; i >= 0; i--) {
                 ResendCandidate candidate = sequenceCandidates.get(i);
-                SequenceType st = RMContextUtils.retrieveRMProperties(candidate.getContext(), true)
-                    .getSequence();
+                RMProperties properties =
+                    RMContextUtils.retrieveRMProperties(candidate.getContext(), true);
+                SequenceType st = properties.getSequence();
                 BigInteger m = st.getMessageNumber();
                 if (seq.isAcknowledged(m)) {
                     sequenceCandidates.remove(i);
@@ -281,10 +351,12 @@ public class RetransmissionQueue {
                 while (sequences.hasNext()) {
                     Iterator<ResendCandidate> sequenceCandidates =
                         sequences.next().getValue().iterator();
+                    boolean requestAck = true;
                     while (sequenceCandidates.hasNext()) {
                         ResendCandidate candidate = sequenceCandidates.next();
                         if (candidate.isDue()) {
-                            candidate.initiate();
+                            candidate.initiate(requestAck);
+                            requestAck = false;
                         }
                     }
                 }
@@ -309,6 +381,7 @@ public class RetransmissionQueue {
         private int skips;
         private int skipped;
         private boolean pending;
+        private boolean includeAckRequested;
 
         /**
          * @param ctx message context for the unacked message
@@ -327,7 +400,8 @@ public class RetransmissionQueue {
                 // ensure ACK wasn't received while this task was enqueued
                 // on executor
                 if (isPending()) {
-                    resender.resend(context);
+                    resender.resend(context, includeAckRequested);
+                    includeAckRequested = false;
                 }
             } finally {
                 attempted();
@@ -359,8 +433,12 @@ public class RetransmissionQueue {
        
         /**
          * Initiate resend asynchronsly.
+         * 
+         * @param requestAcknowledge true if a AckRequest header is to be sent with
+         * resend
          */
-        protected synchronized void initiate() {
+        protected synchronized void initiate(boolean requestAcknowledge) {
+            includeAckRequested = requestAcknowledge;
             pending = true;
             workQueue.execute(this);
         }
@@ -396,7 +474,8 @@ public class RetransmissionQueue {
          * Resend mechanics.
          * 
          * @param context the cloned message context.
+         * @param if a AckRequest should be included
          */
-        void resend(ObjectMessageContext context);
+        void resend(ObjectMessageContext context, boolean requestAcknowledge);
     }
 }

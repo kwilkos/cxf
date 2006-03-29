@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.wsdl.WSDLException;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.ResponseCallback;
+import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
@@ -13,7 +13,8 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 class TestTransportFactory implements TransportFactory {
 
-    public ClientTransport createClientTransport(EndpointReferenceType address) 
+    public ClientTransport createClientTransport(EndpointReferenceType address,
+                                                 ClientBinding binding) 
         throws WSDLException, IOException {
         return new TestClientTransport();
     }
@@ -31,12 +32,6 @@ class TestTransportFactory implements TransportFactory {
     public void init(Bus b) {
     }
     
-    /**
-     * @param callback used to report (potentially asynchronous) responses.
-     */
-    public synchronized void setResponseCallback(ResponseCallback callback) {
-    }
-
     public void shutdown() {
        //do nothing  
     }

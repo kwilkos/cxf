@@ -23,6 +23,8 @@ import javax.xml.ws.handler.MessageContext;
 import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
+import org.objectweb.celtix.bindings.ClientBinding;
+import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -39,6 +41,8 @@ public class JBIClientTransportTest extends TestCase {
     private final DeliveryChannel channel = EasyMock.createMock(DeliveryChannel.class);
     private final EndpointReferenceType endpointRef = EasyMock.createMock(EndpointReferenceType.class);
     private final MetadataType metaData = EasyMock.createMock(MetadataType.class);
+    private final ClientBinding clientBinding = EasyMock.createMock(ClientBinding.class);
+
 
     private JBIOutputStreamMessageContext outCtx;
      
@@ -50,7 +54,7 @@ public class JBIClientTransportTest extends TestCase {
     public void setUp() throws Exception { 
     
         initFixture();
-        clientTransport = new JBIClientTransport(channel, endpointRef);
+        clientTransport = new JBIClientTransport(channel, endpointRef, clientBinding);
 
         ObjectMessageContextImpl context = new ObjectMessageContextImpl(); 
         
@@ -72,13 +76,14 @@ public class JBIClientTransportTest extends TestCase {
     
     public void testJBIClientTransport() {
         
-        
-        JBIClientTransport ct = new JBIClientTransport(channel, endpointRef);
+
+        JBIClientTransport ct = new JBIClientTransport(channel, endpointRef, clientBinding);
         assertNotNull("server transport must not be null", ct);
         assertSame("transport must JBIClientTransport", JBIClientTransport.class, ct.getClass());
 
         EasyMock.verify(endpointRef);
         EasyMock.verify(metaData);
+        EasyMock.verify(clientBinding);
         
     }
 
@@ -185,6 +190,7 @@ public class JBIClientTransportTest extends TestCase {
 
         EasyMock.reset(endpointRef);
         EasyMock.reset(metaData);   
+        EasyMock.reset(clientBinding);   
 
         Map<QName, String> attrMap = new HashMap<QName, String>();
         
@@ -196,7 +202,13 @@ public class JBIClientTransportTest extends TestCase {
         metaData.getOtherAttributes();
         EasyMock.expectLastCall().andReturn(attrMap);
         
+        ResponseCallback responseCallback = EasyMock.createMock(ResponseCallback.class);
+        clientBinding.createResponseCallback();
+        EasyMock.expectLastCall().andReturn(responseCallback);
+        
         EasyMock.replay(endpointRef);
         EasyMock.replay(metaData);   
+        EasyMock.replay(clientBinding);
+
     }
 }

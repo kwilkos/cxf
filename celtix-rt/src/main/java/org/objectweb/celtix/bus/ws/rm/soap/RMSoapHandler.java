@@ -210,8 +210,8 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
                         (SOAPHeaderElement)headerElements.next();
                     Name headerName = headerElement.getElementName();
                     String localName = headerName.getLocalName(); 
-                    LOG.log(Level.INFO, "decoding RM header {0}", localName);
                     if (Names.WSRM_NAMESPACE_NAME.equals(headerName.getURI())) {
+                        LOG.log(Level.INFO, "decoding RM header {0}", localName);
                         if (Names.WSRM_SEQUENCE_NAME.equals(localName)) {
                             SequenceType s = decodeProperty(SequenceType.class,
                                                             headerElement,

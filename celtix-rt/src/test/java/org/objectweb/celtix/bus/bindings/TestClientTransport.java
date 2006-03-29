@@ -8,6 +8,7 @@ import javax.wsdl.Port;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
@@ -17,8 +18,7 @@ public class TestClientTransport implements ClientTransport {
 
     private InputStreamMessageContext istreamCtx;
     
-    public TestClientTransport() {
-        
+    public TestClientTransport() {        
     }
     
     public TestClientTransport(Bus bus, EndpointReferenceType ref) {        
@@ -58,6 +58,10 @@ public class TestClientTransport implements ClientTransport {
 
     public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, Executor ex) 
         throws IOException {
+        return null;
+    }
+    
+    public ResponseCallback getResponseCallback() {
         return null;
     }
 

@@ -7,6 +7,7 @@ import javax.jbi.messaging.DeliveryChannel;
 import javax.wsdl.WSDLException;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.jbi.se.CeltixServiceUnitManager;
 import org.objectweb.celtix.transports.ClientTransport;
@@ -72,7 +73,8 @@ public class JBITransportFactory implements TransportFactory {
     }
  
     
-    public ClientTransport createClientTransport(EndpointReferenceType address)
+    public ClientTransport createClientTransport(EndpointReferenceType address,
+                                                 ClientBinding binding)
         throws WSDLException, IOException { 
 
         LOG.info("creating JBI client transport");
@@ -83,7 +85,7 @@ public class JBITransportFactory implements TransportFactory {
             throw new IllegalStateException("JBITransport factory not fully initalised");
         }
 
-        return new JBIClientTransport(deliveryChannel, address);
+        return new JBIClientTransport(deliveryChannel, address, binding);
     }
 
 

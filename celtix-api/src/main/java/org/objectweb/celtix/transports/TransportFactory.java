@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.wsdl.WSDLException;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.ResponseCallback;
+import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 /**
@@ -19,12 +19,7 @@ public interface TransportFactory {
      * @param bus The bus class this TransportFactory will use.
      */
     void init(Bus bus);
-    
-    /**
-     * @param callback used to report (potentially asynchronous) responses.
-     */
-    void setResponseCallback(ResponseCallback callback);
-    
+        
     /**
      * Returns a newly created <code>ServerTransport</code>.
      * 
@@ -49,9 +44,11 @@ public interface TransportFactory {
      * Returns a newly created <code>ClientTransport</code>.
      * 
      * @param address the endpoint reference used by the <code>ClientTransport</code>.
+     * @param binding the client binding
      * @return ClientTransport the newly created client transport.
      * @throws WSDLException If there is an error creating the transport.
      */
-    ClientTransport createClientTransport(EndpointReferenceType address)
+    ClientTransport createClientTransport(EndpointReferenceType address,
+                                          ClientBinding binding)
         throws WSDLException, IOException;
 }

@@ -5,22 +5,15 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.wsdl.WSDLException;
 import javax.xml.bind.JAXBException;
 
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.ResponseCallback;
-import org.objectweb.celtix.bus.transports.http.HTTPClientTransport.HTTPDecoupledClientInputStreamContext;
+import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bus.transports.http.protocol.pipe.Handler;
 import org.objectweb.celtix.bus.transports.http.protocol.pipe.PipeHTTPServerTransport;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleListener;
-import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
@@ -32,16 +25,7 @@ import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class HTTPTransportFactory implements TransportFactory {
-    private static final Logger LOG = LogUtils.getL7dLogger(HTTPTransportFactory.class);
-    
     protected Bus bus;
-    
-    protected String decoupledAddress;
-    protected URL decoupledURL;
-    protected JettyHTTPServerEngine decoupledEngine;
-    protected EndpointReferenceType decoupledEndpoint;
-    protected ResponseCallback responseCallback;
-      
     /* surefire runs in a classloader that won't allow the URL 
      * class to load the Handler.   We'll need to manually add 
      * it to the list.
@@ -87,21 +71,7 @@ public class HTTPTransportFactory implements TransportFactory {
         }
         bus.getLifeCycleManager().registerLifeCycleListener(new ShutdownListener(this));
     }
-
-    /**
-     * @param callback used to report (potentially asynchronous) responses.
-     */
-    public synchronized void setResponseCallback(ResponseCallback callback) {
-        responseCallback = callback;
-    }
-    
-    /**
-     * @return callback used to report (potentially asynchronous) responses.
-     */
-    public synchronized ResponseCallback getResponseCallback() {
-        return responseCallback;
-    }
-    
+        
     public ServerTransport createServerTransport(EndpointReferenceType address) 
         throws WSDLException, IOException {
         URL url = new URL(EndpointReferenceUtils.getAddress(address));
@@ -118,20 +88,10 @@ public class HTTPTransportFactory implements TransportFactory {
         return null;
     }
 
-    public ClientTransport createClientTransport(EndpointReferenceType ref)
+    public ClientTransport createClientTransport(EndpointReferenceType ref,
+                                                 ClientBinding binding)
         throws WSDLException, IOException {
-        return new HTTPClientTransport(bus, ref, this);
-    }
-
-    protected synchronized EndpointReferenceType getDecoupledEndpoint(String url) {
-        if (decoupledEndpoint == null && url != null) {
-            decoupledEndpoint = setUpDecoupledEndpoint(url);           
-        }
-        return decoupledEndpoint;
-    }
-
-    protected synchronized boolean hasDecoupledEndpoint() {
-        return decoupledEndpoint != null;
+        return new HTTPClientTransport(bus, ref, binding, this);
     }
 
     protected Bus getBus() {
@@ -140,56 +100,8 @@ public class HTTPTransportFactory implements TransportFactory {
     
     
     private void shutdown() {
-        if (decoupledURL != null && decoupledEngine != null) {
-            try {
-                decoupledEngine.removeServant(decoupledAddress);
-                JettyHTTPServerEngine.destroyForPort(decoupledURL.getPort());
-            } catch (IOException ex) {
-                //ignore
-            }
-        }
     }
-    
-    private EndpointReferenceType setUpDecoupledEndpoint(String url) {
-        // REVISIT: use policy to determine decoupled endpoint
-        EndpointReferenceType reference =
-            EndpointReferenceUtils.getEndpointReference(url);
-        if (reference != null) {
-            decoupledAddress = reference.getAddress().getValue();
-            LOG.info("creating decoupled endpoint: " + decoupledAddress);
-            try {
-                decoupledURL = new URL(decoupledAddress);
-                decoupledEngine = 
-                    JettyHTTPServerEngine.getForPort(bus, 
-                                                     decoupledURL.getProtocol(),
-                                                     decoupledURL.getPort());
-                decoupledEngine.addServant(decoupledAddress, new AbstractHttpHandler() {
-                    public void handle(String pathInContext, 
-                                       String pathParams,
-                                       HttpRequest req, 
-                                       HttpResponse resp) throws IOException {
-                        handleDecoupledResponse(req, resp);
-                    }
-                });
-
-            } catch (Exception e) {
-                // REVISIT move message to localizable Messages.properties
-                LOG.log(Level.WARNING, "decoupled endpoint creation failed: ", e);
-            }
-        }
-        return reference;
-    }
-    
-    private void handleDecoupledResponse(HttpRequest req, HttpResponse resp) 
-        throws IOException {
-        HTTPDecoupledClientInputStreamContext ctx = 
-            new HTTPDecoupledClientInputStreamContext(req);
-    
-        responseCallback.dispatch(ctx);
-        resp.commit();
-        req.setHandled(true);
-    }
-    
+        
     private static class ShutdownListener 
         extends WeakReference<HTTPTransportFactory> 
         implements BusLifeCycleListener {

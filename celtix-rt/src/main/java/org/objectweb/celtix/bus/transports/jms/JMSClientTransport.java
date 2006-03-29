@@ -22,6 +22,7 @@ import javax.wsdl.WSDLException;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.bus.management.counters.TransportClientCounters;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -45,10 +46,11 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
     protected boolean textPayload;
     TransportClientCounters counters;
     private JMSClientBehaviorPolicyType clientBehaviourPolicy;
+    private ResponseCallback responseCallback;
     
     public JMSClientTransport(Bus bus, 
                               EndpointReferenceType address, 
-                              ResponseCallback callback) 
+                              ClientBinding binding) 
         throws WSDLException, IOException  {
 
         super(bus, address, false);
@@ -59,7 +61,10 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         
         LOG.log(Level.FINE, "TEXT_MESSAGE_TYPE: " , textPayload);
         LOG.log(Level.FINE, "QUEUE_DESTINATION_STYLE: " , queueDestinationStyle);
-        entry("JMSClientTransport Constructor: ResponseCallback object is " + callback);
+        if (binding != null) {
+            responseCallback = binding.createResponseCallback();
+        }
+        entry("JMSClientTransport Constructor");
     }
 
     private JMSClientBehaviorPolicyType getClientPolicy(Configuration conf) {
@@ -168,6 +173,9 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         return null;
     }
 
+    public ResponseCallback getResponseCallback() {
+        return responseCallback;
+    }
 
     /**
      * Internal invoke mechanics.

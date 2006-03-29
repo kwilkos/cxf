@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
+import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.bus.bindings.TestOutputStreamContext;
 import org.objectweb.celtix.bus.bindings.soap.SOAPClientBinding;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -288,6 +289,10 @@ public class DispatchImplTest<T> extends TestCase {
             return null;
         }
         
+        public ResponseCallback getResponseCallback() {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
     
     class TestInputStreamMessageContextFuture

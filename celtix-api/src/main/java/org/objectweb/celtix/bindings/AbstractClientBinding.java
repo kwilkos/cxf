@@ -28,18 +28,18 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public abstract class AbstractClientBinding extends AbstractBindingBase implements ClientBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractClientBinding.class);
-    private static ResponseCorrelator responseCorrelator;
 
     protected Port port;
     protected ClientTransport transport;
-
+    private ResponseCorrelator responseCorrelator;
+    
     public AbstractClientBinding(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
         super(b, ref);
         bus.getLifeCycleManager().registerLifeCycleListener(new ShutdownListener(this));
         transport = null;
     }
 
-    private static class ShutdownListener extends WeakReference<AbstractClientBinding> implements
+    private class ShutdownListener extends WeakReference<AbstractClientBinding> implements
         BusLifeCycleListener {
 
         ShutdownListener(AbstractClientBinding c) {
@@ -62,7 +62,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         }
     }
 
-    public static void clearResponseCorrelator() {
+    public void clearResponseCorrelator() {
         responseCorrelator = null;
     }
 
@@ -88,19 +88,34 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
 
             if (null != ostreamCtx) {
 
-                InputStreamMessageContext syncResponseContext = transport.invoke(ostreamCtx);
-                Response response = null;
-                if (null != syncResponseContext) {
-                    response = new Response(request);
-                    response.processProtocol(syncResponseContext);
+                InputStreamMessageContext responseContext = transport.invoke(ostreamCtx);
+                Response fullResponse = null;
+                if (BindingContextUtils.retrieveDecoupledResponse(responseContext)) {
+                    // partial response traverses complete handler chain first
+                    Response partialResponse = new Response(request);
+                    partialResponse.processProtocol(responseContext);
+                    partialResponse.processLogical(callback);
+                    
+                    if (BindingContextUtils.isOnewayMethod(objectCtx)) {
+                        // no full response
+                        objectCtx = partialResponse.getObjectMessageContext();
+                    } else {
+                        // wait for decoupled full response and tarverse logical chain 
+                        // (protocol chain already traversed by ResponseCorrelator)
+                        fullResponse = getResponseCorrelator().getResponse(request);
+                        fullResponse.setObjectMessageContext(objectCtx);
+                        fullResponse.setHandlerInvoker(request.getHandlerInvoker());
+                        fullResponse.processLogical(callback);
+                        objectCtx = fullResponse.getObjectMessageContext();
+                    }
                 } else {
-                    response = getResponseCorrelator().getResponse(request);
-                    response.setObjectMessageContext(objectCtx);
-                    response.setHandlerInvoker(request.getHandlerInvoker());
+                    // synchronous full response
+                    fullResponse = new Response(request);
+                    fullResponse.processProtocol(responseContext);
+                    fullResponse.processLogical(callback);
+                    objectCtx = fullResponse.getObjectMessageContext();
                 }
-                response.processLogical(callback);
-                objectCtx = response.getObjectMessageContext();
-
+                
             }
 
         } finally {
@@ -171,6 +186,10 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         return asyncFuture;
     }
 
+    public synchronized ResponseCallback createResponseCallback() {
+        return responseCorrelator = new ResponseCorrelator(this);
+    }
+        
     // --- ClientBinding interface ---
 
     // --- helpers ---
@@ -206,10 +225,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
 
                 TransportFactory factory = bus.getTransportFactoryManager()
                     .getTransportFactory(el.getElementType().getNamespaceURI());
-                if (getBindingImpl().getHandlerChain(true).size() > 0) {
-                    factory.setResponseCallback(getResponseCorrelator());
-                }
-                ret = factory.createClientTransport(ref);
+                ret = factory.createClientTransport(ref, this);
             }
         } catch (BusException ex) {
             LOG.severe("TRANSPORT_FACTORY_RETREIVAL_FAILURE_MSG");
@@ -220,7 +236,8 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
 
     protected synchronized ResponseCorrelator getResponseCorrelator() {
         if (responseCorrelator == null) {
-            responseCorrelator = new ResponseCorrelator(this);
+            responseCorrelator = 
+                (ResponseCorrelator)transport.getResponseCallback();
         }
         return responseCorrelator;
     }

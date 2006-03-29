@@ -44,4 +44,16 @@ public interface ClientBinding extends BindingBase {
                                        DataBindingCallback callback,
                                        Executor executor)
         throws IOException;
+    
+    /**
+     * Create a response callback for dispatch and correlation of decoupled 
+     * responses.
+     * Called by an associated ClientTransport instance when it determines
+     * that a new decoupled response endpoint is required (if a preexisting
+     * decoupled response endpoint is available, then the response correlator
+     * associated with that is used instead).
+     * 
+     * @return a new ResponseCallback
+     */
+    ResponseCallback createResponseCallback();
 }

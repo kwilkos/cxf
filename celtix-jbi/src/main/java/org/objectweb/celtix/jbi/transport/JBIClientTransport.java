@@ -20,6 +20,8 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.bindings.ClientBinding;
+import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -40,11 +42,15 @@ public class JBIClientTransport implements ClientTransport {
     private final DeliveryChannel channel; 
     private final EndpointReferenceType endpointRef; 
     private final QName serviceName;
+    private final ResponseCallback responseCallback;
     
-    public JBIClientTransport(DeliveryChannel dc, EndpointReferenceType epr) { 
+    public JBIClientTransport(DeliveryChannel dc, 
+                              EndpointReferenceType epr,
+                              ClientBinding binding) { 
         channel = dc;
         endpointRef = epr;
         serviceName = EndpointReferenceUtils.getServiceName(endpointRef);
+        responseCallback = binding.createResponseCallback();
     } 
     
     public void invokeOneway(OutputStreamMessageContext context) throws IOException {
@@ -124,6 +130,9 @@ public class JBIClientTransport implements ClientTransport {
         throws IOException { 
     }
     
+    public ResponseCallback getResponseCallback() {
+        return responseCallback;
+    }
     
     public void shutdown() {
     }

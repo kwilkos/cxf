@@ -190,8 +190,10 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
 
     public void testVersioning() throws Exception {
         try {
-            mapVerifier.exposeAs = 
-                VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
+            // expect two MAPs instances versioned with 200408, i.e. for both 
+            // the partial and full responses
+            mapVerifier.expectedExposedAs.add(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
+            mapVerifier.expectedExposedAs.add(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
             String greeting = greeter.greetMe("versioning1");
             assertEquals("unexpected response received from service", 
                          "Hello versioning1",

@@ -1,7 +1,9 @@
 package org.objectweb.celtix.systest.ws.addressing;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.ws.handler.LogicalHandler;
@@ -20,7 +22,7 @@ import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSI
  */
 public class MAPVerifier implements LogicalHandler<LogicalMessageContext> {
     VerificationCache verificationCache;
-    String exposeAs;
+    List<String> expectedExposedAs = new ArrayList<String>();
     private Map<String, Object> mapProperties;
 
     public MAPVerifier() {
@@ -61,10 +63,12 @@ public class MAPVerifier implements LogicalHandler<LogicalMessageContext> {
             (AddressingPropertiesImpl)context.get(mapProperty);
         if (ContextUtils.isRequestor(context)) {
             if (isOutbound) {
+                String exposeAs = getExpectedExposeAs(false);
                 if (exposeAs != null) {
                     maps.exposeAs(exposeAs);
                 }
             } else {
+                String exposeAs = getExpectedExposeAs(true);
                 String expected = exposeAs != null
                                   ? exposeAs
                                   : Names.WSA_NAMESPACE_NAME;
@@ -77,5 +81,14 @@ public class MAPVerifier implements LogicalHandler<LogicalMessageContext> {
             }
         }
         verificationCache.put(MAPTest.verifyMAPs(maps, this));
+    }
+    
+    private String getExpectedExposeAs(boolean remove) {
+        int size = expectedExposedAs.size();
+        return  size == 0 
+                ? null
+                : remove
+                  ? expectedExposedAs.remove(size - 1)
+                  : expectedExposedAs.get(size - 1);
     }
 }

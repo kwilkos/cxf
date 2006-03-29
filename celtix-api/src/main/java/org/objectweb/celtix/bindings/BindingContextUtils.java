@@ -22,6 +22,7 @@ import static org.objectweb.celtix.bindings.JAXWSConstants.ENDPOINT_PROPERTY;
 import static org.objectweb.celtix.bindings.JAXWSConstants.SERVER_BINDING_ENDPOINT_CALLBACK_PROPERTY;
 import static org.objectweb.celtix.bindings.JAXWSConstants.TRANSPORT_PROPERTY;
 import static org.objectweb.celtix.context.InputStreamMessageContext.ASYNC_ONEWAY_DISPATCH;
+import static org.objectweb.celtix.context.InputStreamMessageContext.DECOUPLED_RESPONSE;
 import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
 
 
@@ -205,7 +206,29 @@ public final class BindingContextUtils {
      */
     public static boolean retrieveAsyncOnewayDispatch(MessageContext context) {
         Boolean b = (Boolean)context.get(ASYNC_ONEWAY_DISPATCH);
-        return null == b || b.booleanValue();
+        return b != null && b.booleanValue();
+    }
+
+    /**
+     * Store decoupled response property in message context.
+     *
+     * @param context the message context
+     * @param decoupled value of the decoupled response property
+     */
+    public static void storeDecoupledResponse(MessageContext context, boolean decoupled) {
+        context.put(DECOUPLED_RESPONSE, decoupled ? Boolean.TRUE : Boolean.FALSE);
+        context.setScope(DECOUPLED_RESPONSE, MessageContext.Scope.HANDLER); 
+    }
+   
+    /**
+     * Retrieve value of decoupled response property from message context.
+     *
+     * @param context the message context
+     * @returned the value of decoupled response property
+     */
+    public static boolean retrieveDecoupledResponse(MessageContext context) {
+        Boolean b = (Boolean)context.get(DECOUPLED_RESPONSE);
+        return b != null && b.booleanValue();
     }
 
 

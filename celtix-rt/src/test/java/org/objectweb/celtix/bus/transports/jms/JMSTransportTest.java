@@ -16,6 +16,7 @@ import junit.framework.TestSuite;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.bindings.TestClientBinding;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 
@@ -360,7 +361,8 @@ public class JMSTransportTest extends TestCase {
                                                   String address) throws WSDLException, IOException {
         EndpointReferenceType ref = EndpointReferenceUtils
             .getEndpointReference(wsdlUrl, serviceName, portName);
-        ClientTransport transport = factory.createClientTransport(ref);
+        ClientTransport transport = 
+            factory.createClientTransport(ref, new TestClientBinding(bus, ref));
 
         return transport;
     }

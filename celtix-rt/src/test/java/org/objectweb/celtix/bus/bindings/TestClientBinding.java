@@ -58,7 +58,7 @@ public class TestClientBinding extends AbstractClientBinding {
                 return null;
             }
         }
-        return tf.createClientTransport(ref);
+        return tf.createClientTransport(ref, this);
     }
 
     protected Method getSEIMethod(List<Class<?>> classList, MessageContext ctx) {

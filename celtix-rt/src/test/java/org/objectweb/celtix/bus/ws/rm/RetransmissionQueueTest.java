@@ -25,15 +25,12 @@ public class RetransmissionQueueTest extends TestCase {
     private IMocksControl control;
     private WorkQueue workQueue;
     private RetransmissionQueue queue;
-    private RetransmissionQueue.Resender resender;
+    private TestResender resender;
     
     public void setUp() {
         control = EasyMock.createNiceControl();
         queue = new RetransmissionQueue();
-        resender = new RetransmissionQueue.Resender() {
-            public void resend(ObjectMessageContext context) {
-            }
-        };
+        resender = new TestResender();
         queue.replaceResender(resender);
         workQueue = control.createMock(WorkQueue.class);
         workQueue.schedule(queue.getResendInitiator(), 
@@ -198,20 +195,21 @@ public class RetransmissionQueueTest extends TestCase {
             queue.cacheUnacknowledged(context3);
         RetransmissionQueue.ResendCandidate[] allCandidates = 
         {candidate1, candidate2, candidate3};
+        boolean [] expectAckRequested = {true, true, false};
 
         // initial run => none due
         runInitiator();
 
         // all 3 candidates due
         runInitiator(allCandidates);
-        runCandidates(allCandidates);        
+        runCandidates(allCandidates, expectAckRequested);        
                         
         // exponential backoff => none due
         runInitiator();
         
         // all 3 candidates due
         runInitiator(allCandidates);
-        runCandidates(allCandidates);
+        runCandidates(allCandidates, expectAckRequested);
 
         for (int i = 0; i < 3; i++) {
             // exponential backoff => none due
@@ -220,7 +218,7 @@ public class RetransmissionQueueTest extends TestCase {
 
         // all 3 candidates due
         runInitiator(allCandidates);
-        runCandidates(allCandidates);
+        runCandidates(allCandidates, expectAckRequested);
         
         for (int i = 0; i < 7; i++) {
             // exponential backoff => none due
@@ -229,7 +227,7 @@ public class RetransmissionQueueTest extends TestCase {
         
         // all 3 candidates due
         runInitiator(allCandidates);
-        runCandidates(allCandidates);
+        runCandidates(allCandidates, expectAckRequested);
     }
 
 
@@ -246,6 +244,7 @@ public class RetransmissionQueueTest extends TestCase {
             queue.cacheUnacknowledged(context3);
         RetransmissionQueue.ResendCandidate[] allCandidates = 
         {candidate1, candidate2, candidate3};
+        boolean [] expectAckRequested = {true, true, false};
 
         // initial run => none due
         runInitiator();
@@ -266,7 +265,7 @@ public class RetransmissionQueueTest extends TestCase {
         runInitiator(new RetransmissionQueue.ResendCandidate[] {candidate1, 
                                                                 candidate2});
 
-        runCandidates(allCandidates);
+        runCandidates(allCandidates, expectAckRequested);
 
         // exponential backoff => none due
         runInitiator();
@@ -295,13 +294,14 @@ public class RetransmissionQueueTest extends TestCase {
             queue.cacheUnacknowledged(context3);
         RetransmissionQueue.ResendCandidate[] allCandidates = 
         {candidate1, candidate2, candidate3};
+        boolean [] expectAckRequested = {true, true, false};
         
         // initial run => none due
         runInitiator();
 
         // all 3 candidates due
         runInitiator(allCandidates);
-        runCandidates(allCandidates);
+        runCandidates(allCandidates, expectAckRequested);
 
         // exponential backoff => none due
         runInitiator();
@@ -374,9 +374,17 @@ public class RetransmissionQueueTest extends TestCase {
     }
     
     private void runCandidates(
-                          RetransmissionQueue.ResendCandidate[] candidates) {
+                          RetransmissionQueue.ResendCandidate[] candidates,
+                          boolean[] expectAckRequested) {
         for (int i = 0; i < candidates.length; i++) {
             candidates[i].run();
+            assertEquals("unexpected request acknowledge",
+                         expectAckRequested[i],
+                         resender.includeAckRequested);
+            assertSame("unexpected context",
+                       candidates[i].getContext(),
+                       resender.context);
+            resender.clear();
         }
     }
     
@@ -405,25 +413,6 @@ public class RetransmissionQueueTest extends TestCase {
             EasyMock.expectLastCall().andReturn(sid);
         }
         return sequence;
-                
-        /*
-        SequenceType sequence = control.createMock(SequenceType.class);
-        if (context != null) {
-            context.get(SEQUENCE_PROPERTY);
-            EasyMock.expectLastCall().andReturn(sequence);
-        }
-        if (messageNumber != null) {
-            sequence.getMessageNumber();
-            EasyMock.expectLastCall().andReturn(messageNumber);
-        } else {
-            Identifier id = control.createMock(Identifier.class);
-            sequence.getIdentifier();
-            EasyMock.expectLastCall().andReturn(id);
-            id.getValue();
-            EasyMock.expectLastCall().andReturn(sid);
-        }
-        return sequence;
-        */
     }
     
     private Sequence setUpSequence(String sid, 
@@ -441,4 +430,19 @@ public class RetransmissionQueueTest extends TestCase {
         }
         return sequence;
     }
+    
+    private static class TestResender implements RetransmissionQueue.Resender {
+        ObjectMessageContext context;
+        boolean includeAckRequested;
+        
+        public void resend(ObjectMessageContext ctx, boolean requestAcknowledge) {
+            context = ctx;
+            includeAckRequested = requestAcknowledge;
+        }
+        
+        void clear() {
+            context = null;
+            includeAckRequested = false;            
+        }
+    };
 }

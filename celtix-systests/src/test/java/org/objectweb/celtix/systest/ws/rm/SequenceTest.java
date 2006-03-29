@@ -203,7 +203,50 @@ public class SequenceTest extends ClientServerTestBase {
             }
         }
     }
-    
+
+    public void testOnewayAnonymousAcksSupressed() throws Exception {
+        setupEndpoints("anonymous-suppressed");
+        
+        greeter.greetMeOneWay("once");
+        greeter.greetMeOneWay("twice");
+        greeter.greetMeOneWay("thrice");
+        
+
+        // three application messages plus createSequence
+        assertEquals(4, outboundMessages.size());
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION,
+                                                 GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION};
+        verifyActions(expectedActions, true);
+        verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
+
+        // createSequenceResponse plus three partial responses, none of which
+        // contain an acknowledgment
+        
+        assertEquals(4, inboundMessages.size());
+        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
+        verifyActions(expectedActions, false);
+        verifyMessageNumbers(new String[] {null, null, null, null}, false);
+        for (int i = 0; i < 4; i++) {
+            assertNull("Inbound message " + (i + 1) + " contains sequence acknowledgment header",
+                       getAcknowledgment(inboundMessages.get(i)));
+        }
+        
+        outboundMessages.clear();
+        inboundMessages.clear(); 
+
+        // allow resends to kick in
+        Thread.sleep(10 * 1000);
+        
+        // between 1 and 3 resends (the actual number depends on whether 
+        // the ACK in response to the AckRequested header in the first resend
+        // is processed before the other (async) resends occur
+        assertTrue("unexpected number of resends: " + outboundMessages.size(),
+                   outboundMessages.size() >= 1 && outboundMessages.size() <= 3);
+        verifyAckRequested(outboundMessages);
+    }
+
     public void xtestTwowayNonAnonymous() throws Exception {
         setupEndpoints("twoway");
 
@@ -361,6 +404,19 @@ public class SequenceTest extends ClientServerTestBase {
             }
         }
     }
+    
+    private void verifyAckRequested(List<SOAPMessage> messages)
+        throws Exception {
+        boolean found = false;
+        for (SOAPMessage m : messages) {
+            SOAPElement se = getAckRequested(m);
+            if (se != null) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue("expected AckRequested", found);
+    }
 
     private String getAction(SOAPMessage msg) throws Exception {
         SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
@@ -420,6 +476,23 @@ public class SequenceTest extends ClientServerTestBase {
             String localName = headerName.getLocalName();
             if (headerName.getURI().equals(Names.WSRM_NAMESPACE_NAME)
                 && localName.equals(Names.WSRM_SEQUENCE_ACK_NAME)) {
+                return (SOAPElement)header.getChildElements().next();
+            }
+        }
+        return null;
+    }
+    
+    private SOAPElement getAckRequested(SOAPMessage msg) throws Exception {
+        SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
+        SOAPHeader header = env.getHeader();
+        Iterator headerElements = header.examineAllHeaderElements();
+        while (headerElements.hasNext()) {
+            SOAPHeaderElement headerElement =
+                (SOAPHeaderElement)headerElements.next();
+            Name headerName = headerElement.getElementName();
+            String localName = headerName.getLocalName();
+            if (headerName.getURI().equals(Names.WSRM_NAMESPACE_NAME)
+                && localName.equals(Names.WSRM_ACK_REQUESTED_NAME)) {
                 return (SOAPElement)header.getChildElements().next();
             }
         }

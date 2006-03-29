@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 
 import javax.wsdl.Port;
 
+import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -70,5 +71,14 @@ public interface ClientTransport extends Transport {
      */        
     Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, Executor executor)
         throws IOException;
-
+    
+    /**
+     * Retrieve the ResponseCallback used to diapatch decoupled responses.
+     * This may be either a new ResponseCallback created via the ClientBinding
+     * or a preexisting instance, if the decoupled response endpoint is 
+     * being reused.
+     * 
+     * @return a ResponseCallback instance
+     */
+    ResponseCallback getResponseCallback();
 }

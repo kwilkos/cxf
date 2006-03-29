@@ -212,11 +212,11 @@ public class SequenceTest extends TestCase {
     
     public void testAcknowledgeInsertRange() {
         destination.getHandler();
-        expectLastCall().andReturn(handler).times(5);
+        expectLastCall().andReturn(handler).times(7);
         destination.getRMAssertion();
-        expectLastCall().andReturn(rma).times(5);
+        expectLastCall().andReturn(rma).times(7);
         destination.getAcksPolicy();
-        expectLastCall().andReturn(ap).times(5);
+        expectLastCall().andReturn(ap).times(7);
         replay(destination);
         replay(handler);
         
@@ -227,6 +227,8 @@ public class SequenceTest extends TestCase {
         seq.acknowledge(new BigInteger("9"));
         seq.acknowledge(new BigInteger("10"));
         seq.acknowledge(new BigInteger("4"));
+        seq.acknowledge(new BigInteger("9"));
+        seq.acknowledge(new BigInteger("2"));
         
         assertEquals(3, ranges.size());
         AcknowledgementRange r = ranges.get(0);
@@ -242,11 +244,11 @@ public class SequenceTest extends TestCase {
     
     public void testAcknowledgePrependRange() { 
         destination.getHandler();
-        expectLastCall().andReturn(handler).times(4);
+        expectLastCall().andReturn(handler).times(6);
         destination.getRMAssertion();
-        expectLastCall().andReturn(rma).times(4);
+        expectLastCall().andReturn(rma).times(6);
         destination.getAcksPolicy();
-        expectLastCall().andReturn(ap).times(4);
+        expectLastCall().andReturn(ap).times(6);
         replay(destination);
         replay(handler);
         
@@ -255,6 +257,8 @@ public class SequenceTest extends TestCase {
         seq.acknowledge(new BigInteger("4"));
         seq.acknowledge(new BigInteger("5"));
         seq.acknowledge(new BigInteger("6"));
+        seq.acknowledge(new BigInteger("4"));
+        seq.acknowledge(new BigInteger("2"));
         seq.acknowledge(new BigInteger("2"));
         assertEquals(2, ranges.size());
         AcknowledgementRange r = ranges.get(0);

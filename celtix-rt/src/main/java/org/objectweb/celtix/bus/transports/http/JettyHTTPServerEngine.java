@@ -206,5 +206,29 @@ public final class JettyHTTPServerEngine {
         */
     }
     
-    
+    synchronized HttpHandler getServant(String url) throws IOException {
+        URL nurl = new URL(url);
+        String lpath = nurl.getPath();
+        
+        String contextName = "";
+        String servletMap = lpath;
+        int idx = lpath.lastIndexOf('/');
+        if (idx > 0) {
+            contextName = lpath.substring(0, idx);
+            servletMap = lpath.substring(idx);
+        }
+        
+        HttpHandler ret = null;
+        // REVISIT: how come server can be null?
+        if (server != null) {
+            HttpContext context = server.getContext(contextName);
+            for (HttpHandler handler : context.getHandlers()) {
+                if (servletMap.equals(handler.getName())) {
+                    ret = handler;
+                    break;
+                }
+            }
+        }
+        return ret;
+    }
 }

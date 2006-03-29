@@ -262,17 +262,23 @@ public class Sequence {
         int i = 0;
         for (; i < acked.getAcknowledgementRange().size(); i++) {
             AcknowledgementRange r = acked.getAcknowledgementRange().get(i);
-            BigInteger diff = r.getLower().subtract(messageNumber);
-            if (diff.signum() == 1) {
-                if (diff.equals(BigInteger.ONE)) {
-                    r.setLower(messageNumber);
-                    done = true;
-                }
-                break;
-            } else if (messageNumber.subtract(r.getUpper()).equals(BigInteger.ONE)) {
-                r.setUpper(messageNumber);
+            if (r.getLower().compareTo(messageNumber) <= 0 
+                && r.getUpper().compareTo(messageNumber) >= 0) {
                 done = true;
                 break;
+            } else {
+                BigInteger diff = r.getLower().subtract(messageNumber);
+                if (diff.signum() == 1) {
+                    if (diff.equals(BigInteger.ONE)) {
+                        r.setLower(messageNumber);
+                        done = true;
+                    }
+                    break;
+                } else if (messageNumber.subtract(r.getUpper()).equals(BigInteger.ONE)) {
+                    r.setUpper(messageNumber);
+                    done = true;
+                    break;
+                }
             }
         }
 

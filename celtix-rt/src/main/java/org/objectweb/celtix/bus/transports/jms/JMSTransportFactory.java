@@ -7,7 +7,7 @@ import javax.wsdl.WSDLException;
 import javax.xml.bind.JAXBException;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.ResponseCallback;
+import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
@@ -20,21 +20,13 @@ import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 public class JMSTransportFactory implements TransportFactory {
 
     protected Bus theBus;
-    protected ResponseCallback responseCallback;
 
     public void init(Bus bus) {
         theBus = bus;
         
         registerExtenstion();
     }
-    
-    /**
-     * @param callback used to report (potentially asynchronous) responses.
-     */
-    public synchronized void setResponseCallback(ResponseCallback callback) {
-        responseCallback = callback;
-    }
-    
+        
     private void registerExtenstion() {
         
         try {
@@ -63,8 +55,9 @@ public class JMSTransportFactory implements TransportFactory {
         return null;
     }
      
-    public ClientTransport createClientTransport(EndpointReferenceType address) 
+    public ClientTransport createClientTransport(EndpointReferenceType address,
+                                                 ClientBinding binding) 
         throws WSDLException, IOException {
-        return new JMSClientTransport(theBus, address, responseCallback);
+        return new JMSClientTransport(theBus, address, binding);
     }
 }

@@ -23,14 +23,14 @@ public class Response {
     HandlerInvoker handlerInvoker;
     MessageContext bindingCtx;
 
-    protected Response(Request request) {
+    public Response(Request request) {
         binding = request.getBinding();
         objectCtx = request.getObjectMessageContext();
         bindingCtx = request.getBindingContext();
         handlerInvoker = request.getHandlerInvoker();
     }
 
-    protected Response(AbstractBindingBase b, HandlerInvoker h) {
+    public Response(AbstractBindingBase b, HandlerInvoker h) {
         binding = b;
         handlerInvoker = h;
     }
@@ -106,11 +106,13 @@ public class Response {
         } else {
             objectCtx.putAll(bindingCtx);
         }
-        
-        if (!binding.getBindingImpl().hasFault(bindingCtx)) {
-            binding.getBindingImpl().unmarshal(bindingCtx, objectCtx, callback);
-        } else {
-            binding.getBindingImpl().unmarshalFault(bindingCtx, objectCtx, callback);
+
+        if (!BindingContextUtils.retrieveDecoupledResponse(bindingCtx)) {
+            if (!binding.getBindingImpl().hasFault(bindingCtx)) {
+                binding.getBindingImpl().unmarshal(bindingCtx, objectCtx, callback);
+            } else {
+                binding.getBindingImpl().unmarshalFault(bindingCtx, objectCtx, callback);
+            }
         }
 
         objectCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.TRUE);

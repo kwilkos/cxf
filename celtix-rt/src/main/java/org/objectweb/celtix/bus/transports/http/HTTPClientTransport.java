@@ -20,6 +20,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 import javax.wsdl.Port;
@@ -30,12 +32,18 @@ import javax.xml.ws.handler.MessageContext;
 import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
 
 import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.BindingContextUtils;
+import org.objectweb.celtix.bindings.ClientBinding;
+import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlHttpConfigurationProvider;
 import org.objectweb.celtix.bus.management.counters.TransportClientCounters;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
@@ -52,7 +60,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class HTTPClientTransport implements ClientTransport {
 
-    //private static final Logger LOG = LogUtils.getL7dLogger(HTTPClientTransport.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(HTTPClientTransport.class);
 
     private static final String PORT_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/jaxws/port-config";
@@ -68,13 +76,20 @@ public class HTTPClientTransport implements ClientTransport {
     final Bus bus;
     final Port port;
     final HTTPTransportFactory factory;
-
+   
     URL url;
     TransportClientCounters counters;
 
+    private JettyHTTPServerEngine decoupledEngine;
+    private EndpointReferenceType decoupledEndpoint;
+    private String decoupledAddress;
+    private URL decoupledURL;
+    private ClientBinding clientBinding;
+    private ResponseCallback responseCallback;
 
     public HTTPClientTransport(Bus b,
                                EndpointReferenceType ref,
+                               ClientBinding binding,
                                HTTPTransportFactory f)
         throws WSDLException, IOException {
 
@@ -83,6 +98,7 @@ public class HTTPClientTransport implements ClientTransport {
         String address = portConfiguration.getString("address");
         EndpointReferenceUtils.setAddress(ref, address);
         targetEndpoint = ref;
+        clientBinding = binding;
         factory = f;
         url = new URL(address);
         counters = new TransportClientCounters("HTTPClientTransport");
@@ -92,8 +108,7 @@ public class HTTPClientTransport implements ClientTransport {
         policy = getClientPolicy(configuration);
         authPolicy = getAuthPolicy("authorization", configuration);
         proxyAuthPolicy = getAuthPolicy("proxyAuthorization", configuration);
-
-
+        
         bus.sendEvent(new ComponentCreatedEvent(this));
 
     }
@@ -117,8 +132,11 @@ public class HTTPClientTransport implements ClientTransport {
         return targetEndpoint;
     }
 
-    public EndpointReferenceType getDecoupledEndpoint() throws IOException {
-        return factory.getDecoupledEndpoint(policy.getDecoupledEndpoint());
+    public synchronized EndpointReferenceType getDecoupledEndpoint() throws IOException {
+        if (decoupledEndpoint == null && policy.getDecoupledEndpoint() != null) {
+            decoupledEndpoint = setUpDecoupledEndpoint();           
+        }
+        return decoupledEndpoint;
     }
 
     public Port getPort() {
@@ -151,7 +169,7 @@ public class HTTPClientTransport implements ClientTransport {
             context.getOutputStream().close();
             HTTPClientOutputStreamContext requestContext = (HTTPClientOutputStreamContext)context;
             counters.getInvoke().increase();
-            return getResponseContext(requestContext, factory);
+            return getResponseContext(requestContext);
         } catch (Exception ex) {
             counters.getInvokeError().increase();
             throw new IOException(ex.getMessage());
@@ -165,7 +183,7 @@ public class HTTPClientTransport implements ClientTransport {
             context.getOutputStream().close();
             HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;
             FutureTask<InputStreamMessageContext> f = new FutureTask<InputStreamMessageContext>(
-                new InputStreamMessageContextCallable(ctx, factory));
+                getInputStreamMessageContextCallable(ctx));
             // client (service) must always have an executor associated with it
             executor.execute(f);
             counters.getInvokeAsync().increase();
@@ -174,6 +192,10 @@ public class HTTPClientTransport implements ClientTransport {
             counters.getInvokeError().increase();
             throw new IOException(ex.getMessage());
         }
+    }
+    
+    public ResponseCallback getResponseCallback() {
+        return responseCallback;
     }
 
     public void shutdown() {
@@ -188,24 +210,35 @@ public class HTTPClientTransport implements ClientTransport {
             }
             url = null;
         }
+        
+        if (decoupledURL != null && decoupledEngine != null) {
+            try {
+                DecoupledHandler decoupledHandler = 
+                    (DecoupledHandler)decoupledEngine.getServant(decoupledAddress);
+                if (decoupledHandler != null) {
+                    decoupledHandler.release();
+                }
+            } catch (IOException ioe) {
+                // ignore
+            }
+        }
 
         bus.sendEvent(new ComponentRemovedEvent(this));
     }
 
-    protected static InputStreamMessageContext getResponseContext(
-                                 HTTPClientOutputStreamContext requestContext,
-                                 HTTPTransportFactory factory)
+    protected InputStreamMessageContext getResponseContext(
+                                 HTTPClientOutputStreamContext requestContext)
         throws IOException {
         InputStreamMessageContext responseContext = null;
-        if (factory.hasDecoupledEndpoint()) {
+        if (hasDecoupledEndpoint()) {
             int responseCode = getResponseCode(requestContext.connection);
             if (responseCode == HttpURLConnection.HTTP_ACCEPTED) {
                 // server transport was rebased on decoupled response endpoint,
                 // dispatch this partial response immediately as it may include
                 // piggybacked content
-                InputStreamMessageContext inputContext =
+                responseContext =
                     requestContext.createInputStreamContext();
-                factory.getResponseCallback().dispatch(inputContext);
+                BindingContextUtils.storeDecoupledResponse(responseContext, true);
             } else {
                 // request failed *before* server transport was rebased on
                 // decoupled response endpoint
@@ -215,6 +248,41 @@ public class HTTPClientTransport implements ClientTransport {
             responseContext = requestContext.createInputStreamContext();
         }
         return responseContext;
+    }
+    
+    private EndpointReferenceType setUpDecoupledEndpoint() {
+        EndpointReferenceType reference =
+            EndpointReferenceUtils.getEndpointReference(policy.getDecoupledEndpoint());
+        if (reference != null) {
+            decoupledAddress = reference.getAddress().getValue();
+            LOG.info("creating decoupled endpoint: " + decoupledAddress);
+            try {
+                decoupledURL = new URL(decoupledAddress);
+                decoupledEngine = 
+                    JettyHTTPServerEngine.getForPort(bus, 
+                                                     decoupledURL.getProtocol(),
+                                                     decoupledURL.getPort());
+                DecoupledHandler decoupledHandler =
+                    (DecoupledHandler)decoupledEngine.getServant(decoupledAddress);
+                if (decoupledHandler == null) {
+                    responseCallback = clientBinding.createResponseCallback();
+                    decoupledEngine.addServant(decoupledAddress,
+                                               new DecoupledHandler(responseCallback));
+                } else {
+                    responseCallback = decoupledHandler.duplicate();
+                }
+
+            } catch (Exception e) {
+                // REVISIT move message to localizable Messages.properties
+                LOG.log(Level.WARNING, "decoupled endpoint creation failed: ", e);
+            }
+        }
+        return reference;
+    }
+
+
+    protected synchronized boolean hasDecoupledEndpoint() {
+        return decoupledEndpoint != null;
     }
 
     protected static Configuration getPortConfiguration(Bus bus, EndpointReferenceType ref) {
@@ -256,6 +324,11 @@ public class HTTPClientTransport implements ClientTransport {
             }
         }
         return responseCode;
+    }
+    
+    protected InputStreamMessageContextCallable getInputStreamMessageContextCallable(
+                                               HTTPClientOutputStreamContext context) {
+        return new InputStreamMessageContextCallable(context);
     }
 
     protected static class HTTPClientOutputStreamContext
@@ -610,17 +683,50 @@ public class HTTPClientTransport implements ClientTransport {
         }
     }
 
-    static class InputStreamMessageContextCallable implements Callable<InputStreamMessageContext> {
+    private class InputStreamMessageContextCallable implements Callable<InputStreamMessageContext> {
         private final HTTPClientOutputStreamContext httpClientOutputStreamContext;
-        private final HTTPTransportFactory factory;
 
-        InputStreamMessageContextCallable(HTTPClientOutputStreamContext ctx,
-                                          HTTPTransportFactory f) {
+        InputStreamMessageContextCallable(HTTPClientOutputStreamContext ctx) {
             httpClientOutputStreamContext = ctx;
-            factory = f;
         }
         public InputStreamMessageContext call() throws Exception {
-            return getResponseContext(httpClientOutputStreamContext, factory);
+            return getResponseContext(httpClientOutputStreamContext);
+        }
+    }
+    
+    private class DecoupledHandler extends AbstractHttpHandler {
+        private ResponseCallback responseCallback;
+        private int refCount;
+        
+        DecoupledHandler(ResponseCallback callback) {
+            responseCallback = callback;
+        }
+        
+        synchronized ResponseCallback duplicate() {
+            refCount++;
+            return responseCallback;
+        }
+        
+        synchronized void release() {
+            if (--refCount == 0) {
+                try {
+                    decoupledEngine.removeServant(decoupledAddress);
+                    JettyHTTPServerEngine.destroyForPort(decoupledURL.getPort());
+                } catch (IOException ex) {
+                    //ignore
+                }
+            }
+        }
+        
+        public void handle(String pathInContext, 
+                           String pathParams,
+                           HttpRequest req, 
+                           HttpResponse resp) throws IOException {
+            HTTPDecoupledClientInputStreamContext ctx = 
+                new HTTPDecoupledClientInputStreamContext(req);
+            responseCallback.dispatch(ctx);
+            resp.commit();
+            req.setHandled(true);
         }
     }
 }

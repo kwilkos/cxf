@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.bus.bindings.TestInputStreamContext;
 import org.objectweb.celtix.bus.bindings.TestOutputStreamContext;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
@@ -181,6 +182,10 @@ public class SOAPClientBindingTest extends TestCase {
 
         public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, Executor ex) 
             throws IOException {
+            return null;
+        }
+        
+        public ResponseCallback getResponseCallback() {
             return null;
         }
 

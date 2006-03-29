@@ -17,7 +17,7 @@ import junit.framework.TestSuite;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.bindings.ResponseCallback;
+import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 
 import org.objectweb.celtix.configuration.Configuration;
@@ -273,9 +273,9 @@ public class JMSContextTest extends TestCase {
         
         public TestJMSClientTransport(Bus theBus, 
                                       EndpointReferenceType address, 
-                                      ResponseCallback theCallback) 
+                                      ClientBinding binding) 
             throws WSDLException, IOException {
-            super(theBus, address, theCallback);
+            super(theBus, address, binding);
         }
         
         @Override
