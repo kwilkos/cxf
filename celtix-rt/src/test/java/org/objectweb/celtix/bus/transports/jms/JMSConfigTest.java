@@ -86,9 +86,9 @@ public class JMSConfigTest extends TestCase {
         assertNotNull(wsdlUrl);
 
         EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlUrl, serviceName,
-                                                                                "HelloWorldPortType");
+                                                                                "HelloWorldPort");
 
-        createNecessaryConfig(wsdlUrl, serviceName, "HelloWorldPortType");
+        createNecessaryConfig(wsdlUrl, serviceName, "HelloWorldPort");
 
         JMSClientTransport clientTransport = new JMSClientTransport(bus, ref, null);
 
@@ -108,9 +108,9 @@ public class JMSConfigTest extends TestCase {
         assertNotNull(wsdlUrl);
 
         EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlUrl, serviceName,
-                                                                                "HelloWorldPortType");
+                                                                                "HelloWorldPort");
 
-        createNecessaryConfig(wsdlUrl, serviceName, "HelloWorldPortType");
+        createNecessaryConfig(wsdlUrl, serviceName, "HelloWorldPort");
 
         JMSServerTransport serverTransport = new JMSServerTransport(bus, ref);
 

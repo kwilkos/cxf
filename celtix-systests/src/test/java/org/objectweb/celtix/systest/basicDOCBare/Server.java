@@ -1,5 +1,9 @@
 package org.objectweb.celtix.systest.basicDOCBare;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.systest.common.TestServerBase;
@@ -9,8 +13,14 @@ public class Server extends TestServerBase {
 
     protected void run()  {
         Object implementor = new PutLastTradedPriceImpl();
-        String address = "http://localhost:9003/SOAPDocLitBareService/SoapPort";
-        Endpoint.publish(address, implementor);
+        String address = "http://localhost:9003/SOAPDocLitBareService/SoapPort";      
+        Endpoint ep = Endpoint.create(implementor);
+        Map<String, Object> props = new HashMap<String, Object>(2);
+        props.put(Endpoint.WSDL_SERVICE, new QName("http://objectweb.org/hello_world_doc_lit_bare", 
+                                                   "SOAPService"));
+        props.put(Endpoint.WSDL_PORT, new QName("http://objectweb.org/hello_world_doc_lit_bare", "SoapPort"));
+        ep.setProperties(props);
+        ep.publish(address);
     }
 
 

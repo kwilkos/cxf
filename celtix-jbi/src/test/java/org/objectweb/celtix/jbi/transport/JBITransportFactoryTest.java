@@ -1,8 +1,5 @@
 package org.objectweb.celtix.jbi.transport;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.jbi.messaging.DeliveryChannel;
 import javax.xml.namespace.QName;
 
@@ -15,7 +12,7 @@ import org.objectweb.celtix.jbi.se.CeltixServiceUnitManager;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.ws.addressing.MetadataType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class JBITransportFactoryTest extends TestCase {
 
@@ -23,7 +20,7 @@ public class JBITransportFactoryTest extends TestCase {
     
     private final DeliveryChannel channel = EasyMock.createMock(DeliveryChannel.class);
     private final CeltixServiceUnitManager suMgr = EasyMock.createMock(CeltixServiceUnitManager.class);
-    private final EndpointReferenceType endpointRef = EasyMock.createMock(EndpointReferenceType.class);
+    private final EndpointReferenceType endpointRef = new EndpointReferenceType();
     
     
     public void setUp() {
@@ -78,19 +75,9 @@ public class JBITransportFactoryTest extends TestCase {
 
    
     public void testCreateClientTransport() throws Exception {
-
-        Map<QName, String> attrMap = new HashMap<QName, String>();
-        QName serviceName = new QName("http://www.w3.org/2004/08/wsdl", "service");
-        attrMap.put(serviceName, new QName("", "foobar").toString());
         
-        MetadataType metaData = EasyMock.createMock(MetadataType.class);
-        endpointRef.getMetadata();
-        EasyMock.expectLastCall().andReturn(metaData);
-        metaData.getOtherAttributes();
-        EasyMock.expectLastCall().andReturn(attrMap);
-        
-        EasyMock.replay(endpointRef);
-        EasyMock.replay(metaData);
+        QName serviceName = new QName("", "foobar");
+        EndpointReferenceUtils.setServiceAndPortName(endpointRef, serviceName, "SOAPPort");
         
         ClientBinding clientBinding = EasyMock.createMock(ClientBinding.class);
         ResponseCallback responseCallback = EasyMock.createMock(ResponseCallback.class);
@@ -102,10 +89,6 @@ public class JBITransportFactoryTest extends TestCase {
         ClientTransport ct = factory.createClientTransport(endpointRef, clientBinding);
         assertNotNull("server transport must not be null", ct);
         assertSame("transport must JBIClientTransport", JBIClientTransport.class, ct.getClass());
-        assertSame("unexpected response callback", responseCallback, ct.getResponseCallback());
-
-        EasyMock.verify(endpointRef);
-        EasyMock.verify(metaData);
         EasyMock.verify(clientBinding);
     
     }

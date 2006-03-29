@@ -66,7 +66,8 @@ public class ClientServerTest extends ClientServerTestBase {
                 BareDocumentResponse bareres = greeter.testDocLitBare("MySimpleDocument");
                 assertNotNull("no response for operation testDocLitBare", bareres);
                 assertEquals("Celtix", bareres.getCompany());
-                assertTrue(bareres.getId() == 1);                
+                assertTrue(bareres.getId() == 1);  
+                
             }            
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();

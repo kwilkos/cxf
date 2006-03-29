@@ -13,7 +13,7 @@ import org.objectweb.celtix.geronimo.MockBusFactory;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.ws.addressing.MetadataType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class GeronimoTransportFactoryTest extends TestCase {
 
@@ -29,11 +29,8 @@ public class GeronimoTransportFactoryTest extends TestCase {
         AttributedURIType uri = new AttributedURIType(); 
         uri.setValue("http://not.there.iona.com/wibbly/wobbly/wonder");
         addr.setAddress(uri);
-        MetadataType metaData = new MetadataType();
-        metaData.getOtherAttributes().put(new QName("http://www.w3.org/2004/08/wsdl", "service"), 
-                                          "testServiceName");
-        addr.setMetadata(metaData);
-
+        QName serviceName = new QName("http://www.w3.org/2004/08/wsdl", "testServiceName");
+        EndpointReferenceUtils.setServiceAndPortName(addr, serviceName, "");
         
         MockBusFactory busFactory = new MockBusFactory();
         Bus mockBus = busFactory.createMockBus();

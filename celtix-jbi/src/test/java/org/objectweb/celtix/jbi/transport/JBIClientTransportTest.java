@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.jbi.messaging.DeliveryChannel;
 import javax.jbi.messaging.InOut;
@@ -29,7 +27,7 @@ import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.ws.addressing.MetadataType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.hello_world_soap_http.Greeter;
 
 
@@ -39,8 +37,9 @@ public class JBIClientTransportTest extends TestCase {
     private static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"; 
     
     private final DeliveryChannel channel = EasyMock.createMock(DeliveryChannel.class);
-    private final EndpointReferenceType endpointRef = EasyMock.createMock(EndpointReferenceType.class);
-    private final MetadataType metaData = EasyMock.createMock(MetadataType.class);
+    //private final EndpointReferenceType endpointRef = EasyMock.createMock(EndpointReferenceType.class);
+    private EndpointReferenceType endpointRef;
+    //private final MetadataType metaData = EasyMock.createMock(MetadataType.class);
     private final ClientBinding clientBinding = EasyMock.createMock(ClientBinding.class);
 
 
@@ -80,9 +79,6 @@ public class JBIClientTransportTest extends TestCase {
         JBIClientTransport ct = new JBIClientTransport(channel, endpointRef, clientBinding);
         assertNotNull("server transport must not be null", ct);
         assertSame("transport must JBIClientTransport", JBIClientTransport.class, ct.getClass());
-
-        EasyMock.verify(endpointRef);
-        EasyMock.verify(metaData);
         EasyMock.verify(clientBinding);
         
     }
@@ -187,27 +183,17 @@ public class JBIClientTransportTest extends TestCase {
 
 
     private void initFixture() {
-
-        EasyMock.reset(endpointRef);
-        EasyMock.reset(metaData);   
-        EasyMock.reset(clientBinding);   
-
-        Map<QName, String> attrMap = new HashMap<QName, String>();
         
-        attrMap.put(new QName("http://www.w3.org/2004/08/wsdl", "service"), 
-                    new QName("http://objectweb.org/hello_world_soap_http", "Greeter").toString());
+        EasyMock.reset(clientBinding);
         
-        endpointRef.getMetadata();
-        EasyMock.expectLastCall().andReturn(metaData);
-        metaData.getOtherAttributes();
-        EasyMock.expectLastCall().andReturn(attrMap);
-        
+        endpointRef = new EndpointReferenceType();
+        EndpointReferenceUtils.setServiceAndPortName(endpointRef,
+                                                     new QName("http://objectweb.org/hello_world_soap_http", 
+                                                               "Greeter"),
+                                                               "SOAPPort");  
         ResponseCallback responseCallback = EasyMock.createMock(ResponseCallback.class);
         clientBinding.createResponseCallback();
         EasyMock.expectLastCall().andReturn(responseCallback);
-        
-        EasyMock.replay(endpointRef);
-        EasyMock.replay(metaData);   
         EasyMock.replay(clientBinding);
 
     }

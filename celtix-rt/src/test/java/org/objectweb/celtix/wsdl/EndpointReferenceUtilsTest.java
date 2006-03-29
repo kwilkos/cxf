@@ -37,7 +37,7 @@ public class EndpointReferenceUtilsTest extends TestCase {
         // negative test case
         // fail("Did not expect a port to be found. Did someone fix this?");
 
-        assertNotNull("Could not find port", port);
+        assertNotNull("Expected to find a port", port);
 
         // This implementor is annotated with a WebService annotation that has
         // no
@@ -48,7 +48,8 @@ public class EndpointReferenceUtilsTest extends TestCase {
         // part
         // of the test build.
         implementor = new DerivedGreeterImpl();
-        EndpointReferenceUtils.getWSDLDefinition(manager, ref);
+        ref = EndpointReferenceUtils.getEndpointReference(manager, implementor);
+        //EndpointReferenceUtils.getWSDLDefinition(manager, ref);   
         def = EndpointReferenceUtils.getWSDLDefinition(manager, ref);
         assertNotNull("Could not load wsdl", def);
 

@@ -155,15 +155,13 @@ public class VersionTransformer {
         internal.setReferenceParameters(
                             convert(exposed.getReferenceParameters()));
         ServiceNameType serviceName = exposed.getServiceName();
-        if (serviceName != null) {
-            EndpointReferenceUtils.setServiceName(internal, 
-                                                  serviceName.getValue());
-        }
         AttributedQName portName = exposed.getPortType();
-        if (portName != null) {
-            EndpointReferenceUtils.setPortName(internal,
-                                               portName.getValue().getLocalPart());
+        if (serviceName != null && portName != null) {
+            EndpointReferenceUtils.setServiceAndPortName(internal, 
+                                                  serviceName.getValue(),
+                                                  portName.getValue().getLocalPart());
         }
+
         // no direct analogue for ReferenceProperties
         internal.getAny().addAll(exposed.getAny());
         internal.getOtherAttributes().putAll(exposed.getOtherAttributes());

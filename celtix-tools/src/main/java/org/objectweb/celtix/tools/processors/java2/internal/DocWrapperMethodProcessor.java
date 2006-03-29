@@ -57,7 +57,7 @@ public class DocWrapperMethodProcessor {
             reqName = reqWrapper.localName().length() > 0 ? reqWrapper.localName() : reqName;
             reqNS = reqWrapper.targetNamespace().length() > 0 ? reqWrapper.targetNamespace() : reqNS;
         } else {
-            reqClassName = model.getPackageName() + AnnotationUtil.capitalize(method.getName());
+            reqClassName = model.getPackageName() + ".types." + AnnotationUtil.capitalize(method.getName());
         }
 
         Class reqClass = null;
@@ -87,7 +87,8 @@ public class DocWrapperMethodProcessor {
                 resName = resWrapper.localName().length() > 0 ? resWrapper.localName() : resName;
                 resNS = resWrapper.targetNamespace().length() > 0 ? resWrapper.targetNamespace() : resNS;
             } else {
-                resClassName = model.getPackageName() + AnnotationUtil.capitalize(method.getName())
+                resClassName = model.getPackageName() + ".types." 
+                    + AnnotationUtil.capitalize(method.getName())
                                + "Response";
             }
             Class resClass = null;

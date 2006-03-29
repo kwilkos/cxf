@@ -120,9 +120,11 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             initMetaData();
 
             configuration = createConfiguration();
-            serverBinding = createServerBinding(bindingURI);
-            configureHandlers();
-            configureSystemHandlers();
+            if (null  != configuration) {
+                serverBinding = createServerBinding(bindingURI);
+                configureHandlers();
+                configureSystemHandlers();
+            }
         } catch (Exception ex) {
             if (ex instanceof WebServiceException) { 
                 throw (WebServiceException)ex; 
@@ -135,14 +137,11 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     
     private void initProperties() {
         if (null != properties) {
-            QName val = (QName) properties.get(Endpoint.WSDL_SERVICE);
-            if (null != val) {
-                EndpointReferenceUtils.setServiceName(reference, val);
-            }
-            
-            val = (QName) properties.get(Endpoint.WSDL_PORT);
-            if (null != val) {
-                EndpointReferenceUtils.setPortName(reference, val.toString());
+            QName serviceName = (QName) properties.get(Endpoint.WSDL_SERVICE);
+            QName portName = (QName) properties.get(Endpoint.WSDL_PORT);
+            if (null != serviceName && null != portName) {
+                EndpointReferenceUtils.setServiceAndPortName(reference, serviceName, 
+                                                                       portName.toString());
             }
         }
     }
@@ -501,7 +500,10 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     private Configuration createConfiguration() {
         
         Configuration busCfg = bus.getConfiguration();
-        assert null != busCfg;
+        if (null == busCfg) {
+            return null;
+        }
+        
         Configuration cfg = null;
         String id = EndpointReferenceUtils.getServiceName(reference).toString();
         ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);

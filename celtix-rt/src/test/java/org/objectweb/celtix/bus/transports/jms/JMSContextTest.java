@@ -83,7 +83,7 @@ public class JMSContextTest extends TestCase {
     
     public void testTwoWayTextQueueJMSTransport() throws Exception {
         QName serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms", "HelloWorldService");
-        doTestJMSTransport(false,  serviceName, "HelloWorldPortType", "/wsdl/jms_test.wsdl");       
+        doTestJMSTransport(false,  serviceName, "HelloWorldPort", "/wsdl/jms_test.wsdl");       
     }
     
     private int readBytes(byte bytes[], InputStream ins) throws IOException {

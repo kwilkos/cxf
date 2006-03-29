@@ -28,7 +28,7 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.ws.addressing.MetadataType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class GeronimoServerTransportTest extends TestCase {
 
@@ -49,10 +49,9 @@ public class GeronimoServerTransportTest extends TestCase {
         AttributedURIType uri = new AttributedURIType();
         uri.setValue("http://foo.bar.iona.com/wibbly/wobbly/wonder");
         address.setAddress(uri);
-        MetadataType metaData = new MetadataType();
-        metaData.getOtherAttributes().put(new QName("http://www.w3.org/2004/08/wsdl", "service"), 
-                                          "testServiceName");
-        address.setMetadata(metaData);
+        QName serviceName = new QName("http://www.w3.org/2004/08/wsdl", "testServiceName");
+        EndpointReferenceUtils.setServiceAndPortName(address, serviceName, "");
+
         Configuration child = 
             busFactory.addChildConfig("http://celtix.objectweb.org/bus/jaxws/endpoint-config", null, null);
         EasyMock.replay(child);

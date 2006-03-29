@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -22,17 +21,16 @@ import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceProvider;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.MetadataType;
 import org.objectweb.celtix.ws.addressing.ObjectFactory;
 
 public class EndpointReferenceUtilsTest extends TestCase {
     
-    private static final QName WSDL_LOCATION = 
-        new QName("http://www.w3.org/2004/08/wsdl-instance", "wsdlLocation");
-    private static final QName SEI = new QName("http://www.w3.org/2004/08/wsdl-instance", "sei");
 
     public EndpointReferenceUtilsTest(String arg0) {
         super(arg0);
@@ -118,28 +116,18 @@ public class EndpointReferenceUtilsTest extends TestCase {
         }
     }
     
-    
     public void testGetWSDLDefinition() throws Exception  {
-        Class cls[] = new Class[] {
-            ObjectFactory.class,
-            org.objectweb.celtix.ws.addressing.wsdl.ObjectFactory.class
-        };
-        JAXBContext context = JAXBContext.newInstance(cls);
-        Unmarshaller u = context.createUnmarshaller();
-
-        EndpointReferenceType ref = (EndpointReferenceType) 
-                                    ((JAXBElement<?>)u.unmarshal(
-                                        getClass().getResource("resources/reference1.xml"))).getValue();
-
-        ref.getMetadata().getOtherAttributes().put(
-                                                  new QName("http://www.w3.org/2004/08/wsdl-instance",
-                                                            "wsdlLocation"),
-                                                  getClass()
-                                                    .getResource("/wsdl/hello_world.wsdl")
-                                                    .toString());
-
-
+        
         WSDLManager manager = new TestWSDLManager();
+        URL url = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(url);
+        QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService_Test1");
+        String portName = new String("SoapPort_Test2");
+
+        EndpointReferenceType ref = 
+            EndpointReferenceUtils.getEndpointReference(url, serviceName, portName);
+
+        assertNotNull("Could not create endpoint reference", ref);
 
         Definition def = EndpointReferenceUtils.getWSDLDefinition(manager,
                                                                   ref);
@@ -227,9 +215,7 @@ public class EndpointReferenceUtilsTest extends TestCase {
         assertEquals(wsp.portName(), EndpointReferenceUtils.getPortName(ref));
         assertNotNull(EndpointReferenceUtils.getServiceName(ref));
         
-        Map<QName, String> attribMap = ref.getMetadata().getOtherAttributes();
-        assertEquals(wsp.wsdlLocation(), attribMap.get(WSDL_LOCATION));
-        assertEquals(TestProvider1.class.getName(), attribMap.get(SEI));
+        assertEquals(TestProvider1.class.getName(), EndpointReferenceUtils.getInterfaceName(ref));
         
         //Test with default values for WebServiceProvider Annotation
         TestProvider2 provider2 = new TestProvider2();
@@ -238,40 +224,37 @@ public class EndpointReferenceUtilsTest extends TestCase {
         assertNotNull(ref);
         
         assertNull(EndpointReferenceUtils.getPortName(ref));
-        assertNotNull(EndpointReferenceUtils.getServiceName(ref));
-        
-        attribMap = ref.getMetadata().getOtherAttributes();
-        assertNull(attribMap.get(WSDL_LOCATION));
-        assertEquals(TestProvider2.class.getName(), attribMap.get(SEI));
+        assertNull(EndpointReferenceUtils.getServiceName(ref));
+
+        assertNull(EndpointReferenceUtils.getInterfaceName(ref));
         
         //Test for No WebServiceProvider Annotation.
         ref =  EndpointReferenceUtils.getEndpointReference(manager, ref);
         assertNull(ref);
     }
-    
-    public void testSetServiceName() throws Exception {
+
+    public void testSetServiceAndPortName() throws Exception {
         QName serviceName1 = new QName("http://objectweb.org/soap_http1", "SOAPService_Test1");
-
-        EndpointReferenceType ref = new EndpointReferenceType();
-        
-        EndpointReferenceUtils.setServiceName(ref, serviceName1);
-        assertEquals(serviceName1, EndpointReferenceUtils.getServiceName(ref));
-
-        EndpointReferenceUtils.setServiceName(ref, null);
-        assertEquals(serviceName1, EndpointReferenceUtils.getServiceName(ref));
-       
-    }
-
-    public void testSetPortName() throws Exception {
         QName portName1 = new QName("http://objectweb.org/soap_http1", "SoapPort_Test1");
 
         EndpointReferenceType ref = new EndpointReferenceType();
+        
+        EndpointReferenceUtils.setServiceAndPortName(ref, serviceName1, portName1.toString());
+        
+        MetadataType metadata = ref.getMetadata();
+        List<Object> anyList = metadata.getAny();
+        Object obj = anyList.get(0);
+        assertTrue(obj instanceof Element);
+        Node node = (Element)obj;
+        
+        assertTrue(node.getTextContent().contains("SOAPService_Test1"));
+        assertTrue(node.getNamespaceURI().
+                   equals("http://www.w3.org/2005/08/addressing/wsdl"));
+        
+        assertTrue(node.getAttributes().getNamedItem("EndpointName").
+                   getTextContent().contains("SoapPort_Test1"));
 
-        EndpointReferenceUtils.setPortName(ref, portName1.toString());
-        assertEquals(portName1, QName.valueOf(EndpointReferenceUtils.getPortName(ref)));
-
-        EndpointReferenceUtils.setPortName(ref, null);
-        assertEquals(portName1, QName.valueOf(EndpointReferenceUtils.getPortName(ref)));
+       
     }
     
     public void testSetMetaData() throws Exception {
