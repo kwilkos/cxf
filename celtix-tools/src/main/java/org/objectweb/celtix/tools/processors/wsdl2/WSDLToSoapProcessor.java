@@ -15,6 +15,7 @@ import javax.wsdl.Fault;
 import javax.wsdl.Input;
 import javax.wsdl.Operation;
 import javax.wsdl.Output;
+import javax.wsdl.Part;
 import javax.wsdl.PortType;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
@@ -42,8 +43,13 @@ public class WSDLToSoapProcessor extends WSDLToProcessor {
 
     public void process() throws ToolException {
         init();
-        if (isBindingExisted()) {
+        validate();
+        extReg = this.wsdlReader.getExtensionRegistry();
+        doAppendBinding();
+    }
 
+    private void validate() throws ToolException {
+        if (isBindingExisted()) {
             Message msg = new Message("BINDING_ALREADY_EXIST", LOG);
             throw new ToolException(msg);
         }
@@ -55,8 +61,34 @@ public class WSDLToSoapProcessor extends WSDLToProcessor {
             Message msg = new Message("SOAPBINDING_STYLE_NOT_PROVIEDED", LOG);
             throw new ToolException(msg);
         }
-        extReg = this.wsdlReader.getExtensionRegistry();
-        doAppendBinding();
+        if (WSDLConstants.RPC.equalsIgnoreCase((String)env.get(ToolConstants.CFG_STYLE))) {
+            Iterator it = portType.getOperations().iterator();
+            while (it.hasNext()) {
+                Operation op = (Operation)it.next();
+                Input input = op.getInput();
+                if (input != null && input.getMessage() != null) {
+                    Iterator itParts = input.getMessage().getParts().values().iterator();
+                    while (itParts.hasNext()) {
+                        Part part = (Part)itParts.next();
+                        if (part.getTypeName() == null || "".equals(part.getTypeName().toString())) {
+                            Message msg = new Message("RPC_PART_ILLEGAL", LOG, new Object[] {part.getName()});
+                            throw new ToolException(msg);
+                        }
+                    }
+                }
+                Output output = op.getOutput();
+                if (output != null && output.getMessage() != null) {
+                    Iterator itParts = output.getMessage().getParts().values().iterator();
+                    while (itParts.hasNext()) {
+                        Part part = (Part)itParts.next();
+                        if (part.getTypeName() == null || "".equals(part.getTypeName().toString())) {
+                            Message msg = new Message("RPC_PART_ILLEGAL", LOG, new Object[] {part.getName()});
+                            throw new ToolException(msg);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private boolean isPortTypeExisted() {

@@ -165,6 +165,28 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
         }
     }
 
+    public void testPartValidation() throws Exception {
+        WSDLToSoapProcessor processor = new WSDLToSoapProcessor();
+        env.put(ToolConstants.CFG_PORTTYPE, "Greeter");
+        env.put(ToolConstants.CFG_BINDING, "Greeter_Binding");
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
+        env.put(ToolConstants.CFG_STYLE, "rpc");
+        env.put(ToolConstants.CFG_USE, "literal");
+        env.put(ToolConstants.CFG_NAMESPACE, "http://com.iona.hello_world/rpc");
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
+        processor.setEnvironment(env);
+        try {
+            processor.process();
+            fail("Do not catch expected tool exception for Part Reference illegal!");
+        } catch (Exception e) {
+            if (!(e instanceof ToolException && e.toString()
+                .indexOf("does not use type reference not confirm to RPC style") >= 0)) {
+                fail("Do not catch tool exception for Part Reference illegal, "
+                     + "catch other unexpected exception: " + e.getMessage());
+            }
+        }
+    }
+
     public void testBindingExist() throws Exception {
         WSDLToSoapProcessor processor = new WSDLToSoapProcessor();
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_rpc_lit.wsdl"));
