@@ -58,6 +58,13 @@
             </includes>
         </fileSet>
         <fileSet>
+            <directory>../celtix-router/src/main/resources</directory>
+            <outputDirectory>celtix/resources</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
             <directory>src/main/etc</directory>
             <outputDirectory>celtix/etc</outputDirectory>
             <includes>
