@@ -41,6 +41,7 @@ public class XMLFaultReader<T> implements DataReader<T> {
                     if (clazz != null) {
                         Class<?> faultInfo = clazz.getMethod("getFaultInfo").getReturnType();
                         Object obj = JAXBEncoderDecoder.unmarshall(callback.getJAXBContext(), 
+                                                                   callback.getSchema(),
                                                                    entry,
                                                                    faultName,
                                                                    faultInfo);

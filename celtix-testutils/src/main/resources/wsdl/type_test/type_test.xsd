@@ -57,11 +57,12 @@
     <itst:builtIn name="date"                         javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
     <itst:builtIn name="dateTime"                     javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
     <itst:builtIn name="time"                         javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
-    <itst:builtIn name="gYear"                         javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
-    <itst:builtIn name="gYearMonth"                         javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
-    <itst:builtIn name="gMonth"                         javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
-    <itst:builtIn name="gMonthDay"                         javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
+    <itst:builtIn name="gYear"                        javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
+    <itst:builtIn name="gYearMonth"                   javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
+    <itst:builtIn name="gMonth"                       javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
+    <itst:builtIn name="gMonthDay"                    javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
     <itst:builtIn name="gDay"                         javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
+    <itst:builtIn name="duration" javaType="javax.xml.datatype.Duration" javaHolder="javax.xml.datatype.Duration"/>
 <!-- XXX anyURI need to customize this type
     <itst:builtIn name="anyURI"                       javaType="java.net.URI"       javaHolder="java.net.URI"/>
 -->
@@ -149,7 +150,7 @@
             </sequence>
         </sequence>
     </complexType>
-    <!-- XXX - Causes eclipse warning
+    <!-- XXX - Causes eclipse warning -->
     <complexType name="AnonymousType">
         <sequence>
             <element name="foo">
@@ -162,7 +163,7 @@
             </element>
         </sequence>
     </complexType>
-    -->
+    <!---->
     <complexType name="FixedArray">
         <sequence>
             <element maxOccurs="3" minOccurs="3" name="item" type="int"/>
@@ -1246,6 +1247,57 @@
       </simpleContent>
     </complexType>
 
+    <!-- anyAttribute support (undeclared attributes) -->
+
+    <complexType name="StructWithAnyAttribute">
+        <sequence>
+            <element name="varString" type="xsd:string"/>
+            <element name="varInt" type="xsd:int"/>
+        </sequence>
+        <attribute name="AtString" type="xsd:string"/>
+        <attribute name="AtInt" type="xsd:int"/>
+        <anyAttribute/>
+    </complexType>
+
+    <complexType name="ChoiceWithAnyAttribute">
+        <choice>
+            <element name="varString" type="xsd:string"/>
+            <element name="varInt" type="xsd:int"/>
+        </choice>
+        <attribute name="AtString" type="xsd:string"/>
+        <attribute name="AtInt" type="xsd:int"/>
+        <anyAttribute/>
+    </complexType>
+
+    <complexType name="SimpleContentExtWithAnyAttribute">
+        <simpleContent>
+            <extension base="xsd:string">
+                <attribute name="attrib" type="xsd:int"/>
+                <anyAttribute/>
+            </extension>
+        </simpleContent>
+    </complexType>
+
+    <complexType name="OccuringStructWithAnyAttribute">
+        <sequence minOccurs="1" maxOccurs="5">
+            <element name="varString" type="xsd:string"/>
+            <element name="varInt" type="xsd:int"/>
+        </sequence>
+        <attribute name="AtString" type="xsd:string"/>
+        <attribute name="AtInt" type="xsd:int"/>
+        <anyAttribute/>
+    </complexType>
+
+    <complexType name="OccuringChoiceWithAnyAttribute">
+        <choice minOccurs="1" maxOccurs="5">
+            <element name="varString" type="xsd:string"/>
+            <element name="varInt" type="xsd:int"/>
+        </choice>
+        <attribute name="AtString" type="xsd:string"/>
+        <attribute name="AtInt" type="xsd:int"/>
+        <anyAttribute/>
+    </complexType>
+
   </itst:it_test_group>
   <itst:it_test_group ID="3">
 
@@ -1277,6 +1329,30 @@
 	</sequence>
     </complexType>
 
+    <complexType name="StructWithNillableStruct">
+        <sequence>
+            <!-- XXX avoid particles with same name. -->
+            <element name="varInteger" type="int"/>
+            <sequence minOccurs="0">
+                <element name="varInt" type="xsd:int" />
+                <element name="varFloat" type="xsd:float"/>
+            </sequence>
+        </sequence>
+    </complexType>
+
+    <complexType name="StructWithOccuringStruct">
+        <sequence>
+            <!-- XXX avoid particles with same name.
+                 When the element name is varInt, the choice
+                 varInt value takes its place. -->
+            <element name="varInteger" type="int"/>
+            <sequence minOccurs="0" maxOccurs="unbounded">
+                <element name="varInt" type="xsd:int" />
+                <element name="varFloat" type="xsd:float"/>
+            </sequence>
+        </sequence>
+    </complexType>
+
     <!-- Multiple occuring choices -->
     <complexType name="OccuringChoice">
 	<choice minOccurs="1" maxOccurs="5">
@@ -1305,7 +1381,31 @@
 	</choice>
     </complexType>
 
-    <!-- Types with substitution grroups -->
+    <complexType name="StructWithNillableChoice">
+        <sequence>
+            <!-- XXX avoid particles with same name. -->
+            <element name="varInteger" type="int"/>
+            <choice minOccurs="0">
+                <element name="varInt" type="xsd:int" />
+                <element name="varString" type="xsd:string"/>
+            </choice>
+        </sequence>
+    </complexType>
+
+    <complexType name="StructWithOccuringChoice">
+        <sequence>
+            <!-- XXX avoid particles with same name.
+                 When the element name is varInt, the choice
+                 varInt value takes its place. -->
+            <element name="varInteger" type="int"/>
+            <choice minOccurs="0" maxOccurs="unbounded">
+                <element name="varInt" type="xsd:int" />
+                <element name="varString" type="xsd:string"/>
+            </choice>
+        </sequence>
+    </complexType>
+
+    <!-- Types with substitution groups -->
 
     <complexType itst:it_no_test="true" name="sgBaseType_A">
         <sequence>
@@ -1459,6 +1559,46 @@
             <element ref="tns:RecMostInner" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
+
+    <!-- Mutually recursive types -->
+    <!-- recursion #1: A to B to A -->
+
+    <complexType name="MRecSeqA">
+        <sequence>
+            <element name="varIntA" type="int"/>
+            <element name="seqB" type="tns:MRecSeqB" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+
+    <complexType itst:it_no_test="true" name="MRecSeqB">
+        <sequence>
+            <element name="varIntB" type="int"/>
+            <element name="seqA" type="tns:MRecSeqA"/>
+        </sequence>
+    </complexType>
+
+    <!-- recursion #2: C to array of D to D to C -->
+
+    <complexType name="MRecSeqC">
+        <sequence>
+            <element name="varIntC" type="int"/>
+            <element name="seqDs" type="tns:ArrayOfMRecSeqD"/>
+        </sequence>
+    </complexType>
+
+    <complexType itst:it_no_test="true" name="ArrayOfMRecSeqD">
+        <sequence>
+            <element name="seqD" type="tns:MRecSeqD" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+
+    <complexType itst:it_no_test="true" name="MRecSeqD">
+        <sequence>
+            <element name="varIntD" type="int"/>
+            <element name="seqC" type="tns:MRecSeqC"/>
+        </sequence>
+    </complexType>
+
   </itst:it_test_group>
 
 </schema>

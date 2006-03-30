@@ -27,7 +27,7 @@
        (default: celtix), for Port components it the id of the bus, followed by a '.' and the stringified 
        presentation of the service's QName, then followed by a '/' and the port name etc. 
        
-       This is because the bean id needs to be unique accross all beans, not just accross all beans of the
+       This is because the bean id needs to be unique across all beans, not just across all beans of the
        same class (I will do further investigation into that though).
        
        The actual component's configuration then is composed of <property> elements, the name attribute of which

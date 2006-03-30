@@ -24,7 +24,7 @@ public interface WSDLManager {
     ExtensionRegistry getExtenstionRegistry();
     
     /**
-     * Returns the WSDLFactory that is used to read/write WSDL dedfinitions
+     * Returns the WSDLFactory that is used to read/write WSDL definitions
      * @return the WSDLFactory
      */
     WSDLFactory getWSDLFactory();

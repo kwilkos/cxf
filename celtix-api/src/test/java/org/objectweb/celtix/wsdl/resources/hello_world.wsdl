@@ -14,7 +14,7 @@
             <element name="sayHiResponse">
                 <complexType>
                     <sequence>
-                        <element name="responseType" type="xsd:string"/>
+                        <element name="responseType" type="string"/>
                     </sequence>
                 </complexType>
             </element>

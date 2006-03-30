@@ -11,11 +11,11 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
-import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient3;
+import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient4;
 import org.objectweb.type_test.types.StructWithAnyArrayLax;
 import org.objectweb.type_test.types.StructWithAnyStrict;
 
-public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient3 {
+public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
     static final String WSDL_PATH = "/wsdl/type_test/type_test_doclit_soap.wsdl";
     static final QName SERVICE_NAME = new QName("http://objectweb.org/type_test/doc", "SOAPService");
     static final QName PORT_NAME = new QName("http://objectweb.org/type_test/doc", "SOAPPort");
@@ -23,6 +23,7 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient3 {
     public SOAPDocLitClientTypeTest(String name) {
         super(name, SERVICE_NAME, PORT_NAME, WSDL_PATH);
     }
+
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(SOAPDocLitClientTypeTest.class);
         return new ClientServerSetupBase(suite) {
@@ -32,7 +33,6 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient3 {
             }
         };
     }  
-
 
     public void testStructWithAnyStrict() throws Exception {
         SOAPFactory factory = SOAPFactory.newInstance();

@@ -68,5 +68,15 @@
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
         <!-- no default -->
     </cm:configItem>
-	
+
+    <cm:configItem>
+        <cm:name>enableSchemaValidation</cm:name>
+        <cm:type>xs:boolean</cm:type>
+        <cm:description>
+            Schema validation is disabled by default.  Set this to true
+            to enable schema validation.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+    </cm:configItem>
+
 </cm:config>

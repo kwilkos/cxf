@@ -144,14 +144,14 @@ schema file resources/schemas/configuration/std-types.xsd.
 
 When setting authentication data, you are configuring the client service.
 The appropriate XML metadata file to use as a guide is
-resources/config-metadaata/http-client-config.xml, and the desired
+resources/config-metadata/http-client-config.xml, and the desired
 <configItem> is authorization.  Assign the value of the configItem's
 <name> element to the <property> element's name attribute.  Look at the
-schema file resources/config-metadaata/http-client-config.xml and note that
+schema file resources/config-metadata/http-client-config.xml and note that
 the authorization entry corresponds to the AuthorizationPolicy type defined
 in the schema file resources/schemas/configuration/security.xsd.  However,
 since the AuthorizationPolicy type is a complex type, and the configuration
-file must include a element type, you identify the authorization element as
+file must include an element type, you identify the authorization element as
 a suitable replacement.  Then you look up the composition of the
 AuthorizationPolicy type and determine that it is a sequence of elements: 
 UserName, Password, AuthorizationType, and Authorization.  Combining this
@@ -159,7 +159,7 @@ information, leads to the following <bean> declaration.  Note the use of the
 sec: namespace prefix.  You must include the corresponding namespace
 declaration at the beginning of the configuration file.
 
-For transport attributes, the XML metadata file resources/config-metadaata/
+For transport attributes, the XML metadata file resources/config-metadata/
 http-client-config.xml, using the <configItem> httpClient, indicates that
 the HTTPClientPolicy type can be used to set transport attributes.  The
 HTTPClientPolicy type, defined in the schema file resources/schemas/wsdl/

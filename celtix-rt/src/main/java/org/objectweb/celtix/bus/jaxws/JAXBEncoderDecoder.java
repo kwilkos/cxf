@@ -15,12 +15,15 @@ import javax.jws.WebMethod;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.MarshalException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.UnmarshalException;
 import javax.xml.bind.Unmarshaller;
 
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
+import javax.xml.validation.Schema;
 import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.RequestWrapper;
@@ -182,7 +185,8 @@ public final class JAXBEncoderDecoder {
         }
     }
     
-    public static void marshall(JAXBContext context, Object elValue, QName elNname,  Node destNode) {
+    public static void marshall(JAXBContext context, Schema schema,
+                                Object elValue, QName elNname,  Node destNode) {
         
         try {
             if (context == null) {
@@ -218,19 +222,30 @@ public final class JAXBEncoderDecoder {
                 mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
                     .newInstance(elNname, mObj.getClass(), mObj);
             }
+            u.setSchema(schema);
             u.marshal(mObj, destNode);
+        } catch (MarshalException me) {
+            // It's helpful to include the cause in the case of
+            // schema validation exceptions.
+            String message = "Marshalling error ";
+            if (me.getCause() != null) {
+                message += me.getCause();
+            }
+            throw new ProtocolException(message, me);
         } catch (Exception ex) {
             throw new ProtocolException("Marshalling Error", ex);
         }
     }
     
-    public static Object unmarshall(JAXBContext context, Node srcNode, QName elName, Class<?> clazz) {
+    public static Object unmarshall(JAXBContext context, Schema schema,
+                                    Node srcNode, QName elName, Class<?> clazz) {
         Object obj = null;
         try {
             if (context == null) {
                 context = JAXBContext.newInstance(clazz);
             }
             Unmarshaller u = context.createUnmarshaller();
+            u.setSchema(schema);
 
             obj = (clazz != null) ? u.unmarshal(srcNode, clazz) : u.unmarshal(srcNode);
             
@@ -240,6 +255,14 @@ public final class JAXBEncoderDecoder {
                     obj = el.getValue();
                 }
             }
+        } catch (UnmarshalException ue) {
+            // It's helpful to include the cause in the case of
+            // schema validation exceptions.
+            String message = "Unmarshalling error ";
+            if (ue.getCause() != null) {
+                message += ue.getCause();
+            }
+            throw new ProtocolException(message, ue);
         } catch (Exception ex) {
             throw new ProtocolException("Unmarshalling error", ex);
         }
@@ -256,10 +279,11 @@ public final class JAXBEncoderDecoder {
         return same;
     }
 
-    public static Object unmarshall(JAXBContext context, Node srcNode, QName elName) {
+    public static Object unmarshall(JAXBContext context, Schema schema, Node srcNode, QName elName) {
         Object obj = null;
         try {
             Unmarshaller u = context.createUnmarshaller();
+            u.setSchema(schema);
 
             obj = u.unmarshal(srcNode);
             
@@ -269,6 +293,14 @@ public final class JAXBEncoderDecoder {
                     obj = el.getValue();
                 }
             }
+        } catch (UnmarshalException ue) {
+            // It's helpful to include the cause in the case of
+            // schema validation exceptions.
+            String message = "Unmarshalling error ";
+            if (ue.getCause() != null) {
+                message += ue.getCause();
+            }
+            throw new ProtocolException(message, ue);
         } catch (Exception ex) {
             throw new ProtocolException("Unmarshalling error", ex);
         }

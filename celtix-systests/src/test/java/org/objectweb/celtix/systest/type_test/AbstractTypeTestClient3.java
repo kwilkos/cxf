@@ -5,8 +5,10 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.Name;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.ws.Holder;
@@ -15,6 +17,7 @@ import org.w3c.dom.Element;
 
 import org.objectweb.type_test.types.ChoiceOfChoice;
 import org.objectweb.type_test.types.ChoiceOfSeq;
+import org.objectweb.type_test.types.ChoiceWithAnyAttribute;
 import org.objectweb.type_test.types.ChoiceWithBinary;
 import org.objectweb.type_test.types.ChoiceWithGroupChoice;
 import org.objectweb.type_test.types.ChoiceWithGroupSeq;
@@ -50,6 +53,7 @@ import org.objectweb.type_test.types.SimpleChoice;
 import org.objectweb.type_test.types.SimpleStruct;
 import org.objectweb.type_test.types.StructWithAny;
 import org.objectweb.type_test.types.StructWithAnyArray;
+import org.objectweb.type_test.types.StructWithAnyAttribute;
 import org.objectweb.type_test.types.StructWithBinary;
 import org.objectweb.type_test.types.UnboundedArray;
 
@@ -80,11 +84,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     
     // XXX - ri generated code flattened - no nested choice
     public void testChoiceOfChoice() throws Exception {
-        //ChoiceOfChoice.ChoiceOfChoice1 bx = new ChoiceOfChoice.ChoiceOfChoice1();
-        //ChoiceOfChoice.ChoiceOfChoice2 by = new ChoiceOfChoice.ChoiceOfChoice2();
-        //x.setChoiceOfChoice1(bx);
-        //yOrig.setChoiceOfChoice2(by);
-
         ChoiceOfChoice x = new ChoiceOfChoice();
         ChoiceOfChoice yOrig = new ChoiceOfChoice();
         x.setVarFloat(3.14f);
@@ -620,8 +619,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     
     // XXX - ri generated code is flattened - no nested structs
     public void testSequenceWithGroupSeq() throws Exception {
-        //BatchElementsSeq x1 = new BatchElementsSeq();
-        //BatchElementsSeq y1 = new BatchElementsSeq();
         SequenceWithGroupSeq x = new SequenceWithGroupSeq();
         x.setVarInt(100);         
         x.setVarString("hello");
@@ -691,9 +688,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     
     // XXX - ri generated code is flattened - no nested choice
     public void testSequenceWithGroupChoice() throws Exception {
-        //BatchElementsChoice x1 = new BatchElementsChoice();
-        //BatchElementsChoice y1 = new BatchElementsChoice();
-
         SequenceWithGroupChoice x = new SequenceWithGroupChoice();
         x.setVarFloat(1.1f);
         x.setVarOtherString("world");
@@ -744,10 +738,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     
     // XXX - ri generated code is flattened - no nested struct/choice
     public void testSequenceWithGroups() throws Exception {
-        //BatchElementsSeq x1 = new BatchElementsSeq();
-        //BatchElementsSeq y1 = new BatchElementsSeq();
-        //BatchElementsChoice x2 = new BatchElementsChoice();
-        //BatchElementsChoice y2 = new BatchElementsChoice();
         SequenceWithGroups x = new SequenceWithGroups();
         x.setVarInt(100);
         x.setVarString("hello");
@@ -786,8 +776,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     
     // XXX - ri generated code is flattened - no nested structs
     public void testSequenceWithOccuringGroup() throws Exception {
-        //BatchElementsSeq bx1 = new BatchElementsSeq();
-        //BatchElementsSeq bx2 = new BatchElementsSeq();
         SequenceWithOccuringGroup x = new SequenceWithOccuringGroup();
         x.getBatchElementsSeq().add(100);
         x.getBatchElementsSeq().add("hello");
@@ -827,9 +815,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     
     // XXX - ri generated code is flattened - no nested struct
     public void testGroupDirectlyInComplexType() throws Exception {
-        //BatchElementsSeq x1 = new BatchElementsSeq();
-        //BatchElementsSeq y1 = new BatchElementsSeq();
-
         GroupDirectlyInComplexType x = new GroupDirectlyInComplexType();
         x.setVarInt(100);
         x.setVarString("hello");
@@ -965,6 +950,85 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
+    public void testStructWithAnyXsi() throws Exception {
+        StructWithAny swa = new StructWithAny();
+        swa.setName("Name");
+        swa.setAddress("Some Address");
+        StructWithAny yOrig = new StructWithAny();
+        yOrig.setName("Name2");
+        yOrig.setAddress("Some Other Address");
+
+        SOAPFactory sf = SOAPFactory.newInstance();
+        Name elementName = sf.createName("UKAddress", "", "http://objectweb.org/type_test");
+        Name xsiAttrName = sf.createName("type", "xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        SOAPElement x = sf.createElement(elementName);
+        x.addNamespaceDeclaration("tns", "http://objectweb.org/type_test");
+        x.addNamespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        x.addAttribute(xsiAttrName, "tns:UKAddressType11");
+        x.addTextNode("This is the text of the node for the first struct");
+
+        Name elementName2 = sf.createName("UKAddress", "", "http://objectweb.org/type_test");
+        Name xsiAttrName2 = sf.createName("type", "xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        SOAPElement x2 = sf.createElement(elementName2);
+        x2.addNamespaceDeclaration("tns", "http://objectweb.org/type_test");
+        x2.addNamespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        x2.addAttribute(xsiAttrName2, "tns:UKAddressType22");
+        x2.addTextNode("This is the text of the node for the second struct");
+
+        swa.setAny(x);
+        yOrig.setAny(x2);
+
+        Holder<StructWithAny> y = new Holder<StructWithAny>(yOrig);
+        Holder<StructWithAny> z = new Holder<StructWithAny>();
+        StructWithAny ret;
+        if (testDocLiteral) {
+            ret = docClient.testStructWithAny(swa, y, z);
+        } else {
+            ret = rpcClient.testStructWithAny(swa, y, z);
+        }
+        if (!perfTestOnly) {
+            assertEqualsStructWithAny(swa, y.value);
+            assertEqualsStructWithAny(yOrig, z.value);
+            assertEqualsStructWithAny(swa, ret);
+        }
+    }
+
+    // StructWithInvalidAny
+    // XXX - no exception thrown
+    public void testStructWithInvalidAny() throws Exception {
+        StructWithAny swa = new StructWithAny();
+        swa.setName("Name");
+        swa.setAddress("Some Address");
+
+        StructWithAny yOrig = new StructWithAny();
+        yOrig.setName("Name2");
+        yOrig.setAddress("Some Other Address");
+
+        SOAPFactory factory = SOAPFactory.newInstance();
+        SOAPElement x = factory.createElement("hello", "foo", "http://some.url.com");
+        x.addTextNode("This is the text of the node");
+
+        SOAPElement x2 = factory.createElement("hello2", "foo", "http://some.url.com");
+        x2.addTextNode("This is the text of the node for the second struct");
+
+        swa.setAny(x);
+        yOrig.setAny(x2);
+
+        Holder<StructWithAny> y = new Holder<StructWithAny>(yOrig);
+        Holder<StructWithAny> z = new Holder<StructWithAny>();
+
+        try {
+            if (testDocLiteral) {
+                docClient.testStructWithAny(swa, y, z);
+            } else {
+                rpcClient.testStructWithAny(swa, y, z);
+            }
+            //fail("testStructWithInvalidAny(): Did not catch expected exception.");
+        } catch (Exception ex) {
+            // Expected
+        }
+    }
+
     // org.objectweb.type_test.types.StructWithAnyArray
 
     public void assertEqualsStructWithAnyArray(StructWithAnyArray a, StructWithAnyArray b) throws Exception {
@@ -1014,6 +1078,42 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             assertEqualsStructWithAnyArray(swa, y.value);
             assertEqualsStructWithAnyArray(yOrig, z.value);
             assertEqualsStructWithAnyArray(swa, ret);
+        }
+    }
+
+    // StructWithInvalidAnyArray
+    // XXX - no exception thrown
+    public void testStructWithInvalidAnyArray() throws Exception {
+        StructWithAnyArray swa = new StructWithAnyArray();
+        swa.setName("Name");
+        swa.setAddress("Some Address");
+
+        StructWithAnyArray yOrig = new StructWithAnyArray();
+        yOrig.setName("Name2");
+        yOrig.setAddress("Some Other Address");
+
+        SOAPFactory factory = SOAPFactory.newInstance();
+        SOAPElement x = factory.createElement("hello", "foo", "http://some.url.com");
+        x.addTextNode("This is the text of the node");
+
+        SOAPElement x2 = factory.createElement("hello2", "foo", "http://some.url.com");
+        x2.addTextNode("This is the text of the node for the second struct");
+
+        swa.getAny().add(x);
+        yOrig.getAny().add(x2);
+
+        Holder<StructWithAnyArray> y = new Holder<StructWithAnyArray>(yOrig);
+        Holder<StructWithAnyArray> z = new Holder<StructWithAnyArray>();
+
+        try {
+            if (testDocLiteral) {
+                docClient.testStructWithAnyArray(swa, y, z);
+            } else {
+                rpcClient.testStructWithAnyArray(swa, y, z);
+            }
+            //fail("testStructWithInvalidAnyArray(): Did not catch expected exception.");
+        } catch (Exception ex) {
+            // Expected
         }
     }
 
@@ -1072,10 +1172,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
 
     // XXX - ri generated code is flattened - no nested struct
     public void testMultipleOccursSequenceInSequence() throws Exception {
-        //MultipleOccursSequenceInSequence.MultipleOccursSequenceInSequence1 x1 =
-        //    new MultipleOccursSequenceInSequence.MultipleOccursSequenceInSequence1();
-        //MultipleOccursSequenceInSequence.MultipleOccursSequenceInSequence1 y1 =
-        //    new MultipleOccursSequenceInSequence.MultipleOccursSequenceInSequence1();
         MultipleOccursSequenceInSequence x = new MultipleOccursSequenceInSequence();
         x.getValue().add(new BigInteger("32"));
         MultipleOccursSequenceInSequence yOriginal = new MultipleOccursSequenceInSequence();
@@ -1200,9 +1296,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
 
     // XXX - Generated code flattens nested choice
     public void testChoiceWithGroupChoice() throws Exception {
-        //BatchElementsChoice x1 = new BatchElementsChoice();
-        //BatchElementsChoice y1 = new BatchElementsChoice();
-
         ChoiceWithGroupChoice x = new ChoiceWithGroupChoice();
         x.setVarFloat(1.1f);
         ChoiceWithGroupChoice yOrig = new ChoiceWithGroupChoice();
@@ -1255,9 +1348,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     
     // XXX - Generated code flattens nested structs
     public void testChoiceWithGroupSeq() throws Exception {
-        //BatchElementsSeq x1 = new BatchElementsSeq();
-        //BatchElementsSeq y1 = new BatchElementsSeq();
-
         ChoiceWithGroupSeq x = new ChoiceWithGroupSeq();
         x.setVarInt(100);
         x.setVarString("hello");
@@ -1313,9 +1403,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     
     // XXX - Generated code flattens nested structs
     public void testChoiceWithGroups() throws Exception {
-        //BatchElementsSeq x1 = new BatchElementsSeq();
-        //BatchElementsChoice y1 = new BatchElementsChoice();
-
         ChoiceWithGroups x = new ChoiceWithGroups();
         x.setVarInt(100);
         x.setVarString("hello");
@@ -1372,6 +1459,167 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             assertTrue("testExtBase64Binary(): Incorrect value for out param",
                        equals(y1, z1.value));
             assertTrue("testExtBase64Binary(): Incorrect return value", equals(x1, ret));
+        }
+    }
+
+    // org.objectweb.type_test.types.StructWithAnyAttribute;
+
+    protected boolean equals(StructWithAnyAttribute x, StructWithAnyAttribute y) {
+        if (!(x.getVarString().equals(y.getVarString()))
+            || (x.getVarInt() != y.getVarInt())) {
+            return false;
+        }
+        if (!equalsNilable(x.getAtString(), y.getAtString())
+            || !equalsNilable(x.getAtInt(), y.getAtInt())) {
+            return false;
+        }
+        return equalsQNameStringPairs(x.getOtherAttributes(), y.getOtherAttributes());
+    }
+
+    protected boolean equalsQNameStringPairs(Map<QName, String> x, Map<QName, String> y) {
+        if ((x == null && y != null)
+            || (x != null && y == null)) {
+            return false;
+        }
+        if (x.isEmpty() && y.isEmpty()) {
+            return true;
+        }
+        if (x.size() != y.size()) {
+            return false;
+        }
+
+        Iterator<QName> itx = x.keySet().iterator();
+        while (itx.hasNext()) {
+            QName attName = itx.next();
+            if (attName == null) {
+                return false;
+            }
+
+            String attValue = y.get(attName);
+            if (attValue == null || !attValue.equals(x.get(attName))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void testStructWithAnyAttribute() throws Exception {
+        QName xAt1Name = new QName("http://schemas.iona.com/type_test", "at_one");
+        QName xAt2Name = new QName("http://schemas.iona.com/type_test", "at_two");
+        QName yAt3Name = new QName("http://objectweb.org/type_test", "at_thr");
+        QName yAt4Name = new QName("http://objectweb.org/type_test", "at_fou");
+
+        StructWithAnyAttribute x = new StructWithAnyAttribute();
+        StructWithAnyAttribute y = new StructWithAnyAttribute();
+
+        x.setVarString("hello");
+        x.setVarInt(1000);
+        x.setAtString("hello attribute");
+        x.setAtInt(new Integer(2000));
+
+        y.setVarString("there");
+        y.setVarInt(1001);
+        y.setAtString("there attribute");
+        y.setAtInt(new Integer(2002));
+
+        Map<QName, String> xAttrMap = x.getOtherAttributes();
+        xAttrMap.put(xAt1Name, "one");
+        xAttrMap.put(xAt2Name, "two");
+
+        Map<QName, String> yAttrMap = y.getOtherAttributes();
+        yAttrMap.put(yAt3Name, "three");
+        yAttrMap.put(yAt4Name, "four");
+
+        Holder<StructWithAnyAttribute> yh = new Holder<StructWithAnyAttribute>(y);
+        Holder<StructWithAnyAttribute> zh = new Holder<StructWithAnyAttribute>();
+        StructWithAnyAttribute ret;
+        if (testDocLiteral) {
+            ret = docClient.testStructWithAnyAttribute(x, yh, zh);
+        } else {
+            ret = rpcClient.testStructWithAnyAttribute(x, yh, zh);
+        }
+
+        if (!perfTestOnly) {
+            assertTrue("testStructWithAnyAttribute(): Incorrect value for inout param",
+                equals(x, yh.value));
+            assertTrue("testStructWithAnyAttribute(): Incorrect value for out param",
+                equals(y, zh.value));
+            assertTrue("testStructWithAnyAttribute(): Incorrect return value",
+                equals(ret, x));
+        }
+    }
+
+    // org.objectweb.type_test.types.ChoiceWithAnyAttribute;
+
+    protected boolean equals(ChoiceWithAnyAttribute x, ChoiceWithAnyAttribute y) {
+        String xString = x.getVarString();
+        String yString = y.getVarString();
+        Integer xInt = x.getVarInt();
+        Integer yInt = y.getVarInt();
+        if (xString != null) {
+            if (yString == null || !xString.equals(yString)) {
+                fail(xString + " != " + yString);
+                return false;
+            }
+        } else if (xInt != null) {
+            if (yInt == null || !(xInt.equals(yInt))) {
+                fail(xInt + " != " + yInt);
+                return false;
+            }
+        } else {
+            fail("null choice");
+            return false;
+        }
+
+        if (!equalsNilable(x.getAtString(), y.getAtString())
+            || !equalsNilable(x.getAtInt(), y.getAtInt())) {
+            fail("grrr");
+            return false;
+        } 
+        return equalsQNameStringPairs(x.getOtherAttributes(), y.getOtherAttributes());
+    }
+
+    public void testChoiceWithAnyAttribute() throws Exception {
+        QName xAt1Name = new QName("http://schemas.iona.com/type_test", "at_one");
+        QName xAt2Name = new QName("http://schemas.iona.com/type_test", "at_two");
+        QName yAt3Name = new QName("http://objectweb.org/type_test", "at_thr");
+        QName yAt4Name = new QName("http://objectweb.org/type_test", "at_fou");
+
+        ChoiceWithAnyAttribute x = new ChoiceWithAnyAttribute();
+        ChoiceWithAnyAttribute y = new ChoiceWithAnyAttribute();
+
+        x.setVarString("hello");
+        x.setAtString("hello attribute");
+        x.setAtInt(new Integer(2000));
+
+        y.setVarInt(1001);
+        y.setAtString("there attribute");
+        y.setAtInt(new Integer(2002));
+
+        Map<QName, String> xAttrMap = x.getOtherAttributes();
+        xAttrMap.put(xAt1Name, "one");
+        xAttrMap.put(xAt2Name, "two");
+
+        Map<QName, String> yAttrMap = y.getOtherAttributes();
+        yAttrMap.put(yAt3Name, "three");
+        yAttrMap.put(yAt4Name, "four");
+
+        Holder<ChoiceWithAnyAttribute> yh = new Holder<ChoiceWithAnyAttribute>(y);
+        Holder<ChoiceWithAnyAttribute> zh = new Holder<ChoiceWithAnyAttribute>();
+        ChoiceWithAnyAttribute ret;
+        if (testDocLiteral) {
+            ret = docClient.testChoiceWithAnyAttribute(x, yh, zh);
+        } else {
+            ret = rpcClient.testChoiceWithAnyAttribute(x, yh, zh);
+        }
+
+        if (!perfTestOnly) {
+            assertTrue("testChoiceWithAnyAttribute(): Incorrect value for inout param",
+                equals(x, yh.value));
+            assertTrue("testChoiceWithAnyAttribute(): Incorrect value for out param",
+                equals(y, zh.value));
+            assertTrue("testChoiceWithAnyAttribute(): Incorrect return value",
+                equals(ret, x));
         }
     }
 
@@ -1691,6 +1939,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     }
 
     // org.objectweb.type_test.types.OccurringChoice2;
+
     protected boolean equals(OccuringChoice2 x, OccuringChoice2 y) {
         if (x.getVarString() != null && !x.getVarString().equals(y.getVarString())) {
             return false;
@@ -1703,13 +1952,10 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
 
     // XXX - generated code is flattened - no nested choice
     public void testOccuringChoice2() throws Exception {
-        //OccuringChoice2.OccuringChoice21 x1 = new OccuringChoice2.OccuringChoice21();
-        //OccuringChoice2.OccuringChoice21 y1 = new OccuringChoice2.OccuringChoice21();
         OccuringChoice2 x = new OccuringChoice2();
         x.setVarString("x1");
         OccuringChoice2 yOriginal = new OccuringChoice2();
         yOriginal.setVarString("y1");
-
         Holder<OccuringChoice2> y = new Holder<OccuringChoice2>(yOriginal);
         Holder<OccuringChoice2> z = new Holder<OccuringChoice2>();
         OccuringChoice2 ret;
@@ -1731,7 +1977,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         x = new OccuringChoice2();
         yOriginal = new OccuringChoice2();
         yOriginal.setVarString("y1");
-
         y = new Holder<OccuringChoice2>(yOriginal);
         z = new Holder<OccuringChoice2>();
         if (testDocLiteral) {

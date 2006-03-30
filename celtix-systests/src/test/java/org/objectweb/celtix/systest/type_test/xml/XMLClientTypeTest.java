@@ -6,9 +6,9 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
-import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient3;
+import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient4;
 
-public class XMLClientTypeTest extends AbstractTypeTestClient3 {
+public class XMLClientTypeTest extends AbstractTypeTestClient4 {
     static final String WSDL_PATH = "/wsdl/type_test/type_test_xml.wsdl";
     static final QName SERVICE_NAME = new QName("http://objectweb.org/type_test/doc", "XMLService");
     static final QName PORT_NAME = new QName("http://objectweb.org/type_test/doc", "XMLPort");

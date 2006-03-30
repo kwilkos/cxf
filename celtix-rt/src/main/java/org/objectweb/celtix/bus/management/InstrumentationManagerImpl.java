@@ -180,13 +180,13 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         if (e.getID().equals(ComponentCreatedEvent.COMPONENT_CREATED_EVENT)) {            
             it = createInstrumentation(e.getSource());
             if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Instrumetation register " + e.getSource().getClass().getName());
+                LOG.info("Instrumentation register " + e.getSource().getClass().getName());
             }   
             regist(it);          
             
         } else if (e.getID().equals(ComponentRemovedEvent.COMPONENT_REMOVED_EVENT)) {           
             if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Instrumetation unregister " + e.getSource().getClass().getName());
+                LOG.info("Instrumentation unregister " + e.getSource().getClass().getName());
             }    
             unregist(e.getSource());
         }

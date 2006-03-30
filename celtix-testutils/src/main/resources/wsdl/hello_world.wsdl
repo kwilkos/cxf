@@ -14,49 +14,49 @@
             <element name="sayHiResponse">
                 <complexType>
                     <sequence>
-                        <element name="responseType" type="xsd:string"/>
+                        <element name="responseType" type="string"/>
                     </sequence>
                 </complexType>
             </element>
             <element name="greetMe">
                 <complexType>
                     <sequence>
-                        <element name="requestType" type="xsd:string"/>
+                        <element name="requestType" type="string"/>
                     </sequence>
                 </complexType>
             </element>
             <element name="greetMeResponse">
                 <complexType>
                     <sequence>
-                        <element name="responseType" type="xsd:string"/>
+                        <element name="responseType" type="string"/>
                     </sequence>
                 </complexType>
             </element>
             <element name="greetMeSometime">
-				<complexType>
-					<sequence>
-						<element name="requestType" type="xsd:string"/>
-					</sequence>
-				</complexType>
-			</element>
-			<element name="greetMeSometimeResponse">
-				<complexType>
-					<sequence>
-						<element name="responseType" type="xsd:string"/>
-					</sequence>
-				</complexType>
-			</element>
+                <complexType>
+                    <sequence>
+                        <element name="requestType" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
+            <element name="greetMeSometimeResponse">
+                <complexType>
+                    <sequence>
+                        <element name="responseType" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
             <element name="greetMeOneWay">
                 <complexType>
                     <sequence>
-                        <element name="requestType" type="xsd:string"/>
+                        <element name="requestType" type="string"/>
                     </sequence>
                 </complexType>
             </element>
             <element name="testDocLitFault">
                 <complexType>
                     <sequence>
-                        <element name="faultType" type="xsd:string"/>
+                        <element name="faultType" type="string"/>
                     </sequence>
                 </complexType>
             </element>
@@ -67,8 +67,8 @@
             </element>
             <complexType name="ErrorCode">
                 <sequence>
-                    <element name="minor" type="xsd:short"/>
-                    <element name="major" type="xsd:short"/>
+                    <element name="minor" type="short"/>
+                    <element name="major" type="short"/>
                 </sequence>
             </complexType>
             <element name="NoSuchCodeLit">
@@ -78,33 +78,39 @@
                     </sequence>
                 </complexType>
             </element>
-            <element name="BadRecordLit" type="xsd:string"/>
-            <xsd:complexType name="BadRecord">
-                <xsd:sequence>
-                    <xsd:element name="reason" type="xsd:string"/>
-                    <xsd:element name="code" type="xsd:short"/>
-                </xsd:sequence>
-            </xsd:complexType>
+            <element name="BadRecordLit" type="string"/>
+            <complexType name="BadRecord">
+                <sequence>
+                    <element name="reason" type="string"/>
+                    <element name="code" type="short"/>
+                </sequence>
+            </complexType>
             <complexType name="addNumbers">
                 <sequence>
-                    <element name="arg0" type="xsd:int"/>
-                    <element name="arg1" type="xsd:int"/>
+                    <element name="arg0" type="int"/>
+                    <element name="arg1" type="int"/>
                 </sequence>
             </complexType>
             <element name="addNumbers" type="x1:addNumbers"/>
             <complexType name="addNumbersResponse">
                 <sequence>
-                    <element name="return" type="xsd:int"/>
+                    <element name="return" type="int"/>
                 </sequence>
             </complexType>
             <element name="addNumbersResponse" type="x1:addNumbersResponse"/>
-            <element name="BareDocument" type="xsd:string"/>
+            <complexType name="stringStruct">
+                <sequence>
+                    <element name="arg0" type="string"/>
+                    <element name="arg1" type="string"/>
+                </sequence>
+            </complexType>
+            <element name="BareDocument" type="string"/>
             <element name="BareDocumentResponse">
                 <complexType>
                     <sequence>
-                        <element name="company" type="xsd:string"/>
+                        <element name="company" type="string"/>
                     </sequence>
-                    <attribute name="id" type="xsd:int"/>
+                    <attribute name="id" type="int"/>
                 </complexType>
             </element>      
         </schema>
@@ -196,14 +202,14 @@
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="greetMeSometime">
-			<soap:operation style="document"/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
+            <soap:operation style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="greetMeOneWay">
             <soap:operation style="document"/>
             <wsdl:input>

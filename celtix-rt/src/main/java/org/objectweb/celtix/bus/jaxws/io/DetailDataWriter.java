@@ -28,7 +28,8 @@ public class DetailDataWriter<T> implements DataWriter<T> {
     public void write(Object obj, QName elName, T output) {
         Object faultInfo = getFaultInfo((Throwable)obj);
         if (faultInfo != null) {
-            JAXBEncoderDecoder.marshall(callback.getJAXBContext(), faultInfo, elName, (Detail)output);
+            JAXBEncoderDecoder.marshall(callback.getJAXBContext(),
+                callback.getSchema(), faultInfo, elName, (Detail)output);
         }
     }
     public void writeWrapper(ObjectMessageContext objCtx, boolean isOutbound, T output) {

@@ -2,6 +2,7 @@ package org.objectweb.celtix.wsdl;
 
 import java.net.URL;
 import java.util.List;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -9,7 +10,9 @@ import javax.jws.WebService;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
+import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -23,12 +26,15 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceProvider;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
@@ -42,6 +48,8 @@ import org.objectweb.celtix.ws.addressing.wsdl.ServiceNameType;
  * Provides utility methods for obtaining endpoint references, wsdl definitions, etc.
  */
 public final class EndpointReferenceUtils {
+
+    static WeakHashMap<Definition, Schema> schemaMap = new WeakHashMap<Definition, Schema>();
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointReferenceUtils.class);
 
@@ -345,6 +353,56 @@ public final class EndpointReferenceUtils {
         return null;
     }
 
+    public static Schema getSchema(WSDLManager manager, EndpointReferenceType ref) {
+        Definition definition;
+        try {
+            definition = getWSDLDefinition(manager, ref);
+        } catch (javax.wsdl.WSDLException wsdlEx) {
+            return null;
+        }
+        if (definition == null) {
+            return null;
+        }
+        synchronized (schemaMap) {
+            if (schemaMap.containsKey(definition)) {
+                return schemaMap.get(definition);
+            }
+        }
+        Schema schema = schemaMap.get(definition);
+        if (schema == null) {
+            Types types = definition.getTypes();
+            if (types == null) {
+                return null;
+            }
+            List schemas = types.getExtensibilityElements();
+            SchemaFactory factory = SchemaFactory.newInstance(
+                XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            for (Object o : schemas) {
+                if (o instanceof javax.wsdl.extensions.schema.Schema) {
+                    javax.wsdl.extensions.schema.Schema s =
+                        (javax.wsdl.extensions.schema.Schema) o;
+                    Source schemaSource = new DOMSource(s.getElement());
+                    if (schemaSource != null) {
+                        try {
+                            schema = factory.newSchema(schemaSource);
+                            if (schema != null) {
+                                synchronized (schemaMap) {
+                                    schemaMap.put(definition, schema);
+                                }
+                                LOG.log(Level.FINE, "Obtained schema from wsdl definition");
+                                break;
+                            }
+                        } catch (SAXException ex) {
+                            // Something not right with the schema from the wsdl.
+                            LOG.log(Level.FINE, "SAXException for newSchema()", ex);
+                        }
+                    }
+                }
+            }
+        }
+        return schema;
+    }
+    
     /**
      * Gets the WSDL port for the provided endpoint reference.
      * @param manager - the WSDL manager 
@@ -512,7 +570,6 @@ public final class EndpointReferenceUtils {
         
         return getWebServiceAnnotation(cls.getSuperclass());
     }
-    
     
     /**
      * Gets an endpoint reference for the provided implementor object.

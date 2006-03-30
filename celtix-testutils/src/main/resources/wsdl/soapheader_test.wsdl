@@ -8,42 +8,42 @@
             <element name="testHeader1Response">
                 <complexType>
                     <sequence>
-                        <element name="responseType" type="xsd:string"/>
+                        <element name="responseType" type="string"/>
                     </sequence>
                 </complexType>
             </element>
             <element name="testHeader2">
                 <complexType>
                     <sequence>
-                        <element name="requestType" type="xsd:string"/>
+                        <element name="requestType" type="string"/>
                     </sequence>
                 </complexType>
             </element>
             <element name="testHeader2Response">
                 <complexType>
                     <sequence>
-                        <element name="responseType" type="xsd:string"/>
+                        <element name="responseType" type="string"/>
                     </sequence>
                 </complexType>
             </element>
             <element name="testHeader3">
                 <complexType>
                     <sequence>
-                        <element name="requestType" nillable="true" type="xsd:string"/>
+                        <element name="requestType" nillable="true" type="string"/>
                     </sequence>
                 </complexType>
             </element>
             <element name="testHeader3Response">
                 <complexType>
                     <sequence>
-                        <element name="responseType" nillable="true" type="xsd:string"/>
+                        <element name="responseType" nillable="true" type="string"/>
                     </sequence>
                 </complexType>
             </element>
             <element name="testHeader4">
                 <complexType>
                     <sequence>
-                        <element name="requestType" type="xsd:string"/>
+                        <element name="requestType" type="string"/>
                     </sequence>
                 </complexType>
             </element>
@@ -53,14 +53,14 @@
             <element name="testHeaderMessage">
                 <complexType>
                     <sequence>
-                        <element name="requestType" nillable="true" type="xsd:string"/>
+                        <element name="requestType" nillable="true" type="string"/>
                     </sequence>
                 </complexType>
             </element>
             <element name="testHeader5">
                 <complexType>
                     <sequence>
-                        <element name="requestType" type="xsd:string"/>
+                        <element name="requestType" type="string"/>
                     </sequence>
                 </complexType>
             </element>

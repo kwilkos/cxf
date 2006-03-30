@@ -17,6 +17,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
 import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceProvider;
 
@@ -160,6 +161,22 @@ public class EndpointReferenceUtilsTest extends TestCase {
         Port port = EndpointReferenceUtils.getPort(manager, ref);
         assertNotNull("Could not find port", port);             
     } 
+
+    public void testGetSchema() throws Exception  {
+        WSDLManager manager = new TestWSDLManager();
+        URL url = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(url);
+        QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService_Test1");
+        String portName = new String("SoapPort_Test2");
+
+        EndpointReferenceType ref = 
+            EndpointReferenceUtils.getEndpointReference(url, serviceName, portName);
+
+        assertNotNull("Could not create endpoint reference", ref);
+
+        Schema schema = EndpointReferenceUtils.getSchema(manager, ref);
+        assertNotNull("Could not load schema from wsdl", schema);
+    }
 
     public void testGetEndpointReference() throws Exception  {
         WSDLManager manager = new TestWSDLManager();

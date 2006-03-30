@@ -30,7 +30,7 @@
             <ct:map>
                 <ct:classname>org.objectweb.celtix.bus.bindings.xml.XMLBindingFactory</ct:classname>
                 <ct:namespace>http://celtix.objectweb.org/bindings/xmlformat</ct:namespace>
-				<ct:namespace>http://schemas.xmlsoap.org/wsdl/http/</ct:namespace>
+                <ct:namespace>http://schemas.xmlsoap.org/wsdl/http/</ct:namespace>
             </ct:map>
         </ct:classNamespaceMappingListValue>
     </cm:configItem>
@@ -47,7 +47,7 @@
             <ct:map>
                 <ct:classname>org.objectweb.celtix.bus.transports.http.HTTPTransportFactory</ct:classname>
                 <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/</ct:namespace>
-				<ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/http</ct:namespace>
+                <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/http</ct:namespace>
                 <ct:namespace>http://schemas.xmlsoap.org/wsdl/http/</ct:namespace>
                 <ct:namespace>http://celtix.objectweb.org/transports/http/configuration</ct:namespace>
             </ct:map>
@@ -73,5 +73,5 @@
             <ct:item>org.objectweb.celtix.bus.jaxws.WebContextResourceResolver</ct:item>
 	</ct:stringListValue>
     </cm:configItem>
-    
+
 </cm:config>

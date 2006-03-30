@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
@@ -753,6 +754,29 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         assertTrue("testGDay(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testGDay(): Incorrect value for out param", yOrig.equals(z.value));
         assertTrue("testGDay(): Incorrect return value", x.equals(ret));
+    }
+
+    public void testDuration() throws Exception {
+        javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
+
+        Duration x = datatypeFactory.newDuration("P1Y35DT60M60.500S");
+        Duration yOrig = datatypeFactory.newDuration("-P2MT24H60S");
+
+        Holder<Duration> y = new Holder<Duration>(yOrig);
+        Holder<Duration> z = new Holder<Duration>();
+
+        Duration ret;
+        if (testDocLiteral) {
+            ret = docClient.testDuration(x, y, z);
+        } else {
+            // XXX - TODO getting a MarshalException with rpc-lit for the
+            // xsd:duration test [DurationImpl is not known to this context].
+            //ret = rpcClient.testDuration(x, y, z);
+            return;
+        }
+        assertTrue("testDuration(): Incorrect value for inout param", x.equals(y.value));
+        assertTrue("testDuration(): Incorrect value for out param", yOrig.equals(z.value));
+        assertTrue("testDuration(): Incorrect return value", x.equals(ret));
     }
 
     public void testNormalizedString() throws Exception {

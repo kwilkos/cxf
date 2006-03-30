@@ -312,7 +312,7 @@ public class TypeTestImpl {
         z.value = y.value;
         y.value = x;
         return x;
-    };&#10;</xsl:text>
+    }&#10;</xsl:text>
     </xsl:template>
 
 </xsl:stylesheet>

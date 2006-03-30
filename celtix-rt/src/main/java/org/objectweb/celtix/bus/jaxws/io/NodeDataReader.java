@@ -48,7 +48,8 @@ public class NodeDataReader<T> implements DataReader<T> {
         }
         Node xmlNode = (Node)input;
         
-        return JAXBEncoderDecoder.unmarshall(callback.getJAXBContext(), xmlNode, name, cls);
+        return JAXBEncoderDecoder.unmarshall(callback.getJAXBContext(),
+            callback.getSchema(), xmlNode, name, cls);
     }
     
     public void readWrapper(ObjectMessageContext objCtx, boolean isOutBound, T input) {
@@ -65,7 +66,8 @@ public class NodeDataReader<T> implements DataReader<T> {
         Object obj = null;
 
         try {
-            obj = JAXBEncoderDecoder.unmarshall(callback.getJAXBContext(), childNode,
+            obj = JAXBEncoderDecoder.unmarshall(callback.getJAXBContext(),
+                                                callback.getSchema(), childNode,
                                                 elName, ClassHelper.forName(wrapperType));
         } catch (ClassNotFoundException e) {
             throw new WebServiceException("Could not unmarshall wrapped type (" + wrapperType + "): " 

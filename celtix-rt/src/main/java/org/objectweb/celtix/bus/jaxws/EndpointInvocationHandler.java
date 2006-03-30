@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import javax.jws.Oneway;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.validation.Schema;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
@@ -31,6 +32,7 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
 public final class EndpointInvocationHandler implements BindingProvider, InvocationHandler
@@ -38,13 +40,14 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
     
     private final ClientBinding clientBinding;
-   // private Map<String, Object> requestContext;
+    // private Map<String, Object> requestContext;
     private ThreadLocal requestContext;
     private Map<String, Object> responseContext;
     
     private final Class<?> portTypeInterface;
     private final Bus bus;
     private JAXBContext context;
+    private Schema schema;
     private final ServiceDelegate service;
     
     public EndpointInvocationHandler(Bus b, EndpointReferenceType reference,
@@ -55,6 +58,13 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
         clientBinding = createBinding(reference, configuration);
         try {
             context = JAXBEncoderDecoder.createJAXBContextForClass(portSEI);
+
+            Boolean enableSchemaValidation = configuration.getObject(Boolean.class,
+                "enableSchemaValidation");
+            if (enableSchemaValidation != null && enableSchemaValidation.booleanValue()) {
+                LOG.fine("port schema validation enabled"); 
+                schema = EndpointReferenceUtils.getSchema(b.getWSDLManager(), reference);
+            }
         } catch (JAXBException ex1) {
             // TODO Auto-generated catch block
             ex1.printStackTrace();
@@ -130,13 +140,15 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
             clientBinding.invokeOneWay(objMsgContext,
                                        new JAXBDataBindingCallback(method,
                                                                    DataBindingCallback.Mode.PARTS,
-                                                                   context));
+                                                                   context,
+                                                                   schema));
         } else if (isAsync) {         
             Future<ObjectMessageContext> objMsgContextAsynch =
                 clientBinding.invokeAsync(objMsgContext,
                                           new JAXBDataBindingCallback(method,
                                                                       DataBindingCallback.Mode.PARTS,
-                                                                      context)
+                                                                      context,
+                                                                      schema)
                                                                       , service.getExecutor()); 
             
             Response<?> r = new AsyncResponse<Object>(objMsgContextAsynch, Object.class);
@@ -158,7 +170,8 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
             objMsgContext = clientBinding.invoke(objMsgContext,
                                                  new JAXBDataBindingCallback(method,
                                                                              DataBindingCallback.Mode.PARTS,
-                                                                             context));
+                                                                             context,
+                                                                             schema));
         }
 
         if (objMsgContext.getException() != null) {

@@ -42,7 +42,8 @@ public class SOAPFaultDataReader<T> implements DataReader<T> {
                 try {
                     if (clazz != null) {
                         Class<?> faultInfo = clazz.getMethod("getFaultInfo").getReturnType();
-                        Object obj = JAXBEncoderDecoder.unmarshall(callback.getJAXBContext(), 
+                        Object obj = JAXBEncoderDecoder.unmarshall(callback.getJAXBContext(),
+                                                                   callback.getSchema(),
                                                                    entry,
                                                                    faultName,
                                                                    faultInfo);

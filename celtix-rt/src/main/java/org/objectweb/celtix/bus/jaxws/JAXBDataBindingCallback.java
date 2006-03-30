@@ -14,6 +14,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.soap.Detail;
 import javax.xml.soap.SOAPFault;
+import javax.xml.validation.Schema;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
@@ -55,16 +56,30 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     private final Mode mode;
     private WebService webServiceAnnotation;
     private final JAXBContext context;
+    private final Schema schema;
     
     public JAXBDataBindingCallback(Method m, Mode md, JAXBContext ctx) {
         method = m;
         mode = md;
         context = ctx;
+        schema = null;
+        init();
+    }
+    
+    public JAXBDataBindingCallback(Method m, Mode md, JAXBContext ctx, Schema s) {
+        method = m;
+        mode = md;
+        context = ctx;
+        schema = s;
         init();
     }
 
     public JAXBContext getJAXBContext() {
         return context;
+    }
+    
+    public Schema getSchema() {
+        return schema;
     }
     
     public Mode getMode() {

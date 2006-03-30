@@ -3,6 +3,7 @@
     xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
     xmlns:std-types="http://celtix.objectweb.org/configuration/types" 
     xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata metadata.xsd"
     namespace="http://celtix.objectweb.org/bus/jaxws/endpoint-config">
@@ -39,7 +40,7 @@
         <cm:name>serverContextInspectors</cm:name>
         <cm:type>std-types:stringListType</cm:type>
         <cm:description>
-	  List of classes used to inspect servercontext object and retrieve  server address from
+	  List of classes used to inspect server context object and retrieve server address from.
         </cm:description>
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>    
         <std-types:stringListValue>
@@ -48,6 +49,14 @@
 	</std-types:stringListValue>
     </cm:configItem>
 
+    <cm:configItem>
+        <cm:name>enableSchemaValidation</cm:name>
+        <cm:type>xs:boolean</cm:type>
+        <cm:description>
+            Schema validation is disabled by default.  Set this to true
+            to enable schema validation.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+    </cm:configItem>
 
-	
 </cm:config>

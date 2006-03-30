@@ -15,6 +15,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
+import javax.xml.validation.Schema;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingType;
 import javax.xml.ws.Endpoint;
@@ -64,6 +65,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     private List<Source> metadata;
     private Executor executor;
     private JAXBContext context;
+    private Schema schema;
     private Map<String, Object> properties;
     
     private boolean doInit;
@@ -124,6 +126,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
                 serverBinding = createServerBinding(bindingURI);
                 configureHandlers();
                 configureSystemHandlers();
+                configureSchemaValidation();
             }
         } catch (Exception ex) {
             if (ex instanceof WebServiceException) { 
@@ -439,12 +442,23 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         serverBinding.configureSystemHandlers(configuration); 
     }
 
+    private void configureSchemaValidation() {
+        Boolean enableSchemaValidation = configuration.getObject(Boolean.class,
+            "enableSchemaValidation");
+
+        if (enableSchemaValidation != null && enableSchemaValidation.booleanValue()) {
+            LOG.fine("endpoint schema validation enabled"); 
+            schema = EndpointReferenceUtils.getSchema(bus.getWSDLManager(), reference);
+        }
+    }
+
     public DataBindingCallback createDataBindingCallback(ObjectMessageContext objContext,
                                                          DataBindingCallback.Mode mode) {
         if (mode == DataBindingCallback.Mode.PARTS) {
             return new JAXBDataBindingCallback(objContext.getMethod(),
-                                           mode,
-                                           context);
+                                               mode,
+                                               context,
+                                               schema);
         }
         
         if (dataClass == null) {

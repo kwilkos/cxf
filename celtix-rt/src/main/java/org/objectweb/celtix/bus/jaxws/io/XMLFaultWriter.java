@@ -30,7 +30,8 @@ public class XMLFaultWriter<T> implements DataWriter<T> {
         if (faultInfo != null) {
             XMLFault fault = (XMLFault) output;
             Node detail = fault.addFaultDetail();
-            JAXBEncoderDecoder.marshall(callback.getJAXBContext(), faultInfo, elName, detail);
+            JAXBEncoderDecoder.marshall(callback.getJAXBContext(),
+                callback.getSchema(), faultInfo, elName, detail);
             fault.setFaultDetail(detail);
         }
     }

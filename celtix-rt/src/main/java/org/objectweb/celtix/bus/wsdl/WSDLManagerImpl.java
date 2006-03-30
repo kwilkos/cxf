@@ -61,6 +61,8 @@ public class WSDLManagerImpl implements WSDLManager {
     /*
      * (non-Javadoc)
      * 
+     * XXX - getExtensionRegistry()
+     *
      * @see org.objectweb.celtix.wsdl.WSDLManager#getExtenstionRegistry()
      */
     public ExtensionRegistry getExtenstionRegistry() {
@@ -88,7 +90,7 @@ public class WSDLManagerImpl implements WSDLManager {
     /*
      * (non-Javadoc)
      * 
-     * @see org.objectweb.celtix.wsdl.WSDLManager#getDefinition(java.net.URL)
+     * @see org.objectweb.celtix.wsdl.WSDLManager#getDefinition(java.lang.String)
      */
     public Definition getDefinition(String url) throws WSDLException {
         synchronized (definitionsMap) {
