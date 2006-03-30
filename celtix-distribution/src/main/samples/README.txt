@@ -18,6 +18,11 @@ you need to set the environment so that the file celtix.jar
 is on the CLASSPATH and to insure that the JDK, ant and
 Celtix bin directories are on the PATH.
 
+To build and run the demos provided in the Celtix source distribution
+using ant you will need to edit the common_build.xml file.
+Uncomment the line:
+<import file="../../../target/srcbuild_paths.xml" optional="true"/>
+
 In each of the demos, source code files for the client and
 server mainlines and the Service Endpoint Interface class are
 included in the src directory.  The build process will write
