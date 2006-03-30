@@ -12,9 +12,10 @@
 
 
     <!-- Setup for building in a source build -->
-    <!--
-        <import file="../../../target/srcbuild_paths.xml" optional="true"/>
-    -->
+    <condition property="srcbuild_paths.file" value="./srcbuild_paths.xml" else="../../../target/srcbuild_paths.xml">
+        <available file="../../lib/celtix.jar"/>
+    </condition>
+    <import file="${srcbuild_paths.file}" optional="true"/>
     <property name="srcbuild.classpath" value=""/>    
 
     <uptodate property="codegen.notrequired" value="true">
