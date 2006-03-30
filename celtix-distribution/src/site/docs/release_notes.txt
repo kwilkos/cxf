@@ -1,7 +1,28 @@
-Celtix Milestone 4 Release Notes
+Celtix 1.0 Beta Release Notes
 
 1. New Features
 
+  Added in 1.0 Beta:
+    * Complete support for Webservices Reliability based on WS-RM
+      Specification.
+    * Enhanced WS-Addressing Capabilities.
+    * Configuration based support for JMS Transport.
+    * Support for JMX based Management capabilities.
+    * Support for XML Binding.
+    * Enhanced support for wsdl2java and java2wsdl tools.
+    * Support for new commandline tools like,
+      xsd2wsdl, wsdl2xml, wsdl2soap, wsdl2service.
+    * Preliminary implementation of Routing capabilities limited
+      to SOAP.
+    * Enhanced support JAX-WS 2.0 API's.
+    * Native integration of Celtix into Apache Geronimo J2EE appserver.
+    * Support for validating application data against XMLSchema in runtime.
+    * Enhanced support for deploying celtix services into a servlet
+      container based on feedback from Jonas J2EE appserver project.
+    * Celtix now supports Maven 2.0.3.
+    * Celtix is now available as maven distribution at,
+      http://maven.objectweb.org/maven2
+    
   Added in Milestone 4:
     * Migration of build system to Maven 2.0.
     * Source Code Organization for better reuse. 
