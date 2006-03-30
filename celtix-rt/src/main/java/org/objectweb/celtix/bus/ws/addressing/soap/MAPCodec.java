@@ -254,10 +254,6 @@ public class MAPCodec
                                                       headerElement, 
                                                       unmarshaller));
                         }
-                    } else {
-                        LOG.log(Level.WARNING, 
-                                "UNSUPPORTED_VERSION_MSG",
-                                headerURI);
                     }
                 }
             }

@@ -81,7 +81,7 @@ public class TestConfigurator {
             
             // pre-logical
 
-            handlerChain = factory.createHandlerChainType();
+            handlerChain = factory.createHandlerChainType();            
             handler = factory.createHandlerType();
             handler.setHandlerClass(MAPAggregator.class.getName());
             handler.setHandlerName("logical addressing handler");
@@ -90,6 +90,12 @@ public class TestConfigurator {
                 handler = factory.createHandlerType();
                 handler.setHandlerClass(RMHandler.class.getName());
                 handler.setHandlerName("logical rm handler");
+                handlerChain.getHandler().add(handler);
+            }
+            if (!isServer) {
+                handler = factory.createHandlerType();
+                handler.setHandlerClass(LogicalMessageContextRecorder.class.getName());
+                handler.setHandlerName("logical message context recorder");
                 handlerChain.getHandler().add(handler);
             }
 

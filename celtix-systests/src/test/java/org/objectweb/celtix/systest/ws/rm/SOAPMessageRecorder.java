@@ -16,15 +16,12 @@ import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 public class SOAPMessageRecorder implements SOAPHandler<SOAPMessageContext> {
     
     private static List<SOAPMessage> outbound;
-    private static List<SOAPMessage> inbound;
     
     public SOAPMessageRecorder() {
         if (null == outbound) {
             outbound = new ArrayList<SOAPMessage>();
         }
-        if (null == inbound) {
-            inbound = new ArrayList<SOAPMessage>();
-        }
+      
     }
     
     public void init(Map<String, Object> map) {
@@ -47,20 +44,14 @@ public class SOAPMessageRecorder implements SOAPHandler<SOAPMessageContext> {
     public void close(MessageContext arg0) {
     }
     
-    protected List<SOAPMessage> getInboundMessages() {
-        return inbound;
-    }
-    
     protected List<SOAPMessage> getOutboundMessages() {
         return outbound;
     }
     
-    private void record(SOAPMessageContext context) {
-        SOAPMessage sm = context.getMessage();
-        if (ContextUtils.isOutbound(context)) {            
+    private void record(SOAPMessageContext context) {        
+        if (ContextUtils.isOutbound(context)) { 
+            SOAPMessage sm = context.getMessage();
             outbound.add(sm);
-        } else {
-            inbound.add(sm);
         }
     }
     

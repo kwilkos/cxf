@@ -13,13 +13,16 @@ import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.LogicalMessageContext;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bus.busimpl.BusConfigurationBuilder;
+import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.bus.ws.rm.Names;
+import org.objectweb.celtix.bus.ws.rm.RMContextUtils;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.greeter_control.Control;
@@ -28,7 +31,10 @@ import org.objectweb.celtix.greeter_control.Greeter;
 import org.objectweb.celtix.greeter_control.GreeterService;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
-
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.ws.rm.RMProperties;
+import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
+import org.objectweb.celtix.ws.rm.SequenceType;
 
 /**
  * Tests Reliable Messaging.
@@ -50,7 +56,7 @@ public class SequenceTest extends ClientServerTestBase {
     private Control control;
     private String currentConfiguration;
     private List<SOAPMessage> outboundMessages;
-    private List<SOAPMessage> inboundMessages;
+    private List<LogicalMessageContext> inboundContexts;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -68,12 +74,13 @@ public class SequenceTest extends ClientServerTestBase {
             }
 
             public void setUp() throws Exception {
-                // avoid re-using a previously created configuration for a bus with id "celtix"
+                // avoid re-using a previously created configuration for a bus
+                // with id "celtix"
                 ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
                 builder.buildConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI, "celtix");
-                
+
                 super.setUp();
-                
+
             }
         };
     }
@@ -83,98 +90,92 @@ public class SequenceTest extends ClientServerTestBase {
     public void testOnewayAnonymousAcks() throws Exception {
 
         setupEndpoints("");
-        
+
         greeter.greetMeOneWay("once");
-        greeter.greetMeOneWay("twice"); 
+        greeter.greetMeOneWay("twice");
         greeter.greetMeOneWay("thrice");
 
         // three application messages plus createSequence
-         
+
         assertEquals(4, outboundMessages.size());
-        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION,
-                                                 GREETMEONEWAY_ACTION,
-                                                 GREETMEONEWAY_ACTION,
-                                                 GREETMEONEWAY_ACTION};
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION, GREETMEONEWAY_ACTION};
         verifyActions(expectedActions, true);
         verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
 
         // createSequenceResponse plus three partial responses
-        assertEquals(4, inboundMessages.size());
+        assertEquals(4, inboundContexts.size());
         expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
         verifyActions(expectedActions, false);
         verifyMessageNumbers(new String[] {null, null, null, null}, false);
-        assertNull(getAcknowledgment(inboundMessages.get(0)));
+        assertNull(getAcknowledgment(inboundContexts.get(0)));
         for (int i = 1; i < 4; i++) {
             assertNotNull("Inbound message " + i + " does not contain sequence acknowledgement.",
-                          getAcknowledgment(inboundMessages.get(i)));
+                          getAcknowledgment(inboundContexts.get(i)));
         }
     }
-    
+
     public void testOnewayDeferredAnonymousAcks() throws Exception {
 
         setupEndpoints("anonymous-deferred");
-        
+
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
-        
+
         try {
             Thread.sleep(3 * 1000);
         } catch (InterruptedException ex) {
             // ignore
         }
-        
-        greeter.greetMeOneWay("thrice");     
+
+        greeter.greetMeOneWay("thrice");
 
         // three application messages plus createSequence
         assertEquals(4, outboundMessages.size());
-        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION,
-                                                 GREETMEONEWAY_ACTION,
-                                                 GREETMEONEWAY_ACTION,
-                                                 GREETMEONEWAY_ACTION};
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION, GREETMEONEWAY_ACTION};
         verifyActions(expectedActions, true);
         verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
 
-        // createSequenceResponse message plus three partial responses, only the last 
-        // one should include a sequence acknowledgment
-        
-        assertEquals(4, inboundMessages.size());
+        // createSequenceResponse message plus three partial responses, only the
+        // last one should include a sequence acknowledgment
+
+        assertEquals(4, inboundContexts.size());
         expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
         verifyActions(expectedActions, false);
         verifyMessageNumbers(new String[] {null, null, null, null}, false);
         for (int i = 0; i < 3; i++) {
             assertNull("Inbound message " + i + " contains sequence acknowledgment header",
-                       getAcknowledgment(inboundMessages.get(i)));
+                       getAcknowledgment(inboundContexts.get(i)));
         }
         assertNotNull("Inbound message 4 does not contain sequence acknowledgment header ",
-                      getAcknowledgment(inboundMessages.get(3)));
+                      getAcknowledgment(inboundContexts.get(3)));
     }
-    
+
     public void testOnewayAnonymousAcksSequenceLength1() throws Exception {
 
         setupEndpoints("anonymous-seqlength1");
-        
-        greeter.greetMeOneWay("once");
-        greeter.greetMeOneWay("twice"); 
 
-        // two application messages plus two createSequence plus teo terminateSequence
+        greeter.greetMeOneWay("once");
+        greeter.greetMeOneWay("twice");
+
+        // two application messages plus two createSequence plus two
+        // terminateSequence
 
         assertEquals(6, outboundMessages.size());
-        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION,
-                                                 GREETMEONEWAY_ACTION,
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, GREETMEONEWAY_ACTION,
                                                  Names.WSRM_TERMINATE_SEQUENCE_ACTION,
-                                                 Names.WSRM_CREATE_SEQUENCE_ACTION,
-                                                 GREETMEONEWAY_ACTION,
+                                                 Names.WSRM_CREATE_SEQUENCE_ACTION, GREETMEONEWAY_ACTION,
                                                  Names.WSRM_TERMINATE_SEQUENCE_ACTION};
         verifyActions(expectedActions, true);
         verifyMessageNumbers(new String[] {null, "1", null, null, "1", null}, true);
         verifyLastMessage(new boolean[] {false, true, false, false, true, false}, true);
 
-        
-        // createSequenceResponse message plus partial responses to 
+        // createSequenceResponse message plus partial responses to
         // greetMeOneWay and terminateSequence ||: 2
 
         for (int i = 0; i < 10; i++) {
-            if (inboundMessages.size() < 6) {
+            if (inboundContexts.size() < 6) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
@@ -184,84 +185,77 @@ public class SequenceTest extends ClientServerTestBase {
                 break;
             }
         }
-        assertEquals(6, inboundMessages.size());
-        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
-                                        null,
-                                        null,
-                                        Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
-                                        null,
-                                        null};
+        assertEquals(6, inboundContexts.size());
+        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null,
+                                        Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null};
         verifyActions(expectedActions, false);
         verifyMessageNumbers(new String[] {null, null, null, null, null, null}, false);
         verifyLastMessage(new boolean[] {false, false, false, false, false, false}, false);
-        
+
         for (int i = 0; i < 6; i++) {
             if (i % 3 == 1) {
-                assertNotNull(getAcknowledgment(inboundMessages.get(i)));
+                assertNotNull("Inbound message " + i + " does not contain expected acknowledgment.",
+                              getAcknowledgment(inboundContexts.get(i)));
             } else {
-                assertNull(getAcknowledgment(inboundMessages.get(i)));
+                assertNull("Inbound message " + i + " contains unexpected acknowledgment.",
+                           getAcknowledgment(inboundContexts.get(i)));
             }
         }
     }
 
     public void testOnewayAnonymousAcksSupressed() throws Exception {
         setupEndpoints("anonymous-suppressed");
-        
+
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
         greeter.greetMeOneWay("thrice");
-        
 
         // three application messages plus createSequence
         assertEquals(4, outboundMessages.size());
-        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION,
-                                                 GREETMEONEWAY_ACTION,
-                                                 GREETMEONEWAY_ACTION,
-                                                 GREETMEONEWAY_ACTION};
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION, GREETMEONEWAY_ACTION};
         verifyActions(expectedActions, true);
         verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
 
         // createSequenceResponse plus three partial responses, none of which
         // contain an acknowledgment
-        
-        assertEquals(4, inboundMessages.size());
+
+        assertEquals(4, inboundContexts.size());
         expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
         verifyActions(expectedActions, false);
         verifyMessageNumbers(new String[] {null, null, null, null}, false);
         for (int i = 0; i < 4; i++) {
             assertNull("Inbound message " + (i + 1) + " contains sequence acknowledgment header",
-                       getAcknowledgment(inboundMessages.get(i)));
+                       getAcknowledgment(inboundContexts.get(i)));
         }
-        
+
         outboundMessages.clear();
-        inboundMessages.clear(); 
+        inboundContexts.clear();
 
         // allow resends to kick in
         Thread.sleep(10 * 1000);
-        
-        // between 1 and 3 resends (the actual number depends on whether 
+
+        // between 1 and 3 resends (the actual number depends on whether
         // the ACK in response to the AckRequested header in the first resend
         // is processed before the other (async) resends occur
         assertTrue("unexpected number of resends: " + outboundMessages.size(),
                    outboundMessages.size() >= 1 && outboundMessages.size() <= 3);
-        verifyAckRequested(outboundMessages);
+        verifyAckRequestedOutbound(outboundMessages);
     }
 
-    public void xtestTwowayNonAnonymous() throws Exception {
+    public void testTwowayNonAnonymous() throws Exception {
         setupEndpoints("twoway");
 
         greeter.greetMe("one");
         greeter.greetMe("two");
         greeter.greetMe("three");
-        
+
         // CreateSequence and three greetMe messages
         // TODO there should be partial responses to the decoupled responses!
-        
+
         assertEquals(4, outboundMessages.size());
-        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION,
-                                                 GREETME_ACTION,
-                                                 GREETME_ACTION,
-                                                 GREETME_ACTION};
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, GREETME_ACTION,
+                                                 GREETME_ACTION, GREETME_ACTION};
         verifyActions(expectedActions, true);
         verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
         verifyLastMessage(new boolean[] {false, false, false, false}, true);
@@ -270,52 +264,45 @@ public class SequenceTest extends ClientServerTestBase {
         }
         for (int i = 2; i < 4; i++) {
             assertNotNull(getAcknowledgment(outboundMessages.get(i)));
-        }        
-        
-        // createSequenceResponse plus 3 greetMeResponse messages plus 
+        }
+
+        // createSequenceResponse plus 3 greetMeResponse messages plus
         // one partial response for each of the four messages
 
-        assertEquals(8, inboundMessages.size());
-        expectedActions = new String[] {null,
-                                        Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
-                                        null, 
-                                        GREETME_RESPONSE_ACTION, 
-                                        null,
-                                        GREETME_RESPONSE_ACTION, 
-                                        null,
+        assertEquals(8, inboundContexts.size());
+        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null,
+                                        GREETME_RESPONSE_ACTION, null, GREETME_RESPONSE_ACTION, null,
                                         GREETME_RESPONSE_ACTION};
         verifyActions(expectedActions, false);
         verifyMessageNumbers(new String[] {null, null, null, "1", null, "2", null, "3"}, false);
-        verifyLastMessage(new boolean[8], false);     
+        verifyLastMessage(new boolean[8], false);
         for (int i = 0; i < 8; i++) {
             if (i % 2 != 0 && i > 1) {
                 assertNotNull("Inbound message " + i + " does not contain expected acknowledgement",
-                              getAcknowledgment(inboundMessages.get(i)));
+                              getAcknowledgment(inboundContexts.get(i)));
             } else {
                 assertNull("Inbound message " + i + " contains unexpected acknowledgement",
-                           getAcknowledgment(inboundMessages.get(i)));
+                           getAcknowledgment(inboundContexts.get(i)));
             }
         }
     }
-    
-    // enable after server transport api has changed to support 
-    // requests being send from a server side 
-    
+
+    // enable after server transport api has changed to support
+    // requests being send from a server side
+
     public void xtestTwowayNonAnonymousNoOffer() throws Exception {
         setupEndpoints("twoway-no-offer");
 
         greeter.greetMe("one");
         greeter.greetMe("two");
-        
+
         // CreateSequence and two greetMe messages
         // plus a CreateSequenceResponse
         // TODO there should be partial responses to the decoupled responses!
-        
+
         assertEquals(4, outboundMessages.size());
-        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION,
-                                                 GREETME_ACTION,
-                                                 Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION,
-                                                 GREETME_ACTION};
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, GREETME_ACTION,
+                                                 Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, GREETME_ACTION};
         verifyActions(expectedActions, true);
         verifyMessageNumbers(new String[] {null, "1", null, "2"}, true);
         verifyLastMessage(new boolean[] {false, false, false, false}, true);
@@ -323,90 +310,99 @@ public class SequenceTest extends ClientServerTestBase {
             assertNull(getAcknowledgment(outboundMessages.get(i)));
         }
         assertNotNull(getAcknowledgment(outboundMessages.get(3)));
-                  
-        // createSequenceResponse plus 2 greetMeResponse messages plus 
+
+        // createSequenceResponse plus 2 greetMeResponse messages plus
         // one partial response for each of the four messages plus
         // CreateSequence request
 
-        assertEquals(7, inboundMessages.size());
-        expectedActions = new String[] {null,
-                                        Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
-                                        null,
-                                        Names.WSRM_CREATE_SEQUENCE_ACTION,
-                                        GREETME_RESPONSE_ACTION, 
-                                        null,
+        assertEquals(7, inboundContexts.size());
+        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null,
+                                        Names.WSRM_CREATE_SEQUENCE_ACTION, GREETME_RESPONSE_ACTION, null,
                                         GREETME_RESPONSE_ACTION};
         verifyActions(expectedActions, false);
         verifyMessageNumbers(new String[] {null, null, null, null, null, "1", null, "2"}, false);
-        verifyLastMessage(new boolean[7], false);     
+        verifyLastMessage(new boolean[7], false);
         for (int i = 0; i < 8; i++) {
             if (i == 4 || i == 6) {
                 assertNotNull("Inbound message " + i + " does not contain expected acknowledgement",
-                              getAcknowledgment(inboundMessages.get(i)));
+                              getAcknowledgment(inboundContexts.get(i)));
             } else {
                 assertNull("Inbound message " + i + " contains unexpected acknowledgement",
-                           getAcknowledgment(inboundMessages.get(i)));
+                           getAcknowledgment(inboundContexts.get(i)));
             }
         }
     }
-    
+
     // --- test helpers ---
 
-
     private void verifyActions(String[] expectedActions, boolean outbound) throws Exception {
-        List<SOAPMessage> messages = outbound ? outboundMessages : inboundMessages;
-        assertEquals(expectedActions.length, messages.size());
-        for (int i = 0; i < expectedActions.length; i++) {
-            String action = getAction(messages.get(i));
-            if (null == expectedActions[i]) {
-                assertNull((outbound ? "Outbound " : "Inbound")
-                           + " message " + i + " has unexpected action: " + action, action);
-            } else {
-                assertEquals((outbound ? "Outbound " : "Inbound")
-                             + " message " + i + " does not contain expected action header"
-                             + System.getProperty("line.separator"),
-                             expectedActions[i], action);
-            }
-        }
-    }
 
-    private void verifyMessageNumbers(String[] expectedMessageNumbers, boolean outbound)
-        throws Exception {
-        List<SOAPMessage> messages = outbound ? outboundMessages : inboundMessages;
-        assertEquals(expectedMessageNumbers.length, messages.size());
-        for (int i = 0; i < expectedMessageNumbers.length; i++) {
-            SOAPElement se = getSequence(messages.get(i));
-            if (null == expectedMessageNumbers[i]) {
-                assertNull(se);
-            } else {
-                assertEquals((outbound ? "Outbound " : "Inbound")
-                             + " message " + i + " does not contain expected message number "
-                         + expectedMessageNumbers[i],
-                         expectedMessageNumbers[i], getMessageNumber(se));
-            }
-        }
-    }
-    
-    private void verifyLastMessage(boolean[] expectedLastMessages, boolean outbound) throws Exception {
-        List<SOAPMessage> messages = outbound ? outboundMessages : inboundMessages;
-        assertEquals(expectedLastMessages.length, messages.size());
-        for (int i = 0; i < expectedLastMessages.length; i++) {
-            SOAPElement se = getSequence(messages.get(i));
-            if (null == se) {
-                if (expectedLastMessages[i]) {
-                    fail((outbound ? "Outbound " : "Inbound") + " message " + i
-                         + " contains last message element.");
-                }
+        assertEquals(expectedActions.length, outbound ? outboundMessages.size() : inboundContexts.size());
+
+        for (int i = 0; i < expectedActions.length; i++) {
+            String action = outbound ? getAction(outboundMessages.get(i)) : getAction(inboundContexts.get(i));
+            if (null == expectedActions[i]) {
+                assertNull((outbound ? "Outbound " : "Inbound") + " message " + i
+                           + " has unexpected action: " + action, action);
             } else {
                 assertEquals((outbound ? "Outbound " : "Inbound") + " message " + i
-                             + " does not contain expected last message element", expectedLastMessages[i],
-                             getLastMessage(se));
+                             + " does not contain expected action header"
+                             + System.getProperty("line.separator"), expectedActions[i], action);
             }
         }
     }
-    
-    private void verifyAckRequested(List<SOAPMessage> messages)
-        throws Exception {
+
+    private void verifyMessageNumbers(String[] expectedMessageNumbers, boolean outbound) throws Exception {
+
+        assertEquals(expectedMessageNumbers.length, outbound ? outboundMessages.size()
+            : inboundContexts.size());
+
+        for (int i = 0; i < expectedMessageNumbers.length; i++) {
+            if (outbound) {
+                SOAPElement se = getSequence(outboundMessages.get(i));
+                if (null == expectedMessageNumbers[i]) {
+                    assertNull(se);
+                } else {
+                    assertEquals("Outbound message " + i + " does not contain expected message number "
+                                 + expectedMessageNumbers[i], expectedMessageNumbers[i], 
+                                 getMessageNumber(se));
+                }
+            } else {
+                SequenceType s = getSequence(inboundContexts.get(i));
+                String messageNumber = null == s ? null : s.getMessageNumber().toString();
+                if (null == expectedMessageNumbers[i]) {
+                    assertNull(messageNumber);
+                } else {
+                    assertEquals("Inbound message " + i + " does not contain expected message number "
+                                 + expectedMessageNumbers[i], expectedMessageNumbers[i], messageNumber);
+                }
+            }
+        }
+    }
+
+    private void verifyLastMessage(boolean[] expectedLastMessages, boolean outbound) throws Exception {
+        
+        assertEquals(expectedLastMessages.length, outbound ? outboundMessages.size()
+            : inboundContexts.size());
+        
+        for (int i = 0; i < expectedLastMessages.length; i++) { 
+            boolean lastMessage;
+            if (outbound) {
+                SOAPElement se = getSequence(outboundMessages.get(i));
+                lastMessage = null == se ? false : getLastMessage(se);
+            } else {
+                SequenceType s = getSequence(inboundContexts.get(i));
+                lastMessage = null == s ? false : null != s.getLastMessage();
+            }
+            assertEquals("Outbound message " + i 
+                         + (expectedLastMessages[i] ? " does not contain expected last message element."
+                             : " contains last message element."),
+                         expectedLastMessages[i], lastMessage);  
+        
+        }
+    }
+
+    private void verifyAckRequestedOutbound(List<SOAPMessage> messages) throws Exception {
         boolean found = false;
         for (SOAPMessage m : messages) {
             SOAPElement se = getAckRequested(m);
@@ -417,17 +413,30 @@ public class SequenceTest extends ClientServerTestBase {
         }
         assertTrue("expected AckRequested", found);
     }
+    
+    protected void verifyAckRequestedInbound(List<LogicalMessageContext> contexts) throws Exception {
+        boolean found = false;
+        for (LogicalMessageContext context : contexts) {
+            RMProperties rmps = RMContextUtils.retrieveRMProperties(context, false);
+            if (null != rmps 
+                && rmps.getAcksRequested() != null 
+                && rmps.getAcksRequested().size() > 0) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue("expected AckRequested", found);
+    }
 
-    private String getAction(SOAPMessage msg) throws Exception {
+    protected String getAction(SOAPMessage msg) throws Exception {
         SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
         SOAPHeader header = env.getHeader();
         Iterator headerElements = header.examineAllHeaderElements();
         while (headerElements.hasNext()) {
-            SOAPHeaderElement headerElement =
-                (SOAPHeaderElement)headerElements.next();
+            SOAPHeaderElement headerElement = (SOAPHeaderElement)headerElements.next();
             Name headerName = headerElement.getElementName();
             String localName = headerName.getLocalName();
-            if ((headerName.getURI().equals(org.objectweb.celtix.bus.ws.addressing.Names.WSA_NAMESPACE_NAME)
+            if ((headerName.getURI().equals(org.objectweb.celtix.bus.ws.addressing.Names.WSA_NAMESPACE_NAME) 
                 || headerName.getURI().equals(org.objectweb.celtix.bus.ws.addressing.VersionTransformer
                                               .Names200408.WSA_NAMESPACE_NAME))
                 && localName.equals(org.objectweb.celtix.bus.ws.addressing.Names.WSA_ACTION_NAME)) {
@@ -437,13 +446,20 @@ public class SequenceTest extends ClientServerTestBase {
         return null;
     }
 
-    private SOAPElement getSequence(SOAPMessage msg) throws Exception {
+    protected String getAction(LogicalMessageContext context) {
+        AddressingProperties maps = ContextUtils.retrieveMAPs(context, false, false);
+        if (null != maps && null != maps.getAction()) {
+            return maps.getAction().getValue();
+        }
+        return null;
+    }
+
+    protected SOAPElement getSequence(SOAPMessage msg) throws Exception {
         SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
         SOAPHeader header = env.getHeader();
         Iterator headerElements = header.examineAllHeaderElements();
         while (headerElements.hasNext()) {
-            SOAPHeaderElement headerElement =
-                (SOAPHeaderElement)headerElements.next();
+            SOAPHeaderElement headerElement = (SOAPHeaderElement)headerElements.next();
             Name headerName = headerElement.getElementName();
             String localName = headerName.getLocalName();
             if (headerName.getURI().equals(Names.WSRM_NAMESPACE_NAME)
@@ -455,23 +471,27 @@ public class SequenceTest extends ClientServerTestBase {
     }
 
     private String getMessageNumber(SOAPElement elem) throws Exception {
-        SOAPElement se = (SOAPElement)elem.getChildElements(new QName(Names.WSRM_NAMESPACE_NAME,
+        SOAPElement se = (SOAPElement)elem.getChildElements(
+                                                            new QName(Names.WSRM_NAMESPACE_NAME,
                                                                       "MessageNumber")).next();
         return se.getTextContent();
     }
-    
-    private boolean getLastMessage(SOAPElement elem) throws Exception {
-        return elem.getChildElements(new QName(Names.WSRM_NAMESPACE_NAME,
-                                                                      "LastMessage")).hasNext();
+
+    protected SequenceType getSequence(LogicalMessageContext context) {
+        RMProperties rmps = RMContextUtils.retrieveRMProperties(context, false);
+        return rmps == null ? null : rmps.getSequence();
     }
 
-    private SOAPElement getAcknowledgment(SOAPMessage msg) throws Exception {
+    private boolean getLastMessage(SOAPElement elem) throws Exception {
+        return elem.getChildElements(new QName(Names.WSRM_NAMESPACE_NAME, "LastMessage")).hasNext();
+    }
+
+    protected SOAPElement getAcknowledgment(SOAPMessage msg) throws Exception {
         SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
         SOAPHeader header = env.getHeader();
         Iterator headerElements = header.examineAllHeaderElements();
         while (headerElements.hasNext()) {
-            SOAPHeaderElement headerElement =
-                (SOAPHeaderElement)headerElements.next();
+            SOAPHeaderElement headerElement = (SOAPHeaderElement)headerElements.next();
             Name headerName = headerElement.getElementName();
             String localName = headerName.getLocalName();
             if (headerName.getURI().equals(Names.WSRM_NAMESPACE_NAME)
@@ -482,13 +502,20 @@ public class SequenceTest extends ClientServerTestBase {
         return null;
     }
     
+    protected SequenceAcknowledgement getAcknowledgment(LogicalMessageContext context) {
+        RMProperties rmps = RMContextUtils.retrieveRMProperties(context, false);
+        if (null != rmps && null != rmps.getAcks() && rmps.getAcks().size() > 0) {
+            return rmps.getAcks().iterator().next();
+        } 
+        return null;
+    }
+
     private SOAPElement getAckRequested(SOAPMessage msg) throws Exception {
         SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
         SOAPHeader header = env.getHeader();
         Iterator headerElements = header.examineAllHeaderElements();
         while (headerElements.hasNext()) {
-            SOAPHeaderElement headerElement =
-                (SOAPHeaderElement)headerElements.next();
+            SOAPHeaderElement headerElement = (SOAPHeaderElement)headerElements.next();
             Name headerName = headerElement.getElementName();
             String localName = headerName.getLocalName();
             if (headerName.getURI().equals(Names.WSRM_NAMESPACE_NAME)
@@ -498,37 +525,37 @@ public class SequenceTest extends ClientServerTestBase {
         }
         return null;
     }
-    
+
     private void createControl() {
         if (null == control) {
             URL wsdl = getClass().getResource("/wsdl/greeter_control.wsdl");
             ControlService controlService = new ControlService(wsdl, CONTROL_SERVICE_NAME);
             control = controlService.getPort(CONTROL_PORT_NAME, Control.class);
-                     
+
         }
     }
-    
+
     private void setupEndpoints(String configuration) {
-       
+
         if (configuration != null && configuration.equals(currentConfiguration)) {
             return;
         }
-        
+
         createControl();
-        
-        control.stopGreeter();             
+
+        control.stopGreeter();
         control.startGreeter(configuration);
-        
+
         if (null != configuration && configuration.length() > 0) {
             ControlImpl.setConfigFileProperty(configuration);
         }
-        
+
         TestConfigurator tc = new TestConfigurator();
         tc.configureClient(SERVICE_NAME, PORT_NAME.getLocalPart());
-        
+
         URL wsdl = getClass().getResource("/wsdl/greeter_control.wsdl");
-        greeterService = new GreeterService(wsdl, SERVICE_NAME); 
-        
+        greeterService = new GreeterService(wsdl, SERVICE_NAME);
+
         greeter = greeterService.getPort(PORT_NAME, Greeter.class);
 
         BindingProvider provider = (BindingProvider)greeter;
@@ -541,15 +568,25 @@ public class SequenceTest extends ClientServerTestBase {
                 SOAPMessageRecorder recorder = (SOAPMessageRecorder)h;
                 outboundMessages = recorder.getOutboundMessages();
                 outboundMessages.clear();
-                inboundMessages = recorder.getInboundMessages();
-                inboundMessages.clear();               
                 found = true;
                 break;
             }
         }
         assertTrue("Could not find SOAPMessageRecorder in post protocol handler chain", found);
+        handlerChain = abi.getPreLogicalSystemHandlers();
+        assertTrue(handlerChain.size() > 0);
+        found = false;
+        for (Handler h : handlerChain) {
+            if (!found && h instanceof LogicalMessageContextRecorder) {
+                LogicalMessageContextRecorder recorder = (LogicalMessageContextRecorder)h;
+                inboundContexts = recorder.getInboundContexts();
+                inboundContexts.clear();
+                found = true;
+                break;
+            }
+        }
+        assertTrue("Could not find LogicalMessageContextRecorder in pre logical handler chain", found);
         currentConfiguration = configuration;
     }
-
 
 }
