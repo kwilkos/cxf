@@ -88,8 +88,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         assertEquals(Node.TEXT_NODE, childNode.getNodeType());
         assertEquals(str, childNode.getNodeValue());
 
-        // XXX TODO: Figure out why validation isn't happening during marshaling
-        /*
+        // Now test schema validation during marshaling
         StringStruct stringStruct = new StringStruct();
         // Don't initialize one of the structure members.
         //stringStruct.setArg0("hello");
@@ -97,13 +96,12 @@ public class JAXBEncoderDecoderTest extends TestCase {
         // Marshal without the schema should work.
         JAXBEncoderDecoder.marshall(context, null, stringStruct, elName,  elNode);
         try {
-            // Marshal with the schema should work get exception.
+            // Marshal with the schema should get an exception.
             JAXBEncoderDecoder.marshall(context, schema, stringStruct, elName,  elNode);
             fail("Marshal with schema should have thrown a ProtocolException");
         } catch (ProtocolException ex) {
             //expected - not a valid object
         }
-        */
     }
     
     public void testMarshalRPCLit() throws Exception {
@@ -146,6 +144,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
             fail("Should have received a ProtocolException, not: " + ex);
         }
         
+        // Now test schema validation during unmarshaling
         elName = new QName(wrapperAnnotation.targetNamespace(),
                            "stringStruct");
         // Create an XML Tree of

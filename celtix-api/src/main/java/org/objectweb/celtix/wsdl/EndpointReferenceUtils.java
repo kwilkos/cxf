@@ -394,7 +394,7 @@ public final class EndpointReferenceUtils {
                             }
                         } catch (SAXException ex) {
                             // Something not right with the schema from the wsdl.
-                            LOG.log(Level.FINE, "SAXException for newSchema()", ex);
+                            LOG.log(Level.WARNING, "SAXException for newSchema()", ex);
                         }
                     }
                 }

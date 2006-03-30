@@ -196,7 +196,6 @@ public final class JAXBEncoderDecoder {
             Marshaller u = context.createMarshaller();
             u.setProperty(Marshaller.JAXB_ENCODING , "UTF-8");
             u.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            u.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
 
             if (elValue.getClass().isAnnotationPresent(XmlRootElement.class)) {
                 String packageName = elValue.getClass().getPackage().getName();
