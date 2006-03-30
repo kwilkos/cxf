@@ -34,7 +34,7 @@ Prerequisites
 =============
 
 Geronimo: Download and install Geronimo 1.0 from
-http://geronimo.apache.org/downlaads.html.  The Geronimo installation
+http://geronimo.apache.org/downloads.html.  The Geronimo installation
 directory will be referred to as GHOME.  Add $GHOME/bin (Unix) or
 %GHOME%\bin (Windows) to your PATH environment variable.
 
