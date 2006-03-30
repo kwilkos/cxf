@@ -232,7 +232,7 @@ public class DispatchImpl<T> implements Dispatch<T> {
     
     private void throwProtocolException(Throwable t) {
         if (null != t) {
-            LOG.log(Level.SEVERE, "DISPATCH_INVOKE_EXC", cl.getSimpleName());
+            LOG.log(Level.INFO, "DISPATCH_INVOKE_EXC", cl.getSimpleName());
             throw isJAXWSException(t) 
                   ? (WebServiceException)t 
                   : new ProtocolException(t);
