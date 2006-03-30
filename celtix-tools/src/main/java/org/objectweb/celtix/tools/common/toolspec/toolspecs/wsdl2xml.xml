@@ -68,31 +68,6 @@
 				</associatedArgument>
 			</option>
 			
-			<option id="namespace" maxOccurs="1">
-				<annotation>The soap body namespace.</annotation>
-				<switch>n</switch>
-				<associatedArgument placement="afterSpace">
-				  	<annotation>soap-body-namespace(only for rpc style)</annotation>
-				</associatedArgument>
-			</option>
-			
-			<option id="style" maxOccurs="1">
-				<annotation>Specify whether to use Document/RPC style for the soap binding.(default : Document)</annotation>
-				<switch>style</switch>
-				<associatedArgument placement="afterSpace">
-				  	<annotation>soap binding/operation style(document/rpc)</annotation>
-				  	<valueenum>document|rpc</valueenum>
-				</associatedArgument>
-			</option>
-			
-			<option id="use" maxOccurs="1">
-				<annotation>Specify whether to use encoded/literal type in the soap binding.(default : Literal)</annotation>
-				<switch>use</switch>
-				<associatedArgument placement="afterSpace">
-				  	<annotation>soap body use(literal/encoded)</annotation>
-				  	<valueenum>literal|encoded</valueenum>
-				</associatedArgument>
-			</option>		
 		</optionGroup>
 		
 		<optionGroup id="common_options">
