@@ -82,18 +82,8 @@ public class WSDLToService extends AbstractCeltixToolContainer {
 
     public static void main(String[] pargs) {
         args = pargs;
-        String protocol = "";
-        for (int i = 0; i < pargs.length; i++) {
-            if ("-transport".equals(pargs[i])) {
-                protocol = pargs[i + 1];
-                break;
-            }
-        }
-        if ("".equals(protocol)) {
-            protocol = "http";
-        }
         try {
-            String toolSpecFile = ToolConstants.TOOLSPECS_BASE + "wsdl2service_" + protocol + ".xml";
+            String toolSpecFile = ToolConstants.TOOLSPECS_BASE + "wsdl2service.xml";
             ToolRunner.runTool(WSDLToService.class, WSDLToService.class.getResourceAsStream(toolSpecFile),
                                false, args);
         } catch (BadUsageException ex) {
