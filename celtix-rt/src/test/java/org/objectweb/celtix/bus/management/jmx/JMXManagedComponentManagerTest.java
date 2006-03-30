@@ -11,6 +11,7 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.instrumentation.JMXConnectorPolicyType;
 import org.objectweb.celtix.bus.instrumentation.MBServerPolicyType;
 import org.objectweb.celtix.bus.management.InstrumentationCreatedEvent;
+import org.objectweb.celtix.bus.management.InstrumentationRemovedEvent;
 import org.objectweb.celtix.bus.management.jmx.export.AnnotationTestInstrumentation;
 
 
@@ -88,7 +89,7 @@ public class JMXManagedComponentManagerTest extends TestCase {
             ex.printStackTrace();
             assertTrue("get instrumentation attribute error", false);
         }
-        
+        manager.processEvent(new InstrumentationRemovedEvent(im));
         manager.shutdown();
     }
 
