@@ -17,7 +17,7 @@ import org.objectweb.celtix.tools.processors.wsdl2.WSDLToXMLProcessor;
 
 public class WSDLToXML extends AbstractCeltixToolContainer {
 
-    static final String TOOL_NAME = "wsdltoxml";    
+    static final String TOOL_NAME = "wsdl2xml";    
     static final String BINDING_NAME_POSFIX = "_XMLBinding";
     static final String SERVICE_NAME_POSFIX = "_XMLService";
     static final String PORT_NAME_POSFIX = "_XMLPort";

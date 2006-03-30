@@ -17,7 +17,7 @@ import org.objectweb.celtix.tools.processors.wsdl2.WSDLToSoapProcessor;
 
 public class WSDLToSoap extends AbstractCeltixToolContainer {
 
-    static final String TOOL_NAME = "wsdltosoap";    
+    static final String TOOL_NAME = "wsdl2soap";    
     static final String BINDING_NAME_POSFIX = "_Binding";
     static final String STYLE_DEF_VALUE = "document";
     static final String USE_DEF_VALUE = "literal";

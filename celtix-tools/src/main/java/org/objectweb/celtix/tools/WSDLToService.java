@@ -17,7 +17,7 @@ import org.objectweb.celtix.tools.processors.wsdl2.WSDLToServiceProcessor;
 
 public class WSDLToService extends AbstractCeltixToolContainer {
 
-    static final String TOOL_NAME = "wsdltoservice";
+    static final String TOOL_NAME = "wsdl2service";
     private static String[] args;
 
     public WSDLToService(ToolSpec toolspec) throws Exception {

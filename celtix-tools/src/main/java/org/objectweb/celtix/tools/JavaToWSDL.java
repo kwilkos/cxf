@@ -16,7 +16,7 @@ import org.objectweb.celtix.tools.processors.java2.JavaToWSDLProcessor;
 
 public class JavaToWSDL extends AbstractCeltixToolContainer {
    
-    private static final String TOOL_NAME = "javatowsdl";
+    private static final String TOOL_NAME = "java2wsdl";
     private static String[] args;
     private static Definition definition;
 

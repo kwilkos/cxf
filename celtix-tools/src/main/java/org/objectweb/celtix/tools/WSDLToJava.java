@@ -19,7 +19,7 @@ import org.objectweb.celtix.tools.processors.wsdl2.WSDLToJavaProcessor;
 
 public class WSDLToJava extends AbstractCeltixToolContainer {
     
-    private static final String TOOL_NAME = "wsdltojava";
+    private static final String TOOL_NAME = "wsdl2java";
     private static String[] args;
 
     public WSDLToJava(ToolSpec toolspec) throws Exception {

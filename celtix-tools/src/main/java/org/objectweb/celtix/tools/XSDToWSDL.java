@@ -18,7 +18,7 @@ import org.objectweb.celtix.tools.processors.xsd2.XSDToWSDLProcessor;
 
 public class XSDToWSDL extends AbstractCeltixToolContainer {
 
-    static final String TOOL_NAME = "xsdtowsdl";
+    static final String TOOL_NAME = "xsd2wsdl";
 
     private static String[] args;
 
