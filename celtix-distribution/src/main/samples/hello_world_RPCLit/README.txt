@@ -141,12 +141,12 @@ Using java, run the client application with the command:
   For UNIX:
     
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
-         demo.hello_world.client.Client http://localhost:#/helloworldrpclit/celtix/hello_world_rpclit
+         demo.hwRPCLit.client.Client http://localhost:#/helloworldrpclit/celtix/hello_world_rpclit
 
   For Windows:
 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
-       demo.hello_world.client.Client http://localhost:#/helloworldrpclit/celtix/hello_world_rpclit
+       demo.hwRPCLit.client.Client http://localhost:#/helloworldrpclit/celtix/hello_world_rpclit
 
 Where # is the TCP/IP port used by the servlet container,
 e.g., 8080.
