@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM 
+     "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types">
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService" 
+        class="org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean">
+      <property name="systemHandlerChain">
+          <value>
+              <jaxws-types:system-handler-chain>
+                  <jaxws-types:preLogical>
+                      <jaxws-types:handler>
+                          <jaxws-types:handler-name>MAPAggregator</jaxws-types:handler-name>
+                          <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.addressing.MAPAggregator</jaxws-types:handler-class>
+                      </jaxws-types:handler>
+                      <jaxws-types:handler>
+                          <jaxws-types:handler-name>RMHandler</jaxws-types:handler-name>
+                          <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.rm.RMHandler</jaxws-types:handler-class>
+                      </jaxws-types:handler>
+                  </jaxws-types:preLogical>
+                  <jaxws-types:postLogical/>
+                  <jaxws-types:preProtocol>
+                      <jaxws-types:handler>
+                          <jaxws-types:handler-name>RMSoapHandler</jaxws-types:handler-name>
+                          <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.rm.soap.RMSoapHandler</jaxws-types:handler-class>
+                      </jaxws-types:handler>
+                      <jaxws-types:handler>
+                          <jaxws-types:handler-name>MAPCodec</jaxws-types:handler-name>
+                          <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec</jaxws-types:handler-class>
+                      </jaxws-types:handler>
+                  </jaxws-types:preProtocol>
+                  <jaxws-types:postProtocol/>
+              </jaxws-types:system-handler-chain>
+          </value>
+      </property>
+      <property name="handlerChain">
+          <value>
+              <jaxws-types:handler-chain>
+                  <jaxws-types:handler>
+                      <jaxws-types:handler-name>MessageLossSimulator</jaxws-types:handler-name>
+                      <jaxws-types:handler-class>demo.ws_rm.common.MessageLossSimulator</jaxws-types:handler-class>
+                  </jaxws-types:handler>
+                  <jaxws-types:handler>
+                      <jaxws-types:handler-name>HeaderSnooper</jaxws-types:handler-name>
+                      <jaxws-types:handler-class>demo.ws_rm.common.HeaderSnooper</jaxws-types:handler-class>
+                  </jaxws-types:handler>
+              </jaxws-types:handler-chain>              
+          </value>
+      </property>     
+  </bean>
+ 
+</beans>

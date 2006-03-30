@@ -1,5 +1,5 @@
-Handler Demo
-============
+WS-Addressing Demo
+==================
 
 This demo shows how WS-Addressing support in Celtix may be enabled.  
 
@@ -9,7 +9,7 @@ responsible for aggregating the WS-A MessageAddressingProperties for
 the current message, and a ProtocolHandler (MAPCodec) responsible for
 encoding/decoding these properties as SOAP Headers. 
 
-An additional demo-specific ProtocolHandler (HeaderSnoop) is used to
+An additional demo-specific ProtocolHandler (HeaderSnooper) is used to
 snoop the SOAP Headers and display these to the console.
 
 Normally the WS-Addressing MessageAddressProperties are generated and

@@ -18,6 +18,7 @@ public final class Names {
         WSA_NAMESPACE_NAME + "/wsdl";
     public static final String WSA_NAMESPACE_PREFIX = "wsa";
     public static final String WSA_NAMESPACE_WSDL_PREFIX = "wsaw";
+    public static final String WSA_NAMESPACE_PATTERN = "/addressing";
 
     public static final String WSA_REFERENCE_PARAMETERS_NAME = 
         "ReferenceParameters";

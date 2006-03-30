@@ -254,6 +254,10 @@ public class MAPCodec
                                                       headerElement, 
                                                       unmarshaller));
                         }
+                    } else if (headerURI.contains(Names.WSA_NAMESPACE_PATTERN)) {
+                        LOG.log(Level.WARNING, 
+                                "UNSUPPORTED_VERSION_MSG",
+                                headerURI);
                     }
                 }
             }
