@@ -12,7 +12,9 @@
 
 
     <!-- Setup for building in a source build -->
-    <import file="../../../target/srcbuild_paths.xml" optional="true"/>
+    <!--
+        <import file="../../../target/srcbuild_paths.xml" optional="true"/>
+    -->
     <property name="srcbuild.classpath" value=""/>    
 
     <uptodate property="codegen.notrequired" value="true">
