@@ -8,6 +8,7 @@ import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedOperatio
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedOperationParameter;
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedOperationParameters;
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
+import org.objectweb.celtix.management.Instrumentation;
 
 
 @ManagedResource(objectName = "bean:name=testBean4", description = "My Managed Bean",
@@ -17,7 +18,7 @@ import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource
                  persistLocation = "/local/work", persistName = "bar.jmx")
 @ManagedNotifications({@ManagedNotification(name = "My Notification",
                                             notificationTypes = {"type.foo", "type.bar" }) })
-public class AnnotationTestInstrumentation {
+public class AnnotationTestInstrumentation implements Instrumentation {
 
     private String name; 
 
@@ -80,6 +81,18 @@ public class AnnotationTestInstrumentation {
                                  name = "y", description = "Right operand") })
     public int add(int x, int y) {
         return x + y;
+    }
+
+    public String getInstrumentationName() {        
+        return "AnnotationTestInstrumentation";
+    }
+
+    public Object getComponent() {        
+        return null;
+    }
+
+    public String getUniqueInstrumentationName() {       
+        return "AnnotationTestInstrumentation";
     }
 
 }

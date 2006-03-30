@@ -21,6 +21,7 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.modelmbean.InvalidTargetObjectTypeException;
 import javax.management.modelmbean.ModelMBeanInfo;
+import javax.management.modelmbean.RequiredModelMBean;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
@@ -29,7 +30,6 @@ import org.objectweb.celtix.bus.instrumentation.MBServerPolicyType;
 import org.objectweb.celtix.bus.management.InstrumentationEventFilter;
 import org.objectweb.celtix.bus.management.InstrumentationEventListener;
 import org.objectweb.celtix.bus.management.jmx.export.runtime.ModelMBeanAssembler;
-import org.objectweb.celtix.bus.management.jmx.export.runtime.RunTimeModelMBean;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.management.Instrumentation;
 
@@ -44,12 +44,12 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
     private static final Logger LOG = LogUtils.getL7dLogger(JMXManagedComponentManager.class);
    
     private boolean platformMBeanServer;
-    private InstrumentationEventFilter meFilter;
-    private MBeanServer mbs;
+    private InstrumentationEventFilter meFilter;    
     private ModelMBeanAssembler mbAssembler; 
     private MBServerConnectorFactory mcf;    
     private Bus bus;
     private String busID;
+    private MBeanServer mbs;
     
     public JMXManagedComponentManager(Bus b) {
         bus = b;
@@ -85,6 +85,10 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
             }
         }
         
+    }
+    
+    public MBeanServer getMBeanServer() {
+        return mbs;
     }
     
     public void shutdown() { 
@@ -147,11 +151,12 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
                     
                 ModelMBeanInfo mbi = mbAssembler.getModelMbeanInfo(instrumentation.getClass());
                 
-                if (mbi != null) {
-                    RunTimeModelMBean rtMBean;
+                if (mbi != null) {                    
+                    RequiredModelMBean rtMBean;
                     try {
-                        rtMBean = (RunTimeModelMBean)mbs.instantiate(
-                            "org.objectweb.celtix.bus.management.jmx.export.runtime.RunTimeModelMBean");
+                                                
+                        rtMBean = (RequiredModelMBean)mbs.instantiate(
+                            "javax.management.modelmbean.RequiredModelMBean");
                                        
                         rtMBean.setModelMBeanInfo(mbi);
                         
@@ -159,8 +164,9 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
                                                
                         registerMBean(rtMBean,
                             JMXUtils.getObjectName(instrumentation.getUniqueInstrumentationName(), busID));
+                                               
                         if (LOG.isLoggable(Level.INFO)) {
-                            LOG.info("registered the object to MBserver" 
+                            LOG.info("registered the object to MBserver " 
                                                + instrumentation.getUniqueInstrumentationName());
                         } 
                             
