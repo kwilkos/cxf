@@ -43,6 +43,7 @@ public final class ToolConstants {
     
     // Java2WSDL Constants
     
+    public static final String CFG_CLASSPATH = "classpath";
     public static final String CFG_TNS = "tns";
     public static final String CFG_SERVICENAME = "servicename";
     public static final String CFG_SCHEMANS = "schemans";

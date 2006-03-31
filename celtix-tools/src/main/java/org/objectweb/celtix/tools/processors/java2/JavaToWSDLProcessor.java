@@ -1,5 +1,6 @@
 package org.objectweb.celtix.tools.processors.java2;
 
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,9 +50,13 @@ public class JavaToWSDLProcessor implements Processor {
     }
 
     protected void init() {
-        seiClass = AnnotationUtil.loadClass((String)penv.get(ToolConstants.CFG_CLASSNAME),
-                                            seiClass == null ? JavaToWSDLProcessor.class.getClassLoader()
-                                                : getSEIClass().getClassLoader());
+        if (penv.get(ToolConstants.CFG_CLASSPATH) != null) {
+            String newCp = (String)penv.get(ToolConstants.CFG_CLASSPATH);
+            String classpath = System.getProperty("java.class.path");
+            System.setProperty("java.class.path", newCp + File.pathSeparator + classpath);
+        }
+        seiClass = AnnotationUtil.loadClass((String)penv.get(ToolConstants.CFG_CLASSNAME), seiClass == null
+            ? JavaToWSDLProcessor.class.getClassLoader() : getSEIClass().getClassLoader());
     }
 
     protected Class getSEIClass() {
@@ -61,5 +66,5 @@ public class JavaToWSDLProcessor implements Processor {
     public WSDLModel getModel() {
         return this.model;
     }
-   
+
 }

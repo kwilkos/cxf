@@ -18,15 +18,16 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     private String tns = "org.objectweb.asyn_lit";
     private String serviceName = "celtixService";
     private WSDLHelper wsdlHelper = new WSDLHelper();
+    private File classFile;
     
     public void setUp() throws Exception {
         super.setUp();
         wj2Processor = new WSDLToJavaProcessor();
         j2wProcessor = new JavaToWSDLProcessor();
-        File classFile = new java.io.File(output.getCanonicalPath() + "/classes");
+        classFile = new java.io.File(output.getCanonicalPath() + "/classes");
         classFile.mkdir();
         System.setProperty("java.class.path", getClassPath() + classFile.getCanonicalPath()
-                                              + File.separatorChar);
+                           + File.separatorChar);
     }
     
     public void tearDown() {
@@ -36,6 +37,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
 
     public void testAsyn() throws Exception {
+        
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
@@ -92,7 +94,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
     
     
-    public void testDocLit() throws Exception {
+    public void testDocLitUseClassPathFlag() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
@@ -100,10 +102,11 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         wj2Processor.setEnvironment(env);
         wj2Processor.process();
  
- 
+        System.setProperty("java.class.path", "");
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.objectweb.hello_world_doc_lit.Greeter");
         env.put(ToolConstants.CFG_TNS, tns);
+        env.put(ToolConstants.CFG_CLASSPATH, classFile.getCanonicalPath());
         env.put(ToolConstants.CFG_SERVICENAME, serviceName);
         j2wProcessor.setEnvironment(env);
         j2wProcessor.process();

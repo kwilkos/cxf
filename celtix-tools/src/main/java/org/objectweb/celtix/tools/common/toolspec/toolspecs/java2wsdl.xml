@@ -9,10 +9,10 @@
 
     <annotation> Examples :
     java2wsdl org.objectweb.hello_world_soap_http.Greeter
+    java2wsdl -cp ./tmp org.objectweb.hello_world_soap_http.Greeter
     java2wsdl -o hello.wsdl org.objectweb.hello_world_soap_http.Greeter
     java2wsdl -o hello.wsdl -t http://celtix.objectweb.org org.objectweb.hello_world_soap_http.Greeter
     </annotation>
-
     <usage>
 
 	<optionGroup id="options">
@@ -23,6 +23,15 @@
 		    <annotation>output-file</annotation>
 		</associatedArgument>
 	    </option>
+	    
+	    <option id="classpath" maxOccurs="1">
+		<annotation>Specify the SEI and types class search path of directories and zip/jar files</annotation>
+		<switch>cp</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>class-path</annotation>
+		</associatedArgument>
+	    </option>
+	    
 
 	    <option id="tns" maxOccurs="1">
 		<annotation>Specify the target namespace to use in the wsdl</annotation>
