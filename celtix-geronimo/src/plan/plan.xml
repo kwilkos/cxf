@@ -18,25 +18,25 @@
   <dependency>
     <groupId>celtix</groupId>
     <artifactId>celtix-geronimo</artifactId>
-    <version>1.0-beta-1-SNAPSHOT</version>
+    <version>1.0-beta-1</version>
   </dependency>
 
   <dependency>
     <groupId>celtix</groupId>
     <artifactId>celtix-api</artifactId>
-    <version>1.0-beta-1-SNAPSHOT</version>
+    <version>1.0-beta-1</version>
   </dependency>
 
   <dependency>
     <groupId>celtix</groupId>
     <artifactId>celtix-rt</artifactId>
-    <version>1.0-beta-1-SNAPSHOT</version>
+    <version>1.0-beta-1</version>
   </dependency>
 
   <dependency>
     <groupId>celtix</groupId>
     <artifactId>celtix-common</artifactId>
-    <version>1.0-beta-1-SNAPSHOT</version>
+    <version>1.0-beta-1</version>
   </dependency>
 
   <dependency>

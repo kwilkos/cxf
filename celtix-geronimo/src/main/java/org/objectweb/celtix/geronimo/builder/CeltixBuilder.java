@@ -68,7 +68,7 @@ public class CeltixBuilder implements WebServiceBuilder {
                                          Map correctedPortLocations)
         throws DeploymentException {
             
-        LOG.info("parsing descriptor " + wsDDUrl);
+        LOG.fine("parsing descriptor " + wsDDUrl);
         
         Map<String, PortInfo> map = new HashMap<String, PortInfo>();
         
