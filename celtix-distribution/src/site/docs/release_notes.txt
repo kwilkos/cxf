@@ -3,7 +3,7 @@ Celtix 1.0 Beta Release Notes
 1. New Features
 
   Added in 1.0 Beta:
-    * Complete support for Webservices Reliability based on WS-RM
+    * Support for Webservices Reliability based on WS-RM
       Specification.
     * Enhanced WS-Addressing Capabilities.
     * Configuration based support for JMS Transport.
@@ -120,18 +120,7 @@ serve 404 (not found) errors to all client connections.
 3.2 JMS
 
 3.2.1 WS-Addressing Support
-The JMS transport does not currently use policy based configuration, or support WS-Addressing.
-
-3.2.2 Pubsub Demo
-The pubsub demo fails when the following is done:
-1. Start JMS Broker, Server and run client this works fine.
-2. Kill JMS Broker, kill server.
-3. Again Start JMS Broker, Server and run client this works fine.
-4. Kill JMS Broker, Kill server.
-5. Start JMS Broker and Start Server, this time Server will hang and will not show "Server Ready"
-
-The work around is to ensure to clean up database before running the demo.
-This can be done by calling "ant clean"
+The JMS transport does not currently support WS-Addressing.
 
 4. Reporting Problems
 
