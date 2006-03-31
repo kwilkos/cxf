@@ -61,6 +61,8 @@ To explore the celtix managed components:
   The client JMX Service URL is:
     service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/client
 
+  NOTE: Just enter the JMX service URL as above, and leave the username and password blank in this sample.
+
 To remove the code generated from the WSDL file and the .class
 files, run:
 
