@@ -46,15 +46,14 @@ Building and running the demo using ant
 From the samples/management directory, the ant build script
 can be used to build and run the demo.
 
-To build the demo:
-  ant build
+Using either UNIX or Windows:
 
-To run the demo:
-  ant server  (in the background or another window)
+  ant build
+  ant server
   ant client
 
 To explore the celtix managed components:
-  jconsole  (in the background or another window)
+  jconsole
   
   The server JMX Service URL is:
     service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/server  
@@ -64,6 +63,7 @@ To explore the celtix managed components:
 
 To remove the code generated from the WSDL file and the .class
 files, run:
+
   ant clean
 
 

@@ -49,7 +49,7 @@ the demo.
 
 Using either UNIX or Windows:
 
-  ant server  (in the background or another window)
+  ant server 
   ant client
 
 When using these ant targets, the server process uses the FileLoggingHandler

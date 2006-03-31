@@ -55,7 +55,7 @@ the demo.
 
 Using either UNIX or Windows:
 
-  ant server  (in the background or another window)
+  ant server
   ant client
 
 Both client and server will use the MAPAggregator and MAPCodec

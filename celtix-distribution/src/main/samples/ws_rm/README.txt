@@ -65,7 +65,7 @@ the demo.
 
 Using either UNIX or Windows:
 
-  ant server  (in the background or another window)
+  ant server
   ant client
 
 On startup, the client makes a sequence of 8 invocations, both oneway

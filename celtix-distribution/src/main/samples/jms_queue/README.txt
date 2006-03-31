@@ -31,8 +31,8 @@ can be used to build and run the demo.
 Using either UNIX or Windows:
 
   ant build
-  ant jmsbroker.start (in the background or another window)
-  ant server  (in the background or another window)
+  ant jmsbroker.start 
+  ant server 
   ant client
     
 

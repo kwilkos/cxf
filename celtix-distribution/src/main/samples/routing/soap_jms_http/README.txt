@@ -39,9 +39,9 @@ the demo.
 
 Using either UNIX or Windows:
 
-  ant server  (in the background or another window)
-  ant jmsbroker (in the background or another window)
-  ant router (in the background or another window)
+  ant server
+  ant jmsbroker
+  ant router
   ant client
 
 

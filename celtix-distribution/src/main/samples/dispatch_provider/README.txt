@@ -36,7 +36,7 @@ can be used to build and run the demo.
 Using either UNIX or Windows:
 
   ant build
-  ant server  (in the background or another window)
+  ant server
   ant client
     
 
