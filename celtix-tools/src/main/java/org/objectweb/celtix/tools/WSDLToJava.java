@@ -145,6 +145,17 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
         if (!env.optionSet(ToolConstants.CFG_EXTRA_SOAPHEADER)) {
             env.put(ToolConstants.CFG_EXTRA_SOAPHEADER, "false");
         }
+        
+        if (env.optionSet(ToolConstants.CFG_COMPILE)) {
+            String clsdir = (String) env.get(ToolConstants.CFG_CLASSDIR);
+            if (clsdir != null) {
+                File dir = new File(clsdir);
+                if (!dir.exists()) {
+                    Message msg = new Message("DIRECTORY_NOT_EXIST", LOG, clsdir);
+                    throw new ToolException(msg);
+                }
+            }
+        }
     }
 
     protected void setAntProperties(ProcessorEnvironment env) {
