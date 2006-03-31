@@ -68,7 +68,7 @@ Using either UNIX or Windows:
   ant server
   ant client
 
-On startup, the client makes a sequence of 8 invocations, both oneway
+On startup, the client makes a sequence of 4 invocations, both oneway
 and twoway. The output of the HeaderSnooper will be displayed to allow
 you to follow the message flows. Note that the client sleeps for 30
 seconds before shutdown, in order to allow asynchronous resends to occur.
@@ -79,8 +79,8 @@ files, run:
   ant clean
 
 
-Buildng the demo using wsdl2java and javac
-------------------------------------------
+Building the demo using wsdl2java and javac
+-------------------------------------------
 
 From the samples/ws_rm directory, first create the target directory
 build/classes and then generate code from the WSDL file.
