@@ -4,14 +4,14 @@
     <groupId>org.objectweb.celtix</groupId>
     <artifactId>celtix-axisinterop</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-beta-1-SNAPSHOT</version>
+    <version>1.0-beta-1</version>
     <name>Celtix Axis Interop Tests</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
         <groupId>org.objectweb.celtix</groupId>
         <artifactId>celtix</artifactId>
-        <version>1.0-beta-1-SNAPSHOT</version>
+        <version>1.0-beta-1</version>
     </parent>
 
     <properties>
