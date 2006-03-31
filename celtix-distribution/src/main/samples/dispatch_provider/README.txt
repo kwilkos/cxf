@@ -7,7 +7,7 @@ There are three differnt invocations from the client,
 the first uses a SOAPMessage data in MESSAGE mode
 the second uses a DOMSource data in MESSAGE mode and 
 the third uses a DOMSource in PAYLOAD mode.
-The three different messages are constructed by reading in the XML files found in the /demo/hwDispatch/client directory.
+The three different messages are constructed by reading in the XML files found in the src/demo/hwDispatch/client directory.
 
 Please review the README in the samples directory before
 continuing.
