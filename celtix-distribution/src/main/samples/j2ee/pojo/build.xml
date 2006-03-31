@@ -28,4 +28,12 @@
     </war>
   </target>
 
+
+  <target name="client" description="run demo client" depends="build">
+    <property name="param" value=""/>
+    <celtixrun classname="demo.hw.client.Client"
+	       param1="${wsdl.dir}/hello_world.wsdl"/>
+  </target> 
+
+
 </project>

@@ -33,17 +33,43 @@ root of the deployed application.
 Prerequisites
 =============
 
-Geronimo: Download and install Geronimo 1.0 from
-http://geronimo.apache.org/downloads.html.  The Geronimo installation
-directory will be referred to as GHOME.  Add $GHOME/bin (Unix) or
-%GHOME%\bin (Windows) to your PATH environment variable.
+A special build of Geronimo that allows the Celtix runtime to be
+deployed is required. See the Celtix Wiki at: 
+    https://wiki.objectweb.org/celtix/Wiki.jsp?page=CeltixGeronimo
+for more information.
+
+The Geronimo installation directory will be referred to as GHOME.  Add
+$GHOME/bin (Unix) or %GHOME%\bin (Windows) to your PATH environment
+variable.
 
 Deployment
 ==========
 
-o Deploy the Celtix runtime to the application server 
+o Extract the Geronimo package.  This location will be referred to as
+GHOME.	
 
-[Geronimo details to follow] 
+o Create the directory $GHOME/repository/celtix/jars
+
+o Copy the jars from $CELTIX_HOME/lib to $GHOME/repository/celtix/jars
+
+o Start the Geronimo application server: 
+  java -jar  $GHOME/bin/server.jar (in another window)
+  or
+  $GHOME/bin/startup.sh
+  The latter command will start the server in the background.
+
+  Note: Geronimo is not currently certified on JDK 1.5 and starting
+  	and the server will issue a warning on startup.
+
+
+o Deploy the Celtix GBean to Geronimo
+  
+  $ deploy.sh ./geronimo-plan.xml
+
+  This will report success with the following message
+
+       Deployed geronimo/celtix-deployer/1.2/car
+
 
 o Build the war using ant: 
   
