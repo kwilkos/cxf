@@ -21,10 +21,10 @@ set CELTIX_JAR=%CELTIX_HOME%\lib\celtix.jar
 goto end
 
 :no_celtix_jar
-echo unable to find celtix.jar in %celtix_home/lib
+echo ERROR: Unable to find celtix.jar in %celtix_home/lib
 goto end
 
 :no_java_home
-echo Please set JAVA_HOME to point a J2SE 5.0 Development Kit
+echo ERROR: Set JAVA_HOME to the path where the J2SE 5.0 (JDK5.0) is installed
 goto end 
 :end

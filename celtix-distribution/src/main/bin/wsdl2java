@@ -8,7 +8,7 @@ celtix_home=`dirname $0`/..
 celtix_jar=$celtix_home/lib/celtix.jar
 
 if [ ! -f $celtix_jar ]; then 
-    echo "unable to find celtix.jar in $celtix_home/lib"
+    echo "ERROR: Unable to find celtix.jar in $celtix_home/lib"
     exit 1
 fi 
 
@@ -20,7 +20,7 @@ sun_tool_path=""
 if [ ! `uname` = 'Darwin' ]; then
     sun_tool_path=${JAVA_HOME}/lib/tools.jar
     if [ ! -f $sun_tool_path ]; then
-	echo "Please set JAVA_HOME to point a J2SE 5.0 Development Kit"
+	echo "ERROR: Set JAVA_HOME to the path where the J2SE 5.0 (JDK5.0) is installed"
 	exit 1
     fi
 fi 
