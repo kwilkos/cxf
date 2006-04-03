@@ -54,23 +54,17 @@
         <dependency>
             <groupId>javax.xml</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>${jaxws.version}</version>
+            <version>${jaxb.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.xml</groupId>
             <artifactId>jaxb-xjc</artifactId>
-            <version>${jaxws.version}</version>
+            <version>${jaxb.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.xml</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>2.0-JAXWS-2.0-EA3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.xml</groupId>
-                    <artifactId>jsr173-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>${jaxb.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.xml</groupId>

@@ -46,7 +46,7 @@
         <dependency>
             <groupId>javax.xml</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>${jaxws.version}</version>
+            <version>${jaxb.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.xml</groupId>

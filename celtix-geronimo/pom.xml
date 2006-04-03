@@ -53,21 +53,21 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-	<dependency>
-	  <groupId>javax.xml</groupId>
-	  <artifactId>jaxws-api</artifactId>
+        <dependency>
+            <groupId>javax.xml</groupId>
+            <artifactId>jaxws-api</artifactId>
             <version>${jaxws.version}</version>
-	</dependency>
+        </dependency>
         <dependency>
             <groupId>javax.xml</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>${jaxws.version}</version>
+            <version>${jaxb.version}</version>
         </dependency>
-	<dependency>
-	  <groupId>wsdl4j</groupId>
-	  <artifactId>wsdl4j</artifactId>
-	  <version>1.5.2</version>
-	</dependency>
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>1.5.2</version>
+        </dependency>
         <dependency>
             <groupId>javax.jws</groupId>
             <artifactId>jsr181-api</artifactId>
@@ -75,12 +75,12 @@
             <scope>compile</scope>
         </dependency>
 
-	<!-- dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-dependency-plugin</artifactId>
-            <version>${}</version>
-            <type>plugin</type>
-        </dependency -->
+        <!-- dependency>
+                <groupId>geronimo</groupId>
+                <artifactId>geronimo-dependency-plugin</artifactId>
+                <version>${}</version>
+                <type>plugin</type>
+            </dependency -->
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -89,6 +89,7 @@
         </dependency>
 
         
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -137,7 +138,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
-	    <version>1.0</version>
+            <version>1.0</version>
         </dependency>
 
 
