@@ -163,7 +163,9 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
                         rtMBean.setManagedResource(instrumentation, "ObjectReference");
                                                
                         registerMBean(rtMBean,
-                            JMXUtils.getObjectName(instrumentation.getUniqueInstrumentationName(), busID));
+                            JMXUtils.getObjectName(instrumentation.getInstrumentationName(),
+                                                   instrumentation.getUniqueInstrumentationName(),
+                                                   busID));
                                                
                         if (LOG.isLoggable(Level.INFO)) {
                             LOG.info("registered the object to MBserver " 
@@ -190,8 +192,9 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
             if (meFilter.isRemovedEvent(event)) {
                // unregist the component and distroy it.
                 ObjectName name;                 
-                name = JMXUtils.getObjectName(
-                    instrumentation.getUniqueInstrumentationName(), busID);               
+                name = JMXUtils.getObjectName(instrumentation.getInstrumentationName(),
+                    instrumentation.getUniqueInstrumentationName(),
+                    busID);               
                 unregisterMBean(name);
                 if (LOG.isLoggable(Level.INFO)) {
                     LOG.info("unregistered the object to MBserver" 

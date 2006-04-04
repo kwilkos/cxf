@@ -22,7 +22,7 @@ import org.objectweb.celtix.management.Instrumentation;
                  description = "The Celtix bus wsdl model component ", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class WSDLManagerInstrumentation implements Instrumentation {
-    private static final String INSTRUMENTED_NAME = "WSDLManager";    
+    private static final String INSTRUMENTED_NAME = "Bus.WSDLManager";    
     private String objectName;
     private WSDLManagerImpl wsdlManager;
     private WeakHashMap<Object, Definition> definitionsMap;
@@ -30,7 +30,7 @@ public class WSDLManagerInstrumentation implements Instrumentation {
     
     public WSDLManagerInstrumentation(WSDLManagerImpl wsdl) {
         wsdlManager = wsdl;
-        objectName = INSTRUMENTED_NAME;
+        objectName = "WSDLManager";
         definitionsMap = wsdlManager.definitionsMap;         
     }
        

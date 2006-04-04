@@ -12,9 +12,7 @@ import org.objectweb.celtix.workqueue.WorkQueueManager.ThreadingModel;
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate", persistPeriod = 200)
                  
 public class WorkQueueInstrumentation implements Instrumentation {    
-    private static final String INSTRUMENTED_NAME = "WorkQueue";
-    
-    private static int instanceNumber;
+    private static final String INSTRUMENTED_NAME = "Bus.WorkQueue";
     
     private String objectName;
     private WorkQueueManagerImpl wqManager;
@@ -22,17 +20,13 @@ public class WorkQueueInstrumentation implements Instrumentation {
     
     public WorkQueueInstrumentation(WorkQueueManagerImpl wq) {
         wqManager = wq;        
-        objectName = INSTRUMENTED_NAME + instanceNumber;       
-        instanceNumber++;        
+        objectName = "WorkQueue";
         if (wqManager.autoQueue != null 
             && AutomaticWorkQueueImpl.class.isAssignableFrom(wqManager.autoQueue.getClass())) {
             aWorkQueue = (AutomaticWorkQueueImpl) wqManager.autoQueue;
         }
     }
-    
-    public static void resetInstanceNumber() {
-        instanceNumber = 0;
-    }
+   
     
     @ManagedOperation(currencyTimeLimit = 30)
     public void shutdown(boolean processRemainingWorkItems) {

@@ -16,7 +16,7 @@ import org.objectweb.celtix.management.Instrumentation;
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class CeltixBusInstrumentation implements Instrumentation {
    
-    private static final String INSTRUMENTED_NAME = "CeltixBus";
+    private static final String INSTRUMENTED_NAME = "Bus";
     private String objectName;
     private CeltixBus bus;
     private String[] transportFactories;
@@ -24,8 +24,8 @@ public class CeltixBusInstrumentation implements Instrumentation {
   
 
     public CeltixBusInstrumentation(CeltixBus b) {
-        bus = b;
-        objectName = INSTRUMENTED_NAME;
+        bus = b;       
+        objectName = b.getBusID();
         bindingFactories = getFactoriesInfor("bindingFactories");
         transportFactories = getFactoriesInfor("transportFactories");
     }

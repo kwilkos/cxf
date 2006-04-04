@@ -43,14 +43,14 @@ public class JMSTransportBase {
     protected Destination targetDestination;
     protected Destination replyDestination;
     protected JMSSessionFactory sessionFactory;
-    protected Bus theBus;
+    protected Bus bus;
     protected EndpointReferenceType targetEndpoint;
     protected Port port;
     protected Configuration configuration;
 
     //--Constructors------------------------------------------------------------
-    public JMSTransportBase(Bus bus, EndpointReferenceType epr, boolean isServer) throws WSDLException {
-        theBus = bus;
+    public JMSTransportBase(Bus b, EndpointReferenceType epr, boolean isServer) throws WSDLException {
+        bus = b;
        // Configuration parentConfiguration = getParentConfiguration( isServer);
 
         port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), epr);
@@ -71,12 +71,12 @@ public class JMSTransportBase {
     }
 
 
-    private Configuration createConfiguration(Bus bus,
+    private Configuration createConfiguration(Bus b,
                                                   EndpointReferenceType ref,
                                                   boolean isServer) {
         ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
 
-        Configuration busConfiguration = bus.getConfiguration();
+        Configuration busConfiguration = b.getConfiguration();
         Configuration parent = null;
         //Configuration serviceConfiguration = null;
 

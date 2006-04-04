@@ -42,17 +42,16 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
         JMSServerTransport.class.getName() + ".IncomingMessage";
 
     ServerTransportCallback callback;
-    TransportServerCounters counters;
+    TransportServerCounters counters;   
     private PooledSession listenerSession;
     private Thread listenerThread;
     private JMSServerBehaviorPolicyType serverBehaviourPolicy;
-    private Bus bus;
+    
 
 
     public JMSServerTransport(Bus b, EndpointReferenceType address)
         throws WSDLException {
-        super(b, address, true);
-        bus = b;
+        super(b, address, true);        
         serverBehaviourPolicy = getServerPolicy(configuration);
         counters = new TransportServerCounters("JMSServerTranpsort");
         entry("JMSServerTransport Constructor");
@@ -286,7 +285,7 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
                     while (message != null) {
                         Executor executor = theTransport.callback.getExecutor();
                         if (executor == null) {
-                            executor = theTransport.theBus
+                            executor = theTransport.bus
                                 .getWorkQueueManager().getAutomaticWorkQueue();
                         }
                         if (executor != null) {

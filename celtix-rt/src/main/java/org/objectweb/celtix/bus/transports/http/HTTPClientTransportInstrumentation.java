@@ -13,7 +13,7 @@ import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
                  description = "The Celtix bus HTTP client side transport componnet ", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class HTTPClientTransportInstrumentation implements Instrumentation {  
-    private static final String INSTRUMENTATION_NAME = "HTTPClientTransport";
+    private static final String INSTRUMENTATION_NAME = "Bus.Service.Port.HTTPClientTransport";
     
     private static int instanceNumber;
     
@@ -25,7 +25,7 @@ public class HTTPClientTransportInstrumentation implements Instrumentation {
     public HTTPClientTransportInstrumentation(HTTPClientTransport hcTransport) {        
         httpClientTransport = hcTransport; 
         counters = hcTransport.counters;
-        objectName = INSTRUMENTATION_NAME + instanceNumber; 
+        objectName = "HTTPClientTransport" + instanceNumber; 
         instanceNumber++;
     }
     

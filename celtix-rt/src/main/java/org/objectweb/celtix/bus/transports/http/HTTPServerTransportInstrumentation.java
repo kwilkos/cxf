@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bus.transports.http;
 
-
-
+import org.objectweb.celtix.bus.management.TransportInstrumentation;
 import org.objectweb.celtix.bus.management.counters.TransportServerCounters;
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedAttribute;
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
@@ -11,21 +10,42 @@ import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 @ManagedResource(objectName = "HTTPServerTransport", 
                  description = "The Celtix bus HTTP Server Transport component ", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
-public class HTTPServerTransportInstrumentation implements Instrumentation {  
-    private static final String INSTRUMENTED_NAME = "HTTPServerTransport";
-    private static int instanceNumber;
+public class HTTPServerTransportInstrumentation
+    extends TransportInstrumentation
+    implements Instrumentation {  
+    private static final String INSTRUMENTED_NAME = "Bus.Service.Port.HTTPServerTransport";
     
     JettyHTTPServerTransport httpServerTransport; 
-    HTTPServerPolicy policy;
-    String objectName;
+    HTTPServerPolicy policy;   
     TransportServerCounters counters;
+  
+    //EndpointReference eprf;
     
     public HTTPServerTransportInstrumentation(JettyHTTPServerTransport hsTransport) {
-        super();
-        httpServerTransport = hsTransport;
-        objectName = INSTRUMENTED_NAME + instanceNumber;
-        instanceNumber++;
-        counters = hsTransport.counters;
+        super(hsTransport.bus);         
+        httpServerTransport = hsTransport;        
+        // servicename, portname, transport type
+        serviceName = findServiceName(httpServerTransport.reference);
+        portName = findPortName(httpServerTransport.reference);
+        /* Transprot:
+            type=Bus.Service.Port,name=SoapPort,
+            Bus.Service="{http://ws.celtix.objectweb.org}SOAPService",
+            Bus=demos.jmx_runtime*/
+        objectName = getPortObjectName();
+        counters = hsTransport.counters;        
+    }
+    
+   
+    @ManagedAttribute(description = "Get the Service name",
+                      persistPolicy = "OnUpdate")
+    public String getServiceName() {
+        return serviceName;
+    }
+    
+    @ManagedAttribute(description = "Get the port name",
+                      persistPolicy = "OnUpdate")
+    public String getPortName() {
+        return portName;
     }
     
     @ManagedAttribute(description = "The http server url",
@@ -58,10 +78,6 @@ public class HTTPServerTransportInstrumentation implements Instrumentation {
         return httpServerTransport.policy;    
     }
   
-    public static void resetInstanceNumber() {
-        instanceNumber = 0;
-    }
-
     public Object getComponent() {        
         return httpServerTransport;
     }  

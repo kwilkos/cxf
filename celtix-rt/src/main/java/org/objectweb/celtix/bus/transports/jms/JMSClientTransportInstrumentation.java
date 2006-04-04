@@ -11,7 +11,7 @@ import org.objectweb.celtix.management.Instrumentation;
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class JMSClientTransportInstrumentation implements Instrumentation {
 
-    private static final String INSTRUMENTATION_NAME = "JMSClientTransport";
+    private static final String INSTRUMENTATION_NAME = "Bus.Service.Port.JMSClientTransport";
     
     private static int instanceNumber;
     
@@ -23,7 +23,7 @@ public class JMSClientTransportInstrumentation implements Instrumentation {
     public JMSClientTransportInstrumentation(JMSClientTransport jmsTransport) {        
         jmsClientTransport = jmsTransport;  
         counters = jmsTransport.counters;
-        objectName = INSTRUMENTATION_NAME + instanceNumber; 
+        objectName = "JMSClientTransport" + instanceNumber; 
         instanceNumber++;
     }
     

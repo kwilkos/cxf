@@ -13,22 +13,17 @@ import org.objectweb.celtix.management.Instrumentation;
                  description = "The Celtix bus EndpointRegistry ", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class EndpointRegistryInstrumentation implements Instrumentation {
-    private static final String INSTRUMENTED_NAME = "EndpointRegistry";
-    private static int instanceNumber;
+    private static final String INSTRUMENTED_NAME = "Bus.EndpointRegistry";  
     
     private String objectName;
     private EndpointRegistryImpl epRegistry;
     
     public EndpointRegistryInstrumentation(EndpointRegistryImpl registry) {
         epRegistry = registry;
-        objectName = INSTRUMENTED_NAME + instanceNumber; 
-        instanceNumber++;
+        objectName = "EndpointRegistry"; 
+        
     }
     
-    public static void resetInstanceNumber() {
-        instanceNumber = 0;
-    }
-
     public String getInstrumentationName() {
         return INSTRUMENTED_NAME;
     }

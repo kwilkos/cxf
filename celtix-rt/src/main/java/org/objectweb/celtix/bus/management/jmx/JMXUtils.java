@@ -10,16 +10,35 @@ import org.objectweb.celtix.common.logging.LogUtils;
 
 public final class JMXUtils {
     
-    public static final String DOMAIN_STRING = "org.objectweb.celtix";
+    public static final String DOMAIN_STRING = "org.objectweb.celtix.instrumentation";
     
     private static final Logger LOG = LogUtils.getL7dLogger(JMXUtils.class);
     private JMXUtils() {        
     }
-    
-    //org.objectweb.celtix:type=Componnet,name=QuotedQName,bus=busIdentifier    
-    public static ObjectName getObjectName(String name, String busID) {        
+         
+    /**
+     * Bus :
+           org.objectweb.celtix.instrumentation:type=Bus,name=demos.jmx_runtime
+
+       Service :
+           org.objectweb.celtix.instrumentation:type=Bus.Service,
+           name="{http://ws.celtix.objectweb.org}SOAPService",Bus=demos.jmx_runtime
+        
+       Port :
+           org.objectweb.celtix.instrumentation:type=Bus.Service.Port,name=SoapPort,
+           Bus.Service="{http://ws.celtix.objectweb.org}SOAPService",
+           Bus=demos.jmx_runtime
+     */
+    // org.objectweb.celtix:type=Componnet,name=QuotedQName,bus=busIdentifier 
+    public static ObjectName getObjectName(String type, String name, String busID) {        
+        String objectName = "";
+        if (type.compareTo("Bus") == 0) {
+            objectName = ":type=" + type + ",name=" + busID;
+        } else {
+            objectName = ":type=" + type + ",name=" + name + ",Bus=" + busID;
+        }
         try {
-            return new ObjectName(DOMAIN_STRING + ":Type=" + name + ",Bus=" + busID);
+            return new ObjectName(DOMAIN_STRING + objectName);
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "OBJECT_NAME_FALUE_MSG", new Object[]{name, ex});
         }

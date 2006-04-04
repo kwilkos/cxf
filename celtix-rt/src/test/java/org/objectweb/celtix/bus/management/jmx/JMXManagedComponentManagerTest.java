@@ -76,7 +76,9 @@ public class JMXManagedComponentManagerTest extends TestCase {
         manager.init(policy);
         // setup the fack instrumentation
         AnnotationTestInstrumentation im = new AnnotationTestInstrumentation();
-        ObjectName name = JMXUtils.getObjectName(im.getUniqueInstrumentationName(), BUS_ID);
+        ObjectName name = JMXUtils.getObjectName(im.getInstrumentationName(), 
+                                                 im.getUniqueInstrumentationName(), 
+                                                 BUS_ID);
        
         im.setName("John Smith");          
         manager.processEvent(new InstrumentationCreatedEvent(im));

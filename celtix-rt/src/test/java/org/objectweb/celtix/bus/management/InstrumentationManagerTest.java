@@ -10,7 +10,7 @@ import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
-import org.objectweb.celtix.bus.transports.http.JettyHTTPServerTransport;
+import org.objectweb.celtix.bus.transports.jms.JMSClientTransport;
 import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.management.Instrumentation;
@@ -21,8 +21,7 @@ public class InstrumentationManagerTest extends TestCase {
     Bus bus;
     InstrumentationManager im;    
     
-    public void setUp() throws Exception {      
-        WorkQueueInstrumentation.resetInstanceNumber();
+    public void setUp() throws Exception {
         bus = Bus.init();       
         im = bus.getInstrumentationManager();
     }
@@ -51,11 +50,11 @@ public class InstrumentationManagerTest extends TestCase {
                    WorkQueueInstrumentation.class.isAssignableFrom(it2.getClass()));
         
         assertEquals("Item 1's name is not correct",
-                     it1.getInstrumentationName() + "0",
-                     it1.getUniqueInstrumentationName());
+                     it1.getInstrumentationName(),
+                     "Bus." + it1.getUniqueInstrumentationName());
         assertEquals("Item 2's name is not correct",
-                     it2.getInstrumentationName() + "1",
-                     it2.getUniqueInstrumentationName());
+                     it2.getInstrumentationName(),
+                     "Bus." + it2.getUniqueInstrumentationName());
         // sleep for the MBServer connector thread startup 
         try {
             Thread.sleep(100);
@@ -74,9 +73,9 @@ public class InstrumentationManagerTest extends TestCase {
         WorkQueueManagerImpl wqm = new WorkQueueManagerImpl(bus);
         bus.sendEvent(new ComponentCreatedEvent(wqm));        
         
-        JettyHTTPServerTransport jhst = 
-            EasyMock.createMock(JettyHTTPServerTransport.class);
-        bus.sendEvent(new ComponentCreatedEvent(jhst));
+        JMSClientTransport jct = 
+            EasyMock.createMock(JMSClientTransport.class);
+        bus.sendEvent(new ComponentCreatedEvent(jct));
         
         HTTPClientTransport hct = 
             EasyMock.createMock(HTTPClientTransport.class);
@@ -93,7 +92,7 @@ public class InstrumentationManagerTest extends TestCase {
         }
         
         bus.sendEvent(new ComponentRemovedEvent(wqm));
-        bus.sendEvent(new ComponentRemovedEvent(jhst));
+        bus.sendEvent(new ComponentRemovedEvent(jct));
         bus.sendEvent(new ComponentRemovedEvent(hct));
         assertEquals("Instrumented stuff not removed from list", 2, list.size());
         bus.shutdown(true);
