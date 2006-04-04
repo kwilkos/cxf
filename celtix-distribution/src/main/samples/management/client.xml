@@ -26,7 +26,7 @@
 		<im:JMXConnector>
 		   <im:Threaded>true</im:Threaded>
 		   <im:Daemon>false</im:Daemon>
-		   <im:JMXServiceURL>service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/client</im:JMXServiceURL>
+		   <im:JMXServiceURL>service:jmx:rmi:///jndi/rmi://localhost:1100/jmxrmi/client</im:JMXServiceURL>
 		 </im:JMXConnector>
 	      </im:MBServer>
 	  </value>
