@@ -36,7 +36,7 @@ public class PassThroughRouterTest extends ClientServerTestBase {
                 assertTrue("Router did not launch correctly",
                            launchServer(RouterServer.class,
                                         null,
-                                        new String[]{"org.objectweb.celtix.BusId", "celtix-st"}));
+                                        new String[]{"-BUSid", "celtix-st"}));
             }
         };
     }

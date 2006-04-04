@@ -15,6 +15,7 @@ public class DocLitGreeterRouterBase extends ClientServerTestBase {
     protected Greeter greeter;
     protected QName serviceName;
     protected QName portName;
+    protected boolean enableOneway = true;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -25,7 +26,7 @@ public class DocLitGreeterRouterBase extends ClientServerTestBase {
 
         greeter = service.getPort(portName, Greeter.class);
     }
-    
+
     public void testBasic() throws Exception {
         String response1 = new String("Hello Milestone-");
         String response2 = new String("Bonjour");
@@ -36,12 +37,13 @@ public class DocLitGreeterRouterBase extends ClientServerTestBase {
                 String exResponse = response1 + idx;
                 assertEquals(exResponse, greeting);
 
+                if (enableOneway) {
+                    greeter.greetMeOneWay("Milestone-" + idx);
+                }
+                
                 String reply = greeter.sayHi();
                 assertNotNull("no response received from service", reply);
                 assertEquals(response2, reply);
-
-                //TODO Not Supported By Router
-                //greeter.greetMeOneWay("Milestone-" + idx);
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();

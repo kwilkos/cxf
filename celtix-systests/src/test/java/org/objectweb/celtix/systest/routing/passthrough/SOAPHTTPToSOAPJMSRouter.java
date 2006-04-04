@@ -14,6 +14,7 @@ public class SOAPHTTPToSOAPJMSRouter extends DocLitGreeterRouterBase {
         portName = 
             new QName("http://objectweb.org/hello_world_doc_lit", "SoapPort3");
         
+        enableOneway = false;
         this.setName(SOAPHTTPToSOAPJMSRouter.class.getSimpleName());
     }
     
