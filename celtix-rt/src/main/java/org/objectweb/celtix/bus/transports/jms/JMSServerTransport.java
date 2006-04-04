@@ -116,7 +116,6 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
         } catch (JMSException ex) {
             //
         }
-        //throw new IOException("deactivate() is not implemented for JMSServerTransport.");
     }
 
     public void shutdown() {

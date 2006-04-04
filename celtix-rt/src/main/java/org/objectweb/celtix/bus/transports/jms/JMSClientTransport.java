@@ -41,7 +41,6 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
     
     private static final Logger LOG = LogUtils.getL7dLogger(JMSClientTransport.class);
     private static final long DEFAULT_RECEIVE_TIMEOUT = 0;
-    //15000;
     
     protected boolean textPayload;
     TransportClientCounters counters;
@@ -114,10 +113,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
 
     public InputStreamMessageContext invoke(OutputStreamMessageContext context)
         throws IOException {
-        //Use the destination style to determine Destination type
-        //as checking the instance of Destination is not reliable.
-        //DestinationImpl might implement both Queue and Topic as in
-        //the case of Weblogic.
+        
         if (!queueDestinationStyle) {
             LOG.log(Level.WARNING, "Non-oneway invocations not supported for JMS Topics");
             throw new IOException("Non-oneway invocations not supported for JMS Topics");

@@ -31,12 +31,6 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class JMSTransportBase {
     //--Member Variables--------------------------------------------------------
-    protected static final String SERVICE_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/bus/jaxws/service-config";
-    protected static final String PORT_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/bus/jaxws/port-config";
-    protected static final String ENDPOINT_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/bus/jaxws/endpoint-config";
     private static final Logger LOG = LogUtils.getL7dLogger(JMSTransportBase.class);
     protected JMSAddressPolicyType jmsAddressPolicy;
     protected boolean queueDestinationStyle;
@@ -87,7 +81,7 @@ public class JMSTransportBase {
             configURI = JMSConstants.JMS_SERVER_CONFIGURATION_URI;
             configID = JMSConstants.JMS_SERVER_CONFIG_ID;
             parent = busConfiguration
-            .getChild(ENDPOINT_CONFIGURATION_URI,
+            .getChild(JMSConstants.ENDPOINT_CONFIGURATION_URI,
                       EndpointReferenceUtils.getServiceName(ref).toString());
         } else {
             configURI = JMSConstants.JMS_CLIENT_CONFIGURATION_URI;
@@ -95,7 +89,7 @@ public class JMSTransportBase {
             String id = EndpointReferenceUtils.getServiceName(ref).toString()
                 + "/" + EndpointReferenceUtils.getPortName(ref);
             parent   = busConfiguration
-            .getChild(PORT_CONFIGURATION_URI, id);
+            .getChild(JMSConstants.PORT_CONFIGURATION_URI, id);
         }
 
         assert null != parent;

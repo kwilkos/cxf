@@ -144,7 +144,7 @@ public class JMSClientServerTest extends ClientServerTestBase {
                 System.out.println(bp.toString());
                 Map<String, Object> requestContext = bp.getRequestContext();
                 JMSMessageHeadersType requestHeader = new JMSMessageHeadersType();
-                requestHeader.setJMSCorrelationID("JMS_PUB_SUB_SAMPLE_CORRELATION_ID");
+                requestHeader.setJMSCorrelationID("JMS_SAMPLE_CORRELATION_ID");
                 requestHeader.setJMSExpiration(3600000L);
                 JMSPropertyType propType = new JMSPropertyType();
                 propType.setName("Test.Prop");
@@ -167,7 +167,7 @@ public class JMSClientServerTest extends ClientServerTestBase {
                 }
                 
                 assertTrue("CORRELATION ID should match :", 
-                           "JMS_PUB_SUB_SAMPLE_CORRELATION_ID".equals(responseHdr.getJMSCorrelationID()));
+                           "JMS_SAMPLE_CORRELATION_ID".equals(responseHdr.getJMSCorrelationID()));
                 assertTrue("response Headers must conain the app specific property set by request context.", 
                            responseHdr.getProperty() != null);
             }
