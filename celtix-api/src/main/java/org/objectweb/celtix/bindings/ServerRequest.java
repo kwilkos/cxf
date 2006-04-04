@@ -175,7 +175,7 @@ public class ServerRequest {
             LogUtils.log(LOG, Level.SEVERE, "IMPLEMENTOR_INVOCATION_FAILURE_MSG", ex, method.getName());
             objectCtx.setException(ex);
         } catch (InvocationTargetException ex) {
-            LogUtils.log(LOG, Level.INFO, "IMPLEMENTOR_INVOCATION_EXCEPTION_MSG", ex, method.getName());
+            LogUtils.log(LOG, Level.FINE, "IMPLEMENTOR_INVOCATION_EXCEPTION_MSG", ex, method.getName());
             Throwable cause = ex.getCause();
             if (cause != null) {
                 objectCtx.setException(cause);
