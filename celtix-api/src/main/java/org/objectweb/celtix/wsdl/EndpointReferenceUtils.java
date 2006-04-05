@@ -55,9 +55,8 @@ public final class EndpointReferenceUtils {
 
     private static final QName WSDL_LOCATION = new QName("http://www.w3.org/2006/01/wsdl-instance",
                                                          "wsdlLocation");
-    
     private static final String WS_ADDRESSING_WSDL_PACKAGE = ServiceNameType.class.getPackage().getName();
-    
+
     private static JAXBContext jaxbContext;
 
     private static final Transformer XML_TRANSFORMER;
@@ -104,7 +103,6 @@ public final class EndpointReferenceUtils {
             } catch (JAXBException jbe) {
                 throw new WebServiceException("setting service name failed", jbe);
             }
-
             MetadataType mt = ref.getMetadata();
             if (null == mt) {
                 mt = new MetadataType();
@@ -138,7 +136,7 @@ public final class EndpointReferenceUtils {
                         String service = content;
                         if (content.contains(":")) {
                             namespaceURI = getNameSpaceUri(node, content, namespaceURI);
-                            service = getService(content);          
+                            service = getService(content);
                         }
                         
                         serviceName = new QName(namespaceURI, service);
@@ -161,7 +159,7 @@ public final class EndpointReferenceUtils {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
-                    if (node.getNamespaceURI().equals("http://www.w3.org/2005/08/addressing/wsdl") 
+                    if (node.getNamespaceURI().equals("http://www.w3.org/2005/08/addressing/wsdl")
                         && node.getNodeName().equals("ServiceName")) {
                         
                         portName = node.getAttributes().getNamedItem("EndpointName").getTextContent();
@@ -172,13 +170,10 @@ public final class EndpointReferenceUtils {
         return portName;
     }
     
-   
-    
     private static void setInterfaceName(EndpointReferenceType ref, String targetNameSpace, 
                                          String interfaceName) {
         if (null != interfaceName) {
             AttributedQNameType interfaceNameType = new AttributedQNameType();
-            
             
             interfaceNameType.setValue(new QName(targetNameSpace, interfaceName));
             
@@ -186,7 +181,7 @@ public final class EndpointReferenceUtils {
                 new org.objectweb.celtix.ws.addressing.wsdl.ObjectFactory();
             JAXBElement<AttributedQNameType> jaxbElement = 
                 objectFactory.createInterfaceName(interfaceNameType);
-            
+      
             DOMResult result = new DOMResult();
             Marshaller marshaller;
             try {
@@ -196,7 +191,6 @@ public final class EndpointReferenceUtils {
             } catch (JAXBException jbe) {
                 throw new WebServiceException("setting service name failed", jbe);
             }
-
             MetadataType mt = ref.getMetadata();
             if (null == mt) {
                 mt = new MetadataType();
@@ -206,11 +200,10 @@ public final class EndpointReferenceUtils {
             if (node.getNodeType() != Node.ELEMENT_NODE) {
                 node = result.getNode().getFirstChild();
             }
-            
             mt.getAny().add(node);
         }
     }
-    
+  
     protected static String getInterfaceName(EndpointReferenceType ref) {
         String interfaceName = null;
         MetadataType metadata = ref.getMetadata();
@@ -218,8 +211,8 @@ public final class EndpointReferenceUtils {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
-                    if (node.getNamespaceURI().equals("http://www.w3.org/2005/08/addressing/wsdl") 
-                        && node.getNodeName().equals("InterfaceName")) {                    
+                    if (node.getNamespaceURI().equals("http://www.w3.org/2005/08/addressing/wsdl")
+                        && node.getNodeName().equals("InterfaceName")) {
                         String content = node.getTextContent();
                         interfaceName = content.substring(content.indexOf(":") + 1, content.length());
                     }
@@ -295,7 +288,6 @@ public final class EndpointReferenceUtils {
                         ((Document)node).setDocumentURI(source.getSystemId());
                         node =  node.getFirstChild();
                     }
-
                     while (null != node 
                            && node.getNodeType() != Node.ELEMENT_NODE) {
                         node = node.getNextSibling();
@@ -317,7 +309,7 @@ public final class EndpointReferenceUtils {
      */
     public static Definition getWSDLDefinition(WSDLManager manager, EndpointReferenceType ref)
         throws WSDLException {
-        
+
         if (null == manager) {
             return null;
         }
@@ -349,7 +341,6 @@ public final class EndpointReferenceUtils {
             }
             return manager.getDefinition(sei);
         }
-
         return null;
     }
 
@@ -448,14 +439,14 @@ public final class EndpointReferenceUtils {
                 }
                 String endpoint = snt.getEndpointName();
                 if ("".equals(endpoint) && service.getPorts().size() == 1) {
-                    port = (Port)service.getPorts().values().iterator().next();   
+                    port = (Port)service.getPorts().values().iterator().next();
                 } else {
                     port = service.getPort(endpoint);
                 }
-                // FIXME this needs to be looked at service.getPort(endpoint) 
+                // FIXME this needs to be looked at service.getPort(endpoint)
                 //should not return null when endpoint is valid
                 if (port == null) {
-                    port = (Port)service.getPorts().values().iterator().next(); 
+                    port = (Port)service.getPorts().values().iterator().next();
                 }
                 return port;
             }
@@ -474,7 +465,7 @@ public final class EndpointReferenceUtils {
             if (service == null) {
                 throw new WSDLException(WSDLException.OTHER_ERROR, "Cannot find service for " + serviceName);
             }
-            if (service.getPorts().size() == 1) { 
+            if (service.getPorts().size() == 1) {
                 return (Port)service.getPorts().values().iterator().next();
             }
             String str = getPortName(ref);
@@ -513,7 +504,6 @@ public final class EndpointReferenceUtils {
         a.setValue(address);
         ref.setAddress(a);
     }
-
     /**
      * Create an endpoint reference for the provided wsdl, service and portname.
      * @param wsdlUrl - url of the wsdl that describes the service.
@@ -522,9 +512,8 @@ public final class EndpointReferenceUtils {
      * @return EndpointReferenceType - the endpoint reference
      */
     public static EndpointReferenceType getEndpointReference(URL wsdlUrl, 
-                                                             QName serviceName, 
+                                                             QName serviceName,
                                                              String portName) {
-
         EndpointReferenceType reference = new EndpointReferenceType();
         reference.setMetadata(new MetadataType());
         setServiceAndPortName(reference, serviceName, portName);
@@ -542,7 +531,6 @@ public final class EndpointReferenceUtils {
 
         EndpointReferenceType reference = new EndpointReferenceType();
         setAddress(reference, address);
-
         return reference;
     }
 
@@ -576,9 +564,11 @@ public final class EndpointReferenceUtils {
      * @param manager - the wsdl manager.
      * @param implementor - the service implementor.
      * @return EndpointReferenceType - the endpoint reference
+     * @throws WSDLException 
      */
-    public static EndpointReferenceType getEndpointReference(WSDLManager manager, Object implementor) {
-
+    public static EndpointReferenceType getEndpointReference(WSDLManager manager, 
+                                                                 Object implementor) {
+  
         WebService ws = getWebServiceAnnotation(implementor.getClass());
 
         WebServiceProvider wsp = null;
@@ -588,22 +578,14 @@ public final class EndpointReferenceUtils {
                 return null;
             }
         }
-        
         EndpointReferenceType reference = new EndpointReferenceType();
         reference.setMetadata(new MetadataType());
-
         String serviceName = (null != ws) ? ws.serviceName() : wsp.serviceName();
         String targetNamespace = (null != ws) ? ws.targetNamespace() : wsp.targetNamespace();
         String portName = (null != ws) ? ws.portName() : wsp.portName();
-
-        if (!"".equals(serviceName)) {
-            setServiceAndPortName(reference, new QName(targetNamespace, serviceName), 
-                                  portName);
-        }
-
         String url = (null != ws) ? ws.wsdlLocation() : wsp.wsdlLocation();
-        String className = (null != ws) ? ws.endpointInterface() : null;
-        
+        String className = (null != ws) ? ws.endpointInterface() : null; 
+     
         if (null == className || "".equals(className)) {
             Class<?> cls = implementor.getClass();
             while (cls != null && (null == className || "".equals(className))) {
@@ -625,17 +607,49 @@ public final class EndpointReferenceUtils {
                 className = implementor.getClass().getName();
             }
         }
+        
+        if ("".equals(serviceName) || "".equals(targetNamespace) || "".equals(portName)) {
+              
+            Class<?> clazz = null;
+            try {
+                clazz = Class.forName(className);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } 
+            ws = getWebServiceAnnotation(clazz);
+            
+            if ("".equals(serviceName) && null != ws) {
+                serviceName = ws.serviceName();
+            }
+            if ("".equals(targetNamespace) && null != ws) {
+                targetNamespace = ws.targetNamespace();
+            }
+            if ("".equals(portName) && null != ws) {
+                portName = ws.portName();
+            }
+            if ("".equals(url) && null != ws) {
+                url = ws.wsdlLocation();
+            }
+        }
+        
+        // set serviceName, portName and targetNamespace
+        if (!"".equals(serviceName)) {
+            setServiceAndPortName(reference, new QName(targetNamespace, serviceName), 
+                                  portName);
+        }
 
         if (null != url && url.length() > 0 && wsp != null) {
-            //REVISIT Resolve the url for all cases               
+            //REVISIT Resolve the url for all cases           
             URL wsdlUrl = implementor.getClass().getResource(url);
             if (wsdlUrl != null) {
                 url = wsdlUrl.toExternalForm();
             }
         }
+        // set wsdlLocation
         if (!"".equals(url)) {
-            setWSDLLocation(reference, url);  
+            setWSDLLocation(reference, url); 
         }
+        // set interfaceName
         setInterfaceName(reference, targetNamespace, className);
 
         if (LOG.isLoggable(Level.FINE)) {
@@ -646,7 +660,7 @@ public final class EndpointReferenceUtils {
         }
         return reference;
     }
-    
+
     private static JAXBContext getJAXBContext() throws JAXBException {
         synchronized (EndpointReferenceUtils.class) {
             if (jaxbContext == null) {
@@ -662,9 +676,8 @@ public final class EndpointReferenceUtils {
                                                                   content.indexOf(":")));
         }
         return namespaceURI;
-        
     }
-    
+
     private static String getService(String content) {
         return content.substring(content.indexOf(":") + 1, content.length());
     }

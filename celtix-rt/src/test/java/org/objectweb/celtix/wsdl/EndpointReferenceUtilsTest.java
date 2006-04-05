@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterNoOverloadImpl;
+import org.objectweb.hello_world_soap_http.AnotherDerivedGreeterImpl;
 import org.objectweb.hello_world_soap_http.DerivedGreeterImpl;
 
 public class EndpointReferenceUtilsTest extends TestCase {
@@ -49,7 +50,6 @@ public class EndpointReferenceUtilsTest extends TestCase {
         // of the test build.
         implementor = new DerivedGreeterImpl();
         ref = EndpointReferenceUtils.getEndpointReference(manager, implementor);
-        //EndpointReferenceUtils.getWSDLDefinition(manager, ref);   
         def = EndpointReferenceUtils.getWSDLDefinition(manager, ref);
         assertNotNull("Could not load wsdl", def);
 
@@ -61,6 +61,26 @@ public class EndpointReferenceUtilsTest extends TestCase {
 
         assertNotNull("Could not find port", port);
         bus.shutdown(true);
+    }
+    
+    public void testEndpointInterfaceAnnotation() throws Exception {
+        
+        Bus bus = Bus.init();
+        
+        Object implementor = new AnotherDerivedGreeterImpl();
+        
+        WSDLManager manager = bus.getWSDLManager();
+        EndpointReferenceType ref = EndpointReferenceUtils
+                .getEndpointReference(manager, implementor);
+        Definition def = EndpointReferenceUtils.getWSDLDefinition(manager, ref);
+        assertNotNull("Could not load wsdl", def);
+        
+        Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+
+        assertNotNull("Could not find port", port);
+        
+        bus.shutdown(true);
+        
     }
 
 }
