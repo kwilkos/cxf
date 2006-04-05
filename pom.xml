@@ -91,11 +91,7 @@
         <antrun.version>1.2-SNAPSHOT</antrun.version>
         <assembly.version>2.1-SNAPSHOT</assembly.version>
         <surefire.version>2.1.3</surefire.version>
-        <!--
-        <surefire.version>2.1.3-SNAPSHOT</surefire.version>
-        <compiler.version>2.0.1-SNAPSHOT</compiler.version>
-    -->
-        <compiler.version>2.0.1-SNAPSHOT</compiler.version>
+        <compiler.version>2.0.1</compiler.version>
         <site.version>2.0-beta-4</site.version>
         <pmd.version>2.0-alpha-3-SNAPSHOT</pmd.version>
         <checkstyle.version>2.0-beta-2-SNAPSHOT</checkstyle.version>
@@ -432,7 +428,7 @@
                 <antrun.version>1.1</antrun.version>
                 <assembly.version>2.0.1</assembly.version>
                 <surefire.version>2.1.3</surefire.version>
-                <compiler.version>2.0</compiler.version>
+                <compiler.version>2.0.1</compiler.version>
                 <site.version>2.0-beta-4</site.version>
                 <compiler.version>2.0</compiler.version>
                 <javadoc.version>2.0-beta-3</javadoc.version>
