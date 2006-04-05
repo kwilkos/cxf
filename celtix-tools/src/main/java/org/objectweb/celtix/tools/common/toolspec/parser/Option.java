@@ -73,13 +73,11 @@ public class Option implements TokenConsumer {
         for (int i = 0; i < switches.getLength(); i++) {
 
             String switchArg = "-" + switches.item(i).getFirstChild().getNodeValue();
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("switchArg is " + switchArg);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("switchArg is " + switchArg);
             }
             if (hasImmediateArgument() ? arg.startsWith(switchArg) : arg.equals(switchArg)) {
-                if (LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Matches a switch!!!");
-                }
+                LOG.fine("Matches a switch!!!");
                 // consume the token
                 args.read();
                 // Add ourselves to the result document
@@ -97,8 +95,8 @@ public class Option implements TokenConsumer {
                         argValue = readArgumentValue(args, switchArg, errors);
                     }
                     if (argValue != null) {
-                        if (LOG.isLoggable(Level.INFO)) {
-                            LOG.info("Setting argument value of option to " + argValue);
+                        if (LOG.isLoggable(Level.FINE)) {
+                            LOG.fine("Setting argument value of option to " + argValue);
                         }
                         optionEl.appendChild(result.getOwnerDocument().createTextNode(argValue));
 
@@ -203,8 +201,8 @@ public class Option implements TokenConsumer {
         if (errors.getErrors().size() > 0) {
             return false;
         }
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("For this option, minOccurs=" + element.getAttribute("minOccurs") + " and maxOccurs="
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("For this option, minOccurs=" + element.getAttribute("minOccurs") + " and maxOccurs="
                      + element.getAttribute("maxOccurs") + ", numMatches currently " + numMatches);
         }
         boolean result = true;
@@ -217,8 +215,8 @@ public class Option implements TokenConsumer {
             errors.add(new ErrorVisitor.DuplicateOption(getName()));
             result = false;
         }
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("isSatisfied() returning " + result);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("isSatisfied() returning " + result);
         }
         return result;
     }

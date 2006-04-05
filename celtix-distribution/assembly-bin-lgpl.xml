@@ -117,45 +117,7 @@
             <outputDirectory>celtix/lib</outputDirectory>
             <unpack>false</unpack>
             <scope>runtime</scope>
-			<excludes>
-				<exclude>cglib:cglib-nodep</exclude>
-				<exclude>commons-jelly:commons-jelly-tags-velocity</exclude>
-				<exclude>geronimo:geronimo-common</exclude>
-				<exclude>geronimo:geronimo-core</exclude>
-				<exclude>geronimo:geronimo-deploy-config</exclude>
-				<exclude>geronimo:geronimo-deployment</exclude>
-				<exclude>geronimo:geronimo-j2ee-builder</exclude>
-				<exclude>geronimo:geronimo-j2ee-schema</exclude>
-				<exclude>geronimo:geronimo-j2ee</exclude>
-				<exclude>geronimo:geronimo-kernel</exclude>
-				<exclude>geronimo:geronimo-management</exclude>
-				<exclude>geronimo:geronimo-naming-builder</exclude>
-				<exclude>geronimo:geronimo-naming</exclude>
-				<exclude>geronimo:geronimo-security-builder</exclude>
-				<exclude>geronimo:geronimo-security</exclude>
-				<exclude>geronimo:geronimo-service-builder</exclude>
-				<exclude>geronimo:geronimo-system</exclude>
-				<exclude>geronimo:geronimo-util</exclude>
-				<exclude>geronimo:geronimo-webservices</exclude>
-				<exclude>log4j:log4j</exclude>
-				<exclude>org.apache.geronimo.specs:geronimo-activation_1.0.2_spec</exclude>
-				<exclude>org.apache.geronimo.specs:geronimo-ejb_2.1_spec</exclude>
-				<exclude>org.apache.geronimo.specs:geronimo-j2ee-deployment_1.1_spec</exclude>
-				<exclude>org.apache.geronimo.specs:geronimo-j2ee-jacc_1.0_spec</exclude>
-				<exclude>org.apache.geronimo.specs:geronimo-j2ee-management_1.0_spec</exclude>
-				<exclude>org.apache.geronimo.specs:geronimo-jaxrpc_1.1_spec</exclude>
-				<exclude>org.apache.geronimo.specs:geronimo-jaxr_1.0_spec</exclude>
-				<exclude>org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec</exclude>
-				<exclude>org.apache.geronimo.specs:geronimo-qname_1.1_spec</exclude>
-				<exclude>org.apache.geronimo.specs:geronimo-saaj_1.1_spec</exclude>
-				<exclude>org.apache.geronimo.specs:geronimo-servlet_2.4_spec</exclude>
-				<exclude>scout:scout</exclude>
-				<exclude>velocity:velocity</exclude>
-				<exclude>xbean:xbean</exclude>
-				<exclude>xfire:xfire-java</exclude>
-				<exclude>xfire:xfire</exclude>
-				<exclude>xmlbeans:xbean</exclude>
-			</excludes>
+
         </dependencySet>
     </dependencySets>
 
