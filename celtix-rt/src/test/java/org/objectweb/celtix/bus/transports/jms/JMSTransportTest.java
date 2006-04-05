@@ -41,7 +41,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class JMSTransportTest extends TestCase {
 
-    public static final String JMSTRANSPORT_SKIP_RESPONSE = "JMSTransport.skipResponse";
+    public static final String JMSTRANSPORT_SKIP_RESPONSE = "JMSTransport.skipResponse"; 
     private ServerTransportCallback callback;
     private ServerTransportCallback callback1;
     private Bus bus;
@@ -263,7 +263,7 @@ public class JMSTransportTest extends TestCase {
         requestHeader.setTimeToLive(100L);
         List<JMSPropertyType> props = requestHeader.getProperty();
         JMSPropertyType skipResponseProperty = new JMSPropertyType();
-        skipResponseProperty.setName("JMSTransportTest.skipResponse");
+        skipResponseProperty.setName(JMSTRANSPORT_SKIP_RESPONSE);
         skipResponseProperty.setValue("true");
         props.add(skipResponseProperty);
         octx.put(JMSConstants.JMS_CLIENT_REQUEST_HEADERS, requestHeader);
