@@ -381,42 +381,38 @@ public class XMLBindingImpl extends AbstractBindingImpl {
                           ObjectMessageContext objCtx,
                           boolean isOutBound,
                           DataBindingCallback callback) {
-        try {
-            DataWriter<Node> writer = callback.createWriter(Node.class);
-            if (writer == null) {
-                throw new XMLBindingException("Could not figure out how to marshal data");
-            }
+        DataWriter<Node> writer = callback.createWriter(Node.class);
+        if (writer == null) {
+            throw new XMLBindingException("Could not figure out how to marshal data");
+        }
 
-            if (callback.getSOAPStyle() == Style.DOCUMENT
-                && callback.getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
-                writer.writeWrapper(objCtx, isOutBound, xmlNode);
-                return;
-            }
+        if (callback.getSOAPStyle() == Style.DOCUMENT
+            && callback.getSOAPParameterStyle() == ParameterStyle.WRAPPED) {
+            writer.writeWrapper(objCtx, isOutBound, xmlNode);
+            return;
+        }
 
-            // Add the Return Type
-            if (isOutBound && callback.getWebResult() != null) {
-                writer.write(objCtx.getReturn(), callback.getWebResultQName(), xmlNode);
-            }
-            // Add the in,inout,out args depend on the inputMode
-            WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
-            int noArgs = callback.getParamsLength();
-            Object[] args = objCtx.getMessageObjects();
-            for (int idx = 0; idx < noArgs; idx++) {
-                WebParam param = callback.getWebParam(idx);
-                if (param.mode() != ignoreParamMode) {
-                    Object partValue = args[idx];
-                    if (param.mode() != WebParam.Mode.IN) {
-                        partValue = ((Holder)args[idx]).value;
-                    }
-                
-                    QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) 
-                        ? new QName(param.targetNamespace(), param.name()) 
-                        : new QName("", param.partName());
-                    writer.write(partValue, elName, xmlNode);
+        // Add the Return Type
+        if (isOutBound && callback.getWebResult() != null) {
+            writer.write(objCtx.getReturn(), callback.getWebResultQName(), xmlNode);
+        }
+        // Add the in,inout,out args depend on the inputMode
+        WebParam.Mode ignoreParamMode = isOutBound ? WebParam.Mode.IN : WebParam.Mode.OUT;
+        int noArgs = callback.getParamsLength();
+        Object[] args = objCtx.getMessageObjects();
+        for (int idx = 0; idx < noArgs; idx++) {
+            WebParam param = callback.getWebParam(idx);
+            if (param.mode() != ignoreParamMode) {
+                Object partValue = args[idx];
+                if (param.mode() != WebParam.Mode.IN) {
+                    partValue = ((Holder)args[idx]).value;
                 }
+            
+                QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) 
+                    ? new QName(param.targetNamespace(), param.name()) 
+                    : new QName("", param.partName());
+                writer.write(partValue, elName, xmlNode);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

@@ -141,7 +141,7 @@ public class JMSClientServerTest extends ClientServerTestBase {
             
             if (handler instanceof BindingProvider) {
                 bp = (BindingProvider) handler;
-                System.out.println(bp.toString());
+                //System.out.println(bp.toString());
                 Map<String, Object> requestContext = bp.getRequestContext();
                 JMSMessageHeadersType requestHeader = new JMSMessageHeadersType();
                 requestHeader.setJMSCorrelationID("JMS_SAMPLE_CORRELATION_ID");
