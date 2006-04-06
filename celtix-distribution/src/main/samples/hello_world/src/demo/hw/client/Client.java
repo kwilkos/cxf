@@ -3,6 +3,7 @@ package demo.hw.client;
 import java.io.File;
 import java.net.URL;
 import javax.xml.namespace.QName;
+import javax.xml.ws.ProtocolException;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.PingMeFault;
 import org.objectweb.hello_world_soap_http.SOAPService;
@@ -44,6 +45,16 @@ public final class Client {
         System.out.println("Invoking greetMe...");
         resp = port.greetMe(System.getProperty("user.name"));
         System.out.println("Server responded with: " + resp);
+        System.out.println();
+
+        System.out.println("Invoking greetMe with invalid length string, expecting exception...");
+        try {
+            resp = port.greetMe("Invoking greetMe with invalid length string, expecting exception...");
+        } catch (ProtocolException e) {
+            System.out.println("Expected exception: ProtocolException has occurred.");
+            System.out.println(e.toString());
+        }
+
         System.out.println();
 
         System.out.println("Invoking greetMeOneWay...");

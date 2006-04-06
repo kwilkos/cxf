@@ -9,7 +9,14 @@
     <wsdl:types>
         <schema targetNamespace="http://objectweb.org/hello_world_soap_http/types" 
             xmlns="http://www.w3.org/2001/XMLSchema"
+	    xmlns:tns="http://objectweb.org/hello_world_soap_http/types"
             elementFormDefault="qualified">
+	    <simpleType name="MyStringType">
+		<restriction base="string">
+		    <maxLength value="30" />
+		</restriction>
+	    </simpleType>
+
             <element name="sayHi">
                 <complexType/>
             </element>
@@ -23,7 +30,7 @@
             <element name="greetMe">
                 <complexType>
                     <sequence>
-                        <element name="requestType" type="string"/>
+                        <element name="requestType" type="tns:MyStringType"/>
                     </sequence>
                 </complexType>
             </element>
