@@ -339,7 +339,12 @@ public final class EndpointReferenceUtils {
                 LOG.log(Level.SEVERE, "SEI_LOAD_FAILURE_MSG", ex);
                 return null;
             }
-            return manager.getDefinition(sei);
+            Definition def = manager.getDefinition(sei);
+            if (def == null && sei.getInterfaces().length > 0){
+                sei = sei.getInterfaces()[0];
+                def = manager.getDefinition(sei);
+            }
+            return def;
         }
         return null;
     }

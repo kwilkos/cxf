@@ -17,7 +17,7 @@ import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
 
 
 @javax.jws.WebService(endpointInterface = "org.objectweb.hello_world_soap_http.GreeterEndpointInterface")
-public class AnotherDerivedGreeterImpl implements GreeterEndpointInterface, Greeter {
+public class AnotherDerivedGreeterImpl implements GreeterEndpointInterface {
 
     private static final Logger LOG =
         Logger.getLogger(DerivedGreeterImpl.class.getName());
