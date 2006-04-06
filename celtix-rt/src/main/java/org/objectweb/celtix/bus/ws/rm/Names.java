@@ -35,26 +35,35 @@ public final class Names {
     public static final String WSRM_CREATE_SEQUENCE_RESPONSE_ACTION =
         WSRM_NAMESPACE_NAME + "/CreateSequenceResponse";
     
-    public static final String WSRM_CREATE_SEQUENCE_OPERATION_NAME =
-        "CreateSequence";
-    
     public static final String WSRM_TERMINATE_SEQUENCE_ACTION =
         WSRM_NAMESPACE_NAME + "/TerminateSequence";
     
-    public static final String WSRM_TERMINATE_SEQUENCE_RESPONSE_ACTION =
-        CELTIX_WSRM_NAMESPACE_NAME + "/TerminateSequenceResponse";
+    public static final String WSRM_LAST_MESSAGE_ACTION =
+        WSRM_NAMESPACE_NAME + "/LastMessage";
     
-    public static final String WSRM_TERMINATE_SEQUENCE_OPERATION_NAME =
-        "TerminateSequence";
+    public static final String WSRM_SEQUENCE_ACKNOWLEDGMENT_ACTION =
+        WSRM_NAMESPACE_NAME + "/SequenceAcknowledgement";
     
     public static final String WSRM_SEQUENCE_INFO_ACTION =
         CELTIX_WSRM_NAMESPACE_NAME + "/SequenceInfo";
     
-    public static final String WSRM_SEQUENCE_INFO_RESPONSE_ACTION =
-        CELTIX_WSRM_NAMESPACE_NAME + "/SequenceInfoResponse";
+    public static final String WSRM_UNKNOWN_SEQUENCE_FAULT_CODE =
+        "UnknownSequence";
     
-    public static final String WSRM_SEQUENCE_INFO_OPERATION_NAME =
-        "SequenceInfo";
+    public static final String WSRM_SEQUENCE_TERMINATED_FAULT_CODE =
+        "SequenceTerminated";
+    
+    public static final String WSRM_INVALID_ACKNOWLEDGMENT_FAULT_CODE =
+        "InvalidAcknowledgement";
+    
+    public static final String WSRM_MESSAGE_NUMBER_ROLLOVER_FAULT_CODE =
+        "MessageNumberRollover";
+    
+    public static final String WSRM_CREATE_SEQUENCE_REFUSED_FAULT_CODE =
+        "CreateSequenceRefused";
+    
+    public static final String WSRM_LAST_MESSAGE_NUMBER_EXCEEDED_FAULT_CODE =
+        "LastMessageNumberExceeded";
     
     public static final String WSRM_SEQUENCE_NAME =
         "Sequence";

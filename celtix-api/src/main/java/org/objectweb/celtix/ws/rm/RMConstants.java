@@ -1,5 +1,7 @@
 package org.objectweb.celtix.ws.rm;
 
+import javax.xml.namespace.QName;
+
 
 public interface RMConstants {
     /**
@@ -25,19 +27,20 @@ public interface RMConstants {
     String getCreateSequenceResponseAction();
     
     /**
-     * @return CreateSequence operation name
-     */
-    String getCreateSequenceOperationName();
-    
-    /**
      * @return TerminateSequence Action
      */
     String getTerminateSequenceAction();
     
     /**
-     * @return TerminateSequence operation name
+     * @return LastMessage Action
      */
-    String getTerminateSequenceOperationName();
+    String getLastMessageAction();
+    
+    /**
+     * @return SequenceAcknowledgment Action
+     */
+    String getSequenceAcknowledgmentAction();
+    
     
     /**
      * @return SequenceInfo Action
@@ -45,9 +48,34 @@ public interface RMConstants {
     String getSequenceInfoAction();
     
     /**
-     * @return SequenceInfo operation name
+     * @return UnknownSequence fault code
      */
-    /*
-    String getSequenceInfoOperationName();  
-    */
+    QName getUnknownSequenceFaultCode();
+        
+    /**
+     * @return SequenceTerminated fault code
+     */
+    QName getSequenceTerminatedFaultCode();
+        
+    /**
+     * @return InvalidAcknowledgemt fault code
+     */
+    QName getInvalidAcknowledgmentFaultCode();
+    
+    /**
+     * @return CreateSequenceRefused fault code
+     */
+    QName getCreateSequenceRefusedFaultCode();
+    
+    /**
+     * @return MessageNumberRollover fault code
+     */
+    QName getMessageNumberRolloverFaultCode();
+    
+    
+    /**
+     * @return LastMessageNumberExceeded fault code
+     */
+    QName getLastMessageNumberExceededFaultCode();
+  
 }

@@ -10,6 +10,8 @@ import javax.xml.ws.ProtocolException;
 import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
@@ -65,9 +67,43 @@ public class RMProxy {
         invokeOneWay(request.getObjectMessageContext(), TerminateSequenceRequest.createDataBindingCallback());
     }
     
-    public void requestAcknowledgement(Collection<Sequence> seqs) throws IOException {
+    /** 
+     * Send a standalone message requesting acknowledgments for the
+     * given sequences.
+     * 
+     * @param seqs the sequences for which acknowledgments are requested.
+     * @throws IOException
+     */
+    public void requestAcknowledgment(Collection<Sequence> seqs) throws IOException {
         SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding()); 
         request.requestAcknowledgement(seqs);
+        invokeOneWay(request.getObjectMessageContext(), null);
+    }
+    
+    /** 
+     * Send a standalone LastMessage message for the given sequence.
+     * 
+     * @param seq the sequence for which the last message is to be sent.
+     * @throws IOException
+     */
+    
+    public void lastMessage(Sequence seq) throws IOException {
+        LOG.fine("sending standalone last message");
+        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding()); 
+        request.lastMessage(seq);
+        invokeOneWay(request.getObjectMessageContext(), null);
+    }
+    
+    /** 
+     * Send a standalone SequenceAcknowledgement message for the given sequence.
+     * 
+     * @param seq the sequence for which an acknowledgment is to be sent.
+     * @throws IOException
+     */
+    public void acknowledge(Sequence seq) throws IOException {
+        LOG.fine("sending standalone sequence acknowledgment");
+        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding()); 
+        request.acknowledge(seq);
         invokeOneWay(request.getObjectMessageContext(), null);
     }
     
@@ -85,7 +121,9 @@ public class RMProxy {
         } else {
             // wait for changes on the transport decoupling -
             // server transport should allow to send this out of band request
-            LOG.severe("Not implemented yet.");
+            Message msg = new Message("SERVER_SIDE_OUT_OF_BAND_NOT_IMPLEMENTED_MSG", LOG,
+                ContextUtils.retrieveMAPs(requestCtx, true, true).getAction().getValue());
+            LOG.severe(msg.toString());
         } 
         return responseCtx;
     }
@@ -98,7 +136,9 @@ public class RMProxy {
         } else {
             // wait for changes on the transport decoupling -
             // server transport should allow to send this out of band request
-            LOG.severe("Not implemented yet.");
+            Message msg = new Message("SERVER_SIDE_OUT_OF_BAND_NOT_IMPLEMENTED_MSG", LOG,
+                ContextUtils.retrieveMAPs(requestCtx, true, true).getAction().getValue());
+            LOG.severe(msg.toString());
         }
     }
     

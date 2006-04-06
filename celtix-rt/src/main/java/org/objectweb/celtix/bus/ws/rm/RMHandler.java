@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Timer;
 import java.util.logging.Level;
@@ -30,6 +31,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.SystemHandler;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
@@ -82,10 +84,15 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
         open(context);
 
-        if (ContextUtils.isOutbound(context)) {
-            handleOutbound(context);
-        } else {
-            handleInbound(context);
+        try {
+            if (ContextUtils.isOutbound(context)) {
+                handleOutbound(context);
+            } else {
+                handleInbound(context);
+            }
+        } catch (SequenceFault sf) {
+            sf.printStackTrace();
+            LOG.log(Level.SEVERE, "SequenceFault", sf);
         }
         return true;
     }
@@ -216,7 +223,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
     }
 
-    protected void handleOutbound(LogicalMessageContext context) {
+    protected void handleOutbound(LogicalMessageContext context) throws SequenceFault {
         LOG.entering(getClass().getName(), "handleOutbound");
         AddressingPropertiesImpl maps =
             ContextUtils.retrieveMAPs(context, false, true);
@@ -241,20 +248,29 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)
             || RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)
             || RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)
+            || RMUtils.getRMConstants().getLastMessageAction().equals(action)
+            || RMUtils.getRMConstants().getSequenceAcknowledgmentAction().equals(action)
             || RMUtils.getRMConstants().getSequenceInfoAction().equals(action)) {
             isApplicationMessage = false;
         }
-
+        
+        RMPropertiesImpl rmpsOut = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(context, true);
+        if (null == rmpsOut) {
+            rmpsOut = new RMPropertiesImpl();
+            RMContextUtils.storeRMProperties(context, rmpsOut, true);
+        }
+        
+        RMPropertiesImpl rmpsIn = null;
+        Identifier inSeqId = null;
+        BigInteger inMessageNumber = null;
+        
         if (isApplicationMessage) {
-            RMPropertiesImpl rmpsOut = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(context, true);
-            if (null == rmpsOut) {
-                rmpsOut = new RMPropertiesImpl();
-                RMContextUtils.storeRMProperties(context, rmpsOut, true);
-            }
-            RMPropertiesImpl rmpsIn = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(context, false);
-            Identifier inSeqId = null;
+                        
+            rmpsIn = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(context, false);
+            
             if (null != rmpsIn && null != rmpsIn.getSequence()) {
                 inSeqId = rmpsIn.getSequence().getIdentifier();
+                inMessageNumber = rmpsIn.getSequence().getMessageNumber();
             }
             LOG.fine("inbound sequence: " + (null == inSeqId ? "null" : inSeqId.getValue()));
 
@@ -274,7 +290,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
                 // increase message number and store a sequence type object in
                 // context
 
-                seq.nextMessageNumber();
+                seq.nextMessageNumber(inSeqId, inMessageNumber);
                 rmpsOut.setSequence(seq);
 
                 // if this was the last message in the sequence, reset the
@@ -292,14 +308,16 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
                 getSource().addUnacknowledged(MessageContextWrapper.unwrap(context));
 
             }
+        }
+        
+        // add Acknowledgements (to application messages or explicitly 
+        // created Acknowledgement messages only)
 
-            // add Acknowledgements
-
-            if (null != getDestination()) {
-                AttributedURI to = VersionTransformer.convert(maps.getTo());
-                assert null != to;
-                addAcknowledgements(rmpsOut, inSeqId, to);
-            }
+        if (isApplicationMessage 
+            || RMUtils.getRMConstants().getSequenceAcknowledgmentAction().equals(action)) {
+            AttributedURI to = VersionTransformer.convert(maps.getTo());
+            assert null != to;
+            addAcknowledgements(rmpsOut, inSeqId, to);
         }
 
         // indicate to the binding that a response is expected from the transport although
@@ -310,7 +328,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
     }
 
-    protected void handleInbound(LogicalMessageContext context) {
+    protected void handleInbound(LogicalMessageContext context) throws SequenceFault {
 
         LOG.entering(getClass().getName(), "handleInbound");
         RMProperties rmps = RMContextUtils.retrieveRMProperties(context, false);
@@ -337,14 +355,9 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             AttributedURI to = VersionTransformer.convert(maps.getTo());
             ContextUtils.retrieveTo(context);
 
-            try {
-                CreateSequenceResponseType csr = getServant().createSequence(getDestination(), cs, to);
-                context.put(ObjectMessageContext.METHOD_RETURN, csr);
-            } catch (SequenceFault ex) {
-                // ignore for now
-                ex.printStackTrace();
-            }
-
+            CreateSequenceResponseType csr = getServant().createSequence(getDestination(), cs, to);
+            context.put(ObjectMessageContext.METHOD_RETURN, csr);
+           
             maps = ContextUtils.retrieveMAPs(context, true, true);
             if (null == maps) {
                 LOG.fine("No outbound addressing properties stored in provider context, create new ones.");
@@ -363,24 +376,18 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             Object[] parameters = (Object[])context.get(ObjectMessageContext.METHOD_PARAMETERS);
             TerminateSequenceType cs = (TerminateSequenceType)parameters[0];
 
-            try {
-                getServant().terminateSequence(getDestination(), cs.getIdentifier());
-            } catch (SequenceFault ex) {
-                // ignore for now
-            }
+            getServant().terminateSequence(getDestination(), cs.getIdentifier());
         }
-
+        
         // for application AND out of band messages
 
-        if (null != rmps) {
+        if (null != rmps) {            
+            
             processAcknowledgments(rmps);
 
-            processAcknowledgmentRequests(rmps);
-
-            // only for application messages
-            if (null != action) {
-                processSequence(rmps);
-            }
+            processAcknowledgmentRequests(rmps);  
+            
+            processSequence(rmps, maps);
         }
     }
 
@@ -393,11 +400,13 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
     }
 
-    private void processSequence(RMProperties rmps) {
+    private void processSequence(RMProperties rmps, AddressingProperties maps) throws SequenceFault {
         SequenceType s = rmps.getSequence();
-        if (null != s) {
-            getDestination().acknowledge(s);
-        }
+        if (null == s) {
+            return;
+        }   
+        getDestination().acknowledge(s, 
+            null == maps.getReplyTo() ? null : maps.getReplyTo().getAddress().getValue());
     }
 
     private void processAcknowledgmentRequests(RMProperties rmps) {
@@ -436,7 +445,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         if (LOG.isLoggable(Level.FINE)) {
             Collection<SequenceAcknowledgement> acks = rmpsOut.getAcks();
             if (null == acks) {
-                LOG.fine("No acknowledgements added.");
+                LOG.fine("No acknowledgements added");
             } else {
                 LOG.fine("Added " + acks.size() + " acknowledgements.");
             }
@@ -445,7 +454,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     
     private Sequence getSequence(Identifier inSeqId, 
                                  LogicalMessageContext context, 
-                                 AddressingPropertiesImpl maps) {
+                                 AddressingPropertiesImpl maps) throws SequenceFault {
         Sequence seq = getSource().getCurrent(inSeqId);
 
         if (null == seq) {
@@ -467,8 +476,6 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
                 getProxy().createSequence(getSource(), acksTo, inSeqId);
             } catch (IOException ex) {
-                ex.printStackTrace();
-            } catch (SequenceFault ex) {
                 ex.printStackTrace();
             }
 

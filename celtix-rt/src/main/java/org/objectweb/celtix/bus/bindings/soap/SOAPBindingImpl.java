@@ -233,7 +233,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                     soapEl = NodeUtils.getChildElementNode(soapEl);
                 }
 
-                getParts(soapEl, callback, objContext, isOutputMsg);
+                if (soapEl.hasChildNodes()) {
+                    getParts(soapEl, callback, objContext, isOutputMsg);
+                } else {
+                    LOG.fine("Body of SOAP message is empty.");
+                }
 
                 getHeaderParts(soapMessage.getSOAPHeader(), callback, objContext, isOutputMsg);
             } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {

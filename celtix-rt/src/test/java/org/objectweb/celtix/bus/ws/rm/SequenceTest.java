@@ -10,6 +10,7 @@ import javax.xml.datatype.Duration;
 
 import junit.framework.TestCase;
 
+import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.bus.configuration.wsrm.AcksPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
@@ -23,6 +24,7 @@ import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType.AcknowledgementInterval;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType.BaseRetransmissionInterval;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType.ExponentialBackoff;
+import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
@@ -152,13 +154,13 @@ public class SequenceTest extends TestCase {
         assertEquals(0, seq.getAcknowledged().getAcknowledgementRange().size());       
     } 
     
-    public void testAcknowledgeBasic() {
+    public void testAcknowledgeBasic() throws SequenceFault {
         destination.getHandler();
-        expectLastCall().andReturn(handler).times(3);
+        expectLastCall().andReturn(handler).times(2);
         destination.getRMAssertion();
-        expectLastCall().andReturn(rma).times(3);
+        expectLastCall().andReturn(rma).times(2);
         destination.getAcksPolicy();
-        expectLastCall().andReturn(ap).times(3);
+        expectLastCall().andReturn(ap).times(2);
         replay(destination);
         replay(handler);
         
@@ -183,7 +185,32 @@ public class SequenceTest extends TestCase {
         assertEquals(0, seq.getAcknowledged().getAcknowledgementRange().size());
     }
     
-    public void testAcknowledgeAppendRange() {
+    public void testAcknowledgeLastMessageNumberExceeded() throws SequenceFault {  
+        
+        Sequence seq = new Sequence(id, destination, ref);
+        
+        RMAssertionType ra = EasyMock.createMock(RMAssertionType.class);
+
+        destination.getRMAssertion();
+        expectLastCall().andReturn(ra);
+        rma.getAcknowledgementInterval();
+        expectLastCall().andReturn(null);
+        destination.getAcksPolicy();
+        expectLastCall().andReturn(null);
+        
+        replay(destination);
+        
+        seq.acknowledge(BigInteger.ONE);
+        seq.setLastMessageNumber(BigInteger.ONE);
+        try {
+            seq.acknowledge(new BigInteger("2"));
+            fail("Expected SequenceFault not thrown.");
+        } catch (SequenceFault sf) {
+            assertEquals("LastMessageNumberExceeded", sf.getFaultInfo().getFaultCode().getLocalPart());
+        }
+    }
+    
+    public void testAcknowledgeAppendRange() throws SequenceFault {
    
         destination.getHandler();
         expectLastCall().andReturn(handler).times(5);
@@ -210,7 +237,7 @@ public class SequenceTest extends TestCase {
         assertEquals(6, r.getUpper().intValue());  
     }
     
-    public void testAcknowledgeInsertRange() {
+    public void testAcknowledgeInsertRange() throws SequenceFault {
         destination.getHandler();
         expectLastCall().andReturn(handler).times(7);
         destination.getRMAssertion();
@@ -242,7 +269,7 @@ public class SequenceTest extends TestCase {
         assertEquals(10, r.getUpper().intValue());  
     }
     
-    public void testAcknowledgePrependRange() { 
+    public void testAcknowledgePrependRange() throws SequenceFault { 
         destination.getHandler();
         expectLastCall().andReturn(handler).times(6);
         destination.getRMAssertion();
@@ -269,7 +296,7 @@ public class SequenceTest extends TestCase {
         assertEquals(6, r.getUpper().intValue());      
     }
     
-    public void testAllAcknowledged() {
+    public void testAllAcknowledged() throws SequenceFault {
         destination.getHandler();
         expectLastCall().andReturn(handler).times(11);
         destination.getRMAssertion();
@@ -355,7 +382,7 @@ public class SequenceTest extends TestCase {
         // termination policy max unacknowledged 
     }
     
-    public void testMonitor() {
+    public void testMonitor() throws SequenceFault {
         Timer t = new Timer();
         destination.getHandler();
         expectLastCall().andReturn(handler).times(15);
@@ -404,7 +431,7 @@ public class SequenceTest extends TestCase {
         assertTrue(mpm1 > mpm2);
     }
     
-    public void testAcknowledgeImmediate() {
+    public void testAcknowledgeImmediate() throws SequenceFault {
         destination.getHandler();
         expectLastCall().andReturn(handler).times(1);
         destination.getRMAssertion();
@@ -424,7 +451,7 @@ public class SequenceTest extends TestCase {
         assertFalse(seq.sendAcknowledgement());
     }
     
-    public void testAcknowledgeDeferred() {
+    public void testAcknowledgeDeferred() throws SequenceFault {
         ap.setIntraMessageThreshold(0);
         AcknowledgementInterval ai = 
             RMUtils.getWSRMPolicyFactory().createRMAssertionTypeAcknowledgementInterval();

@@ -22,6 +22,7 @@ import org.objectweb.celtix.ws.rm.wsdl.SequenceAbstractPortType;
 public class CreateSequenceRequest extends Request {
     
     private static final String METHOD_NAME = "createSequence";    
+    private static final String OPERATION_NAME = "CreateSequence";
     
     public CreateSequenceRequest(AbstractBindingBase b, RMSource source, 
                                  EndpointReferenceType defaultAcksTo) {
@@ -50,6 +51,10 @@ public class CreateSequenceRequest extends Request {
             ex.printStackTrace();
         }
         return method;
+    }
+    
+    public static String getOperationName() {
+        return OPERATION_NAME;
     }
     
     public static DataBindingCallback createDataBindingCallback() {

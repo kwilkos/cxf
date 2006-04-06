@@ -14,7 +14,9 @@ import org.objectweb.celtix.ws.rm.TerminateSequenceType;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceAbstractPortType;
 
 public class TerminateSequenceRequest extends Request {
+    
     private static final String METHOD_NAME = "terminateSequence";
+    private static final String OPERATION_NAME = "TerminateSequence";
     
     public TerminateSequenceRequest(AbstractBindingBase b, Sequence seq) {
         
@@ -41,6 +43,10 @@ public class TerminateSequenceRequest extends Request {
             ex.printStackTrace();
         }
         return method;
+    }
+    
+    public static String getOperationName() {
+        return OPERATION_NAME;
     }
     
     public static DataBindingCallback createDataBindingCallback() {

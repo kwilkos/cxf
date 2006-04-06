@@ -1,5 +1,7 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.datatype.Duration;
@@ -79,8 +81,52 @@ public class RMServant {
         return csr;
     }
     
+
+    /**
+     * Checks if the terminated sequence was created in response to a createSequence
+     * request that included an offer for an inbound sequence which was accepted.
+     * In other words, check if there this handlers RM source manages a sequence for which
+     * the offering identifier is equal to the identifier of the sequence now terminated,
+     * and request termination of that sequence in turn.
+     * 
+     * @param destination
+     * @param sid
+     * @throws SequenceFault
+     */
     public void terminateSequence(RMDestination destination, Identifier sid) 
         throws SequenceFault {
+        // check if the terminated sequence was created in response to a a createSequence
+        // request
+        
+        Sequence terminatedSeq = destination.getSequence(sid);
+        if (null == terminatedSeq) {
+            LOG.severe("No such sequence.");
+            return;
+        } 
+
+        destination.removeSequence(terminatedSeq);
+        
+        // the following may be necessary if the last message for this sequence was a oneway
+        // request and hence there was no response to which a last message could have been added
+        
+        for (Sequence outboundSeq : destination.getHandler().getSource().getAllSequences()) {
+            if (outboundSeq.offeredBy(sid) && null == outboundSeq.getLastMessageNumber()) {
+                
+                // send an out of band message with an empty body and a 
+                // sequence header containing a lastMessage element.
+               
+                RMProxy proxy = destination.getHandler().getProxy();
+                try {
+                    proxy.lastMessage(outboundSeq);
+                } catch (IOException ex) {
+                    LOG.log(Level.SEVERE, "Could not terminate correlated sequence.", ex);
+                }
+                
+                
+                break;
+            }
+        }
+        
         
     }
 }

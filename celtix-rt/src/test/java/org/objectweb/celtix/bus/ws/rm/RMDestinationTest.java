@@ -10,6 +10,7 @@ import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceType;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
+import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
@@ -24,7 +25,7 @@ public class RMDestinationTest extends TestCase {
 
     public void setUp() {
         handler = createMock(RMHandler.class);
-        address = createMock(EndpointReferenceType.class);
+        address = createMock(EndpointReferenceType.class);        
     }   
 
     public void testAddSequence() {
@@ -66,7 +67,7 @@ public class RMDestinationTest extends TestCase {
         verify(c);        
     }
 
-    public void testAcknowledge() {
+    public void testAcknowledge() throws SequenceFault {
         RMDestination d = new RMDestination(handler);
         Identifier sid = d.generateSequenceIdentifier();
         Sequence seq = new Sequence(sid, d, address);
@@ -89,12 +90,17 @@ public class RMDestinationTest extends TestCase {
         st.setIdentifier(sid);
         BigInteger m = new BigInteger("3");
         st.setMessageNumber(m);
-        d.acknowledge(st);
+        d.acknowledge(st, RMUtils.getAddressingConstants().getNoneURI());
         assertTrue(seq.isAcknowledged(m));
         
-        sid = d.generateSequenceIdentifier();
-        st.setIdentifier(sid);
-        d.acknowledge(st);
+        Identifier unknown = d.generateSequenceIdentifier();
+        st.setIdentifier(unknown);
+        try {
+            d.acknowledge(st, RMUtils.getAddressingConstants().getNoneURI());
+            fail("Expected sequenceFault not thrown.");
+        } catch (SequenceFault sf) {
+            assertEquals("UnknownSequence", sf.getFaultInfo().getFaultCode().getLocalPart());
+        }
     }
 
 }

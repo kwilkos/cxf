@@ -14,13 +14,16 @@ import javax.xml.datatype.Duration;
 
 import org.objectweb.celtix.bus.configuration.wsrm.AcksPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
+import org.objectweb.celtix.ws.rm.SequenceFaultType;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
+import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 public class Sequence {
     public static final Duration PT0S;
@@ -215,14 +218,27 @@ public class Sequence {
     public boolean isExpired() {
         return expires == null ? false : new Date().after(expires);
     }
-
+    
     /**
      * Returns the next message number and increases the message number.
      * 
      * @return the next message number.
      */
     public BigInteger nextMessageNumber() {
-        // TODO
+        return nextMessageNumber(null, null);
+    }
+
+    /**
+     * Returns the next message number and increases the message number.
+     * The parameters, if not null, indicate that this message is being sent as a response 
+     * to the message with the specified message number in the sequence specified by the
+     * by the identifier, and are used to decide if this message should be the last in
+     * this sequence.
+     * 
+     * @return the next message number.
+     */
+    public BigInteger nextMessageNumber(Identifier inSeqId, BigInteger inMsgNumber) {
+
         assert null == lastMessageNumber;
         if (Type.DESTINATION == type) {
             return null;
@@ -230,10 +246,21 @@ public class Sequence {
         BigInteger result = null;
         synchronized (this) {
             currentMessageNumber = currentMessageNumber.add(BigInteger.ONE);
-            checkLastMessage();
+            checkLastMessage(inSeqId, inMsgNumber);
             result = currentMessageNumber;
-        }
+        } 
         return result;
+    }
+    
+    protected  void nextAndLastMessageNumber() {
+        assert null == lastMessageNumber;
+        if (Type.DESTINATION == type) {
+            return;
+        }
+        synchronized (this) {
+            currentMessageNumber = currentMessageNumber.add(BigInteger.ONE);
+            setLastMessageNumber(currentMessageNumber);
+        }
     }
     
     /**
@@ -249,11 +276,19 @@ public class Sequence {
      * message number for this sequence.
      * 
      * @param messageNumber the number of the received message
+     * @param lastMessage true if this is to be the last message in the sequence
      */
-    public void acknowledge(BigInteger messageNumber) {
+    public void acknowledge(BigInteger messageNumber) throws SequenceFault {
         
         if (Type.SOURCE == type) {
             return;
+        }
+        
+        if (null != lastMessageNumber && messageNumber.compareTo(lastMessageNumber) > 0) {
+            SequenceFaultType sf = RMUtils.getWSRMFactory().createSequenceFaultType();
+            sf.setFaultCode(RMUtils.getRMConstants().getLastMessageNumberExceededFaultCode());
+            Message msg = new Message("LAST_MESSAGE_NUMBER_EXCEEDED_EXC", LOG, this);
+            throw new SequenceFault(msg.toString(), sf);
         }
         
         monitor.acknowledgeMessage();
@@ -289,9 +324,7 @@ public class Sequence {
             range.setUpper(messageNumber);
             acked.getAcknowledgementRange().add(i, range);
         }
-        
-        // schedule acknowledgement
-        
+               
         scheduleAcknowledgement();
     }
 
@@ -312,7 +345,7 @@ public class Sequence {
     }
 
     /**
-     * Used by an RMDestination to obtain infomation about the range of messages
+     * Used by an RMDestination to obtain information about the range of messages
      * that have so far been acknowledged for this sequence.
      * 
      * @param hint a list of message numbers
@@ -376,25 +409,53 @@ public class Sequence {
     public boolean sendAcknowledgement() {
         return acknowledgeOnNextOccasion;
     }
+    
+    protected boolean canPiggybackAckOnPartialResponse() {
+        // TODO: should also check if we allow breaking the WI Profile rule by which no headers
+        // can be included in a HTTP response
+        return getAcksTo().getAddress().getValue().equals(Names.WSA_ANONYMOUS_ADDRESS);
+    }
+    
+    protected static SequenceFault createUnknownSequenceFault(Identifier sid) {
+        SequenceFaultType sf = RMUtils.getWSRMFactory().createSequenceFaultType();
+        sf.setFaultCode(RMUtils.getRMConstants().getUnknownSequenceFaultCode());
+        Message msg = new Message("UNKNOWN_SEQUENCE_EXC", LOG, sid.getValue());
+        return new SequenceFault(msg.toString(), sf);
+    }
 
     /**
      * Checks if the current message should be the last message in this sequence
      * and if so sets the lastMessageNumber property.
      */
-    private void checkLastMessage() {        
-        SequenceTerminationPolicyType stp = source.getSequenceTerminationPolicy();
-        assert null != stp;
+    private void checkLastMessage(Identifier inSeqId, BigInteger inMsgNumber) { 
+
+        assert null != source;
         
-        if ((!stp.getMaxLength().equals(BigInteger.ZERO) 
-            && stp.getMaxLength().compareTo(currentMessageNumber) <= 0)
-            || (stp.getMaxRanges() > 0 && acked.getAcknowledgementRange().size() >= stp.getMaxRanges())
-            || (stp.getMaxUnacknowledged() > 0 
-                && source.getRetransmissionQueue().countUnacknowledged(this) 
-                >= stp.getMaxUnacknowledged())) {            
-            setLastMessageNumber(currentMessageNumber);
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(currentMessageNumber + " should be the last message in this sequence.");
+        // check if this is a response to a message that was is the last message in the sequence
+        // that included this sequence as an offer 
+        
+        if (null != inSeqId && null != inMsgNumber) {
+            Sequence inSeq = source.getHandler().getDestination().getSequence(inSeqId);
+            if (null != inSeq && offeredBy(inSeqId) && inMsgNumber.equals(inSeq.getLastMessageNumber())) {
+                setLastMessageNumber(currentMessageNumber);     
             }
+        } 
+        
+        if (null == getLastMessageNumber()) {
+            SequenceTerminationPolicyType stp = source.getSequenceTerminationPolicy();
+            assert null != stp;
+
+            if ((!stp.getMaxLength().equals(BigInteger.ZERO) && stp.getMaxLength()
+                .compareTo(currentMessageNumber) <= 0)
+                || (stp.getMaxRanges() > 0 && acked.getAcknowledgementRange().size() >= stp.getMaxRanges())
+                || (stp.getMaxUnacknowledged() > 0 && source.getRetransmissionQueue()
+                    .countUnacknowledged(this) >= stp.getMaxUnacknowledged())) {
+                setLastMessageNumber(currentMessageNumber);
+            }
+        }
+        
+        if (LOG.isLoggable(Level.FINE) && null != lastMessageNumber) {
+            LOG.fine(currentMessageNumber + " should be the last message in this sequence.");
         }
     }
    

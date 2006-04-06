@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,9 +20,11 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.bindings.TestClientTransport;
 import org.objectweb.celtix.bus.bindings.TestInputStreamContext;
+import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
+import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
@@ -237,7 +240,79 @@ public class RMProxyTest extends TestCase {
         Collection<Sequence> seqs = new ArrayList<Sequence>();
         seqs.add(seq);
         
-        proxy.requestAcknowledgement(seqs);
+        proxy.requestAcknowledgment(seqs);        
+    }
+    
+    public void testLastMessage() throws IOException, WSDLException, SequenceFault {
+        TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
+        
+        RMHandler handler = EasyMock.createMock(RMHandler.class);
+        RMSource source = EasyMock.createMock(RMSource.class);
+        SequenceTerminationPolicyType sp = EasyMock.createMock(SequenceTerminationPolicyType.class);
+        
+        
+        source.getSequenceTerminationPolicy();
+        expectLastCall().andReturn(sp);
+        sp.getMaxLength();
+        expectLastCall().andReturn(BigInteger.ZERO);
+        sp.getMaxRanges();
+        expectLastCall().andReturn(0);
+        sp.getMaxUnacknowledged();
+        expectLastCall().andReturn(0);
+
+        handler.getBinding();
+        EasyMock.expectLastCall().andReturn(binding);       
+        for (int i = 0; i < 2; i++) {
+            handler.getClientBinding();
+            EasyMock.expectLastCall().andReturn(binding);
+        }
+
+        EasyMock.replay(handler);
+        EasyMock.replay(source);
+        EasyMock.replay(sp);
+
+        RMProxy proxy = new RMProxy(handler);
+
+        Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
+        sid.setValue("LastMessageSequence");
+        Sequence seq = new Sequence(sid, source, null);        
+        proxy.lastMessage(seq);        
+    }
+    
+    public void testAcknowledge() throws IOException, WSDLException, SequenceFault {
+        TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
+        
+        RMHandler handler = EasyMock.createMock(RMHandler.class);
+        RMDestination dest = EasyMock.createMock(RMDestination.class);
+        RMAssertionType rma = EasyMock.createMock(RMAssertionType.class);
+
+        dest.getRMAssertion();
+        expectLastCall().andReturn(rma).times(2);
+        rma.getAcknowledgementInterval();
+        expectLastCall().andReturn(null).times(2);
+        dest.getAcksPolicy();
+        expectLastCall().andReturn(null).times(2);
+        
+        handler.getBinding();
+        EasyMock.expectLastCall().andReturn(binding);       
+        for (int i = 0; i < 2; i++) {
+            handler.getClientBinding();
+            EasyMock.expectLastCall().andReturn(binding);
+        }
+
+        EasyMock.replay(handler);
+        EasyMock.replay(dest);
+        EasyMock.replay(rma);
+
+        RMProxy proxy = new RMProxy(handler);
+
+        Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
+        sid.setValue("Acknowledge");
+        Sequence seq = new Sequence(sid, dest, 
+                                    RMUtils.createReference("http://localhost:9999/decoupled"));
+        seq.acknowledge(BigInteger.ONE);
+        seq.acknowledge(BigInteger.TEN);       
+        proxy.acknowledge(seq);        
     }
     
     public void testSequenceInfoOnClient() throws IOException, WSDLException, SequenceFault {

@@ -31,7 +31,7 @@ public class RMBusLifeCycleListenerTest extends TestCase {
         RMProxy proxy = control.createMock(RMProxy.class);
         handler.getProxy();
         expectLastCall().andReturn(proxy);
-        proxy.requestAcknowledgement(seqs);
+        proxy.requestAcknowledgment(seqs);
         expectLastCall();
 
         seq1.allAcknowledged();

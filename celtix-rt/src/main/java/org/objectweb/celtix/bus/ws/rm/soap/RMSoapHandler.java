@@ -321,7 +321,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
     
     /**
      * When invoked inbound, check if the action indicates that this is one of the 
-     * RM protocol messages (CreateSequence, CreateSequenceResponse, terminateSequence)
+     * RM protocol messages (CreateSequence, CreateSequenceResponse, TerminateSequence)
      * and if so, store method, operation name and data binding callback in the context.
      * The action has already been extracted from its associated soap header into the
      * addressing properties as the addressing protocol handler is executed. 
@@ -341,12 +341,19 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
         if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action) 
             || RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)) {
             callback = CreateSequenceRequest.createDataBindingCallback();
-            operationName = RMUtils.getRMConstants().getCreateSequenceOperationName();
+            operationName = CreateSequenceRequest.getOperationName();
             method = CreateSequenceRequest.getMethod();
         } else if (RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)) {
             callback = TerminateSequenceRequest.createDataBindingCallback();
-            operationName = RMUtils.getRMConstants().getTerminateSequenceOperationName();
-            method = TerminateSequenceRequest.getMethod();
+            operationName = TerminateSequenceRequest.getOperationName();
+            method = TerminateSequenceRequest.getMethod();    
+        } else if (RMUtils.getRMConstants().getLastMessageAction().equals(action) 
+            || RMUtils.getRMConstants().getSequenceAcknowledgmentAction().equals(action)) {
+            // It does not really matter what callback we are using here as the body
+            // in messages with these actions is always empty
+            // callback = TerminateSequenceRequest.createDataBindingCallback();
+            operationName = TerminateSequenceRequest.getOperationName();
+            method = TerminateSequenceRequest.getMethod(); 
         } else {
             rmProtocolMessage = false;
         }

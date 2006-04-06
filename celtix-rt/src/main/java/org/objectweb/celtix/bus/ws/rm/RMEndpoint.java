@@ -130,4 +130,13 @@ public class RMEndpoint {
     public void addSequence(Sequence seq) {
         map.put(seq.getIdentifier().getValue(), seq);
     }
+    
+    /**
+     * Removes the sequence.
+     * 
+     * @param seq the sequence to be removed.
+     */
+    public void removeSequence(Sequence seq) {
+        map.remove(seq.getIdentifier());
+    }
 }

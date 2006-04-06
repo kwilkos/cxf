@@ -34,7 +34,7 @@ public class RMBusLifeCycleListener implements BusLifeCycleListener {
         
         if (tryTerminateAllSequences && seqs.size() >= 0) {
             try {
-                source.getHandler().getProxy().requestAcknowledgement(seqs); 
+                source.getHandler().getProxy().requestAcknowledgment(seqs); 
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, "Failed to request acknowledgements.", ex); 
             }

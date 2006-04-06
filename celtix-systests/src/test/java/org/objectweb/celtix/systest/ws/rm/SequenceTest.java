@@ -57,6 +57,17 @@ public class SequenceTest extends ClientServerTestBase {
     private String currentConfiguration;
     private List<SOAPMessage> outboundMessages;
     private List<LogicalMessageContext> inboundContexts;
+    
+    private boolean yes = true;
+    private boolean no;
+    
+    private boolean doTestOnewayAnonymousAcks = yes;
+    private boolean doTestOnewayDeferredAnonymousAcks = yes;
+    private boolean doTestOnewayAnonymousAcksSupressed = yes;
+    private boolean doTestOnewayAnonymousAcksSequenceLength1 = yes;    
+    private boolean doTestTwowayNonAnonymous = yes;
+    private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = yes;    
+    private boolean doTestTwowayNonAnonymousNoOffer = no;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -88,7 +99,9 @@ public class SequenceTest extends ClientServerTestBase {
     // --- tests ---
 
     public void testOnewayAnonymousAcks() throws Exception {
-
+        if (!doTestOnewayAnonymousAcks) {
+            return;
+        }
         setupEndpoints("");
 
         greeter.greetMeOneWay("once");
@@ -109,14 +122,13 @@ public class SequenceTest extends ClientServerTestBase {
         verifyActions(expectedActions, false);
         verifyMessageNumbers(new String[] {null, null, null, null}, false);
         assertNull(getAcknowledgment(inboundContexts.get(0)));
-        for (int i = 1; i < 4; i++) {
-            assertNotNull("Inbound message " + i + " does not contain sequence acknowledgement.",
-                          getAcknowledgment(inboundContexts.get(i)));
-        }
+        verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
     }
-
+    
     public void testOnewayDeferredAnonymousAcks() throws Exception {
-
+        if (!doTestOnewayDeferredAnonymousAcks) {
+            return;
+        }
         setupEndpoints("anonymous-deferred");
 
         greeter.greetMeOneWay("once");
@@ -144,16 +156,13 @@ public class SequenceTest extends ClientServerTestBase {
         expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
         verifyActions(expectedActions, false);
         verifyMessageNumbers(new String[] {null, null, null, null}, false);
-        for (int i = 0; i < 3; i++) {
-            assertNull("Inbound message " + i + " contains sequence acknowledgment header",
-                       getAcknowledgment(inboundContexts.get(i)));
-        }
-        assertNotNull("Inbound message 4 does not contain sequence acknowledgment header ",
-                      getAcknowledgment(inboundContexts.get(3)));
+        verifyAcknowledgements(new boolean[] {false, false, false, true}, false);
     }
 
     public void testOnewayAnonymousAcksSequenceLength1() throws Exception {
-
+        if (!doTestOnewayAnonymousAcksSequenceLength1) {
+            return;
+        }
         setupEndpoints("anonymous-seqlength1");
 
         greeter.greetMeOneWay("once");
@@ -174,36 +183,21 @@ public class SequenceTest extends ClientServerTestBase {
         // createSequenceResponse message plus partial responses to
         // greetMeOneWay and terminateSequence ||: 2
 
-        for (int i = 0; i < 10; i++) {
-            if (inboundContexts.size() < 6) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            } else {
-                break;
-            }
-        }
-        assertEquals(6, inboundContexts.size());
+        verifyInboundMessages(6);
+       
         expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null,
                                         Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null};
         verifyActions(expectedActions, false);
         verifyMessageNumbers(new String[] {null, null, null, null, null, null}, false);
         verifyLastMessage(new boolean[] {false, false, false, false, false, false}, false);
-
-        for (int i = 0; i < 6; i++) {
-            if (i % 3 == 1) {
-                assertNotNull("Inbound message " + i + " does not contain expected acknowledgment.",
-                              getAcknowledgment(inboundContexts.get(i)));
-            } else {
-                assertNull("Inbound message " + i + " contains unexpected acknowledgment.",
-                           getAcknowledgment(inboundContexts.get(i)));
-            }
-        }
+        verifyAcknowledgements(new boolean[] {false, true, false, false, true, false}, false);
     }
 
     public void testOnewayAnonymousAcksSupressed() throws Exception {
+        
+        if (!doTestOnewayAnonymousAcksSupressed) {
+            return;
+        }
         setupEndpoints("anonymous-suppressed");
 
         greeter.greetMeOneWay("once");
@@ -224,11 +218,8 @@ public class SequenceTest extends ClientServerTestBase {
         expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
         verifyActions(expectedActions, false);
         verifyMessageNumbers(new String[] {null, null, null, null}, false);
-        for (int i = 0; i < 4; i++) {
-            assertNull("Inbound message " + (i + 1) + " contains sequence acknowledgment header",
-                       getAcknowledgment(inboundContexts.get(i)));
-        }
-
+        verifyAcknowledgements(new boolean[] {false, false, false, false}, false);
+        
         outboundMessages.clear();
         inboundContexts.clear();
 
@@ -244,6 +235,9 @@ public class SequenceTest extends ClientServerTestBase {
     }
 
     public void testTwowayNonAnonymous() throws Exception {
+        if (!doTestTwowayNonAnonymous) {
+            return;
+        }
         setupEndpoints("twoway");
 
         greeter.greetMe("one");
@@ -259,13 +253,8 @@ public class SequenceTest extends ClientServerTestBase {
         verifyActions(expectedActions, true);
         verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
         verifyLastMessage(new boolean[] {false, false, false, false}, true);
-        for (int i = 0; i < 2; i++) {
-            assertNull(getAcknowledgment(outboundMessages.get(i)));
-        }
-        for (int i = 2; i < 4; i++) {
-            assertNotNull(getAcknowledgment(outboundMessages.get(i)));
-        }
-
+        verifyAcknowledgements(new boolean[] {false, false, true, true}, true);
+        
         // createSequenceResponse plus 3 greetMeResponse messages plus
         // one partial response for each of the four messages
 
@@ -276,21 +265,74 @@ public class SequenceTest extends ClientServerTestBase {
         verifyActions(expectedActions, false);
         verifyMessageNumbers(new String[] {null, null, null, "1", null, "2", null, "3"}, false);
         verifyLastMessage(new boolean[8], false);
-        for (int i = 0; i < 8; i++) {
-            if (i % 2 != 0 && i > 1) {
-                assertNotNull("Inbound message " + i + " does not contain expected acknowledgement",
-                              getAcknowledgment(inboundContexts.get(i)));
-            } else {
-                assertNull("Inbound message " + i + " contains unexpected acknowledgement",
-                           getAcknowledgment(inboundContexts.get(i)));
-            }
+        verifyAcknowledgements(new boolean[] {false, false, false, true, false, true, false, true}, false);
+    }
+    
+    /**
+     * A maximum sequence length of 2 is configured for the client only.
+     * However, as we use the defaults regarding the including and acceptance for
+     * inbound sequence offers and correlate offered sequences that are included
+     * in a CreateSequence request and accepted with those that are created on behalf
+     * of such a request, the server also tries terminate its sequences.
+     * Note that as part of the sequence termination exchange a standalone sequence
+     * acknowledgment needs to be sent regardless of whether or nor acknowledgments are 
+     * delivered steadily with every response.
+     */
+    
+    public void testTwowayNonAnonymousMaximumSequenceLength2() throws Exception {
+        
+        if (!doTestTwowayNonAnonymousMaximumSequenceLength2) {
+            return;
         }
+        setupEndpoints("twoway-seqlength2");
+
+        greeter.greetMe("one");
+        greeter.greetMe("two");
+        greeter.greetMe("three");
+
+
+        assertEquals(7, outboundMessages.size());
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, 
+                                                 GREETME_ACTION,
+                                                 GREETME_ACTION,
+                                                 Names.WSRM_TERMINATE_SEQUENCE_ACTION,
+                                                 Names.WSRM_SEQUENCE_ACKNOWLEDGMENT_ACTION,
+                                                 Names.WSRM_CREATE_SEQUENCE_ACTION,
+                                                 GREETME_ACTION};
+        verifyActions(expectedActions, true);
+        verifyMessageNumbers(new String[] {null, "1", "2", null, null, null, "1"}, true);
+        verifyLastMessage(new boolean[] {false, false, true, false, false, false, false}, true);
+        verifyAcknowledgements(new boolean[] {false, false, true, false, true, false, false}, true);
+
+        // Note that we don't expect a partial response to standalone LastMessage or 
+        // SequenceAcknowledgement messages
+        
+        verifyInboundMessages(11);
+        
+        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
+                                        null, GREETME_RESPONSE_ACTION, 
+                                        null, GREETME_RESPONSE_ACTION, 
+                                        null,
+                                        null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION,
+                                        null, GREETME_RESPONSE_ACTION};
+        verifyActions(expectedActions, false);
+        verifyMessageNumbers(
+            new String[] {null, null, null, "1", null, "2", null, null, null, null, "1"}, false);
+        boolean[] expected = new boolean[11];
+        expected[5] = true;
+        verifyLastMessage(expected, false);
+        expected[3] = true;
+        expected[10] = true;
+        verifyAcknowledgements(expected, false);
     }
 
     // enable after server transport api has changed to support
     // requests being send from a server side
 
-    public void xtestTwowayNonAnonymousNoOffer() throws Exception {
+    public void testTwowayNonAnonymousNoOffer() throws Exception {
+        if (!doTestTwowayNonAnonymousNoOffer) {
+            return;
+        }
         setupEndpoints("twoway-no-offer");
 
         greeter.greetMe("one");
@@ -399,6 +441,24 @@ public class SequenceTest extends ClientServerTestBase {
                              : " contains last message element."),
                          expectedLastMessages[i], lastMessage);  
         
+        }
+    }
+    
+    private void verifyAcknowledgements(boolean[] expectedAcks, boolean outbound) throws Exception {
+        assertEquals(expectedAcks.length, outbound ? outboundMessages.size()
+            : inboundContexts.size());
+        
+        for (int i = 0; i < expectedAcks.length; i++) {
+            boolean ack = outbound ? (null != getAcknowledgment(outboundMessages.get(i))) 
+                : (null != getAcknowledgment(inboundContexts.get(i)));
+            
+            if (expectedAcks[i]) {
+                assertTrue((outbound ? "Outbound" : "Inbound") + " message " + i 
+                           + " does not contain expected acknowledgement", ack);
+            } else {
+                assertFalse((outbound ? "Outbound" : "Inbound") + " message " + i 
+                           + " contains unexpected acknowledgement", ack);
+            }
         }
     }
 
@@ -587,6 +647,21 @@ public class SequenceTest extends ClientServerTestBase {
         }
         assertTrue("Could not find LogicalMessageContextRecorder in pre logical handler chain", found);
         currentConfiguration = configuration;
+    }
+    
+    private void verifyInboundMessages(int nExpected) {
+        for (int i = 0; i < 10; i++) {
+            if (inboundContexts.size() < nExpected) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            } else {
+                break;
+            }
+        }
+        assertEquals("Did not receive the expected number of messages.", nExpected, inboundContexts.size());
     }
 
 }
