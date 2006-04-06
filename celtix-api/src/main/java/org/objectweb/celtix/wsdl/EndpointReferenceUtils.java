@@ -340,7 +340,7 @@ public final class EndpointReferenceUtils {
                 return null;
             }
             Definition def = manager.getDefinition(sei);
-            if (def == null && sei.getInterfaces().length > 0){
+            if (def == null && sei.getInterfaces().length > 0) {
                 sei = sei.getInterfaces()[0];
                 def = manager.getDefinition(sei);
             }
