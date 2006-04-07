@@ -145,9 +145,12 @@
         <xs:annotation>
                 <xs:documentation>
                     Specifies if sequences should be terminated when the bus is shutdown.
-                    If set to true, acknowledegements are requested for all sequences in which not
-                    all messages have been acknowledged so far. Depending on the result, an attempt
-                    is then made to terminates these sequences.
+                    If set to true, and no last message had been sent for a sequence,
+                    an out of band LastMessage will be issued (in response to which 
+                    a sequence acknowledgment will be sent). If a last message had already been
+                    sent, an acknowledgment is requested instead. 
+                    If, after processing these acknowledgement, all messages have been acknowledged,
+                    an attempt is then made to terminates these sequences.
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>

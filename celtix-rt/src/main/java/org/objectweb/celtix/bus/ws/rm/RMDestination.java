@@ -83,7 +83,7 @@ public class RMDestination extends RMEndpoint {
                     try {
                         getHandler().getProxy().acknowledge(seq);
                     } catch (IOException ex) {
-                        Message msg = new Message("SEQ_ACKNOWLEDGMENT_FAILURE", LOG, seq);
+                        Message msg = new Message("SEQ_ACK_SEND_EXC", LOG, seq);
                         LOG.log(Level.SEVERE, msg.toString(), ex);
                     }
                 }

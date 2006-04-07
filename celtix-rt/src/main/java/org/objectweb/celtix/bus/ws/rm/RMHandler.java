@@ -59,6 +59,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     private RMServant servant;
     private Configuration configuration;
     private Timer timer;
+    private boolean busLifeCycleListenerRegistered;
 
     private AbstractClientBinding clientBinding;
     private AbstractServerBinding serverBinding;
@@ -162,7 +163,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         // TODO begin transaction
     }
 
-    protected void initialise(MessageContext context) {
+    protected synchronized void initialise(MessageContext context) {
         if (null == clientTransport && null == serverTransport) {
             clientTransport = BindingContextUtils.retrieveClientTransport(context);
             if (null == clientTransport) {
@@ -195,6 +196,12 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         
         if (null == timer) {
             timer = new Timer();
+        }
+        
+        if (!busLifeCycleListenerRegistered) {
+            getBinding().getBus().getLifeCycleManager()
+                .registerLifeCycleListener(new RMBusLifeCycleListener(getSource()));
+            busLifeCycleListenerRegistered = true;
         }
     }
 
@@ -323,7 +330,8 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         // indicate to the binding that a response is expected from the transport although
         // the web method is a oneway method
 
-        if (BindingContextUtils.isOnewayMethod(context)) {
+        if (BindingContextUtils.isOnewayMethod(context)
+            || RMUtils.getRMConstants().getLastMessageAction().equals(action)) {
             context.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, Boolean.FALSE);
         }
     }
