@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 
 import javax.xml.ws.Response;
+import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -41,7 +42,16 @@ public class AsyncResponse<T> implements Response<T> {
 
     public synchronized T get() throws InterruptedException, ExecutionException {
         if (result == null) {
-            result = cls.cast(fObjMsgContext.get().getReturn());
+            ObjectMessageContext ctx = fObjMsgContext.get();
+            result = cls.cast(ctx.getReturn());
+            Throwable t = ctx.getException();
+            if (t != null) {
+                if (WebServiceException.class.isAssignableFrom(t.getClass())) {
+                    throw new ExecutionException(t);
+                } else {
+                    throw new ExecutionException(new WebServiceException(t));
+                }
+            }
         } 
         return result;
     }
@@ -49,7 +59,19 @@ public class AsyncResponse<T> implements Response<T> {
     
     public T get(long timeout, TimeUnit unit)
         throws InterruptedException, ExecutionException, TimeoutException {
-        return cls.cast(fObjMsgContext.get(timeout, unit).getReturn());
+        if (result == null) {
+            ObjectMessageContext ctx = fObjMsgContext.get(timeout, unit);
+            result = cls.cast(ctx.getReturn());
+            Throwable t = ctx.getException();
+            if (t != null) {
+                if (WebServiceException.class.isAssignableFrom(t.getClass())) {
+                    throw new ExecutionException(t);
+                } else {
+                    throw new ExecutionException(new WebServiceException(t));
+                }
+            }
+        }
+        return result;
     }
     
     public Map<String, Object> getContext() {

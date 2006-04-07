@@ -4,9 +4,6 @@ package org.objectweb.celtix.bus.jaxws;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,12 +13,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.validation.Schema;
 import javax.xml.ws.AsyncHandler;
-import javax.xml.ws.Binding;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
@@ -35,15 +29,11 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
-public final class EndpointInvocationHandler implements BindingProvider, InvocationHandler
+public final class EndpointInvocationHandler extends BindingProviderImpl implements InvocationHandler
 {
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
     
-    private final ClientBinding clientBinding;
-    // private Map<String, Object> requestContext;
-    private ThreadLocal requestContext;
-    private Map<String, Object> responseContext;
-    
+    private final ClientBinding clientBinding;    
     private final Class<?> portTypeInterface;
     private final Bus bus;
     private JAXBContext context;
@@ -56,6 +46,7 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
         service = s;
         portTypeInterface = portSEI;
         clientBinding = createBinding(reference, configuration);
+        setBinding(clientBinding.getBinding());
         try {
             context = JAXBEncoderDecoder.createJAXBContextForClass(portSEI);
 
@@ -94,32 +85,6 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
         } 
     }
 
-    public Binding getBinding() {
-        return clientBinding.getBinding();
-    }
-    
-    
-    @SuppressWarnings("unchecked")
-    public Map<String, Object> getRequestContext() {
-        if (requestContext == null) {
-            //REVISIT Need to Create a Request/ResponseContext classs to derive out of a
-            //ContextBase class.
-            requestContext = new ThreadLocal() {
-                protected synchronized Object initialValue() {
-                    return new HashMap<String, Object>();
-                }
-            };
-        }
-        return (Map<String, Object>) requestContext.get();
-    }
-    
-    public Map<String, Object> getResponseContext() {
-        if (responseContext == null) {
-            responseContext = new HashMap<String, Object>();
-        }
-        return responseContext;
-    }
-    
     private Object invokeSEIMethod(Object proxy, Method method, Object parameters[])
         throws Exception {
 
@@ -186,20 +151,7 @@ public final class EndpointInvocationHandler implements BindingProvider, Invocat
         populateResponseContext(objMsgContext);
                 
         return objMsgContext.getReturn();
-    }
-    
-    private void populateResponseContext(MessageContext ctx) {
-        
-        Iterator<String> iter  = ctx.keySet().iterator();
-        Map<String, Object> respCtx = getResponseContext();
-        while (iter.hasNext()) {
-            String obj = iter.next();
-            if (MessageContext.Scope.APPLICATION.compareTo(ctx.getScope(obj)) == 0) {
-                respCtx.put(obj, ctx.get(obj));
-            }
-        }
-    }
-    
+    }    
     
     protected ClientBinding createBinding(EndpointReferenceType ref, Configuration c) {
 

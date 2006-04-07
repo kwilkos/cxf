@@ -1,7 +1,5 @@
 package org.objectweb.celtix.bus.jaxws;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -9,7 +7,6 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.ws.AsyncHandler;
-import javax.xml.ws.Binding;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.Response;
@@ -25,14 +22,12 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
-public class DispatchImpl<T> implements Dispatch<T> {
+public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T> {
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
     
     protected ClientBinding cb;
     protected DynamicDataBindingCallback callback;
     
-    private Map<String, Object> requestContext;
-    private Map<String, Object> responseContext;
     private Bus bus;
     private EndpointReferenceType ref;
     private Mode mode;
@@ -71,6 +66,7 @@ public class DispatchImpl<T> implements Dispatch<T> {
     
     protected void init() {
         cb = createClientBinding();
+        setBinding(cb.getBinding());
         if (context == null) {
             callback = new DynamicDataBindingCallback(cl, mode);   
         } else {
@@ -78,25 +74,7 @@ public class DispatchImpl<T> implements Dispatch<T> {
         }
         initialised = true;
     }
-
-    public Binding getBinding() {
-        return null;
-    }
-
-    public Map<String, Object> getRequestContext() {
-        if (requestContext == null) {
-            requestContext = new HashMap<String, Object>();
-        }
-        return requestContext;
-    }
-
-    public Map<String, Object> getResponseContext() {
-        if (responseContext == null) {
-            responseContext = new HashMap<String, Object>();
-        }
-        return responseContext;
-    }
-
+    
     public T invoke(T obj) {
         
         if (LOG.isLoggable(Level.INFO)) {
@@ -124,6 +102,8 @@ public class DispatchImpl<T> implements Dispatch<T> {
             //Update Response Context 
             throwProtocolException(objMsgContext.getException());
         }
+        
+        populateResponseContext(objMsgContext);
 
         return cl.cast(objMsgContext.getReturn());
     }

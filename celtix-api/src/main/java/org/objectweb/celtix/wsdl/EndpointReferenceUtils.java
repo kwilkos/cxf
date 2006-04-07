@@ -643,7 +643,7 @@ public final class EndpointReferenceUtils {
                                   portName);
         }
 
-        if (null != url && url.length() > 0 && wsp != null) {
+        if (null != url && url.length() > 0) {
             //REVISIT Resolve the url for all cases           
             URL wsdlUrl = implementor.getClass().getResource(url);
             if (wsdlUrl != null) {
