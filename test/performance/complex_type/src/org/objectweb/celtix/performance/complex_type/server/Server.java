@@ -18,7 +18,7 @@ public class Server implements Runnable {
     }
 
     public Server(String[] args) throws Exception {
-        this(Bus.init(args), "http://localhost:20000/performance/basic_type/SoapPort");
+        this(Bus.init(args), "http://localhost:20003/performance/complex_type/SoapPort");
     }
     
     public static void main(String args[]) throws Exception {

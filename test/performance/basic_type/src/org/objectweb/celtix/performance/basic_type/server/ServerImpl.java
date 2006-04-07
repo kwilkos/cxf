@@ -2,6 +2,9 @@ package org.objectweb.celtix.performance.basic_type.server;
 
 import java.util.logging.Logger;
 import org.objectweb.celtix.performance.basic_type.BasicPortType;
+@javax.jws.WebService(name = "BasicPortType", serviceName = "SOAPService",                                                                                
+                      targetNamespace = "http://objectweb.org/performance/basic_type",
+                      wsdlLocation = "file:./wsdl/basic_type.wsdl")
 
 public class ServerImpl implements BasicPortType {
 

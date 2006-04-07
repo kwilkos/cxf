@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <project name="celtix-performance-testcase-base" default="base.compile" basedir=".">
   <import file="../etc/common_build.xml"/>
-  <property name="jar.name"  value="performance_base.jar"/>
+  <property name="jar.name"  value="performance_base.jar"/>  
   <target name="init">
-    <mkdir dir="${build.classes.dir}"/>
+    <mkdir dir="${basedir}/build/classes"/>
   </target> 
   <target name="base.compile" depends="init">
     <javac srcdir="${basedir}/src" destdir="${basedir}/build/classes"
 	   debug="true">
-      <classpath refid="celtix.build.classpath"/>
+      <classpath refid="celtix.classpath"/>
     </javac>
   </target>
   <target name="base.deploy" depends="compile">
@@ -19,7 +19,7 @@
     </jar>
   </target>
   <target name="clean">
-    <delete dir="${build.dir}"/>
+    <delete dir="${basedir}/build"/>
   </target>
 </project>
 

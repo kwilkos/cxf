@@ -1,10 +1,6 @@
 <?xml version="1.0"?>
 <project name="test.basic_type" default="build" basedir=".">
-  
-
     <import file="../etc/common_build.xml"/>
-  
-
     <property name="wsdl.dir" location="${basedir}/wsdl"/>
     <property name="wsdl.file" value="basic_type.wsdl"/>
 
@@ -21,9 +17,13 @@
     </target>
 
     <target name="server" description="run basic_type server">
-        <celtix.perform.run classname="org.objectweb.celtix.performance.basic_type.server.Server" argline="${basedir}/wsdl/${wsdl.file}"/>
+        <celtixrun classname="org.objectweb.celtix.performance.basic_type.server.Server" param1="${basedir}/wsdl/${wsdl.file}"/>
     </target>
 
+     <target name="generate.code">
+        <echo level="info" message="Generating code using wsdl2java..."/>
+        <wsdl2java file="basic_type.wsdl"/>
+    </target>
   
 
 </project>

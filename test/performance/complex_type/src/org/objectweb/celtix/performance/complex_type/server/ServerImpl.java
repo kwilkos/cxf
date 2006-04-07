@@ -4,6 +4,9 @@ import java.util.logging.Logger;
 import org.objectweb.celtix.performance.complex_type.ComplexPortType;
 import org.objectweb.celtix.performance.complex_type.types.NestedComplexTypeSeq;
 
+@javax.jws.WebService(name = "ComplexPortType", serviceName = "SOAPService",                                                                                
+                      targetNamespace = "http://objectweb.org/performance/complex_type",
+                      wsdlLocation = "file:./wsdl/complex_type.wsdl")
 
 public class ServerImpl implements ComplexPortType {
 

@@ -21,4 +21,10 @@
   <target name="server" description="run complex_type server">
     <celtix.perform.run classname="org.objectweb.celtix.performance.complex_type.server.Server" argline="${basedir}/wsdl/${wsdl.file}"/>
   </target>
+
+    <target name="generate.code">
+        <echo level="info" message="Generating code using wsdl2java..."/>
+        <wsdl2java file="complex_type.wsdl"/>
+   </target>
+
 </project>
