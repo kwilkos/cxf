@@ -323,6 +323,13 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         processor.setEnvironment(env);
         processor.process();
     }
+    
+    public void testRouterWSDL() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/router.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+    }
+    
 
     
    

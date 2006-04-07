@@ -15,6 +15,7 @@ public class JavaPort {
     private SOAPBinding.Style style;
     private String transURI;
     private String interfaceClass; 
+    private String packageName;
     private String namespace;
     
     public JavaPort(String pname) {
@@ -85,13 +86,24 @@ public class JavaPort {
         return soapVersion;
     }
     
-    public void setInterfaceClass(String clzname) {
-        this.interfaceClass = clzname;
+    public void setpackageName(String fullname) {
+        this.packageName = fullname;
     }
+    
+    public String getPackageName() {
+        return this.packageName;
+    }
+    
 
     public String getInterfaceClass() {
         return this.interfaceClass;
     }
+    
+    
+    public void setInterfaceClass(String clzname) {
+        this.interfaceClass = clzname;
+    }
+    
     
     public void setNameSpace(String ns) {
         this.namespace = ns;

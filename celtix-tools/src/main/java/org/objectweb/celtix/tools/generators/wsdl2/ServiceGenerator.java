@@ -40,6 +40,7 @@ public class ServiceGenerator extends AbstractGenerator {
         while (ite.hasNext()) {
             
             JavaServiceClass js = (JavaServiceClass)ite.next();
+            
             String location = (String)env.get(ToolConstants.CFG_WSDLURL);
             URL url = null;
             try {
@@ -50,6 +51,7 @@ public class ServiceGenerator extends AbstractGenerator {
             }
 
             clearAttributes();
+            
             setAttributes("service", js);
             setAttributes("wsdlLocation", url.toString());
             setCommonAttributes();

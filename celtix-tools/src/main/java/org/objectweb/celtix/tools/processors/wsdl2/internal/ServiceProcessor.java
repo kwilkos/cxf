@@ -125,7 +125,11 @@ public class ServiceProcessor extends AbstractProcessor {
         // TODO: extend other bindings
         jport.setBindingAdress(getPortAddress(port));
         jport.setBindingName(binding.getQName().getLocalPart());
-        jport.setPortType(binding.getPortType().getQName().getLocalPart());
+       
+        String namespace = binding.getPortType().getQName().getNamespaceURI();
+        String packageName = ProcessorUtil.parsePackageName(namespace, env.mapPackageName(namespace));
+        jport.setpackageName(packageName); 
+        
         String portType = binding.getPortType().getQName().getLocalPart();
         jport.setPortType(portType);
         jport.setInterfaceClass(ProcessorUtil.mangleNameToClassName(portType));
