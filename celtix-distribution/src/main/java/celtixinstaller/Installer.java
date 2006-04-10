@@ -29,8 +29,8 @@ public final class Installer {
         BINARY_EXTS.add("png");
         BINARY_EXTS.add("odt");
         BINARY_EXTS.add("ott");
-        BINARY_EXTS.add("xsd");
     }
+    static boolean verbose;
 
     private Installer() {
         //never constructed
@@ -59,6 +59,12 @@ public final class Installer {
             System.out.println("         Celtix requires JDK 1.5 to run.");
         }
 
+        if (args.length != 0 && "-verbose".equals(args[0])) {
+            verbose = true;
+            String tmp[] = new String[args.length - 1];
+            System.arraycopy(args, 1, tmp, 0, args.length - 1);
+            args = tmp;
+        }
         if (args.length != 0) {
             outputDir = new File(args[0]);
         }
@@ -80,6 +86,9 @@ public final class Installer {
             if (entry.isDirectory()) {
                 if (!entry.getName().startsWith("META-INF") 
                     && !entry.getName().startsWith("celtixinstaller")) {
+                    if (verbose) {
+                        System.out.println("Making directory: " + entry.getName());
+                    }
                     File file = new File(outputDir, entry.getName());
                     file.mkdirs();
                     file.setLastModified(entry.getTime());
@@ -96,12 +105,20 @@ public final class Installer {
 
                 File outFile = new File(outputDir, entry.getName());
                 if (binary) {
+                    if (verbose) {
+                        System.out.println("Installing Binary: " + entry.getName());
+                    }
+                    
                     OutputStream out = new FileOutputStream(outFile);
                     for (int len = jin.read(buffer); len != -1; len = jin.read(buffer)) {
                         out.write(buffer, 0, len);
                     }
                     out.close();
                 } else {
+                    if (verbose) {
+                        System.out.println("Installing Text: " + entry.getName());
+                    }
+
                     BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
                     BufferedReader reader = new BufferedReader(new InputStreamReader(jin));
                     for (String s = reader.readLine(); s != null; s = reader.readLine()) {
@@ -112,15 +129,28 @@ public final class Installer {
                 }
                 outFile.setLastModified(entry.getTime());
             }
+            
         }
+        setExecutable(executes);
+    }
 
+    
+    static void setExecutable(List executes) throws Exception {
         if (System.getProperty("os.name").indexOf("Windows") == -1
             && !executes.isEmpty()) {
+            if (verbose) {
+                Iterator it = executes.iterator();
+                while (it.hasNext()) {
+                    System.out.println("Setting executable: " + it.next());
+                }
+            }
+            
+            
             //add executable bit
             executes.add(0, "chmod");
             executes.add(1, "+x");
 
             Runtime.getRuntime().exec((String[])executes.toArray(new String[executes.size()]));
-        }
+        }        
     }
 }
