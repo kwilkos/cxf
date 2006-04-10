@@ -136,7 +136,7 @@ public class CeltixServlet extends HttpServlet {
                     }
                 }
             }
-            Class cls = Class.forName(implName);
+            Class cls = Class.forName(implName, false, Thread.currentThread().getContextClassLoader());
             Object impl = cls.newInstance();
             EndpointReferenceType ref;
             if (url != null) {
