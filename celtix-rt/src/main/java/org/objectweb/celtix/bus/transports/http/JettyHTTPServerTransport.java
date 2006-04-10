@@ -295,6 +295,7 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
                 get(HTTPServerInputStreamContext.HTTP_RESPONSE);
             OutputStream responseStream = null;
             if (responseObj instanceof HttpResponse) {
+                // non-decoupled response
                 HttpResponse response = (HttpResponse)responseObj;
             
                 Integer i = (Integer)context.get(HTTP_RESPONSE_CODE);
@@ -315,6 +316,7 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
                     response.commit();
                 }
             } else if (responseObj instanceof EndpointReferenceType) {
+                // decoupled response
                 EndpointReferenceType decoupledResponseEndpoint = 
                     (EndpointReferenceType)responseObj;
                 
@@ -326,6 +328,12 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
                     responseStream = connection.getOutputStream();
                     put(HTTPServerInputStreamContext.HTTP_RESPONSE, connection);
                 }
+            } else if (responseObj instanceof URLConnection) {
+                // resent decoupled response
+                URL url = ((URLConnection)responseObj).getURL();
+                URLConnection connection = getConnection(url);
+                responseStream = connection.getOutputStream();
+                put(HTTPServerInputStreamContext.HTTP_RESPONSE, connection);
             } else {
                 LOG.log(Level.WARNING, "UNEXPECTED_RESPONSE_TYPE_MSG", responseObj.getClass());
                 throw new IOException("UNEXPECTED_RESPONSE_TYPE_MSG" + responseObj.getClass());

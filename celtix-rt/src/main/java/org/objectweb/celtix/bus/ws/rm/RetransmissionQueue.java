@@ -17,12 +17,14 @@ import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bindings.Request;
 import org.objectweb.celtix.bindings.Response;
+import org.objectweb.celtix.bindings.ServerRequest;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
+import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.workqueue.WorkQueue;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
@@ -85,7 +87,7 @@ public class RetransmissionQueue {
      * 
      * @return default Resender
      */
-    private Resender getDefaultResender() {   
+    protected final Resender getDefaultResender() {   
         return new Resender() {
             public void resend(ObjectMessageContext context, 
                                boolean requestAcknowledge) {
@@ -98,20 +100,10 @@ public class RetransmissionQueue {
                 try {
                     refreshMAPs(context);
                     refreshRMProperties(context, requestAcknowledge);
-                    Request request = createRequest(context);
-                    OutputStreamMessageContext outputStreamContext =
-                        request.process(null, true);
-                    ClientTransport transport = 
-                        BindingContextUtils.retrieveClientTransport(context);
-                    if (BindingContextUtils.isOnewayMethod(context)) {
-                        invokePartial(request, transport, outputStreamContext);
+                    if (ContextUtils.isRequestor(context)) {
+                        clientResend(context);
                     } else {
-                        InputStreamMessageContext inputStreamContext =
-                            transport.invoke(outputStreamContext);
-                        // input stream context should be null due to
-                        // decoupled response channel alway being used
-                        // with RM
-                        assert inputStreamContext == null;
+                        serverResend(context);
                     }
                 } catch (Exception e) {
                     LOG.log(Level.WARNING, "RESEND_FAILED_MSG", e);
@@ -156,12 +148,12 @@ public class RetransmissionQueue {
     }
     
     /**
-     * Create a request for retransmission.
+     * Create a client request for retransmission.
      * 
-     * @param context
+     * @param context the message context
      * @return an appropriate Request for the context
      */
-    private Request createRequest(ObjectMessageContext context) {
+    private Request createClientRequest(ObjectMessageContext context) {
         AbstractBindingBase binding = (AbstractBindingBase)
             BindingContextUtils.retrieveBinding(context);
         Request request = new Request(binding, context);
@@ -169,6 +161,58 @@ public class RetransmissionQueue {
         return request;
     }
 
+    /**
+     * Client-side resend.
+     * 
+     * @param context the message context
+     */
+    private void clientResend(ObjectMessageContext context) throws IOException {
+        Request request = createClientRequest(context);
+        OutputStreamMessageContext outputStreamContext =
+            request.process(null, true);
+        ClientTransport transport = 
+            BindingContextUtils.retrieveClientTransport(context);
+        if (transport != null) {
+            // decoupled response channel always being used with RM, 
+            // hence a partial response must be processed
+            invokePartial(request, transport, outputStreamContext);
+        } else {
+            LOG.log(Level.WARNING, "NO_TRANSPORT_FOR_RESEND_MSG");
+        }
+    }
+    
+    /**
+     * Create a server request for retransmission.
+     * 
+     * @param context the message context
+     * @return an appropriate ServerRequest for the context
+     */
+    private ServerRequest createServerRequest(ObjectMessageContext context) {
+        AbstractBindingBase binding = (AbstractBindingBase)
+            BindingContextUtils.retrieveBinding(context);
+        ServerRequest request = new ServerRequest(binding, context);
+        // a server-originated resend implies a response, hence non-oneway
+        request.setOneway(false);
+        return request;
+    }
+
+
+    /**
+     * Server-side resend.
+     * 
+     * @param context the message context
+     */
+    private void serverResend(ObjectMessageContext context) throws IOException {
+        ServerTransport transport = 
+            BindingContextUtils.retrieveServerTransport(context);
+        if (transport != null) {
+            ServerRequest serverRequest = createServerRequest(context);
+            serverRequest.processOutbound(transport, null, true);
+        } else {
+            LOG.log(Level.WARNING, "NO_TRANSPORT_FOR_RESEND_MSG");
+        }
+    }
+    
     /**
      * Invoke a oneway operation, allowing for a partial response.
      * 

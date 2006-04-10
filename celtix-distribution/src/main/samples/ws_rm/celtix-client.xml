@@ -31,7 +31,7 @@
             <value>
                 <wsrm-policy:RMAssertion>         
                     <wsrm-policy:BaseRetransmissionInterval Milliseconds="2000"/>
-                    <wsrm-policy:AcknowledgementInterval Milliseconds="0"/>
+                    <wsrm-policy:AcknowledgementInterval Milliseconds="1000"/>
                 </wsrm-policy:RMAssertion>
             </value>
         </property>

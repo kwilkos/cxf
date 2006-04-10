@@ -39,6 +39,11 @@ public class MessageFlow extends Assert {
         return inboundContexts;
     }
     
+    public void clear() {
+        getOutboundMessages().clear();
+        getInboundContexts().clear();
+    }
+    
     public void verifyActions(String[] expectedActions, boolean outbound) throws Exception {
 
         assertEquals(expectedActions.length, outbound ? outboundMessages.size() : inboundContexts.size());

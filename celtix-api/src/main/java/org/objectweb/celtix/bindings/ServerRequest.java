@@ -57,11 +57,28 @@ public class ServerRequest {
     private MessageContext bindingCtx;
     private ObjectMessageContext objectCtx;
     private ServerRequestState state;
+    private boolean isOneway;
+    private boolean isOnewayDetermined;
 
     public ServerRequest(AbstractBindingBase b, InputStreamMessageContext i) {
         binding = b;
         istreamCtx = i;
         istreamCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
+    }
+
+    /**
+     * Used to create a ServerRequest to represent a resent outgoing
+     * message. Hence the state is set up to allow us to proceed directly
+     * to the processOutbound() phase.
+     *  
+     * @param b the underlying binding
+     * @param objectContext the object message context
+     */
+    public ServerRequest(AbstractBindingBase b, ObjectMessageContext objectContext) {
+        binding = b;
+        objectCtx = objectContext;
+        handlerInvoker = binding.createHandlerInvoker();
+        state = ServerRequestState.DISPATCHED;
     }
 
     public AbstractBindingBase getBinding() {
@@ -188,6 +205,12 @@ public class ServerRequest {
     }
 
     public void processOutbound(ServerTransport st, Exception inboundException) {
+        processOutbound(st, inboundException, false);
+    }
+
+    public void processOutbound(ServerTransport st, 
+                                Exception inboundException,
+                                boolean logicalChainTraversed) {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.info("Reverse processing inbound message, exception: " + inboundException);
         }
@@ -209,7 +232,9 @@ public class ServerRequest {
         // TODO: relax this restriction to allow outbound processing of system
         // handlers.
         
-        if (state.value() >= ServerRequestState.LOGICAL_HANDLERS_INVOKED.value() && !isOneway()) {
+        if (!logicalChainTraversed
+            && state.value() >= ServerRequestState.LOGICAL_HANDLERS_INVOKED.value()
+            && !isOneway()) {
             
             // Protocol and runtime exceptions have already been caught by 
             // handler invoker and stored in the object context.
@@ -222,7 +247,8 @@ public class ServerRequest {
 
         MessageContext replyBindingCtx = bindingCtx;
         if (null == replyBindingCtx) {
-            replyBindingCtx = binding.getBindingImpl().createBindingMessageContext(replyObjectCtx);
+            bindingCtx = binding.getBindingImpl().createBindingMessageContext(replyObjectCtx);
+            replyBindingCtx = bindingCtx;
         } else if (null != replyObjectCtx) {
             replyBindingCtx.putAll(replyObjectCtx);
         }
@@ -311,14 +337,21 @@ public class ServerRequest {
     }
 
     public boolean isOneway() {
-        Method method = null;
-        if (binding != null) {
-            method = BindingContextUtils.retrieveMethod(bindingCtx);
+        if (!isOnewayDetermined) {
+            Method method = null;
+            if (binding != null) {
+                method = BindingContextUtils.retrieveMethod(bindingCtx);
+            }
+            if (method != null) {
+                isOneway = method.getAnnotation(Oneway.class) != null;
+            }
         }
-        if (method != null) {
-            return method.getAnnotation(Oneway.class) != null;
-        }
-        return false;
+        return isOneway;
+    }
+    
+    public void setOneway(boolean oneway) {
+        isOneway = oneway;
+        isOnewayDetermined = true;
     }
     
     public boolean doDispatch() {

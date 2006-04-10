@@ -102,7 +102,14 @@ public class TestConfigurator {
             systemHandlers.setPreLogical(handlerChain);
 
             // post-protocol
-
+            
+            /*
+            String configFile = System.getProperty("celtix.config.file");
+            boolean messageLoss = 
+                configFile != null && configFile.matches("^.*message-loss.xml$");
+            System.out.println("config: " + configFile + " message loss: " + messageLoss);
+            */
+            
             handlerChain = factory.createHandlerChainType();
             if (withRM) {
                 handler = factory.createHandlerType();
@@ -115,7 +122,16 @@ public class TestConfigurator {
                 handler.setHandlerClass(SOAPMessageRecorder.class.getName());
                 handler.setHandlerName("soap message recorder");
                 handlerChain.getHandler().add(handler);
+            } 
+            /*
+            else if (messageLoss) {
+                System.out.println("adding message loss simulator");
+                handler = factory.createHandlerType();
+                handler.setHandlerClass(MessageLossSimulator.class.getName());
+                handler.setHandlerName("message loss simulator");
+                handlerChain.getHandler().add(handler);                    
             }
+            */
             handler = factory.createHandlerType();
             handler.setHandlerClass(MAPCodec.class.getName());
             handler.setHandlerName("protocol addressing handler");

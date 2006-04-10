@@ -57,6 +57,7 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestTwowayNonAnonymous = yes;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = yes;    
     private boolean doTestTwowayNonAnonymousNoOffer = no;
+    private boolean doTestTwowayMessageLoss = yes;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -146,7 +147,7 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
         mf.verifyAcknowledgements(new boolean[] {false, false, false, true}, false);
     }
-
+    
     public void testOnewayAnonymousAcksSequenceLength1() throws Exception {
         if (!doTestOnewayAnonymousAcksSequenceLength1) {
             return;
@@ -353,6 +354,52 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyLastMessage(new boolean[7], false);
         mf.verifyAcknowledgements(new boolean[] {false, false, false, false, true, false, true, false}, 
                                   false);
+    }
+
+    public void testTwowayMessageLoss() throws Exception {
+        if (!doTestTwowayMessageLoss) {
+            return;
+        }
+        setupEndpoints("twoway-message-loss");
+
+        greeter.greetMe("one");
+        greeter.greetMe("two");
+        greeter.greetMe("three");
+        greeter.greetMe("four");
+
+        // CreateSequence and four greetMe messages
+
+        mf.verifyMessages(5, true);
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, GREETME_ACTION,
+                                                 GREETME_ACTION, GREETME_ACTION, GREETME_ACTION};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3", "4"}, true);
+        mf.verifyLastMessage(new boolean[] {false, false, false, false, false}, true);
+        mf.verifyAcknowledgements(new boolean[] {false, false, true, false, true}, true);
+        
+        // createSequenceResponse 
+        // + 2 greetMeResponse actions (non-discarded messages)
+        // + 2 greetMe actions (discarded messages)
+        // + 3 partial responses (to CSR & each of the non-discarded messages)
+
+        mf.verifyMessages(8, false);
+        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null,
+                                        GREETME_RESPONSE_ACTION, GREETME_ACTION, null,
+                                        GREETME_RESPONSE_ACTION, GREETME_ACTION};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, null, null, "1", null, null, "2", null}, false);
+        mf.verifyLastMessage(new boolean[8], false);
+        mf.verifyAcknowledgements(new boolean[] {false, false, false, true, false, false, true, false},
+                                  false);
+        
+        // wait for resends to occur
+        mf.clear();
+        Thread.sleep(20 * 1000);
+        
+        mf.verifyMessages(4, true);
+        expectedActions = new String[] {GREETME_ACTION, GREETME_ACTION, 
+                                        GREETME_ACTION, GREETME_ACTION};
+        mf.verifyActions(expectedActions, true);
     }
 
     // --- test setup helpers ---
