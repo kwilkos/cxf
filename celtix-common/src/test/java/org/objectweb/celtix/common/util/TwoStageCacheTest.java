@@ -103,16 +103,24 @@ public class TwoStageCacheTest extends TestCase {
             System.gc();
         }
         objs = null;
+        
+        
+        
         List<byte[]> list = new LinkedList<byte[]>();
         int allocCount = 0;
         try {
             while (allocCount++ < 1000) {
-                list.add(new byte[25000 * allocCount]);
                 System.gc();
+                long memFree = Runtime.getRuntime().freeMemory();
+                int memToAlloc = memFree > 512 * 1024 * 1024
+                                    ? 512 * 1024 * 1024 : (int)memFree;
+                list.add(new byte[memToAlloc]);
             }
             fail("cannot trigger OutOfMemoryError within a reasonable timeframe"); 
         } catch (OutOfMemoryError ex) {
+            System.gc();
             list = null;
+            System.gc();
         }
         cache.recycle(cache.create());
         
