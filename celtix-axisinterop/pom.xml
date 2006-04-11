@@ -129,7 +129,7 @@
     </build>
     <pluginRepositories>
         <pluginRepository>
-            <id>snapshots</id>
+            <id>codehaus-snapshots</id>
             <name>Maven Plugin Repository</name>
             <url>http://snapshots.maven.codehaus.org/maven2</url>
             <layout>default</layout>
