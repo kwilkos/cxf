@@ -233,6 +233,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     }
 
     private void initJAXBModel() {
+        schemaTargetNamespaces.clear();
         extractSchema(wsdlDefinition);
         for (Definition def : importedDefinitions) {
             extractSchema(def);
@@ -244,7 +245,9 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             }
             return;
         }
-
+        
+        schemaTargetNamespaces.clear();
+        
         buildJaxbModel();
     }
 
@@ -266,12 +269,15 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         }
         for (Schema schema : schemaList) {
             boolean skipGenCode = false;
-            Element schemaElement = schema.getElement();
             
+            Element schemaElement = schema.getElement();
             String targetNamespace = schemaElement.getAttribute("targetNamespace");
-            if (targetNamespace == null || targetNamespace.trim().length() == 0) {
+            if (StringUtils.isEmpty(targetNamespace)) {
                 continue;
             }
+            //             if (targetNamespace == null || targetNamespace.trim().length() == 0) {
+            //                 continue;
+            //             }
             if (env.hasExcludeNamespace(targetNamespace)
                 && env.getExcludePackageName(targetNamespace) == null) {
                 skipGenCode = true;
@@ -344,15 +350,20 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         if (imports != null && imports.size() > 0) {
             Collection<String> importKeys = imports.keySet();
             for (String importNamespace : importKeys) {
-                List<SchemaImport> schemaImports = imports.get(importNamespace);
-                for (SchemaImport schemaImport : schemaImports) {
-                    if (!isSchemaImported(schemaImport.getReferencedSchema())) {
-                        addSchema(schemaImport.getReferencedSchema());
+                if (!isSchemaParsed(importNamespace + "?file=" + schema.getDocumentBaseURI())) {
+                    List<SchemaImport> schemaImports = imports.get(importNamespace);
+                    for (SchemaImport schemaImport : schemaImports) {
+                        if (!isSchemaImported(schemaImport.getReferencedSchema())) {
+                            addSchema(schemaImport.getReferencedSchema());
+                        }
                     }
                 }
             }
         }
-        schemaList.add(schema);
+        if (!isSchemaImported(schema)) {
+
+            schemaList.add(schema);
+        }
     }
 
     private void parseCustomization() {
