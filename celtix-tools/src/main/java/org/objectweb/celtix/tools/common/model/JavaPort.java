@@ -86,8 +86,8 @@ public class JavaPort {
         return soapVersion;
     }
     
-    public void setpackageName(String fullname) {
-        this.packageName = fullname;
+    public void setPackageName(String pkgName) {
+        this.packageName = pkgName;
     }
     
     public String getPackageName() {
