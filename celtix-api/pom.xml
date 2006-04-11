@@ -161,6 +161,12 @@
                                     	<dependency>${basedir}/src/main/resources/schemas/configuration/j2ee_1_4.xsd</dependency>
                                     </dependencies>
                                 </xsdOption>
+                                <!--
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-policy.xsd</xsd>
+                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/ws-policy.xjb</bindingFile>
+                                </xsdOption>
+                                -->
                             </xsdOptions>
                             <wsdlOptions>
                                 <wsdlOption>

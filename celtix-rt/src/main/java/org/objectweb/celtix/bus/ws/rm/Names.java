@@ -15,6 +15,9 @@ public final class Names {
     public static final String WSRM_NAMESPACE_NAME = 
         "http://schemas.xmlsoap.org/ws/2005/02/rm";
     
+    public static final String WSRMP_NAMESPACE_NAME = 
+        "http://schemas.xmlsoap.org/ws/2005/02/rm/policy";
+    
     public static final String WSA_NAMESPACE_NAME = 
         "http://schemas.xmlsoap.org/ws/2004/08/addressing";
     

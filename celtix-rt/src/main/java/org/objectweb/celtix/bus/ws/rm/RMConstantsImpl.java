@@ -13,7 +13,13 @@ public class RMConstantsImpl implements RMConstants {
     public String getNamespaceURI() {
         return Names.WSRM_NAMESPACE_NAME;
     }
-    
+     
+    public String getRMPolicyNamespaceURI() {
+        return Names.WSRMP_NAMESPACE_NAME;
+    }
+
+
+
     public String getWSDLNamespaceURI() {
         return Names.WSRM_WSDL_NAMESPACE_NAME;
     }

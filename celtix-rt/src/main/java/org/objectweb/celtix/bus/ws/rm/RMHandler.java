@@ -226,6 +226,11 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         if (null == cfg) {
             cfg = builder.buildConfiguration(RM_CONFIGURATION_URI, RM_CONFIGURATION_ID, parent);
         }
+   
+        cfg.getProviders().add(new RMPolicyProvider(getBinding().getBus(),
+                                                    getBinding().getEndpointReference()));
+
+        
         return cfg;
 
     }

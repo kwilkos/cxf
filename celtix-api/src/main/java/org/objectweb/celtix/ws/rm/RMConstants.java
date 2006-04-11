@@ -10,6 +10,11 @@ public interface RMConstants {
     String getNamespaceURI();
     
     /**
+     * @return namespace defined by the WS-RM Policy schema
+     */
+    String getRMPolicyNamespaceURI();
+    
+    /**
      * @return namespace defined by the normative WS-RM WSDL bindings
      * schema
      */

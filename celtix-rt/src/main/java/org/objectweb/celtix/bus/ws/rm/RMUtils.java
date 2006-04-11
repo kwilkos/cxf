@@ -2,10 +2,12 @@ package org.objectweb.celtix.bus.ws.rm;
 
 import org.objectweb.celtix.bus.ws.addressing.AddressingConstantsImpl;
 import org.objectweb.celtix.bus.ws.addressing.VersionTransformer;
+import org.objectweb.celtix.bus.ws.policy.PolicyConstantsImpl;
 import org.objectweb.celtix.ws.addressing.AddressingConstants;
 import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 
+import org.objectweb.celtix.ws.policy.PolicyConstants;
 import org.objectweb.celtix.ws.rm.RMConstants;
 
 public final class RMUtils {
@@ -16,6 +18,7 @@ public final class RMUtils {
     private static final org.objectweb.celtix.ws.rm.policy.ObjectFactory WSRM_POLICY_FACTORY;
     private static final RMConstants WSRM_CONSTANTS;
     private static final AddressingConstants WSA_CONSTANTS; 
+    private static final PolicyConstants WSP_CONSTANTS;
     
     static {
         WSA_FACTORY = new org.objectweb.celtix.ws.addressing.v200408.ObjectFactory();
@@ -24,6 +27,7 @@ public final class RMUtils {
         WSRM_POLICY_FACTORY = new org.objectweb.celtix.ws.rm.policy.ObjectFactory();
         WSRM_CONSTANTS = new RMConstantsImpl();
         WSA_CONSTANTS = new AddressingConstantsImpl();
+        WSP_CONSTANTS = new PolicyConstantsImpl();
     }
     
     /**
@@ -55,6 +59,10 @@ public final class RMUtils {
     
     public static AddressingConstants getAddressingConstants() {
         return WSA_CONSTANTS;
+    }
+    
+    public static PolicyConstants getPolicyConstants() {
+        return WSP_CONSTANTS;
     }
     
     public static EndpointReferenceType createReference(String address) {
