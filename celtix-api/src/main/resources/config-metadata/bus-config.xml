@@ -74,4 +74,14 @@
 	</ct:stringListValue>
     </cm:configItem>
 
+    <cm:configItem>
+        <cm:name>servicesMonitoring</cm:name>
+        <cm:type>xs:boolean</cm:type>
+        <cm:description>
+	  Used to enable or disable services performance monitoring
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>    
+        <std-types:booleanValue xmlns:std-types="http://celtix.objectweb.org/configuration/types">false</std-types:booleanValue>        
+    </cm:configItem>
+    
 </cm:config>

@@ -34,14 +34,14 @@ public class AbstractConfigurationImpl implements Configuration {
     public AbstractConfigurationImpl(ConfigurationMetadata m, String instanceId, Configuration parent) {
         model = m;
         id = instanceId;
-        configurator = new ConfiguratorImpl(this, parent instanceof AbstractConfigurationImpl 
-                                            ? (AbstractConfigurationImpl)parent 
+        configurator = new ConfiguratorImpl(this, parent instanceof AbstractConfigurationImpl
+                                            ? (AbstractConfigurationImpl)parent
                                             : null);
 
         providers = new Vector<ConfigurationProvider>();
-        
+
         // temporary:
-        
+
         providers.add(new InMemoryProvider());
 
         DefaultConfigurationProviderFactory factory = DefaultConfigurationProviderFactory.getInstance();
@@ -51,7 +51,7 @@ public class AbstractConfigurationImpl implements Configuration {
             providers.add(defaultProvider);
         }
     }
-   
+
     public Object getId() {
         return id;
     }
@@ -65,7 +65,7 @@ public class AbstractConfigurationImpl implements Configuration {
 
     public Configuration getChild(String namespaceURI, Object childId) {
         for (Configurator c : configurator.getClients()) {
-            if (namespaceURI.equals(c.getConfiguration().getModel().getNamespaceURI()) 
+            if (namespaceURI.equals(c.getConfiguration().getModel().getNamespaceURI())
                 && childId.equals(c.getConfiguration().getId())) {
                 return c.getConfiguration();
             }
@@ -92,7 +92,7 @@ public class AbstractConfigurationImpl implements Configuration {
         Object obj = getObject(name);
         return cls.cast(obj);
     }
-    
+
     public Object getObject(String name) {
 
         ConfigurationItemMetadata definition = model.getDefinition(name);
@@ -110,7 +110,7 @@ public class AbstractConfigurationImpl implements Configuration {
         }
         return definition.getDefaultValue();
     }
-    
+
     /**
      * Check if property is defined and validate the value.
      * Then try all providers in turn until one is found that accepts the change.
@@ -121,12 +121,12 @@ public class AbstractConfigurationImpl implements Configuration {
             throw new ConfigurationException(new Message("ITEM_NOT_DEFINED_EXC", BUNDLE, name));
         }
         // TODO: use model to validate value
-       
+
         // TODO: check if property can be modified at all:
         // if it is static, report an error, if it is process or bus accept the change but log a
         // warning informing the user that the change will take effect only after next bus
         // or process restart
- 
+
         // try all registered providers in turn to find one that accepts the change
         boolean accepted = false;
 
@@ -139,7 +139,7 @@ public class AbstractConfigurationImpl implements Configuration {
 
         // TODO: event listeners
         if (accepted) {
-            //notify listeners
+            reconfigure(name);
         }
         return false;
     }
@@ -243,7 +243,7 @@ public class AbstractConfigurationImpl implements Configuration {
         try {
             Method method = obj.getClass().getMethod("getItem", new Class[0]);
             obj = method.invoke(obj, new Object[0]);
-            
+
             return (List<String>)obj;
         } catch (ClassCastException ex) {
             QName type = model.getDefinition(name).getType();
@@ -276,5 +276,9 @@ public class AbstractConfigurationImpl implements Configuration {
 
     public final Configurator getConfigurator() {
         return configurator;
+    }
+
+    public void reconfigure(String name) {
+        //Bus.getCurrent().sendEvent(new ConfigurationEvent(name, ConfigurationEvent.RECONFIGURED));
     }
 }

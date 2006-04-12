@@ -11,6 +11,8 @@ import org.objectweb.celtix.BusEventListener;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bus.bindings.BindingManagerImpl;
+import org.objectweb.celtix.bus.configuration.ConfigurationEvent;
+import org.objectweb.celtix.bus.configuration.ConfigurationEventFilter;
 import org.objectweb.celtix.bus.jaxws.EndpointRegistryImpl;
 import org.objectweb.celtix.bus.management.InstrumentationManagerImpl;
 import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
@@ -28,7 +30,7 @@ import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 
-public class CeltixBus extends Bus {
+public class CeltixBus extends Bus implements BusEventListener {
 
     private Configuration configuration;
     private BindingManager bindingManager;
@@ -44,30 +46,35 @@ public class CeltixBus extends Bus {
     private BusEventCache eventCache;
     private BusEventProcessor eventProcessor;
     private String busID;
-   
-    
+    private boolean servicesMonitoring;
+
+
     /**
      * Used by the <code>BusFactory</code> to initialize a new bus.
-     * 
+     *
      * @param args the command line configuration of this <code>Bus</code>.
      */
     public void initialize(String[] args, Map<String, Object> properties)
         throws BusException {
 
-        
-        lifeCycleManager = new CeltixBusLifeCycleManager();        
-        
-        configuration = new BusConfigurationBuilder().build(args, properties);        
-        
-        busID = (String) configuration.getId();
-        
+
+        lifeCycleManager = new CeltixBusLifeCycleManager();
+
         // register a event cache for all bus events
         eventCache = new BusEventCacheImpl(this);
         //TODO: shall we add BusEventProcessor to a celtix bus registry?
         eventProcessor = new BusEventProcessor(this, eventCache);
 
-        instrumentationManager = new InstrumentationManagerImpl(this); 
-        
+        configuration = new BusConfigurationBuilder().build(args, properties);
+        //Register bus on bus configuration to receive ConfigurationEvent
+        ConfigurationEventFilter configurationEventFilter = new ConfigurationEventFilter();
+        addListener((BusEventListener)this, configurationEventFilter);
+
+        busID = (String) configuration.getId();
+        servicesMonitoring = configuration.getBoolean("servicesMonitoring");
+
+        instrumentationManager = new InstrumentationManagerImpl(this);
+
         wsdlManager = new WSDLManagerImpl(this);
         transportFactoryManager = new TransportFactoryManagerImpl(this);
         bindingManager = new BindingManagerImpl(this);
@@ -78,9 +85,9 @@ public class CeltixBus extends Bus {
         // clientRegistry = new ClientRegistry(this);
 
         endpointRegistry = new EndpointRegistryImpl(this);
-       
-        Bus.setCurrent(this);        
-       
+
+        Bus.setCurrent(this);
+
         lifeCycleManager.initComplete();
         //send bus component created event
         this.sendEvent(new ComponentCreatedEvent(this));
@@ -114,7 +121,7 @@ public class CeltixBus extends Bus {
 
         // shutdown in inverse order of construction
 
-        endpointRegistry.shutdown();        
+        endpointRegistry.shutdown();
 
         transportFactoryManager.shutdown();
         bindingManager.shutdown();
@@ -211,18 +218,18 @@ public class CeltixBus extends Bus {
     public WorkQueueManager getWorkQueueManager() {
         return workQueueManager;
     }
-    
+
 
     /* (non-Javadoc)
      * @see org.objectweb.celtix.Bus#getResourceManager()
      */
     @Override
-    public ResourceManager getResourceManager() { 
+    public ResourceManager getResourceManager() {
         return resourceManager;
     }
 
     @Override
-    public InstrumentationManager getInstrumentationManager() {        
+    public InstrumentationManager getInstrumentationManager() {
         return instrumentationManager;
     }
 
@@ -250,5 +257,33 @@ public class CeltixBus extends Bus {
     public String getBusID() {
         return busID;
     }
-    
+
+    public boolean isServicesMonitoring() {
+        return servicesMonitoring;
+    }
+
+    public void setServicesMonitoring(boolean pServicesMonitoring) {
+        servicesMonitoring = pServicesMonitoring;
+    }
+
+    // The notification between runtime components and corresponding
+    // configurations to support dynamic configuration
+    public void processEvent(BusEvent e) throws BusException {
+        if (e.getID().equals(ConfigurationEvent.RECONFIGURED)) {
+            String configName = (String)e.getSource();
+            /*
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info("CeltixBus processEvent " + configName + ": reconfigured.");
+            }
+            */
+            reConfigure(configName);
+        }
+    }
+
+    private void reConfigure(String configName) {
+        if ("servicesMonitoring".equals(configName)) {
+            servicesMonitoring = configuration.getBoolean("servicesMonitoring");
+        }
+
+    }
 }
