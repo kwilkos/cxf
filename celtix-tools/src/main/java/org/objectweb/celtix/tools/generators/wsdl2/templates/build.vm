@@ -78,7 +78,7 @@
     </path>
 
 #foreach ($interface in $intfs)
-    <target name="${interface.Name}.Client" description="Run ${interface.Name} client">
+    <target name="${interface.Name}.Client" description="Run ${interface.Name} client" depends="compile">
 	<property name="param" value=""/>
 	<celtixrun classname="${interface.PackageName}.${interface.Name}Client"
 		   param1="$wsdlLocation"
@@ -86,7 +86,7 @@
 		   param3="${param}"/>
     </target> 
 
-    <target name="${interface.Name}.Server" description="Run ${interface.Name} server">
+    <target name="${interface.Name}.Server" description="Run ${interface.Name} server" depends="compile">
 	<celtixrun classname="${interface.PackageName}.${interface.Name}Server" 
 		   param1="$wsdlLocation"/>
     </target>

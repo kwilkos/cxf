@@ -44,12 +44,12 @@ public class ${intf.Name}Impl implements $intf.Name {
 #if($method.Exceptions.size() > 0) throws #foreach($exception in $method.Exceptions)$exception.ClassName #if($velocityCount != $method.Exceptions.size()),#end #end #end
     { 
        LOG.info("Executing operation $method.Name");
-#if ($method.return.ClassName != "void")    ##// return new ${method.return.ClassName}();
-    return null;
+#if ($method.return.ClassName != "void")    ##
+    return new ${method.return.ClassName}();
 #end
 #if ($method.Exceptions.size() > 0) 
 #foreach($exception in $method.Exceptions)
-    // throw new ${exception.ClassName}("${exception.Name}...");
+    //throw new ${exception.ClassName}("${exception.Name}...");
 #end
 #end
     }

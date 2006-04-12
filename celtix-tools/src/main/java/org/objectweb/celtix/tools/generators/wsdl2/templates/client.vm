@@ -39,18 +39,18 @@ public final class ${clientClassName} {
         // we get the parameter size "${method.parameterCount}"     
         System.out.println("Invoking ${method.Name}...");
 #if($method.Exceptions.size() > 0)
-        //try{
+        try{
             #if($method.return.Type != "void")
-            //$method.return.ClassName _${method.Name}_$method.return.Name=#end  port.${method.Name}(#foreach ($parameter in $method.Parameters) new ${parameter.ClassName}()  #if ($velocityCount != $method.parameterCount) , #end #end);
-        //}#foreach($exception in $method.Exceptions)
-        //catch($exception.ClassName e){ 
-        //System.out.println("Expected exception: $exception.Name has occurred.");
-        //System.out.println(e.toString());
-        //}#end
+            $method.return.ClassName _${method.Name}_$method.return.Name=#end  port.${method.Name}(#foreach ($parameter in $method.Parameters) new ${parameter.ClassName}()  #if ($velocityCount != $method.parameterCount) , #end #end);
+        }#foreach($exception in $method.Exceptions)
+        catch($exception.ClassName e){ 
+        System.out.println("Expected exception: $exception.Name has occurred.");
+        System.out.println(e.toString());
+        }#end
         #else
         #if($method.return.ClassName != "void")
-        // $method.return.ClassName _${method.Name}_$method.return.Name=
-        #end // port.${method.Name}(#foreach ($parameter in $method.Parameters) new ${parameter.ClassName}() #if ($velocityCount != $method.parameterCount) , #end #end);#end#end
+        $method.return.ClassName _${method.Name}_$method.return.Name=
+        #end  port.${method.Name}(#foreach ($parameter in $method.Parameters) new ${parameter.ClassName}() #if ($velocityCount != $method.parameterCount) , #end #end);#end#end
         
         
         System.exit(0);
