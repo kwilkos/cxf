@@ -74,7 +74,7 @@ public class RouterTest extends TestCase {
                                            sourceSrv, sourcePort, 
                                            destSrv, destPort);
         
-        TestRouter router = new TestRouter(def, rt);
+        TestRouter router = new TestRouter(null, def, rt);
         router.init();
         assertEquals(1, router.epList.size());
         Endpoint ep = router.epList.get(0);
@@ -99,7 +99,7 @@ public class RouterTest extends TestCase {
                                            sourceSrv, sourcePort, 
                                            destSrv, destPort);
         
-        TestRouter router = new TestRouter(def, rt);
+        TestRouter router = new TestRouter(null, def, rt);
         assertNotNull("WSDL Model should be set for the router", router.getWSDLModel());
         assertNotNull("RouteType should be set for the router", router.getRoute());
 
@@ -125,10 +125,10 @@ public class RouterTest extends TestCase {
     }
 
 
-    class TestRouter extends Router {
+    class TestRouter extends RouterImpl {
 
-        public TestRouter(Definition model, RouteType rt) {
-            super(model, rt);
+        public TestRouter(RouterManager rm, Definition model, RouteType rt) {
+            super(rm, model, rt);
         }
 
         public boolean testIsSameBindingId(Port p) {

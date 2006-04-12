@@ -44,6 +44,11 @@
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
+            <artifactId>celtix-tools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
             <artifactId>celtix-rt</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -69,16 +74,6 @@
             <artifactId>wsdl4j</artifactId>
             <version>1.5.2</version>
         </dependency>
-        <!-- TEMP REMOVED-->
-        <!--
-            <dependency>
-                <groupId>javax.jws</groupId>
-                <artifactId>jsr181-api</artifactId>
-                <version>${jaxws.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            -->
-
     </dependencies>
 
 

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.wsdl.Binding;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
@@ -24,11 +23,12 @@ import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 
 public class RouterFactory {
     private static final Logger LOG = LogUtils.getL7dLogger(RouterFactory.class);
-    
+    private RouterManager mgr;    
     private Bus bus;
+
     
-    public RouterFactory() {
-        //Complete
+    public RouterFactory(RouterManager rm) {
+        mgr = rm;
     }
    
     public void init(Bus b) {
@@ -100,26 +100,11 @@ public class RouterFactory {
             || null == destPort) {
             return false;
         }
-        
-        Binding sourceBinding = sourcePort.getBinding();
-        Binding destBinding = destPort.getBinding();
-        
-        List<ExtensibilityElement> srcExtList = sourceBinding.getExtensibilityElements();
-        List<ExtensibilityElement> destExtList = destBinding.getExtensibilityElements();
-        //No Extesnion Elements, assume bindingId's are same
-        if (srcExtList.size() == 0
-            || destExtList.size() == 0) {
-            return true;
-        }
-        
-        ExtensibilityElement srcExtEl = srcExtList.get(0);
-        ExtensibilityElement destExtEl = destExtList.get(0);
-        
-        return srcExtEl.getElementType().getNamespaceURI().equals(
-                            destExtEl.getElementType().getNamespaceURI());
+
+        return true;
     }
     
     public Router createRouter(Definition model, RouteType route) {
-        return new Router(model, route);
+        return new RouterImpl(mgr, model, route);
     }
 }

@@ -34,8 +34,8 @@ public class RouterFactoryTest extends TestCase {
         Definition def = bus.getWSDLManager().getDefinition(getClass().getResource("/wsdl/router.wsdl"));
 
         List<Router> rList = factory.addRoutes(def);
-        assertEquals(1, rList.size());
-        assertEquals(1, factory.routerCount);
+        assertEquals(2, rList.size());
+        assertEquals(2, factory.routerCount);
     }
     
     public static void main(String[] args) {
@@ -46,14 +46,36 @@ public class RouterFactoryTest extends TestCase {
     class TestRouterFactory extends RouterFactory {
         private int routerCount;
         public TestRouterFactory() {
-            super();
+            super(null);
             routerCount = 0;
         }
         
         public Router createRouter(Definition model, RouteType route) {
-            Router router = super.createRouter(model, route);
+            //Router router = super.createRouter(model, route);
             ++routerCount;
-            return router;
+            return new TestRouter();
+        }
+    }
+    
+    class TestRouter implements Router {
+        public TestRouter() {
+            //Complete
+        }
+        
+        public Definition getWSDLModel() {
+            return null;
+        }
+
+        public RouteType getRoute() {
+            return null;
+        }
+
+        public void init() {
+            //Complete
+        }
+
+        public void publish() {
+            //Complete
         }
     }
 }

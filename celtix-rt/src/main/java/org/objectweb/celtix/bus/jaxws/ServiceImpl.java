@@ -3,7 +3,6 @@ package org.objectweb.celtix.bus.jaxws;
 import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.net.URL;
-import java.rmi.Remote;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -145,8 +144,7 @@ public class ServiceImpl extends ServiceDelegate {
         createHandlerChainForBinding(serviceEndpointInterface, portName, endpointHandler.getBinding());
 
         Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(),
-                                            new Class[] {serviceEndpointInterface, Remote.class,
-                                                         BindingProvider.class},
+                                            new Class[] {serviceEndpointInterface, BindingProvider.class},
                                             endpointHandler);
 
         LOG.log(Level.FINE, "created proxy", obj);

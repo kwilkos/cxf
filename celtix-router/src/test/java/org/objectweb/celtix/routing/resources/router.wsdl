@@ -205,4 +205,15 @@
         <ns1:destination port="JMSSoapPortDestination" service="tns:JMSSoapServiceDestination"/>
     </ns1:route>
     <!--END-->
+
+    <wsdl:service name="HTTPXMLServiceSource">
+        <wsdl:port name="HTTPXMLPortSource" binding="tns:Greeter_XMLBinding">
+            <soap:address location="http://localhost:9003"/>
+        </wsdl:port>
+    </wsdl:service>
+
+    <ns1:route name="route_3">
+        <ns1:source port="HTTPXMLPortSource" service="tns:HTTPXMLServiceSource"/>
+        <ns1:destination port="HTTPSoapPortDestination" service="tns:HTTPSoapServiceDestination"/>
+    </ns1:route>
 </wsdl:definitions>

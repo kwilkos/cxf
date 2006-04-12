@@ -14,7 +14,6 @@ public class RouterServer extends TestServerBase {
     public RouterServer(String[] args) {
         URL routerConfigFileUrl = getClass().getResource("router_config.xml");
         System.setProperty("celtix.config.file", routerConfigFileUrl.toString());
-        //System.out.println("CF:" + routerConfigFileUrl.toString());
         try {
             bus = Bus.init(args);
         } catch (BusException be) {
@@ -23,8 +22,7 @@ public class RouterServer extends TestServerBase {
     }
 
     protected void run()  {
-        //RouterManager.main(serverArgs);
-        RouterManager rm = new RouterManager(bus);        
+        RouterManager rm = new RouterManager(bus);
         rm.init();
     }
 
