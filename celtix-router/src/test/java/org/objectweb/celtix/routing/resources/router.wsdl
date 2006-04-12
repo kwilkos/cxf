@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xformat="http://celtix.objectweb.org/bindings/xmlformat" xmlns:jms="http://celtix.objectweb.org/transports/jms" xmlns:ns1="http://celtix.objectweb.org/routing/configuration" xmlns:tns="http://objectweb.org/hello_world_doc_lit" xmlns:x1="http://objectweb.org/hello_world_doc_lit/types" targetNamespace="http://objectweb.org/hello_world_doc_lit" name="HelloWorld">
+<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xformat="http://celtix.objectweb.org/bindings/xmlformat" xmlns:jms="http://celtix.objectweb.org/transports/jms" xmlns:ns1="http://celtix.objectweb.org/routing/configuration" xmlns:tns="http://objectweb.org/HWRouter" xmlns:x1="http://objectweb.org/HWRouter/types" targetNamespace="http://objectweb.org/HWRouter" name="HelloWorld">
     <wsdl:types>
-        <schema targetNamespace="http://objectweb.org/hello_world_doc_lit/types" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+        <schema targetNamespace="http://objectweb.org/HWRouter/types" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
             <element name="sayHi">
                 <complexType/>
             </element>

@@ -34,7 +34,7 @@ public class RouterTest extends TestCase {
         Bus bus = Bus.init(null, properties);
         Bus.setCurrent(bus);
 
-        Definition def = bus.getWSDLManager().getDefinition(getClass().getResource("/wsdl/router.wsdl"));
+        Definition def = bus.getWSDLManager().getDefinition(getClass().getResource("resources/router.wsdl"));
 
         QName sourceSrv = new QName("http://objectweb.org/HWRouter", "HTTPSoapServiceSource");
         String sourcePort = new String("HTTPSoapPortSource");
@@ -62,7 +62,7 @@ public class RouterTest extends TestCase {
         Bus bus = Bus.init(null, properties);
         Bus.setCurrent(bus);
 
-        Definition def = bus.getWSDLManager().getDefinition(getClass().getResource("/wsdl/router.wsdl"));
+        Definition def = bus.getWSDLManager().getDefinition(getClass().getResource("resources/router.wsdl"));
 
         QName sourceSrv = new QName("http://objectweb.org/HWRouter", "HTTPSoapServiceSource");
         String sourcePort = new String("HTTPSoapPortSource");

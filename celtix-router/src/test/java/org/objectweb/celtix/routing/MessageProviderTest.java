@@ -33,7 +33,7 @@ public class MessageProviderTest extends TestCase {
         Bus bus = Bus.init(null, properties);
         Bus.setCurrent(bus);
 
-        URL wsdlUrl = getClass().getResource("/wsdl/router.wsdl");
+        URL wsdlUrl = getClass().getResource("resources/router.wsdl");
         Definition def = bus.getWSDLManager().getDefinition(wsdlUrl);
 
         QName sourceSrv = new QName("http://objectweb.org/HWRouter", "HTTPSoapServiceSource");

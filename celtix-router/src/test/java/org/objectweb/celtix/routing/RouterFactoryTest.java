@@ -31,11 +31,11 @@ public class RouterFactoryTest extends TestCase {
         TestRouterFactory factory = new TestRouterFactory();
         factory.init(bus);
         
-        Definition def = bus.getWSDLManager().getDefinition(getClass().getResource("/wsdl/router.wsdl"));
+        Definition def = bus.getWSDLManager().getDefinition(getClass().getResource("resources/router.wsdl"));
 
         List<Router> rList = factory.addRoutes(def);
-        assertEquals(2, rList.size());
-        assertEquals(2, factory.routerCount);
+        assertEquals(4, rList.size());
+        assertEquals(4, factory.routerCount);
     }
     
     public static void main(String[] args) {
