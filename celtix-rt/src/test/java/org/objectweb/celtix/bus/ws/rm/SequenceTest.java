@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Timer;
@@ -451,7 +452,7 @@ public class SequenceTest extends TestCase {
         assertFalse(seq.sendAcknowledgement());
     }
     
-    public void testAcknowledgeDeferred() throws SequenceFault {
+    public void testAcknowledgeDeferred() throws SequenceFault, IOException {
         ap.setIntraMessageThreshold(0);
         AcknowledgementInterval ai = 
             RMUtils.getWSRMPolicyFactory().createRMAssertionTypeAcknowledgementInterval();
@@ -467,11 +468,19 @@ public class SequenceTest extends TestCase {
         expectLastCall().andReturn(rma).times(3);
         destination.getAcksPolicy();
         expectLastCall().andReturn(ap).times(3);
-        replay(destination);
-        replay(handler);
         
         Sequence seq = new Sequence(id, destination, ref);
         assertTrue(!seq.sendAcknowledgement());
+        
+        RMProxy proxy = createMock(RMProxy.class);
+        handler.getProxy();
+        expectLastCall().andReturn(proxy);
+        proxy.acknowledge(seq);
+        expectLastCall();
+        
+        replay(destination);
+        replay(handler);
+        replay(proxy); 
               
         seq.acknowledge(new BigInteger("1")); 
         seq.acknowledge(new BigInteger("2"));

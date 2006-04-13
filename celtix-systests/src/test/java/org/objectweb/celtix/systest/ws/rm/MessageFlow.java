@@ -261,9 +261,10 @@ public class MessageFlow extends Assert {
         }
     }
     
-    public void verifyInboundMessages(int nExpected) {
-        for (int i = 0; i < 10; i++) {
-            if (inboundContexts.size() < nExpected) {
+    public void verifyMessages(int nExpected, boolean outbound, int interval, int attempts) {
+        for (int i = 0; i < attempts; i++) {
+            if ((outbound && outboundMessages.size() < nExpected)
+                || (!outbound && inboundContexts.size() < nExpected)) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
@@ -273,6 +274,12 @@ public class MessageFlow extends Assert {
                 break;
             }
         }
-        assertEquals("Did not receive the expected number of messages.", nExpected, inboundContexts.size());
+        if (outbound) {
+            assertEquals("Did not send the expected number of outbound messages.", 
+                         nExpected, outboundMessages.size());
+        } else {
+            assertEquals("Did not receive the expected number of inbound messages.", 
+                         nExpected, inboundContexts.size());
+        }
     }
 }

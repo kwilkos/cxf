@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -498,6 +499,12 @@ public class Sequence {
 
         public void run() {
             Sequence.this.scheduleImmediateAcknowledgement();
+            try {
+                destination.getHandler().getProxy().acknowledge(Sequence.this);
+            } catch (IOException ex) {
+                Message msg = new Message("SEQ_ACK_SEND_EXC", LOG, Sequence.this);
+                LOG.log(Level.SEVERE, msg.toString(), ex);
+            }
         }
     }
 }

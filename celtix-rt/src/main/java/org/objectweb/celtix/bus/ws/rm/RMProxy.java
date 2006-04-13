@@ -101,6 +101,10 @@ public class RMProxy {
      * @throws IOException
      */
     public void acknowledge(Sequence seq) throws IOException {
+        if (Names.WSA_ANONYMOUS_ADDRESS.equals(seq.getAcksTo().getAddress().getValue())) {
+            LOG.log(Level.WARNING, "STANDALONE_ANON_ACKS_NOT_SUPPORTED");
+            return;
+        }
         LOG.fine("sending standalone sequence acknowledgment");
         SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding()); 
         request.acknowledge(seq);

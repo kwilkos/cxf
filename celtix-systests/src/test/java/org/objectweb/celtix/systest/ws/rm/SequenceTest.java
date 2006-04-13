@@ -50,11 +50,16 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean yes = true;
     private boolean no;
     
+    // enable currently disabled tests when transport apis allows to 
+    // originate standalone requests from server side
+    
     private boolean doTestOnewayAnonymousAcks = yes;
-    private boolean doTestOnewayDeferredAnonymousAcks = yes;    
+    private boolean doTestOnewayDeferredAnonymousAcks = yes; 
+    private boolean doTestOnewayDeferredNonAnonymousAcks = no;
     private boolean doTestOnewayAnonymousAcksSequenceLength1 = yes; 
     private boolean doTestOnewayAnonymousAcksSupressed = yes;
     private boolean doTestTwowayNonAnonymous = yes;
+    private boolean doTestTwowayNonAnonymousDeferred = yes;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = yes;    
     private boolean doTestTwowayNonAnonymousNoOffer = no;
     private boolean doTestTwowayMessageLoss = yes;
@@ -113,7 +118,7 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
         mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
     }
-    
+   
     public void testOnewayDeferredAnonymousAcks() throws Exception {
         if (!doTestOnewayDeferredAnonymousAcks) {
             return;
@@ -148,6 +153,47 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyAcknowledgements(new boolean[] {false, false, false, true}, false);
     }
     
+    public void testOnewayDeferredNonAnonymousAcks() throws Exception {
+        if (!doTestOnewayDeferredNonAnonymousAcks) {
+            return;
+        }
+        setupEndpoints("nonanonymous-deferred");
+
+        greeter.greetMeOneWay("once");
+        greeter.greetMeOneWay("twice");
+
+        // CreateSequence plus two greetMeOneWay requests
+        
+        mf.verifyMessages(3, true);
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2"}, true);
+
+        // CreateSequenceResponse plus three partial responses, no acknowledgments included
+
+        mf.verifyMessages(4, false);
+        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[4], false);
+        mf.verifyAcknowledgements(new boolean[4], false);
+        
+        mf.getInboundContexts().clear();
+        mf.getOutboundMessages().clear();
+        
+        try {
+            Thread.sleep(3 * 1000);
+        } catch (InterruptedException ex) {
+            // ignore
+        }
+        
+        // a standalone acknowledgement should have been sent from the server side by now
+        
+        mf.verifyMessages(0, true);
+        mf.verifyMessages(0, false); 
+        
+    }
+    
     public void testOnewayAnonymousAcksSequenceLength1() throws Exception {
         if (!doTestOnewayAnonymousAcksSequenceLength1) {
             return;
@@ -172,7 +218,7 @@ public class SequenceTest extends ClientServerTestBase {
         // createSequenceResponse message plus partial responses to
         // greetMeOneWay and terminateSequence ||: 2
 
-        mf.verifyInboundMessages(6);
+        mf.verifyMessages(6, false, 100, 5);
        
         expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null,
                                         Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null};
@@ -260,6 +306,51 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyAcknowledgements(new boolean[] {false, false, false, true, false, true, false, true}, false);
     }
     
+    public void testTwowayNonAnonymousDeferred() throws Exception {
+        if (!doTestTwowayNonAnonymousDeferred) {
+            return;
+        }
+        setupEndpoints("nonanonymous-deferred");
+
+        greeter.greetMe("one");
+        greeter.greetMe("two");
+
+        // CreateSequence and three greetMe messages, no acknowledgments included
+       
+        mf.verifyMessages(3, true);
+        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, GREETME_ACTION,
+                                                 GREETME_ACTION};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2"}, true);
+        mf.verifyLastMessage(new boolean[3], true);
+        mf.verifyAcknowledgements(new boolean[3], true);
+        
+        // CreateSequenceResponse plus 2 greetMeResponse messages plus
+        // one partial response for each of the four messages no acknowledgments included
+
+        mf.verifyMessages(6, false);
+        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null,
+                                        GREETME_RESPONSE_ACTION, null,
+                                        GREETME_RESPONSE_ACTION};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, null, null, "1", null, "2"}, false);
+        mf.verifyLastMessage(new boolean[6], false);
+        mf.verifyAcknowledgements(new boolean[6], false);
+        
+        mf.getInboundContexts().clear();
+        mf.getOutboundMessages().clear();
+        
+        // a standalone acknowledgement should have been sent from the server side by now
+        
+        mf.verifyMessages(1, true, 1000, 5);
+        mf.verifyMessageNumbers(new String[1], true);
+        mf.verifyLastMessage(new boolean[1], true);
+        mf.verifyAcknowledgements(new boolean[] {true} , true);
+        
+        // TODO: verify incoming requests also
+          
+    }
+    
     /**
      * A maximum sequence length of 2 is configured for the client only.
      * However, as we use the defaults regarding the including and acceptance for
@@ -296,9 +387,9 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyAcknowledgements(new boolean[] {false, false, true, false, true, false, false}, true);
 
         // Note that we don't expect a partial response to standalone LastMessage or 
-        // SequenceAcknowledgement messages
+        // SequenceAcknowledgment messages
         
-        mf.verifyInboundMessages(11);
+        mf.verifyMessages(11, false, 100, 5);
         
         expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
                                         null, GREETME_RESPONSE_ACTION, 
@@ -316,9 +407,6 @@ public class SequenceTest extends ClientServerTestBase {
         expected[10] = true;
         mf.verifyAcknowledgements(expected, false);
     }
-
-    // enable after server transport api has changed to support
-    // requests being send from a server side
 
     public void testTwowayNonAnonymousNoOffer() throws Exception {
         if (!doTestTwowayNonAnonymousNoOffer) {
@@ -392,11 +480,11 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyAcknowledgements(new boolean[] {false, false, false, true, false, false, true, false},
                                   false);
         
-        // wait for resends to occur
-        mf.clear();
-        Thread.sleep(20 * 1000);
         
-        mf.verifyMessages(4, true);
+        mf.clear();
+        
+        // wait for resends to occur
+        mf.verifyMessages(4, true, 1000, 20);
         expectedActions = new String[] {GREETME_ACTION, GREETME_ACTION, 
                                         GREETME_ACTION, GREETME_ACTION};
         mf.verifyActions(expectedActions, true);
