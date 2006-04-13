@@ -1,4 +1,4 @@
-package org.objectweb.celtix.ws.rm;
+package org.objectweb.celtix.ws.rm.persistence;
 
 import java.math.BigInteger;
 

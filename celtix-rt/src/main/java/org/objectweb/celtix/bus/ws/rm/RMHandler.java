@@ -21,6 +21,7 @@ import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.bus.ws.addressing.VersionTransformer;
+import org.objectweb.celtix.bus.ws.rm.persistence.RMStoreFactory;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
@@ -43,6 +44,7 @@ import org.objectweb.celtix.ws.rm.RMProperties;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceType;
 import org.objectweb.celtix.ws.rm.TerminateSequenceType;
+import org.objectweb.celtix.ws.rm.persistence.RMStore;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
@@ -58,6 +60,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     private RMProxy proxy;
     private RMServant servant;
     private Configuration configuration;
+    private RMStore store;
     private Timer timer;
     private boolean busLifeCycleListenerRegistered;
 
@@ -107,6 +110,10 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     
     public Configuration getConfiguration() {
         return configuration;
+    }
+    
+    public RMStore getStore() {
+        return store;
     }
 
     public Timer getTimer() {
@@ -186,6 +193,10 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         if (null == configuration) {
             configuration = createConfiguration(context);
         } 
+        
+        if (null == store) {
+            store = new RMStoreFactory().getStore(configuration);
+        }
         
         if (null == getSource()) {
             source = new RMSource(this);

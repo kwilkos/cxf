@@ -47,4 +47,17 @@
         <!-- no default -->
     </cm:configItem>
     
+    <cm:configItem>
+        <cm:name>store</cm:name>
+        <cm:type>wsrm-conf:storeType</cm:type>
+        <cm:description>
+            Used for configuring the RM persistent store.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <wsrm-conf:store>
+            <wsrm-conf:store-name>File based store</wsrm-conf:store-name>
+            <wsrm-conf:store-class>org.objectweb.celtix.bus.ws.rm.persistence.file.RMFileStore</wsrm-conf:store-class>
+        </wsrm-conf:store>
+    </cm:configItem>
+    
 </cm:config>
