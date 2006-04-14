@@ -1,6 +1,7 @@
 package org.objectweb.celtix.ws.rm.persistence;
 
 import java.math.BigInteger;
+import java.util.Date;
 
 import org.objectweb.celtix.ws.rm.Identifier;
 
@@ -30,5 +31,10 @@ public interface RMSourceSequence {
     /**
      * @return the identifier of the rm source
      */
-    String getEndpointIdentifier();  
+    String getEndpointIdentifier(); 
+    
+    /**
+     * @return the expiry data of this sequence
+     */
+    Date getExpiry();
 }

@@ -26,7 +26,13 @@ public class RMFileStore implements RMStore {
         assert null != root;
     }
     
-    public void createSequence(RMSourceSequence seq) {
+
+    public void createDestinationSequence(RMDestinationSequence seq) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void createSourceSequence(RMSourceSequence seq) {
         // TODO Auto-generated method stub
         
     }
@@ -51,25 +57,29 @@ public class RMFileStore implements RMStore {
         return null;
     }
 
-    public void persistIncoming(Identifier destSequenceId, boolean lastMessage, RMMessage msg) {
+    public void persistIncoming(RMDestinationSequence seq, RMMessage msg) {
         // TODO Auto-generated method stub
         
     }
 
-    public void persistOutgoing(Identifier srcSequenceId, boolean lastMessage, RMMessage msg) {
+    public void persistOutgoing(RMSourceSequence seq, RMMessage msg) {
         // TODO Auto-generated method stub
         
     }
 
-    public void removeMessage(Identifier sid, Collection<BigInteger> messageNr) {
+    public void removeMessages(Identifier sid, Collection<BigInteger> messageNrs) {
         // TODO Auto-generated method stub
         
     }
 
-    public void removeSequence(Identifier seq) {
+    public void removeDestinationSequence(Identifier sid) {
         // TODO Auto-generated method stub
         
     }
-    
+
+    public void removeSourceSequence(Identifier sid) {
+        // TODO Auto-generated method stub
+        
+    }    
 
 }
