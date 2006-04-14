@@ -45,7 +45,7 @@ public class ${intf.Name}Impl implements $intf.Name {
     { 
        LOG.info("Executing operation $method.Name");
 #if ($method.return.ClassName != "void")    ##
-    return new ${method.return.ClassName}();
+    return ${method.return.DefaultTypeValue};
 #end
 #if ($method.Exceptions.size() > 0) 
 #foreach($exception in $method.Exceptions)

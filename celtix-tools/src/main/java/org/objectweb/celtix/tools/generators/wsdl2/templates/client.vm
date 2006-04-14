@@ -36,21 +36,21 @@ public final class ${clientClassName} {
         $intf.Name port = ss.get${port.PortName}();  
         
 #foreach ($method in $intf.Methods)
-        // we get the parameter size "${method.parameterCount}"     
+
         System.out.println("Invoking ${method.Name}...");
 #if($method.Exceptions.size() > 0)
         try{
             #if($method.return.Type != "void")
-            $method.return.ClassName _${method.Name}_$method.return.Name=#end  port.${method.Name}(#foreach ($parameter in $method.Parameters) new ${parameter.ClassName}()  #if ($velocityCount != $method.parameterCount) , #end #end);
+            $method.return.ClassName _${method.Name}_$method.return.Name=#end  port.${method.Name}(#foreach ($parameter in $method.Parameters) ${parameter.DefaultTypeValue}  #if ($velocityCount != $method.parameterCount) , #end #end);
         }#foreach($exception in $method.Exceptions)
         catch($exception.ClassName e){ 
         System.out.println("Expected exception: $exception.Name has occurred.");
         System.out.println(e.toString());
         }#end
         #else
-        #if($method.return.ClassName != "void")
-        $method.return.ClassName _${method.Name}_$method.return.Name=
-        #end  port.${method.Name}(#foreach ($parameter in $method.Parameters) new ${parameter.ClassName}() #if ($velocityCount != $method.parameterCount) , #end #end);#end#end
+        #if($method.return.ClassName != "void")$method.return.ClassName _${method.Name}_$method.return.Name =#end port.${method.Name}(#foreach($parameter in $method.Parameters)${parameter.DefaultTypeValue}#if($velocityCount != $method.parameterCount),#end#end);#end
+
+#end
         
         
         System.exit(0);
