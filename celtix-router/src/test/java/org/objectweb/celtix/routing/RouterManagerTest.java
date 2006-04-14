@@ -48,25 +48,6 @@ public class RouterManagerTest extends TestCase {
         assertEquals(1, urlList.size());
     }
 
-    public void testInit() throws Exception {
-        /*
-        properties.put("org.objectweb.celtix.BusId", "celtix2");
-        Bus bus = Bus.init(null, properties);
-        
-        TestRouterManager rm = new TestRouterManager(bus);
-        rm.init();
-
-        assertNotNull("Router Factory should be intialized", rm.getRouterFactory());
-        
-        List<Router> rList = rm.getRouters();
-        assertNotNull("Router List should be initialized", rList);
-        assertEquals(4, rList.size());
-        
-        //Calling of init creates a celtix-router-temp dir for the generated code
-        RouteTypeUtil.deleteDir(new File(System.getProperty("user.dir"), "/celtix-router-tmp"));
-        */
-    }
-
     public void testInvokeWSDLToJava() throws Exception {
         properties.put("org.objectweb.celtix.BusId", "celtix2");
         Bus bus = Bus.init(null, properties);
@@ -77,7 +58,8 @@ public class RouterManagerTest extends TestCase {
         boolean isClassPathSet = javaClasspath != null 
                                   && (javaClasspath.indexOf("JAXWS") >= 0);
         if (!isClassPathSet) {
-            System.setProperty("java.class.path", getClassPath());
+            System.setProperty("java.class.path", 
+                               RouteTypeUtil.getClassPath(getClass().getClassLoader()));
         }        
 
         File classDir = new File(opDir, "/classes");
@@ -106,20 +88,30 @@ public class RouterManagerTest extends TestCase {
         }
     }
     
-    protected String getClassPath() {
-        ClassLoader loader = getClass().getClassLoader();
-        StringBuffer classPath = new StringBuffer();
-        if (loader instanceof URLClassLoader) {
-            URLClassLoader urlLoader = (URLClassLoader)loader;
-            for (URL url : urlLoader.getURLs()) {
-                String file = url.getFile();
-                if (file.indexOf("junit") == -1) {
-                    classPath.append(url.getFile());
-                    classPath.append(System.getProperty("path.separator"));
-                }
-            }
-        }
-        return classPath.toString();
+    public void testInit() throws Exception {
+        properties.put("org.objectweb.celtix.BusId", "celtix2");
+        Bus bus = Bus.init(null, properties);
+        
+        TestRouterManager rm = new TestRouterManager(bus);
+        
+        //maven doesn't set java.class.path while eclipse does.
+        boolean isClassPathSet = javaClasspath != null 
+                                  && (javaClasspath.indexOf("JAXWS") >= 0);
+        if (!isClassPathSet) {
+            System.setProperty("java.class.path", 
+                               RouteTypeUtil.getClassPath(getClass().getClassLoader()));
+        }        
+        
+        rm.init();
+
+        assertNotNull("Router Factory should be intialized", rm.getRouterFactory());
+        
+        List<Router> rList = rm.getRouters();
+        assertNotNull("Router List should be initialized", rList);
+        assertEquals(4, rList.size());
+        
+        //Calling of init creates a celtix-router-temp dir for the generated code
+        RouteTypeUtil.deleteDir(new File(System.getProperty("user.dir"), "/celtix-router-tmp"));
     }
     
     public static void main(String[] args) {
@@ -135,13 +127,8 @@ public class RouterManagerTest extends TestCase {
             //Complete
         }
         
-        protected void invokeWSDLToJava(File srcDir, File classDir) {
-            //Complete
-        }
-        
         public void testInvokeWSDLToJava(File srcDir, File classDir) {
             super.invokeWSDLToJava(srcDir, classDir);
         }
     }
-    
 }

@@ -4,8 +4,9 @@ import javax.jws.WebService;
 
 import org.objectweb.celtix.hello_world_jms.HelloWorldOneWayPort;
 
-@WebService(serviceName = "HelloWorldOneWayQueueService", portName = "HelloWorldOneWayQueuePort", 
-            name = "HelloWorldOneWayQueuePort",
+@WebService(serviceName = "HelloWorldOneWayQueueService", 
+            portName = "HelloWorldOneWayQueuePort", 
+            endpointInterface = "org.objectweb.celtix.hello_world_jms.HelloWorldOneWayPort",
             targetNamespace = "http://celtix.objectweb.org/hello_world_jms")
 public class GreeterImplQueueOneWay implements HelloWorldOneWayPort {
 

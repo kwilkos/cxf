@@ -77,7 +77,7 @@ public class EndpointReferenceUtilsTest extends TestCase {
         
         Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
 
-        assertNotNull("Could not find port", port);
+        assertNull("Port should not be present in the reference.", port);
         
         bus.shutdown(true);
         

@@ -3,8 +3,9 @@ package org.objectweb.celtix.systest.xml_bare;
 import org.objectweb.hello_world_xml_http.bare.Greeter;
 import org.objectweb.hello_world_xml_http.bare.types.MyComplexStruct;
 
-@javax.jws.WebService(name = "Greeter", serviceName = "XMLService", portName = "XMLPort",
-                      targetNamespace = "http://objectweb.org/hello_world_xml_http/bare")
+@javax.jws.WebService(serviceName = "XMLService", 
+                      portName = "XMLPort",
+                      endpointInterface = "org.objectweb.hello_world_xml_http.bare.Greeter")
 
 @javax.xml.ws.BindingType(value = "http://celtix.objectweb.org/bindings/xmlformat")
 

@@ -41,10 +41,11 @@ public class JMSClientServerTest extends ClientServerTestBase {
                 props.put("java.util.logging.config.file", 
                           System.getProperty("java.util.logging.config.file"));
                 
-                assertTrue("server did not launch correctly", launchServer(EmbeddedJMSBrokerLauncher.class,
-                                                                           props, null));
-                //Thread.sleep(10000);
-                assertTrue("server did not launch correctly", launchServer(Server.class));
+                assertTrue("server did not launch correctly", 
+                           launchServer(EmbeddedJMSBrokerLauncher.class, props, null));
+
+                assertTrue("server did not launch correctly", 
+                           launchServer(Server.class, false));
             }
         };
     }  

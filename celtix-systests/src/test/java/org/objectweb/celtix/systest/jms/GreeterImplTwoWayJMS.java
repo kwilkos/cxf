@@ -5,7 +5,9 @@ import javax.jws.WebService;
 import org.objectweb.celtix.hello_world_jms.HelloWorldPortType;
 
 
-@WebService(serviceName = "HelloWorldService", portName = "HelloWorldPort", name = "HelloWorldPortType",
+@WebService(serviceName = "HelloWorldService", 
+            portName = "HelloWorldPort",
+            endpointInterface = "org.objectweb.celtix.hello_world_jms.HelloWorldPortType",
             targetNamespace = "http://celtix.objectweb.org/hello_world_jms")
 public class GreeterImplTwoWayJMS implements HelloWorldPortType {
 

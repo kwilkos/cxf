@@ -1,6 +1,8 @@
 package org.objectweb.celtix.routing;
 
 import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -52,4 +54,20 @@ public final class RouteTypeUtil {
         // The directory is now empty so delete it
         return dir.delete();
     }
+    
+    public static String getClassPath(ClassLoader loader) {
+        StringBuffer classPath = new StringBuffer();
+        if (loader instanceof URLClassLoader) {
+            URLClassLoader urlLoader = (URLClassLoader)loader;
+            for (URL url : urlLoader.getURLs()) {
+                String file = url.getFile();
+                if (file.indexOf("junit") == -1) {
+                    classPath.append(url.getFile());
+                    classPath.append(System.getProperty("path.separator"));
+                }
+            }
+        }
+        return classPath.toString();
+    }
+    
 }

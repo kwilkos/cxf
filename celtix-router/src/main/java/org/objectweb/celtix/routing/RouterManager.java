@@ -170,7 +170,7 @@ public class RouterManager {
         File classDir = new File(opDir, "/classes");
         mkDir(classDir);
         
-        //invokeWSDLToJava(opDir, classDir);
+        invokeWSDLToJava(opDir, classDir);
         seiClassLoader = createSEIClassLoader(classDir);
         
         addRoutes();

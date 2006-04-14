@@ -9,8 +9,9 @@ import org.objectweb.schema_validation.SchemaValidation;
 import org.objectweb.schema_validation.types.ComplexStruct;
 import org.objectweb.schema_validation.types.OccuringStruct;
 
-@WebService(serviceName = "SchemaValidationService", portName = "SoapPort",
-            name = "SchemaValidation",
+@WebService(serviceName = "SchemaValidationService", 
+            portName = "SoapPort",
+            endpointInterface = "org.objectweb.schema_validation.SchemaValidation",
             targetNamespace = "http://objectweb.org/schema_validation")
 public class SchemaValidationImpl implements SchemaValidation {
 

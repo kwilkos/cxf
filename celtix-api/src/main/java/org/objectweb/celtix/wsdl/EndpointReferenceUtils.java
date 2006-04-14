@@ -560,7 +560,7 @@ public final class EndpointReferenceUtils {
                 return ws;
             }
         }
-        
+
         return getWebServiceAnnotation(cls.getSuperclass());
     }
     
@@ -583,6 +583,7 @@ public final class EndpointReferenceUtils {
                 return null;
             }
         }
+
         EndpointReferenceType reference = new EndpointReferenceType();
         reference.setMetadata(new MetadataType());
         String serviceName = (null != ws) ? ws.serviceName() : wsp.serviceName();
@@ -591,50 +592,41 @@ public final class EndpointReferenceUtils {
         String url = (null != ws) ? ws.wsdlLocation() : wsp.wsdlLocation();
         String className = (null != ws) ? ws.endpointInterface() : null; 
      
-        if (null == className || "".equals(className)) {
-            Class<?> cls = implementor.getClass();
-            while (cls != null && (null == className || "".equals(className))) {
-                Class<?>[] interfaces = cls.getInterfaces();
-                for (Class<?> c : interfaces) {
-                    WebService a = c.getAnnotation(WebService.class);
-                    if (null != a) {
-                        className = a.endpointInterface();
-                        if (null == url || url.length() == 0) {
-                            url = a.wsdlLocation();
-                        }
-                        break;
-                    }
-                }
-                cls = cls.getSuperclass();
+        if (null != className && !"".equals(className)) {
+            Class<?> seiClazz = null;
+            try {
+                seiClazz = Class.forName(className);
+            } catch (ClassNotFoundException cnfe) {
+                LOG.log(Level.SEVERE, "SEI_LOAD_FAILURE_MSG", cnfe);
+                throw new WebServiceException("endpointInterface element in WebService annotation invalid", 
+                                              cnfe);
+            }
+            
+            if (!seiClazz.isInterface()) {
+                throw new WebServiceException("endpointInterface element does not refer to a java interface");
+            }
+            
+            WebService seiws = seiClazz.getAnnotation(WebService.class);
+            if (null == seiws) {
+                throw new WebServiceException("SEI should have a WebService Annotation");
             }
 
-            if (null == className || "".equals(className)) {
-                className = implementor.getClass().getName();
+            if ("".equals(url)) {
+                url = seiws.wsdlLocation();
             }
-        }
-        
-        if ("".equals(serviceName) || "".equals(targetNamespace) || "".equals(portName)) {
-              
-            Class<?> clazz = null;
-            try {
-                clazz = Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } 
-            ws = getWebServiceAnnotation(clazz);
             
-            if ("".equals(serviceName) && null != ws) {
-                serviceName = ws.serviceName();
-            }
-            if ("".equals(targetNamespace) && null != ws) {
-                targetNamespace = ws.targetNamespace();
-            }
-            if ("".equals(portName) && null != ws) {
-                portName = ws.portName();
-            }
-            if ("".equals(url) && null != ws) {
-                url = ws.wsdlLocation();
-            }
+            //WebService.name maps to wsdl:portType name.
+            className = seiws.name();
+            
+            //ServiceName,portName,endpointInterface not allowed on the WebService annotation 
+            // of a SEI, Section 3.2 JSR181.            
+            // set interfaceName using WebService.targetNamespace of SEI only.
+            setInterfaceName(reference, ws.targetNamespace(), className);            
+        } else {
+            className = implementor.getClass().getName();
+            
+            // set interfaceName
+            setInterfaceName(reference, targetNamespace, className);            
         }
         
         // set serviceName, portName and targetNamespace
@@ -654,8 +646,6 @@ public final class EndpointReferenceUtils {
         if (!"".equals(url)) {
             setWSDLLocation(reference, url); 
         }
-        // set interfaceName
-        setInterfaceName(reference, targetNamespace, className);
 
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("created endpoint reference with");
@@ -686,5 +676,4 @@ public final class EndpointReferenceUtils {
     private static String getService(String content) {
         return content.substring(content.indexOf(":") + 1, content.length());
     }
-   
 }
