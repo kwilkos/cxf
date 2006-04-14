@@ -50,7 +50,7 @@ public class WSDLHelper {
         }
         List bindingOperations = binding.getBindingOperations();
         for (Iterator iter = bindingOperations.iterator(); iter.hasNext();) {
-            BindingOperation bindingOperation = (BindingOperation) iter.next();
+            BindingOperation bindingOperation = (BindingOperation)iter.next();
             if (operationName.equals(bindingOperation.getName())) {
                 return bindingOperation;
             }
@@ -74,7 +74,7 @@ public class WSDLHelper {
         javax.jws.soap.SOAPBinding sb = null;
         for (Class<?> c : classList) {
             sb = c.getAnnotation(javax.jws.soap.SOAPBinding.class);
-            if (null != sb)  {
+            if (null != sb) {
                 break;
             }
         }
@@ -88,28 +88,28 @@ public class WSDLHelper {
         }
         return sb;
     }
-    
+
     public WebParam getWebParamAnnotation(Annotation[] pa) {
         WebParam wp = null;
-        
+
         if (null != pa) {
             for (Annotation annotation : pa) {
                 if (WebParam.class.equals(annotation.annotationType())) {
-                    wp = (WebParam) annotation;
+                    wp = (WebParam)annotation;
                     break;
                 }
             }
         }
         return wp;
     }
-    
+
     public RequestWrapper getRequestWrapperAnnotation(Method m) {
         RequestWrapper rw = null;
-        
+
         if (null != m) {
             rw = m.getAnnotation(RequestWrapper.class);
         }
-        return rw;        
+        return rw;
     }
 
     public List<PortType> getPortTypes(Definition def) {
@@ -145,7 +145,6 @@ public class WSDLHelper {
         }
         return partsList;
     }
-
 
     public String getBindingStyle(Binding binding) {
         Iterator ite = binding.getExtensibilityElements().iterator();
@@ -306,7 +305,7 @@ public class WSDLHelper {
 
     public String getCanonicalBindingStyle(Binding binding) {
         String bindingStyle = getBindingStyle(binding);
-        if (!"".equals(bindingStyle)) {
+        if (bindingStyle != null && !("".equals(bindingStyle))) {
             return bindingStyle;
         }
         for (Iterator ite2 = binding.getBindingOperations().iterator(); ite2.hasNext();) {
