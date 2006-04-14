@@ -353,8 +353,9 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
                 if (!isSchemaParsed(importNamespace + "?file=" + schema.getDocumentBaseURI())) {
                     List<SchemaImport> schemaImports = imports.get(importNamespace);
                     for (SchemaImport schemaImport : schemaImports) {
-                        if (!isSchemaImported(schemaImport.getReferencedSchema())) {
-                            addSchema(schemaImport.getReferencedSchema());
+                        Schema tempImport = schemaImport.getReferencedSchema();
+                        if (tempImport != null && !isSchemaImported(tempImport)) {
+                            addSchema(tempImport);
                         }
                     }
                 }
