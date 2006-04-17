@@ -48,8 +48,10 @@ public final class ${clientClassName} {
         System.out.println(e.toString());
         }#end
         #else
-        #if($method.return.ClassName != "void")$method.return.ClassName _${method.Name}_$method.return.Name =#end port.${method.Name}(#foreach($parameter in $method.Parameters)${parameter.DefaultTypeValue}#if($velocityCount != $method.parameterCount),#end#end);#end
-
+        #if($method.return.ClassName != "void")$method.return.ClassName _${method.Name}_$method.return.Name =#end port.${method.Name}(#foreach($parameter in $method.Parameters)${parameter.DefaultTypeValue}#if($velocityCount != $method.parameterCount),#end#end);
+#end#if($method.return.Type != "void")
+        System.out.println("${method.Name}.result=" + _${method.Name}_$method.return.Name);
+        #end
 #end
         
         
