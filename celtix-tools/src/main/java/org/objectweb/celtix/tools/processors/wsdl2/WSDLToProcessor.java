@@ -275,9 +275,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             if (StringUtils.isEmpty(targetNamespace)) {
                 continue;
             }
-            //             if (targetNamespace == null || targetNamespace.trim().length() == 0) {
-            //                 continue;
-            //             }
+
             if (env.hasExcludeNamespace(targetNamespace)
                 && env.getExcludePackageName(targetNamespace) == null) {
                 skipGenCode = true;
@@ -362,7 +360,6 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             }
         }
         if (!isSchemaImported(schema)) {
-
             schemaList.add(schema);
         }
     }

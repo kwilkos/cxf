@@ -1,7 +1,9 @@
 package org.objectweb.celtix.tools.common;
 
+import java.io.*;
 import java.util.*;
 import org.xml.sax.InputSource;
+import org.objectweb.celtix.tools.utils.PropertyUtil;
 import org.objectweb.celtix.tools.utils.URIParserUtil;
 
 public class ProcessorEnvironment {
@@ -12,6 +14,36 @@ public class ProcessorEnvironment {
     private Map<String, String> excludeNamespacePackageMap = new HashMap<String, String>();
     private final Map<String, InputSource> jaxbBindingFiles = new HashMap<String, InputSource>();
 
+    public ProcessorEnvironment() {
+        loadDefaultNS2Pck();
+        loadDefaultExcludes();
+    }
+
+    private void loadDefaultNS2Pck()  {
+        try {
+            PropertyUtil properties = new PropertyUtil();
+            properties.load(getResourceAsStream("toolspec/toolspecs/namespace2package.properties"));
+            namespacePackageMap.putAll(properties.getMaps());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadDefaultExcludes()  {
+        try {
+            PropertyUtil properties = new PropertyUtil();
+            properties.load(getResourceAsStream("toolspec/toolspecs/wsdltojavaexclude.properties"));
+            
+            excludeNamespacePackageMap.putAll(properties.getMaps());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private InputStream getResourceAsStream(String file) throws IOException {
+        return ProcessorEnvironment.class.getResourceAsStream(file);
+    }
+    
     public void setParameters(Map<String, Object> map) {
         this.paramMap = map;
     }
