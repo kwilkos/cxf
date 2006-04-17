@@ -263,6 +263,9 @@ public class WSDLHelper {
             if (obj instanceof SOAPBinding) {
                 SOAPBinding soapBinding = (SOAPBinding)obj;
                 bindingStyle = soapBinding.getStyle();
+                if (bindingStyle == null) {
+                    bindingStyle = "";
+                }
             }
         }
         Iterator ite2 = binding.getBindingOperations().iterator();
