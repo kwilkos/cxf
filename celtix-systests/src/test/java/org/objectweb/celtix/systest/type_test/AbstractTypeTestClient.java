@@ -3,6 +3,7 @@ package org.objectweb.celtix.systest.type_test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,11 +15,11 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
-//import org.objectweb.type_test.types.ColourEnum;
-import org.objectweb.type_test.types.DecimalEnum;
-import org.objectweb.type_test.types.NMTokenEnum;
-import org.objectweb.type_test.types.NumberEnum;
-import org.objectweb.type_test.types.StringEnum;
+//import org.objectweb.type_test.types1.ColourEnum;
+import org.objectweb.type_test.types1.DecimalEnum;
+import org.objectweb.type_test.types1.NMTokenEnum;
+import org.objectweb.type_test.types1.NumberEnum;
+import org.objectweb.type_test.types1.StringEnum;
 
 public abstract class AbstractTypeTestClient extends ClientServerTestBase implements TypeTestTester {
     protected static org.objectweb.type_test.doc.TypeTestPortType docClient;
@@ -493,12 +494,37 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    public void testStringI18N() throws Exception {
+        String valueSets[][] = {
+            {"hello", I18NStrings.CHINESE_COMPLEX_STRING},
+            {"hello", I18NStrings.JAP_SIMPLE_STRING},
+        };
+
+        for (int i = 0; i < valueSets.length; i++) {
+            String x = valueSets[i][0];
+            Holder<String> yOrig = new Holder<String>(valueSets[i][1]);
+            Holder<String> y = new Holder<String>(valueSets[i][1]);
+            Holder<String> z = new Holder<String>();
+
+            String ret;
+            if (testDocLiteral) {
+                ret = docClient.testString(x, y, z);
+            } else {
+                ret = rpcClient.testString(x, y, z);
+            }
+            if (!perfTestOnly) {
+                assertEquals("testStringI18N(): Incorrect value for inout param", x, y.value);
+                assertEquals("testStringI18N(): Incorrect value for out param", yOrig.value, z.value);
+                assertEquals("testStringI18N(): Incorrect return value", x, ret);
+            }
+        }
+    }
+
     public void testQName() throws Exception {
         String valueSets[][] = {
             {"NoNamespaceService", ""},
             {"HelloWorldService", "http://www.iona.com/services"},
-            // XXX
-            //{I18NStrings.JAP_SIMPLE_STRING,"http://www.iona.com/iona"},
+            {I18NStrings.JAP_SIMPLE_STRING, "http://www.iona.com/iona"},
             {"MyService", "http://www.iona.com/iona"}
         };
         for (int i = 0; i < valueSets.length; i++) {
@@ -851,41 +877,41 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         assertTrue("testNMTOKEN(): Incorrect return value", x.equals(ret));
     }
 
+    /*
     public void testNMTOKENS() throws Exception {
-        /*
         //
         // XXX - The jaxb ri code generation produces different method
         // signatures for the NMTOKENS type between using rpc literal
         // and doc literal styles.
         //
         if (testDocLiteral) {
-        List<String> x = Arrays.asList("123:abc");
-        List<String> yOrig = Arrays.asList("abc.-_:", "a");
+            List<String> x = Arrays.asList("123:abc");
+            List<String> yOrig = Arrays.asList("abc.-_:", "a");
 
-        Holder<List<String>> y = new Holder<List<String>>(yOrig);
-        Holder<List<String>> z = new Holder<List<String>>();
+            Holder<List<String>> y = new Holder<List<String>>(yOrig);
+            Holder<List<String>> z = new Holder<List<String>>();
 
-        List<String> ret = docClient.testNMTOKENS(x, y, z);
-        assertTrue("testNMTOKENS(): Incorrect value for inout param", x.equals(y.value));
-        assertTrue("testNMTOKENS(): Incorrect value for out param", yOrig.equals(z.value));
-        assertTrue("testNMTOKENS(): Incorrect return value", x.equals(ret));
+            List<String> ret = docClient.testNMTOKENS(x, y, z);
+            assertTrue("testNMTOKENS(): Incorrect value for inout param", x.equals(y.value));
+            assertTrue("testNMTOKENS(): Incorrect value for out param", yOrig.equals(z.value));
+            assertTrue("testNMTOKENS(): Incorrect return value", x.equals(ret));
         } else {
-        String[] x = new String[1];
-        x[0] = "123:abc";
-        String[] yOrig = new String[2];
-        yOrig[0] = "abc.-_:";
-        yOrig[1] = "a";
+            String[] x = new String[1];
+            x[0] = "123:abc";
+            String[] yOrig = new String[2];
+            yOrig[0] = "abc.-_:";
+            yOrig[1] = "a";
 
-        Holder<String[]> y = new Holder<String[]>(yOrig);
-        Holder<String[]> z = new Holder<String[]>();
+            Holder<String[]> y = new Holder<String[]>(yOrig);
+            Holder<String[]> z = new Holder<String[]>();
 
-        String[] ret = rpcClient.testNMTOKENS(x, y, z);
-        assertTrue("testNMTOKENS(): Incorrect value for inout param", x.equals(y.value));
-        assertTrue("testNMTOKENS(): Incorrect value for out param", yOrig.equals(z.value));
-        assertTrue("testNMTOKENS(): Incorrect return value", x.equals(ret));
+            String[] ret = rpcClient.testNMTOKENS(x, y, z);
+            assertTrue("testNMTOKENS(): Incorrect value for inout param", x.equals(y.value));
+            assertTrue("testNMTOKENS(): Incorrect value for out param", yOrig.equals(z.value));
+            assertTrue("testNMTOKENS(): Incorrect return value", x.equals(ret));
         }
-        */
     }
+    */
     
     public void testName() throws Exception {
         String x = "abc:123";
@@ -924,6 +950,9 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     }
 
     public void testID() throws Exception {
+        // n.b. to be valid, elements with an ID in the response message
+        // must have a unique ID, so this test does not return x as the
+        // return value (like the other tests).
         String valueSets[][] = {
             {"root.id-testartix.2", "L.-type_test"},
             {"_iona.com", "zoo-5_wolf"},
@@ -932,24 +961,22 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
 
         for (int i = 0; i < valueSets.length; i++) {
             String x = valueSets[i][0];
-            Holder<String> yOrig = new Holder<String>(valueSets[i][1]);
-            Holder<String> y = new Holder<String>(valueSets[i][1]);
+            String yOrig = valueSets[i][1];
+            Holder<String> y = new Holder<String>(yOrig);
             Holder<String> z = new Holder<String>();
 
-            String ret;
             if (testDocLiteral) {
-                ret = docClient.testID(x, y, z);
+                /*String ret =*/ docClient.testID(x, y, z);
             } else {
-                ret = rpcClient.testID(x, y, z);
+                /*String ret =*/ rpcClient.testID(x, y, z);
             }
             if (!perfTestOnly) {
                 assertEquals("testID(): Incorrect value for inout param", x, y.value);
-                assertEquals("testID(): Incorrect value for out param", yOrig.value, z.value);
-                assertEquals("testID(): Incorrect return value", x, ret);
+                assertEquals("testID(): Incorrect value for out param", yOrig, z.value);
             }
         }
     }
-
+    
     public void testDecimal() throws Exception {
         BigDecimal valueSets[][] = {
             {new BigDecimal("-1234567890.000000"), new BigDecimal("1234567890.000000")},
@@ -1171,35 +1198,35 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     /*
      * XXX - TODO - need to customize anyURI type.
      *
-     public void testanyURI() throws Exception {
-     String valueSets[][] = {
-     {"file:///root%20%20/-;?&+", "file:///w:/test!artix~java*"},
-     {"http://iona.com/", "file:///z:/mail_iona=com,\'xmlbus\'"},
-     {"mailto:windows@systems", "file:///"}
-     };
+    public void testanyURI() throws Exception {
+        String valueSets[][] = {
+            {"file:///root%20%20/-;?&+", "file:///w:/test!artix~java*"},
+            {"http://iona.com/", "file:///z:/mail_iona=com,\'xmlbus\'"},
+            {"mailto:windows@systems", "file:///"}
+        };
 
-     for (int i = 0; i < valueSets.length; i++) {
-     URI x = new URI(valueSets[i][0]);
-     Holder<URI> yOrig = new Holder<URI>(new URI(valueSets[i][1]));
-     Holder<URI> y = new Holder<URI>(new URI(valueSets[i][1]));
-     Holder<URI> z = new Holder<URI>();
+        for (int i = 0; i < valueSets.length; i++) {
+            URI x = new URI(valueSets[i][0]);
+            Holder<URI> yOrig = new Holder<URI>(new URI(valueSets[i][1]));
+            Holder<URI> y = new Holder<URI>(new URI(valueSets[i][1]));
+            Holder<URI> z = new Holder<URI>();
 
-     URI ret;
-     if (testDocLiteral) {
-     ret = docClient.testanyURI(x, y, z);
-     } else {
-     ret = rpcClient.testanyURI(x, y, z);
-     }
-     if (!perfTestOnly) {
-     assertEquals("testanyURI(): Incorrect value for inout param",
-     x.toString(), y.value.toString());
-     assertEquals("testanyURI(): Incorrect value for out param",
-     yOrig.value.toString(), z.value.toString());
-     assertEquals("testanyURI(): Incorrect return value",
-     x.toString(), ret.toString());
-     }
-     }
-     }
+            URI ret;
+            if (testDocLiteral) {
+                ret = docClient.testanyURI(x, y, z);
+            } else {
+                ret = rpcClient.testanyURI(x, y, z);
+            }
+            if (!perfTestOnly) {
+                assertEquals("testanyURI(): Incorrect value for inout param",
+                             x.toString(), y.value.toString());
+                assertEquals("testanyURI(): Incorrect value for out param",
+                             yOrig.value.toString(), z.value.toString());
+                assertEquals("testanyURI(): Incorrect return value",
+                             x.toString(), ret.toString());
+            }
+        }
+    }
     */
     
     /**
@@ -1209,28 +1236,31 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
      */
     public void testColourEnum() throws Exception {
         /*
-          String[] xx = {"RED", "GREEN", "BLUE"};
-          String[] yy = {"GREEN", "BLUE", "RED"};
+        String[] xx = {"RED", "GREEN", "BLUE"};
+        String[] yy = {"GREEN", "BLUE", "RED"};
 
-          Holder<ColourEnum> z = new Holder<ColourEnum>();
+        Holder<ColourEnum> z = new Holder<ColourEnum>();
 
-          for (int i = 0; i < 3; i++) {
-          ColourEnum x = ColourEnum.fromValue(xx[i]);
-          ColourEnum yOrig = ColourEnum.fromValue(yy[i]);
-          Holder<ColourEnum> y = new Holder<ColourEnum>(yOrig);
+        for (int i = 0; i < 3; i++) {
+            ColourEnum x = ColourEnum.fromValue(xx[i]);
+            ColourEnum yOrig = ColourEnum.fromValue(yy[i]);
+            Holder<ColourEnum> y = new Holder<ColourEnum>(yOrig);
 
-          ColourEnum ret;
-          ret = rpcClient.testColourEnum(x, y, z);
-          ret = docClient.testColourEnum(x, y, z);
-          if (!perfTestOnly) {
-          assertEquals("testColourEnum(): Incorrect value for inout param",
-          x.value(), y.value.value());
-          assertEquals("testColourEnum(): Incorrect value for out param",
-          yOrig.value(), z.value.value());
-          assertEquals("testColourEnum(): Incorrect return value",
-          x.value(), ret.value());
-          }
-          }
+            ColourEnum ret;
+            if (testDocLiteral) {
+                ret = docClient.testColourEnum(x, y, z);
+            } else {
+                ret = rpcClient.testColourEnum(x, y, z);
+            }
+            if (!perfTestOnly) {
+                assertEquals("testColourEnum(): Incorrect value for inout param",
+                             x.value(), y.value.value());
+                assertEquals("testColourEnum(): Incorrect value for out param",
+                             yOrig.value(), z.value.value());
+                assertEquals("testColourEnum(): Incorrect return value",
+                             x.value(), ret.value());
+            }
+        }
         */
     }
     
@@ -1367,38 +1397,31 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertEquals("testSimpleRestriction(): Incorrect return value", x, ret);
         }
         
-        // abnormal case
-        /* XXX - TODO - restrictions are not enforced.
-           x = "string_xxxxx";
-           y = new Holder<String>(yOrig);
-           z = new Holder<String>();
-           try {
-           if (testDocLiteral) {
-           ret = docClient.testSimpleRestriction(x, y, z);
-           } else {
-           ret = rpcClient.testSimpleRestriction(x, y, z);
-           }
-           fail("maxLength=10 restriction is violated.");
-           } catch (Exception ex) {
-           //ex.printStackTrace();
-           }
+        // Enabled schema validation for doc literal tests
+        if (testDocLiteral) {
+            // abnormal case
+            x = "string_xxxxx";
+            y = new Holder<String>(yOrig);
+            z = new Holder<String>();
+            try {
+                ret = docClient.testSimpleRestriction(x, y, z);
+                fail("x parameter maxLength=10 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
 
-           // abnormal case
-           x = "string_x";
-           yOrig = "string_yyyyyy";
-           y = new Holder<String>(yOrig);
-           z = new Holder<String>();
-           try {
-           if (testDocLiteral) {
-           ret = docClient.testSimpleRestriction(x, y, z);
-           } else {
-           ret = rpcClient.testSimpleRestriction(x, y, z);
-           }
-           fail("maxLength=10 restriction is violated.");
-           } catch (Exception ex) {
-           //ex.printStackTrace();
-           }
-        */
+            // abnormal case
+            x = "string_x";
+            yOrig = "string_yyyyyy";
+            y = new Holder<String>(yOrig);
+            z = new Holder<String>();
+            try {
+                ret = docClient.testSimpleRestriction(x, y, z);
+                fail("y parameter maxLength=10 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
+        }
     }
 
     public void testSimpleRestriction2() throws Exception {
@@ -1420,22 +1443,19 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertEquals("testSimpleRestriction2(): Incorrect return value", x, ret);
         }
         
-        // abnormal case
-        /* XXX - TODO - restrictions are not enforced.
-           x = "str";
-           y = new Holder<String>(yOrig);
-           z = new Holder<String>();
-           try {
-           if (testDocLiteral) {
-           ret = docClient.testSimpleRestriction2(x, y, z);
-           } else {
-           ret = rpcClient.testSimpleRestriction2(x, y, z);
-           }
-           fail("minLength=5 restriction is violated.");
-           } catch (Exception ex) {
-           //ex.printStackTrace();
-           }
-        */
+        // Schema validation is enabled for doc-literal
+        if (testDocLiteral) {
+            // abnormal case
+            x = "str";
+            y = new Holder<String>(yOrig);
+            z = new Holder<String>();
+            try {
+                ret = docClient.testSimpleRestriction2(x, y, z);
+                fail("minLength=5 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
+        }
     }
 
     public void testSimpleRestriction3() throws Exception {
@@ -1457,34 +1477,31 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertEquals("testSimpleRestriction3(): Incorrect return value", x, ret);
         }
         
-        // abnormal case
-        /* XXX - TODO - restrictions are not enforced.
-           x = "str";
-           y = new Holder<String>(yOrig);
-           z = new Holder<String>();
-           try {
-           if (testDocLiteral) {
-           ret = docClient.testSimpleRestriction3(x, y, z);
-           } else {
-           ret = rpcClient.testSimpleRestriction3(x, y, z);
-           }
-           fail("maxLength=10 && minLength=5 restriction is violated.");
-           } catch (Exception ex) {
-           //ex.printStackTrace();
-           }
+        // Schema validation is enabled for doc-literal
+        if (testDocLiteral) {
+            // abnormal case
+            x = "str";
+            y = new Holder<String>(yOrig);
+            z = new Holder<String>();
+            try {
+                ret = docClient.testSimpleRestriction3(x, y, z);
+                fail("x parameter maxLength=10 && minLength=5 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
 
-           // abnormal case
-           x = "string_x";
-           yOrig = "string_yyyyyy";
-           y = new Holder<String>(yOrig);
-           z = new Holder<String>();
-           try {
-           ret = rpcClient.testSimpleRestriction3(x, y, z);
-           fail("maxLength=10 && minLength=5 restriction is violated.");
-           } catch (Exception ex) {
-           //ex.printStackTrace();
-           }
-        */
+            // abnormal case
+            x = "string_x";
+            yOrig = "string_yyyyyy";
+            y = new Holder<String>(yOrig);
+            z = new Holder<String>();
+            try {
+                ret = docClient.testSimpleRestriction3(x, y, z);
+                fail("y parameter maxLength=10 && minLength=5 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
+        }
     }
 
     public void testSimpleRestriction4() throws Exception {
@@ -1506,22 +1523,19 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertEquals("testSimpleRestriction4(): Incorrect return value", x, ret);
         }
         
-        // abnormal case
-        /* XXX - TODO - restrictions are not enforced.
-           x = "str";
-           y = new Holder<String>(yOrig);
-           z = new Holder<String>();
-           try {
-           if (testDocLiteral) {
-           ret = docClient.testSimpleRestriction4(x, y, z);
-           } else {
-           ret = rpcClient.testSimpleRestriction4(x, y, z);
-           }
-           fail("minLength=5 restriction is violated.");
-           } catch (Exception ex) {
-           //ex.printStackTrace();
-           }
-        */
+        // Schema validation is enabled for doc-literal
+        if (testDocLiteral) {
+            // abnormal case
+            x = "str";
+            y = new Holder<String>(yOrig);
+            z = new Holder<String>();
+            try {
+                ret = docClient.testSimpleRestriction4(x, y, z);
+                fail("x parameter minLength=5 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
+        }
     }
 
     public void testSimpleRestriction5() throws Exception {
@@ -1543,43 +1557,36 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertEquals("testSimpleRestriction5(): Incorrect value for out param", yOrig, z.value);
             assertEquals("testSimpleRestriction5(): Incorrect return value", x, ret);
         }
-        
-        // abnormal case
-        /* XXX - TODO - restrictions are not enforced.
-           x = "str";
-           y = new Holder<String>(yOrig);
-           z = new Holder<String>();
-           try {
-           if (testDocLiteral) {
-           ret = docClient.testSimpleRestriction5(x, y, z);
-           } else {
-           ret = rpcClient.testSimpleRestriction5(x, y, z);
-           }
-           fail("maxLength=10 && minLength=5 restriction is violated.");
-           } catch (Exception ex) {
-           //ex.printStackTrace();
-           }
+ 
+        // Schema validation is enabled for doc-literal
+        if (testDocLiteral) {
+            // abnormal case
+            x = "str";
+            y = new Holder<String>(yOrig);
+            z = new Holder<String>();
+            try {
+                ret = docClient.testSimpleRestriction5(x, y, z);
+                fail("maxLength=10 && minLength=5 restriction is violated.");
+            } catch (Exception ex) {
+               //ex.printStackTrace();
+            }
 
-           // abnormal case
-           x = "string_x";
-           yOrig = "string_yyyyyy";
-           y = new Holder<String>(yOrig);
-           z = new Holder<String>();
-           try {
-           if (testDocLiteral) {
-           ret = docClient.testSimpleRestriction5(x, y, z);
-           } else {
-           ret = rpcClient.testSimpleRestriction5(x, y, z);
-           }
-           fail("maxLength=10 && minLength=5 restriction is violated.");
-           } catch (Exception ex) {
-           //ex.printStackTrace();
-           }
-        */
+            // abnormal case
+            x = "string_x";
+            yOrig = "string_yyyyyy";
+            y = new Holder<String>(yOrig);
+            z = new Holder<String>();
+            try {
+                ret = docClient.testSimpleRestriction5(x, y, z);
+                fail("maxLength=10 && minLength=5 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
+        }
     }
 
     public void testSimpleRestriction6() throws Exception {
-        // normal case, maxLength=10 for SimpleRestrction
+        // normal case, maxLength=10 for SimpleRestriction
         // && maxLength=5 for SimpleRestriction6
         String x = "str_x";
         String yOrig = "y";
@@ -1598,23 +1605,20 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertEquals("testSimpleRestriction6(): Incorrect return value", x, ret);
         }
         
-        // abnormal case
-        /* XXX - TODO - restrictions are not enforced.
-           x = "string_x";
-           yOrig = "string_y";
-           y = new Holder<String>(yOrig);
-           z = new Holder<String>();
-           try {
-           if (testDocLiteral) {
-           ret = docClient.testSimpleRestriction6(x, y, z);
-           } else {
-           ret = rpcClient.testSimpleRestriction6(x, y, z);
-           }
-           fail("maxLength=10 && minLength=5 restriction is violated.");
-           } catch (Exception ex) {
-           //ex.printStackTrace();
-           }
-        */
+        // Schema validation is enabled for doc-literal
+        if (testDocLiteral) {
+            // abnormal case
+            x = "string_x";
+            yOrig = "string_y";
+            y = new Holder<String>(yOrig);
+            z = new Holder<String>();
+            try {
+                ret = docClient.testSimpleRestriction6(x, y, z);
+                fail("maxLength=10 && minLength=5 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
+        }
     }
 
     public void testHexBinaryRestriction() throws Exception {
@@ -1638,38 +1642,31 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertTrue("testHexBinaryRestriction(): Incorrect return value", equals(x, ret));
         }
 
-        // abnormal case
-        /* XXX - TODO - restrictions are not enforced.
-           x = "".getBytes();
-           y = new Holder<byte[]>(yOrig);
-           z = new Holder<byte[]>();
-           try {
-           if (testDocLiteral) {
-           ret = docClient.testHexBinaryRestriction(x, y, z);
-           } else {
-           ret = rpcClient.testHexBinaryRestriction(x, y, z);
-           }
-           fail("maxLength=10 && minLength=1 restriction is violated.");
-           } catch (Exception ex) {
-           //ex.printStackTrace();
-           }
+        // Schema validation is enabled for doc-literal
+        if (testDocLiteral) {
+            // abnormal case
+            x = "".getBytes();
+            y = new Holder<byte[]>(yOrig);
+            z = new Holder<byte[]>();
+            try {
+                ret = docClient.testHexBinaryRestriction(x, y, z);
+                fail("maxLength=10 && minLength=1 restriction is violated.");
+            } catch (Exception ex) {
+               //ex.printStackTrace();
+            }
 
-           // abnormal case
-           x = "string_x".getBytes();
-           yOrig = "string_yyyyyy".getBytes();
-           y = new Holder<byte[]>(yOrig);
-           z = new Holder<byte[]>();
-           try {
-           if (testDocLiteral) {
-           ret = docClient.testHexBinaryRestriction(x, y, z);
-           } else {
-           ret = rpcClient.testHexBinaryRestriction(x, y, z);
-           }
-           fail("maxLength=10 && minLength=1 restriction is violated.");
-           } catch (Exception ex) {
-           //ex.printStackTrace();
-           }
-        */
+            // abnormal case
+            x = "string_x".getBytes();
+            yOrig = "string_yyyyyy".getBytes();
+            y = new Holder<byte[]>(yOrig);
+            z = new Holder<byte[]>();
+            try {
+                ret = docClient.testHexBinaryRestriction(x, y, z);
+                fail("maxLength=10 && minLength=1 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
+        }
     }
     
     protected boolean equals(byte[] x, byte[] y) {
@@ -1699,22 +1696,19 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertTrue("testBase64BinaryRestriction(): Incorrect return value", equals(x, ret));
         }
 
-        // abnormal case
-        /* XXX - TODO - restrictions are not enforced.
-           x = "string_xxxxx".getBytes();
-           y = new Holder<byte[]>(yOrig);
-           z = new Holder<byte[]>();
-           try {
-           if (testDocLiteral) {
-           ret = docClient.testBase64BinaryRestriction(x, y, z);
-           } else {
-           ret = rpcClient.testBase64BinaryRestriction(x, y, z);
-           }
-           fail("length=10 restriction is violated.");
-           } catch (Exception ex) {
-           //ex.printStackTrace();
-           }
-        */
+        // Schema validation is enabled for doc-literal
+        if (testDocLiteral) {
+            // abnormal case
+            x = "string_xxxxx".getBytes();
+            y = new Holder<byte[]>(yOrig);
+            z = new Holder<byte[]>();
+            try {
+                ret = docClient.testBase64BinaryRestriction(x, y, z);
+                fail("length=10 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
+        }
     }
     
     public void testSimpleListRestriction2() throws Exception {
@@ -1735,17 +1729,15 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             }
 
             // abnormal case
-            /* XXX - TODO - restrictions are not enforced.
-               x = Arrays.asList("");
-               y = new Holder< List<String> >(yOrig);
-               z = new Holder< List<String> >();
-               try {
-               ret = docClient.testSimpleListRestriction2(x, y, z);
-               fail("length=10 restriction is violated.");
-               } catch (Exception ex) {
-               //ex.printStackTrace();
-               }
-            */
+            x = new ArrayList<String>();
+            y = new Holder< List<String> >(yOrig);
+            z = new Holder< List<String> >();
+            try {
+                ret = docClient.testSimpleListRestriction2(x, y, z);
+                fail("length=10 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
         } else {
             String[] x = {"I", "am", "SimpleList"};
             String[] yOrig = {"Does", "SimpleList", "Work"};
@@ -1765,19 +1757,6 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
                     assertEquals("testStringList(): Incorrect return value", x[i], ret[i]);
                 }
             }
-            
-            // abnormal case
-            /* XXX - TODO - restrictions are not enforced.
-               x = new String[0];
-               y = new Holder<String[]>(yOrig);
-               z = new Holder<String[]>();
-               try {
-               ret = rpcClient.testSimpleListRestriction2(x, y, z);
-               fail("length=10 restriction is violated.");
-               } catch (Exception ex) {
-               //ex.printStackTrace();
-               }
-            */
         }
     }
     
@@ -1947,9 +1926,9 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             Holder< List<Short> > z = new Holder< List<Short> >();
 
             List<Short> ret = docClient.testAnonEnumList(x, y, z);
-            assertTrue("testNMTOKENS(): Incorrect value for inout param", x.equals(y.value));
-            assertTrue("testNMTOKENS(): Incorrect value for out param", yOrig.equals(z.value));
-            assertTrue("testNMTOKENS(): Incorrect return value", x.equals(ret));
+            assertTrue("testAnonEnumList(): Incorrect value for inout param", x.equals(y.value));
+            assertTrue("testAnonEnumList(): Incorrect value for out param", yOrig.equals(z.value));
+            assertTrue("testAnonEnumList(): Incorrect return value", x.equals(ret));
         } else {
             Short[] x = {(short)10, (short)100};
             Short[] yOrig = {(short)1000, (short)10};

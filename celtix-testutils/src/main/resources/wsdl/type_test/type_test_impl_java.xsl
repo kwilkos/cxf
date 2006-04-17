@@ -239,6 +239,26 @@ public class TypeTestImpl {
         y.value = x;
         return x;
     }
+
+    public java.lang.String testID(
+            java.lang.String x,
+            Holder<java.lang.String> y,
+            Holder<java.lang.String> z) {    
+        z.value = y.value;
+        y.value = x;
+        return x + y.value;
+    }
+
+    public IDTypeAttribute testIDTypeAttribute(
+            IDTypeAttribute x,
+            Holder<IDTypeAttribute> y,
+            Holder<IDTypeAttribute> z) {    
+        z.value = y.value;
+        y.value = x;
+        IDTypeAttribute varReturn = new IDTypeAttribute();
+        varReturn.setId(x.getId() + y.value.getId());
+        return varReturn;
+    }
 ]]>
       <xsl:apply-templates select="." mode="definitions"/>
 <![CDATA[}]]>
@@ -262,20 +282,24 @@ public class TypeTestImpl {
                 or @name='HexBinaryRestriction'
                 or @name='Base64BinaryRestriction'
                 or @name='SimpleListRestriction2'
-                or @name='AnonUnionList')]"
+                or @name='AnonUnionList'
+                or @itst:it_no_test='true')]"
                 mode="import">
             <xsl:sort select="@name"/>
+            <xsl:with-param name="id" select="@ID"/>
         </xsl:apply-templates>
-        <xsl:apply-templates select="xsd:complexType" mode="import"/>
+        <xsl:apply-templates select="xsd:complexType[not(
+                @itst:it_no_test='true')]"
+                mode="import">
+            <xsl:with-param name="id" select="@ID"/>
+        </xsl:apply-templates>
     </xsl:template>
 
-    <xsl:template match="itst:it_test_group/*[not(@itst:it_no_test='true')]"
-            mode="import">
-        <!-- XXX - Shouldn't need this -->
+    <xsl:template match="itst:it_test_group/*" mode="import">
+        <xsl:param name="id"/>
         <xsl:if test="not(@name='SimpleUnion' or @name='UnionWithAnonEnum')">
-            <xsl:text>import org.objectweb.type_test.types.</xsl:text>
-            <xsl:value-of select="@name"/>
-            <xsl:text>;&#10;</xsl:text>
+            <xsl:value-of select="concat('import org.objectweb.type_test.types', $id, '.', @name, ';')"/>
+            <xsl:text>&#10;</xsl:text>
         </xsl:if>
     </xsl:template>
 
@@ -297,16 +321,24 @@ public class TypeTestImpl {
                 or @name='HexBinaryRestriction'
                 or @name='Base64BinaryRestriction'
                 or @name='SimpleListRestriction2'
-                or @name='AnonUnionList')]"
+                or @name='AnonUnionList'
+                or @itst:it_no_test='true')]"
             mode="definition"/>
-        <xsl:apply-templates select="xsd:complexType" mode="definition"/>
-        <!-- xsl:apply-templates select="xsd:element[not(@name='AnonTypeElement')]" mode="definition"/ -->
-        <xsl:apply-templates select="itst:builtIn" mode="definition"/>
+        <xsl:apply-templates select="xsd:complexType[not(
+                @name='IDTypeAttribute'
+                or @itst:it_no_test='true')]"
+            mode="definition"/>
+        <!-- xsl:apply-templates select="xsd:element[not(
+                @name='AnonTypeElement'
+                or @itst:it_no_test='true')]"
+            mode="definition"/ -->
+        <xsl:apply-templates select="itst:builtIn[not(
+                @name='ID'
+                or @itst:it_no_test='true')]"
+            mode="definition"/>
     </xsl:template>
 
-    <xsl:template
-            match="itst:it_test_group/*[not(@itst:it_no_test='true')]"
-            mode="definition">
+    <xsl:template match="itst:it_test_group/*" mode="definition">
         <xsl:apply-templates select="." mode="test_signature"/>
     <xsl:text> {    
         z.value = y.value;

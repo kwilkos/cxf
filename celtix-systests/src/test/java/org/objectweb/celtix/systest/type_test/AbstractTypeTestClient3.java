@@ -15,47 +15,47 @@ import javax.xml.ws.Holder;
 
 import org.w3c.dom.Element;
 
-import org.objectweb.type_test.types.ChoiceOfChoice;
-import org.objectweb.type_test.types.ChoiceOfSeq;
-import org.objectweb.type_test.types.ChoiceWithAnyAttribute;
-import org.objectweb.type_test.types.ChoiceWithBinary;
-import org.objectweb.type_test.types.ChoiceWithGroupChoice;
-import org.objectweb.type_test.types.ChoiceWithGroupSeq;
-import org.objectweb.type_test.types.ChoiceWithGroups;
-import org.objectweb.type_test.types.ComplexTypeWithAttributeGroup;
-import org.objectweb.type_test.types.ComplexTypeWithAttributeGroup1;
-import org.objectweb.type_test.types.ComplexTypeWithAttributes;
-import org.objectweb.type_test.types.DerivedChoiceBaseArray;
-import org.objectweb.type_test.types.DerivedChoiceBaseChoice;
-import org.objectweb.type_test.types.DerivedChoiceBaseStruct;
-import org.objectweb.type_test.types.DerivedEmptyBaseEmptyAll;
-import org.objectweb.type_test.types.DerivedEmptyBaseEmptyChoice;
-import org.objectweb.type_test.types.DerivedNoContent;
-import org.objectweb.type_test.types.DerivedStructBaseChoice;
-import org.objectweb.type_test.types.DerivedStructBaseEmpty;
-import org.objectweb.type_test.types.DerivedStructBaseStruct;
-import org.objectweb.type_test.types.ExtBase64Binary;
-import org.objectweb.type_test.types.GroupDirectlyInComplexType;
-import org.objectweb.type_test.types.IDTypeAttribute;
-import org.objectweb.type_test.types.MultipleOccursSequenceInSequence;
-import org.objectweb.type_test.types.OccuringChoice;
-import org.objectweb.type_test.types.OccuringChoice1;
-import org.objectweb.type_test.types.OccuringChoice2;
-import org.objectweb.type_test.types.OccuringStruct;
-import org.objectweb.type_test.types.OccuringStruct1;
-import org.objectweb.type_test.types.OccuringStruct2;
-import org.objectweb.type_test.types.RestrictedChoiceBaseChoice;
-import org.objectweb.type_test.types.SequenceWithGroupChoice;
-import org.objectweb.type_test.types.SequenceWithGroupSeq;
-import org.objectweb.type_test.types.SequenceWithGroups;
-import org.objectweb.type_test.types.SequenceWithOccuringGroup;
-import org.objectweb.type_test.types.SimpleChoice;
-import org.objectweb.type_test.types.SimpleStruct;
-import org.objectweb.type_test.types.StructWithAny;
-import org.objectweb.type_test.types.StructWithAnyArray;
-import org.objectweb.type_test.types.StructWithAnyAttribute;
-import org.objectweb.type_test.types.StructWithBinary;
-import org.objectweb.type_test.types.UnboundedArray;
+import org.objectweb.type_test.types1.DerivedChoiceBaseArray;
+import org.objectweb.type_test.types1.DerivedChoiceBaseChoice;
+import org.objectweb.type_test.types1.DerivedChoiceBaseStruct;
+import org.objectweb.type_test.types1.DerivedEmptyBaseEmptyAll;
+import org.objectweb.type_test.types1.DerivedEmptyBaseEmptyChoice;
+import org.objectweb.type_test.types1.DerivedNoContent;
+import org.objectweb.type_test.types1.DerivedStructBaseChoice;
+import org.objectweb.type_test.types1.DerivedStructBaseEmpty;
+import org.objectweb.type_test.types1.DerivedStructBaseStruct;
+import org.objectweb.type_test.types1.RestrictedChoiceBaseChoice;
+import org.objectweb.type_test.types1.SimpleChoice;
+import org.objectweb.type_test.types1.SimpleStruct;
+import org.objectweb.type_test.types1.UnboundedArray;
+import org.objectweb.type_test.types2.ChoiceOfChoice;
+import org.objectweb.type_test.types2.ChoiceOfSeq;
+import org.objectweb.type_test.types2.ChoiceWithAnyAttribute;
+import org.objectweb.type_test.types2.ChoiceWithBinary;
+import org.objectweb.type_test.types2.ChoiceWithGroupChoice;
+import org.objectweb.type_test.types2.ChoiceWithGroupSeq;
+import org.objectweb.type_test.types2.ChoiceWithGroups;
+import org.objectweb.type_test.types2.ComplexTypeWithAttributeGroup;
+import org.objectweb.type_test.types2.ComplexTypeWithAttributeGroup1;
+import org.objectweb.type_test.types2.ComplexTypeWithAttributes;
+import org.objectweb.type_test.types2.ExtBase64Binary;
+import org.objectweb.type_test.types2.GroupDirectlyInComplexType;
+import org.objectweb.type_test.types2.IDTypeAttribute;
+import org.objectweb.type_test.types2.MultipleOccursSequenceInSequence;
+import org.objectweb.type_test.types2.SequenceWithGroupChoice;
+import org.objectweb.type_test.types2.SequenceWithGroupSeq;
+import org.objectweb.type_test.types2.SequenceWithGroups;
+import org.objectweb.type_test.types2.SequenceWithOccuringGroup;
+import org.objectweb.type_test.types2.StructWithAny;
+import org.objectweb.type_test.types2.StructWithAnyArray;
+import org.objectweb.type_test.types2.StructWithAnyAttribute;
+import org.objectweb.type_test.types2.StructWithBinary;
+import org.objectweb.type_test.types3.OccuringChoice;
+import org.objectweb.type_test.types3.OccuringChoice1;
+import org.objectweb.type_test.types3.OccuringChoice2;
+import org.objectweb.type_test.types3.OccuringStruct;
+import org.objectweb.type_test.types3.OccuringStruct1;
+import org.objectweb.type_test.types3.OccuringStruct2;
 
 public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
 
@@ -64,7 +64,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         super(name, theServicename, thePort, theWsdlPath);
     }
 
-    // org.objectweb.type_test.types.ChoiceOfChoice
+    // org.objectweb.type_test.types2.ChoiceOfChoice
 
     protected boolean equals(ChoiceOfChoice x, ChoiceOfChoice y) {
         if (x.getVarInt() != null && y.getVarInt() != null) {
@@ -82,7 +82,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return false;
     }
     
-    // XXX - ri generated code flattened - no nested choice
     public void testChoiceOfChoice() throws Exception {
         ChoiceOfChoice x = new ChoiceOfChoice();
         ChoiceOfChoice yOrig = new ChoiceOfChoice();
@@ -107,7 +106,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.ChoiceOfSeq
+    // org.objectweb.type_test.types2.ChoiceOfSeq
 
     protected boolean equals(ChoiceOfSeq x, ChoiceOfSeq y) {
         if (x.getVarFloat() != null && x.getVarInt() != null 
@@ -123,7 +122,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return false;
     }
 
-    // XXX - ri generated code is flattened - no nested sequence
     public void testChoiceOfSeq() throws Exception {
         ChoiceOfSeq x = new ChoiceOfSeq();
         x.setVarInt(123);
@@ -151,7 +149,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    //  org.objectweb.type_test.types.DerivedStructBaseStruct
+    //  org.objectweb.type_test.types1.DerivedStructBaseStruct
 
     protected boolean equals(DerivedStructBaseStruct x, DerivedStructBaseStruct y) {
         return equals((SimpleStruct)x, (SimpleStruct)y)
@@ -203,7 +201,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
     
-    //  org.objectweb.type_test.types.DerivedStructBaseChoice
+    //  org.objectweb.type_test.types1.DerivedStructBaseChoice
 
     protected boolean equals(DerivedStructBaseChoice x, DerivedStructBaseChoice y) {
         return equals((SimpleChoice)x, (SimpleChoice)y)
@@ -246,7 +244,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
     
-    //  org.objectweb.type_test.types.DerivedChoiceBaseStruct
+    //  org.objectweb.type_test.types1.DerivedChoiceBaseStruct
 
     protected boolean equals(DerivedChoiceBaseStruct x, DerivedChoiceBaseStruct y) {
         boolean isEquals = x.getAttrString().equals(y.getAttrString());
@@ -297,7 +295,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
     
-    // org.objectweb.type_test.types.DerivedChoiceBaseArray
+    // org.objectweb.type_test.types1.DerivedChoiceBaseArray
 
     protected boolean equals(DerivedChoiceBaseArray x, DerivedChoiceBaseArray y) {
         boolean isEquals = x.getAttrStringExt().equals(y.getAttrStringExt());
@@ -343,7 +341,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.DerivedChoiceBaseChoice
+    // org.objectweb.type_test.types1.DerivedChoiceBaseChoice
     
     protected boolean equals(DerivedChoiceBaseChoice x, DerivedChoiceBaseChoice y) {
         boolean isEquals = x.getAttrString().equals(y.getAttrString());
@@ -388,7 +386,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.DerivedNoContent
+    // org.objectweb.type_test.types1.DerivedNoContent
 
     protected boolean equals(DerivedNoContent x, DerivedNoContent y) {
         return equals((SimpleStruct)x, (SimpleStruct)y)
@@ -425,7 +423,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.DerivedStructBaseEmpty
+    // org.objectweb.type_test.types1.DerivedStructBaseEmpty
 
     protected boolean equals(DerivedStructBaseEmpty x, DerivedStructBaseEmpty y) {
         return (x.getVarFloatExt() == y.getVarFloatExt())
@@ -463,7 +461,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.DerivedEmptyBaseEmptyAll
+    // org.objectweb.type_test.types1.DerivedEmptyBaseEmptyAll
 
     public void testDerivedEmptyBaseEmptyAll() throws Exception {
         DerivedEmptyBaseEmptyAll x = new DerivedEmptyBaseEmptyAll();
@@ -482,7 +480,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         assertNotNull(ret);
     }
 
-    // org.objectweb.type_test.types.DerivedEmptyBaseEmptyChoice
+    // org.objectweb.type_test.types1.DerivedEmptyBaseEmptyChoice
 
     public void testDerivedEmptyBaseEmptyChoice() throws Exception {
         DerivedEmptyBaseEmptyChoice x = new DerivedEmptyBaseEmptyChoice();
@@ -501,7 +499,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         assertNotNull(ret);
     }
 
-    // org.objectweb.type_test.types.RestrictedChoiceBaseChoice
+    // org.objectweb.type_test.types1.RestrictedChoiceBaseChoice
 
     protected boolean equals(RestrictedChoiceBaseChoice x, RestrictedChoiceBaseChoice y) {
         if (x.getVarFloat() != null && y.getVarFloat() != null) {
@@ -538,7 +536,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.ComplexTypeWithAttributeGroup
+    // org.objectweb.type_test.types2.ComplexTypeWithAttributeGroup
 
     protected boolean equals(ComplexTypeWithAttributeGroup x,
                              ComplexTypeWithAttributeGroup y) {
@@ -571,7 +569,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.ComplexTypeWithAttributeGroup1
+    // org.objectweb.type_test.types2.ComplexTypeWithAttributeGroup1
 
     protected boolean equals(ComplexTypeWithAttributeGroup1 x,
                              ComplexTypeWithAttributeGroup1 y) {
@@ -607,7 +605,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.SequenceWithGroupSeq
+    // org.objectweb.type_test.types2.SequenceWithGroupSeq
     protected boolean equals(SequenceWithGroupSeq x, SequenceWithGroupSeq y) {
         return x.getVarInt() == y.getVarInt()
             && Float.compare(x.getVarFloat(), y.getVarFloat()) == 0
@@ -617,7 +615,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             && x.getVarOtherString().equals(y.getVarOtherString());
     }
     
-    // XXX - ri generated code is flattened - no nested structs
     public void testSequenceWithGroupSeq() throws Exception {
         SequenceWithGroupSeq x = new SequenceWithGroupSeq();
         x.setVarInt(100);         
@@ -652,7 +649,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.SequenceWithGroupChoice
+    // org.objectweb.type_test.types2.SequenceWithGroupChoice
 
     protected boolean equals(SequenceWithGroupChoice x, SequenceWithGroupChoice y) {
         if (x.getVarInt() != null && y.getVarInt() != null) {
@@ -686,7 +683,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return true;
     }
     
-    // XXX - ri generated code is flattened - no nested choice
     public void testSequenceWithGroupChoice() throws Exception {
         SequenceWithGroupChoice x = new SequenceWithGroupChoice();
         x.setVarFloat(1.1f);
@@ -713,7 +709,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.SequenceWithGroups
+    // org.objectweb.type_test.types2.SequenceWithGroups
 
     protected boolean equals(SequenceWithGroups x, SequenceWithGroups y) {
         if (x.getVarOtherInt() != null && y.getVarOtherInt() != null) {
@@ -736,7 +732,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             && x.getVarString().equals(y.getVarString());
     }
     
-    // XXX - ri generated code is flattened - no nested struct/choice
     public void testSequenceWithGroups() throws Exception {
         SequenceWithGroups x = new SequenceWithGroups();
         x.setVarInt(100);
@@ -768,23 +763,22 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.SequenceWithOccuringGroup
+    // org.objectweb.type_test.types2.SequenceWithOccuringGroup
 
     protected boolean equals(SequenceWithOccuringGroup x, SequenceWithOccuringGroup y) {
         return equalsFloatIntStringList(x.getBatchElementsSeq(), y.getBatchElementsSeq());
     }
     
-    // XXX - ri generated code is flattened - no nested structs
     public void testSequenceWithOccuringGroup() throws Exception {
         SequenceWithOccuringGroup x = new SequenceWithOccuringGroup();
+        x.getBatchElementsSeq().add(1.1f);
         x.getBatchElementsSeq().add(100);
         x.getBatchElementsSeq().add("hello");
-        x.getBatchElementsSeq().add(1.1f);
 
         SequenceWithOccuringGroup yOrig = new SequenceWithOccuringGroup();
+        yOrig.getBatchElementsSeq().add(2.2f);
         yOrig.getBatchElementsSeq().add(200);
         yOrig.getBatchElementsSeq().add("world");
-        yOrig.getBatchElementsSeq().add(2.2f);
 
         Holder<SequenceWithOccuringGroup> y = new Holder<SequenceWithOccuringGroup>(yOrig);
         Holder<SequenceWithOccuringGroup> z = new Holder<SequenceWithOccuringGroup>();
@@ -804,7 +798,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.GroupDirectlyInComplexType
+    // org.objectweb.type_test.types2.GroupDirectlyInComplexType
 
     protected boolean equals(GroupDirectlyInComplexType x, GroupDirectlyInComplexType y) {
         return x.getVarInt() == y.getVarInt() 
@@ -813,7 +807,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             && x.getAttr1().equals(y.getAttr1());
     }
     
-    // XXX - ri generated code is flattened - no nested struct
     public void testGroupDirectlyInComplexType() throws Exception {
         GroupDirectlyInComplexType x = new GroupDirectlyInComplexType();
         x.setVarInt(100);
@@ -844,7 +837,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.ComplexTypeWithAttributes
+    // org.objectweb.type_test.types2.ComplexTypeWithAttributes
 
     protected boolean equals(ComplexTypeWithAttributes x, ComplexTypeWithAttributes y) {
         return x.getAttrInt().equals(y.getAttrInt())
@@ -877,7 +870,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.StructWithAny
+    // org.objectweb.type_test.types2.StructWithAny
 
     public void assertEqualsStructWithAny(StructWithAny a, StructWithAny b) throws Exception {
         assertEquals("StructWithAny names don't match", a.getName(), b.getName());
@@ -1025,11 +1018,11 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             }
             //fail("testStructWithInvalidAny(): Did not catch expected exception.");
         } catch (Exception ex) {
-            // Expected
+            fail("testStructWithInvalidAny(): caught expected exception - woot.");
         }
     }
 
-    // org.objectweb.type_test.types.StructWithAnyArray
+    // org.objectweb.type_test.types2.StructWithAnyArray
 
     public void assertEqualsStructWithAnyArray(StructWithAnyArray a, StructWithAnyArray b) throws Exception {
         assertEquals("StructWithAny names don't match", a.getName(), b.getName());
@@ -1114,6 +1107,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             //fail("testStructWithInvalidAnyArray(): Did not catch expected exception.");
         } catch (Exception ex) {
             // Expected
+            fail("testStructWithInvalidAnyArray(): caught expected exception - woot.");
         }
     }
 
@@ -1125,25 +1119,28 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         // XXX - only added to the soap typetest
     }
 
-    // org.objectweb.type_test.types.IDTypeAttribute
+    // org.objectweb.type_test.types2.IDTypeAttribute
 
     protected boolean equalsIDTypeAttribute(IDTypeAttribute x, IDTypeAttribute y) {
         return equalsNilable(x.getId(), y.getId());
     }
 
     public void testIDTypeAttribute() throws Exception {
+        // n.b. to be valid elements with an ID in the response message
+        // must have a unique ID, so this test does not return x as the
+        // return value (like the other tests).
         IDTypeAttribute x = new IDTypeAttribute();
         x.setId("x123");
         IDTypeAttribute yOrig = new IDTypeAttribute();
-        //yOrig.setId("x456");
+        yOrig.setId("x456");
 
         Holder<IDTypeAttribute> y = new Holder<IDTypeAttribute>(yOrig);
         Holder<IDTypeAttribute> z = new Holder<IDTypeAttribute>();
-        IDTypeAttribute ret;
+        //IDTypeAttribute ret;
         if (testDocLiteral) {
-            ret = docClient.testIDTypeAttribute(x, y, z);
+            /*ret =*/ docClient.testIDTypeAttribute(x, y, z);
         } else {
-            ret = rpcClient.testIDTypeAttribute(x, y, z);
+            /*ret =*/ rpcClient.testIDTypeAttribute(x, y, z);
         }
 
         if (!perfTestOnly) {
@@ -1151,12 +1148,10 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
                        equalsIDTypeAttribute(x, y.value));
             assertTrue("testIDTypeAttribute(): Incorrect value for out param",
                        equalsIDTypeAttribute(yOrig, z.value));
-            assertTrue("testIDTypeAttribute(): Incorrect return value",
-                       equalsIDTypeAttribute(x, ret));
         }
     }
 
-    // org.objectweb.type_test.types.MultipleOccursSequenceInSequence
+    // org.objectweb.type_test.types2.MultipleOccursSequenceInSequence
     protected boolean equals(MultipleOccursSequenceInSequence x, MultipleOccursSequenceInSequence y) {
         int size = x.getValue().size();
         if (size != y.getValue().size()) {
@@ -1170,7 +1165,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return true;
     }
 
-    // XXX - ri generated code is flattened - no nested struct
     public void testMultipleOccursSequenceInSequence() throws Exception {
         MultipleOccursSequenceInSequence x = new MultipleOccursSequenceInSequence();
         x.getValue().add(new BigInteger("32"));
@@ -1198,7 +1192,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
  
-    // org.objectweb.type_test.types.StructWithBinary;
+    // org.objectweb.type_test.types2.StructWithBinary;
     
     protected boolean equals(StructWithBinary x, StructWithBinary y) {
         return Arrays.equals(x.getBase64(), y.getBase64())
@@ -1233,7 +1227,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.ChoiceWithBinary;
+    // org.objectweb.type_test.types2.ChoiceWithBinary;
 
     protected boolean equals(ChoiceWithBinary x, ChoiceWithBinary y) {
         if (x.getBase64() != null && y.getBase64() != null) {
@@ -1270,7 +1264,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.ChoiceWithGroupChoice;
+    // org.objectweb.type_test.types2.ChoiceWithGroupChoice;
 
     protected boolean equals(ChoiceWithGroupChoice x, ChoiceWithGroupChoice y) {
         if (x.getVarFloat() != null  && y.getVarFloat() != null) {
@@ -1320,7 +1314,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
     
-    // org.objectweb.type_test.types.ChoiceWithGroupSeq;
+    // org.objectweb.type_test.types2.ChoiceWithGroupSeq;
 
     protected boolean equals(ChoiceWithGroupSeq x, ChoiceWithGroupSeq y) {
         if (x.getVarInt() != null && x.getVarFloat() != null
@@ -1376,7 +1370,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
     
-    // org.objectweb.type_test.types.ChoiceWithGroups;
+    // org.objectweb.type_test.types2.ChoiceWithGroups;
 
     protected boolean equals(ChoiceWithGroups x, ChoiceWithGroups y) {
         if (x.getVarInt() != null && x.getVarString() != null
@@ -1429,7 +1423,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.ExtBase64Binary;
+    // org.objectweb.type_test.types2.ExtBase64Binary;
 
     protected boolean equals(ExtBase64Binary x, ExtBase64Binary y) {
         return x.getId() == y.getId() && Arrays.equals(x.getValue(), y.getValue());
@@ -1462,7 +1456,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.StructWithAnyAttribute;
+    // org.objectweb.type_test.types2.StructWithAnyAttribute;
 
     protected boolean equals(StructWithAnyAttribute x, StructWithAnyAttribute y) {
         if (!(x.getVarString().equals(y.getVarString()))
@@ -1549,7 +1543,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.ChoiceWithAnyAttribute;
+    // org.objectweb.type_test.types2.ChoiceWithAnyAttribute;
 
     protected boolean equals(ChoiceWithAnyAttribute x, ChoiceWithAnyAttribute y) {
         String xString = x.getVarString();
@@ -1623,12 +1617,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    public void testOccuringAll() throws Exception {
-        // XXX - BUG #6761
-    }
-
-    // XXX - There's not much difference between the OccuringStruct tests.
-    // org.objectweb.type_test.types.OccurringStruct;
+    // org.objectweb.type_test.types3.OccuringStruct;
 
     protected boolean equals(OccuringStruct x, OccuringStruct y) {
         if (!equalsNilable(x.getVarAttrib(), y.getVarAttrib())) {
@@ -1673,19 +1662,19 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     public void testOccuringStruct() throws Exception {
         OccuringStruct x = new OccuringStruct();
         List<Serializable> theList = x.getVarFloatAndVarIntAndVarString(); 
-        theList.add(new Integer(0));
         theList.add(1.14f);
+        theList.add(new Integer(0));
         theList.add("x1");
-        theList.add(new Integer(1));
         theList.add(11.14f);
+        theList.add(new Integer(1));
         theList.add("x2");
         x.setVarAttrib("x_attr");
 
         OccuringStruct yOriginal = new OccuringStruct();
         theList = yOriginal.getVarFloatAndVarIntAndVarString();
         theList.add(3.14f);
-        theList.add("y");
         theList.add(new Integer(42));
+        theList.add("y");
         yOriginal.setVarAttrib("y_attr");
 
         Holder<OccuringStruct> y = new Holder<OccuringStruct>(yOriginal);
@@ -1707,7 +1696,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.OccurringStruct1;
+    // org.objectweb.type_test.types3.OccuringStruct1;
     
     protected boolean equals(OccuringStruct1 x, OccuringStruct1 y) {
         return equalsFloatIntStringList(x.getVarFloatAndVarIntAndVarString(),
@@ -1717,15 +1706,15 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     public void testOccuringStruct1() throws Exception {
         OccuringStruct1 x = new OccuringStruct1();
         List<Serializable> theList = x.getVarFloatAndVarIntAndVarString(); 
-        theList.add(1);
+        theList.add(1.1f);
         theList.add(2);
-        theList.add("x1");
+        theList.add("xX");
 
         OccuringStruct1 yOriginal = new OccuringStruct1();
         theList = yOriginal.getVarFloatAndVarIntAndVarString();
-        theList.add("y");
-        theList.add(11);
+        theList.add(11.11f);
         theList.add(22);
+        theList.add("yY");
 
         Holder<OccuringStruct1> y = new Holder<OccuringStruct1>(yOriginal);
         Holder<OccuringStruct1> z = new Holder<OccuringStruct1>();
@@ -1746,7 +1735,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.OccurringStruct2;
+    // org.objectweb.type_test.types3.OccuringStruct2;
     
     protected boolean equals(OccuringStruct2 x, OccuringStruct2 y) {
         if (Float.compare(x.getVarFloat(), y.getVarFloat()) != 0) {
@@ -1778,7 +1767,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return true;
     }
 
-    // XXX - Generated code is flattened (no nested struct)
     public void testOccuringStruct2() throws Exception {
         OccuringStruct2 x = new OccuringStruct2();
         x.setVarFloat(1.14f);
@@ -1792,7 +1780,11 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         yOriginal.setVarFloat(3.14f);
         theList = yOriginal.getVarIntAndVarString();
         theList.add(42);
-        theList.add("y");
+        theList.add("the answer");
+        theList.add(6);
+        theList.add("hammer");
+        theList.add(2);
+        theList.add("anvil");
 
         Holder<OccuringStruct2> y = new Holder<OccuringStruct2>(yOriginal);
         Holder<OccuringStruct2> z = new Holder<OccuringStruct2>();
@@ -1813,7 +1805,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.OccurringChoice;
+    // org.objectweb.type_test.types3.OccuringChoice;
 
     protected boolean equals(OccuringChoice x, OccuringChoice y) {
         if (!equalsNilable(x.getVarAttrib(), y.getVarAttrib())) {
@@ -1831,7 +1823,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         theList.add("x1");
         theList.add(1);
         theList.add(11.14f);
-        theList.add("x2");
         x.setVarAttrib("x_attr");
 
         OccuringChoice yOriginal = new OccuringChoice();
@@ -1861,7 +1852,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
 
         theList.add(52);
         theList.add(4.14f);
-        theList.add("y2");
 
         y = new Holder<OccuringChoice>(yOriginal);
         z = new Holder<OccuringChoice>();
@@ -1881,7 +1871,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.OccurringChoice1;
+    // org.objectweb.type_test.types3.OccuringChoice1;
     
     protected boolean equals(OccuringChoice1 x, OccuringChoice1 y) {
         List<Comparable> xList = x.getVarFloatOrVarInt();
@@ -1938,7 +1928,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
-    // org.objectweb.type_test.types.OccurringChoice2;
+    // org.objectweb.type_test.types3.OccuringChoice2;
 
     protected boolean equals(OccuringChoice2 x, OccuringChoice2 y) {
         if (x.getVarString() != null && !x.getVarString().equals(y.getVarString())) {
@@ -1950,7 +1940,6 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return true;
     }
 
-    // XXX - generated code is flattened - no nested choice
     public void testOccuringChoice2() throws Exception {
         OccuringChoice2 x = new OccuringChoice2();
         x.setVarString("x1");

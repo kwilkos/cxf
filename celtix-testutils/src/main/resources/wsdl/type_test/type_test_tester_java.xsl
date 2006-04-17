@@ -36,18 +36,23 @@ public interface TypeTestTester {
                 @name='SimpleUnionList'
                 or @name='AnonUnionList'
                 or @name='SimpleUnion'
-                )]"
+                or @itst:it_no_test='true')]"
             mode="definition"/>
-        <xsl:apply-templates select="xsd:complexType" mode="definition"/>
+        <xsl:apply-templates select="xsd:complexType[not(
+                @itst:it_no_test='true')]"
+            mode="definition"/>
         <!--
-        <xsl:apply-templates select="xsd:element[not(@name='AnonTypeElement')]" mode="definition"/>
+        <xsl:apply-templates select="xsd:element[not(
+                @name='AnonTypeElement'
+                or @itst:it_no_test='true')]"
+            mode="definition"/>
         -->
-        <xsl:apply-templates select="itst:builtIn" mode="definition"/>
+        <xsl:apply-templates select="itst:builtIn[not(
+                @itst:it_no_test='true')]"
+            mode="definition"/>
     </xsl:template>
 
-    <xsl:template
-            match="itst:it_test_group/*[not(@itst:it_no_test='true')]"
-            mode="definition">
+    <xsl:template match="itst:it_test_group/*" mode="definition">
         <xsl:text>
     void test</xsl:text>
         <xsl:value-of select="concat(translate(substring(@name, 1, 1),

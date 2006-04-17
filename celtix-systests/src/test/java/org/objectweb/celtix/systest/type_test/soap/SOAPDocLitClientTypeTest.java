@@ -1,5 +1,6 @@
 package org.objectweb.celtix.systest.type_test.soap;
 
+import java.net.URL;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -12,8 +13,8 @@ import junit.framework.TestSuite;
 
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient4;
-import org.objectweb.type_test.types.StructWithAnyArrayLax;
-import org.objectweb.type_test.types.StructWithAnyStrict;
+import org.objectweb.type_test.types2.StructWithAnyArrayLax;
+import org.objectweb.type_test.types2.StructWithAnyStrict;
 
 public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
     static final String WSDL_PATH = "/wsdl/type_test/type_test_doclit_soap.wsdl";
@@ -31,14 +32,22 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
                 boolean ok = launchServer(SOAPDocLitServerImpl.class); 
                 assertTrue("failed to launch server", ok);
             }
+            
+            public void setUp() throws Exception {
+                // set up configuration to enable schema validation
+                URL url = getClass().getResource("../celtix-config.xml"); 
+                assertNotNull("cannot find test resource", url);
+                configFileName = url.toString(); 
+                super.setUp();
+            }
         };
     }  
 
     public void testStructWithAnyStrict() throws Exception {
         SOAPFactory factory = SOAPFactory.newInstance();
         SOAPElement elem = factory.createElement("StringElementQualified",
-            "tns", "http://objectweb.org/type_test");
-        elem.addNamespaceDeclaration("tns", "http://objectweb.org/type_test");
+            "x1", "http://objectweb.org/type_test/types1");
+        elem.addNamespaceDeclaration("x1", "http://objectweb.org/type_test/types1");
         elem.addTextNode("This is the text of the node");
 
         StructWithAnyStrict x = new StructWithAnyStrict();
@@ -47,8 +56,8 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
         x.setAny(elem);
         
         elem = factory.createElement("StringElementQualified",
-                                     "tns", "http://objectweb.org/type_test");
-        elem.addNamespaceDeclaration("tns", "http://objectweb.org/type_test");
+            "x1", "http://objectweb.org/type_test/types1");
+        elem.addNamespaceDeclaration("x1", "http://objectweb.org/type_test/types1");
         elem.addTextNode("This is the text of the second node");
                                 
         StructWithAnyStrict yOrig = new StructWithAnyStrict();
@@ -58,12 +67,7 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
 
         Holder<StructWithAnyStrict> y = new Holder<StructWithAnyStrict>(yOrig);
         Holder<StructWithAnyStrict> z = new Holder<StructWithAnyStrict>();
-        StructWithAnyStrict ret;
-        if (testDocLiteral) {
-            ret = docClient.testStructWithAnyStrict(x, y, z);
-        } else {
-            ret = rpcClient.testStructWithAnyStrict(x, y, z);
-        }
+        StructWithAnyStrict ret = docClient.testStructWithAnyStrict(x, y, z);
         if (!perfTestOnly) {
             assertEqualsStructWithAnyStrict(x, y.value);
             assertEqualsStructWithAnyStrict(yOrig, z.value);
@@ -74,18 +78,18 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
     public void testStructWithAnyStrictComplex() throws Exception {
         SOAPFactory factory = SOAPFactory.newInstance();
         SOAPElement elem = factory.createElement("AnonTypeElementQualified",
-                                     "tns", "http://objectweb.org/type_test");
-        elem.addNamespaceDeclaration("tns", "http://objectweb.org/type_test");
-        SOAPElement floatElem = factory.createElement("varFloat", "tns",
-            "http://objectweb.org/type_test");
+            "x1", "http://objectweb.org/type_test/types1");
+        elem.addNamespaceDeclaration("x1", "http://objectweb.org/type_test/types1");
+        SOAPElement floatElem = factory.createElement("varFloat", "x1",
+            "http://objectweb.org/type_test/types1");
         floatElem.addTextNode("12.5");
         elem.addChildElement(floatElem);
-        SOAPElement intElem = factory.createElement("varInt", "tns",
-            "http://objectweb.org/type_test");
+        SOAPElement intElem = factory.createElement("varInt", "x1",
+            "http://objectweb.org/type_test/types1");
         intElem.addTextNode("34");
         elem.addChildElement(intElem);
-        SOAPElement stringElem = factory.createElement("varString", "tns",
-            "http://objectweb.org/type_test");
+        SOAPElement stringElem = factory.createElement("varString", "x1",
+            "http://objectweb.org/type_test/types1");
         stringElem.addTextNode("test string within any");
         elem.addChildElement(stringElem);
                                  
@@ -94,19 +98,19 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
         x.setAddress("Some Address x");
         x.setAny(elem);
         
-        elem = factory.createElement("AnonTypeElementQualified", "tns",
-            "http://objectweb.org/type_test");
-        elem.addNamespaceDeclaration("tns", "http://objectweb.org/type_test");
-        floatElem = factory.createElement("varFloat", "tns",
-            "http://objectweb.org/type_test");
+        elem = factory.createElement("AnonTypeElementQualified", "x1",
+            "http://objectweb.org/type_test/types1");
+        elem.addNamespaceDeclaration("x1", "http://objectweb.org/type_test/types1");
+        floatElem = factory.createElement("varFloat", "x1",
+            "http://objectweb.org/type_test/types1");
         floatElem.addTextNode("12.76");
         elem.addChildElement(floatElem);
-        intElem = factory.createElement("varInt", "tns",
-                                        "http://objectweb.org/type_test");
+        intElem = factory.createElement("varInt", "x1",
+            "http://objectweb.org/type_test/types1");
         intElem.addTextNode("56");
         elem.addChildElement(intElem);
-        stringElem = factory.createElement("varString", "tns",
-                                           "http://objectweb.org/type_test");
+        stringElem = factory.createElement("varString", "x1",
+            "http://objectweb.org/type_test/types1");
         stringElem.addTextNode("test string");
         elem.addChildElement(stringElem);
         
@@ -117,12 +121,7 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
 
         Holder<StructWithAnyStrict> y = new Holder<StructWithAnyStrict>(yOrig);
         Holder<StructWithAnyStrict> z = new Holder<StructWithAnyStrict>();
-        StructWithAnyStrict ret;
-        if (testDocLiteral) {
-            ret = docClient.testStructWithAnyStrict(x, y, z);
-        } else {
-            ret = rpcClient.testStructWithAnyStrict(x, y, z);
-        }        
+        StructWithAnyStrict ret = docClient.testStructWithAnyStrict(x, y, z);
         if (!perfTestOnly) {
             assertEqualsStructWithAnyStrict(x, y.value);
             assertEqualsStructWithAnyStrict(yOrig, z.value);
@@ -133,8 +132,8 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
     public void testStructWithAnyArrayLax() throws Exception {
         SOAPFactory factory = SOAPFactory.newInstance();
         SOAPElement elem = factory.createElement("StringElementQualified", 
-            "tns", "http://objectweb.org/type_test");
-        elem.addNamespaceDeclaration("tns", "http://objectweb.org/type_test");
+            "x1", "http://objectweb.org/type_test/types1");
+        elem.addNamespaceDeclaration("x1", "http://objectweb.org/type_test/types1");
         elem.addTextNode("This is the text of the node");
 
         StructWithAnyArrayLax x = new StructWithAnyArrayLax();
@@ -142,9 +141,9 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
         x.setAddress("Some Address x");
         x.getAny().add(elem);
 
-        elem = factory.createElement("StringElementQualified", "tns",
-            "http://objectweb.org/type_test");
-        elem.addNamespaceDeclaration("tns", "http://objectweb.org/type_test");
+        elem = factory.createElement("StringElementQualified", "x1",
+            "http://objectweb.org/type_test/types1");
+        elem.addNamespaceDeclaration("x1", "http://objectweb.org/type_test/types1");
         elem.addTextNode("This is the text of the node for the second struct");
 
         StructWithAnyArrayLax yOrig = new StructWithAnyArrayLax();
@@ -154,12 +153,7 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
 
         Holder<StructWithAnyArrayLax> y = new Holder<StructWithAnyArrayLax>(yOrig);
         Holder<StructWithAnyArrayLax> z = new Holder<StructWithAnyArrayLax>();
-        StructWithAnyArrayLax ret;
-        if (testDocLiteral) {
-            ret = docClient.testStructWithAnyArrayLax(x, y, z);
-        } else {
-            ret = rpcClient.testStructWithAnyArrayLax(x, y, z);
-        }
+        StructWithAnyArrayLax ret = docClient.testStructWithAnyArrayLax(x, y, z);
         if (!perfTestOnly) {
             assertEqualsStructWithAnyArrayLax(x, y.value);
             assertEqualsStructWithAnyArrayLax(yOrig, z.value);
@@ -169,19 +163,19 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
     
     public void testStructWithAnyArrayLaxComplex() throws Exception {
         SOAPFactory factory = SOAPFactory.newInstance();
-        SOAPElement elem = factory.createElement("AnonTypeElementQualified", "tns",
-            "http://objectweb.org/type_test");
-        elem.addNamespaceDeclaration("tns", "http://objectweb.org/type_test");
-        SOAPElement floatElem = factory.createElement("varFloat", "tns",
-            "http://objectweb.org/type_test");
+        SOAPElement elem = factory.createElement("AnonTypeElementQualified", "x1",
+            "http://objectweb.org/type_test/types1");
+        elem.addNamespaceDeclaration("x1", "http://objectweb.org/type_test/types1");
+        SOAPElement floatElem = factory.createElement("varFloat", "x1",
+            "http://objectweb.org/type_test/types1");
         floatElem.addTextNode("12.76");
         elem.addChildElement(floatElem);
-        SOAPElement intElem = factory.createElement("varInt", "tns",
-            "http://objectweb.org/type_test");       
+        SOAPElement intElem = factory.createElement("varInt", "x1",
+            "http://objectweb.org/type_test/types1");
         intElem.addTextNode("56");
         elem.addChildElement(intElem);
-        SOAPElement stringElem = factory.createElement("varString", "tns",
-            "http://objectweb.org/type_test");             
+        SOAPElement stringElem = factory.createElement("varString", "x1",
+            "http://objectweb.org/type_test/types1");
         stringElem.addTextNode("test string");
         elem.addChildElement(stringElem);
 
@@ -196,12 +190,7 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
 
         Holder<StructWithAnyArrayLax> y = new Holder<StructWithAnyArrayLax>(yOrig);
         Holder<StructWithAnyArrayLax> z = new Holder<StructWithAnyArrayLax>();
-        StructWithAnyArrayLax ret;
-        if (testDocLiteral) {
-            ret = docClient.testStructWithAnyArrayLax(x, y, z);
-        } else {
-            ret = rpcClient.testStructWithAnyArrayLax(x, y, z);
-        }
+        StructWithAnyArrayLax ret = docClient.testStructWithAnyArrayLax(x, y, z);
         if (!perfTestOnly) {
             assertEqualsStructWithAnyArrayLax(x, y.value);
             assertEqualsStructWithAnyArrayLax(yOrig, z.value);

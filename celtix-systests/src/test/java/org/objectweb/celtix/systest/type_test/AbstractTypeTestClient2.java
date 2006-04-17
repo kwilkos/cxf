@@ -9,57 +9,57 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
-import org.objectweb.type_test.types.AnonymousStruct;
-import org.objectweb.type_test.types.BoundedArray;
-import org.objectweb.type_test.types.ChoiceArray;
-import org.objectweb.type_test.types.ChoiceWithSubstitutionGroup;
-import org.objectweb.type_test.types.ChoiceWithSubstitutionGroupAbstract;
-import org.objectweb.type_test.types.ChoiceWithSubstitutionGroupNil;
-import org.objectweb.type_test.types.CompoundArray;
-import org.objectweb.type_test.types.DerivedStructBaseEmpty;
-import org.objectweb.type_test.types.Document;
-import org.objectweb.type_test.types.EmptyAll;
-import org.objectweb.type_test.types.EmptyChoice;
-import org.objectweb.type_test.types.EmptyStruct;
-import org.objectweb.type_test.types.ExtBase64Binary;
-import org.objectweb.type_test.types.ExtColourEnum;
-import org.objectweb.type_test.types.ExtendsSimpleContent;
-import org.objectweb.type_test.types.ExtendsSimpleType;
-import org.objectweb.type_test.types.FixedArray;
-import org.objectweb.type_test.types.NestedArray;
-import org.objectweb.type_test.types.NestedStruct;
-import org.objectweb.type_test.types.ObjectFactory;
-import org.objectweb.type_test.types.RecElNextType;
-import org.objectweb.type_test.types.RecElType;
-import org.objectweb.type_test.types.RecInnerNextType;
-import org.objectweb.type_test.types.RecInnerType;
-import org.objectweb.type_test.types.RecMostInnerNextType;
-import org.objectweb.type_test.types.RecMostInnerType;
-import org.objectweb.type_test.types.RecOuterNextType;
-import org.objectweb.type_test.types.RecOuterType;
-import org.objectweb.type_test.types.RecursiveStruct;
-import org.objectweb.type_test.types.RecursiveStructArray;
-import org.objectweb.type_test.types.RecursiveUnion;
-import org.objectweb.type_test.types.RecursiveUnionData;
-import org.objectweb.type_test.types.SgBaseTypeA;
-import org.objectweb.type_test.types.SgDerivedTypeB;
-import org.objectweb.type_test.types.SgDerivedTypeC;
-import org.objectweb.type_test.types.SimpleAll;
-import org.objectweb.type_test.types.SimpleChoice;
-import org.objectweb.type_test.types.SimpleContent1;
-import org.objectweb.type_test.types.SimpleContent2;
-import org.objectweb.type_test.types.SimpleContent3;
-import org.objectweb.type_test.types.SimpleStruct;
-import org.objectweb.type_test.types.StructWithList;
-import org.objectweb.type_test.types.StructWithMultipleSubstitutionGroups;
-import org.objectweb.type_test.types.StructWithNillables;
-import org.objectweb.type_test.types.StructWithOptionals;
-import org.objectweb.type_test.types.StructWithSubstitutionGroup;
-import org.objectweb.type_test.types.StructWithSubstitutionGroupAbstract;
-import org.objectweb.type_test.types.StructWithSubstitutionGroupNil;
-import org.objectweb.type_test.types.StructWithUnion;
-import org.objectweb.type_test.types.UnboundedArray;
-import org.objectweb.type_test.types.UnionSimpleContent;
+import org.objectweb.type_test.types1.AnonymousStruct;
+import org.objectweb.type_test.types1.BoundedArray;
+import org.objectweb.type_test.types1.ChoiceArray;
+import org.objectweb.type_test.types1.CompoundArray;
+import org.objectweb.type_test.types1.DerivedStructBaseEmpty;
+import org.objectweb.type_test.types1.Document;
+import org.objectweb.type_test.types1.EmptyAll;
+import org.objectweb.type_test.types1.EmptyChoice;
+import org.objectweb.type_test.types1.EmptyStruct;
+import org.objectweb.type_test.types1.ExtColourEnum;
+import org.objectweb.type_test.types1.ExtendsSimpleContent;
+import org.objectweb.type_test.types1.ExtendsSimpleType;
+import org.objectweb.type_test.types1.FixedArray;
+import org.objectweb.type_test.types1.NestedArray;
+import org.objectweb.type_test.types1.NestedStruct;
+import org.objectweb.type_test.types1.RecursiveStruct;
+import org.objectweb.type_test.types1.RecursiveStructArray;
+import org.objectweb.type_test.types1.RecursiveUnion;
+import org.objectweb.type_test.types1.RecursiveUnionData;
+import org.objectweb.type_test.types1.SimpleAll;
+import org.objectweb.type_test.types1.SimpleChoice;
+import org.objectweb.type_test.types1.SimpleContent1;
+import org.objectweb.type_test.types1.SimpleContent2;
+import org.objectweb.type_test.types1.SimpleContent3;
+import org.objectweb.type_test.types1.SimpleStruct;
+import org.objectweb.type_test.types1.StructWithList;
+import org.objectweb.type_test.types1.StructWithNillables;
+import org.objectweb.type_test.types1.StructWithOptionals;
+import org.objectweb.type_test.types1.StructWithUnion;
+import org.objectweb.type_test.types1.UnboundedArray;
+import org.objectweb.type_test.types1.UnionSimpleContent;
+import org.objectweb.type_test.types2.ExtBase64Binary;
+import org.objectweb.type_test.types3.ChoiceWithSubstitutionGroup;
+import org.objectweb.type_test.types3.ChoiceWithSubstitutionGroupAbstract;
+import org.objectweb.type_test.types3.ChoiceWithSubstitutionGroupNil;
+import org.objectweb.type_test.types3.ObjectFactory;
+import org.objectweb.type_test.types3.RecElNextType;
+import org.objectweb.type_test.types3.RecElType;
+import org.objectweb.type_test.types3.RecInnerNextType;
+import org.objectweb.type_test.types3.RecInnerType;
+import org.objectweb.type_test.types3.RecMostInnerNextType;
+import org.objectweb.type_test.types3.RecMostInnerType;
+import org.objectweb.type_test.types3.RecOuterNextType;
+import org.objectweb.type_test.types3.RecOuterType;
+import org.objectweb.type_test.types3.SgBaseTypeA;
+import org.objectweb.type_test.types3.SgDerivedTypeB;
+import org.objectweb.type_test.types3.SgDerivedTypeC;
+import org.objectweb.type_test.types3.StructWithMultipleSubstitutionGroups;
+import org.objectweb.type_test.types3.StructWithSubstitutionGroup;
+import org.objectweb.type_test.types3.StructWithSubstitutionGroupAbstract;
+import org.objectweb.type_test.types3.StructWithSubstitutionGroupNil;
 
 public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
 
@@ -82,7 +82,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         return x != null && y != null;
     }
 
-    // org.objectweb.type_test.types.EmptyStruct
+    // org.objectweb.type_test.types1.EmptyStruct
     
     public void testEmptyStruct() throws Exception {
         EmptyStruct x = new EmptyStruct();
@@ -129,7 +129,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.SimpleStruct
+    // org.objectweb.type_test.types1.SimpleStruct
 
     protected boolean equals(SimpleStruct x, SimpleStruct y) {
         return (Double.compare(x.getVarFloat(), y.getVarFloat()) == 0)
@@ -166,7 +166,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.StructWithNillables
+    // org.objectweb.type_test.types1.StructWithNillables
 
     protected boolean equals(StructWithNillables x, StructWithNillables y) {
         return equalsNilable(x.getVarFloat(), y.getVarFloat())
@@ -199,7 +199,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.AnonymousStruct
+    // org.objectweb.type_test.types1.AnonymousStruct
     // XXX - generated code flattens nested struct into top-level class.
     protected boolean equals(AnonymousStruct x, AnonymousStruct y) {
         return (x.getVarFloat() == y.getVarFloat())
@@ -235,7 +235,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.NestedStruct
+    // org.objectweb.type_test.types1.NestedStruct
 
     protected boolean equals(NestedStruct x, NestedStruct y) {
         return (x.getVarInt() == y.getVarInt())
@@ -303,7 +303,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.FixedArray
+    // org.objectweb.type_test.types1.FixedArray
     
     public void testFixedArray() throws Exception {
         FixedArray x = new FixedArray();
@@ -332,7 +332,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.BoundedArray
+    // org.objectweb.type_test.types1.BoundedArray
     
     public void testBoundedArray() throws Exception {
         BoundedArray x = new BoundedArray();
@@ -368,7 +368,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.UnboundedArray
+    // org.objectweb.type_test.types1.UnboundedArray
 
     protected boolean equals(UnboundedArray x, UnboundedArray y) {
         List<String> xx = x.getItem();
@@ -407,7 +407,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.CompoundArray
+    // org.objectweb.type_test.types1.CompoundArray
     
     protected boolean equals(CompoundArray x, CompoundArray y) {
         return x.getArray1().equals(y.getArray1())
@@ -440,7 +440,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.NestedArray
+    // org.objectweb.type_test.types1.NestedArray
     
     public void testNestedArray() throws Exception {
         String[][] xs = {{"AAA", "BBB", "CCC"}, {"aaa", "bbb", "ccc"}, {"a_a_a", "b_b_b", "c_c_c"}};
@@ -485,7 +485,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.StructWithList
+    // org.objectweb.type_test.types1.StructWithList
     
     protected void assertEquals(String msg, StructWithList x, StructWithList y) throws Exception {
         assertTrue(msg, x != null);
@@ -566,7 +566,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.StructWithUnion
+    // org.objectweb.type_test.types1.StructWithUnion
 
     protected void assertEquals(String msg, StructWithUnion x, StructWithUnion y) throws Exception {
         assertTrue(msg, x != null);
@@ -622,7 +622,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.EmptyChoice
+    // org.objectweb.type_test.types1.EmptyChoice
 
     public void testEmptyChoice() throws Exception {
         EmptyChoice x = new EmptyChoice();
@@ -644,7 +644,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.SimpleChoice
+    // org.objectweb.type_test.types1.SimpleChoice
     
     protected boolean equals(SimpleChoice x, SimpleChoice y) {
         if (x.getVarFloat() != null && y.getVarFloat() != null) {
@@ -682,7 +682,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.EmptyAll
+    // org.objectweb.type_test.types1.EmptyAll
 
     public void testEmptyAll() throws Exception {
         EmptyAll x = new EmptyAll();
@@ -704,7 +704,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.SimpleAll
+    // org.objectweb.type_test.types1.SimpleAll
 
     protected boolean equals(SimpleAll x, SimpleAll y) {
         return (x.getVarFloat() == y.getVarFloat())
@@ -744,7 +744,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.StructWithOptionals
+    // org.objectweb.type_test.types1.StructWithOptionals
 
     protected boolean equals(StructWithOptionals x, StructWithOptionals y) {
         return equalsNilable(x.getVarFloat(), y.getVarFloat())
@@ -778,7 +778,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.RecursiveStruct
+    // org.objectweb.type_test.types1.RecursiveStruct
 
     protected boolean equals(RecursiveStruct x, RecursiveStruct y) {
         return (x.getVarFloat() == y.getVarFloat())
@@ -833,7 +833,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.RecursiveStructArray
+    // org.objectweb.type_test.types1.RecursiveStructArray
 
     protected boolean equals(RecursiveStructArray x, RecursiveStructArray y) {
         List<RecursiveStruct> xx = x.getItem();
@@ -889,7 +889,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.RecursiveUnionData
+    // org.objectweb.type_test.types1.RecursiveUnionData
 
     protected boolean equals(RecursiveUnion x, RecursiveUnion y) {
         if (x.getVarString() != null && y.getVarString() != null) {
@@ -944,7 +944,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.RecursiveUnionData
+    // org.objectweb.type_test.types1.RecursiveUnionData
 
     protected boolean equals(RecursiveUnionData x, RecursiveUnionData y) {
         return x.getVarInt() == y.getVarInt()
@@ -988,7 +988,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.ChoiceArray
+    // org.objectweb.type_test.types1.ChoiceArray
 
     protected boolean equals(ChoiceArray x, ChoiceArray y) {
         List<RecursiveUnion> xx = x.getItem();
@@ -1038,7 +1038,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.ExtendsSimpleType
+    // org.objectweb.type_test.types2.ExtendsSimpleType
     
     public void testExtendsSimpleType() throws Exception {
         ExtendsSimpleType x = new ExtendsSimpleType();
@@ -1060,7 +1060,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.ExtendsSimpleContent
+    // org.objectweb.type_test.types1.ExtendsSimpleContent
 
     public void testExtendsSimpleContent() throws Exception {
         ExtendsSimpleContent x = new ExtendsSimpleContent();
@@ -1083,7 +1083,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.Document
+    // org.objectweb.type_test.types1.Document
     
     protected void equals(String msg, Document x, Document y) throws Exception {
         assertEquals(msg, x.getValue(), y.getValue());
@@ -1136,7 +1136,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    //  org.objectweb.type_test.types.ExtColourEnum
+    //  org.objectweb.type_test.types1.ExtColourEnum
     // XXX - TODO - ColourEnum generated method fromValue() isn't static...
     protected boolean equals(ExtColourEnum x, ExtColourEnum y) {
         return (x.getAttrib1() == y.getAttrib1())
@@ -1174,7 +1174,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         */
     }
     
-    // org.objectweb.type_test.types.ExtBase64Binary;
+    // org.objectweb.type_test.types1.ExtBase64Binary;
 
     protected boolean equals(ExtBase64Binary x, ExtBase64Binary y) {
         return x.getId() == y.getId() && Arrays.equals(x.getValue(), y.getValue());
@@ -1207,7 +1207,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.StructWithSubstitutionGroup
+    // org.objectweb.type_test.types3.StructWithSubstitutionGroup
 
     protected boolean equals(StructWithSubstitutionGroup x, StructWithSubstitutionGroup y) {
         if (!x.getSg01BaseElementA().isNil() 
@@ -1253,7 +1253,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.StructWithSubstitutionGroupAbstract
+    // org.objectweb.type_test.types3.StructWithSubstitutionGroupAbstract
 
     protected boolean equals(StructWithSubstitutionGroupAbstract x, StructWithSubstitutionGroupAbstract y) {
         if (x.getSg03AbstractBaseElementA() != null
@@ -1302,7 +1302,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.StructWithSubstitutionGroupNil
+    // org.objectweb.type_test.types3.StructWithSubstitutionGroupNil
 
     protected boolean equals(StructWithSubstitutionGroupNil x, StructWithSubstitutionGroupNil y) {
         if (x.getSg04NillableBaseElementA().isNil()) {
@@ -1342,7 +1342,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.StructWithMultipleSubstitutionGroups
+    // org.objectweb.type_test.types3.StructWithMultipleSubstitutionGroups
 
     protected boolean equals(StructWithMultipleSubstitutionGroups x, StructWithMultipleSubstitutionGroups y) {
         if (Double.compare(x.getVarFloat(), y.getVarFloat()) != 0) {
@@ -1432,7 +1432,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.ChoiceWithSubstitutionGroupAbstract
+    // org.objectweb.type_test.types3.ChoiceWithSubstitutionGroupAbstract
 
     protected boolean equals(ChoiceWithSubstitutionGroupAbstract x, ChoiceWithSubstitutionGroupAbstract y) {
         if (x.getVarInt() != null && y.getVarInt() != null
@@ -1484,24 +1484,27 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.ChoiceWithSubstitutionGroupNil
+    // org.objectweb.type_test.types3.ChoiceWithSubstitutionGroupNil
 
     protected boolean equals(ChoiceWithSubstitutionGroupNil x, ChoiceWithSubstitutionGroupNil y) {
-        if (x.getVarInt() == null) {
-            if (y.getVarInt() != null) {
-               // x null, y non-null
-                return false;
-            } 
-        } else {
+        if (x.getVarInt() != null) {
             if (y.getVarInt() == null) {
-                // x non-null, y null
+                // x null, y non-null
                 return false;
+            } else if (x.getVarInt().isNil()) {
+                return y.getVarInt().isNil();
             } else {
-                return x.getVarInt().equals(y.getVarInt());
+                if (y.getVarInt().isNil()) {
+                    return false;
+                }
+                return x.getVarInt().getValue().equals(y.getVarInt().getValue());
             }
+        } else if (y.getVarInt() != null) {
+            return false;
         }
         if (x.getSg04NillableBaseElementA() != null) {
             if (y.getSg04NillableBaseElementA() == null) {
+                // x null, y non-null
                 return false;
             } else if (x.getSg04NillableBaseElementA().isNil()) {
                 return y.getSg04NillableBaseElementA().isNil();
@@ -1522,10 +1525,13 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ObjectFactory objectFactory = new ObjectFactory();
         
         ChoiceWithSubstitutionGroupNil x = new ChoiceWithSubstitutionGroupNil();
-        x.setVarInt(null);
+        JAXBElement<BigInteger> varInt =
+            objectFactory.createChoiceWithSubstitutionGroupNilVarInt(null);
+        x.setVarInt(varInt);
         ChoiceWithSubstitutionGroupNil yOrig = new ChoiceWithSubstitutionGroupNil();
-        JAXBElement<? extends SgBaseTypeA> elementB = objectFactory.createSg04DerivedElementB(null);
-        yOrig.setSg04NillableBaseElementA(elementB);
+        JAXBElement<? extends SgBaseTypeA> elementA = 
+            objectFactory.createSg04NillableBaseElementA(null);
+        yOrig.setSg04NillableBaseElementA(elementA);
 
         Holder<ChoiceWithSubstitutionGroupNil> y = new Holder<ChoiceWithSubstitutionGroupNil>(yOrig);
         Holder<ChoiceWithSubstitutionGroupNil> z = new Holder<ChoiceWithSubstitutionGroupNil>();
@@ -1544,7 +1550,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.ChoiceWithSubstitutionGroup
+    // org.objectweb.type_test.types3.ChoiceWithSubstitutionGroup
 
     protected boolean equals(SgBaseTypeA x, SgBaseTypeA y) {
         if (x == null) {
@@ -1634,7 +1640,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.RecElNextType
+    // org.objectweb.type_test.types3.RecElNextType
 
     protected boolean equals(RecElNextType x, RecElNextType y) {
         List<RecElType> xx = x.getRecEl();
@@ -1689,7 +1695,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
 
-    // org.objectweb.type_test.types.RecOuterType
+    // org.objectweb.type_test.types3.RecOuterType
 
     protected boolean equals(RecMostInnerType x, RecMostInnerType y) {
         return x.getVarInt() == y.getVarInt()
@@ -1839,7 +1845,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
     }
     
-    // org.objectweb.type_test.types.SimpleContent1
+    // org.objectweb.type_test.types1.SimpleContent1
 
     protected void equals(String msg, SimpleContent1 x, SimpleContent1 y) throws
 Exception {
@@ -1874,7 +1880,7 @@ Exception {
         }
     }
     
-    // org.objectweb.type_test.types.SimpleContent2
+    // org.objectweb.type_test.types1.SimpleContent2
 
     protected void equals(String msg, SimpleContent2 x, SimpleContent2 y) throws
 Exception {
@@ -1913,7 +1919,7 @@ Exception {
         }
     }
     
-    // org.objectweb.type_test.types.SimpleContent3
+    // org.objectweb.type_test.types1.SimpleContent3
 
     protected void equals(String msg, SimpleContent3 x, SimpleContent3 y) throws
 Exception {
@@ -1956,7 +1962,7 @@ Exception {
         }
     }
     
-    // org.objectweb.type_test.types.UnionSimpleContent
+    // org.objectweb.type_test.types1.UnionSimpleContent
 
     protected void assertEquals(String msg, UnionSimpleContent x, UnionSimpleContent y) throws Exception {
         assertTrue(msg, x != null);

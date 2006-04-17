@@ -1,25 +1,52 @@
 package org.objectweb.celtix.systest.type_test;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
-import org.objectweb.type_test.types.AnonymousType;
-import org.objectweb.type_test.types.ArrayOfMRecSeqD;
-import org.objectweb.type_test.types.MRecSeqA;
-import org.objectweb.type_test.types.MRecSeqB;
-import org.objectweb.type_test.types.MRecSeqC;
-import org.objectweb.type_test.types.MRecSeqD;
-import org.objectweb.type_test.types.OccuringChoiceWithAnyAttribute;
-import org.objectweb.type_test.types.OccuringStructWithAnyAttribute;
-import org.objectweb.type_test.types.SimpleContentExtWithAnyAttribute;
-import org.objectweb.type_test.types.StructWithNillableChoice;
-import org.objectweb.type_test.types.StructWithNillableStruct;
-import org.objectweb.type_test.types.StructWithOccuringChoice;
-import org.objectweb.type_test.types.StructWithOccuringStruct;
+import org.objectweb.type_test.types1.AnonymousType;
+//import org.objectweb.type_test.types1.ComplexArray;
+//import org.objectweb.type_test.types1.ComplexChoice;
+//import org.objectweb.type_test.types1.ComplexStruct;
+//import org.objectweb.type_test.types1.DerivedAllBaseAll;
+//import org.objectweb.type_test.types1.DerivedAllBaseChoice;
+//import org.objectweb.type_test.types1.DerivedAllBaseStruct;
+//import org.objectweb.type_test.types1.DerivedChoiceBaseAll;
+import org.objectweb.type_test.types1.DerivedChoiceBaseArray;
+//import org.objectweb.type_test.types1.DerivedChoiceBaseComplex;
+import org.objectweb.type_test.types1.DerivedEmptyBaseEmptyAll;
+//import org.objectweb.type_test.types1.DerivedStructBaseAll;
+import org.objectweb.type_test.types1.DerivedStructBaseChoice;
+import org.objectweb.type_test.types1.DerivedStructBaseStruct;
+import org.objectweb.type_test.types1.EmptyAll;
+import org.objectweb.type_test.types1.EmptyStruct;
+import org.objectweb.type_test.types1.NestedStruct;
+import org.objectweb.type_test.types1.OccuringAll;
+import org.objectweb.type_test.types1.RecSeqB6918;
+//import org.objectweb.type_test.types1.RestrictedAllBaseAll;
+//import org.objectweb.type_test.types1.RestrictedStructBaseStruct;
+//import org.objectweb.type_test.types1.SimpleAll;
+import org.objectweb.type_test.types1.SimpleChoice;
+import org.objectweb.type_test.types1.SimpleStruct;
+import org.objectweb.type_test.types1.UnboundedArray;
+import org.objectweb.type_test.types2.OccuringChoiceWithAnyAttribute;
+import org.objectweb.type_test.types2.OccuringStructWithAnyAttribute;
+import org.objectweb.type_test.types2.SimpleContentExtWithAnyAttribute;
+import org.objectweb.type_test.types3.ArrayOfMRecSeqD;
+import org.objectweb.type_test.types3.MRecSeqA;
+import org.objectweb.type_test.types3.MRecSeqB;
+import org.objectweb.type_test.types3.MRecSeqC;
+import org.objectweb.type_test.types3.MRecSeqD;
+import org.objectweb.type_test.types3.StructWithNillableChoice;
+import org.objectweb.type_test.types3.StructWithNillableStruct;
+import org.objectweb.type_test.types3.StructWithOccuringChoice;
+import org.objectweb.type_test.types3.StructWithOccuringStruct;
 
 public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
 
@@ -28,7 +55,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         super(name, theServicename, thePort, theWsdlPath);
     }
 
-    // org.objectweb.type_test.types.SimpleContentExtWithAnyAttribute;
+    // org.objectweb.type_test.types2.SimpleContentExtWithAnyAttribute;
 
     protected boolean equals(SimpleContentExtWithAnyAttribute x,
                              SimpleContentExtWithAnyAttribute y) {
@@ -42,8 +69,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     }
 
     public void testSimpleContentExtWithAnyAttribute() throws Exception {
-        QName xAt1Name = new QName("http://schemas.iona.com/type_test", "at_one");
-        QName xAt2Name = new QName("http://schemas.iona.com/type_test", "at_two");
+        QName xAt1Name = new QName("http://objectweb.org/type_test", "at_one");
+        QName xAt2Name = new QName("http://objectweb.org/type_test", "at_two");
         QName yAt3Name = new QName("http://objectweb.org/type_test", "at_thr");
         QName yAt4Name = new QName("http://objectweb.org/type_test", "at_fou");
 
@@ -82,7 +109,38 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
-    // org.objectweb.type_test.types.OccuringStructWithAnyAttribute;
+    // org.objectweb.type_test.types3.OccuringAll;
+
+    protected boolean equals(OccuringAll x, OccuringAll y) {
+        if (x.getVarAttrString() == null && y.getVarAttrString() == null) {
+            return x.getVarInt() == null && y.getVarInt() == null;
+        } else if (!equalsNilable(x.getVarAttrString(), y.getVarAttrString())) {
+            return false;
+        }
+        return x.getVarInt().compareTo(y.getVarInt()) == 0;
+    }
+
+    public void testOccuringAll() throws Exception {
+        OccuringAll x = new OccuringAll();
+        x.setVarInt(new Integer(42));
+        x.setVarAttrString("x_attr");
+        OccuringAll yOrig = new OccuringAll();
+        Holder<OccuringAll> y = new Holder<OccuringAll>(yOrig);
+        Holder<OccuringAll> z = new Holder<OccuringAll>();
+        OccuringAll ret;
+        if (testDocLiteral) {
+            ret = docClient.testOccuringAll(x, y, z);
+        } else {
+            ret = rpcClient.testOccuringAll(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertTrue("testOccuringAll(): Incorrect value for inout param", equals(x, y.value));
+            assertTrue("testOccuringAll(): Incorrect value for out param", equals(yOrig, z.value));
+            assertTrue("testOccuringAll(): Incorrect return value", equals(x, ret));
+        }
+    }
+
+    // org.objectweb.type_test.types2.OccuringStructWithAnyAttribute;
 
     protected boolean equals(OccuringStructWithAnyAttribute x,
                              OccuringStructWithAnyAttribute y) {
@@ -122,8 +180,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     }
 
     public void testOccuringStructWithAnyAttribute() throws Exception {
-        QName xAt1Name = new QName("http://schemas.iona.com/type_test", "at_one");
-        QName xAt2Name = new QName("http://schemas.iona.com/type_test", "at_two");
+        QName xAt1Name = new QName("http://objectweb.org/type_test", "at_one");
+        QName xAt2Name = new QName("http://objectweb.org/type_test", "at_two");
         QName yAt3Name = new QName("http://objectweb.org/type_test", "at_thr");
         QName yAt4Name = new QName("http://objectweb.org/type_test", "at_fou");
 
@@ -170,7 +228,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
-    // org.objectweb.type_test.types.OccuringChoiceWithAnyAttribute;
+    // org.objectweb.type_test.types2.OccuringChoiceWithAnyAttribute;
 
     protected boolean equals(OccuringChoiceWithAnyAttribute x,
                              OccuringChoiceWithAnyAttribute y) {
@@ -233,7 +291,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
-    // org.objectweb.type_test.types.MRecSeqA;
+    // org.objectweb.type_test.types3.MRecSeqA;
 
     protected boolean equals(MRecSeqA x, MRecSeqA y) {
         List<MRecSeqB> xList = x.getSeqB();
@@ -288,7 +346,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
-    // org.objectweb.type_test.types.MRecSeqC;
+    // org.objectweb.type_test.types3.MRecSeqC;
 
     protected boolean equals(MRecSeqC x, MRecSeqC y) {
         return x.getVarIntC() == y.getVarIntC()
@@ -354,7 +412,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
-    // org.objectweb.type_test.types.StructWithNillableChoice;
+    // org.objectweb.type_test.types3.StructWithNillableChoice;
 
     protected boolean equals(StructWithNillableChoice x, StructWithNillableChoice y) {
         if (x.getVarInteger() != y.getVarInteger()) {
@@ -369,7 +427,6 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         return y.getVarInt() == null && y.getVarString() == null;
     }
 
-    // XXX 
     protected boolean isNormalized(StructWithNillableChoice x) {
         return x == null || x.getVarInt() == null && x.getVarString() == null;
     }
@@ -436,7 +493,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
-    // org.objectweb.type_test.types.StructWithOccuringChoice;
+    // org.objectweb.type_test.types3.StructWithOccuringChoice;
 
     protected boolean equals(StructWithOccuringChoice x, StructWithOccuringChoice y) {
         if (x.getVarInteger() != y.getVarInteger()) {
@@ -585,7 +642,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
-    // org.objectweb.type_test.types.StructWithNillableStruct;
+    // org.objectweb.type_test.types3.StructWithNillableStruct;
 
     protected boolean equals(StructWithNillableStruct x, StructWithNillableStruct y) {
         if (x.getVarInteger() != y.getVarInteger()) {
@@ -701,7 +758,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
-    // org.objectweb.type_test.types.StructWithOccuringStruct;
+    // org.objectweb.type_test.types3.StructWithOccuringStruct;
 
     protected boolean equals(StructWithOccuringStruct x, StructWithOccuringStruct y) {
         if (x.getVarInteger() != y.getVarInteger()) {
@@ -849,7 +906,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
-    // org.objectweb.type_test.types.AnonymousType;
+    // org.objectweb.type_test.types1.AnonymousType;
 
     protected boolean equals(AnonymousType x, AnonymousType y) {
         return x.getFoo().getFoo().equals(y.getFoo().getFoo())
@@ -887,4 +944,909 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
+    // org.objectweb.type_test.types1.RecSeqB6918;
+
+    protected boolean equals(RecSeqB6918 x, RecSeqB6918 y) {
+        List<Object> xList = x.getNextSeqAndVarInt();
+        List<Object> yList = y.getNextSeqAndVarInt();
+        int size = xList.size();
+        if (size != yList.size()) {
+            return false;
+        }
+        for (int i = 0; i < size; i++) {
+            Object xo = xList.get(i);
+            Object yo = yList.get(i);
+            if (xo instanceof Integer) {
+                if (yo instanceof Integer) {
+                    if (((Integer)xo).compareTo((Integer)yo) != 0) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else if (xo instanceof RecSeqB6918) {
+                if (yo instanceof RecSeqB6918) {
+                    return equals((RecSeqB6918)xo, (RecSeqB6918)yo);
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void testRecSeqB6918() throws Exception {
+        RecSeqB6918 x = new RecSeqB6918();
+        List<Object> theList = x.getNextSeqAndVarInt();
+        theList.add(new Integer(6));
+        theList.add(new RecSeqB6918());
+        theList.add(new Integer(42));
+        RecSeqB6918 yOrig = new RecSeqB6918();
+        theList = yOrig.getNextSeqAndVarInt();
+        theList.add(x);
+        theList.add(new Integer(2));
+        Holder<RecSeqB6918> y = new Holder<RecSeqB6918>(yOrig);
+        Holder<RecSeqB6918> z = new Holder<RecSeqB6918>();
+
+        RecSeqB6918 ret;
+        if (testDocLiteral) {
+            ret = docClient.testRecSeqB6918(x, y, z);
+        } else {
+            ret = rpcClient.testRecSeqB6918(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertTrue("testRecSeqB6918(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testRecSeqB6918(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testRecSeqB6918(): Incorrect return value", equals(x, ret));
+        }
+    }
+
+    /* XXX - The DerivedChoiceBaseAll, DerivedStructBaseAll, DerivedAll* types
+     *  result in an error creating the Schema object:
+     *  cos-all-limited.1.2: An 'all' model group must appear in a particle with
+     *  {min occurs} = {max occurs} = 1, and that particle must be part of a
+     *  pair which constitutes the {content type} of a complex type definition.
+     
+    // org.objectweb.type_test.types1.ComplexArray
+     
+    protected boolean equals(ComplexArray x, ComplexArray y) {
+        List<DerivedAllBaseStruct> xx = x.getVarDerivedItem();
+        List<DerivedAllBaseStruct> yy = y.getVarDerivedItem();
+        if (xx.size() != yy.size()) {
+            return false;
+        }
+        for (int i = 0; i < xx.size(); i++) {
+            if (!equals(xx.get(i), yy.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void testComplexArray() throws Exception {
+        DerivedAllBaseStruct xx = new DerivedAllBaseStruct();
+        //Base
+        xx.setVarFloat(3.14f);
+        xx.setVarInt(new BigInteger("42"));
+        xx.setVarString("BaseStruct-x");
+        xx.setVarAttrString("BaseStructAttr-x");
+        //Derived
+        xx.setVarFloatExt(-3.14f);
+        xx.setVarStringExt("DerivedAll-x");
+        xx.setAttrString("DerivedAttr-x");
+
+        DerivedAllBaseStruct yy = new DerivedAllBaseStruct();
+        //Base
+        yy.setVarFloat(-9.14f);
+        yy.setVarInt(new BigInteger("10"));
+        yy.setVarString("BaseStruct-y");
+        yy.setVarAttrString("BaseStructAttr-y");
+        //Derived
+        yy.setVarFloatExt(1.414f);
+        yy.setVarStringExt("DerivedAll-y");
+        yy.setAttrString("DerivedAttr-y");
+
+        ComplexArray x = new ComplexArray();
+        x.getVarDerivedItem().add(xx);
+        x.getVarDerivedItem().add(yy);
+
+        ComplexArray yOrig = new ComplexArray();
+        yOrig.getVarDerivedItem().add(yy);
+
+        Holder<ComplexArray> y = new Holder<ComplexArray>(yOrig);
+        Holder<ComplexArray> z = new Holder<ComplexArray>();
+        ComplexArray ret;
+        if (testDocLiteral) {
+            ret = docClient.testComplexArray(x, y, z);
+        } else {
+            ret = rpcClient.testComplexArray(x, y, z);
+        }
+
+        if (!perfTestOnly) {
+            assertTrue("testComplexArray(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testComplexArray(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testComplexArray(): Incorrect return value", equals(ret, x));
+        }
+    }
+    
+    // org.objectweb.type_test.types1.ComplexChoice
+
+    protected boolean equals(ComplexChoice x, ComplexChoice y) {
+        DerivedChoiceBaseComplex xx = x.getVarDerivedStruct();
+        DerivedChoiceBaseComplex yy = y.getVarDerivedStruct();
+        return (xx != null && yy != null && equals(xx, yy))
+            || (x.getVarFloat() != null && y.getVarFloat() != null
+                && x.getVarFloat().compareTo(y.getVarFloat()) == 0);
+    }
+
+    public void testComplexChoice() throws Exception {
+        DerivedChoiceBaseComplex xx = new DerivedChoiceBaseComplex();
+        //Base (Sequence)
+        xx.setVarFloat(3.14f);
+        xx.setVarInt(new BigInteger("42"));
+        xx.setVarString("BaseSequence-x");
+        xx.setVarAttrString("BaseStructAttr-x");
+        //Derived (All)
+        xx.setVarFloatExt(-3.14f);
+        xx.setVarStringExt("DerivedAll-x");
+        xx.setAttrString("DerivedAttr-x");
+        //Most Derived (Choice)
+        xx.setVarStringExtExt("MostDerivedChoice-x");
+        xx.setAttrStringExtExt("MostDerivedAttr-x");
+
+        ComplexChoice x = new ComplexChoice();
+        x.setVarDerivedStruct(xx);
+
+        ComplexChoice yOrig = new ComplexChoice();
+        yOrig.setVarFloat(10.14f);
+
+        Holder<ComplexChoice> y = new Holder<ComplexChoice>(yOrig);
+        Holder<ComplexChoice> z = new Holder<ComplexChoice>();
+        ComplexChoice ret;
+        if (testDocLiteral) {
+            ret = docClient.testComplexChoice(x, y, z);
+        } else {
+            ret = rpcClient.testComplexChoice(x, y, z);
+        }
+
+        if (!perfTestOnly) {
+            assertTrue("testComplexChoice(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testComplexChoice(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testComplexChoice(): Incorrect return value", equals(ret, x));
+        }
+    }
+
+    // org.objectweb.type_test.types1.ComplexStruct
+
+    protected boolean equals(ComplexStruct x, ComplexStruct y) {
+        return equals(x.getVarDerivedStruct(), y.getVarDerivedStruct())
+            && Float.compare(x.getVarFloat(), y.getVarFloat()) == 0;
+    }
+
+    public void testComplexStruct() throws Exception {
+        DerivedChoiceBaseComplex xx = new DerivedChoiceBaseComplex();
+        //Base (Sequence)
+        xx.setVarFloat(3.14f);
+        xx.setVarInt(new BigInteger("42"));
+        xx.setVarString("BaseSequence-x");
+        xx.setVarAttrString("BaseStructAttr-x");
+        //Derived (All)
+        xx.setVarFloatExt(-3.14f);
+        xx.setVarStringExt("DerivedAll-x");
+        xx.setAttrString("DerivedAttr-x");
+        //Most Derived (Choice)
+        xx.setVarStringExtExt("MostDerivedChoice-x");
+        xx.setAttrStringExtExt("MostDerivedAttr-x");
+
+        ComplexStruct x = new ComplexStruct();
+        x.setVarFloat(30.14f);
+        x.setVarDerivedStruct(xx);
+
+        DerivedChoiceBaseComplex yy = new DerivedChoiceBaseComplex();
+        //Base
+        yy.setVarFloat(-9.14f);
+        yy.setVarInt(new BigInteger("10"));
+        yy.setVarString("BaseSequence-y");
+        yy.setVarAttrString("BaseStructAttr-y");
+        //Derived
+        yy.setVarFloatExt(1.414f);
+        yy.setVarStringExt("DerivedAll-y");
+        yy.setAttrString("DerivedAttr-y");
+        //Most Derived
+        yy.setVarFloatExtExt(19.144f);
+        yy.setAttrStringExtExt("MostDerivedAttr-y");
+
+        ComplexStruct yOrig = new ComplexStruct();
+        yOrig.setVarFloat(10.14f);
+        yOrig.setVarDerivedStruct(yy);
+
+        Holder<ComplexStruct> y = new Holder<ComplexStruct>(yOrig);
+        Holder<ComplexStruct> z = new Holder<ComplexStruct>();
+        ComplexStruct ret;
+        if (testDocLiteral) {
+            ret = docClient.testComplexStruct(x, y, z);
+        } else {
+            ret = rpcClient.testComplexStruct(x, y, z);
+        }
+
+        if (!perfTestOnly) {
+            assertTrue("testComplexStruct(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testComplexStruct(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testComplexStruct(): Incorrect return value", equals(ret, x));
+        }
+    }
+    
+    // org.objectweb.type_test.types1.DerivedChoiceBaseComplex
+
+    protected boolean equals(DerivedChoiceBaseComplex x, DerivedChoiceBaseComplex y) {
+        return equals((DerivedAllBaseStruct)x, (DerivedAllBaseStruct)y)
+            && ((x.getVarStringExtExt() != null && y.getVarStringExtExt() != null
+                 && x.getVarStringExtExt().equals(y.getVarStringExtExt()))
+            || (x.getVarFloatExtExt() != null && y.getVarFloatExtExt() != null
+                 && x.getVarFloatExtExt().compareTo(y.getVarFloatExtExt()) == 0));
+    }
+
+    public void testDerivedChoiceBaseComplex() throws Exception {
+        DerivedChoiceBaseComplex x = new DerivedChoiceBaseComplex();
+        //Base (Sequence)
+        x.setVarFloat(3.14f);
+        x.setVarInt(new BigInteger("42"));
+        x.setVarString("BaseSequence-x");
+        x.setVarAttrString("BaseStructAttr-x");
+        //Derived (All)
+        x.setVarFloatExt(-3.14f);
+        x.setVarStringExt("DerivedAll-x");
+        x.setAttrString("DerivedAttr-x");
+        //Most Derived (Choice)
+        x.setVarStringExtExt("MostDerivedChoice-x");
+        x.setAttrStringExtExt("MostDerivedAttr-x");
+
+        DerivedChoiceBaseComplex yOrig = new DerivedChoiceBaseComplex();
+        //Base
+        yOrig.setVarFloat(-9.14f);
+        yOrig.setVarInt(new BigInteger("10"));
+        yOrig.setVarString("BaseSequence-y");
+        yOrig.setVarAttrString("BaseStructAttr-y");
+        //Derived
+        yOrig.setVarFloatExt(1.414f);
+        yOrig.setVarStringExt("DerivedAll-y");
+        yOrig.setAttrString("DerivedAttr-y");
+        //Most Derived
+        yOrig.setVarFloatExtExt(19.144f);
+        yOrig.setAttrStringExtExt("MostDerivedAttr-y");
+
+        Holder<DerivedChoiceBaseComplex> y = new Holder<DerivedChoiceBaseComplex>(yOrig);
+        Holder<DerivedChoiceBaseComplex> z = new Holder<DerivedChoiceBaseComplex>();
+        DerivedChoiceBaseComplex ret;
+        if (testDocLiteral) {
+            ret = docClient.testDerivedChoiceBaseComplex(x, y, z);
+        } else {
+            ret = rpcClient.testDerivedChoiceBaseComplex(x, y, z);
+        }
+
+        if (!perfTestOnly) {
+            assertTrue("testDerivedChoiceBaseComplex(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testDerivedChoiceBaseComplex(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testDerivedChoiceBaseComplex(): Incorrect return value", equals(x, ret));
+        }
+    }
+    
+    // org.objectweb.type_test.types1.DerivedAllBaseAll
+
+    protected boolean equals(DerivedAllBaseAll x, DerivedAllBaseAll y) {
+        return equals((SimpleAll)x, (SimpleAll)y)
+            && (Float.compare(x.getVarFloatExt(), y.getVarFloatExt()) == 0)
+            && (x.getVarStringExt().equals(y.getVarStringExt()))
+            && (x.getAttrString().equals(y.getAttrString()));
+    }
+
+    public void testDerivedAllBaseAll() throws Exception {
+        DerivedAllBaseAll x = new DerivedAllBaseAll();
+        //Base
+        x.setVarFloat(3.14f);
+        x.setVarInt(42);
+        x.setVarString("BaseAll-x");
+        x.setVarAttrString("BaseAllAttr-x");
+        //Derived
+        x.setVarFloatExt(-3.14f);
+        x.setVarStringExt("DerivedAll-x");
+        x.setAttrString("DerivedAttr-x");
+
+        DerivedAllBaseAll yOrig = new DerivedAllBaseAll();
+        //Base
+        yOrig.setVarFloat(-9.14f);
+        yOrig.setVarInt(10);
+        yOrig.setVarString("BaseAll-y");
+        yOrig.setVarAttrString("BaseAllAttr-y");
+        //Derived
+        yOrig.setVarFloatExt(1.414f);
+        yOrig.setVarStringExt("DerivedAll-y");
+        yOrig.setAttrString("DerivedAttr-y");
+
+        Holder<DerivedAllBaseAll> y = new Holder<DerivedAllBaseAll>(yOrig);
+        Holder<DerivedAllBaseAll> z = new Holder<DerivedAllBaseAll>();
+
+        DerivedAllBaseAll ret;
+        if (testDocLiteral) {
+            ret = docClient.testDerivedAllBaseAll(x, y, z);
+        } else {
+            ret = rpcClient.testDerivedAllBaseAll(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertTrue("testDerivedAllBaseAll(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testDerivedAllBaseAll(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testDerivedAllBaseAll(): Incorrect return value", equals(x, ret));
+        }
+    }
+    
+    // org.objectweb.type_test.types1.DerivedAllBaseChoice
+
+    protected boolean equals(DerivedAllBaseChoice x, DerivedAllBaseChoice y) {
+        return equals((SimpleChoice)x, (SimpleChoice)y)
+            && Float.compare(x.getVarFloatExt(), y.getVarFloatExt()) == 0
+            && x.getVarStringExt().equals(y.getVarStringExt())
+            && x.getAttrString().equals(y.getAttrString());
+    }
+
+    public void testDerivedAllBaseChoice() throws Exception {
+        DerivedAllBaseChoice x = new DerivedAllBaseChoice();
+        //Base
+        x.setVarString("BaseChoice-x");
+        //Derived
+        x.setVarFloatExt(-3.14f);
+        x.setVarStringExt("DerivedAll-x");
+        x.setAttrString("DerivedAttr-x");
+
+        DerivedAllBaseChoice yOrig = new DerivedAllBaseChoice();
+        //Base
+        yOrig.setVarFloat(-9.14f);
+        //Derived
+        yOrig.setVarFloatExt(1.414f);
+        yOrig.setVarStringExt("DerivedAll-y");
+        yOrig.setAttrString("DerivedAttr-y");
+
+        Holder<DerivedAllBaseChoice> y = new Holder<DerivedAllBaseChoice>(yOrig);
+        Holder<DerivedAllBaseChoice> z = new Holder<DerivedAllBaseChoice>();
+
+        DerivedAllBaseChoice ret;
+        if (testDocLiteral) {
+            ret = docClient.testDerivedAllBaseChoice(x, y, z);
+        } else {
+            ret = rpcClient.testDerivedAllBaseChoice(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertTrue("testDerivedAllBaseChoice(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testDerivedAllBaseChoice(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testDerivedAllBaseChoice(): Incorrect return value", equals(x, ret));
+        }
+    }
+    
+    // org.objectweb.type_test.types1.DerivedAllBaseStruct
+
+    protected boolean equals(DerivedAllBaseStruct x, DerivedAllBaseStruct y) {
+        return equals((SimpleStruct)x, (SimpleStruct)y)
+            && (x.getVarFloatExt() == y.getVarFloatExt())
+            && (x.getVarStringExt().equals(y.getVarStringExt()))
+            && (x.getAttrString().equals(y.getAttrString()));
+    }
+
+    public void testDerivedAllBaseStruct() throws Exception {
+        DerivedAllBaseStruct x = new DerivedAllBaseStruct();
+        //Base
+        x.setVarFloat(3.14f);
+        x.setVarInt(new BigInteger("42"));
+        x.setVarString("BaseStruct-x");
+        x.setVarAttrString("BaseStructAttr-x");
+        //Derived
+        x.setVarFloatExt(-3.14f);
+        x.setVarStringExt("DerivedAll-x");
+        x.setAttrString("DerivedAttr-x");
+
+        DerivedAllBaseStruct yOrig = new DerivedAllBaseStruct();
+        //Base
+        yOrig.setVarFloat(-9.14f);
+        yOrig.setVarInt(new BigInteger("10"));
+        yOrig.setVarString("BaseStruct-y");
+        yOrig.setVarAttrString("BaseStructAttr-y");
+        //Derived
+        yOrig.setVarFloatExt(1.414f);
+        yOrig.setVarStringExt("DerivedAll-y");
+        yOrig.setAttrString("DerivedAttr-y");
+
+        Holder<DerivedAllBaseStruct> y = new Holder<DerivedAllBaseStruct>(yOrig);
+        Holder<DerivedAllBaseStruct> z = new Holder<DerivedAllBaseStruct>();
+
+        DerivedAllBaseStruct ret;
+        if (testDocLiteral) {
+            ret = docClient.testDerivedAllBaseStruct(x, y, z);
+        } else {
+            ret = rpcClient.testDerivedAllBaseStruct(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertTrue("testDerivedAllBaseStruct(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testDerivedAllBaseStruct(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testDerivedAllBaseStruct(): Incorrect return value",
+                       equals(x, ret));
+        }
+    }
+     
+    // org.objectweb.type_test.types1.DerivedChoiceBaseAll
+
+    protected boolean equals(DerivedChoiceBaseAll x, DerivedChoiceBaseAll y) {
+        if (x.getVarStringExt() != null && y.getVarStringExt() != null
+            && !x.getVarStringExt().equals(y.getVarStringExt())) {
+            return false;
+        } else if (x.getVarFloatExt() != null && y.getVarFloatExt() != null
+            && x.getVarFloatExt().compareTo(y.getVarFloatExt()) != 0) {
+            return false;
+        }
+        return equals((SimpleAll)x, (SimpleAll)y)
+            && x.getAttrString().equals(y.getAttrString());
+    }
+
+    public void testDerivedChoiceBaseAll() throws Exception {
+        DerivedChoiceBaseAll x = new DerivedChoiceBaseAll();
+        //Base
+        x.setVarFloat(3.14f);
+        x.setVarInt(42);
+        x.setVarString("BaseAll-x");
+        x.setVarAttrString("BaseAllAttr-x");
+        //Derived
+        x.setVarStringExt("DerivedChoice-x");
+        x.setAttrString("DerivedAttr-x");
+
+        DerivedChoiceBaseAll yOrig = new DerivedChoiceBaseAll();
+        //Base
+        yOrig.setVarFloat(-9.14f);
+        yOrig.setVarInt(10);
+        yOrig.setVarString("BaseAll-y");
+        yOrig.setVarAttrString("BaseAllAttr-y");
+        //Derived
+        yOrig.setVarFloatExt(1.414f);
+        yOrig.setAttrString("DerivedAttr-y");
+
+        Holder<DerivedChoiceBaseAll> y = new Holder<DerivedChoiceBaseAll>(yOrig);
+        Holder<DerivedChoiceBaseAll> z = new Holder<DerivedChoiceBaseAll>();
+
+        DerivedChoiceBaseAll ret;
+        if (testDocLiteral) {
+            ret = docClient.testDerivedChoiceBaseAll(x, y, z);
+        } else {
+            ret = rpcClient.testDerivedChoiceBaseAll(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertTrue("testDerivedChoiceBaseAll(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testDerivedChoiceBaseAll(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testDerivedChoiceBaseAll(): Incorrect return value", equals(x, ret));
+        }
+    }
+    
+    // org.objectweb.type_test.types1.DerivedStructBaseAll
+
+    protected boolean equals(DerivedStructBaseAll x, DerivedStructBaseAll y) {
+        return equals((SimpleAll)x, (SimpleAll)y)
+            && (Float.compare(x.getVarFloatExt(), y.getVarFloatExt()) == 0)
+            && (x.getVarStringExt().equals(y.getVarStringExt()))
+            && (x.getAttrString().equals(y.getAttrString()));
+    }
+
+    public void testDerivedStructBaseAll() throws Exception {
+        DerivedStructBaseAll x = new DerivedStructBaseAll();
+        //Base
+        x.setVarFloat(3.14f);
+        x.setVarInt(42);
+        x.setVarString("BaseAll-x");
+        x.setVarAttrString("BaseAllAttr-x");
+        //Derived
+        x.setVarFloatExt(-3.14f);
+        x.setVarStringExt("DerivedStruct-x");
+        x.setAttrString("DerivedAttr-x");
+
+        DerivedStructBaseAll yOrig = new DerivedStructBaseAll();
+        //Base
+        yOrig.setVarFloat(-9.14f);
+        yOrig.setVarInt(10);
+        yOrig.setVarString("BaseAll-y");
+        yOrig.setVarAttrString("BaseAllAttr-y");
+        //Derived
+        yOrig.setVarFloatExt(1.414f);
+        yOrig.setVarStringExt("DerivedStruct-y");
+        yOrig.setAttrString("DerivedAttr-y");
+
+        Holder<DerivedStructBaseAll> y = new Holder<DerivedStructBaseAll>(yOrig);
+        Holder<DerivedStructBaseAll> z = new Holder<DerivedStructBaseAll>();
+
+        DerivedStructBaseAll ret;
+        if (testDocLiteral) {
+            ret = docClient.testDerivedStructBaseAll(x, y, z);
+        } else {
+            ret = rpcClient.testDerivedStructBaseAll(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertTrue("testDerivedStructBaseAll(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testDerivedStructBaseAll(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testDerivedStructBaseAll(): Incorrect return value", equals(x, ret));
+        }
+    }
+
+    // org.objectweb.type_test.types1.DerivedChoiceBaseSimpleContent
+
+    protected void equals(String msg, DerivedChoiceBaseSimpleContent x,
+            DerivedChoiceBaseSimpleContent y) throws Exception {
+        equals(msg, (Document)x, (Document)y);
+        assertEquals(msg, x.getAttrStringExt(), y.getAttrStringExt());
+        if (x.getVarStringExt() != null) {
+            assertNotNull(msg, y.getVarStringExt());               
+            assertEquals(msg, x.getVarStringExt(), y.getVarStringExt());
+            assertTrue(msg, x.getVarFloatExt() == y.getVarFloatExt());
+        }
+    }
+
+    public void testDerivedChoiceBaseSimpleContent() throws Exception {
+        DerivedChoiceBaseSimpleContent x = new DerivedChoiceBaseSimpleContent();
+        //Base
+        x.setID("Base-x");
+        x.setValue("BART");
+        //Derived
+        x.setVarStringExt("DerivedChoice-x");
+        x.setAttrStringExt("DerivedAttr-x");
+
+        DerivedChoiceBaseSimpleContent yOrig = new DerivedChoiceBaseSimpleContent();
+        //Base
+        yOrig.setID("Base-y");
+        yOrig.setValue("LISA");
+        //Derived
+        yOrig.setVarFloatExt(1.414f);
+        yOrig.setAttrStringExt("DerivedAttr-y");
+
+        Holder<DerivedChoiceBaseSimpleContent> y = new Holder<DerivedChoiceBaseSimpleContent>(yOrig);
+        Holder<DerivedChoiceBaseSimpleContent> z = new Holder<DerivedChoiceBaseSimpleContent>();
+
+        DerivedChoiceBaseSimpleContent ret;
+        if (testDocLiteral) {
+            ret = docClient.testDerivedChoiceBaseSimpleContent(x, y, z);
+        } else {
+            ret = rpcClient.testDerivedChoiceBaseSimpleContent(x, y, z);
+        }
+        if (!perfTestOnly) {
+            equals("testDerivedChoiceBaseSimpleContent(): Incorrect value for inout param", x, y.value);
+            equals("testDerivedChoiceBaseSimpleContent(): Incorrect value for out param", yOrig, z.value);
+            equals("testDerivedChoiceBaseSimpleContent(): Incorrect return value", x, ret);
+        }
+    }
+    */
+
+    /* XXX - rcase-Recurse.2: There is not a complete functional mapping
+     * between the particles.
+    // org.objectweb.type_test.types1.RestrictedStructBaseStruct;
+
+    protected boolean equals(RestrictedStructBaseStruct x, RestrictedStructBaseStruct y) {
+        return (x.getVarFloat() == y.getVarFloat())
+            && (x.getVarInt().equals(y.getVarInt()))
+            && (x.getVarAttrString().equals(y.getVarAttrString()));
+    }
+
+    public void testRestrictedStructBaseStruct() throws Exception {
+        RestrictedStructBaseStruct x = new RestrictedStructBaseStruct();
+        x.setVarFloat(3.14f);
+        x.setVarInt(new BigInteger("42"));
+        x.setVarAttrString("BaseStructAttr-x");
+        RestrictedStructBaseStruct yOrig = new RestrictedStructBaseStruct();
+        yOrig.setVarFloat(-9.14f);
+        yOrig.setVarInt(new BigInteger("10"));
+        yOrig.setVarAttrString("BaseStructAttr-y");
+
+        Holder<RestrictedStructBaseStruct> y = new Holder<RestrictedStructBaseStruct>(yOrig);
+        Holder<RestrictedStructBaseStruct> z = new Holder<RestrictedStructBaseStruct>();
+
+        RestrictedStructBaseStruct ret;
+        if (testDocLiteral) {
+            ret = docClient.testRestrictedStructBaseStruct(x, y, z);
+        } else {
+            ret = rpcClient.testRestrictedStructBaseStruct(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertTrue("testRestrictedStructBaseStruct(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testRestrictedStructBaseStruct(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testRestrictedStructBaseStruct(): Incorrect return value", equals(x, ret));
+        }
+    }
+    
+    // org.objectweb.type_test.types1.RestrictedAllBaseAll;
+
+    protected boolean equals(RestrictedAllBaseAll x, RestrictedAllBaseAll y) {
+        return (x.getVarFloat() == y.getVarFloat())
+            && (x.getVarInt() == y.getVarInt())
+            && (x.getVarAttrString().equals(y.getVarAttrString()));
+    }
+
+    public void testRestrictedAllBaseAll() throws Exception {
+        RestrictedAllBaseAll x = new RestrictedAllBaseAll();
+        x.setVarFloat(3.14f);
+        x.setVarInt(42);
+        x.setVarAttrString("BaseAllAttr-x");
+        RestrictedAllBaseAll yOrig = new RestrictedAllBaseAll();
+        yOrig.setVarFloat(-9.14f);
+        yOrig.setVarInt(10);
+        yOrig.setVarAttrString("BaseAllAttr-y");
+
+        Holder<RestrictedAllBaseAll> y = new Holder<RestrictedAllBaseAll>(yOrig);
+        Holder<RestrictedAllBaseAll> z = new Holder<RestrictedAllBaseAll>();
+
+        RestrictedAllBaseAll ret;
+        if (testDocLiteral) {
+            ret = docClient.testRestrictedAllBaseAll(x, y, z);
+        } else {
+            ret = rpcClient.testRestrictedAllBaseAll(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertTrue("testRestrictedAllBaseAll(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testRestrictedAllBaseAll(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testRestrictedAllBaseAll(): Incorrect return value", equals(x, ret));
+        }
+    }
+    */
+
+    // Test Inheritance
+
+    // test internal inheritance
+    public void testInheritanceNestedStruct() throws Exception {
+        DerivedStructBaseStruct xs = new DerivedStructBaseStruct();
+        //Base
+        xs.setVarFloat(3.14f);
+        xs.setVarInt(new BigInteger("42"));
+        xs.setVarString("BaseStruct-x");
+        xs.setVarAttrString("BaseStructAttr-x");
+        //Derived
+        xs.setVarFloatExt(-3.14f);
+        xs.setVarStringExt("DerivedStruct-x");
+        xs.setAttrString1("DerivedAttr1-x");
+        xs.setAttrString2("DerivedAttr2-x");
+
+        DerivedStructBaseStruct ys = new DerivedStructBaseStruct();
+        //Base
+        ys.setVarFloat(-9.14f);
+        ys.setVarInt(new BigInteger("10"));
+        ys.setVarString("BaseStruct-y");
+        ys.setVarAttrString("BaseStructAttr-y");
+        //Derived
+        ys.setVarFloatExt(1.414f);
+        ys.setVarStringExt("DerivedStruct-y");
+        ys.setAttrString1("DerivedAttr1-y");
+        ys.setAttrString2("DerivedAttr2-y");
+
+        NestedStruct x = new NestedStruct();
+        x.setVarFloat(new BigDecimal("3.14"));
+        x.setVarInt(42);
+        x.setVarString("Hello There");
+        x.setVarEmptyStruct(new EmptyStruct());
+        x.setVarStruct(xs);
+
+        NestedStruct yOrig = new NestedStruct();
+        yOrig.setVarFloat(new BigDecimal("1.414"));
+        yOrig.setVarInt(13);
+        yOrig.setVarString("Cheerio");
+        yOrig.setVarEmptyStruct(new EmptyStruct());
+        yOrig.setVarStruct(ys);
+        Holder<NestedStruct> y = new Holder<NestedStruct>(yOrig);
+        Holder<NestedStruct> z = new Holder<NestedStruct>();
+
+        NestedStruct ret;
+        if (testDocLiteral) {
+            ret = docClient.testNestedStruct(x, y, z);
+        } else {
+            ret = rpcClient.testNestedStruct(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertTrue("testNestedStruct(): Incorrect value for inout param",
+                       equals(x, y.value));
+            assertTrue("testNestedStruct(): Incorrect value for out param",
+                       equals(yOrig, z.value));
+            assertTrue("testNestedStruct(): Incorrect return value", equals(x, ret));
+        }
+    }
+
+    // test first level inheritance (parameters)
+    public void testInheritanceSimpleStructDerivedStruct() throws Exception {
+        DerivedStructBaseStruct x = new DerivedStructBaseStruct();
+        //Base
+        x.setVarFloat(3.14f);
+        x.setVarInt(new BigInteger("42"));
+        x.setVarString("BaseStruct-x");
+        x.setVarAttrString("BaseStructAttr-x");
+        //Derived
+        x.setVarFloatExt(-3.14f);
+        x.setVarStringExt("DerivedStruct-x");
+        x.setAttrString1("DerivedAttr1-x");
+        x.setAttrString2("DerivedAttr2-x");
+
+        DerivedStructBaseStruct yOrig = new DerivedStructBaseStruct();
+        //Base
+        yOrig.setVarFloat(-9.14f);
+        yOrig.setVarInt(new BigInteger("10"));
+        yOrig.setVarString("BaseStruct-y");
+        yOrig.setVarAttrString("BaseStructAttr-y");
+        //Derived
+        yOrig.setVarFloatExt(1.414f);
+        yOrig.setVarStringExt("DerivedStruct-y");
+        yOrig.setAttrString1("DerivedAttr1-y");
+        yOrig.setAttrString2("DerivedAttr2-y");
+
+        Holder<SimpleStruct> y = new Holder<SimpleStruct>(yOrig);
+        Holder<SimpleStruct> z = new Holder<SimpleStruct>();
+
+        SimpleStruct ret;
+        if (testDocLiteral) {
+            ret = docClient.testSimpleStruct(x, y, z);
+            // XXX - rpc-literal returns an object of type SimpleStruct,
+            //       doc-literal returns an object of type
+            //       DerivedStructBaseStruct
+            //System.out.println("ret: " + ret.getClass().getName());
+            if (!perfTestOnly) {
+                assertTrue("testSimpleStruct(): Incorrect value for inout param",
+                           equals(x, (DerivedStructBaseStruct)y.value));
+                assertTrue("testSimpleStruct(): Incorrect value for out param",
+                           equals(yOrig, (DerivedStructBaseStruct)z.value));
+                assertTrue("testSimpleStruct(): Incorrect return value",
+                           equals(x, (DerivedStructBaseStruct)ret));
+            }
+        } else {
+            ret = rpcClient.testSimpleStruct(x, y, z);
+            // XXX - rpc-literal returns an object of type SimpleStruct,
+            //       doc-literal returns an object of type
+            //       DerivedStructBaseStruct
+            //System.out.println("ret: " + ret.getClass().getName());
+            if (!perfTestOnly) {
+                assertTrue("testSimpleStruct(): Incorrect value for inout param",
+                           equals(x, y.value));
+                assertTrue("testSimpleStruct(): Incorrect value for out param",
+                           equals(yOrig, z.value));
+                assertTrue("testSimpleStruct(): Incorrect return value",
+                           equals(x, ret));
+            }
+        }
+    }
+
+    public void testInheritanceSimpleChoiceDerivedStruct() throws Exception {
+        DerivedStructBaseChoice x = new DerivedStructBaseChoice();
+        //Base
+        x.setVarString("BaseChoice-x");
+        //Derived
+        x.setVarFloatExt(-3.14f);
+        x.setVarStringExt("DerivedStruct-x");
+        x.setAttrString("DerivedAttr-x");
+
+        DerivedStructBaseChoice yOrig = new DerivedStructBaseChoice();
+        //Base
+        yOrig.setVarFloat(-9.14f);
+        //Derived
+        yOrig.setVarFloatExt(1.414f);
+        yOrig.setVarStringExt("DerivedStruct-y");
+        yOrig.setAttrString("DerivedAttr-y");
+
+        Holder<SimpleChoice> y = new Holder<SimpleChoice>(yOrig);
+        Holder<SimpleChoice> z = new Holder<SimpleChoice>();
+
+        SimpleChoice ret;
+        if (testDocLiteral) {
+            ret = docClient.testSimpleChoice(x, y, z);
+            // XXX - rpc-literal returns an object of type SimpleChoice,
+            //       doc-literal returns an object of type
+            //       DerivedStructBaseChoice
+            //System.out.println("ret: " + ret.getClass().getName());
+            if (!perfTestOnly) {
+                assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect value for inout param",
+                           equals(x, (DerivedStructBaseChoice)y.value));
+                assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect value for out param",
+                           equals(yOrig, (DerivedStructBaseChoice)z.value));
+                assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect return value",
+                           equals(x, (DerivedStructBaseChoice)ret));
+            }
+        } else {
+            ret = rpcClient.testSimpleChoice(x, y, z);
+            // XXX - rpc-literal returns an object of type SimpleChoice,
+            //       doc-literal returns an object of type
+            //       DerivedStructBaseChoice
+            //System.out.println("ret: " + ret.getClass().getName());
+            if (!perfTestOnly) {
+                assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect value for inout param",
+                           equals(x, y.value));
+                assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect value for out param",
+                           equals(yOrig, z.value));
+                assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect return value",
+                           equals(x, ret));
+            }
+        }
+    }
+
+    public void testInheritanceUnboundedArrayDerivedChoice() throws Exception {
+        DerivedChoiceBaseArray x = new DerivedChoiceBaseArray();
+        //Base
+        x.getItem().addAll(Arrays.asList("AAA", "BBB", "CCC"));
+        //Derived
+        x.setVarStringExt("DerivedChoice-x");
+        x.setAttrStringExt("DerivedAttr-x");
+
+        DerivedChoiceBaseArray yOrig = new DerivedChoiceBaseArray();
+        //Base
+        yOrig.getItem().addAll(Arrays.asList("XXX", "YYY", "ZZZ"));
+        //Derived
+        yOrig.setVarFloatExt(1.414f);
+        yOrig.setAttrStringExt("DerivedAttr-y");
+
+        Holder<UnboundedArray> y = new Holder<UnboundedArray>(yOrig);
+        Holder<UnboundedArray> z = new Holder<UnboundedArray>();
+        UnboundedArray ret;
+        if (testDocLiteral) {
+            ret = docClient.testUnboundedArray(x, y, z);
+            // XXX - rpc-literal returns an object of type SimpleChoice,
+            //       doc-literal returns an object of type
+            //       DerivedStructBaseChoice
+            //System.out.println("ret: " + ret.getClass().getName());
+            if (!perfTestOnly) {
+                assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect value for inout param",
+                           equals(x, (DerivedChoiceBaseArray)y.value));
+                assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect value for out param",
+                           equals(yOrig, (DerivedChoiceBaseArray)z.value));
+                assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect return value",
+                           equals(x, (DerivedChoiceBaseArray)ret));
+            }
+        } else {
+            ret = rpcClient.testUnboundedArray(x, y, z);
+            // XXX - rpc-literal returns an object of type SimpleChoice,
+            //       doc-literal returns an object of type
+            //       DerivedStructBaseChoice
+            //System.out.println("ret: " + ret.getClass().getName());
+            if (!perfTestOnly) {
+                assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect value for inout param",
+                           equals(x, y.value));
+                assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect value for out param",
+                           equals(yOrig, z.value));
+                assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect return value",
+                           equals(x, ret));
+            }
+        }
+    }
+
+    public void testInheritanceEmptyAllDerivedEmpty() throws Exception {
+        DerivedEmptyBaseEmptyAll x = new DerivedEmptyBaseEmptyAll();
+        DerivedEmptyBaseEmptyAll yOrig = new DerivedEmptyBaseEmptyAll();
+        Holder<EmptyAll> y = new Holder<EmptyAll>(yOrig);
+        Holder<EmptyAll> z = new Holder<EmptyAll>();
+
+        EmptyAll ret;
+        if (testDocLiteral) {
+            ret = docClient.testEmptyAll(x, y, z);
+        } else {
+            ret = rpcClient.testEmptyAll(x, y, z);
+        }
+        // not much to check
+        assertNotNull("testInheritanceEmptyAllDerivedEmpty()", y.value);
+        assertNotNull("testInheritanceEmptyAllDerivedEmpty()", z.value);
+        assertNotNull("testInheritanceEmptyAllDerivedEmpty()", ret);
+    }
 }

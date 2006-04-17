@@ -5,7 +5,9 @@
     xmlns:itst="http://tests.iona.com/ittests"
     xmlns:wsse="http://schemas.xmlsoap.org/ws/2003/06/secext"
     xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-    xmlns:tns="http://objectweb.org/type_test/types"
+    xmlns:x1="http://objectweb.org/type_test/types1"
+    xmlns:x2="http://objectweb.org/type_test/types2"
+    xmlns:x3="http://objectweb.org/type_test/types3"
     elementFormDefault="qualified">
 
     <!-- For each type and element defined in this schema, the
@@ -116,7 +118,7 @@
             <element name="varFloat" nillable="true" type="float"/>
             <element name="varInt" nillable="true" type="int"/>
             <element name="varString" nillable="true" type="string"/>
-            <element name="varStruct" nillable="true" type="tns:SimpleStruct"/>
+            <element name="varStruct" nillable="true" type="x1:SimpleStruct"/>
         </sequence>
     </complexType>
 
@@ -137,8 +139,8 @@
             <element name="varString" type="string"/>
             <element name="varInt" type="int"/>
             <element name="varFloat" type="decimal"/>
-            <element name="varEmptyStruct" type="tns:EmptyStruct"/>
-            <element name="varStruct" type="tns:SimpleStruct"/>
+            <element name="varEmptyStruct" type="x1:EmptyStruct"/>
+            <element name="varStruct" type="x1:SimpleStruct"/>
         </sequence>
     </complexType>
     <complexType name="AnonymousStruct">
@@ -150,7 +152,6 @@
             </sequence>
         </sequence>
     </complexType>
-    <!-- XXX - Causes eclipse warning -->
     <complexType name="AnonymousType">
         <sequence>
             <element name="foo">
@@ -163,7 +164,6 @@
             </element>
         </sequence>
     </complexType>
-    <!---->
     <complexType name="FixedArray">
         <sequence>
             <element maxOccurs="3" minOccurs="3" name="item" type="int"/>
@@ -191,7 +191,7 @@
     <complexType name="NestedArray">
         <sequence>
             <element maxOccurs="unbounded" minOccurs="0" name="subarray"
-		     type="tns:UnboundedArray"/>
+		     type="x1:UnboundedArray"/>
         </sequence>
     </complexType>
 
@@ -338,13 +338,13 @@
     </simpleType>
 
     <simpleType name="SimpleRestriction5">
-      <restriction base="tns:SimpleRestriction">
+      <restriction base="x1:SimpleRestriction">
         <minLength value="5"/>
       </restriction>
     </simpleType>
 
     <simpleType name="SimpleRestriction6">
-      <restriction base="tns:SimpleRestriction">
+      <restriction base="x1:SimpleRestriction">
         <maxLength value="5"/>
       </restriction>
     </simpleType>
@@ -371,13 +371,14 @@
     </simpleType>
 
     <simpleType name="SimpleListRestriction2">
-      <restriction base="tns:StringList">
+      <restriction base="x1:StringList">
         <maxLength value="10"/>
         <minLength value="1"/>
       </restriction>
     </simpleType>
 
-    <!-- XXX - TODO - ws-i ComplexRestriction
+    <!-- XXX - TODO - Getting an AssertionError when xjc generates
+         code for ComplexRestriction types.
     <complexType name="ComplexRestriction">
       <simpleContent>
         <restriction base="string">
@@ -386,7 +387,6 @@
         </restriction>
       </simpleContent>
     </complexType>
-
     <complexType name="ComplexRestriction2">
       <simpleContent>
         <restriction base="string">
@@ -397,7 +397,7 @@
 
     <complexType name="ComplexRestriction3">
       <simpleContent>
-        <restriction base="tns:SimpleRestriction">
+        <restriction base="x1:SimpleRestriction">
           <minLength value="5"/>
         </restriction>
       </simpleContent>
@@ -405,7 +405,7 @@
 
     <complexType name="ComplexRestriction4">
       <simpleContent>
-        <restriction base="tns:SimpleRestriction">
+        <restriction base="x1:SimpleRestriction">
           <maxLength value="5"/>
         </restriction>
       </simpleContent>
@@ -415,7 +415,7 @@
     <!-- XXX  anyURI
     <complexType name="ComplexRestriction5">
       <simpleContent>
-        <restriction base="tns:AnyURIRestriction">
+        <restriction base="x1:AnyURIRestriction">
           <minLength value="5"/>
         </restriction>
       </simpleContent>
@@ -436,7 +436,7 @@
     </simpleType>
     <!-- XXX - ShortEnum
     <simpleType name="ShortEnumList">
-        <list itemType="tns:ShortEnum"/>
+        <list itemType="x1:ShortEnum"/>
     </simpleType>
     -->
     
@@ -458,7 +458,7 @@
            rpc-literal and doc-literal generated code differs (array/List).
     -->
     <simpleType name="SimpleUnionList">
-        <list itemType="tns:SimpleUnion"/>
+        <list itemType="x1:SimpleUnion"/>
     </simpleType>
 
     <simpleType name="AnonUnionList">
@@ -477,9 +477,9 @@
 
     <complexType name="StructWithList">
         <sequence>
-            <element name="varList" type="tns:StringList"/>
+            <element name="varList" type="x1:StringList"/>
         </sequence>
-        <attribute name="attribList" type="tns:NumberList"/>
+        <attribute name="attribList" type="x1:NumberList"/>
     </complexType>
 
     <!-- list simple type as complex simple content -->
@@ -487,7 +487,7 @@
     <!-- XXX - ShortEnum
     <complexType name="ListSimpleContent">
         <simpleContent>
-            <extension base="tns:ShortEnumList"/>
+            <extension base="x1:ShortEnumList"/>
         </simpleContent>
     </complexType>
     -->
@@ -517,13 +517,13 @@
     <!-- XXX - UnionWithStringList, UnionWithStringListRestriction and UnionWithAnonList
          rpc-literal and doc-literal generated code differs (array/List).
     <simpleType name="UnionWithStringList">
-        <union memberTypes="int tns:StringList"/>
+        <union memberTypes="int x1:StringList"/>
     </simpleType>
 
     <simpleType name="UnionWithStringListRestriction">
         <union memberTypes="int">
             <simpleType>
-                <restriction base="tns:StringList"/>
+                <restriction base="x1:StringList"/>
             </simpleType>
         </union>
     </simpleType>
@@ -541,7 +541,7 @@
 <!-- XXX - UnionWithUnion, UnionWithUnionRestriction and UnionWithAnonUnion -
            rpc-literal and doc-literal generated code differs (array/List).
     <simpleType name="UnionWithUnion">
-        <union memberTypes="tns:SimpleUnion">
+        <union memberTypes="x1:SimpleUnion">
             <simpleType>
                 <restriction base="int">
                     <enumeration value="0"/>
@@ -553,7 +553,7 @@
     <simpleType name="UnionWithUnionRestriction">
         <union>
             <simpleType>
-                <restriction base="tns:SimpleUnion"/>
+                <restriction base="x1:SimpleUnion"/>
             </simpleType>
             <simpleType>
                 <restriction base="int">
@@ -576,16 +576,16 @@
 
     <complexType name="StructWithUnion">
         <sequence>
-            <element name="varUnion" type="tns:SimpleUnion"/>
+            <element name="varUnion" type="x1:SimpleUnion"/>
         </sequence>
-        <attribute name="attribUnion" type="tns:SimpleUnion"/>
+        <attribute name="attribUnion" type="x1:SimpleUnion"/>
     </complexType>
 
     <!-- union simple type as complex simple content -->
 
     <complexType name="UnionSimpleContent">
         <simpleContent>
-            <extension base="tns:SimpleUnion"/>
+            <extension base="x1:SimpleUnion"/>
         </simpleContent>
     </complexType>
 
@@ -619,7 +619,6 @@
         <attribute name="varAttrString" type="string"/>
     </complexType>
 
-    <!-- BUG #6761 -->
     <complexType name="OccuringAll">
         <all minOccurs="0" maxOccurs="1">
             <element name="varInt" type="int"/>
@@ -634,7 +633,7 @@
             <element maxOccurs="1" minOccurs="0" name="varString"
 		     type="string"/>
             <element maxOccurs="1" minOccurs="0" name="varStruct"
-		     type="tns:SimpleStruct"/>
+		     type="x1:SimpleStruct"/>
         </sequence>
     </complexType>
 
@@ -645,13 +644,13 @@
             <element name="varString" type="xsd:string"/>
             <element name="varInt" type="xsd:int"/>
             <element name="varFloat" type="xsd:float"/>
-            <element name="varStructArray" type="tns:RecursiveStructArray"/>
+            <element name="varStructArray" type="x1:RecursiveStructArray"/>
             <!--WSDLTOCORBA Bug 4086-->
             <!--
 		 <element name="varStructArray">
 		     <complexType name="RecursiveStructArray">
 			 <sequence>
-			     <element name="item" type="tns:RecursiveStruct" minOccurs="0" maxOccurs="unbounded"/>
+			     <element name="item" type="x1:RecursiveStruct" minOccurs="0" maxOccurs="unbounded"/>
 			 </sequence>
 		     </complexType>
 		 </element>
@@ -660,14 +659,14 @@
     </complexType>
     <complexType name="RecursiveStructArray">
         <sequence>
-            <element name="item" type="tns:RecursiveStruct" minOccurs="0" maxOccurs="unbounded"/>
+            <element name="item" type="x1:RecursiveStruct" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
 
     <!--Two Level Recursion Using Choice-->
     <complexType name="RecursiveUnion">
         <choice>
-            <element name="varChoice" type="tns:RecursiveUnionData"/>
+            <element name="varChoice" type="x1:RecursiveUnionData"/>
             <!--WSDLTOCORBA Bug 4086-->
             <!--
 		 <element name="varChoice">
@@ -677,7 +676,7 @@
 			     <element name="varChoiceArray">
 				 <complexType name="ChoiceArray">
 				     <sequence>
-					 <element name="item" type="tns:RecursiveUnion" minOccurs="0" maxOccurs="unbounded"/>
+					 <element name="item" type="x1:RecursiveUnion" minOccurs="0" maxOccurs="unbounded"/>
 				     </sequence>
 				 </complexType>
 			     </element>
@@ -691,13 +690,13 @@
     <complexType name="RecursiveUnionData">
         <sequence>
             <element name="varInt" type="xsd:int"/>
-            <element name="varChoiceArray" type="tns:ChoiceArray"/>
+            <element name="varChoiceArray" type="x1:ChoiceArray"/>
             <!--WSDLTOCORBA Bug 4086-->
             <!--
             <element name="varChoiceArray">
                 <complexType name="ChoiceArray">
                     <sequence>
-                        <element name="item" type="tns:RecursiveUnion" minOccurs="0" maxOccurs="unbounded"/>
+                        <element name="item" type="x1:RecursiveUnion" minOccurs="0" maxOccurs="unbounded"/>
                     </sequence>
                 </complexType>
             </element>
@@ -706,22 +705,18 @@
     </complexType>
     <complexType name="ChoiceArray">
         <sequence>
-            <element name="item" type="tns:RecursiveUnion" minOccurs="0" maxOccurs="unbounded"/>
+            <element name="item" type="x1:RecursiveUnion" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
 
     <!-- Bug 6918 - Type occurence and recursions -->
-<!-- 
-     Generated code won't build on AIX.
-     Disabled until definition of class mapping and reflection types
-     can be reordered
     <complexType name="RecSeqB6918">
         <sequence minOccurs="0" maxOccurs="unbounded">
-            <element name="nextSeq" type="tns:RecSeqB6918" minOccurs="0"/>
+            <element name="nextSeq" type="x1:RecSeqB6918" minOccurs="0"/>
             <element name="varInt" type="int"/>
         </sequence>
     </complexType>
--->
+
     <!-- SimpleContent types -->
 
     <complexType name="ExtendsSimpleType">
@@ -732,7 +727,7 @@
 
     <complexType name="ExtendsSimpleContent">
 	<simpleContent>
-	    <extension base="tns:ExtendsSimpleType"/>
+	    <extension base="x1:ExtendsSimpleType"/>
 	</simpleContent>
     </complexType>
 
@@ -747,7 +742,7 @@
 
     <complexType name="SimpleContent2">
 	<simpleContent>
-	    <extension base="tns:SimpleContent1">
+	    <extension base="x1:SimpleContent1">
                 <attribute name="attrib2a" type="xsd:int"/>
 		<attribute name="attrib2b" type="xsd:long"/>
             </extension>
@@ -756,7 +751,7 @@
 
     <complexType name="SimpleContent3">
 	<simpleContent>
-	    <extension base="tns:SimpleContent2">
+	    <extension base="x1:SimpleContent2">
                 <attribute name="attrib3a" type="xsd:string"/>
 		<attribute name="attrib3b" type="xsd:boolean"/>
             </extension>
@@ -773,7 +768,7 @@
 
     <complexType name="ExtColourEnum">
         <simpleContent>
-            <extension base="tns:ColourEnum">
+            <extension base="x1:ColourEnum">
                 <attribute name="attrib1" use="optional" type="xsd:int"/>
 		<attribute name="attrib2" use="optional">
 		    <simpleType>
@@ -794,7 +789,7 @@
     <!-- ComplexContent types -->
     <complexType name="DerivedStructBaseStruct">
         <complexContent mixed="false">
-            <extension base="tns:SimpleStruct">
+            <extension base="x1:SimpleStruct">
                 <sequence>
                     <element name="varStringExt" type="string"/>
                     <element name="varFloatExt" type="float"/>
@@ -806,7 +801,7 @@
     </complexType>
     <complexType name="DerivedStructBaseChoice">
         <complexContent mixed="false">
-            <extension base="tns:SimpleChoice">
+            <extension base="x1:SimpleChoice">
                 <sequence>
                     <element name="varStringExt" type="string"/>
                     <element name="varFloatExt" type="float"/>
@@ -815,10 +810,13 @@
             </extension>
         </complexContent>
     </complexType>
-    <!-- XXX - TODO - ws-i
-    <complexType name="DerivedStruct_BaseAll">
+    <!-- XXX cos-all-limited.1.2: An 'all' model group must appear in a
+    particle with {min occurs} = {max occurs} = 1, and that particle must be
+    part of a pair which constitutes the {content type} of a complex type
+    definition.
+    <complexType name="DerivedStructBaseAll">
         <complexContent mixed="false">
-            <extension base="tns:SimpleAll">
+            <extension base="x1:SimpleAll">
                 <sequence>
                     <element name="varStringExt" type="string"/>
                     <element name="varFloatExt" type="float"/>
@@ -830,7 +828,7 @@
     -->
     <complexType name="DerivedChoiceBaseStruct">
         <complexContent mixed="false">
-            <extension base="tns:SimpleStruct">
+            <extension base="x1:SimpleStruct">
                 <choice>
                     <element name="varStringExt" type="string"/>
                     <element name="varFloatExt" type="float"/>
@@ -841,7 +839,7 @@
     </complexType>
     <complexType name="DerivedChoiceBaseChoice">
         <complexContent mixed="false">
-            <extension base="tns:SimpleChoice">
+            <extension base="x1:SimpleChoice">
                 <choice>
                     <element name="varStringExt" type="string"/>
                     <element name="varFloatExt" type="float"/>
@@ -850,10 +848,13 @@
             </extension>
         </complexContent>
     </complexType>
-    <!-- XXX - TODO - ws-i
-    <complexType name="DerivedChoice_BaseAll">
+    <!-- XXX cos-all-limited.1.2: An 'all' model group must appear in a
+    particle with {min occurs} = {max occurs} = 1, and that particle must be
+    part of a pair which constitutes the {content type} of a complex type
+    definition.
+    <complexType name="DerivedChoiceBaseAll">
         <complexContent mixed="false">
-            <extension base="tns:SimpleAll">
+            <extension base="x1:SimpleAll">
                 <choice>
                     <element name="varStringExt" type="string"/>
                     <element name="varFloatExt" type="float"/>
@@ -862,9 +863,9 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="DerivedAll_BaseStruct">
+    <complexType name="DerivedAllBaseStruct">
         <complexContent mixed="false">
-            <extension base="tns:SimpleStruct">
+            <extension base="x1:SimpleStruct">
                 <all>
                     <element name="varStringExt" type="string"/>
                     <element name="varFloatExt" type="float"/>
@@ -873,9 +874,9 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="DerivedAll_BaseChoice">
+    <complexType name="DerivedAllBaseChoice">
         <complexContent mixed="false">
-            <extension base="tns:SimpleChoice">
+            <extension base="x1:SimpleChoice">
                 <all>
                     <element name="varStringExt" type="string"/>
                     <element name="varFloatExt" type="float"/>
@@ -884,9 +885,9 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="DerivedAll_BaseAll">
+    <complexType name="DerivedAllBaseAll">
         <complexContent mixed="false">
-            <extension base="tns:SimpleAll">
+            <extension base="x1:SimpleAll">
                 <all>
                     <element name="varStringExt" type="string"/>
                     <element name="varFloatExt" type="float"/>
@@ -895,9 +896,9 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="DerivedChoice_BaseComplex">
+    <complexType name="DerivedChoiceBaseComplex">
         <complexContent mixed="false">
-            <extension base="tns:DerivedAll_BaseStruct">
+            <extension base="x1:DerivedAllBaseStruct">
                 <choice>
                     <element name="varStringExtExt" type="string"/>
                     <element name="varFloatExtExt" type="float"/>
@@ -909,7 +910,7 @@
     -->
     <complexType name="DerivedChoiceBaseArray">
         <complexContent mixed="false">
-            <extension base="tns:UnboundedArray">
+            <extension base="x1:UnboundedArray">
                 <choice>
                     <element name="varStringExt" type="string"/>
                     <element name="varFloatExt" type="float"/>
@@ -920,9 +921,9 @@
     </complexType>
     <!--
     TODO - XXX javatowsdl doesn't like this one.  Disabled it for now.
-    <complexType name="DerivedChoice_BaseSimpleContent">
+    <complexType name="DerivedChoiceBaseSimpleContent">
         <complexContent mixed="false">
-            <extension base="tns:Document">
+            <extension base="x1:Document">
                 <choice>
                     <element name="varStringExt" type="string"/>
                     <element name="varFloatExt" type="float"/>
@@ -934,13 +935,13 @@
     -->
     <complexType name="DerivedNoContent">
         <complexContent mixed="false">
-            <extension base="tns:SimpleStruct">
+            <extension base="x1:SimpleStruct">
             </extension>
         </complexContent>
     </complexType> 
     <complexType name="DerivedStructBaseEmpty">
         <complexContent mixed="false">
-            <extension base="tns:EmptyStruct">
+            <extension base="x1:EmptyStruct">
                 <sequence>
                     <element name="varStringExt" type="string"/>
                     <element name="varFloatExt" type="float"/>
@@ -951,41 +952,43 @@
     </complexType>
     <complexType name="DerivedEmptyBaseEmptyAll">
         <complexContent mixed="false">
-            <extension base="tns:EmptyAll">
+            <extension base="x1:EmptyAll">
             </extension>
         </complexContent>
     </complexType>
     <complexType name="DerivedEmptyBaseEmptyChoice">
         <complexContent mixed="false">
-            <extension base="tns:EmptyChoice">
+            <extension base="x1:EmptyChoice">
             </extension>
         </complexContent>
     </complexType>
-    <!-- XXX - TODO - DerivedChoice_Base
+    <!-- XXX - TODO - DerivedChoiceBase 
     <complexType name="ComplexStruct">
         <sequence>
             <element name="varFloat" type="float"/>
-            <element name="varDerivedStruct" type="tns:DerivedChoice_BaseComplex"/>
+            <element name="varDerivedStruct" type="x1:DerivedChoiceBaseComplex"/>
         </sequence>
     </complexType>
     <complexType name="ComplexChoice">
         <choice>
             <element name="varFloat" type="float"/>
-            <element name="varDerivedStruct" type="tns:DerivedChoice_BaseComplex"/>
+            <element name="varDerivedStruct" type="x1:DerivedChoiceBaseComplex"/>
         </choice>
     </complexType>
     <complexType name="ComplexArray">
         <sequence>
-            <element name="varDerivedItem" nillable="true" minOccurs="2" maxOccurs="2" type="tns:DerivedAll_BaseStruct"/>
+            <element name="varDerivedItem" nillable="true" minOccurs="2" maxOccurs="2" type="x1:DerivedAllBaseStruct"/>
         </sequence>
     </complexType>
     -->
 
     <!-- ComplexContentRestriction types -->
-<!-- XXX - rcase-Recurse.2 Schema Component Constraint: Particle Derivation OK
-    <complexType name="RestrictedStruct_BaseStruct">
+    <!-- XXX - RestrictedStructBaseStruct and RestrictedAllBaseAll,
+         rcase-Recurse.2: There is not a complete functional mapping
+         between the particles.
+    <complexType name="RestrictedStructBaseStruct">
         <complexContent>
-            <restriction base="tns:SimpleStruct">
+            <restriction base="x1:SimpleStruct">
                 <sequence>
                     <element name="varFloat" type="double"/>
                     <element name="varInt" type="unsignedLong"/>                    
@@ -994,9 +997,9 @@
             </restriction>
         </complexContent>
     </complexType>
-    <complexType name="RestrictedAll_BaseAll">
+    <complexType name="RestrictedAllBaseAll">
         <complexContent mixed="false">
-            <restriction base="tns:SimpleAll">
+            <restriction base="x1:SimpleAll">
                 <all>
                     <element name="varFloat" type="float"/>
                     <element name="varInt" type="int"/>
@@ -1005,10 +1008,10 @@
             </restriction>
         </complexContent>
     </complexType>
--->
+    -->
     <complexType name="RestrictedChoiceBaseChoice">
         <complexContent mixed="false">
-            <restriction base="tns:SimpleChoice">
+            <restriction base="x1:SimpleChoice">
                 <choice>
                     <element name="varFloat" type="float"/>
                     <element name="varInt" type="int"/>
@@ -1029,17 +1032,17 @@
 
     <attributeGroup name="AttrGrp1">
       <attribute name="attrFloat" type="float"/>
-      <attributeGroup ref="tns:AttrGrp"/>
+      <attributeGroup ref="x2:AttrGrp"/>
     </attributeGroup>
 
     <complexType name="ComplexTypeWithAttributeGroup">
       <sequence/>
-      <attributeGroup ref="tns:AttrGrp"/>
+      <attributeGroup ref="x2:AttrGrp"/>
     </complexType>
 
     <complexType name="ComplexTypeWithAttributeGroup1">
       <sequence/>
-      <attributeGroup ref="tns:AttrGrp1"/>
+      <attributeGroup ref="x2:AttrGrp1"/>
     </complexType>
 
     <!-- Groups -->
@@ -1052,8 +1055,8 @@
         </sequence>
     </group>
 
-    <!-- XXX - wsi compliance - added this for things such as
-        SequenceWithGroupSeq - avoid particles with same name. -->
+    <!-- ws-i compliance - Avoid particles with same name, e.g.,
+        for SequenceWithGroupSeq -->
     <group name="BatchElementsSeq1">
         <sequence>
 	    <element name="varOtherFloat" type="xsd:float"/>
@@ -1070,8 +1073,8 @@
         </choice>
     </group>
 
-    <!-- XXX - wsi compliance - avoid particles with same name
-        for complex types that include it. -->
+    <!-- ws-i compliance - Avoid particles with same names
+        in complex types that include this. -->
     <group name="BatchElementsChoice1">
         <choice>
 	    <element name="varOtherFloat" type="xsd:float"/>
@@ -1082,56 +1085,56 @@
 
     <complexType name="SequenceWithGroupSeq">
         <sequence>
-            <group ref="tns:BatchElementsSeq"/>
-            <group ref="tns:BatchElementsSeq1"/>
+            <group ref="x2:BatchElementsSeq"/>
+            <group ref="x2:BatchElementsSeq1"/>
         </sequence>
     </complexType>
 
     <complexType name="SequenceWithGroupChoice">
         <sequence>
-            <group ref="tns:BatchElementsChoice"/>
-            <group ref="tns:BatchElementsChoice1"/>
+            <group ref="x2:BatchElementsChoice"/>
+            <group ref="x2:BatchElementsChoice1"/>
         </sequence>
     </complexType>
 
     <complexType name="SequenceWithGroups">
         <sequence>
-            <group ref="tns:BatchElementsSeq"/>
-            <group ref="tns:BatchElementsChoice1"/>
+            <group ref="x2:BatchElementsSeq"/>
+            <group ref="x2:BatchElementsChoice1"/>
         </sequence>
     </complexType>
 
     <!-- BUG #6759 -->
     <complexType name="SequenceWithOccuringGroup">
         <sequence>
-            <group ref="tns:BatchElementsSeq" minOccurs="0" maxOccurs="3"/>
+            <group ref="x2:BatchElementsSeq" minOccurs="0" maxOccurs="3"/>
         </sequence>
     </complexType>
 
     <complexType name="ChoiceWithGroupSeq">
         <choice>
-            <group ref="tns:BatchElementsSeq"/>
-            <group ref="tns:BatchElementsSeq1"/>
+            <group ref="x2:BatchElementsSeq"/>
+            <group ref="x2:BatchElementsSeq1"/>
         </choice>
     </complexType>
 
     <complexType name="ChoiceWithGroupChoice">
         <choice>
-            <group ref="tns:BatchElementsChoice"/>
-            <group ref="tns:BatchElementsChoice1"/>
+            <group ref="x2:BatchElementsChoice"/>
+            <group ref="x2:BatchElementsChoice1"/>
         </choice>
     </complexType>
 
     <complexType name="ChoiceWithGroups">
         <choice>
-            <group ref="tns:BatchElementsSeq"/>
-            <group ref="tns:BatchElementsChoice1"/>
+            <group ref="x2:BatchElementsSeq"/>
+            <group ref="x2:BatchElementsChoice1"/>
         </choice>
     </complexType>
 
     <!-- Bug 6496: group ref directly under complexType -->
     <complexType name="GroupDirectlyInComplexType">
-        <group ref="tns:BatchElementsSeq"/>
+        <group ref="x2:BatchElementsSeq"/>
         <attribute name="attr1" type="xsd:int" />
     </complexType>
 
@@ -1174,8 +1177,8 @@
     <attribute itst:it_no_test="true" name="globalAttrInt" type="int"/>
     <attribute itst:it_no_test="true" name="globalAttrString" type="string"/>
     <complexType name="ComplexTypeWithAttributeRef">
-        <attribute ref="tns:globalAttrInt"/>
-        <attribute ref="tns:globalAttrString"/>
+        <attribute ref="x2:globalAttrInt"/>
+        <attribute ref="x2:globalAttrString"/>
     </complexType>
     -->
 
@@ -1256,7 +1259,7 @@
         </sequence>
         <attribute name="AtString" type="xsd:string"/>
         <attribute name="AtInt" type="xsd:int"/>
-        <anyAttribute/>
+        <anyAttribute processContents="skip"/>
     </complexType>
 
     <complexType name="ChoiceWithAnyAttribute">
@@ -1266,14 +1269,14 @@
         </choice>
         <attribute name="AtString" type="xsd:string"/>
         <attribute name="AtInt" type="xsd:int"/>
-        <anyAttribute/>
+        <anyAttribute processContents="skip"/>
     </complexType>
 
     <complexType name="SimpleContentExtWithAnyAttribute">
         <simpleContent>
             <extension base="xsd:string">
                 <attribute name="attrib" type="xsd:int"/>
-                <anyAttribute/>
+                <anyAttribute processContents="skip"/>
             </extension>
         </simpleContent>
     </complexType>
@@ -1285,7 +1288,7 @@
         </sequence>
         <attribute name="AtString" type="xsd:string"/>
         <attribute name="AtInt" type="xsd:int"/>
-        <anyAttribute/>
+        <anyAttribute processContents="skip"/>
     </complexType>
 
     <complexType name="OccuringChoiceWithAnyAttribute">
@@ -1295,7 +1298,7 @@
         </choice>
         <attribute name="AtString" type="xsd:string"/>
         <attribute name="AtInt" type="xsd:int"/>
-        <anyAttribute/>
+        <anyAttribute processContents="skip"/>
     </complexType>
 
   </itst:it_test_group>
@@ -1331,7 +1334,6 @@
 
     <complexType name="StructWithNillableStruct">
         <sequence>
-            <!-- XXX avoid particles with same name. -->
             <element name="varInteger" type="int"/>
             <sequence minOccurs="0">
                 <element name="varInt" type="xsd:int" />
@@ -1342,9 +1344,6 @@
 
     <complexType name="StructWithOccuringStruct">
         <sequence>
-            <!-- XXX avoid particles with same name.
-                 When the element name is varInt, the choice
-                 varInt value takes its place. -->
             <element name="varInteger" type="int"/>
             <sequence minOccurs="0" maxOccurs="unbounded">
                 <element name="varInt" type="xsd:int" />
@@ -1383,7 +1382,6 @@
 
     <complexType name="StructWithNillableChoice">
         <sequence>
-            <!-- XXX avoid particles with same name. -->
             <element name="varInteger" type="int"/>
             <choice minOccurs="0">
                 <element name="varInt" type="xsd:int" />
@@ -1394,9 +1392,6 @@
 
     <complexType name="StructWithOccuringChoice">
         <sequence>
-            <!-- XXX avoid particles with same name.
-                 When the element name is varInt, the choice
-                 varInt value takes its place. -->
             <element name="varInteger" type="int"/>
             <choice minOccurs="0" maxOccurs="unbounded">
                 <element name="varInt" type="xsd:int" />
@@ -1415,7 +1410,7 @@
     
     <complexType itst:it_no_test="true" name="sgDerivedType_B">
         <complexContent>
-            <extension base="tns:sgBaseType_A">
+            <extension base="x3:sgBaseType_A">
                 <sequence>
                     <element name="varString" type="string"/>
                 </sequence>
@@ -1425,7 +1420,7 @@
     
     <complexType itst:it_no_test="true" name="sgDerivedType_C">
         <complexContent>
-            <extension base="tns:sgBaseType_A">
+            <extension base="x3:sgBaseType_A">
                 <sequence>
                     <element name="varFloat" type="double"/>
                 </sequence>
@@ -1433,130 +1428,130 @@
         </complexContent>
     </complexType>
 
-    <element itst:it_no_test="true" name="sg01BaseElement_A" type="tns:sgBaseType_A"/>
-    <element itst:it_no_test="true" name="sg01DerivedElement_B" type="tns:sgDerivedType_B" substitutionGroup="tns:sg01BaseElement_A" final="#all"/>
-    <element itst:it_no_test="true" name="sg01DerivedElement_C" type="tns:sgDerivedType_C" substitutionGroup="tns:sg01BaseElement_A" final="#all"/>
-    <element itst:it_no_test="true" name="sg02BaseElement_A" type="tns:sgBaseType_A"/>
-    <element itst:it_no_test="true" name="sg02DerivedElement_B" type="tns:sgDerivedType_B" substitutionGroup="tns:sg02BaseElement_A" final="#all"/>
-    <element itst:it_no_test="true" name="sg02DerivedElement_C" type="tns:sgDerivedType_C" substitutionGroup="tns:sg02BaseElement_A" final="#all"/>
-    <element itst:it_no_test="true" name="sg03AbstractBaseElement_A" type="tns:sgBaseType_A" abstract="true"/>
-    <element itst:it_no_test="true" name="sg03DerivedElement_B" type="tns:sgDerivedType_B" substitutionGroup="tns:sg03AbstractBaseElement_A" final="#all"/>
-    <element itst:it_no_test="true" name="sg03DerivedElement_C" type="tns:sgDerivedType_C" substitutionGroup="tns:sg03AbstractBaseElement_A" final="#all"/>
-    <element itst:it_no_test="true" name="sg04NillableBaseElement_A" type="tns:sgBaseType_A" nillable="true"/>
-    <element itst:it_no_test="true" name="sg04DerivedElement_B" type="tns:sgDerivedType_B" substitutionGroup="tns:sg04NillableBaseElement_A" final="#all"/>
-    <element itst:it_no_test="true" name="sg04DerivedElement_C" type="tns:sgDerivedType_C" substitutionGroup="tns:sg04NillableBaseElement_A" final="#all"/>
+    <element itst:it_no_test="true" name="sg01BaseElement_A" type="x3:sgBaseType_A"/>
+    <element itst:it_no_test="true" name="sg01DerivedElement_B" type="x3:sgDerivedType_B" substitutionGroup="x3:sg01BaseElement_A" final="#all"/>
+    <element itst:it_no_test="true" name="sg01DerivedElement_C" type="x3:sgDerivedType_C" substitutionGroup="x3:sg01BaseElement_A" final="#all"/>
+    <element itst:it_no_test="true" name="sg02BaseElement_A" type="x3:sgBaseType_A"/>
+    <element itst:it_no_test="true" name="sg02DerivedElement_B" type="x3:sgDerivedType_B" substitutionGroup="x3:sg02BaseElement_A" final="#all"/>
+    <element itst:it_no_test="true" name="sg02DerivedElement_C" type="x3:sgDerivedType_C" substitutionGroup="x3:sg02BaseElement_A" final="#all"/>
+    <element itst:it_no_test="true" name="sg03AbstractBaseElement_A" type="x3:sgBaseType_A" abstract="true"/>
+    <element itst:it_no_test="true" name="sg03DerivedElement_B" type="x3:sgDerivedType_B" substitutionGroup="x3:sg03AbstractBaseElement_A" final="#all"/>
+    <element itst:it_no_test="true" name="sg03DerivedElement_C" type="x3:sgDerivedType_C" substitutionGroup="x3:sg03AbstractBaseElement_A" final="#all"/>
+    <element itst:it_no_test="true" name="sg04NillableBaseElement_A" type="x3:sgBaseType_A" nillable="true"/>
+    <element itst:it_no_test="true" name="sg04DerivedElement_B" type="x3:sgDerivedType_B" substitutionGroup="x3:sg04NillableBaseElement_A" final="#all"/>
+    <element itst:it_no_test="true" name="sg04DerivedElement_C" type="x3:sgDerivedType_C" substitutionGroup="x3:sg04NillableBaseElement_A" final="#all"/>
 
     <complexType name="StructWithSubstitutionGroup">
         <sequence>
-            <element ref="tns:sg01BaseElement_A"/>
+            <element ref="x3:sg01BaseElement_A"/>
         </sequence>
     </complexType>
 
     <complexType name="StructWithSubstitutionGroupAbstract">
         <sequence>
-            <element ref="tns:sg03AbstractBaseElement_A"/>
+            <element ref="x3:sg03AbstractBaseElement_A"/>
         </sequence>
     </complexType>
     
     <complexType name="StructWithSubstitutionGroupNil">
         <sequence>
-            <element ref="tns:sg04NillableBaseElement_A"/>
+            <element ref="x3:sg04NillableBaseElement_A"/>
         </sequence>
     </complexType>
     
     <complexType name="StructWithMultipleSubstitutionGroups">
         <sequence>
             <element name="varFloat" type="double"/>
-            <element ref="tns:sg01BaseElement_A"/>
+            <element ref="x3:sg01BaseElement_A"/>
             <element name="varInt" type="unsignedLong"/>
-            <element ref="tns:sg02BaseElement_A"/>
+            <element ref="x3:sg02BaseElement_A"/>
             <element name="varString" type="string"/>
         </sequence>
     </complexType>
     
     <complexType name="ChoiceWithSubstitutionGroup">
         <choice>
-            <element ref="tns:sg01BaseElement_A"/>
+            <element ref="x3:sg01BaseElement_A"/>
             <element name="varInt" type="unsignedLong"/>
         </choice>
     </complexType>
 
     <complexType name="ChoiceWithSubstitutionGroupAbstract">
         <choice>
-            <element ref="tns:sg03AbstractBaseElement_A"/>
+            <element ref="x3:sg03AbstractBaseElement_A"/>
             <element name="varInt" type="unsignedLong"/>
         </choice>
     </complexType>
     
     <complexType name="ChoiceWithSubstitutionGroupNil">
         <choice>
-            <element ref="tns:sg04NillableBaseElement_A"/>
+            <element ref="x3:sg04NillableBaseElement_A"/>
             <element name="varInt" type="unsignedLong" nillable="true"/>
         </choice>
     </complexType>
 
     <!-- Recursive elements-->
-    <element itst:it_no_test="true" name="RecEl" type="tns:RecElType"/>
+    <element itst:it_no_test="true" name="RecEl" type="x3:RecElType"/>
     <complexType name="RecElType">
         <sequence>
             <element name="varInt" type="int"/>
-            <element ref="tns:RecElNext"/>
+            <element ref="x3:RecElNext"/>
         </sequence>
     </complexType>
     
-    <element itst:it_no_test="true" name="RecElNext" type="tns:RecElNextType"/>
+    <element itst:it_no_test="true" name="RecElNext" type="x3:RecElNextType"/>
     <complexType itst:it_no_test="true" name="RecElNextType">
         <sequence>
-            <element ref="tns:RecEl" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="x3:RecEl" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
     
     <!-- Imbricated recursions -->
-    <element itst:it_no_test="true" name="RecOuter" type="tns:RecOuterType"/>
+    <element itst:it_no_test="true" name="RecOuter" type="x3:RecOuterType"/>
     <complexType name="RecOuterType">
         <sequence>
             <element name="varInt" type="int"/>
-            <element ref="tns:RecMostInner" minOccurs="0" maxOccurs="unbounded"/>
-            <element ref="tns:RecInner" minOccurs="0" maxOccurs="unbounded"/>
-            <element ref="tns:RecOuterNext"/>
+            <element ref="x3:RecMostInner" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="x3:RecInner" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="x3:RecOuterNext"/>
         </sequence>
     </complexType>
 
-    <element itst:it_no_test="true" name="RecOuterNext" type="tns:RecOuterNextType"/>
+    <element itst:it_no_test="true" name="RecOuterNext" type="x3:RecOuterNextType"/>
     <complexType itst:it_no_test="true" name="RecOuterNextType">
         <sequence>
-            <element ref="tns:RecOuter" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="x3:RecOuter" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
 
-    <element itst:it_no_test="true" name="RecInner" type="tns:RecInnerType"/>
+    <element itst:it_no_test="true" name="RecInner" type="x3:RecInnerType"/>
     <complexType itst:it_no_test="true" name="RecInnerType">
         <sequence>
             <element name="varInt" type="int"/>
-            <element ref="tns:RecMostInner" minOccurs="0" maxOccurs="unbounded"/>
-            <element ref="tns:RecInnerNext"/>
+            <element ref="x3:RecMostInner" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="x3:RecInnerNext"/>
         </sequence>
     </complexType>
 
-    <element itst:it_no_test="true" name="RecInnerNext" type="tns:RecInnerNextType"/>
+    <element itst:it_no_test="true" name="RecInnerNext" type="x3:RecInnerNextType"/>
     <complexType itst:it_no_test="true" name="RecInnerNextType">
         <sequence>
-            <element ref="tns:RecInner" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="x3:RecInner" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
     
-    <element itst:it_no_test="true" name="RecMostInner" type="tns:RecMostInnerType"/>
+    <element itst:it_no_test="true" name="RecMostInner" type="x3:RecMostInnerType"/>
     <complexType itst:it_no_test="true" name="RecMostInnerType">
         <sequence>
             <element name="varInt" type="int"/>
-            <element ref="tns:RecMostInnerNext"/>
+            <element ref="x3:RecMostInnerNext"/>
         </sequence>
     </complexType>
 
-    <element itst:it_no_test="true" name="RecMostInnerNext" type="tns:RecMostInnerNextType"/>
+    <element itst:it_no_test="true" name="RecMostInnerNext" type="x3:RecMostInnerNextType"/>
     <complexType itst:it_no_test="true" name="RecMostInnerNextType">
         <sequence>
-            <element ref="tns:RecMostInner" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="x3:RecMostInner" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
 
@@ -1566,14 +1561,14 @@
     <complexType name="MRecSeqA">
         <sequence>
             <element name="varIntA" type="int"/>
-            <element name="seqB" type="tns:MRecSeqB" minOccurs="0" maxOccurs="unbounded"/>
+            <element name="seqB" type="x3:MRecSeqB" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
 
     <complexType itst:it_no_test="true" name="MRecSeqB">
         <sequence>
             <element name="varIntB" type="int"/>
-            <element name="seqA" type="tns:MRecSeqA"/>
+            <element name="seqA" type="x3:MRecSeqA"/>
         </sequence>
     </complexType>
 
@@ -1582,20 +1577,20 @@
     <complexType name="MRecSeqC">
         <sequence>
             <element name="varIntC" type="int"/>
-            <element name="seqDs" type="tns:ArrayOfMRecSeqD"/>
+            <element name="seqDs" type="x3:ArrayOfMRecSeqD"/>
         </sequence>
     </complexType>
 
     <complexType itst:it_no_test="true" name="ArrayOfMRecSeqD">
         <sequence>
-            <element name="seqD" type="tns:MRecSeqD" minOccurs="0" maxOccurs="unbounded"/>
+            <element name="seqD" type="x3:MRecSeqD" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
 
     <complexType itst:it_no_test="true" name="MRecSeqD">
         <sequence>
             <element name="varIntD" type="int"/>
-            <element name="seqC" type="tns:MRecSeqC"/>
+            <element name="seqC" type="x3:MRecSeqC"/>
         </sequence>
     </complexType>
 

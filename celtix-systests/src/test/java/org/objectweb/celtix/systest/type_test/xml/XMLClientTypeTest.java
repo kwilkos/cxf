@@ -1,5 +1,7 @@
 package org.objectweb.celtix.systest.type_test.xml;
 
+import java.net.URL;
+
 import javax.xml.namespace.QName;
 
 import junit.framework.Test;
@@ -23,6 +25,14 @@ public class XMLClientTypeTest extends AbstractTypeTestClient4 {
             public void startServers() throws Exception {
                 boolean ok = launchServer(XMLServerImpl.class); 
                 assertTrue("failed to launch server", ok);
+            }
+            
+            public void setUp() throws Exception {
+                // set up configuration to enable schema validation
+                URL url = getClass().getResource("../celtix-config.xml"); 
+                assertNotNull("cannot find test resource", url);
+                configFileName = url.toString(); 
+                super.setUp();
             }
         };
     }  

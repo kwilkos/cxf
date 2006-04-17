@@ -5,7 +5,9 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-    xmlns:x1="http://objectweb.org/type_test/types"
+    xmlns:x1="http://objectweb.org/type_test/types1"
+    xmlns:x2="http://objectweb.org/type_test/types2"
+    xmlns:x3="http://objectweb.org/type_test/types3"
     xmlns:itst="http://tests.iona.com/ittests"
     xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration">
 
@@ -133,16 +135,20 @@
 
   <!-- 1.2 - group of test operations -->
   <xsl:template match="itst:it_test_group" mode="test_operations_group">
-    <xsl:apply-templates select="xsd:simpleType" mode="test_operation"/>
-    <xsl:apply-templates select="xsd:complexType" mode="test_operation"/>
+    <xsl:apply-templates select="xsd:simpleType[not(@itst:it_no_test='true')]"
+        mode="test_operation"/>
+    <xsl:apply-templates select="xsd:complexType[not(@itst:it_no_test='true')]"
+        mode="test_operation"/>
     <!--
-    <xsl:apply-templates select="xsd:element" mode="test_operation"/>
+    <xsl:apply-templates select="xsd:element[not(@itst:it_no_test='true')]"
+        mode="test_operation"/>
     -->
-    <xsl:apply-templates select="itst:builtIn" mode="test_operation"/>
+    <xsl:apply-templates select="itst:builtIn[not(@itst:it_no_test='true')]"
+        mode="test_operation"/>
   </xsl:template>
   
   <!-- 1.2.1 - test operations -->
-  <xsl:template match="itst:it_test_group/*[not(@itst:it_no_test='true')]" mode="test_operation"
+  <xsl:template match="itst:it_test_group/*" mode="test_operation"
         xmlns="http://schemas.xmlsoap.org/wsdl/">
     <xsl:variable name="operation_name">
       <xsl:value-of select="concat('test',
