@@ -54,19 +54,21 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
 
+    private EndpointReferenceType reference;
+    
+    private boolean published;
+    
     private final Bus bus;
     private final Object implementor;
     private final String bindingURI;
     
     private Configuration configuration;
-    private EndpointReferenceType reference;
-    private ServerBinding serverBinding;
-    private boolean published;
     private List<Source> metadata;
     private Executor executor;
     private JAXBContext context;
     private Schema schema;
     private Map<String, Object> properties;
+    private ServerBinding serverBinding;
     
     private boolean doInit;
     private boolean initialised;
@@ -142,6 +144,12 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         if (null != properties) {
             QName serviceName = (QName) properties.get(Endpoint.WSDL_SERVICE);
             QName portName = (QName) properties.get(Endpoint.WSDL_PORT);
+            if (null != serviceName) {
+                System.out.println("Service name is " + serviceName.toString());
+            }
+            if (null != portName) {
+                System.out.println("port name is" + portName.toString());
+            }
             if (null != serviceName && null != portName) {
                 EndpointReferenceUtils.setServiceAndPortName(reference, serviceName, 
                                                                        portName.toString());
@@ -530,5 +538,21 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     
     private ClassLoader getContextInspectorClassLoader() {
         return getClass().getClassLoader();
+    }    
+        
+    void start() {
+        if (published) {
+            return;
+        } else {
+            try {
+                serverBinding.activate();
+                published = true;
+            } catch (IOException e) {
+                //e.printStackTrace();
+            } catch (WSDLException e) {
+                //e.printStackTrace(); 
+            }
+        }
     }
+   
 }

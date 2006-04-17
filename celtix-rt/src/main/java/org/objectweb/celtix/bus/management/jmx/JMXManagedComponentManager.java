@@ -110,7 +110,14 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
             onRegister(name);
             mbs.registerMBean(object, name);           
         } catch (InstanceAlreadyExistsException e) {            
-            LOG.log(Level.SEVERE, "REGISTER_FAILURE_MSG", new Object[]{name, e});
+            //LOG.log(Level.SEVERE, "REGISTER_FAILURE_MSG", new Object[]{name, e});
+            //regist the new object instance
+            try { 
+                mbs.unregisterMBean(name);                
+                mbs.registerMBean(object, name);
+            } catch (Exception e1) {
+                LOG.log(Level.SEVERE, "REGISTER_FAILURE_MSG", new Object[]{name, e1});
+            }
         } catch (MBeanRegistrationException e) {
             LOG.log(Level.SEVERE, "REGISTER_FAILURE_MSG", new Object[]{name, e});          
         } catch (NotCompliantMBeanException e) {

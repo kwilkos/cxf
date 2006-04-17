@@ -25,7 +25,7 @@ public class JMSServerTransportInstrumentation
         jmsServerTransport = jsTransport;
         serviceName = findServiceName(jmsServerTransport.targetEndpoint);
         portName = findPortName(jmsServerTransport.targetEndpoint);        
-        objectName = getPortObjectName();
+        objectName = getPortObjectName() + ",name=JMS";
         counters = jsTransport.counters;
     }
     

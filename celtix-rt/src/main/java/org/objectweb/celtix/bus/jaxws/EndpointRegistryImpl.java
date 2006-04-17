@@ -16,8 +16,7 @@ public class EndpointRegistryImpl implements EndpointRegistry {
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointRegistryImpl.class);
     private final Bus bus;
-    private final List<EndpointImpl> endpoints;
-    private boolean isInstrumented;
+    private final List<EndpointImpl> endpoints;    
 
     public EndpointRegistryImpl(Bus b) {
         bus = b;
@@ -32,9 +31,8 @@ public class EndpointRegistryImpl implements EndpointRegistry {
             LOG.warning("ENDPOINT_ALREADY_REGISTERED_MSG");
         } else {
             endpoints.add(epl);
-            if (!isInstrumented && bus != null) {
-                isInstrumented = true;
-                bus.sendEvent(new ComponentCreatedEvent(this));
+            if (bus != null) {               
+                bus.sendEvent(new ComponentCreatedEvent(epl));
             }
         }
     }
@@ -50,12 +48,10 @@ public class EndpointRegistryImpl implements EndpointRegistry {
         for (Endpoint ep : endpoints) {
             if (ep.isPublished()) {
                 ep.stop();
+                bus.sendEvent(new ComponentRemovedEvent((EndpointImpl)ep));
             }
         }
-        endpoints.clear();
-        if (isInstrumented) {
-            bus.sendEvent(new ComponentRemovedEvent(this));
-        }
+        endpoints.clear();       
     }
     
     List<EndpointImpl> getEndpoints() {

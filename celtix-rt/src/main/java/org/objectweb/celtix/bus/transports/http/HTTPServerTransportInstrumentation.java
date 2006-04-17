@@ -28,10 +28,10 @@ public class HTTPServerTransportInstrumentation
         serviceName = findServiceName(httpServerTransport.reference);
         portName = findPortName(httpServerTransport.reference);
         /* Transprot:
-            type=Bus.Service.Port,name=SoapPort,
+            type=Bus.Service.Port.HTTPServerTransport,Bus.Service.Port=SoapPort,
             Bus.Service="{http://ws.celtix.objectweb.org}SOAPService",
             Bus=demos.jmx_runtime*/
-        objectName = getPortObjectName();
+        objectName = getPortObjectName() + ",name=HTTP";
         counters = hsTransport.counters;        
     }
     

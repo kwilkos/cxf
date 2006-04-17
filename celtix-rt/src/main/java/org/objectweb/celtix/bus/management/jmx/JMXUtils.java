@@ -19,15 +19,14 @@ public final class JMXUtils {
     /**
      * Bus :
            org.objectweb.celtix.instrumentation:type=Bus,name=demos.jmx_runtime
-
        Service :
-           org.objectweb.celtix.instrumentation:type=Bus.Service,
-           name="{http://ws.celtix.objectweb.org}SOAPService",Bus=demos.jmx_runtime
+           org.objectweb.celtix.instrumentation:type=Bus.Service,Bus=demos.jmx_runtime
+           name="{http://ws.celtix.objectweb.org}SOAPService"
         
        Port :
-           org.objectweb.celtix.instrumentation:type=Bus.Service.Port,name=SoapPort,
-           Bus.Service="{http://ws.celtix.objectweb.org}SOAPService",
-           Bus=demos.jmx_runtime
+           org.objectweb.celtix.instrumentation:type=Bus.Service.Port,Bus=demos.jmx_runtime,
+           name=SoapPort,Bus.Service="{http://ws.celtix.objectweb.org}SOAPService",
+           
      */
     // org.objectweb.celtix:type=Componnet,name=QuotedQName,bus=busIdentifier 
     public static ObjectName getObjectName(String type, String name, String busID) {        
@@ -35,7 +34,7 @@ public final class JMXUtils {
         if (type.compareTo("Bus") == 0) {
             objectName = ":type=" + type + ",name=" + busID;
         } else {
-            objectName = ":type=" + type + ",name=" + name + ",Bus=" + busID;
+            objectName = ":type=" + type + ",Bus=" + busID + name;
         }
         try {
             return new ObjectName(DOMAIN_STRING + objectName);

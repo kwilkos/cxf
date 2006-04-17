@@ -35,7 +35,7 @@ public class TransportInstrumentation {
     }
     
     protected String getPortObjectName() {
-        return portName + ",Bus.Service=\"" + serviceName + "\"";
+        return ",Bus.Service=\"" + serviceName + "\"" + ",Bus.Service.Port=" + portName;
     }
 
 }

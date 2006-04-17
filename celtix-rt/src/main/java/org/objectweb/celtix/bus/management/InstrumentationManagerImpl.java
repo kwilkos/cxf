@@ -18,8 +18,8 @@ import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 
 import org.objectweb.celtix.bus.instrumentation.InstrumentationPolicyType;
 import org.objectweb.celtix.bus.instrumentation.MBServerPolicyType;
-import org.objectweb.celtix.bus.jaxws.EndpointRegistryImpl;
-import org.objectweb.celtix.bus.jaxws.EndpointRegistryInstrumentation;
+import org.objectweb.celtix.bus.jaxws.EndpointImpl;
+import org.objectweb.celtix.bus.jaxws.EndpointInstrumentation;
 import org.objectweb.celtix.bus.management.jmx.JMXManagedComponentManager;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransportInstrumentation;
@@ -223,9 +223,9 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
             it = new JMSClientTransportInstrumentation(
                            (JMSClientTransport)component);
         }
-        if (EndpointRegistryImpl.class.isAssignableFrom(component.getClass())) {
-            it = new EndpointRegistryInstrumentation(
-                           (EndpointRegistryImpl)component);
+        if (EndpointImpl.class.isAssignableFrom(component.getClass())) {
+            it = new EndpointInstrumentation(
+                           (EndpointImpl)component);
         }
         
         return it;
