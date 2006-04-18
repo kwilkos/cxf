@@ -279,8 +279,7 @@ public class JettySslClientConfigurerTest extends TestCase {
         assertTrue("sSLSocketFactory should be null", !isNewSocketFactory);
         assertTrue("SSLContext should have failed, invalid keystore location", 
                    handler.checkLogContainsString("Problem initializing ssl for the outbound request"));
-        assertTrue("SSLContext should have failed, invalid keystore location", 
-                   handler.checkLogContainsString("The system cannot find the file specified"));
+
         
     }
     
@@ -306,8 +305,6 @@ public class JettySslClientConfigurerTest extends TestCase {
         assertTrue("sSLSocketFactory should be null", !isNewSocketFactory);
         assertTrue("SSLContext should have failed, invalid keystore location", 
                    handler.checkLogContainsString("Problem initializing ssl for the outbound request"));
-        assertTrue("SSLContext should have failed, invalid keystore location", 
-                   handler.checkLogContainsString("The system cannot find the file specified"));
         
     }    
     
