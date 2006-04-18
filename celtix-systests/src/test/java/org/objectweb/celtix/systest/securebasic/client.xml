@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM 
+     "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
+    xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"
+    xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration">
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortNoDataSet.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+
+
+  </bean>
+
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortAllDataSet.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>clientpass</sec:KeystorePassword>
+		<sec:KeyPassword>clientpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortNoDataSetProviderSetsAllData.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortAllWrongDataSetProviderSetsGoodData.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystorewong</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>clientpasswrong</sec:KeystorePassword>
+		<sec:KeyPassword>clientpasswong</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststorewrong</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortAllDataSetProviderSetsBadData.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>clientpass</sec:KeystorePassword>
+		<sec:KeyPassword>clientpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+
+ <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPServiceServerConfiguredByGoodProvider/SoapPortAllDataSet.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>clientpass</sec:KeystorePassword>
+		<sec:KeyPassword>clientpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+
+   <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPServiceServerConfiguredByBadProvider/SoapPortAllDataSet.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>clientpass</sec:KeystorePassword>
+		<sec:KeyPassword>clientpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}InterSecureSOAPService/SoapPortAllDataSet.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>clientpass</sec:KeystorePassword>
+		<sec:KeyPassword>clientpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortAllDataSetWrongKeystore.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+	        <sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/defaultkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>defaultkeypass</sec:KeystorePassword>
+		<sec:KeyPassword>defaultkeypass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureDontRequireClientAuthSOAPService/SoapPortAllDataSetWrongKeystore.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/defaultkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>defaultkeypass</sec:KeystorePassword>
+		<sec:KeyPassword>defaultkeypass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortAllDataSetWrongKeystoreType.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>WrongType</sec:KeystoreType>
+		<sec:KeystorePassword>clientpass</sec:KeystorePassword>
+		<sec:KeyPassword>clientpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortAllDataSetWrongKeystorePassword.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>wrongClientpass</sec:KeystorePassword>
+		<sec:KeyPassword>clientpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureDontRequireClientAuthSOAPService/SoapPortAllDataSetWrongKeystorePassword.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>wrongClientpass</sec:KeystorePassword>
+		<sec:KeyPassword>clientpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortAllDataSetWrongClientPassword.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+        <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>clientpass</sec:KeystorePassword>
+		<sec:KeyPassword>wrongClientpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortAllDataSetWrongTrustStore.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>clientpass</sec:KeystorePassword>
+		<sec:KeyPassword>Clientpass</sec:KeyPassword>
+		<!-- use the default trust store - it wont work -->
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/defaulttruststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortAllDataSetWrongTrustStoreType.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>clientpass</sec:KeystorePassword>
+		<sec:KeyPassword>Clientpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+		<sec:TrustStoreType>WrongType</sec:TrustStoreType>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+    <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortAllDataSetWrongSecureSocketProtocol.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>clientpass</sec:KeystorePassword>
+		<sec:KeyPassword>Clientpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+		<sec:SecureSocketProtocol>wrongSSL</sec:SecureSocketProtocol>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+  
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPServiceP12/SoapPortAllDataSetP12Certs.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/celtix.p12</sec:Keystore> 
+		<sec:KeystorePassword>celtixpass</sec:KeystorePassword>
+		<sec:KeyPassword>celtixpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/abigcompany_ca.pem</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPServiceDifferentCipherSuites/SoapPortAllDataSet.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>clientpass</sec:KeystorePassword>
+		<sec:KeyPassword>clientpass</sec:KeyPassword>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPServiceDifferentCipherSuites/SoapPortAllDataSetDifferentCipherSuites.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      
+      <property name="httpClient">
+          <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+          </value>
+      </property>      
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/.clientkeystore</sec:Keystore>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+		<sec:KeystorePassword>clientpass</sec:KeystorePassword>
+		<sec:KeyPassword>clientpass</sec:KeyPassword>
+		<sec:Ciphersuites>SSL_RSA_WITH_NULL_MD5</sec:Ciphersuites>
+		<sec:TrustStore>${base.dir}/src/test/java/org/objectweb/celtix/systest/securebasic/truststore</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property>
+  </bean>
+</beans>
+
+

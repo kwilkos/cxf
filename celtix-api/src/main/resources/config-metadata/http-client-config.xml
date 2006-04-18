@@ -37,11 +37,11 @@
     </cm:configItem>
 
     <cm:configItem>
-        <cm:name>ssl</cm:name>
-        <cm:type>sec:SSLPolicy</cm:type>
+        <cm:name>sslClient</cm:name>
+        <cm:type>sec:SSLClientPolicy</cm:type>
         <cm:description>Policies for controlling SSL encryption</cm:description>
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
         <!-- attribute values are defaulted -->
-        <sec:ssl></sec:ssl>
+        <sec:sslClient></sec:sslClient>
     </cm:configItem>
 </cm:config>

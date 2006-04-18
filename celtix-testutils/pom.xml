@@ -187,6 +187,9 @@
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/greeter_control.wsdl</wsdl>
                                     <extraargs>
                                         <extraarg>-b</extraarg>

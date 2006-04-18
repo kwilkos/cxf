@@ -14,7 +14,8 @@ import org.mortbay.http.SslListener;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.mortbay.util.InetAddrPort;
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.configuration.security.SSLPolicy;
+import org.objectweb.celtix.bus.configuration.security.SSLServerPolicy;
+import org.objectweb.celtix.bus.transports.https.JettySslListenerConfigurer;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
@@ -34,17 +35,16 @@ public final class JettyHTTPServerEngine {
     SocketListener listener;
     Configuration config;
     HTTPListenerPolicy policy;
-    SSLPolicy sslPolicy;
+    SSLServerPolicy sslPolicy;
     int port;
     
     private JettyHTTPServerEngine(Bus bus, String protocol, int p) {
         port = p;
         config = createConfiguration(bus, port);
         policy = config.getObject(HTTPListenerPolicy.class, "httpListener");
-        sslPolicy = config.getObject(SSLPolicy.class, "ssl");
+        sslPolicy = config.getObject(SSLServerPolicy.class, "sslServer");
         if (sslPolicy == null && "https".equals(protocol)) {
-            sslPolicy = new SSLPolicy();
-            sslPolicy.setUseSecureSockets(true);
+            sslPolicy = new SSLServerPolicy();
         }
     }
     
@@ -87,7 +87,7 @@ public final class JettyHTTPServerEngine {
     }
     
     synchronized void addServant(String url, AbstractHttpHandler handler) {
-        
+
         URL nurl = null;
         try {
             nurl = new URL(url);
@@ -99,9 +99,15 @@ public final class JettyHTTPServerEngine {
 
         if (server == null) {
             server = new HttpServer();
-            if (sslPolicy != null && sslPolicy.isUseSecureSockets()) {
+            
+            if (sslPolicy != null) { 
                 listener = new SslListener(new InetAddrPort(port));
-                // TODO - set the SSL stuff
+                SslListener secureListener = (SslListener)listener;
+                
+                JettySslListenerConfigurer secureListenerConfigurer = 
+                    new JettySslListenerConfigurer(config, sslPolicy, secureListener);
+                secureListenerConfigurer.configure();
+
             } else {
                 listener = new SocketListener(new InetAddrPort(port));
             }

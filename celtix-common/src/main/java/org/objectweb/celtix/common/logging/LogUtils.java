@@ -13,6 +13,8 @@ import org.objectweb.celtix.common.i18n.BundleUtils;
  */
 public final class LogUtils {
     
+    private static final Object[] NO_PARAMETERS = new Object[0];
+    
     /**
      * Prevents instantiation.
      */
@@ -70,6 +72,45 @@ public final class LogUtils {
             logger.log(level, formattedMessage, throwable);
         }
     }
+ 
+    /**
+     * Checks log level and logs
+     *
+     * @param logger the Logger the log to
+     * @param level the severity level
+     * @param message the log message
+     */    
+    public static void log(Logger logger, 
+                           Level level, 
+                           String message) {
+        if (logger.isLoggable(level)) {
+            final String formattedMessage = 
+                MessageFormat.format(localize(logger, message), NO_PARAMETERS);
+            logger.log(level, formattedMessage);
+        }
+        
+    }    
+  
+    /**
+     * Checks log level and logs
+     *
+     * @param logger the Logger the log to
+     * @param level the severity level
+     * @param message the log message
+     * @param parameters the parameters to substitute into message
+     */      
+    public static void log(Logger logger, 
+                           Level level, 
+                           String message, 
+                           Object[] parameters) {
+        if (logger.isLoggable(level)) {
+            final String formattedMessage = 
+                MessageFormat.format(localize(logger, message), parameters);
+            logger.log(level, formattedMessage);
+        }
+        
+    }
+
 
     /**
      * Retreive localized message retreived from a logger's resource
@@ -82,4 +123,8 @@ public final class LogUtils {
         ResourceBundle bundle = logger.getResourceBundle();
         return bundle != null ? bundle.getString(message) : message;
     }
+
+
+
+
 }

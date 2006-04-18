@@ -177,6 +177,13 @@
                     <include>**</include>
                 </includes>
             </testResource>
+	    <testResource>
+                <directory>src/test/java</directory>
+                <includes>
+                    <exclude>**/*.xml</exclude>
+                </includes>
+		<filtering>true</filtering>
+            </testResource>
         </testResources>
         <plugins>
             <plugin>

@@ -65,79 +65,299 @@
     </xs:complexType>
     <xs:element name="authorization" type="tns:AuthorizationPolicy"/>
     
-    <xs:complexType name="SSLPolicy">
+
+
+
+
+    <xs:complexType name="SSLServerPolicy">
         <xs:annotation>
             <xs:documentation>
-            Policies for controlling SSL encryption
+            New policies for controlling SSL encryption
             </xs:documentation>
         </xs:annotation>
 
     	<xs:sequence>
     		<!--SSL related elements-->
-            <xs:element name="UseSecureSockets" type="xs:boolean" minOccurs="0" default="false">
+
+	    <xs:element name="Keystore" type="xs:string" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
-                    If true, SSL or TLS connection will be expected by the server.  SSL and TLS are 
-                    public standards, and when they are used, the connection is often referred to 
-                    as HTTPS instead of HTTP.
+                    Location of the Keystore, defaults to users home directory
                     </xs:documentation>
                 </xs:annotation>      
             </xs:element>
 
-            <xs:element name="Certificate" type="xs:string" minOccurs="0">
+	    <xs:element name="KeystoreType" type="xs:string" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
-                    Some servers may require the client to also present a certificate for 
-                    authentication of the client by the server.  This field should contain 
-                    the PKCS12 encoded certificate issued by the certificate authority.
+                    Keystore algorithm
                     </xs:documentation>
                 </xs:annotation>      
             </xs:element>
 
-            <xs:element name="CertificateChain" type="xs:string" minOccurs="0">
+            <xs:element name="KeystorePassword" type="xs:string" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
-                    Certificates can be issued by intermediate certificate authorities that are not 
-                    trusted by the Server, but have had their certificates issues by a trusted 
-                    authority.  This option allows the certificate chain of PEM encoded X509 
-                    certificates to be presented for verification.  Optional.
-                    This will be deprecated due to the move to PKCS12.
+                    Password for accessing data in the keystore.
                     </xs:documentation>
                 </xs:annotation>      
             </xs:element>
 
-            <xs:element name="PrivateKey" type="xs:string" minOccurs="0">
+            <xs:element name="KeyPassword" type="xs:string" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
-                    The PEM encoded private key corresponding to X509 certificate listed in 
-                    ClientCertificate.  Required if ClientCertificate is specified, and cannot be 
-                    specified if ClientCertificate is not specified.
-                    This will be deprecated due to the move to PKCS12.
+                    Key password for accessing first entry in the keystore.
                     </xs:documentation>
                 </xs:annotation>      
             </xs:element>
 
-            <xs:element name="PrivateKeyPassword" type="xs:string" minOccurs="0">
+	    <xs:element name="WantClientAuthentication" type="xs:boolean" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
-                    If the PEM encoded ClientPrivateKey field is encrypted with a password, this 
-                    is the password used to decrypt it.  These keys are typically encrypted by the 
-                    certificate authority when sending the key over a public network, and password 
-                    is delivered by a secure means.
+                    If https client authentication want, set to true. Defaults to false, so no client authentication.
                     </xs:documentation>
                 </xs:annotation>      
             </xs:element>
 
-            <xs:element name="TrustedRootCertificates" type="xs:string" minOccurs="0">
+	    <xs:element name="RequireClientAuthentication" type="xs:boolean" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
-                    The client should specify a list of PEM encoded X509 certificates for 
-                    certificate authorities that are trusted.  This will be used to validate the 
-                    certificate presented by the server.
+                    If https client authentication required, set to true. Defaults to false, so no client authentication.
                     </xs:documentation>
                 </xs:annotation>      
             </xs:element>
+
+	    <xs:element name="KeystoreAlgorithm" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                     Specify the algorithm used by the key manager factory for the keystore
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="Ciphersuites" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                    Ciphersuites supported.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="TrustStore" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Location of truststore, defaults to $JREHOME/lib/security/cacerts
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="TrustStoreType" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    TrustStore type, defaults to JKS
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="TrustStoreAlgorithm" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                     Specify the algorithm used by the key manager factory for the truststore, not supported yet.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="SecureSocketProtocol" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Secure socket protocol used, defaults to TLSv1.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="SessionCaching" type="xs:boolean" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Whether TLS session caching should be used. Currently not supported, so no caching.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="SessionCacheKey" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Key used to lookup session cache. Currently not supported.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="MaxChainLength" type="xs:long" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Limits the maximum length of the chain accepted by the server. Currently not supported.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="CertValidator" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Mechanism for performing extra checks on certificate accepted by the server. Currently not supported.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+
     	</xs:sequence>
     </xs:complexType>
-    <xs:element name="ssl" type="tns:SSLPolicy"/>
+
+
+
+    <xs:complexType name="SSLClientPolicy">
+        <xs:annotation>
+            <xs:documentation>
+            New policies for controlling SSL encryption
+            </xs:documentation>
+        </xs:annotation>
+
+    	<xs:sequence>
+    		<!--SSL related elements-->
+
+	    <xs:element name="Keystore" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Location of the Keystore, defaults to users home directory
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="KeystoreType" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Keystore type, defaults to JKS
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="KeystorePassword" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Password for accessing data in the keystore.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="KeyPassword" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Key password for accessing first entry in the keystore.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="KeystoreAlgorithm" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                     Specify the algorithm used by the key manager factory for the keystore
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+
+	    <xs:element name="Ciphersuites" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                    Ciphersuites supported.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="TrustStore" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Location of truststore, defaults to $JREHOME/lib/security/cacerts
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+            <xs:element name="TrustStoreType" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    TrustStore type, defaults to JKS
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+
+	    <xs:element name="TrustStoreAlgorithm" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                     Specify the algorithm used by the key manager factory for the truststore, not supported yet.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="SecureSocketProtocol" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Secure socket protocol used, defaults to TLSv1.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="SessionCaching" type="xs:boolean" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Whether TLS session caching should be used. Currently not supported, so no caching.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="SessionCacheKey" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Key used to lookup session cache. Currently not supported.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="MaxChainLength" type="xs:long" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Limits the maximum length of the chain accepted by the client. Currently not supported.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="CertValidator" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    Mechanism for performing extra checks on certificate accepted by the client. Currently not supported.
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+	    
+	    <xs:element name="ProxyHost" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    For URL access through a proxy server, currently not supported
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+	    <xs:element name="ProxyPort" type="xs:long" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    For URL access through a proxy server, currently not supported
+                    </xs:documentation>
+                </xs:annotation>      
+            </xs:element>
+
+    	</xs:sequence>
+    </xs:complexType>
+
+
+    <xs:element name="sslServer" type="tns:SSLServerPolicy"/>
+    <xs:element name="sslClient" type="tns:SSLClientPolicy"/>
+
 </xs:schema>

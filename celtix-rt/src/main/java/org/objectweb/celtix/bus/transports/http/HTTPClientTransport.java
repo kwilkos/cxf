@@ -1,5 +1,8 @@
 package org.objectweb.celtix.bus.transports.http;
 
+
+
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,7 +26,7 @@ import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+import javax.net.ssl.HttpsURLConnection;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.ws.BindingProvider;
@@ -41,8 +44,10 @@ import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
+import org.objectweb.celtix.bus.configuration.security.SSLClientPolicy;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlHttpConfigurationProvider;
 import org.objectweb.celtix.bus.management.counters.TransportClientCounters;
+import org.objectweb.celtix.bus.transports.https.JettySslClientConfigurer;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
@@ -58,6 +63,8 @@ import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
+
+
 public class HTTPClientTransport implements ClientTransport {
 
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPClientTransport.class);
@@ -69,9 +76,11 @@ public class HTTPClientTransport implements ClientTransport {
     private static final String HTTP_CLIENT_CONFIGURATION_ID = "http-client";
 
     final HTTPClientPolicy policy;
+    final SSLClientPolicy sslClientPolicy;
     final AuthorizationPolicy authPolicy;
     final AuthorizationPolicy proxyAuthPolicy;
     final Configuration configuration;
+    final Configuration portConfiguration;
     final EndpointReferenceType targetEndpoint;
     final Bus bus;
     final Port port;
@@ -94,7 +103,7 @@ public class HTTPClientTransport implements ClientTransport {
         throws WSDLException, IOException {
 
         bus = b;
-        Configuration portConfiguration = getPortConfiguration(bus, ref);
+        portConfiguration = getPortConfiguration(bus, ref);
         String address = portConfiguration.getString("address");
         EndpointReferenceUtils.setAddress(ref, address);
         targetEndpoint = ref;
@@ -108,7 +117,7 @@ public class HTTPClientTransport implements ClientTransport {
         policy = getClientPolicy(configuration);
         authPolicy = getAuthPolicy("authorization", configuration);
         proxyAuthPolicy = getAuthPolicy("proxyAuthorization", configuration);
-        
+        sslClientPolicy = getSSLClientPolicy(configuration);
         bus.sendEvent(new ComponentCreatedEvent(this));
 
     }
@@ -127,7 +136,15 @@ public class HTTPClientTransport implements ClientTransport {
         }
         return pol;
     }
-
+    
+    private SSLClientPolicy getSSLClientPolicy(Configuration conf) {
+        SSLClientPolicy pol = conf.getObject(SSLClientPolicy.class, "sslClient");
+        if (pol == null) {
+            pol = new SSLClientPolicy();
+        }
+        return pol;
+    }
+       
     public EndpointReferenceType getTargetEndpoint() {
         return targetEndpoint;
     }
@@ -144,7 +161,10 @@ public class HTTPClientTransport implements ClientTransport {
     }
 
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
-        return new HTTPClientOutputStreamContext(url, policy, authPolicy, proxyAuthPolicy, context);
+        return new HTTPClientOutputStreamContext(url, policy, authPolicy, 
+                                                 proxyAuthPolicy, sslClientPolicy, 
+                                                 context,
+                                                 portConfiguration);
     }
 
     public void finalPrepareOutputStreamContext(OutputStreamMessageContext context) throws IOException {
@@ -342,13 +362,17 @@ public class HTTPClientTransport implements ClientTransport {
         HTTPClientPolicy policy;
         AuthorizationPolicy authPolicy;
         AuthorizationPolicy proxyAuthPolicy;
+        SSLClientPolicy sslClientPolicy;
+        Configuration portConfiguration;
 
         @SuppressWarnings("unchecked")
         public HTTPClientOutputStreamContext(URL url,
                                              HTTPClientPolicy p,
                                              AuthorizationPolicy ap,
                                              AuthorizationPolicy pap,
-                                             MessageContext ctx)
+                                             SSLClientPolicy sslcp,
+                                             MessageContext ctx,
+                                             Configuration configParam)
             throws IOException {
             super(ctx);
 
@@ -361,6 +385,8 @@ public class HTTPClientTransport implements ClientTransport {
             policy = p;
             authPolicy = ap;
             proxyAuthPolicy = pap;
+            sslClientPolicy = sslcp;
+            portConfiguration = configParam;
             String value = (String)ctx.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
             if (value != null) {
                 url = new URL(value);
@@ -399,10 +425,20 @@ public class HTTPClientTransport implements ClientTransport {
                 }
             }
             setPolicies(headers);
+            if (connection instanceof HttpsURLConnection) {
+                setSSLPolicies();
+            }
 
             origOut = new WrappedOutputStream();
             out = origOut;
         }
+        
+        private void setSSLPolicies() {
+            JettySslClientConfigurer sslClientConfigurer = 
+                new JettySslClientConfigurer(sslClientPolicy, connection, portConfiguration); 
+            sslClientConfigurer.configure();
+        }
+        
         private void setPolicies(Map<String, List<String>> headers) {
             String userName = (String)get(BindingProvider.USERNAME_PROPERTY);
             if (userName == null && authPolicy.isSetUserName()) {
@@ -502,6 +538,7 @@ public class HTTPClientTransport implements ClientTransport {
                     }
                 }
             }
+
             origOut.resetOut(new BufferedOutputStream(connection.getOutputStream(), 1024));
         }
 
