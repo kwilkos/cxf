@@ -341,7 +341,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File objectweb = new File(org, "objectweb");
         assertTrue(objectweb.exists());
 
-        File[] files = objectweb.listFiles();
+        //File[] files = objectweb.listFiles();
         //assertEquals(6, files.length);
 
         Class clz = classLoader.loadClass("org.objectweb.hello_world_async_soap_http.GreeterAsync");
