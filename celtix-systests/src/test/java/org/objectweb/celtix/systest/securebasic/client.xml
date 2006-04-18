@@ -19,6 +19,42 @@
 
   </bean>
 
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPServiceClientPropertiesSet/SoapPortClientPropertiesSet.http-client"
+	    class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      
+      <property name="httpClient">
+	  <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+	  </value>
+      </property>      
+      <property name="sslClient">
+	  <value>
+	      <sec:sslClient>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+	      </sec:sslClient>
+	  </value>
+      </property>
+  </bean>
+
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPServiceClientPropertiesNotSet/SoapPortClientPropertiesNotSet.http-client"
+	    class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      
+      <property name="httpClient">
+	  <value>
+		<http-conf:client ConnectionTimeout="0" ReceiveTimeout="0"/> 
+	  </value>
+      </property>      
+      <property name="sslClient">
+	  <value>
+	      <sec:sslClient>
+		<sec:KeystoreType>JKS</sec:KeystoreType>
+	      </sec:sslClient>
+	  </value>
+      </property>
+  </bean>
+
+  
 
   <bean id="celtix.{http://objectweb.org/hello_world_soap_http_secure}SecureSOAPService/SoapPortAllDataSet.http-client"
         class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">

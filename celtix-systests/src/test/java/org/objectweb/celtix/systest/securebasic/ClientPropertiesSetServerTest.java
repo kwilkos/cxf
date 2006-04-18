@@ -19,9 +19,9 @@ public class ClientPropertiesSetServerTest extends ClientServerTestBase {
     private static ClientServerSetupBase cssb;
          
     private final QName portName = new QName("http://objectweb.org/hello_world_soap_http_secure",
-                                             "SoapPort");
+                                             "SoapPortClientPropertiesSet");
     private final QName secureServiceName = new QName("http://objectweb.org/hello_world_soap_http_secure",
-                                                "SecureSOAPService");  
+                                                "SecureSOAPServiceClientPropertiesSet");  
     
 
     public static Test suite() throws Exception {
@@ -31,20 +31,21 @@ public class ClientPropertiesSetServerTest extends ClientServerTestBase {
             public void startServers() throws Exception {
                 System.setProperty("java.util.logging.config.file", 
                                    SecureBasicUtils.getTestDir(this) 
-                                       + "ClientServerTestLog.txt");                
+                                       + "ClientServerClientPropertiesSetTestLog.txt");                
                 SecureBasicUtils.startServer(getClass().getResource(".") 
-                                             + "WantAndNeedClientAuthServer.xml",
-                                             "celtix.security.configurer.http-listener.9001",
+                                             + "WantAndNeedClientAuthServerClientPropertiesSet.xml",
+                                             "celtix.security.configurer.http-listener.9014",
                                              null,
                                              cssb,
-                                             WantAndNeedClientAuthServer.class);
+                                             WantAndNeedClientAuthServerClientPropertiesSet.class);
             }
         };
         return cssb;
     }
     
     public void testBasicConnectionSecurityDataSetAsSystemProperties() throws Exception {
-        
+        String configFile = getClass().getResource(".") + "client.xml";
+        System.setProperty("celtix.config.file", configFile);
         URL wsdl = getClass().getResource("/wsdl/hello_world_secure.wsdl");
         assertNotNull(wsdl);
         

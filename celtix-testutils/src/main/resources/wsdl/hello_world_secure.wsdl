@@ -168,5 +168,20 @@
         </wsdl:port>
     </wsdl:service>
 
+    <wsdl:service name="SecureSOAPServiceClientPropertiesSet">
+        <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
+            <soap:address location="https://localhost:9014/SoapContext/SoapPort"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+        </wsdl:port>
+    </wsdl:service>
+
+
+    <wsdl:service name="SecureSOAPServiceClientPropertiesNotSet">
+        <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
+            <soap:address location="https://localhost:9015/SoapContext/SoapPort"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+        </wsdl:port>
+    </wsdl:service>
+
 </wsdl:definitions>
 
