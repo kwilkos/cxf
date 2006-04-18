@@ -72,7 +72,8 @@ public class ClientPropertiesNotSetServerTest extends ClientServerTestBase {
                 fail("Should not have succeeded, client properties not setup");
             }
         } catch (UndeclaredThrowableException ex) {
-            assertTrue("Failed to catch expected exception, instead caught ex = " + ex,
+            assertTrue("Failed to catch expected exception, instead caught ex.getClass() = " 
+                       + ex.getClass(),
                        ex.getUndeclaredThrowable().getClass() == SSLException.class);
         }
         
