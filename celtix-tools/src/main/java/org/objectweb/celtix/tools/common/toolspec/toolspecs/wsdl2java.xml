@@ -95,6 +95,24 @@
             </associatedArgument>
         </option>
 
+        <option id="defaultns" maxOccurs="1">
+            <annotation>To enable loading the default namespace package name mapping</annotation>
+            <switch>dns</switch>
+            <associatedArgument placement="afterSpace">
+                <annotation>Default value is true</annotation>
+                <valueenum>true|false</valueenum>
+            </associatedArgument>
+        </option>
+
+        <option id="defaultex" maxOccurs="1">
+            <annotation>To enable loading the default excludes namespace mapping</annotation>
+            <switch>dns</switch>
+            <associatedArgument placement="afterSpace">
+                <annotation>Default value is true</annotation>
+                <valueenum>true|false</valueenum>
+            </associatedArgument>
+        </option>
+
 	</optionGroup>
 	<optionGroup id="common_options">
 	    <option id="help" maxOccurs="1">

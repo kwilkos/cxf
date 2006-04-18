@@ -44,4 +44,40 @@ public class ProcessorEnvironmentTest extends TestCase {
         assertTrue(env.containsKey("k1"));
     }
 
+    public void testGetDefaultValue() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("k1", "v1");
+        ProcessorEnvironment env = new ProcessorEnvironment();
+        env.setParameters(map);
+
+        String k1 = (String) env.get("k1", "v2");
+        assertEquals("v1", k1);
+        String k2 = (String) env.get("k2", "v2");
+        assertEquals("v2", k2);
+    }
+
+    public void testOptionSet() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("k1", "true");
+        ProcessorEnvironment env = new ProcessorEnvironment();
+        env.setParameters(map);
+
+        assertTrue(env.optionSet("k1"));
+        assertFalse(env.optionSet("k2"));
+    }
+
+    public void testGetBooleanValue() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("k1", "true");
+        ProcessorEnvironment env = new ProcessorEnvironment();
+        env.setParameters(map);
+
+        Boolean k1 = Boolean.valueOf((String) env.get("k1"));
+        assertTrue(k1);
+        Boolean k2 = Boolean.valueOf((String) env.get("k2", "true"));
+        assertTrue(k2);
+        Boolean k3 = Boolean.valueOf((String) env.get("k3", "yes"));
+        assertFalse(k3);
+    }
+
 }

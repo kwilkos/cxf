@@ -56,6 +56,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
                 env.put(ToolConstants.CFG_CMD_ARG, args);
 
                 validate(env);
+                loadDefaultNSPackageMapping(env);
                 setPackageAndNamespaces(env);
                 setExcludePackageAndNamespaces(env);
                 
@@ -79,6 +80,16 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
             }
         }
     }
+
+    private void loadDefaultNSPackageMapping(ProcessorEnvironment env) {
+        if (env.getBooleanValue(ToolConstants.CFG_DEFAULT_NS, "true")) {
+            env.loadDefaultNS2Pck();
+        }
+        if (env.getBooleanValue(ToolConstants.CFG_DEFAULT_EX, "true")) {
+            env.loadDefaultExcludes();
+        }
+    }
+
 
     private void setExcludePackageAndNamespaces(ProcessorEnvironment env) {
         if (env.get(ToolConstants.CFG_NEXCLUDE) != null) {

@@ -15,11 +15,9 @@ public class ProcessorEnvironment {
     private final Map<String, InputSource> jaxbBindingFiles = new HashMap<String, InputSource>();
 
     public ProcessorEnvironment() {
-        loadDefaultNS2Pck();
-        loadDefaultExcludes();
     }
-
-    private void loadDefaultNS2Pck()  {
+    
+    public void loadDefaultNS2Pck()  {
         try {
             PropertyUtil properties = new PropertyUtil();
             properties.load(getResourceAsStream("toolspec/toolspecs/namespace2package.properties"));
@@ -28,12 +26,11 @@ public class ProcessorEnvironment {
             e.printStackTrace();
         }
     }
-
-    private void loadDefaultExcludes()  {
+    
+    public void loadDefaultExcludes()  {
         try {
             PropertyUtil properties = new PropertyUtil();
             properties.load(getResourceAsStream("toolspec/toolspecs/wsdltojavaexclude.properties"));
-            
             excludeNamespacePackageMap.putAll(properties.getMaps());
         } catch (IOException e) {
             e.printStackTrace();
@@ -54,6 +51,18 @@ public class ProcessorEnvironment {
 
     public Object get(String key) {
         return (paramMap == null) ? null : paramMap.get(key);
+    }
+
+    public Object get(String key, Object defaultValue) {
+        if (!optionSet(key)) {
+            return defaultValue;
+        } else {
+            return get(key);
+        }
+    }
+
+    public boolean getBooleanValue(String key, String defaultValue) {
+        return Boolean.valueOf((String) get(key, defaultValue)).booleanValue();
     }
 
     public void put(String key, Object value) {
