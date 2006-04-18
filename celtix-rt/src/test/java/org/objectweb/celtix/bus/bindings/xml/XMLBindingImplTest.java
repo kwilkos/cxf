@@ -173,7 +173,7 @@ public class XMLBindingImplTest extends TestCase {
         JAXBDataBindingCallback callback = new JAXBDataBindingCallback(objContext.getMethod(),
                                                                        DataBindingCallback.Mode.PARTS,
                                                                        null);
-        WebResult resultAnnotation  = callback.getWebResultAnnotation();
+        WebResult resultAnnotation  = callback.getWebResult();
         assertEquals("responseType", resultAnnotation.name());
     }
 

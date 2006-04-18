@@ -88,6 +88,7 @@
         <propertyfile file="${eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs">
             <entry key="org.eclipse.jdt.core.compiler.problem.missingSerialVersion" value="ignore"/>
             <entry key="org.eclipse.jdt.core.compiler.problem.unusedImport" value="ignore"/>
+            <entry key="org.eclipse.jdt.core.compiler.problem.annotationSuperInterface" value="ignore"/>
         </propertyfile>
 
 

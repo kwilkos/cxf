@@ -168,14 +168,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         }
         return SOAPBinding.Style.DOCUMENT;
     }
-    public WebResult getWebResultAnnotation() {
-        return webResultAnnotation;
-    }
     
-    public WebService getWebService() {
-        return webServiceAnnotation;
-    }
-        
     public SOAPBinding.Use getSOAPUse() {
         if (null != soapBindAnnotation) {
             return soapBindAnnotation.use();
@@ -208,11 +201,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     }
 
     public WebResult getWebResult() {
-        if (null != webResultAnnotation) {
-            return webResultAnnotation;
-        }
-        
-        return null;
+        return webResultAnnotation;
     }
 
     public QName getWebResultQName() {

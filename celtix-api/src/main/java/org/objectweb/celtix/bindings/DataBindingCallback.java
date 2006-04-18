@@ -3,7 +3,6 @@ package org.objectweb.celtix.bindings;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
-import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
@@ -51,13 +50,8 @@ public interface DataBindingCallback {
     WebResult getWebResult();
     QName getWebResultQName();
     WebParam getWebParam(int index);
-    int getParamsLength();
-    
-    WebResult getWebResultAnnotation();
-    WebService getWebService();    
+    int getParamsLength();    
     
     QName getRequestWrapperQName();
-    String getRequestWrapperType();
     QName getResponseWrapperQName();
-    String getResponseWrapperType();
 }

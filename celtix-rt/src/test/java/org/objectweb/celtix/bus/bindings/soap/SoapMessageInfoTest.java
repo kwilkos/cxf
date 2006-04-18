@@ -130,7 +130,7 @@ public class SoapMessageInfoTest extends TestCase {
     }
     
     public void testGetResponseWrapperType() throws Exception {
-        String respWrapperType = msgInfo.getResponseWrapperType();
+        String respWrapperType = ((JAXBDataBindingCallback)msgInfo).getResponseWrapperType();
         assertNotNull(respWrapperType);
         assertEquals(
                 "org.objectweb.hello_world_soap_http.types.GreetMeResponse", 
