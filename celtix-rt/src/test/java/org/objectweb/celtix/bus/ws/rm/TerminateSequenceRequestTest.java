@@ -25,7 +25,7 @@ public class TerminateSequenceRequestTest extends TestCase {
         
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
         sid.setValue("TerminatedSequence");
-        Sequence seq = new Sequence(sid, source, null);
+        SourceSequence seq = new SourceSequence(sid, null, null);
         
         
         binding.createObjectContext();

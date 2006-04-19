@@ -283,7 +283,7 @@ public class RetransmissionQueue {
      * 
      * @param seq the sequence object.
      */
-    protected synchronized void purgeAcknowledged(Sequence seq) {
+    protected synchronized void purgeAcknowledged(SourceSequence seq) {
         List<ResendCandidate> sequenceCandidates = getSequenceCandidates(seq);
         if (null != sequenceCandidates) {
             for (int i = sequenceCandidates.size() - 1; i >= 0; i--) {
@@ -304,7 +304,7 @@ public class RetransmissionQueue {
      * @param seq the sequence under consideration
      * @return the number of unacknowledged messages for that sequence
      */
-    protected synchronized int countUnacknowledged(Sequence seq) {
+    protected synchronized int countUnacknowledged(SourceSequence seq) {
         List<ResendCandidate> sequenceCandidates = getSequenceCandidates(seq);
         return sequenceCandidates == null ? 0 : sequenceCandidates.size();
     }
@@ -322,7 +322,7 @@ public class RetransmissionQueue {
      * @return the list of resend candidates for that sequence
      * @pre called with mutex held
      */
-    protected List<ResendCandidate> getSequenceCandidates(Sequence seq) {
+    protected List<ResendCandidate> getSequenceCandidates(SourceSequence seq) {
         return getSequenceCandidates(seq.getIdentifier().getValue());
     }
     

@@ -1,6 +1,8 @@
 package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -24,11 +26,14 @@ public class RMSource extends RMEndpoint {
     private static final Logger LOG = LogUtils.getL7dLogger(RMSource.class);
     private static final String SOURCE_POLICIES_PROPERTY_NAME = "sourcePolicies";
     private static final String REQUESTOR_SEQUENCE_ID = "";
-    private Map<String, Sequence> current; 
+    
+    private Map<String, SourceSequence> map;
+    private Map<String, SourceSequence> current;     
     private final RetransmissionQueue retransmissionQueue;
 
     RMSource(RMHandler h) {
         super(h);
+        map = new HashMap<String, SourceSequence>();
         Bus bus = h.getBinding().getBus();
         WorkQueue workQueue =
             bus.getWorkQueueManager().getAutomaticWorkQueue();
@@ -41,13 +46,28 @@ public class RMSource extends RMEndpoint {
                 shutdown();
             }
         });
-        current = new HashMap<String, Sequence>();
-        
-        retransmissionQueue = new RetransmissionQueue(getRMAssertion());
-        
-        retransmissionQueue.start(workQueue);
-       
+        current = new HashMap<String, SourceSequence>();
+        retransmissionQueue = new RetransmissionQueue(getRMAssertion());        
+        retransmissionQueue.start(workQueue);       
     }
+    
+    public SourceSequence getSequence(Identifier id) {        
+        return map.get(id.getValue());
+    }
+    
+    public void addSequence(SourceSequence seq) { 
+        seq.setSource(this);
+        map.put(seq.getIdentifier().getValue(), seq);
+    }
+    
+    public void removeSequence(SourceSequence seq) {        
+        map.remove(seq.getIdentifier().getValue());
+    }
+    
+    public Collection<SourceSequence> getAllSequences() {        
+        return map.values();
+    }
+    
 
     public SourcePolicyType getSourcePolicies() {
         SourcePolicyType sp = (SourcePolicyType)getHandler().getConfiguration()
@@ -77,7 +97,7 @@ public class RMSource extends RMEndpoint {
      * 
      * @return the current sequence.
      */
-    Sequence getCurrent() {
+    SourceSequence getCurrent() {
         return getCurrent(null);
     }
     
@@ -85,7 +105,7 @@ public class RMSource extends RMEndpoint {
      * Sets the current sequence used by a client side source.
      * @param s the current sequence.
      */
-    void setCurrent(Sequence s) {
+    void setCurrent(SourceSequence s) {
         setCurrent(null, s);
     }
     
@@ -95,7 +115,7 @@ public class RMSource extends RMEndpoint {
      * 
      * @return the current sequence.
      */
-    Sequence getCurrent(Identifier i) {        
+    SourceSequence getCurrent(Identifier i) {        
         return current.get(i == null ? REQUESTOR_SEQUENCE_ID : i.getValue());
     }
     
@@ -104,7 +124,7 @@ public class RMSource extends RMEndpoint {
      * sent as part of the inbound sequence with the specified identifier.
      * @param s the current sequence.
      */
-    void setCurrent(Identifier i, Sequence s) {        
+    void setCurrent(Identifier i, SourceSequence s) {        
         current.put(i == null ? REQUESTOR_SEQUENCE_ID : i.getValue(), s);
     }
 
@@ -131,7 +151,7 @@ public class RMSource extends RMEndpoint {
      */
     public void setAcknowledged(SequenceAcknowledgement acknowledgment) {
         Identifier sid = acknowledgment.getIdentifier();
-        Sequence seq = getSequence(sid);        
+        SourceSequence seq = getSequence(sid);        
         if (null != seq) {
             seq.setAcknowledged(acknowledgment);
             retransmissionQueue.purgeAcknowledged(seq);
@@ -148,5 +168,21 @@ public class RMSource extends RMEndpoint {
     
     public void shutdown() {
         retransmissionQueue.shutdown();
+    }
+    
+    /**
+     * Returns a collection of all sequences for which have not yet been
+     * completely acknowledged.
+     * 
+     * @return the collection of unacknowledged sequences.
+     */
+    public Collection<SourceSequence> getAllUnacknowledgedSequences() {
+        Collection<SourceSequence> seqs = new ArrayList<SourceSequence>();
+        for (SourceSequence seq : map.values()) {
+            if (!seq.allAcknowledged()) {
+                seqs.add(seq);
+            }
+        }        
+        return seqs;        
     }
 }

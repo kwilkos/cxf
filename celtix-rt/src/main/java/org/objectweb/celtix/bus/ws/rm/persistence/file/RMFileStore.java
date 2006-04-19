@@ -42,16 +42,11 @@ public class RMFileStore implements RMStore {
         return null;
     }
 
-    public Collection<RMMessage> getInboundMessages(Identifier sid) {
+    public Collection<RMMessage> getMessages(Identifier sid, boolean outbound) {
         // TODO Auto-generated method stub
         return null;
     }
-
-    public Collection<RMMessage> getOutboundMessages(Identifier sid) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
+    
     public Collection<RMSourceSequence> getSourceSequences(String endpointIdentifier) {
         // TODO Auto-generated method stub
         return null;
@@ -67,7 +62,7 @@ public class RMFileStore implements RMStore {
         
     }
 
-    public void removeMessages(Identifier sid, Collection<BigInteger> messageNrs) {
+    public void removeMessages(Identifier sid, Collection<BigInteger> messageNrs, boolean outbound) {
         // TODO Auto-generated method stub
         
     }

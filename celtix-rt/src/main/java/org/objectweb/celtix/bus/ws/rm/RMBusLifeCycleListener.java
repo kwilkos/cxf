@@ -39,14 +39,14 @@ public class RMBusLifeCycleListener implements BusLifeCycleListener {
             return;
         }
         
-        Collection<Sequence> seqs = source.getAllUnacknowledgedSequences();
+        Collection<SourceSequence> seqs = source.getAllUnacknowledgedSequences();
         
         LOG.fine("Trying to terminate " + seqs.size() + "  sequences");
         
-        Collection<Sequence> closedSeqs = new ArrayList<Sequence>();
+        Collection<SourceSequence> closedSeqs = new ArrayList<SourceSequence>();
         
-        for (Sequence seq : seqs) {
-            if (null != seq.getLastMessageNumber()) {
+        for (SourceSequence seq : seqs) {
+            if (seq.isLastMessage()) {
                 closedSeqs.add(seq);
             } else {
                 try {

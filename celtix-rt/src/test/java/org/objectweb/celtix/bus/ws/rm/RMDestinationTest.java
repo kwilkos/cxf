@@ -28,12 +28,16 @@ public class RMDestinationTest extends TestCase {
         address = createMock(EndpointReferenceType.class);        
     }   
 
-    public void testAddSequence() {
+    public void testSequenceAccess() {
         RMDestination d = new RMDestination(handler);
         Identifier sid = d.generateSequenceIdentifier();
-        Sequence seq = new Sequence(sid, d, address);
+        DestinationSequence seq = new DestinationSequence(sid, address, d);
         d.addSequence(seq);
         assertSame(seq, d.getSequence(sid));
+        assertEquals(1, d.getAllSequences().size());
+        d.removeSequence(seq);
+        assertNull(d.getSequence(sid));
+        assertEquals(0, d.getAllSequences().size());
     }
     
     public void testGetDestinationPolicies() {
@@ -70,7 +74,7 @@ public class RMDestinationTest extends TestCase {
     public void testAcknowledge() throws SequenceFault {
         RMDestination d = new RMDestination(handler);
         Identifier sid = d.generateSequenceIdentifier();
-        Sequence seq = new Sequence(sid, d, address);
+        DestinationSequence seq = new DestinationSequence(sid, address, d);
         d.addSequence(seq);
         
         Configuration c = createMock(Configuration.class);
@@ -91,7 +95,6 @@ public class RMDestinationTest extends TestCase {
         BigInteger m = new BigInteger("3");
         st.setMessageNumber(m);
         d.acknowledge(st, RMUtils.getAddressingConstants().getNoneURI());
-        assertTrue(seq.isAcknowledged(m));
         
         Identifier unknown = d.generateSequenceIdentifier();
         st.setIdentifier(unknown);

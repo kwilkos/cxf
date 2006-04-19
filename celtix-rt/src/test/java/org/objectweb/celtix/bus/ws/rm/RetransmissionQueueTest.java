@@ -130,7 +130,7 @@ public class RetransmissionQueueTest extends TestCase {
     
     public void testPurgeAcknowledgedSome() {
         BigInteger[] messageNumbers = {BigInteger.TEN, BigInteger.ONE};
-        Sequence sequence = setUpSequence("sequence1",
+        SourceSequence sequence = setUpSequence("sequence1",
                                           messageNumbers, 
                                           new boolean[] {true, false});
         List<RetransmissionQueue.ResendCandidate> sequenceList =
@@ -155,7 +155,7 @@ public class RetransmissionQueueTest extends TestCase {
     
     public void testPurgeAcknowledgedNone() {
         BigInteger[] messageNumbers = {BigInteger.TEN, BigInteger.ONE};
-        Sequence sequence = setUpSequence("sequence1",
+        SourceSequence sequence = setUpSequence("sequence1",
                                            messageNumbers, 
                                            new boolean[] {false, false});
         List<RetransmissionQueue.ResendCandidate> sequenceList =
@@ -180,7 +180,7 @@ public class RetransmissionQueueTest extends TestCase {
 
     public void testCountUnacknowledged() {
         BigInteger[] messageNumbers = {BigInteger.TEN, BigInteger.ONE};
-        Sequence sequence = setUpSequence("sequence1",
+        SourceSequence sequence = setUpSequence("sequence1",
                                           messageNumbers, 
                                           null);
         List<RetransmissionQueue.ResendCandidate> sequenceList =
@@ -201,7 +201,7 @@ public class RetransmissionQueueTest extends TestCase {
     
     public void testCountUnacknowledgedUnknownSequence() {
         BigInteger[] messageNumbers = {BigInteger.TEN, BigInteger.ONE};
-        Sequence sequence = setUpSequence("sequence1",
+        SourceSequence sequence = setUpSequence("sequence1",
                                           messageNumbers, 
                                           null);
         ready();
@@ -569,10 +569,10 @@ public class RetransmissionQueueTest extends TestCase {
         return sequence;
     }
         
-    private Sequence setUpSequence(String sid, 
+    private SourceSequence setUpSequence(String sid, 
                                    BigInteger[] messageNumbers,
                                    boolean[] isAcked) {
-        Sequence sequence = control.createMock(Sequence.class);
+        SourceSequence sequence = control.createMock(SourceSequence.class);
         Identifier id = control.createMock(Identifier.class);
         sequence.getIdentifier();
         EasyMock.expectLastCall().andReturn(id);

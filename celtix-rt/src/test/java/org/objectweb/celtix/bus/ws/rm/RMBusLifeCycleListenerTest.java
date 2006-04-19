@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -11,7 +10,7 @@ import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 
-import static org.easymock.classextension.EasyMock.*;
+import static org.easymock.EasyMock.expectLastCall;
 
 public class RMBusLifeCycleListenerTest extends TestCase {
 
@@ -42,8 +41,8 @@ public class RMBusLifeCycleListenerTest extends TestCase {
     
     public void testTerminateClosedSequenceFailRequestAcknowledgement() throws IOException {
 
-        Collection<Sequence> seqs = new ArrayList<Sequence>();
-        Sequence seq = control.createMock(Sequence.class);
+        Collection<SourceSequence> seqs = new ArrayList<SourceSequence>();
+        SourceSequence seq = control.createMock(SourceSequence.class);
         seqs.add(seq);
         RMHandler handler = control.createMock(RMHandler.class);
         RMProxy proxy = control.createMock(RMProxy.class);
@@ -54,8 +53,8 @@ public class RMBusLifeCycleListenerTest extends TestCase {
         expectLastCall().andReturn(true);
         source.getAllUnacknowledgedSequences();
         expectLastCall().andReturn(seqs);
-        seq.getLastMessageNumber();
-        expectLastCall().andReturn(BigInteger.TEN);        
+        seq.isLastMessage();
+        expectLastCall().andReturn(true);        
         source.getHandler();
         expectLastCall().andReturn(handler);
         handler.getProxy();
@@ -76,8 +75,8 @@ public class RMBusLifeCycleListenerTest extends TestCase {
     
     public void testTerminateOpenSequenceFailLastMessage() throws IOException {
 
-        Collection<Sequence> seqs = new ArrayList<Sequence>();
-        Sequence seq = control.createMock(Sequence.class);
+        Collection<SourceSequence> seqs = new ArrayList<SourceSequence>();
+        SourceSequence seq = control.createMock(SourceSequence.class);
         seqs.add(seq);
         RMHandler handler = control.createMock(RMHandler.class);
         RMProxy proxy = control.createMock(RMProxy.class);
@@ -88,8 +87,8 @@ public class RMBusLifeCycleListenerTest extends TestCase {
         expectLastCall().andReturn(true);
         source.getAllUnacknowledgedSequences();
         expectLastCall().andReturn(seqs);
-        seq.getLastMessageNumber();
-        expectLastCall().andReturn(null);        
+        seq.isLastMessage();
+        expectLastCall().andReturn(false);        
         source.getHandler();
         expectLastCall().andReturn(handler);
         handler.getProxy();
@@ -109,8 +108,8 @@ public class RMBusLifeCycleListenerTest extends TestCase {
     
     public void testTerminateClosedSequence() throws IOException {
 
-        Collection<Sequence> seqs = new ArrayList<Sequence>();
-        Sequence seq = control.createMock(Sequence.class);
+        Collection<SourceSequence> seqs = new ArrayList<SourceSequence>();
+        SourceSequence seq = control.createMock(SourceSequence.class);
         seqs.add(seq);
         RMHandler handler = control.createMock(RMHandler.class);
         RMProxy proxy = control.createMock(RMProxy.class);
@@ -121,8 +120,8 @@ public class RMBusLifeCycleListenerTest extends TestCase {
         expectLastCall().andReturn(true);
         source.getAllUnacknowledgedSequences();
         expectLastCall().andReturn(seqs);
-        seq.getLastMessageNumber();
-        expectLastCall().andReturn(BigInteger.TEN);        
+        seq.isLastMessage();
+        expectLastCall().andReturn(true);        
         source.getHandler();
         expectLastCall().andReturn(handler);
         handler.getProxy();
@@ -142,8 +141,8 @@ public class RMBusLifeCycleListenerTest extends TestCase {
     
     public void testTerminateOpenSequence() throws IOException {
 
-        Collection<Sequence> seqs = new ArrayList<Sequence>();
-        Sequence seq = control.createMock(Sequence.class);
+        Collection<SourceSequence> seqs = new ArrayList<SourceSequence>();
+        SourceSequence seq = control.createMock(SourceSequence.class);
         seqs.add(seq);
         RMHandler handler = control.createMock(RMHandler.class);
         RMProxy proxy = control.createMock(RMProxy.class);
@@ -154,8 +153,8 @@ public class RMBusLifeCycleListenerTest extends TestCase {
         expectLastCall().andReturn(true);
         source.getAllUnacknowledgedSequences();
         expectLastCall().andReturn(seqs);
-        seq.getLastMessageNumber();
-        expectLastCall().andReturn(null);        
+        seq.isLastMessage();
+        expectLastCall().andReturn(false);        
         source.getHandler();
         expectLastCall().andReturn(handler);
         handler.getProxy();

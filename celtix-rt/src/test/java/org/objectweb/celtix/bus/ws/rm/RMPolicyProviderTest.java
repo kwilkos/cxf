@@ -39,7 +39,7 @@ public class RMPolicyProviderTest extends TestCase {
         
         EasyMock.verify(bus);    
     }
-/*
+
     public void testReferenced() throws BusException, WSDLException, JAXBException {
         URL url = getClass().getResource("resources/ReliableOneWay.wsdl");
         assertNotNull("Could not find WSDL", url);
@@ -63,7 +63,6 @@ public class RMPolicyProviderTest extends TestCase {
 
         EasyMock.verify(bus);
     }
-*/
     
     public void testPolicyOnBinding() throws BusException, WSDLException, JAXBException {
         URL url = getClass().getResource("resources/hello_world_rmassertion.wsdl");

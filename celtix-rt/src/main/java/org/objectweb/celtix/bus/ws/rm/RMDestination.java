@@ -1,6 +1,9 @@
 package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -8,7 +11,6 @@ import org.objectweb.celtix.bus.configuration.wsrm.AcksPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.DestinationPolicyType;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceType;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
@@ -17,21 +19,32 @@ public class RMDestination extends RMEndpoint {
 
     private static final Logger LOG = LogUtils.getL7dLogger(RMDestination.class);
     private static final String DESTINATION_POLICIES_PROPERTY_NAME = "destinationPolicies";
+  
+    private Map<String, DestinationSequence> map;
     
     RMDestination(RMHandler h) {
         super(h);
-    }
-    
-    /**
-     * Called by the RM destination when no sequence with the given identifier
-     * exists.
-     */
-    public void addSequence(Identifier id, EndpointReferenceType a) {
-        Sequence seq = new Sequence(id, this, a);
-        addSequence(seq);
+        map = new HashMap<String, DestinationSequence>();
     }
     
     
+    public DestinationSequence getSequence(Identifier id) {        
+        return map.get(id.getValue());
+    }
+    
+    public void addSequence(DestinationSequence seq) {  
+        assert this == seq.getDestination();
+        map.put(seq.getIdentifier().getValue(), seq);
+    }
+    
+    public void removeSequence(DestinationSequence seq) {        
+        map.remove(seq.getIdentifier().getValue());
+    }
+    
+    public Collection<DestinationSequence> getAllSequences() {        
+        return map.values();
+    }
+  
     public DestinationPolicyType getDestinationPolicies() {
         DestinationPolicyType dp = getHandler().getConfiguration()
             .getObject(DestinationPolicyType.class, DESTINATION_POLICIES_PROPERTY_NAME);
@@ -50,7 +63,6 @@ public class RMDestination extends RMEndpoint {
         }
         return ap;
     }
-   
     
     
    /**
@@ -65,7 +77,7 @@ public class RMDestination extends RMEndpoint {
     */
     public void acknowledge(SequenceType sequenceType, String replyToAddress) 
         throws SequenceFault {
-        Sequence seq = getSequence(sequenceType.getIdentifier());
+        DestinationSequence seq = getSequence(sequenceType.getIdentifier());
         if (null != seq) {
             seq.acknowledge(sequenceType.getMessageNumber());
             
@@ -89,7 +101,7 @@ public class RMDestination extends RMEndpoint {
                 }
             }
         } else {
-            throw Sequence.createUnknownSequenceFault(sequenceType.getIdentifier());
+            throw DestinationSequence.createUnknownSequenceFault(sequenceType.getIdentifier());
         }
     }
 }

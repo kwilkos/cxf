@@ -307,7 +307,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
                 
                 // get the current sequence, requesting the creation of a new one if necessary
                 
-                Sequence seq = getSequence(inSeqId, context, maps);
+                SourceSequence seq = getSequence(inSeqId, context, maps);
                 assert null != seq;
 
                 // increase message number and store a sequence type object in
@@ -320,7 +320,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
                 // current sequence so that a new one will be created next 
                 // time the handler is invoked
 
-                if (null != seq.getLastMessageNumber()) {
+                if (seq.isLastMessage()) {
                     source.setCurrent(null);
                 }
 
@@ -437,7 +437,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         Collection<AckRequestedType> requested = rmps.getAcksRequested();
         if (null != requested) {
             for (AckRequestedType ar : requested) {
-                Sequence seq = getDestination().getSequence(ar.getIdentifier());
+                DestinationSequence seq = getDestination().getSequence(ar.getIdentifier());
                 if (null != seq) {
                     seq.scheduleImmediateAcknowledgement();
                 } else {
@@ -449,10 +449,11 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
     private void addAcknowledgements(RMPropertiesImpl rmpsOut, Identifier inSeqId, AttributedURI to) {
 
-        for (Sequence seq : getDestination().getAllSequences()) {
+        for (DestinationSequence seq : getDestination().getAllSequences()) {
             if (seq.sendAcknowledgement()
                 && ((seq.getAcksTo().getAddress().getValue().equals(RMUtils.getAddressingConstants()
-                    .getAnonymousURI()) && Sequence.identifierEquals(seq.getIdentifier(), inSeqId))
+                    .getAnonymousURI()) && AbstractSequenceImpl.identifierEquals(seq.getIdentifier(), 
+                                                                                inSeqId))
                     || to.getValue().equals(seq.getAcksTo().getAddress().getValue()))) {
                 rmpsOut.addAck(seq);
             } else if (LOG.isLoggable(Level.FINE)) {
@@ -476,10 +477,10 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
     }
     
-    private Sequence getSequence(Identifier inSeqId, 
+    private SourceSequence getSequence(Identifier inSeqId, 
                                  LogicalMessageContext context, 
                                  AddressingPropertiesImpl maps) throws SequenceFault {
-        Sequence seq = getSource().getCurrent(inSeqId);
+        SourceSequence seq = getSource().getCurrent(inSeqId);
 
         if (null == seq) {
             // TODO: better error handling

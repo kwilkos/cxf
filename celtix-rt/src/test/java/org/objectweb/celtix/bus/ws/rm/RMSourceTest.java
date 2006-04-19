@@ -15,7 +15,6 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.workqueue.AutomaticWorkQueue;
 import org.objectweb.celtix.workqueue.WorkQueueManager;
-import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
@@ -93,22 +92,25 @@ public class RMSourceTest extends TestCase {
         verify(c);
     }
     
-    public void testAddSequence() throws IOException, SequenceFault {
+    public void testSequenceAccess() throws IOException, SequenceFault {
         Identifier sid = s.generateSequenceIdentifier();
-        Expires e = RMUtils.getWSRMFactory().createExpires();
-        e.setValue(Sequence.PT0S);
-        Sequence seq = new Sequence(sid, s, e);
+        SourceSequence seq = new SourceSequence(sid);
         assertNull(s.getCurrent());
         s.addSequence(seq);
-        assertNull(s.getCurrent());
-        Sequence anotherSeq = new Sequence(s.generateSequenceIdentifier(), s, e);
+        assertNotNull(s.getSequence(sid));
+        assertNull(s.getCurrent());        
+        SourceSequence anotherSeq = new SourceSequence(s.generateSequenceIdentifier());
         s.addSequence(anotherSeq);
         assertNull(s.getCurrent());
+        assertEquals(2, s.getAllSequences().size());
+        s.removeSequence(seq);
+        assertEquals(1, s.getAllSequences().size());
+        assertNull(s.getSequence(sid));
     }
 
     public void testCurrent() {
         Identifier sid = s.generateSequenceIdentifier();
-        Sequence seq = new Sequence(sid, s, null);
+        SourceSequence seq = new SourceSequence(sid);
         assertNull(s.getCurrent());
         Identifier inSid = s.generateSequenceIdentifier();
         assertNull(s.getCurrent(inSid));
@@ -159,20 +161,19 @@ public class RMSourceTest extends TestCase {
     public void testSetAcknowledged() throws NoSuchMethodException, IOException {
         Identifier sid1 = s.generateSequenceIdentifier();
         Identifier sid2 = s.generateSequenceIdentifier();
-        Expires e = RMUtils.getWSRMFactory().createExpires();
-        e.setValue(Sequence.PT0S);
-        Sequence seq = new Sequence(sid1, s, e); 
+        SourceSequence seq = new SourceSequence(sid1, null, null, BigInteger.TEN, true);
+        seq.setSource(s);
         s.addSequence(seq);
-        
+               
         SequenceAcknowledgement ack = RMUtils.getWSRMFactory().createSequenceAcknowledgement();
         ack.setIdentifier(sid1);        
         s.setAcknowledged(ack);
-        assertSame(ack, seq.getAcknowledged());
+        assertSame(ack, seq.getAcknowledgement());
         ack.setIdentifier(sid2);
         s.setAcknowledged(ack);  
         
         reset(handler);
-        seq.setLastMessageNumber(BigInteger.TEN);
+   
         ack = RMUtils.getWSRMFactory().createSequenceAcknowledgement();
         ack.setIdentifier(sid1);
         AcknowledgementRange range = 

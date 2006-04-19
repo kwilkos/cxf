@@ -3,7 +3,6 @@ package org.objectweb.celtix.bus.ws.rm;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 
@@ -23,8 +22,7 @@ public class RMEndpointTest extends TestCase {
     
     public void testRMEndpointConstructor() {
         RMEndpoint e = new RMEndpoint(handler);
-        assertSame(handler, e.getHandler());
-        assertEquals(0, e.map.size());        
+        assertSame(handler, e.getHandler());   
     }
     
     public void generateSequenceIndentifier() {
@@ -68,24 +66,4 @@ public class RMEndpointTest extends TestCase {
         verify(handler);
         verify(c);
     }
-    
-    public void testAddGetSequence() {
-        RMEndpoint e = new RMEndpoint(handler);
-        EndpointReferenceType a = createMock(EndpointReferenceType.class);
-        RMDestination destination = createMock(RMDestination.class);
-        Sequence seq = new Sequence(e.generateSequenceIdentifier(), destination, a);
-        e.addSequence(seq);
-        assertEquals(1, e.map.size()); 
-        assertSame(seq, e.getSequence(seq.getIdentifier()));
-        Identifier other = e.generateSequenceIdentifier();
-        assertNull(e.getSequence(other));
-        other.setValue(seq.getIdentifier().getValue());
-        assertNotNull(e.getSequence(other));
-        assertSame(seq, e.getSequence(other));
-    }
-    
-    
-    
-    
-    
 }

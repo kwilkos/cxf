@@ -6,15 +6,11 @@ import java.util.List;
 import java.util.Timer;
 
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.Duration;
 
 import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.bus.configuration.wsrm.AcksPolicyType;
-import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
-import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
@@ -30,10 +26,8 @@ import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
 import static org.easymock.classextension.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.reset;
-import static org.easymock.classextension.EasyMock.verify;
 
-public class SequenceTest extends TestCase {
+public class DestinationSequenceTest extends TestCase {
 
     ObjectFactory factory = new ObjectFactory();
     Identifier id;
@@ -71,89 +65,36 @@ public class SequenceTest extends TestCase {
         Identifier otherId = factory.createIdentifier();
         otherId.setValue("otherSeq");
         
-        Sequence seq = new Sequence(id, destination, ref);
-        assertEquals(Sequence.Type.DESTINATION, seq.getType());
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         assertEquals(id, seq.getIdentifier());
-        assertNull(seq.getLastMessageNumber());
+        assertNull(seq.getLastMessageNr());
         assertSame(ref, seq.getAcksTo());
-        assertTrue(!seq.isExpired());
-        assertNull(seq.getCurrentMessageNumber());
-        assertNotNull(seq.getAcknowledged());
-        assertNotNull(seq.getAcknowledged(null));
-        assertTrue(!seq.allAcknowledged());
-        assertNotNull(seq.getMonitor());
-        assertFalse(seq.offeredBy(otherId));
+        assertNotNull(seq.getAcknowledgment());
+        assertNotNull(seq.getMonitor());   
         
-        seq = new Sequence(id, source, expires);
-        assertEquals(Sequence.Type.SOURCE, seq.getType());
+        SequenceAcknowledgement ack = RMUtils.getWSRMFactory().createSequenceAcknowledgement();        
+        seq = new DestinationSequence(id, ref, BigInteger.TEN, ack);
         assertEquals(id, seq.getIdentifier());
-        assertNull(seq.getLastMessageNumber());
-        assertNull(seq.getAcksTo());
-        assertTrue(!seq.isExpired());
-        assertEquals(BigInteger.ZERO, seq.getCurrentMessageNumber());
-        assertNotNull(seq.getAcknowledged());
-        assertNotNull(seq.getAcknowledged(null));
-        assertTrue(!seq.allAcknowledged());
-        assertNull(seq.getMonitor());
-        assertFalse(seq.offeredBy(otherId));
-        
-        seq = new Sequence(id, source, expires, otherId);
-        assertTrue(seq.offeredBy(otherId));
-        assertFalse(seq.offeredBy(id));
-        
-        DatatypeFactory dbf = DatatypeFactory.newInstance();
-        Duration d = dbf.newDuration(0);        
-        expires.setValue(d);
-        seq = new Sequence(id, source, expires);
-        assertTrue(!seq.isExpired());
-        
-        d = dbf.newDuration("PT0S");        
-        expires.setValue(d);
-        seq = new Sequence(id, source, expires);
-        assertTrue(!seq.isExpired());
-        
-        d = dbf.newDuration(1000);        
-        expires.setValue(d);
-        seq = new Sequence(id, source, expires);
-        assertTrue(!seq.isExpired());
-        
-        d = dbf.newDuration("-PT1S");        
-        expires.setValue(d);
-        seq = new Sequence(id, source, expires);
-        assertTrue(seq.isExpired());   
+        assertEquals(BigInteger.TEN, seq.getLastMessageNr());
+        assertSame(ref, seq.getAcksTo());
+        assertSame(ack, seq.getAcknowledgment());
+        assertNotNull(seq.getMonitor());    
     }
     
     public void testEqualsAndHashCode() {
-        Sequence seq = new Sequence(id, source, expires);
-        Sequence otherSeq = null;
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
+        DestinationSequence otherSeq = null;
         assertTrue(!seq.equals(otherSeq));
-        otherSeq = new Sequence(id, source, expires);
+        otherSeq = new DestinationSequence(id, ref, destination);
         assertEquals(seq, otherSeq);
         assertEquals(seq.hashCode(), otherSeq.hashCode());
         Identifier otherId = factory.createIdentifier();
         otherId.setValue("otherSeq");
-        otherSeq = new Sequence(otherId, source, expires);
+        otherSeq = new DestinationSequence(otherId, ref, destination);
         assertTrue(!seq.equals(otherSeq));
         assertTrue(seq.hashCode() != otherSeq.hashCode()); 
         assertTrue(!seq.equals(this));
     }
-    
-    public void testSetAcknowledged() {
-        Sequence seq = new Sequence(id, source, expires);
-        assertEquals(0, seq.getAcknowledged().getAcknowledgementRange().size());
-        acknowledge(seq, 1, 2, 3);
-        SequenceAcknowledgement ack = seq.getAcknowledged();
-        assertEquals(1, ack.getAcknowledgementRange().size());
-        acknowledge(seq, 1, 2, 4, 5, 6, 8, 9, 10);
-        ack = seq.getAcknowledged();
-        assertEquals(3, ack.getAcknowledgementRange().size());
-        assertTrue(!seq.isAcknowledged(new BigInteger("3")));
-        
-        seq = new Sequence(id, destination, ref);
-        assertEquals(0, seq.getAcknowledged().getAcknowledgementRange().size());
-        acknowledge(seq, 1, 2, 3);
-        assertEquals(0, seq.getAcknowledged().getAcknowledgementRange().size());       
-    } 
     
     public void testAcknowledgeBasic() throws SequenceFault {
         destination.getHandler();
@@ -165,8 +106,8 @@ public class SequenceTest extends TestCase {
         replay(destination);
         replay(handler);
         
-        Sequence seq = new Sequence(id, destination, ref);
-        List<AcknowledgementRange> ranges = seq.getAcknowledged().getAcknowledgementRange();
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
+        List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
         assertEquals(0, ranges.size());
               
         seq.acknowledge(new BigInteger("1"));        
@@ -180,15 +121,11 @@ public class SequenceTest extends TestCase {
         r1 = ranges.get(0);
         assertEquals(1, r1.getLower().intValue());
         assertEquals(2, r1.getUpper().intValue());
-        
-        seq = new Sequence(id, source, expires);
-        seq.acknowledge(BigInteger.TEN);
-        assertEquals(0, seq.getAcknowledged().getAcknowledgementRange().size());
     }
     
     public void testAcknowledgeLastMessageNumberExceeded() throws SequenceFault {  
         
-        Sequence seq = new Sequence(id, destination, ref);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         
         RMAssertionType ra = EasyMock.createMock(RMAssertionType.class);
 
@@ -222,8 +159,8 @@ public class SequenceTest extends TestCase {
         replay(destination);
         replay(handler);
         
-        Sequence seq = new Sequence(id, destination, ref);
-        List<AcknowledgementRange> ranges = seq.getAcknowledged().getAcknowledgementRange();        
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
+        List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();        
         seq.acknowledge(new BigInteger("1"));
         seq.acknowledge(new BigInteger("2"));  
         seq.acknowledge(new BigInteger("5"));
@@ -248,8 +185,8 @@ public class SequenceTest extends TestCase {
         replay(destination);
         replay(handler);
         
-        Sequence seq = new Sequence(id, destination, ref);
-        List<AcknowledgementRange> ranges = seq.getAcknowledged().getAcknowledgementRange();        
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
+        List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();        
         seq.acknowledge(new BigInteger("1"));
         seq.acknowledge(new BigInteger("2"));
         seq.acknowledge(new BigInteger("9"));
@@ -280,8 +217,8 @@ public class SequenceTest extends TestCase {
         replay(destination);
         replay(handler);
         
-        Sequence seq = new Sequence(id, destination, ref);
-        List<AcknowledgementRange> ranges = seq.getAcknowledged().getAcknowledgementRange();
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
+        List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
         seq.acknowledge(new BigInteger("4"));
         seq.acknowledge(new BigInteger("5"));
         seq.acknowledge(new BigInteger("6"));
@@ -295,92 +232,6 @@ public class SequenceTest extends TestCase {
         r = ranges.get(1);
         assertEquals(4, r.getLower().intValue());
         assertEquals(6, r.getUpper().intValue());      
-    }
-    
-    public void testAllAcknowledged() throws SequenceFault {
-        destination.getHandler();
-        expectLastCall().andReturn(handler).times(11);
-        destination.getRMAssertion();
-        expectLastCall().andReturn(rma).times(11);
-        destination.getAcksPolicy();
-        expectLastCall().andReturn(ap).times(11);
-        replay(destination);
-        replay(handler);
-        
-        Sequence seq = new Sequence(id, destination, ref);        
-        for (int i = 0; i < 4; i++) {
-            seq.nextMessageNumber();
-        }
-        assertTrue(!seq.allAcknowledged());
-        seq.setLastMessageNumber(new BigInteger("4"));
-        assertTrue(!seq.allAcknowledged());
-        for (int i = 1; i < 5; i++) {
-            Integer ih = new Integer(i);
-            seq.acknowledge(new BigInteger(ih.toString()));
-            assertEquals("At i = " + i + ": all messages are acknowledged",
-                         i < 4, !seq.allAcknowledged());
-        }
-        
-        seq = new Sequence(id, destination, ref);
-        for (int i = 0; i < 10; i++) {
-            seq.nextMessageNumber();
-        }
-        seq.setLastMessageNumber(BigInteger.TEN);
-        for (int i = 1; i < 5; i++) {
-            Integer ih = new Integer(i);
-            seq.acknowledge(new BigInteger(ih.toString()));
-            assertTrue(!seq.allAcknowledged());
-        }
-        for (int i = 8; i < 11; i++) {
-            Integer ih = new Integer(i);
-            seq.acknowledge(new BigInteger(ih.toString()));
-            assertTrue(!seq.allAcknowledged());
-        }
-    }
-    
-    public void testNextMessageNumber() {     
-        Sequence seq = null;
-        SourcePolicyType sp = RMUtils.getWSRMConfFactory().createSourcePolicyType();
-        
-        // default termination policy
-        
-        SequenceTerminationPolicyType stp = 
-            RMUtils.getWSRMConfFactory().createSequenceTerminationPolicyType();        
-        sp.setSequenceTerminationPolicy(stp);
-        
-        seq = new Sequence(id, source, expires);  
-        assertTrue(!nextSequences(seq, sp, 10));
-        
-        // termination policy max length = 1
-        
-        seq = new Sequence(id, source, expires);  
-        stp.setMaxLength(BigInteger.ONE);
-        assertTrue(nextSequences(seq, sp, 10));
-        assertEquals(BigInteger.ONE, seq.getCurrentMessageNumber());
-        
-        // termination policy max length = 5
-        seq = new Sequence(id, source, expires);  
-        stp.setMaxLength(new BigInteger("5"));
-        assertTrue(!nextSequences(seq, sp, 2));
-        
-        // termination policy max range exceeded
-        
-        seq = new Sequence(id, source, expires);  
-        stp.setMaxLength(null);
-        stp.setMaxRanges(new Integer(3));
-        acknowledge(seq, 1, 2, 4, 5, 6, 8, 9, 10);
-        assertTrue(nextSequences(seq, sp, 10));
-        assertEquals(BigInteger.ONE, seq.getCurrentMessageNumber());
-        
-        // termination policy max range not exceeded
-        
-        seq = new Sequence(id, source, expires);  
-        stp.setMaxLength(null);
-        stp.setMaxRanges(new Integer(4));
-        acknowledge(seq, 1, 2, 4, 5, 6, 8, 9, 10);
-        assertTrue(!nextSequences(seq, sp, 10));
-        
-        // termination policy max unacknowledged 
     }
     
     public void testMonitor() throws SequenceFault {
@@ -397,7 +248,7 @@ public class SequenceTest extends TestCase {
         replay(handler);
         
         
-        Sequence seq = new Sequence(id, destination, ref);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         SequenceMonitor monitor = seq.getMonitor();
         assertNotNull(monitor);
         monitor.setMonitorInterval(500);
@@ -442,7 +293,7 @@ public class SequenceTest extends TestCase {
         replay(destination);
         replay(handler);
         
-        Sequence seq = new Sequence(id, destination, ref);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         assertTrue(!seq.sendAcknowledgement());
               
         seq.acknowledge(new BigInteger("1")); 
@@ -469,7 +320,7 @@ public class SequenceTest extends TestCase {
         destination.getAcksPolicy();
         expectLastCall().andReturn(ap).times(3);
         
-        Sequence seq = new Sequence(id, destination, ref);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         assertTrue(!seq.sendAcknowledgement());
         
         RMProxy proxy = createMock(RMProxy.class);
@@ -497,53 +348,4 @@ public class SequenceTest extends TestCase {
         seq.acknowledgmentSent();
         assertFalse(seq.sendAcknowledgement());
     }
-    
-    private boolean nextSequences(Sequence seq, SourcePolicyType sp, int n) {
-        reset(source);
-        source.getSequenceTerminationPolicy();
-        expectLastCall().andReturn(sp.getSequenceTerminationPolicy());
-        replay(source);
-        
-        int i = 0;
-        while ((i < n) && (null == seq.getLastMessageNumber())) {
-            assertNotNull(seq.nextMessageNumber());
-            verify(source);
-            reset(source);
-            source.getSequenceTerminationPolicy();
-            expectLastCall().andReturn(sp.getSequenceTerminationPolicy());
-            replay(source);
-            i++;
-        }
-        return null != seq.getLastMessageNumber();
-    }
-    
-    // this methods cannot be private because of a bug in PMD which otherwise
-    // would report it as an 'unused private method' 
-    protected void acknowledge(Sequence seq, int... messageNumbers) {
-        SequenceAcknowledgement ack = factory.createSequenceAcknowledgement();
-        int i = 0;
-        while (i < messageNumbers.length) {
-            AcknowledgementRange r = factory.createSequenceAcknowledgementAcknowledgementRange();
-            Integer li = new Integer(messageNumbers[i]);
-            BigInteger l = new BigInteger(li.toString());
-            r.setLower(l);
-            i++;
-            
-            while (i < messageNumbers.length && (messageNumbers[i] - messageNumbers[i - 1]) == 1) {
-                i++;
-            }
-            Integer ui = new Integer(messageNumbers[i - 1]);
-            BigInteger u = new BigInteger(ui.toString());
-            r.setUpper(u);
-            ack.getAcknowledgementRange().add(r);
-        }
-        seq.setAcknowledged(ack);
-        if (Sequence.Type.SOURCE == seq.getType()) {
-            for (int m : messageNumbers) {
-                Integer ih = new Integer(m);
-                assertTrue(seq.isAcknowledged(new BigInteger(ih.toString())));
-            }
-        }
-    }
-    
 }

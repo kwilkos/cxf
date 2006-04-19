@@ -20,7 +20,7 @@ public interface RMSourceSequence {
     /**
      * @return true if the last message had been sent for this sequence. 
      */
-    boolean getLastMessage();
+    boolean isLastMessage();
     
     /**
      * @return the identifier of the sequence that was created on behalf of the CreateSequence request 

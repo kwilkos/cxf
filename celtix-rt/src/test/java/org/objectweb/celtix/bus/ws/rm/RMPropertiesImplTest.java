@@ -19,14 +19,14 @@ public class RMPropertiesImplTest extends TestCase {
         RMPropertiesImpl rmps = new RMPropertiesImpl();
         IMocksControl control = createNiceControl();
         
-        Sequence seq = control.createMock(Sequence.class);
+        SourceSequence seq = control.createMock(SourceSequence.class);
         Identifier sid = control.createMock(Identifier.class);
         seq.getIdentifier();
         expectLastCall().andReturn(sid);
-        seq.getCurrentMessageNumber();
-        expectLastCall().andReturn(BigInteger.TEN).times(2);
-        seq.getLastMessageNumber();
-        expectLastCall().andReturn(null);
+        seq.getCurrentMessageNr();
+        expectLastCall().andReturn(BigInteger.TEN);
+        seq.isLastMessage();
+        expectLastCall().andReturn(false);
         
         control.replay();
         rmps.setSequence(seq);
@@ -42,10 +42,10 @@ public class RMPropertiesImplTest extends TestCase {
         
         seq.getIdentifier();
         expectLastCall().andReturn(sid);
-        seq.getCurrentMessageNumber();
-        expectLastCall().andReturn(BigInteger.TEN).times(2);
-        seq.getLastMessageNumber();
+        seq.getCurrentMessageNr();
         expectLastCall().andReturn(BigInteger.TEN);
+        seq.isLastMessage();
+        expectLastCall().andReturn(true);
         
         control.replay();
         rmps.setSequence(seq);
@@ -62,14 +62,14 @@ public class RMPropertiesImplTest extends TestCase {
         RMPropertiesImpl rmps = new RMPropertiesImpl();
         IMocksControl control = createNiceControl();
         
-        Sequence seq = control.createMock(Sequence.class);
+        DestinationSequence seq = control.createMock(DestinationSequence.class);
         SequenceAcknowledgement ack = control.createMock(SequenceAcknowledgement.class);
-        seq.getAcknowledged();
+        seq.getAcknowledgment();
         expectLastCall().andReturn(ack);
         
-        Sequence otherSeq = control.createMock(Sequence.class);
+        DestinationSequence otherSeq = control.createMock(DestinationSequence.class);
         SequenceAcknowledgement otherAck = control.createMock(SequenceAcknowledgement.class);
-        otherSeq.getAcknowledged();
+        otherSeq.getAcknowledgment();
         expectLastCall().andReturn(otherAck);
         
         control.replay();

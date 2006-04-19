@@ -18,6 +18,7 @@ import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.OfferType;
+import org.objectweb.celtix.ws.rm.persistence.RMDestinationSequence;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 public class RMProxy {
@@ -44,7 +45,8 @@ public class RMProxy {
         }
         CreateSequenceResponseType csr = (CreateSequenceResponseType)result;
         
-        Sequence seq = new Sequence(csr.getIdentifier(), source, csr.getExpires());
+        SourceSequence seq = new SourceSequence(csr.getIdentifier());
+        seq.setExpires(csr.getExpires());
         source.addSequence(seq);
         source.setCurrent(i, seq);
         
@@ -53,7 +55,8 @@ public class RMProxy {
             RMDestination dest = source.getHandler().getDestination();
             String address = csr.getAccept().getAcksTo().getAddress().getValue();
             if (!RMUtils.getAddressingConstants().getNoneURI().equals(address)) {
-                Sequence ds = new Sequence(o.getIdentifier(), dest, csr.getAccept().getAcksTo());
+                DestinationSequence ds = 
+                    new DestinationSequence(o.getIdentifier(), csr.getAccept().getAcksTo(), dest);
                 dest.addSequence(ds);
             }
         }
@@ -61,7 +64,7 @@ public class RMProxy {
         return csr;
     }
     
-    public void terminateSequence(Sequence seq) throws IOException {
+    public void terminateSequence(AbstractSequenceImpl seq) throws IOException {
         TerminateSequenceRequest request = new TerminateSequenceRequest(handler.getBinding(), seq);
         
         invokeOneWay(request.getObjectMessageContext(), TerminateSequenceRequest.createDataBindingCallback());
@@ -74,7 +77,7 @@ public class RMProxy {
      * @param seqs the sequences for which acknowledgments are requested.
      * @throws IOException
      */
-    public void requestAcknowledgment(Collection<Sequence> seqs) throws IOException {
+    public void requestAcknowledgment(Collection<SourceSequence> seqs) throws IOException {
         SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding()); 
         request.requestAcknowledgement(seqs);
         invokeOneWay(request.getObjectMessageContext(), null);
@@ -87,7 +90,7 @@ public class RMProxy {
      * @throws IOException
      */
     
-    public void lastMessage(Sequence seq) throws IOException {
+    public void lastMessage(SourceSequence seq) throws IOException {
         LOG.fine("sending standalone last message");
         SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding()); 
         request.lastMessage(seq);
@@ -100,7 +103,7 @@ public class RMProxy {
      * @param seq the sequence for which an acknowledgment is to be sent.
      * @throws IOException
      */
-    public void acknowledge(Sequence seq) throws IOException {
+    public void acknowledge(RMDestinationSequence seq) throws IOException {
         if (Names.WSA_ANONYMOUS_ADDRESS.equals(seq.getAcksTo().getAddress().getValue())) {
             LOG.log(Level.WARNING, "STANDALONE_ANON_ACKS_NOT_SUPPORTED");
             return;

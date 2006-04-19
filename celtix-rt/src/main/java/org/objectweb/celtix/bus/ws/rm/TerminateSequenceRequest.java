@@ -18,7 +18,7 @@ public class TerminateSequenceRequest extends Request {
     private static final String METHOD_NAME = "terminateSequence";
     private static final String OPERATION_NAME = "TerminateSequence";
     
-    public TerminateSequenceRequest(AbstractBindingBase b, Sequence seq) {
+    public TerminateSequenceRequest(AbstractBindingBase b, AbstractSequenceImpl seq) {
         
         super(b, b.createObjectContext());
         getObjectMessageContext().setRequestorRole(true);
@@ -54,7 +54,7 @@ public class TerminateSequenceRequest extends Request {
         return new JAXBDataBindingCallback(method, DataBindingCallback.Mode.PARTS, null);
     }
     
-    private void setMessageParameters(Sequence seq) {
+    private void setMessageParameters(AbstractSequenceImpl seq) {
         
         TerminateSequenceType ts = RMUtils.getWSRMFactory().createTerminateSequenceType();
         ts.setIdentifier(seq.getIdentifier());

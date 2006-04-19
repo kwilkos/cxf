@@ -11,6 +11,7 @@ import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
+import org.objectweb.celtix.ws.rm.persistence.RMDestinationSequence;
 
 public class SequenceInfoRequest extends Request {
     
@@ -33,9 +34,9 @@ public class SequenceInfoRequest extends Request {
         // sequence acknowledgements onto application messages.
     }
     
-    public void requestAcknowledgement(Collection<Sequence> seqs) {
+    public void requestAcknowledgement(Collection<SourceSequence> seqs) {
         List<AckRequestedType> requested = new ArrayList<AckRequestedType>();
-        for (Sequence seq : seqs) {
+        for (AbstractSequenceImpl seq : seqs) {
             AckRequestedType ar = RMUtils.getWSRMFactory().createAckRequestedType();
             ar.setIdentifier(seq.getIdentifier());
             requested.add(ar);
@@ -44,7 +45,7 @@ public class SequenceInfoRequest extends Request {
         rmps.setAcksRequested(requested);
     }
     
-    public void acknowledge(Sequence seq) {
+    public void acknowledge(RMDestinationSequence seq) {
         AddressingProperties maps = ContextUtils.retrieveMAPs(getObjectMessageContext(), true, true);
         maps.getAction().setValue(RMUtils.getRMConstants().getSequenceAcknowledgmentAction());
         AttributedURIType toAddress = ContextUtils.WSA_OBJECT_FACTORY.createAttributedURIType();
@@ -54,13 +55,13 @@ public class SequenceInfoRequest extends Request {
         // by rm handler upon outbound processing of this message
     }
     
-    public void lastMessage(Sequence seq) {
+    public void lastMessage(SourceSequence seq) {
         AddressingProperties maps = ContextUtils.retrieveMAPs(getObjectMessageContext(), true, true);
         maps.getAction().setValue(RMUtils.getRMConstants().getLastMessageAction());
         RMPropertiesImpl rmps = new RMPropertiesImpl(); 
         seq.nextAndLastMessageNumber();
         rmps.setSequence(seq);
-        assert null != seq.getLastMessageNumber();
+        assert seq.isLastMessage();
         RMContextUtils.storeRMProperties(getObjectMessageContext(), rmps, true);
     }
 }

@@ -60,18 +60,14 @@ public interface RMStore {
     Collection<RMDestinationSequence> getDestinationSequences(String endpointIdentifier);
     
     /**
-     * Retrieves the outbound messages stored for the source sequence with the given identifier.
+     * Retrieves the outbound/inbound messages stored for the source/destination sequence with 
+     * the given identifier.
      * @param sid the source sequence identifier
+     * @param outbound true if the message is outbound
      * @return the collection of messages
+     * * 
      */
-    Collection<RMMessage> getOutboundMessages(Identifier sid);
-    
-    /**
-     * Retrieves the inbound messages stored for the destination sequence with the given identifier.
-     * @param sid the destination sequence identifier
-     * @return the collection of messages
-     */
-    Collection<RMMessage> getInboundMessages(Identifier sid);
+    Collection<RMMessage> getMessages(Identifier sid, boolean outbound);
     
     /**
      * Called by an RM source upon processing an outbound message. The <code>RMMessage</code>
@@ -92,11 +88,12 @@ public interface RMStore {
     void persistIncoming(RMDestinationSequence seq, RMMessage msg);
   
     /**
-     * Removes the messages with the given message numbers from the specified source
-     * sequence.
+     * Removes the messages with the given message numbers and identifiers from the store of
+     * outbound/inbound messages.
      * 
      * @param sid the identifier of the source sequence
      * @param messageNr the collection of message numbers
+     * @param outbound true if the message is outbound
      */
-    void removeMessages(Identifier sid, Collection<BigInteger> messageNrs);
+    void removeMessages(Identifier sid, Collection<BigInteger> messageNrs, boolean outbound);
 }

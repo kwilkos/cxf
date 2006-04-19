@@ -33,8 +33,12 @@
     <wsdl:types>
     
         <xsd:schema targetNamespace="http://tempuri.org/Imports">
+            <xsd:import schemaLocation="ReliableOneWay.xsd0" namespace="http://tempuri.org/"/>
+            <xsd:import schemaLocation="ReliableOneWay.xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/"/>
+            <!--
             <xsd:import schemaLocation="http://131.107.72.15/ReliableMessaging_Service_Indigo/ReliableOneWay.svc?xsd=xsd0" namespace="http://tempuri.org/"/>
             <xsd:import schemaLocation="http://131.107.72.15/ReliableMessaging_Service_Indigo/ReliableOneWay.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/"/>
+            -->
         </xsd:schema>
         
      </wsdl:types>

@@ -1,10 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm;
 
-// import java.math.BigInteger;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -21,13 +17,11 @@ public class RMEndpoint {
     private static final String POLICIES_PROPERTY_NAME = "policies";
     private static final String RMASSERTION_PROPERTY_NAME = "rmAssertion";
     
-    protected Map<String, Sequence> map;
     private RMHandler handler;
     
 
     protected RMEndpoint(RMHandler h) {
         handler = h;
-        map = new HashMap<String, Sequence>();
     }
     
     
@@ -85,58 +79,9 @@ public class RMEndpoint {
     public EndpointPolicyType getPolicies() {
         return (EndpointPolicyType)handler.getConfiguration().getObject(POLICIES_PROPERTY_NAME);
     }
-
-    /**
-     * Returns the sequence with the given identifier,
-     * 
-     * @param id the sequence identifier.
-     * @return the sequence.
-     */
-    public Sequence getSequence(Identifier id) {        
-        return map.get(id.getValue());
+    
+    public String getEndpointId() {
+        return handler.getConfiguration().getParent().getId().toString(); 
     }
     
-    /**
-     * Returns the collection of all sequences currently maintained by this source.
-     * 
-     * @return the collection of sequences
-     */
-    public Collection<Sequence> getAllSequences() {
-        return map.values();
-    }
-    
-    /**
-     * Returns a collection of all sequences for which have not yet been
-     * completely acknowledged.
-     * 
-     * @return the collection of unacknowledged sequences.
-     */
-    public Collection<Sequence> getAllUnacknowledgedSequences() {
-        Collection<Sequence> seqs = new ArrayList<Sequence>();
-        for (Sequence seq : map.values()) {
-            if (!seq.allAcknowledged()) {
-                seqs.add(seq);
-            }
-        }        
-        return seqs;        
-    }
-
-    /**
-     * Stores the sequence under its sequence identifier.
-     * 
-     * @param id the sequence identifier.
-     * @param seq the sequence.
-     */
-    public void addSequence(Sequence seq) {
-        map.put(seq.getIdentifier().getValue(), seq);
-    }
-    
-    /**
-     * Removes the sequence.
-     * 
-     * @param seq the sequence to be removed.
-     */
-    public void removeSequence(Sequence seq) {
-        map.remove(seq.getIdentifier());
-    }
 }

@@ -156,9 +156,9 @@ public class RMServantTest extends TestCase {
             expectLastCall().andReturn(control.createMock(Identifier.class));
             o.getExpires();
             expectLastCall().andReturn(null);
-            source.addSequence(isA(Sequence.class));
+            source.addSequence(isA(SourceSequence.class));
             expectLastCall();
-            source.setCurrent(isA(Identifier.class), isA(Sequence.class));
+            source.setCurrent(isA(Identifier.class), isA(SourceSequence.class));
             expectLastCall();
         }
      

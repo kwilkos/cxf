@@ -37,21 +37,21 @@ public class RMPropertiesImpl implements RMProperties {
         sequence = s;
     }
     
-    protected void setSequence(Sequence seq) {
+    protected void setSequence(SourceSequence seq) {
         SequenceType s = RMUtils.getWSRMFactory().createSequenceType();
         s.setIdentifier(seq.getIdentifier());
-        s.setMessageNumber(seq.getCurrentMessageNumber());   
-        if (seq.getCurrentMessageNumber().equals(seq.getLastMessageNumber())) {
+        s.setMessageNumber(seq.getCurrentMessageNr());   
+        if (seq.isLastMessage()) {
             s.setLastMessage(new SequenceType.LastMessage());
         }
         setSequence(s);
     }
     
-    protected void addAck(Sequence seq) {
+    protected void addAck(DestinationSequence seq) {
         if (null == acks) {
             acks = new ArrayList<SequenceAcknowledgement>();
         }
-        SequenceAcknowledgement ack = seq.getAcknowledged();
+        SequenceAcknowledgement ack = seq.getAcknowledgment();
         acks.add(ack);
         seq.acknowledgmentSent();
     }

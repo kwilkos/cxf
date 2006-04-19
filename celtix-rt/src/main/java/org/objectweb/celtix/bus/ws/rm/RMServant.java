@@ -41,12 +41,12 @@ public class RMServant {
         DestinationPolicyType dp = destination.getDestinationPolicies();
         Duration supportedDuration = dp.getSequenceExpiration();
         if (null == supportedDuration) {
-            supportedDuration = Sequence.PT0S;
+            supportedDuration = SourceSequence.PT0S;
         }
         Expires ex = cs.getExpires();
         LOG.info("supported duration: "  + supportedDuration);
 
-        if (null != ex || supportedDuration.isShorterThan(Sequence.PT0S)) {
+        if (null != ex || supportedDuration.isShorterThan(SourceSequence.PT0S)) {
             Duration effectiveDuration = supportedDuration;
             if (null != ex && supportedDuration.isLongerThan(ex.getValue()))  {
                 effectiveDuration = supportedDuration;
@@ -63,8 +63,10 @@ public class RMServant {
                 RMSource source = destination.getHandler().getSource();
                 LOG.fine("Accepting inbound sequence offer");
                 accept.setAcksTo(RMUtils.createReference(to.getValue()));
-                Sequence seq = new Sequence(offer.getIdentifier(), source, offer.getExpires(), csr
-                    .getIdentifier());
+                SourceSequence seq = new SourceSequence(offer.getIdentifier(), 
+                                                                    null, 
+                                                                    csr.getIdentifier());
+                seq.setExpires(offer.getExpires());
                 source.addSequence(seq);
                 source.setCurrent(csr.getIdentifier(), seq);      
                 LOG.fine("Making offered sequence the current sequence for responses to "
@@ -76,7 +78,8 @@ public class RMServant {
             csr.setAccept(accept);
         }
         
-        destination.addSequence(csr.getIdentifier(), cs.getAcksTo());
+        DestinationSequence seq = new DestinationSequence(csr.getIdentifier(), cs.getAcksTo(), destination);
+        destination.addSequence(seq);
         
         return csr;
     }
@@ -98,7 +101,7 @@ public class RMServant {
         // check if the terminated sequence was created in response to a a createSequence
         // request
         
-        Sequence terminatedSeq = destination.getSequence(sid);
+        DestinationSequence terminatedSeq = destination.getSequence(sid);
         if (null == terminatedSeq) {
             LOG.severe("No such sequence.");
             return;
@@ -109,8 +112,8 @@ public class RMServant {
         // the following may be necessary if the last message for this sequence was a oneway
         // request and hence there was no response to which a last message could have been added
         
-        for (Sequence outboundSeq : destination.getHandler().getSource().getAllSequences()) {
-            if (outboundSeq.offeredBy(sid) && null == outboundSeq.getLastMessageNumber()) {
+        for (SourceSequence outboundSeq : destination.getHandler().getSource().getAllSequences()) {
+            if (outboundSeq.offeredBy(sid) && !outboundSeq.isLastMessage()) {
                 
                 // send an out of band message with an empty body and a 
                 // sequence header containing a lastMessage element.

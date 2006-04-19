@@ -130,7 +130,7 @@ public class RMProxyTest extends TestCase {
         expectLastCall().andReturn(handler);
         handler.getDestination();
         expectLastCall().andReturn(dest);
-        dest.addSequence(isA(Sequence.class));
+        dest.addSequence(isA(DestinationSequence.class));
 
         control.replay();
         
@@ -196,7 +196,6 @@ public class RMProxyTest extends TestCase {
         TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
         
         RMHandler handler = EasyMock.createMock(RMHandler.class);
-        RMSource source = EasyMock.createMock(RMSource.class);
 
         handler.getBinding();
         EasyMock.expectLastCall().andReturn(binding);       
@@ -211,7 +210,7 @@ public class RMProxyTest extends TestCase {
 
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
         sid.setValue("TerminatedSequence");
-        Sequence seq = new Sequence(sid, source, null);
+        SourceSequence seq = new SourceSequence(sid, null, null);
         
         proxy.terminateSequence(seq);
     }
@@ -220,7 +219,6 @@ public class RMProxyTest extends TestCase {
         TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
         
         RMHandler handler = EasyMock.createMock(RMHandler.class);
-        RMSource source = EasyMock.createMock(RMSource.class);
 
         handler.getBinding();
         EasyMock.expectLastCall().andReturn(binding);       
@@ -235,9 +233,9 @@ public class RMProxyTest extends TestCase {
 
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
         sid.setValue("AckRequestedSequence");
-        Sequence seq = new Sequence(sid, source, null);
+        SourceSequence seq = new SourceSequence(sid, null, null);
         
-        Collection<Sequence> seqs = new ArrayList<Sequence>();
+        Collection<SourceSequence> seqs = new ArrayList<SourceSequence>();
         seqs.add(seq);
         
         proxy.requestAcknowledgment(seqs);        
@@ -275,7 +273,7 @@ public class RMProxyTest extends TestCase {
 
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
         sid.setValue("LastMessageSequence");
-        Sequence seq = new Sequence(sid, source, null);        
+        SourceSequence seq = new SourceSequence(sid, null, null);        
         proxy.lastMessage(seq);        
     }
     
@@ -308,8 +306,8 @@ public class RMProxyTest extends TestCase {
 
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
         sid.setValue("Acknowledge");
-        Sequence seq = new Sequence(sid, dest, 
-                                    RMUtils.createReference("http://localhost:9999/decoupled"));
+        DestinationSequence seq = new DestinationSequence(sid, 
+                                    RMUtils.createReference("http://localhost:9999/decoupled"), dest);
         seq.acknowledge(BigInteger.ONE);
         seq.acknowledge(BigInteger.TEN);       
         proxy.acknowledge(seq);        
@@ -326,7 +324,6 @@ public class RMProxyTest extends TestCase {
         ct.setInputStreamMessageContext(istreamCtx);
         
         RMHandler handler = EasyMock.createMock(RMHandler.class);
-        RMSource source = EasyMock.createMock(RMSource.class);
 
         handler.getBinding();
         EasyMock.expectLastCall().andReturn(binding);       
@@ -341,7 +338,7 @@ public class RMProxyTest extends TestCase {
 
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
         sid.setValue("TerminatedSequence");
-        Sequence seq = new Sequence(sid, source, null);
+        SourceSequence seq = new SourceSequence(sid, null, null);
         
         service.terminateSequence(seq);
     }
