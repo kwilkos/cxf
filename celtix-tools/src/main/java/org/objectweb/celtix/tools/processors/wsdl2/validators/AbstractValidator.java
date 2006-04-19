@@ -17,7 +17,7 @@ public abstract class AbstractValidator {
     }
     
     public abstract boolean isValid();
-    public  String getErrorMessage() {
+    public String getErrorMessage() {
         return errorMessage;
     }
   

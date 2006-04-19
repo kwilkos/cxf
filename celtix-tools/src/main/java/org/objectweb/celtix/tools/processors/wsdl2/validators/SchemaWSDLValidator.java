@@ -263,8 +263,8 @@ public class SchemaWSDLValidator {
         return "schema".equals(tagName);
     }
 
-    private Map serializeSchemaElements(Document doc) throws IOException {
-        Map result = new HashMap();
+    private Map<String, byte[]> serializeSchemaElements(Document doc) throws IOException {
+        Map<String, byte[]> result = new HashMap<String, byte[]>();
         NodeList nodes = doc.getElementsByTagNameNS(NU_SCHEMA_XSD, "schema");
         for (int x = 0; x < nodes.getLength(); x++) {
             Node schemaNode = nodes.item(x);
@@ -399,8 +399,6 @@ public class SchemaWSDLValidator {
             } catch (Exception fnex) {
                 // ignorable
             }
-        } catch (IOException ioex) {
-            // ignorable
         } catch (Exception ex) {
             // ignorable
         }
@@ -516,13 +514,13 @@ class StackTraceErrorHandler implements ErrorHandler, XMLErrorHandler {
     protected boolean valid;
     private StringBuffer buffer;
     private int numErrors;
-    private List errors;
+    private List<SAXParseException> errors;
 
     StackTraceErrorHandler() {
         valid = true;
         numErrors = 0;
         buffer = new StringBuffer();
-        errors = new ArrayList();
+        errors = new ArrayList<SAXParseException>();
     }
 
     public void error(SAXParseException ex) {
@@ -567,7 +565,7 @@ class StackTraceErrorHandler implements ErrorHandler, XMLErrorHandler {
         if (errors == null) {
             return null;
         }
-        return (SAXParseException[])errors.toArray(new SAXParseException[errors.size()]);
+        return errors.toArray(new SAXParseException[errors.size()]);
     }
 
     void addError(String msg, SAXParseException ex) {
