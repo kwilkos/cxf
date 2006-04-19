@@ -30,6 +30,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 
 import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
@@ -46,6 +47,7 @@ import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
 import org.objectweb.celtix.bus.configuration.security.SSLClientPolicy;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlHttpConfigurationProvider;
+import org.objectweb.celtix.bus.configuration.wsdl.WsdlPortProvider;
 import org.objectweb.celtix.bus.management.counters.TransportClientCounters;
 import org.objectweb.celtix.bus.transports.https.JettySslClientConfigurer;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -312,6 +314,25 @@ public class HTTPClientTransport implements ClientTransport {
         Configuration portConfiguration = busConfiguration
             .getChild(PORT_CONFIGURATION_URI,
                       id);
+        
+        if (portConfiguration == null) {
+            ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+            portConfiguration = cb.getConfiguration(PORT_CONFIGURATION_URI, id,
+                                                    bus.getConfiguration());
+            if (null == portConfiguration) {
+                portConfiguration = cb.buildConfiguration(PORT_CONFIGURATION_URI, id,
+                                                          bus.getConfiguration());
+            }
+
+            // add the additional provider
+            Port port = null;
+            try  {
+                port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+            } catch (WSDLException ex) {
+                throw new WebServiceException("Could not get port from wsdl", ex);
+            }
+            portConfiguration.getProviders().add(new WsdlPortProvider(port));
+        }        
         return portConfiguration;
     }
 

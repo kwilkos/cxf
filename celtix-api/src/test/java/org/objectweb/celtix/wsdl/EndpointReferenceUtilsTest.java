@@ -90,6 +90,11 @@ public class EndpointReferenceUtilsTest extends TestCase {
             // do nothing            
         }
 
+        public void addDefinition(Object key, Definition wsdl) {
+            // TODO Auto-generated method stub
+            
+        }
+
     };
 
     @WebServiceProvider(wsdlLocation = "resources/Test.wsdl",

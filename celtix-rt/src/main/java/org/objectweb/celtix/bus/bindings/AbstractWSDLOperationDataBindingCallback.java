@@ -13,10 +13,14 @@ import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
 
 public abstract class AbstractWSDLOperationDataBindingCallback implements DataBindingCallback {
-    WSDLOperationInfo operation;
+    protected WSDLOperationInfo operation;
     
     public AbstractWSDLOperationDataBindingCallback(WSDLOperationInfo op) {
         operation = op;
+    }
+    
+    public WSDLOperationInfo getOperationInfo() {
+        return operation;
     }
     
     

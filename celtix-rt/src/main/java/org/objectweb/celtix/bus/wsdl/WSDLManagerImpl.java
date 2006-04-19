@@ -130,7 +130,13 @@ public class WSDLManagerImpl implements WSDLManager {
         }
         return def;
     }
-
+    
+    public void addDefinition(Object key, Definition wsdl) {
+        synchronized (definitionsMap) {
+            definitionsMap.put(key, wsdl);
+        }
+    }
+    
     private Definition loadDefinition(String url) throws WSDLException {
         WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
@@ -242,4 +248,6 @@ public class WSDLManagerImpl implements WSDLManager {
             bus.sendEvent(new ComponentRemovedEvent(this));
         }
     }
+
+
 }

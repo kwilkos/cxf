@@ -65,6 +65,13 @@ public interface WSDLManager {
      * @return the wsdl Definition
      */
     Definition getDefinition(Class<?> sei) throws WSDLException;
+
+    /**
+     * Adds a definition into the cache for lookup later
+     * @param key
+     * @param wsdl
+     */
+    void addDefinition(Object key, Definition wsdl);
     
     /**
      * Shouts down the WSDL manager, and do clean up things

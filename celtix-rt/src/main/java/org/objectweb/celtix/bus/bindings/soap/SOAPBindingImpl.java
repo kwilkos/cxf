@@ -496,7 +496,7 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
 
         if (reader == null) {
-            throw new SOAPException("Could not figure out how to marshal data");
+            throw new SOAPException("Could not figure out how to unmarshal data");
         }
 
         if (callback.getSOAPStyle() == Style.DOCUMENT

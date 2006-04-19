@@ -50,12 +50,17 @@ public class WSDLOperationInfo {
         return bindingOp.getName();
     }
     
+    public boolean isOneWay() {
+        return getMessage(true) != null && getMessage(false) == null;
+    }
     
     public SOAPBinding.Style getSOAPStyle() {
         if (style == null) {
             SOAPOperation soapOperation = getExtensibilityElement(bindingOp.getExtensibilityElements(),
                                                                   SOAPOperation.class);
-            if (soapOperation != null && !"".equals(soapOperation.getStyle())) {
+            if (soapOperation != null
+                && soapOperation.getStyle() != null
+                && !"".equals(soapOperation.getStyle())) {
                 style = SOAPBinding.Style.valueOf(soapOperation.getStyle().toUpperCase());
             }
             if (style == null) {
@@ -69,7 +74,9 @@ public class WSDLOperationInfo {
         if (use == null) {
             SOAPBody body = getSOAPBody(true);
             
-            if (body != null && !"".equals(body.getUse())) {
+            if (body != null
+                && body.getUse() != null
+                && !"".equals(body.getUse())) {
                 use = SOAPBinding.Use.valueOf(body.getUse().toUpperCase());
             }
             if (use == null) {
@@ -172,7 +179,7 @@ public class WSDLOperationInfo {
         }
         return requestWrapperQName;
     }
-    QName getResponseWrapperQName() {
+    public QName getResponseWrapperQName() {
         if (responseWrapperQName == null) {
             if (getSOAPParameterStyle() == SOAPBinding.ParameterStyle.BARE
                 || getSOAPStyle() == SOAPBinding.Style.RPC) {

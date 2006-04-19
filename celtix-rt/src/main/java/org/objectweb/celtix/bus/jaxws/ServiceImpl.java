@@ -236,7 +236,6 @@ public class ServiceImpl extends ServiceDelegate {
         }
         portCfg.getProviders().add(new WsdlPortProvider(port));
         return portCfg;
-
     }
 
 }
