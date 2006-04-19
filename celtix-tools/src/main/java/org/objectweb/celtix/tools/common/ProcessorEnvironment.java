@@ -20,7 +20,7 @@ public class ProcessorEnvironment {
     public void loadDefaultNS2Pck()  {
         try {
             PropertyUtil properties = new PropertyUtil();
-            properties.load(getResourceAsStream("toolspec/toolspecs/namespace2package.properties"));
+            properties.load(getResourceAsStream("toolspec/toolspecs/namespace2package.cfg"));
             namespacePackageMap.putAll(properties.getMaps());
         } catch (IOException e) {
             e.printStackTrace();
@@ -30,7 +30,7 @@ public class ProcessorEnvironment {
     public void loadDefaultExcludes()  {
         try {
             PropertyUtil properties = new PropertyUtil();
-            properties.load(getResourceAsStream("toolspec/toolspecs/wsdltojavaexclude.properties"));
+            properties.load(getResourceAsStream("toolspec/toolspecs/wsdltojavaexclude.cfg"));
             excludeNamespacePackageMap.putAll(properties.getMaps());
         } catch (IOException e) {
             e.printStackTrace();
