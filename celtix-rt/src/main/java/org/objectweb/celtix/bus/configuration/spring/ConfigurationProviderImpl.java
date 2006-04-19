@@ -22,33 +22,33 @@ import org.springframework.core.io.UrlResource;
 
 
 public class ConfigurationProviderImpl implements ConfigurationProvider {
-  
+
     public static final String CONFIG_FILE_PROPERTY_NAME = "celtix.config.file";
-    
-    
+
+
     private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationProviderImpl.class);
     private static Map<UrlResource, CeltixXmlBeanFactory> beanFactories;
-  
+
     private Object bean;
     private Configuration configuration;
-    
-    
+
+
     public static void clearBeanFactoriesMap() {
         beanFactories = null;
     }
 
     public void init(Configuration c) {
         configuration = c;
-        
+
         if (null == beanFactories) {
             beanFactories = new HashMap<UrlResource, CeltixXmlBeanFactory>();
         }
-        
+
         CeltixXmlBeanFactory beanFactory =  null;
         UrlResource urlRes = getBeanDefinitionsResource();
         if (null != urlRes) {
             if (!beanFactories.containsKey(urlRes)) {
-                
+
                 if (null != urlRes) {
                     try {
                         beanFactory = new CeltixXmlBeanFactory(urlRes);
@@ -61,43 +61,48 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
                 }
             } else {
                 beanFactory = beanFactories.get(urlRes);
-            }  
+            }
         }
-    
-        if (null != beanFactory) { 
-            beanFactory.registerCustomEditors(configuration);            
-            findBean(beanFactory);              
-        } else {            
+
+        if (null != beanFactory) {
+            beanFactory.registerCustomEditors(configuration);
+            findBean(beanFactory);
+        } else {
             LOG.fine("Not using a bean definitions file.");
         }
-        
+
     }
-    
+
     public Object getObject(String name) {
-        // TODO use BeanWrapper instead        
-        if (null != bean) {            
+        // TODO use BeanWrapper instead
+        if (null != bean) {
             return invokeGetter(bean, name);
-        } 
+        }
         return null;
     }
-    
-    /**
-     * TODO: store the change in the associated bean.
-     */
+
     public boolean setObject(String name, Object value) {
+        if (null == bean) {
+            initBean();
+        }
+
+        if (null != bean) {
+            return invokeSetter(bean, value, name);
+        }
+
         return false;
     }
 
     protected Object getBean() {
         return bean;
     }
-    
+
     protected static Map<UrlResource, CeltixXmlBeanFactory> getBeanFactories() {
         return beanFactories;
     }
-    
+
     private Object invokeGetter(Object beanObject, String name) {
-        
+
         String methodName = JAXBUtils.nameToIdentifier(name, JAXBUtils.IdentifierType.GETTER);
         try {
             Method m = beanObject.getClass().getMethod("isSet", new Class[] {String.class});
@@ -107,39 +112,97 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
             }
             m = beanObject.getClass().getMethod(methodName, new Class[] {});
             return m.invoke(beanObject);
-            
+
         } catch (Exception ex) {
             throw new ConfigurationException(new Message("BEAN_INCOVATION_EXC", LOG), ex);
-        }         
+        }
     }
-    
+
+    private boolean invokeSetter(Object beanObject, Object value, String name) {
+
+        String methodName = JAXBUtils.nameToIdentifier(name, JAXBUtils.IdentifierType.SETTER);
+        try {
+            Class[]  para = new Class[1];
+
+            if (value.getClass() == Integer.class) {
+                para[0] = Integer.TYPE;
+            } else if (value.getClass() == Float.class) {
+                para[0] = Float.TYPE;
+            } else if (value.getClass() == Double.class) {
+                para[0] = Double.TYPE;
+            } else if (value.getClass() == Boolean.class) {
+                para[0] = Boolean.TYPE;
+            } else if (value.getClass() == Long.class) {
+                para[0] = Long.TYPE;
+            } else if (value.getClass() == Short.class) {
+                para[0] = Short.TYPE;
+            } else if (value.getClass() == Character.class) {
+                para[0] = Character.TYPE;
+            } else if (value.getClass() == Byte.class) {
+                para[0] = Byte.TYPE;
+            } else {
+                para[0] = value.getClass();
+            }
+
+            Method m = beanObject.getClass().getMethod(methodName, para);
+            m.invoke(beanObject, value);
+            return true;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new ConfigurationException(new Message("BEAN_INCOVATION_EXC", LOG), ex);
+        }
+    }
+
+    private void initBean() {
+        String beanClassName =
+            SpringUtils.getBeanClassName(configuration.getModel().getNamespaceURI());
+        Class beanClass = null;
+        try {
+            beanClass = Class.forName(beanClassName);
+        } catch (ClassCastException ex) {
+            LOG.log(Level.SEVERE, "Could not load bean class  " + beanClassName, ex);
+            return;
+        } catch (ClassNotFoundException ex) {
+            LOG.log(Level.SEVERE, "Could not load bean class  " + beanClassName, ex);
+            return;
+        }
+
+        try {
+            bean = beanClass.newInstance();
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Could not create bean instance  " + beanClassName, e);
+            return;
+        }
+    }
+
     /**
-     * get the id of the ancestor configuration and look for a correspondingly named file 
+     * get the id of the ancestor configuration and look for a correspondingly named file
      * with extension .xml in the directory pointed to by system property
      * celtix.config.dir
      * @param id
      * @return
      */
-    
+
     protected UrlResource getBeanDefinitionsResource() {
-        
+
         UrlResource urlRes = null;
         String url = System.getProperty(CONFIG_FILE_PROPERTY_NAME);
         if (null != url) {
             try {
-                urlRes = new UrlResource(url);                
+                urlRes = new UrlResource(url);
             } catch (MalformedURLException ex) {
                 // continue using default configuration
                 LOG.log(Level.WARNING, new Message("MALFORMED_URL_MSG", LOG, url).toString(), ex);
             }
- 
+
             return urlRes;
         }
         return null;
     }
-    
+
     private void findBean(CeltixXmlBeanFactory beanFactory) {
-        
+
         String beanClassName = SpringUtils.getBeanClassName(configuration.getModel().getNamespaceURI());
         Class beanClass = null;
         try {
@@ -160,17 +223,17 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
             }
             return;
         }
-        
+
         List<BeanName> beanNames = new ArrayList<BeanName>();
         for (String n : candidates) {
             BeanName bn = new BeanName(n);
             bn.normalise();
             beanNames.add(bn);
         }
-        
+
         BeanName ref = new BeanName(configuration);
         BeanName beanName = ref.findBestMatch(beanNames);
-        
+
         if (null != beanName) {
             try {
                 bean = beanFactory.getBean(beanName.getName(), beanClass);
@@ -181,8 +244,8 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
             } catch (BeansException ex) {
                 throw new ConfigurationException(new Message("BEAN_CREATION_EXC", LOG, beanName), ex);
             }
-        } 
-        
+        }
+
         if (null == bean && LOG.isLoggable(Level.INFO)) {
             LOG.info("Could not find matching bean definition for component " + ref.getName());
         }

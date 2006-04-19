@@ -41,8 +41,7 @@ public class AbstractConfigurationImpl implements Configuration {
         providers = new Vector<ConfigurationProvider>();
 
         // temporary:
-
-        providers.add(new InMemoryProvider());
+        //providers.add(new InMemoryProvider());
 
         DefaultConfigurationProviderFactory factory = DefaultConfigurationProviderFactory.getInstance();
         ConfigurationProvider defaultProvider = factory.createDefaultProvider(this);
@@ -279,6 +278,6 @@ public class AbstractConfigurationImpl implements Configuration {
     }
 
     public void reconfigure(String name) {
-        //Bus.getCurrent().sendEvent(new ConfigurationEvent(name, ConfigurationEvent.RECONFIGURED));
+        //Do nothing
     }
 }

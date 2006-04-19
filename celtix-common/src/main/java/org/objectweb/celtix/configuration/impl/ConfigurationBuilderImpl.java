@@ -15,13 +15,12 @@ import org.objectweb.celtix.configuration.ConfigurationMetadata;
 import org.objectweb.celtix.resource.DefaultResourceManager;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
-
-    private static final ResourceBundle BUNDLE =
+    protected static final ResourceBundle BUNDLE =
         BundleUtils.getBundle(ConfigurationBuilderImpl.class);
 
+    protected Map<String, Map<String, Configuration>> configurations;
     private Map<String, ConfigurationMetadata> models;
 
-    private Map<String, Map<String, Configuration>> configurations;
 
     public ConfigurationBuilderImpl() {
         models = new HashMap<String, ConfigurationMetadata>();
@@ -95,7 +94,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
      * namespace 'parentNamespace'. The absence of this attribute means that it
      * can be be created as a top level configuration object
      **/
-    private boolean isValidTopConfiguration(ConfigurationMetadata model, Configuration parent) {
+    protected boolean isValidTopConfiguration(ConfigurationMetadata model, Configuration parent) {
         String parentNamespaceURI = model.getParentNamespaceURI();
 
         if (parentNamespaceURI == null || "".equals(parentNamespaceURI)) {
@@ -114,7 +113,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         return false;
     }
     */
-    
+
     public Configuration buildConfiguration(String namespaceUri, String id) {
         return buildConfiguration(namespaceUri, id, null);
     }
