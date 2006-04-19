@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://schemas.iona.com/routing" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:r="http://schemas.iona.com/routing" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <import namespace="http://schemas.xmlsoap.org/wsdl/"/>
+
+    <element name="expression" type="r:expressionType"/>
+
+    <complexType name="expressionType">
+	<complexContent mixed="true">
+	    <extension base="wsdl:tExtensibilityElement">
+		<sequence>
+		    <any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+		<attribute name="name" type="string" use="required"/>
+		<attribute name="evaluator" type="string" use="required"/>
+	    </extension>
+	</complexContent>
+    </complexType>
+
+    <element name="route" type="r:routeType"/>
+    <complexType name="routeType">
+        <complexContent>
+            <extension base="wsdl:tExtensibilityElement">
+                <sequence>
+                    <element name="source" type="r:sourceType" minOccurs="0" maxOccurs="unbounded"/>
+		    <element name="propagateInputAttribute" type="r:propagateAttributeType" minOccurs="0" maxOccurs="unbounded"/>
+		    <element name="propagateOutputAttribute" type="r:propagateAttributeType" minOccurs="0" maxOccurs="unbounded"/>
+                    <element name="operation" type="r:operationType" minOccurs="0" maxOccurs="unbounded"/>
+                    <element name="transportAttributes" type="r:transportAttributesType" minOccurs="0" maxOccurs="unbounded"/>
+		    <choice>
+			<sequence>
+			    <element name="query" type="r:queryType" minOccurs="1" maxOccurs="unbounded">
+				<key name="destinationId">
+				    <selector xpath="r:destination"/>
+				    <field xpath="@id"/>
+				</key>
+			    </element>
+			    <element name="destination" type="r:destinationType" minOccurs="0" maxOccurs="unbounded"/>
+			</sequence>
+			<element name="destination" type="r:destinationType" minOccurs="1" maxOccurs="unbounded"/>
+		    </choice>
+                </sequence>
+                <attribute name="name" type="NCName" use="required"/>
+                <attribute name="multiRoute" type="r:multiRouteType" use="optional"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <simpleType name="multiRouteType">
+        <restriction base="string">
+            <enumeration value="failover"/>
+            <enumeration value="fanout"/>
+            <enumeration value="loadBalance"/>
+        </restriction>
+    </simpleType>
+    <complexType name="sourceType">
+        <attribute name="service" type="QName" use="required"/>
+        <attribute name="port" type="string" use="required"/>
+    </complexType>
+    <complexType name="propagateAttributeType">
+	<attribute name="name" type="string" use="required"/>
+	<attribute name="target" type="string" use="optional"/>
+    </complexType>
+    <complexType name="operationType">
+        <attribute name="name" type="string" use="required"/>
+        <attribute name="target" type="string" use="optional"/>
+    </complexType>
+
+    <complexType name="destinationType">
+	<!-- Optional for all destinations -->
+	<attribute name="operation" type="string" use="optional"/>
+	<!-- Required for service destinations -->
+	<attribute name="service" type="QName" use="optional"/>
+	<attribute name="port" type="string" use="optional"/>
+	<!-- Required for route destinations -->
+	<attribute name="route" type="QName" use="optional"/>
+    </complexType>
+	    
+    <complexType name="transportAttributesType">
+        <choice maxOccurs="unbounded">
+            <element name="equals" type="r:attributeType"/>
+            <element name="startswith" type="r:attributeType"/>
+            <element name="endswith" type="r:attributeType"/>
+            <element name="contains" type="r:attributeType"/>
+            <element name="empty" type="r:attributeType"/>
+            <element name="nonempty" type="r:attributeType"/>
+            <element name="greater" type="r:attributeType"/>
+            <element name="less" type="r:attributeType"/>
+        </choice>
+    </complexType>
+    <complexType name="attributeType">
+        <attribute name="contextName" type="QName" use="required"/>
+        <attribute name="contextAttributeName" type="QName" use="required"/>
+        <attribute name="value" type="string" use="optional"/>
+        <attribute name="ignorecase" type="boolean" use="optional"/>
+    </complexType>
+    <complexType name="queryDestinationType">
+	<complexContent>
+	    <extension base="r:destinationType">
+		<attribute name="id" type="string" use="required"/>
+	    </extension>
+	</complexContent>
+    </complexType>
+    <complexType name="queryType">
+	<complexContent>
+	    <extension base="wsdl:tExtensibilityElement">
+		<sequence>
+		    <element name="destination" type="r:queryDestinationType" minOccurs="1" maxOccurs="unbounded"/>
+		</sequence>
+		<attribute name="expression" type="QName" use="required"/>
+	    </extension>
+	</complexContent>
+    </complexType>
+</schema>

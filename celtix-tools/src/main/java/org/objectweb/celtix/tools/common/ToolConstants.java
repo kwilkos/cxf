@@ -68,6 +68,14 @@ public final class ToolConstants {
     // XSD2WSDL Constants
     public static final String CFG_XSDURL = "xsdurl";
     public static final String CFG_NAME = "name";
+    
+    
+    // SchemaValidator
+    public static final String CFG_DEEP = "deep";
+    public static final String CFG_SCHEMA_DIR = "schemaDir";
+    public static final String CFG_SCHEMA_URL = "schemaURL";
+    
+    
         
     // WSDL2Java Processor Constants
     public static final String SEI_GENERATOR = "sei.generator";
@@ -121,4 +129,6 @@ public final class ToolConstants {
     public static final QName  XML_HTTP_ADDRESS = new QName(NS_XML_HTTP, "address");
     public static final QName  XML_FORMAT = new QName(NS_XML_FORMAT, "body");
     public static final QName  XML_BINDING_FORMAT = new QName(NS_XML_FORMAT, "binding");
+    
+   
 }
