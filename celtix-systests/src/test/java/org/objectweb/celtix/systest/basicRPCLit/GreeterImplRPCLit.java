@@ -6,8 +6,9 @@ import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
 
 
-@WebService(serviceName = "SOAPServiceRPCLit", portName = "SoapPortRPCLit", name = "GreeterRPCLit",
-            targetNamespace = "http://objectweb.org/hello_world_rpclit")
+@WebService(serviceName = "SOAPServiceRPCLit", 
+            portName = "SoapPortRPCLit", 
+            endpointInterface = "org.objectweb.hello_world_rpclit.GreeterRPCLit")
 public class GreeterImplRPCLit implements GreeterRPCLit {
 
     public String greetMe(String me) {

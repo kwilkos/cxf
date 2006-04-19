@@ -18,8 +18,9 @@ import org.objectweb.hello_world_soap_http.types.SayHiResponse;
 import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
 
 import static junit.framework.Assert.assertTrue;
-@WebService(serviceName = "SOAPService", portName = "SoapPort", name = "Greeter",
-            targetNamespace = "http://objectweb.org/hello_world_soap_http")
+@WebService(serviceName = "SOAPService", 
+            portName = "SoapPort",
+            endpointInterface = "org.objectweb.hello_world_soap_http.Greeter")
 public class GreeterImpl implements Greeter {
 
     public String greetMe(String me) {

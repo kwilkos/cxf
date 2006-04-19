@@ -139,6 +139,8 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
                                                                              schema));
         }
 
+        populateResponseContext(objMsgContext);
+
         if (objMsgContext.getException() != null) {
             LOG.log(Level.INFO, "ENDPOINT_INVOCATION_FAILED", method.getName());
             if (isValidException(objMsgContext)) {
@@ -148,8 +150,6 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
             }
         }
         
-        populateResponseContext(objMsgContext);
-                
         return objMsgContext.getReturn();
     }    
     

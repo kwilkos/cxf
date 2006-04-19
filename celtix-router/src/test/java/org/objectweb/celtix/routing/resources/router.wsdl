@@ -208,7 +208,7 @@
 
     <wsdl:service name="HTTPXMLServiceSource">
         <wsdl:port name="HTTPXMLPortSource" binding="tns:Greeter_XMLBinding">
-            <soap:address location="http://localhost:9003"/>
+            <soap:address location="http://localhost:9003/HTTPXMLServiceSource/HTTPXMLPortSource"/>
         </wsdl:port>
     </wsdl:service>
 

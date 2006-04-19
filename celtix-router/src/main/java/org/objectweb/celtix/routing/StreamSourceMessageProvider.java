@@ -5,9 +5,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 import javax.wsdl.Definition;
+import javax.wsdl.Port;
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
@@ -20,12 +23,15 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.routing.configuration.DestinationType;
 import org.objectweb.celtix.routing.configuration.RouteType;
 
 @WebServiceProvider
 @ServiceMode(value = Service.Mode.MESSAGE)
 public class StreamSourceMessageProvider implements Provider<StreamSource> {
+    private static final Logger LOG = LogUtils.getL7dLogger(StreamSourceMessageProvider.class);
     protected List<Dispatch<StreamSource>> dList;
     private final Definition wsdlModel;    
     private final RouteType route;
@@ -54,6 +60,10 @@ public class StreamSourceMessageProvider implements Provider<StreamSource> {
     public void setContext(WebServiceContext ctx) { 
         wsCtx = ctx;
     }
+
+    public WebServiceContext getContext() { 
+        return wsCtx;
+    }
     
     public StreamSource invoke(StreamSource request) {
         if (doInit) {
@@ -81,7 +91,26 @@ public class StreamSourceMessageProvider implements Provider<StreamSource> {
 
             for (DestinationType dt : dtList) {
                 Service dtService = createService(wsdlLocation, dt.getService());
+                String portName;
+                
+                if (dt.isSetPort()) {
+                    portName = dt.getPort();
+                } else {
+                    javax.wsdl.Service destService = 
+                        wsdlModel.getService(dt.getService());
+                    portName = ((Port)destService.getPorts().values().iterator()).getName();
+                }
+
                 Dispatch<StreamSource> streamDispatch = createDispatch(dtService, dt.getPort());
+                if (null == streamDispatch) {
+                    LOG.log(Level.SEVERE, 
+                            "CREATEDISPATCH_FAILURE", 
+                            new Object[] {dt.getService(), portName });
+                    throw new WebServiceException(new Message("CREATEDISPATCH_FAILURE", 
+                                                              LOG,
+                                                              dt.getService(),
+                                                              portName).toString());
+                }
                 dList.add(streamDispatch);
             }
             doInit = false;
@@ -96,14 +125,14 @@ public class StreamSourceMessageProvider implements Provider<StreamSource> {
     
     protected Dispatch<StreamSource> createDispatch(Service destService, String portName) {
         QName port = new QName(destService.getServiceName().getNamespaceURI(), portName);
-        //Dispatch<StreamSource> d = 
+
         return destService.createDispatch(port, 
                                       StreamSource.class, 
                                       Service.Mode.MESSAGE);
     }
     
     private void updateRequestContext(Map<String, Object> reqCtx) {
-        MessageContext sourceMsgCtx = wsCtx.getMessageContext();
+        MessageContext sourceMsgCtx = getContext().getMessageContext();
         reqCtx.put(BindingProvider.USERNAME_PROPERTY, 
                    sourceMsgCtx.get(BindingProvider.USERNAME_PROPERTY));
         reqCtx.put(BindingProvider.PASSWORD_PROPERTY, 
@@ -113,5 +142,4 @@ public class StreamSourceMessageProvider implements Provider<StreamSource> {
     private void updateWebServiceContext(Map<String, Object> respCtx) {
         //TODO
     }
-    
 }

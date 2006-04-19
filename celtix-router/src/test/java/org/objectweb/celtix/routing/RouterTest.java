@@ -1,5 +1,10 @@
 package org.objectweb.celtix.routing;
 
+import java.io.File;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +15,7 @@ import javax.wsdl.Service;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Provider;
+import javax.xml.ws.WebServiceException;
 
 import junit.framework.TestCase;
 import org.objectweb.celtix.Bus;
@@ -19,11 +25,19 @@ import org.objectweb.celtix.routing.configuration.RouteType;
 public class RouterTest extends TestCase {
 
     private Map<String, Object> properties;
+    private String javaClasspath;
+    private File srcDir;
+    
     public void setUp() {
         properties = new HashMap<String, Object>();
+        javaClasspath = System.getProperty("java.class.path");
+        srcDir = new File(getClass().getResource(".").getFile(), "/temp");    
     }
 
     public void tearDown() throws Exception {
+        System.setProperty("java.class.path", javaClasspath);
+        RouteTypeUtil.deleteDir(srcDir);
+        
         Bus bus = Bus.getCurrent();
         bus.shutdown(true);
         Bus.setCurrent(null);
@@ -54,10 +68,10 @@ public class RouterTest extends TestCase {
         testRouterSourceAndDestination(def,
                                        sourceSrv, sourcePort,
                                        destSrv, destPort,
-                                       false);        
+                                       false);
     }
 
-    public void testRouterInit() throws Exception {
+    public void testPassThroughRouterInit() throws Exception {
         properties.put("org.objectweb.celtix.BusId", "RT2");
         Bus bus = Bus.init(null, properties);
         Bus.setCurrent(bus);
@@ -87,9 +101,92 @@ public class RouterTest extends TestCase {
         assertEquals(sourceSrv.getNamespaceURI(), portName.getNamespaceURI());
         assertEquals(sourcePort, portName.getLocalPart());
         Object impl = ep.getImplementor();
-        assertTrue("Should be instance of Provider<Source>", impl instanceof Provider);
+        assertTrue("Should be instance of Provider<Source>", 
+                   impl instanceof Provider);
+        StreamSourceMessageProvider ssmp = (StreamSourceMessageProvider) impl;
+        assertNull("WebServiceContext is not set as endpoint is not published",
+                   ssmp.getContext());
     }
-    
+
+    public void testNormalRouterInit() throws Exception {
+        properties.put("org.objectweb.celtix.BusId", "RT3");
+        Bus bus = Bus.init(null, properties);
+        Bus.setCurrent(bus);
+
+        URL wsdlURl = getClass().getResource("resources/router.wsdl");
+        Definition def = bus.getWSDLManager().getDefinition(wsdlURl);
+
+        QName sourceSrv = new QName("http://objectweb.org/HWRouter", "HTTPXMLServiceSource");
+        String sourcePort = new String("HTTPXMLPortSource");
+        QName destSrv = new QName("http://objectweb.org/HWRouter", "HTTPSoapServiceDestination");
+        String destPort = new String("HTTPSoapPortDestination");
+
+        RouteType rt = 
+            RouteTypeUtil.createRouteType("route_1", 
+                                           sourceSrv, sourcePort, 
+                                           destSrv, destPort);
+
+        ClassLoader loader = new URLClassLoader(new URL[] {srcDir.toURL()}, null);
+        //Test with no code generation.
+        TestRouter router = new TestRouter(loader, def, rt);
+        try {
+            router.init();
+            fail("Should throw a WebServiceException with cause of ClassNotFoundError");
+        } catch (WebServiceException ex) {
+            if  (ex.getCause() instanceof ClassNotFoundException) {
+                //Expected
+            }
+        }
+
+        //Test With CodeGeneration and URLClassLoadere
+        loader = doCodeGeneration(wsdlURl.getFile(), srcDir);
+        
+        router = new TestRouter(loader, def, rt);
+        router.init();
+        assertEquals(1, router.epList.size());
+        Endpoint ep = router.epList.get(0);
+        assertNotNull("Should have a Endpoint for Source Service", ep);
+        assertNotNull("Should have a wsdl model", ep.getMetadata());
+        Map<String, Object> props = ep.getProperties();
+        assertNotNull("Should have a wsdl model", props);
+        assertEquals(sourceSrv,  props.get(Endpoint.WSDL_SERVICE));
+        QName portName = (QName) props.get(Endpoint.WSDL_PORT);
+        assertEquals(sourceSrv.getNamespaceURI(), portName.getNamespaceURI());
+        assertEquals(sourcePort, portName.getLocalPart());
+        Object impl = ep.getImplementor();
+        
+        //The Implementor Should be a proxy class.
+        assertTrue("Implemetor Should be a proxy Class", 
+                     Proxy.isProxyClass(impl.getClass()));
+
+        InvocationHandler implHandler = Proxy.getInvocationHandler(impl);
+        assertTrue("Invocation Handler should be instance of SEIImplHandler",
+                   implHandler instanceof SEIImplHandler);
+        SEIImplHandler seiHandler = (SEIImplHandler)implHandler;
+        assertNull("Should have a WebServiceContext set",
+                   seiHandler.getContext());
+    }
+
+    private ClassLoader doCodeGeneration(String wsdlUrl, File opDir) throws Exception {
+        //maven doesn't set java.class.path while eclipse does.
+        boolean isClassPathSet = javaClasspath != null 
+                                  && (javaClasspath.indexOf("JAXWS") >= 0);
+        if (!isClassPathSet) {
+            System.setProperty("java.class.path", 
+                               RouteTypeUtil.getClassPath(getClass().getClassLoader()));
+        }
+
+        File classDir = new File(opDir, "/classes");
+        classDir.mkdirs();
+        
+        RouteTypeUtil.invokeWSDLToJava(wsdlUrl, opDir, classDir);
+
+        URLClassLoader loader = 
+            URLClassLoader.newInstance(new URL[] {classDir.toURL()},
+                                       getClass().getClassLoader());
+        return loader;
+    }
+
     private void testRouterSourceAndDestination(Definition def, 
                                               QName sourceSrv, String sourcePort, 
                                               QName destSrv, String destPort,
@@ -127,8 +224,8 @@ public class RouterTest extends TestCase {
 
     class TestRouter extends RouterImpl {
 
-        public TestRouter(RouterManager rm, Definition model, RouteType rt) {
-            super(rm, model, rt);
+        public TestRouter(ClassLoader loader, Definition model, RouteType rt) {
+            super(loader, model, rt);
         }
 
         public boolean testIsSameBindingId(Port p) {

@@ -1,6 +1,7 @@
 
 package org.objectweb.celtix.systest.soapheader;
 
+import javax.jws.WebService;
 import javax.xml.ws.Holder;
 import org.objectweb.header_test.TestHeader;
 import org.objectweb.header_test.types.TestHeader1;
@@ -11,7 +12,7 @@ import org.objectweb.header_test.types.TestHeader3;
 import org.objectweb.header_test.types.TestHeader3Response;
 import org.objectweb.header_test.types.TestHeader5;
 
-
+@WebService(endpointInterface = "org.objectweb.header_test.TestHeader")
 public class TestHeaderImpl implements TestHeader {
 
 

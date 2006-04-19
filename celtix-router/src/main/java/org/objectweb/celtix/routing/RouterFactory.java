@@ -105,6 +105,6 @@ public class RouterFactory {
     }
     
     public Router createRouter(Definition model, RouteType route) {
-        return new RouterImpl(mgr, model, route);
+        return new RouterImpl(mgr.getSEIClassLoader(), model, route);
     }
 }

@@ -48,7 +48,7 @@ public abstract class AbstractTestServerBase extends Assert {
             //
             System.in.read(); 
             System.out.println("stopping bus");
-            
+            tearDown();
         } catch (Throwable ex) {
             ex.printStackTrace();
             startFailed();

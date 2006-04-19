@@ -31,15 +31,15 @@ import org.objectweb.celtix.routing.configuration.SourceType;
 public class RouterImpl implements Router {
     private static final Logger LOG = LogUtils.getL7dLogger(Router.class);
     
-    protected final RouterManager mgr;
+    protected final ClassLoader seiClassLoader;
     protected final Definition wsdlModel;
     protected final RouteType route;
     protected Map<QName, Port> sourcePortMap;
     protected Map<QName, Port> destPortMap;
     protected List<Endpoint> epList;
     
-    public RouterImpl(RouterManager rm, Definition model , RouteType rt) {
-        mgr = rm;
+    public RouterImpl(ClassLoader loader, Definition model , RouteType rt) {
+        seiClassLoader = loader;
         wsdlModel = model;
         route = rt;
         getSourceServicesAndPorts();
@@ -120,7 +120,7 @@ public class RouterImpl implements Router {
 
         Class<?> sei = null;
         try {
-            sei = mgr.getSEIClassLoader().loadClass(seiName.toString());
+            sei = seiClassLoader.loadClass(seiName.toString());
         } catch (ClassNotFoundException cnfe) {
             throw new WebServiceException("Could not load sei", cnfe);
         }

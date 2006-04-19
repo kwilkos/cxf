@@ -28,9 +28,9 @@ public class XMLServerImpl extends TestServerBase {
         }
     }
     
-    @WebService(serviceName = "XMLService", portName = "XMLPort",
-                name = "TypeTestPortType",
-                targetNamespace = "http://objectweb.org/type_test/doc")
+    @WebService(serviceName = "XMLService", 
+                portName = "XMLPort",
+                endpointInterface = "org.objectweb.type_test.doc.TypeTestPortType")
     @javax.xml.ws.BindingType(value = "http://celtix.objectweb.org/bindings/xmlformat")
     class XMLTypeTestImpl extends TypeTestImpl implements TypeTestPortType {
     }
