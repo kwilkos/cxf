@@ -89,7 +89,7 @@ public final class JettySslListenerConfigurer {
             return true;
         }
         String keyStoreType = sslPolicy.getKeystoreType();
-        LogUtils.log(LOG, Level.INFO, "KEY_STORE_SET", new Object[] {keyStoreType});
+        LogUtils.log(LOG, Level.INFO, "KEY_STORE_TYPE_SET", new Object[] {keyStoreType});
         secureListener.setKeystoreType(keyStoreType);
         return true;
     }  
@@ -281,6 +281,7 @@ public final class JettySslListenerConfigurer {
             || (securityConfigurerName.equals(""))) {
             return;
         }
+        LogUtils.log(LOG, Level.WARNING, "UNOFFICIAL_SECURITY_CONFIGURER");
         try {
             Class clazz = Class.forName(securityConfigurerName);
             Method configure = clazz.getDeclaredMethod("configure", SSLServerPolicy.class);

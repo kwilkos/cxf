@@ -116,8 +116,13 @@ public final class JettySslClientConfigurer {
                     keystoreManagers = kmf.getKeyManagers();
                     LogUtils.log(LOG, Level.INFO, "LOADED_KEYSTORE", new Object[]{keyStoreLocation});
                 } catch (Exception e) {
-                    LogUtils.log(LOG, Level.WARNING, "FAILED_TO_LOAD_KEYSTORE", new Object[]{e});
+                    LogUtils.log(LOG, Level.WARNING, "FAILED_TO_LOAD_KEYSTORE", 
+                                 new Object[]{keyStoreLocation, e.getMessage()});
                 }  
+            }
+            if ((keyStorePassword == null) && (keyStoreLocation != null)) {
+                LogUtils.log(LOG, Level.WARNING, "FAILED_TO_LOAD_KEYSTORE_NULL_PASSWORD", 
+                             new Object[]{keyStoreLocation});
             }
             
             // ************************* Load Trusted CA file *************************
@@ -133,7 +138,8 @@ public final class JettySslClientConfigurer {
                 trustStoreManagers = tmf.getTrustManagers();
                 LogUtils.log(LOG, Level.INFO, "LOADED_TRUST_STORE", new Object[]{trustStoreLocation});
             } catch (Exception e) {
-                LogUtils.log(LOG, Level.WARNING, "FAILED_TO_LOAD_TRUST_STORE", new Object[]{e.getMessage()});
+                LogUtils.log(LOG, Level.WARNING, "FAILED_TO_LOAD_TRUST_STORE", 
+                             new Object[]{trustStoreLocation, e.getMessage()});
             } 
             sslctx.init(keystoreManagers, trustStoreManagers, null);
             
@@ -174,9 +180,14 @@ public final class JettySslClientConfigurer {
                     keystoreManagers = kmf.getKeyManagers();
                     LogUtils.log(LOG, Level.INFO, "LOADED_KEYSTORE", new Object[]{keyStoreLocation});
                 } catch (Exception e) {
-                    LogUtils.log(LOG, Level.WARNING, "FAILED_TO_LOAD_KEYSTORE", new Object[]{e});
+                    LogUtils.log(LOG, Level.WARNING, "FAILED_TO_LOAD_KEYSTORE", 
+                                                     new Object[]{keyStoreLocation, e.getMessage()});
                 } 
-            }             
+            }  
+            if ((keyStorePassword == null) && (keyStoreLocation != null)) {
+                LogUtils.log(LOG, Level.WARNING, "FAILED_TO_LOAD_KEYSTORE_NULL_PASSWORD", 
+                             new Object[]{keyStoreLocation});
+            }
             
             // ************************* Load Trusted CA file *************************
             //TODO could support multiple trust cas
@@ -186,12 +197,17 @@ public final class JettySslClientConfigurer {
             trustedCertStore.load(null, "".toCharArray());
             CertificateFactory cf = CertificateFactory.getInstance(CERTIFICATE_FACTORY_TYPE);
             byte[] caCert = loadCACert(trustStoreLocation);
-            if (caCert != null) {
-                ByteArrayInputStream cabin = new ByteArrayInputStream(caCert);
-                X509Certificate cert = (X509Certificate) cf.generateCertificate(cabin);
-                trustedCertStore.setCertificateEntry(cert.getIssuerDN().toString(), cert);
-                cabin.close();
-            }
+            try {
+                if (caCert != null) {
+                    ByteArrayInputStream cabin = new ByteArrayInputStream(caCert);
+                    X509Certificate cert = (X509Certificate) cf.generateCertificate(cabin);
+                    trustedCertStore.setCertificateEntry(cert.getIssuerDN().toString(), cert);
+                    cabin.close();
+                }
+            } catch (Exception e) {
+                LogUtils.log(LOG, Level.WARNING, "FAILED_TO_LOAD_TRUST_STORE", 
+                             new Object[]{trustStoreLocation, e.getMessage()});
+            } 
             TrustManagerFactory tmf  = 
                 TrustManagerFactory.getInstance(trustStoreKeyManagerFactoryAlgorithm);
 
@@ -262,7 +278,6 @@ public final class JettySslClientConfigurer {
             return;
         }
 
-        //Not returning false because should default
         keyStoreLocation = System.getProperty("user.home") + "/.keystore";
         LogUtils.log(LOG, Level.INFO, "KEY_STORE_NOT_SET", new Object[]{keyStoreLocation});
 
@@ -271,7 +286,6 @@ public final class JettySslClientConfigurer {
     public void setupKeystoreType() {
         if (!sslPolicy.isSetKeystoreType()) {
             LogUtils.log(LOG, Level.INFO, "KEY_STORE_TYPE_NOT_SET", new Object[]{DEFAUL_KEYSTORE_TYPE});
-            //Not returning false because does not have to be set
             return;
         }
         keyStoreType = sslPolicy.getKeystoreType();
@@ -453,11 +467,13 @@ public final class JettySslClientConfigurer {
             + config.getId() + ".http-client";
         String securityConfigurerName = 
             System.getProperty(systemProperty);
+       
         if ((securityConfigurerName == null) 
             || (securityConfigurerName.equals(""))) {
             return;
         }
-
+        LogUtils.log(LOG, Level.WARNING, "UNOFFICIAL_SECURITY_CONFIGURER");
+        
         try {
             Class clazz = Class.forName(securityConfigurerName);
             Method configure = clazz.getDeclaredMethod("configure", SSLClientPolicy.class);

@@ -331,7 +331,8 @@ public class JettySslClientConfigurerTest extends TestCase {
         assertTrue("sSLSocketFactory should be non and a new one", isNewSocketFactory);
         assertTrue("SSLContext init should have passed, but keystore initialization failed, invalid "
                    + "keystore password", 
-                   handler.checkLogContainsString("Loading the keystore failed "));
+                   handler.checkLogContainsString("Loading the keystore ") 
+                   && handler.checkLogContainsString("failed with the following problem"));
         assertTrue("SSLContext init should have passed, but keystore initialization failed, invalid "
                    + "keystore password",
                    handler.checkLogContainsString("Keystore was tampered with, or password was incorrect"));
@@ -367,10 +368,12 @@ public class JettySslClientConfigurerTest extends TestCase {
         assertTrue("sSLSocketFactory should be non and a new one", isNewSocketFactory);
         assertTrue("SSLContext init should have passed, but keystore initialization failed, invalid "
                    + "keystore password", 
-                   handler.checkLogContainsString("Loading the keystore failed "));
+                   handler.checkLogContainsString("Loading the keystore ") 
+                   && handler.checkLogContainsString("failed with the following problem"));
         assertTrue("SSLContext init should have passed, but keystore initialization failed, invalid "
-                   + "keystore password",
-                   handler.checkLogContainsString("Loading the keystore failed"));
+                   + "keystore password", 
+                   handler.checkLogContainsString("Loading the keystore ") 
+                   && handler.checkLogContainsString("failed with the following problem"));
         assertTrue("SSLContext init should have passed, but looks like trustore not loaded", 
                    handler.checkLogContainsString("Successfully loaded trust store"));
         assertTrue("Check to ensure keystore password and keypassword same failed",

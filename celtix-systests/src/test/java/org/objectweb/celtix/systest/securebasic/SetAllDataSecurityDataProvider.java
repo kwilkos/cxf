@@ -2,7 +2,7 @@ package org.objectweb.celtix.systest.securebasic;
 
 import org.objectweb.celtix.bus.configuration.security.SSLClientPolicy;
 import org.objectweb.celtix.bus.configuration.security.SSLServerPolicy;
-//import org.objectweb.celtix.bus.transports.http.SecurityDataProvider; 
+
 
 
 public class SetAllDataSecurityDataProvider {
