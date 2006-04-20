@@ -56,7 +56,7 @@ public class WSDLManagerInstrumentationTest extends TestCase {
     public void testGetPortTypes() throws Exception {
         loadWSDL();
         
-        String[] ports = wi.getPortTypes();        
+        String[] ports = wi.getPorts();        
         assertEquals("The bindings number is not right", 1, ports.length);
         assertTrue("Get wrong binding Name ", ports[0].compareTo(PORTTYPE_NAME) == 0);  
     }

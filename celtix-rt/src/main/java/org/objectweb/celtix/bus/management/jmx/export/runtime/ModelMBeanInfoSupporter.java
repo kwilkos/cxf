@@ -149,7 +149,7 @@ public class ModelMBeanInfoSupporter {
         }
        
        
-        if (ma.currencyTimeLimit() > -1) {
+        if (ma.currencyTimeLimit() >= -1) {
             desc.setField("currencyTimeLimit", ma.currencyTimeLimit());
         }
            
@@ -157,7 +157,7 @@ public class ModelMBeanInfoSupporter {
             desc.setField("persistPolicy", ma.persistPolicy());
         }
            
-        if (ma.persistPeriod() > -1) {
+        if (ma.persistPeriod() >= -1) {
             desc.setField("persistPeriod", ma.persistPeriod());
         }
            
@@ -181,7 +181,7 @@ public class ModelMBeanInfoSupporter {
             desc.setField("displayName", mo.description());
         }
                     
-        if (mo.currencyTimeLimit() > -1) {
+        if (mo.currencyTimeLimit() >= -1) {
             desc.setField("currencyTimeLimit", mo.currencyTimeLimit());
         }
         
@@ -237,7 +237,7 @@ public class ModelMBeanInfoSupporter {
             desc.setField("persistPolicy", mr.persistPolicy());
         }
         
-        if (mr.persistPeriod() > -1) {
+        if (mr.persistPeriod() >= -1) {
             desc.setField("persistPeriod", mr.persistPeriod());
         }
         
@@ -245,7 +245,7 @@ public class ModelMBeanInfoSupporter {
             desc.setField("logFile", mr.logFile());
         }
         
-        if (mr.currencyTimeLimit() > -1) {
+        if (mr.currencyTimeLimit() >= -1) {
             desc.setField("currencyTimeLimit", mr.currencyTimeLimit());
         }
         

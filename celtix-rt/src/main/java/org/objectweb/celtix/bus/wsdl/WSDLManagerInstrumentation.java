@@ -78,7 +78,7 @@ public class WSDLManagerInstrumentation implements Instrumentation {
     
     @ManagedAttribute(description = "The celtix bus WSDL provider the PortTypes",
                       persistPolicy = "OnUpdate")
-    public String[] getPortTypes() {
+    public String[] getPorts() {
         List<String> strList = new ArrayList<String>();
         Set<Definition> defSet = new HashSet<Definition>(definitionsMap.values());        
         for (Iterator<Definition> it = defSet.iterator();

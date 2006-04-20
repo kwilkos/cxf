@@ -123,8 +123,13 @@ public class WSDLManagerImpl implements WSDLManager {
                 return definitionsMap.get(sei);
             }
         }
-
-        Definition def = createDefinition(sei);
+        Definition def = null;
+        try {
+            def = createDefinition(sei);
+        } catch (Exception ex) {            
+            throw new WSDLException(WSDLException.PARSER_ERROR, ex.getMessage());
+        }
+        
         synchronized (definitionsMap) {
             definitionsMap.put(sei, def);
         }
@@ -148,7 +153,7 @@ public class WSDLManagerImpl implements WSDLManager {
         return def;
     }
 
-    private Definition createDefinition(Class<?> sei) {
+    private Definition createDefinition(Class<?> sei) throws Exception {
         Definition definition = null;
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("createDefinition for class: " + sei.getName());
@@ -172,8 +177,8 @@ public class WSDLManagerImpl implements WSDLManager {
 
         try {
             int result = 0;
-            org.objectweb.celtix.tools.JavaToWSDL.main(new String[] {"-o",
-                    tmp.getPath() + "/tmp.wsdl", sei.getName() });
+            org.objectweb.celtix.tools.JavaToWSDL.runTool(new String[] {"-o",
+                    tmp.getPath() + "/tmp.wsdl", sei.getName() });            
             if (0 != result) {
                 LOG.log(Level.SEVERE, "WSDL_GENERATION_BAD_RESULT_MSG", result);
                 return null;

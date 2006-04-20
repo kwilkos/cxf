@@ -24,7 +24,7 @@ public class JavaToWSDL extends AbstractCeltixToolContainer {
         super(TOOL_NAME, toolspec);
     }
 
-    public void execute(boolean exitOnFinish) {
+    public void execute(boolean exitOnFinish) throws ToolException {
         JavaToWSDLProcessor processor = new JavaToWSDLProcessor();
         
         try {
@@ -39,39 +39,38 @@ public class JavaToWSDL extends AbstractCeltixToolContainer {
                 processor.process();
                 definition = processor.getModel().getDefinition();
             }
-        } catch (ToolException ex) {
-            System.err.println("Error : " + ex.getMessage());
+        } catch (ToolException ex) {            
             if (ex.getCause() instanceof BadUsageException) {
                 getInstance().printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
-            System.err.println();
-            if (isVerboseOn()) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new ToolException(ex.getMessage(), ex.getCause());
+        }
+    }
+
+    public static void main(String[] pargs) { 
+        try {
+            runTool(pargs);
+        } catch (BadUsageException ex) {
+            System.err.println("Error : " + ex.getMessage());
+            getInstance().printUsageException(TOOL_NAME, ex);
+            if (getInstance().isVerboseOn()) {
                 ex.printStackTrace();
             }
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();
-            if (isVerboseOn()) {
+            if (getInstance().isVerboseOn()) {
                 ex.printStackTrace();
             }
         }
     }
-
-    public static void main(String[] pargs) {
+    
+    public static void runTool(String[] pargs) throws Exception {
         args = pargs;
-
-        try {
-            ToolRunner.runTool(JavaToWSDL.class, JavaToWSDL.class
+        ToolRunner.runTool(JavaToWSDL.class, JavaToWSDL.class
                 .getResourceAsStream(ToolConstants.TOOLSPECS_BASE + "java2wsdl.xml"), false, args);
-        } catch (BadUsageException ex) {
-            getInstance().printUsageException(TOOL_NAME, ex);
-
-        } catch (Exception ex) {
-            System.err.println("Error : " + ex.getMessage());
-            System.err.println();
-            ex.printStackTrace();
-
-        }
     }
 
     public void checkParams(ErrorVisitor errors) throws ToolException {

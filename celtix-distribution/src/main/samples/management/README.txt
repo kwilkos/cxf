@@ -207,5 +207,5 @@ Setting the PlatformMBeanServer to be false means that celtix's
 MBeanServer is created by itself. We can set the JMXConnectorServer 
 to run in a separated thread or to run in the daemon mode, and we can
 set the JMXServiceURL which is used by Jconsol to connect with the
-MBeanServer. Note: in this case we should run an rmiregistry to listen to port 
-9913 for the JMXConnectorServer to register.
+MBeanServer.  
+
