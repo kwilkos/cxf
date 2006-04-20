@@ -35,7 +35,7 @@
             <xs:element name="documentation" type="wsdl:tDocumentation" minOccurs="0" />
         </xs:sequence>
     </xs:complexType>
-	 
+
 
 
     <xs:complexType name="tExtensibleAttributesDocumented" abstract="true" >
@@ -120,14 +120,13 @@
             <xs:extension base="wsdl:tDocumented" >
                 <xs:sequence>
                     <xs:group ref="wsdl:anyTopLevelOptionalElement"  minOccurs="0"   maxOccurs="unbounded" />
-                    <xs:any namespace="##other" minOccurs="0" maxOccurs="unbounded" processContents="lax" />
                 </xs:sequence>
                 <xs:attribute name="targetNamespace" type="xs:anyURI" use="optional" />
                 <xs:attribute name="name" type="xs:NCName" use="optional" />
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-   
+
 
 
     <xs:complexType name="tImport" >
@@ -138,7 +137,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-   
+
 
 
     <xs:complexType name="tTypes" >
@@ -146,7 +145,7 @@
             <xs:extension base="wsdl:tExtensibleDocumented" />
         </xs:complexContent>
     </xs:complexType>
-     
+
 
 
     <xs:complexType name="tMessage" >
@@ -180,7 +179,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-   
+
 
 
     <xs:complexType name="tOperation" >
@@ -197,7 +196,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    
+
 
 
     <xs:group name="request-response-or-one-way-operation" >
@@ -219,7 +218,7 @@
             </xs:sequence>
         </xs:sequence>
     </xs:group>
-        
+
 
 
     <xs:complexType name="tParam" >
@@ -239,7 +238,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-     
+
 
 
     <xs:complexType name="tBinding" >
@@ -253,7 +252,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    
+
 
 
     <xs:complexType name="tBindingOperationMessage" >
@@ -263,7 +262,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-  
+
 
 
     <xs:complexType name="tBindingOperationFault" >
@@ -286,7 +285,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-     
+
 
 
     <xs:complexType name="tService" >
@@ -299,7 +298,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-     
+
 
 
     <xs:complexType name="tPort" >

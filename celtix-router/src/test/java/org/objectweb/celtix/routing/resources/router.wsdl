@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xformat="http://celtix.objectweb.org/bindings/xmlformat" xmlns:jms="http://celtix.objectweb.org/transports/jms" xmlns:ns1="http://celtix.objectweb.org/routing/configuration" xmlns:tns="http://objectweb.org/HWRouter" xmlns:x1="http://objectweb.org/HWRouter/types" targetNamespace="http://objectweb.org/HWRouter" name="HelloWorld">
+<wsdl:definitions
+     xmlns="http://schemas.xmlsoap.org/wsdl/"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+     xmlns:xformat="http://celtix.objectweb.org/bindings/xmlformat"
+     xmlns:jms="http://celtix.objectweb.org/transports/jms"
+     xmlns:ns1="http://celtix.objectweb.org/routing/configuration"
+     xmlns:tns="http://objectweb.org/HWRouter"
+     xmlns:x1="http://objectweb.org/HWRouter/types"
+     targetNamespace="http://objectweb.org/HWRouter" name="HelloWorld">
+     <!--Route Elements-->
+    <ns1:route name="route_0">
+        <ns1:source port="HTTPSoapPortSource" service="tns:HTTPSoapServiceSource"/>
+        <ns1:destination port="HTTPSoapPortDestination" service="tns:HTTPSoapServiceDestination"/>
+    </ns1:route>
+        <ns1:route name="route_1">
+        <ns1:source port="JMSSoapPortSource" service="tns:JMSSoapServiceSource"/>
+        <ns1:destination port="HTTPSoapPortDestination" service="tns:HTTPSoapServiceDestination"/>
+    </ns1:route>
+    <ns1:route name="route_2">
+        <ns1:source port="HTTPSoapPortSource2" service="tns:HTTPSoapServiceSource2"/>
+        <ns1:destination port="JMSSoapPortDestination" service="tns:JMSSoapServiceDestination"/>
+    </ns1:route>
+    <ns1:route name="route_3">
+        <ns1:source port="HTTPXMLPortSource" service="tns:HTTPXMLServiceSource"/>
+        <ns1:destination port="HTTPSoapPortDestination" service="tns:HTTPSoapServiceDestination"/>
+    </ns1:route>
+    <!--Route Elements-->
     <wsdl:types>
         <schema targetNamespace="http://objectweb.org/HWRouter/types" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
             <element name="sayHi">
@@ -161,10 +189,6 @@
             <soap:address location="http://localhost:9002/HTTPSoapServiceDestination/HTTPSoapPortDestination"/>
         </wsdl:port>
     </wsdl:service>
-    <ns1:route name="route_0">
-        <ns1:source port="HTTPSoapPortSource" service="tns:HTTPSoapServiceSource"/>
-        <ns1:destination port="HTTPSoapPortDestination" service="tns:HTTPSoapServiceDestination"/>
-    </ns1:route>
     <!--END-->
 
     <!--Used for SOAP JMS_HTTP Router Test-->
@@ -178,10 +202,6 @@
                </jms:address>
         </wsdl:port>
     </wsdl:service>
-    <ns1:route name="route_1">
-        <ns1:source port="JMSSoapPortSource" service="tns:JMSSoapServiceSource"/>
-        <ns1:destination port="HTTPSoapPortDestination" service="tns:HTTPSoapServiceDestination"/>
-    </ns1:route>
     <!--END-->
 
     <!--Used for SOAP HTTP_JMS Router Test-->
@@ -200,10 +220,6 @@
                </jms:address>
         </wsdl:port>
     </wsdl:service>
-    <ns1:route name="route_2">
-        <ns1:source port="HTTPSoapPortSource2" service="tns:HTTPSoapServiceSource2"/>
-        <ns1:destination port="JMSSoapPortDestination" service="tns:JMSSoapServiceDestination"/>
-    </ns1:route>
     <!--END-->
 
     <wsdl:service name="HTTPXMLServiceSource">
@@ -212,8 +228,4 @@
         </wsdl:port>
     </wsdl:service>
 
-    <ns1:route name="route_3">
-        <ns1:source port="HTTPXMLPortSource" service="tns:HTTPXMLServiceSource"/>
-        <ns1:destination port="HTTPSoapPortDestination" service="tns:HTTPSoapServiceDestination"/>
-    </ns1:route>
 </wsdl:definitions>

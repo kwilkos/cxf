@@ -12,7 +12,9 @@ import org.objectweb.hello_world_soap_http_secure.Greeter;
 import org.objectweb.hello_world_soap_http_secure.SecureSOAPService;
 import org.objectweb.hello_world_soap_http_secure.types.Result;
 
-@WebService(serviceName = "SecureSOAPService", portName = "SoapPort", name = "Greeter",
+@WebService(serviceName = "SecureSOAPService", 
+            portName = "SoapPort",
+            endpointInterface = "org.objectweb.hello_world_soap_http_secure.Greeter",
             targetNamespace = "http://objectweb.org/hello_world_soap_http_secure")
 public class InterGreeterImpl implements Greeter {
 
