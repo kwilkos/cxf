@@ -94,7 +94,6 @@ public class PersistenceUtils {
             }
             SOAPMessage msg = msgFactory.createMessage(null, is);
             ctx.put(SOAP_MSG_KEY, msg);
-            msg.writeTo(System.out);
             
         } catch (Exception ex) {
             throw new RMStoreException(ex);  

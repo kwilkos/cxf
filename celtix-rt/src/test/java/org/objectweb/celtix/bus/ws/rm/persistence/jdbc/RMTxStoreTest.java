@@ -42,8 +42,7 @@ import org.objectweb.celtix.ws.rm.persistence.RMMessage;
 import org.objectweb.celtix.ws.rm.persistence.RMSourceSequence;
 
 public class RMTxStoreTest extends TestCase {
-    
-    private static File root = new File("rmdb");  
+      
     private static RMTxStore store;
     private static final String CLIENT_ENDPOINT_ID = 
         "celtix.{http://celtix.objectweb.org/greeter_control}GreeterService/GreeterPort";
@@ -600,17 +599,25 @@ public class RMTxStoreTest extends TestCase {
     
     
     private static void deleteExistingDatabase(boolean now) {
+        File root = null;
+        String dsh = System.getProperty("derby.system.home");
+        if (null == dsh) {
+            File log = new File("derby.log");
+            if (log.exists()) {
+                if (now) {
+                    log.delete();
+                } else {
+                    log.deleteOnExit();
+                }
+            }  
+            root = new File("rmdb");
+        } else {
+            root = new File(dsh);
+        }
         if (root.exists()) {
             recursiveDelete(root, now);
         }
-        File log = new File("derby.log");
-        if (log.exists()) {
-            if (now) {
-                log.delete();
-            } else {
-                log.deleteOnExit();
-            }
-        }       
+        
     }
     
     private static void recursiveDelete(File dir, boolean now) {

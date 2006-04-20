@@ -313,6 +313,10 @@
                             <name>activemq.store.dir</name>
                             <value>${basedir}/target/ActiveMQ</value>
                         </property>
+                        <property>
+                            <name>derby.system.home</name>
+                            <value>${basedir}/target/derby</value>
+                        </property>
                     </systemProperties>
                 </configuration>
             </plugin>
