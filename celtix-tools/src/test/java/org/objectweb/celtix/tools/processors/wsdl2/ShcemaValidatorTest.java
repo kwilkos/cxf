@@ -18,6 +18,9 @@ public class ShcemaValidatorTest extends ProcessorTestBase {
                                                getLocation("/wsdl/hello_world_error_attribute.wsdl")});
 
             assertNotNull("validate exception should be thrown", stdErr.toString());
+            
+            assertTrue("Error should be located ", stdErr.toString().indexOf("line 53 column 56") > -1);
+
         } catch (Exception e) {
             // ignore
         } finally {
@@ -31,7 +34,6 @@ public class ShcemaValidatorTest extends ProcessorTestBase {
             validator.validate(getLocation("/wsdl/hello_world_error_attribute.wsdl"), null, true);
             fail("validate exception should be thrown");
         } catch (Exception e) {
-            e.printStackTrace();
             // ignore exception
         }
     }
