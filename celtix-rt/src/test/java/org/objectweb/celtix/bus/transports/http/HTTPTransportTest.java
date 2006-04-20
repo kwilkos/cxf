@@ -28,6 +28,7 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
+import org.objectweb.celtix.bus.configuration.ConfigurationEventFilter;
 import org.objectweb.celtix.bus.transports.TestResponseCallback;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
@@ -104,7 +105,13 @@ public class HTTPTransportTest extends TestCase {
 
     public void tearDown() throws Exception {
         EasyMock.reset(bus);
-        checkBusRemovedEvent();
+        try {
+            bus.removeListener(isA(JettyHTTPServerTransport.class));
+        } catch (BusException e) {
+            // TODO nothing to do            
+        }
+        EasyMock.expectLastCall();
+        checkBusRemovedEvent();        
         EasyMock.replay(bus);
 
         if (queueManager != null) {
@@ -359,13 +366,13 @@ public class HTTPTransportTest extends TestCase {
     
 
     private void checkBusCreatedEvent() {
-
+        
         bus.sendEvent(isA(ComponentCreatedEvent.class));
 
         EasyMock.expectLastCall();
     }
 
-    private void checkBusRemovedEvent() {
+    private void checkBusRemovedEvent() { 
 
         bus.sendEvent(isA(ComponentRemovedEvent.class));
 
@@ -587,6 +594,14 @@ public class HTTPTransportTest extends TestCase {
             EasyMock.expectLastCall().andReturn(null);
             first = false;
         }
+        
+        try {
+            bus.addListener(isA(JettyHTTPServerTransport.class), 
+                            isA(ConfigurationEventFilter.class));
+        } catch (BusException e) {
+            // TODO nothing to do            
+        }
+        EasyMock.expectLastCall();
 
         checkBusCreatedEvent();
 

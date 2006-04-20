@@ -39,10 +39,17 @@ public class TransportServerCounters {
         }   
     }
     
-    void resetCounters() {
+    public void resetCounters() {
         for (int i = 0; i < counters.length; i++) {
             counters[i].reset();
         }
-    }    
+    } 
+    
+    public void stopCounters() {
+        for (int i = 0; i < counters.length; i++) {
+            counters[i].stop();
+        }
+    }
+    
     
 }

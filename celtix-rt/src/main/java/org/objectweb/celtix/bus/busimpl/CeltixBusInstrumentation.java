@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.busimpl;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedAttribute;
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
@@ -68,6 +69,18 @@ public class CeltixBusInstrumentation implements Instrumentation {
                       persistPolicy = "OnUpdate")
     public String[] getBindingFactories() {  
         return bindingFactories;
+    }
+    
+    @ManagedAttribute(description = "The celtix bus Serivce monitors counters",
+                      persistPolicy = "OnUpdate")
+    public Boolean isServiceMonitors() {
+        return bus.getConfiguration().getBoolean("servicesMonitoring");
+    }
+    
+    public void setServiceMonitors(Boolean value) {
+        if (value != bus.getConfiguration().getBoolean("servicesMonitoring")) {
+            bus.getConfiguration().setObject("servicesMonitoring", value);
+        }
     }
     
     public String getUniqueInstrumentationName() {

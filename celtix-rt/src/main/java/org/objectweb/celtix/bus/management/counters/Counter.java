@@ -6,13 +6,16 @@ public class Counter {
     private String discription;
     private int value;
     private float rate;
+    private Boolean runFlag;
     
     Counter(String disc) {
         discription = disc;
+        runFlag = false;
     }
     
     public void reset() {
         value = 0;
+        runFlag = true;
     }
     
     public int add(int i) {
@@ -21,7 +24,9 @@ public class Counter {
     }
     
     public final void increase() {
-        value++;
+        if (runFlag) {
+            value++;
+        }
     }
     
     public String getDiscription() {
@@ -36,11 +41,17 @@ public class Counter {
         return value;
     }
     
+    public void stop() {
+        value = 0;
+        runFlag = false;
+    }
+    
     void setRate(float r) {
         if (rate < 1 && rate > 0) {
             rate = r;
         }
         // else do nothing           
     }
+    
     
 }

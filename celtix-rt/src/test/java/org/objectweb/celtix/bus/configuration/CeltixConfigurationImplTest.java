@@ -10,10 +10,11 @@ public class CeltixConfigurationImplTest extends TestCase {
     Bus bus;
 
     public void setUp() throws Exception {
-        bus = Bus.init();
+        bus = Bus.getCurrent();
     }
 
     public void tearDown() {
+        
     }
 
     public void testServicesMonitoring() {

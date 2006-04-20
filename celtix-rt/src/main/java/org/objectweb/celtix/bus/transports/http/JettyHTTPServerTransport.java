@@ -23,16 +23,22 @@ import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusEvent;
+import org.objectweb.celtix.BusEventListener;
+import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
+import org.objectweb.celtix.bus.configuration.ConfigurationEvent;
+import org.objectweb.celtix.bus.configuration.ConfigurationEventFilter;
 import org.objectweb.celtix.bus.management.counters.TransportServerCounters;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
+public class JettyHTTPServerTransport extends AbstractHTTPServerTransport 
+    implements BusEventListener {
     
     private static final long serialVersionUID = 1L;
     JettyHTTPServerEngine engine;
@@ -42,10 +48,23 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
         super(b, ref);
         counters = new TransportServerCounters("JettyHTTPServerTransport");
         engine = JettyHTTPServerEngine.getForPort(bus, nurl.getProtocol(), nurl.getPort());
+        //register the configuration event
+        ConfigurationEventFilter configurationEventFilter = new ConfigurationEventFilter();
+        try {
+            bus.addListener((BusEventListener)this, configurationEventFilter);
+        } catch (BusException ex) {            
+            LOG.log(Level.SEVERE, "REMOVE_LISTENER_FAILURE_MSG", ex);            
+        }
+        
         bus.sendEvent(new ComponentCreatedEvent(this));
     }
     
-    public void shutdown() {               
+    public void shutdown() {  
+        try {
+            bus.removeListener((BusEventListener)this);
+        } catch (BusException ex) {            
+            LOG.log(Level.SEVERE, "REMOVE_LISTENER_FAILURE_MSG", ex);            
+        }
         bus.sendEvent(new ComponentRemovedEvent(this)); 
     }
     
@@ -368,6 +387,22 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport {
                 response.commit();
                 request.setHandled(true);
                 origOut.resetOut(new BufferedOutputStream(response.getOutputStream(), 1024));
+            }
+        }
+    }
+    public void processEvent(BusEvent e) throws BusException {
+        if (e.getID().equals(ConfigurationEvent.RECONFIGURED)) {
+            String configName = (String)e.getSource();            
+            reConfigure(configName);
+        }
+    }
+
+    private void reConfigure(String configName) {
+        if ("servicesMonitoring".equals(configName)) {
+            if (bus.getConfiguration().getBoolean("servicesMonitoring")) {
+                counters.resetCounters();
+            } else {
+                counters.stopCounters();
             }
         }
     }

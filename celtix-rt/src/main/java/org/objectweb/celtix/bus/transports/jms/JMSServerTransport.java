@@ -23,8 +23,12 @@ import javax.wsdl.WSDLException;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusEvent;
+import org.objectweb.celtix.BusEventListener;
+import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
+import org.objectweb.celtix.bus.configuration.ConfigurationEvent;
 import org.objectweb.celtix.bus.management.counters.TransportServerCounters;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
@@ -36,7 +40,8 @@ import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
-public class JMSServerTransport extends JMSTransportBase implements ServerTransport {
+public class JMSServerTransport extends JMSTransportBase 
+    implements ServerTransport, BusEventListener {
     static final Logger LOG = LogUtils.getL7dLogger(JMSServerTransport.class);
     private static final String JMS_SERVER_TRANSPORT_MESSAGE =
         JMSServerTransport.class.getName() + ".IncomingMessage";
@@ -336,5 +341,22 @@ public class JMSServerTransport extends JMSTransportBase implements ServerTransp
             }
         }
         
+    }
+
+    public void processEvent(BusEvent e) throws BusException {
+        if (e.getID().equals(ConfigurationEvent.RECONFIGURED)) {
+            String configName = (String)e.getSource();           
+            reConfigure(configName);
+        }
+    }
+
+    private void reConfigure(String configName) {
+        if ("servicesMonitoring".equals(configName)) {
+            if (bus.getConfiguration().getBoolean("servicesMonitoring")) {
+                counters.resetCounters();
+            } else {
+                counters.stopCounters();
+            }
+        }
     }
 }
