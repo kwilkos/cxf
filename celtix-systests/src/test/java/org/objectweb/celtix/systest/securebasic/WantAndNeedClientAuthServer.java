@@ -7,6 +7,8 @@ import org.objectweb.celtix.systest.common.TestServerBase;
 
 
 public class WantAndNeedClientAuthServer extends TestServerBase {
+    private static boolean launchingServer;
+    
     
     private String url;
     
@@ -20,6 +22,7 @@ public class WantAndNeedClientAuthServer extends TestServerBase {
         Object implementor = new GreeterImpl();
         String address = url;
         Endpoint.publish(address, implementor);
+        launchingServer = false;
     }
     
 
@@ -29,12 +32,16 @@ public class WantAndNeedClientAuthServer extends TestServerBase {
             WantAndNeedClientAuthServer requireClientAuth = 
                 new WantAndNeedClientAuthServer("https://localhost:9001/SoapContext/SoapPort"); 
 
+
             ServerThread st1 = new ServerThread(requireClientAuth);
+            launchingServer = true;
             st1.start(); 
             
+            while (launchingServer) {
+                Thread.sleep(2000);
+            }
             WantAndNeedClientAuthServer requireClientAuthDiffernetCiphersuite = 
                 new WantAndNeedClientAuthServer("https://localhost:9011/SoapContext/SoapPort"); 
-
             ServerThread st2 = new ServerThread(requireClientAuthDiffernetCiphersuite);
             st2.start();
         } catch (Exception ex) {
