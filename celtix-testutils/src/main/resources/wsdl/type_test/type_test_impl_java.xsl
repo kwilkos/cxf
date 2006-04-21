@@ -14,7 +14,6 @@
     
     <xsl:template match="/xsd:schema">
       <xsl:text>package org.objectweb.celtix.systest.type_test;&#10;&#10;</xsl:text>
-      <xsl:text>//import java.net.URI;&#10;</xsl:text>
       <xsl:text>import java.util.List;&#10;</xsl:text>
       <xsl:text>import javax.xml.ws.Holder;&#10;&#10;</xsl:text>
       <xsl:apply-templates select="itst:it_test_group[@ID]" mode="imports"/>
@@ -94,13 +93,13 @@ public class TypeTestImpl {
         y.value = x;
         return x;
     }
-/*
-    public URI testAnyURIRestriction(URI x, Holder<URI> y, Holder<URI> z) {
+
+    public String testAnyURIRestriction(String x, Holder<String> y, Holder<String> z) {
         z.value = y.value;
         y.value = x;
         return x;
     }
-*/
+
     public byte[] testHexBinaryRestriction(byte[] x,
             Holder<byte[]> y, 
             Holder<byte[]> z) {
@@ -219,6 +218,15 @@ public class TypeTestImpl {
     public String[] testAnonUnionList(String[] x,
             Holder< String[] > y,
             Holder< String[] > z) {
+        z.value = y.value;
+        y.value = x;
+        return x;
+    }
+
+    public String[] testNMTOKENS(
+            String[] x,
+            Holder<String[]> y,
+            Holder<String[]> z) {    
         z.value = y.value;
         y.value = x;
         return x;

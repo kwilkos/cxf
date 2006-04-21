@@ -65,16 +65,12 @@
     <itst:builtIn name="gMonthDay"                    javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
     <itst:builtIn name="gDay"                         javaType="javax.xml.datatype.XMLGregorianCalendar" javaHolder="javax.xml.datatype.XMLGregorianCalendar"/>
     <itst:builtIn name="duration" javaType="javax.xml.datatype.Duration" javaHolder="javax.xml.datatype.Duration"/>
-<!-- XXX anyURI need to customize this type
-    <itst:builtIn name="anyURI"                       javaType="java.net.URI"       javaHolder="java.net.URI"/>
--->
+    <itst:builtIn name="anyURI"   javaType="java.lang.String" javaHolder="java.lang.String"/>
     <itst:builtIn name="normalizedString"             javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="token"                        javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="language"                     javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="NMTOKEN"                      javaType="java.lang.String"             javaHolder="java.lang.String"/>
-<!-- XXX  NMTOKENS - rpc-literal and doc-literal generated code differs
     <itst:builtIn name="NMTOKENS"                     javaType="java.util.List&#x3c;java.lang.String&#x3e;" javaHolder="java.util.List&#x3c;java.lang.String&#x3e;"/>
--->
     <itst:builtIn name="Name"                         javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="NCName"                       javaType="java.lang.String"             javaHolder="java.lang.String"/>
     <itst:builtIn name="ID"                           javaType="java.lang.String"             javaHolder="java.lang.String"/>
@@ -251,7 +247,8 @@
             <enumeration value="there"/>
         </restriction>
     </simpleType>
-    <!-- XXX - generated code doesn't compile... needs a custom javaType
+    <!-- XXX - generated code problem. fixed in jaxb-ri-20060421 nightly build
+    http://forums.java.net/jive/thread.jspa?threadID=14815&tstart=0
     <simpleType name="ShortEnum">
         <xsd:annotation>
             <xsd:appinfo>
@@ -301,14 +298,29 @@
         </restriction>
     </simpleType>
     -->
-    <!-- XXX  anyURI
     <simpleType name="AnyURIEnum">
+        <xsd:annotation>
+            <xsd:appinfo>
+                <jaxb:typesafeEnumClass name="AnyURIEnum"/>
+            </xsd:appinfo>
+        </xsd:annotation>
         <restriction base="anyURI">
-            <enumeration value="http://www.iona.com"/>
-            <enumeration value="http://www.google.com"/>
+            <enumeration value="http://www.iona.com">
+                <xsd:annotation>
+                    <xsd:appinfo>
+                            <jaxb:typesafeEnumMember name="IONA"/>
+                    </xsd:appinfo>
+                </xsd:annotation>
+            </enumeration>
+            <enumeration value="http://www.google.com">
+                <xsd:annotation>
+                    <xsd:appinfo>
+                            <jaxb:typesafeEnumMember name="GOOGLE"/>
+                    </xsd:appinfo>
+                </xsd:annotation>
+            </enumeration>
         </restriction>
     </simpleType>
-    -->
     
     <!-- facet (length, maxLength & minLength) support -->
 
@@ -349,13 +361,11 @@
       </restriction>
     </simpleType>
 
-    <!-- XXX  anyURI
     <simpleType name="AnyURIRestriction">
       <restriction base="anyURI">
         <maxLength value="50"/>
       </restriction>
     </simpleType>
-    -->
 
     <simpleType name="HexBinaryRestriction">
       <restriction base="hexBinary">
@@ -418,9 +428,7 @@
         </restriction>
       </simpleContent>
     </complexType>
-    -->
 
-    <!-- XXX  anyURI
     <complexType name="ComplexRestriction5">
       <simpleContent>
         <restriction base="x1:AnyURIRestriction">
@@ -532,8 +540,6 @@
         <union memberTypes="int">
             <simpleType>
                 <restriction base="x1:StringList"/>
-                    <!--maxLength value="5"/>
-                </restriction-->
             </simpleType>
         </union>
     </simpleType>

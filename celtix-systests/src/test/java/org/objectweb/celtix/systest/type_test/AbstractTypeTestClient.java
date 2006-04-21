@@ -15,6 +15,7 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
+import org.objectweb.type_test.types1.AnyURIEnum;
 //import org.objectweb.type_test.types1.ColourEnum;
 import org.objectweb.type_test.types1.DecimalEnum;
 import org.objectweb.type_test.types1.NMTokenEnum;
@@ -877,7 +878,6 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         assertTrue("testNMTOKEN(): Incorrect return value", x.equals(ret));
     }
 
-    /*
     public void testNMTOKENS() throws Exception {
         //
         // XXX - The jaxb ri code generation produces different method
@@ -906,12 +906,11 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             Holder<String[]> z = new Holder<String[]>();
 
             String[] ret = rpcClient.testNMTOKENS(x, y, z);
-            assertTrue("testNMTOKENS(): Incorrect value for inout param", x.equals(y.value));
-            assertTrue("testNMTOKENS(): Incorrect value for out param", yOrig.equals(z.value));
-            assertTrue("testNMTOKENS(): Incorrect return value", x.equals(ret));
+            assertTrue("testNMTOKENS(): Incorrect value for inout param", Arrays.equals(x, y.value));
+            assertTrue("testNMTOKENS(): Incorrect value for out param", Arrays.equals(yOrig, z.value));
+            assertTrue("testNMTOKENS(): Incorrect return value", Arrays.equals(x, ret));
         }
     }
-    */
     
     public void testName() throws Exception {
         String x = "abc:123";
@@ -1195,10 +1194,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
-    /*
-     * XXX - TODO - need to customize anyURI type.
-     *
-    public void testanyURI() throws Exception {
+    public void testAnyURI() throws Exception {
         String valueSets[][] = {
             {"file:///root%20%20/-;?&+", "file:///w:/test!artix~java*"},
             {"http://iona.com/", "file:///z:/mail_iona=com,\'xmlbus\'"},
@@ -1206,33 +1202,28 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         };
 
         for (int i = 0; i < valueSets.length; i++) {
-            URI x = new URI(valueSets[i][0]);
-            Holder<URI> yOrig = new Holder<URI>(new URI(valueSets[i][1]));
-            Holder<URI> y = new Holder<URI>(new URI(valueSets[i][1]));
-            Holder<URI> z = new Holder<URI>();
+            String x = new String(valueSets[i][0]);
+            String yOrig = new String(valueSets[i][1]);
+            Holder<String> y = new Holder<String>(yOrig);
+            Holder<String> z = new Holder<String>();
 
-            URI ret;
+            String ret;
             if (testDocLiteral) {
-                ret = docClient.testanyURI(x, y, z);
+                ret = docClient.testAnyURI(x, y, z);
             } else {
-                ret = rpcClient.testanyURI(x, y, z);
+                ret = rpcClient.testAnyURI(x, y, z);
             }
             if (!perfTestOnly) {
-                assertEquals("testanyURI(): Incorrect value for inout param",
-                             x.toString(), y.value.toString());
-                assertEquals("testanyURI(): Incorrect value for out param",
-                             yOrig.value.toString(), z.value.toString());
-                assertEquals("testanyURI(): Incorrect return value",
-                             x.toString(), ret.toString());
+                assertEquals("testAnyURI(): Incorrect value for inout param", x, y.value);
+                assertEquals("testAnyURI(): Incorrect value for out param", yOrig, z.value);
+                assertEquals("testAnyURI(): Incorrect return value", x, ret);
             }
         }
     }
-    */
     
     /**
-     * XXX - In the generated code for ColourEnum, the fromValue()
-     * method is not declared static - not so easy to create a
-     * ColourEnum instance!
+     * XXX - In the generated code for ColourEnum, the fromValue() method
+     * is not declared static - fixed in jaxb-ri-20060421 nightly build.
      */
     public void testColourEnum() throws Exception {
         /*
@@ -1375,6 +1366,32 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
                              yOrig.value(), z.value.value());
                 assertEquals("testNMTokenEnum(): Incorrect return value",
                              x.value(), ret.value());
+            }
+        }
+    }
+
+    public void testAnyURIEnum() throws Exception {
+        String[] xx = {"http://www.iona.com", "http://www.google.com"};
+        String[] yy = {"http://www.google.com", "http://www.iona.com"};
+        
+        Holder<AnyURIEnum> z = new Holder<AnyURIEnum>();
+        for (int i = 0; i < 2; i++) {
+            AnyURIEnum x = AnyURIEnum.fromValue(xx[i]);
+            AnyURIEnum yOrig = AnyURIEnum.fromValue(yy[i]);
+            Holder<AnyURIEnum> y = new Holder<AnyURIEnum>(yOrig);
+            
+            AnyURIEnum ret;
+            if (testDocLiteral) {
+                ret = docClient.testAnyURIEnum(x, y, z);
+            } else {
+                ret = rpcClient.testAnyURIEnum(x, y, z);
+            }
+            if (!perfTestOnly) {
+                assertEquals("testAnyURIEnum(): Incorrect value for inout param",
+                             x.value(), y.value.value());
+                assertEquals("testAnyURIEnum(): Incorrect value for out param",
+                             yOrig.value(), z.value.value());
+                assertEquals("testAnyURIEnum(): Incorrect return value", x.value(), ret.value());
             }
         }
     }

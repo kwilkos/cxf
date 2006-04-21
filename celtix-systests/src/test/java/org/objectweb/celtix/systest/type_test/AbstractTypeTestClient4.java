@@ -1536,9 +1536,6 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     }
     */
 
-    /* XXX - rcase-Recurse.2: There is not a complete functional mapping
-     * between the particles.
-     */
     // org.objectweb.type_test.types1.RestrictedStructBaseStruct;
 
     protected boolean equals(RestrictedStructBaseStruct x, RestrictedStructBaseStruct y) {
@@ -1610,7 +1607,6 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
             assertTrue("testRestrictedAllBaseAll(): Incorrect return value", equals(x, ret));
         }
     }
-    /**/
 
     // org.objectweb.type_test.types1.UnionWithStringList;
 
@@ -1717,6 +1713,39 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
                            Arrays.equals(yOrig, z.value));
                 assertTrue("testUnionWithAnonList(): Incorrect return value",
                            Arrays.equals(x, ret));
+            }
+        }
+    }
+
+    public void testAnyURIRestriction() throws Exception {
+        // normal case, maxLength = 50 for anyURI
+        String x = new String("http://celtix.objectweb.org/");
+        String yOrig = new String("http://www.iona.com/info/services/oss/");
+        Holder<String> y = new Holder<String>(yOrig);
+        Holder<String> z = new Holder<String>();
+
+        String ret;
+        if (testDocLiteral) {
+            ret = docClient.testAnyURIRestriction(x, y, z);
+        } else {
+            ret = rpcClient.testAnyURIRestriction(x, y, z);
+        }
+        if (!perfTestOnly) {
+            assertEquals("testString(): Incorrect value for inout param", x, y.value);
+            assertEquals("testString(): Incorrect value for out param", yOrig, z.value);
+            assertEquals("testString(): Incorrect return value", x, ret);
+        }
+
+        if (testDocLiteral) {
+            // abnormal case
+            yOrig = new String("http://www.iona.com/info/services/oss/info_services_oss_train.html");
+            y = new Holder<String>(yOrig);
+            z = new Holder<String>();
+            try {
+                ret = docClient.testAnyURIRestriction(x, y, z);
+                fail("maxLength=50 restriction is violated.");
+            } catch (Exception ex) {
+                //ex.printStackTrace();
             }
         }
     }
