@@ -119,7 +119,13 @@ public class AbstractConfigurationImpl implements Configuration {
         if (null == definition) {
             throw new ConfigurationException(new Message("ITEM_NOT_DEFINED_EXC", BUNDLE, name));
         }
-        // TODO: use model to validate value
+
+        // use model to validate value
+        Object defaultValue = definition.getDefaultValue();
+        if (defaultValue != null && !defaultValue.getClass().isAssignableFrom(value.getClass())) {
+            QName type = model.getDefinition(name).getType();
+            throw new ConfigurationException(new Message("ITEM_TYPE_MISMATCH_EXC", BUNDLE, name, type));
+        }
 
         // TODO: check if property can be modified at all:
         // if it is static, report an error, if it is process or bus accept the change but log a
@@ -136,7 +142,6 @@ public class AbstractConfigurationImpl implements Configuration {
             }
         }
 
-        // TODO: event listeners
         if (accepted) {
             reconfigure(name);
         }
@@ -156,6 +161,10 @@ public class AbstractConfigurationImpl implements Configuration {
         }
     }
 
+    public boolean setBoolean(String name, boolean value) {
+        return setObject(name, Boolean.valueOf(value));
+    }
+
     public short getShort(String name) {
         Object obj = getObject(name);
         if (null == obj) {
@@ -167,6 +176,10 @@ public class AbstractConfigurationImpl implements Configuration {
             QName type = model.getDefinition(name).getType();
             throw new ConfigurationException(new Message("ITEM_TYPE_MISMATCH_EXC", BUNDLE, name, type));
         }
+    }
+
+    public boolean setShort(String name, short value) {
+        return setObject(name, new Short(value));
     }
 
     public int getInt(String name) {
@@ -182,6 +195,10 @@ public class AbstractConfigurationImpl implements Configuration {
         }
     }
 
+    public boolean setInt(String name, int value) {
+        return setObject(name, new Integer(value));
+    }
+
     public float getFloat(String name) {
         Object obj = getObject(name);
         if (null == obj) {
@@ -193,6 +210,10 @@ public class AbstractConfigurationImpl implements Configuration {
             QName type = model.getDefinition(name).getType();
             throw new ConfigurationException(new Message("ITEM_TYPE_MISMATCH_EXC", BUNDLE, name, type));
         }
+    }
+
+    public boolean setFloat(String name, float value) {
+        return setObject(name, new Float(value));
     }
 
     public double getDouble(String name) {
@@ -208,6 +229,10 @@ public class AbstractConfigurationImpl implements Configuration {
         }
     }
 
+    public boolean setDouble(String name, double value) {
+        return setObject(name, new Double(value));
+    }
+
     public long getLong(String name) {
         Object obj = getObject(name);
         if (null == obj) {
@@ -221,6 +246,10 @@ public class AbstractConfigurationImpl implements Configuration {
         }
     }
 
+    public boolean setLong(String name, long value) {
+        return setObject(name, new Long(value));
+    }
+
     public String getString(String name) {
         Object obj = getObject(name);
         if (null == obj) {
@@ -231,6 +260,10 @@ public class AbstractConfigurationImpl implements Configuration {
             throw new ConfigurationException(new Message("ITEM_TYPE_MISMATCH_EXC", BUNDLE, name, type));
         }
         return (String)obj;
+    }
+
+    public boolean setString(String name, String value) {
+        return setObject(name, (String)value);
     }
 
     @SuppressWarnings("unchecked")

@@ -217,6 +217,39 @@ public class AbstractConfigurationImplTest extends TestCase {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
     }
+
+    public void testTypeMismatchWrite() {
+        try {
+            top.setBoolean("shortItem", true);
+        } catch (ConfigurationException ex) {
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
+        }
+        try {
+            top.setShort("intItem", (short)99);
+        } catch (ConfigurationException ex) {
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
+        }
+        try {
+            top.setInt("integerItem", 99);
+        } catch (ConfigurationException ex) {
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
+        }
+        try {
+            top.setLong("doubleItem", 99);
+        } catch (ConfigurationException ex) {
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
+        }
+        try {
+            top.setDouble("stringItem", 99.9);
+        } catch (ConfigurationException ex) {
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
+        }
+        try {
+            top.setString("stringListItem", "testString");
+        } catch (ConfigurationException ex) {
+            assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
+        }
+    }
     
 }
 

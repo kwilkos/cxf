@@ -111,6 +111,16 @@ public interface Configuration {
      */
     boolean getBoolean(String name);
     
+    /** Convenience method to set the value of a boolean type configuration item to
+     * its holder object.
+     * 
+     * 
+     * @param name the name of the configuration item.
+     * @param value the value of the configuration item.
+     * @return true if the change was accepted.
+     */
+    boolean setBoolean(String name, boolean value);
+
     /** Convenience method to extract the value of a short type configuration item from
      * its holder object.
      * 
@@ -119,6 +129,16 @@ public interface Configuration {
      */
     short getShort(String name);
     
+    /** Convenience method to set the value of a short type configuration item to
+     * its holder object.
+     * 
+     * 
+     * @param name the name of the configuration item.
+     * @param value the value of the configuration item.
+     * @return true if the change was accepted.
+     */
+    boolean setShort(String name, short value);
+
     /** Convenience method to extract the value of an int type configuration item from
      * its holder object.
      * 
@@ -127,6 +147,15 @@ public interface Configuration {
      */
     int getInt(String name);
   
+    /** Convenience method to set the value of a int type configuration item to
+     * its holder object.
+     * 
+     * 
+     * @param name the name of the configuration item.
+     * @param value the value of the configuration item.
+     * @return true if the change was accepted.
+     */
+    boolean setInt(String name, int value);
     
     /** Convenience method to extract the value of a long type configuration item from
      * its holder object.
@@ -136,6 +165,16 @@ public interface Configuration {
      */
     long getLong(String name);
     
+    /** Convenience method to set the value of a long type configuration item to
+     * its holder object.
+     * 
+     * 
+     * @param name the name of the configuration item.
+     * @param value the value of the configuration item.
+     * @return true if the change was accepted.
+     */
+    boolean setLong(String name, long value);
+
     /** Convenience method to extract the value of a float type configuration item from
      * its holder object.
      * 
@@ -144,6 +183,15 @@ public interface Configuration {
      */
     float getFloat(String name);
     
+    /** Convenience method to set the value of a float type configuration item to
+     * its holder object.
+     * 
+     * 
+     * @param name the name of the configuration item.
+     * @param value the value of the configuration item.
+     * @return true if the change was accepted.
+     */
+    boolean setFloat(String name, float value);
     
     /** Convenience method to extract the value of a double type configuration item from
      * its holder object.
@@ -153,6 +201,16 @@ public interface Configuration {
      */
     double getDouble(String name);
     
+    /** Convenience method to set the value of a double type configuration item to
+     * its holder object.
+     * 
+     * 
+     * @param name the name of the configuration item.
+     * @param value the value of the configuration item.
+     * @return true if the change was accepted.
+     */
+    boolean setDouble(String name, double value);
+
     /** Convenience method to extract the value of a string type configuration item from
      * its holder object.
      * 
@@ -161,6 +219,16 @@ public interface Configuration {
      */
     String getString(String name);
     
+    /** Convenience method to set the value of a String type configuration item to
+     * its holder object.
+     * 
+     * 
+     * @param name the name of the configuration item.
+     * @param value the value of the configuration item.
+     * @return true if the change was accepted.
+     */
+    boolean setString(String name, String value);
+
     /** Convenience method to extract the value of a string list type configuration item from
      * its holder object.
      * 
@@ -168,6 +236,5 @@ public interface Configuration {
      * @return the value of the configuration item.
      */
     List<String> getStringList(String name);
-       
        
 }
