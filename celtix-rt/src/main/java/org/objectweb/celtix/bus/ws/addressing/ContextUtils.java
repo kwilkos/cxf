@@ -8,6 +8,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.jws.WebMethod;
+import javax.jws.WebService;
 import javax.wsdl.Port;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -538,7 +540,20 @@ public final class ContextUtils {
                                            method,
                                            requestWrapper.localName(),
                                            false);
+                    } else {
+                        //TODO: What if the WSDL is RPC-Literal encoded. 
+                        // We need to get action out of available annotations?
+                        //
+                        
+                        WebService wsAnnotation = method.getDeclaringClass().getAnnotation(WebService.class);
+                        WebMethod wmAnnotation = method.getAnnotation(WebMethod.class);
+                        
+                        action = getAction(wsAnnotation.targetNamespace(),
+                                           method,
+                                           wmAnnotation.operationName(),
+                                           false);
                     }
+                        
                 } else {
                     ResponseWrapper responseWrapper =
                         method.getAnnotation(ResponseWrapper.class);
@@ -547,6 +562,15 @@ public final class ContextUtils {
                                            method,
                                            responseWrapper.localName(),
                                           false);
+                    } else {
+                       //RPC-Literal case.
+                        WebService wsAnnotation = method.getDeclaringClass().getAnnotation(WebService.class);
+                        WebMethod wmAnnotation = method.getAnnotation(WebMethod.class);
+                        
+                        action = getAction(wsAnnotation.targetNamespace(),
+                                           method,
+                                           wmAnnotation.operationName(),
+                                           false);
                     }
                 }
             }

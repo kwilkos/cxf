@@ -78,32 +78,34 @@ public class JMSTransportTest extends TestCase {
         QName serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms",
                                                            "HelloWorldOneWayQueueService");
         doOneWayTestJMSTranport(false,  serviceName, "HelloWorldOneWayQueuePort",
-                                    "/wsdl/jms_test.wsdl");
+                                    "dynamicQueues/test.jmstransport.oneway");
     }
 
     public void testPubSubJMSTransport() throws Exception {
         QName serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms",
                                                            "HelloWorldPubSubService");
         doOneWayTestJMSTranport(false,  serviceName, "HelloWorldPubSubPort",
-                                               "/wsdl/jms_test.wsdl");
+                                               "dynamicTopics/test.jmstransport.oneway.topic");
     }
 
     public void testTwoWayTextQueueJMSTransport() throws Exception {
         QName serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms", "HelloWorldService");
-        doTestJMSTransport(false,  serviceName, "HelloWorldPort", "/wsdl/jms_test.wsdl");
+        doTestJMSTransport(false,  serviceName, "HelloWorldPort", "dynamicQueues/test.jmstransport.text");
     }
 
     public void testTwoWayBinaryQueueJMSTransport() throws Exception {
         QName serviceName =  new QName("http://celtix.objectweb.org/hello_world_jms",
                                                            "HelloWorldQueueBinMsgService");
-        doTestJMSTransport(false,  serviceName, "HelloWorldQueueBinMsgPort", "/wsdl/jms_test.wsdl");
+        doTestJMSTransport(false,  serviceName, "HelloWorldQueueBinMsgPort",
+                           "dynamicQueues/test.jmstransport.binary");
     }
 
     public void test2WayStaticReplyQTextMessageJMSTransport() throws Exception {
         QName serviceName =
             new QName("http://celtix.objectweb.org/hello_world_jms",
                                      "HWStaticReplyQTextMsgService");
-        doTestJMSTransport(false,  serviceName, "HWStaticReplyQTextPort", "/wsdl/jms_test.wsdl");
+        doTestJMSTransport(false,  serviceName, "HWStaticReplyQTextPort", 
+                           "dynamicQueues/test.jmstransport.text");
     }
 
     private int readBytes(byte bytes[], InputStream ins) throws IOException {
@@ -177,11 +179,11 @@ public class JMSTransportTest extends TestCase {
     public void doTestJMSTransport(final boolean useAutomaticWorkQueue,
                         QName serviceName,
                         String portName,
-                        String testWsdlFileName)
+                        String jndiDestinationName)
         throws Exception {
 
-        String address = "http://localhost:9000/SoapContext/SoapPort";
-        URL wsdlUrl = getClass().getResource(testWsdlFileName);
+        String address = "jms:ConnectionFactory#" + jndiDestinationName;
+        URL wsdlUrl = getClass().getResource("/wsdl/jms_test.wsdl");
         assertNotNull(wsdlUrl);
 
         createConfiguration(wsdlUrl, serviceName, portName);
@@ -193,7 +195,10 @@ public class JMSTransportTest extends TestCase {
 
         server.activate(callback);
 
-        ClientTransport client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
+        ClientTransport client = createClientTransport(factory, wsdlUrl, serviceName, portName);
+        assertTrue("targetEndpoint address mismatch. Expected : " + address 
+                   + "  received : " + client.getTargetEndpoint(), 
+                   address.equals(client.getTargetEndpoint().getAddress().getValue()));
 
         OutputStreamMessageContext octx = null;
         byte outBytes[] = "Hello World!!!".getBytes();
@@ -312,11 +317,11 @@ public class JMSTransportTest extends TestCase {
     public void doOneWayTestJMSTranport(final boolean useAutomaticWorkQueue,
                                                             QName serviceName,
                                                              String portName,
-                                                             String testWsdlFileName)
+                                                             String jndiDestinationName)
         throws Exception {
 
-        String address = "http://localhost:9000/SoapContext/SoapPort";
-        URL wsdlUrl = getClass().getResource(testWsdlFileName);
+        String address = "jms:ConnectionFactory#" + jndiDestinationName;
+        URL wsdlUrl = getClass().getResource("/wsdl/jms_test.wsdl");
         assertNotNull(wsdlUrl);
 
         createConfiguration(wsdlUrl, serviceName, portName);
@@ -329,7 +334,11 @@ public class JMSTransportTest extends TestCase {
 
         server.activate(callback1);
 
-        ClientTransport client = createClientTransport(factory, wsdlUrl, serviceName, portName, address);
+        ClientTransport client = createClientTransport(factory, wsdlUrl, serviceName, portName);
+        
+        assertTrue("targetEndpoint address mismatch. Expected : " + address 
+                   + "  received : " + client.getTargetEndpoint(), 
+                   address.equals(client.getTargetEndpoint().getAddress().getValue()));
         OutputStreamMessageContext octx =
             client.createOutputStreamContext(new GenericMessageContext());
         client.finalPrepareOutputStreamContext(octx);
@@ -357,8 +366,8 @@ public class JMSTransportTest extends TestCase {
     }
 
     private ClientTransport createClientTransport(TransportFactory factory, URL wsdlUrl,
-                                                  QName serviceName, String portName,
-                                                  String address) throws WSDLException, IOException {
+                                                  QName serviceName, String portName) 
+        throws WSDLException, IOException {
         EndpointReferenceType ref = EndpointReferenceUtils
             .getEndpointReference(wsdlUrl, serviceName, portName);
         ClientTransport transport = 

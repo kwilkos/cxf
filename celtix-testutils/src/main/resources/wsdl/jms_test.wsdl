@@ -177,6 +177,39 @@
         </operation>
     </binding>
     
+    <binding name="HWJMSAddressingBinding" type="tns:HelloWorldPortType">
+    <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
+        <operation name="greetMe">
+            <soap:operation soapAction="" style="rpc"/>
+            <input name="greetMe">
+                <soap:body 
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </input>
+            <output name="greetMeResponse">
+                <soap:body  
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </output>
+        </operation>
+        <operation name="sayHi">
+            <soap:operation soapAction="" style="rpc"/>
+            <input name="sayHi">
+                <soap:body 
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </input>
+            <output name="sayHiResponse">
+                <soap:body 
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </output>
+        </operation>
+        <operation name="greetMeOneWay">
+            <soap:operation style="rpc"/>
+            <input name="greetMeOneWay">
+                <soap:body 
+                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </input>
+        </operation>
+    </binding>
+    
     
     <binding name="HelloWorldOneWayBinding" type="tns:HelloWorldOneWayPort">
         <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
@@ -279,6 +312,18 @@
                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
+        </port>
+    </service>
+    
+    <service name="JMSSOAPServiceAddressing">
+        <port binding="tns:HWJMSAddressingBinding" name="HWJMSAddressingPort">
+            <jms:address
+               jndiConnectionFactoryName="ConnectionFactory" 
+               jndiDestinationName="dynamicQueues/test.jmstransport.addressing.queue">
+               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
+            </jms:address>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
         </port>
     </service>
     

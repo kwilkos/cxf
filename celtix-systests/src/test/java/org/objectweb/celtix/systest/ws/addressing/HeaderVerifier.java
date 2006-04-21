@@ -164,4 +164,8 @@ public class HeaderVerifier implements SOAPHandler<SOAPMessageContext> {
         }
                                                                           
     }
+    
+    public void setVerificationCache(VerificationCache cache) {
+        verificationCache = cache;
+    }
 }

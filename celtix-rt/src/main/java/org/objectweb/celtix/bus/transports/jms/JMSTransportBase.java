@@ -45,7 +45,6 @@ public class JMSTransportBase {
     //--Constructors------------------------------------------------------------
     public JMSTransportBase(Bus b, EndpointReferenceType epr, boolean isServer) throws WSDLException {
         bus = b;
-       // Configuration parentConfiguration = getParentConfiguration( isServer);
 
         port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), epr);
 
@@ -72,7 +71,6 @@ public class JMSTransportBase {
 
         Configuration busConfiguration = b.getConfiguration();
         Configuration parent = null;
-        //Configuration serviceConfiguration = null;
 
         String configURI;
         String configID;
@@ -255,5 +253,12 @@ public class JMSTransportBase {
                 message.setStringProperty(props.get(x).getName(), props.get(x).getValue());
             }
         }
+    }
+    
+    protected String getAddrUriFromJMSAddrPolicy() {
+        return "jms:" 
+                        + jmsAddressPolicy.getJndiConnectionFactoryName() 
+                        + "#"
+                        + jmsAddressPolicy.getJndiDestinationName();
     }
 }

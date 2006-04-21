@@ -34,6 +34,7 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.jms.JMSClientBehaviorPolicyType;
 import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
 
@@ -55,6 +56,10 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         super(bus, address, false);
         clientBehaviourPolicy = getClientPolicy(configuration);
         counters = new TransportClientCounters("JMSClientTransport");
+        
+        EndpointReferenceUtils.setAddress(address, getAddrUriFromJMSAddrPolicy());
+        targetEndpoint = address;
+        
         textPayload = 
             JMSConstants.TEXT_MESSAGE_TYPE.equals(clientBehaviourPolicy.getMessageType().value());
         

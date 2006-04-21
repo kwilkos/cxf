@@ -91,4 +91,12 @@ public class MAPVerifier implements LogicalHandler<LogicalMessageContext> {
                   ? expectedExposedAs.remove(size - 1)
                   : expectedExposedAs.get(size - 1);
     }
+    
+    public void setVerificationCache(VerificationCache cache) {
+        verificationCache = cache;
+    }
+    
+    public void addToExpectedExposedAs(String str) {
+        expectedExposedAs.add(str);
+    }
 }

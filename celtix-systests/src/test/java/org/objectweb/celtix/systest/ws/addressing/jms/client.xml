@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM 
+     "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types">
+
+  <bean id="celtix.{http://celtix.objectweb.org/hello_world_jms}JMSSOAPServiceAddressing/HWJMSAddressingPort" 
+        class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean">
+      <property name="systemHandlerChain">
+          <value>
+              <jaxws-types:system-handler-chain>
+                  <jaxws-types:preLogical>
+                      <jaxws-types:handler>
+                          <jaxws-types:handler-name>MAPAggregator</jaxws-types:handler-name>
+                          <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.addressing.MAPAggregator</jaxws-types:handler-class>
+                      </jaxws-types:handler>
+                  </jaxws-types:preLogical>
+                  <jaxws-types:postLogical/>
+                  <jaxws-types:preProtocol>
+                      <jaxws-types:handler>
+                          <jaxws-types:handler-name>MAPCodec</jaxws-types:handler-name>
+                          <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec</jaxws-types:handler-class>
+                      </jaxws-types:handler>
+                  </jaxws-types:preProtocol>
+                  <jaxws-types:postProtocol/>
+              </jaxws-types:system-handler-chain>
+          </value>
+      </property>
+      <property name="handlerChain">
+          <value>
+              <jaxws-types:handler-chain>
+                  <jaxws-types:handler>
+                      <jaxws-types:handler-name>MAPVerifier</jaxws-types:handler-name>
+                      <jaxws-types:handler-class>org.objectweb.celtix.systest.ws.addressing.MAPVerifier</jaxws-types:handler-class>
+                      <jaxws-types:init-param>
+                          <jaxws-types:param-name>inbound</jaxws-types:param-name>
+                          <jaxws-types:param-value>javax.xml.ws.addressing.context.inbound</jaxws-types:param-value>
+                      </jaxws-types:init-param>
+                      <jaxws-types:init-param>
+                          <jaxws-types:param-name>outbound</jaxws-types:param-name>
+                          <jaxws-types:param-value>javax.xml.ws.addressing.context.outbound</jaxws-types:param-value>
+                      </jaxws-types:init-param>
+                  </jaxws-types:handler>
+                  <jaxws-types:handler>
+                      <jaxws-types:handler-name>HeaderVerifier</jaxws-types:handler-name>
+                      <jaxws-types:handler-class>org.objectweb.celtix.systest.ws.addressing.HeaderVerifier</jaxws-types:handler-class>
+                  </jaxws-types:handler>
+              </jaxws-types:handler-chain>              
+          </value>
+      </property>
+      
+  </bean>
+
+</beans>
