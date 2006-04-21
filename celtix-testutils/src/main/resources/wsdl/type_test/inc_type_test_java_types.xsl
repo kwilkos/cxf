@@ -27,16 +27,21 @@
     </xsl:template>
     
     <xsl:template match="xsd:simpleType" mode="javaType">
-        <xsl:if test="contains(@name, 'Union')">
-            <xsl:value-of select="'String'"/>
-        </xsl:if>
-        <xsl:if test="not(contains(@name, 'Union'))">
-            <xsl:value-of select="@name"/>
-        </xsl:if>
-    </xsl:template>
-
-    <xsl:template match="xsd:simpleType/union//union" mode="javaType">
-        <xsl:value-of select="'Fook Yah'"/>
+        <xsl:choose>
+            <xsl:when test="contains(@name, 'Union') and (contains(@name, 'List')
+                    or @name='UnionWithUnion'
+                    or @name='UnionWithAnonUnion')">
+                <xsl:value-of select="'List&#x3c;String&#x3e;'"/>
+            </xsl:when>
+            <xsl:when test="contains(@name, 'Union') and not(contains(@name, 'List') 
+                    or @name='UnionWithUnion' 
+                    or @name='UnionWithAnonUnion')">
+                <xsl:value-of select="'String'"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="@name"/>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template match="xsd:complexType|xsd:element" mode="javaType">

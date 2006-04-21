@@ -1926,9 +1926,11 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             Holder< List<Short> > z = new Holder< List<Short> >();
 
             List<Short> ret = docClient.testAnonEnumList(x, y, z);
-            assertTrue("testAnonEnumList(): Incorrect value for inout param", x.equals(y.value));
-            assertTrue("testAnonEnumList(): Incorrect value for out param", yOrig.equals(z.value));
-            assertTrue("testAnonEnumList(): Incorrect return value", x.equals(ret));
+            if (!perfTestOnly) {
+                assertTrue("testAnonEnumList(): Incorrect value for inout param", x.equals(y.value));
+                assertTrue("testAnonEnumList(): Incorrect value for out param", yOrig.equals(z.value));
+                assertTrue("testAnonEnumList(): Incorrect return value", x.equals(ret));
+            }
         } else {
             Short[] x = {(short)10, (short)100};
             Short[] yOrig = {(short)1000, (short)10};

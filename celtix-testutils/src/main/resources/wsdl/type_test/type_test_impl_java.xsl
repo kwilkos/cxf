@@ -208,14 +208,6 @@ public class TypeTestImpl {
         return x;
     }
 
-    public List<String> testSimpleUnionList(List<String> x,
-            Holder< List<String> > y,
-            Holder< List<String> > z) {
-        z.value = y.value;
-        y.value = x;
-        return x;
-    }
-
     public String[] testSimpleUnionList(String[] x,
             Holder<String[]> y,
             Holder<String[]> z) {
@@ -223,15 +215,7 @@ public class TypeTestImpl {
         y.value = x;
         return x;
     }
-    
-    public List<String> testAnonUnionList(List<String> x,
-            Holder< List<String> > y,
-            Holder< List<String> > z) {
-        z.value = y.value;
-        y.value = x;
-        return x;
-    }
-
+ 
     public String[] testAnonUnionList(String[] x,
             Holder< String[] > y,
             Holder< String[] > z) {
@@ -259,6 +243,54 @@ public class TypeTestImpl {
         varReturn.setId(x.getId() + y.value.getId());
         return varReturn;
     }
+
+    public String[] testUnionWithAnonList(String[] x,
+            Holder< String[] > y,
+            Holder< String[] > z) {
+        z.value = y.value;
+        y.value = x;
+        return x;
+    }
+
+    public String[] testUnionWithStringList(String[] x,
+            Holder< String[] > y,
+            Holder< String[] > z) {
+        z.value = y.value;
+        y.value = x;
+        return x;
+    }
+
+    public String[] testUnionWithStringListRestriction(String[] x,
+            Holder< String[] > y,
+            Holder< String[] > z) {
+        z.value = y.value;
+        y.value = x;
+        return x;
+    }
+
+    public String[] testUnionWithAnonUnion(String[] x,
+            Holder< String[] > y,
+            Holder< String[] > z) {
+        z.value = y.value;
+        y.value = x;
+        return x;
+    }
+
+    public String[] testUnionWithUnion(String[] x,
+            Holder< String[] > y,
+            Holder< String[] > z) {
+        z.value = y.value;
+        y.value = x;
+        return x;
+    }
+
+    public String[] testUnionWithUnionRestriction(String[] x,
+            Holder< String[] > y,
+            Holder< String[] > z) {
+        z.value = y.value;
+        y.value = x;
+        return x;
+    }
 ]]>
       <xsl:apply-templates select="." mode="definitions"/>
 <![CDATA[}]]>
@@ -271,7 +303,6 @@ public class TypeTestImpl {
                 or @name='QNameList'
                 or @name='ShortEnumList'
                 or @name='AnonEnumList'
-                or @name='SimpleUnionList'
                 or @name='SimpleRestriction'
                 or @name='SimpleRestriction2'
                 or @name='SimpleRestriction3'
@@ -282,9 +313,13 @@ public class TypeTestImpl {
                 or @name='HexBinaryRestriction'
                 or @name='Base64BinaryRestriction'
                 or @name='SimpleListRestriction2'
-                or @name='AnonUnionList'
+                or contains(@name, 'Union')
                 or @itst:it_no_test='true')]"
                 mode="import">
+            <!--
+                or @name='SimpleUnionList'
+                or @name='AnonUnionList'
+            -->
             <xsl:sort select="@name"/>
             <xsl:with-param name="id" select="@ID"/>
         </xsl:apply-templates>
@@ -297,10 +332,8 @@ public class TypeTestImpl {
 
     <xsl:template match="itst:it_test_group/*" mode="import">
         <xsl:param name="id"/>
-        <xsl:if test="not(@name='SimpleUnion' or @name='UnionWithAnonEnum')">
-            <xsl:value-of select="concat('import org.objectweb.type_test.types', $id, '.', @name, ';')"/>
-            <xsl:text>&#10;</xsl:text>
-        </xsl:if>
+        <xsl:value-of select="concat('import org.objectweb.type_test.types',
+            $id, '.', @name, ';&#10;')"/>
     </xsl:template>
 
     <xsl:template match="itst:it_test_group" mode="definitions">
@@ -310,7 +343,6 @@ public class TypeTestImpl {
                 or @name='QNameList'
                 or @name='ShortEnumList'
                 or @name='AnonEnumList'
-                or @name='SimpleUnionList'
                 or @name='SimpleRestriction'
                 or @name='SimpleRestriction2'
                 or @name='SimpleRestriction3'
@@ -321,9 +353,12 @@ public class TypeTestImpl {
                 or @name='HexBinaryRestriction'
                 or @name='Base64BinaryRestriction'
                 or @name='SimpleListRestriction2'
-                or @name='AnonUnionList'
                 or @itst:it_no_test='true')]"
             mode="definition"/>
+            <!--
+                or @name='SimpleUnionList'
+                or @name='AnonUnionList'
+            -->
         <xsl:apply-templates select="xsd:complexType[not(
                 @name='IDTypeAttribute'
                 or @itst:it_no_test='true')]"

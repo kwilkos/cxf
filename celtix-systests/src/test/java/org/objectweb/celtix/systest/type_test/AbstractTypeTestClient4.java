@@ -29,8 +29,8 @@ import org.objectweb.type_test.types1.EmptyStruct;
 import org.objectweb.type_test.types1.NestedStruct;
 import org.objectweb.type_test.types1.OccuringAll;
 import org.objectweb.type_test.types1.RecSeqB6918;
-//import org.objectweb.type_test.types1.RestrictedAllBaseAll;
-//import org.objectweb.type_test.types1.RestrictedStructBaseStruct;
+import org.objectweb.type_test.types1.RestrictedAllBaseAll;
+import org.objectweb.type_test.types1.RestrictedStructBaseStruct;
 //import org.objectweb.type_test.types1.SimpleAll;
 import org.objectweb.type_test.types1.SimpleChoice;
 import org.objectweb.type_test.types1.SimpleStruct;
@@ -1538,6 +1538,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
 
     /* XXX - rcase-Recurse.2: There is not a complete functional mapping
      * between the particles.
+     */
     // org.objectweb.type_test.types1.RestrictedStructBaseStruct;
 
     protected boolean equals(RestrictedStructBaseStruct x, RestrictedStructBaseStruct y) {
@@ -1609,7 +1610,116 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
             assertTrue("testRestrictedAllBaseAll(): Incorrect return value", equals(x, ret));
         }
     }
-    */
+    /**/
+
+    // org.objectweb.type_test.types1.UnionWithStringList;
+
+    public void testUnionWithStringList() throws Exception {
+        if (testDocLiteral) {
+            List<String> x = Arrays.asList("5");
+            List<String> yOrig = Arrays.asList("I", "am", "SimpleList");
+
+            // Invoke testUnionWithStringList
+            Holder<List<String>> y = new Holder<List<String>>(yOrig);
+            Holder<List<String>> z = new Holder<List<String>>();
+            List<String> ret = docClient.testUnionWithStringList(x, y, z);
+            if (!perfTestOnly) {
+                assertEquals("testUnionWithStringList(): Incorrect value for inout param",
+                             x, y.value);
+                assertEquals("testUnionWithStringList(): Incorrect value for out param",
+                             yOrig, z.value);
+                assertEquals("testUnionWithStringList(): Incorrect return value", x, ret);
+            }
+        } else {
+            String[] x = {"5"};
+            String[] yOrig = {"I", "am", "SimpleList"};
+
+            Holder<String[]> y = new Holder<String[]>(yOrig);
+            Holder<String[]> z = new Holder<String[]>();
+
+            String[] ret = rpcClient.testUnionWithStringList(x, y, z);
+            if (!perfTestOnly) {
+                assertTrue("testUnionWithStringList(): Incorrect value for inout param",
+                           Arrays.equals(x, y.value));
+                assertTrue("testUnionWithStringList(): Incorrect value for out param",
+                           Arrays.equals(yOrig, z.value));
+                assertTrue("testUnionWithStringList(): Incorrect return value",
+                           Arrays.equals(x, ret));
+            }
+        }
+    }
+
+    // org.objectweb.type_test.types1.UnionWithStringListRestriction;
+
+    public void testUnionWithStringListRestriction() throws Exception {
+        if (testDocLiteral) {
+            List<String> x = Arrays.asList("5");
+            List<String> yOrig = Arrays.asList("I", "am", "SimpleList");
+
+            // Invoke testUnionWithStringListRestriction
+            Holder<List<String>> y = new Holder<List<String>>(yOrig);
+            Holder<List<String>> z = new Holder<List<String>>();
+            List<String> ret = docClient.testUnionWithStringListRestriction(x, y, z);
+            if (!perfTestOnly) {
+                assertEquals("testUnionWithStringListRestriction(): Incorrect value for inout param",
+                             x, y.value);
+                assertEquals("testUnionWithStringListRestriction(): Incorrect value for out param",
+                             yOrig, z.value);
+                assertEquals("testUnionWithStringListRestriction(): Incorrect return value", x, ret);
+            }
+        } else {
+            String[] x = {"5"};
+            String[] yOrig = {"I", "am", "SimpleList"};
+
+            Holder<String[]> y = new Holder<String[]>(yOrig);
+            Holder<String[]> z = new Holder<String[]>();
+
+            String[] ret = rpcClient.testUnionWithStringListRestriction(x, y, z);
+            if (!perfTestOnly) {
+                assertTrue("testUnionWithStringListRestriction(): Incorrect value for inout param",
+                           Arrays.equals(x, y.value));
+                assertTrue("testUnionWithStringListRestriction(): Incorrect value for out param",
+                           Arrays.equals(yOrig, z.value));
+                assertTrue("testUnionWithStringListRestriction(): Incorrect return value",
+                           Arrays.equals(x, ret));
+            }
+        }
+    }
+
+    // org.objectweb.type_test.types1.UnionWithAnonList;
+
+    public void testUnionWithAnonList() throws Exception {
+        if (testDocLiteral) {
+            List<String> x = Arrays.asList("5");
+            List<String> yOrig = Arrays.asList("0.5f", "1.5f", "2.5f");
+
+            // Invoke testUnionWithAnonList
+            Holder<List<String>> y = new Holder<List<String>>(yOrig);
+            Holder<List<String>> z = new Holder<List<String>>();
+            List<String> ret = docClient.testUnionWithAnonList(x, y, z);
+            if (!perfTestOnly) {
+                assertEquals("testUnionWithAnonList(): Incorrect value for inout param", x, y.value);
+                assertEquals("testUnionWithAnonList(): Incorrect value for out param", yOrig, z.value);
+                assertEquals("testUnionWithAnonList(): Incorrect return value", x, ret);
+            }
+        } else {
+            String[] x = {"5"};
+            String[] yOrig = {"0.5f", "1.5f", "2.5f"};
+
+            Holder<String[]> y = new Holder<String[]>(yOrig);
+            Holder<String[]> z = new Holder<String[]>();
+
+            String[] ret = rpcClient.testUnionWithStringListRestriction(x, y, z);
+            if (!perfTestOnly) {
+                assertTrue("testUnionWithAnonList(): Incorrect value for inout param",
+                           Arrays.equals(x, y.value));
+                assertTrue("testUnionWithAnonList(): Incorrect value for out param",
+                           Arrays.equals(yOrig, z.value));
+                assertTrue("testUnionWithAnonList(): Incorrect return value",
+                           Arrays.equals(x, ret));
+            }
+        }
+    }
 
     // Test Inheritance
 

@@ -130,7 +130,7 @@
         <sequence>
             <element name="varFloat" type="double"/>
             <element name="varInt" type="unsignedLong"/>
-            <element name="varString" type="string"/>
+            <element name="varString" type="string" minOccurs="0"/>
         </sequence>
         <attribute name="varAttrString" type="string"/>
     </complexType>
@@ -251,7 +251,7 @@
             <enumeration value="there"/>
         </restriction>
     </simpleType>
-    <!-- XXX - generated code doesn't compile... needs a custom javaType 
+    <!-- XXX - generated code doesn't compile... needs a custom javaType
     <simpleType name="ShortEnum">
         <xsd:annotation>
             <xsd:appinfo>
@@ -377,8 +377,15 @@
       </restriction>
     </simpleType>
 
-    <!-- XXX - TODO - Getting an AssertionError when xjc generates
-         code for ComplexRestriction types.
+    <!-- XXX - These ComplexRestriction types cause an xjc AssertionError when
+        the wsdl is compiled.  They don't seem to be valid according to this
+        error from running the jaxb ri xjc on the schema types alone:
+        src-ct.2.1: Complex Type Definition Representation Error for type
+        'ComplexRestriction'.  When <simpleContent> is used, the base type must be
+        a complexType whose content type is simple, or, only if restriction is
+        specified, a complex type with mixed content and emptiable particle, or,
+        only if extension is specified, a simple type. 'string' satisfies none of
+        these conditions.
     <complexType name="ComplexRestriction">
       <simpleContent>
         <restriction base="string">
@@ -387,6 +394,7 @@
         </restriction>
       </simpleContent>
     </complexType>
+    
     <complexType name="ComplexRestriction2">
       <simpleContent>
         <restriction base="string">
@@ -515,7 +523,7 @@
     <!-- union simple type with list members -->
 
     <!-- XXX - UnionWithStringList, UnionWithStringListRestriction and UnionWithAnonList
-         rpc-literal and doc-literal generated code differs (array/List).
+         rpc-literal and wrapped doc-literal generated code differs. -->
     <simpleType name="UnionWithStringList">
         <union memberTypes="int x1:StringList"/>
     </simpleType>
@@ -524,6 +532,8 @@
         <union memberTypes="int">
             <simpleType>
                 <restriction base="x1:StringList"/>
+                    <!--maxLength value="5"/>
+                </restriction-->
             </simpleType>
         </union>
     </simpleType>
@@ -534,12 +544,11 @@
             </simpleType>
         </union>
     </simpleType>
-    -->
 
     <!-- union simple types with union members -->
 
-<!-- XXX - UnionWithUnion, UnionWithUnionRestriction and UnionWithAnonUnion -
-           rpc-literal and doc-literal generated code differs (array/List).
+    <!-- XXX - UnionWithUnion, UnionWithUnionRestriction and UnionWithAnonUnion
+           rpc-literal and wrapped doc-literal generated code differs.
     <simpleType name="UnionWithUnion">
         <union memberTypes="x1:SimpleUnion">
             <simpleType>
@@ -570,7 +579,7 @@
             </simpleType>
         </union>
     </simpleType>
--->
+    -->
 
     <!-- union simple type as attribute -->
 
@@ -614,7 +623,7 @@
         <all>
             <element name="varFloat" type="float"/>
             <element name="varInt" type="int"/>
-            <element name="varString" type="string"/>
+            <element name="varString" type="string" minOccurs="0"/>
         </all>
         <attribute name="varAttrString" type="string"/>
     </complexType>
@@ -919,8 +928,11 @@
             </extension>
         </complexContent>
     </complexType>
-    <!--
-    TODO - XXX javatowsdl doesn't like this one.  Disabled it for now.
+    <!-- XXX - javatowsdl fails to compile this one.  Running just the xjc compiler
+        on the type, we find this error:
+        cos-ct-extends.1.4.3.2.2.1.a: The content type of a derived type and that
+        of its base must both be mixed or both be element-only. Type
+        'DerivedChoiceBaseSimpleContent' is element only, but its base type is not.
     <complexType name="DerivedChoiceBaseSimpleContent">
         <complexContent mixed="false">
             <extension base="x1:Document">
@@ -962,7 +974,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <!-- XXX - TODO - DerivedChoiceBase 
+    <!-- XXX - TODO - DerivedChoiceBaseComplex issue 
     <complexType name="ComplexStruct">
         <sequence>
             <element name="varFloat" type="float"/>
@@ -983,9 +995,7 @@
     -->
 
     <!-- ComplexContentRestriction types -->
-    <!-- XXX - RestrictedStructBaseStruct and RestrictedAllBaseAll,
-         rcase-Recurse.2: There is not a complete functional mapping
-         between the particles.
+
     <complexType name="RestrictedStructBaseStruct">
         <complexContent>
             <restriction base="x1:SimpleStruct">
@@ -1008,7 +1018,6 @@
             </restriction>
         </complexContent>
     </complexType>
-    -->
     <complexType name="RestrictedChoiceBaseChoice">
         <complexContent mixed="false">
             <restriction base="x1:SimpleChoice">
