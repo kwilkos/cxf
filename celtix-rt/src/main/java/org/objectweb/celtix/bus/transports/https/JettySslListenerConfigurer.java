@@ -205,7 +205,7 @@ public final class JettySslListenerConfigurer {
         if (sslPolicy.isSetTrustStore()) {
             trustStore = sslPolicy.getTrustStore();
             LogUtils.log(LOG, Level.INFO, "TRUST_STORE_SET", 
-                             new Object[]{"trustStore"});
+                             new Object[]{trustStore});
         }
         if (trustStore == null) {
             trustStore = System.getProperty("javax.net.ssl.trustStore");
