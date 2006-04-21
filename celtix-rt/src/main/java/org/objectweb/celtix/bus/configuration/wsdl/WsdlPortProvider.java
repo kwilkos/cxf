@@ -41,6 +41,10 @@ public class WsdlPortProvider implements ConfigurationProvider {
         return false;
     }
 
+    public boolean save() {
+        //TODO:
+        return false;
+    }
 
     private Object getBinding() {
         Binding binding = port.getBinding();

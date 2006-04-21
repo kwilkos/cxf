@@ -25,4 +25,11 @@ public interface ConfigurationProvider {
      * @return true if the change was accepted.
      */
     boolean setObject(String name, Object value);
+
+    /**
+     * Save the changes
+     * 
+     * @return true if the save was successful.
+     */
+    boolean save();
 }

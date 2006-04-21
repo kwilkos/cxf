@@ -11,11 +11,15 @@ public class TestProvider implements ConfigurationProvider {
     }
 
     public void init(Configuration configuration) {
-        // TODO Auto-generated method stub    
+        // TODO Auto-generated method stub
     }
 
     public boolean setObject(String name, Object value) {
         // TODO Auto-generated method stub
+        return false;
+    }
+
+    public boolean save() {
         return false;
     }
 }

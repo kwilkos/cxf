@@ -93,6 +93,17 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
         return false;
     }
 
+    public boolean save() {
+        //TODO, two situations:
+        //1. the bean is created by spring XMLBeanFactory. As the spring XMLBeanFactory
+        //knows BeanDefinition, so it knows how to persist the bean to config file properly.
+        //2. The bean is created by ourself. In this case, we can not use spring XMLBeanFactory
+        //to do the persistence. We may need to find config schemas and using jaxb to persist
+        //bean by ourself
+        
+        return false;
+    }
+
     protected Object getBean() {
         return bean;
     }

@@ -26,7 +26,7 @@ import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class RMPolicyProvider implements ConfigurationProvider {
-    
+
     private static final Logger LOG = LogUtils.getL7dLogger(RMPolicyProvider.class);
     private Port port;
     private Definition def;
@@ -62,12 +62,12 @@ public class RMPolicyProvider implements ConfigurationProvider {
     }
 
     private Element getPolicy(List<?> extensibilityElements, String name) {
-        for (Object ep : extensibilityElements) {            
+        for (Object ep : extensibilityElements) {
             ExtensibilityElement ext = (ExtensibilityElement)ep;
             if (ext instanceof UnknownExtensibilityElement) {
                 UnknownExtensibilityElement uExt = (UnknownExtensibilityElement)ext;
                 if (RMUtils.getPolicyConstants().getPolicyQName().equals(ext.getElementType())) {
-                    Element elem = uExt.getElement();                    
+                    Element elem = uExt.getElement();
                     String id = elem.getAttributeNS(RMUtils.getPolicyConstants().getWSUNamespaceURI(), "Id");
                     if (null == name || name.equals(id)) {
                         return elem;
@@ -114,6 +114,11 @@ public class RMPolicyProvider implements ConfigurationProvider {
     }
 
     public boolean setObject(String name, Object value) {
+        return false;
+    }
+
+    public boolean save() {
+        //TODO
         return false;
     }
 

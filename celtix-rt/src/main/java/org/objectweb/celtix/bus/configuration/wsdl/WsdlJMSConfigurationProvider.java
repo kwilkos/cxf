@@ -50,4 +50,10 @@ public class WsdlJMSConfigurationProvider implements ConfigurationProvider {
     public boolean setObject(String name, Object value) {
         return false;
     }
+
+    public boolean save() {
+        //TODO:
+        return false;
+    }
+
 }

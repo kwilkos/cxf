@@ -29,4 +29,8 @@ public class InMemoryProvider implements ConfigurationProvider {
         map.put(name, value);
         return true;
     }
+
+    public boolean save() {
+        return false;
+    }
 }

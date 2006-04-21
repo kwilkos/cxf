@@ -236,5 +236,12 @@ public interface Configuration {
      * @return the value of the configuration item.
      */
     List<String> getStringList(String name);
-       
+
+    /**
+     * Save the changes
+     * 
+     * @return true if the save was successful.
+     */
+    boolean save();
+
 }

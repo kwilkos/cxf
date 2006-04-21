@@ -47,5 +47,10 @@ public class WsdlHttpConfigurationProvider implements ConfigurationProvider {
         return false;
     }
     
+
+    public boolean save() {
+        //TODO:
+        return false;
+    }
     
 }

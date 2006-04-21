@@ -145,7 +145,21 @@ public class AbstractConfigurationImpl implements Configuration {
         if (accepted) {
             reconfigure(name);
         }
-        return false;
+        return accepted;
+    }
+
+    public boolean save() {
+        boolean accepted = false;
+
+        //TODO:We need to persist all beans into one config file.
+        
+        for (ConfigurationProvider provider : providers) {
+            if (provider.save()) {
+                accepted = true;
+                break;
+            }
+        }
+        return accepted;
     }
 
     public boolean getBoolean(String name) {
