@@ -27,9 +27,7 @@ import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.RMProperties;
 import org.objectweb.celtix.ws.rm.SequenceType;
 
-import static org.objectweb.celtix.bindings.JAXWSConstants.BINDING_PROPERTY;
 import static org.objectweb.celtix.bindings.JAXWSConstants.DATABINDING_CALLBACK_PROPERTY;
-import static org.objectweb.celtix.bindings.JAXWSConstants.TRANSPORT_PROPERTY;
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
 import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.RM_PROPERTIES_OUTBOUND;
@@ -41,6 +39,7 @@ import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.RM_PROPERTIES_OUTBOUND
 public class RetransmissionQueueTest extends TestCase {
 
     private IMocksControl control;
+    private RMHandler handler;
     private WorkQueue workQueue;
     private RetransmissionQueue queue;
     private TestResender resender;
@@ -55,7 +54,8 @@ public class RetransmissionQueueTest extends TestCase {
     
     public void setUp() {
         control = EasyMock.createNiceControl();
-        queue = new RetransmissionQueue();
+        handler = control.createMock(RMHandler.class);
+        queue = new RetransmissionQueue(handler);
         resender = new TestResender();
         queue.replaceResender(resender);
         workQueue = control.createMock(WorkQueue.class);
@@ -429,13 +429,16 @@ public class RetransmissionQueueTest extends TestCase {
         Transport transport = isRequestor
                               ? control.createMock(ClientTransport.class)
                               : control.createMock(ServerTransport.class);
-        contexts.get(i).get(TRANSPORT_PROPERTY);
-        EasyMock.expectLastCall().andReturn(transport).times(isRequestor
-                                                             ? 2
-                                                             : 1);
+        if (isRequestor) {
+            handler.getClientTransport();
+            EasyMock.expectLastCall().andReturn(transport).times(2);
+        } else {
+            handler.getServerTransport(); 
+            EasyMock.expectLastCall().andReturn(transport).times(1);
+        }
         AbstractBindingBase binding = 
             control.createMock(AbstractBindingBase.class);
-        contexts.get(i).get(BINDING_PROPERTY);
+        handler.getBinding();
         EasyMock.expectLastCall().andReturn(binding);
         HandlerInvoker handlerInvoker =
             control.createMock(HandlerInvoker.class);

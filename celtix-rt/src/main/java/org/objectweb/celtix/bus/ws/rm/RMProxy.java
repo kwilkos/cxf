@@ -34,7 +34,9 @@ public class RMProxy {
                                                      EndpointReferenceType acksTo, 
                                                      Identifier i) 
         throws IOException, SequenceFault {
-        CreateSequenceRequest request = new CreateSequenceRequest(handler.getBinding(), source, acksTo);
+        CreateSequenceRequest request = new CreateSequenceRequest(handler.getBinding(), 
+                                                                  handler.getTransport(),
+                                                                  source, acksTo);
         OfferType o = request.getIncludedOffer();
 
         ObjectMessageContext responseCtx = invoke(request.getObjectMessageContext(), 
@@ -65,7 +67,8 @@ public class RMProxy {
     }
     
     public void terminateSequence(AbstractSequenceImpl seq) throws IOException {
-        TerminateSequenceRequest request = new TerminateSequenceRequest(handler.getBinding(), seq);
+        TerminateSequenceRequest request = new TerminateSequenceRequest(handler.getBinding(), 
+                                                                        handler.getTransport(), seq);
         
         invokeOneWay(request.getObjectMessageContext(), TerminateSequenceRequest.createDataBindingCallback());
     }
@@ -78,7 +81,7 @@ public class RMProxy {
      * @throws IOException
      */
     public void requestAcknowledgment(Collection<SourceSequence> seqs) throws IOException {
-        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding()); 
+        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding(), handler.getTransport()); 
         request.requestAcknowledgement(seqs);
         invokeOneWay(request.getObjectMessageContext(), null);
     }
@@ -92,7 +95,7 @@ public class RMProxy {
     
     public void lastMessage(SourceSequence seq) throws IOException {
         LOG.fine("sending standalone last message");
-        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding()); 
+        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding(), handler.getTransport()); 
         request.lastMessage(seq);
         invokeOneWay(request.getObjectMessageContext(), null);
     }
@@ -109,13 +112,13 @@ public class RMProxy {
             return;
         }
         LOG.fine("sending standalone sequence acknowledgment");
-        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding()); 
+        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding(), handler.getTransport()); 
         request.acknowledge(seq);
         invokeOneWay(request.getObjectMessageContext(), null);
     }
     
     public void sequenceInfo() throws IOException {
-        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding());
+        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding(), handler.getTransport());
         invokeOneWay(request.getObjectMessageContext(), null);
     }
     

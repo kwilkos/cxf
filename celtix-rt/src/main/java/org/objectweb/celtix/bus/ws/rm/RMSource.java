@@ -34,7 +34,7 @@ public class RMSource extends RMEndpoint {
     RMSource(RMHandler h) {
         super(h);
         map = new HashMap<String, SourceSequence>();
-        Bus bus = h.getBinding().getBus();
+        Bus bus = h.getBus();
         WorkQueue workQueue =
             bus.getWorkQueueManager().getAutomaticWorkQueue();
         bus.getLifeCycleManager().registerLifeCycleListener(new BusLifeCycleListener() {
@@ -47,7 +47,7 @@ public class RMSource extends RMEndpoint {
             }
         });
         current = new HashMap<String, SourceSequence>();
-        retransmissionQueue = new RetransmissionQueue(getRMAssertion());        
+        retransmissionQueue = new RetransmissionQueue(h, getRMAssertion());        
         retransmissionQueue.start(workQueue);       
     }
     

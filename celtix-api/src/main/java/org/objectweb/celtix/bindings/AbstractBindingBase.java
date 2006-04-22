@@ -39,7 +39,7 @@ public abstract class AbstractBindingBase implements BindingBase {
         return getBindingImpl().createHandlerInvoker();
     }
 
-    public void configureSystemHandlers(Configuration endpointConfiguration) {
+    public void configureSystemHandlers(Configuration endpointConfiguration) {      
         getBindingImpl().configureSystemHandlers(endpointConfiguration);
     }
 

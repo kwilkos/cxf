@@ -1,11 +1,12 @@
 package org.objectweb.celtix.bindings;
 
-
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.Port;
@@ -16,15 +17,25 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleListener;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.HandlerInvoker;
+import org.objectweb.celtix.resource.DefaultResourceManager;
+import org.objectweb.celtix.resource.ResourceManager;
+import org.objectweb.celtix.resource.ResourceResolver;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+
+import static org.objectweb.celtix.bindings.JAXWSConstants.BUS_PROPERTY;
+import static org.objectweb.celtix.bindings.JAXWSConstants.CLIENT_BINDING_PROPERTY;
+import static org.objectweb.celtix.bindings.JAXWSConstants.CLIENT_TRANSPORT_PROPERTY;
 
 public abstract class AbstractClientBinding extends AbstractBindingBase implements ClientBinding {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractClientBinding.class);
@@ -71,17 +82,52 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
     public abstract AbstractBindingImpl getBindingImpl();
 
     // --- Methods to be implemented by concrete client bindings ---
+    
+    // --- BindingBase interface ---
+    
+    public void configureSystemHandlers(Configuration endpointConfiguration) {      
+        super.configureSystemHandlers(endpointConfiguration);
+     
+        ResourceManager rm = new DefaultResourceManager();
+        rm.addResourceResolver(new ResourceResolver() {
+            @SuppressWarnings("unchecked")
+            public <T> T resolve(String resourceName, Class<T> resourceType) {
+                if (BUS_PROPERTY.equals(resourceName)) {
+                    return  (T)AbstractClientBinding.this.getBus();
+                } else if (CLIENT_BINDING_PROPERTY.equals(resourceName)) {
+                    return  (T)AbstractClientBinding.this;
+                } else if (CLIENT_TRANSPORT_PROPERTY.equals(resourceName)) {
+                    try {
+                        return  (T)AbstractClientBinding.this.getTransport();
+                    } catch (IOException ex) {
+                        Message msg = new Message("SYSTEM_HANDLER_RESOURCE_INJECTION_FAILURE_MSG", 
+                                                  LOG, resourceName);
+                        LOG.log(Level.WARNING, msg.toString(), ex);
+                    }
+                }
+                return null;
+            }
+            
+            public InputStream getAsStream(String name) {
+                return null;
+            }            
+        });
+        ResourceInjector injector = new ResourceInjector(rm);
+        getBindingImpl().injectSystemHandlers(injector);
+       
+    }
+    
+    // --- BindingBase interface ---
 
     // --- ClientBinding interface ---
 
     public ObjectMessageContext invoke(ObjectMessageContext objectCtx, DataBindingCallback callback)
         throws IOException {
 
-        getTransport();
-        storeSource(objectCtx);
+        // storeSource(objectCtx);
         BindingContextUtils.storeDataBindingCallback(objectCtx, callback);
 
-        Request request = new Request(this, objectCtx);
+        Request request = new Request(this, getTransport(), objectCtx);
 
         try {
             OutputStreamMessageContext ostreamCtx = request.process(null);
@@ -127,11 +173,10 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
 
     public void invokeOneWay(ObjectMessageContext objectCtx, DataBindingCallback callback) 
         throws IOException {
-        getTransport();
-        storeSource(objectCtx);
+        // storeSource(objectCtx);
         BindingContextUtils.storeDataBindingCallback(objectCtx, callback);
 
-        Request request = new Request(this, objectCtx);
+        Request request = new Request(this, getTransport(), objectCtx);
         request.setOneway(true);
 
         try {
@@ -162,12 +207,11 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
     public Future<ObjectMessageContext> invokeAsync(ObjectMessageContext objectCtx,
                                                     DataBindingCallback callback, Executor executor)
         throws IOException {
-        LOG.info("AbstractClientBinding: invokeAsync");
-        getTransport();
-        storeSource(objectCtx);
+
+        // storeSource(objectCtx);
         BindingContextUtils.storeDataBindingCallback(objectCtx, callback);
 
-        Request request = new Request(this, objectCtx);
+        Request request = new Request(this, getTransport(), objectCtx);
         AsyncFuture asyncFuture = null;
 
         try {
@@ -242,11 +286,13 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         return responseCorrelator;
     }
     
+    /*
     protected void storeSource(MessageContext context) {
         BindingContextUtils.storeBinding(context, this);
         BindingContextUtils.storeTransport(context, transport);
         BindingContextUtils.storeBus(context, bus);
     }
+    */
 
     protected void finalPrepareOutputStreamContext(MessageContext bindingContext,
                                                    OutputStreamMessageContext ostreamContext)

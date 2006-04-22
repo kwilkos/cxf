@@ -20,8 +20,8 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.bindings.TestClientTransport;
 import org.objectweb.celtix.bus.bindings.TestInputStreamContext;
-import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
+import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
@@ -195,16 +195,19 @@ public class RMProxyTest extends TestCase {
     public void testTerminateSequenceOnClient() throws IOException, WSDLException, SequenceFault {
         TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
         
-        RMHandler handler = EasyMock.createMock(RMHandler.class);
+        IMocksControl control = EasyMock.createNiceControl();
+        RMHandler handler = control.createMock(RMHandler.class);
 
         handler.getBinding();
-        EasyMock.expectLastCall().andReturn(binding);       
+        EasyMock.expectLastCall().andReturn(binding); 
+        handler.getTransport();
+        expectLastCall().andReturn(binding.getClientTransport());
         for (int i = 0; i < 2; i++) {
             handler.getClientBinding();
             EasyMock.expectLastCall().andReturn(binding);
         }
 
-        EasyMock.replay(handler);
+        control.replay();
 
         RMProxy proxy = new RMProxy(handler);
 
@@ -213,21 +216,26 @@ public class RMProxyTest extends TestCase {
         SourceSequence seq = new SourceSequence(sid, null, null);
         
         proxy.terminateSequence(seq);
+        
+        control.verify();
     }
     
     public void testRequestAcknowledgement() throws IOException, WSDLException, SequenceFault {
         TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
         
-        RMHandler handler = EasyMock.createMock(RMHandler.class);
+        IMocksControl control = EasyMock.createNiceControl();
+        RMHandler handler = control.createMock(RMHandler.class);
 
         handler.getBinding();
-        EasyMock.expectLastCall().andReturn(binding);       
+        EasyMock.expectLastCall().andReturn(binding); 
+        handler.getTransport();
+        expectLastCall().andReturn(binding.getClientTransport());
         for (int i = 0; i < 2; i++) {
             handler.getClientBinding();
             EasyMock.expectLastCall().andReturn(binding);
         }
 
-        EasyMock.replay(handler);
+        control.replay();
 
         RMProxy proxy = new RMProxy(handler);
 
@@ -238,51 +246,45 @@ public class RMProxyTest extends TestCase {
         Collection<SourceSequence> seqs = new ArrayList<SourceSequence>();
         seqs.add(seq);
         
-        proxy.requestAcknowledgment(seqs);        
+        proxy.requestAcknowledgment(seqs);
+        
+        control.verify();
     }
     
     public void testLastMessage() throws IOException, WSDLException, SequenceFault {
         TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
         
-        RMHandler handler = EasyMock.createMock(RMHandler.class);
-        RMSource source = EasyMock.createMock(RMSource.class);
-        SequenceTerminationPolicyType sp = EasyMock.createMock(SequenceTerminationPolicyType.class);
-        
-        
-        source.getSequenceTerminationPolicy();
-        expectLastCall().andReturn(sp);
-        sp.getMaxLength();
-        expectLastCall().andReturn(BigInteger.ZERO);
-        sp.getMaxRanges();
-        expectLastCall().andReturn(0);
-        sp.getMaxUnacknowledged();
-        expectLastCall().andReturn(0);
-
+        IMocksControl control = EasyMock.createNiceControl();
+        RMHandler handler = control.createMock(RMHandler.class);
+     
         handler.getBinding();
-        EasyMock.expectLastCall().andReturn(binding);       
+        expectLastCall().andReturn(binding); 
+        handler.getTransport();
+        expectLastCall().andReturn(binding.getClientTransport());
         for (int i = 0; i < 2; i++) {
             handler.getClientBinding();
-            EasyMock.expectLastCall().andReturn(binding);
+            expectLastCall().andReturn(binding);
         }
 
-        EasyMock.replay(handler);
-        EasyMock.replay(source);
-        EasyMock.replay(sp);
+        control.replay();
 
         RMProxy proxy = new RMProxy(handler);
 
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
         sid.setValue("LastMessageSequence");
         SourceSequence seq = new SourceSequence(sid, null, null);        
-        proxy.lastMessage(seq);        
+        proxy.lastMessage(seq); 
+        
+        control.verify();
     }
     
     public void testAcknowledge() throws IOException, WSDLException, SequenceFault {
         TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
-        
-        RMHandler handler = EasyMock.createMock(RMHandler.class);
-        RMDestination dest = EasyMock.createMock(RMDestination.class);
-        RMAssertionType rma = EasyMock.createMock(RMAssertionType.class);
+        IMocksControl control = EasyMock.createNiceControl();
+        RMHandler handler = control.createMock(RMHandler.class);
+        RMDestination dest = control.createMock(RMDestination.class);
+        RMAssertionType rma = control.createMock(RMAssertionType.class);
+        Transport transport = control.createMock(Transport.class);
 
         dest.getRMAssertion();
         expectLastCall().andReturn(rma).times(2);
@@ -292,16 +294,16 @@ public class RMProxyTest extends TestCase {
         expectLastCall().andReturn(null).times(2);
         
         handler.getBinding();
-        EasyMock.expectLastCall().andReturn(binding);       
+        expectLastCall().andReturn(binding);       
+        handler.getTransport();
+        expectLastCall().andReturn(transport);
         for (int i = 0; i < 2; i++) {
             handler.getClientBinding();
-            EasyMock.expectLastCall().andReturn(binding);
+            expectLastCall().andReturn(binding);
         }
 
-        EasyMock.replay(handler);
-        EasyMock.replay(dest);
-        EasyMock.replay(rma);
-
+        control.replay();
+        
         RMProxy proxy = new RMProxy(handler);
 
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
@@ -310,29 +312,32 @@ public class RMProxyTest extends TestCase {
                                     RMUtils.createReference("http://localhost:9999/decoupled"), dest);
         seq.acknowledge(BigInteger.ONE);
         seq.acknowledge(BigInteger.TEN);       
-        proxy.acknowledge(seq);        
+        proxy.acknowledge(seq); 
+        
+        control.verify();
     }
     
     public void testSequenceInfoOnClient() throws IOException, WSDLException, SequenceFault {
         
         TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
-
         TestClientTransport ct = binding.getClientTransport();
         InputStream is = getClass().getResourceAsStream("resources/spec/SequenceInfoResponse.xml");
         TestInputStreamContext istreamCtx = new TestInputStreamContext();
         istreamCtx.setInputStream(is);
         ct.setInputStreamMessageContext(istreamCtx);
         
-        RMHandler handler = EasyMock.createMock(RMHandler.class);
-
+        IMocksControl control = EasyMock.createNiceControl();
+        RMHandler handler = control.createMock(RMHandler.class);
         handler.getBinding();
-        EasyMock.expectLastCall().andReturn(binding);       
+        expectLastCall().andReturn(binding);
+        handler.getTransport();
+        expectLastCall().andReturn(ct);
         for (int i = 0; i < 2; i++) {
             handler.getClientBinding();
-            EasyMock.expectLastCall().andReturn(binding);
+            expectLastCall().andReturn(binding);
         }
 
-        EasyMock.replay(handler);
+        control.replay();
 
         RMProxy service = new RMProxy(handler);
 
@@ -341,9 +346,8 @@ public class RMProxyTest extends TestCase {
         SourceSequence seq = new SourceSequence(sid, null, null);
         
         service.terminateSequence(seq);
-    }
-    
-    
-    
+        
+        control.verify();
+    }    
     
 }

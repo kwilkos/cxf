@@ -17,11 +17,11 @@ public class Request {
     private MessageContext bindingCtx;
     private final HandlerInvoker handlerInvoker;
 
-    public Request(AbstractBindingBase b, ObjectMessageContext o) {
+    public Request(AbstractBindingBase b, Transport t, ObjectMessageContext o) {
         binding = b;
         objectCtx = o;
 
-        transport = BindingContextUtils.retrieveTransport(objectCtx);
+        transport = t;
 
         handlerInvoker = binding.createHandlerInvoker();
 

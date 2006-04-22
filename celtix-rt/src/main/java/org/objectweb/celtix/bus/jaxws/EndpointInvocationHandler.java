@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.jaxws;
 
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,7 +26,6 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
-
 
 public final class EndpointInvocationHandler extends BindingProviderImpl implements InvocationHandler
 {
@@ -165,6 +163,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         } catch (Exception ex) {
             throw new WebServiceException(ex);
         }
+        
         binding.configureSystemHandlers(c);
         return binding;
     }

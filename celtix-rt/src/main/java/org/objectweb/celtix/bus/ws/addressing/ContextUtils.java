@@ -2,7 +2,6 @@ package org.objectweb.celtix.bus.ws.addressing;
 
 
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -10,7 +9,6 @@ import java.util.logging.Logger;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
-import javax.wsdl.Port;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.ws.RequestWrapper;
@@ -19,14 +17,12 @@ import javax.xml.ws.WebFault;
 import javax.xml.ws.handler.MessageContext;
 import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
 
-import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
-import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
@@ -309,7 +305,9 @@ public final class ContextUtils {
      * @param context the message context
      */
     public static void rebaseTransport(AddressingProperties inMAPs,
-                                       MessageContext context) {
+                                       MessageContext context,
+                                       ServerBinding serverBinding, 
+                                       ServerTransport serverTransport) {
         // ensure there is a MAPs instance available for the outbound
         // partial response that contains appropriate To and ReplyTo
         // properties (i.e. anonymous & none respectively)
@@ -321,8 +319,6 @@ public final class ContextUtils {
         maps.exposeAs(inMAPs.getNamespaceURI());
         storeMAPs(maps, context, true, true, true, true);
 
-        ServerBinding serverBinding = BindingContextUtils.retrieveServerBinding(context);
-        ServerTransport serverTransport = BindingContextUtils.retrieveServerTransport(context);
         if (serverTransport != null && serverBinding != null) {
             try {
                 OutputStreamMessageContext outputContext =
@@ -335,45 +331,6 @@ public final class ContextUtils {
                 LOG.log(Level.WARNING, "SERVER_TRANSPORT_REBASE_FAILURE_MSG", e);
             }
         }
-    }
-
-    /**
-     * Retrieve WSDL Port from the context.
-     *
-     * @param context the message context
-     * @returned the retrieved Port
-     */
-    public static Port retrievePort(MessageContext context) {
-        ClientTransport transport = BindingContextUtils.retrieveClientTransport(context);
-        return transport != null ? transport.getPort() : null;
-    }
-
-    /**
-     * Retrieve To EPR from the context.
-     *
-     * @param context the message context
-     * @returned the retrieved EPR
-     */
-    public static EndpointReferenceType retrieveTo(MessageContext context) {
-        ClientTransport transport = BindingContextUtils.retrieveClientTransport(context);
-        return transport != null ? transport.getTargetEndpoint() : null;
-    }
-
-    /**
-     * Retrieve To EPR from the context.
-     *
-     * @param context the message context
-     * @returned the retrieved EPR
-     */
-    public static EndpointReferenceType retrieveReplyTo(MessageContext context) {
-        ClientTransport transport = BindingContextUtils.retrieveClientTransport(context);
-        EndpointReferenceType replyTo = null;
-        try {
-            replyTo = transport != null ? transport.getDecoupledEndpoint() : null;
-        } catch (IOException ioe) {
-            // ignore
-        }
-        return replyTo;
     }
 
     /**

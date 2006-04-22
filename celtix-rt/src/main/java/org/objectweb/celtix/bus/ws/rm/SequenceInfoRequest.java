@@ -8,6 +8,7 @@ import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bindings.Request;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
@@ -15,9 +16,9 @@ import org.objectweb.celtix.ws.rm.persistence.RMDestinationSequence;
 
 public class SequenceInfoRequest extends Request {
     
-    public SequenceInfoRequest(AbstractBindingBase b) {
+    public SequenceInfoRequest(AbstractBindingBase b, Transport t) {
         
-        super(b, b.createObjectContext());
+        super(b, t, b.createObjectContext());
         getObjectMessageContext().setRequestorRole(true);
         AddressingProperties maps = new AddressingPropertiesImpl();
         AttributedURIType actionURI =

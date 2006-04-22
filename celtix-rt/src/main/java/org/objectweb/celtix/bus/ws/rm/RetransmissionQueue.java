@@ -14,7 +14,6 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bindings.AbstractBindingBase;
-import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bindings.Request;
 import org.objectweb.celtix.bindings.Response;
 import org.objectweb.celtix.bindings.ServerRequest;
@@ -25,6 +24,7 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
+import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.workqueue.WorkQueue;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
@@ -42,6 +42,7 @@ public class RetransmissionQueue {
         LogUtils.getL7dLogger(RetransmissionQueue.class);
     
 
+    private RMHandler handler;
     private WorkQueue workQueue;
     private long baseRetransmissionInterval;
     private int exponentialBackoff;
@@ -53,16 +54,16 @@ public class RetransmissionQueue {
     /**
      * Constructor.
      */
-    public RetransmissionQueue() {
-        this(Long.parseLong(DEFAULT_BASE_RETRANSMISSION_INTERVAL), 
+    public RetransmissionQueue(RMHandler h) {
+        this(h, Long.parseLong(DEFAULT_BASE_RETRANSMISSION_INTERVAL), 
              Integer.parseInt(DEFAULT_EXPONENTIAL_BACKOFF));
     }
     
     /**
      * Constructor.
      */
-    public RetransmissionQueue(RMAssertionType rma) {
-        this(rma.getBaseRetransmissionInterval().getMilliseconds().longValue(),
+    public RetransmissionQueue(RMHandler h, RMAssertionType rma) {
+        this(h, rma.getBaseRetransmissionInterval().getMilliseconds().longValue(),
              Integer.parseInt(rma.getExponentialBackoff().getOtherAttributes()
                               .get(EXPONENTIAL_BACKOFF_BASE_ATTR)));
     }
@@ -74,8 +75,9 @@ public class RetransmissionQueue {
      * @param base the base retransmission interval
      * @param backoff the exponential backoff
      */
-    public RetransmissionQueue(long base,
+    public RetransmissionQueue(RMHandler h, long base,
                                int backoff) {
+        handler = h;
         baseRetransmissionInterval = base;
         exponentialBackoff = backoff;
         candidates = new HashMap<String, List<ResendCandidate>>();
@@ -154,9 +156,9 @@ public class RetransmissionQueue {
      * @return an appropriate Request for the context
      */
     private Request createClientRequest(ObjectMessageContext context) {
-        AbstractBindingBase binding = (AbstractBindingBase)
-            BindingContextUtils.retrieveBinding(context);
-        Request request = new Request(binding, context);
+        AbstractBindingBase binding = handler.getBinding();
+        Transport transport = handler.getClientTransport();
+        Request request = new Request(binding, transport, context);
         request.setOneway(ContextUtils.isOneway(context));
         return request;
     }
@@ -170,8 +172,7 @@ public class RetransmissionQueue {
         Request request = createClientRequest(context);
         OutputStreamMessageContext outputStreamContext =
             request.process(null, true);
-        ClientTransport transport = 
-            BindingContextUtils.retrieveClientTransport(context);
+        ClientTransport transport = handler.getClientTransport();
         if (transport != null) {
             // decoupled response channel always being used with RM, 
             // hence a partial response must be processed
@@ -188,8 +189,7 @@ public class RetransmissionQueue {
      * @return an appropriate ServerRequest for the context
      */
     private ServerRequest createServerRequest(ObjectMessageContext context) {
-        AbstractBindingBase binding = (AbstractBindingBase)
-            BindingContextUtils.retrieveBinding(context);
+        AbstractBindingBase binding = handler.getBinding();
         ServerRequest request = new ServerRequest(binding, context);
         // a server-originated resend implies a response, hence non-oneway
         request.setOneway(false);
@@ -203,8 +203,7 @@ public class RetransmissionQueue {
      * @param context the message context
      */
     private void serverResend(ObjectMessageContext context) throws IOException {
-        ServerTransport transport = 
-            BindingContextUtils.retrieveServerTransport(context);
+        ServerTransport transport = handler.getServerTransport();
         if (transport != null) {
             ServerRequest serverRequest = createServerRequest(context);
             serverRequest.processOutbound(transport, null, true);

@@ -16,6 +16,7 @@ import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
+import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
@@ -28,6 +29,7 @@ public class CreateSequenceRequestTest extends TestCase {
     private ObjectMessageContext objectCtx;
     private RMSource source;
     private AbstractBindingBase binding;
+    private Transport transport;
     private HandlerChainInvoker hci;
     private SourcePolicyType sp;
     private IMocksControl control;
@@ -48,6 +50,7 @@ public class CreateSequenceRequestTest extends TestCase {
         control = EasyMock.createNiceControl();
         source = control.createMock(RMSource.class);
         binding = control.createMock(AbstractBindingBase.class);
+        transport = control.createMock(Transport.class);
         hci = new HandlerChainInvoker(new ArrayList<Handler>());
         sp = RMUtils.getWSRMConfFactory().createSourcePolicyType();
         
@@ -70,7 +73,7 @@ public class CreateSequenceRequestTest extends TestCase {
         EndpointReferenceType replyTo = 
             RMUtils.createReference(RMUtils.getAddressingConstants().getAnonymousURI());
         
-        CreateSequenceRequest req = new CreateSequenceRequest(binding, source, replyTo);
+        CreateSequenceRequest req = new CreateSequenceRequest(binding, transport, source, replyTo);
         assertNotNull(req);
         
         assertNotNull(CreateSequenceRequest.createDataBindingCallback());
@@ -104,7 +107,7 @@ public class CreateSequenceRequestTest extends TestCase {
         sp.setSequenceExpiration(ONE_DAY);
         sp.setIncludeOffer(false);
         
-        CreateSequenceRequest req = new CreateSequenceRequest(binding, source, replyTo);
+        CreateSequenceRequest req = new CreateSequenceRequest(binding, transport, source, replyTo);
         assertNotNull(req);
         
         Object[] params = req.getObjectMessageContext().getMessageObjects();

@@ -10,10 +10,13 @@ import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
 
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.ObjectFactory;
 import org.objectweb.celtix.bus.jaxws.configuration.types.SystemHandlerChainType;
+import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -24,11 +27,7 @@ import org.objectweb.celtix.handlers.StreamHandler;
 import org.objectweb.celtix.handlers.SystemHandler;
 
 
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.reset;
-import static org.easymock.classextension.EasyMock.verify;
+import static org.easymock.EasyMock.expect;
 
 public class AbstractBindingImplTest extends TestCase {
     private Handler lhs1;
@@ -131,13 +130,12 @@ public class AbstractBindingImplTest extends TestCase {
     }
     
     public void testConfigureSystemHandlers() {
-        
+        IMocksControl control = EasyMock.createControl();
         TestBinding b = new TestBinding();
         SystemHandlerChainType shc = null;
-        Configuration c = createMock(Configuration.class);
-        c.getObject("systemHandlerChain");
-        expectLastCall().andReturn(shc);
-        replay(c);
+        Configuration c = control.createMock(Configuration.class);
+        expect(c.getObject("systemHandlerChain")).andReturn(shc);
+        control.replay();
         
         b.configureSystemHandlers(c);
         assertEquals(0, b.getPreLogicalSystemHandlers().size());
@@ -145,14 +143,13 @@ public class AbstractBindingImplTest extends TestCase {
         assertEquals(0, b.getPreProtocolSystemHandlers().size());
         assertEquals(0, b.getPreProtocolSystemHandlers().size());
         
-        verify(c);
-        reset(c);
+        control.verify();
+        control.reset();
         
         shc = new ObjectFactory().createSystemHandlerChainType();
-        c = createMock(Configuration.class);
-        c.getObject("systemHandlerChain");
-        expectLastCall().andReturn(shc);
-        replay(c);
+        c = control.createMock(Configuration.class);
+        expect(c.getObject("systemHandlerChain")).andReturn(shc);
+        control.replay();
         
         b.configureSystemHandlers(c);
         assertEquals(0, b.getPreLogicalSystemHandlers().size());
@@ -160,14 +157,13 @@ public class AbstractBindingImplTest extends TestCase {
         assertEquals(0, b.getPreProtocolSystemHandlers().size());
         assertEquals(0, b.getPreProtocolSystemHandlers().size());
         
-        verify(c);
-        reset(c);
+        control.verify();
+        control.reset();
         
         shc = createSystemHandlerChain();
-        c = createMock(Configuration.class);
-        c.getObject("systemHandlerChain");
-        expectLastCall().andReturn(shc);
-        replay(c);
+        c = control.createMock(Configuration.class);
+        expect(c.getObject("systemHandlerChain")).andReturn(shc);
+        control.replay();
         
         b.configureSystemHandlers(c);
         assertEquals(2, b.getPreLogicalSystemHandlers().size());
@@ -175,8 +171,26 @@ public class AbstractBindingImplTest extends TestCase {
         assertEquals(1, b.getPreProtocolSystemHandlers().size());
         assertEquals(2, b.getPostProtocolSystemHandlers().size());
         
-        verify(c);       
+        control.verify();       
     }
+    
+    public void testInjectSystemHandlers() {
+        IMocksControl control = EasyMock.createControl();
+        TestBinding b = new TestBinding();
+        SystemHandlerChainType shc = createSystemHandlerChain();
+        Configuration c = control.createMock(Configuration.class);
+        expect(c.getObject("systemHandlerChain")).andReturn(shc);
+        ResourceInjector ri = control.createMock(ResourceInjector.class);
+        ri.inject(EasyMock.isA(SystemHandler.class));
+        EasyMock.expectLastCall().times(6);
+        control.replay();
+        
+        b.configureSystemHandlers(c);
+        b.injectSystemHandlers(ri);
+        
+        control.verify();
+    }
+    
     
     private SystemHandlerChainType createSystemHandlerChain() {
         SystemHandlerChainType shc = new ObjectFactory().createSystemHandlerChainType();

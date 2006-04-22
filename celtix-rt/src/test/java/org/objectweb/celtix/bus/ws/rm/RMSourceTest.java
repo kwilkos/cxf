@@ -220,12 +220,9 @@ public class RMSourceTest extends TestCase {
     }
     
     private RMSource createSource(RMHandler h) {
-        AbstractClientBinding binding = createNiceMock(AbstractClientBinding.class);
-        h.getBinding();
-        expectLastCall().andReturn(binding);
         Bus bus = createNiceMock(Bus.class);
-        binding.getBus();
-        expectLastCall().andReturn(bus);
+        h.getBus();
+        expectLastCall().andReturn(bus);        
         WorkQueueManager wqm = createNiceMock(WorkQueueManager.class);
         bus.getWorkQueueManager();
         expectLastCall().andReturn(wqm);
@@ -242,7 +239,6 @@ public class RMSourceTest extends TestCase {
         expectLastCall().andReturn(null);
    
         replay(h);
-        replay(binding);
         replay(bus);
         replay(wqm);
         replay(c);

@@ -7,20 +7,13 @@ import javax.jws.Oneway;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.handler.MessageContext;
 
-import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
-import org.objectweb.celtix.transports.ClientTransport;
-import org.objectweb.celtix.transports.ServerTransport;
-import org.objectweb.celtix.transports.Transport;
 
-import static org.objectweb.celtix.bindings.JAXWSConstants.BINDING_PROPERTY;
-import static org.objectweb.celtix.bindings.JAXWSConstants.BUS_PROPERTY;
 import static org.objectweb.celtix.bindings.JAXWSConstants.DATABINDING_CALLBACK_PROPERTY;
 import static org.objectweb.celtix.bindings.JAXWSConstants.DISPATCH_PROPERTY;
 import static org.objectweb.celtix.bindings.JAXWSConstants.ENDPOINT_PROPERTY;
 import static org.objectweb.celtix.bindings.JAXWSConstants.SERVER_BINDING_ENDPOINT_CALLBACK_PROPERTY;
-import static org.objectweb.celtix.bindings.JAXWSConstants.TRANSPORT_PROPERTY;
 import static org.objectweb.celtix.context.InputStreamMessageContext.ASYNC_ONEWAY_DISPATCH;
 import static org.objectweb.celtix.context.InputStreamMessageContext.DECOUPLED_RESPONSE;
 import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
@@ -230,111 +223,5 @@ public final class BindingContextUtils {
         Boolean b = (Boolean)context.get(DECOUPLED_RESPONSE);
         return b != null && b.booleanValue();
     }
-
-
-    /**
-     * Store transport in message context.
-     *
-     * @param context the message context
-     * @param transport the transport
-     */
-    public static void storeTransport(MessageContext context, Transport transport) {
-        context.put(TRANSPORT_PROPERTY, transport);
-        context.setScope(TRANSPORT_PROPERTY, MessageContext.Scope.HANDLER);
-    }
     
-    /**
-     * Retrieve transport from message context.
-     *
-     * @param context the message context
-     * @returned the transport
-     */
-    public static Transport retrieveTransport(MessageContext context) {
-        return (Transport)context.get(TRANSPORT_PROPERTY);
-    }
-    
-    /**
-     * Retrieve ClientTransport from the context.
-     *
-     * @param context the message context
-     * @returned the retrieved ClientTransport
-     */
-    public static ClientTransport retrieveClientTransport(MessageContext context) {
-        Object transport = context.get(TRANSPORT_PROPERTY);
-        return transport instanceof ClientTransport
-               ? (ClientTransport)transport
-               : null;
-    }
-
-    /**
-     * Retrieve ServerTransport from the context.
-     *
-     * @param context the message context
-     * @returned the retrieved ServerTransport
-     */
-    public static ServerTransport retrieveServerTransport(MessageContext context) {
-        return (ServerTransport)context.get(TRANSPORT_PROPERTY);
-    }
-    
-    /**
-     * Store binding in message context.
-     *
-     * @param context the message context
-     * @param binding the binding
-     */
-    public static void storeBinding(MessageContext context, BindingBase binding) {
-        context.put(BINDING_PROPERTY, binding);
-        context.setScope(BINDING_PROPERTY, MessageContext.Scope.HANDLER);
-    }
-    
-    /**
-     * Retrieve binding from message context.
-     *
-     * @param context the message context
-     * @returned the binding
-     */
-    public static BindingBase retrieveBinding(MessageContext context) {
-        return (BindingBase)context.get(BINDING_PROPERTY);
-    }
-    
-    /**
-     * Retrieve ClientBinding from the context.
-     *
-     * @param context the message context
-     * @returned the retrieved ClientBinding
-     */
-    public static ClientBinding retrieveClientBinding(MessageContext context) {
-        return (ClientBinding)context.get(BINDING_PROPERTY);
-    }
-
-    /**
-     * Retrieve ServerBinding from the context.
-     *
-     * @param context the message context
-     * @returned the retrieved ServerBinding
-     */
-    public static ServerBinding retrieveServerBinding(MessageContext context) {
-        return (ServerBinding)context.get(BINDING_PROPERTY);
-    }
-    
-    /**
-     * Store bus in message context.
-     *
-     * @param context the message context
-     * @param bus the bus
-     */
-    public static void storeBus(MessageContext context, Bus bus) {
-        context.put(BUS_PROPERTY, bus);
-        context.setScope(BUS_PROPERTY, MessageContext.Scope.HANDLER);
-    }
-    
-    /**
-     * Retrieve bus from message context.
-     *
-     * @param context the message context
-     * @returned the bus
-     */
-    public static Bus retrieveBus(MessageContext context) {
-        return (Bus)context.get(BUS_PROPERTY);
-    }
 }

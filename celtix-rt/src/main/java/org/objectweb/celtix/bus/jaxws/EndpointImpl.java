@@ -440,7 +440,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         serverBinding.getBinding().setHandlerChain(chain);
     }
     
-    private void configureSystemHandlers() {
+    private void configureSystemHandlers() {        
         serverBinding.configureSystemHandlers(configuration); 
     }
 

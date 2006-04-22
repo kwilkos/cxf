@@ -8,14 +8,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractBindingBase;
-import org.objectweb.celtix.bindings.AbstractClientBinding;
-import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bindings.BindingContextUtils;
+import org.objectweb.celtix.bindings.ClientBinding;
+import org.objectweb.celtix.bindings.JAXWSConstants;
+import org.objectweb.celtix.bindings.ServerBinding;
+
 import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
@@ -32,6 +36,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.SystemHandler;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
+import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
@@ -64,10 +69,12 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     private Timer timer;
     private boolean busLifeCycleListenerRegistered;
 
-    private AbstractClientBinding clientBinding;
-    private AbstractServerBinding serverBinding;
-    private ClientTransport clientTransport;
-    private ServerTransport serverTransport;
+    
+    @Resource(name = JAXWSConstants.BUS_PROPERTY) private Bus bus;
+    @Resource(name = JAXWSConstants.CLIENT_BINDING_PROPERTY) private ClientBinding clientBinding;
+    @Resource(name = JAXWSConstants.SERVER_BINDING_PROPERTY) private ServerBinding serverBinding;
+    @Resource(name = JAXWSConstants.CLIENT_TRANSPORT_PROPERTY) private ClientTransport clientTransport;
+    @Resource(name = JAXWSConstants.SERVER_TRANSPORT_PROPERTY) private ServerTransport serverTransport;
 
     public RMHandler() {        
         proxy = new RMProxy(this);
@@ -119,6 +126,14 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     public Timer getTimer() {
         return timer;
     }
+    
+    public Bus getBus() {
+        return bus;
+    }
+    
+    public Transport getTransport() {
+        return null == clientTransport ? serverTransport : clientTransport;
+    }
 
     public ClientTransport getClientTransport() {
         return clientTransport;
@@ -128,11 +143,11 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         return serverTransport;
     }
 
-    public AbstractClientBinding getClientBinding() {
+    public ClientBinding getClientBinding() {
         return clientBinding;
     }
 
-    public AbstractServerBinding getServerBinding() {
+    public ServerBinding getServerBinding() {
         return serverBinding;
     }
 
@@ -142,9 +157,9 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
     public AbstractBindingBase getBinding() {
         if (null != clientBinding) {
-            return clientBinding;
+            return (AbstractBindingBase)clientBinding;
         }
-        return serverBinding;
+        return (AbstractBindingBase)serverBinding;
     }
 
     public RMProxy getProxy() {
@@ -171,6 +186,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     }
 
     protected synchronized void initialise(MessageContext context) {
+        /*
         if (null == clientTransport && null == serverTransport) {
             clientTransport = BindingContextUtils.retrieveClientTransport(context);
             if (null == clientTransport) {
@@ -187,6 +203,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         if (null == serverBinding && null != serverTransport) {
             serverBinding = (AbstractServerBinding)BindingContextUtils.retrieveServerBinding(context);
         }
+        */
         
         assert null != serverBinding || null != clientBinding;
 
@@ -377,7 +394,6 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             Object[] parameters = (Object[])context.get(ObjectMessageContext.METHOD_PARAMETERS);
             CreateSequenceType cs = (CreateSequenceType)parameters[0];
             AttributedURI to = VersionTransformer.convert(maps.getTo());
-            ContextUtils.retrieveTo(context);
 
             CreateSequenceResponseType csr = getServant().createSequence(getDestination(), cs, to);
             context.put(ObjectMessageContext.METHOD_RETURN, csr);

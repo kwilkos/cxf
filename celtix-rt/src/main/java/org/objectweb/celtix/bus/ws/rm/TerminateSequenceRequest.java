@@ -8,6 +8,7 @@ import org.objectweb.celtix.bindings.Request;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.rm.TerminateSequenceType;
@@ -18,9 +19,9 @@ public class TerminateSequenceRequest extends Request {
     private static final String METHOD_NAME = "terminateSequence";
     private static final String OPERATION_NAME = "TerminateSequence";
     
-    public TerminateSequenceRequest(AbstractBindingBase b, AbstractSequenceImpl seq) {
+    public TerminateSequenceRequest(AbstractBindingBase b, Transport t, AbstractSequenceImpl seq) {
         
-        super(b, b.createObjectContext());
+        super(b, t, b.createObjectContext());
         getObjectMessageContext().setRequestorRole(true);
         getObjectMessageContext().setMethod(getMethod()); 
         

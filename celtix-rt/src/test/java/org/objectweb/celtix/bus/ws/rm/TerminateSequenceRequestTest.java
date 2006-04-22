@@ -11,6 +11,7 @@ import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
+import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.TerminateSequenceType;
 
@@ -21,6 +22,7 @@ public class TerminateSequenceRequestTest extends TestCase {
         ObjectMessageContext objectCtx = new ObjectMessageContextImpl(); 
         RMSource source = EasyMock.createMock(RMSource.class);
         AbstractBindingBase binding = EasyMock.createMock(AbstractBindingBase.class);
+        Transport transport = EasyMock.createMock(Transport.class);
         HandlerChainInvoker hci = new HandlerChainInvoker(new ArrayList<Handler>());
         
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
@@ -36,7 +38,7 @@ public class TerminateSequenceRequestTest extends TestCase {
         EasyMock.replay(source);
         EasyMock.replay(binding);
         
-        TerminateSequenceRequest req = new TerminateSequenceRequest(binding, seq);
+        TerminateSequenceRequest req = new TerminateSequenceRequest(binding, transport, seq);
         assertNotNull(req);
         
         assertNotNull(TerminateSequenceRequest.createDataBindingCallback());

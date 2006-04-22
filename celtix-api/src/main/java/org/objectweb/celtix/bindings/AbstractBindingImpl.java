@@ -11,6 +11,7 @@ import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bus.jaxws.configuration.types.SystemHandlerChainType;
+import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -115,7 +116,7 @@ public abstract class AbstractBindingImpl implements Binding {
             postLogicalSystemHandlers = builder.buildHandlerChainFromConfiguration(sh.getPostLogical());
             preProtocolSystemHandlers = builder.buildHandlerChainFromConfiguration(sh.getPreProtocol());
             postProtocolSystemHandlers = builder.buildHandlerChainFromConfiguration(sh.getPostProtocol());
-        }
+        }        
     }
     
     /**
@@ -167,6 +168,31 @@ public abstract class AbstractBindingImpl implements Binding {
             postProtocolSystemHandlers = new ArrayList<Handler>();
         }
         return postProtocolSystemHandlers;
+    }
+    
+    public void injectSystemHandlers(ResourceInjector injector) {
+        if (null != preLogicalSystemHandlers) {
+            for (Handler h : preLogicalSystemHandlers) {
+                injector.inject(h);
+            }
+        }
+        if (null != postLogicalSystemHandlers) {
+            for (Handler h : postLogicalSystemHandlers) {
+                injector.inject(h);
+            }
+        }
+        
+        if (null != preProtocolSystemHandlers) {
+            for (Handler h : preProtocolSystemHandlers) {
+                injector.inject(h);
+            }
+        }
+        
+        if (null != postProtocolSystemHandlers) {
+            for (Handler h : postProtocolSystemHandlers) {
+                injector.inject(h);
+            }
+        }
     }
     
     public abstract MessageContext createBindingMessageContext(MessageContext orig);

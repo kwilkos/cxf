@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.ws.addressing;
 
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,13 +11,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Resource;
 import javax.wsdl.Port;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
+
+import org.objectweb.celtix.bindings.JAXWSConstants;
+import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.transports.ClientTransport;
+import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -34,12 +41,22 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
 
     protected final Map<String, String> messageIDs = 
         new HashMap<String, String>();
+    
+    /**
+     * resources injected by client/server endpoints
+     */
+
+    @Resource(name = JAXWSConstants.SERVER_BINDING_PROPERTY) protected ServerBinding serverBinding;
+    @Resource(name = JAXWSConstants.CLIENT_TRANSPORT_PROPERTY) protected ClientTransport clientTransport;
+    @Resource(name = JAXWSConstants.SERVER_TRANSPORT_PROPERTY) protected ServerTransport serverTransport;
 
     /**
      * Whether the endpoint supports WS-Addressing.
      */
     private final AtomicBoolean usingAddressingDetermined = new AtomicBoolean(false);
     private final AtomicBoolean usingAddressing = new AtomicBoolean(false);
+    
+    
 
     /**
      * Constructor.
@@ -96,7 +113,7 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
         boolean ret = false;
         if (ContextUtils.isRequestor(context)) {
             if (!usingAddressingDetermined.get()) {
-                Port port = ContextUtils.retrievePort(context);
+                Port port = clientTransport == null ? null : clientTransport.getPort();
                 if (port != null) {
                     Iterator<?> portExts =
                         port.getExtensibilityElements().iterator();
@@ -151,7 +168,7 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             if (continueProcessing) {
                 if (ContextUtils.isOneway(context)
                     || !ContextUtils.isGenericAddress(maps.getReplyTo())) {
-                    ContextUtils.rebaseTransport(maps, context);
+                    ContextUtils.rebaseTransport(maps, context, serverBinding, serverTransport);
                 }            
             } else {
                 // validation failure => dispatch is aborted, response MAPs 
@@ -196,7 +213,8 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
         // To
         if (maps.getTo() == null) {
             // To cached in context by transport
-            EndpointReferenceType reference = ContextUtils.retrieveTo(context);
+            EndpointReferenceType reference = 
+                clientTransport == null ? null : clientTransport.getTargetEndpoint();
             maps.setTo(reference != null 
                        ? reference.getAddress()
                        : ContextUtils.getAttributedURI(Names.WSA_NONE_ADDRESS));
@@ -227,8 +245,14 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             // current invocation
             EndpointReferenceType replyTo = maps.getReplyTo();
             if (ContextUtils.isGenericAddress(replyTo)) {
-                // use ReplyTo provided by transport
-                replyTo = ContextUtils.retrieveReplyTo(context);
+                
+                try {
+                    replyTo = clientTransport == null ? null : clientTransport.getDecoupledEndpoint();
+                } catch (IOException ex) {
+                    // ignore
+                    replyTo = null;
+                }
+                
                 if (replyTo == null || isOneway) {
                     AttributedURIType address =
                         ContextUtils.getAttributedURI(isOneway

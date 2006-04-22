@@ -37,16 +37,40 @@ public final class JAXWSConstants {
     
 
     /**
-     * Used by binding to cache itseld in the context
+     * Used by binding to cache itself in the context
      */
     public static final String BINDING_PROPERTY =
         "org.objectweb.celtix.bindings.binding";
+    
+    /**
+     * Used by binding to cache itself in the context
+     */
+    public static final String CLIENT_BINDING_PROPERTY =
+        "org.objectweb.celtix.bindings.client.binding";
+    
+    /**
+     * Used by binding to cache itself in the context
+     */
+    public static final String SERVER_BINDING_PROPERTY =
+        "org.objectweb.celtix.bindings.server.binding";
     
     /**
      * Used by binding to cache Transport in the context
      */
     public static final String TRANSPORT_PROPERTY =
         "org.objectweb.celtix.bindings.transport";
+    
+    /**
+     * Used by binding to cache Client Transport in the context
+     */
+    public static final String CLIENT_TRANSPORT_PROPERTY =
+        "org.objectweb.celtix.bindings.client.transport";
+    
+    /**
+     * Used by binding to cache Server Transport in the context
+     */
+    public static final String SERVER_TRANSPORT_PROPERTY =
+        "org.objectweb.celtix.bindings.server.transport";
     
     /**
      * Prevents instantiation. 

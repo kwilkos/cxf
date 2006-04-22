@@ -30,8 +30,6 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
-import static org.objectweb.celtix.bindings.JAXWSConstants.BINDING_PROPERTY;
-import static org.objectweb.celtix.bindings.JAXWSConstants.TRANSPORT_PROPERTY;
 import static org.objectweb.celtix.bus.bindings.soap.SOAPConstants.SOAP_ENV_ENCSTYLE;
 import static org.objectweb.celtix.context.ObjectMessageContext.METHOD_OBJ;
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
@@ -53,6 +51,7 @@ public class MAPAggregatorTest extends TestCase {
     private String expectedReplyTo;
     private String expectedRelatesTo;
     private String expectedAction;
+    
     
 
     public void setUp() {
@@ -366,10 +365,8 @@ public class MAPAggregatorTest extends TestCase {
     private void setUpUsingAddressing(LogicalMessageContext context,
                                       boolean usingAddressing) {
         Port port = control.createMock(Port.class);
-        ClientTransport transport = control.createMock(ClientTransport.class);
-        context.get(TRANSPORT_PROPERTY);
-        EasyMock.expectLastCall().andReturn(transport);
-        transport.getPort();
+        aggregator.clientTransport = control.createMock(ClientTransport.class);
+        aggregator.clientTransport.getPort();
         EasyMock.expectLastCall().andReturn(port);
         List portExts = control.createMock(List.class);
         port.getExtensibilityElements();
@@ -420,8 +417,6 @@ public class MAPAggregatorTest extends TestCase {
         }
         context.get(CLIENT_ADDRESSING_PROPERTIES);
         EasyMock.expectLastCall().andReturn(maps);
-        context.get(TRANSPORT_PROPERTY);        
-        EasyMock.expectLastCall().andReturn(null);
         Method method = SEI.class.getMethod("op", new Class[0]);
         if (!zeroLengthAction) {
             context.get(METHOD_OBJ);     
@@ -474,18 +469,12 @@ public class MAPAggregatorTest extends TestCase {
         EasyMock.expectLastCall().andReturn(maps);
         if (oneway || decoupled) {
             context.get(ONEWAY_MESSAGE_TF);
-            EasyMock.expectLastCall().andReturn(Boolean.valueOf(oneway));
-            ServerBinding binding = 
-                control.createMock(ServerBinding.class);
-            context.get(BINDING_PROPERTY);
-            EasyMock.expectLastCall().andReturn(binding);
-            ServerTransport transport = 
-                control.createMock(ServerTransport.class);
-            context.get(TRANSPORT_PROPERTY);
-            EasyMock.expectLastCall().andReturn(transport);
+            EasyMock.expectLastCall().andReturn(Boolean.valueOf(oneway));            
+            aggregator.serverBinding = control.createMock(ServerBinding.class);
+            aggregator.serverTransport = control.createMock(ServerTransport.class);
             OutputStreamMessageContext outputContext = 
                 control.createMock(OutputStreamMessageContext.class);
-            transport.rebase(context, replyTo);
+            aggregator.serverTransport.rebase(context, replyTo);
             EasyMock.expectLastCall().andReturn(outputContext);
             DataBindingCallback callback = 
                 new JAXBDataBindingCallback(null,
@@ -493,7 +482,7 @@ public class MAPAggregatorTest extends TestCase {
                                             ContextUtils.getJAXBContext());
             EasyMock.reportMatcher(new PartialResponseMatcher());
             EasyMock.reportMatcher(new PartialResponseMatcher());
-            binding.partialResponse(outputContext, callback);
+            aggregator.serverBinding.partialResponse(outputContext, callback);
             EasyMock.expectLastCall();
         }
         if (outbound || aggregator.messageIDs.size() > 0) {

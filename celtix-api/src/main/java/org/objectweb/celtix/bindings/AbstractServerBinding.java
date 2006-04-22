@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -16,15 +17,23 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.resource.DefaultResourceManager;
+import org.objectweb.celtix.resource.ResourceManager;
+import org.objectweb.celtix.resource.ResourceResolver;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.TransportFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+
+import static org.objectweb.celtix.bindings.JAXWSConstants.BUS_PROPERTY;
+import static org.objectweb.celtix.bindings.JAXWSConstants.SERVER_BINDING_PROPERTY;
+import static org.objectweb.celtix.bindings.JAXWSConstants.SERVER_TRANSPORT_PROPERTY;
 
 public abstract class AbstractServerBinding extends AbstractBindingBase implements ServerBinding {
 
@@ -61,6 +70,8 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
             }
         };
         transport.activate(tc);
+        
+        injectSystemHandlers();
     }
 
     public void deactivate() throws IOException {
@@ -81,7 +92,7 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         BindingContextUtils.storeDataBindingCallback(objectMessageContext, callback);
 
         if (callback != null) {
-            Request request = new Request(this, objectMessageContext);
+            Request request = new Request(this, transport, objectMessageContext);
             request.setOneway(true);
 
             try {
@@ -121,7 +132,7 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
     
     protected void dispatch(InputStreamMessageContext istreamCtx, ServerTransport t) {
         LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
-        storeSource(istreamCtx, t);
+        // storeSource(istreamCtx, t);
         BindingContextUtils.storeServerBindingEndpointCallback(istreamCtx, sbeCallback);
         BindingContextUtils.storeEndpoint(istreamCtx, endpoint);
         
@@ -199,10 +210,36 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         return null;
     }
 
+    /*
     protected void storeSource(MessageContext context, ServerTransport st) {
         BindingContextUtils.storeBinding(context, this);
         BindingContextUtils.storeTransport(context, st);
         BindingContextUtils.storeBus(context, bus);
+    }
+    */
+    
+    private void injectSystemHandlers() {
+        ResourceManager rm = new DefaultResourceManager();
+        rm.addResourceResolver(new ResourceResolver() {
+            @SuppressWarnings("unchecked")
+            public <T> T resolve(String resourceName, Class<T> resourceType) {
+                if (BUS_PROPERTY.equals(resourceName)) {
+                    return  (T)AbstractServerBinding.this.getBus();
+                } else if (SERVER_BINDING_PROPERTY.equals(resourceName)) {
+                    return  (T)AbstractServerBinding.this;
+                } else if (SERVER_TRANSPORT_PROPERTY.equals(resourceName)) {
+                    return (T)transport;
+                }
+                return null;
+            }
+            
+            public InputStream getAsStream(String name) {
+                return null;
+            }            
+        });
+        ResourceInjector injector = new ResourceInjector(rm); 
+        
+        getBindingImpl().injectSystemHandlers(injector);
     }
     
     private void terminateOutputContext(OutputStreamMessageContext outputContext) 
