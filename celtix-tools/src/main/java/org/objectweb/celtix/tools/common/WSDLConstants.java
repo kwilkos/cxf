@@ -48,8 +48,8 @@ public final class WSDLConstants {
     public static final QName NS_XMLHTTP_BINDING_ADDRESS = new QName("http://schemas.xmlsoap.org/wsdl/http/",
                                                                      "address");
     public static final QName NS_SOAP_BINDING = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "binding");
-    public static final QName NS_SOAP_OPERATION = 
-            new QName("http://schemas.xmlsoap.org/wsdl/soap/", "operation");
+    public static final QName NS_SOAP_OPERATION = new QName("http://schemas.xmlsoap.org/wsdl/soap/",
+                                                            "operation");
     public static final QName NS_SOAP_BODY = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "body");
     public static final QName NS_SOAP_FAULT = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "fault");
 
@@ -72,11 +72,16 @@ public final class WSDLConstants {
     public static final QName QNAME_FAULT = new QName(NS_WSDL, "fault");
     public static final QName QNAME_SERVICE = new QName(NS_WSDL, "service");
     public static final QName QNAME_TYPES = new QName(NS_WSDL, "types");
-    
+
+    // WSDL Validation
+    public static final String ATTR_PART_ELEMENT = "element";
+    public static final String ATTR_PART_TYPE = "type";
+    //For LineNumDOMParser getUserData(location)
+    public static final String NODE_LOCATION = "location";
+
     public static final int DOC_WRAPPED = 1;
     public static final int DOC_BARE = 2;
     public static final int RPC_WRAPPED = 3;
     public static final int ERORR_STYLE_USE = -1;
-    
 
 }

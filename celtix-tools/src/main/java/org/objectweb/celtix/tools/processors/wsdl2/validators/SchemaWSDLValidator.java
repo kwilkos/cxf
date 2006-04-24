@@ -13,6 +13,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
+
+import javax.wsdl.Definition;
+import javax.wsdl.WSDLException;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+import javax.xml.namespace.QName;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -31,56 +38,119 @@ import com.sun.org.apache.xerces.internal.parsers.XMLGrammarPreparser;
 import com.sun.org.apache.xerces.internal.xni.XMLResourceIdentifier;
 import com.sun.org.apache.xerces.internal.xni.XNIException;
 import com.sun.org.apache.xerces.internal.xni.grammars.XMLGrammarDescription;
+import com.sun.org.apache.xerces.internal.xni.grammars.XSGrammar;
 import com.sun.org.apache.xerces.internal.xni.parser.XMLEntityResolver;
 import com.sun.org.apache.xerces.internal.xni.parser.XMLErrorHandler;
 import com.sun.org.apache.xerces.internal.xni.parser.XMLInputSource;
 import com.sun.org.apache.xerces.internal.xni.parser.XMLParseException;
+import com.sun.org.apache.xerces.internal.xs.XSModel;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 import org.objectweb.celtix.tools.common.ToolException;
+import org.objectweb.celtix.tools.common.WSDLConstants;
+import org.objectweb.celtix.tools.utils.LineNumDOMParser;
 import org.objectweb.celtix.tools.utils.URLFactory;
 
-public class SchemaWSDLValidator {
-    private static final String NU_WSDL = "http://schemas.xmlsoap.org/wsdl/";
-    private static final String NU_SCHEMA_XSD = "http://www.w3.org/2001/XMLSchema";
+public class SchemaWSDLValidator extends AbstractValidator {
+
     protected String[] defaultSchemas;
     protected String schemaLocation = "./";
 
-    private DOMParser parser = new DOMParser();
-    private XMLGrammarPreparser preparser = new XMLGrammarPreparser();
+    private DOMParser parser;
+    private XMLGrammarPreparser preparser;
+
+    private List<XSModel> xsmodelList = new Vector<XSModel>();
+    private Definition def;
+
+    private String wsdlsrc;
+    private String[] xsds;
+    private boolean isdeep;
+
+    private Document schemaValidatedDoc;
+    private Map<QName, List> msgPartsMap = new HashMap<QName, List>();
+    private Map<QName, Map> portTypes = new HashMap<QName, Map>();
+    //private Map<QName, List> bindingMap = new HashMap<QName, List>();
 
     public SchemaWSDLValidator(String schemaDir) throws ToolException {
+        super(schemaDir);
         schemaLocation = schemaDir;
         defaultSchemas = getDefaultSchemas();
         init();
     }
 
-    public void validate(String wsdlsource, String[] schemas, boolean deep) throws ToolException {
+    public SchemaWSDLValidator(String schemaDir, String wsdl, String[] schemas, boolean deep) {
+        super(schemaDir);
+        schemaLocation = schemaDir;
+        defaultSchemas = getDefaultSchemas();
+        init();
+        wsdlsrc = wsdl;
+        xsds = schemas;
+        isdeep = deep;
+    }
+
+    public boolean isValid() {
+        return validate(wsdlsrc, xsds, isdeep);
+    }
+
+    public boolean validate(String wsdlsource, String[] schemas, boolean deep) throws ToolException {
         String systemId = null;
         try {
             systemId = getWsdlUrl(wsdlsource);
         } catch (IOException ioe) {
             throw new ToolException(ioe);
         }
-        validate(new InputSource(systemId), schemas, deep);
+
+        return validate(new InputSource(systemId), schemas, deep);
+
     }
 
-    public void validate(InputSource wsdlsource, String[] schemas, boolean deep) throws ToolException {
+    private boolean validate(InputSource wsdlsource, String[] schemas, boolean deep) throws ToolException {
+        boolean isValid = false;
         try {
             schemas = addSchemas(defaultSchemas, schemas);
             setExternalSchemaLocations(schemas);
             StackTraceErrorHandler handler = setErrorHandler();
-            // Document doc = doValidation(wsdlsource, deep);
-            doValidation(wsdlsource, deep);
+            schemaValidatedDoc = doValidation(wsdlsource, deep);
+            //
             if (!handler.isValid()) {
                 ToolException ex = new ToolException(handler.getErrorMessages());
                 throw ex;
             }
 
-        } catch (Exception e) {
-            throw new ToolException(e);
+            WSDLFactory wsdlFactory;
+            try {
+                wsdlFactory = WSDLFactory.newInstance();
+                WSDLReader reader = wsdlFactory.newWSDLReader();
+                def = reader.readWSDL(wsdlsource.getSystemId());
+            } catch (WSDLException e) {
+                throw new ToolException("Can not create wsdl definition for " + wsdlsource.getSystemId());
+            }
+
+            MessageValidator msgValidator = new MessageValidator(def, this);
+
+            isValid = msgValidator.validateMessages();
+
+            if (!isValid) {
+                throw new ToolException(this.getErrorMessage());
+            }
+
+            PortTypeValidator portTypeValidator = new PortTypeValidator(def, this);
+            
+            portTypeValidator.validatePortType();
+ 
+            BindingValidator bindingvalidator = new BindingValidator(def, this);
+            bindingvalidator.vlidateBinding();
+            
+            isValid = true;
+
+        } catch (IOException ioe) {
+            throw new ToolException(ioe);
+        } catch (SAXException saxEx) {
+            throw new ToolException(saxEx);
+
         }
+        return isValid;
     }
 
     public Document validate(InputStream wsdlsource, String[] schemas) throws Exception {
@@ -122,6 +192,9 @@ public class SchemaWSDLValidator {
 
     private void init() throws ToolException {
         try {
+
+            parser = new LineNumDOMParser();
+            preparser = new XMLGrammarPreparser();
             parser.setFeature("http://xml.org/sax/features/validation", true);
             parser.setFeature("http://apache.org/xml/features/validation/schema", true);
             parser.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true);
@@ -184,7 +257,7 @@ public class SchemaWSDLValidator {
         }
 
         if (deep) {
-            NodeList nodes = doc.getDocumentElement().getElementsByTagNameNS(NU_WSDL, "import");
+            NodeList nodes = doc.getDocumentElement().getElementsByTagNameNS(WSDLConstants.NS_WSDL, "import");
             for (int i = 0; i < nodes.getLength(); i++) {
                 Element el = (Element)nodes.item(i);
                 String ns = el.getAttribute("namespace");
@@ -225,8 +298,9 @@ public class SchemaWSDLValidator {
     private void doSchemaValidation(InputSource wsdlsource, byte[] bytes, Document doc,
                                     StackTraceErrorHandler handler) throws IOException, SAXException {
         if (isSchemaDocument(doc)) {
-            preparser
-                .preparseGrammar(XMLGrammarDescription.XML_SCHEMA, copyInputSourceXML(wsdlsource, bytes));
+            XSGrammar xsGrammer = (XSGrammar)preparser.preparseGrammar(XMLGrammarDescription.XML_SCHEMA,
+                                                                       copyInputSourceXML(wsdlsource, bytes));
+            xsmodelList.add(xsGrammer.toXSModel());
 
         } else {
             Map schemas = serializeSchemaElements(doc);
@@ -240,12 +314,13 @@ public class SchemaWSDLValidator {
                     .getXmlEncoding());
 
                 try {
-
                     preparser.setErrorHandler(schemaHandler);
 
-                    preparser.preparseGrammar(XMLGrammarDescription.XML_SCHEMA,
-                                              copyInputSourceXML(wsdlsource, schemaBytes, doc
-                                                  .getXmlEncoding()));
+                    XSGrammar xsGrammer = (XSGrammar)preparser
+                        .preparseGrammar(XMLGrammarDescription.XML_SCHEMA,
+                                         copyInputSourceXML(wsdlsource, tns, schemaBytes, doc
+                                             .getXmlEncoding()));
+                    xsmodelList.add(xsGrammer.toXSModel());
 
                 } finally {
                     preparser.setErrorHandler(handler);
@@ -265,7 +340,7 @@ public class SchemaWSDLValidator {
 
     private Map<String, byte[]> serializeSchemaElements(Document doc) throws IOException {
         Map<String, byte[]> result = new HashMap<String, byte[]>();
-        NodeList nodes = doc.getElementsByTagNameNS(NU_SCHEMA_XSD, "schema");
+        NodeList nodes = doc.getElementsByTagNameNS(WSDLConstants.NS_XMLNS, "schema");
         for (int x = 0; x < nodes.getLength(); x++) {
             Node schemaNode = nodes.item(x);
             Element schemaEl = (Element)schemaNode;
@@ -326,6 +401,18 @@ public class SchemaWSDLValidator {
         } else {
             ret = new XMLInputSource(source.getPublicId(), source.getSystemId(), null,
                                      new ByteArrayInputStream(stream), encoding);
+        }
+        return ret;
+    }
+
+    private XMLInputSource copyInputSourceXML(InputSource source, String tns, 
+                                              byte[] stream, String encoding) {
+
+        XMLInputSource ret = null;
+        if (stream == null) {
+            ret = new XMLInputSource(source.getPublicId(), source.getSystemId(), null);
+        } else {
+            ret = new XMLInputSource(tns, tns, null, new ByteArrayInputStream(stream), encoding);
         }
         return ret;
     }
@@ -508,6 +595,26 @@ public class SchemaWSDLValidator {
         }
 
     }
+
+    public List<XSModel> getXSModelList() {
+        return xsmodelList;
+    }
+
+    public Document getSchemaValidatedDoc() {
+        return schemaValidatedDoc;
+    }
+    
+    public Map<QName , List> getMsgPartsMap() {
+        return msgPartsMap;
+    }
+    
+    public Map<QName , Map> getPortTypesMap() {
+        return portTypes;
+    }
+    
+    public Map<QName , Map> getBindingMap() {
+        return getBindingMap();
+    }
 }
 
 class StackTraceErrorHandler implements ErrorHandler, XMLErrorHandler {
@@ -655,4 +762,5 @@ class WSDLSchemaErrorHandler implements XMLErrorHandler {
         return new SAXParseException(ex.getMessage(), ex.getPublicId(), ex.getLiteralSystemId(), -1, -1, ex
             .getException());
     }
+
 }
