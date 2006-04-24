@@ -88,8 +88,8 @@ public class WSIBPValidator extends AbstractValidator {
                                     }
                                 }
                                 if (!isDefined) {
-                                    errorMessage = "opartion: " + operation.getName() + "  soapBody parts : "
-                                                   + partName + " not found in the message, wrong WSDL";
+                                    addErrorMessage("opartion: " + operation.getName() + "  soapBody parts : "
+                                                    + partName + " not found in the message, wrong WSDL");
                                     return false;
                                 }
 
@@ -97,8 +97,8 @@ public class WSIBPValidator extends AbstractValidator {
                         }
 
                         if (boundPartSize > 1) {
-                            this.errorMessage = "operation:" + operation.getName()
-                                                + " more than one part bound to body";
+                            addErrorMessage("operation:" + operation.getName()
+                                            + " more than one part bound to body");
                             return false;
                         }
                     }
@@ -126,8 +126,8 @@ public class WSIBPValidator extends AbstractValidator {
                                     }
                                 }
                                 if (!isDefined) {
-                                    errorMessage = "opartion: " + operation.getName() + "  soapBody parts : "
-                                                   + partName + " not found in the message, wrong WSDL";
+                                    addErrorMessage("opartion: " + operation.getName() + "  soapBody parts : "
+                                                    + partName + " not found in the message, wrong WSDL");
                                     return false;
                                 }
 
@@ -135,8 +135,8 @@ public class WSIBPValidator extends AbstractValidator {
                         }
 
                         if (boundPartSize > 1) {
-                            this.errorMessage = "operation:" + operation.getName()
-                                                + " more than one part bound to body";
+                            addErrorMessage("operation:" + operation.getName()
+                                            + " more than one part bound to body");
                             return false;
                         }
                     }
@@ -165,19 +165,19 @@ public class WSIBPValidator extends AbstractValidator {
                     for (Iterator ite3 = inMess.getParts().values().iterator(); ite3.hasNext();) {
                         Part p = (Part)ite3.next();
                         if (style.equalsIgnoreCase(SOAPBinding.Style.RPC.name()) && p.getTypeName() == null) {
-                            errorMessage = "An rpc-literal binding in a DESCRIPTION MUST refer, "
-                                           + "in its soapbind:body element(s), only to "
-                                           + "wsdl:part element(s) that have been defined "
-                                           + "using the type attribute.";
+                            addErrorMessage("An rpc-literal binding in a DESCRIPTION MUST refer, "
+                                            + "in its soapbind:body element(s), only to "
+                                            + "wsdl:part element(s) that have been defined "
+                                            + "using the type attribute.");
                             return false;
                         }
 
                         if (style.equalsIgnoreCase(SOAPBinding.Style.DOCUMENT.name())
                             && p.getElementName() == null) {
-                            errorMessage = "A document-literal binding in a DESCRIPTION MUST refer, "
-                                           + "in each of its soapbind:body element(s),"
-                                           + "only to wsdl:part element(s)"
-                                           + " that have been defined using the element attribute.";
+                            addErrorMessage("A document-literal binding in a DESCRIPTION MUST refer, "
+                                            + "in each of its soapbind:body element(s),"
+                                            + "only to wsdl:part element(s)"
+                                            + " that have been defined using the element attribute.");
                             return false;
                         }
 
@@ -188,19 +188,19 @@ public class WSIBPValidator extends AbstractValidator {
                     for (Iterator ite3 = outMess.getParts().values().iterator(); ite3.hasNext();) {
                         Part p = (Part)ite3.next();
                         if (style.equalsIgnoreCase(SOAPBinding.Style.RPC.name()) && p.getTypeName() == null) {
-                            errorMessage = "An rpc-literal binding in a DESCRIPTION MUST refer, "
-                                           + "in its soapbind:body element(s), only to "
-                                           + "wsdl:part element(s) that have been defined "
-                                           + "using the type attribute.";
+                            addErrorMessage("An rpc-literal binding in a DESCRIPTION MUST refer, "
+                                            + "in its soapbind:body element(s), only to "
+                                            + "wsdl:part element(s) that have been defined "
+                                            + "using the type attribute.");
                             return false;
                         }
 
                         if (style.equalsIgnoreCase(SOAPBinding.Style.DOCUMENT.name())
                             && p.getElementName() == null) {
-                            errorMessage = "A document-literal binding in a DESCRIPTION MUST refer, "
-                                           + "in each of its soapbind:body element(s),"
-                                           + "only to wsdl:part element(s)"
-                                           + " that have been defined using the element attribute.";
+                            addErrorMessage("A document-literal binding in a DESCRIPTION MUST refer, "
+                                            + "in each of its soapbind:body element(s),"
+                                            + "only to wsdl:part element(s)"
+                                            + " that have been defined using the element attribute.");
                             return false;
                         }
 
@@ -218,7 +218,7 @@ public class WSIBPValidator extends AbstractValidator {
             Object obj = ite.next();
             Binding binding = (Binding)obj;
             if (wsdlHelper.isMixedStyle(binding)) {
-                this.errorMessage = "Mixted style ,Wrong WSDL";
+                addErrorMessage("Mixted style ,Wrong WSDL");
                 return false;
             }
         }

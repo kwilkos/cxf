@@ -95,20 +95,20 @@ public class XMLFormatValidator
                     if (xmlFormat.getRootNode().equals(rootNodeName)) {
                         return true;
                     } else {
-                        this.errorMessage = errorPath
-                                            + ": wrong value of rootNode attribute, the value should be "
-                                            + rootNodeName;
+                        addErrorMessage(errorPath
+                                        + ": wrong value of rootNode attribute, the value should be "
+                                        + rootNodeName);
                         return false;
                     }
                 } else {                    
-                    this.errorMessage = errorPath
-                            + ": empty value of rootNode attribute, the value should be "
-                            + rootNodeName;
+                    addErrorMessage(errorPath
+                                    + ": empty value of rootNode attribute, the value should be "
+                                    + rootNodeName);
                     return false;                    
                 }
             }
         }
-        this.errorMessage = errorPath + ": missing xml format body element";
+        addErrorMessage(errorPath + ": missing xml format body element");
         return false;
     }
 }
