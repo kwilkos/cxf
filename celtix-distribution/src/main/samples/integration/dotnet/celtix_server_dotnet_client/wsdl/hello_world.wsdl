@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="HelloWorld" targetNamespace="http://objectweb.org/hello_world_soap_http" 
+    xmlns="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://objectweb.org/hello_world_soap_http"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <types>
+        <schema targetNamespace="http://objectweb.org/hello_world_soap_http" 
+            xmlns="http://www.w3.org/2001/XMLSchema" 
+            xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+            <element name="sayHiReturn" type="xsd:string"/>
+            <element name="greetMeParam" type="xsd:string"/>
+            <element name="greetMeReturn" type="xsd:string"/>
+        </schema>
+    </types>
+    <message name="sayHIRequest"/>
+    <message name="sayHiResponse">
+        <part element="tns:sayHiReturn" name="return"/>
+    </message>
+    <message name="greetMeRequest">
+        <part element="tns:greetMeParam" name="Param0"/>
+    </message>
+    <message name="greetMeResponse">
+        <part element="tns:greetMeReturn" name="return"/>
+    </message>
+    <portType name="HelloWorldPortType">
+        <operation name="sayHi">
+            <input message="tns:sayHIRequest" name="sayHiRequest"/>
+            <output message="tns:sayHiResponse" name="sayHiResponse"/>
+        </operation>
+        <operation name="greetMe">
+            <input message="tns:greetMeRequest" name="greetMeRequest"/>
+            <output message="tns:greetMeResponse" name="greetMeResponse"/>
+        </operation>
+    </portType>
+    <binding name="HelloWorldSOAPBinding" type="tns:HelloWorldPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="sayHi">
+            <soap:operation soapAction="" style="document"/>
+            <input name="sayHiRequest">
+                <soap:body use="literal"/>
+            </input>
+            <output name="sayHiResponse">
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+        <operation name="greetMe">
+            <soap:operation soapAction="" style="document"/>
+            <input name="greetMeRequest">
+                <soap:body use="literal"/>
+            </input>
+            <output name="greetMeResponse">
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+    </binding>
+    <service name="HelloWorldService">
+        <port binding="tns:HelloWorldSOAPBinding" name="HelloWorldPort">
+            <soap:address location="http://localhost:9000/HelloWorld"/>
+        </port>
+    </service>
+</definitions>

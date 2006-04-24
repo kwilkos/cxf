@@ -29,6 +29,8 @@ public final class Installer {
         BINARY_EXTS.add("png");
         BINARY_EXTS.add("odt");
         BINARY_EXTS.add("ott");
+        BINARY_EXTS.add("exe");
+        BINARY_EXTS.add("dll");
     }
     static boolean verbose;
 
