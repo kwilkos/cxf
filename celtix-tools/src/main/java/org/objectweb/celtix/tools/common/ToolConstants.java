@@ -33,6 +33,8 @@ public final class ToolConstants {
     public static final String CFG_EXTRA_SOAPHEADER = "exsoapheader";
     public static final String CFG_DEFAULT_NS = "defaultns";
     public static final String CFG_DEFAULT_EX = "defaultex";
+
+    public static final String CFG_VALIDATE_WSDL = "validate.wsdl";
     
    
     // WSDL2Java Constants

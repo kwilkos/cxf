@@ -21,11 +21,11 @@ public abstract class AbstractValidator {
         this.def = definition;
     }
 
-    public AbstractValidator(String schemaDir) throws ToolException {
-        
+    public AbstractValidator(String schemaDir) throws ToolException {        
     }
     
     public AbstractValidator(Definition definition, ProcessorEnvironment pEnv) {
+        this.def = definition;
         this.env = pEnv;
     }
 
@@ -36,7 +36,12 @@ public abstract class AbstractValidator {
     }
 
     public String getErrorMessage() {
-        return errorMessages.toString();
+        StringBuffer strbuffer = new StringBuffer();
+        for (int i = 0; i < errorMessages.size(); i++) {
+            strbuffer.append(errorMessages.get(i));
+            strbuffer.append(System.getProperty("line.separator"));
+        }
+        return strbuffer.toString();
     }
 
     public void addError(Node node, String msg) {
@@ -46,7 +51,4 @@ public abstract class AbstractValidator {
         errMsg = errMsg + " of " + def.getDocumentBaseURI() + " " + msg;
         addErrorMessage(msg);
     }
-
-   
-
 }

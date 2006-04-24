@@ -64,7 +64,7 @@ import org.objectweb.celtix.tools.extensions.xmlformat.XMLHttpSerializer;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassNameAllocatorImpl;
-import org.objectweb.celtix.tools.processors.wsdl2.validators.AbstractValidator;
+import org.objectweb.celtix.tools.processors.wsdl2.validators.WSDLValidator;
 import org.objectweb.celtix.tools.utils.FileWriterUtil;
 import org.objectweb.celtix.tools.utils.JAXBUtils;
 
@@ -82,7 +82,6 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     protected ClassCollector classColletor;
     List<Schema> schemaList = new ArrayList<Schema>();
     private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
-    private final List<AbstractValidator> validators = new ArrayList<AbstractValidator>();
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
     private List<String> schemaTargetNamespaces = new ArrayList<String>();
 
@@ -397,15 +396,12 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         generators.put(name, gen);
     }
 
-    public void addValidator(AbstractValidator validator) {
-        this.validators.add(validator);
-    }
-
     public void process() throws ToolException {
     }
 
     public void validateWSDL() throws ToolException {
-        for (AbstractValidator validator : validators) {
+        if (env.validateWSDL()) {
+            WSDLValidator validator = new WSDLValidator(this.wsdlDefinition, this.env);
             if (!validator.isValid()) {
                 throw new ToolException(validator.getErrorMessage());
             }

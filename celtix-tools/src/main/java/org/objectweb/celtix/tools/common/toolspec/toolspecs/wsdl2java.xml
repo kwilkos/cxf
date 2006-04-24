@@ -106,11 +106,16 @@
 
         <option id="defaultex" maxOccurs="1">
             <annotation>To enable loading the default excludes namespace mapping</annotation>
-            <switch>dns</switch>
+            <switch>dex</switch>
             <associatedArgument placement="afterSpace">
                 <annotation>Default value is true</annotation>
                 <valueenum>true|false</valueenum>
             </associatedArgument>
+        </option>
+
+        <option id="validate" maxOccurs="1">
+            <annotation>To valiate the wsdl before generate the code. We highly sugguest you to run the tool called schema validator before generating the code.</annotation>
+            <switch>validate</switch>
         </option>
 
 	</optionGroup>

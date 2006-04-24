@@ -36,11 +36,6 @@ import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.PortTypeProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.SEIAnnotationProcessor;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ServiceProcessor;
-import org.objectweb.celtix.tools.processors.wsdl2.validators.MIMEBindingValidator;
-import org.objectweb.celtix.tools.processors.wsdl2.validators.UniqueBodyPartsValidator;
-import org.objectweb.celtix.tools.processors.wsdl2.validators.WSIBPValidator;
-import org.objectweb.celtix.tools.processors.wsdl2.validators.XMLFormatValidator;
-
 
 public class WSDLToJavaProcessor extends WSDLToProcessor {
 
@@ -54,16 +49,8 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         addGenerator(ToolConstants.ANT_GENERATOR, new AntGenerator(jmodel, getEnvironment()));
     }
 
-    protected void registerValidator() {
-        this.addValidator(new UniqueBodyPartsValidator(this.wsdlDefinition));
-        this.addValidator(new WSIBPValidator(this.wsdlDefinition));
-        this.addValidator(new MIMEBindingValidator(this.wsdlDefinition));
-        this.addValidator(new XMLFormatValidator(this.wsdlDefinition));
-    }
-
     public void process() throws ToolException {
         init();
-        registerValidator();
         validateWSDL();
         if (isSOAP12Binding(wsdlDefinition)) {
             Message msg = new Message("SOAP12_UNSUPPORTED", LOG);

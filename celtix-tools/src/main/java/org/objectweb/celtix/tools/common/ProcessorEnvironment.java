@@ -91,6 +91,14 @@ public class ProcessorEnvironment {
         }
     }
 
+    public boolean validateWSDL() {
+        if (get(ToolConstants.CFG_VALIDATE_WSDL) == null) {
+            return false;
+        } else {
+            return get(ToolConstants.CFG_VALIDATE_WSDL) == ToolConstants.CFG_VALIDATE_WSDL;
+        }
+    }
+
     public void addNamespacePackageMap(String namespace, String pn) {
         this.namespacePackageMap.put(namespace, pn);
     }

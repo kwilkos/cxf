@@ -20,6 +20,7 @@ public class WSDLValidationTest extends ProcessorTestBase {
     public void testValidateWSDL() {
         try {
             env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/doc_lit_bare.wsdl"));
+            env.put(ToolConstants.CFG_VALIDATE_WSDL, "validate.wsdl");
             processor.setEnvironment(env);
             processor.process();
             fail("WSDL Validation Exception Should Be Thrown");
@@ -42,7 +43,8 @@ public class WSDLValidationTest extends ProcessorTestBase {
     public void testDocType() {
         try {
             env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_doc_lit_type.wsdl"));
-            processor.setEnvironment(env);
+            env.put(ToolConstants.CFG_VALIDATE_WSDL, "validate.wsdl");
+            processor.setEnvironment(env);            
             processor.process();
             fail("WSDL Validation Exception Should Be Thrown");
         } catch (Exception e) {

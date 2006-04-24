@@ -16,6 +16,7 @@ public class WSDLToJavaXMLFormatTest
         WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/xml_format_fail.wsdl"));
+        env.put(ToolConstants.CFG_VALIDATE_WSDL, "validate.wsdl");
         processor.setEnvironment(env);
         try {
             processor.process();
