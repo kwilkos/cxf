@@ -205,7 +205,6 @@
                     <path refid="celtix.classpath" />
                 </classpath>
                 <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
-                <sysproperty key="jaxws.home" value="${jaxws.home}"/>                
                 <arg line="${package.arg.@{file}}"/>
                 <arg line="${binding.arg}"/>
                 <arg value="-verbose"/>

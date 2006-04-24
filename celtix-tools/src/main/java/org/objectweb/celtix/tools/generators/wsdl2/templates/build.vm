@@ -68,8 +68,6 @@
 	<available file="lib" type="dir" filepath="${celtix.home}"/>
     </condition>
 
-    <property name="jaxws.home" value="${thirdparty.tools.dir}/jaxws-ri/20051104/"/>
-    <property name="jaxws.lib.dir" location="${jaxws.home}/lib"/>
     <property name="celtix.etc.dir" location="${celtix.home}/etc"/>
 
     <path id="celtix.classpath">
