@@ -74,31 +74,35 @@ public class SEIImplHandler implements InvocationHandler {
             //Proxy instance inherits out of BindingProvider Interface
             //as per JAXWS spec 4.2.3
             BindingProvider bp = (BindingProvider) clientProxy;
-            updateRequestContext(bp.getRequestContext()); 
-            
-            InvocationHandler proxyHandler = Proxy.getInvocationHandler(clientProxy);
             Exception ex = null;
-            try {
-                ret = proxyHandler.invoke(clientProxy, method, args);
-            } catch (UndeclaredThrowableException ute) {
-                LOG.log(Level.SEVERE, "PROXY_INVOKE_UNDECLEXCEPTION", method.toString());
-                ex = new ProtocolException(new Message("PROXY_INVOKE_UNDECLEXCEPTION",
-                                                       LOG,
-                                                       method.toString()).toString(),
-                                           ute.getCause());
-            } catch (Error error) {
-                LOG.log(Level.SEVERE, "PROXY_INVOKE_ERROR", method.toString());
-                ex = new ProtocolException(new Message("PROXY_INVOKE_UNDECLEXCEPTION",
-                                                       LOG,
-                                                       method.toString()).toString(),
-                                           error);
-            } catch (Throwable t) {
-                LOG.log(Level.SEVERE, "PROXY_INVOKE_EXCEPTION", method.toString());                
-                ex = (Exception) t;
-            }
             
-            updateWebServiceContext(bp.getResponseContext());
-
+            //Synchrnization will not be required if the client proxies are thread safe.
+            synchronized (this) {
+                updateRequestContext(bp.getRequestContext());
+                
+                InvocationHandler proxyHandler = Proxy.getInvocationHandler(clientProxy);
+                try {
+                    ret = proxyHandler.invoke(clientProxy, method, args);
+                } catch (UndeclaredThrowableException ute) {
+                    LOG.log(Level.SEVERE, "PROXY_INVOKE_UNDECLEXCEPTION", method.toString());
+                    ex = new ProtocolException(new Message("PROXY_INVOKE_UNDECLEXCEPTION",
+                                                           LOG,
+                                                           method.toString()).toString(),
+                                               ute.getCause());
+                } catch (Error error) {
+                    LOG.log(Level.SEVERE, "PROXY_INVOKE_ERROR", method.toString());
+                    ex = new ProtocolException(new Message("PROXY_INVOKE_UNDECLEXCEPTION",
+                                                           LOG,
+                                                           method.toString()).toString(),
+                                               error);
+                } catch (Throwable t) {
+                    LOG.log(Level.SEVERE, "PROXY_INVOKE_EXCEPTION", method.toString());                
+                    ex = (Exception) t;
+                }
+                
+                updateWebServiceContext(bp.getResponseContext());
+            }
+                
             if (null != ex) {
                 throw ex;
             }
@@ -149,11 +153,13 @@ public class SEIImplHandler implements InvocationHandler {
     }
     
     private void updateRequestContext(Map<String, Object> reqCtx) {
-        MessageContext sourceMsgCtx = getContext().getMessageContext();
-        reqCtx.put(BindingProvider.USERNAME_PROPERTY, 
-                   sourceMsgCtx.get(BindingProvider.USERNAME_PROPERTY));
-        reqCtx.put(BindingProvider.PASSWORD_PROPERTY, 
-                   sourceMsgCtx.get(BindingProvider.PASSWORD_PROPERTY));        
+        if (null != getContext()) {
+            MessageContext sourceMsgCtx = getContext().getMessageContext();
+            reqCtx.put(BindingProvider.USERNAME_PROPERTY, 
+                       sourceMsgCtx.get(BindingProvider.USERNAME_PROPERTY));
+            reqCtx.put(BindingProvider.PASSWORD_PROPERTY, 
+                       sourceMsgCtx.get(BindingProvider.PASSWORD_PROPERTY));
+        }
     }
     
     private void updateWebServiceContext(Map<String, Object> respCtx) {

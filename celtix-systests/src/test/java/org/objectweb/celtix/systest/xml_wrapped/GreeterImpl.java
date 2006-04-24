@@ -4,7 +4,9 @@ import org.objectweb.hello_world_xml_http.wrapped.Greeter;
 import org.objectweb.hello_world_xml_http.wrapped.PingMeFault;
 import org.objectweb.hello_world_xml_http.wrapped.types.FaultDetail;
 
-@javax.jws.WebService(name = "Greeter", serviceName = "XMLService", portName = "XMLPort",
+@javax.jws.WebService(serviceName = "XMLService", 
+                      portName = "XMLPort",
+                      endpointInterface = "org.objectweb.hello_world_xml_http.wrapped.Greeter",
                       targetNamespace = "http://objectweb.org/hello_world_xml_http/wrapped")
 
 @javax.xml.ws.BindingType(value = "http://celtix.objectweb.org/bindings/xmlformat")

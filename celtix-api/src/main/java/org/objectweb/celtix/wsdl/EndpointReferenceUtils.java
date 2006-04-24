@@ -29,6 +29,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.ws.WebServiceException;
@@ -226,39 +227,41 @@ public final class EndpointReferenceUtils {
         return interfaceName;
     }
     
-    private static void setWSDLLocation(EndpointReferenceType ref, String wsdlLocation) {
+    private static void setWSDLLocation(EndpointReferenceType ref, String... wsdlLocation) {
         
         MetadataType metadata = ref.getMetadata();
         if (null == metadata) {
             metadata = new MetadataType();
             ref.setMetadata(metadata);
         }
-        
-        String wsdlLoc = getWSDLLocation(ref);
-        if (wsdlLoc != null) {
-            wsdlLoc = wsdlLoc + " " + wsdlLocation;
-        } else {
-            wsdlLoc = wsdlLocation;
+
+        //wsdlLocation attribute is a list of anyURI.
+        StringBuffer strBuf = new StringBuffer();
+        for (String str : wsdlLocation) {
+            strBuf.append(str);
+            strBuf.append(" ");
         }
-        
-        metadata.getOtherAttributes().put(WSDL_LOCATION, wsdlLoc);
-        
+
+        metadata.getOtherAttributes().put(WSDL_LOCATION, strBuf.toString().trim());
     }
-    
-    
     
     protected static String getWSDLLocation(EndpointReferenceType ref) {
         String wsdlLocation = null;
         MetadataType metadata = ref.getMetadata();
+
         if (metadata != null) {
-            
             wsdlLocation = metadata.getOtherAttributes().get(WSDL_LOCATION);
-            
         }
 
+        if (null == wsdlLocation) {
+            return null;
+        }
+
+        //TODO The wsdlLocation inserted should be a valid URI 
+        //before doing a split. So temporarily return the string
+        //return wsdlLocation.split(" ");
         return wsdlLocation;
     }
-        
 
     /**
      * Sets the metadata on the provided endpoint reference.
@@ -276,26 +279,40 @@ public final class EndpointReferenceUtils {
             try {
                 for (Source source : metadata) {
                     Node node = null;
-                    if (!(source instanceof DOMSource)) {
+                    boolean doTransform = true;
+                    if (source instanceof StreamSource) {
+                        StreamSource ss = (StreamSource)source;
+                        if (null == ss.getInputStream()
+                            && null == ss.getReader()) {
+                            setWSDLLocation(ref, ss.getSystemId());
+                            doTransform = false;
+                        }
+                    } else if (source instanceof DOMSource) {
+                        node = ((DOMSource)node).getNode();
+                        doTransform = false;
+                    } 
+                    
+                    if (doTransform) {
                         DOMResult domResult = new DOMResult();
                         domResult.setSystemId(source.getSystemId());
                         
                         XML_TRANSFORMER.transform(source, domResult);
-
+    
                         node = domResult.getNode();
-                    } else {
-                        node = ((DOMSource)node).getNode();
                     }
-
-                    if (node instanceof Document) {
-                        ((Document)node).setDocumentURI(source.getSystemId());
-                        node =  node.getFirstChild();
+                    
+                    if (null != node) {
+                        if (node instanceof Document) {
+                            ((Document)node).setDocumentURI(source.getSystemId());
+                            node =  node.getFirstChild();
+                        }
+                        
+                        while (node.getNodeType() != Node.ELEMENT_NODE) {
+                            node = node.getNextSibling();
+                        }
+                        
+                        anyList.add(node);
                     }
-                    while (null != node 
-                           && node.getNodeType() != Node.ELEMENT_NODE) {
-                        node = node.getNextSibling();
-                    }
-                    anyList.add(node);
                 }
             } catch (TransformerException te) {
                 throw new WebServiceException("Populating metadata in EPR failed", te);
@@ -321,8 +338,10 @@ public final class EndpointReferenceUtils {
         String location = getWSDLLocation(ref);
 
         if (null != location) {
+            //Pick up the first url to obtain the wsdl defintion
             return manager.getDefinition(location);
         }
+
         for (Object obj : metadata.getAny()) {
             if (obj instanceof Element) {
                 Element el = (Element)obj;
@@ -546,6 +565,7 @@ public final class EndpointReferenceUtils {
         EndpointReferenceType reference = new EndpointReferenceType();
         reference.setMetadata(new MetadataType());
         setServiceAndPortName(reference, serviceName, portName);
+        //TODO To Ensure it is a valid URI syntax.
         setWSDLLocation(reference, wsdlUrl.toString());
 
         return reference;
@@ -663,7 +683,13 @@ public final class EndpointReferenceUtils {
             //REVISIT Resolve the url for all cases           
             URL wsdlUrl = implementor.getClass().getResource(url);
             if (wsdlUrl != null) {
-                url = wsdlUrl.toExternalForm();
+                System.out.println("EF:" + wsdlUrl.toExternalForm());
+                try {
+                    System.out.println("URI:" + wsdlUrl.toURI());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                url = wsdlUrl.toExternalForm();                
             }
         }
         // set wsdlLocation

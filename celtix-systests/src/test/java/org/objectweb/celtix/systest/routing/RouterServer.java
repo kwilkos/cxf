@@ -15,7 +15,7 @@ public class RouterServer extends TestServerBase {
     private Bus bus;
 
     public RouterServer(String[] args) {
-        URL routerConfigFileUrl = getClass().getResource("router_config.xml");
+        URL routerConfigFileUrl = RouterServer.class.getResource("router_config.xml");
         System.setProperty("celtix.config.file", routerConfigFileUrl.toString());
         try {
             bus = Bus.init(args);
@@ -44,19 +44,5 @@ public class RouterServer extends TestServerBase {
     public void tearDown() throws Exception {
         cleanup();
         super.tearDown();
-    }
-
-    public static void main(String[] args) {
-        RouterServer s = null;
-        try {
-            s = new RouterServer(args);
-            s.start();
-            //s.run();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.exit(-1);
-        } finally {
-            System.out.println("done!");
-        }
     }
 }

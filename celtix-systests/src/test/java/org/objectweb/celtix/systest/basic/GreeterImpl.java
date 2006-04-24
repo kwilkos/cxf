@@ -20,7 +20,8 @@ import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
 
 @WebService(serviceName = "SOAPService", 
             portName = "SoapPort", 
-            endpointInterface = "org.objectweb.hello_world_soap_http.Greeter")
+            endpointInterface = "org.objectweb.hello_world_soap_http.Greeter",
+            targetNamespace = "http://objectweb.org/hello_world_soap_http")
 public class GreeterImpl implements Greeter {
 
     public String greetMe(String me) {

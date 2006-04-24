@@ -146,7 +146,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
             QName portName = (QName) properties.get(Endpoint.WSDL_PORT);            
             if (null != serviceName && null != portName) {
                 EndpointReferenceUtils.setServiceAndPortName(reference, serviceName, 
-                                                                       portName.toString());
+                                                                       portName.getLocalPart());
             }
         }
     }

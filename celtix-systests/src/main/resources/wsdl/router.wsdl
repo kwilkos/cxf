@@ -1,15 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions
-xmlns="http://schemas.xmlsoap.org/wsdl/"
-xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-xmlns:xformat="http://celtix.objectweb.org/bindings/xmlformat"
-xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
-xmlns:jms="http://celtix.objectweb.org/transports/jms"
-xmlns:tns="http://objectweb.org/hello_world_doc_lit"
-xmlns:x1="http://objectweb.org/hello_world_doc_lit/types"
-targetNamespace="http://objectweb.org/hello_world_doc_lit" name="HelloWorld">
+<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xformat="http://celtix.objectweb.org/bindings/xmlformat"
+    xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+    xmlns:jms="http://celtix.objectweb.org/transports/jms"
+    xmlns:ns1="http://celtix.objectweb.org/routing/configuration"
+    xmlns:tns="http://objectweb.org/hello_world_doc_lit"
+    xmlns:x1="http://objectweb.org/hello_world_doc_lit/types"
+    targetNamespace="http://objectweb.org/hello_world_doc_lit" name="HelloWorld">
+    <!--Route Elements-->
+    <ns1:route name="route_0">
+        <ns1:source port="SOAPHTTPPortSource1" service="tns:SOAPHTTPServiceSource1"/>
+        <ns1:destination port="XMLHTTPPortDestination" service="tns:XMLHTTPServiceDestination"/>
+    </ns1:route>
+    <ns1:route name="route_1">
+        <ns1:source port="SOAPHTTPPortSource2" service="tns:SOAPHTTPServiceSource2"/>
+        <ns1:destination port="XMLJMSPortDestination" service="tns:XMLJMSServiceDestination"/>
+    </ns1:route>
+    <ns1:route name="route_2">
+        <ns1:source port="SOAPJMSPortSource" service="tns:SOAPJMSServiceSource"/>
+        <ns1:destination port="XMLHTTPPortDestination" service="tns:XMLHTTPServiceDestination"/>
+    </ns1:route>
+<!--
+    <ns1:route name="route_3">
+        <ns1:source port="XMLHTTPPortSource" service="tns:XMLHTTPServiceSource"/>
+        <ns1:destination port="SOAPJMSPortDestination" service="tns:SOAPJMSServiceDestination"/>
+    </ns1:route>
+    <ns1:route name="route_4">
+        <ns1:source port="XMLJMSPortSource" service="tns:XMLJMSServiceSource"/>
+        <ns1:destination port="SOAPHTTPPortDestination" service="tns:SOAPHTTPServiceDestination"/>
+    </ns1:route>
+-->
+    <!--Route Elements-->
     <wsdl:types>
         <schema targetNamespace="http://objectweb.org/hello_world_doc_lit/types" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
             <element name="sayHi">
@@ -159,71 +183,80 @@ targetNamespace="http://objectweb.org/hello_world_doc_lit" name="HelloWorld">
             <wsdl:fault name="pingMeFault"/>
         </wsdl:operation>
     </wsdl:binding>
-    <wsdl:service name="SOAPService">
-        <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
+
+    <!--Used for SOAP_HTTP-XML_HTTP Router Test-->
+    <wsdl:service name="SOAPHTTPServiceSource1">
+        <wsdl:port name="SOAPHTTPPortSource1" binding="tns:Greeter_SOAPBinding">
             <soap:address location="http://localhost:9001/SOAPDocLitService/SoapPort"/>
         </wsdl:port>
     </wsdl:service>
-    <wsdl:service name="SOAPService2">
-        <wsdl:port name="SoapPort2" binding="tns:Greeter_SOAPBinding">
+    <wsdl:service name="XMLHTTPServiceDestination">
+        <wsdl:port name="XMLHTTPPortDestination" binding="tns:Greeter_XMLBinding">
+            <http:address location="http://localhost:9002/XMLService1/XMLPort1"/>
+        </wsdl:port>
+    </wsdl:service>
+    <!--END-->
+
+    <!--Used for XML_JMS-to-SOAP_HTTP Router Test-->
+    <wsdl:service name="SOAPHTTPServiceSource2">
+        <wsdl:port name="SOAPHTTPPortSource2" binding="tns:Greeter_SOAPBinding">
+        <soap:address location="http://localhost:9001/SOAPService3/SoapPort3"/>
+        </wsdl:port>
+    </wsdl:service>
+    <wsdl:service name="XMLJMSServiceDestination">
+        <wsdl:port name="XMLJMSPortDestination" binding="tns:Greeter_XMLBinding">
+               <jms:address
+                   jndiConnectionFactoryName="ConnectionFactory"
+                   jndiDestinationName="dynamicQueues/routertest.XMLService2Q.text">
+                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                   <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
+               </jms:address>
+        </wsdl:port>
+    </wsdl:service>
+    <!--END-->
+
+    <!--Used for XML_JMS-to-SOAP_HTTP Router Test-->
+    <wsdl:service name="XMLJMSServiceSource">
+        <wsdl:port name="XMLJMSPortSource" binding="tns:Greeter_XMLBinding">
+            <jms:address
+                jndiConnectionFactoryName="ConnectionFactory"
+                jndiDestinationName="dynamicQueues/routertest.XMLService3Q.text">
+                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
+            </jms:address>
+        </wsdl:port>
+    </wsdl:service>
+    <wsdl:service name="SOAPHTTPServiceDestination">
+        <wsdl:port name="SOAPHTTPPortDestination" binding="tns:Greeter_SOAPBinding">
+            <soap:address location="http://localhost:9002/SOAPService5/SoapPort5"/>
+        </wsdl:port>
+    </wsdl:service>
+    <!--END-->
+    <!--Used for SOAP_JMS-to-XML_HTTP Router Test-->
+    <wsdl:service name="SOAPJMSServiceSource">
+        <wsdl:port name="SOAPJMSPortSource" binding="tns:Greeter_SOAPBinding">
+            <jms:address
+                jndiConnectionFactoryName="ConnectionFactory"
+                jndiDestinationName="dynamicQueues/routertest.SOAPService4Q.text">
+                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
+            </jms:address>
+        </wsdl:port>
+    </wsdl:service>
+    <!--Used for XML_HTTP-to-SOAP_JMS Router Test-->
+    <wsdl:service name="XMLHTTPServiceSource">
+        <wsdl:port name="XMLHTTPPortSource" binding="tns:Greeter_SOAPBinding">
+	    <http:address location="http://localhost:9001/XMLService4/XMLPort4"/>
+        </wsdl:port>
+    </wsdl:service>
+    <wsdl:service name="SOAPJMSServiceDestination">
+        <wsdl:port name="SOAPJMSPortDestination" binding="tns:Greeter_SOAPBinding">
                <jms:address
                    jndiConnectionFactoryName="ConnectionFactory"
                    jndiDestinationName="dynamicQueues/routertest.SOAPService2Q.text">
                    <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
                    <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
                </jms:address>
-        </wsdl:port>
-    </wsdl:service>
-    <wsdl:service name="SOAPService3">
-        <wsdl:port name="SoapPort3" binding="tns:Greeter_SOAPBinding">
-            <soap:address location="http://localhost:9001/SOAPService3/SoapPort3"/>
-        </wsdl:port>
-    </wsdl:service>
-    <wsdl:service name="SOAPService4">
-        <wsdl:port name="SoapPort4" binding="tns:Greeter_SOAPBinding">
-               <jms:address
-                   jndiConnectionFactoryName="ConnectionFactory"
-                   jndiDestinationName="dynamicQueues/routertest.SOAPService4Q.text">
-                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
-                   <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
-               </jms:address>
-        </wsdl:port>
-    </wsdl:service>
-    <wsdl:service name="SOAPService5">
-        <wsdl:port name="SoapPort5" binding="tns:Greeter_SOAPBinding">
-            <soap:address location="http://localhost:9002/SOAPService5/SoapPort5"/>
-        </wsdl:port>
-    </wsdl:service>
-
-    <!-- XML Binding based Services-->
-    <wsdl:service name="XMLService1">
-        <wsdl:port name="XMLPort1" binding="tns:Greeter_XMLBinding">
-            <http:address location="http://localhost:9002/XMLService1/XMLPort1"/>
-        </wsdl:port>
-    </wsdl:service>
-    <wsdl:service name="XMLService2">
-        <wsdl:port name="XMLPort2" binding="tns:Greeter_XMLBinding">
-       <jms:address
-           jndiConnectionFactoryName="ConnectionFactory"
-           jndiDestinationName="dynamicQueues/routertest.XMLService2Q.text">
-           <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
-           <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
-       </jms:address>
-        </wsdl:port>
-    </wsdl:service>
-    <wsdl:service name="XMLService3">
-        <wsdl:port name="XMLPort3" binding="tns:Greeter_XMLBinding">
-       <jms:address
-           jndiConnectionFactoryName="ConnectionFactory"
-           jndiDestinationName="dynamicQueues/routertest.XMLService3Q.text">
-           <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
-           <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
-       </jms:address>
-        </wsdl:port>
-    </wsdl:service>
-    <wsdl:service name="XMLService4">
-        <wsdl:port name="XMLPort4" binding="tns:Greeter_XMLBinding">
-            <http:address location="http://localhost:9001/XMLService4/XMLPort4"/>
         </wsdl:port>
     </wsdl:service>
 

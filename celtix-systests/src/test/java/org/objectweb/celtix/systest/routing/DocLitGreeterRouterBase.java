@@ -5,13 +5,14 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.systest.common.ClientServerTestBase;
+import junit.framework.TestCase;
+
 import org.objectweb.hello_world_doc_lit.Greeter;
 import org.objectweb.hello_world_doc_lit.PingMeFault;
 import org.objectweb.hello_world_doc_lit.SOAPService;
 import org.objectweb.hello_world_doc_lit.types.FaultDetail;
 
-public class DocLitGreeterRouterBase extends ClientServerTestBase {
+public class DocLitGreeterRouterBase extends TestCase {
     protected Greeter greeter;
     protected QName serviceName;
     protected QName portName;
