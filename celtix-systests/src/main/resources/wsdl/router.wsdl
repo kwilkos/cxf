@@ -27,12 +27,10 @@
         <ns1:source port="XMLHTTPPortSource" service="tns:XMLHTTPServiceSource"/>
         <ns1:destination port="SOAPJMSPortDestination" service="tns:SOAPJMSServiceDestination"/>
     </ns1:route>
-<!--
     <ns1:route name="route_4">
         <ns1:source port="XMLJMSPortSource" service="tns:XMLJMSServiceSource"/>
         <ns1:destination port="SOAPHTTPPortDestination" service="tns:SOAPHTTPServiceDestination"/>
     </ns1:route>
--->
     <!--Route Elements-->
     <wsdl:types>
         <schema targetNamespace="http://objectweb.org/hello_world_doc_lit/types" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">

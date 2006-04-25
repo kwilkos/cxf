@@ -13,12 +13,12 @@ import org.objectweb.celtix.systest.jms.EmbeddedJMSBrokerLauncher;
 public class NormalRouterTest extends ClientServerTestBase {
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite();
+        //Oneways tests are not enabled due to bug 305054
         suite.addTestSuite(TestSOAPHTTPToXMLHTTPRouter.class);
         suite.addTestSuite(TestSOAPJMSToXMLHTTPRouter.class);
         suite.addTestSuite(TestSOAPHTTPToXMLJMSRouter.class);
         suite.addTestSuite(TestXMLHTTPToSOAPJMSRouter.class);
-        //XML_JMS-to-SOAP_HTTP Routing not supported yet.
-        //suite.addTestSuite(TestXMLJMSToSOAPHTTPRouter.class);
+        suite.addTestSuite(TestXMLJMSToSOAPHTTPRouter.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
                 Map<String, String> props = new HashMap<String, String>();

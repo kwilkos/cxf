@@ -30,11 +30,11 @@ public class Server extends TestServerBase {
         portName = new QName("http://objectweb.org/hello_world_doc_lit", "SoapPort2");
         address = new String("http://localhost:0/JMSService/JMSPort");
         createAndpublishEndpoint(address, serviceName, portName, null);        
-        
+
         serviceName = new QName("http://objectweb.org/hello_world_doc_lit", "SOAPService5");
         portName = new QName("http://objectweb.org/hello_world_doc_lit", "SoapPort5");
         address = new String("http://localhost:9002/SOAPService5/SoapPort5");
-        //createAndpublishEndpoint(address, serviceName, portName, null);
+        createAndpublishEndpoint(address, serviceName, portName, null);
     }
     
     private void createAndpublishEndpoint(String address, 
