@@ -21,7 +21,7 @@
 		<sec:KeyPassword>celtixpass</sec:KeyPassword>
 		<sec:WantClientAuthentication>true</sec:WantClientAuthentication>
 		<sec:RequireClientAuthentication>true</sec:RequireClientAuthentication>
-		<sec:TrustStore>src/demo/hw_https/resources/celtixp12truststore</sec:TrustStore>
+		<sec:TrustStore>src/demo/hw_https/resources/celtixp12.truststore</sec:TrustStore>
               </sec:sslServer>
           </value>
       </property>

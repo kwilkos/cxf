@@ -91,27 +91,42 @@ public void configure(SSLServerPolicy sslPolicyParam)
 for a server.
 
 Then on the client side set the java system property to point to the
-name of the class you have developed.
-"celtix.security.configurer" 
-+ Bus name
-+ QName of service
-+ name of port
-+string constraint
-for example
-	"celtix.security.configurer" 
-        + ".celtix.{http://objectweb.org/hello_world_soap_http}" 
-        + "SOAPService/StrictSecurePort.http-client"
+name of the class you have developed. The name of the system property
+is derived by concatenating the string 
 
-On the server side the java system property to set is
-"celtix.security.configurer" 
-+ Bus name
-+ TCP/IP port
-for example
+"celtix.security.configurer." 
+with the bean id.
+
+For example a typical client side system property would id look like
+
+"celtix.security.configurer.celtix.{http://objectweb.org/hello_world_soap_http}SOAPService/StrictSecurePort.http-client"
+
+And also a typical server side system property would look like
+
 "celtix.security.configurer.celtix.http-listener.9001"
 
-The sample demo.hw_https.common.DemoSecurityConfigurer class retrieves
-the password for the cletix.p12 certificate via a dialog box so that the 
-data does not need to be stored in configuration.
+The code for setting the appropriate property is available 
+in the Client.java and Server.java classes.
+(For further information on Bean ids please also refer to 
+the celtix configuration guide).
+
+The property value be the fully qualified Java class that implements the 
+public void configure(SSLClientPolicy sslPolicyParam)
+or 
+public void configure(SSLServerPolicy sslPolicyParam)
+methods. Celtix will use reflection to load the class
+and will pass an instance of the client side or server side
+policy. The code can then populate any or all of the data in 
+the policy. 
+To see the structrure of the SSLClientPolicy or SSLServerPolicy
+please refer to its structure as defined in the security.xsd file.
+
+
+In this demo the demo.hw_https.common.DemoSecurityConfigurer class retrieves
+the password for the celtix.p12 certificate via a dialog box so that the 
+data does not need to be stored in configuration. When either the the server
+or the client are run as follows, a dialog box appears prompting for the 
+password.
 
 To run 
 ant server -Dsecurity_mode=strict_server

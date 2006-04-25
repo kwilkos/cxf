@@ -29,6 +29,9 @@ public final class Installer {
         BINARY_EXTS.add("png");
         BINARY_EXTS.add("odt");
         BINARY_EXTS.add("ott");
+        BINARY_EXTS.add("p12");
+        BINARY_EXTS.add("pem");
+        BINARY_EXTS.add("truststore");
         BINARY_EXTS.add("exe");
         BINARY_EXTS.add("dll");
     }
