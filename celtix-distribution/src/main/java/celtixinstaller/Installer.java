@@ -78,6 +78,12 @@ public final class Installer {
 
 
         URL url = Installer.class.getResource("/celtixinstaller/Installer.class");
+        
+        if (url.toString().contains("%20")) {
+            String strReplace = url.toString().replace("%20", " ");
+            url = new URL(strReplace);
+        }
+        
         String jarf = url.getFile();
         jarf = jarf.substring(0, jarf.indexOf("!"));
         url = new URL(jarf);
