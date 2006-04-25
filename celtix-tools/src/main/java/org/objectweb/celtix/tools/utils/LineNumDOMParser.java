@@ -16,6 +16,7 @@ import com.sun.org.apache.xerces.internal.xni.XNIException;
 import com.sun.org.apache.xerces.internal.xni.grammars.XMLGrammarPool;
 import com.sun.org.apache.xerces.internal.xni.parser.XMLParserConfiguration;
 
+import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.WSDLConstants;
 
 public class LineNumDOMParser extends DOMParser {
@@ -28,14 +29,14 @@ public class LineNumDOMParser extends DOMParser {
 
     }
 
-    public LineNumDOMParser(XMLParserConfiguration arg0) {
+    public LineNumDOMParser(XMLParserConfiguration arg0) throws ToolException {
         super(arg0);
         try {
             setFeature(DEFER_NODE_EXPANSION, false);
         } catch (SAXNotSupportedException e) {
-            System.out.println(e);
+            throw new ToolException(e);
         } catch (SAXNotRecognizedException e) {
-            System.out.println(e);
+            throw new ToolException(e);
         }
     }
 
@@ -49,9 +50,9 @@ public class LineNumDOMParser extends DOMParser {
 
     public void startElement(QName qn, XMLAttributes xmlAtr, Augmentations aug) throws XNIException {
         Element element;
-        /*    String ns = qn.uri;
-        
-         * if (ns != null && (ns.equals(Constants.NS_URI_XSD_2001) ||
+        /*
+         * String ns = qn.uri; if (ns != null &&
+         * (ns.equals(Constants.NS_URI_XSD_2001) ||
          * ns.equals(Constants.NS_URI_XSD_1999) || ns
          * .equals(Constants.NS_URI_XSD_2000))) { int numatts =
          * xmlAtr.getLength(); System.out.println("---arg1--- " + xmlAtr); for

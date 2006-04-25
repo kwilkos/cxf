@@ -50,8 +50,8 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
     }
 
     public void process() throws ToolException {
-        init();
         validateWSDL();
+        init();
         if (isSOAP12Binding(wsdlDefinition)) {
             Message msg = new Message("SOAP12_UNSUPPORTED", LOG);
             throw new ToolException(msg);

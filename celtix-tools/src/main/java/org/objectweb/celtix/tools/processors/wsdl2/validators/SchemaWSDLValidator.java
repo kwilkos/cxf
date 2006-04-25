@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
@@ -51,6 +50,7 @@ import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.WSDLConstants;
 import org.objectweb.celtix.tools.utils.LineNumDOMParser;
 import org.objectweb.celtix.tools.utils.URLFactory;
+import org.objectweb.celtix.tools.utils.WSDLExtensionRegister;
 
 public class SchemaWSDLValidator extends AbstractValidator {
 
@@ -61,7 +61,6 @@ public class SchemaWSDLValidator extends AbstractValidator {
     private XMLGrammarPreparser preparser;
 
     private List<XSModel> xsmodelList = new Vector<XSModel>();
-    private Definition def;
 
     private String wsdlsrc;
     private String[] xsds;
@@ -70,7 +69,7 @@ public class SchemaWSDLValidator extends AbstractValidator {
     private Document schemaValidatedDoc;
     private Map<QName, List> msgPartsMap = new HashMap<QName, List>();
     private Map<QName, Map> portTypes = new HashMap<QName, Map>();
-    //private Map<QName, List> bindingMap = new HashMap<QName, List>();
+    private Map<QName, QName> bindingMap = new HashMap<QName, QName>();
 
     public SchemaWSDLValidator(String schemaDir) throws ToolException {
         super(schemaDir);
@@ -122,25 +121,20 @@ public class SchemaWSDLValidator extends AbstractValidator {
             try {
                 wsdlFactory = WSDLFactory.newInstance();
                 WSDLReader reader = wsdlFactory.newWSDLReader();
+                reader.setFeature("javax.wsdl.verbose", false);
+                WSDLExtensionRegister register = new WSDLExtensionRegister(wsdlFactory , reader);
+                register.registerExtenstions();
                 def = reader.readWSDL(wsdlsource.getSystemId());
             } catch (WSDLException e) {
                 throw new ToolException("Can not create wsdl definition for " + wsdlsource.getSystemId());
             }
-
-            MessageValidator msgValidator = new MessageValidator(def, this);
-
-            isValid = msgValidator.validateMessages();
-
+            
+            WSDLElementReferenceValidator wsdlRefValiadtor = new WSDLElementReferenceValidator(def, this);
+            isValid = wsdlRefValiadtor.isValid();
+            
             if (!isValid) {
                 throw new ToolException(this.getErrorMessage());
             }
-
-            PortTypeValidator portTypeValidator = new PortTypeValidator(def, this);
-            
-            portTypeValidator.validatePortType();
- 
-            BindingValidator bindingvalidator = new BindingValidator(def, this);
-            bindingvalidator.vlidateBinding();
             
             isValid = true;
 
@@ -612,9 +606,11 @@ public class SchemaWSDLValidator extends AbstractValidator {
         return portTypes;
     }
     
-    public Map<QName , Map> getBindingMap() {
-        return getBindingMap();
+    public Map<QName , QName> getBindingMap() {
+        return bindingMap;
     }
+   
+    
 }
 
 class StackTraceErrorHandler implements ErrorHandler, XMLErrorHandler {

@@ -34,7 +34,7 @@ public final class ToolConstants {
     public static final String CFG_DEFAULT_NS = "defaultns";
     public static final String CFG_DEFAULT_EX = "defaultex";
 
-    public static final String CFG_VALIDATE_WSDL = "validate.wsdl";
+    public static final String CFG_VALIDATE_WSDL = "validate";
     
    
     // WSDL2Java Constants
@@ -72,10 +72,11 @@ public final class ToolConstants {
     public static final String CFG_NAME = "name";
     
     
-    // SchemaValidator
+    // WsdlValidator
     public static final String CFG_DEEP = "deep";
     public static final String CFG_SCHEMA_DIR = "schemaDir";
     public static final String CFG_SCHEMA_URL = "schemaURL";
+    public static final String CELTIX_SCHEMA_DIR = "celtix_schema_dir";
     
     
         

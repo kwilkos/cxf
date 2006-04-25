@@ -76,6 +76,7 @@ public final class WSDLConstants {
     // WSDL Validation
     public static final String ATTR_PART_ELEMENT = "element";
     public static final String ATTR_PART_TYPE = "type";
+    public static final String ATTR_TYPE = "type";
     //For LineNumDOMParser getUserData(location)
     public static final String NODE_LOCATION = "location";
 

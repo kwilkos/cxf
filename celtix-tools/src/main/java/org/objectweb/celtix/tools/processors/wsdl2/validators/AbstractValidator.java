@@ -46,9 +46,8 @@ public abstract class AbstractValidator {
 
     public void addError(Node node, String msg) {
         ElementLocator locator = (ElementLocator)node.getUserData(WSDLConstants.NODE_LOCATION);
-        locator.getColumn();
         String errMsg = "line " + locator.getLine() + " column " + locator.getColumn();
         errMsg = errMsg + " of " + def.getDocumentBaseURI() + " " + msg;
-        addErrorMessage(msg);
+        addErrorMessage(errMsg);
     }
 }

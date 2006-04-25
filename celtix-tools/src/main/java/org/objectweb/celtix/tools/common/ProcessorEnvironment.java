@@ -16,8 +16,8 @@ public class ProcessorEnvironment {
 
     public ProcessorEnvironment() {
     }
-    
-    public void loadDefaultNS2Pck()  {
+
+    public void loadDefaultNS2Pck() {
         try {
             PropertyUtil properties = new PropertyUtil();
             properties.load(getResourceAsStream("toolspec/toolspecs/namespace2package.cfg"));
@@ -26,8 +26,8 @@ public class ProcessorEnvironment {
             e.printStackTrace();
         }
     }
-    
-    public void loadDefaultExcludes()  {
+
+    public void loadDefaultExcludes() {
         try {
             PropertyUtil properties = new PropertyUtil();
             properties.load(getResourceAsStream("toolspec/toolspecs/wsdltojavaexclude.cfg"));
@@ -40,11 +40,11 @@ public class ProcessorEnvironment {
     private InputStream getResourceAsStream(String file) throws IOException {
         return ProcessorEnvironment.class.getResourceAsStream(file);
     }
-    
+
     public void setParameters(Map<String, Object> map) {
         this.paramMap = map;
     }
-    
+
     public boolean containsKey(String key) {
         return (paramMap == null) ? false : paramMap.containsKey(key);
     }
@@ -62,7 +62,7 @@ public class ProcessorEnvironment {
     }
 
     public boolean getBooleanValue(String key, String defaultValue) {
-        return Boolean.valueOf((String) get(key, defaultValue)).booleanValue();
+        return Boolean.valueOf((String)get(key, defaultValue)).booleanValue();
     }
 
     public void put(String key, Object value) {
@@ -92,11 +92,8 @@ public class ProcessorEnvironment {
     }
 
     public boolean validateWSDL() {
-        if (get(ToolConstants.CFG_VALIDATE_WSDL) == null) {
-            return false;
-        } else {
-            return get(ToolConstants.CFG_VALIDATE_WSDL) == ToolConstants.CFG_VALIDATE_WSDL;
-        }
+        return get(ToolConstants.CFG_VALIDATE_WSDL) != null;
+
     }
 
     public void addNamespacePackageMap(String namespace, String pn) {
@@ -126,7 +123,7 @@ public class ProcessorEnvironment {
     public void setPackageName(String pkgName) {
         this.packageName = pkgName;
     }
-    
+
     public String getPackageName() {
         return this.packageName;
     }
@@ -151,7 +148,7 @@ public class ProcessorEnvironment {
         return this.jaxbBindingFiles;
     }
 
-    public boolean isExcludeNamespaceEnabled() {        
+    public boolean isExcludeNamespaceEnabled() {
         return excludeNamespacePackageMap.size() > 0;
     }
 }

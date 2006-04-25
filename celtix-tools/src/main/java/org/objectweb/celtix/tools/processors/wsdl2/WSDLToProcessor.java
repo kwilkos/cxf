@@ -14,19 +14,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.Binding;
-import javax.wsdl.BindingInput;
-import javax.wsdl.BindingOperation;
-import javax.wsdl.BindingOutput;
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.Message;
-import javax.wsdl.Operation;
-import javax.wsdl.Port;
+
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
-import javax.wsdl.extensions.ExtensionRegistry;
+
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.factory.WSDLFactory;
@@ -50,23 +46,13 @@ import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.extensions.jaxws.CustomizationParser;
-import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBinding;
-import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBindingDeserializer;
-import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBindingSerializer;
-import org.objectweb.celtix.tools.extensions.jms.JMSAddress;
-import org.objectweb.celtix.tools.extensions.jms.JMSAddressSerializer;
-import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormat;
-import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatBinding;
-import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatBindingSerializer;
-import org.objectweb.celtix.tools.extensions.xmlformat.XMLFormatSerializer;
-import org.objectweb.celtix.tools.extensions.xmlformat.XMLHttpAddress;
-import org.objectweb.celtix.tools.extensions.xmlformat.XMLHttpSerializer;
 import org.objectweb.celtix.tools.generators.AbstractGenerator;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassCollector;
 import org.objectweb.celtix.tools.processors.wsdl2.internal.ClassNameAllocatorImpl;
-import org.objectweb.celtix.tools.processors.wsdl2.validators.WSDLValidator;
+import org.objectweb.celtix.tools.processors.wsdl2.validators.WSDL11Validator;
 import org.objectweb.celtix.tools.utils.FileWriterUtil;
 import org.objectweb.celtix.tools.utils.JAXBUtils;
+import org.objectweb.celtix.tools.utils.WSDLExtensionRegister;
 
 public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorListener {
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToProcessor.class);
@@ -102,16 +88,15 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
                 oldName = oldName.substring(position + 1, oldName.length());
             }
             if (oldName.toLowerCase().indexOf(WSDL_FILE_NAME_EXT) >= 0) {
-                newName = oldName.substring(0, oldName.length() - 5) + newNameExt
-                          + WSDL_FILE_NAME_EXT;
+                newName = oldName.substring(0, oldName.length() - 5) + newNameExt + WSDL_FILE_NAME_EXT;
             } else {
                 newName = oldName + newNameExt;
             }
         }
         if (env.get(ToolConstants.CFG_OUTPUTDIR) != null) {
             outputDir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
-            if (!("/".equals(outputDir.substring(outputDir.length() - 1))
-                  || "\\".equals(outputDir.substring(outputDir.length() - 1)))) {
+            if (!("/".equals(outputDir.substring(outputDir.length() - 1)) || "\\".equals(outputDir
+                .substring(outputDir.length() - 1)))) {
                 outputDir = outputDir + "/";
             }
         } else {
@@ -123,22 +108,22 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         } catch (IOException ioe) {
             org.objectweb.celtix.common.i18n.Message msg = 
                 new org.objectweb.celtix.common.i18n.Message("FAIL_TO_WRITE_FILE", 
-                                                             LOG, 
-                                                             env.get(ToolConstants.CFG_OUTPUTDIR) 
-                                                             + System.getProperty("file.seperator") 
+                                                             LOG,
+                                                             env.get(ToolConstants.CFG_OUTPUTDIR)
+                                                             + System.getProperty("file.seperator")
                                                              + newName);
             throw new ToolException(msg, ioe);
         }
         return writer;
     }
 
-
     protected void parseWSDL(String wsdlURL) throws ToolException {
         try {
             wsdlFactory = WSDLFactory.newInstance();
             wsdlReader = wsdlFactory.newWSDLReader();
             wsdlReader.setFeature("javax.wsdl.verbose", false);
-            registerExtenstions(wsdlReader);
+            WSDLExtensionRegister register = new WSDLExtensionRegister(wsdlFactory, wsdlReader);
+            register.registerExtenstions();
             wsdlDefinition = wsdlReader.readWSDL(wsdlURL);
             parseImports(wsdlDefinition);
             buildWSDLDefinition();
@@ -147,9 +132,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
                 new org.objectweb.celtix.common.i18n.Message("FAIL_TO_CREATE_WSDL_DEFINITION", LOG);
             throw new ToolException(msg, we);
         }
-        
-        
-        
+
     }
 
     private void buildWSDLDefinition() {
@@ -211,7 +194,8 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             Velocity.init(props);
         } catch (Exception e) {
             org.objectweb.celtix.common.i18n.Message msg = 
-                new org.objectweb.celtix.common.i18n.Message("FAIL_TO_INITIALIZE_VELOCITY_ENGINE", LOG);
+                new org.objectweb.celtix.common.i18n.Message("FAIL_TO_INITIALIZE_VELOCITY_ENGINE",
+                                                             LOG);
             LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg, e);
         }
@@ -244,31 +228,31 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             }
             return;
         }
-        
+
         schemaTargetNamespaces.clear();
-        
+
         buildJaxbModel();
     }
 
     @SuppressWarnings("unchecked")
     private void buildJaxbModel() {
-        SchemaCompiler schemaCompiler = XJC.createSchemaCompiler();        
+        SchemaCompiler schemaCompiler = XJC.createSchemaCompiler();
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classColletor);
 
         allocator.setPortTypes(wsdlDefinition.getPortTypes().values(), env.mapPackageName(this.wsdlDefinition
             .getTargetNamespace()));
         schemaCompiler.setClassNameAllocator(allocator);
         schemaCompiler.setErrorListener(this);
-        
+
         SchemaCompiler schemaCompilerGenCode = schemaCompiler;
-        if (env.isExcludeNamespaceEnabled()) {            
+        if (env.isExcludeNamespaceEnabled()) {
             schemaCompilerGenCode = XJC.createSchemaCompiler();
             schemaCompilerGenCode.setClassNameAllocator(allocator);
-            schemaCompilerGenCode.setErrorListener(this);        
+            schemaCompilerGenCode.setErrorListener(this);
         }
         for (Schema schema : schemaList) {
             boolean skipGenCode = false;
-            
+
             Element schemaElement = schema.getElement();
             String targetNamespace = schemaElement.getAttribute("targetNamespace");
             if (StringUtils.isEmpty(targetNamespace)) {
@@ -280,7 +264,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
                 skipGenCode = true;
             }
             customizeSchema(schemaElement, targetNamespace);
-            String systemid = schema.getDocumentBaseURI();            
+            String systemid = schema.getDocumentBaseURI();
             schemaCompiler.parseSchema(systemid, schemaElement);
             if (env.isExcludeNamespaceEnabled() && !skipGenCode) {
                 schemaCompilerGenCode.parseSchema(systemid, schemaElement);
@@ -373,7 +357,6 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     }
 
     protected void init() throws ToolException {
-
         parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));
         parseCustomization();
         initVelocity();
@@ -401,10 +384,8 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
 
     public void validateWSDL() throws ToolException {
         if (env.validateWSDL()) {
-            WSDLValidator validator = new WSDLValidator(this.wsdlDefinition, this.env);
-            if (!validator.isValid()) {
-                throw new ToolException(validator.getErrorMessage());
-            }
+            WSDL11Validator validator = new WSDL11Validator(this.wsdlDefinition, this.env);
+            validator.isValid();
         }
     }
 
@@ -421,64 +402,6 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
 
     public ProcessorEnvironment getEnvironment() {
         return this.env;
-    }
-
-    private void registerExtenstions(WSDLReader reader) {
-        ExtensionRegistry registry = reader.getExtensionRegistry();
-        if (registry == null) {
-            registry = wsdlFactory.newPopulatedExtensionRegistry();
-        }
-        registerJAXWSBinding(registry, Definition.class);
-        registerJAXWSBinding(registry, PortType.class);
-        registerJAXWSBinding(registry, Operation.class);
-
-        registerJAXWSBinding(registry, Binding.class);
-        registerJAXWSBinding(registry, BindingOperation.class);
-
-        registerJMSAddress(registry, Port.class);
-
-        registerXMLFormat(registry, BindingInput.class);
-        registerXMLFormat(registry, BindingOutput.class);
-        registerXMLFormatBinding(registry, Binding.class);
-        registerXMLHttpAddress(registry, Port.class);
-
-        reader.setExtensionRegistry(registry);
-    }
-
-    private void registerXMLFormat(ExtensionRegistry registry, Class clz) {
-        registry.registerSerializer(clz, ToolConstants.XML_FORMAT, new XMLFormatSerializer());
-
-        registry.registerDeserializer(clz, ToolConstants.XML_FORMAT, new XMLFormatSerializer());
-        registry.mapExtensionTypes(clz, ToolConstants.XML_FORMAT, XMLFormat.class);
-    }
-
-    private void registerXMLFormatBinding(ExtensionRegistry registry, Class clz) {
-        registry.registerSerializer(clz, ToolConstants.XML_BINDING_FORMAT, new XMLFormatBindingSerializer());
-
-        registry
-            .registerDeserializer(clz, ToolConstants.XML_BINDING_FORMAT, new XMLFormatBindingSerializer());
-        registry.mapExtensionTypes(clz, ToolConstants.XML_BINDING_FORMAT, XMLFormatBinding.class);
-    }
-
-    private void registerXMLHttpAddress(ExtensionRegistry registry, Class clz) {
-        registry.registerSerializer(clz, ToolConstants.XML_HTTP_ADDRESS, new XMLHttpSerializer());
-
-        registry.registerDeserializer(clz, ToolConstants.XML_HTTP_ADDRESS, new XMLHttpSerializer());
-        registry.mapExtensionTypes(clz, ToolConstants.XML_HTTP_ADDRESS, XMLHttpAddress.class);
-    }
-
-    private void registerJMSAddress(ExtensionRegistry registry, Class clz) {
-        registry.registerSerializer(clz, ToolConstants.JMS_ADDRESS, new JMSAddressSerializer());
-
-        registry.registerDeserializer(clz, ToolConstants.JMS_ADDRESS, new JMSAddressSerializer());
-        registry.mapExtensionTypes(clz, ToolConstants.JMS_ADDRESS, JMSAddress.class);
-    }
-
-    private void registerJAXWSBinding(ExtensionRegistry registry, Class clz) {
-        registry.registerSerializer(clz, ToolConstants.JAXWS_BINDINGS, new JAXWSBindingSerializer());
-
-        registry.registerDeserializer(clz, ToolConstants.JAXWS_BINDINGS, new JAXWSBindingDeserializer());
-        registry.mapExtensionTypes(clz, ToolConstants.JAXWS_BINDINGS, JAXWSBinding.class);
     }
 
     public void error(org.xml.sax.SAXParseException exception) {
