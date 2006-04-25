@@ -26,7 +26,7 @@ public class BindingProviderImpl implements BindingProvider {
                 }
             };
         }
-        return (Map<String, Object>) requestContext.get();
+        return (Map<String, Object>)requestContext.get();
     }
     
     public Map<String, Object> getResponseContext() {

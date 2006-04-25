@@ -207,7 +207,7 @@ public class JMSSessionFactory {
                     ret = sendOnlySessionCache.poll();
 
                     if (ret != null) {
-                        QueueSession session = (QueueSession) ret.session();
+                        QueueSession session = (QueueSession)ret.session();
                         Queue destination = null;
                         String selector = null;
                         
@@ -229,7 +229,7 @@ public class JMSSessionFactory {
                         } catch (Throwable t) {
                             // factory method may only throw JMSException
                             //
-                            throw (JMSException) t;
+                            throw (JMSException)t;
                         }
                     }
                 }
@@ -256,7 +256,7 @@ public class JMSSessionFactory {
                         } catch (Throwable t) {
                             // factory method may only throw JMSException
                             //
-                            throw (JMSException) t;
+                            throw (JMSException)t;
                         }
                     }
                 }

@@ -132,7 +132,7 @@ public class JMSTransportTest extends TestCase {
                 byte bytes[] = new byte[10000];
                 if (ctx.containsKey(JMSConstants.JMS_SERVER_HEADERS)) {
                     JMSMessageHeadersType msgHdr =
-                        (JMSMessageHeadersType) ctx.get(JMSConstants.JMS_SERVER_HEADERS);
+                        (JMSMessageHeadersType)ctx.get(JMSConstants.JMS_SERVER_HEADERS);
                     if (msgHdr.getProperty().contains(JMSTRANSPORT_SKIP_RESPONSE)) {
                         //no need to process the response.
                         return;                    
@@ -142,7 +142,7 @@ public class JMSTransportTest extends TestCase {
                 int total = readBytes(bytes, ctx.getInputStream());
 
                 JMSOutputStreamContext octx =
-                    (JMSOutputStreamContext) transport.createOutputStreamContext(ctx);
+                    (JMSOutputStreamContext)transport.createOutputStreamContext(ctx);
                 octx.setOneWay(false);
                 transport.finalPrepareOutputStreamContext(octx);
                 octx.getOutputStream().write(bytes, 0, total);
@@ -153,7 +153,7 @@ public class JMSTransportTest extends TestCase {
                 replyCtx.putAll(ctx);
                 replyCtx.put("ObjectMessageContext.MESSAGE_INPUT", Boolean.TRUE);
 
-                ((JMSServerTransport) transport).postDispatch(replyCtx, octx);
+                ((JMSServerTransport)transport).postDispatch(replyCtx, octx);
                 octx.getOutputStream().close();
             } catch (Exception ex) {
              //
@@ -284,7 +284,7 @@ public class JMSTransportTest extends TestCase {
                     readBytes(bytes, ctx.getInputStream());
 
                     JMSOutputStreamContext octx =
-                        (JMSOutputStreamContext) transport.createOutputStreamContext(ctx);
+                        (JMSOutputStreamContext)transport.createOutputStreamContext(ctx);
                     octx.setOneWay(true);
                     transport.finalPrepareOutputStreamContext(octx);
                     serverRcvdInOneWayCall = new String(bytes);
@@ -294,7 +294,7 @@ public class JMSTransportTest extends TestCase {
                     replyCtx.putAll(ctx);
                     replyCtx.put("ObjectMessageContext.MESSAGE_INPUT", Boolean.TRUE);
 
-                    ((JMSServerTransport) transport).postDispatch(replyCtx, octx);
+                    ((JMSServerTransport)transport).postDispatch(replyCtx, octx);
                     octx.getOutputStream().close();
                 } catch (Exception ex) {
                     ex.printStackTrace();

@@ -31,7 +31,7 @@ public class ObjectMessageContextImpl extends GenericMessageContext implements O
     }
 
     public Method getMethod() {
-        return (Method) get(ObjectMessageContext.METHOD_OBJ);
+        return (Method)get(ObjectMessageContext.METHOD_OBJ);
     }
 
     public void setException(Throwable ex) {
@@ -40,7 +40,7 @@ public class ObjectMessageContextImpl extends GenericMessageContext implements O
     }
     
     public Throwable getException() {
-        return (Throwable) get(ObjectMessageContext.METHOD_FAULT);
+        return (Throwable)get(ObjectMessageContext.METHOD_FAULT);
     }    
 
     public void setRequestorRole(boolean requestor) {

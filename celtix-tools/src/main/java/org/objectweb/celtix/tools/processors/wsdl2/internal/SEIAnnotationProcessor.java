@@ -19,7 +19,7 @@ public class SEIAnnotationProcessor extends AbstractProcessor {
     public void process(JavaModel javaModel) {
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
         for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
-            String interfaceName = (String) iter.next();
+            String interfaceName = (String)iter.next();
             JavaInterface intf = interfaces.get(interfaceName);
             
             JavaAnnotation serviceAnnotation = new JavaAnnotation("WebService");

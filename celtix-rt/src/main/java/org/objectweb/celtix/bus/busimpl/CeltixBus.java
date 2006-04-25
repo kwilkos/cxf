@@ -70,7 +70,7 @@ public class CeltixBus extends Bus implements BusEventListener {
         ConfigurationEventFilter configurationEventFilter = new ConfigurationEventFilter();
         addListener((BusEventListener)this, configurationEventFilter);
 
-        busID = (String) configuration.getId();
+        busID = (String)configuration.getId();
         servicesMonitoring = configuration.getBoolean("servicesMonitoring");
 
         instrumentationManager = new InstrumentationManagerImpl(this);

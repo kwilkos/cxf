@@ -151,7 +151,7 @@ public class EndpointImplTest extends TestCase {
         endpoint = Endpoint.create(TestBinding.TEST_BINDING, provider);
         assertNotNull(endpoint);
 
-        EndpointImpl impl = (EndpointImpl) endpoint;
+        EndpointImpl impl = (EndpointImpl)endpoint;
         assertNotNull(impl.getWebServiceProvider());
         assertEquals(DataBindingCallback.Mode.MESSAGE, impl.getServiceMode());
     }
@@ -169,7 +169,7 @@ public class EndpointImplTest extends TestCase {
     public void testGetMethod() {
         QName opName = new QName("", "PutLastTradedPrice");
         assertTrue(endpoint instanceof EndpointImpl);
-        EndpointImpl impl = (EndpointImpl) endpoint;
+        EndpointImpl impl = (EndpointImpl)endpoint;
         //Check if a method by a localPart of opName exists on the Implementor.
         Method m = impl.getMethod(endpoint, opName);
         
@@ -183,7 +183,7 @@ public class EndpointImplTest extends TestCase {
         HelloWorldServiceProvider provider = new  HelloWorldServiceProvider();
         endpoint = Endpoint.create(TestBinding.TEST_BINDING, provider);
         assertTrue(endpoint instanceof EndpointImpl);
-        impl = (EndpointImpl) endpoint;
+        impl = (EndpointImpl)endpoint;
         opName = new QName("", "invoke");
         //Check if a method by a localPart of opName exists on the Implementor.
         m = impl.getMethod(endpoint, opName);
@@ -192,7 +192,7 @@ public class EndpointImplTest extends TestCase {
     }
 
     public void testGetServiceMode() {
-        EndpointImpl impl = (EndpointImpl) endpoint;
+        EndpointImpl impl = (EndpointImpl)endpoint;
         assertNotNull(impl);
         DataBindingCallback.Mode mode = impl.getServiceMode();
         assertNotNull(mode);
@@ -202,7 +202,7 @@ public class EndpointImplTest extends TestCase {
         HelloWorldServiceProvider provider = new  HelloWorldServiceProvider();
         endpoint = Endpoint.create(TestBinding.TEST_BINDING, provider);
         assertTrue(endpoint instanceof EndpointImpl);
-        impl = (EndpointImpl) endpoint;
+        impl = (EndpointImpl)endpoint;
 
         mode = impl.getServiceMode();
         assertNotNull(mode);
@@ -212,7 +212,7 @@ public class EndpointImplTest extends TestCase {
         endpoint = Endpoint.create(TestBinding.TEST_BINDING, provider1);
         assertTrue(endpoint instanceof EndpointImpl);
 
-        impl = (EndpointImpl) endpoint;        
+        impl = (EndpointImpl)endpoint;        
         mode = impl.getServiceMode();
         assertNotNull(mode);
         assertEquals(DataBindingCallback.Mode.PAYLOAD, mode);
@@ -220,7 +220,7 @@ public class EndpointImplTest extends TestCase {
     
     public void testCreateDataBindingCallback() {
         ObjectMessageContextImpl ctx = new ObjectMessageContextImpl();
-        EndpointImpl impl = (EndpointImpl) endpoint;
+        EndpointImpl impl = (EndpointImpl)endpoint;
         assertNotNull(impl);
         DataBindingCallback cb = 
             impl.createDataBindingCallback(ctx, DataBindingCallback.Mode.PARTS);
@@ -232,7 +232,7 @@ public class EndpointImplTest extends TestCase {
         HelloWorldServiceProvider provider = new  HelloWorldServiceProvider();
         endpoint = Endpoint.create(TestBinding.TEST_BINDING, provider);
         assertTrue(endpoint instanceof EndpointImpl);
-        impl = (EndpointImpl) endpoint;
+        impl = (EndpointImpl)endpoint;
 
         cb = impl.createDataBindingCallback(ctx, DataBindingCallback.Mode.MESSAGE);
         assertNotNull(cb);
@@ -243,7 +243,7 @@ public class EndpointImplTest extends TestCase {
         endpoint = Endpoint.create(TestBinding.TEST_BINDING, provider1);
         assertTrue(endpoint instanceof EndpointImpl);
 
-        impl = (EndpointImpl) endpoint;        
+        impl = (EndpointImpl)endpoint;        
         cb = impl.createDataBindingCallback(ctx, DataBindingCallback.Mode.PAYLOAD);
         assertNotNull(cb);
         assertTrue(cb instanceof DynamicDataBindingCallback);
@@ -251,7 +251,7 @@ public class EndpointImplTest extends TestCase {
     }
     
     public void testGetWebServiceAnnotatedClass() {
-        EndpointImpl impl = (EndpointImpl) endpoint;
+        EndpointImpl impl = (EndpointImpl)endpoint;
         assertNotNull(impl);
         List<Class<?>> classList = impl.getWebServiceAnnotatedClass();
 
@@ -262,7 +262,7 @@ public class EndpointImplTest extends TestCase {
         HelloWorldServiceProvider provider = new  HelloWorldServiceProvider();
         endpoint = Endpoint.create(TestBinding.TEST_BINDING, provider);
         assertTrue(endpoint instanceof EndpointImpl);
-        impl = (EndpointImpl) endpoint;
+        impl = (EndpointImpl)endpoint;
 
         classList = impl.getWebServiceAnnotatedClass();
         assertNotNull(classList);

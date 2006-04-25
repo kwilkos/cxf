@@ -224,7 +224,7 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         if (null != paramAnnotations && index < paramAnnotations.length) {
             for (Annotation annotation : paramAnnotations[index]) {
                 if (WebParam.class.equals(annotation.annotationType())) {
-                    return (WebParam) annotation;
+                    return (WebParam)annotation;
                 }
             }
         }

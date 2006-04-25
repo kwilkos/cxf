@@ -93,7 +93,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
 
     private void setExcludePackageAndNamespaces(ProcessorEnvironment env) {
         if (env.get(ToolConstants.CFG_NEXCLUDE) != null) {
-            String[] pns = (String[]) env.get(ToolConstants.CFG_NEXCLUDE);
+            String[] pns = (String[])env.get(ToolConstants.CFG_NEXCLUDE);
             for (int j = 0; j < pns.length; j++) {
                 int pos = pns[j].indexOf("=");
                 String excludePackagename = pns[j];
@@ -110,7 +110,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
     
     private void setPackageAndNamespaces(ProcessorEnvironment env) {
         if (env.get(ToolConstants.CFG_PACKAGENAME) != null) {
-            String[] pns = (String[]) env.get(ToolConstants.CFG_PACKAGENAME);
+            String[] pns = (String[])env.get(ToolConstants.CFG_PACKAGENAME);
             for (int j = 0; j < pns.length; j++) {
                 int pos = pns[j].indexOf("=");
                 String packagename = pns[j];
@@ -126,7 +126,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
     }
 
     private void validate(ProcessorEnvironment env) throws ToolException {
-        String outdir = (String) env.get(ToolConstants.CFG_OUTPUTDIR);
+        String outdir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
         if (outdir != null) {
             File dir = new File(outdir);
             if (!dir.exists()) {
@@ -140,7 +140,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
         }
 
         if (env.containsKey(ToolConstants.CFG_BINDING)) {
-            String[] bindings = (String[]) env.get(ToolConstants.CFG_BINDING);
+            String[] bindings = (String[])env.get(ToolConstants.CFG_BINDING);
             for (int i = 0; i < bindings.length; i++) {
                 File binding = new File(bindings[i]);
                 if (!binding.exists()) {
@@ -158,7 +158,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
         }
         
         if (env.optionSet(ToolConstants.CFG_COMPILE)) {
-            String clsdir = (String) env.get(ToolConstants.CFG_CLASSDIR);
+            String clsdir = (String)env.get(ToolConstants.CFG_CLASSDIR);
             if (clsdir != null) {
                 File dir = new File(clsdir);
                 if (!dir.exists()) {
@@ -182,7 +182,7 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
         Properties props = loadProperties("wsdltojavalib.properties");
         if (props != null) {
             for (Iterator keys = props.keySet().iterator(); keys.hasNext();) {
-                String key = (String) keys.next();
+                String key = (String)keys.next();
                 env.put(key, props.get(key));
             }
         }

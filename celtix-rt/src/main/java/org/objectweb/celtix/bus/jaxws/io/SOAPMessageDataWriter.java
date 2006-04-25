@@ -22,16 +22,16 @@ public class SOAPMessageDataWriter<T> implements DataWriter<T> {
     }
 
     public void write(Object obj, T output) {
-        dest = (SOAPMessage) output;
+        dest = (SOAPMessage)output;
         try {
             if (DOMSource.class.isAssignableFrom(obj.getClass())) {
-                DOMSource src = (DOMSource) obj;
+                DOMSource src = (DOMSource)obj;
                 dest.getSOAPPart().setContent(src);
             } else if (SAXSource.class.isAssignableFrom(obj.getClass())) {
-                SAXSource src = (SAXSource) obj;
+                SAXSource src = (SAXSource)obj;
                 dest.getSOAPPart().setContent(src);
             } else if (StreamSource.class.isAssignableFrom(obj.getClass())) {
-                StreamSource src = (StreamSource) obj;
+                StreamSource src = (StreamSource)obj;
                 dest.getSOAPPart().setContent(src);
             }
         } catch (SOAPException se) {

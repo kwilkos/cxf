@@ -30,7 +30,7 @@ public final class JMSUtils {
             Enumeration props = env.propertyNames();
 
             while (props.hasMoreElements()) {
-                String name = (String) props.nextElement();
+                String name = (String)props.nextElement();
                 String value = env.getProperty(name);
                 LOG.log(Level.FINE, "Context property: " + name + " | " + value);
             }    
@@ -47,7 +47,7 @@ public final class JMSUtils {
         java.util.ListIterator listIter =  addrType.getJMSNamingProperty().listIterator();
 
         while (listIter.hasNext()) {
-            JMSNamingPropertyType propertyPair = (JMSNamingPropertyType) listIter.next();
+            JMSNamingPropertyType propertyPair = (JMSNamingPropertyType)listIter.next();
             
             if (null != propertyPair.getValue()) {
                 env.setProperty(propertyPair.getName(), propertyPair.getValue());

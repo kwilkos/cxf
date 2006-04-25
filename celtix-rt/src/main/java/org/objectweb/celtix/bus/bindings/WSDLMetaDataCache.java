@@ -58,7 +58,7 @@ public class WSDLMetaDataCache {
         if (allOperationInfo == null) {
             allOperationInfo = new HashMap<String, WSDLOperationInfo>();
             for (Iterator it = binding.getBindingOperations().iterator(); it.hasNext();) {
-                final BindingOperation bindingOperation = (BindingOperation) it.next();
+                final BindingOperation bindingOperation = (BindingOperation)it.next();
                 if (bindingOperation.getOperation() != null) {
                     WSDLOperationInfo data = new WSDLOperationInfo(this,
                                                                    bindingOperation);

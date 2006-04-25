@@ -69,7 +69,7 @@ public class BusEventProcessor {
 
         synchronized (listenerList) {
             for (int i = 0; i < listenerList.size(); i++) {
-                li = (BusEventListenerInfo) listenerList.get(i);
+                li = (BusEventListenerInfo)listenerList.get(i);
 
                 if ((li.filter == null) || (li.filter.isEventEnabled(e))) {
                     eventProcessed = true;

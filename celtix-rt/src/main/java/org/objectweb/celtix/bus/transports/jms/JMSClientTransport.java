@@ -127,7 +127,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         try {
             byte[] responseData = null;
             if (textPayload) {
-                String responseString = (String) invoke(context, true);
+                String responseString = (String)invoke(context, true);
                 responseData = responseString.getBytes();
             } else {
                 responseData = (byte[])invoke(context, true);
@@ -138,7 +138,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
             
             if (context.containsKey(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS)) {
                 JMSMessageHeadersType responseHdr = 
-                    (JMSMessageHeadersType) context.remove(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS);
+                    (JMSMessageHeadersType)context.remove(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS);
                 respContext.put(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS, responseHdr);
                 respContext.setScope(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS, 
                                      MessageContext.Scope.APPLICATION);
@@ -235,7 +235,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         if (textPayload) {
             request = context.getOutputStream().toString();
         } else {
-            request = ((ByteArrayOutputStream) context.getOutputStream()).toByteArray();
+            request = ((ByteArrayOutputStream)context.getOutputStream()).toByteArray();
         }
 
         Destination replyTo = pooledSession.destination();
@@ -252,7 +252,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
       //  message.get
 
         JMSMessageHeadersType headers =
-            (JMSMessageHeadersType) context.get(JMSConstants.JMS_CLIENT_REQUEST_HEADERS);
+            (JMSMessageHeadersType)context.get(JMSConstants.JMS_CLIENT_REQUEST_HEADERS);
 
 
         int deliveryMode = getJMSDeliveryMode(headers);
@@ -288,13 +288,13 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         LOG.log(Level.FINE, "client sending request: ",  message);
 
         if (queueDestinationStyle) {
-            QueueSender sender = (QueueSender) pooledSession.producer();
+            QueueSender sender = (QueueSender)pooledSession.producer();
             sender.setTimeToLive(ttl);
-            sender.send((Queue) targetDestination, message, deliveryMode, priority, ttl);
+            sender.send((Queue)targetDestination, message, deliveryMode, priority, ttl);
         } else {
-            TopicPublisher publisher = (TopicPublisher) pooledSession.producer();
+            TopicPublisher publisher = (TopicPublisher)pooledSession.producer();
             publisher.setTimeToLive(ttl);
-            publisher.publish((Topic) targetDestination, message, deliveryMode, priority, ttl);
+            publisher.publish((Topic)targetDestination, message, deliveryMode, priority, ttl);
         }
     }
 

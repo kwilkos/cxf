@@ -35,7 +35,7 @@ public class ImplGenerator extends AbstractGenerator {
 
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
         for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
-            String interfaceName = (String) iter.next();
+            String interfaceName = (String)iter.next();
             JavaInterface intf = interfaces.get(interfaceName);
 
             clearAttributes();

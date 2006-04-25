@@ -47,7 +47,7 @@ public final class JMSProviderHub {
         JMSAddressPolicyType  addrDetails = transport.getJmsAddressDetails();
         JMSServerBehaviorPolicyType serverPolicy = null;
         if (transport instanceof JMSServerTransport) {
-            serverPolicy = ((JMSServerTransport) transport).getJMSServerBehaviourPolicy();
+            serverPolicy = ((JMSServerTransport)transport).getJMSServerBehaviourPolicy();
         }
 
         // get JMS connection resources and destination
@@ -78,11 +78,11 @@ public final class JMSProviderHub {
         connection.start();
 
         Destination requestDestination = 
-                (Destination) context.lookup(
+                (Destination)context.lookup(
                                            addrDetails.getJndiDestinationName());
 
         Destination replyDestination = (null != addrDetails.getJndiReplyDestinationName())
-            ? (Destination) context.lookup(addrDetails.getJndiReplyDestinationName()) : null;
+            ? (Destination)context.lookup(addrDetails.getJndiReplyDestinationName()) : null;
 
         // create session factory to manage session, reply destination,
         // producer and consumer pooling

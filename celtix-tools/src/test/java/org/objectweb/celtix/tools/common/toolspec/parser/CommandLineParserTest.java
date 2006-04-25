@@ -175,9 +175,9 @@ public class CommandLineParserTest extends TestCase {
         } catch (BadUsageException ex) {
             Object[] errors = ex.getErrors().toArray();
             assertEquals("testInvalidPackageName failed", 1, errors.length);
-            CommandLineError error = (CommandLineError) errors[0];
+            CommandLineError error = (CommandLineError)errors[0];
             assertTrue("Expected InvalidArgumentValue error", error instanceof ErrorVisitor.UserError);
-            ErrorVisitor.UserError userError = (ErrorVisitor.UserError) error;
+            ErrorVisitor.UserError userError = (ErrorVisitor.UserError)error;
             assertEquals("Invalid argument value message incorrect",
                     "-p has invalid character!", userError.toString());
         }

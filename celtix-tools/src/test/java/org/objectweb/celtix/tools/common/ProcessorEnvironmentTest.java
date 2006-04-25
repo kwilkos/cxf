@@ -10,7 +10,7 @@ public class ProcessorEnvironmentTest extends TestCase {
         map.put("k1", "v1");
         ProcessorEnvironment env = new ProcessorEnvironment();
         env.setParameters(map);
-        String value = (String) env.get("k1");
+        String value = (String)env.get("k1");
         assertEquals("v1", value);
     }
 
@@ -20,7 +20,7 @@ public class ProcessorEnvironmentTest extends TestCase {
         ProcessorEnvironment env = new ProcessorEnvironment();
         env.setParameters(map);
         env.put("k2", "v2");
-        String value = (String) env.get("k2");
+        String value = (String)env.get("k2");
         assertEquals("v2", value);
     }
 
@@ -30,7 +30,7 @@ public class ProcessorEnvironmentTest extends TestCase {
         ProcessorEnvironment env = new ProcessorEnvironment();
         env.setParameters(map);
         env.put("k2", "v2");
-        String value = (String) env.get("k2");
+        String value = (String)env.get("k2");
         assertEquals("v2", value);
         env.remove("k1");
         assertNull(env.get("k1"));
@@ -50,9 +50,9 @@ public class ProcessorEnvironmentTest extends TestCase {
         ProcessorEnvironment env = new ProcessorEnvironment();
         env.setParameters(map);
 
-        String k1 = (String) env.get("k1", "v2");
+        String k1 = (String)env.get("k1", "v2");
         assertEquals("v1", k1);
-        String k2 = (String) env.get("k2", "v2");
+        String k2 = (String)env.get("k2", "v2");
         assertEquals("v2", k2);
     }
 
@@ -72,11 +72,11 @@ public class ProcessorEnvironmentTest extends TestCase {
         ProcessorEnvironment env = new ProcessorEnvironment();
         env.setParameters(map);
 
-        Boolean k1 = Boolean.valueOf((String) env.get("k1"));
+        Boolean k1 = Boolean.valueOf((String)env.get("k1"));
         assertTrue(k1);
-        Boolean k2 = Boolean.valueOf((String) env.get("k2", "true"));
+        Boolean k2 = Boolean.valueOf((String)env.get("k2", "true"));
         assertTrue(k2);
-        Boolean k3 = Boolean.valueOf((String) env.get("k3", "yes"));
+        Boolean k3 = Boolean.valueOf((String)env.get("k3", "yes"));
         assertFalse(k3);
     }
 

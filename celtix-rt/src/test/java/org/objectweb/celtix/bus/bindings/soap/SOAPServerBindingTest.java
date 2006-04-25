@@ -194,7 +194,7 @@ public class SOAPServerBindingTest extends TestCase {
         is.close();
         
         TestOutputStreamContext osc = 
-            (TestOutputStreamContext) serverTransport.getOutputStreamContext();        
+            (TestOutputStreamContext)serverTransport.getOutputStreamContext();        
         assertNotNull(osc);
         assertFalse(osc.isFault());
         
@@ -284,7 +284,7 @@ public class SOAPServerBindingTest extends TestCase {
         assertNotNull(serverTransport.getOutputStreamContext());
         assertTrue("Expecting a SOAP Fault", serverTransport.getOutputStreamContext().isFault());
 
-        TestOutputStreamContext osc = (TestOutputStreamContext) serverTransport.getOutputStreamContext();
+        TestOutputStreamContext osc = (TestOutputStreamContext)serverTransport.getOutputStreamContext();
         ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
         checkUserFaultMessage(bais, NoSuchCodeLitFault.class, "TestException");
     }
@@ -302,7 +302,7 @@ public class SOAPServerBindingTest extends TestCase {
         assertNotNull(serverTransport.getOutputStreamContext());
         assertTrue("Expecting a SOAP Fault", serverTransport.getOutputStreamContext().isFault());
 
-        TestOutputStreamContext osc = (TestOutputStreamContext) serverTransport.getOutputStreamContext();
+        TestOutputStreamContext osc = (TestOutputStreamContext)serverTransport.getOutputStreamContext();
         ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
         checkSystemFaultMessage(bais);
     }

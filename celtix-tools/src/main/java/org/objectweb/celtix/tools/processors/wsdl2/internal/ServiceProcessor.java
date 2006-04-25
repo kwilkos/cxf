@@ -527,7 +527,7 @@ public class ServiceProcessor extends AbstractProcessor {
             while (iterator.hasNext()) {
                 Object obj = iterator.next();
                 if (obj instanceof JAXWSBinding) {
-                    bindingExt = (JAXWSBinding) obj;
+                    bindingExt = (JAXWSBinding)obj;
                     ji.setBindingExt(bindingExt);
                     return;
                 }
@@ -562,7 +562,7 @@ public class ServiceProcessor extends AbstractProcessor {
             while (iterator.hasNext()) {
                 Object obj = iterator.next();
                 if (obj instanceof JAXWSBinding) {
-                    bindingExt = (JAXWSBinding) obj;
+                    bindingExt = (JAXWSBinding)obj;
                     jm.setBindingExt(bindingExt);
                     return;
                 }
@@ -607,7 +607,7 @@ public class ServiceProcessor extends AbstractProcessor {
         while (it.hasNext()) {
             Object obj = it.next(); 
             if (obj instanceof SOAPHeader) {
-                String outPartName = ((SOAPHeader) obj).getPart();
+                String outPartName = ((SOAPHeader)obj).getPart();
                 if (inPartName.equals(outPartName)) {
                     return true;
                 }                

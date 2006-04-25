@@ -136,10 +136,10 @@ public class JMSTransportBase {
         Message message = null;
 
         if (JMSConstants.TEXT_MESSAGE_TYPE.equals(messageType)) {
-            message = session.createTextMessage((String) payload);
+            message = session.createTextMessage((String)payload);
         } else {
             message = session.createObjectMessage();
-            ((ObjectMessage) message).setObject((byte[])payload);
+            ((ObjectMessage)message).setObject((byte[])payload);
         }
 
         if (replyTo != null) {
@@ -161,9 +161,9 @@ public class JMSTransportBase {
         Object ret = null;
 
         if (JMSConstants.TEXT_MESSAGE_TYPE.equals(messageType)) {
-            ret = ((TextMessage) message).getText();
+            ret = ((TextMessage)message).getText();
         } else {
-            ret = (byte[]) ((ObjectMessage) message).getObject();
+            ret = (byte[])((ObjectMessage)message).getObject();
         }
 
         return ret;
@@ -179,7 +179,7 @@ public class JMSTransportBase {
                                                      String headerType)  throws JMSException {
         JMSMessageHeadersType headers = null;
 
-        headers = (JMSMessageHeadersType) context.get(headerType);
+        headers = (JMSMessageHeadersType)context.get(headerType);
 
         if (headers == null) {
             headers = new JMSMessageHeadersType();

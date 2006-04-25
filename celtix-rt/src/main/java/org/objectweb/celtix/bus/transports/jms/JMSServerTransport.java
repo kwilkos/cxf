@@ -136,7 +136,7 @@ public class JMSServerTransport extends JMSTransportBase
     public void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context)
         throws IOException {
 
-        Message message = (Message) bindingContext.get(JMS_SERVER_TRANSPORT_MESSAGE);
+        Message message = (Message)bindingContext.get(JMS_SERVER_TRANSPORT_MESSAGE);
         PooledSession replySession = null;
          // ensure non-oneways in point-to-point domain
         counters.getRequestTotal().increase();
@@ -158,7 +158,7 @@ public class JMSServerTransport extends JMSTransportBase
                                                 null, 
                                                 JMSConstants.TEXT_MESSAGE_TYPE);
                     } else {
-                        reply = marshal(((ByteArrayOutputStream) context.getOutputStream()).toByteArray(),
+                        reply = marshal(((ByteArrayOutputStream)context.getOutputStream()).toByteArray(),
                                                replySession.session(),
                                                null, 
                                                JMSConstants.BINARY_MESSAGE_TYPE);
@@ -179,7 +179,7 @@ public class JMSServerTransport extends JMSTransportBase
                     QueueSender sender = (QueueSender)replySession.producer();
 
                     JMSMessageHeadersType headers =
-                        (JMSMessageHeadersType) context.get(JMSConstants.JMS_SERVER_HEADERS);
+                        (JMSMessageHeadersType)context.get(JMSConstants.JMS_SERVER_HEADERS);
            
                     int deliveryMode = getJMSDeliveryMode(headers);
                     int priority = getJMSPriority(headers);

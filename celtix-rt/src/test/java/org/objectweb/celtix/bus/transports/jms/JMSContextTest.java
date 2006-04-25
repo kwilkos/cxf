@@ -111,7 +111,7 @@ public class JMSContextTest extends TestCase {
                 int total = readBytes(bytes, ctx.getInputStream());
 
                 JMSOutputStreamContext octx =
-                    (JMSOutputStreamContext) transport.createOutputStreamContext(ctx);
+                    (JMSOutputStreamContext)transport.createOutputStreamContext(ctx);
                 octx.setOneWay(false);
                 transport.finalPrepareOutputStreamContext(octx);
                 octx.getOutputStream().write(bytes, 0, total);
@@ -122,7 +122,7 @@ public class JMSContextTest extends TestCase {
                 replyCtx.putAll(ctx);
                 replyCtx.put("ObjectMessageContext.MESSAGE_INPUT", Boolean.TRUE);
 
-                ((JMSServerTransport) transport).postDispatch(replyCtx, octx);
+                ((JMSServerTransport)transport).postDispatch(replyCtx, octx);
                 octx.getOutputStream().close();
             } catch (Exception ex) {
              //

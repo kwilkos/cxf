@@ -35,7 +35,7 @@ public class PortTypeProcessor extends AbstractProcessor {
         String namespace = portType.getQName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, env.mapPackageName(namespace));
 
-        String location = (String) env.get(ToolConstants.CFG_WSDLURL);
+        String location = (String)env.get(ToolConstants.CFG_WSDLURL);
         try {
             location = ProcessorUtil.getAbsolutePath(location);
         } catch (IOException ioe) {
@@ -53,7 +53,7 @@ public class PortTypeProcessor extends AbstractProcessor {
        
         for (Iterator iter = operations.iterator(); iter.hasNext();) {
            
-            Operation operation = (Operation) iter.next();
+            Operation operation = (Operation)iter.next();
             if (isOverloading(operation.getName())) {
                 LOG.log(Level.WARNING, "SKIP_OVERLOADED_OPERATION", operation.getName()); 
                 continue;

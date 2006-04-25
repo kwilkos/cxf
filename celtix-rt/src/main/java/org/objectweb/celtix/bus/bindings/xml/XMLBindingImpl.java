@@ -217,7 +217,7 @@ public class XMLBindingImpl extends AbstractBindingImpl {
     }
 
     public void write(MessageContext msgContext, OutputStreamMessageContext outContext) throws IOException {
-        XMLMessageContext xmlContext = (XMLMessageContext) msgContext;
+        XMLMessageContext xmlContext = (XMLMessageContext)msgContext;
         try {
             xmlContext.getMessage().writeTo(outContext.getOutputStream());
             

@@ -115,7 +115,7 @@ public class PooledSession {
         }
 
         if (theDestination instanceof TemporaryQueue) {
-            ((TemporaryQueue) theDestination).delete();
+            ((TemporaryQueue)theDestination).delete();
         }
 
         if (theSession != null) {

@@ -379,7 +379,7 @@ public final class EndpointReferenceUtils {
             for (Object o : types.getExtensibilityElements()) {
                 if (o instanceof javax.wsdl.extensions.schema.Schema) {
                     javax.wsdl.extensions.schema.Schema s =
-                        (javax.wsdl.extensions.schema.Schema) o;
+                        (javax.wsdl.extensions.schema.Schema)o;
                     schemaList.add(s);
                 }
             }

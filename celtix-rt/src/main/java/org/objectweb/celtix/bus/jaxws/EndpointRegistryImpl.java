@@ -25,7 +25,7 @@ public class EndpointRegistryImpl implements EndpointRegistry {
 
     public void registerEndpoint(Endpoint ep) {  
         assert ep instanceof EndpointImpl;
-        EndpointImpl epl = (EndpointImpl) ep;
+        EndpointImpl epl = (EndpointImpl)ep;
         assert epl.getBus() == bus;
         if (endpoints.contains(epl)) {
             LOG.warning("ENDPOINT_ALREADY_REGISTERED_MSG");

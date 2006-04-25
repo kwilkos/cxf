@@ -121,10 +121,10 @@ public final class CustomizationParser {
         this.definition = def;
         String[] bindingFiles;
         try {
-            bindingFiles = (String[]) env.get(ToolConstants.CFG_BINDING);
+            bindingFiles = (String[])env.get(ToolConstants.CFG_BINDING);
         } catch (ClassCastException e) {
             bindingFiles = new String[1];
-            bindingFiles[0] = (String) env.get(ToolConstants.CFG_BINDING);
+            bindingFiles[0] = (String)env.get(ToolConstants.CFG_BINDING);
         }
         
         for (int i = 0; i < bindingFiles.length; i++) {
@@ -151,7 +151,7 @@ public final class CustomizationParser {
                 continue;
             }
             //take the first one, anyway its 1 handler-config per customization
-            this.handlerChains = (Element) nl.item(0);
+            this.handlerChains = (Element)nl.item(0);
             return;
         }
     }
@@ -186,10 +186,10 @@ public final class CustomizationParser {
                 continue;
             }
             if (nsUri.equals(item.getNamespaceURI())) {
-                a.add((Element) item);
+                a.add((Element)item);
             }
         }
-        return (Element[]) a.toArray(new Element[a.size()]);
+        return (Element[])a.toArray(new Element[a.size()]);
     }
 
     private boolean isJAXWSBindings(Node bindings) {
@@ -226,7 +226,7 @@ public final class CustomizationParser {
     private boolean isValidJaxwsBindingFile(String bindingLocation, XMLStreamReader reader) {
         try {
             if (ToolConstants.JAXWS_BINDINGS.equals(reader.getName())) {
-                String wsdlURL = (String) env.get(ToolConstants.CFG_WSDLURL);
+                String wsdlURL = (String)env.get(ToolConstants.CFG_WSDLURL);
                 wsdlURL = ProcessorUtil.absolutize(ProcessorUtil.getFileOrURLName(wsdlURL));
                 String wsdlLocation = reader.getAttributeValue(null, "wsdlLocation");
                 if (StringUtils.isFileExist(bindingLocation) && !StringUtils.isFileAbsolute(wsdlLocation)) {

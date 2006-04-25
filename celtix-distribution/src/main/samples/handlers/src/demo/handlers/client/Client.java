@@ -27,7 +27,7 @@ public final class Client {
         File wsdl = new File(args[0]);
 
         AddNumbersService service = new AddNumbersService(wsdl.toURL(), serviceName);
-        AddNumbers port = (AddNumbers) service.getPort(portName, AddNumbers.class);
+        AddNumbers port = (AddNumbers)service.getPort(portName, AddNumbers.class);
         
         try {
             int number1 = 10;

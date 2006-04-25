@@ -23,7 +23,7 @@ public class WorkQueueInstrumentation implements Instrumentation {
         objectName = ",name=WorkQueue";
         if (wqManager.autoQueue != null 
             && AutomaticWorkQueueImpl.class.isAssignableFrom(wqManager.autoQueue.getClass())) {
-            aWorkQueue = (AutomaticWorkQueueImpl) wqManager.autoQueue;
+            aWorkQueue = (AutomaticWorkQueueImpl)wqManager.autoQueue;
         }
     }
    

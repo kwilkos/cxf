@@ -86,7 +86,7 @@ public class ClientServerTest extends ClientServerTestBase {
 
         String expectedString = new String("How are you Joe");
         try {
-            Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+            Greeter greeter = (Greeter)service.getPort(portName, Greeter.class);
             
             Response<GreetMeSometimeResponse> response = greeter.greetMeSometimeAsync("Joe");
             while (!response.isDone()) {
@@ -144,7 +144,7 @@ public class ClientServerTest extends ClientServerTestBase {
             }
         }
         
-        Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+        Greeter greeter = (Greeter)service.getPort(portName, Greeter.class);
         Response<GreetMeSometimeResponse> response = greeter.greetMeSometimeAsync("Joe");
         
         Poller[] pollers = new Poller[4];
@@ -196,7 +196,7 @@ public class ClientServerTest extends ClientServerTestBase {
 
         String expectedString = new String("How are you Joe");
         try {
-            Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+            Greeter greeter = (Greeter)service.getPort(portName, Greeter.class);
             Future<?> f = greeter.greetMeSometimeAsync("Joe", h);
             int i = 0;
             while (!f.isDone() && i < 20) {
@@ -253,7 +253,7 @@ public class ClientServerTest extends ClientServerTestBase {
             }
         }
         
-        Greeter greeter = (Greeter) service.getPort(portName, Greeter.class);
+        Greeter greeter = (Greeter)service.getPort(portName, Greeter.class);
         Future<?> f = greeter.greetMeSometimeAsync("Joe", h);
         
         Poller[] pollers = new Poller[4];

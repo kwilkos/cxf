@@ -25,7 +25,7 @@ public class SOAPMessageDataReader<T> implements DataReader<T> {
     }
 
     public Object read(int idx, T input) {
-        SOAPMessage src = (SOAPMessage) input;
+        SOAPMessage src = (SOAPMessage)input;
         Source obj = null;
         try {
             if (DOMSource.class.isAssignableFrom(callback.getSupportedFormats()[0])) {

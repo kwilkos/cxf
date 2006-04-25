@@ -141,7 +141,7 @@ public class JMSClientServerTest extends ClientServerTestBase {
             BindingProvider  bp = null;
             
             if (handler instanceof BindingProvider) {
-                bp = (BindingProvider) handler;
+                bp = (BindingProvider)handler;
                 //System.out.println(bp.toString());
                 Map<String, Object> requestContext = bp.getRequestContext();
                 JMSMessageHeadersType requestHeader = new JMSMessageHeadersType();
@@ -162,7 +162,7 @@ public class JMSClientServerTest extends ClientServerTestBase {
             if (bp != null) {
                 Map<String, Object> responseContext = bp.getResponseContext();
                 JMSMessageHeadersType responseHdr = 
-                     (JMSMessageHeadersType) responseContext.get(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS);
+                     (JMSMessageHeadersType)responseContext.get(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS);
                 if (responseHdr == null) {
                     fail("response Header should not be null");
                 }

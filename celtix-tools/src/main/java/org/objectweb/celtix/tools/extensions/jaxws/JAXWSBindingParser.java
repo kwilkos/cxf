@@ -17,8 +17,8 @@ public class JAXWSBindingParser {
     
     public JAXWSBinding parse(Class parentType, Element element, Definition def) throws WSDLException {
         ExtensionRegistry extReg = def.getExtensionRegistry();
-        JAXWSBinding jaxwsBinding = (JAXWSBinding) extReg.createExtension(parentType,
-                                                                          ToolConstants.JAXWS_BINDINGS);
+        JAXWSBinding jaxwsBinding = (JAXWSBinding)extReg.createExtension(parentType,
+                                                                         ToolConstants.JAXWS_BINDINGS);
         
         jaxwsBinding.setElementType(ToolConstants.JAXWS_BINDINGS);
         jaxwsBinding.setElement(element);

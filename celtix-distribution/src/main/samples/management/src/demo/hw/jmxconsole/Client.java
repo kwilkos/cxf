@@ -34,7 +34,7 @@ public final class Client {
             
             Set names = mbsc.queryNames(null, null);
             for (Iterator i = names.iterator(); i.hasNext();) {
-                ObjectName on = (ObjectName) i.next();
+                ObjectName on = (ObjectName)i.next();
                 echo("\n\t get ObjectName = " + on + "\n\t Its Attributes are :");
                 getInstrumentationAttributes(on);
             }

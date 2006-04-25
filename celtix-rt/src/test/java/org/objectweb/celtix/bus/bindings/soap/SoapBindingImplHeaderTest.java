@@ -65,7 +65,7 @@ public class SoapBindingImplHeaderTest extends TestCase {
         assertTrue(msg.getSOAPHeader().hasChildNodes());
         NodeList list = msg.getSOAPHeader().getChildNodes();
         assertEquals(1, list.getLength());
-        Element headerElement = (Element) list.item(0);
+        Element headerElement = (Element)list.item(0);
         assertEquals("true", headerElement
                      .getAttributeNS(SOAPConstants.HEADER_MUSTUNDERSTAND.getNamespaceURI(),
                                      SOAPConstants.HEADER_MUSTUNDERSTAND.getLocalPart()));
@@ -97,7 +97,7 @@ public class SoapBindingImplHeaderTest extends TestCase {
         assertTrue(msg.getSOAPHeader().hasChildNodes());
         list = msg.getSOAPHeader().getChildNodes();
         assertEquals(1, list.getLength());
-        headerElement = (Element) list.item(0);
+        headerElement = (Element)list.item(0);
         //TestHeader3 has no child elements
         assertTrue(headerElement.hasChildNodes());
         list = headerElement.getChildNodes();
@@ -139,7 +139,7 @@ public class SoapBindingImplHeaderTest extends TestCase {
         assertTrue(msg.getSOAPHeader().hasChildNodes());
         NodeList list = msg.getSOAPHeader().getChildNodes();
         assertEquals(1, list.getLength());
-        Element headerElement = (Element) list.item(0);
+        Element headerElement = (Element)list.item(0);
         //Check for mustUndrstand Attribute
         assertEquals("true", headerElement
                      .getAttributeNS(SOAPConstants.HEADER_MUSTUNDERSTAND.getNamespaceURI(),
@@ -177,7 +177,7 @@ public class SoapBindingImplHeaderTest extends TestCase {
         assertTrue(msg.getSOAPHeader().hasChildNodes());
         list = msg.getSOAPHeader().getChildNodes();
         assertEquals(1, list.getLength());
-        headerElement = (Element) list.item(0);
+        headerElement = (Element)list.item(0);
         //Check for mustUndrstand Attribute
         assertEquals("true", headerElement
                      .getAttributeNS(SOAPConstants.HEADER_MUSTUNDERSTAND.getNamespaceURI(),
@@ -218,10 +218,10 @@ public class SoapBindingImplHeaderTest extends TestCase {
         assertNull(objContext.getReturn());
         assertEquals(2, params.length);
         assertTrue(params[1].getClass().isAssignableFrom(Holder.class));
-        Holder<?> holder = (Holder<?>) params[1];
+        Holder<?> holder = (Holder<?>)params[1];
         assertNotNull(holder.value);
         assertTrue(holder.value.getClass().isAssignableFrom(TestHeader3.class));
-        TestHeader3 header3 = (TestHeader3) holder.value;
+        TestHeader3 header3 = (TestHeader3)holder.value;
         assertNull(header3.getRequestType());
     }
     
@@ -251,10 +251,10 @@ public class SoapBindingImplHeaderTest extends TestCase {
         assertEquals(3, params.length);
         //Test the Header method paramaters
         assertTrue(params[2].getClass().isAssignableFrom(Holder.class));
-        Holder<?> holder = (Holder<?>) params[2];
+        Holder<?> holder = (Holder<?>)params[2];
         assertNotNull(holder.value);
         assertTrue(holder.value.getClass().isAssignableFrom(TestHeader2Response.class));
-        TestHeader2Response header2 = (TestHeader2Response) holder.value;
+        TestHeader2Response header2 = (TestHeader2Response)holder.value;
         assertEquals("HeaderVal2", header2.getResponseType());
         
         //test for return header using TestHeader5 operation 
@@ -269,8 +269,7 @@ public class SoapBindingImplHeaderTest extends TestCase {
         
         //Test The InputMessage of testHeader3 Operation
         binding.unmarshal(soapContext, objContext,
-                                 new JAXBDataBindingCallback(
-                                                             testHeader5,
+                                 new JAXBDataBindingCallback(testHeader5,
                                                              DataBindingCallback.Mode.PARTS,
                                                              null));
 
@@ -281,7 +280,7 @@ public class SoapBindingImplHeaderTest extends TestCase {
  
         //Test the Header method paramaters        
         assertNotNull(objContext.getReturn());
-        TestHeader5 header5 = (TestHeader5) objContext.getReturn();
+        TestHeader5 header5 = (TestHeader5)objContext.getReturn();
         assertEquals("HeaderVal5", header5.getRequestType());
         
     }

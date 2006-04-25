@@ -169,7 +169,7 @@ public class DocBareMethodProcessor {
                     paraName = webParam.name().length() > 0 ? webParam.name() : paraName;
                     partName = webParam.partName().length() > 0 ? webParam.partName() : paraName;
                     paraTNS = webParam.targetNamespace().length() > 0
-                        ? paraTNS = webParam.targetNamespace() : paraTNS;
+                        ? webParam.targetNamespace() : paraTNS;
 
                     QName requestQN = new QName(paraTNS, paraName);
                     TypeReference typeref = new TypeReference(requestQN, clazz, paraAnns[i]);

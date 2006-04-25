@@ -32,7 +32,7 @@ public class BusEventCacheImpl implements BusEventCache {
 
     public synchronized void addEvent(BusEvent e) {
         if (events.size() == maxEventsCache) {
-            BusEvent event = (BusEvent) events.get(0);
+            BusEvent event = (BusEvent)events.get(0);
             LOG.log(Level.FINE, "Event "
                                 + event.getID()
                                 + " is removed because the event cache is full."
@@ -92,7 +92,7 @@ public class BusEventCacheImpl implements BusEventCache {
         List<BusEvent> result = new ArrayList<BusEvent>();
 
         for (int i = 0; i < events.size(); i++) {
-            BusEvent event = (BusEvent) events.get(i);
+            BusEvent event = (BusEvent)events.get(i);
 
             if (eventID.equals(event.getID())) {
                 result.add(event);
@@ -105,6 +105,6 @@ public class BusEventCacheImpl implements BusEventCache {
 
     public void setCacheSize(int size) {
         maxEventsCache = size;
-        ((ArrayList) events).ensureCapacity(maxEventsCache);
+        ((ArrayList)events).ensureCapacity(maxEventsCache);
     }
 }

@@ -81,7 +81,7 @@ public class WSDLToXML extends AbstractCeltixToolContainer {
     }
 
     private void validate(ProcessorEnvironment env) throws ToolException {
-        String outdir = (String) env.get(ToolConstants.CFG_OUTPUTDIR);
+        String outdir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
         if (outdir != null) {
             File dir = new File(outdir);
             if (!dir.exists()) {

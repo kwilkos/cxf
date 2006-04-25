@@ -283,7 +283,7 @@ public class OperationProcessor  extends AbstractProcessor {
             while (iterator.hasNext()) {
                 Object obj = iterator.next();
                 if (obj instanceof JAXWSBinding) {
-                    binding = (JAXWSBinding) obj;
+                    binding = (JAXWSBinding)obj;
                 }
             }
         } else {

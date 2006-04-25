@@ -62,11 +62,11 @@ public class MessageContextWrapper implements MessageContext {
         context.putAll(arg0);
         
         if (arg0 instanceof MessageContext) {
-            Iterator<String> iter = ((MessageContext) arg0).keySet().iterator();
+            Iterator<String> iter = ((MessageContext)arg0).keySet().iterator();
             
             while (iter.hasNext()) {
                 String obj = iter.next();
-                context.setScope(obj, ((MessageContext) arg0).getScope(obj));
+                context.setScope(obj, ((MessageContext)arg0).getScope(obj));
             }
         }
     }

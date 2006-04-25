@@ -61,10 +61,10 @@ public class SoapMessageContextImplTest extends TestCase {
         assertTrue(TestHeader2Response.class.isAssignableFrom(obj3[0].getClass()));
         assertTrue(TestHeader2Response.class.isAssignableFrom(obj3[1].getClass()));
         
-        TestHeader2Response val = (TestHeader2Response) obj3[0];
+        TestHeader2Response val = (TestHeader2Response)obj3[0];
         assertEquals("Header1", val.getResponseType());
         
-        val = (TestHeader2Response) obj3[1];
+        val = (TestHeader2Response)obj3[1];
         assertEquals("Header2", val.getResponseType());
         
     }

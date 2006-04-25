@@ -28,7 +28,7 @@ public class JMSAddressSerializer implements ExtensionSerializer,
                          Definition def,
                          ExtensionRegistry extReg) throws WSDLException {
 
-        JMSAddress jmsAddress = (JMSAddress) extension;
+        JMSAddress jmsAddress = (JMSAddress)extension;
         StringBuffer sb = new StringBuffer(300);        
         sb.append(" <" + xmlUtils.writeQName(def, elementType) + " ");
         sb.append(jmsAddress.getAttrXMLString());
@@ -43,7 +43,7 @@ public class JMSAddressSerializer implements ExtensionSerializer,
                                            Definition def,
                                            ExtensionRegistry extReg) throws WSDLException {
 
-        JMSAddress jmsAddress = (JMSAddress) extReg.createExtension(parentType, elementType);
+        JMSAddress jmsAddress = (JMSAddress)extReg.createExtension(parentType, elementType);
         jmsAddress.setElementType(elementType);
         jmsAddress.setElement(el);
         jmsAddress.setDocumentBaseURI(def.getDocumentBaseURI());
@@ -53,7 +53,7 @@ public class JMSAddressSerializer implements ExtensionSerializer,
         
         if (jmsAddress.getAddress() == null || jmsAddress.getAddress().trim().length() == 0) {
             if (def.getNamespaces() != null) {
-                jmsAddress.setAddress((String) def.getNamespaces().get("jms"));
+                jmsAddress.setAddress((String)def.getNamespaces().get("jms"));
             } else {
                 jmsAddress.setAddress(ToolConstants.NS_JMS_ADDRESS);
             }

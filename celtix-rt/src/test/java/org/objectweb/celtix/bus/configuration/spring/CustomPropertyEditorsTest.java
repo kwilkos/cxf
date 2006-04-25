@@ -135,7 +135,7 @@ public class CustomPropertyEditorsTest extends TestCase {
             bf.getBean("top4");
             fail("Expected BeanCreationException not thrown.");           
         } catch (BeanCreationException ex) {
-            ConfigurationException cause = (ConfigurationException) ex.getCause();
+            ConfigurationException cause = (ConfigurationException)ex.getCause();
             assertEquals("JAXB_PROPERTY_EDITOR_EXC", cause.getCode());
         } 
     }

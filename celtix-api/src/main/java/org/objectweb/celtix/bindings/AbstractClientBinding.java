@@ -231,7 +231,8 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
     }
 
     public synchronized ResponseCallback createResponseCallback() {
-        return responseCorrelator = new ResponseCorrelator(this);
+        responseCorrelator = new ResponseCorrelator(this);
+        return responseCorrelator;
     }
         
     // --- ClientBinding interface ---

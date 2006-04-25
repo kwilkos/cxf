@@ -200,7 +200,7 @@ public final class JettySslClientConfigurer {
             try {
                 if (caCert != null) {
                     ByteArrayInputStream cabin = new ByteArrayInputStream(caCert);
-                    X509Certificate cert = (X509Certificate) cf.generateCertificate(cabin);
+                    X509Certificate cert = (X509Certificate)cf.generateCertificate(cabin);
                     trustedCertStore.setCertificateEntry(cert.getIssuerDN().toString(), cert);
                     cabin.close();
                 }

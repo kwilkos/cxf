@@ -28,7 +28,7 @@ public class XMLFaultWriter<T> implements DataWriter<T> {
     public void write(Object obj, QName elName, T output) {
         Object faultInfo = getFaultInfo((Throwable)obj);
         if (faultInfo != null) {
-            XMLFault fault = (XMLFault) output;
+            XMLFault fault = (XMLFault)output;
             Node detail = fault.addFaultDetail();
             JAXBEncoderDecoder.marshall(callback.getJAXBContext(),
                 callback.getSchema(), faultInfo, elName, detail);

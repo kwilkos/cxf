@@ -153,7 +153,7 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
      
     public void processEvent(BusEvent event) throws BusException {
         if (meFilter.isEventEnabled(event)) {
-            Instrumentation instrumentation = (Instrumentation) event.getSource();
+            Instrumentation instrumentation = (Instrumentation)event.getSource();
                 
             if (meFilter.isCreateEvent(event)) {
                     

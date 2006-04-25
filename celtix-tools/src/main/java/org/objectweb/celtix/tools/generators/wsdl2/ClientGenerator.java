@@ -40,16 +40,16 @@ public class ClientGenerator extends AbstractGenerator {
         JavaPort jp = null;
 
         for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
-            String interfaceName = (String) iter.next();
+            String interfaceName = (String)iter.next();
             JavaInterface intf = interfaces.get(interfaceName);
 
             Iterator it = javaModel.getServiceClasses().values().iterator();
             while (it.hasNext()) {
                 String serviceName = "";
-                js = (JavaServiceClass) it.next();
+                js = (JavaServiceClass)it.next();
                 Iterator i = js.getPorts().iterator();
                 while (i.hasNext()) {
-                    jp = (JavaPort) i.next();
+                    jp = (JavaPort)i.next();
                     if (jp.getPortType() == interfaceName) {
                         serviceName = js.getName();
                         break;

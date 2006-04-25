@@ -17,7 +17,7 @@ public class JAXWSBindingDeserializer implements ExtensionDeserializer, Serializ
                                            Element el,
                                            Definition def,
                                            ExtensionRegistry extReg) throws WSDLException {
-        JAXWSBinding jaxwsBinding = (JAXWSBinding) extReg.createExtension(parentType, elementType);
+        JAXWSBinding jaxwsBinding = (JAXWSBinding)extReg.createExtension(parentType, elementType);
 
         jaxwsBinding.setElementType(elementType);
         jaxwsBinding.setElement(el);

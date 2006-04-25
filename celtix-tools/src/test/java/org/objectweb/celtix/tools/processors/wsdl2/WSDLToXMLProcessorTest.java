@@ -85,7 +85,7 @@ public class WSDLToXMLProcessorTest extends ProcessorTestBase {
             while (it.hasNext()) {
                 Object obj = it.next();
                 if (obj instanceof XMLHttpAddress) {
-                    XMLHttpAddress xmlHttpAddress = (XMLHttpAddress) obj;
+                    XMLHttpAddress xmlHttpAddress = (XMLHttpAddress)obj;
                     if (xmlHttpAddress.getLocation() != null) {
                         found = true;
                         break;

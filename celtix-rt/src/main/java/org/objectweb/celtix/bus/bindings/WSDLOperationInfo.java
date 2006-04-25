@@ -425,13 +425,13 @@ public class WSDLOperationInfo {
     private Part getPartFromSOAPHeader(Message message, Object extensibilityElement) {
         Part part = null;
         if (extensibilityElement instanceof SOAPHeader) {
-            SOAPHeader soapHeader = (SOAPHeader) extensibilityElement;
+            SOAPHeader soapHeader = (SOAPHeader)extensibilityElement;
             QName msgName = soapHeader.getMessage();
             if (message.getQName().equals(msgName)) {
                 part = message.getPart(soapHeader.getPart());
             }
         } else if (extensibilityElement instanceof SOAPHeader) {
-            SOAPHeader soapHeader = (SOAPHeader) extensibilityElement;
+            SOAPHeader soapHeader = (SOAPHeader)extensibilityElement;
             QName msgName = soapHeader.getMessage();
             if (message.getQName().equals(msgName)) {
                 part = message.getPart(soapHeader.getPart());

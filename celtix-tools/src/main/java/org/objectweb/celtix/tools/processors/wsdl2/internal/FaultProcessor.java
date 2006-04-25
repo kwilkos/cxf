@@ -66,7 +66,7 @@ public class FaultProcessor extends AbstractProcessor {
         expClass.setName(name);
         expClass.setNamespace(namespace);
         expClass.setPackageName(packageName);
-        S2JJAXBModel jaxbModel = (S2JJAXBModel) env.get(ToolConstants.RAW_JAXB_MODEL);
+        S2JJAXBModel jaxbModel = (S2JJAXBModel)env.get(ToolConstants.RAW_JAXB_MODEL);
         for (Part part : faultValues) {
 
             String fName = part.getName();
