@@ -1,34 +1,38 @@
 package org.objectweb.celtix.bus.ws.rm;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.bus.configuration.wsrm.DestinationPolicyType;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceType;
+import org.objectweb.celtix.ws.rm.persistence.RMDestinationSequence;
+import org.objectweb.celtix.ws.rm.persistence.RMStore;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.reset;
-import static org.easymock.classextension.EasyMock.verify;
-
 public class RMDestinationTest extends TestCase {
     
+    private IMocksControl control;
     private RMHandler handler;
     private EndpointReferenceType address;
 
     public void setUp() {
-        handler = createMock(RMHandler.class);
-        address = createMock(EndpointReferenceType.class);        
+        control = EasyMock.createNiceControl();
+        handler = control.createMock(RMHandler.class);
+        address = control.createMock(EndpointReferenceType.class);        
     }   
 
     public void testSequenceAccess() {
+        
+        control.replay();
         RMDestination d = new RMDestination(handler);
         Identifier sid = d.generateSequenceIdentifier();
         DestinationSequence seq = new DestinationSequence(sid, address, d);
@@ -38,58 +42,40 @@ public class RMDestinationTest extends TestCase {
         d.removeSequence(seq);
         assertNull(d.getSequence(sid));
         assertEquals(0, d.getAllSequences().size());
+        control.verify();
     }
     
     public void testGetDestinationPolicies() {
+        Configuration c = control.createMock(Configuration.class);
         DestinationPolicyType dp = null;
-        Configuration c = createMock(Configuration.class);
-        reset(handler);
-        handler.getConfiguration();
-        expectLastCall().andReturn(c);
-        c.getObject(DestinationPolicyType.class, "destinationPolicies");
-        expectLastCall().andReturn(dp);
-        replay(handler);
-        replay(c);  
+        EasyMock.expect(handler.getConfiguration()).andReturn(c);
+        EasyMock.expect(c.getObject(DestinationPolicyType.class, "destinationPolicies")).andReturn(dp);
+        control.replay(); 
         RMDestination d = new RMDestination(handler);
         assertNotNull(d.getDestinationPolicies());
-        verify(handler);
-        verify(c);
-                
-        reset(handler);
-        reset(c);
+        control.verify();
         
-        dp = createMock(DestinationPolicyType.class);
-        handler.getConfiguration();
-        expectLastCall().andReturn(c);
-        c.getObject(DestinationPolicyType.class, "destinationPolicies");         
-        expectLastCall().andReturn(dp);
-        replay(handler);
-        replay(c);  
-        d = new RMDestination(handler);
+        control.reset();        
+        dp = control.createMock(DestinationPolicyType.class);
+        EasyMock.expect(handler.getConfiguration()).andReturn(c);         
+        EasyMock.expect(c.getObject(DestinationPolicyType.class, "destinationPolicies")).andReturn(dp); 
+        control.replay();
         assertNotNull(d.getDestinationPolicies());
-        verify(handler);
-        verify(c);        
+        control.verify();
     }
 
     public void testAcknowledge() throws SequenceFault {
+        Configuration c = control.createMock(Configuration.class);       
+        EasyMock.expect(handler.getConfiguration()).andReturn(c);
+        EasyMock.expect(c.getObject(RMAssertionType.class, "rmAssertion")).andReturn(null);
+        EasyMock.expect(handler.getConfiguration()).andReturn(c);
+        EasyMock.expect(c.getObject(DestinationPolicyType.class, "destinationPolicies")).andReturn(null);
+        
+        control.replay();
         RMDestination d = new RMDestination(handler);
         Identifier sid = d.generateSequenceIdentifier();
         DestinationSequence seq = new DestinationSequence(sid, address, d);
         d.addSequence(seq);
-        
-        Configuration c = createMock(Configuration.class);
-        reset(handler);
-        handler.getConfiguration();
-        expectLastCall().andReturn(c);
-        c.getObject(RMAssertionType.class, "rmAssertion");
-        expectLastCall().andReturn(null);
-        handler.getConfiguration();
-        expectLastCall().andReturn(c);
-        c.getObject(DestinationPolicyType.class, "destinationPolicies");
-        expectLastCall().andReturn(null);
-        replay(handler);
-        replay(c);  
-
         SequenceType st = RMUtils.getWSRMFactory().createSequenceType();
         st.setIdentifier(sid);
         BigInteger m = new BigInteger("3");
@@ -104,6 +90,25 @@ public class RMDestinationTest extends TestCase {
         } catch (SequenceFault sf) {
             assertEquals("UnknownSequence", sf.getFaultInfo().getFaultCode().getLocalPart());
         }
+        control.verify();
+    }
+    
+    public void testRestore() {
+        RMStore store = control.createMock(RMStore.class);        
+        EasyMock.expect(handler.getStore()).andReturn(store);
+        Configuration c = control.createMock(Configuration.class);
+        EasyMock.expect(handler.getConfiguration()).andReturn(c);
+        Configuration pc = control.createMock(Configuration.class);
+        EasyMock.expect(c.getParent()).andReturn(pc);
+        EasyMock.expect(pc.getId()).andReturn("endpoint"); 
+        Collection<RMDestinationSequence> dss = new ArrayList<RMDestinationSequence>();
+        EasyMock.expect(store.getDestinationSequences("endpoint")).andReturn(dss);
+        
+        control.replay();
+        RMDestination d = new RMDestination(handler);
+        d.restore();
+        assertEquals(0, d.getAllSequences().size());
+        control.verify();
     }
 
 }

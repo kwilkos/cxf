@@ -13,6 +13,8 @@ import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceType;
+import org.objectweb.celtix.ws.rm.persistence.RMDestinationSequence;
+import org.objectweb.celtix.ws.rm.persistence.RMStore;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 public class RMDestination extends RMEndpoint {
@@ -24,7 +26,7 @@ public class RMDestination extends RMEndpoint {
     
     RMDestination(RMHandler h) {
         super(h);
-        map = new HashMap<String, DestinationSequence>();
+        map = new HashMap<String, DestinationSequence>();    
     }
     
     
@@ -33,7 +35,7 @@ public class RMDestination extends RMEndpoint {
     }
     
     public void addSequence(DestinationSequence seq) {  
-        assert this == seq.getDestination();
+        seq.setDestination(this);
         map.put(seq.getIdentifier().getValue(), seq);
     }
     
@@ -103,5 +105,14 @@ public class RMDestination extends RMEndpoint {
         } else {
             throw DestinationSequence.createUnknownSequenceFault(sequenceType.getIdentifier());
         }
+    }
+    
+    void restore() {
+        RMStore store = getHandler().getStore();
+        
+        Collection<RMDestinationSequence> dss = store.getDestinationSequences(getEndpointId());
+        for (RMDestinationSequence ds : dss) {
+            addSequence((DestinationSequence)ds);
+        } 
     }
 }

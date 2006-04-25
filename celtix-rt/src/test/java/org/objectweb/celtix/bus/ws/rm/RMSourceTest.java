@@ -2,10 +2,14 @@ package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
 
 
 import junit.framework.TestCase;
 
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractClientBinding;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
@@ -19,24 +23,23 @@ import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
 import org.objectweb.celtix.ws.rm.SequenceType;
+import org.objectweb.celtix.ws.rm.persistence.RMSourceSequence;
+import org.objectweb.celtix.ws.rm.persistence.RMStore;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.createNiceMock;
 import static org.easymock.classextension.EasyMock.expectLastCall;
-import static org.easymock.classextension.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.reset;
-import static org.easymock.classextension.EasyMock.verify;
 
 public class RMSourceTest extends TestCase {
     
     private RMHandler handler;
     private RMSource s;
+    private IMocksControl control;
     
     public void setUp() {
-        handler = createMock(RMHandler.class);
+        control = EasyMock.createNiceControl();
+        handler = control.createMock(RMHandler.class);
         s = createSource(handler);
     }
     
@@ -47,49 +50,38 @@ public class RMSourceTest extends TestCase {
     
     public void testGetSourcePolicies() {
         SourcePolicyType sp = null;
-        Configuration c = createMock(Configuration.class);
-        reset(handler);
+        Configuration c = control.createMock(Configuration.class);
         handler.getConfiguration();
         expectLastCall().andReturn(c);
         c.getObject(SourcePolicyType.class, "sourcePolicies");
         expectLastCall().andReturn(sp);
-        replay(handler);
-        replay(c);  
+        
+        control.replay();
         assertNotNull(s.getSourcePolicies());
-        verify(handler);
-        verify(c);
+        control.verify();
         
-        
-        reset(handler);
-        reset(c);
+        control.reset();
 
-        s = createSource(handler);
-        reset(handler);
-        sp = createMock(SourcePolicyType.class);
+        sp = control.createMock(SourcePolicyType.class);
         handler.getConfiguration();
         expectLastCall().andReturn(c);
         c.getObject(SourcePolicyType.class, "sourcePolicies");         
         expectLastCall().andReturn(sp);
-        replay(handler);
-        replay(c);  
+        control.replay();
         assertNotNull(s.getSourcePolicies());
-        verify(handler);
-        verify(c);        
+        control.verify();
     }
     
     public void testGetSequenceTerminationPolicies() {
         SourcePolicyType sp = null;
-        Configuration c = createMock(Configuration.class);
-        reset(handler);
+        Configuration c = control.createMock(Configuration.class);
         handler.getConfiguration();
         expectLastCall().andReturn(c);
         c.getObject(SourcePolicyType.class, "sourcePolicies");
-        expectLastCall().andReturn(sp);
-        replay(handler);
-        replay(c);  
+        expectLastCall().andReturn(sp); 
+        control.replay();
         assertNotNull(s.getSequenceTerminationPolicy());
-        verify(handler);
-        verify(c);
+        control.verify();
     }
     
     public void testSequenceAccess() throws IOException, SequenceFault {
@@ -125,15 +117,14 @@ public class RMSourceTest extends TestCase {
     }
     
     public void testAddUnacknowledged() {
-        reset(handler);
         ObjectMessageContext ctx = new ObjectMessageContextImpl();  
         RMPropertiesImpl rmps = new RMPropertiesImpl();
-        SequenceType seq = createNiceMock(SequenceType.class);
-        Identifier sid = createNiceMock(Identifier.class);
+        
+        SequenceType seq = control.createMock(SequenceType.class);
+        Identifier sid = control.createMock(Identifier.class);
         rmps.setSequence(seq);
         RMContextUtils.storeRMProperties(ctx, rmps, true);
-        
-        AbstractClientBinding binding = createNiceMock(AbstractClientBinding.class);
+        AbstractClientBinding binding = control.createMock(AbstractClientBinding.class);
         handler.getBinding();
         expectLastCall().andReturn(binding);
         ObjectMessageContext clone =  new ObjectMessageContextImpl();
@@ -144,17 +135,10 @@ public class RMSourceTest extends TestCase {
         sid.getValue();
         expectLastCall().andReturn("s1");
         
-        replay(handler);
-        replay(binding);
-        replay(seq);
-        replay(sid);
-        
+        control.replay(); 
         s.addUnacknowledged(ctx);
         
-        verify(handler);
-        verify(binding);
-        verify(seq);
-        verify(sid);
+        control.verify();
     }
 
     
@@ -171,8 +155,6 @@ public class RMSourceTest extends TestCase {
         assertSame(ack, seq.getAcknowledgement());
         ack.setIdentifier(sid2);
         s.setAcknowledged(ack);  
-        
-        reset(handler);
    
         ack = RMUtils.getWSRMFactory().createSequenceAcknowledgement();
         ack.setIdentifier(sid1);
@@ -183,35 +165,26 @@ public class RMSourceTest extends TestCase {
         range.setUpper(BigInteger.TEN);
         ack.getAcknowledgementRange().add(range);
         
-        RMProxy proxy = createNiceMock(RMProxy.class);    
+        RMProxy proxy = control.createMock(RMProxy.class);    
         handler.getProxy();
         expectLastCall().andReturn(proxy);
         proxy.terminateSequence(seq);
         expectLastCall();
         
-        replay(handler);
-        replay(proxy);
-        
+        control.replay();
         s.setAcknowledged(ack);
-        
-        verify(handler);
-        verify(proxy);
-        
-        reset(handler);
-        reset(proxy);
+        control.verify();
+
+        control.reset();
         
         handler.getProxy();
         expectLastCall().andReturn(proxy);
         proxy.terminateSequence(seq);
         expectLastCall().andThrow(new IOException("can't terminate sequence"));
         
-        replay(handler);
-        replay(proxy);
-        
+        control.replay();
         s.setAcknowledged(ack);
-        
-        verify(handler);
-        verify(proxy);      
+        control.verify();
         
     }
     
@@ -220,29 +193,65 @@ public class RMSourceTest extends TestCase {
     }
     
     private RMSource createSource(RMHandler h) {
-        Bus bus = createNiceMock(Bus.class);
+        Bus bus = control.createMock(Bus.class);
         h.getBus();
         expectLastCall().andReturn(bus);        
-        WorkQueueManager wqm = createNiceMock(WorkQueueManager.class);
+        WorkQueueManager wqm = control.createMock(WorkQueueManager.class);
         bus.getWorkQueueManager();
         expectLastCall().andReturn(wqm);
-        AutomaticWorkQueue workQueue = createNiceMock(AutomaticWorkQueue.class);
+        AutomaticWorkQueue workQueue = control.createMock(AutomaticWorkQueue.class);
         wqm.getAutomaticWorkQueue();
         expectLastCall().andReturn(workQueue);
-        BusLifeCycleManager lcm = createNiceMock(BusLifeCycleManager.class);
+        BusLifeCycleManager lcm = control.createMock(BusLifeCycleManager.class);
         bus.getLifeCycleManager();
         expectLastCall().andReturn(lcm);
-        Configuration c = createMock(Configuration.class);
+        /*
+        RMStore store = control.createMock(RMStore.class);
+        h.getStore();
+        expectLastCall().andReturn(store);
+        Configuration c = control.createMock(Configuration.class);
+        h.getConfiguration();
+        expectLastCall().andReturn(c);
+        Configuration pc = control.createMock(Configuration.class);
+        c.getParent();
+        expectLastCall().andReturn(pc);
+        pc.getId();
+        expectLastCall().andReturn("abc");
+        store.getSourceSequences("abc");
+        expectLastCall().andReturn(new ArrayList<RMSourceSequence>()); 
+        */
+        Configuration c = control.createMock(Configuration.class);
         h.getConfiguration();
         expectLastCall().andReturn(c);
         c.getObject(RMAssertionType.class, "rmAssertion");
         expectLastCall().andReturn(null);
    
-        replay(h);
-        replay(bus);
-        replay(wqm);
-        replay(c);
+        control.replay();
         
-        return new RMSource(h);
+        RMSource src = new RMSource(h);
+        control.verify();
+        control.reset();
+        return src;
+    }
+    
+    public void testRestore() {
+        RMStore store = control.createMock(RMStore.class);        
+        EasyMock.expect(handler.getStore()).andReturn(store);
+        Configuration c = control.createMock(Configuration.class);
+        EasyMock.expect(handler.getConfiguration()).andReturn(c);
+        Configuration pc = control.createMock(Configuration.class);
+        EasyMock.expect(c.getParent()).andReturn(pc);
+        EasyMock.expect(pc.getId()).andReturn("endpoint"); 
+        Identifier id = RMUtils.getWSRMFactory().createIdentifier();
+        id.setValue("source1");
+        SourceSequence ss = new SourceSequence(id);
+        Collection<RMSourceSequence> sss = new ArrayList<RMSourceSequence>();
+        sss.add(ss);
+        EasyMock.expect(store.getSourceSequences("endpoint")).andReturn(sss);
+        
+        control.replay();
+        s.restore();
+        assertEquals(1, s.getAllSequences().size());
+        control.verify();
     }
 }

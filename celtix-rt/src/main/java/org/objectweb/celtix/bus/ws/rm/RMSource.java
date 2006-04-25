@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import javax.xml.ws.handler.MessageContext;
 
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
@@ -20,6 +21,8 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.workqueue.WorkQueue;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
+import org.objectweb.celtix.ws.rm.persistence.RMSourceSequence;
+import org.objectweb.celtix.ws.rm.persistence.RMStore;
 
 public class RMSource extends RMEndpoint {
 
@@ -47,7 +50,11 @@ public class RMSource extends RMEndpoint {
             }
         });
         current = new HashMap<String, SourceSequence>();
-        retransmissionQueue = new RetransmissionQueue(h, getRMAssertion());        
+        
+        // restore();
+        
+        retransmissionQueue = new RetransmissionQueue(h, getRMAssertion()); 
+        retransmissionQueue.populate(getAllSequences());
         retransmissionQueue.start(workQueue);       
     }
     
@@ -64,7 +71,7 @@ public class RMSource extends RMEndpoint {
         map.remove(seq.getIdentifier().getValue());
     }
     
-    public Collection<SourceSequence> getAllSequences() {        
+    public final Collection<SourceSequence> getAllSequences() {        
         return map.values();
     }
     
@@ -184,5 +191,16 @@ public class RMSource extends RMEndpoint {
             }
         }        
         return seqs;        
+    }
+    
+    void restore() {
+        RMStore store = getHandler().getStore();
+        
+        Collection<RMSourceSequence> dss = store.getSourceSequences(getEndpointId());
+        // Don't make any of these sequences the current sequence, thus forcing
+        // termination of the recovered sequences as soon as possible
+        for (RMSourceSequence ds : dss) {
+            addSequence((SourceSequence)ds);
+        }
     }
 }

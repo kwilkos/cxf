@@ -3,10 +3,13 @@ package org.objectweb.celtix.bus.ws.rm;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.xml.ws.handler.LogicalHandler;
@@ -15,6 +18,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractBindingBase;
+import org.objectweb.celtix.bindings.BindingBase;
 import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.JAXWSConstants;
@@ -30,6 +34,7 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
+import org.objectweb.celtix.configuration.ConfigurationProvider;
 import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -59,6 +64,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     public static final String RM_CONFIGURATION_ID = "rm-handler";
 
     private static final Logger LOG = LogUtils.getL7dLogger(RMHandler.class);
+    private static Map<BindingBase, RMHandler> handlers;
 
     private RMSource source;
     private RMDestination destination;
@@ -68,8 +74,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     private RMStore store;
     private Timer timer;
     private boolean busLifeCycleListenerRegistered;
-
-    
+      
     @Resource(name = JAXWSConstants.BUS_PROPERTY) private Bus bus;
     @Resource(name = JAXWSConstants.CLIENT_BINDING_PROPERTY) private ClientBinding clientBinding;
     @Resource(name = JAXWSConstants.SERVER_BINDING_PROPERTY) private ServerBinding serverBinding;
@@ -79,6 +84,45 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     public RMHandler() {        
         proxy = new RMProxy(this);
         servant = new RMServant();
+    }
+    
+    @PostConstruct
+    protected synchronized void initialise() {
+        if (null == handlers) {
+            handlers = new HashMap<BindingBase, RMHandler>();
+        }
+        handlers.put(getBinding(), this);
+        
+        if (null == configuration) {
+            configuration = createConfiguration();
+        } 
+        
+        if (null == store) {
+            store = new RMStoreFactory().getStore(configuration);            
+        }
+        
+        if (null == getSource()) {
+            source = new RMSource(this);
+            source.restore();
+        }
+        if (null == destination) {
+            destination = new RMDestination(this);
+            destination.restore();
+        }
+        
+        if (null == timer) {
+            timer = new Timer();
+        }
+        
+        if (!busLifeCycleListenerRegistered) {
+            getBinding().getBus().getLifeCycleManager()
+                .registerLifeCycleListener(new RMBusLifeCycleListener(getSource()));
+            busLifeCycleListenerRegistered = true;
+        }
+    }
+    
+    public static RMHandler getHandler(BindingBase binding) {
+        return handlers.get(binding);
     }
 
     public void close(MessageContext context) {
@@ -179,68 +223,17 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     }
 
     protected void open(LogicalMessageContext context) {
-
-        initialise(context);
-
         // TODO begin transaction
     }
 
-    protected synchronized void initialise(MessageContext context) {
-        /*
-        if (null == clientTransport && null == serverTransport) {
-            clientTransport = BindingContextUtils.retrieveClientTransport(context);
-            if (null == clientTransport) {
-                serverTransport = BindingContextUtils.retrieveServerTransport(context);
-            }
-        }
-        
-        assert null != serverTransport || null != clientTransport;
-
-        if (null == clientBinding && null != clientTransport) {
-            clientBinding = (AbstractClientBinding)BindingContextUtils.retrieveClientBinding(context);
-        }
-
-        if (null == serverBinding && null != serverTransport) {
-            serverBinding = (AbstractServerBinding)BindingContextUtils.retrieveServerBinding(context);
-        }
-        */
-        
-        assert null != serverBinding || null != clientBinding;
-
-        if (null == configuration) {
-            configuration = createConfiguration(context);
-        } 
-        
-        if (null == store) {
-            store = new RMStoreFactory().getStore(configuration);
-        }
-        
-        if (null == getSource()) {
-            source = new RMSource(this);
-        }
-        if (null == destination) {
-            destination = new RMDestination(this);
-        }
-        
-        if (null == timer) {
-            timer = new Timer();
-        }
-        
-        if (!busLifeCycleListenerRegistered) {
-            getBinding().getBus().getLifeCycleManager()
-                .registerLifeCycleListener(new RMBusLifeCycleListener(getSource()));
-            busLifeCycleListenerRegistered = true;
-        }
-    }
-
-    protected Configuration createConfiguration(MessageContext context) {
+    protected Configuration createConfiguration() {
         
         Configuration busCfg = getBinding().getBus().getConfiguration();
         ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
         Configuration parent;
         org.objectweb.celtix.ws.addressing.EndpointReferenceType ref = getBinding().getEndpointReference();
 
-        if (ContextUtils.isRequestor(context)) {
+        if (null != clientBinding) {
             String id = EndpointReferenceUtils.getServiceName(ref).toString()
                 + "/" + EndpointReferenceUtils.getPortName(ref);
             parent = builder.getConfiguration(ServiceImpl.PORT_CONFIGURATION_URI,
@@ -253,12 +246,21 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         Configuration cfg = builder.getConfiguration(RM_CONFIGURATION_URI, RM_CONFIGURATION_ID, parent);
         if (null == cfg) {
             cfg = builder.buildConfiguration(RM_CONFIGURATION_URI, RM_CONFIGURATION_ID, parent);
+            
         }
-   
-        cfg.getProviders().add(new RMPolicyProvider(getBinding().getBus(),
-                                                    getBinding().getEndpointReference()));
-
+        boolean policyProviderRegistered = false;
+        for (ConfigurationProvider p : cfg.getProviders()) {
+            if (p instanceof RMPolicyProvider) {
+                policyProviderRegistered = true;
+                break;
+            }
+        }
+        if (!policyProviderRegistered) {
+            cfg.getProviders().add(new RMPolicyProvider(getBinding().getBus(),
+                                                        getBinding().getEndpointReference()));
+        }
         
+    
         return cfg;
 
     }
@@ -340,13 +342,12 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
                 if (seq.isLastMessage()) {
                     source.setCurrent(null);
                 }
-
+                
                 // tell the source to store a copy of the message in the
                 // retransmission
                 // queue and schedule the next retransmission
 
                 getSource().addUnacknowledged(MessageContextWrapper.unwrap(context));
-
             }
         }
         

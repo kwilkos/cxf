@@ -63,7 +63,7 @@ public class ResourceInjector implements AnnotationVisitor {
 
     private void injectResourceClassLevel(Class<?> clz, Resource res) { 
         if (res.name() == null || "".equals(res.name())) { 
-            LOG.log(Level.SEVERE, "RESOURCE_NAME_NOT_SPECIFIED", target.getClass().getName());
+            LOG.log(Level.INFO, "RESOURCE_NAME_NOT_SPECIFIED", target.getClass().getName());
             return;
         } 
 
@@ -74,7 +74,7 @@ public class ResourceInjector implements AnnotationVisitor {
             Class<?> type = getResourceType(res, setter); 
             resource = resourceManager.resolveResource(res.name(), type);
             if (resource == null) {
-                LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED");
+                LOG.log(Level.INFO, "RESOURCE_RESOLVE_FAILED");
                 return;
             } 
 
@@ -87,7 +87,7 @@ public class ResourceInjector implements AnnotationVisitor {
             Class<?> type = getResourceType(res, field); 
             resource = resourceManager.resolveResource(res.name(), type);
             if (resource == null) {
-                LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED");
+                LOG.log(Level.INFO, "RESOURCE_RESOLVE_FAILED");
                 return;
             } 
             injectField(field, resource); 
@@ -116,7 +116,7 @@ public class ResourceInjector implements AnnotationVisitor {
         if (resource != null) {
             injectField(field, resource);
         } else {
-            LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED", name);
+            LOG.log(Level.INFO, "RESOURCE_RESOLVE_FAILED", name);
         }
     }
 
@@ -133,7 +133,7 @@ public class ResourceInjector implements AnnotationVisitor {
         if (resource != null) {
             invokeSetter(method, resource);
         } else { 
-            LOG.log(Level.SEVERE, "RESOURCE_RESOLVE_FAILED", new Object[] {resourceName, clz});
+            LOG.log(Level.INFO, "RESOURCE_RESOLVE_FAILED", new Object[] {resourceName, clz});
         }
     }
 

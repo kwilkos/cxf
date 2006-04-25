@@ -14,6 +14,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -100,6 +101,7 @@ public class RMTxStore implements RMStore {
    
     private static final Logger LOG = LogUtils.getL7dLogger(RMTxStore.class);
     
+    private static Map<String, Connection> connectionMap;
     private Connection connection;
     private PreparedStatement createDestSequenceStmt;
     private PreparedStatement createSrcSequenceStmt;
@@ -120,31 +122,9 @@ public class RMTxStore implements RMStore {
     // RMStore interface 
     
     public void init(Map<String, String> params) {
-        String driverClassName = params.get(DRIVER_CLASS_NAME_PROPERTY);
-        assert null != driverClassName;
-        try {
-            Class.forName(driverClassName);
-        } catch (ClassNotFoundException ex) {
-            throw new RMStoreException(ex);
-        }
-        
-        String url = params.get(CONNECTION_URL_PROPERTY);
-        assert null != url;
-        assert null != params.get(USER_NAME_PROPERTY);
-        
-        try {
-            connection = DriverManager.getConnection(url,
-                                    params.get(USER_NAME_PROPERTY), params.get(PASSWORD_PROPERTY));
-            connection.setAutoCommit(false);
-            
-            createTables();
-            
-        } catch (SQLException ex) {
-            throw new RMStoreException(ex);
-        }      
+        connect(params);
     }
     
-
     public void createSourceSequence(RMSourceSequence seq) {
         try {
             beginTransaction();
@@ -501,6 +481,48 @@ public class RMTxStore implements RMStore {
             stmt.close();
         }
     }
-
     
+    synchronized void connect(Map<String, String> params) {
+        
+        if (null == connectionMap) {
+            connectionMap = new HashMap<String, Connection>();
+        }
+        String url = params.get(CONNECTION_URL_PROPERTY);
+        assert null != url;
+        connection = connectionMap.get(url);
+        if (null != connection) {
+            return;
+        }
+        
+        String driverClassName = params.get(DRIVER_CLASS_NAME_PROPERTY);
+        assert null != driverClassName;
+        try {
+            Class.forName(driverClassName);
+        } catch (ClassNotFoundException ex) {
+            throw new RMStoreException(ex);
+        }
+             
+        assert null != params.get(USER_NAME_PROPERTY);
+        
+        try {
+            connection = DriverManager.getConnection(url, 
+                params.get(USER_NAME_PROPERTY), params.get(PASSWORD_PROPERTY));
+            connection.setAutoCommit(false);
+            createTables();
+            
+        } catch (SQLException ex) {
+            throw new RMStoreException(ex);
+        }   
+        
+        connectionMap.put(url, connection);
+        assert connection == connectionMap.get(url);
+    }   
+    
+    /**
+     * Accessor for connection - used in tests only.
+     * @return the connection
+     */
+    Connection getConnection() {
+        return connection;
+    }
 }

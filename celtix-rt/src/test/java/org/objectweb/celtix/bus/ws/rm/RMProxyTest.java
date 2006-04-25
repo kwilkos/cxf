@@ -47,6 +47,7 @@ public class RMProxyTest extends TestCase {
     }
 
     public void testCreateSequenceOnClientNoOfferIncluded() throws Exception {
+        
         TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
         TestClientTransport ct = binding.getClientTransport();
         InputStream is = getClass().getResourceAsStream("resources/spec/CreateSequenceResponse.xml");
@@ -65,23 +66,20 @@ public class RMProxyTest extends TestCase {
         sid.setValue("s1");
         Identifier inSid = null;        
       
-        handler.getBinding();
-        EasyMock.expectLastCall().andReturn(binding);  
-        source.getSourcePolicies();
-        EasyMock.expectLastCall().andReturn(sp);
-        sp.getAcksTo();
-        EasyMock.expectLastCall().andReturn(null);
-        sp.getSequenceExpiration();
-        EasyMock.expectLastCall().andReturn(null);
-        sp.isIncludeOffer();
-        EasyMock.expectLastCall().andReturn(false);
-        handler.getClientBinding();
-        EasyMock.expectLastCall().andReturn(binding).times(2);
-
-        control.replay();
+        expect(handler.getBinding()).andReturn(binding); 
+        expect(handler.getTransport()).andReturn(ct);  
+        expect(source.getSourcePolicies()).andReturn(sp);
+        expect(sp.getAcksTo()).andReturn(null);
+        expect(sp.getSequenceExpiration()).andReturn(null);
+        expect(sp.isIncludeOffer()).andReturn(false);
+        expect(handler.getClientBinding()).andReturn(binding).times(2);
+        source.addSequence(EasyMock.isA(SourceSequence.class));
+        expectLastCall();
+        source.setCurrent((Identifier)EasyMock.isNull(), EasyMock.isA(SourceSequence.class));
+        expectLastCall();
         
+        control.replay();   
         proxy.createSequence(source, RMUtils.createReference(Names.WSA_ANONYMOUS_ADDRESS), inSid);
-        
         control.verify();
     }
     
@@ -109,33 +107,25 @@ public class RMProxyTest extends TestCase {
         Identifier offeredSid = RMUtils.getWSRMFactory().createIdentifier();
         offeredSid.setValue("s1Offer");
       
-        handler.getBinding();
-        EasyMock.expectLastCall().andReturn(binding);  
-        source.getSourcePolicies();
-        EasyMock.expectLastCall().andReturn(sp);
-        sp.getAcksTo();
-        EasyMock.expectLastCall().andReturn(null);
-        sp.getSequenceExpiration();
-        EasyMock.expectLastCall().andReturn(null);
-        sp.isIncludeOffer();
-        EasyMock.expectLastCall().andReturn(true);   
-        sp.getOfferedSequenceExpiration();
-        EasyMock.expectLastCall().andReturn(null);
-        source.generateSequenceIdentifier();
-        expectLastCall().andReturn(offeredSid);
-        handler.getClientBinding();
-        EasyMock.expectLastCall().andReturn(binding).times(2);
-        
-        source.getHandler();
-        expectLastCall().andReturn(handler);
-        handler.getDestination();
-        expectLastCall().andReturn(dest);
+        expect(handler.getBinding()).andReturn(binding);
+        expect(handler.getTransport()).andReturn(ct);
+        expect(source.getSourcePolicies()).andReturn(sp);
+        expect(sp.getAcksTo()).andReturn(null);
+        expect(sp.getSequenceExpiration()).andReturn(null);
+        expect(sp.isIncludeOffer()).andReturn(true);   
+        expect(sp.getOfferedSequenceExpiration()).andReturn(null);
+        expect(source.generateSequenceIdentifier()).andReturn(offeredSid);
+        expect(handler.getClientBinding()).andReturn(binding).times(2);
+        source.addSequence(EasyMock.isA(SourceSequence.class));
+        expectLastCall();
+        source.setCurrent((Identifier)EasyMock.isNull(), EasyMock.isA(SourceSequence.class));
+        expectLastCall();        
+        expect(source.getHandler()).andReturn(handler);
+        expect(handler.getDestination()).andReturn(dest);
         dest.addSequence(isA(DestinationSequence.class));
 
-        control.replay();
-        
+        control.replay(); 
         proxy.createSequence(source, RMUtils.createReference(Names.WSA_ANONYMOUS_ADDRESS), inSid);
-        
         control.verify();
     }
     
@@ -161,33 +151,20 @@ public class RMProxyTest extends TestCase {
         Duration osd = DatatypeFactory.newInstance().newDuration("PT24H");
         Identifier offeredSid = RMUtils.getWSRMFactory().createIdentifier();
         offeredSid.setValue("s1Offer");
-      
-        handler.getBinding();
-        EasyMock.expectLastCall().andReturn(binding);  
-        source.getSourcePolicies();
-        EasyMock.expectLastCall().andReturn(sp);
-        sp.getAcksTo();
-        EasyMock.expectLastCall().andReturn(null);
-        sp.getSequenceExpiration();
-        EasyMock.expectLastCall().andReturn(null);
-        sp.isIncludeOffer();
-        EasyMock.expectLastCall().andReturn(true);   
-        sp.getOfferedSequenceExpiration();
-        EasyMock.expectLastCall().andReturn(osd);
-        source.generateSequenceIdentifier();
-        expectLastCall().andReturn(offeredSid);
-        handler.getClientBinding();
-        EasyMock.expectLastCall().andReturn(binding).times(2);
-        
-        source.getHandler();
-        expectLastCall().andReturn(handler);
-        handler.getDestination();
-        expectLastCall().andReturn(dest);
 
-        control.replay();
-        
-        proxy.createSequence(source, RMUtils.createReference(Names.WSA_ANONYMOUS_ADDRESS), inSid);
-        
+        expect(handler.getBinding()).andReturn(binding);  
+        expect(source.getSourcePolicies()).andReturn(sp);
+        expect(sp.getAcksTo()).andReturn(null);
+        expect(sp.getSequenceExpiration()).andReturn(null);
+        expect(sp.isIncludeOffer()).andReturn(true);   
+        expect(sp.getOfferedSequenceExpiration()).andReturn(osd);
+        expect(source.generateSequenceIdentifier()).andReturn(offeredSid);
+        expect(handler.getClientBinding()).andReturn(binding).times(2);        
+        expect(source.getHandler()).andReturn(handler);
+        expect(handler.getDestination()).andReturn(dest);
+
+        control.replay();  
+        proxy.createSequence(source, RMUtils.createReference(Names.WSA_ANONYMOUS_ADDRESS), inSid);   
         control.verify();
     }
     

@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.ws.rm.persistence.file;
 
 import java.io.File;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -38,18 +39,15 @@ public class RMFileStore implements RMStore {
     }
 
     public Collection<RMDestinationSequence> getDestinationSequences(String endpointIdentifier) {
-        // TODO Auto-generated method stub
-        return null;
+        return new ArrayList<RMDestinationSequence>();
     }
 
     public Collection<RMMessage> getMessages(Identifier sid, boolean outbound) {
-        // TODO Auto-generated method stub
-        return null;
+        return new ArrayList<RMMessage>();
     }
     
     public Collection<RMSourceSequence> getSourceSequences(String endpointIdentifier) {
-        // TODO Auto-generated method stub
-        return null;
+        return new ArrayList<RMSourceSequence>();
     }
 
     public void persistIncoming(RMDestinationSequence seq, RMMessage msg) {

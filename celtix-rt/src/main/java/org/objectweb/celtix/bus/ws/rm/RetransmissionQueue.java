@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.ws.rm;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
@@ -31,6 +33,8 @@ import org.objectweb.celtix.ws.rm.AckRequestedType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.RMProperties;
 import org.objectweb.celtix.ws.rm.SequenceType;
+import org.objectweb.celtix.ws.rm.persistence.RMMessage;
+import org.objectweb.celtix.ws.rm.persistence.RMStore;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 
 public class RetransmissionQueue {
@@ -230,6 +234,22 @@ public class RetransmissionQueue {
         response.processLogical(null);
     }
 
+    /**
+     * Populates the retransmission queue with messages recovered from persistent
+     * store.
+     *
+     */
+    protected void populate(Collection<SourceSequence> seqs) {     
+        RMStore store = handler.getStore();
+        for (SourceSequence seq : seqs) {
+            Collection<RMMessage> msgs  = store.getMessages(seq.getIdentifier(), true);
+            for (RMMessage msg : msgs) {
+                ObjectMessageContext objCtx = new ObjectMessageContextImpl();
+                objCtx.putAll(msg.getContext());
+                cacheUnacknowledged(objCtx);
+            }
+        }         
+    }
 
     /**
      * Plug in replacement resend logic (facilitates unit testing).

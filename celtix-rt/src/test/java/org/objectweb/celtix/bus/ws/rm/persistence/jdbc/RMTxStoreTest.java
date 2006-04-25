@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,7 +44,7 @@ import org.objectweb.celtix.ws.rm.persistence.RMSourceSequence;
 
 public class RMTxStoreTest extends TestCase {
       
-    private static RMTxStore store;
+   
     private static final String CLIENT_ENDPOINT_ID = 
         "celtix.{http://celtix.objectweb.org/greeter_control}GreeterService/GreeterPort";
     private static final String SERVER_ENDPOINT_ID = 
@@ -51,6 +52,8 @@ public class RMTxStoreTest extends TestCase {
     private static final String NON_ANON_ACKS_TO = 
         "http://localhost:9999/decoupled_endpoint";
     private static final String SOAP_MSG_KEY = "org.objectweb.celtix.bindings.soap.message";
+    
+    private  RMTxStore store;
     
     public static Test suite() throws Exception {
         
@@ -60,24 +63,35 @@ public class RMTxStoreTest extends TestCase {
                     super(test);
             }
             
-            protected void setUp() {
-                   
+            protected void setUp() {                  
                 deleteExistingDatabase(true);
-                
-                store = new RMTxStore();
-                Map<String, String> params = new HashMap<String, String>();
-                params.put(RMTxStore.DRIVER_CLASS_NAME_PROPERTY, "org.apache.derby.jdbc.EmbeddedDriver");
-                params.put(RMTxStore.CONNECTION_URL_PROPERTY, "jdbc:derby:rmdb;create=true");
-                store.init(params); 
             }
             
             
             protected void tearDown() {
-                store = null;
+                RMTxStore st = new RMTxStore();
+                Map<String, String> params = new HashMap<String, String>();
+                params.put(RMTxStore.CONNECTION_URL_PROPERTY, "jdbc:derby:rmdb;create=true");
+                st.init(params);
+                Connection c = st.getConnection();
+                try {
+                    c.close();
+                } catch (SQLException ex) {
+                    // ignore
+                }
                 deleteExistingDatabase(false);
             }
         }
         return new RMTxStoreTestSetup(suite);  
+    }
+    
+    public void setUp() {
+        store = new RMTxStore();
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(RMTxStore.DRIVER_CLASS_NAME_PROPERTY, "org.apache.derby.jdbc.EmbeddedDriver");
+        params.put(RMTxStore.CONNECTION_URL_PROPERTY, "jdbc:derby:rmdb;create=true");
+        store.init(params);
+        
     }
   
      
@@ -246,7 +260,7 @@ public class RMTxStoreTest extends TestCase {
         store.removeMessages(sid2, messageNrs, true);
     }
     
-    public static void testUpdateDestinationSequence() throws SQLException, IOException {
+    public void testUpdateDestinationSequence() throws SQLException, IOException {
         IMocksControl control = EasyMock.createNiceControl();
         RMDestinationSequence seq = control.createMock(RMDestinationSequence.class);
         Identifier sid1 = RMUtils.getWSRMFactory().createIdentifier();
