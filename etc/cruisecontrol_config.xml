@@ -12,7 +12,7 @@
         <schedule interval="120">
             <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/tools/ant/1.6.5/bin/ant"
                  buildfile="build.xml" target="cruisecontrol.build"
-                 antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true">
+                 antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true" timeout="1800">
             </ant>
         </schedule>
         <log dir="/x1/celtix_cruisecontrol/logs/celtix">
@@ -85,12 +85,12 @@
             <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/tools/ant/1.6.5/bin/ant"
                  buildfile="build.xml" target="cruisecontrol.build.distribution"
                  antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true"
-                 time="0900">
+                 time="0900" timeout="3600">
             </ant>
             <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/tools/ant/1.6.5/bin/ant"
                  buildfile="build.xml" target="cruisecontrol.build.distribution"
                  antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true"
-                 time="2100">
+                 time="2100" timeout="3600">
             </ant>
         </schedule>
         <log dir="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
@@ -113,5 +113,52 @@
                 <failure address="celtix-build@objectweb.org" />
             </htmlemail>
         </publishers>
+    </project>    
+    <project name="celtix-cpitest">
+        <bootstrappers>
+            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/celtix"/>
+            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/sandbox/celtix-cpi"/>
+        </bootstrappers>
+        <modificationset quietperiod="60">
+            <buildstatus logdir="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
+        </modificationset>
+        <listeners>
+            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/celtix-cpitest/currentbuild.txt"/>
+        </listeners>
+        <schedule interval="120">
+            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/tools/ant/1.6.5/bin/ant"
+                 buildfile="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source/build.xml" target="cpitest"
+                 antWorkingDir="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source" 
+                 uselogger="true" timeout="1800">
+                    <property name="BINARY_KIT_DIR" value="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/target"/>
+            </ant>
+        </schedule>
+        <log dir="/x1/celtix_cruisecontrol/logs/celtix-cpitest">
+            <merge dir="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source/xsyte_result"/>
+        </log>
+        <publishers>
+            <antpublisher antscript="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/tools/ant/1.6.5/bin/ant"
+                 antworkingdir="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source"
+                 buildfile="cpi-report.xml"
+                 target="publish">
+                <property name="LOG_DIR" value="/x1/celtix_cruisecontrol/logs/celtix-cpitest"/>
+            </antpublisher>
+            <htmlemail mailhost="amereast-ems2.iona.com"
+                returnaddress="celtix-build@objectweb.org"
+                returnname="Celtix Build Machine"
+                defaultsuffix="@users.forge.objectweb.org"
+                buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/celtix-cpitest"
+                skipusers="true"
+                subjectprefix="Celtix CPI-Test Cruisecontrol Build Result: "
+                css="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
+                xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
+                logdir="/x1/celtix_cruisecontrol/logs/celtix-cpitest"
+                >
+                <always address="celtix-build@objectweb.org" />
+                <failure address="celtix-build@objectweb.org" />
+            </htmlemail>
+        </publishers>
     </project>
+
+
 </cruisecontrol>
