@@ -87,7 +87,7 @@ For UNIX:
   javac -d build/classes src/demo/server/*.java
 
 For Windows:
-  set classpath=%classpath%;%CELTIX_HOME%\lib\celtix.jar:.:.\build\classes
+  set classpath=%classpath%;%CELTIX_HOME%\lib\celtix.jar;.;.\build\classes
   javac -d build\classes src\demo\client\*.java
   javac -d build\classes src\demo\server\*.java
 
