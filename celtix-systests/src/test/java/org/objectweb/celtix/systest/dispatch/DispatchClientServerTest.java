@@ -456,9 +456,9 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         JAXBContext jc = JAXBContext.newInstance("org.objectweb.hello_world_soap_http.types");  
         Dispatch<Object> disp = service.createDispatch(portName, jc, Service.Mode.PAYLOAD);
         
-        String expected = "Hello G.D.M.F.S.O.B";   
+        String expected = "Hello Jeeves";   
         GreetMe greetMe = new GreetMe();
-        greetMe.setRequestType("G.D.M.F.S.O.B");  
+        greetMe.setRequestType("Jeeves");  
         
         Object response = disp.invoke(greetMe);
         assertNotNull(response);
