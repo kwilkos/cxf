@@ -176,6 +176,7 @@ public class WSDLElementReferenceValidator {
         return partvalid;
     }
 
+    @SuppressWarnings("unchecked")
     private boolean vlidateBinding() {
 
         NodeList nodelist = document.getElementsByTagNameNS(WSDLConstants.QNAME_BINDING.getNamespaceURI(),
