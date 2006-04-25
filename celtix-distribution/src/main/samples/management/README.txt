@@ -51,18 +51,18 @@ Using either UNIX or Windows:
   ant build
   ant server
   ant client
+  ant jmxconsole
 
 To explore the celtix managed components:
-  jconsole
-  
+  jconsole (Porvider with JDK 1.5)
+    
   The server JMX Service URL is:
     service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/server  
 
-  The client JMX Service URL is:
-    service:jmx:rmi:///jndi/rmi://localhost:1100/jmxrmi/client
 
   NOTE: Just enter the JMX service URL as above, and leave the username and password blank in this sample.
 
+  
 To remove the code generated from the WSDL file and the .class
 files, run:
 
@@ -96,12 +96,13 @@ UNIX:
   export CLASSPATH=$CLASSPATH:$CELTIX_HOME/lib/celtix.jar:./build/classes
   javac -d build/classes src/demo/hw/client/*.java
   javac -d build/classes src/demo/hw/server/*.java
+  javac src/demo/hw/jmxconsole/*.java
 
 Windows:
-  set classpath=%classpath%;%CELTIX_HOME%\lib\celtix.jar;.\build\classes
+  set classpath=%classpath%;%CELTIX_HOME%\lib\celtix.jar:.\build\classes
   javac -d build\classes src\demo\hw\client\*.java
   javac -d build\classes src\demo\hw\server\*.java
-
+  javac src\demo\hw\jmxconsole\*.java
 
 
 Running the demo using java
@@ -116,8 +117,10 @@ UNIX:
          demo.hw.server.Server &
 
     java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
-         -Dceltix.config.file=file:///$CELTIX_HOME/samples/management/client.xml
          demo.hw.client.Client ./wsdl/hello_world.wsdl
+
+    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+	 demo.hw.jmxconsole.Client
 
 The server process starts in the background.  After running the client,
 use the kill command to terminate the server process.
@@ -129,8 +132,10 @@ Windows:
          demo.hw.server.Server 
 
     java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
-        -Dceltix.config.file=file:///%CELTIX_HOME%\samples\management\client.xml
          demo.hw.client.Client .\wsdl\hello_world.wsdl
+
+    java  -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+         demo.hw.jmxconsole.Client
 
 A new command windows opens for the server process.  After running the
 client, terminate the server process by issuing Ctrl-C in its command window.
@@ -140,9 +145,6 @@ To explore the celtix managed components
   
   The Server JMX Service URL is:
   service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/server
-  
-  The Client JMX Service URL is:
-  service:jmx:rmi:///jndi/rmi://localhost:1100/jmxrmi/client
   
 
 To remove the code generated from the WSDL file and the .class

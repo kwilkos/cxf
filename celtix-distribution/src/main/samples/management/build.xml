@@ -11,6 +11,11 @@
     <target name="server" description="run demo server" depends="build">
         <celtixrun classname="demo.hw.server.Server" jvmarg1="-Dceltix.config.file=file:///${basedir}/server.xml" param1="${basedir}/wsdl/hello_world.wsdl" />
     </target>
+
+    <target name="jmxconsole" description="" depends="build">
+	<celtixrun classname="demo.hw.jmxconsole.Client" />
+    </target>
+ 
         
     <target name="generate.code">
         <echo level="info" message="Generating code using wsdl2java..."/>
