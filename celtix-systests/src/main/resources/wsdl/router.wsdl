@@ -23,11 +23,11 @@
         <ns1:source port="SOAPJMSPortSource" service="tns:SOAPJMSServiceSource"/>
         <ns1:destination port="XMLHTTPPortDestination" service="tns:XMLHTTPServiceDestination"/>
     </ns1:route>
-<!--
     <ns1:route name="route_3">
         <ns1:source port="XMLHTTPPortSource" service="tns:XMLHTTPServiceSource"/>
         <ns1:destination port="SOAPJMSPortDestination" service="tns:SOAPJMSServiceDestination"/>
     </ns1:route>
+<!--
     <ns1:route name="route_4">
         <ns1:source port="XMLJMSPortSource" service="tns:XMLJMSServiceSource"/>
         <ns1:destination port="SOAPHTTPPortDestination" service="tns:SOAPHTTPServiceDestination"/>
@@ -245,8 +245,8 @@
     </wsdl:service>
     <!--Used for XML_HTTP-to-SOAP_JMS Router Test-->
     <wsdl:service name="XMLHTTPServiceSource">
-        <wsdl:port name="XMLHTTPPortSource" binding="tns:Greeter_SOAPBinding">
-	    <http:address location="http://localhost:9001/XMLService4/XMLPort4"/>
+        <wsdl:port name="XMLHTTPPortSource" binding="tns:Greeter_XMLBinding">
+            <http:address location="http://localhost:9001/XMLService4/XMLPort4"/>
         </wsdl:port>
     </wsdl:service>
     <wsdl:service name="SOAPJMSServiceDestination">

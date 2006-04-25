@@ -16,8 +16,8 @@ public class NormalRouterTest extends ClientServerTestBase {
         suite.addTestSuite(TestSOAPHTTPToXMLHTTPRouter.class);
         suite.addTestSuite(TestSOAPJMSToXMLHTTPRouter.class);
         suite.addTestSuite(TestSOAPHTTPToXMLJMSRouter.class);
-        //XML[HTTP,JMS]-to-SOAP[HTTP,JMS] Routing not supported yet.
-        //suite.addTestSuite(TestXMLHTTPToSOAPJMSRouter.class);
+        suite.addTestSuite(TestXMLHTTPToSOAPJMSRouter.class);
+        //XML_JMS-to-SOAP_HTTP Routing not supported yet.
         //suite.addTestSuite(TestXMLJMSToSOAPHTTPRouter.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
