@@ -60,6 +60,7 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
        
     }
     
+       
     public void init(MBServerPolicyType mbpt) {
         // get the init information from configuration
         
@@ -212,6 +213,6 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
         }       
     }
 
-   
+    
 
 }

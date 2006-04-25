@@ -18,14 +18,30 @@ public final class JMXUtils {
          
     /**
      * Bus :
-           org.objectweb.celtix.instrumentation:type=Bus,name=demos.jmx_runtime
-       Service :
-           org.objectweb.celtix.instrumentation:type=Bus.Service,Bus=demos.jmx_runtime
-           name="{http://ws.celtix.objectweb.org}SOAPService"
+           org.objectweb.celtix.instrumentation:type=Bus,name=celtix
+       
+       WorkQueue :
+           org.objectweb.celtix.instrumentation:type=Bus.WorkQueue,Bus=celtix,name=WorkQueue
         
-       Port :
-           org.objectweb.celtix.instrumentation:type=Bus.Service.Port,Bus=demos.jmx_runtime,
-           name=SoapPort,Bus.Service="{http://ws.celtix.objectweb.org}SOAPService",
+       WSDLManager :
+           org.objectweb.celtix.instrumentation:type=Bus.WSDLManager,Bus=celtix,name=WSDLManager       
+           
+         
+       Endpoint :
+           org.objectweb.celtix.instrumentation:type=Bus.Endpoint,Bus=celtix,
+           Bus.Service={http://objectweb.org/hello_world}SOAPService",Bus.Port=SoapPort, 
+           name=Endpoint
+        
+       HTTPServerTransport:
+           org.objectweb.celtix.instrumentation:type=Bus.Service.Port.HTTPServerTransport,
+           Bus=celtix,Bus.Service={http://objectweb.org/hello_world}SOAPService",Bus.Port=SoapPort,
+           name=HTTPServerTransport"
+       
+       JMSServerTransport:
+           org.objectweb.celtix.instrumentation:type=Bus.Service.Port.JMSServerTransport,
+           Bus=celtix,Bus.Service={http://objectweb.org/hello_world}SOAPService",Bus.Port=SoapPort,
+           name=JMSServerTransport" 
+       ...
            
      */
     // org.objectweb.celtix:type=Componnet,name=QuotedQName,bus=busIdentifier 

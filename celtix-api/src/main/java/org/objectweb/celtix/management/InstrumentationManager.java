@@ -2,6 +2,8 @@ package org.objectweb.celtix.management;
 
 import java.util.List;
 
+import javax.management.MBeanServer;
+
 /** 
  *  InstrumentationManager interface for the instrumentations query, register 
  *  and unregister
@@ -9,14 +11,14 @@ import java.util.List;
 public interface InstrumentationManager {
     
     /**
-     * regist the instrumentation instance to the instrumentation manager      
+     * register the instrumentation instance to the instrumentation manager      
      */
-    void regist(Instrumentation instrumentation);
+    void register(Instrumentation instrumentation);
 
     /**
-     * unregist the instrumentation instance from the instrumentation manager  
+     * unregister the instrumentation instance from the instrumentation manager  
      */
-    void unregist(Object component);
+    void unregister(Object component);
 
     /**
      * get all instrumentation from the instrumentation manager
@@ -28,5 +30,13 @@ public interface InstrumentationManager {
      * provide a clean up method for instrumentation manager to stop
      */
     void shutdown();
+    
+    /**
+     * get the MBeanServer which will host the celtix runtime component MBeans
+     * NOTE: if the configuration is not set the JMXEnabled to be true, this method
+     * will return null
+     * @return the MBeanServer 
+     */
+    MBeanServer getMBeanServer();
 
 }

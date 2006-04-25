@@ -11,7 +11,7 @@ import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource
 import org.objectweb.celtix.management.Instrumentation;
 
 
-@ManagedResource(objectName = "bean:name=testBean4", description = "My Managed Bean",
+@ManagedResource(componentName = "AnnotationTest", description = "My Managed Bean",
                  persistPolicy = "OnUpdate", currencyTimeLimit = 15 , 
                  log = false ,
                  logFile = "jmx.log", persistPeriod = 200,
@@ -88,7 +88,7 @@ public class AnnotationTestInstrumentation implements Instrumentation {
     }
 
     public Object getComponent() {        
-        return null;
+        return this;
     }
 
     public String getUniqueInstrumentationName() {       

@@ -6,7 +6,7 @@ import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedAttribut
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
 import org.objectweb.celtix.management.Instrumentation;
 
-@ManagedResource(objectName = "JMSClientTransport", 
+@ManagedResource(componentName = "JMSClientTransport", 
                  description = "The Celtix bus JMS Client Transport component ", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class JMSClientTransportInstrumentation implements Instrumentation {

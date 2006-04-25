@@ -9,7 +9,7 @@ import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 
-@ManagedResource(objectName = "HTTPClientTransport", 
+@ManagedResource(componentName = "HTTPClientTransport", 
                  description = "The Celtix bus HTTP client side transport componnet ", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class HTTPClientTransportInstrumentation implements Instrumentation {  

@@ -5,7 +5,7 @@
         
     <target name="client" description="run demo client" depends="build">
         <property name="param" value=""/>
-        <celtixrun classname="demo.hw.client.Client" jvmarg1="-Dceltix.config.file=file:///${basedir}/client.xml" param1="${basedir}/wsdl/hello_world.wsdl" param2="${op}" param3="${param}"/>
+        <celtixrun classname="demo.hw.client.Client" param1="${basedir}/wsdl/hello_world.wsdl" param2="${op}" param3="${param}"/>
     </target> 
         
     <target name="server" description="run demo server" depends="build">

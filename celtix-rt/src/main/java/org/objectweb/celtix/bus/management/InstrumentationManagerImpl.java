@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.management.MBeanServer;
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusEventListener;
@@ -101,8 +103,9 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
                             componentEventFilter);
         }
         
-        if (jmxEnabled) {
-            jmxManagedComponentManager = new JMXManagedComponentManager(bus);
+        jmxManagedComponentManager = new JMXManagedComponentManager(bus);
+        
+        if (jmxEnabled) {           
         
             jmxManagedComponentManager.init(mbserver);
         
@@ -150,7 +153,7 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         }
     }
     
-    public void regist(Instrumentation it) {
+    public void register(Instrumentation it) {
         if (it == null) {
             // can't find the right instrumentation ,just return
             return;
@@ -161,7 +164,7 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         }        
     }
 
-    public void unregist(Object component) {
+    public void unregister(Object component) {
         for (Iterator<Instrumentation> i = instrumentations.iterator(); i.hasNext();) {
             Instrumentation it = i.next();
             if (it.getComponent() == component) {
@@ -182,26 +185,34 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.info("Instrumentation register " + e.getSource().getClass().getName());
             }   
-            regist(it);          
+            register(it);          
             
         } else if (e.getID().equals(ComponentRemovedEvent.COMPONENT_REMOVED_EVENT)) {           
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.info("Instrumentation unregister " + e.getSource().getClass().getName());
             }    
-            unregist(e.getSource());
+            unregister(e.getSource());
         }
     }
     
     
     private Instrumentation createInstrumentation(Object component) {
-        Instrumentation it = null; 
+        Instrumentation it = null;
+        // if the componenet implements the instrumentation interface, 
+        // just return the object itself
+        
+        if (Instrumentation.class.isAssignableFrom(component.getClass())) {
+            it = (Instrumentation)component;            
+            return it;
+        }
+        
         if (CeltixBus.class.isAssignableFrom(component.getClass())) {
             it = new CeltixBusInstrumentation(
-                          (CeltixBus)component);
+                          (CeltixBus)component);            
         }        
         if (WSDLManagerImpl.class.isAssignableFrom(component.getClass())) {
             it = new WSDLManagerInstrumentation(
-                          (WSDLManagerImpl)component);
+                          (WSDLManagerImpl)component);           
         }
         if (WorkQueueManagerImpl.class.isAssignableFrom(component.getClass())) {
             it = new WorkQueueInstrumentation(
@@ -213,19 +224,19 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         }
         if (JettyHTTPServerTransport.class.isAssignableFrom(component.getClass())) {
             it = new HTTPServerTransportInstrumentation(
-                           (JettyHTTPServerTransport)component);            
+                           (JettyHTTPServerTransport)component);           
         }
         if (JMSServerTransport.class.isAssignableFrom(component.getClass())) {
             it = new JMSServerTransportInstrumentation(
-                           (JMSServerTransport)component);
+                           (JMSServerTransport)component);          
         }        
         if (JMSClientTransport.class.isAssignableFrom(component.getClass())) {
             it = new JMSClientTransportInstrumentation(
-                           (JMSClientTransport)component);
+                           (JMSClientTransport)component);           
         }
         if (EndpointImpl.class.isAssignableFrom(component.getClass())) {
             it = new EndpointInstrumentation(
-                           (EndpointImpl)component);
+                           (EndpointImpl)component);           
         }
         
         return it;
@@ -235,6 +246,10 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     public List<Instrumentation> getAllInstrumentation() {
         // TODO need to add more qurey interface
         return instrumentations;
+    }
+
+    public MBeanServer getMBeanServer() {        
+        return jmxManagedComponentManager.getMBeanServer();
     }
       
 

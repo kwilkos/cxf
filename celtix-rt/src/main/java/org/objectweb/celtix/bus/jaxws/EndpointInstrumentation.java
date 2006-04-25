@@ -15,7 +15,7 @@ import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-@ManagedResource(objectName = "Endpoint", 
+@ManagedResource(componentName = "Endpoint", 
                  description = "The Celtix bus Endpoint", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class EndpointInstrumentation implements Instrumentation {

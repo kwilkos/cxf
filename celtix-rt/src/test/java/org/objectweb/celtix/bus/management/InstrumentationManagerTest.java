@@ -9,6 +9,7 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 
+import org.objectweb.celtix.bus.management.jmx.export.AnnotationTestInstrumentation;
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
 import org.objectweb.celtix.bus.transports.jms.JMSClientTransport;
 import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
@@ -49,12 +50,7 @@ public class InstrumentationManagerTest extends TestCase {
         assertTrue("Item 2 not a WorkQueueInstrumentation",
                    WorkQueueInstrumentation.class.isAssignableFrom(it2.getClass()));
         
-        assertEquals("Item 1's name is not correct",
-                     it1.getInstrumentationName(),
-                     "Bus." + it1.getUniqueInstrumentationName());
-        assertEquals("Item 2's name is not correct",
-                     it2.getInstrumentationName(),
-                     "Bus." + it2.getUniqueInstrumentationName());
+        // not check for the instrumentation unique name
         // sleep for the MBServer connector thread startup 
         try {
             Thread.sleep(100);
@@ -98,6 +94,44 @@ public class InstrumentationManagerTest extends TestCase {
         bus.shutdown(true);
         assertEquals("Instrumented stuff not removed from list", 0, list.size());
     }
+    
+    public void testCustemerInstrumentationByEvent() throws BusException {
+        AnnotationTestInstrumentation ati = new AnnotationTestInstrumentation();
+        bus.sendEvent(new ComponentCreatedEvent(ati));
+        
+        List<Instrumentation> list = im.getAllInstrumentation();
+        assertEquals("Not exactly the number of instrumented item", 3, list.size());
+        
+        // get the ati for more assert
+        Instrumentation instr = list.get(2);
+        assertEquals("Not exactly the name of AnnotationTestInstrumentation",
+                     "AnnotationTestInstrumentation",
+                     instr.getInstrumentationName());
+        bus.sendEvent(new ComponentRemovedEvent(ati));
+        assertEquals("AnnotationTestInstrumented stuff not removed from list", 2, list.size());
+        bus.shutdown(true);
+        assertEquals("Instrumented stuff not removed from list", 0, list.size());
+        
+    }
+    
+    public void testCustemerInstrumentationByInstrumentationManager() throws BusException {
+        AnnotationTestInstrumentation ati = new AnnotationTestInstrumentation();
+        im.register(ati);
+        
+        List<Instrumentation> list = im.getAllInstrumentation();
+        assertEquals("Not exactly the number of instrumented item", 3, list.size());
+        
+        // get the ati for more assert
+        Instrumentation instr = list.get(2);
+        assertEquals("Not exactly the name of AnnotationTestInstrumentation",
+                     "AnnotationTestInstrumentation",
+                     instr.getInstrumentationName());
+        im.unregister(ati);
+        assertEquals("AnnotationTestInstrumented stuff not removed from list", 2, list.size());
+        bus.shutdown(true);
+        assertEquals("Instrumented stuff not removed from list", 0, list.size());
+    }
+    
       
 
 }

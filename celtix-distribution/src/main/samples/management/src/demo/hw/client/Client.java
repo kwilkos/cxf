@@ -51,9 +51,6 @@ public final class Client {
             System.out.println(ex.toString());
         }
  
-        System.out.println("press any key to exit");
-        System.in.read();
- 
         System.exit(0); 
     }
 

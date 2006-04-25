@@ -209,8 +209,8 @@ public class ModelMBeanInfoSupporter {
     public Descriptor buildMBeanDescriptor(ManagedResource mr) {
         Descriptor desc = new DescriptorSupport();
         
-        if (mr.objectName() != null) {
-            desc.setField("name", mr.objectName());
+        if (mr.componentName() != null) {
+            desc.setField("name", mr.componentName());
         }
         
         desc.setField("descriptorType", "mbean");

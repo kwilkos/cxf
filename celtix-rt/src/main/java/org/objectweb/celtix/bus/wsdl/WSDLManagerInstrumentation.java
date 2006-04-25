@@ -18,7 +18,7 @@ import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedOperatio
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
 import org.objectweb.celtix.management.Instrumentation;
 
-@ManagedResource(objectName = "WSDLManager", 
+@ManagedResource(componentName = "WSDLManager", 
                  description = "The Celtix bus wsdl model component ", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class WSDLManagerInstrumentation implements Instrumentation {
@@ -30,7 +30,7 @@ public class WSDLManagerInstrumentation implements Instrumentation {
     
     public WSDLManagerInstrumentation(WSDLManagerImpl wsdl) {
         wsdlManager = wsdl;
-        objectName = "WSDLManager";
+        objectName = ",name=WSDLManager";
         definitionsMap = wsdlManager.definitionsMap;         
     }
        

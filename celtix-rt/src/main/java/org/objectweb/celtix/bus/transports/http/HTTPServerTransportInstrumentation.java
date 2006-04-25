@@ -7,7 +7,7 @@ import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 
-@ManagedResource(objectName = "HTTPServerTransport", 
+@ManagedResource(componentName = "HTTPServerTransport", 
                  description = "The Celtix bus HTTP Server Transport component ", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class HTTPServerTransportInstrumentation
@@ -27,11 +27,11 @@ public class HTTPServerTransportInstrumentation
         // servicename, portname, transport type
         serviceName = findServiceName(httpServerTransport.reference);
         portName = findPortName(httpServerTransport.reference);
-        /* Transprot:
-            type=Bus.Service.Port.HTTPServerTransport,Bus.Service.Port=SoapPort,
-            Bus.Service="{http://ws.celtix.objectweb.org}SOAPService",
-            Bus=demos.jmx_runtime*/
-        objectName = getPortObjectName() + ",name=HTTP";
+        /*HTTPServerTransport:
+            org.objectweb.celtix.instrumentation:type=Bus.Service.Port.HTTPServerTransport,
+            Bus=celtix,Bus.Service={http://objectweb.org/hello_world}SOAPService",Bus.Port=SoapPort,
+            name=HTTPServerTransport"*/
+        objectName = getPortObjectName() + ",name=HTTPServerTransport";
         counters = hsTransport.counters;        
     }
     

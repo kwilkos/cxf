@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ManagedResource {
 
-    String objectName() default "";
+    String componentName() default "";
 
     String description() default "";
 

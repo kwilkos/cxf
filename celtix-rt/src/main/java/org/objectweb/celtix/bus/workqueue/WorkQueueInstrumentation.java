@@ -7,7 +7,7 @@ import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.workqueue.WorkQueueManager.ThreadingModel;
 
-@ManagedResource(objectName = "WorkQueue", 
+@ManagedResource(componentName = "WorkQueue", 
                  description = "The Celtix bus internal thread pool for manangement ", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate", persistPeriod = 200)
                  
@@ -20,7 +20,7 @@ public class WorkQueueInstrumentation implements Instrumentation {
     
     public WorkQueueInstrumentation(WorkQueueManagerImpl wq) {
         wqManager = wq;        
-        objectName = "WorkQueue";
+        objectName = ",name=WorkQueue";
         if (wqManager.autoQueue != null 
             && AutomaticWorkQueueImpl.class.isAssignableFrom(wqManager.autoQueue.getClass())) {
             aWorkQueue = (AutomaticWorkQueueImpl) wqManager.autoQueue;

@@ -12,7 +12,7 @@ import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 import org.objectweb.celtix.management.Instrumentation;
 
 
-@ManagedResource(objectName = "CeltixBus", 
+@ManagedResource(componentName = "CeltixBus", 
                  description = "The Celtix bus managed component ", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class CeltixBusInstrumentation implements Instrumentation {
@@ -73,11 +73,11 @@ public class CeltixBusInstrumentation implements Instrumentation {
     
     @ManagedAttribute(description = "The celtix bus Serivce monitors counters",
                       persistPolicy = "OnUpdate")
-    public Boolean isServiceMonitors() {
+    public Boolean isServicesMonitoring() {
         return bus.getConfiguration().getBoolean("servicesMonitoring");
     }
     
-    public void setServiceMonitors(Boolean value) {
+    public void setServicesMonitoring(Boolean value) {
         if (value != bus.getConfiguration().getBoolean("servicesMonitoring")) {
             bus.getConfiguration().setObject("servicesMonitoring", value);
         }

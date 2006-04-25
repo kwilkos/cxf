@@ -7,7 +7,7 @@ import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 
-@ManagedResource(objectName = "JMSServerTransport", 
+@ManagedResource(componentName = "JMSServerTransport", 
                  description = "The Celtix bus JMS Server Transport component ", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate")
 public class JMSServerTransportInstrumentation 
@@ -25,7 +25,7 @@ public class JMSServerTransportInstrumentation
         jmsServerTransport = jsTransport;
         serviceName = findServiceName(jmsServerTransport.targetEndpoint);
         portName = findPortName(jmsServerTransport.targetEndpoint);        
-        objectName = getPortObjectName() + ",name=JMS";
+        objectName = getPortObjectName() + ",name=JMSServerTransport";
         counters = jsTransport.counters;
     }
     
