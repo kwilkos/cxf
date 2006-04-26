@@ -12,23 +12,23 @@
 
 
     <!-- Setup for building in a source build -->
-    <condition property="srcbuild_paths.file" value="./srcbuild_paths.xml"> 
+    <condition property="srcbuild_paths.file" value="./srcbuild_paths.xml">
         <available file="../../lib/celtix.jar"/>
-    </condition> 
-    <!-- default setting --> 
-    <property name="srcbuild_paths.file" value="../../../target/srcbuild_paths.xml"/> 
+    </condition>
+    <!-- default setting -->
+    <property name="srcbuild_paths.file" value="../../../target/srcbuild_paths.xml"/>
 
     <import file="${srcbuild_paths.file}" optional="true"/>
-    <property name="srcbuild.classpath" value=""/>    
+    <property name="srcbuild.classpath" value=""/>
 
     <uptodate property="codegen.notrequired" value="true">
         <srcfiles dir="${wsdl.dir}" includes="*.wsdl"/>
         <srcfiles dir="${wsdl.dir}" includes="*.xsd"/>
         <mapper type="merge" to="${codegen.timestamp.file}"/>
     </uptodate>
-        
+
     <!-- find the tools jar, which on darwin, tools.jar does not exist -->
-    <available property="tools.jar" value="$${env.JAVA_HOME}/lib/tools.jar"
+    <available property="tools.jar" value="${env.JAVA_HOME}/lib/tools.jar"
        file="${env.JAVA_HOME}/lib/tools.jar"/>
     <path id="jdk.tools.classpath">
         <pathelement location="${tools.jar}"/>
@@ -120,7 +120,7 @@
             <sysproperty key="log4j.configuration" value="file:///${celtix.etc.dir}/log4j.properties"/>
         </java>
     </target>
-        
+
     <target name="build"  depends="compile" description="build demo client and server"/>
 
     <macrodef name="celtixrun">
@@ -141,6 +141,7 @@
                 <classpath>
                     <path refid="celtix.classpath"/>
                     <pathelement path="${thirdparty.classpath}"/>
+                    <path refid="jdk.tools.classpath"/>
                 </classpath>
                 <arg value="@{param1}"/>
                 <arg value="@{param2}"/>
@@ -160,14 +161,14 @@
             </java>
         </sequential>
     </macrodef>
-        
+
     <macrodef name="wsdl2java">
         <attribute name="srcdestdir" default="${build.src.dir}"/>
         <attribute name="destdir" default="${build.classes.dir}"/>
         <attribute name="file"/>
         <attribute name="bindingfile" default=""/>
         <attribute name="dir" default="${wsdl.dir}"/>
-        <attribute name="package" default="NOT_SPECIFIED"/>           
+        <attribute name="package" default="NOT_SPECIFIED"/>
         <sequential>
             <mkdir dir="@{destdir}"/>
             <mkdir dir="@{srcdestdir}"/>
@@ -195,10 +196,10 @@
                 <arg value="-d"/>
                 <arg value="@{srcdestdir}"/>
                 <arg value="@{dir}/@{file}"/>
-            </java>  
+            </java>
         </sequential>
-    </macrodef>    
-        
+    </macrodef>
+
     <macrodef name="celtixwar">
         <attribute name="filename"/>
         <attribute name="wsdl"/>
@@ -220,5 +221,5 @@
             </war>
         </sequential>
     </macrodef>
-    
+
 </project>
