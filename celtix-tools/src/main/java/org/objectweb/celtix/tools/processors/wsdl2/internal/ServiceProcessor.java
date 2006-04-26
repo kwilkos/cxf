@@ -48,13 +48,13 @@ import org.objectweb.celtix.tools.utils.ProcessorUtil;
 public class ServiceProcessor extends AbstractProcessor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(CommandLineParser.class);
-    
+
     private String soapOPAction = "SOAPACTION";
 
     private String soapOPStyle = "STYLE";
 
     private Definition definition;
-    
+
     private BindingType bindingType;
 
     private final int inHEADER = 1;
@@ -64,13 +64,12 @@ public class ServiceProcessor extends AbstractProcessor {
     private final int resultHeader = 3;
 
     private final int noHEADER = 0;
-    
+
     private Object bindingObj;
-    
+
     public ServiceProcessor(ProcessorEnvironment penv) {
         super(penv);
     }
-    
 
     public ServiceProcessor(ProcessorEnvironment penv, Definition def) {
         super(penv);
@@ -79,7 +78,16 @@ public class ServiceProcessor extends AbstractProcessor {
 
     public void process(JavaModel model) throws ToolException {
         Collection services = definition.getServices().values();
-        if (services == null) {
+        if (services.size() == 0) {
+            Iterator bindingIte = definition.getBindings().values().iterator();
+            while (bindingIte.hasNext()) {
+                Binding binding = (Binding)bindingIte.next();
+                Iterator bopIte = binding.getBindingOperations().iterator();
+                while (bopIte.hasNext()) {
+                    BindingOperation bop = (BindingOperation)bopIte.next();
+                    processOperation(model, bop, binding);
+                }
+            }
             return;
         }
         Iterator ite = services.iterator();
@@ -125,38 +133,39 @@ public class ServiceProcessor extends AbstractProcessor {
         // TODO: extend other bindings
         jport.setBindingAdress(getPortAddress(port));
         jport.setBindingName(binding.getQName().getLocalPart());
-       
+
         String namespace = binding.getPortType().getQName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, env.mapPackageName(namespace));
-        jport.setPackageName(packageName); 
-        
+        jport.setPackageName(packageName);
+
         String portType = binding.getPortType().getQName().getLocalPart();
         jport.setPortType(portType);
         jport.setInterfaceClass(ProcessorUtil.mangleNameToClassName(portType));
-        
+
         bindingType = getBindingType(binding);
-        
+
         if (bindingType == null) {
             org.objectweb.celtix.common.i18n.Message msg = 
-                new org.objectweb.celtix.common.i18n.Message("BINDING_SPECIFY_ONE_PROTOCOL", 
-                                                             LOG, binding.getQName());
+                new org.objectweb.celtix.common.i18n.Message("BINDING_SPECIFY_ONE_PROTOCOL",
+                                                              LOG,
+                                                              binding.getQName());
             throw new ToolException(msg);
         }
-        
+
         if (isSoapBinding()) {
             SOAPBinding spbd = (SOAPBinding)this.bindingObj;
             jport.setStyle(getSoapStyle(spbd.getStyle()));
             jport.setTransURI(spbd.getTransportURI());
-        } 
-        
-        /*if (bindingType.name().equals("HTTPBinding")) {
-            // TBD
-        }*/
-        
+        }
+
+        /*
+         * if (bindingType.name().equals("HTTPBinding")) { // TBD }
+         */
+
         Iterator ite = binding.getBindingOperations().iterator();
         while (ite.hasNext()) {
             BindingOperation bop = (BindingOperation)ite.next();
-            processOperation(model, port, bop, binding);
+            processOperation(model, bop, binding);
         }
         return jport;
     }
@@ -172,7 +181,7 @@ public class ServiceProcessor extends AbstractProcessor {
     }
 
     private javax.jws.soap.SOAPBinding.Use getSoapUse(String soapUse) {
-        
+
         if ("".equals(soapUse)) {
             return null;
         } else if ("ENCODED".equalsIgnoreCase(soapUse)) {
@@ -180,13 +189,15 @@ public class ServiceProcessor extends AbstractProcessor {
         } else {
             return javax.jws.soap.SOAPBinding.Use.LITERAL;
         }
-        
+
     }
 
-    private void processOperation(JavaModel model, Port port, BindingOperation bop, 
-                                  Binding binding) throws ToolException {
-        String portType = ProcessorUtil.mangleNameToClassName(port.getBinding().getPortType().getQName()
-            .getLocalPart());
+    
+
+    private void processOperation(JavaModel model, BindingOperation bop, Binding binding)
+        throws ToolException {
+        String portType = ProcessorUtil
+            .mangleNameToClassName(binding.getPortType().getQName().getLocalPart());
         JavaInterface jf = model.getInterfaces().get(portType);
         // TODO: extend other bindings
         doCustomizeBinding(model, jf, binding);
@@ -201,7 +212,7 @@ public class ServiceProcessor extends AbstractProcessor {
             // REVISIT: fix for xml binding
             jf.setSOAPStyle(javax.jws.soap.SOAPBinding.Style.DOCUMENT);
         }
-        
+
         Object[] methods = jf.getMethods().toArray();
         for (int i = 0; i < methods.length; i++) {
             JavaMethod jm = (JavaMethod)methods[i];
@@ -214,7 +225,8 @@ public class ServiceProcessor extends AbstractProcessor {
                     jm.setSoapAction(soapAction);
                     if (getSoapStyle(soapStyle) == null && this.bindingObj == null) {
                         org.objectweb.celtix.common.i18n.Message msg = 
-                            new org.objectweb.celtix.common.i18n.Message("BINDING_STYLE_NOT_DEFINED", LOG);
+                            new org.objectweb.celtix.common.i18n.Message("BINDING_STYLE_NOT_DEFINED",
+                                                                          LOG);
                         throw new ToolException(msg);
                     }
                     if (getSoapStyle(soapStyle) == null) {
@@ -232,6 +244,7 @@ public class ServiceProcessor extends AbstractProcessor {
 
                 if (jm.isWrapperStyle() && headerType > this.noHEADER) {
                     // changed wrapper style
+                   
                     jm.setWrapperStyle(false);
                     processor.processMethod(jm, bop.getOperation());
                     jm.getAnnotationMap().remove("ResponseWrapper");
@@ -239,6 +252,7 @@ public class ServiceProcessor extends AbstractProcessor {
 
                 } else {
                     processor.processMethod(jm, bop.getOperation());
+                  
                 }
 
                 if (headerType == this.resultHeader) {
@@ -256,9 +270,9 @@ public class ServiceProcessor extends AbstractProcessor {
         parameter.setHeader(true);
         parameter.getAnnotation().addArgument("header", "true", "");
     }
-       
+
     private void processParameter(JavaMethod jm, BindingOperation operation) throws ToolException {
-        
+
         // process input
         Iterator inbindings = operation.getBindingInput().getExtensibilityElements().iterator();
         String use = null;
@@ -276,14 +290,16 @@ public class ServiceProcessor extends AbstractProcessor {
                         setParameterAsHeader(parameter);
                         found = true;
                     }
-                }                
-                if (Boolean.valueOf((String)env.get(ToolConstants.CFG_EXTRA_SOAPHEADER)).booleanValue() 
-                                                    && !found) {
-                    //Header can't be found in java method parameters, in different message
-                    //other than messages used in porttype operation
+                }
+                if (Boolean.valueOf((String)env.get(ToolConstants.CFG_EXTRA_SOAPHEADER)).booleanValue()
+                    && !found) {
+                    // Header can't be found in java method parameters, in
+                    // different message
+                    // other than messages used in porttype operation
                     ParameterProcessor processor = new ParameterProcessor(this.env);
-                    Part exPart = this.definition.getMessage(
-                                       soapHeader.getMessage()).getPart(soapHeader.getPart());
+                    Part exPart = this.definition.getMessage(soapHeader.getMessage()).getPart(
+                                                                                              soapHeader
+                                                                                                  .getPart());
                     JavaType.Style jpStyle = JavaType.Style.IN;
                     if (isInOutParam(soapHeader.getPart(), operation.getBindingOutput())) {
                         jpStyle = JavaType.Style.INOUT;
@@ -295,12 +311,13 @@ public class ServiceProcessor extends AbstractProcessor {
                     setParameterAsHeader(jp);
                 }
             }
-            if (obj instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {                
-                //Commented for future use
-                LOG.warning("The MIME content in wsdl file will be ignored, " 
+            if (obj instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {
+                // Commented for future use
+                LOG.warning("The MIME content in wsdl file will be ignored, "
                             + "current version does not support MIME content");
-//                MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
-//                mimeProcessor.process(jm, (MIMEMultipartRelated)obj, JavaType.Style.IN);                 
+                // MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
+                // mimeProcessor.process(jm, (MIMEMultipartRelated)obj,
+                // JavaType.Style.IN);
             }
         }
 
@@ -321,25 +338,28 @@ public class ServiceProcessor extends AbstractProcessor {
                     if (jm.getReturn().getName().equals(soapHeader.getPart())) {
                         found = true;
                     }
-                    if (Boolean.valueOf((String)env.get(ToolConstants.CFG_EXTRA_SOAPHEADER)).booleanValue() 
-                                                        && !found) { 
-                        //Header can't be found in java method parameters, in different message  
-                        //other than messages used in porttype operation
+                    if (Boolean.valueOf((String)env.get(ToolConstants.CFG_EXTRA_SOAPHEADER)).booleanValue()
+                        && !found) {
+                        // Header can't be found in java method parameters, in
+                        // different message
+                        // other than messages used in porttype operation
                         ParameterProcessor processor = new ParameterProcessor(this.env);
-                        Part exPart = this.definition.getMessage(
-                                           soapHeader.getMessage()).getPart(soapHeader.getPart());
+                        Part exPart = this.definition.getMessage(soapHeader.getMessage())
+                            .getPart(soapHeader.getPart());
                         JavaParameter jp = processor.addParameterFromBinding(jm, exPart, JavaType.Style.OUT);
                         setParameterAsHeader(jp);
-                    }                    
+                    }
                 }
                 if (obj instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {
-                    //Commented for future use
-                    LOG.warning("The MIME content in wsdl file will be ignored, " 
+                    // Commented for future use
+                    LOG.warning("The MIME content in wsdl file will be ignored, "
                                 + "current version does not support MIME content");
-//                    MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
-//                    mimeProcessor.process(jm, (MIMEMultipartRelated)obj, JavaType.Style.OUT);
+                    // MIMEProcessor mimeProcessor = new
+                    // MIMEProcessor(this.env);
+                    // mimeProcessor.process(jm, (MIMEMultipartRelated)obj,
+                    // JavaType.Style.OUT);
 
-                }                
+                }
             }
         }
 
@@ -360,7 +380,7 @@ public class ServiceProcessor extends AbstractProcessor {
 
     private Map getSoapOperationProp(BindingOperation bop) {
         Map<String, Object> soapOPProp = new HashMap<String, Object>();
-   
+
         if (bop.getExtensibilityElements() != null) {
             Iterator ite = bop.getExtensibilityElements().iterator();
             while (ite.hasNext()) {
@@ -387,15 +407,15 @@ public class ServiceProcessor extends AbstractProcessor {
             if (obj instanceof JMSAddress) {
                 address = ((JMSAddress)obj).getAddress();
             }
-            
+
             if (obj instanceof HTTPAddress) {
                 address = ((HTTPAddress)obj).getLocationURI();
             }
-            
+
         }
         return address;
     }
-    
+
     private BindingType getBindingType(Binding binding) {
         Iterator it = binding.getExtensibilityElements().iterator();
         while (it.hasNext()) {
@@ -408,10 +428,9 @@ public class ServiceProcessor extends AbstractProcessor {
                 bindingObj = (HTTPBinding)obj;
                 return BindingType.HTTPBinding;
             }
-            //TBD XMLBinding
+            // TBD XMLBinding
             return BindingType.XMLBinding;
-            
-            
+
         }
         return null;
     }
@@ -441,7 +460,7 @@ public class ServiceProcessor extends AbstractProcessor {
                     if (header.getPart().length() > 0) {
                         containParts = true;
                     }
-                } 
+                }
             }
 
             if (headerMessage != null && bodyMessage != null
@@ -532,14 +551,14 @@ public class ServiceProcessor extends AbstractProcessor {
                     return;
                 }
             }
-        } 
+        }
         String portTypeName = binding.getPortType().getQName().getLocalPart();
         bindingExt = CustomizationParser.getInstance().getPortTypeExtension(portTypeName);
         if (bindingExt != null) {
-            if (!bindingExt.isSetMimeEnable() && jmodel.getJAXWSBinding().isSetMimeEnable() 
-                        && jmodel.getJAXWSBinding().isEnableMime()) {                
+            if (!bindingExt.isSetMimeEnable() && jmodel.getJAXWSBinding().isSetMimeEnable()
+                && jmodel.getJAXWSBinding().isEnableMime()) {
                 bindingExt.setSetMimeEnable(true);
-                bindingExt.setEnableMime(true);                
+                bindingExt.setEnableMime(true);
             }
         } else if (jmodel.getJAXWSBinding() != null) {
             bindingExt = new JAXWSBinding();
@@ -553,7 +572,7 @@ public class ServiceProcessor extends AbstractProcessor {
         }
         ji.setBindingExt(bindingExt);
     }
-    
+
     private void doCustomizeOperation(JavaInterface ji, JavaMethod jm, BindingOperation bo) {
         JAXWSBinding bindingExt = null;
         List extElements = bo.getExtensibilityElements();
@@ -567,16 +586,16 @@ public class ServiceProcessor extends AbstractProcessor {
                     return;
                 }
             }
-        } 
+        }
         String portTypeName = ji.getWebServiceName();
         String operationName = bo.getName();
         bindingExt = CustomizationParser.getInstance().getPortTypeOperationExtension(portTypeName,
-                                                                                     operationName);        
+                                                                                     operationName);
         if (bindingExt != null) {
-            if (!bindingExt.isSetMimeEnable() && ji.getBindingExt() != null 
-                    && ji.getBindingExt().isSetMimeEnable() && ji.getBindingExt().isEnableMime()) {
+            if (!bindingExt.isSetMimeEnable() && ji.getBindingExt() != null
+                && ji.getBindingExt().isSetMimeEnable() && ji.getBindingExt().isEnableMime()) {
                 bindingExt.setSetMimeEnable(true);
-                bindingExt.setEnableMime(true);                
+                bindingExt.setEnableMime(true);
             }
         } else if (ji.getBindingExt() != null) {
             bindingExt = new JAXWSBinding();
@@ -590,27 +609,25 @@ public class ServiceProcessor extends AbstractProcessor {
         }
         jm.setBindingExt(bindingExt);
     }
-    
+
     public enum BindingType {
-       HTTPBinding,
-       SOAPBinding,
-       XMLBinding
+        HTTPBinding, SOAPBinding, XMLBinding
     }
-  
+
     private boolean isSoapBinding() {
         return bindingType != null && "SOAPBinding".equals(bindingType.name());
-               
+
     }
-    
+
     private boolean isInOutParam(String inPartName, BindingOutput bop) {
         Iterator it = bop.getExtensibilityElements().iterator();
         while (it.hasNext()) {
-            Object obj = it.next(); 
+            Object obj = it.next();
             if (obj instanceof SOAPHeader) {
                 String outPartName = ((SOAPHeader)obj).getPart();
                 if (inPartName.equals(outPartName)) {
                     return true;
-                }                
+                }
             }
         }
         return false;

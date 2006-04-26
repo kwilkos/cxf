@@ -645,6 +645,24 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals(11, files.length);
     }
 
+    public void testWithoutService() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/helloworld-noservice.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+        Class clz = classLoader.loadClass("org.apache.tuscany.samples.helloworldaxis.HelloWorldServiceImpl");
+        Method method = clz.getMethod("getGreetings", new Class[] {java.lang.String.class});
+        WebResult webResultAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebResult.class);
+        assertEquals("http://helloworldaxis.samples.tuscany.apache.org", webResultAnno.targetNamespace());
+        assertEquals("response", webResultAnno.partName());
+        assertEquals("getGreetingsResponse", webResultAnno.name());
+        
+        WebParam webParamAnno = AnnotationUtil.getWebParam(method, "getGreetings");
+        assertEquals("http://helloworldaxis.samples.tuscany.apache.org", webParamAnno.targetNamespace());
+        assertEquals("request", webParamAnno.partName());
+        assertEquals("getGreetings", webParamAnno.name());
+        
+    }
+    
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
     }
