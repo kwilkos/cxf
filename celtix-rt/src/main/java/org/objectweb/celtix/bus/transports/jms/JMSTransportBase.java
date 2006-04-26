@@ -261,4 +261,11 @@ public class JMSTransportBase {
                         + "#"
                         + jmsAddressPolicy.getJndiDestinationName();
     }
+    
+    protected String getReplyTotAddrUriFromJMSAddrPolicy() {
+        return "jms:" 
+                        + jmsAddressPolicy.getJndiConnectionFactoryName() 
+                        + "#"
+                        + jmsAddressPolicy.getJndiReplyDestinationName();
+    }
 }

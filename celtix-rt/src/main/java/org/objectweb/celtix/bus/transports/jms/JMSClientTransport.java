@@ -101,6 +101,13 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
     }
     
     public EndpointReferenceType getDecoupledEndpoint() throws IOException {
+        
+        if (jmsAddressPolicy.getJndiReplyDestinationName() != null) {
+            EndpointReferenceType epr = new EndpointReferenceType();
+            EndpointReferenceUtils.setAddress(epr, getReplyTotAddrUriFromJMSAddrPolicy());
+            return epr;
+        }
+        
         return null;
     }
     

@@ -319,7 +319,8 @@
         <port binding="tns:HWJMSAddressingBinding" name="HWJMSAddressingPort">
             <jms:address
                jndiConnectionFactoryName="ConnectionFactory" 
-               jndiDestinationName="dynamicQueues/test.jmstransport.addressing.queue">
+               jndiDestinationName="dynamicQueues/test.jms.addr.queue"
+               jndiReplyDestinationName="dynamicQueues/test.jms.addr.reply.queue">
                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>

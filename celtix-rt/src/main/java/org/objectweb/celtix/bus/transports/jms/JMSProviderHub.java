@@ -92,7 +92,8 @@ public final class JMSProviderHub {
             new JMSSessionFactory(connection,
                                   replyDestination,
                                   addrDetails,
-                                  serverPolicy);
+                                  serverPolicy,
+                                  context);
 
         // notify transport that connection is complete
         //

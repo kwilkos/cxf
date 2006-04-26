@@ -3,7 +3,6 @@ package org.objectweb.celtix.systest.ws.addressing;
 import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
-import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
@@ -29,7 +28,6 @@ import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSI
 @WebService(serviceName = "SOAPServiceAddressing", portName = "SoapPort", 
             name = "Greeter", 
             targetNamespace = "http://objectweb.org/hello_world_soap_http")
-@HandlerChain(file = "./handlers.xml", name = "MAPHandlerChain")
 public class GreeterImpl implements Greeter {
     VerificationCache verificationCache;
 

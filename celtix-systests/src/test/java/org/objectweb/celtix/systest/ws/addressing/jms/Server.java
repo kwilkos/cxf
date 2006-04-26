@@ -1,6 +1,7 @@
 package org.objectweb.celtix.systest.ws.addressing.jms;
 
 
+import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +22,13 @@ public class Server extends TestServerBase implements VerificationCache {
         GreeterImpl implementor = new GreeterImpl();
         implementor.verificationCache = this;         
         String address = "jms:ConnectionFactory#dynamicQueues/test.jmstransport.addressing.queue";
+        URL url = getClass().getResource("client.xml"); 
+        assertNotNull("cannot find test resource", url);
+        String configFileName = url.toString(); 
+        if (configFileName != null) {
+            System.setProperty("celtix.config.file", configFileName);
+        }
+        
         Endpoint endpoint = Endpoint.publish(address, implementor);
         List<Handler> handlerChain = endpoint.getBinding().getHandlerChain();
         for (Object h : handlerChain) {

@@ -1,7 +1,6 @@
 package org.objectweb.celtix.systest.ws.addressing.jms;
 
 import javax.annotation.Resource;
-import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 
@@ -17,7 +16,6 @@ import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSI
             portName = "HWJMSAddressingPort", 
             endpointInterface =  "org.objectweb.celtix.hello_world_jms.HelloWorldPortType",
             targetNamespace = "http://celtix.objectweb.org/hello_world_jms")
-@HandlerChain(file = "./handlers.xml", name = "JMSMAPHandlerChain")
 public class GreeterImpl implements HelloWorldPortType {
     VerificationCache verificationCache;
 

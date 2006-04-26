@@ -18,6 +18,9 @@ import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
+import javax.naming.Context;
+import javax.naming.NamingException;
+
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.AbstractTwoStageCache;
 import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
@@ -86,6 +89,7 @@ public class JMSSessionFactory {
     private static final Logger LOG = LogUtils.getL7dLogger(JMSSessionFactory.class);
     private static final int PRIMARY_CACHE_MAX = 20;
 
+    private final Context initialContext;
     private final  Connection theConnection;
     private AbstractTwoStageCache<PooledSession> replyCapableSessionCache;
     private AbstractTwoStageCache<PooledSession> sendOnlySessionCache;
@@ -103,12 +107,14 @@ public class JMSSessionFactory {
     public JMSSessionFactory(Connection connection, 
                              Destination replyDestination,
                              JMSAddressPolicyType addrExt,
-                             JMSServerBehaviorPolicyType serverPolicy) {
+                             JMSServerBehaviorPolicyType serverPolicy,
+                             Context context) {
         theConnection = connection;
         theReplyDestination = replyDestination;
         addressExtensor = addrExt;
         isQueueConnection = addressExtensor.getDestinationStyle().value().equals(JMSConstants.JMS_QUEUE);
         jmsServerPolicy = serverPolicy;
+        initialContext = context;
 
         // create session caches (REVISIT sizes should be configurable)
         //
@@ -184,14 +190,23 @@ public class JMSSessionFactory {
         return theConnection;
     }
 
+    public Queue getQueueFromInitialContext(String queueName) 
+        throws NamingException {
+        return (Queue) initialContext.lookup(queueName);
+    }
 
+    public PooledSession get(boolean replyCapable) throws JMSException {
+        return get(null, replyCapable);
+    }
+    
     /**
      * Retrieve a new or cached Session.
+     * @param replyDest Destination name if coming from wsa:Header
      * @param replyCapable true iff the session is to be used to receive replies
      * (implies client side twoway invocation )
      * @return a new or cached Session
      */
-    public PooledSession get(boolean replyCapable) throws JMSException {
+    public PooledSession get(Destination replyDest, boolean replyCapable) throws JMSException {
         PooledSession ret = null;
 
         synchronized (this) {
@@ -211,8 +226,8 @@ public class JMSSessionFactory {
                         Queue destination = null;
                         String selector = null;
                         
-                        if (null != theReplyDestination) {
-                            destination = (Queue)theReplyDestination;
+                        if (null != theReplyDestination || null != replyDest) {
+                            destination = null != replyDest ? (Queue) replyDest : (Queue)theReplyDestination;
                             
                             selector = "JMSCorrelationID = '" + generateUniqueSelector(ret) + "'";
                         }

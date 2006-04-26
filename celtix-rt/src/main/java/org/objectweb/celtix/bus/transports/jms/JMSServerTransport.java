@@ -99,7 +99,12 @@ public class JMSServerTransport extends JMSTransportBase
     public OutputStreamMessageContext rebase(MessageContext context,
                                              EndpointReferenceType decoupledResponseEndpoint)
         throws IOException {
-        return null;
+        OutputStreamMessageContext octx =  new JMSOutputStreamContext(context);
+       
+        String  replyTo = decoupledResponseEndpoint.getAddress().getValue();
+        replyTo  = replyTo.substring(replyTo.indexOf('#') + 1);
+        octx.put(JMSConstants.JMS_REBASED_REPLY_TO, replyTo);
+        return octx;
     }
 
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context) throws IOException {
@@ -145,67 +150,24 @@ public class JMSServerTransport extends JMSTransportBase
             if (queueDestinationStyle) {
                 try {
 //                  send reply
-                    Queue replyTo = (null != message.getJMSReplyTo()) 
-                        ? (Queue)message.getJMSReplyTo() : (Queue)replyDestination;
+                    Queue replyTo = getReplyToDestination(context, message);
                     replySession = sessionFactory.get(false);
 
-                    Message reply;
-                    boolean textPayload = message instanceof TextMessage 
-                                    ? true : false;
-                    if (textPayload) {
-                        reply = marshal(context.getOutputStream().toString(), 
-                                                replySession.session(), 
-                                                null, 
-                                                JMSConstants.TEXT_MESSAGE_TYPE);
-                    } else {
-                        reply = marshal(((ByteArrayOutputStream)context.getOutputStream()).toByteArray(),
-                                               replySession.session(),
-                                               null, 
-                                               JMSConstants.BINARY_MESSAGE_TYPE);
-                    }
-
-                    String correlationID = message.getJMSCorrelationID();
-
-                    if (correlationID == null
-                        || "".equals(correlationID)
-                        && serverBehaviourPolicy.isUseMessageIDAsCorrelationID()) {
-                        correlationID = message.getJMSMessageID();
-                    }
-                    
-                    if (correlationID != null && !"".equals(correlationID)) {
-                        reply.setJMSCorrelationID(correlationID);
-                    }
+                    Message reply = marshalResponse(message, context, replySession);
+                    setReplyCorrelationID(message, reply);                                      
 
                     QueueSender sender = (QueueSender)replySession.producer();
 
-                    JMSMessageHeadersType headers =
-                        (JMSMessageHeadersType)context.get(JMSConstants.JMS_SERVER_HEADERS);
-           
-                    int deliveryMode = getJMSDeliveryMode(headers);
-                    int priority = getJMSPriority(headers);
-                    long ttl = getTimeToLive(headers);
-
-                    setMessageProperties(headers, reply);
-
-                    LOG.log(Level.FINE, "server sending reply: ", reply);
-
-                    long timeToLive = 0;
-                    if (message.getJMSExpiration() > 0) {
-                        TimeZone tz = new SimpleTimeZone(0, "GMT");
-                        Calendar cal = new GregorianCalendar(tz);
-                        timeToLive =  message.getJMSExpiration() - cal.getTimeInMillis();
-                    }
+                    sendResponse(context, message, reply, sender, replyTo);
                     
-                    if (timeToLive >= 0) {
-                        ttl = ttl > 0 ? ttl : timeToLive;
-                        sender.send(replyTo, reply, deliveryMode, priority, ttl);
-                    } else {
-                        LOG.log(Level.INFO, "Message time to live is already expired skipping response.");
-                    }
                 } catch (JMSException ex) {
                     LOG.log(Level.WARNING, "Failed in post dispatch ...", ex);
                     counters.getTotalError().increase();
                     throw new IOException(ex.getMessage());                    
+                } catch (NamingException nex) {
+                    LOG.log(Level.WARNING, "Failed in post dispatch ...", nex);
+                    counters.getTotalError().increase();
+                    throw new IOException(nex.getMessage());                    
                 } finally {
                     // house-keeping
                     if (replySession != null) {
@@ -225,6 +187,91 @@ public class JMSServerTransport extends JMSTransportBase
         } else { 
             // counter for oneway request
             counters.getRequestOneWay().increase();
+        }
+    }
+    
+    public Queue getReplyToDestination(OutputStreamMessageContext context, Message message) 
+        throws JMSException, NamingException {
+        Queue replyTo;
+        //      If WS-Addressing had set the replyTo header.
+        if  (context.get(JMSConstants.JMS_REBASED_REPLY_TO) != null) {
+            replyTo = sessionFactory.getQueueFromInitialContext(
+                                  (String)  context.get(JMSConstants.JMS_REBASED_REPLY_TO));
+        } else {
+            replyTo = (null != message.getJMSReplyTo()) 
+                ? (Queue)message.getJMSReplyTo() : (Queue)replyDestination;
+        }
+        
+        return replyTo;
+    }
+    
+    public Message marshalResponse(Message message, 
+                                OutputStreamMessageContext context, 
+                                PooledSession replySession) throws JMSException {
+        
+        Message reply;       
+        boolean textPayload = message instanceof TextMessage 
+            ? true : false;
+        if (textPayload) {
+            reply = marshal(context.getOutputStream().toString(), 
+                                replySession.session(), 
+                                null, 
+                                JMSConstants.TEXT_MESSAGE_TYPE);
+        } else {
+            reply = marshal(((ByteArrayOutputStream) context.getOutputStream()).toByteArray(),
+                               replySession.session(),
+                               null, 
+                              JMSConstants.BINARY_MESSAGE_TYPE);
+        }      
+         
+        return reply;
+    }
+    
+    public void setReplyCorrelationID(Message message, Message reply) 
+        throws JMSException {
+        String correlationID = message.getJMSCorrelationID();
+
+        if (correlationID == null
+            || "".equals(correlationID)
+            && serverBehaviourPolicy.isUseMessageIDAsCorrelationID()) {
+            correlationID = message.getJMSMessageID();
+        }
+        
+        if (correlationID != null && !"".equals(correlationID)) {
+            reply.setJMSCorrelationID(correlationID);
+        }
+    }
+    
+    
+    public void sendResponse(OutputStreamMessageContext context, 
+                             Message request, 
+                             Message reply, 
+                             QueueSender sender,
+                             Queue replyTo) 
+        throws JMSException {
+        JMSMessageHeadersType headers =
+            (JMSMessageHeadersType) context.get(JMSConstants.JMS_SERVER_HEADERS);
+
+        int deliveryMode = getJMSDeliveryMode(headers);
+        int priority = getJMSPriority(headers);
+        long ttl = getTimeToLive(headers);
+
+        setMessageProperties(headers, reply);
+
+        LOG.log(Level.FINE, "server sending reply: ", reply);
+
+        long timeToLive = 0;
+        if (request.getJMSExpiration() > 0) {
+            TimeZone tz = new SimpleTimeZone(0, "GMT");
+            Calendar cal = new GregorianCalendar(tz);
+            timeToLive =  request.getJMSExpiration() - cal.getTimeInMillis();
+        }
+        
+        if (timeToLive >= 0) {
+            ttl = ttl > 0 ? ttl : timeToLive;
+            sender.send(replyTo, reply, deliveryMode, priority, ttl);
+        } else {
+            LOG.log(Level.INFO, "Message time to live is already expired skipping response.");
         }
     }
 

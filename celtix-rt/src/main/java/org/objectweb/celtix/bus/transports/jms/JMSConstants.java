@@ -30,4 +30,6 @@ public final class JMSConstants {
     public static final String JMS_CLIENT_CONFIG_ID = "jms-client";
     public static final String JMS_SERVER_CONFIG_ID = "jms-server";
     
+    public static final String JMS_REBASED_REPLY_TO = "org.objectweb.celtix.jms.server.replyto";
+    
 }
