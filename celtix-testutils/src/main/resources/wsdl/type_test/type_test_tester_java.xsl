@@ -21,11 +21,9 @@ public interface TypeTestTester {
 
     void setPerformanceTestOnly();
     
-    /*void testAnonTypeElement() throws Exception;*/]]>
-    
     void testVoid() throws Exception;
     
-    void testOneway() throws Exception;
+    void testOneway() throws Exception;]]>
         <xsl:apply-templates mode="definitions"/>
         <![CDATA[
 }]]>
@@ -43,8 +41,7 @@ public interface TypeTestTester {
             mode="definition"/>
         <!--
         <xsl:apply-templates select="xsd:element[not(
-                @name='AnonTypeElement'
-                or @itst:it_no_test='true')]"
+                @itst:it_no_test='true')]"
             mode="definition"/>
         -->
         <xsl:apply-templates select="itst:builtIn[not(

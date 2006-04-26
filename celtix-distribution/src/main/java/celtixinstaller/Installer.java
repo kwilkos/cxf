@@ -32,6 +32,7 @@ public final class Installer {
         BINARY_EXTS.add("p12");
         BINARY_EXTS.add("pem");
         BINARY_EXTS.add("truststore");
+        BINARY_EXTS.add("keystore");
         BINARY_EXTS.add("exe");
         BINARY_EXTS.add("dll");
     }

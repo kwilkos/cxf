@@ -27,10 +27,11 @@ public class TypeTestImpl {
     
     public void testOneway(String x, String y) {
     }
-/*
-    public AnonTypeElement testAnonTypeElement(AnonTypeElement x, 
-            Holder<AnonTypeElement> y, 
-            Holder<AnonTypeElement> z) {
+
+    public org.objectweb.type_test.types1.AnonTypeElement testAnonTypeElement(
+            org.objectweb.type_test.types1.AnonTypeElement x, 
+            Holder<org.objectweb.type_test.types1.AnonTypeElement> y, 
+            Holder<org.objectweb.type_test.types1.AnonTypeElement> z) {
         z.value.setVarFloat(y.value.getVarFloat());
         z.value.setVarInt(y.value.getVarInt());
         z.value.setVarString(y.value.getVarString());
@@ -39,13 +40,31 @@ public class TypeTestImpl {
         y.value.setVarInt(x.getVarInt());
         y.value.setVarString(x.getVarString());
 
-        AnonTypeElement varReturn = new AnonTypeElement();
+        org.objectweb.type_test.types1.AnonTypeElement varReturn =
+            new org.objectweb.type_test.types1.AnonTypeElement();
         varReturn.setVarFloat(x.getVarFloat());
         varReturn.setVarInt(x.getVarInt());
         varReturn.setVarString(x.getVarString());
         return varReturn;
     }
-*/    
+    
+    public String testNillableString(String x,
+            Holder<String> y,
+            Holder<String> z) {
+        z.value = y.value;
+        y.value = x;
+        return x;
+    }
+
+    public SimpleStruct testNillableStruct(
+            SimpleStruct x,
+            Holder<SimpleStruct> y,
+            Holder<SimpleStruct> z) {
+        z.value = y.value;
+        y.value = x;
+        return x;
+    }
+   
     public String testSimpleRestriction(String x, 
             Holder<String> y, 
             Holder<String> z) {
@@ -371,10 +390,14 @@ public class TypeTestImpl {
                 @name='IDTypeAttribute'
                 or @itst:it_no_test='true')]"
             mode="definition"/>
-        <!-- xsl:apply-templates select="xsd:element[not(
+        <!--
+        <xsl:apply-templates select="xsd:element[not(
                 @name='AnonTypeElement'
+                or @name='NillableString'
+                or @name='NillableStruct'
                 or @itst:it_no_test='true')]"
-            mode="definition"/ -->
+            mode="definition"/>
+        -->
         <xsl:apply-templates select="itst:builtIn[not(
                 @name='ID'
                 or @itst:it_no_test='true')]"

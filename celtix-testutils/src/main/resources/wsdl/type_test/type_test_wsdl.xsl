@@ -292,12 +292,10 @@
         mode="test_messages">
       <xsl:with-param name="namespace" select="concat('x', @ID, ':')"/>
     </xsl:apply-templates>
-    <!--
     <xsl:apply-templates select="xsd:element[not(@itst:it_no_test='true')]"
         mode="test_messages">
       <xsl:with-param name="namespace" select="concat('x', @ID, ':')"/>
     </xsl:apply-templates>
-    -->
     <xsl:apply-templates select="itst:builtIn[not(@itst:it_no_test='true')]"
         mode="test_messages">
       <xsl:with-param name="namespace">xsd:</xsl:with-param>
