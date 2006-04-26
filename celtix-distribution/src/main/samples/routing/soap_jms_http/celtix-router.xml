@@ -6,7 +6,7 @@
     xmlns:rt-conf="http://celtix.objectweb.org/routing/configuration"
 >
 
-  <!-- configuration for the handler demo client -->
+  <!-- configuration for the pass through router in soap_jms_http demo -->
 
   <!-- to specify non-default configuration for a configurable component, supply a bean definition for this
        component with
@@ -17,31 +17,26 @@
        finally the actual class name obtained by converting the last part of the package name into a class name
        and suffixing it with 'Bean'.
        Example:
-       The namespace uri for the Service component configuration is
-           http://celtix.objectweb.org/bus/jaxws/port-config
+       The namespace uri for the Routing component configuration is
+           http://celtix.objectweb.org/routing/configuration
        The resulting bean class is
-           org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean
+           org.objectweb.celtix.routing.configuration.spring.ConfigurationBean
 
        Id: a unique identifier for the instance of the configurable component represented by the bean
        The implementation for this is component specific, e.g. for the Bus component it is the bus's id
-       (default: celtix), for Service components it the id of the bus, followed by a '.' and the stringified
-       presentation of the service's QName, then followed by a '/' and the port name etc.
-
-       This is because the bean id needs to be unique accross all beans, not just accross all beans of the
-       same class (I will do further investigation into that though).
+       (default: celtix), for Service components it the id of the bus, followed by a '.' and the id for the Router
+       which is "router".
 
        The actual component's configuration then is composed of <property> elements, the name attribute of which
        must be the name of one of the component's configuration items.
        The (non-default) value for that item can be specified either as text (if this is possible, e.g. for
        strings) or as the content of the <value> element.
 
-       Refer to the component configuration metadata (e.g. to port-config.xml) for more information
+       In case of the router configuration the property name is routesWSDL and takes a string value representing a
+       path to the wsdl which defines the route elements.
+
+       Refer to the component configuration metadata (e.g. to router-config.xml) for more information
        about possible values.
-
-  -->
-
-  <!-- Comment the following bean definition or the content of the jaxws-types:handler element below to run
-       the client without any handlers installed.
   -->
 
   <bean id="celtix-st.router"
