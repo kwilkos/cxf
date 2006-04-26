@@ -51,8 +51,7 @@ public final class Client {
         try {
             resp = port.greetMe("Invoking greetMe with invalid length string, expecting exception...");
         } catch (ProtocolException e) {
-            System.out.println("Expected exception: ProtocolException has occurred.");
-            System.out.println(e.toString());
+            System.out.println("Expected exception has occurred: " + e.getClass().getName());
         }
 
         System.out.println();
@@ -66,8 +65,7 @@ public final class Client {
             System.out.println("Invoking pingMe, expecting exception...");
             port.pingMe();
         } catch (PingMeFault ex) {
-            System.out.println("Expected exception: PingMeFault has occurred.");
-            System.out.println(ex.toString());
+            System.out.println("Expected exception: PingMeFault has occurred: " + ex.getMessage());
         }          
         System.exit(0); 
     }

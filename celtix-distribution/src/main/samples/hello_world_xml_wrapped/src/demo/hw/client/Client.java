@@ -55,8 +55,7 @@ public final class Client {
             System.out.println("Invoking pingMe, expecting exception...");
             port.pingMe();
         } catch (PingMeFault ex) {
-            System.out.println("Expected exception: PingMeFault has occurred.");
-            System.out.println(ex.toString());
+            System.out.println("Expected exception: " + ex.getMessage());
         }
                 
         System.exit(0); 
