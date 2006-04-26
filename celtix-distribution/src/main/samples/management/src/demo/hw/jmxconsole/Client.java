@@ -67,7 +67,8 @@ public final class Client {
             signature[0] = "java.lang.String";
             mbsc.invoke(greeterInstrumentation,
                         "setSayHiReturnName", params, signature);
-            echo("\n >>> invoke the GreeterInstrumentation setSayHiReturnName method");                  
+            echo("\n >>> invoke the GreeterInstrumentation setSayHiReturnName method");
+            echo("\n JMXConsole runs Successfully!");
         } catch (Exception e) {
             e.printStackTrace();
         }
