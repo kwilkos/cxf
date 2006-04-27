@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,6 +56,7 @@ public class RetransmissionQueue {
     private Runnable resendInitiator;
     private boolean shutdown;
     private Resender resender;
+    private Timer timer;
     
     /**
      * Constructor.
@@ -175,7 +178,7 @@ public class RetransmissionQueue {
     private void clientResend(ObjectMessageContext context) throws IOException {
         Request request = createClientRequest(context);
         OutputStreamMessageContext outputStreamContext =
-            request.process(null, true);
+            request.process(null, true, true);
         ClientTransport transport = handler.getClientTransport();
         if (transport != null) {
             // decoupled response channel always being used with RM, 
@@ -266,9 +269,26 @@ public class RetransmissionQueue {
      * @param queue the work queue providing async execution
      */
     protected void start(WorkQueue queue) {
-        workQueue = queue;
-        workQueue.schedule(getResendInitiator(),
-                           baseRetransmissionInterval);        
+        if (null == workQueue) {
+            LOG.fine("Starting retransmission queue");
+            workQueue = queue;
+            // workQueue.schedule(getResendInitiator(), baseRetransmissionInterval); 
+            
+            TimerTask task = new TimerTask() {
+                public void run() {
+                    getResendInitiator().run();
+                }
+            };
+            timer = new Timer();
+            timer.schedule(task, getBaseRetransmissionInterval(), getBaseRetransmissionInterval());  
+        }
+    }
+    
+    protected void stop() {
+        if (null != timer) {
+            LOG.fine("Stopping retransmission queue");
+            timer.cancel();
+        }
     }
     
     /**
@@ -302,20 +322,27 @@ public class RetransmissionQueue {
      * 
      * @param seq the sequence object.
      */
-    protected synchronized void purgeAcknowledged(SourceSequence seq) {
-        List<ResendCandidate> sequenceCandidates = getSequenceCandidates(seq);
-        if (null != sequenceCandidates) {
-            for (int i = sequenceCandidates.size() - 1; i >= 0; i--) {
-                ResendCandidate candidate = sequenceCandidates.get(i);
-                RMProperties properties =
-                    RMContextUtils.retrieveRMProperties(candidate.getContext(), true);
-                SequenceType st = properties.getSequence();
-                BigInteger m = st.getMessageNumber();
-                if (seq.isAcknowledged(m)) {
-                    sequenceCandidates.remove(i);
-                    candidate.resolved();
+    protected void purgeAcknowledged(SourceSequence seq) {
+        Collection<BigInteger> purged = new ArrayList<BigInteger>();
+        synchronized (this) {
+            List<ResendCandidate> sequenceCandidates = getSequenceCandidates(seq);
+            if (null != sequenceCandidates) {
+                for (int i = sequenceCandidates.size() - 1; i >= 0; i--) {
+                    ResendCandidate candidate = sequenceCandidates.get(i);
+                    RMProperties properties = RMContextUtils.retrieveRMProperties(candidate.getContext(),
+                                                                                  true);
+                    SequenceType st = properties.getSequence();
+                    BigInteger m = st.getMessageNumber();
+                    if (seq.isAcknowledged(m)) {
+                        sequenceCandidates.remove(i);
+                        candidate.resolved();
+                        purged.add(m);
+                    }
                 }
             }
+        }
+        if (purged.size() > 0) {
+            handler.getStore().removeMessages(seq.getIdentifier(), purged, true);
         }
     }
 
@@ -424,13 +451,14 @@ public class RetransmissionQueue {
                     }
                 }
             }
-            
+            /*
             if (!isShutdown()) {
                 // schedule next resend initiation task (rescheduling each time,
                 // as opposed to scheduling a periodic task, eliminates the
                 // potential for simultaneous execution)
                 workQueue.schedule(this, getBaseRetransmissionInterval());
             }
+            */
         }
     }
     

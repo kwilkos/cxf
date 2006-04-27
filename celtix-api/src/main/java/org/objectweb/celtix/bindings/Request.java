@@ -68,18 +68,27 @@ public class Request {
     public OutputStreamMessageContext process(OutputStreamMessageContext ostreamCtx,
                                               boolean logicalChainTraversed) 
         throws IOException {
+        return process(ostreamCtx, logicalChainTraversed, false);
+    }
+    
+    public OutputStreamMessageContext process(OutputStreamMessageContext ostreamCtx,
+                                              boolean logicalChainTraversed,
+                                              boolean protocolChainTraversed) 
+        throws IOException {
         if (logicalChainTraversed
             || handlerInvoker.invokeLogicalHandlers(true, objectCtx)) {
             bindingCtx = binding.getBindingImpl().createBindingMessageContext(objectCtx);
             bindingCtx.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);
+            
             if (null == bindingCtx) {
                 bindingCtx = objectCtx;
-            } else {
+            } else if (!protocolChainTraversed) {
                 DataBindingCallback callback = BindingContextUtils.retrieveDataBindingCallback(objectCtx);
                 binding.getBindingImpl().marshal(objectCtx, bindingCtx, callback);
             }  
 
-            if (handlerInvoker.invokeProtocolHandlers(true, bindingCtx)) {
+            if (protocolChainTraversed
+                || handlerInvoker.invokeProtocolHandlers(true, bindingCtx)) {
                 binding.getBindingImpl().updateMessageContext(bindingCtx);
                 if (ostreamCtx == null) {
                     ostreamCtx = transport.createOutputStreamContext(bindingCtx);

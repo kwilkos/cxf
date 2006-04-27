@@ -31,6 +31,12 @@ public class RMDestinationTest extends TestCase {
     }   
 
     public void testSequenceAccess() {
+        RMStore store = control.createMock(RMStore.class);
+        EasyMock.expect(handler.getStore()).andReturn(store).times(2);
+        store.createDestinationSequence(EasyMock.isA(RMDestinationSequence.class));
+        EasyMock.expectLastCall();
+        store.removeDestinationSequence(EasyMock.isA(Identifier.class));
+        EasyMock.expectLastCall();
         
         control.replay();
         RMDestination d = new RMDestination(handler);
@@ -65,6 +71,10 @@ public class RMDestinationTest extends TestCase {
     }
 
     public void testAcknowledge() throws SequenceFault {
+        RMStore store = control.createMock(RMStore.class);
+        EasyMock.expect(handler.getStore()).andReturn(store);
+        store.createDestinationSequence(EasyMock.isA(RMDestinationSequence.class));
+        EasyMock.expectLastCall();
         Configuration c = control.createMock(Configuration.class);       
         EasyMock.expect(handler.getConfiguration()).andReturn(c);
         EasyMock.expect(c.getObject(RMAssertionType.class, "rmAssertion")).andReturn(null);

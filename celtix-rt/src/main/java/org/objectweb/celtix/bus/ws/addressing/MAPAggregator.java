@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.wsdl.Port;
 import javax.wsdl.extensions.ExtensibilityElement;
@@ -19,14 +20,22 @@ import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
 
+import org.objectweb.celtix.bindings.AbstractBindingBase;
+import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.JAXWSConstants;
 import org.objectweb.celtix.bindings.ServerBinding;
+import org.objectweb.celtix.bus.jaxws.EndpointImpl;
+import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
 /**
@@ -35,9 +44,14 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
  */
 public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
 
+    public static final String WSA_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/bus/ws/addressing/wsa-config";
+    public static final String WSA_CONFIGURATION_ID = "wsa-handler";
+    
     private static final Logger LOG = 
         LogUtils.getL7dLogger(MAPAggregator.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
+    
 
     protected final Map<String, String> messageIDs = 
         new HashMap<String, String>();
@@ -45,8 +59,8 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
     /**
      * resources injected by client/server endpoints
      */
-
     @Resource(name = JAXWSConstants.SERVER_BINDING_PROPERTY) protected ServerBinding serverBinding;
+    @Resource(name = JAXWSConstants.CLIENT_BINDING_PROPERTY) protected ClientBinding clientBinding;
     @Resource(name = JAXWSConstants.CLIENT_TRANSPORT_PROPERTY) protected ClientTransport clientTransport;
     @Resource(name = JAXWSConstants.SERVER_TRANSPORT_PROPERTY) protected ServerTransport serverTransport;
 
@@ -56,13 +70,41 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
     private final AtomicBoolean usingAddressingDetermined = new AtomicBoolean(false);
     private final AtomicBoolean usingAddressing = new AtomicBoolean(false);
     
-    
+    private Configuration configuration;
 
     /**
      * Constructor.
      */
-    public MAPAggregator() {
+    public MAPAggregator() {        
     } 
+    
+    @PostConstruct
+    protected synchronized void initConfiguration() {
+        AbstractBindingBase binding = (AbstractBindingBase)
+            (clientBinding == null ? serverBinding : clientBinding);
+        Configuration busCfg = binding.getBus().getConfiguration();
+        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
+        Configuration parent;
+        org.objectweb.celtix.ws.addressing.EndpointReferenceType ref = 
+            binding.getEndpointReference();
+
+        if (null != clientBinding) {
+            String id = EndpointReferenceUtils.getServiceName(ref).toString()
+                + "/" + EndpointReferenceUtils.getPortName(ref);
+            parent = builder.getConfiguration(ServiceImpl.PORT_CONFIGURATION_URI,
+                                                                id, busCfg);
+        } else {
+            parent = builder.getConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, EndpointReferenceUtils
+                .getServiceName(ref).toString(), busCfg);
+        }
+
+        configuration = builder.getConfiguration(WSA_CONFIGURATION_URI, WSA_CONFIGURATION_ID, parent);
+        if (null == configuration) {
+            configuration = builder.buildConfiguration(WSA_CONFIGURATION_URI, WSA_CONFIGURATION_ID, parent);
+            
+        }
+    }
+
 
     /**
      * Initialize the handler.
@@ -321,7 +363,10 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
      * @return true if incoming MAPs are valid
      * @pre inbound message, not requestor
      */
-    private boolean validateIncomingMAPs(AddressingProperties maps, MessageContext context) {
+    private boolean validateIncomingMAPs(AddressingProperties maps, MessageContext context) {        
+        if (null != configuration && configuration.getBoolean("allowDuplicates")) {
+            return true;
+        }
         boolean valid = true;
         if (maps != null) {
             AttributedURIType messageID = maps.getMessageID();

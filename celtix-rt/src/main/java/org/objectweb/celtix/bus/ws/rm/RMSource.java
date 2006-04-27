@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.ws.handler.MessageContext;
-
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
@@ -21,6 +19,7 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.workqueue.WorkQueue;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
+import org.objectweb.celtix.ws.rm.persistence.RMMessage;
 import org.objectweb.celtix.ws.rm.persistence.RMSourceSequence;
 import org.objectweb.celtix.ws.rm.persistence.RMStore;
 
@@ -38,8 +37,7 @@ public class RMSource extends RMEndpoint {
         super(h);
         map = new HashMap<String, SourceSequence>();
         Bus bus = h.getBus();
-        WorkQueue workQueue =
-            bus.getWorkQueueManager().getAutomaticWorkQueue();
+        WorkQueue queue = bus.getWorkQueueManager().getAutomaticWorkQueue();
         bus.getLifeCycleManager().registerLifeCycleListener(new BusLifeCycleListener() {
             public void initComplete() {      
             }
@@ -51,11 +49,11 @@ public class RMSource extends RMEndpoint {
         });
         current = new HashMap<String, SourceSequence>();
         
-        // restore();
-        
         retransmissionQueue = new RetransmissionQueue(h, getRMAssertion()); 
         retransmissionQueue.populate(getAllSequences());
-        retransmissionQueue.start(workQueue);       
+        if (retransmissionQueue.getUnacknowledged().size() > 0) {
+            retransmissionQueue.start(queue);
+        }
     }
     
     public SourceSequence getSequence(Identifier id) {        
@@ -63,12 +61,20 @@ public class RMSource extends RMEndpoint {
     }
     
     public void addSequence(SourceSequence seq) { 
+        addSequence(seq, true);
+    }
+    
+    public void addSequence(SourceSequence seq, boolean persist) { 
         seq.setSource(this);
         map.put(seq.getIdentifier().getValue(), seq);
+        if (persist) {
+            getHandler().getStore().createSourceSequence(seq);
+        }
     }
     
     public void removeSequence(SourceSequence seq) {        
         map.remove(seq.getIdentifier().getValue());
+        getHandler().getStore().removeSourceSequence(seq.getIdentifier());
     }
     
     public final Collection<SourceSequence> getAllSequences() {        
@@ -141,11 +147,11 @@ public class RMSource extends RMEndpoint {
      * 
      * @param context
      */
-    public void addUnacknowledged(MessageContext context) {
-
+    public void addUnacknowledged(SourceSequence seq, RMMessage msg) {
         ObjectMessageContext clone = getHandler().getBinding().createObjectContext();
-        clone.putAll(context);
-        getRetransmissionQueue().cacheUnacknowledged(clone);
+        clone.putAll(msg.getContext());
+        getRetransmissionQueue().cacheUnacknowledged(clone); 
+        getHandler().getStore().persistOutgoing(seq, msg);
     }
 
     /**
@@ -200,7 +206,7 @@ public class RMSource extends RMEndpoint {
         // Don't make any of these sequences the current sequence, thus forcing
         // termination of the recovered sequences as soon as possible
         for (RMSourceSequence ds : dss) {
-            addSequence((SourceSequence)ds);
+            addSequence((SourceSequence)ds, false);
         }
     }
 }

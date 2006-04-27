@@ -183,6 +183,13 @@ public class RMProxyTest extends TestCase {
             handler.getClientBinding();
             EasyMock.expectLastCall().andReturn(binding);
         }
+        
+        RMSource source = control.createMock(RMSource.class);
+        handler.getSource();
+        EasyMock.expectLastCall().andReturn(source);
+        source.removeSequence(EasyMock.isA(SourceSequence.class));
+        EasyMock.expectLastCall();
+     
 
         control.replay();
 
@@ -313,6 +320,12 @@ public class RMProxyTest extends TestCase {
             handler.getClientBinding();
             expectLastCall().andReturn(binding);
         }
+        
+        RMSource source = control.createMock(RMSource.class);
+        handler.getSource();
+        EasyMock.expectLastCall().andReturn(source);
+        source.removeSequence(EasyMock.isA(SourceSequence.class));
+        EasyMock.expectLastCall();
 
         control.replay();
 

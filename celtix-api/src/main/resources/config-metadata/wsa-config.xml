@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config 
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
+    xmlns:std-types="http://celtix.objectweb.org/configuration/types"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata metadata.xsd"
+    namespace="http://celtix.objectweb.org/bus/ws/addressing/wsa-config">
+
+   <!-- configuration metadata for component Port  -->
+   
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+
+    <cm:configItem>
+        <cm:name>allowDuplicates</cm:name>
+        <cm:type>xs:boolean</cm:type>
+        <cm:description>
+        Specified whether duplicate message IDs are allowed.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <std-types:booleanValue>false</std-types:booleanValue>
+    </cm:configItem>
+
+</cm:config>

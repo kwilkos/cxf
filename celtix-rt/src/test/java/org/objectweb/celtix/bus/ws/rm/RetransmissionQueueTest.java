@@ -26,6 +26,7 @@ import org.objectweb.celtix.workqueue.WorkQueue;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.RMProperties;
 import org.objectweb.celtix.ws.rm.SequenceType;
+import org.objectweb.celtix.ws.rm.persistence.RMStore;
 
 import static org.objectweb.celtix.bindings.JAXWSConstants.DATABINDING_CALLBACK_PROPERTY;
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
@@ -59,9 +60,11 @@ public class RetransmissionQueueTest extends TestCase {
         resender = new TestResender();
         queue.replaceResender(resender);
         workQueue = control.createMock(WorkQueue.class);
+        /*
         workQueue.schedule(queue.getResendInitiator(), 
-                           queue.getBaseRetransmissionInterval());
+                           queue.getBaseRetransmissionInterval());        
         EasyMock.expectLastCall();
+        */
     }
     
     public void tearDown() {
@@ -448,7 +451,7 @@ public class RetransmissionQueueTest extends TestCase {
             control.createMock(AbstractBindingImpl.class);
         binding.getBindingImpl();
         EasyMock.expectLastCall().andReturn(bindingImpl).times(isRequestor
-                                                               ? 7
+                                                               ? 6
                                                                : 5);
         bindingImpl.createBindingMessageContext(contexts.get(i));
         MessageContext bindingContext = 
@@ -521,9 +524,11 @@ public class RetransmissionQueueTest extends TestCase {
             workQueue.execute(dueCandidates[i]);
             EasyMock.expectLastCall();
         }
+        /*
         workQueue.schedule(queue.getResendInitiator(), 
-                           queue.getBaseRetransmissionInterval()); 
+                           queue.getBaseRetransmissionInterval());         
         EasyMock.expectLastCall();
+        */
         control.replay();
         queue.getResendInitiator().run();
     }
@@ -571,7 +576,8 @@ public class RetransmissionQueueTest extends TestCase {
         sequences.add(sequence);
         return sequence;
     }
-        
+    
+    @SuppressWarnings("unchecked")
     private SourceSequence setUpSequence(String sid, 
                                    BigInteger[] messageNumbers,
                                    boolean[] isAcked) {
@@ -582,9 +588,20 @@ public class RetransmissionQueueTest extends TestCase {
         id.getValue();
         EasyMock.expectLastCall().andReturn(sid);
         identifiers.add(id);
+        boolean includesAcked = false;
         for (int i = 0; isAcked != null && i < isAcked.length; i++) {
             sequence.isAcknowledged(messageNumbers[i]);
             EasyMock.expectLastCall().andReturn(isAcked[i]);
+            if (isAcked[i]) {
+                includesAcked = true;
+            }
+        }
+        if (includesAcked) {
+            sequence.getIdentifier();
+            EasyMock.expectLastCall().andReturn(id);
+            RMStore store = control.createMock(RMStore.class);
+            handler.getStore();
+            EasyMock.expectLastCall().andReturn(store);
         }
         return sequence;
     }

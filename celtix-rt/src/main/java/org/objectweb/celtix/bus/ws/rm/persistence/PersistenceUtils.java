@@ -17,6 +17,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 
@@ -89,10 +90,8 @@ public class PersistenceUtils {
             }
             
             // construct SOAPMessage from input stream
-            if (null == msgFactory) {
-                msgFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
-            }
-            SOAPMessage msg = msgFactory.createMessage(null, is);
+            
+            SOAPMessage msg = getMessageFactory().createMessage(null, is);
             ctx.put(SOAP_MSG_KEY, msg);
             
         } catch (Exception ex) {
@@ -147,6 +146,13 @@ public class PersistenceUtils {
             marshaller = getContext().createMarshaller();
         }
         return marshaller;
+    }
+    
+    private MessageFactory getMessageFactory() throws SOAPException {
+        if (null == msgFactory) {
+            msgFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
+        }
+        return msgFactory;        
     }
    
 }

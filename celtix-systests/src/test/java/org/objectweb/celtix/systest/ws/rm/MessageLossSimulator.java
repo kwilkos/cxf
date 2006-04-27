@@ -13,7 +13,10 @@ import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+
 import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
+
+
 
 
 /**
@@ -97,10 +100,11 @@ public class MessageLossSimulator implements SOAPHandler<SOAPMessageContext> {
      * @return true if the current message should not be discarded
      */
     private synchronized boolean continueProcessing(SOAPMessageContext context) {
-        System.out.println("*** inboundMessageCount: " + inboundMessageCount);
+        System.out.println("*** inboundMessageCount: " + inboundMessageCount);         
         if (!(isOutbound(context) || isRMOutOfBand(context))
-            && ++inboundMessageCount % LOSS_FACTOR == 0) {
+            && ++inboundMessageCount % LOSS_FACTOR == 0 && inboundMessageCount <= 4) {
             discardWSHeaders(context);
+            discardBody(context);
             System.out.println("*** Discarding current inbound message ***");
             return false;
         }
@@ -134,6 +138,20 @@ public class MessageLossSimulator implements SOAPHandler<SOAPMessageContext> {
             }
         } catch (SOAPException e) {
             System.out.println("*** discard WS headers failed: " + e);
+        }
+    }
+    
+    
+    /**
+     * Discard the body from the message to avoid assertion failure when
+     * unmarshaling partial response (occuring when system tests are run in
+     * fork mode 'none')
+     */
+    private void discardBody(SOAPMessageContext context) {
+        try {
+            context.getMessage().getSOAPBody().removeContents();
+        } catch (SOAPException e) {
+            System.out.println("*** discard body failed: " + e);
         }
     }
 }

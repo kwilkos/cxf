@@ -66,11 +66,12 @@ public class RMProxy {
         return csr;
     }
     
-    public void terminateSequence(AbstractSequenceImpl seq) throws IOException {
+    public void terminateSequence(SourceSequence seq) throws IOException {
         TerminateSequenceRequest request = new TerminateSequenceRequest(handler.getBinding(), 
                                                                         handler.getTransport(), seq);
-        
+        handler.getSource().removeSequence(seq);
         invokeOneWay(request.getObjectMessageContext(), TerminateSequenceRequest.createDataBindingCallback());
+        
     }
     
     /** 

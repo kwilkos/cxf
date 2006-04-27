@@ -34,13 +34,21 @@ public class RMDestination extends RMEndpoint {
         return map.get(id.getValue());
     }
     
-    public void addSequence(DestinationSequence seq) {  
+    public void addSequence(DestinationSequence seq) {
+        addSequence(seq, true);
+    }
+    
+    public void addSequence(DestinationSequence seq, boolean persist) {  
         seq.setDestination(this);
         map.put(seq.getIdentifier().getValue(), seq);
+        if (persist) {
+            getHandler().getStore().createDestinationSequence(seq);
+        }
     }
     
     public void removeSequence(DestinationSequence seq) {        
         map.remove(seq.getIdentifier().getValue());
+        getHandler().getStore().removeDestinationSequence(seq.getIdentifier());
     }
     
     public Collection<DestinationSequence> getAllSequences() {        
@@ -112,7 +120,7 @@ public class RMDestination extends RMEndpoint {
         
         Collection<RMDestinationSequence> dss = store.getDestinationSequences(getEndpointId());
         for (RMDestinationSequence ds : dss) {
-            addSequence((DestinationSequence)ds);
+            addSequence((DestinationSequence)ds, false);
         } 
     }
 }

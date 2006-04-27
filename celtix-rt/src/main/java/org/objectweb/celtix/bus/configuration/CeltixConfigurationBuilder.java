@@ -19,12 +19,10 @@ public class CeltixConfigurationBuilder extends ConfigurationBuilderImpl {
         addModel("config-metadata/http-listener-config.xml");
         addModel("config-metadata/http-server-config.xml");
         addModel("config-metadata/port-config.xml");
-
-        addModel("config-metadata/service-config.xml");
         addModel("config-metadata/jms-client-config.xml");
         addModel("config-metadata/jms-server-config.xml");
         addModel("config-metadata/rm-config.xml");
-
+        addModel("config-metadata/wsa-config.xml");
         addModel("config-metadata/instrumentation-config.xml");
     }
 

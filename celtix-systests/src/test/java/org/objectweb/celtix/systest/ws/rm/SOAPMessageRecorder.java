@@ -8,12 +8,12 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.soap.SOAPHandler;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.context.StreamMessageContext;
+import org.objectweb.celtix.handlers.StreamHandler;
 
-public class SOAPMessageRecorder implements SOAPHandler<SOAPMessageContext> {
+public class SOAPMessageRecorder implements StreamHandler {
     
     private static List<SOAPMessage> outbound;
     
@@ -21,7 +21,6 @@ public class SOAPMessageRecorder implements SOAPHandler<SOAPMessageContext> {
         if (null == outbound) {
             outbound = new ArrayList<SOAPMessage>();
         }
-      
     }
     
     public void init(Map<String, Object> map) {
@@ -31,12 +30,12 @@ public class SOAPMessageRecorder implements SOAPHandler<SOAPMessageContext> {
         return null;
     }
 
-    public boolean handleMessage(SOAPMessageContext context) {
+    public boolean handleMessage(StreamMessageContext context) {
         record(context);
         return true;
     }
 
-    public boolean handleFault(SOAPMessageContext context) {
+    public boolean handleFault(StreamMessageContext context) {
         record(context);
         return true;
     }
@@ -48,9 +47,9 @@ public class SOAPMessageRecorder implements SOAPHandler<SOAPMessageContext> {
         return outbound;
     }
     
-    private void record(SOAPMessageContext context) {        
+    private void record(StreamMessageContext context) {        
         if (ContextUtils.isOutbound(context)) { 
-            SOAPMessage sm = context.getMessage();
+            SOAPMessage sm = (SOAPMessage)context.get("org.objectweb.celtix.bindings.soap.message");
             outbound.add(sm);
         }
     }

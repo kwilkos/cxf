@@ -181,7 +181,6 @@
                             <beanfiles>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/bus-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/http-listener-config.xml</beanfile>
-                                <beanfile>${basedir}/src/main/resources/config-metadata/service-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/endpoint-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/http-server-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/http-client-config.xml</beanfile>
@@ -189,6 +188,7 @@
                                 <beanfile>${basedir}/src/main/resources/config-metadata/jms-server-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/jms-client-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/rm-config.xml</beanfile>                                
+                                <beanfile>${basedir}/src/main/resources/config-metadata/wsa-config.xml</beanfile>                                
                                 
                                 <beanfile>${basedir}/src/main/resources/config-metadata/instrumentation-config.xml</beanfile>
                                 

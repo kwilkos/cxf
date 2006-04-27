@@ -1,5 +1,6 @@
 package org.objectweb.celtix.systest.ws.rm;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.rm.RMProperties;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceType;
+
 
 public class MessageFlow extends Assert {
     private List<SOAPMessage> outboundMessages;
@@ -255,7 +257,8 @@ public class MessageFlow extends Assert {
     
     public void verifyMessages(int nExpected, boolean outbound) {
         if (outbound) {
-            assertEquals("Unexpected number of outbound messages", nExpected, outboundMessages.size());
+            assertEquals("Unexpected number of outbound messages" + outboundDump(),
+                         nExpected, outboundMessages.size());
         } else {
             assertEquals("Unexpected number of inbound messages", nExpected, inboundContexts.size());
         }
@@ -275,11 +278,32 @@ public class MessageFlow extends Assert {
             }
         }
         if (outbound) {
-            assertEquals("Did not send the expected number of outbound messages.", 
+            assertEquals("Did not send the expected number of outbound messages." + outboundDump(), 
                          nExpected, outboundMessages.size());
         } else {
             assertEquals("Did not receive the expected number of inbound messages.", 
                          nExpected, inboundContexts.size());
         }
+    }
+    
+    private String outboundDump() {
+        StringBuffer buf = new StringBuffer();
+        try {
+            buf.append(System.getProperty("line.separator"));
+            for (int i = 0; i < outboundMessages.size(); i++) {
+                SOAPMessage sm = outboundMessages.get(i);
+                buf.append("[");
+                buf.append(i);
+                buf.append("] : ");
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                sm.writeTo(bos);
+                buf.append(bos.toString());
+                buf.append(System.getProperty("line.separator"));
+            }
+        } catch (Exception ex) {
+            return "";
+        }
+        
+        return buf.toString();
     }
 }

@@ -35,7 +35,6 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
-import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.SystemHandler;
@@ -224,6 +223,8 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
     protected void open(LogicalMessageContext context) {
         // TODO begin transaction
+        getSource().getRetransmissionQueue().start(getBus().getWorkQueueManager()
+                                                   .getAutomaticWorkQueue());
     }
 
     protected Configuration createConfiguration() {
@@ -342,12 +343,6 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
                 if (seq.isLastMessage()) {
                     source.setCurrent(null);
                 }
-                
-                // tell the source to store a copy of the message in the
-                // retransmission
-                // queue and schedule the next retransmission
-
-                getSource().addUnacknowledged(MessageContextWrapper.unwrap(context));
             }
         }
         
@@ -525,5 +520,11 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
         return seq;
     }
+
+    public void destroy() {
+        getSource().getRetransmissionQueue().stop();
+    }
+    
+    
 
 }

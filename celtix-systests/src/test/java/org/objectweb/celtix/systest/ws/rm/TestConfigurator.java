@@ -11,6 +11,7 @@ import org.objectweb.celtix.bus.jaxws.configuration.types.SystemHandlerChainType
 import org.objectweb.celtix.bus.ws.addressing.MAPAggregator;
 import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
 import org.objectweb.celtix.bus.ws.rm.RMHandler;
+import org.objectweb.celtix.bus.ws.rm.RMPersistenceHandler;
 import org.objectweb.celtix.bus.ws.rm.soap.RMSoapHandler;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
@@ -67,15 +68,16 @@ public class TestConfigurator {
 
     private void configureHandlers(Configuration config, boolean isServer) {
         SystemHandlerChainType systemHandlers = config.getObject(SystemHandlerChainType.class,
-                                                                 "systemHandlerChain");
+                                                                 "systemHandlerChain");        
 
         org.objectweb.celtix.bus.jaxws.configuration.types.ObjectFactory factory
             = new org.objectweb.celtix.bus.jaxws.configuration.types.ObjectFactory();
+        
+        HandlerChainType handlerChain = null;
+        HandlerType handler = null;
+        
         if (null == systemHandlers) {
             systemHandlers = factory.createSystemHandlerChainType();
-
-            HandlerChainType handlerChain = null;
-            HandlerType handler = null;
 
             boolean withRM = true;
             
@@ -103,13 +105,6 @@ public class TestConfigurator {
 
             // post-protocol
             
-            /*
-            String configFile = System.getProperty("celtix.config.file");
-            boolean messageLoss = 
-                configFile != null && configFile.matches("^.*message-loss.xml$");
-            System.out.println("config: " + configFile + " message loss: " + messageLoss);
-            */
-            
             handlerChain = factory.createHandlerChainType();
             if (withRM) {
                 handler = factory.createHandlerType();
@@ -117,29 +112,34 @@ public class TestConfigurator {
                 handler.setHandlerName("protocol rm handler");
                 handlerChain.getHandler().add(handler);
             }
-            if (!isServer) {
-                handler = factory.createHandlerType();
-                handler.setHandlerClass(SOAPMessageRecorder.class.getName());
-                handler.setHandlerName("soap message recorder");
-                handlerChain.getHandler().add(handler);
-            } 
-            /*
-            else if (messageLoss) {
-                System.out.println("adding message loss simulator");
-                handler = factory.createHandlerType();
-                handler.setHandlerClass(MessageLossSimulator.class.getName());
-                handler.setHandlerName("message loss simulator");
-                handlerChain.getHandler().add(handler);                    
-            }
-            */
+           
             handler = factory.createHandlerType();
             handler.setHandlerClass(MAPCodec.class.getName());
             handler.setHandlerName("protocol addressing handler");
             handlerChain.getHandler().add(handler);
+            
+            boolean persist = true;
+            if (persist) {
+                handler = factory.createHandlerType();
+                handler.setHandlerClass(RMPersistenceHandler.class.getName());
+                handler.setHandlerName("protocol rm persistence handler");
+                handlerChain.getHandler().add(handler);
+            }
 
             systemHandlers.setPostProtocol(handlerChain);
 
             config.setObject("systemHandlerChain", systemHandlers);
+        }
+        
+        handlerChain = config.getObject(HandlerChainType.class, "handlerChain");
+        if (null == handlerChain && !isServer) {
+            handlerChain = factory.createHandlerChainType();            
+            handler = factory.createHandlerType();
+            handler.setHandlerClass(SOAPMessageRecorder.class.getName());
+            handler.setHandlerName("soap message recorder stream handler");
+            handlerChain.getHandler().add(handler);
+            
+            config.setObject("handlerChain", handlerChain);
         }
         
         // create rm handler configuration 
