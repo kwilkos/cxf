@@ -3,6 +3,8 @@ package org.objectweb.celtix.bus.wsdl;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -19,7 +21,7 @@ import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class WSDLManagerTest extends TestCase {
-    
+
     public WSDLManagerTest(String arg0) {
         super(arg0);
     }
@@ -44,10 +46,10 @@ public class WSDLManagerTest extends TestCase {
         WSDLManager wsdlManager = new WSDLManagerImpl(null);
         Definition def = wsdlManager.getDefinition(url);
         assertNotNull(def);
-            
+
         Definition def2 = wsdlManager.getDefinition(url);
         assertTrue(def == def2);
-            
+
         url = null;
         System.gc();
         System.gc();
@@ -66,10 +68,10 @@ public class WSDLManagerTest extends TestCase {
         WSDLManager wsdlManager = new WSDLManagerImpl(null);
         Definition def = wsdlManager.getDefinition(url);
         assertNotNull(def);
-            
+
         Definition def2 = wsdlManager.getDefinition(url);
         assertTrue(def == def2);
-            
+
         url = null;
         System.gc();
         System.gc();
@@ -77,7 +79,7 @@ public class WSDLManagerTest extends TestCase {
         Definition def3 = wsdlManager.getDefinition(url);
         assertTrue(def != def3);
     }
-    
+
 
     public void testExtensions() throws Exception {
         URL neturl = getClass().getResource("/wsdl/jms_test.wsdl");
@@ -87,15 +89,15 @@ public class WSDLManagerTest extends TestCase {
         JAXBExtensionHelper.addExtensions(wsdlManager.getExtenstionRegistry(),
                                           javax.wsdl.Port.class,
                                           JMSAddressPolicyType.class);
-            
+
         Definition def = wsdlManager.getDefinition(url);
         assertNotNull(def);
-            
+
         StringWriter writer = new StringWriter();
         wsdlManager.getWSDLFactory().newWSDLWriter().writeWSDL(def, writer);
         assertTrue(writer.toString().indexOf("jms:address") != -1);
     }
-    
+
     public void testExtensionReturnsProperJAXBType() throws Exception {
         URL neturl = getClass().getResource("/wsdl/jms_test.wsdl");
         Bus bus = Bus.init();
@@ -104,14 +106,14 @@ public class WSDLManagerTest extends TestCase {
         JAXBExtensionHelper.addExtensions(wsdlManager.getExtenstionRegistry(),
                                           javax.wsdl.Port.class,
                                          JMSAddressPolicyType.class);
-        
+
         QName serviceName = new QName("http://celtix.objectweb.org/hello_world_jms", "HelloWorldService");
-        
-        EndpointReferenceType ref = 
+
+        EndpointReferenceType ref =
             EndpointReferenceUtils.getEndpointReference(neturl, serviceName, "");
-        
+
         assertNotNull("Unable to create EndpointReference ", ref);
-        
+
         Port port = EndpointReferenceUtils.getPort(wsdlManager, ref);
         List<?> list = port.getExtensibilityElements();
         JMSAddressPolicyType jmsAddressDetails = null;
@@ -122,5 +124,17 @@ public class WSDLManagerTest extends TestCase {
             }
         }
         assertNotNull(jmsAddressDetails);
+    }
+
+    public void testPlugableWSDLManager() throws Exception {
+        WSDLManager wsdlManager = new WSDLManagerImpl(null);
+        Map<String, Object> properties = new WeakHashMap<String, Object>();
+        properties.put("celtix.WSDLManager", wsdlManager);
+        Bus bus = Bus.init(new String[0], properties);
+
+        WSDLManager wsdlManagerNew = bus.getWSDLManager();
+
+        //Verify that the WSDLManger is the one we plugged into bus previously
+        assertEquals("wsdlManager is the one we expected", wsdlManager, wsdlManagerNew);
     }
 }
