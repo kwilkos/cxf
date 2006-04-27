@@ -111,14 +111,18 @@
         <javadoc.version>2.0-beta-3</javadoc.version>
         <jaxb.version>2.0EA3</jaxb.version>
         <jaxws.version>2.0-JAXWS-2.0-EA3</jaxws.version>
+        <jetty.version>5.1.9</jetty.version>
         <jdepend.version>2.0-beta-1-SNAPSHOT</jdepend.version>
         <jxr.version>2.0-beta-2-SNAPSHOT</jxr.version>
         <mprojectinfo.version>2.0-beta-4-SNAPSHOT</mprojectinfo.version>
         <pmd.version>2.0-alpha-3-SNAPSHOT</pmd.version>
         <resources.version>2.2-SNAPSHOT</resources.version>
+        <saaj.version>1.3</saaj.version>
         <site.version>2.0-SNAPSHOT</site.version>
         <surefire-report.version>2.0</surefire-report.version>
         <surefire.version>2.1.3</surefire.version>
+	<spring.version>1.2.5</spring.version>
+        <wsdl4j.version>1.5.2</wsdl4j.version>
 
     </properties>
 

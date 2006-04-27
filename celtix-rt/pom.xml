@@ -58,7 +58,7 @@
         <dependency>
             <groupId>com.sun.xml</groupId>
             <artifactId>saaj-impl</artifactId>
-            <version>1.3</version>
+            <version>${saaj.version}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -164,7 +164,7 @@
         <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
-            <version>5.1.9</version>
+            <version>${jetty.version}</version>
         </dependency>
 
         <dependency>
