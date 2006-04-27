@@ -77,6 +77,7 @@ public class ServiceProcessor extends AbstractProcessor {
     }
 
     public void process(JavaModel model) throws ToolException {
+        
         Collection services = definition.getServices().values();
         if (services.size() == 0) {
             Iterator bindingIte = definition.getBindings().values().iterator();

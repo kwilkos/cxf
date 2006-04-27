@@ -2,6 +2,7 @@ package org.objectweb.celtix.tools.processors.wsdl2.internal;
 
 import java.util.*;
 import javax.jws.soap.SOAPBinding;
+import javax.wsdl.Definition;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.model.JavaAnnotation;
@@ -16,7 +17,7 @@ public class SEIAnnotationProcessor extends AbstractProcessor {
         super(penv);
     }
     
-    public void process(JavaModel javaModel) {
+    public void process(JavaModel javaModel, Definition def) {
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
         for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
             String interfaceName = (String)iter.next();
@@ -28,7 +29,10 @@ public class SEIAnnotationProcessor extends AbstractProcessor {
             serviceAnnotation.addArgument("name", intf.getWebServiceName());
 
             intf.addAnnotation(serviceAnnotation.toString());
-
+            
+            if (def.getBindings().size() == 0) {
+                return;
+            }
             if (processBinding(intf)) {
                 JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
                 String style = SOAPBindingUtil.getBindingAnnotation(intf.getSOAPStyle().toString());

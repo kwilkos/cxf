@@ -645,7 +645,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals(11, files.length);
     }
 
-    public void testWithoutService() throws Exception {
+    public void testWithNoService() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/helloworld-noservice.wsdl"));
         processor.setEnvironment(env);
         processor.process();
@@ -662,6 +662,33 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals("getGreetings", webParamAnno.name());
         
     }
+    
+    
+    public void testWithNoBinding() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/helloworld-nobinding.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+        Class clz = classLoader.loadClass("org.apache.tuscany.samples.helloworldaxis.HelloWorldServiceImpl");
+        
+        SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
+        assertNull("SOAPBinding Annotation should be null", soapBindingAnno);
+        
+        
+        Method method = clz.getMethod("getGreetings", new Class[] {java.lang.String.class});
+        WebResult webResultAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebResult.class);
+        assertEquals("http://helloworldaxis.samples.tuscany.apache.org", webResultAnno.targetNamespace());
+        assertEquals("", webResultAnno.partName());
+        assertEquals("return", webResultAnno.name());
+        
+        WebParam webParamAnno = AnnotationUtil.getWebParam(method, "request");
+        assertNotNull("WebParam should be annotated", webParamAnno);
+       
+        
+    }
+    
+    
+    
+    
     
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();

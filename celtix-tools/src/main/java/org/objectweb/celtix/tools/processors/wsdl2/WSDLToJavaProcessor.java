@@ -108,7 +108,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         serviceProcessor.process(javaModel);
 
         SEIAnnotationProcessor seiAnnotationProcessor = new SEIAnnotationProcessor(env);
-        seiAnnotationProcessor.process(javaModel);
+        seiAnnotationProcessor.process(javaModel, definition);
 
         return javaModel;
     }
