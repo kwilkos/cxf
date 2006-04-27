@@ -61,7 +61,7 @@ ant client -Duser=insecure_user
 Scenario 2: The same HTTPS listener is used. The client's security data is
 read in from the celtix-client.xml file in this directory, using the bean id
 celtix.{http://objectweb.org/hello_world_soap_http}SOAPService/SecurePort.http-client.
-The cleint is configured to provide the src\demo\hw_https\resources\celtix.p12 
+The client is configured to provide the src\demo\hw_https\resources\celtix.p12 
 certificate to the server and so the server authenticates the client's certificate 
 using it's trust store 
 src\demo\hw_https\resources\abigcompany_ca.pem.

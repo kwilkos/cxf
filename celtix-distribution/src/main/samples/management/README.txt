@@ -51,16 +51,23 @@ Using either UNIX or Windows:
   ant build
   ant server
   ant client
-  ant jmxconsole
+
+To run the demo of how to get and set celtix instrumentation components
+attributes and invoke the components' operation
+ 
+  ant jmxconsole 
+
 
 To explore the celtix managed components:
+
   jconsole (Porvider with JDK 1.5)
     
   The server JMX Service URL is:
     service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/server  
 
 
-  NOTE: Just enter the JMX service URL as above, and leave the username and password blank in this sample.
+  NOTE: Just enter the JMX service URL as above, and leave the 
+username and password blank in this sample.
 
   
 To remove the code generated from the WSDL file and the .class
