@@ -132,9 +132,9 @@
         <module>celtix-jbi</module>
         <module>celtix-geronimo</module>
         <module>celtix-router</module>
+        <module>celtix-js</module>
         <module>celtix-systests</module>
         <module>celtix-axisinterop</module>
-        <module>celtix-js</module>
     </modules>
 
     <build>
