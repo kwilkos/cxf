@@ -34,23 +34,10 @@ public class JMXManagedComponentManagerTest extends TestCase {
         //?
     }
     
-    public void testJMXManagerInitWithPlatformMBeanServer() {
-        MBServerPolicyType policy = new MBServerPolicyType();
-        policy.setPlatformMBeanServer(true);
-        try {
-            manager.init(policy);
-            manager.shutdown();
-        } catch (Exception ex) {            
-            assertTrue("JMX Manager init with PlatformMBeanServer error", false);
-            ex.printStackTrace();
-        }
         
-    }
-    
-    public void testJMXManagerInitWithoutPlatformMBeanServer() {
+    public void testJMXManagerInit() {
         MBServerPolicyType policy = new MBServerPolicyType();
-        JMXConnectorPolicyType connector = new JMXConnectorPolicyType();
-        policy.setPlatformMBeanServer(false);
+        JMXConnectorPolicyType connector = new JMXConnectorPolicyType();        
         policy.setJMXConnector(connector);        
         connector.setDaemon(false);
         connector.setThreaded(true);
@@ -67,8 +54,7 @@ public class JMXManagedComponentManagerTest extends TestCase {
     
     public void testJMXManagerProcessEvent() throws BusException {
         MBServerPolicyType policy = new MBServerPolicyType();
-        JMXConnectorPolicyType connector = new JMXConnectorPolicyType();
-        policy.setPlatformMBeanServer(false);
+        JMXConnectorPolicyType connector = new JMXConnectorPolicyType();        
         policy.setJMXConnector(connector);        
         connector.setDaemon(false);
         connector.setThreaded(false);

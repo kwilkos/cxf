@@ -8,7 +8,7 @@ import org.objectweb.celtix.management.Instrumentation;
 
 @ManagedResource(componentName = "GreeterInstrumentationName",
                  description = "The Celtix Service instrumentation demo component ",
-                 currencyTimeLimit = 15, persistPolicy = "OnUpdate")
+                 currencyTimeLimit = -1, persistPolicy = "OnUpdate")
 public class GreeterInstrumentation implements Instrumentation {
     
     private GreeterImpl greeter;

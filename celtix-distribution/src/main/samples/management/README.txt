@@ -200,14 +200,7 @@ declaration at the beginning of the configuration file.
 
 If we set JMXEnabled to be true, we should set up the MBServer's 
 <property> to make sure the MBServer can be accessed by jconsole.
-Setting the PlatformMBeanServer to be true means that Celtix's 
-MBServer is getted from PlatformMBeanServer. Note: in this case we should 
-pass an option to JVM "-Dcom.sun.management.jmxremote", which means the 
-platformMBeanServer can be monitored by local jconsole. 
-
-Setting the PlatformMBeanServer to be false means that celtix's 
-MBeanServer is created by itself. We can set the JMXConnectorServer 
-to run in a separated thread or to run in the daemon mode, and we can
-set the JMXServiceURL which is used by Jconsol to connect with the
-MBeanServer.  
+We can set the JMXConnectorServer to run in a separated thread 
+or to run in the daemon mode, and we can set the JMXServiceURL 
+which is used by Jconsol to connect with the MBeanServer.  
 

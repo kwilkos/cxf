@@ -22,8 +22,7 @@
     
 
     <xs:complexType name="MBServerPolicyType">
-    	<xs:sequence>       
-    		<xs:element name="PlatformMBeanServer" type="xs:boolean" default="true"/> 
+    	<xs:sequence>
     		<xs:element name="JMXConnector" type="im:JMXConnectorPolicyType"/>   	    	
     	</xs:sequence>	
     </xs:complexType>

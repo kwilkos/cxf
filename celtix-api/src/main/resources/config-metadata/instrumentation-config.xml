@@ -27,8 +27,7 @@
         <cm:type>im:MBServerPolicyType</cm:type>
         <cm:description>Policies for JMX MBeanServer</cm:description>
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
-        <im:MBServer>
-        	<im:PlatformMBeanServer>true</im:PlatformMBeanServer>
+        <im:MBServer>        	
         	<im:JMXConnector>
         		<im:Threaded>false</im:Threaded>
         		<im:Daemon>false</im:Daemon>

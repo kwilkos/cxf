@@ -3,7 +3,6 @@ package org.objectweb.celtix.bus.management.jmx;
 
 
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,25 +65,19 @@ public class JMXManagedComponentManager implements InstrumentationEventListener 
         
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Setting up MBeanServer ");
-        }          
-        
-        platformMBeanServer = mbpt.isPlatformMBeanServer();
-        if (mbpt.isPlatformMBeanServer()) {
-            mbs = ManagementFactory.getPlatformMBeanServer();
-        } else {
-            // TODO get the configuration and setup the ConnectorFactory
-            mbs = MBeanServerFactory.createMBeanServer(JMXUtils.DOMAIN_STRING);            
-            mcf = MBServerConnectorFactory.getInstance();
-            mcf.setMBeanServer(mbs);
-            mcf.setThreaded(mbpt.getJMXConnector().isThreaded());
-            mcf.setDaemon(mbpt.getJMXConnector().isDaemon());
-            mcf.setServiceUrl(mbpt.getJMXConnector().getJMXServiceURL());
-            try {            
-                mcf.createConnector();
-            } catch (IOException ex) {
-                LOG.log(Level.SEVERE, "START_CONNECTOR_FAILURE_MSG", new Object[]{ex});
-            }
         }
+        
+        mbs = MBeanServerFactory.createMBeanServer(JMXUtils.DOMAIN_STRING);            
+        mcf = MBServerConnectorFactory.getInstance();
+        mcf.setMBeanServer(mbs);
+        mcf.setThreaded(mbpt.getJMXConnector().isThreaded());
+        mcf.setDaemon(mbpt.getJMXConnector().isDaemon());
+        mcf.setServiceUrl(mbpt.getJMXConnector().getJMXServiceURL());
+        try {            
+            mcf.createConnector();
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, "START_CONNECTOR_FAILURE_MSG", new Object[]{ex});
+        }        
         
     }
     
