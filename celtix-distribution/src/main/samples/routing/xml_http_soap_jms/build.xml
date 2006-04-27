@@ -19,7 +19,6 @@
     <target name="jmsbroker" description="run ActiveMQ broker" depends="jmsbroker.start"/>
 
     <target name="router" description="run celtix router">
-        <property name="thirdparty.classpath" value=""/>
         <celtixrun classname="org.objectweb.celtix.routing.RouterManager" jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-router.xml" param1="-BUSid" param2="celtix-st"/>
     </target>
 
