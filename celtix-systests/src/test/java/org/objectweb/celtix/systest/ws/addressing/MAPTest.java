@@ -290,26 +290,28 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
      */
     protected static String verifyHeaders(List<String> wsaHeaders, boolean partial) {
         //System.out.println("verifying headers: " + wsaHeaders);
+        String ret = null;
         if (!wsaHeaders.contains(Names.WSA_MESSAGEID_NAME)) {
-            return "expected MessageID header"; 
+            ret = "expected MessageID header"; 
         }
         if (!wsaHeaders.contains(Names.WSA_TO_NAME)) {
-            return "expected To header";
+            ret = "expected To header";
         }
+       
         if (!(wsaHeaders.contains(Names.WSA_REPLYTO_NAME)
               || wsaHeaders.contains(Names.WSA_RELATESTO_NAME))) {
-            return "expected ReplyTo or RelatesTo header";
+            ret = "expected ReplyTo or RelatesTo header";
         }
         if (partial) { 
             if (!wsaHeaders.contains(Names.WSA_FROM_NAME)) {
-                return "expected From header";
+                ret = "expected From header";
             }
         } else {
             if (!wsaHeaders.contains(Names.WSA_ACTION_NAME)) {
-                return "expected Action header";
+                ret = "expected Action header";
             }            
         }
-        return null;
+        return ret;
     }
 
     private void checkVerification() {

@@ -356,7 +356,7 @@ public class MAPCodecTest extends TestCase {
         if (preExistingSOAPAction) {
             EasyMock.expectLastCall().andReturn(new String[] {"foobar"});
             String soapAction =
-                "\"" + ((AttributedURIType)expectedValues[4]).getValue() + "\"";
+                "\"" + ((AttributedURIType)expectedValues[5]).getValue() + "\"";
             mimeHeaders.setHeader("SOAPAction", soapAction);
             EasyMock.expectLastCall();
         } else {
@@ -413,17 +413,26 @@ public class MAPCodecTest extends TestCase {
                           unmarshaller);
         setUpHeaderDecode(headerItr,
                           uri,
+                          Names.WSA_FAULTTO_NAME,
+                          exposedAsNative
+                          ? EndpointReferenceType.class
+                          : VersionTransformer.Names200408.EPR_TYPE,
+                          3,
+                          unmarshaller);
+        
+        setUpHeaderDecode(headerItr,
+                          uri,
                           Names.WSA_RELATESTO_NAME,
                           exposedAsNative
                           ? RelatesToType.class
                           : Relationship.class,
-                          3,
+                          4,
                           unmarshaller);
         if (requestor) {
             context.put("org.objectweb.celtix.correlation.in",
                         exposedAsNative
-                        ? ((RelatesToType)expectedValues[3]).getValue()
-                        : ((Relationship)expectedValues[3]).getValue());
+                        ? ((RelatesToType)expectedValues[4]).getValue()
+                        : ((Relationship)expectedValues[4]).getValue());
             EasyMock.expectLastCall().andReturn(null);
         }
         setUpHeaderDecode(headerItr,
@@ -432,7 +441,7 @@ public class MAPCodecTest extends TestCase {
                           exposedAsNative
                           ? AttributedURIType.class
                           : AttributedURI.class,
-                          4,
+                          5,
                           unmarshaller);
         EasyMock.eq(mapProperty);
         EasyMock.reportMatcher(new MAPMatcher());
@@ -498,6 +507,14 @@ public class MAPCodecTest extends TestCase {
         replyTo.setAddress(
             ContextUtils.getAttributedURI(anonymous));
         maps.setReplyTo(replyTo);
+        EndpointReferenceType faultTo = new EndpointReferenceType();
+        anonymous = 
+            exposeAsNative
+            ? Names.WSA_ANONYMOUS_ADDRESS
+            : VersionTransformer.Names200408.WSA_ANONYMOUS_ADDRESS;
+        faultTo.setAddress(
+            ContextUtils.getAttributedURI(anonymous));
+        maps.setFaultTo(faultTo);
         RelatesToType relatesTo = new RelatesToType(); 
         relatesTo.setValue("urn:uuid:67890");
         maps.setRelatesTo(relatesTo);
@@ -511,13 +528,15 @@ public class MAPCodecTest extends TestCase {
             new QName[] {new QName(uri, Names.WSA_MESSAGEID_NAME), 
                          new QName(uri, Names.WSA_TO_NAME), 
                          new QName(uri, Names.WSA_REPLYTO_NAME),
+                         new QName(uri, Names.WSA_FAULTTO_NAME),
                          new QName(uri, Names.WSA_RELATESTO_NAME),
                          new QName(uri, Names.WSA_ACTION_NAME)};
         if (exposeAsNative) {
-            expectedValues = new Object[] {id, to, replyTo, relatesTo, action};
+            expectedValues = new Object[] {id, to, replyTo, faultTo, relatesTo, action};
             expectedDeclaredTypes = 
                 new Class<?>[] {AttributedURIType.class,
                                 AttributedURIType.class,
+                                EndpointReferenceType.class,
                                 EndpointReferenceType.class,
                                 RelatesToType.class, 
                                 AttributedURIType.class};
@@ -525,6 +544,7 @@ public class MAPCodecTest extends TestCase {
             expectedValues = new Object[] {VersionTransformer.convert(id),
                                            VersionTransformer.convert(to),
                                            VersionTransformer.convert(replyTo),
+                                           VersionTransformer.convert(faultTo),
                                            VersionTransformer.convert(relatesTo),
                                            VersionTransformer.convert(action)};
             if (!outbound) {
@@ -532,10 +552,13 @@ public class MAPCodecTest extends TestCase {
                 // occurs transparently in VersionTransformer
                 VersionTransformer.Names200408.EPR_TYPE.cast(expectedValues[2]).
                     getAddress().setValue(Names.WSA_ANONYMOUS_ADDRESS);
+                VersionTransformer.Names200408.EPR_TYPE.cast(expectedValues[3]).
+                    getAddress().setValue(Names.WSA_ANONYMOUS_ADDRESS);    
             }
             expectedDeclaredTypes = 
                 new Class<?>[] {AttributedURI.class,
                                 AttributedURI.class,
+                                VersionTransformer.Names200408.EPR_TYPE,
                                 VersionTransformer.Names200408.EPR_TYPE,
                                 Relationship.class, 
                                 AttributedURI.class};
@@ -627,12 +650,12 @@ public class MAPCodecTest extends TestCase {
                         getAddress().getValue();
                 String expectedRelatesTo = 
                     exposedAsNative
-                    ? ((RelatesToType)expectedValues[3]).getValue()
-                    : ((Relationship)expectedValues[3]).getValue();
+                    ? ((RelatesToType)expectedValues[4]).getValue()
+                    : ((Relationship)expectedValues[4]).getValue();
                 String expectedAction =                    
                     exposedAsNative
-                    ? ((AttributedURIType)expectedValues[4]).getValue()
-                    : ((AttributedURI)expectedValues[4]).getValue();
+                    ? ((AttributedURIType)expectedValues[5]).getValue()
+                    : ((AttributedURI)expectedValues[5]).getValue();
                 ret = expectedMessageID.equals(other.getMessageID().getValue())
                       && expectedTo.equals(other.getTo().getValue())
                       && expectedReplyTo.equals(

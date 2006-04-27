@@ -40,6 +40,19 @@ public interface AddressingProperties extends AddressingType {
      * @param ref new value for ReplyTo property
      */
     void setReplyTo(EndpointReferenceType ref);
+    
+    /**
+     * Accessor for the <b>FaultTo</b> property.
+     * @return current value of FaultTo property
+     */
+    EndpointReferenceType getFaultTo();
+
+    /**
+     * Mutator for the <b>FaultTo</b> property.
+     * @param ref new value for FaultTo property
+     */
+    void setFaultTo(EndpointReferenceType ref);
+
 
     /**
      * Accessor for the <b>RelatesTo</b> property.

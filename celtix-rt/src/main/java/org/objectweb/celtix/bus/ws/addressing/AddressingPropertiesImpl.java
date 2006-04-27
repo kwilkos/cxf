@@ -14,6 +14,7 @@ public class AddressingPropertiesImpl implements AddressingProperties {
     private AttributedURIType to;
     private AttributedURIType messageID;
     private EndpointReferenceType replyTo;
+    private EndpointReferenceType faultTo;
     private RelatesToType relatesTo;
     private AttributedURIType action;
     private String namespaceURI;
@@ -82,6 +83,23 @@ public class AddressingPropertiesImpl implements AddressingProperties {
         replyTo = ref;
     }
 
+    /**
+     * Accessor for the <b>FaultTo</b> property.
+     * @return current value of FaultTo property
+     */
+    public EndpointReferenceType getFaultTo() {
+        return faultTo;
+    }
+
+    /**
+     * Mutator for the <b>FaultTo</b> property.
+     * @param ref new value for FaultTo property
+     */
+    public void setFaultTo(EndpointReferenceType ref) {
+        faultTo = ref;
+    }
+
+    
     /**
      * Accessor for the <b>RelatesTo</b> property.
      * @return current value of RelatesTo property

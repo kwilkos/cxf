@@ -160,6 +160,12 @@ public class MAPCodec
                                             header,
                                             marshaller);
                 transformer.encodeAsExposed(maps.getNamespaceURI(),
+                                            maps.getFaultTo(), 
+                                            Names.WSA_FAULTTO_NAME, 
+                                            EndpointReferenceType.class,
+                                            header,
+                                            marshaller);
+                transformer.encodeAsExposed(maps.getNamespaceURI(),
                                             maps.getRelatesTo(),
                                             Names.WSA_RELATESTO_NAME,
                                             RelatesToType.class,
@@ -236,6 +242,12 @@ public class MAPCodec
                                                        EndpointReferenceType.class,
                                                        headerElement, 
                                                        unmarshaller));
+                        } else if (Names.WSA_FAULTTO_NAME.equals(localName)) {
+                            maps.setFaultTo(transformer.decodeAsNative(
+                                                                       headerURI,
+                                                                       EndpointReferenceType.class,
+                                                                       headerElement, 
+                                                                       unmarshaller));
                         } else if (Names.WSA_RELATESTO_NAME.equals(localName)) {
                             maps.setRelatesTo(transformer.decodeAsNative(
                                                        headerURI,
