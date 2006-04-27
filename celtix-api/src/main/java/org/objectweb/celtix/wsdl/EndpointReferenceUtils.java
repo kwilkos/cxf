@@ -683,13 +683,7 @@ public final class EndpointReferenceUtils {
             //REVISIT Resolve the url for all cases           
             URL wsdlUrl = implementor.getClass().getResource(url);
             if (wsdlUrl != null) {
-                System.out.println("EF:" + wsdlUrl.toExternalForm());
-                try {
-                    System.out.println("URI:" + wsdlUrl.toURI());
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-                url = wsdlUrl.toExternalForm();                
+                url = wsdlUrl.toExternalForm();
             }
         }
         // set wsdlLocation

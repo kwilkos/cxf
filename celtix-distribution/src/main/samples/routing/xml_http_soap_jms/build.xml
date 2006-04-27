@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="soap_jms_http demo" default="build" basedir=".">
+<project name="xml_http_soap_jms demo" default="build" basedir=".">
     <property name="celtix.home" location="../../.."/>
     <property name="thirdparty.classpath" value="${basedir}"/>
 
@@ -19,6 +19,7 @@
     <target name="jmsbroker" description="run ActiveMQ broker" depends="jmsbroker.start"/>
 
     <target name="router" description="run celtix router">
+        <property name="thirdparty.classpath" value=""/>
         <celtixrun classname="org.objectweb.celtix.routing.RouterManager" jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-router.xml" param1="-BUSid" param2="celtix-st"/>
     </target>
 

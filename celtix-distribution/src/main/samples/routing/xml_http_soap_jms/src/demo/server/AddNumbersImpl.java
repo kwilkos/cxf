@@ -5,7 +5,7 @@ import org.objectweb.addnumbers.AddNumbers;
 import org.objectweb.addnumbers.AddNumbersFault;
 import org.objectweb.addnumbers.types.FaultDetail;
 
-@WebService(serviceName = "AddNumbersService",
+@WebService(serviceName = "AddNumbersSOAPService",
             portName = "AddNumbersPort",
             endpointInterface = "org.objectweb.addnumbers.AddNumbers",
             targetNamespace = "http://www.objectweb.org/addNumbers")

@@ -96,7 +96,7 @@ public class SEIImplHandler implements InvocationHandler {
                                                            method.toString()).toString(),
                                                error);
                 } catch (Throwable t) {
-                    LOG.log(Level.SEVERE, "PROXY_INVOKE_EXCEPTION", method.toString());                
+                    LOG.log(Level.WARNING, "PROXY_INVOKE_EXCEPTION", method.toString());                
                     ex = (Exception) t;
                 }
                 
