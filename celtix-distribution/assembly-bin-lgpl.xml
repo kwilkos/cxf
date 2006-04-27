@@ -110,6 +110,13 @@
                 <include>celtix.jar</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>celtix/samples/j2ee/pojo</outputDirectory>
+            <includes>
+                <include>geronimo-plan.xml</include>
+            </includes>
+        </fileSet>
     </fileSets>
 
     <dependencySets>
@@ -122,3 +129,4 @@
     </dependencySets>
 
 </assembly>
+
