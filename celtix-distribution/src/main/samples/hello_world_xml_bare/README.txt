@@ -7,6 +7,10 @@ complete without one.
 Please review the README in the samples directory before
 continuing.
 
+The demo show you how celtix working with xml binind instead of soap
+binding. And this demo specificly show you how xml binding working
+with the doc-lit bare style.
+
 
 
 Prerequisite
