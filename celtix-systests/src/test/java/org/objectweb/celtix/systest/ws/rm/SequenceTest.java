@@ -452,9 +452,9 @@ public class SequenceTest extends ClientServerTestBase {
 
         // Inbound expected:
         // createSequenceResponse + (2 * greetMeResponse) + CreateSequence +
-        // (4 * partial response [for each outbound message]) = 8 
+        // (4 * partial response [for each outbound message]) = 8         
 
-        mf.verifyMessages(8, false);
+        mf.verifyMessages(8, false, 1000, 3);
         expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION,
                                         null, Names.WSRM_CREATE_SEQUENCE_ACTION,
                                         null, GREETME_RESPONSE_ACTION, 
