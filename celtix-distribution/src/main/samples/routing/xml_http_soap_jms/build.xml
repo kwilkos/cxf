@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <project name="xml_http_soap_jms demo" default="build" basedir=".">
+    <condition property="celtix.home" value="${env.CELTIX_HOME}">
+        <isset property="env.CELTIX_HOME"/>
+    </condition>
     <property name="celtix.home" location="../../.."/>
-    <property name="thirdparty.classpath" value="${basedir}"/>
 
     <!-- If in a source distro, find the right activemq dir -->
     <condition property="activemq.home" value="${celtix.home}/../../tools/activemq/3.2">
@@ -10,7 +12,16 @@
         </not>
     </condition>
 
+    <path id="routing.classpath">
+        <fileset dir="${celtix.home}/lib">
+            <include name="celtix-router-*.jar"/>
+        </fileset>
+        <pathelement location="${basedir}"/>
+    </path>
+
+    <property name="thirdparty.classpath" refid="routing.classpath"/>
     <import file="../../common_build.xml"/>
+
 
     <target name="server" description="run demo server" depends="build">
         <celtixrun classname="demo.routing.server.Server"/>

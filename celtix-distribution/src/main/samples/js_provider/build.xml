@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<project name="hello world dispatch demo" default="build" basedir=".">
+    <condition property="celtix.home" value="${env.CELTIX_HOME}">
+        <isset property="env.CELTIX_HOME"/>
+    </condition>
+    <property name="celtix.home" location="../.."/>
+
+    <path id="rhino.classpath">
+        <fileset dir="${celtix.home}/lib">
+            <include name="celtix-js-*.jar"/>
+            <include name="js-*.jar"/>
+            <include name="xbean-*.jar"/>
+        </fileset>
+    </path>
+
+    <property name="thirdparty.classpath" refid="rhino.classpath"/>
+
+
+    <import file="../common_build.xml"/>        
+        
+    <target name="client" description="run demo client" depends="build">
+        <property name="param" value=""/>
+        <celtixrun classname="demo.hwDispatch.client.Client" param1="${basedir}/wsdl/hello_world.wsdl" param2="${op}" param3="${param}"/>
+    </target> 
+        
+    <target name="server" description="run demo server" depends="build">
+        <celtixrun classname="org.objectweb.celtix.js.rhino.ServerApp" param1="-v" param2="-b" param3="http://localhost:9000/SoapContext" param4="${basedir}/impl.jsx" param5="${basedir}/impl.js"/>
+    </target>
+        
+    <target name="generate.code">
+        <echo level="info" message="Generating code using wsdl2java..."/>
+        <wsdl2java file="hello_world.wsdl"/>
+    </target>
+
+</project>

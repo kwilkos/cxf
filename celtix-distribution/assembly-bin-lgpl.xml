@@ -117,6 +117,13 @@
                 <include>geronimo-plan.xml</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>target/additional-libs/</directory>
+            <outputDirectory>celtix/lib</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
     </fileSets>
 
     <dependencySets>
