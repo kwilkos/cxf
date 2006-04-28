@@ -73,6 +73,7 @@ public abstract class AbstractCeltixToolContainer extends AbstractToolContainer 
                 System.out.println(name + " " + getUsage());
                 System.out.println();
                 System.out.println("Options : ");
+                System.out.println();
                 System.out.println(parser.getDetailedUsage());
                 String toolUsage = parser.getToolUsage();
 

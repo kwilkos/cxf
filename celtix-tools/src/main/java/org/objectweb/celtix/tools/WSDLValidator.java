@@ -24,7 +24,9 @@ public class WSDLValidator extends AbstractCeltixToolContainer {
     }
 
     private Set getArrayKeys() {
-        return new HashSet<String>();
+        Set<String> set = new HashSet<String>();
+        set.add(ToolConstants.CFG_SCHEMA_URL);
+        return set;
     }
 
     public void execute(boolean exitOnFinish) {

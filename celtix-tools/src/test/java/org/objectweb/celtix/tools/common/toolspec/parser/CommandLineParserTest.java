@@ -215,7 +215,7 @@ public class CommandLineParserTest extends TestCase {
         usage += "enum" + lineSeparator + lineSeparator;
         usage += "-r" + lineSeparator;
         usage += "required" + lineSeparator + lineSeparator;
-        usage += "[ -p <[wsdl namespace =]Package Name> ]" + lineSeparator;
+        usage += "[ -p <[wsdl namespace =]Package Name> ]*" + lineSeparator;
         usage += "The java package name to use for the generated code."
             + "Also, optionally specify the wsdl namespace mapping to a particular java packagename."
             + lineSeparator + lineSeparator;

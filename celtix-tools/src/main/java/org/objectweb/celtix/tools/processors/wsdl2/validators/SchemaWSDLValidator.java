@@ -139,7 +139,7 @@ public class SchemaWSDLValidator extends AbstractValidator {
             isValid = true;
 
         } catch (IOException ioe) {
-            throw new ToolException(ioe);
+            throw new ToolException("Can not get the wsdl " + wsdlsource.getSystemId() , ioe);
         } catch (SAXException saxEx) {
             throw new ToolException(saxEx);
 

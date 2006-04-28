@@ -7,15 +7,18 @@
 	  xmlns:ts="http://www.xsume.com/Xutil/ToolSpecification">
 
     <annotation>
-    Examples :
-    wsdlvalidator HelloWorld.wsdl
-    wsdlvalidator -s http://celtix.objectweb.org/schemas -s http://mycompany/schemas Greeting.wsdl
+Examples :
+
+wsdlvalidator HelloWorld.wsdl
+wsdlvalidator -s http://celtix.objectweb.org/schemas -s http://mycompany/schemas Greeting.wsdl
     </annotation>
 
 	<usage>
 		<optionGroup id="options">				
 			<option id="schemaDir" minOccurs="1" maxOccurs="1">
-				<annotation>The Directory used to search for schemas</annotation>
+		         <annotation>
+		            The Directory used to search for schemas
+		         </annotation>
 				<switch>d</switch>
 				<associatedArgument placement="afterSpace">
 					<annotation>schema-directory</annotation>
@@ -23,7 +26,9 @@
 			</option>
 			
 			<option id="schemaURL" maxOccurs="unbounded">
-				<annotation>Specify the user specify schema url.(can be specified multiple times</annotation>
+			<annotation>
+			    Specify the user specify schema url.(can be specified multiple times)
+			</annotation>
 				<switch>s</switch>
 				<associatedArgument placement="afterSpace">
 					<annotation>schema-url</annotation>
@@ -39,25 +44,33 @@
 		<optionGroup id="common_options">
 		
 		    <option id="help" maxOccurs="1">
-				<annotation>Display detailed information for options.</annotation>
+			<annotation>
+			    Display detailed information for options.
+			</annotation>
 				<switch>h</switch>
 				<switch>?</switch>
 				<switch>help</switch>
 		    </option>
 		    
 		    <option id="version">
-				<annotation>Display the version of the tool.</annotation>
+			<annotation>
+			    Display the version of the tool.
+			</annotation>
 				<switch>v</switch>
 		    </option>
 	
 		    <option id="verbose">
-				<annotation>Verbose mode</annotation>
+			<annotation>
+			    Verbose mode
+			</annotation>
 				<switch>verbose</switch>
 				<switch>V</switch>
 		    </option>
 	
 		    <option id="quiet">
-				<annotation>Quiet mode</annotation>
+			<annotation>
+			    Quiet mode
+			</annotation>
 				<switch>quiet</switch>
 				<switch>q</switch>
 		    </option>
@@ -65,7 +78,9 @@
 		</optionGroup>
 		
 		<argument id="wsdlurl" minOccurs="1" maxOccurs="1">
-			<annotation>WSDL URL</annotation>
+		        <annotation>
+		            WSDL URL
+		         </annotation>
 		</argument>
 	</usage>    
 
