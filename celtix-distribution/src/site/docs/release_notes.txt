@@ -1,4 +1,4 @@
-Celtix 1.0 Beta Release Notes
+Celtix 1.0 Release Notes
 
 1. New Features
 
