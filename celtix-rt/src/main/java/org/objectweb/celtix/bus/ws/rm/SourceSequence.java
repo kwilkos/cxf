@@ -70,10 +70,16 @@ public class SourceSequence extends AbstractSequenceImpl implements RMSourceSequ
         return currentMessageNumber;
     }
 
+    /**
+     * @return the identifier of the rm source
+     */
     public String getEndpointIdentifier() {
+        if (null != source) {
+            return source.getEndpointId();
+        }
         return null;
     }
-
+    
     public Date getExpiry() {
         return expires;
     }

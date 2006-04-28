@@ -14,13 +14,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bindings.AbstractBindingBase;
+import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.Request;
 import org.objectweb.celtix.bindings.Response;
 import org.objectweb.celtix.bindings.ServerRequest;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
+import org.objectweb.celtix.bus.ws.rm.soap.RMSoapHandler;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -44,11 +49,14 @@ public class RetransmissionQueue {
         new QName(RMHandler.RM_CONFIGURATION_URI, "exponentialBackoffBase");
     public static final String DEFAULT_BASE_RETRANSMISSION_INTERVAL = "3000";
     public static final String DEFAULT_EXPONENTIAL_BACKOFF = "2";
+    private static final String SOAP_MSG_KEY = "org.objectweb.celtix.bindings.soap.message";
     private static final Logger LOG =
         LogUtils.getL7dLogger(RetransmissionQueue.class);
     
 
     private RMHandler handler;
+    private RMSoapHandler rmSOAPHandler;
+    private MAPCodec wsaSOAPHandler;
     private WorkQueue workQueue;
     private long baseRetransmissionInterval;
     private int exponentialBackoff;
@@ -242,16 +250,45 @@ public class RetransmissionQueue {
      * store.
      *
      */
-    protected void populate(Collection<SourceSequence> seqs) {     
+    protected void populate(Collection<SourceSequence> seqs) { 
+        LOG.fine(seqs.size() + " active sequences");
         RMStore store = handler.getStore();
         for (SourceSequence seq : seqs) {
             Collection<RMMessage> msgs  = store.getMessages(seq.getIdentifier(), true);
+            LOG.fine("Recovered " + msgs.size() + " messages for this sequence");
             for (RMMessage msg : msgs) {
                 ObjectMessageContext objCtx = new ObjectMessageContextImpl();
                 objCtx.putAll(msg.getContext());
                 cacheUnacknowledged(objCtx);
+                LOG.fine("cached unacknowledged message nr: " + msg.getMessageNr());
             }
         }         
+    }
+    
+    protected RMSoapHandler getRMSoapHandler() {
+        if (null == rmSOAPHandler) {
+            AbstractBindingImpl abi = handler.getBinding().getBindingImpl();
+            List<Handler> handlerChain = abi.getPostProtocolSystemHandlers();
+            for (Handler h : handlerChain) {
+                if (h instanceof RMSoapHandler) {
+                    rmSOAPHandler = (RMSoapHandler)h;
+                }
+            } 
+        }
+        return rmSOAPHandler;
+    }
+    
+    protected MAPCodec getWsaSOAPHandler() {
+        if (null == wsaSOAPHandler) {
+            AbstractBindingImpl abi = handler.getBinding().getBindingImpl();
+            List<Handler> handlerChain = abi.getPostProtocolSystemHandlers();
+            for (Handler h : handlerChain) {
+                if (h instanceof MAPCodec) {
+                    wsaSOAPHandler = (MAPCodec)h;
+                }
+            } 
+        }
+        return wsaSOAPHandler;
     }
 
     /**
@@ -299,8 +336,24 @@ public class RetransmissionQueue {
      */
     protected ResendCandidate cacheUnacknowledged(ObjectMessageContext ctx) {
         ResendCandidate candidate = null;
-        SequenceType st = 
-            RMContextUtils.retrieveRMProperties(ctx, true).getSequence();
+        RMProperties rmps = RMContextUtils.retrieveRMProperties(ctx, true);
+        if (null == rmps) {
+            SOAPMessage message = (SOAPMessage)ctx.get(SOAP_MSG_KEY);
+            rmps = getRMSoapHandler().unmarshalRMProperties(message);
+            RMContextUtils.storeRMProperties(ctx, rmps, true);            
+        }
+        AddressingProperties maps = ContextUtils.retrieveMAPs(ctx, false, true);
+        if (null == maps) {
+            SOAPMessage message = (SOAPMessage)ctx.get(SOAP_MSG_KEY);
+            try {
+                maps = getWsaSOAPHandler().unmarshalMAPs(message);
+                ContextUtils.storeMAPs(maps, ctx, true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        
+        SequenceType st = rmps.getSequence();
         Identifier sid = st.getIdentifier();
         synchronized (this) {
             String key = sid.getValue();

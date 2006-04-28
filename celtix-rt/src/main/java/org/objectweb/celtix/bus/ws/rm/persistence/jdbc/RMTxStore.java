@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm.persistence.jdbc;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -126,6 +127,13 @@ public class RMTxStore implements RMStore {
     }
     
     public void createSourceSequence(RMSourceSequence seq) {
+        String sequenceIdentifier = seq.getIdentifier().getValue();
+        String endpointIdentifier = seq.getEndpointIdentifier();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.info("Creating source sequence: " + sequenceIdentifier + ", (endpoint: "
+                     + endpointIdentifier + ")"); 
+        }
+        
         try {
             beginTransaction();
             
@@ -133,12 +141,12 @@ public class RMTxStore implements RMStore {
                 createSrcSequenceStmt = connection.prepareStatement(CREATE_SRC_SEQUENCE_STMT_STR);
             }
             assert null != createSrcSequenceStmt;
-            createSrcSequenceStmt.setString(1, seq.getIdentifier().getValue());
+            createSrcSequenceStmt.setString(1, sequenceIdentifier);
             Date expiry = seq.getExpiry();
             createSrcSequenceStmt.setLong(2, expiry == null ? 0 : expiry.getTime());
             Identifier osid = seq.getOfferingSequenceIdentifier();
             createSrcSequenceStmt.setString(3, osid == null ? null : osid.getValue());
-            createSrcSequenceStmt.setString(4, seq.getEndpointIdentifier());
+            createSrcSequenceStmt.setString(4, endpointIdentifier);
             createSrcSequenceStmt.execute();    
             
             commit();
@@ -150,15 +158,22 @@ public class RMTxStore implements RMStore {
     }
     
     public void createDestinationSequence(RMDestinationSequence seq) {
+        String sequenceIdentifier = seq.getIdentifier().getValue();
+        String endpointIdentifier = seq.getEndpointIdentifier();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.info("Creating destination sequence: " + sequenceIdentifier + ", (endpoint: "
+                 + endpointIdentifier + ")");
+        }
         try {
             beginTransaction();
             
             if (null == createDestSequenceStmt) {
                 createDestSequenceStmt = connection.prepareStatement(CREATE_DEST_SEQUENCE_STMT_STR);
             }
-            createDestSequenceStmt.setString(1, seq.getIdentifier().getValue());
-            createDestSequenceStmt.setString(2, seq.getAcksTo().getAddress().getValue());
-            createDestSequenceStmt.setString(3, seq.getEndpointIdentifier());
+            createDestSequenceStmt.setString(1, sequenceIdentifier);
+            String addr = seq.getAcksTo().getAddress().getValue();
+            createDestSequenceStmt.setString(2, addr);
+            createDestSequenceStmt.setString(3, endpointIdentifier);
             
             createDestSequenceStmt.execute();
             
@@ -209,6 +224,9 @@ public class RMTxStore implements RMStore {
 
 
     public Collection<RMDestinationSequence> getDestinationSequences(String endpointIdentifier) {
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.info("Getting destination sequences for endpoint: " + endpointIdentifier);
+        }
         Collection<RMDestinationSequence> seqs = new ArrayList<RMDestinationSequence>();
         try {
             if (null == selectDestSequencesStmt) {
@@ -224,9 +242,11 @@ public class RMTxStore implements RMStore {
                 sid.setValue(res.getString(1));
                 EndpointReferenceType acksTo = RMUtils.createReference(res.getString(2));  
                 BigDecimal lm = res.getBigDecimal(3);
-                InputStream is = res.getBinaryStream(4);                
-                SequenceAcknowledgement ack = RMUtils.getPersistenceUtils()
-                    .getSequenceAcknowledgment(is);                
+                InputStream is = res.getBinaryStream(4); 
+                SequenceAcknowledgement ack = null;
+                if (null != is) {
+                    ack = RMUtils.getPersistenceUtils().getSequenceAcknowledgment(is); 
+                }
                 DestinationSequence seq = new DestinationSequence(sid, acksTo, 
                                                                   lm == null ? null : lm.toBigInteger(), ack);
                 seqs.add(seq);                                                 
@@ -238,6 +258,9 @@ public class RMTxStore implements RMStore {
     }
 
     public Collection<RMSourceSequence> getSourceSequences(String endpointIdentifier) {
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.info("Getting source sequences for endpoint: " + endpointIdentifier);
+        }
         Collection<RMSourceSequence> seqs = new ArrayList<RMSourceSequence>();
         try {
             if (null == selectSrcSequencesStmt) {
@@ -502,7 +525,7 @@ public class RMTxStore implements RMStore {
             throw new RMStoreException(ex);
         }
              
-        assert null != params.get(USER_NAME_PROPERTY);
+        // assert null != params.get(USER_NAME_PROPERTY);
         
         try {
             connection = DriverManager.getConnection(url, 
@@ -524,5 +547,46 @@ public class RMTxStore implements RMStore {
      */
     Connection getConnection() {
         return connection;
+    }
+    
+    public static void deleteDatabaseFiles(String path, boolean now) {
+        File root = null;
+        String dsh = System.getProperty("derby.system.home");
+        if (null == dsh) {
+            File log = new File("derby.log");
+            if (log.exists()) {
+                if (now) {
+                    log.delete();
+                } else {
+                    log.deleteOnExit();
+                }
+            }
+            root = new File(path);
+        } else {
+            root = new File(dsh);
+        }
+        if (root.exists()) {
+            recursiveDelete(root, now);
+        }
+
+    }
+
+    private static void recursiveDelete(File dir, boolean now) {
+        for (File f : dir.listFiles()) {
+            if (f.isDirectory()) {
+                recursiveDelete(f, now);
+            } else {
+                if (now) {
+                    f.delete();
+                } else {
+                    f.deleteOnExit();
+                }
+            }
+        }
+        if (now) {
+            dir.delete();
+        } else {
+            dir.deleteOnExit();
+        }
     }
 }

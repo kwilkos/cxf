@@ -193,13 +193,24 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
      * @exception SOAPFaultException if decoded MAPs are invalid 
      */
     private void decode(SOAPMessageContext context) { 
+        SOAPMessage message = context.getMessage();
+        RMProperties rmps = unmarshalRMProperties(message);
+        RMContextUtils.storeRMProperties(context, rmps, false);
+    }
+    
+    /**
+     * Decode the RM properties from the SOAP message.
+     * 
+     * @param message the SOAP message
+     * @return the RM properties
+     */
+    public RMProperties unmarshalRMProperties(SOAPMessage message) { 
         RMProperties rmps = new RMPropertiesImpl();
         
         try {
             Collection<SequenceAcknowledgement> acks = new ArrayList<SequenceAcknowledgement>();
             Collection<AckRequestedType> requested = new ArrayList<AckRequestedType>();           
             
-            SOAPMessage message = context.getMessage();
             SOAPEnvelope env = message.getSOAPPart().getEnvelope();
             SOAPHeader header = env.getHeader();
             
@@ -245,7 +256,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
         } catch (JAXBException je) {
             LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", je); 
         }
-        RMContextUtils.storeRMProperties(context, rmps, false);
+        return rmps;
     }
 
 

@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm.persistence.jdbc;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -64,7 +63,7 @@ public class RMTxStoreTest extends TestCase {
             }
             
             protected void setUp() {                  
-                deleteExistingDatabase(true);
+                RMTxStore.deleteDatabaseFiles("rmdb", true);
             }
             
             
@@ -79,7 +78,7 @@ public class RMTxStoreTest extends TestCase {
                 } catch (SQLException ex) {
                     // ignore
                 }
-                deleteExistingDatabase(false);
+                RMTxStore.deleteDatabaseFiles("rmdb", false);
             }
         }
         return new RMTxStoreTestSetup(suite);  
@@ -608,48 +607,6 @@ public class RMTxStoreTest extends TestCase {
                     assertEquals("greetMeRequest", node.getLocalName());
                 }
             }
-        }
-    }
-    
-    
-    private static void deleteExistingDatabase(boolean now) {
-        File root = null;
-        String dsh = System.getProperty("derby.system.home");
-        if (null == dsh) {
-            File log = new File("derby.log");
-            if (log.exists()) {
-                if (now) {
-                    log.delete();
-                } else {
-                    log.deleteOnExit();
-                }
-            }  
-            root = new File("rmdb");
-        } else {
-            root = new File(dsh);
-        }
-        if (root.exists()) {
-            recursiveDelete(root, now);
-        }
-        
-    }
-    
-    private static void recursiveDelete(File dir, boolean now) {
-        for  (File f : dir.listFiles()) {
-            if (f.isDirectory()) {
-                recursiveDelete(f, now);
-            } else {
-                if (now) {
-                    f.delete();
-                } else {
-                    f.deleteOnExit();
-                }
-            }
-        }
-        if (now) {
-            dir.delete();
-        } else {
-            dir.deleteOnExit();
         }
     }
 }

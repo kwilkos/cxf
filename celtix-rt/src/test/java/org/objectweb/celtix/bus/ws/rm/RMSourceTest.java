@@ -13,12 +13,12 @@ import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractClientBinding;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
+import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
-import org.objectweb.celtix.workqueue.AutomaticWorkQueue;
-import org.objectweb.celtix.workqueue.WorkQueueManager;
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
@@ -31,13 +31,11 @@ import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 import static org.easymock.classextension.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.expectLastCall;
-
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
 
 public class RMSourceTest extends TestCase {
     
     private Bus bus;
-    private WorkQueueManager wqm;
-    private AutomaticWorkQueue workQueue;
     private BusLifeCycleManager lcm;
     private RMHandler handler;
     private RMSource s;
@@ -131,6 +129,8 @@ public class RMSourceTest extends TestCase {
     
     public void testAddUnacknowledged() {
         ObjectMessageContext ctx = new ObjectMessageContextImpl();
+        AddressingProperties maps = new AddressingPropertiesImpl();
+        ctx.put(CLIENT_ADDRESSING_PROPERTIES_OUTBOUND, maps);
         RMPropertiesImpl rmps = new RMPropertiesImpl();
         SequenceType seq = control.createMock(SequenceType.class);
         Identifier sid = control.createMock(Identifier.class);
@@ -235,7 +235,9 @@ public class RMSourceTest extends TestCase {
         Collection<RMSourceSequence> sss = new ArrayList<RMSourceSequence>();
         sss.add(ss);
         EasyMock.expect(store.getSourceSequences("endpoint")).andReturn(sss);
-        
+        EasyMock.expect(handler.getStore()).andReturn(store);
+        Collection<RMMessage> msgs = new ArrayList<RMMessage>();
+        EasyMock.expect(store.getMessages(id, true)).andReturn(msgs);
         control.replay();
         s.restore();
         assertEquals(1, s.getAllSequences().size());
@@ -245,13 +247,7 @@ public class RMSourceTest extends TestCase {
     private RMSource createSource(RMHandler h) {
         bus = control.createMock(Bus.class);
         h.getBus();
-        expectLastCall().andReturn(bus);        
-        wqm = control.createMock(WorkQueueManager.class);
-        bus.getWorkQueueManager();
-        expectLastCall().andReturn(wqm);
-        workQueue = control.createMock(AutomaticWorkQueue.class);
-        wqm.getAutomaticWorkQueue();
-        expectLastCall().andReturn(workQueue);
+        expectLastCall().andReturn(bus); 
         lcm = control.createMock(BusLifeCycleManager.class);
         bus.getLifeCycleManager();
         expectLastCall().andReturn(lcm);

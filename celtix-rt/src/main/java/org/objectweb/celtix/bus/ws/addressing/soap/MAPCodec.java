@@ -190,17 +190,15 @@ public class MAPCodec
     /**
      * Decode the MAPs from protocol-specific headers.
      *  
-     * @param context the messsage context
+     * @param message the SOAP message
      * @param the decoded MAPs
      * @exception SOAPFaultException if decoded MAPs are invalid 
      */
-    private AddressingProperties decode(SOAPMessageContext context) {
+    public AddressingProperties unmarshalMAPs(SOAPMessage message) {
         // REVISIT generate MessageAddressingHeaderRequired fault if an
         // expected header is missing 
         AddressingPropertiesImpl maps = null;
-        boolean isRequestor = ContextUtils.isRequestor(context);
         try {
-            SOAPMessage message = context.getMessage();
             SOAPEnvelope env = message.getSOAPPart().getEnvelope();
             SOAPHeader header = env.getHeader();
             if (header != null) {
@@ -254,11 +252,6 @@ public class MAPCodec
                                                        RelatesToType.class,
                                                        headerElement, 
                                                        unmarshaller));
-                            if (isRequestor) {
-                                ContextUtils.storeCorrelationID(maps.getRelatesTo(),
-                                                                false,
-                                                                context);
-                            }
                         } else if (Names.WSA_ACTION_NAME.equals(localName)) {
                             maps.setAction(transformer.decodeAsNative(
                                                       headerURI,
@@ -277,6 +270,28 @@ public class MAPCodec
             LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", se); 
         } catch (JAXBException je) {
             LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", je); 
+        }
+        return maps;
+    }
+    
+    /**
+     * Decode the MAPs from protocol-specific headers.
+     *  
+     * @param context the messsage context
+     * @param the decoded MAPs
+     * @exception SOAPFaultException if decoded MAPs are invalid 
+     */
+    private AddressingProperties decode(SOAPMessageContext context) {
+        // REVISIT generate MessageAddressingHeaderRequired fault if an
+        // expected header is missing 
+        AddressingProperties maps = null;
+        boolean isRequestor = ContextUtils.isRequestor(context);
+        SOAPMessage message = context.getMessage();
+        maps = unmarshalMAPs(message);
+        if (isRequestor && null != maps.getRelatesTo()) {
+            ContextUtils.storeCorrelationID(maps.getRelatesTo(),
+                                            false,
+                                            context);
         }
         return maps;
     }

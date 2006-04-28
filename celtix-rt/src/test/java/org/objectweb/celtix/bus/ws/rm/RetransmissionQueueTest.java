@@ -30,6 +30,7 @@ import org.objectweb.celtix.ws.rm.persistence.RMStore;
 
 import static org.objectweb.celtix.bindings.JAXWSConstants.DATABINDING_CALLBACK_PROPERTY;
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
+import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
 import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.RM_PROPERTIES_OUTBOUND;
 
@@ -92,6 +93,11 @@ public class RetransmissionQueueTest extends TestCase {
         ObjectMessageContext context1 = setUpContext("sequence1");
         ObjectMessageContext context2 = setUpContext("sequence2");
         ObjectMessageContext context3 = setUpContext("sequence1");
+        
+        setupContextMAPs(context1);
+        setupContextMAPs(context2);
+        setupContextMAPs(context3);
+        
         ready();
         
         assertNotNull("expected resend candidate",
@@ -218,6 +224,9 @@ public class RetransmissionQueueTest extends TestCase {
         ObjectMessageContext context1 = setUpContext("sequence1");
         ObjectMessageContext context2 = setUpContext("sequence2");
         ObjectMessageContext context3 = setUpContext("sequence1");
+        setupContextMAPs(context1);
+        setupContextMAPs(context2);
+        setupContextMAPs(context3);
         ready();
         RetransmissionQueue.ResendCandidate candidate1 =
             queue.cacheUnacknowledged(context1);
@@ -267,6 +276,9 @@ public class RetransmissionQueueTest extends TestCase {
         ObjectMessageContext context1 = setUpContext("sequence1");
         ObjectMessageContext context2 = setUpContext("sequence2");
         ObjectMessageContext context3 = setUpContext("sequence1");
+        setupContextMAPs(context1);
+        setupContextMAPs(context2);
+        setupContextMAPs(context3);
         ready();
         RetransmissionQueue.ResendCandidate candidate1 =
             queue.cacheUnacknowledged(context1);
@@ -317,6 +329,9 @@ public class RetransmissionQueueTest extends TestCase {
         ObjectMessageContext context1 = setUpContext("sequence1");
         ObjectMessageContext context2 = setUpContext("sequence2");
         ObjectMessageContext context3 = setUpContext("sequence1");
+        setupContextMAPs(context1);
+        setupContextMAPs(context2);
+        setupContextMAPs(context3);
         ready();
         RetransmissionQueue.ResendCandidate candidate1 =
             queue.cacheUnacknowledged(context1);
@@ -368,6 +383,7 @@ public class RetransmissionQueueTest extends TestCase {
 
     private void doTestDefaultResender(boolean isRequestor) throws Exception {
         ObjectMessageContext context1 = setUpContext("sequence1");
+        setupContextMAPs(context1);
         queue.replaceResender(queue.getDefaultResender());
         ready();
         RetransmissionQueue.ResendCandidate candidate1 =
@@ -401,7 +417,14 @@ public class RetransmissionQueueTest extends TestCase {
             setUpSequenceType(context, sid, messageNumber);
         }
         contexts.add(context);
+        
         return context;
+    }
+    
+    private void setupContextMAPs(ObjectMessageContext context) {
+        AddressingPropertiesImpl maps = control.createMock(AddressingPropertiesImpl.class);
+        context.get(CLIENT_ADDRESSING_PROPERTIES_OUTBOUND);
+        EasyMock.expectLastCall().andReturn(maps);
     }
     
     private void ready() {

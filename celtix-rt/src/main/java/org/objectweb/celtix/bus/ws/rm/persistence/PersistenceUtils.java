@@ -23,6 +23,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.GenericMessageContext;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 
 public class PersistenceUtils {
@@ -43,7 +44,7 @@ public class PersistenceUtils {
             int nKeys = 0;
             for (String key : ctx.keySet()) {
                 Object value = ctx.get(key); 
-                if (value instanceof Serializable) {
+                if (isPersistable(key, value)) {
                     nKeys++;
                 } else if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Skipping key: " + key + " (value of type " 
@@ -57,7 +58,7 @@ public class PersistenceUtils {
             
             for (String key : ctx.keySet()) {
                 Object value = ctx.get(key); 
-                if (value instanceof Serializable) {
+                if (isPersistable(key, value)) {
                     oos.writeObject(key); 
                     oos.writeObject(value);
                 }                
@@ -70,9 +71,6 @@ public class PersistenceUtils {
 
         } catch (Exception ex) {
             throw new RMStoreException(ex);    
-        }
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Context as stream: " + new String(bos.toByteArray()));
         }
         return new ByteArrayInputStream(bos.toByteArray());
     }
@@ -153,6 +151,11 @@ public class PersistenceUtils {
             msgFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
         }
         return msgFactory;        
+    }
+    
+    private boolean isPersistable(Object key, Object value) {
+        return value instanceof Serializable
+            && !(ObjectMessageContext.REQUEST_PROXY.equals(key));
     }
    
 }

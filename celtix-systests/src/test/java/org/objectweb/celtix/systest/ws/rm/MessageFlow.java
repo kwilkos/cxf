@@ -222,7 +222,7 @@ public class MessageFlow extends Assert {
         return null;
     }
 
-    private String getMessageNumber(SOAPElement elem) throws Exception {
+    public String getMessageNumber(SOAPElement elem) throws Exception {
         SOAPElement se = (SOAPElement)elem.getChildElements(
                                                             new QName(Names.WSRM_NAMESPACE_NAME,
                                                                       "MessageNumber")).next();

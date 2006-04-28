@@ -19,7 +19,6 @@ import org.objectweb.celtix.buslifecycle.BusLifeCycleListener;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
-import org.objectweb.celtix.workqueue.WorkQueue;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.persistence.RMMessage;
@@ -44,7 +43,6 @@ public class RMSource extends RMEndpoint {
         super(h);
         map = new HashMap<String, SourceSequence>();
         Bus bus = h.getBus();
-        WorkQueue queue = bus.getWorkQueueManager().getAutomaticWorkQueue();
         bus.getLifeCycleManager().registerLifeCycleListener(new BusLifeCycleListener() {
             public void initComplete() {      
             }
@@ -56,11 +54,7 @@ public class RMSource extends RMEndpoint {
         });
         current = new HashMap<String, SourceSequence>();
         
-        retransmissionQueue = new RetransmissionQueue(h, getRMAssertion()); 
-        retransmissionQueue.populate(getAllSequences());
-        if (retransmissionQueue.getUnacknowledged().size() > 0) {
-            retransmissionQueue.start(queue);
-        }
+        retransmissionQueue = new RetransmissionQueue(h, getRMAssertion());         
         sequenceCreationLock = new ReentrantLock();
         sequenceCreationCondition = sequenceCreationLock.newCondition();
     }
@@ -73,7 +67,8 @@ public class RMSource extends RMEndpoint {
         addSequence(seq, true);
     }
     
-    public void addSequence(SourceSequence seq, boolean persist) { 
+    public void addSequence(SourceSequence seq, boolean persist) {
+        LOG.fine("Adding source sequence: " + seq);
         seq.setSource(this);
         map.put(seq.getIdentifier().getValue(), seq);
         if (persist) {
@@ -266,5 +261,16 @@ public class RMSource extends RMEndpoint {
         for (RMSourceSequence ds : dss) {
             addSequence((SourceSequence)ds, false);
         }
+        
+        retransmissionQueue.populate(getAllSequences());
+        int n = retransmissionQueue.getUnacknowledged().size();
+        if (n > 0) {
+            LOG.fine("Recovered " + n + " messages, start retransmission queue now");
+            retransmissionQueue.start(getHandler().getBus().getWorkQueueManager().getAutomaticWorkQueue());
+        } else {
+            LOG.fine("No outgoing messages recovered");
+        }
+        
+        
     }
 }
