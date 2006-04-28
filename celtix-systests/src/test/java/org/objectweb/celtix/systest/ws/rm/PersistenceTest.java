@@ -238,9 +238,7 @@ public class PersistenceTest extends ClientServerTestBase {
         }
     
         int n = mf.getOutboundMessages().size();
-        assertTrue(n > 0);
-        
-        mf.verifyMessages(3, true);
+        assertTrue(n > 0);        
         String[] expectedActions = new String[n];
         for (int i = 0; i < n; i++) {
             expectedActions[i] = GREETMEONEWAY_ACTION;
