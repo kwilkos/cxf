@@ -41,7 +41,6 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractClientBinding.class);
 
     protected Port port;
-    protected ClientTransport transport;
     private ResponseCorrelator responseCorrelator;
     
     public AbstractClientBinding(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
@@ -134,7 +133,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
 
             if (null != ostreamCtx) {
 
-                InputStreamMessageContext responseContext = transport.invoke(ostreamCtx);
+                InputStreamMessageContext responseContext = clientTransport().invoke(ostreamCtx);
                 Response fullResponse = null;
                 if (BindingContextUtils.retrieveDecoupledResponse(responseContext)) {
                     // partial response traverses complete handler chain first
@@ -189,10 +188,10 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
                 // to give the handlers a chance to process these headers
                 
                 if (BindingContextUtils.isOnewayTransport(ostreamCtx)) {
-                    transport.invokeOneway(ostreamCtx);
+                    clientTransport().invokeOneway(ostreamCtx);
                 } else {
                     LOG.fine("Sending message as a twoway request as required by system handlers.");
-                    InputStreamMessageContext istreamCtx = transport.invoke(ostreamCtx);
+                    InputStreamMessageContext istreamCtx = clientTransport().invoke(ostreamCtx);
                     Response response = new Response(request);     
                     response.processProtocol(istreamCtx);
                     response.processLogical(null);
@@ -219,7 +218,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
 
             if (null != ostreamCtx) {
 
-                Future<InputStreamMessageContext> ins = transport.invokeAsync(ostreamCtx, executor);
+                Future<InputStreamMessageContext> ins = clientTransport().invokeAsync(ostreamCtx, executor);
                 asyncFuture = new AsyncFuture(ins, this, callback, request.getHandlerInvoker(), objectCtx);
             }
 
@@ -239,14 +238,14 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
 
     // --- helpers ---
 
-    protected void shutdown() {
+    protected synchronized void shutdown() {
         if (transport != null) {
             transport.shutdown();
             transport = null;
         }
     }
 
-    protected synchronized ClientTransport getTransport() throws IOException {
+    public synchronized ClientTransport getTransport() throws IOException {
         if (transport == null) {
             try {
                 transport = createTransport(reference);
@@ -255,7 +254,7 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
             }
         }
         assert transport != null : "transport is null";
-        return transport;
+        return clientTransport();
     }
 
     protected ClientTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
@@ -278,23 +277,19 @@ public abstract class AbstractClientBinding extends AbstractBindingBase implemen
         assert ret != null;
         return ret;
     }
+    
+    protected ClientTransport clientTransport() {
+        return (ClientTransport)transport;
+    }
 
-    protected synchronized ResponseCorrelator getResponseCorrelator() {
+    public synchronized ResponseCorrelator getResponseCorrelator() {
         if (responseCorrelator == null) {
             responseCorrelator = 
-                (ResponseCorrelator)transport.getResponseCallback();
+                (ResponseCorrelator)clientTransport().getResponseCallback();
         }
         return responseCorrelator;
     }
     
-    /*
-    protected void storeSource(MessageContext context) {
-        BindingContextUtils.storeBinding(context, this);
-        BindingContextUtils.storeTransport(context, transport);
-        BindingContextUtils.storeBus(context, bus);
-    }
-    */
-
     protected void finalPrepareOutputStreamContext(MessageContext bindingContext,
                                                    OutputStreamMessageContext ostreamContext)
         throws IOException {

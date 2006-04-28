@@ -49,21 +49,21 @@ public class SequenceTest extends ClientServerTestBase {
     private MessageFlow mf;
     
     private boolean yes = true;
-    private boolean no;
-    
+
     // enable currently disabled tests when transport apis allows to 
     // originate standalone requests from server side
     
     private boolean doTestOnewayAnonymousAcks = yes;
     private boolean doTestOnewayDeferredAnonymousAcks = yes; 
-    private boolean doTestOnewayDeferredNonAnonymousAcks = no;
+    private boolean doTestOnewayDeferredNonAnonymousAcks = yes;
     private boolean doTestOnewayAnonymousAcksSequenceLength1 = yes; 
     private boolean doTestOnewayAnonymousAcksSupressed = yes;
     private boolean doTestTwowayNonAnonymous = yes;
     private boolean doTestTwowayNonAnonymousDeferred = yes;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = yes;    
-    private boolean doTestTwowayNonAnonymousNoOffer = no;
+    private boolean doTestTwowayNonAnonymousNoOffer = yes;
     private boolean doTestTwowayMessageLoss = yes;
+
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -115,7 +115,7 @@ public class SequenceTest extends ClientServerTestBase {
         if (!doTestOnewayAnonymousAcks) {
             return;
         }
-        setupEndpoints("");
+        setupEndpoints("anonymous");
 
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
@@ -129,12 +129,12 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyActions(expectedActions, true);
         mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
 
-        // createSequenceResponse plus three partial responses
-        mf.verifyMessages(4, false);
-        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
+        // createSequenceResponse plus 4 partial responses
+        mf.verifyMessages(5, false);
+        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
         mf.verifyActions(expectedActions, false);
-        mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
-        mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
+        mf.verifyMessageNumbers(new String[] {null, null, null, null, null}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, false, true, true, true}, false);
     }
    
     public void testOnewayDeferredAnonymousAcks() throws Exception {
@@ -161,14 +161,14 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyActions(expectedActions, true);
         mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
 
-        // createSequenceResponse message plus three partial responses, only the
+        // createSequenceResponse message plus 4 partial responses, only the
         // last one should include a sequence acknowledgment
 
-        mf.verifyMessages(4, false);
-        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
+        mf.verifyMessages(5, false);
+        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
         mf.verifyActions(expectedActions, false);
-        mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
-        mf.verifyAcknowledgements(new boolean[] {false, false, false, true}, false);
+        mf.verifyMessageNumbers(new String[] {null, null, null, null, null}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, false, false, false, true}, false);
     }
     
     public void testOnewayDeferredNonAnonymousAcks() throws Exception {
@@ -236,14 +236,15 @@ public class SequenceTest extends ClientServerTestBase {
         // createSequenceResponse message plus partial responses to
         // greetMeOneWay and terminateSequence ||: 2
 
-        mf.verifyMessages(6, false, 100, 5);
+        mf.verifyMessages(8, false, 100, 5);
        
-        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null,
-                                        Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null};
+        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null,
+                                        null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null};
         mf.verifyActions(expectedActions, false);
-        mf.verifyMessageNumbers(new String[] {null, null, null, null, null, null}, false);
-        mf.verifyLastMessage(new boolean[] {false, false, false, false, false, false}, false);
-        mf.verifyAcknowledgements(new boolean[] {false, true, false, false, true, false}, false);
+        mf.verifyMessageNumbers(new String[] {null, null, null, null, null, null, null, null}, false);
+        mf.verifyLastMessage(new boolean[] {false, false, false, false, false, false, false, false}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, false, true, false,
+                                                 false, false, true, false}, false);
     }
 
     public void testOnewayAnonymousAcksSupressed() throws Exception {
@@ -264,14 +265,14 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyActions(expectedActions, true);
         mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
 
-        // createSequenceResponse plus three partial responses, none of which
+        // createSequenceResponse plus 4 partial responses, none of which
         // contain an acknowledgment
 
-        mf.verifyMessages(4, false);
-        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
+        mf.verifyMessages(5, false);
+        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null, null, null};
         mf.verifyActions(expectedActions, false);
-        mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
-        mf.verifyAcknowledgements(new boolean[] {false, false, false, false}, false);
+        mf.verifyMessageNumbers(new String[] {null, null, null, null, null}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, false, false, false, false}, false);
         
         mf.getOutboundMessages().clear();
         mf.getInboundContexts().clear();
@@ -292,7 +293,6 @@ public class SequenceTest extends ClientServerTestBase {
         // mf.verifyAckRequestedOutbound();
     }
      
-
     public void testTwowayNonAnonymous() throws Exception {
         if (!doTestTwowayNonAnonymous) {
             return;
@@ -410,22 +410,22 @@ public class SequenceTest extends ClientServerTestBase {
         // Note that we don't expect a partial response to standalone LastMessage or 
         // SequenceAcknowledgment messages
         
-        mf.verifyMessages(11, false, 100, 5);
+        mf.verifyMessages(12, false, 100, 5);
         
         expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
                                         null, GREETME_RESPONSE_ACTION, 
                                         null, GREETME_RESPONSE_ACTION, 
-                                        null,
+                                        null, Names.WSRM_TERMINATE_SEQUENCE_ACTION,
                                         null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION,
                                         null, GREETME_RESPONSE_ACTION};
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(
-            new String[] {null, null, null, "1", null, "2", null, null, null, null, "1"}, false);
-        boolean[] expected = new boolean[11];
+            new String[] {null, null, null, "1", null, "2", null, null, null, null, null, "1"}, false);
+        boolean[] expected = new boolean[12];
         expected[5] = true;
         mf.verifyLastMessage(expected, false);
         expected[3] = true;
-        expected[10] = true;
+        expected[11] = true;
         mf.verifyAcknowledgements(expected, false);
     }
 
@@ -438,8 +438,8 @@ public class SequenceTest extends ClientServerTestBase {
         greeter.greetMe("one");
         greeter.greetMe("two");
 
-        // CreateSequence and two greetMe messages
-        // plus a CreateSequenceResponse
+        // Outbound expected:
+        // CreateSequence + (2 * greetMe) + CreateSequenceResponse = 4 messages
         // TODO there should be partial responses to the decoupled responses!
 
         mf.verifyMessages(4, true);
@@ -450,19 +450,33 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyLastMessage(new boolean[] {false, false, false, false}, true);
         mf.verifyAcknowledgements(new boolean[] {false, false, false, true}, true);
 
-        // createSequenceResponse plus 2 greetMeResponse messages plus
-        // one partial response for each of the four messages plus
-        // CreateSequence request
+        // Inbound expected:
+        // createSequenceResponse + (2 * greetMeResponse) + CreateSequence +
+        // (4 * partial response [for each outbound message]) = 8 
 
-        mf.verifyMessages(7, false);
-        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null,
-                                        Names.WSRM_CREATE_SEQUENCE_ACTION, GREETME_RESPONSE_ACTION, null,
-                                        GREETME_RESPONSE_ACTION};
-        mf.verifyActions(expectedActions, false);
-        mf.verifyMessageNumbers(new String[] {null, null, null, null, null, "1", null, "2"}, false);
-        mf.verifyLastMessage(new boolean[7], false);
-        mf.verifyAcknowledgements(new boolean[] {false, false, false, false, true, false, true, false}, 
-                                  false);
+        mf.verifyMessages(8, false);
+        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION,
+                                        null, Names.WSRM_CREATE_SEQUENCE_ACTION,
+                                        null, GREETME_RESPONSE_ACTION, 
+                                        null, GREETME_RESPONSE_ACTION};
+        if (!mf.checkActions(expectedActions, false)) {
+            // greetMeResponse and partial response to previous CreateSequence may be
+            // processed out-of-order
+            expectedActions[4] = GREETME_RESPONSE_ACTION;
+            expectedActions[5] = null;
+            mf.verifyActions(expectedActions, false);
+            mf.verifyMessageNumbers(new String[] {null, null, null, null, "1", null, null, "2"}, false);
+            mf.verifyLastMessage(new boolean[8], false);
+            mf.verifyAcknowledgements(new boolean[] {false, false, false, false, 
+                                                     true, false, false, true},
+                                      false);
+        } else {
+            mf.verifyMessageNumbers(new String[] {null, null, null, null, null, "1", null, "2"}, false);
+            mf.verifyLastMessage(new boolean[8], false);
+            mf.verifyAcknowledgements(new boolean[] {false, false, false, false, 
+                                                     false, true, false, true}, 
+                                      false);
+        }
     }
 
     public void testTwowayMessageLoss() throws Exception {

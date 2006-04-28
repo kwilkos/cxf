@@ -31,12 +31,14 @@ import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.bus.ws.rm.CreateSequenceRequest;
+import org.objectweb.celtix.bus.ws.rm.CreateSequenceResponse;
 import org.objectweb.celtix.bus.ws.rm.Names;
 import org.objectweb.celtix.bus.ws.rm.RMContextUtils;
 import org.objectweb.celtix.bus.ws.rm.RMPropertiesImpl;
 import org.objectweb.celtix.bus.ws.rm.RMUtils;
 import org.objectweb.celtix.bus.ws.rm.TerminateSequenceRequest;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
@@ -338,11 +340,14 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
         String operationName = null;
         boolean rmProtocolMessage = true;
 
-        if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action) 
-            || RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)) {
+        if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)) {
             callback = CreateSequenceRequest.createDataBindingCallback();
             operationName = CreateSequenceRequest.getOperationName();
             method = CreateSequenceRequest.getMethod();
+        } else if (RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)) {
+            callback = CreateSequenceResponse.createDataBindingCallback();
+            operationName = CreateSequenceResponse.getOperationName();
+            method = CreateSequenceResponse.getMethod();            
         } else if (RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)) {
             callback = TerminateSequenceRequest.createDataBindingCallback();
             operationName = TerminateSequenceRequest.getOperationName();
@@ -363,7 +368,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
             BindingContextUtils.storeDataBindingCallback(context, callback);
             BindingContextUtils.storeMethod(context, method);            
             context.put(MessageContext.WSDL_OPERATION, operationName);
-            
+            context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);            
         }
     }
 

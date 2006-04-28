@@ -182,7 +182,7 @@ public class HTTPTransportTest extends TestCase {
             EasyMock.createMock(HTTPClientTransport.HTTPClientOutputStreamContext.class);
         HTTPClientTransport.HTTPClientInputStreamContext ictx =
             EasyMock.createMock(HTTPClientTransport.HTTPClientInputStreamContext.class);
-        octx.createInputStreamContext();
+        octx.getCorrespondingInputStreamContext();
         EasyMock.expectLastCall().andReturn(ictx);
         EasyMock.replay(octx);
         HTTPClientTransport client = (HTTPClientTransport)

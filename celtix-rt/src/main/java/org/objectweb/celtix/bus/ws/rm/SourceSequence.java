@@ -10,6 +10,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
+import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
@@ -29,6 +30,7 @@ public class SourceSequence extends AbstractSequenceImpl implements RMSourceSequ
     private BigInteger currentMessageNumber;
     private boolean lastMessage;
     private Identifier offeringId;
+    private org.objectweb.celtix.ws.addressing.EndpointReferenceType target;
     
     static {
         Duration pt0s = null;
@@ -216,6 +218,26 @@ public class SourceSequence extends AbstractSequenceImpl implements RMSourceSequ
         return false;
     }
     
+    /**
+     * The target for the sequence is the first non-anonymous address that
+     * a message is sent to as part of this sequence. It is subsequently used
+     * for as the target of out-of-band protocol messages related to that
+     * sequence that originate from the sequnce source (i.e. TerminateSequence 
+     * and LastMessage, but not AckRequested or SequenceAcknowledgement as these 
+     * are orignate from the sequence destination).
+     * 
+     * @param to
+     */
+    synchronized void setTarget(org.objectweb.celtix.ws.addressing.EndpointReferenceType to) {
+        if (target == null && !ContextUtils.isGenericAddress(to)) {
+            target = to;
+        }
+    }
+    
+    synchronized org.objectweb.celtix.ws.addressing.EndpointReferenceType getTarget() {
+        return target;
+    } 
+   
     /**
      * Checks if the current message should be the last message in this sequence
      * and if so sets the lastMessageNumber property.

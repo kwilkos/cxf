@@ -29,7 +29,6 @@ public class RMDestination extends RMEndpoint {
         map = new HashMap<String, DestinationSequence>();    
     }
     
-    
     public DestinationSequence getSequence(Identifier id) {        
         return map.get(id.getValue());
     }

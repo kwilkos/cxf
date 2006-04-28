@@ -31,7 +31,7 @@ public class HandlerChainInvoker implements HandlerInvoker {
     private static final Logger LOG = LogUtils.getL7dLogger(HandlerChainInvoker.class);
 
     private final List<Handler> protocolHandlers = new ArrayList<Handler>(); 
-    private final List<LogicalHandler> logicalHandlers  = new ArrayList<LogicalHandler>(); 
+    private List<LogicalHandler> logicalHandlers  = new ArrayList<LogicalHandler>(); 
     private final List<StreamHandler> streamHandlers  = new ArrayList<StreamHandler>(); 
     private final List<Handler> invokedHandlers  = new ArrayList<Handler>(); 
     private final List<Handler> closeHandlers  = new ArrayList<Handler>(); 
@@ -158,6 +158,17 @@ public class HandlerChainInvoker implements HandlerInvoker {
      */
     public boolean isClosed() {
         return closed; 
+    }
+    
+    /**
+     * Allows an the logical handler chain for one invoker to be used
+     * as an alternate chain for another.
+     * 
+     * @param invoker the invoker encalsulting the alternate logical handler
+     * chain
+     */
+    public void adoptLogicalHandlers(HandlerInvoker invoker) {
+        logicalHandlers = ((HandlerChainInvoker)invoker).getLogicalHandlers();
     }
 
     List getInvokedHandlers() { 

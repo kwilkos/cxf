@@ -1,10 +1,12 @@
 package org.objectweb.celtix.bus.transports.jms;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 
@@ -47,6 +49,11 @@ public class JMSOutputStreamContext
     
     public boolean isOneWay() {
         return ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
+    }
+    
+    public InputStreamMessageContext getCorrespondingInputStreamContext()
+        throws IOException {
+        return null;
     }
 
 }

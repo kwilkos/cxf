@@ -1,10 +1,12 @@
 package org.objectweb.celtix.geronimo.container;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.geronimo.webservices.WebServiceContainer.Response;
+import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 
@@ -50,5 +52,10 @@ public class GeronimoOutputStreamServerMessageContext extends MessageContextWrap
 
     public boolean isOneWay() {
         return isOneWay;
+    }
+    
+    public InputStreamMessageContext getCorrespondingInputStreamContext()
+        throws IOException {
+        return null;   
     }
 }

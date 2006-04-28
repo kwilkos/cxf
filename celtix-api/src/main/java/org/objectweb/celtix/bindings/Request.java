@@ -12,16 +12,20 @@ import org.objectweb.celtix.transports.Transport;
 public class Request {
     
     private final AbstractBindingBase binding;
-    private final Transport transport;
+    private Transport transport;
     private final ObjectMessageContext objectCtx;
     private MessageContext bindingCtx;
     private final HandlerInvoker handlerInvoker;
+    private boolean expectRelatedRequest;
 
     public Request(AbstractBindingBase b, Transport t, ObjectMessageContext o) {
         binding = b;
         objectCtx = o;
 
         transport = t;
+        if (transport == null) {
+            transport = b.retrieveTransport();
+        }
 
         handlerInvoker = binding.createHandlerInvoker();
 
@@ -115,5 +119,12 @@ public class Request {
     public void complete() {
         handlerInvoker.mepComplete(objectCtx);
     }
+    
+    public void expectRelatedRequest() {
+        expectRelatedRequest = true;   
+    }
 
+    public boolean isRelatedRequestExpected() {
+        return expectRelatedRequest;   
+    }
 }

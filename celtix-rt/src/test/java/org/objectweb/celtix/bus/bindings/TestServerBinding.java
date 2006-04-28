@@ -97,7 +97,7 @@ public class TestServerBinding extends AbstractServerBinding {
     }
 
     ServerTransport getTransport() {
-        return transport;
+        return serverTransport();
     }
 
     public void triggerTransport() {
@@ -178,6 +178,10 @@ public class TestServerBinding extends AbstractServerBinding {
             return ((Boolean)get(ONEWAY_MESSAGE_TF)).booleanValue();
         }
 
+        public InputStreamMessageContext getCorrespondingInputStreamContext()
+            throws IOException {
+            return null;
+        }
     }
 
     public boolean isBindingCompatible(String address) {

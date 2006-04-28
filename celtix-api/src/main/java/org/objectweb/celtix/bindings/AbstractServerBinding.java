@@ -39,7 +39,6 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
 
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractServerBinding.class);
 
-    protected ServerTransport transport;
     protected Endpoint endpoint;
     protected ServerBindingEndpointCallback sbeCallback;
 
@@ -69,13 +68,13 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
                 return AbstractServerBinding.this.getEndpoint().getExecutor();
             }
         };
-        transport.activate(tc);
+        serverTransport().activate(tc);
         
         injectSystemHandlers();
     }
 
     public void deactivate() throws IOException {
-        transport.deactivate();
+        serverTransport().deactivate();
     }
 
     /**
@@ -130,7 +129,7 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         return objCtx.getException() != null;
     }
     
-    protected void dispatch(InputStreamMessageContext istreamCtx, ServerTransport t) {
+    protected void dispatch(InputStreamMessageContext istreamCtx, final ServerTransport t) {
         LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
         // storeSource(istreamCtx, t);
         BindingContextUtils.storeServerBindingEndpointCallback(istreamCtx, sbeCallback);
@@ -175,20 +174,24 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
                 assert null != inMsg.getObjectCtx();
                 inMsg.doInvocation(endpoint);
                 LOG.log(Level.INFO, "After invoking on implementor");
+                if (!inMsg.isOneway()) {
+                    // process response 
+                    inMsg.processOutbound(t, null);
+                }
             }
         };
-        
-        if (inMsg.isOneway() 
+
+        // the dispatch must be async if the request is decoupled or oneway and the
+        // transport is unable to proceed to the next request until this thread
+        // is freed up
+        if ((BindingContextUtils.retrieveDecoupledResponse(inMsg.getObjectCtx())
+             || inMsg.isOneway()) 
             && BindingContextUtils.retrieveAsyncOnewayDispatch(istreamCtx)) {
             // invoke implementor asynchronously
             executeAsync(invoker);
         } else {
             // invoke implementor directly
             invoker.run();
-            if (!inMsg.isOneway()) {
-                // process response 
-                inMsg.processOutbound(t, null);
-            }
         }
     }
     
@@ -208,6 +211,10 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
             LOG.severe("TRANSPORT_FACTORY_RETRIEVAL_FAILURE_MSG");
         }
         return null;
+    }
+    
+    protected ServerTransport serverTransport() {
+        return (ServerTransport)transport;
     }
 
     /*
@@ -259,5 +266,5 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
             LOG.log(Level.WARNING, "ONEWAY_FALLBACK_TO_DIRECT_MSG", ree);
             command.run();
         }
-    }
+    }    
 }

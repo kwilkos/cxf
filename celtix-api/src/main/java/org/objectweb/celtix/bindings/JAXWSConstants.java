@@ -59,7 +59,7 @@ public final class JAXWSConstants {
      */
     public static final String TRANSPORT_PROPERTY =
         "org.objectweb.celtix.bindings.transport";
-    
+
     /**
      * Used by binding to cache Client Transport in the context
      */

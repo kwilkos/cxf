@@ -178,7 +178,7 @@ public class HTTPClientTransport implements ClientTransport {
         try {
             HTTPClientOutputStreamContext ctx = (HTTPClientOutputStreamContext)context;
             context.getOutputStream().close();
-            ctx.createInputStreamContext().getInputStream().close();
+            ctx.getCorrespondingInputStreamContext().getInputStream().close();
             counters.getInvokeOneWay().increase();
         } catch (Exception ex) {
             counters.getInvokeError().increase();
@@ -259,15 +259,15 @@ public class HTTPClientTransport implements ClientTransport {
                 // dispatch this partial response immediately as it may include
                 // piggybacked content
                 responseContext =
-                    requestContext.createInputStreamContext();
+                    requestContext.getCorrespondingInputStreamContext();
                 BindingContextUtils.storeDecoupledResponse(responseContext, true);
             } else {
                 // request failed *before* server transport was rebased on
                 // decoupled response endpoint
-                responseContext = requestContext.createInputStreamContext();
+                responseContext = requestContext.getCorrespondingInputStreamContext();
             }
         } else {
-            responseContext = requestContext.createInputStreamContext();
+            responseContext = requestContext.getCorrespondingInputStreamContext();
         }
         return responseContext;
     }
@@ -587,7 +587,7 @@ public class HTTPClientTransport implements ClientTransport {
             out = o;
         }
 
-        public InputStreamMessageContext createInputStreamContext() throws IOException {
+        public InputStreamMessageContext getCorrespondingInputStreamContext() throws IOException {
             if (inputStreamContext == null) {
                 inputStreamContext =  new HTTPClientInputStreamContext(connection);
             }

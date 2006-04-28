@@ -11,25 +11,38 @@ import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.bus.ws.addressing.VersionTransformer;
 import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
+import org.objectweb.celtix.ws.addressing.RelatesToType;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.OfferType;
-import org.objectweb.celtix.ws.rm.wsdl.SequenceAbstractPortType;
 
 public class CreateSequenceRequest extends Request {
     
     private static final String METHOD_NAME = "createSequence";    
     private static final String OPERATION_NAME = "CreateSequence";
     
-    public CreateSequenceRequest(AbstractBindingBase b, Transport t, 
+    public CreateSequenceRequest(AbstractBindingBase b,
+                                 Transport t,
                                  RMSource source, 
-                                 EndpointReferenceType defaultAcksTo) {
+                                 org.objectweb.celtix.ws.addressing.EndpointReferenceType to,
+                                 EndpointReferenceType acksTo,
+                                 RelatesToType relatesTo) {
         
         super(b, t, b.createObjectContext());
+        
+        if (to != null) {
+            ContextUtils.storeTo(to, getObjectMessageContext());
+            ContextUtils.storeReplyTo(VersionTransformer.convert(acksTo),
+                                      getObjectMessageContext());
+        }
+
+        ContextUtils.storeUsingAddressing(true, getObjectMessageContext());
+
         getObjectMessageContext().setRequestorRole(true);
         
         getObjectMessageContext().setMethod(getMethod());
@@ -38,15 +51,23 @@ public class CreateSequenceRequest extends Request {
         AttributedURIType actionURI = ContextUtils.WSA_OBJECT_FACTORY.createAttributedURIType();
         actionURI.setValue(RMUtils.getRMConstants().getCreateSequenceAction());
         maps.setAction(actionURI);
+        maps.setRelatesTo(relatesTo);
         ContextUtils.storeMAPs(maps, getObjectMessageContext(), true, true, true, true);
             
-        setMessageParameters(source, defaultAcksTo);
+        setMessageParameters(source, acksTo);
+        
+        // this request is sent as the initial request in a pair of
+        // correlated oneways - setting the oneway flag to false is
+        // simply to ensure that the WS-Addressing RelpyTo property
+        // is included
+        setOneway(false);
+        expectRelatedRequest();
     }
     
     public static Method getMethod() {
         Method method  = null;
         try {
-            method = SequenceAbstractPortType.class.getMethod(
+            method = OutOfBandProtocolMessages.class.getMethod(
                 METHOD_NAME, 
                 new Class[] {CreateSequenceType.class});
         } catch (NoSuchMethodException ex) {

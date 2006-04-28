@@ -42,7 +42,7 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
-import org.objectweb.celtix.ws.addressing.AttributedURIType;
+import org.objectweb.celtix.ws.addressing.RelatesToType;
 import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
@@ -370,7 +370,7 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         LOG.entering(getClass().getName(), "handleInbound");
         RMProperties rmps = RMContextUtils.retrieveRMProperties(context, false);
         
-        AddressingPropertiesImpl maps = ContextUtils.retrieveMAPs(context, false, false);
+        final AddressingPropertiesImpl maps = ContextUtils.retrieveMAPs(context, false, false);
         assert null != maps;
 
         String action = null;
@@ -382,31 +382,34 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             LOG.fine("Action: " + action);
         }
 
-        // nothing to do if this is a response to a CreateSequence request
-
         if (RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)) {
+            Object[] parameters = (Object[])context.get(ObjectMessageContext.METHOD_PARAMETERS);
+            CreateSequenceResponseType csr = (CreateSequenceResponseType)parameters[0];
+            getServant().createSequenceResponse(getSource(), 
+                                                csr,
+                                                getProxy().getOfferedIdentifier());
+
             return;
         } else if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)) {
             Object[] parameters = (Object[])context.get(ObjectMessageContext.METHOD_PARAMETERS);
             CreateSequenceType cs = (CreateSequenceType)parameters[0];
-            AttributedURI to = VersionTransformer.convert(maps.getTo());
 
-            CreateSequenceResponseType csr = getServant().createSequence(getDestination(), cs, to);
-            context.put(ObjectMessageContext.METHOD_RETURN, csr);
-           
-            maps = ContextUtils.retrieveMAPs(context, true, true);
-            if (null == maps) {
-                LOG.fine("No outbound addressing properties stored in provider context, create new ones.");
-                maps = new AddressingPropertiesImpl();
-            }
-            AttributedURIType actionURI = ContextUtils.WSA_OBJECT_FACTORY.createAttributedURIType();
-            actionURI.setValue(RMUtils.getRMConstants().getCreateSequenceResponseAction());
-            maps.setAction(actionURI);
-            ContextUtils.storeMAPs(maps, context, true, false, true, true);
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Set action for outbound addressing properties to: " + maps.getAction().getValue());
-            }
-
+            final CreateSequenceResponseType csr =
+                getServant().createSequence(getDestination(), cs, maps);
+            
+            Runnable response = new Runnable() {
+                public void run() {
+                    try {
+                        getProxy().createSequenceResponse(maps, csr);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    } catch (SequenceFault sf) {
+                        sf.printStackTrace();
+                    }
+                }
+            };
+            getBinding().getBus().getWorkQueueManager().getAutomaticWorkQueue().execute(response);
+    
             return;
         } else if (RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)) {
             Object[] parameters = (Object[])context.get(ObjectMessageContext.METHOD_PARAMETERS);
@@ -496,13 +499,20 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
         if (null == seq) {
             // TODO: better error handling
+            org.objectweb.celtix.ws.addressing.EndpointReferenceType to = null;
             try {
                 EndpointReferenceType acksTo = null;
+                RelatesToType relatesTo = null;
                 if (isServerSide()) {
                     AddressingPropertiesImpl inMaps = ContextUtils
                         .retrieveMAPs(context, false, false);
                     inMaps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
                     acksTo = RMUtils.createReference(inMaps.getTo().getValue());
+                    to = inMaps.getReplyTo();    
+                    getServant().setUnattachedIdentifier(inSeqId);
+                    relatesTo = ContextUtils.WSA_OBJECT_FACTORY.createRelatesToType();
+                    DestinationSequence inSeq = getDestination().getSequence(inSeqId);
+                    relatesTo.setValue(inSeq != null ? inSeq.getCorrelationID() : null);
                 } else {
                     acksTo = VersionTransformer.convert(maps.getReplyTo());
                     // for oneways
@@ -511,13 +521,15 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
                     }
                 }
 
-                getProxy().createSequence(getSource(), acksTo, inSeqId);
+                getProxy().createSequence(getSource(), to, acksTo, relatesTo);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
 
-            seq = getSource().getCurrent();
+            seq = getSource().awaitCurrent(inSeqId);
+            seq.setTarget(to);
         }
+        
         return seq;
     }
 

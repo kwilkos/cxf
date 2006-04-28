@@ -5,12 +5,17 @@ import java.io.IOException;
 import javax.wsdl.WSDLException;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bindings.Request;
 import org.objectweb.celtix.bus.bindings.TestClientTransport;
 import org.objectweb.celtix.bus.bindings.soap.SOAPClientBinding;
 import org.objectweb.celtix.transports.ClientTransport;
+import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class TestSoapClientBinding extends SOAPClientBinding {
+    boolean sent;
+    
     public TestSoapClientBinding(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
         super(b, ref);
     }
@@ -22,6 +27,23 @@ public class TestSoapClientBinding extends SOAPClientBinding {
     
     public TestClientTransport getClientTransport() throws IOException {
         return (TestClientTransport)getTransport();
+    }
+    
+    public Transport retrieveTransport() {
+        try {
+            return getTransport();
+        } catch (IOException ioe) {
+            return null;
+        }
+    }
+    
+    public void send(Request request, DataBindingCallback callback) 
+        throws IOException {
+        sent = true;
+    }
+
+    boolean isSent() {
+        return sent;
     }
     
     /*

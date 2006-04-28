@@ -7,7 +7,9 @@ import java.util.logging.Logger;
 import javax.xml.datatype.Duration;
 
 import org.objectweb.celtix.bus.configuration.wsrm.DestinationPolicyType;
+import org.objectweb.celtix.bus.ws.addressing.VersionTransformer;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 import org.objectweb.celtix.ws.rm.AcceptType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
@@ -21,6 +23,9 @@ public class RMServant {
 
     private static final Logger LOG = LogUtils.getL7dLogger(RMServant.class);
 
+    // REVISIT assumption there is only a single outstanding unattached Identifier
+    private Identifier unattachedIdentifier;
+    
     public RMServant() {
     }
     
@@ -32,7 +37,7 @@ public class RMServant {
      */
     public CreateSequenceResponseType createSequence(RMDestination destination,
                                                      CreateSequenceType cs, 
-                                                     AttributedURI to)
+                                                     AddressingProperties maps)
         throws SequenceFault {
         
         CreateSequenceResponseType csr = RMUtils.getWSRMFactory().createCreateSequenceResponseType();
@@ -62,11 +67,13 @@ public class RMServant {
             if (dp.isAcceptOffers()) {
                 RMSource source = destination.getHandler().getSource();
                 LOG.fine("Accepting inbound sequence offer");
+                AttributedURI to = VersionTransformer.convert(maps.getTo());
                 accept.setAcksTo(RMUtils.createReference(to.getValue()));
                 SourceSequence seq = new SourceSequence(offer.getIdentifier(), 
                                                                     null, 
                                                                     csr.getIdentifier());
                 seq.setExpires(offer.getExpires());
+                seq.setTarget(VersionTransformer.convert(cs.getAcksTo()));
                 source.addSequence(seq);
                 source.setCurrent(csr.getIdentifier(), seq);      
                 LOG.fine("Making offered sequence the current sequence for responses to "
@@ -77,18 +84,46 @@ public class RMServant {
             }
             csr.setAccept(accept);
         }
-        
+
         DestinationSequence seq = new DestinationSequence(csr.getIdentifier(), cs.getAcksTo(), destination);
+        seq.setCorrelationID(maps.getMessageID().getValue());
         destination.addSequence(seq);
         
         return csr;
     }
     
+    public void createSequenceResponse(RMSource source,
+                                       CreateSequenceResponseType csr, 
+                                       Identifier offeredId) {
+        // moved from RMProxy.createSequence
+        // csr.getIdentifier() is the Identifier for the newly created sequence
+        SourceSequence seq = new SourceSequence(csr.getIdentifier());
+        seq.setExpires(csr.getExpires());
+        source.addSequence(seq);
+        
+        // the incoming sequence ID is either used as the requestor sequence
+        // (signalled by null) or associated with a corresponding sequence 
+        // identifier
+        source.setCurrent(clearUnattachedIdentifier(), seq);
+
+        // if a sequence was offered and accepted, then we can add this to
+        // to the local destination sequence list, otherwise we have to wait for
+        // and incoming CreateSequence request
+        if (null != offeredId) {
+            assert null != csr.getAccept();
+            RMDestination dest = source.getHandler().getDestination();
+            String address = csr.getAccept().getAcksTo().getAddress().getValue();
+            if (!RMUtils.getAddressingConstants().getNoneURI().equals(address)) {
+                DestinationSequence ds = 
+                    new DestinationSequence(offeredId, csr.getAccept().getAcksTo(), dest);
+                dest.addSequence(ds);
+            }
+        }
+    }
 
     /**
      * Checks if the terminated sequence was created in response to a createSequence
      * request that included an offer for an inbound sequence which was accepted.
-     * In other words, check if there this handlers RM source manages a sequence for which
      * the offering identifier is equal to the identifier of the sequence now terminated,
      * and request termination of that sequence in turn.
      * 
@@ -131,5 +166,15 @@ public class RMServant {
         }
         
         
+    }
+    
+    protected Identifier clearUnattachedIdentifier() {
+        Identifier ret = unattachedIdentifier;
+        unattachedIdentifier = null;
+        return ret;
+    }
+    
+    protected void setUnattachedIdentifier(Identifier i) { 
+        unattachedIdentifier = i;
     }
 }

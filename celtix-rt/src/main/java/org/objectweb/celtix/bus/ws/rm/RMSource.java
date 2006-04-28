@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +35,10 @@ public class RMSource extends RMEndpoint {
     private Map<String, SourceSequence> map;
     private Map<String, SourceSequence> current;     
     private final RetransmissionQueue retransmissionQueue;
+    private Lock sequenceCreationLock;
+    private Condition sequenceCreationCondition;
+    private boolean sequenceCreationNotified;
+
 
     RMSource(RMHandler h) {
         super(h);
@@ -54,6 +61,8 @@ public class RMSource extends RMEndpoint {
         if (retransmissionQueue.getUnacknowledged().size() > 0) {
             retransmissionQueue.start(queue);
         }
+        sequenceCreationLock = new ReentrantLock();
+        sequenceCreationCondition = sequenceCreationLock.newCondition();
     }
     
     public SourceSequence getSequence(Identifier id) {        
@@ -129,7 +138,49 @@ public class RMSource extends RMEndpoint {
      * @return the current sequence.
      */
     SourceSequence getCurrent(Identifier i) {        
+        sequenceCreationLock.lock();
+        try {
+            return getAssociatedSequence(i);
+        } finally {
+            sequenceCreationLock.unlock();
+        }
+    }
+
+    /**
+     * Returns the sequence associated with the given identifier.
+     * 
+     * @param i the corresponding sequence identifier
+     * @return the associated sequence
+     * @pre the sequenceCreationLock is already held
+     */
+    SourceSequence getAssociatedSequence(Identifier i) {        
         return current.get(i == null ? REQUESTOR_SEQUENCE_ID : i.getValue());
+    }
+    
+    /**
+     * Await the avilability of a sequence corresponding to the given identifier.
+     * 
+     * @param i the sequnce identifier
+     * @return
+     */
+    SourceSequence awaitCurrent(Identifier i) {
+        sequenceCreationLock.lock();
+        try {
+            SourceSequence seq = getAssociatedSequence(i);
+            while (seq == null) {
+                while (!sequenceCreationNotified) {
+                    try {
+                        sequenceCreationCondition.await();
+                    } catch (InterruptedException ie) {
+                        // ignore
+                    }
+                }
+                seq = getAssociatedSequence(i);
+            }
+            return seq;
+        } finally {
+            sequenceCreationLock.unlock();
+        }
     }
     
     /**
@@ -138,7 +189,14 @@ public class RMSource extends RMEndpoint {
      * @param s the current sequence.
      */
     void setCurrent(Identifier i, SourceSequence s) {        
-        current.put(i == null ? REQUESTOR_SEQUENCE_ID : i.getValue(), s);
+        sequenceCreationLock.lock();
+        try {
+            current.put(i == null ? REQUESTOR_SEQUENCE_ID : i.getValue(), s);
+            sequenceCreationNotified = true;
+            sequenceCreationCondition.signal();
+        } finally {
+            sequenceCreationLock.unlock();
+        }
     }
 
     /**

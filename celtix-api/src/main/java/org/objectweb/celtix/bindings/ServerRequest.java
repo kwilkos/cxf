@@ -153,7 +153,7 @@ public class ServerRequest {
         objectCtx.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, isOneway());
              
         handlerInvoker.invokeLogicalHandlers(isRequestor(), objectCtx);
-        
+                
         state = ServerRequestState.LOGICAL_HANDLERS_INVOKED;
     }
     

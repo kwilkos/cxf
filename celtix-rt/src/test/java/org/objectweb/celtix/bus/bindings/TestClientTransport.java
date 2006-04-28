@@ -53,7 +53,7 @@ public class TestClientTransport implements ClientTransport {
         if (null != istreamCtx) {
             return istreamCtx;
         }
-        return ((TestOutputStreamContext)context).createInputStreamContext();
+        return context.getCorrespondingInputStreamContext();
     }
 
     public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, Executor ex) 

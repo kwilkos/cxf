@@ -33,6 +33,7 @@ public class DestinationSequence extends AbstractSequenceImpl implements RMDesti
     private SequenceMonitor monitor;
     private boolean acknowledgeOnNextOccasion;
     private List<DeferredAcknowledgment> deferredAcknowledgments;
+    private String correlationID;
     
     public DestinationSequence(Identifier i, EndpointReferenceType a, RMDestination d) {
         this(i, a, null, null);
@@ -186,6 +187,19 @@ public class DestinationSequence extends AbstractSequenceImpl implements RMDesti
         return acknowledgeOnNextOccasion;
     }
     
+    /**
+     * The correlation of the incoming CreateSequence call used to create this
+     * sequence is recorded so that in the absence of an offer, the corresponding
+     * outgoing CreateSeqeunce can be correlated.
+     */
+    void setCorrelationID(String cid) {
+        correlationID = cid;
+    }
+   
+    String getCorrelationID() {
+        return correlationID;
+    }
+
     boolean canPiggybackAckOnPartialResponse() {
         // TODO: should also check if we allow breaking the WI Profile rule by which no headers
         // can be included in a HTTP response

@@ -1,6 +1,9 @@
 package org.objectweb.celtix.bus.ws.addressing;
 
 
+import java.util.List;
+import java.util.Map;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
@@ -77,7 +80,7 @@ public class VersionTransformer {
               ? Names200408.WSA_NONE_ADDRESS
               : internal.getValue();
         exposed.setValue(exposedValue);
-        exposed.getOtherAttributes().putAll(internal.getOtherAttributes());
+        putAll(exposed.getOtherAttributes(), internal.getOtherAttributes());
         return exposed;
     }
 
@@ -97,7 +100,7 @@ public class VersionTransformer {
               ? Names.WSA_NONE_ADDRESS
               : exposed.getValue();
         internal.setValue(internalValue);
-        internal.getOtherAttributes().putAll(exposed.getOtherAttributes());
+        putAll(internal.getOtherAttributes(), exposed.getOtherAttributes());
         return internal; 
     }
     
@@ -135,8 +138,8 @@ public class VersionTransformer {
             exposed.setPortType(portType);
         }
         // no direct analogue for Metadata
-        exposed.getAny().addAll(internal.getAny());
-        exposed.getOtherAttributes().putAll(internal.getOtherAttributes());
+        addAll(exposed.getAny(), internal.getAny());
+        putAll(exposed.getOtherAttributes(), internal.getOtherAttributes());
         return exposed;
     }
     
@@ -163,8 +166,8 @@ public class VersionTransformer {
         }
 
         // no direct analogue for ReferenceProperties
-        internal.getAny().addAll(exposed.getAny());
-        internal.getOtherAttributes().putAll(exposed.getOtherAttributes());
+        addAll(internal.getAny(), exposed.getAny());
+        putAll(internal.getOtherAttributes(), exposed.getOtherAttributes());
         return internal; 
     }
 
@@ -182,7 +185,7 @@ public class VersionTransformer {
         if (internal != null) {
             exposed =
                 Names200408.WSA_OBJECT_FACTORY.createReferenceParametersType();
-            exposed.getAny().addAll(internal.getAny());
+            addAll(exposed.getAny(), internal.getAny());
         }
         return exposed; 
     }
@@ -200,7 +203,7 @@ public class VersionTransformer {
         if (exposed != null) {
             internal = 
                 ContextUtils.WSA_OBJECT_FACTORY.createReferenceParametersType();
-            internal.getAny().addAll(exposed.getAny());
+            addAll(internal.getAny(), exposed.getAny());
         }
         return internal; 
     }
@@ -226,7 +229,7 @@ public class VersionTransformer {
                     : new QName(internalRelationshipType);
                 exposed.setRelationshipType(exposedRelationshipType);
             }
-            exposed.getOtherAttributes().putAll(internal.getOtherAttributes());
+            putAll(exposed.getOtherAttributes(), internal.getOtherAttributes());
         }
         return exposed;
     }
@@ -266,8 +269,31 @@ public class VersionTransformer {
                ? ContextUtils.getJAXBContext()
                : Names200408.getJAXBContext();
     }
-        
-    
+
+    /**
+     * Put all entries from one map into another.
+     * 
+     * @param to target map
+     * @param from source map
+     */
+    private static void putAll(Map<QName, String> to, Map<QName, String> from) {
+        if (from != null) {
+            to.putAll(from);
+        }
+    }
+
+    /**
+     * Add all entries from one list into another.
+     * 
+     * @param to target list
+     * @param from source list
+     */
+    private static void addAll(List<Object> to, List<Object> from) {
+        if (from != null) {
+            to.addAll(from);
+        }
+    }
+
     /**
      * Holder for 2004/08 Names
      */

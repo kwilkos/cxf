@@ -8,24 +8,43 @@ import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bindings.Request;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.bus.ws.addressing.VersionTransformer;
 import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
+import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
 import org.objectweb.celtix.ws.rm.persistence.RMDestinationSequence;
 
 public class SequenceInfoRequest extends Request {
     
-    public SequenceInfoRequest(AbstractBindingBase b, Transport t) {
-        
+    public SequenceInfoRequest(AbstractBindingBase b,
+                               Transport t,
+                               EndpointReferenceType to) {
+        this(b, t, VersionTransformer.convert(to));
+    }
+    
+    public SequenceInfoRequest(AbstractBindingBase b,
+                               Transport t,
+                               org.objectweb.celtix.ws.addressing.EndpointReferenceType to) {
+
         super(b, t, b.createObjectContext());
+        
+        if (to != null) {
+            ContextUtils.storeTo(to, getObjectMessageContext());
+        }
+
+        ContextUtils.storeUsingAddressing(true, getObjectMessageContext());
+            
         getObjectMessageContext().setRequestorRole(true);
         AddressingProperties maps = new AddressingPropertiesImpl();
         AttributedURIType actionURI =
             ContextUtils.WSA_OBJECT_FACTORY.createAttributedURIType();
         actionURI.setValue(RMUtils.getRMConstants().getSequenceInfoAction());
         maps.setAction(actionURI);
-        ContextUtils.storeMAPs(maps, getObjectMessageContext(), true, true, true, true);
+        ContextUtils.storeMAPs(maps, getObjectMessageContext(), true, true, true, true);  
+        
+        setOneway(true);
         
         // NOTE: Not storing a method in the context causes BindingContextUtils.isOnewayMethod
         // to always return false (although effectively all standalone requests based on the

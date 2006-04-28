@@ -11,33 +11,45 @@ import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
-import org.objectweb.celtix.ws.rm.TerminateSequenceType;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-public class TerminateSequenceRequest extends Request {
+public class CreateSequenceResponse extends Request {
     
-    private static final String METHOD_NAME = "terminateSequence";
-    private static final String OPERATION_NAME = "TerminateSequence";
+    private static final String METHOD_NAME = "createSequenceResponse";    
+    private static final String OPERATION_NAME = "CreateSequenceResponse";
     
-    public TerminateSequenceRequest(AbstractBindingBase b, Transport t, SourceSequence seq) {
+    public CreateSequenceResponse(AbstractBindingBase b, 
+                                  Transport t,
+                                  AddressingProperties inMAPs,
+                                  CreateSequenceResponseType csr) {
         
         super(b, t, b.createObjectContext());
         
-        if (seq.getTarget() != null) {
-            ContextUtils.storeTo(seq.getTarget(), getObjectMessageContext());
+        EndpointReferenceType to = inMAPs.getReplyTo();
+        if (to != null) {
+            ContextUtils.storeTo(to, getObjectMessageContext());
+            EndpointReferenceType replyTo =
+                EndpointReferenceUtils.getEndpointReference(Names.WSA_ANONYMOUS_ADDRESS);
+            ContextUtils.storeReplyTo(replyTo,
+                                      getObjectMessageContext());
         }
         
         ContextUtils.storeUsingAddressing(true, getObjectMessageContext());
 
         getObjectMessageContext().setRequestorRole(true);
-        getObjectMessageContext().setMethod(getMethod()); 
+        
+        getObjectMessageContext().setMethod(getMethod());
         
         AddressingProperties maps = new AddressingPropertiesImpl();
         AttributedURIType actionURI = ContextUtils.WSA_OBJECT_FACTORY.createAttributedURIType();
-        actionURI.setValue(RMUtils.getRMConstants().getTerminateSequenceAction());
+        actionURI.setValue(RMUtils.getRMConstants().getCreateSequenceResponseAction());
         maps.setAction(actionURI);
+        maps.setRelatesTo(ContextUtils.getRelatesTo(inMAPs.getMessageID().getValue()));
         ContextUtils.storeMAPs(maps, getObjectMessageContext(), true, true, true, true);
         
-        setMessageParameters(seq);
+        setMessageParameters(csr);
         
         setOneway(true);
     }
@@ -47,27 +59,23 @@ public class TerminateSequenceRequest extends Request {
         try {
             method = OutOfBandProtocolMessages.class.getMethod(
                 METHOD_NAME, 
-                new Class[] {TerminateSequenceType.class});
+                new Class[] {CreateSequenceResponseType.class});
         } catch (NoSuchMethodException ex) {
             ex.printStackTrace();
         }
         return method;
     }
-    
+
     public static String getOperationName() {
         return OPERATION_NAME;
     }
-    
+        
     public static DataBindingCallback createDataBindingCallback() {
-        Method method  = getMethod();
+        Method method = getMethod();
         return new JAXBDataBindingCallback(method, DataBindingCallback.Mode.PARTS, null);
     }
     
-    private void setMessageParameters(AbstractSequenceImpl seq) {
-        
-        TerminateSequenceType ts = RMUtils.getWSRMFactory().createTerminateSequenceType();
-        ts.setIdentifier(seq.getIdentifier());
-        
-        getObjectMessageContext().setMessageObjects(new Object[] {ts});
+    private void setMessageParameters(CreateSequenceResponseType csr) {
+        getObjectMessageContext().setMessageObjects(new Object[] {csr});
     }
 }

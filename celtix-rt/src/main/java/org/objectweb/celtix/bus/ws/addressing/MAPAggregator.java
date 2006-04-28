@@ -163,6 +163,8 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
                         port.getBinding().getExtensibilityElements().iterator();
                     ret = hasUsingAddressing(portExts)
                         || hasUsingAddressing(bindingExts);
+                } else {
+                    ret = ContextUtils.retrieveUsingAddressing(context);
                 }
                 setUsingAddressing(ret);
             } else {

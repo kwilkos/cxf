@@ -188,7 +188,11 @@ public abstract class AbstractHTTPServerTransport implements ServerTransport {
      */
     public void finalPrepareOutputStreamContext(OutputStreamMessageContext context)
         throws IOException {
-        ((AbstractHTTPServerOutputStreamContext)context).flushHeaders();
+        if (context instanceof AbstractHTTPServerOutputStreamContext) {
+            ((AbstractHTTPServerOutputStreamContext)context).flushHeaders();
+        } else if (context instanceof AbstractHTTPRequestorOutputStreamContext) {
+            ((AbstractHTTPRequestorOutputStreamContext)context).flushHeaders();           
+        }
     }    
 
     protected abstract void copyRequestHeaders(MessageContext ctx, Map<String, List<String>> headers);

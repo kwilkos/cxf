@@ -7,6 +7,7 @@ import java.io.OutputStream;
 
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 
@@ -56,6 +57,11 @@ public abstract class AbstractHTTPServerOutputStreamContext
     
     public void setOutputStream(OutputStream o) {
         out = o;
+    }
+    
+    public InputStreamMessageContext getCorrespondingInputStreamContext()
+        throws IOException {
+        return null;
     }
     
     protected class WrappedOutputStream extends FilterOutputStream {

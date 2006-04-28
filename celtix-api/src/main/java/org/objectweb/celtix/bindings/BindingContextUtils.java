@@ -125,8 +125,7 @@ public final class BindingContextUtils {
         }
         return false;
     }
-    
-    
+        
     /**
      * Store endpoint in message context.
      *

@@ -110,5 +110,14 @@ public interface HandlerInvoker {
      *
      */
     boolean isClosed();
+    
+    /**
+     * Allows an the logical handler chain for one invoker to be used
+     * as an alternate chain for another.
+     * 
+     * @param invoker the invoker encalsulting the alternate logical handler
+     * chain
+     */
+    void adoptLogicalHandlers(HandlerInvoker invoker);
 }
 

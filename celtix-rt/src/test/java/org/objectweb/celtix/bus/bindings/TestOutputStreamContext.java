@@ -57,7 +57,9 @@ public class TestOutputStreamContext
     
     public void setOutputStream(OutputStream o) { }
 
-    public InputStreamMessageContext createInputStreamContext() throws IOException {
+    public InputStreamMessageContext getCorrespondingInputStreamContext() throws IOException {
         return new TestInputStreamContext(baos.toByteArray());
     }
+    
+    
 }

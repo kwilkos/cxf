@@ -2,18 +2,24 @@ package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.ws.ProtocolException;
-import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.bindings.AbstractClientBinding;
+import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bindings.Request;
+import org.objectweb.celtix.bindings.Response;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.bus.ws.addressing.VersionTransformer;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.transports.Transport;
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.ws.addressing.RelatesToType;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.Identifier;
@@ -25,53 +31,53 @@ public class RMProxy {
 
     private static final Logger LOG = LogUtils.getL7dLogger(RMProxy.class);
     private RMHandler handler;
+    // REVISIT assumption there is only a single outstanding offer
+    private Identifier offeredIdentifier;
 
     public RMProxy(RMHandler h) {
         handler = h;
     }
 
-    public CreateSequenceResponseType createSequence(RMSource source, 
-                                                     EndpointReferenceType acksTo, 
-                                                     Identifier i) 
+    public void createSequence(RMSource source, 
+                               org.objectweb.celtix.ws.addressing.EndpointReferenceType to,
+                               EndpointReferenceType acksTo,
+                               RelatesToType relatesTo) 
         throws IOException, SequenceFault {
-        CreateSequenceRequest request = new CreateSequenceRequest(handler.getBinding(), 
-                                                                  handler.getTransport(),
-                                                                  source, acksTo);
-        OfferType o = request.getIncludedOffer();
+        CreateSequenceRequest request =
+            new CreateSequenceRequest(handler.getBinding(),
+                                      getTransport(),
+                                      source,
+                                      to,
+                                      acksTo,
+                                      relatesTo);
+        setOfferedIdentifier(request.getIncludedOffer());
 
-        ObjectMessageContext responseCtx = invoke(request.getObjectMessageContext(), 
-                                                  CreateSequenceRequest.createDataBindingCallback());
-        Object result = responseCtx.getReturn();
-        if (result instanceof JAXBElement) {
-            result = ((JAXBElement)result).getValue();
-        }
-        CreateSequenceResponseType csr = (CreateSequenceResponseType)result;
-        
-        SourceSequence seq = new SourceSequence(csr.getIdentifier());
-        seq.setExpires(csr.getExpires());
-        source.addSequence(seq);
-        source.setCurrent(i, seq);
-        
-        if (null != o) {
-            assert null != csr.getAccept();
-            RMDestination dest = source.getHandler().getDestination();
-            String address = csr.getAccept().getAcksTo().getAddress().getValue();
-            if (!RMUtils.getAddressingConstants().getNoneURI().equals(address)) {
-                DestinationSequence ds = 
-                    new DestinationSequence(o.getIdentifier(), csr.getAccept().getAcksTo(), dest);
-                dest.addSequence(ds);
-            }
-        }
-        
-        return csr;
+        send(request, CreateSequenceRequest.createDataBindingCallback());
     }
     
+    public void createSequenceResponse(AddressingProperties inMAPs,
+                                       CreateSequenceResponseType csr) 
+        throws IOException, SequenceFault {
+        CreateSequenceResponse request =
+            new CreateSequenceResponse(handler.getBinding(),
+                                       getTransport(),
+                                       inMAPs,
+                                       csr);
+
+        send(request, CreateSequenceResponse.createDataBindingCallback());
+    }
+
     public void terminateSequence(SourceSequence seq) throws IOException {
-        TerminateSequenceRequest request = new TerminateSequenceRequest(handler.getBinding(), 
-                                                                        handler.getTransport(), seq);
-        handler.getSource().removeSequence(seq);
-        invokeOneWay(request.getObjectMessageContext(), TerminateSequenceRequest.createDataBindingCallback());
-        
+        if (canSend(seq.getTarget())) {
+            TerminateSequenceRequest request =
+                new TerminateSequenceRequest(handler.getBinding(),
+                                             getTransport(),
+                                             seq);
+            // required?
+            handler.getSource().removeSequence(seq);
+
+            send(request, TerminateSequenceRequest.createDataBindingCallback());
+        }
     }
     
     /** 
@@ -82,9 +88,18 @@ public class RMProxy {
      * @throws IOException
      */
     public void requestAcknowledgment(Collection<SourceSequence> seqs) throws IOException {
-        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding(), handler.getTransport()); 
-        request.requestAcknowledgement(seqs);
-        invokeOneWay(request.getObjectMessageContext(), null);
+        // it only makes sense to relate a group of sequnces in the same
+        // AckRequest if they all have the same AcksTo, hence we can safely 
+        // take the AckTo from the first sequence in the collection
+        SourceSequence first = getFirstSequence(seqs);
+        if (canSend(first.getTarget())) {
+            SequenceInfoRequest request =
+                new SequenceInfoRequest(handler.getBinding(),
+                                        getTransport(),
+                                        first.getTarget()); 
+            request.requestAcknowledgement(seqs);
+            send(request, null);
+        }
     }
     
     /** 
@@ -96,9 +111,14 @@ public class RMProxy {
     
     public void lastMessage(SourceSequence seq) throws IOException {
         LOG.fine("sending standalone last message");
-        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding(), handler.getTransport()); 
-        request.lastMessage(seq);
-        invokeOneWay(request.getObjectMessageContext(), null);
+        if (canSend(seq.getTarget())) {            
+            SequenceInfoRequest request =
+                new SequenceInfoRequest(handler.getBinding(),
+                                        getTransport(),
+                                        seq.getTarget()); 
+            request.lastMessage(seq);
+            send(request, null);
+        }
     }
     
     /** 
@@ -108,66 +128,116 @@ public class RMProxy {
      * @throws IOException
      */
     public void acknowledge(RMDestinationSequence seq) throws IOException {
+        // required?
         if (Names.WSA_ANONYMOUS_ADDRESS.equals(seq.getAcksTo().getAddress().getValue())) {
             LOG.log(Level.WARNING, "STANDALONE_ANON_ACKS_NOT_SUPPORTED");
             return;
         }
         LOG.fine("sending standalone sequence acknowledgment");
-        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding(), handler.getTransport()); 
-        request.acknowledge(seq);
-        invokeOneWay(request.getObjectMessageContext(), null);
+        if (canSend(seq.getAcksTo())) {
+            SequenceInfoRequest request =
+                new SequenceInfoRequest(handler.getBinding(),
+                                        handler.getTransport(),
+                                        seq.getAcksTo()); 
+            request.acknowledge(seq);
+            send(request, null);
+        }
+    }
+        
+    protected Identifier getOfferedIdentifier() {
+        return offeredIdentifier;    
     }
     
-    public void sequenceInfo() throws IOException {
-        SequenceInfoRequest request = new SequenceInfoRequest(handler.getBinding(), handler.getTransport());
-        invokeOneWay(request.getObjectMessageContext(), null);
+    protected void setOfferedIdentifier(OfferType offer) { 
+        if (offer != null) {
+            offeredIdentifier = offer.getIdentifier();
+        }
     }
     
-    private ObjectMessageContext invoke(ObjectMessageContext requestCtx, DataBindingCallback callback) 
-        throws IOException, SequenceFault {
-        ObjectMessageContext responseCtx = null;
-        if (handler.getClientBinding() != null) {
-            responseCtx = handler.getClientBinding().invoke(requestCtx, callback); 
-            throwIfNecessary(responseCtx);
-        } else {
-            // wait for changes on the transport decoupling -
-            // server transport should allow to send this out of band request
-            Message msg = new Message("SERVER_SIDE_OUT_OF_BAND_NOT_IMPLEMENTED_MSG", LOG,
-                ContextUtils.retrieveMAPs(requestCtx, true, true).getAction().getValue());
-            LOG.severe(msg.toString());
-        } 
-        return responseCtx;
-    }
-    
-    private void invokeOneWay(ObjectMessageContext requestCtx, DataBindingCallback callback)
+    private void send(Request request, DataBindingCallback callback)
         throws IOException {        
         
-        if (handler.getClientBinding() != null) {            
-            handler.getClientBinding().invokeOneWay(requestCtx, callback);
+        boolean isOneway = request.isOneway();
+        if (handler.getBinding() != null) {            
+            handler.getBinding().send(request, callback);
+            if (!(handler.getClientBinding() == null || isOneway)) {
+                Response response = 
+                    ((AbstractClientBinding)handler.getClientBinding())
+                        .getResponseCorrelator().getResponse(request);
+                response.setHandlerInvoker(request.getHandlerInvoker());
+                MessageContext responseContext = response.getBindingMessageContext();
+                DataBindingCallback responseCallback =
+                    BindingContextUtils.retrieveDataBindingCallback(responseContext);
+                response.processLogical(responseCallback);
+            }
         } else {
-            // wait for changes on the transport decoupling -
-            // server transport should allow to send this out of band request
-            Message msg = new Message("SERVER_SIDE_OUT_OF_BAND_NOT_IMPLEMENTED_MSG", LOG,
-                ContextUtils.retrieveMAPs(requestCtx, true, true).getAction().getValue());
+            AddressingProperties maps = 
+                ContextUtils.retrieveMAPs(request.getObjectMessageContext(), true, true);
+            String action = maps.getAction() != null
+                            ? maps.getAction().getValue()
+                            : "empty";
+            Message msg = new Message("NO_BINDING_FOR_OUT_OF_BAND_MSG", LOG, action);
             LOG.severe(msg.toString());
         }
     }
     
-    private void throwIfNecessary(ObjectMessageContext objextCtx) throws SequenceFault
-    {
-        Throwable t = objextCtx.getException();
-        if (null != t) {
-            LOG.log(Level.INFO, "RM_INVOCATION_FAILED", t);
-            if (ProtocolException.class.isAssignableFrom(t.getClass())) {
-                throw (ProtocolException)t;
-            } else if (WebServiceException.class.isAssignableFrom(t.getClass())) {
-                throw (WebServiceException)t;
-            } else if (SequenceFault.class.isAssignableFrom(t.getClass())) {
-                throw (SequenceFault)t;
-            } else {                
-                throw new ProtocolException(objextCtx.getException());
-            }
-        }        
+    /**
+     * A outgoing out-of-band protocol message cannot be sent if from the server
+     * side if the target (e.g. the AcksTo address) is anonymous.
+     * 
+     * @param to the target EPR
+     * @return true if the message may be sent
+     */
+    protected boolean canSend(EndpointReferenceType to) {
+        return !(handler.getClientBinding() == null
+                 && ContextUtils.isGenericAddress(VersionTransformer.convert(to)));
     }
-
+    
+    /**
+     * A outgoing out-of-band protocol message cannot be sent if from the server
+     * side if the target (e.g. the AcksTo address) is anonymous.
+     * 
+     * @param to the target EPR
+     * @return true if the message may be sent
+     */
+    protected boolean canSend(org.objectweb.celtix.ws.addressing.EndpointReferenceType to) {
+        boolean ret = false;
+        if (handler.getClientBinding() == null) {
+            ret = !ContextUtils.isGenericAddress(to);
+        } else {
+            try {
+                ret = ((AbstractClientBinding)handler.getClientBinding()).getTransport() != null;
+            } catch (IOException ioe) {
+                // ignore
+            }
+        }
+        return ret;
+    }
+    
+    /**
+     * This is required as the resource injected transport may be shutdown already
+     * (e.g. for LastMessage or TerminateSequence messages originating from 
+     * BusLifeCycleListener.preShutdown()).
+     * 
+     * @return
+     */
+    protected Transport getTransport() {
+        Transport ret = null;
+        if (handler.getClientBinding() == null) {
+            ret = handler.getTransport();
+        } else {
+            try {
+                ret = ((AbstractClientBinding)handler.getClientBinding()).getTransport();
+            } catch (IOException ioe) {
+                // ignore
+            }
+        }
+        return ret;
+    }
+    
+    
+    private SourceSequence getFirstSequence(Collection<SourceSequence> seqs) {
+        Iterator<SourceSequence> i = seqs.iterator();
+        return i.hasNext() ? i.next() : null;
+    }
 }

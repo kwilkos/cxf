@@ -233,7 +233,7 @@ public class DispatchImplTest<T> extends TestCase {
         }
 
         public void invokeOneway(OutputStreamMessageContext context) throws IOException {
-            InputStreamMessageContext ismc = ((TestOutputStreamContext)context).createInputStreamContext();
+            InputStreamMessageContext ismc = context.getCorrespondingInputStreamContext();
             InputStream in = ismc.getInputStream();            
             try {
                 SOAPMessage soapMessage = MessageFactory.newInstance().createMessage(null, in);
@@ -249,13 +249,13 @@ public class DispatchImplTest<T> extends TestCase {
         }
 
         public InputStreamMessageContext invoke(OutputStreamMessageContext context) throws IOException {
-            return ((TestOutputStreamContext)context).createInputStreamContext();
+            return context.getCorrespondingInputStreamContext();
             
         }
 
         public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, 
                                                              Executor e) throws IOException {
-            InputStreamMessageContext ismc = ((TestOutputStreamContext)context).createInputStreamContext();
+            InputStreamMessageContext ismc = context.getCorrespondingInputStreamContext();
             return new TestInputStreamMessageContextFuture(ismc);
         }
 

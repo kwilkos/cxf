@@ -62,6 +62,28 @@ public class MessageFlow extends Assert {
             }
         }
     }
+    
+    public boolean checkActions(String[] expectedActions, boolean outbound) throws Exception {
+
+        if (expectedActions.length != (outbound ? outboundMessages.size() : inboundContexts.size())) {
+            return false;
+        }
+
+        for (int i = 0; i < expectedActions.length; i++) {
+            String action = outbound ? getAction(outboundMessages.get(i)) : getAction(inboundContexts.get(i));
+            if (null == expectedActions[i]) {
+                if (action != null) {
+                    return false;
+                }
+            } else {
+                if (!expectedActions[i].equals(action)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 
     public void verifyMessageNumbers(String[] expectedMessageNumbers, boolean outbound) throws Exception {
 
@@ -72,7 +94,7 @@ public class MessageFlow extends Assert {
             if (outbound) {
                 SOAPElement se = getSequence(outboundMessages.get(i));
                 if (null == expectedMessageNumbers[i]) {
-                    assertNull(se);
+                    assertNull("Outbound message " + i + " contains unexpected message number ", se);
                 } else {
                     assertEquals("Outbound message " + i + " does not contain expected message number "
                                  + expectedMessageNumbers[i], expectedMessageNumbers[i], 
@@ -82,7 +104,8 @@ public class MessageFlow extends Assert {
                 SequenceType s = getSequence(inboundContexts.get(i));
                 String messageNumber = null == s ? null : s.getMessageNumber().toString();
                 if (null == expectedMessageNumbers[i]) {
-                    assertNull(messageNumber);
+                    assertNull("Inbound message " + i + " contains unexpected message number ",
+                               messageNumber);
                 } else {
                     assertEquals("Inbound message " + i + " does not contain expected message number "
                                  + expectedMessageNumbers[i], expectedMessageNumbers[i], messageNumber);

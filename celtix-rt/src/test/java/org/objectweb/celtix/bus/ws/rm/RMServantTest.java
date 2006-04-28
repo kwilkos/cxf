@@ -9,6 +9,8 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.bus.configuration.wsrm.DestinationPolicyType;
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
@@ -25,9 +27,10 @@ public class RMServantTest extends TestCase {
     private IMocksControl control = createNiceControl();
     private RMDestination dest;
     private CreateSequenceType cs;
-    private AttributedURI to;
+    private AttributedURIType to;
     private DestinationPolicyType dp;
     private Identifier sid;
+    private AddressingProperties maps;
 
     public void testCreateSequenceDefault() throws DatatypeConfigurationException, SequenceFault {        
         
@@ -35,7 +38,7 @@ public class RMServantTest extends TestCase {
         
         control.replay();
         
-        CreateSequenceResponseType csr = (new RMServant()).createSequence(dest, cs, to);
+        CreateSequenceResponseType csr = (new RMServant()).createSequence(dest, cs, maps);
         
         control.verify();
 
@@ -51,7 +54,7 @@ public class RMServantTest extends TestCase {
         
         control.replay();
         
-        CreateSequenceResponseType csr = (new RMServant()).createSequence(dest, cs, to);
+        CreateSequenceResponseType csr = (new RMServant()).createSequence(dest, cs, maps);
         
         control.verify();
 
@@ -67,7 +70,7 @@ public class RMServantTest extends TestCase {
         
         control.replay();
         
-        CreateSequenceResponseType csr = (new RMServant()).createSequence(dest, cs, to);
+        CreateSequenceResponseType csr = (new RMServant()).createSequence(dest, cs, maps);
         
         control.verify();
 
@@ -82,7 +85,7 @@ public class RMServantTest extends TestCase {
         
         control.replay();
         
-        CreateSequenceResponseType csr = (new RMServant()).createSequence(dest, cs, to);
+        CreateSequenceResponseType csr = (new RMServant()).createSequence(dest, cs, maps);
         
         control.verify();
 
@@ -106,10 +109,14 @@ public class RMServantTest extends TestCase {
         throws DatatypeConfigurationException {
 
         dest = control.createMock(RMDestination.class);
-        to = control.createMock(AttributedURI.class); 
+        to = control.createMock(AttributedURIType.class); 
         dp = control.createMock(DestinationPolicyType.class);
         sid = control.createMock(Identifier.class);
         cs = control.createMock(CreateSequenceType.class);
+        AttributedURIType messageID = control.createMock(AttributedURIType.class);
+        maps = control.createMock(AddressingProperties.class);
+        maps.getMessageID();
+        expectLastCall().andReturn(messageID);
         
         dest.generateSequenceIdentifier();
         expectLastCall().andReturn(sid);
@@ -133,6 +140,12 @@ public class RMServantTest extends TestCase {
         cs.getExpires();
         expectLastCall().andReturn(ex);        
         
+        setupOffer(includeOffer, acceptOffer);
+    }
+
+    private void setupOffer(boolean includeOffer, boolean acceptOffer)
+        throws DatatypeConfigurationException {
+
         OfferType o = null;
         if (includeOffer) {
             o = control.createMock(OfferType.class);
@@ -145,7 +158,11 @@ public class RMServantTest extends TestCase {
             expectLastCall().andReturn(acceptOffer);
         }
         
+        EndpointReferenceType acksTo =
+            control.createMock(EndpointReferenceType.class);
         if (includeOffer && acceptOffer) {
+            maps.getTo();
+            expectLastCall().andReturn(to);
             RMHandler handler = control.createMock(RMHandler.class);
             dest.getHandler();
             expectLastCall().andReturn(handler);
@@ -156,6 +173,11 @@ public class RMServantTest extends TestCase {
             expectLastCall().andReturn(control.createMock(Identifier.class));
             o.getExpires();
             expectLastCall().andReturn(null);
+            cs.getAcksTo();
+            expectLastCall().andReturn(acksTo);
+            AttributedURI address = control.createMock(AttributedURI.class);
+            acksTo.getAddress();
+            expectLastCall().andReturn(address);
             source.addSequence(isA(SourceSequence.class));
             expectLastCall();
             source.setCurrent(isA(Identifier.class), isA(SourceSequence.class));
@@ -163,8 +185,6 @@ public class RMServantTest extends TestCase {
         }
      
         cs.getAcksTo();
-        expectLastCall().andReturn(control.createMock(EndpointReferenceType.class));
- 
+        expectLastCall().andReturn(acksTo);
     }
-    
 }

@@ -177,7 +177,7 @@ public class SOAPClientBindingTest extends TestCase {
         }
 
         public InputStreamMessageContext invoke(OutputStreamMessageContext context) throws IOException {
-            return ((TestOutputStreamContext)context).createInputStreamContext();
+            return context.getCorrespondingInputStreamContext();
         }
 
         public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, Executor ex) 

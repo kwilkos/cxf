@@ -167,13 +167,13 @@ public class PersistenceTest extends ClientServerTestBase {
         mf.verifyMessageNumbers(new String[] {null, "1", "2", "3", "4", null}, true);
 
 
-        mf.verifyMessages(6, false);
-        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
+        mf.verifyMessages(7, false);
+        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 
                                         null, null, null, null, null};
         mf.verifyActions(expectedActions, false);
-        mf.verifyMessageNumbers(new String[] {null, null, null, null, null, null}, false);
-        boolean[] expectedAcks = new boolean[6];
-        expectedAcks[4] = true;
+        mf.verifyMessageNumbers(new String[] {null, null, null, null, null, null, null}, false);
+        boolean[] expectedAcks = new boolean[7];
+        expectedAcks[5] = true;
         mf.verifyAcknowledgements(expectedAcks, false);
     }
 }

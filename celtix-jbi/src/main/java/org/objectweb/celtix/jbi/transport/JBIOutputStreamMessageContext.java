@@ -3,10 +3,12 @@ package org.objectweb.celtix.jbi.transport;
 
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 
@@ -45,5 +47,10 @@ public class JBIOutputStreamMessageContext extends MessageContextWrapper
     
     public boolean isOneWay() { 
         return oneway;
-    } 
+    }
+    
+    public InputStreamMessageContext getCorrespondingInputStreamContext()
+        throws IOException {
+        return null;   
+    }
 }

@@ -19,6 +19,7 @@ public class ResponseCorrelator implements ResponseCallback {
     
     private HandlerInvoker fixedHandlerInvoker;
     private Map<String, Response> responseMap;
+    private Map<String, HandlerInvoker> relatedRequestMap;
     private AbstractBindingBase binding;
 
     protected ResponseCorrelator(AbstractBindingBase b) {
@@ -29,6 +30,7 @@ public class ResponseCorrelator implements ResponseCallback {
         // made to the handler chains
         fixedHandlerInvoker = b.createHandlerInvoker();
         responseMap = new HashMap<String, Response>();
+        relatedRequestMap = new HashMap<String, HandlerInvoker>();
         binding = b;
     }
 
@@ -48,12 +50,28 @@ public class ResponseCorrelator implements ResponseCallback {
         synchronized (this) {
             String inCorrelation = response.getCorrelationId();
             if (inCorrelation != null) {
-                LOG.log(Level.INFO, "response correlation ID: {0}", inCorrelation);
-                responseMap.put(inCorrelation, response);
-                notifyAll();
+                HandlerInvoker alternate =
+                    relatedRequestMap.remove(inCorrelation);
+                if (alternate == null) {
+                    LOG.log(Level.INFO, "response correlation ID: {0}", inCorrelation);
+                    responseMap.put(inCorrelation, response);
+                    notifyAll();                    
+                } else {
+                    DataBindingCallback callback =
+                        BindingContextUtils.retrieveDataBindingCallback(responseContext);
+                    if (callback != null) {              
+                        response.getHandlerInvoker().adoptLogicalHandlers(alternate);
+                        response.processLogical(callback);
+                    }
+                }
             } else {
                 // this is expected for partial responses
                 LOG.info("no correlation ID in incoming message");
+                DataBindingCallback callback =
+                    BindingContextUtils.retrieveDataBindingCallback(responseContext);
+                if (callback != null) {              
+                    response.processLogical(callback);
+                }
             }
         }
     }
@@ -64,7 +82,7 @@ public class ResponseCorrelator implements ResponseCallback {
      * @param outContext outgoing context containing correlation ID property
      * @return binding-specific context for the correlated response
      */
-    protected Response getResponse(Request request) {
+    public Response getResponse(Request request) {
         
         String outCorrelation = request.getCorrelationId();
         Response response = null;
@@ -77,9 +95,13 @@ public class ResponseCorrelator implements ResponseCallback {
                     try {
                         wait();
                         response = responseMap.remove(outCorrelation);
+                        if (request.isRelatedRequestExpected()) {
+                            relatedRequestMap.put(outCorrelation, request.getHandlerInvoker());
+                        } 
                     } catch (InterruptedException ie) {
                         // ignore
                     }
+      
                     count++;
                 }
             }

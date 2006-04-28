@@ -14,13 +14,15 @@ import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
 import org.objectweb.celtix.bus.handlers.HandlerChainInvoker;
+import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
+import org.objectweb.celtix.bus.ws.addressing.VersionTransformer;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.transports.Transport;
-import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.OfferType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class CreateSequenceRequestTest extends TestCase {
     
@@ -70,10 +72,14 @@ public class CreateSequenceRequestTest extends TestCase {
         EasyMock.expectLastCall().andReturn(offeredSid);
         
         control.replay();    
-        EndpointReferenceType replyTo = 
-            RMUtils.createReference(RMUtils.getAddressingConstants().getAnonymousURI());
         
-        CreateSequenceRequest req = new CreateSequenceRequest(binding, transport, source, replyTo);
+        CreateSequenceRequest req =
+            new CreateSequenceRequest(binding,
+                                      transport,
+                                      source,
+                                      getEPR("to"),
+                                      VersionTransformer.convert(getEPR("acksTo")),
+                                      ContextUtils.WSA_OBJECT_FACTORY.createRelatesToType());
         assertNotNull(req);
         
         assertNotNull(CreateSequenceRequest.createDataBindingCallback());
@@ -83,7 +89,7 @@ public class CreateSequenceRequestTest extends TestCase {
         assertEquals(1, params.length);
         CreateSequenceType cs = (CreateSequenceType)params[0];
         
-        assertEquals(RMUtils.getAddressingConstants().getAnonymousURI(),
+        assertEquals(VersionTransformer.convert(getEPR("acksTo")).getAddress().getValue(),
                      cs.getAcksTo().getAddress().getValue());
         assertNull(cs.getExpires());
         
@@ -99,15 +105,19 @@ public class CreateSequenceRequestTest extends TestCase {
     
     public void testNonDefaultConstruction() {     
         
-        EndpointReferenceType replyTo = EasyMock.createMock(EndpointReferenceType.class);
-        
         control.replay();
                 
         sp.setAcksTo(NON_ANONYMOUS_ACKSTO_ADDRESS);
         sp.setSequenceExpiration(ONE_DAY);
         sp.setIncludeOffer(false);
-        
-        CreateSequenceRequest req = new CreateSequenceRequest(binding, transport, source, replyTo);
+
+        CreateSequenceRequest req = 
+            new CreateSequenceRequest(binding,
+                                      transport, 
+                                      source,
+                                      getEPR("to"),
+                                      VersionTransformer.convert(getEPR("acksTo")),
+                                      ContextUtils.WSA_OBJECT_FACTORY.createRelatesToType());
         assertNotNull(req);
         
         Object[] params = req.getObjectMessageContext().getMessageObjects();
@@ -120,5 +130,9 @@ public class CreateSequenceRequestTest extends TestCase {
         assertNull(cs.getOffer());
         
         control.verify();
+    }
+    
+    private org.objectweb.celtix.ws.addressing.EndpointReferenceType getEPR(String s) {
+        return EndpointReferenceUtils.getEndpointReference("http://nada.nothing.nowhere.null/" + s);
     }
 }

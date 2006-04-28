@@ -1,5 +1,6 @@
 package org.objectweb.celtix.context;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.xml.ws.handler.MessageContext;
@@ -20,4 +21,6 @@ public interface OutputStreamMessageContext extends MessageContext {
     void setOneWay(boolean isOneWay);
     
     boolean isOneWay();
+    
+    InputStreamMessageContext getCorrespondingInputStreamContext() throws IOException;
 }
