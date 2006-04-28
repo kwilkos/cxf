@@ -22,13 +22,14 @@ import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceProvider;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.addressing.MetadataType;
 import org.objectweb.celtix.ws.addressing.ObjectFactory;
+import org.objectweb.celtix.ws.addressing.wsdl.AttributedQNameType;
+import org.objectweb.celtix.ws.addressing.wsdl.ServiceNameType;
 
 public class EndpointReferenceUtilsTest extends TestCase {
     
@@ -237,7 +238,9 @@ public class EndpointReferenceUtilsTest extends TestCase {
         assertEquals(wsp.portName(), EndpointReferenceUtils.getPortName(ref));
         assertNotNull(EndpointReferenceUtils.getServiceName(ref));
         
-        assertEquals(TestProvider1.class.getName(), EndpointReferenceUtils.getInterfaceName(ref));
+        QName portTypeName = new QName(wsp.targetNamespace(), 
+                                       TestProvider1.class.getSimpleName());
+        assertEquals(portTypeName, EndpointReferenceUtils.getInterfaceName(ref));
         
         //Test with default values for WebServiceProvider Annotation
         TestProvider2 provider2 = new TestProvider2();
@@ -248,7 +251,9 @@ public class EndpointReferenceUtilsTest extends TestCase {
         assertNull(EndpointReferenceUtils.getPortName(ref));
         assertNull(EndpointReferenceUtils.getServiceName(ref));
 
-        assertNull(EndpointReferenceUtils.getInterfaceName(ref));
+        //REVISIT
+        portTypeName = new QName("", TestProvider2.class.getSimpleName());
+        assertEquals(portTypeName, EndpointReferenceUtils.getInterfaceName(ref));
         
         //Test for No WebServiceProvider Annotation.
         ref =  EndpointReferenceUtils.getEndpointReference(manager, ref);
@@ -261,22 +266,37 @@ public class EndpointReferenceUtilsTest extends TestCase {
 
         EndpointReferenceType ref = new EndpointReferenceType();
         
-        EndpointReferenceUtils.setServiceAndPortName(ref, serviceName1, portName1.toString());
+        EndpointReferenceUtils.setServiceAndPortName(ref, serviceName1, portName1.getLocalPart());
         
         MetadataType metadata = ref.getMetadata();
         List<Object> anyList = metadata.getAny();
         Object obj = anyList.get(0);
-        assertTrue(obj instanceof Element);
-        Node node = (Element)obj;
+        assertTrue(obj instanceof JAXBElement);
+        obj = ((JAXBElement)obj).getValue();
+        assertNotNull(obj);
+        assertTrue(obj instanceof ServiceNameType);
         
-        assertTrue(node.getTextContent().contains("SOAPService_Test1"));
-        assertTrue(node.getNamespaceURI().
-                   equals("http://www.w3.org/2005/08/addressing/wsdl"));
-        
-        assertTrue(node.getAttributes().getNamedItem("EndpointName").
-                   getTextContent().contains("SoapPort_Test1"));
+        ServiceNameType snt = (ServiceNameType) obj;
+        assertEquals(serviceName1, snt.getValue());
+        assertEquals(portName1.getLocalPart(), snt.getEndpointName());
+    }
 
-       
+    public void testSetInterfaceName() throws Exception {
+        QName portTypeName1 = new QName("http://objectweb.org/soap_http1", "SOAPPortType");
+
+        EndpointReferenceType ref = new EndpointReferenceType();
+        
+        EndpointReferenceUtils.setInterfaceName(ref, portTypeName1);
+        MetadataType metadata = ref.getMetadata();
+        List<Object> anyList = metadata.getAny();
+        Object obj = anyList.get(0);
+        assertTrue(obj instanceof JAXBElement);
+        obj = ((JAXBElement)obj).getValue();
+        assertNotNull(obj);
+        assertTrue(obj instanceof AttributedQNameType);
+        
+        AttributedQNameType aqt = (AttributedQNameType) obj;
+        assertEquals(portTypeName1, aqt.getValue());
     }
     
     public void testSetMetaData() throws Exception {

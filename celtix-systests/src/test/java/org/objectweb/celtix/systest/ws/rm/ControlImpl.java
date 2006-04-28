@@ -15,8 +15,9 @@ import org.objectweb.celtix.greeter_control.types.StartGreeterResponse;
 import org.objectweb.celtix.greeter_control.types.StopGreeterResponse;
 
 
-@WebService(serviceName = "ControlService", portName = "ControlPort", 
-            name = "Control", 
+@WebService(serviceName = "ControlService", 
+            portName = "ControlPort", 
+            endpointInterface = "org.objectweb.celtix.greeter_control.Control", 
             targetNamespace = "http://celtix.objectweb.org/greeter_control")
 public class ControlImpl implements Control {
     

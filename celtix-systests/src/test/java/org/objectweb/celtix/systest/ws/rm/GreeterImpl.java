@@ -17,8 +17,9 @@ import org.objectweb.celtix.greeter_control.types.SayHiResponse;
 
 
 
-@WebService(serviceName = "GreeterService", portName = "GreeterPort", 
-            name = "Greeter", 
+@WebService(serviceName = "GreeterService", 
+            portName = "GreeterPort", 
+            endpointInterface = "org.objectweb.celtix.greeter_control.Greeter", 
             targetNamespace = "http://celtix.objectweb.org/greeter_control")
 public class GreeterImpl implements Greeter {
     private static final Logger LOG = Logger.getLogger(GreeterImpl.class.getName());

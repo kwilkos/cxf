@@ -10,8 +10,9 @@ import javax.xml.ws.Holder;
 import org.soapinterop.celtix.InteropTestPortType;
 import org.soapinterop.celtix.SOAPStruct;
 
-@WebService(serviceName = "CeltixEchoService", portName = "Echo",
-            name = "InteropTestPortType",
+@WebService(serviceName = "CeltixEchoService", 
+            portName = "Echo",
+            endpointInterface = "org.soapinterop.celtix.InteropTestPortType",
             targetNamespace = "http://soapinterop.org/celtix")
 public class CeltixEchoImpl implements InteropTestPortType {
 

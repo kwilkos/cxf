@@ -12,7 +12,9 @@ import org.objectweb.handler_test.HandlerTest;
 import org.objectweb.handler_test.PingException;
 import org.objectweb.handler_test.types.PingFaultDetails;
 
-@WebService(serviceName = "HandlerTestService", portName = "SoapPort", name = "HandlerTest", 
+@WebService(serviceName = "HandlerTestService", 
+            portName = "SoapPort", 
+            endpointInterface = "org.objectweb.handler_test.HandlerTest", 
             targetNamespace = "http://objectweb.org/handler_test")
 @HandlerChain(file = "./handlers.xml", name = "TestHandlerChain")
 public class HandlerTestImpl implements HandlerTest {

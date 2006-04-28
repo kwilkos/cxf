@@ -30,7 +30,7 @@ public class SOAPDocLitServerImpl extends TestServerBase {
     }
     
     @WebService(serviceName = "SOAPDocLitService", portName = "SOAPPort",
-                name = "TypeTestPortType",
+                endpointInterface = "org.objectweb.type_test.doc.TypeTestPortType",
                 targetNamespace = "http://objectweb.org/type_test/doc")
     class SOAPTypeTestImpl extends TypeTestImpl implements TypeTestPortType {
     }

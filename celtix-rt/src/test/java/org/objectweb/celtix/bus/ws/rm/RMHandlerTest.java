@@ -98,7 +98,7 @@ public class RMHandlerTest extends TestCase {
     }
     
     @WebService(serviceName = "GreeterService", portName = "GreeterPort", 
-                name = "Greeter", 
+                endpointInterface = "org.objectweb.celtix.greeter_control.Greeter", 
                 targetNamespace = "http://celtix.objectweb.org/greeter_control")
     class GreeterImpl implements Greeter {
 

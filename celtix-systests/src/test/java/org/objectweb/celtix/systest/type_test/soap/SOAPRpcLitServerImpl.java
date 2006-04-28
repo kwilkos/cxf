@@ -30,7 +30,8 @@ public class SOAPRpcLitServerImpl extends TestServerBase {
     
     @WebService(serviceName = "SOAPRpcLitService", 
                 portName = "SOAPPort",
-                endpointInterface = "org.objectweb.type_test.rpc.TypeTestPortType")
+                endpointInterface = "org.objectweb.type_test.rpc.TypeTestPortType",
+                targetNamespace = "http://objectweb.org/type_test/rpc")
     class SOAPTypeTestImpl extends TypeTestImpl implements TypeTestPortType {
     }
 }

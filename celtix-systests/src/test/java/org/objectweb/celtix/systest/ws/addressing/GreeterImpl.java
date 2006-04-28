@@ -25,8 +25,9 @@ import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 
 
-@WebService(serviceName = "SOAPServiceAddressing", portName = "SoapPort", 
-            name = "Greeter", 
+@WebService(serviceName = "SOAPServiceAddressing", 
+            portName = "SoapPort", 
+            endpointInterface = "org.objectweb.hello_world_soap_http.Greeter", 
             targetNamespace = "http://objectweb.org/hello_world_soap_http")
 public class GreeterImpl implements Greeter {
     VerificationCache verificationCache;
