@@ -40,7 +40,7 @@ public class ConfiguratorImpl implements Configurator {
         return hook;
     }
     
-    public void registerClient(Configurator c) { 
+    public synchronized void registerClient(Configurator c) { 
         // replace an existing client hook if it has the same namespace and id
         Object clientId = c.getConfiguration().getId();
         String clientNamepace = c.getConfiguration().getModel().getNamespaceURI();

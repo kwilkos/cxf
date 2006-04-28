@@ -45,6 +45,13 @@ variable.
 Deployment
 ==========
 
+Windows Users: 
+
+The scripts mentioned below are the Unix variants.  The Windows
+versions are the same but with a .bat suffix.  Also, make sure the
+envionment variable syntax is correct (%CELTIX_HOME%) and path
+separators are correct ('\').
+
 o Extract the Geronimo package.  This location will be referred to as
 GHOME.	
 
@@ -64,12 +71,11 @@ o Start the Geronimo application server:
 
 o Deploy the Celtix GBean to Geronimo
   
-  $ deploy.sh ./geronimo-plan.xml
+  $ deploy.sh deploy ./geronimo-plan.xml
 
   This will report success with the following message
 
-       Deployed geronimo/celtix-deployer/1.2/car
-
+       Deployed geronimo/celtix-deployer/1.0/car
 
 o Build the war using ant: 
   
@@ -79,7 +85,7 @@ o Deploy the WAR to the application server
 
    o For Geronimo: 
 
-   deploy ./build/lib/wspojo.war 
+   deploy.sh deploy ./build/lib/wspojo.war 
 
 o Run the client using ant
 
