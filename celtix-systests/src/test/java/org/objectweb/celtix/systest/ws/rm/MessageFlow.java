@@ -309,6 +309,14 @@ public class MessageFlow extends Assert {
         }
     }
     
+    public void purgePartialResponses() {
+        for (int i = inboundContexts.size() - 1; i >= 0; i--) {
+            if (null == getAction(inboundContexts.get(i))) {
+                inboundContexts.remove(i);
+            }
+        }
+    }
+    
     private String outboundDump() {
         StringBuffer buf = new StringBuffer();
         try {

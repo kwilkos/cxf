@@ -455,28 +455,16 @@ public class SequenceTest extends ClientServerTestBase {
         // (4 * partial response [for each outbound message]) = 8         
 
         mf.verifyMessages(8, false, 1000, 3);
-        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION,
-                                        null, Names.WSRM_CREATE_SEQUENCE_ACTION,
-                                        null, GREETME_RESPONSE_ACTION, 
-                                        null, GREETME_RESPONSE_ACTION};
-        if (!mf.checkActions(expectedActions, false)) {
-            // greetMeResponse and partial response to previous CreateSequence may be
-            // processed out-of-order
-            expectedActions[4] = GREETME_RESPONSE_ACTION;
-            expectedActions[5] = null;
-            mf.verifyActions(expectedActions, false);
-            mf.verifyMessageNumbers(new String[] {null, null, null, null, "1", null, null, "2"}, false);
-            mf.verifyLastMessage(new boolean[8], false);
-            mf.verifyAcknowledgements(new boolean[] {false, false, false, false, 
-                                                     true, false, false, true},
-                                      false);
-        } else {
-            mf.verifyMessageNumbers(new String[] {null, null, null, null, null, "1", null, "2"}, false);
-            mf.verifyLastMessage(new boolean[8], false);
-            mf.verifyAcknowledgements(new boolean[] {false, false, false, false, 
-                                                     false, true, false, true}, 
-                                      false);
-        }
+        
+        mf.purgePartialResponses();
+        
+        expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION,
+                                        Names.WSRM_CREATE_SEQUENCE_ACTION,
+                                        GREETME_RESPONSE_ACTION, 
+                                        GREETME_RESPONSE_ACTION};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, null, "1", "2"}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, false, true, true}, false);
     }
 
     public void testTwowayMessageLoss() throws Exception {
