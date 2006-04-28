@@ -2,6 +2,23 @@ Celtix 1.0 Beta Release Notes
 
 1. New Features
 
+  Added in 1.0:
+    * Persistence support for Reliable Messaging based on Apache Derby.
+    * HTTPS based security support.
+    * Support for Javascript based webservices. This is the first step
+      towards supporting dynamic languages in Celtix.
+    * Support for changing configuration dynamically via JMX console. 
+    * Enhanced management capabilities and cleanup for additional 
+      celtix components.
+    * Support for wsdlvalidator commandline tool.
+    * Enhanced routing capabilities which spans across all the celtix 
+      supported bindings and transports.
+    * Support for WS-Addressing for JMS based services.
+    * Celtix can now succesfully interoperate with .NET except for reported
+      known issues.
+    * Celtix now supports Maven 2.0.4.
+    * Support for running Celtix inside Apache Tuscany.
+
   Added in 1.0 Beta:
     * Support for Web Services Reliable Messaging based on WS-RM
       specification.
@@ -115,11 +132,9 @@ shut down the actual port listener.  If you programmatically remove the last end
 published on a port, the listener remains running on the port, but only 404
 (page not found) errors are serverd to all client connections.
 
-
-3.2 JMS
-
-3.2.1 WS-Addressing Support
-The JMS transport does not currently support WS-Addressing.
+3.2 Schema Definitions
+There is no support for nillable elements in XML Schema and xsi:nil attribute 
+in XML documents.
 
 4. Reporting Problems
 
