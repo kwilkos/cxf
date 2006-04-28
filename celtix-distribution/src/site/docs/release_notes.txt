@@ -7,15 +7,14 @@ Celtix 1.0 Beta Release Notes
     * HTTPS based security support.
     * Support for Javascript based webservices. This is the first step
       towards supporting dynamic languages in Celtix.
-    * Support for changing configuration dynamically via JMX console. 
+    * Support for changing configuration dynamically via a JMX console. 
     * Enhanced management capabilities and cleanup for additional 
       celtix components.
     * Support for wsdlvalidator commandline tool.
-    * Enhanced routing capabilities which spans across all the celtix 
-      supported bindings and transports.
+    * Enhanced routing capabilities across all the Celtix supported
+      bindings and transports.
     * Support for WS-Addressing for JMS based services.
-    * Celtix can now succesfully interoperate with .NET except for reported
-      known issues.
+    * Celtix can now succesfully interoperate with .NET.
     * Celtix now supports Maven 2.0.4.
     * Support for running Celtix inside Apache Tuscany.
 
@@ -84,8 +83,8 @@ Celtix 1.0 Beta Release Notes
 
 2. Installation Prerequisites 
 
-Before installing Celtix 1.0 Beta, make sure the following products
-with the specified versions are installed on your system:
+Before installing Celtix 1.0, make sure the following products,
+with the specified versions, are installed on your system:
 
     * Java 5 Development Kit
     * Apache ant 1.6
@@ -106,8 +105,9 @@ After installing the JDK, set or modify the following environment variables:
       %JAVA_HOME%\bin  (Windows) 
       $JAVA_HOME/bin   (UNIX)
 
-If you are planning on building Celtix from the source distribution, use  
-version 1.5.0_06 of the JDK. Earlier versions will result in a number of compiler warnings when building Celtix. The warnings can be ignored.
+If you are planning on building Celtix from the source distribution, use 
+version 1.5.0_06 of the JDK. Earlier versions will result in a number of compiler
+warnings when building Celtix. The warnings can be ignored.
 
 2.2 Apache Ant 1.6
 
@@ -127,7 +127,7 @@ For more details, see the Celtix Installation Guide.
 3. Known Problems
 
 3.1 HTTP
-There is an issue with the Jetty HTTP that prevents Celtix from being able to 
+There is an issue with Jetty HTTP that prevents Celtix from being able to 
 shut down the actual port listener.  If you programmatically remove the last endpoint
 published on a port, the listener remains running on the port, but only 404
 (page not found) errors are serverd to all client connections.
