@@ -33,6 +33,7 @@ import org.objectweb.celtix.wsdl.WSDLManager;
 public class CeltixBus extends Bus implements BusEventListener {
 
     public static final String CELTIX_WSDLMANAGER = "celtix.WSDLManager";
+    public static final String CELTIX_TRANSPORTFACTORYMANAGER = "celtix.TRANSPORTFACTORYMANAGER";
 
     private Configuration configuration;
     private BindingManager bindingManager;
@@ -83,7 +84,12 @@ public class CeltixBus extends Bus implements BusEventListener {
             wsdlManager = new WSDLManagerImpl(this);
         }
 
-        transportFactoryManager = new TransportFactoryManagerImpl(this);
+        if (properties.get(CELTIX_TRANSPORTFACTORYMANAGER) != null) {
+            transportFactoryManager = (TransportFactoryManager)properties.get(CELTIX_TRANSPORTFACTORYMANAGER);
+        } else {
+            transportFactoryManager = new TransportFactoryManagerImpl(this);
+        }
+
         bindingManager = new BindingManagerImpl(this);
         workQueueManager = new WorkQueueManagerImpl(this);
         resourceManager = new ResourceManagerImpl(this);
