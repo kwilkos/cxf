@@ -32,6 +32,9 @@ import javax.xml.ws.ResponseWrapper;
 import org.w3c.dom.Node;
 
 import org.objectweb.celtix.common.util.StringUtils;
+import org.objectweb.celtix.ws.addressing.wsdl.AttributedQNameType;
+import org.objectweb.celtix.ws.addressing.wsdl.ObjectFactory;
+import org.objectweb.celtix.ws.addressing.wsdl.ServiceNameType;
 
 /**
  * JAXBEncoderDecoder
@@ -49,6 +52,9 @@ public final class JAXBEncoderDecoder {
         if (context == null) {
             Set<Class> classes = new HashSet<Class>();
             getClassesForContext(cls, classes, cls.getClassLoader());
+            classes.add(AttributedQNameType.class);
+            classes.add(ServiceNameType.class);
+            classes.add(ObjectFactory.class);
             try {
                 context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
                 contextMap.put(cls, context);
@@ -261,8 +267,10 @@ public final class JAXBEncoderDecoder {
             if (ue.getCause() != null) {
                 message += ue.getCause();
             }
+            ue.printStackTrace();
             throw new ProtocolException(message, ue);
         } catch (Exception ex) {
+            ex.printStackTrace();
             throw new ProtocolException("Unmarshalling error", ex);
         }
         return obj;
@@ -300,6 +308,7 @@ public final class JAXBEncoderDecoder {
                 message += ue.getCause();
             }
             throw new ProtocolException(message, ue);
+            
         } catch (Exception ex) {
             throw new ProtocolException("Unmarshalling error", ex);
         }

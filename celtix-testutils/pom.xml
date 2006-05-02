@@ -223,6 +223,10 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/schema_validation.wsdl</wsdl>
                                 </wsdlOption>
+
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/basic_callback.wsdl</wsdl>
+                                </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_xml.wsdl</wsdl>
                                     <dependencies>

@@ -16,8 +16,7 @@
 		xmlns="http://www.w3.org/2001/XMLSchema" 
 		xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 		xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
-		jaxb:version="2.0"
-		elementFormDefault="qualified">
+		jaxb:version="2.0">
 
 	    <xsd:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="ws-addr.xsd"/>
 	    <element name="callback_message" type="xsd:string"/>

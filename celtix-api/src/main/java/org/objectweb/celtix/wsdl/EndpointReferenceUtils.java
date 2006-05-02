@@ -110,15 +110,18 @@ public final class EndpointReferenceUtils {
         if (metadata != null) {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
-                    Element el = (Element)obj;
-                    if (el.getNamespaceURI().equals("http://www.w3.org/2005/08/addressing/wsdl") 
-                        && el.getLocalName().equals("ServiceName")) {
-                        String content = el.getTextContent();
-                        String namespaceURI = el.getFirstChild().getNamespaceURI();
+                    Node node = (Element)obj;
+                    if (node.getNamespaceURI().equals("http://www.w3.org/2005/08/addressing/wsdl") 
+                        && node.getLocalName().equals("ServiceName")) {
+                        String content = node.getTextContent();
+                        String namespaceURI = node.getFirstChild().getNamespaceURI();
                         String service = content;
                         if (content.contains(":")) {
-                            namespaceURI = getNameSpaceUri(el, content, namespaceURI);
+                            namespaceURI = getNameSpaceUri(node, content, namespaceURI);
                             service = getService(content);
+                        } else {
+                            Node nodeAttr = node.getAttributes().getNamedItem("xmlns");
+                            namespaceURI = nodeAttr.getNodeValue();
                         }
                         
                         return new QName(namespaceURI, service);
@@ -148,7 +151,7 @@ public final class EndpointReferenceUtils {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
                     if (node.getNamespaceURI().equals("http://www.w3.org/2005/08/addressing/wsdl")
-                        && node.getNodeName().equals("ServiceName")) {
+                        && node.getNodeName().contains("ServiceName")) {
                         return node.getAttributes().getNamedItem("EndpointName").getTextContent();
                     }
                 } else if (obj instanceof JAXBElement) {
@@ -189,12 +192,23 @@ public final class EndpointReferenceUtils {
         if (metadata != null) {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
-                    Element el = (Element)obj;
-                    if (el.getNamespaceURI().equals("http://www.w3.org/2005/08/addressing/wsdl")
-                        && el.getNodeName().equals("InterfaceName")) {
-                        String content = el.getTextContent();
-                        content = content.substring(content.indexOf(":") + 1, content.length());
-                        return new QName(el.getNamespaceURI(), content);
+                    Node node = (Element)obj;
+                    System.out.println(node.getNamespaceURI() + ":" + node.getNodeName());
+                    if (node.getNamespaceURI().equals("http://www.w3.org/2005/08/addressing/wsdl")
+                        && node.getNodeName().contains("InterfaceName")) {
+                        
+                        String content = node.getTextContent();
+                        String namespaceURI = node.getFirstChild().getNamespaceURI();
+                        //String service = content;
+                        if (content.contains(":")) {
+                            namespaceURI = getNameSpaceUri(node, content, namespaceURI);
+                            content = getService(content);
+                        } else {
+                            Node nodeAttr = node.getAttributes().getNamedItem("xmlns");
+                            namespaceURI = nodeAttr.getNodeValue();
+                        }
+
+                        return new QName(namespaceURI, content);
                     }
                 } else if (obj instanceof JAXBElement) {
                     Object val = ((JAXBElement)obj).getValue();
@@ -228,7 +242,7 @@ public final class EndpointReferenceUtils {
         metadata.getOtherAttributes().put(WSDL_LOCATION, strBuf.toString().trim());
     }
     
-    protected static String getWSDLLocation(EndpointReferenceType ref) {
+    public static String getWSDLLocation(EndpointReferenceType ref) {
         String wsdlLocation = null;
         MetadataType metadata = ref.getMetadata();
 
