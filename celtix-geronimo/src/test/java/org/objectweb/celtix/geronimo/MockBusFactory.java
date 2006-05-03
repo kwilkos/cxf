@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.xml.ws.Binding;
-import javax.xml.ws.Endpoint;
 
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
@@ -89,7 +88,6 @@ public final class MockBusFactory {
                 .andReturn(mockBindingFactory).anyTimes();
 
         EasyMock.expect(mockBindingFactory.createServerBinding((EndpointReferenceType)EasyMock.anyObject(), 
-                        (Endpoint)EasyMock.isA(Endpoint.class),
                         (ServerBindingEndpointCallback)EasyMock.anyObject()))
                         .andReturn(mockServerBinding);
         

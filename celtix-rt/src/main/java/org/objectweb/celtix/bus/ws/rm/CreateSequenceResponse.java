@@ -40,8 +40,6 @@ public class CreateSequenceResponse extends Request {
 
         getObjectMessageContext().setRequestorRole(true);
         
-        getObjectMessageContext().setMethod(getMethod());
-        
         AddressingProperties maps = new AddressingPropertiesImpl();
         AttributedURIType actionURI = ContextUtils.WSA_OBJECT_FACTORY.createAttributedURIType();
         actionURI.setValue(RMUtils.getRMConstants().getCreateSequenceResponseAction());

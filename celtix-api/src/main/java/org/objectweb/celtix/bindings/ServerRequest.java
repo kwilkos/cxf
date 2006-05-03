@@ -2,20 +2,12 @@ package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.jws.Oneway;
-import javax.jws.WebMethod;
-import javax.jws.WebService;
 import javax.xml.namespace.QName;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.common.i18n.Message;
@@ -139,38 +131,40 @@ public class ServerRequest {
         // store method and operation name in binding context if not already there -
         // using server binding endpoint callback
 
-        storeMethodAndOperationName();
+        storeOperationName();
 
         if (null == objectCtx) {
             objectCtx = binding.createObjectContext();  
-            Method method = BindingContextUtils.retrieveMethod(bindingCtx);
-            initObjectContext(objectCtx, method);
+            initObjectContext(objectCtx);
             objectCtx.putAll(bindingCtx);   
         } 
 
         binding.getBindingImpl().unmarshal(bindingCtx, objectCtx, getDataBindingCallback());
         state = ServerRequestState.UNMARSHALLED;
         objectCtx.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, isOneway());
-             
+
         handlerInvoker.invokeLogicalHandlers(isRequestor(), objectCtx);
-                
+
         state = ServerRequestState.LOGICAL_HANDLERS_INVOKED;
     }
-    
-    public void doInvocation(Endpoint endpoint) {
+
+    public void doInvocation() {
         LOG.fine("doInvocation");
         QName operationName = (QName)objectCtx.get(MessageContext.WSDL_OPERATION);
         if (null == operationName) {
             Message msg = new Message("CONTEXT_MISSING_OPERATION_NAME_EXC", LOG);
             LOG.log(Level.SEVERE, msg.toString());
-            objectCtx.setException(new WebServiceException(msg.toString())); 
+            objectCtx.setException(new WebServiceException(msg.toString()));
             return;
         }
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("operation name: " + operationName);
         }
+
         
-        Method method = BindingContextUtils.retrieveMethod(objectCtx);        
+        
+        ServerDataBindingCallback method = (ServerDataBindingCallback)
+            BindingContextUtils.retrieveDataBindingCallback(objectCtx);
         if (null == method) {
             Message msg = new Message("IMPLEMENTOR_MISSING_METHOD_EXC", LOG, operationName);
             LOG.log(Level.SEVERE, msg.toString());
@@ -180,19 +174,21 @@ public class ServerRequest {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("method: " + method);
         }
-        
+
         try {
             new WebServiceContextImpl(objectCtx);
             
-            // get parameters from object context and invoke on implementor
-            Object params[] = objectCtx.getMessageObjects();
-            Object result = method.invoke(endpoint.getImplementor(), params);
-            objectCtx.setReturn(result);
-        } catch (IllegalAccessException ex) {
-            LogUtils.log(LOG, Level.SEVERE, "IMPLEMENTOR_INVOCATION_FAILURE_MSG", ex, method.getName());
-            objectCtx.setException(ex);
+            method.invoke(objectCtx);
+        } catch (WebServiceException wex) {
+            Throwable cause = wex.getCause();
+            if (cause != null) {
+                objectCtx.setException(cause);
+            } else {
+                objectCtx.setException(wex);
+            }
         } catch (InvocationTargetException ex) {
-            LogUtils.log(LOG, Level.FINE, "IMPLEMENTOR_INVOCATION_EXCEPTION_MSG", ex, method.getName());
+            LogUtils.log(LOG, Level.FINE, "IMPLEMENTOR_INVOCATION_EXCEPTION_MSG",
+                         ex, method.getOperationName());
             Throwable cause = ex.getCause();
             if (cause != null) {
                 objectCtx.setException(cause);
@@ -338,13 +334,7 @@ public class ServerRequest {
 
     public boolean isOneway() {
         if (!isOnewayDetermined) {
-            Method method = null;
-            if (binding != null) {
-                method = BindingContextUtils.retrieveMethod(bindingCtx);
-            }
-            if (method != null) {
-                isOneway = method.getAnnotation(Oneway.class) != null;
-            }
+            isOneway = BindingContextUtils.isOnewayMethod(bindingCtx);
         }
         return isOneway;
     }
@@ -361,127 +351,72 @@ public class ServerRequest {
             && BindingContextUtils.retrieveDispatch(objectCtx);
     }
 
-    protected void storeMethodAndOperationName() {
-
-        Method method = BindingContextUtils.retrieveMethod(bindingCtx);
-        if (null != method) {
+    protected void storeOperationName() {
+        AbstractServerBinding sb = (AbstractServerBinding)binding;
+        if (bindingCtx.containsKey(MessageContext.WSDL_OPERATION)) {
             if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Method already stored in context: " + method);
+                LOG.fine("Determined operation using pre-existing operation name: "
+                         + bindingCtx.get(MessageContext.WSDL_OPERATION));
             }
             return;
         }
 
-        ServerBindingEndpointCallback sbeCallback = BindingContextUtils
-            .retrieveServerBindingEndpointCallback(bindingCtx);
-        Endpoint endpoint = BindingContextUtils.retrieveEndpoint(bindingCtx);
-
-        AbstractServerBinding sb = (AbstractServerBinding)binding;
-
-        WebServiceProvider wsProvider = sbeCallback.getWebServiceProvider();
-        QName operationName = null;
-
-        if (null != wsProvider) {
-            operationName = new QName(wsProvider.targetNamespace(), "invoke");
-            method = sbeCallback.getMethod(endpoint, operationName);
-        } else {
-            method = sb.getSEIMethod(sbeCallback.getWebServiceAnnotatedClass(), bindingCtx);
-
-            if (null != method) {
-                WebMethod wm = getWebMethodAnnotation(method);
-                String namespace = getTargetNamespace(method.getDeclaringClass());
-                operationName = null == wm ? new QName(namespace, method.getName()) : new QName(namespace, wm
-                    .operationName());
-            }
-        }
-
-        if (null != method) {
-            BindingContextUtils.storeMethod(bindingCtx, method);
-        }
+        QName operationName = sb.getOperationName(bindingCtx);
 
         if (null != operationName) {
             bindingCtx.put(MessageContext.WSDL_OPERATION, operationName);
+        } else {
+            throw new WebServiceException("No operation matching message was found");
         }
 
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Determined method / operation name using server binding endpoint callback: " + method
-                     + " / " + operationName);
+            LOG.fine("Determined operation name using server binding endpoint callback: "
+                     + operationName);
         }
     }
 
-    public DataBindingCallback getDataBindingCallback() {
-        DataBindingCallback callback = BindingContextUtils.retrieveDataBindingCallback(bindingCtx);
+    public ServerDataBindingCallback getDataBindingCallback() {
+        ServerDataBindingCallback callback = 
+            (ServerDataBindingCallback)BindingContextUtils.retrieveDataBindingCallback(bindingCtx);
         if (null == callback) {
             assert null != objectCtx;
             ServerBindingEndpointCallback sbeCallback = BindingContextUtils
                 .retrieveServerBindingEndpointCallback(bindingCtx);
             DataBindingCallback.Mode mode = sbeCallback.getServiceMode();
-            callback = sbeCallback.createDataBindingCallback(objectCtx, mode);
+            callback = sbeCallback
+                .getDataBindingCallback((QName)bindingCtx.get(MessageContext.WSDL_OPERATION),
+                                        objectCtx, mode);
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Using data binding callback constructed by server endpoint callback: " + callback);
             }
-
+            BindingContextUtils.storeDataBindingCallback(bindingCtx, callback);
         } else if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Using data binding callback stored in context.");
         }
         return callback;
     }
 
-    private WebMethod getWebMethodAnnotation(Method m) {
-        WebMethod wm = null;
 
-        if (null != m) {
-            wm = m.getAnnotation(WebMethod.class);
-        }
-
-        return wm;
-    }
-
-    private String getTargetNamespace(Class<?> cl) {
-        String namespace = "";
-
-        if (null != cl) {
-            WebService ws = cl.getAnnotation(WebService.class);
-            if (null != ws) {
-                namespace = ws.targetNamespace();
-            }
-        }
-
-        return namespace;
-    }
-
-    private void initObjectContext(ObjectMessageContext octx, Method method) {
-        if (null != octx && null != method) {
-            try {
-                int idx = 0;
-                Object[] methodArgs = (Object[])Array.newInstance(Object.class,
-                                                                  method.getParameterTypes().length);
-                for (Class<?> cls : method.getParameterTypes()) {
-                    if (cls.isAssignableFrom(Holder.class)) {
-                        methodArgs[idx] = cls.newInstance();
-                    }
-                    idx++;
-                }
-                octx.setMessageObjects(methodArgs);
-                octx.setMethod(method);
-            } catch (Exception ex) {
-                LOG.log(Level.SEVERE, "INIT_OBJ_CONTEXT_FAILED");
-                throw new WebServiceException(ex);
-            }
-        }
+    private void initObjectContext(ObjectMessageContext octx) {
+        getDataBindingCallback().initObjectContext(octx);
     }
     
     
     private void marshalFault(ObjectMessageContext octx, MessageContext bctx) {
         DataBindingCallback callback = getDataBindingCallback();
         if (null == callback) {
+            ServerBindingEndpointCallback sbeCallback = BindingContextUtils
+                .retrieveServerBindingEndpointCallback(bindingCtx);
+            callback = sbeCallback.getFaultDataBindingCallback(octx);
+        }
+        if (null == callback) {
             // TODO
             LOG.log(Level.SEVERE, "NO_DATA_BINDING_CALLBACK");
-        } else {
-            try {
-                binding.getBindingImpl().marshalFault(octx, bctx, callback);
-            } catch (Exception ex) {
-                LOG.log(Level.SEVERE, "COULD_NOT_MARSHAL_FAULT_MSG", ex);
-            }
+        }
+        try {
+            binding.getBindingImpl().marshalFault(octx, bctx, callback);
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "COULD_NOT_MARSHAL_FAULT_MSG", ex);
         }
     }
     

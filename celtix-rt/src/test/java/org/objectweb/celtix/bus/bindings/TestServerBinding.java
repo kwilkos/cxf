@@ -4,12 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.util.List;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
-import javax.xml.ws.Endpoint;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.handler.MessageContext;
 
@@ -34,9 +31,8 @@ public class TestServerBinding extends AbstractServerBinding {
     String schemeName = "test";
 
     public TestServerBinding(Bus b, EndpointReferenceType ref, 
-                             Endpoint ep,
                              ServerBindingEndpointCallback cbFactory) {
-        super(b, ref, ep, cbFactory);
+        super(b, ref, cbFactory);
         binding = new TestBinding(this);
     }
     
@@ -106,19 +102,10 @@ public class TestServerBinding extends AbstractServerBinding {
             tsb.fire();
         }
     }
-
-    protected Method getSEIMethod(List<Class<?>> list, MessageContext ctx) {
-        for (Class<?> c : list) {
-            for (Method m : c.getMethods()) {
-                if (m.getName().equals(currentOperation)) {
-                    return m;
-                }
-            }
-        }
-        return null;
+    public QName getOperationName(MessageContext ctx) {
+        return new QName("", currentOperation);
     }
 
-    
 
     static class ToyInputStreamMessageContext extends MessageContextWrapper 
         implements InputStreamMessageContext {
@@ -187,4 +174,5 @@ public class TestServerBinding extends AbstractServerBinding {
     public boolean isBindingCompatible(String address) {
         return address.contains("http:");
     }
+
 }

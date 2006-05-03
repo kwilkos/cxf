@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
-import javax.xml.ws.Endpoint;
 import javax.xml.ws.Provider;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceProvider;
@@ -27,11 +26,11 @@ public final class EndpointUtils {
         // Utility class - never constructed
     }
 
-    public static ServiceMode getServiceMode(Endpoint endpoint) {
+    public static ServiceMode getServiceMode(EndpointImpl endpoint) {
         assert null != endpoint;
-        Object implementor = endpoint.getImplementor();
-        if (implementor instanceof Provider) {
-            return implementor.getClass().getAnnotation(ServiceMode.class);
+        Class<?> implementorClass = endpoint.getImplementorClass();
+        if (implementorClass.isAssignableFrom(Provider.class)) {
+            return implementorClass.getAnnotation(ServiceMode.class);
         }
         return null;
     }
@@ -43,16 +42,17 @@ public final class EndpointUtils {
      * <code>WebService</code> annotation. The implementor's (public) methods
      * need not necessarily be annotated. REVISIT: Does the implementor have to
      * implement an SEI, or does it even have to implement the Remote interface?
-     * 
+     *
      * @param endpoint
      * @param operationName
      * @return the <code>Method</code> in the <code>Endpoint</code>'s implementor.
      */
 
-    public static Method getMethod(Endpoint endpoint, QName operationName) {
-
-        Class<?> iClass = endpoint.getImplementor().getClass();
-
+    public static Method getMethod(EndpointImpl endpoint, QName operationName) {
+        Class<?> iClass = endpoint.getImplementorClass();
+        return getMethod(iClass, operationName);
+    }
+    public static Method getMethod(Class<?> iClass, QName operationName) {   
         // determine the (fully annoated) SEI
         List<Class<?>> list = getWebServiceAnnotatedClass(iClass);
 
@@ -90,10 +90,10 @@ public final class EndpointUtils {
 
         return iMethod;
     }
-    
-    public static Class<?> getProviderParameterType(Endpoint endpoint) {
+
+    public static Class<?> getProviderParameterType(EndpointImpl endpoint) {
         //The Provider Implementor inherits out of Provier<T>
-        Type intfTypes[] = endpoint.getImplementor().getClass().getGenericInterfaces();
+        Type intfTypes[] = endpoint.getImplementorClass().getGenericInterfaces();
         for (Type t : intfTypes) {
             Class<?> clazz = JAXBEncoderDecoder.getClassFromType(t);
             if (Provider.class == clazz) {

@@ -51,11 +51,11 @@ public class EndpointRegistryImpl implements EndpointRegistry {
                 bus.sendEvent(new ComponentRemovedEvent((EndpointImpl)ep));
             }
         }
-        endpoints.clear();       
+        endpoints.clear();
     }
-    
-    List<EndpointImpl> getEndpoints() {
+
+    public List<EndpointImpl> getEndpoints() {
         return endpoints;
     }
-  
+
 }

@@ -3,7 +3,6 @@ package org.objectweb.celtix.bindings;
 import java.io.IOException;
 
 import javax.wsdl.WSDLException;
-import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 
@@ -11,12 +10,6 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
  * ServerBinding
  */
 public interface ServerBinding extends BindingBase {
-    
-    /**
-     * Gets the endpoint that is the target of the opertaions for this binding
-     * @return The endpoint that is the target of operations for this binding
-     */
-    Endpoint getEndpoint(); 
     
     /**
      * Activate the endpoint.  Usually creates the transport and binds to the transport.
@@ -40,5 +33,6 @@ public interface ServerBinding extends BindingBase {
      */
     void partialResponse(OutputStreamMessageContext outputContext, 
                          DataBindingCallback callback) throws IOException;
+    
     
 }

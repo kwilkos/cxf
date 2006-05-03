@@ -14,6 +14,7 @@ import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bindings.ServerDataBindingCallback;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -524,7 +525,7 @@ public class RetransmissionQueueTest extends TestCase {
                             MessageContext bindingContext,
                             OutputStreamMessageContext outputStreamContext) {
         DataBindingCallback callback =
-            control.createMock(DataBindingCallback.class);
+            control.createMock(ServerDataBindingCallback.class);
         bindingContext.get(DATABINDING_CALLBACK_PROPERTY);
         EasyMock.expectLastCall().andReturn(callback);
         OutputStream outputStream = control.createMock(OutputStream.class);

@@ -106,8 +106,8 @@ public class XMLClientBindingTest extends TestCase {
         TestClientBinding clientBinding = new TestClientBinding(bus, epr);
         ObjectMessageContext objContext = clientBinding.createObjectContext();
         assertNotNull(objContext);
+        
         Method method = ClassUtils.getMethod(Greeter.class, "greetMeOneWay");
-        objContext.setMethod(method);
         
         String arg0 = new String("TestXMLInputMessage");
         objContext.setMessageObjects(arg0);

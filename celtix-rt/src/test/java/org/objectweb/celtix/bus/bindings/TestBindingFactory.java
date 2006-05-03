@@ -3,7 +3,6 @@ package org.objectweb.celtix.bus.bindings;
 import java.io.IOException;
 
 import javax.wsdl.WSDLException;
-import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.BindingFactory;
@@ -25,9 +24,8 @@ public class TestBindingFactory implements BindingFactory {
     }
 
     public ServerBinding createServerBinding(EndpointReferenceType reference,
-                                             Endpoint endpoint,
                                              ServerBindingEndpointCallback cbFactory) {
-        return new TestServerBinding(bus, reference, endpoint, cbFactory);
+        return new TestServerBinding(bus, reference, cbFactory);
     }
 
     public final void init(Bus b) {

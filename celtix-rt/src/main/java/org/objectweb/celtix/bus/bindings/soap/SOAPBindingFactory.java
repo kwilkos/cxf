@@ -2,7 +2,6 @@ package org.objectweb.celtix.bus.bindings.soap;
 
 import java.io.IOException;
 import javax.wsdl.WSDLException;
-import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.BindingFactory;
@@ -28,9 +27,9 @@ public class SOAPBindingFactory implements BindingFactory {
     }
 
     public ServerBinding createServerBinding(EndpointReferenceType reference,
-                                             Endpoint ep,
                                              ServerBindingEndpointCallback cbFactory)
         throws WSDLException, IOException {
-        return new SOAPServerBinding(bus, reference, ep, cbFactory);
+        return new SOAPServerBinding(bus, reference, cbFactory);
     }
+
 }

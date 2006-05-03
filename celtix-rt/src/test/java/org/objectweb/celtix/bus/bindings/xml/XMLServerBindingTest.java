@@ -16,7 +16,7 @@ public class XMLServerBindingTest extends TestCase {
     }
     
     public void testCreateServerBinding() throws Exception {
-        XMLServerBinding serverBinding = new XMLServerBinding(bus, epr, null, null);
+        XMLServerBinding serverBinding = new XMLServerBinding(bus, epr, null);
         assertNotNull(serverBinding.getBinding());
     }
 }

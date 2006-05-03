@@ -42,7 +42,6 @@ public class TerminateSequenceRequestTest extends TestCase {
         assertNotNull(req);
         
         assertNotNull(TerminateSequenceRequest.createDataBindingCallback());
-        assertNotNull(req.getObjectMessageContext().getMethod());
         
         Object[] params = req.getObjectMessageContext().getMessageObjects();
         assertEquals(1, params.length);

@@ -601,22 +601,34 @@ public final class EndpointReferenceUtils {
 
         return getWebServiceAnnotation(cls.getSuperclass());
     }
-    
+
     /**
      * Gets an endpoint reference for the provided implementor object.
      * @param manager - the wsdl manager.
      * @param implementor - the service implementor.
      * @return EndpointReferenceType - the endpoint reference
-     * @throws WSDLException 
+     * @throws WSDLException
      */
-    public static EndpointReferenceType getEndpointReference(WSDLManager manager, 
+    public static EndpointReferenceType getEndpointReference(WSDLManager manager,
                                                                  Object implementor) {
-  
-        WebService ws = getWebServiceAnnotation(implementor.getClass());
+        return getEndpointReference(manager, implementor.getClass());
+    }
+
+    /**
+     * Gets an endpoint reference for the provided implementor object.
+     * @param manager - the wsdl manager.
+     * @param implementor - the service implementor.
+     * @return EndpointReferenceType - the endpoint reference
+     * @throws WSDLException
+     */
+    public static EndpointReferenceType getEndpointReference(WSDLManager manager,
+                                                                 Class<?> implementorClass) {
+
+        WebService ws = getWebServiceAnnotation(implementorClass);
 
         WebServiceProvider wsp = null;
         if (null == ws) {
-            wsp = implementor.getClass().getAnnotation(WebServiceProvider.class);
+            wsp = implementorClass.getAnnotation(WebServiceProvider.class);
             if (null == wsp) {
                 return null;
             }
@@ -653,41 +665,41 @@ public final class EndpointReferenceUtils {
             if ("".equals(url)) {
                 url = seiws.wsdlLocation();
             }
-            
+
             //WebService.name maps to wsdl:portType name.
             portTypeName = new QName(ws.targetNamespace(), seiws.name());
 
-            //ServiceName,portName,endpointInterface not allowed on the WebService annotation 
-            // of a SEI, Section 3.2 JSR181.            
-            // set interfaceName using WebService.targetNamespace of SEI only.           
+            //ServiceName,portName,endpointInterface not allowed on the WebService annotation
+            // of a SEI, Section 3.2 JSR181.
+            // set interfaceName using WebService.targetNamespace of SEI only.
         } else {
-            
+
             if (null != ws) {
                 className = ws.name();
             }
             if (null == className || "".equals(className)) {
-                className = implementor.getClass().getSimpleName();
+                className = implementorClass.getSimpleName();
             }
             portTypeName = new QName(targetNamespace, className);
         }
-        
+
         setInterfaceName(reference, portTypeName);
         // set serviceName, portName and targetNamespace
         if (!"".equals(serviceName)) {
-            setServiceAndPortName(reference, new QName(targetNamespace, serviceName), 
+            setServiceAndPortName(reference, new QName(targetNamespace, serviceName),
                                   portName);
         }
 
         if (null != url && url.length() > 0) {
-            //REVISIT Resolve the url for all cases           
-            URL wsdlUrl = implementor.getClass().getResource(url);
+            //REVISIT Resolve the url for all cases
+            URL wsdlUrl = implementorClass.getResource(url);
             if (wsdlUrl != null) {
                 url = wsdlUrl.toExternalForm();
             }
         }
         // set wsdlLocation
         if (!"".equals(url)) {
-            setWSDLLocation(reference, url); 
+            setWSDLLocation(reference, url);
         }
 
         if (LOG.isLoggable(Level.FINE)) {

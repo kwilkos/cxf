@@ -54,8 +54,6 @@ public class ServerBindingTest extends TestCase {
         assertTrue(sb instanceof TestServerBinding);
         Binding b = sb.getBinding();
         assertNotNull(b);
-        Endpoint ep = sb.getEndpoint();
-        assertTrue(ei == ep);
         TestServerBinding tsb = (TestServerBinding)sb;
         ServerTransport st = tsb.getTransport();
         assertNull(st);

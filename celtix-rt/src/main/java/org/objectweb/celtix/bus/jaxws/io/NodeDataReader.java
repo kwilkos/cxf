@@ -70,8 +70,7 @@ public class NodeDataReader<T> implements DataReader<T> {
                                                 callback.getSchema(), childNode,
                                                 elName, ClassHelper.forName(wrapperType));
         } catch (ClassNotFoundException e) {
-            throw new WebServiceException("Could not unmarshall wrapped type (" + wrapperType + "): " 
-                                          + e.getMessage());
+            throw new WebServiceException("Could not unmarshall wrapped type (" + wrapperType + ") ", e);
         }
 
         if (isOutBound && callback.getWebResult() != null) {

@@ -7,6 +7,8 @@ import javax.jws.soap.SOAPBinding;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 
+import org.objectweb.celtix.context.ObjectMessageContext;
+
 /**
  * Callback used during IO for the bindings to figure out how to properly construct the messages. 
  */
@@ -43,7 +45,8 @@ public interface DataBindingCallback {
     SOAPBinding.Style getSOAPStyle();
     SOAPBinding.Use getSOAPUse();
     SOAPBinding.ParameterStyle getSOAPParameterStyle();
-    
+    boolean isOneWay();
+
     String getOperationName();
     String getTargetNamespace();
     String getSOAPAction();
@@ -54,4 +57,7 @@ public interface DataBindingCallback {
     
     QName getRequestWrapperQName();
     QName getResponseWrapperQName();
+    
+    void initObjectContext(ObjectMessageContext octx);
+    
 }

@@ -5,12 +5,19 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.jws.soap.SOAPBinding.Style;
+import javax.wsdl.BindingInput;
+import javax.wsdl.BindingOperation;
+import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.soap.SOAPBody;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
@@ -33,6 +40,7 @@ import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
+import org.objectweb.celtix.bindings.ServerDataBindingCallback;
 import org.objectweb.celtix.bus.handlers.AnnotationHandlerChainBuilder;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
 import org.objectweb.celtix.common.i18n.Message;
@@ -46,7 +54,7 @@ import org.objectweb.celtix.endpoints.ContextInspector;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-public final class EndpointImpl extends javax.xml.ws.Endpoint
+public class EndpointImpl extends javax.xml.ws.Endpoint
     implements ServerBindingEndpointCallback {
 
     public static final String ENDPOINT_CONFIGURATION_URI = 
@@ -54,46 +62,55 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
 
-    private EndpointReferenceType reference;
+    protected EndpointReferenceType reference;
     
-    private boolean published;
+    protected boolean published;
     
-    private final Bus bus;
-    private final Object implementor;
-    private final String bindingURI;
+    protected final Bus bus;
+    protected final Object implementor;
+    protected Class<?> implementorClass;
+    protected final String bindingURI;
     
-    private Configuration configuration;
-    private List<Source> metadata;
-    private Executor executor;
-    private JAXBContext context;
-    private Schema schema;
-    private Map<String, Object> properties;
-    private ServerBinding serverBinding;
+    protected Configuration configuration;
+    protected List<Source> metadata;
+    protected Executor executor;
+    protected JAXBContext context;
+    protected Schema schema;
+    protected Map<String, Object> properties;
+    protected ServerBinding serverBinding;
     
-    private boolean doInit;
-    private boolean initialised;
+    protected boolean doInit;
+    protected boolean initialised;
     
     //Implemetor (SEI) specific members
-    private List<Class<?>> seiClass;
+    protected List<Class<?>> seiClass;
     
     //Implementor (Provider) specific members
-    private ServiceMode serviceMode;
-    private WebServiceProvider wsProvider;
-    private Class<?> dataClass;
+    protected ServiceMode serviceMode;
+    protected WebServiceProvider wsProvider;
+    protected Class<?> dataClass;
+    
+    protected Map<QName, ServerDataBindingCallback> callbackMap
+        = new ConcurrentHashMap<QName, ServerDataBindingCallback>();
     
     public EndpointImpl(Bus b, Object impl, String bindingId) {
         this(b, impl, bindingId, EndpointReferenceUtils.getEndpointReference(b.getWSDLManager(), impl));
     }
     
     public EndpointImpl(Bus b, Object impl, String bindingId, EndpointReferenceType ref) {
+        this(b, impl, impl.getClass(), bindingId, ref);
+    }
+    public EndpointImpl(Bus b, Object obj, Class<?> implClass, String bindingId, EndpointReferenceType ref) {
+
         bus = b;
-        implementor = impl;
+        implementor = obj;
+        implementorClass = implClass;
         reference = ref;
         bindingURI = bindingId;
 
-        if (Provider.class.isAssignableFrom(impl.getClass())) {
+        if (Provider.class.isAssignableFrom(implementorClass)) {
             //Provider Implementor
-            wsProvider = implementor.getClass().getAnnotation(WebServiceProvider.class);
+            wsProvider = implementorClass.getAnnotation(WebServiceProvider.class);
             if (wsProvider == null) {
                 throw new WebServiceException(
                            "Provider based implementor must carry a WebServiceProvider annotation");
@@ -102,42 +119,76 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         } else {
             //SEI Implementor
             try {
-                context = JAXBEncoderDecoder.createJAXBContextForClass(impl.getClass());
+                context = JAXBEncoderDecoder.createJAXBContextForClass(implementorClass);
             } catch (JAXBException ex1) {
                 ex1.printStackTrace();
                 context = null;
             }
         }
-        
+
         if (bus != null) {
             //NOTE  EndpointRegistry need to check the Registry instrumentation is created
             bus.getEndpointRegistry().registerEndpoint(this);
         }
-        
+
         doInit = true;
     }
     
-    private void init() {
-        try {
-            injectResources();
-            initProperties();
-            initMetaData();
-
-            configuration = createConfiguration();
-            if (null  != configuration) {
-                serverBinding = createServerBinding(bindingURI);
-                configureHandlers();
-                configureSystemHandlers();
-                configureSchemaValidation();
+    private synchronized void init() {
+        if (doInit) {
+            try {
+                injectResources();
+                initProperties();
+                initMetaData();
+    
+                configuration = createConfiguration();
+                if (null  != configuration) {
+                    serverBinding = createServerBinding(bindingURI);
+                    configureHandlers();
+                    configureSystemHandlers();
+                    configureSchemaValidation();
+                }
+                
+                initOpMap();
+            } catch (Exception ex) {
+                if (ex instanceof WebServiceException) { 
+                    throw (WebServiceException)ex; 
+                }
+                throw new WebServiceException("Creation of Endpoint failed", ex);
             }
-        } catch (Exception ex) {
-            if (ex instanceof WebServiceException) { 
-                throw (WebServiceException)ex; 
-            }
-            throw new WebServiceException("Creation of Endpoint failed", ex);
         }
-        
         doInit = false;
+    }
+    private void initOpMap() throws WSDLException {
+        Definition def = EndpointReferenceUtils.getWSDLDefinition(bus.getWSDLManager(), reference);
+        if (def == null) {
+            return;
+        }
+        Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), reference);
+        List ops = port.getBinding().getBindingOperations();
+        Iterator opIt = ops.iterator();
+        while (opIt.hasNext()) {
+            BindingOperation op = (BindingOperation)opIt.next();
+            BindingInput bindingInput = op.getBindingInput();
+            List elements = bindingInput.getExtensibilityElements();
+            QName qn = new QName(def.getTargetNamespace(), op.getName());
+            for (Iterator i = elements.iterator(); i.hasNext();) {
+                Object element = i.next();
+                if (SOAPBody.class.isInstance(element)) {
+                    SOAPBody body = (SOAPBody)element;
+                    if (body.getNamespaceURI() != null) {
+                        qn = new QName(body.getNamespaceURI(), op.getName());
+                    }
+                }
+            }
+            
+            ServerDataBindingCallback cb = getDataBindingCallback(qn, null,
+                                                                  DataBindingCallback.Mode.PARTS);
+            callbackMap.put(qn, cb);
+            if (!"".equals(cb.getRequestWrapperQName().getLocalPart())) {
+                callbackMap.put(cb.getRequestWrapperQName(), cb);
+            }
+        }
     }
     
     private void initProperties() {
@@ -173,18 +224,29 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.xml.ws.Endpoint#getImplementor()
      */
     public Object getImplementor() {
         return implementor;
+    }
+    
+    public void releaseImplementor(Object impl) {
+        //no-op for normal cases
+    }
+
+    /**
+     * @return Returns the Implementor Class.
+     */
+    public Class getImplementorClass() {
+        return implementorClass;
     }
 
     /*
      * (non-Javadoc) Not sure if this is meant to return the effective metadata -
      * or the default metadata previously assigned with
      * javax.xml.ws.Endpoint#setHandlerChain()
-     * 
+     *
      * @see javax.xml.ws.Endpoint#getMetadata()
      */
     public List<Source> getMetadata() {
@@ -344,7 +406,7 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         if (null == factory) {
             throw new BusException(new Message("BINDING_FACTORY_MISSING_EXC", LOG, bindingId));
         }
-        ServerBinding bindingImpl = factory.createServerBinding(reference, this, this);
+        ServerBinding bindingImpl = factory.createServerBinding(reference, this);
         assert null != bindingImpl;
         return bindingImpl;
 
@@ -412,36 +474,47 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
     }
 
 
-    /** 
+    /**
      * inject resources into servant.  The resources are injected
      * according to @Resource annotations.  See JSR 250 for more
      * information.
      */
-    private void injectResources() { 
-        ResourceInjector injector = new ResourceInjector(bus.getResourceManager());
-        injector.inject(implementor);
+    protected void injectResources(Object instance) {
+        if (instance != null) {
+            ResourceInjector injector = new ResourceInjector(bus.getResourceManager());
+            injector.inject(instance);
+        }
+    }
+
+    /**
+     * inject resources into servant.  The resources are injected
+     * according to @Resource annotations.  See JSR 250 for more
+     * information.
+     */
+    protected void injectResources() {
+        injectResources(implementor);
     }
 
 
-    /** 
-     * Obtain handler chain from configuration first. If none is specified, 
+    /**
+     * Obtain handler chain from configuration first. If none is specified,
      * default to the chain configured in the code, i.e. in annotations.
      *
      */
-    private void configureHandlers() { 
-        
-        LOG.fine("loading handler chain for endpoint"); 
+    private void configureHandlers() {
+
+        LOG.fine("loading handler chain for endpoint");
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
         HandlerChainType hc = (HandlerChainType)configuration.getObject("handlerChain");
         List<Handler> chain = builder.buildHandlerChainFromConfiguration(hc);
         if (null == chain || chain.size() == 0) {
-            chain = builder.buildHandlerChainFor(implementor.getClass()); 
+            chain = builder.buildHandlerChainFor(implementorClass);
         }
         serverBinding.getBinding().setHandlerChain(chain);
     }
-    
-    private void configureSystemHandlers() {        
-        serverBinding.configureSystemHandlers(configuration); 
+
+    private void configureSystemHandlers() {
+        serverBinding.configureSystemHandlers(configuration);
     }
 
     private void configureSchemaValidation() {
@@ -454,26 +527,42 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
         }
     }
 
-    public DataBindingCallback createDataBindingCallback(ObjectMessageContext objContext,
-                                                         DataBindingCallback.Mode mode) {
+    public DataBindingCallback getFaultDataBindingCallback(ObjectMessageContext objContext) {
+        return new JAXBDataBindingCallback(null,
+                                         DataBindingCallback.Mode.PARTS,
+                                         context,
+                                         schema,
+                                         this);        
+    }
+
+    @SuppressWarnings("unchecked")
+    public ServerDataBindingCallback getDataBindingCallback(QName operationName,
+                                                            ObjectMessageContext objContext,
+                                                            DataBindingCallback.Mode mode) {
         if (mode == DataBindingCallback.Mode.PARTS) {
-            return new JAXBDataBindingCallback(objContext.getMethod(),
-                                               mode,
-                                               context,
-                                               schema);
+            ServerDataBindingCallback cb = callbackMap.get(operationName);
+            if (null == cb) {
+                cb = new JAXBDataBindingCallback(getMethod(operationName),
+                                                 DataBindingCallback.Mode.PARTS,
+                                                 context,
+                                                 schema,
+                                                 this);
+            }
+            
+            return cb;
         }
         
         if (dataClass == null) {
             dataClass = EndpointUtils.getProviderParameterType(this);
         }
 
-        return new DynamicDataBindingCallback(dataClass, mode);
+        return new ServerDynamicDataBindingCallback(dataClass, mode, (Provider<?>)implementor);
     }
 
-    public Method getMethod(Endpoint endpoint, QName operationName) {
-        
+    public Method getMethod(QName operationName) {
+
         if (wsProvider == null) {
-            return EndpointUtils.getMethod(endpoint, operationName); 
+            return EndpointUtils.getMethod(this, operationName); 
         }
 
         Method invokeMethod = null;
@@ -481,9 +570,9 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
 
             try {
                 if (dataClass == null) {
-                    dataClass = EndpointUtils.getProviderParameterType(endpoint);
+                    dataClass = EndpointUtils.getProviderParameterType(this);
                 }
-                invokeMethod = implementor.getClass().getMethod("invoke", dataClass);
+                invokeMethod = implementorClass.getMethod("invoke", dataClass);
             } catch (NoSuchMethodException ex) {
                 //TODO
             }
@@ -493,33 +582,33 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
 
     public DataBindingCallback.Mode getServiceMode() {
         DataBindingCallback.Mode mode = DataBindingCallback.Mode.PARTS;
-        
+
         if (wsProvider != null) {
-            mode = serviceMode != null 
+            mode = serviceMode != null
                     ? DataBindingCallback.Mode.fromServiceMode(serviceMode.value())
                     : DataBindingCallback.Mode.PAYLOAD;
         }
-        return mode; 
+        return mode;
     }
-    
+
     public WebServiceProvider getWebServiceProvider() {
         return wsProvider;
-    } 
- 
+    }
+
     public synchronized List<Class<?>> getWebServiceAnnotatedClass() {
         if (null == seiClass) {
-            seiClass = EndpointUtils.getWebServiceAnnotatedClass(implementor.getClass());
+            seiClass = EndpointUtils.getWebServiceAnnotatedClass(implementorClass);
         }
         return seiClass;
     }
-    
+
     private Configuration createConfiguration() {
-        
+
         Configuration busCfg = bus.getConfiguration();
         if (null == busCfg) {
             return null;
         }
-        
+
         Configuration cfg = null;
         String id = EndpointReferenceUtils.getServiceName(reference).toString();
         ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
@@ -547,6 +636,20 @@ public final class EndpointImpl extends javax.xml.ws.Endpoint
                 //e.printStackTrace(); 
             }
         }
+    }
+
+
+    public Map<QName, ? extends DataBindingCallback> getOperations() {
+        return callbackMap;
+    }
+
+    public Style getStyle() {
+        javax.jws.soap.SOAPBinding bind = getImplementor().getClass()
+            .getAnnotation(javax.jws.soap.SOAPBinding.class);
+        if (bind != null) {
+            return bind.style();
+        }
+        return javax.jws.soap.SOAPBinding.Style.DOCUMENT;
     }
    
 }

@@ -1,9 +1,12 @@
 package org.objectweb.celtix.bus.jaxws;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -24,9 +27,9 @@ import javax.xml.ws.WebServiceException;
 
 import org.w3c.dom.Node;
 
-import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
+import org.objectweb.celtix.bindings.ServerDataBindingCallback;
 import org.objectweb.celtix.bus.bindings.soap.SOAPConstants;
 import org.objectweb.celtix.bus.bindings.xml.XMLFault;
 import org.objectweb.celtix.bus.jaxws.io.DetailDataWriter;
@@ -41,7 +44,7 @@ import org.objectweb.celtix.jaxb.JAXBUtils;
 import org.objectweb.celtix.jaxb.WrapperHelper;
 
 
-public class JAXBDataBindingCallback implements DataBindingCallback {
+public class JAXBDataBindingCallback implements ServerDataBindingCallback {
     
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBDataBindingCallback.class);
     
@@ -57,20 +60,32 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     private WebService webServiceAnnotation;
     private final JAXBContext context;
     private final Schema schema;
+    private final EndpointImpl endpoint;
+    private final Object impl;
     
     public JAXBDataBindingCallback(Method m, Mode md, JAXBContext ctx) {
-        method = m;
-        mode = md;
-        context = ctx;
-        schema = null;
-        init();
+        this(m, md, ctx, null);
+    }
+    public JAXBDataBindingCallback(Method m, Mode md, JAXBContext ctx, Schema s) {
+        this(m, md, ctx, s, null);
     }
     
-    public JAXBDataBindingCallback(Method m, Mode md, JAXBContext ctx, Schema s) {
+    public JAXBDataBindingCallback(Method m, Mode md, JAXBContext ctx, Schema s, EndpointImpl ep) {
         method = m;
         mode = md;
         context = ctx;
         schema = s;
+        endpoint = ep;
+        impl = null;
+        init();
+    }
+    public JAXBDataBindingCallback(Method m, Mode md, JAXBContext ctx, Schema s, Object obj) {
+        method = m;
+        mode = md;
+        context = ctx;
+        schema = s;
+        endpoint = null;
+        impl = obj;
         init();
     }
 
@@ -85,6 +100,8 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
     public Mode getMode() {
         return mode;
     }
+    
+    
     public Class<?>[] getSupportedFormats() {
         if (mode == Mode.PARTS) {
             return new Class<?>[] {Node.class, Detail.class, SOAPFault.class};
@@ -161,12 +178,23 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
             }
         }
     }
+    
+    public boolean isOneWay() {
+        if (method != null) {
+            return method.getAnnotation(Oneway.class) != null;
+        }
+        return false;
+    }    
+
 
     public SOAPBinding.Style getSOAPStyle() {
         if (null != soapBindAnnotation) {
             return soapBindAnnotation.style();
         }
-        return SOAPBinding.Style.DOCUMENT;
+        if (endpoint != null) {
+            return endpoint.getStyle();            
+        }
+        return Style.DOCUMENT;
     }
     
     public SOAPBinding.Use getSOAPUse() {
@@ -183,12 +211,18 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
         return SOAPBinding.ParameterStyle.WRAPPED;
     }
     public String getTargetNamespace() {
+        if (webServiceAnnotation == null) {
+            return "";
+        }
         return webServiceAnnotation.targetNamespace();
     }
 
     public String getOperationName() {
         if (null != webMethodAnnotation &&  !"".equals(webMethodAnnotation.operationName())) {
             return webMethodAnnotation.operationName();
+        }
+        if (getMethod() == null) {
+            return "";
         }
         return getMethod().getName();
     }
@@ -355,7 +389,46 @@ public class JAXBDataBindingCallback implements DataBindingCallback {
             throw new WebServiceException("Could not get part out of wrapper element", ex);
         }
         return obj;
-    }    
+    }
+
+    public void initObjectContext(ObjectMessageContext octx) {
+        if (method != null) {
+            octx.put(ObjectMessageContext.METHOD_OBJ, method);
+            try {
+                int idx = 0;
+                Object[] methodArgs = new Object[method.getParameterTypes().length];
+                for (Class<?> cls : method.getParameterTypes()) {
+                    if (cls.isAssignableFrom(Holder.class)) {
+                        methodArgs[idx] = cls.newInstance();
+                    }
+                    idx++;
+                }
+                octx.setMessageObjects(methodArgs);
+            } catch (Exception ex) {
+                LOG.log(Level.SEVERE, "INIT_OBJ_CONTEXT_FAILED");
+                throw new WebServiceException(ex);
+            }
+        }
+    }
+
+    public void invoke(ObjectMessageContext octx) throws InvocationTargetException {
+        try {
+            Object o = impl;
+            if (o == null) {
+                o = endpoint.getImplementor();
+            }
+            Object ret = method.invoke(o, octx.getMessageObjects());
+            if (impl == null) {
+                endpoint.releaseImplementor(o);
+            }
+            octx.setReturn(ret);
+        } catch (InvocationTargetException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InvocationTargetException(e);
+        }
+    }
+
 
     
      

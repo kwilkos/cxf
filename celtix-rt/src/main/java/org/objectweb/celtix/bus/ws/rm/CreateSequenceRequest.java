@@ -45,8 +45,6 @@ public class CreateSequenceRequest extends Request {
 
         getObjectMessageContext().setRequestorRole(true);
         
-        getObjectMessageContext().setMethod(getMethod());
-        
         AddressingProperties maps = new AddressingPropertiesImpl();
         AttributedURIType actionURI = ContextUtils.WSA_OBJECT_FACTORY.createAttributedURIType();
         actionURI.setValue(RMUtils.getRMConstants().getCreateSequenceAction());
@@ -81,8 +79,7 @@ public class CreateSequenceRequest extends Request {
     }
     
     public static DataBindingCallback createDataBindingCallback() {
-        Method method = getMethod();
-        return new JAXBDataBindingCallback(method, DataBindingCallback.Mode.PARTS, null);
+        return new JAXBDataBindingCallback(getMethod(), DataBindingCallback.Mode.PARTS, null);
     }
     
     protected OfferType getIncludedOffer() {

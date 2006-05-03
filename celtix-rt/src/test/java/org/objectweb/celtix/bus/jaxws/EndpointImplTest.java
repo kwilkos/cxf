@@ -25,7 +25,6 @@ import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bus.bindings.TestBinding;
 import org.objectweb.celtix.bus.bindings.TestBindingFactory;
 import org.objectweb.celtix.bus.jaxws.spi.ProviderImpl;
-import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
@@ -171,12 +170,12 @@ public class EndpointImplTest extends TestCase {
         assertTrue(endpoint instanceof EndpointImpl);
         EndpointImpl impl = (EndpointImpl)endpoint;
         //Check if a method by a localPart of opName exists on the Implementor.
-        Method m = impl.getMethod(endpoint, opName);
+        Method m = impl.getMethod(opName);
         
         assertNotNull(m);
         
         opName = new QName("", "putLastTradedPrice");
-        m = impl.getMethod(endpoint, opName);
+        m = impl.getMethod(opName);
         assertNull(m);
         
         //Test for provider
@@ -186,7 +185,7 @@ public class EndpointImplTest extends TestCase {
         impl = (EndpointImpl)endpoint;
         opName = new QName("", "invoke");
         //Check if a method by a localPart of opName exists on the Implementor.
-        m = impl.getMethod(endpoint, opName);
+        m = impl.getMethod(opName);
         assertNotNull(m);
         assertEquals("invoke", m.getName());
     }
@@ -218,6 +217,7 @@ public class EndpointImplTest extends TestCase {
         assertEquals(DataBindingCallback.Mode.PAYLOAD, mode);
     }
     
+    /*
     public void testCreateDataBindingCallback() {
         ObjectMessageContextImpl ctx = new ObjectMessageContextImpl();
         EndpointImpl impl = (EndpointImpl)endpoint;
@@ -249,6 +249,7 @@ public class EndpointImplTest extends TestCase {
         assertTrue(cb instanceof DynamicDataBindingCallback);
         assertEquals(DataBindingCallback.Mode.PAYLOAD, cb.getMode());
     }
+    */
     
     public void testGetWebServiceAnnotatedClass() {
         EndpointImpl impl = (EndpointImpl)endpoint;

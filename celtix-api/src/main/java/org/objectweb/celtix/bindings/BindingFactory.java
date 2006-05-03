@@ -2,7 +2,6 @@ package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
 import javax.wsdl.WSDLException;
-import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -32,13 +31,11 @@ public interface BindingFactory {
      * and <code>Endpoint</code> provided.
      *
      * @param reference The EndpointReferenceType the binding will use.
-     * @param endpoint The server endpoint.
      * @param endpointCallback The callback used by the binding to obtain additional information
      *       from the data binding layers.
      * @return ServerBinding The newly created ServerBinding.
      */
     ServerBinding createServerBinding(EndpointReferenceType reference,
-                                      Endpoint endpoint,
                                       ServerBindingEndpointCallback endpointCallback)
         throws WSDLException, IOException;
 }

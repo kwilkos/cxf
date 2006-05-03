@@ -1,14 +1,10 @@
 package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
-import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -112,9 +108,8 @@ public class Response {
         if (null != objectCtx) {
             objectCtx.putAll(bindingCtx);
         } else {
-            objectCtx = binding.createObjectContext();  
-            Method method = BindingContextUtils.retrieveMethod(bindingCtx);
-            initObjectContext(objectCtx, method);
+            objectCtx = binding.createObjectContext();
+            callback.initObjectContext(objectCtx);
             objectCtx.putAll(bindingCtx);
         }
 
@@ -136,27 +131,6 @@ public class Response {
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, "READ_IO_FAILURE_MSG", ex);
             throw new ProtocolException(ex);
-        }
-    }
-    
-    private void initObjectContext(ObjectMessageContext octx, Method method) {
-        if (null != octx && null != method) {
-            try {
-                int idx = 0;
-                Object[] methodArgs = (Object[])Array.newInstance(Object.class,
-                                                                  method.getParameterTypes().length);
-                for (Class<?> cls : method.getParameterTypes()) {
-                    if (cls.isAssignableFrom(Holder.class)) {
-                        methodArgs[idx] = cls.newInstance();
-                    }
-                    idx++;
-                }
-                octx.setMessageObjects(methodArgs);
-                octx.setMethod(method);
-            } catch (Exception ex) {
-                LOG.log(Level.SEVERE, "INIT_OBJ_CONTEXT_FAILED");
-                throw new WebServiceException(ex);
-            }
         }
     }
 }

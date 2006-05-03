@@ -74,7 +74,7 @@ public final class CallbackClientServerTest extends ClientServerTestBase {
             e.printStackTrace();
         }
         
-        System.exit(0); 
+        //System.exit(0); 
 
     }
 

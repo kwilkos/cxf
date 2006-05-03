@@ -5,7 +5,6 @@ import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOutput;
 import javax.wsdl.WSDLException;
 import javax.xml.bind.JAXBException;
-import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.BindingFactory;
@@ -44,9 +43,8 @@ public class XMLBindingFactory implements BindingFactory {
     }
 
     public ServerBinding createServerBinding(EndpointReferenceType reference,
-                                             Endpoint ep,
                                              ServerBindingEndpointCallback cbFactory)
         throws WSDLException, IOException {
-        return new XMLServerBinding(bus, reference, ep, cbFactory);
+        return new XMLServerBinding(bus, reference, cbFactory);
     }
 }

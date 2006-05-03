@@ -30,6 +30,8 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 public final class EndpointInvocationHandler extends BindingProviderImpl implements InvocationHandler
 {
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
+    private static final String METHOD = EndpointInvocationHandler.class.getName() + ".METHOD";
+    
     
     private final ClientBinding clientBinding;    
     private final Class<?> portTypeInterface;
@@ -92,8 +94,9 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         
         objMsgContext.put(ObjectMessageContext.REQUEST_PROXY, proxy);
        
-        objMsgContext.setMethod(method);
         objMsgContext.setMessageObjects(parameters);
+        objMsgContext.put(METHOD, method);
+        objMsgContext.put(ObjectMessageContext.METHOD_OBJ, method);
 
         boolean isOneway = (method.getAnnotation(Oneway.class) != null) ? true : false;
         boolean isAsync = method.getName().endsWith("Async");
@@ -169,7 +172,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
     }
     
     private boolean isValidException(ObjectMessageContext objContext) {
-        Method method = objContext.getMethod();
+        Method method = (Method)objContext.get(METHOD);
         Throwable t = objContext.getException();
         
         boolean val = ProtocolException.class.isAssignableFrom(t.getClass()) 

@@ -21,15 +21,15 @@ import org.objectweb.celtix.bus.jaxws.io.SOAPBodyDataWriter;
 import org.objectweb.celtix.bus.jaxws.io.SOAPMessageDataReader;
 import org.objectweb.celtix.bus.jaxws.io.SOAPMessageDataWriter;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.context.ObjectMessageContext;
 
 public class DynamicDataBindingCallback implements DataBindingCallback {
     
     private static final Logger LOG = LogUtils.getL7dLogger(DynamicDataBindingCallback.class);
     
-    private final Mode mode;
-    private final Class<?>[] clazz;
-    private final JAXBContext context;
-    
+    protected final Mode mode;
+    protected final Class<?>[] clazz;
+    protected final JAXBContext context;
     
     public DynamicDataBindingCallback(Class<?> cls, Mode md) {
         mode = md;
@@ -154,5 +154,16 @@ public class DynamicDataBindingCallback implements DataBindingCallback {
         // TODO Auto-generated method stub
         return null;
     }
+
+    public boolean isOneWay() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public void initObjectContext(ObjectMessageContext octx) {
+        // TODO Auto-generated method stub
+        //REVISIT
+    }
+
 
 }

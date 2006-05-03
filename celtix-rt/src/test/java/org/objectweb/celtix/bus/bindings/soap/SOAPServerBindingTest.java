@@ -8,7 +8,11 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+
+import javax.jws.WebMethod;
+import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.namespace.QName;
 
 import javax.xml.soap.Detail;
@@ -20,6 +24,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.Provider;
 import javax.xml.ws.WebFault;
 import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.handler.Handler;
@@ -32,12 +37,14 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
+import org.objectweb.celtix.bindings.ServerDataBindingCallback;
 import org.objectweb.celtix.bus.bindings.TestInputStreamContext;
 import org.objectweb.celtix.bus.bindings.TestOutputStreamContext;
-import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
 import org.objectweb.celtix.bus.jaxws.EndpointUtils;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
+import org.objectweb.celtix.bus.jaxws.ServerDynamicDataBindingCallback;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -75,18 +82,23 @@ public class SOAPServerBindingTest extends TestCase {
         QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
         epr = EndpointReferenceUtils.getEndpointReference(wsdlUrl, serviceName, "SoapPort");
     }
- 
+
     public void testGetBinding() throws Exception {
-        SOAPServerBinding serverBinding = new SOAPServerBinding(bus, epr, null, null);
+        SOAPServerBinding serverBinding = new SOAPServerBinding(bus, epr, null);
         assertNotNull(serverBinding.getBinding());
     }
 
     public void testProviderDispatchMessageModeSourceData() throws Exception {
         HelloWorldServiceProvider provider = new HelloWorldServiceProvider();
-        TestEndpointImpl testEndpoint = new TestEndpointImpl(
-                                                  provider,
-                                                  DataBindingCallback.Mode.MESSAGE,
-                                                  DOMSource.class);
+        TestEndpointImpl testEndpoint
+            = new TestEndpointImpl(
+                                  provider,
+                                  DataBindingCallback.Mode.MESSAGE,
+                                  DOMSource.class,
+                                  new QName[]{
+                                      new QName("http://objectweb.org/hello_world_soap_http/types",
+                                                "sayHi")
+                                  });
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);        
         TestInputStreamContext inCtx = new TestInputStreamContext(null);
@@ -106,9 +118,13 @@ public class SOAPServerBindingTest extends TestCase {
     public void testProviderDispatchMessageModeSOAPMessageData() throws Exception {
         HWSoapMessageProvider provider = new HWSoapMessageProvider();
         TestEndpointImpl testEndpoint = new TestEndpointImpl(
-                                                  provider,
-                                                  DataBindingCallback.Mode.MESSAGE,
-                                                  SOAPMessage.class);
+                                  provider,
+                                  DataBindingCallback.Mode.MESSAGE,
+                                  SOAPMessage.class,
+                                  new QName[]{
+                                      new QName("http://objectweb.org/hello_world_soap_http/types",
+                                                "sayHi")
+                                  });
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);        
         TestInputStreamContext inCtx = new TestInputStreamContext(null);
@@ -128,9 +144,13 @@ public class SOAPServerBindingTest extends TestCase {
     public void testProviderDispatchPayloadModeSourceData() throws Exception {
         HWSourcePayloadProvider provider = new HWSourcePayloadProvider();
         TestEndpointImpl testEndpoint = new TestEndpointImpl(
-                                                  provider,
-                                                  DataBindingCallback.Mode.PAYLOAD,
-                                                  DOMSource.class);
+                          provider,
+                          DataBindingCallback.Mode.PAYLOAD,
+                          DOMSource.class,
+                          new QName[]{
+                              new QName("http://objectweb.org/hello_world_soap_http/types",
+                                        "sayHi")
+                          });
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);        
         TestInputStreamContext inCtx = new TestInputStreamContext(null);
@@ -147,12 +167,15 @@ public class SOAPServerBindingTest extends TestCase {
         assertNotNull(os);
     }
     public void testDocLitDispatch() throws Exception {
-        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
+        QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");
+        QName wrapName2 = new QName("http://objectweb.org/hello_world_soap_http/types", "sayHi");
+        
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl(),
+                                                             new QName[]{wrapName, wrapName2});
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
 
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
         
-        QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe");
         QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "requestType");
         String data = new String("TestSOAPInputMessage");
 
@@ -182,8 +205,11 @@ public class SOAPServerBindingTest extends TestCase {
         assertFalse(serverTransport.getOutputStreamContext().isFault());
         is.close();
     }
+
     public void testRPCLitDispatch() throws Exception {
-        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImplRPCLit());
+        QName qn = new QName("http://objectweb.org/hello_world_rpclit", "sayHi");
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImplRPCLit(),
+                                                             new QName[]{qn});
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
         TestInputStreamContext inCtx = new TestInputStreamContext(null);
@@ -214,11 +240,12 @@ public class SOAPServerBindingTest extends TestCase {
     }
     
     public void testDispatchOneway() throws Exception {
-        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
+        QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMeOneWay");
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl(),
+                                                             new QName[]{wrapName});
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint);        
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
 
-        QName wrapName = new QName("http://objectweb.org/hello_world_soap_http/types", "greetMeOneWay");
         QName elName = new QName("http://objectweb.org/hello_world_soap_http/types", "requestType");
         String data = new String("TestSOAPInputMessage");
        
@@ -237,7 +264,7 @@ public class SOAPServerBindingTest extends TestCase {
 
     public void testDocLitBareDispatch() throws Exception {
         DocLitBareImpl dc = new DocLitBareImpl();
-        TestEndpointImpl testEndpoint = new TestEndpointImpl(dc);
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(dc, null);
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
         TestInputStreamContext inCtx = new TestInputStreamContext(null);
@@ -247,15 +274,13 @@ public class SOAPServerBindingTest extends TestCase {
         serverBinding.testDispatch(inCtx, serverTransport);
         is.close();
         
-        assertEquals(dc.getClass().getInterfaces()[0], serverBinding.getInvokedMethod().getDeclaringClass());
         assertEquals(1, dc.getSayHiInvocationCount());
         assertNotNull(serverTransport.getOutputStreamContext());
         assertFalse("Should not have a SOAP Fault", serverTransport.getOutputStreamContext().isFault());
     }
-   
     public void testDocLitBareNoParamDispatch() throws Exception {
         DocLitBareImpl dc = new DocLitBareImpl();
-        TestEndpointImpl testEndpoint = new TestEndpointImpl(dc);
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(dc, null);
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint); 
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
         TestInputStreamContext inCtx = new TestInputStreamContext(null);
@@ -265,14 +290,14 @@ public class SOAPServerBindingTest extends TestCase {
         serverBinding.testDispatch(inCtx, serverTransport);
         is.close();
         
-        assertEquals(dc.getClass().getInterfaces()[0], serverBinding.getInvokedMethod().getDeclaringClass());
         assertEquals(1, dc.getBareNoParamCount());
         assertNotNull(serverTransport.getOutputStreamContext());
         assertFalse("Should not have a SOAP Fault", serverTransport.getOutputStreamContext().isFault());
-    }
-    
+    }   
     public void testUserFaultDispatch() throws Exception {
-        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
+        QName qn = new QName("http://objectweb.org/hello_world_soap_http/types", "testDocLitFault");
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl(),
+                                                             new QName[]{qn});
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint);        
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
         InputStream is =  getClass().getResourceAsStream("resources/TestDocLitFaultReq.xml");
@@ -288,9 +313,10 @@ public class SOAPServerBindingTest extends TestCase {
         ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
         checkUserFaultMessage(bais, NoSuchCodeLitFault.class, "TestException");
     }
-
+    
     public void testSystemFaultDispatch() throws Exception {
-        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl());
+        TestEndpointImpl testEndpoint = new TestEndpointImpl(new NotAnnotatedGreeterImpl(),
+                                                             new QName[]{});
         TestServerBinding serverBinding = new TestServerBinding(bus, epr, testEndpoint, testEndpoint);        
         TestServerTransport serverTransport = new TestServerTransport(bus, epr);
         InputStream is =  getClass().getResourceAsStream("resources/BadSoapMessage.xml");
@@ -306,7 +332,7 @@ public class SOAPServerBindingTest extends TestCase {
         ByteArrayInputStream bais = new ByteArrayInputStream(osc.getOutputStreamBytes());
         checkSystemFaultMessage(bais);
     }
-    
+
     private void checkSystemFaultMessage(ByteArrayInputStream bais) throws Exception {
         SOAPMessage msg = MessageFactory.newInstance().createMessage(null,  bais);
         assertNotNull(msg);
@@ -356,11 +382,11 @@ public class SOAPServerBindingTest extends TestCase {
     
     class TestServerBinding extends SOAPServerBinding {
 
-        private Method m;
+        private QName qn;
         
         public TestServerBinding(Bus b, EndpointReferenceType ref, Endpoint ep,
                                  ServerBindingEndpointCallback cbFactory) {
-            super(b, ref, ep, cbFactory);
+            super(b, ref, cbFactory);
         }
 
         public ServerTransport getTransport(EndpointReferenceType ref) throws Exception {            
@@ -371,14 +397,13 @@ public class SOAPServerBindingTest extends TestCase {
             super.dispatch(inCtx, t);
         }
         
-        @Override
-        protected Method getSEIMethod(List<Class<?>> classList, MessageContext ctx) {
-            m = super.getSEIMethod(classList, ctx);
-            return m;
+        public QName getOperationName(MessageContext ctx) {
+            qn = super.getOperationName(ctx);
+            return qn;
         }
         
-        public Method getInvokedMethod() {
-            return m;
+        public QName getInvokedMethod() {
+            return qn;
         }
     }
 
@@ -419,24 +444,80 @@ public class SOAPServerBindingTest extends TestCase {
         }
     }
     
-    class TestEndpointImpl extends javax.xml.ws.Endpoint implements ServerBindingEndpointCallback {
+    final class TestEndpointImpl extends javax.xml.ws.Endpoint implements ServerBindingEndpointCallback {
 
         private final Object implementor;
         private WebServiceProvider wsProvider;
         private DataBindingCallback.Mode mode;
         private Class<?> dataClazz;
+        private Map<QName, ServerDataBindingCallback> callbackMap
+            = new ConcurrentHashMap<QName, ServerDataBindingCallback>();
         
-        TestEndpointImpl(Object impl) {
+        TestEndpointImpl(Object impl, QName ops[]) {
             implementor = impl;
             mode = DataBindingCallback.Mode.PARTS;
+            initOpMap(ops);
         }
 
         TestEndpointImpl(Object impl, 
                          DataBindingCallback.Mode dataMode,
-                         Class<?> clazz) {
+                         Class<?> clazz,
+                         QName ops[]) {
             implementor = impl;
             mode = dataMode;
             dataClazz = clazz;
+            initOpMap(ops);
+        }
+        
+        
+        private void initOpMap(QName ops[]) {
+            if (ops != null) {
+                for (QName op : ops) {
+                    callbackMap.put(op, getDataBindingCallback(op, mode));                
+                }
+            } else {
+                addMethods(implementor.getClass());
+            }
+        }     
+        private void addMethods(Class<?> cls) {
+            if (cls == null) {
+                return;
+            }
+            for (Method meth : cls.getMethods()) {
+                WebMethod wm = meth.getAnnotation(WebMethod.class);
+                if (wm != null) {
+                    QName op = new QName("", wm.operationName());
+                    ServerDataBindingCallback cb = getDataBindingCallback(op, mode);
+                    callbackMap.put(op, cb);
+                }
+            }
+            for (Class<?> cls2 : cls.getInterfaces()) {
+                addMethods(cls2);
+            }
+            addMethods(cls.getSuperclass());
+        }
+        
+        @SuppressWarnings("unchecked")
+        private ServerDataBindingCallback getDataBindingCallback(QName operationName,
+                                                                 Mode dataMode) {
+            if (dataMode == DataBindingCallback.Mode.PARTS) {
+                return new JAXBDataBindingCallback(getMethod(operationName),
+                                               mode,
+                                               null,
+                                               null,
+                                               implementor);
+            }
+
+            return new ServerDynamicDataBindingCallback(dataClazz, mode, (Provider<?>)implementor);
+        }
+
+        public ServerDataBindingCallback getDataBindingCallback(QName operationName,
+                                                                ObjectMessageContext objContext,
+                                                                Mode dataMode) {
+            if (operationName == null) {
+                return null;
+            }
+            return callbackMap.get(operationName);
         }
         
         public Binding getBinding() {
@@ -490,18 +571,7 @@ public class SOAPServerBindingTest extends TestCase {
             
         }
 
-        public DataBindingCallback createDataBindingCallback(ObjectMessageContext objContext,
-                                                             DataBindingCallback.Mode dataMode) {
-            if (dataMode == DataBindingCallback.Mode.PARTS) {
-                return new JAXBDataBindingCallback(objContext.getMethod(),
-                                               mode,
-                                               null);
-            }
-
-            return new DynamicDataBindingCallback(dataClazz, mode);
-        }
-        
-        public Method getMethod(Endpoint endpoint, QName operationName) {
+        public Method getMethod(QName operationName) {
             if (wsProvider != null) {
                 try {
                     return implementor.getClass().getDeclaredMethod(
@@ -510,7 +580,7 @@ public class SOAPServerBindingTest extends TestCase {
                     //Ignore
                 }
             }
-            return EndpointUtils.getMethod(endpoint, operationName);
+            return EndpointUtils.getMethod(implementor.getClass(), operationName);
         }
 
         public DataBindingCallback.Mode getServiceMode() {
@@ -524,9 +594,20 @@ public class SOAPServerBindingTest extends TestCase {
             return wsProvider;
         } 
 
-        public synchronized List<Class<?>> getWebServiceAnnotatedClass() {
-            return EndpointUtils.getWebServiceAnnotatedClass(getImplementor().getClass());
+
+        public Map<QName, ? extends DataBindingCallback> getOperations() {
+            return callbackMap;
         }
+
+        public Style getStyle() {
+            // TODO Auto-generated method stub
+            return Style.DOCUMENT;
+        }
+
+        public DataBindingCallback getFaultDataBindingCallback(ObjectMessageContext objContext) {
+            return new JAXBDataBindingCallback(null, DataBindingCallback.Mode.PARTS, null);
+        }
+
     }
     
 }

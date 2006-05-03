@@ -27,10 +27,10 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
-class ServletServerTransport extends AbstractHTTPServerTransport {
+public class ServletServerTransport extends AbstractHTTPServerTransport {
 
     CeltixServlet servlet;
-    
+
     public ServletServerTransport(Bus b, EndpointReferenceType ref, CeltixServlet s)
         throws WSDLException, IOException {
         super(b, ref);
@@ -147,9 +147,9 @@ class ServletServerTransport extends AbstractHTTPServerTransport {
                 // TODO Auto-generated catch block
                 ex.printStackTrace();
             }
-        }    
+        }
     }
-    void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
+    public void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
         HTTPServerInputStreamContext ctx = new HTTPServerInputStreamContext(this) {
             public void initContext() throws IOException {
                 super.initContext();

@@ -61,8 +61,8 @@ public class CeltixServlet extends HttpServlet {
         try {
             if (null == bus) {
                 bus = Bus.init(list.toArray(new String[list.size()]));
-                
-                TransportFactory factory = new ServletTransportFactory(this);
+
+                TransportFactory factory = createServletTransportFactory();
                 factory.init(bus);
                 registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/soap/");
                 registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/soap/http");
@@ -106,6 +106,13 @@ public class CeltixServlet extends HttpServlet {
                 ex.printStackTrace();
             }
         }
+    }
+
+    /**
+     * @return
+     */
+    protected TransportFactory createServletTransportFactory() {
+        return new ServletTransportFactory(this);
     }
 
     private void registerTransport(TransportFactory factory, String namespace) throws BusException {

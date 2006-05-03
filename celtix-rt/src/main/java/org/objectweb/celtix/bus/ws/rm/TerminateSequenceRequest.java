@@ -29,7 +29,6 @@ public class TerminateSequenceRequest extends Request {
         ContextUtils.storeUsingAddressing(true, getObjectMessageContext());
 
         getObjectMessageContext().setRequestorRole(true);
-        getObjectMessageContext().setMethod(getMethod()); 
         
         AddressingProperties maps = new AddressingPropertiesImpl();
         AttributedURIType actionURI = ContextUtils.WSA_OBJECT_FACTORY.createAttributedURIType();

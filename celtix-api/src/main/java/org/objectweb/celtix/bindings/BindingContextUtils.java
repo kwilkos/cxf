@@ -1,18 +1,12 @@
 package org.objectweb.celtix.bindings;
 
 
-import java.lang.reflect.Method;
-
-import javax.jws.Oneway;
-import javax.xml.ws.Endpoint;
 import javax.xml.ws.handler.MessageContext;
 
-import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 
 import static org.objectweb.celtix.bindings.JAXWSConstants.DATABINDING_CALLBACK_PROPERTY;
 import static org.objectweb.celtix.bindings.JAXWSConstants.DISPATCH_PROPERTY;
-import static org.objectweb.celtix.bindings.JAXWSConstants.ENDPOINT_PROPERTY;
 import static org.objectweb.celtix.bindings.JAXWSConstants.SERVER_BINDING_ENDPOINT_CALLBACK_PROPERTY;
 import static org.objectweb.celtix.context.InputStreamMessageContext.ASYNC_ONEWAY_DISPATCH;
 import static org.objectweb.celtix.context.InputStreamMessageContext.DECOUPLED_RESPONSE;
@@ -74,28 +68,7 @@ public final class BindingContextUtils {
         MessageContext context) {
         return (ServerBindingEndpointCallback)context.get(SERVER_BINDING_ENDPOINT_CALLBACK_PROPERTY);
     }
-    
-    /**
-     * Store method in message context.
-     *
-     * @param context the message context
-     * @param method the method
-     */
-    public static void storeMethod(MessageContext context, Method method) {
-        context.put(ObjectMessageContext.METHOD_OBJ, method);
-        context.setScope(ObjectMessageContext.METHOD_OBJ, MessageContext.Scope.HANDLER); 
-    }
-    
-    /**
-     * Retrieve method from message context.
-     *
-     * @param context the message context
-     * @returned the method
-     */
-    public static Method retrieveMethod(MessageContext context) {
-        return (Method)context.get(ObjectMessageContext.METHOD_OBJ);
-    }
-    
+        
     /**
      * Checks if a method object is stored in the context and if it is annotated
      * with a Oneway annotation.
@@ -104,11 +77,14 @@ public final class BindingContextUtils {
      * @return true if a method object is stored in the context and it has a Oneway annotation.
      */
     public static boolean isOnewayMethod(MessageContext context) {
-        Method method = BindingContextUtils.retrieveMethod(context);
-        if (method != null) {
-            return method.getAnnotation(Oneway.class) != null;
+        DataBindingCallback cb = retrieveDataBindingCallback(context);
+        if (cb == null) {
+            if (!context.containsKey(OutputStreamMessageContext.ONEWAY_MESSAGE_TF)) {
+                return false;
+            }
+            return ((Boolean)context.get(OutputStreamMessageContext.ONEWAY_MESSAGE_TF)).booleanValue();
         }
-        return false;
+        return cb.isOneWay();
     }
     
     /**
@@ -126,27 +102,6 @@ public final class BindingContextUtils {
         return false;
     }
         
-    /**
-     * Store endpoint in message context.
-     *
-     * @param context the message context
-     * @param endpoint the endpoint
-     */
-    public static void storeEndpoint(MessageContext context, Endpoint endpoint) {
-        context.put(ENDPOINT_PROPERTY, endpoint);
-        context.setScope(ENDPOINT_PROPERTY, MessageContext.Scope.HANDLER); 
-    }
-    
-    /**
-     * Retrieve endpoint from message context.
-     *
-     * @param context the message context
-     * @returned the endpoint
-     */
-    public static Endpoint retrieveEndpoint(MessageContext context) {
-        return (Endpoint)context.get(ENDPOINT_PROPERTY);
-    }
-   
     /**
      * Retrieve correlation id from message context.
      *

@@ -29,6 +29,9 @@ public abstract class AbstractWSDLOperationDataBindingCallback implements DataBi
     public abstract <T> DataWriter<T> createWriter(Class<T> cls);
     public abstract <T> DataReader<T> createReader(Class<T> cls);
     
+    public boolean isOneWay() {
+        return operation.isOneWay();
+    }
     
     public Style getSOAPStyle() {
         return operation.getSOAPStyle();

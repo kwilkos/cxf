@@ -83,7 +83,6 @@ public class CreateSequenceRequestTest extends TestCase {
         assertNotNull(req);
         
         assertNotNull(CreateSequenceRequest.createDataBindingCallback());
-        assertNotNull(req.getObjectMessageContext().getMethod());
         
         Object[] params = req.getObjectMessageContext().getMessageObjects();
         assertEquals(1, params.length);

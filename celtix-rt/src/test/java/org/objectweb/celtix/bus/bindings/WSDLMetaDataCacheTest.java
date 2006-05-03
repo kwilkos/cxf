@@ -22,6 +22,7 @@ import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
+import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.hello_world_doc_lit_bare.PutLastTradedPricePortType;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 
@@ -168,6 +169,11 @@ public class WSDLMetaDataCacheTest extends TestCase {
         }
         public <T> DataReader<T> createReader(Class<T> cls) {
             return null;
+        }
+
+        public void initObjectContext(ObjectMessageContext octx) {
+            // TODO Auto-generated method stub
+            
         }
     }
 }

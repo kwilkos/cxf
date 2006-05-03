@@ -73,7 +73,7 @@ public interface ClientTransport extends Transport {
         throws IOException;
     
     /**
-     * Retrieve the ResponseCallback used to diapatch decoupled responses.
+     * Retrieve the ResponseCallback used to dispatch decoupled responses.
      * This may be either a new ResponseCallback created via the ClientBinding
      * or a preexisting instance, if the decoupled response endpoint is 
      * being reused.

@@ -52,9 +52,13 @@ public class ServerLauncher {
         javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
     }
     public ServerLauncher(String theClassName, Map<String, String> p, String[] args) {
+        this(theClassName, p, args, false);
+    }
+    public ServerLauncher(String theClassName, Map<String, String> p, String[] args, boolean inprocess) {
         className = theClassName;
         properties = p;
         serverArgs = args;
+        inProcess = inprocess;
         javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
     }
 

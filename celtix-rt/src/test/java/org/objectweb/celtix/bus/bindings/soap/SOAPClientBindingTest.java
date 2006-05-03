@@ -71,7 +71,6 @@ public class SOAPClientBindingTest extends TestCase {
         ObjectMessageContext objContext = clientBinding.createObjectContext();
         assertNotNull(objContext);
         Method method = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
-        objContext.setMethod(method);
         
         String arg0 = new String("TestSOAPInputPMessage");
         objContext.setMessageObjects(arg0);

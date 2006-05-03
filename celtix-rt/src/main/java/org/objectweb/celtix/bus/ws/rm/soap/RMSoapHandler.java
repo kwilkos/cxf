@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm.soap;
 
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -347,29 +346,24 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
         AttributedURIType actionURI = null == maps ? null : maps.getAction();
         String action = null == actionURI ? null : actionURI.getValue();
         DataBindingCallback callback = null;
-        Method method = null;
         String operationName = null;
         boolean rmProtocolMessage = true;
 
         if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)) {
             callback = CreateSequenceRequest.createDataBindingCallback();
             operationName = CreateSequenceRequest.getOperationName();
-            method = CreateSequenceRequest.getMethod();
         } else if (RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)) {
             callback = CreateSequenceResponse.createDataBindingCallback();
             operationName = CreateSequenceResponse.getOperationName();
-            method = CreateSequenceResponse.getMethod();            
         } else if (RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)) {
             callback = TerminateSequenceRequest.createDataBindingCallback();
             operationName = TerminateSequenceRequest.getOperationName();
-            method = TerminateSequenceRequest.getMethod();    
         } else if (RMUtils.getRMConstants().getLastMessageAction().equals(action) 
             || RMUtils.getRMConstants().getSequenceAcknowledgmentAction().equals(action)) {
             // It does not really matter what callback we are using here as the body
             // in messages with these actions is always empty
-            // callback = TerminateSequenceRequest.createDataBindingCallback();
+            callback = TerminateSequenceRequest.createDataBindingCallback();
             operationName = TerminateSequenceRequest.getOperationName();
-            method = TerminateSequenceRequest.getMethod(); 
         } else {
             rmProtocolMessage = false;
         }
@@ -377,8 +371,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
         if (rmProtocolMessage) {
             BindingContextUtils.storeDispatch(context, false);
             BindingContextUtils.storeDataBindingCallback(context, callback);
-            BindingContextUtils.storeMethod(context, method);            
-            context.put(MessageContext.WSDL_OPERATION, operationName);
+            context.put(MessageContext.WSDL_OPERATION, new QName("", operationName));
             context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);            
         }
     }

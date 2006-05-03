@@ -2,7 +2,6 @@ package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
@@ -12,7 +11,7 @@ import java.util.logging.Logger;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
-import javax.xml.ws.Endpoint;
+import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
@@ -39,21 +38,15 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
 
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractServerBinding.class);
 
-    protected Endpoint endpoint;
     protected ServerBindingEndpointCallback sbeCallback;
 
-    public AbstractServerBinding(Bus b, EndpointReferenceType ref, Endpoint ep,
+    public AbstractServerBinding(Bus b, EndpointReferenceType ref,
                                  ServerBindingEndpointCallback sbcb) {
         super(b, ref);
-        endpoint = ep;
         sbeCallback = sbcb;
     }
 
     // --- ServerBinding interface ---
-
-    public Endpoint getEndpoint() {
-        return endpoint;
-    }
 
     public void activate() throws WSDLException, IOException {
         transport = createTransport(reference);
@@ -65,7 +58,7 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
             }
 
             public Executor getExecutor() {
-                return AbstractServerBinding.this.getEndpoint().getExecutor();
+                return sbeCallback.getExecutor();
             }
         };
         serverTransport().activate(tc);
@@ -112,7 +105,8 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
 
     public abstract AbstractBindingImpl getBindingImpl();
     
-    protected abstract Method getSEIMethod(List<Class<?>> classList, MessageContext ctx); 
+    public abstract QName getOperationName(MessageContext ctx);
+    
 
     // --- Methods to be implemented by concrete server bindings ---
 
@@ -133,7 +127,6 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         LOG.info("Dispatched to binding on thread : " + Thread.currentThread());
         // storeSource(istreamCtx, t);
         BindingContextUtils.storeServerBindingEndpointCallback(istreamCtx, sbeCallback);
-        BindingContextUtils.storeEndpoint(istreamCtx, endpoint);
         
         final ServerRequest inMsg = new ServerRequest(this, istreamCtx);         
         
@@ -172,7 +165,7 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
             public void run() {
                 LOG.log(Level.INFO, "Before invoking on implementor");
                 assert null != inMsg.getObjectCtx();
-                inMsg.doInvocation(endpoint);
+                inMsg.doInvocation();
                 LOG.log(Level.INFO, "After invoking on implementor");
                 if (!inMsg.isOneway()) {
                     // process response 
@@ -257,8 +250,8 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
 
     private void executeAsync(Runnable command) {
         Executor executor = 
-            getEndpoint().getExecutor() != null
-            ? getEndpoint().getExecutor() 
+            sbeCallback.getExecutor() != null
+            ? sbeCallback.getExecutor() 
             : getBus().getWorkQueueManager().getAutomaticWorkQueue(); 
         try {
             executor.execute(command);

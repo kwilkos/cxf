@@ -2,7 +2,6 @@ package org.objectweb.celtix.geronimo.container;
 
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.Endpoint;
 
 import junit.framework.TestCase;
 
@@ -52,8 +51,7 @@ public class CeltixWebServiceContainerTest extends TestCase {
         
         ServerBinding mockServerBinding = EasyMock.createMock(ServerBinding.class);
         
-        bindingFact.createServerBinding((EndpointReferenceType)EasyMock.notNull(),
-                                        (Endpoint)EasyMock.notNull(), 
+        bindingFact.createServerBinding((EndpointReferenceType)EasyMock.notNull(), 
                                         (ServerBindingEndpointCallback)EasyMock.notNull());
         EasyMock.expectLastCall().andReturn(mockServerBinding);
         mockServerBinding.activate(); 
