@@ -267,10 +267,8 @@ public final class JAXBEncoderDecoder {
             if (ue.getCause() != null) {
                 message += ue.getCause();
             }
-            ue.printStackTrace();
             throw new ProtocolException(message, ue);
         } catch (Exception ex) {
-            ex.printStackTrace();
             throw new ProtocolException("Unmarshalling error", ex);
         }
         return obj;
