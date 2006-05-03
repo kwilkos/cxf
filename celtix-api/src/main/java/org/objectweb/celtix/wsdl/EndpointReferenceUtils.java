@@ -363,7 +363,7 @@ public final class EndpointReferenceUtils {
                 sei = Class.forName(seiName.toString(), true, 
                                     manager.getClass().getClassLoader());
             } catch (ClassNotFoundException ex) {
-                LOG.log(Level.SEVERE, "SEI_LOAD_FAILURE_MSG", ex);
+                LOG.log(Level.INFO, "SEI_LOAD_FAILURE_MSG", ex);
                 return null;
             }
             Definition def = manager.getDefinition(sei);
