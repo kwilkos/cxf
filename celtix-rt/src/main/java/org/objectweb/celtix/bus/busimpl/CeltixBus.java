@@ -148,6 +148,7 @@ public class CeltixBus extends Bus implements BusEventListener {
         workQueueManager.shutdown(wait);
         instrumentationManager.shutdown();
         lifeCycleManager.postShutdown();
+        super.removeByID(getBusID());
     }
 
     /* (non-Javadoc)

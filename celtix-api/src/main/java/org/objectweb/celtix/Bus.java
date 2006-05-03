@@ -1,8 +1,10 @@
 package org.objectweb.celtix;
 
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.ws.WebServiceException;
 
@@ -26,6 +28,8 @@ public abstract class Bus {
     public static final String BUS_CLASS_PROPERTY = "org.objectweb.celtix.BusClass";
 
     private static ThreadLocal<Bus> current = new ThreadLocal<Bus>();
+    private static Map<String, WeakReference<Bus>> nameMap = 
+        new ConcurrentHashMap<String, WeakReference<Bus>>();
     private static Bus defaultBus; 
     
     /**
@@ -86,7 +90,9 @@ public abstract class Bus {
         
         // delegate to the factory 
         BusFactory bf = BusFactory.getInstance();
-        return bf.getBus(args, properties, classLoader);
+        Bus b = bf.getBus(args, properties, classLoader);
+        nameMap.put(b.getBusID(), new WeakReference<Bus>(b));
+        return b;
     }
     
     /** 
@@ -115,6 +121,35 @@ public abstract class Bus {
     public static void setCurrent(Bus bus) {
         current.set(bus);
         setDefaultBus(bus);
+    }
+
+    /**
+     * Returns the LAST Bus that was created with the given ID.  If 
+     * multiple buses are created with the same ID, only the last is
+     * saved for access later.
+     * 
+     * The Bus objects are only held via a WeakReference.   Thus, if
+     * something else doesn't hold onto it, it will be garbage collected 
+     * and this method will return null.
+     * 
+     * @param id
+     * @return The last bus by the given ID.
+     */
+    public static Bus getByID(String id) {
+        WeakReference<Bus> bus = nameMap.get(id);
+        if (bus != null) {
+            if (bus.get() == null) {
+                nameMap.remove(id);
+            }
+            return bus.get();
+        }
+        return null;
+    }
+    
+    protected void removeByID(String id) {
+        if (nameMap.containsKey(id)) {
+            nameMap.remove(id);
+        }
     }
     
     /**
@@ -268,7 +303,7 @@ public abstract class Bus {
             throw new WebServiceException("unable to initialize default bus", ex);
         } 
     } 
-
+    
     /** 
      * Set the default bus for all threads.  If no bus has been
      * already initialised, this bus will be used as the default bus
