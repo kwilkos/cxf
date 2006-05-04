@@ -115,7 +115,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
                 throw new WebServiceException(
                            "Provider based implementor must carry a WebServiceProvider annotation");
             }
-            serviceMode = implementor.getClass().getAnnotation(ServiceMode.class);
+            serviceMode = implementorClass.getAnnotation(ServiceMode.class);
         } else {
             //SEI Implementor
             try {
@@ -382,7 +382,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
     ServerBinding createServerBinding(String bindingId) throws BusException, WSDLException, IOException {
         if (null == bindingId) {
-            BindingType bType = implementor.getClass().getAnnotation(BindingType.class);
+            BindingType bType = implementorClass.getAnnotation(BindingType.class);
             if (bType != null) {
                 bindingId = bType.value();
             }
@@ -556,7 +556,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
             dataClass = EndpointUtils.getProviderParameterType(this);
         }
 
-        return new ServerDynamicDataBindingCallback(dataClass, mode, (Provider<?>)implementor);
+        return new ServerDynamicDataBindingCallback(dataClass, mode, (Provider<?>) implementor);
     }
 
     public Method getMethod(QName operationName) {
@@ -644,7 +644,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     }
 
     public Style getStyle() {
-        javax.jws.soap.SOAPBinding bind = getImplementor().getClass()
+        javax.jws.soap.SOAPBinding bind = implementorClass
             .getAnnotation(javax.jws.soap.SOAPBinding.class);
         if (bind != null) {
             return bind.style();

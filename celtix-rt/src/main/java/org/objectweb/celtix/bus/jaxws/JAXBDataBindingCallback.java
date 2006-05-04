@@ -412,20 +412,22 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
     }
 
     public void invoke(ObjectMessageContext octx) throws InvocationTargetException {
+        Object o = impl;
         try {
-            Object o = impl;
             if (o == null) {
                 o = endpoint.getImplementor();
             }
             Object ret = method.invoke(o, octx.getMessageObjects());
-            if (impl == null) {
-                endpoint.releaseImplementor(o);
-            }
+
             octx.setReturn(ret);
         } catch (InvocationTargetException e) {
             throw e;
         } catch (Exception e) {
             throw new InvocationTargetException(e);
+        } finally {
+            if (impl == null) {
+                endpoint.releaseImplementor(o);
+            }
         }
     }
 

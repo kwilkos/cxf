@@ -48,21 +48,19 @@ public class SequenceTest extends ClientServerTestBase {
     private String currentConfiguration;
     private MessageFlow mf;
     
-    private boolean yes = true;
-
     // enable currently disabled tests when transport apis allows to 
     // originate standalone requests from server side
     
-    private boolean doTestOnewayAnonymousAcks = yes;
-    private boolean doTestOnewayDeferredAnonymousAcks = yes; 
-    private boolean doTestOnewayDeferredNonAnonymousAcks = yes;
-    private boolean doTestOnewayAnonymousAcksSequenceLength1 = yes; 
-    private boolean doTestOnewayAnonymousAcksSupressed = yes;
-    private boolean doTestTwowayNonAnonymous = yes;
-    private boolean doTestTwowayNonAnonymousDeferred = yes;
-    private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = yes;    
-    private boolean doTestTwowayNonAnonymousNoOffer = yes;
-    private boolean doTestTwowayMessageLoss = yes;
+    private boolean doTestOnewayAnonymousAcks = true;
+    private boolean doTestOnewayDeferredAnonymousAcks = true; 
+    private boolean doTestOnewayDeferredNonAnonymousAcks = true;
+    private boolean doTestOnewayAnonymousAcksSequenceLength1 = true; 
+    private boolean doTestOnewayAnonymousAcksSupressed = true;
+    private boolean doTestTwowayNonAnonymous = true;
+    private boolean doTestTwowayNonAnonymousDeferred = true;
+    private boolean doTestTwowayNonAnonymousMaximumSequenceLength2;    
+    private boolean doTestTwowayNonAnonymousNoOffer;
+    private boolean doTestTwowayMessageLoss = true;
 
 
     public static void main(String[] args) {
@@ -383,7 +381,7 @@ public class SequenceTest extends ClientServerTestBase {
      * delivered steadily with every response.
      */
     
-    public void xtestTwowayNonAnonymousMaximumSequenceLength2() throws Exception {
+    public void testTwowayNonAnonymousMaximumSequenceLength2() throws Exception {
         
         if (!doTestTwowayNonAnonymousMaximumSequenceLength2) {
             return;
