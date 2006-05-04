@@ -403,7 +403,8 @@ public class ServerRequest {
     
     
     private void marshalFault(ObjectMessageContext octx, MessageContext bctx) {
-        DataBindingCallback callback = getDataBindingCallback();
+        DataBindingCallback callback = 
+            BindingContextUtils.retrieveDataBindingCallback(bindingCtx);
         if (null == callback) {
             ServerBindingEndpointCallback sbeCallback = BindingContextUtils
                 .retrieveServerBindingEndpointCallback(bindingCtx);
