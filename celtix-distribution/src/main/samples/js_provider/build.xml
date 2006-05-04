@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="hello world dispatch demo" default="build" basedir=".">
+<project name="hello world javascript demo" default="build" basedir=".">
     <condition property="celtix.home" value="${env.CELTIX_HOME}">
         <isset property="env.CELTIX_HOME"/>
     </condition>

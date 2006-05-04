@@ -5,7 +5,7 @@
     <artifactId>celtix-js</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>Celtix Javascript</name>
+    <name>Celtix JavaScript</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
