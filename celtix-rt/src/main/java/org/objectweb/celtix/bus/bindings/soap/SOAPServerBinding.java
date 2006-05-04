@@ -109,8 +109,8 @@ public class SOAPServerBinding extends AbstractServerBinding {
                                             NodeList bodyList,
                                             NodeList headerList) {
         if (cb.getParamsLength() == 0
-            && bodyList.getLength() == 0
-            && headerList.getLength() == 0) {
+            && (bodyList == null || bodyList.getLength() == 0)
+            && (headerList == null || headerList.getLength() == 0)) {
             return true;
         }
         int nodeIdx = 0;
