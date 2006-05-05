@@ -5,23 +5,23 @@ Celtix 1.0 Release Notes
   Added in 1.0:
     * Persistence support for Reliable Messaging based on Apache Derby.
     * HTTPS based security support.
-    * Support for Javascript based webservices. This is the first step
+    * Support for Javascript based Web services. This is the first step
       towards supporting dynamic languages in Celtix.
     * Support for changing configuration dynamically via a JMX console
       and programmatically using the API. 
-    * Enhanced management capabilities and cleanup for additional 
-      celtix components.
-    * Support for wsdlvalidator commandline tool.
+    * Enhanced management capabilities and clean up for additional 
+      Celtix components.
+    * Support for wsdlvalidator command-line tool.
     * Enhanced routing capabilities across all the Celtix supported
       bindings and transports.
     * Support for WS-Addressing for JMS based services.
     * Celtix can now succesfully interoperate with .NET.
     * Celtix now supports Maven 2.0.4.
     * Support for running Celtix inside Apache Tuscany.
-    * Support for Webservice callbacks.
+    * Support for Web service callbacks.
 
   Added in 1.0 Beta:
-    * Support for Web Services Reliable Messaging based on WS-RM
+    * Support for Web Services Reliable Messaging based on the WS-RM
       specification.
     * Enhanced WS-Addressing capabilities.
     * Configuration-based support for JMS Transport.
@@ -132,7 +132,7 @@ For more details, see the Celtix Installation Guide.
 There is an issue with Jetty HTTP that prevents Celtix from being able to 
 shut down the actual port listener.  If you programmatically remove the last endpoint
 published on a port, the listener remains running on the port, but only 404
-(page not found) errors are serverd to all client connections.
+(page not found) errors are served to all client connections.
 
 3.2 Schema Definitions
 There is no support for nillable elements in XML Schema and xsi:nil attribute 
