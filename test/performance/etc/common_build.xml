@@ -17,7 +17,7 @@
         <available file="../../lib/celtix.jar"/>
     </condition> 
     <!-- default setting --> 
-    <property name="srcbuild_paths.file" value="../../../target/srcbuild_paths.xml"/> 
+    <property name="srcbuild_paths.file" value="../../../celtix-distribution/target/srcbuild_paths.xml"/> 
 
     <import file="${srcbuild_paths.file}" optional="true"/>
     <property name="srcbuild.classpath" value=""/>    
