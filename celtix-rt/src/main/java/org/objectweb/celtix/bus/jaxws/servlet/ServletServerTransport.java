@@ -114,7 +114,7 @@ public class ServletServerTransport extends AbstractHTTPServerTransport {
         };
     }    
     
-    void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (policy.isSetRedirectURL()) {
             resp.sendRedirect(policy.getRedirectURL());
             return;
