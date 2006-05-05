@@ -4,14 +4,14 @@
     <groupId>org.objectweb.celtix</groupId>
     <artifactId>celtix-jbi</artifactId>
     <packaging>jar</packaging>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     <name>Celtix JBI Support</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
         <groupId>org.objectweb.celtix</groupId>
         <artifactId>celtix</artifactId>
-        <version>1.0</version>
+        <version>1.1-SNAPSHOT</version>
     </parent>
 
     <properties>
