@@ -18,6 +18,7 @@ Celtix 1.0 Release Notes
     * Celtix can now succesfully interoperate with .NET.
     * Celtix now supports Maven 2.0.4.
     * Support for running Celtix inside Apache Tuscany.
+    * Support for Webservice callbacks.
 
   Added in 1.0 Beta:
     * Support for Web Services Reliable Messaging based on WS-RM
