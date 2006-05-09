@@ -12,11 +12,11 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
-import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient4;
+import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient5;
 import org.objectweb.type_test.types2.StructWithAnyArrayLax;
 import org.objectweb.type_test.types2.StructWithAnyStrict;
 
-public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient4 {
+public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient5 {
     static final String WSDL_PATH = "/wsdl/type_test/type_test_doclit_soap.wsdl";
     static final QName SERVICE_NAME = new QName("http://objectweb.org/type_test/doc", "SOAPService");
     static final QName PORT_NAME = new QName("http://objectweb.org/type_test/doc", "SOAPPort");

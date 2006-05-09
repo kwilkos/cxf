@@ -387,27 +387,17 @@
       </restriction>
     </simpleType>
 
-    <!-- XXX - These ComplexRestriction types cause an xjc AssertionError when
-        the wsdl is compiled.  They don't seem to be valid according to this
-        error from running the jaxb ri xjc on the schema types alone:
-        src-ct.2.1: Complex Type Definition Representation Error for type
-        'ComplexRestriction'.  When <simpleContent> is used, the base type must be
-        a complexType whose content type is simple, or, only if restriction is
-        specified, a complex type with mixed content and emptiable particle, or,
-        only if extension is specified, a simple type. 'string' satisfies none of
-        these conditions.
     <complexType name="ComplexRestriction">
       <simpleContent>
-        <restriction base="string">
+        <restriction base="x1:ExtendsSimpleType">
 	  <maxLength value="10"/>
-	  <minLength value="5"/>
         </restriction>
       </simpleContent>
     </complexType>
     
     <complexType name="ComplexRestriction2">
       <simpleContent>
-        <restriction base="string">
+        <restriction base="x1:ExtendsSimpleType">
           <length value="10"/>
         </restriction>
       </simpleContent>
@@ -415,7 +405,7 @@
 
     <complexType name="ComplexRestriction3">
       <simpleContent>
-        <restriction base="x1:SimpleRestriction">
+        <restriction base="x1:ComplexRestriction">
           <minLength value="5"/>
         </restriction>
       </simpleContent>
@@ -423,7 +413,7 @@
 
     <complexType name="ComplexRestriction4">
       <simpleContent>
-        <restriction base="x1:SimpleRestriction">
+        <restriction base="x1:ComplexRestriction">
           <maxLength value="5"/>
         </restriction>
       </simpleContent>
@@ -431,12 +421,13 @@
 
     <complexType name="ComplexRestriction5">
       <simpleContent>
-        <restriction base="x1:AnyURIRestriction">
+        <restriction base="x1:ExtendsAnyURIType">
+          <maxLength value="50"/>
           <minLength value="5"/>
         </restriction>
       </simpleContent>
     </complexType>
-    -->
+
     <!-- list simple types -->
 
     <!-- XXX - StringList, NumberList, QNameList and AnonEnumList
@@ -737,6 +728,13 @@
     <complexType name="ExtendsSimpleType">
 	<simpleContent>
 	    <extension base="xsd:string"/>
+	</simpleContent>
+    </complexType>
+
+    <!-- A base type for ComplexRestriction5 -->
+    <complexType itst:it_no_test="true" name="ExtendsAnyURIType">
+	<simpleContent>
+	    <extension base="xsd:anyURI"/>
 	</simpleContent>
     </complexType>
 

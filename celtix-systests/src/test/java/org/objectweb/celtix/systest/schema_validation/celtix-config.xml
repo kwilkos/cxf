@@ -18,7 +18,7 @@
         class="org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean">
 
       <property name="enableSchemaValidation">
-          <value>true</value>
+          <value>false</value>
       </property>
   </bean>
  

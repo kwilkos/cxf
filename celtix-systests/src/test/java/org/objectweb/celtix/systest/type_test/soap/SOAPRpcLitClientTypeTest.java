@@ -11,11 +11,11 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
-import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient4;
+import org.objectweb.celtix.systest.type_test.AbstractTypeTestClient5;
 import org.objectweb.type_test.types2.StructWithAnyArrayLax;
 import org.objectweb.type_test.types2.StructWithAnyStrict;
 
-public class SOAPRpcLitClientTypeTest extends AbstractTypeTestClient4 {
+public class SOAPRpcLitClientTypeTest extends AbstractTypeTestClient5 {
     static final String WSDL_PATH = "/wsdl/type_test/type_test_rpclit_soap.wsdl";
     static final QName SERVICE_NAME =
         new QName("http://objectweb.org/type_test/rpc", "SOAPService");

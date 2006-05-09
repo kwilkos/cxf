@@ -43,6 +43,7 @@ public class ValidationClientServerTest extends ClientServerTestBase {
 
     // TODO : Change this test so that we test the combinations of
     // client and server with schema validation enabled/disabled...
+    // Only tests client side validation enabled/server side disabled.
     public void testSchemaValidation() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/schema_validation.wsdl");
         assertNotNull(wsdl);
@@ -54,8 +55,8 @@ public class ValidationClientServerTest extends ClientServerTestBase {
 
         ComplexStruct complexStruct = new ComplexStruct();
         complexStruct.setElem1("one");
-        // Don't initialize a member of the structure.  Validation should throw
-        // an exception.
+        // Don't initialize a member of the structure.  
+        // Client side validation should throw an exception.
         // complexStruct.setElem2("two");
         complexStruct.setElem3(3);
         try {       
@@ -66,8 +67,8 @@ public class ValidationClientServerTest extends ClientServerTestBase {
         }
 
         OccuringStruct occuringStruct = new OccuringStruct();
-        // Populate the list in the wrong order.  Validation should throw
-        // an exception.
+        // Populate the list in the wrong order.
+        // Client side validation should throw an exception.
         List<Serializable> floatIntStringList = occuringStruct.getVarFloatAndVarIntAndVarString();
         floatIntStringList.add(new Integer(42));
         floatIntStringList.add(new Float(4.2f));
@@ -81,20 +82,20 @@ public class ValidationClientServerTest extends ClientServerTestBase {
 
         try {
             // The server will attempt to return an invalid ComplexStruct
+            // When validation is disabled on the server side, we'll get the
+            // exception while unmarshalling the invalid response.
             /*complexStruct =*/ validation.getComplexStruct("Hello");
-            // This would throw an exception if validation is disabled on
-            // the server and enabled on the client.
-            //fail("Get ComplexStruct should have thrown ProtocolException");
+            fail("Get ComplexStruct should have thrown ProtocolException");
         } catch (ProtocolException e) {
             //System.out.println(e.getMessage()); 
         }
         
         try {
             // The server will attempt to return an invalid OccuringStruct
+            // When validation is disabled on the server side, we'll get the
+            // exception while unmarshalling the invalid response.
             /*occuringStruct =*/ validation.getOccuringStruct("World");
-            // This would throw an exception if validation is disabled on
-            // the server and enabled on the client.
-            //fail("Get OccuringStruct should have thrown ProtocolException");
+            fail("Get OccuringStruct should have thrown ProtocolException");
         } catch (ProtocolException e) {
             //System.out.println(e.getMessage()); 
         }
