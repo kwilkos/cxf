@@ -69,10 +69,14 @@ public class SOAPBodyDataReader<T> implements DataReader<T> {
     }
     
     private InputStream getSOAPBodyStream(Document doc) throws Exception {
-        System.setProperty(DOMImplementationRegistry.PROPERTY,
-            "com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
         DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
         DOMImplementationLS impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+        if (impl == null) {
+            System.setProperty(DOMImplementationRegistry.PROPERTY,
+                "com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
+            registry = DOMImplementationRegistry.newInstance();
+            impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+        }
         LSOutput output = impl.createLSOutput();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         output.setByteStream(byteArrayOutputStream);

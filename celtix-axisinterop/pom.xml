@@ -30,41 +30,30 @@
 
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
-            <artifactId>celtix-tools</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.objectweb.celtix</groupId>
             <artifactId>celtix-rt</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
             <artifactId>celtix-testutils</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
             <version>1.2</version>
-            <scope>test</scope>
         </dependency>
         <!---->
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
             <version>1.2</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-discovery</groupId>
             <artifactId>commons-discovery</artifactId>
             <version>0.2</version>
-            <scope>test</scope>
         </dependency>
         <!---->
     </dependencies>
