@@ -10,7 +10,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-//import org.apache.axis.types.HexBinary;
 import org.apache.axis.types.NegativeInteger;
 import org.apache.axis.types.NonNegativeInteger;
 import org.apache.axis.types.NonPositiveInteger;
@@ -21,9 +20,7 @@ import org.apache.axis.types.UnsignedByte;
 import org.apache.axis.types.UnsignedInt;
 import org.apache.axis.types.UnsignedLong;
 import org.apache.axis.types.UnsignedShort;
-
 import org.objectweb.celtix.testutil.common.AbstractClientServerSetupBase;
-
 import org.soapinterop.axis.CeltixEchoServiceLocator;
 import org.soapinterop.axis.InteropTestDocLitBindingStub;
 import org.soapinterop.axis.InteropTestPortType;
@@ -49,6 +46,7 @@ public class AxisClientEchoTest extends TestCase {
     }
 
     public void setUp() throws Exception {
+        
         java.net.URL url = new java.net.URL("http://localhost:9240/CeltixEchoService/Echo");
         binding = new CeltixEchoServiceLocator().getEcho(url);
         assertNotNull("Could not create binding", binding);
@@ -84,6 +82,10 @@ public class AxisClientEchoTest extends TestCase {
     }
 
     public void testVoid() throws Exception {
+        // sleep for a little to allow the response to the previous invocation
+        // to be fully read.  Axis and Jetty appear to have a problem with 
+        // synchronizing the two-way followed by  one-way.
+        Thread.sleep(2000);
         binding.echoVoid();
     }
 
@@ -220,7 +222,7 @@ public class AxisClientEchoTest extends TestCase {
         assertTrue("echoDate : incorrect return value", equalsDate(inCalendar, outCalendar));
     }
 
-    // XXX: Fails with Axis 1.3, passes with Axis 1.2
+    // : Fails with Axis 1.3, passes with Axis 1.2
     public void testDateTime() throws Exception {
         Calendar in = Calendar.getInstance();
         in.setTimeZone(TimeZone.getTimeZone("GMT"));
