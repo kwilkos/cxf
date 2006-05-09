@@ -54,15 +54,12 @@ public class PortInfoImplTest extends TestCase {
     }
     
     public void testEquals() { 
-        
-
         assertEquals(p1, p1);
         assertEquals(p1, p2);
         assertEquals(p2, p3);
         assertEquals(p1, p3);
         assertTrue(!p1.equals(p4));
-        assertTrue(!p1.equals(null));
-        assertTrue(!p1.equals("foobar"));
+        assertTrue(!p1.equals(Boolean.TRUE));
     }
     
     public void testHashCode() { 

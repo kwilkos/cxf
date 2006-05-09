@@ -32,7 +32,7 @@ public class BindingProviderImplTest extends TestCase {
         bindingProviderImpl.populateResponseContext(objectCtx);
         Map<String, Object> map = bindingProviderImpl.getResponseContext();
         String str = (String)map.get("foo");
-        assertTrue(str.equals("fooObject"));     
+        assertEquals("fooObject", str);     
     }
     
     public void testBinding() {

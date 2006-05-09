@@ -228,7 +228,7 @@
                     <dependency>
                         <groupId>pmd</groupId>
                         <artifactId>pmd</artifactId>
-                        <version>3.4</version>
+                        <version>3.6</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>xalan</groupId>

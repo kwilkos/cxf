@@ -65,7 +65,7 @@ public final class CallbackClientServerTest extends ClientServerTestBase {
         
         String resp = port.registerCallback(ref);
 
-        assertTrue(resp.equals("registerCallback called"));
+        assertEquals("registerCallback called", resp);
         
         try {
             bus.shutdown(true);

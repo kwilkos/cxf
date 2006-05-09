@@ -15,8 +15,14 @@
     <target name="pmd.null" depends="pmd.false"/>
     <target name="pmd.false" unless="no.pmd">
         <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask"/>
-        <pmd printToConsole="true" targetjdk="1.5" rulesetfiles="${basedir}/.ruleset" failonerror="true" failOnRuleViolation="true">
+        <mkdir dir="${basedir}/target"/>
+        <pmd targetjdk="1.5" rulesetfiles="${basedir}/.ruleset" failuresPropertyName="foundPMDFailure"> 
+            <formatter type="text" toFile="${basedir}/target/pmd.output"/>
             <fileset dir="." includes="src/**/*.java" excludes="src/**/build/**/*.java"/>
         </pmd>
+        <concat>
+            <fileset dir="${basedir}/target" includes="pmd.output"/>
+        </concat>
+        <fail message="${foundPMDFailure} PMD Error(s) Detected" if="foundPMDFailure"/>
     </target>
 </project>

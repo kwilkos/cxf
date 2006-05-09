@@ -17,7 +17,7 @@ import org.objectweb.hello_world_soap_http.types.NoSuchCodeLit;
 import org.objectweb.hello_world_soap_http.types.SayHiResponse;
 import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
 
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.assertEquals;
 @WebService(serviceName = "SOAPService", 
             portName = "SoapPort",
             endpointInterface = "org.objectweb.hello_world_soap_http.Greeter")
@@ -47,7 +47,7 @@ public class GreeterImpl implements Greeter {
 
     public void greetMeOneWay(String requestType) {
         System.out.println("*********  greetMeOneWay: " + requestType);
-        assertTrue(requestType.equals("TestSOAPInputMessage1"));
+        assertEquals("TestSOAPInputMessage1", requestType);
     }
     
     public String greetMeSometime(String me) {
