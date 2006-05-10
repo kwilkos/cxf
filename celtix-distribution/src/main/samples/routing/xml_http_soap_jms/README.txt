@@ -39,8 +39,8 @@ the demo.
 
 Using either UNIX or Windows:
 
-  ant server
   ant jmsbroker
+  ant server
   ant router
   ant client
 
