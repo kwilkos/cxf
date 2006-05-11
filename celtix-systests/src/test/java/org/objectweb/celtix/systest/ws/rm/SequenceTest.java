@@ -60,7 +60,7 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestTwowayNonAnonymousDeferred = true;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = true;    
     private boolean doTestTwowayNonAnonymousNoOffer;
-    private boolean doTestTwowayMessageLoss = true;
+    private boolean doTestTwowayMessageLoss;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
