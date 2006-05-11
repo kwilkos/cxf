@@ -1,6 +1,9 @@
 package org.objectweb.celtix.bus.bindings.xml;
 
 import java.io.*;
+
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.w3c.dom.*;
 
 import org.objectweb.celtix.helpers.XMLUtils;
@@ -11,7 +14,7 @@ public class XMLMessage {
     private XMLUtils xmlUtils = new XMLUtils();
     private XMLFault xmlFault;
 
-    public XMLMessage() {
+    public XMLMessage() throws ParserConfigurationException {
         this.root = xmlUtils.newDocument();
     }
     

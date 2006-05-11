@@ -9,6 +9,7 @@ import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -26,7 +27,6 @@ public class XMLUtils {
     
     private static final Logger LOG = LogUtils.getL7dLogger(XMLUtils.class);
     private final DocumentBuilderFactory parserFactory;
-    private DocumentBuilder parser;
     private final TransformerFactory transformerFactory;
     private String omitXmlDecl = "no";
     private String charset = "utf-8";
@@ -43,36 +43,32 @@ public class XMLUtils {
         return transformerFactory.newTransformer();
     }
 
-    private DocumentBuilder getParser() {
-        if (parser == null) {
-            try {
-                parser = parserFactory.newDocumentBuilder();
-            } catch (javax.xml.parsers.ParserConfigurationException e) {
-                LOG.log(Level.SEVERE, "NEW_DOCUMENT_BUILDER_EXCEPTION_MSG");
-            }
-        }
-        return parser;
+    private DocumentBuilder getParser() throws ParserConfigurationException {
+        return parserFactory.newDocumentBuilder();
     }
     
-    public Document parse(InputStream in) throws SAXException, IOException {
+    public Document parse(InputStream in) 
+        throws ParserConfigurationException, SAXException, IOException {
         if (in == null && LOG.isLoggable(Level.FINE)) {
             LOG.fine("XMLUtils trying to parse a null inputstream");
         }
         return getParser().parse(in);
     }
 
-    public Document parse(String in) throws SAXException, IOException {
+    public Document parse(String in) 
+        throws ParserConfigurationException, SAXException, IOException {
         return parse(in.getBytes());
     }
 
-    public Document parse(byte[] in) throws SAXException, IOException {
+    public Document parse(byte[] in) 
+        throws ParserConfigurationException, SAXException, IOException {
         if (in == null && LOG.isLoggable(Level.FINE)) {
             LOG.fine("XMLUtils trying to parse a null bytes");
         }
         return getParser().parse(new ByteArrayInputStream(in));
     }
 
-    public Document newDocument() {
+    public Document newDocument() throws ParserConfigurationException {
         return getParser().newDocument();
     }
 

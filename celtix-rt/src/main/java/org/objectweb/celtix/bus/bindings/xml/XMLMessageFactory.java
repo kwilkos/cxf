@@ -12,13 +12,18 @@ public final class XMLMessageFactory {
     private XMLMessageFactory() {
     }
     
-    public XMLMessage createMessage() throws XMLBindingException {
-        return new XMLMessage();
+    public XMLMessage createMessage() {
+        try {
+            return new XMLMessage();
+        } catch (Exception exp) {
+            throw new XMLBindingException("creation of XML message failed:", exp);
+        }
     }
 
     public XMLMessage createMessage(InputStream in) throws XMLBindingException {
-        XMLMessage message = new XMLMessage();
+        XMLMessage message = null;
         try {
+            message = new XMLMessage();
             Document doc = xmlUtils.parse(in);
             if (doc != null) {
                 message.setRoot(doc);
@@ -26,8 +31,7 @@ public final class XMLMessageFactory {
 
             buildFaultMessage(message, doc);
         } catch (Exception exp) {
-            exp.printStackTrace();
-            throw new XMLBindingException("Create XML binding message exception:", exp);
+            throw new XMLBindingException("creation or parsing of XML message failed:", exp);
         }
         return message;
     }

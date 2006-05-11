@@ -13,7 +13,5 @@ public class TestSOAPHTTPToXMLHTTPRouter extends DocLitGreeterRouterBase {
             new QName("http://objectweb.org/hello_world_doc_lit", "SOAPService");
         portName =
             new QName("http://objectweb.org/hello_world_doc_lit", "SoapPort");
-        
-        enableOneway = false;
     }
 }
