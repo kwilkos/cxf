@@ -40,8 +40,9 @@ public class RMBusLifeCycleListener implements BusLifeCycleListener {
         }
         
         Collection<SourceSequence> seqs = source.getAllUnacknowledgedSequences();
-        
-        LOG.fine("Trying to terminate " + seqs.size() + "  sequences");
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Trying to terminate " + seqs.size() + "  sequences");
+        }
         
         Collection<SourceSequence> closedSeqs = new ArrayList<SourceSequence>();
         

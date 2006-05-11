@@ -45,14 +45,12 @@ import org.objectweb.celtix.ws.rm.persistence.RMStore;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 
 public class RetransmissionQueue {
-    public static final QName EXPONENTIAL_BACKOFF_BASE_ATTR = 
-        new QName(RMHandler.RM_CONFIGURATION_URI, "exponentialBackoffBase");
+    public static final QName EXPONENTIAL_BACKOFF_BASE_ATTR = new QName(RMHandler.RM_CONFIGURATION_URI,
+                                                                        "exponentialBackoffBase");
     public static final String DEFAULT_BASE_RETRANSMISSION_INTERVAL = "3000";
     public static final String DEFAULT_EXPONENTIAL_BACKOFF = "2";
     private static final String SOAP_MSG_KEY = "org.objectweb.celtix.bindings.soap.message";
-    private static final Logger LOG =
-        LogUtils.getL7dLogger(RetransmissionQueue.class);
-    
+    private static final Logger LOG = LogUtils.getL7dLogger(RetransmissionQueue.class);
 
     private RMHandler handler;
     private RMSoapHandler rmSOAPHandler;
@@ -65,24 +63,22 @@ public class RetransmissionQueue {
     private boolean shutdown;
     private Resender resender;
     private Timer timer;
-    
+
     /**
      * Constructor.
      */
     public RetransmissionQueue(RMHandler h) {
-        this(h, Long.parseLong(DEFAULT_BASE_RETRANSMISSION_INTERVAL), 
-             Integer.parseInt(DEFAULT_EXPONENTIAL_BACKOFF));
+        this(h, Long.parseLong(DEFAULT_BASE_RETRANSMISSION_INTERVAL), Integer
+            .parseInt(DEFAULT_EXPONENTIAL_BACKOFF));
     }
-    
+
     /**
      * Constructor.
      */
     public RetransmissionQueue(RMHandler h, RMAssertionType rma) {
-        this(h, rma.getBaseRetransmissionInterval().getMilliseconds().longValue(),
-             Integer.parseInt(rma.getExponentialBackoff().getOtherAttributes()
-                              .get(EXPONENTIAL_BACKOFF_BASE_ATTR)));
+        this(h, rma.getBaseRetransmissionInterval().getMilliseconds().longValue(), Integer.parseInt(rma
+            .getExponentialBackoff().getOtherAttributes().get(EXPONENTIAL_BACKOFF_BASE_ATTR)));
     }
-    
 
     /**
      * Constructor.
@@ -90,26 +86,23 @@ public class RetransmissionQueue {
      * @param base the base retransmission interval
      * @param backoff the exponential backoff
      */
-    public RetransmissionQueue(RMHandler h, long base,
-                               int backoff) {
+    public RetransmissionQueue(RMHandler h, long base, int backoff) {
         handler = h;
         baseRetransmissionInterval = base;
         exponentialBackoff = backoff;
         candidates = new HashMap<String, List<ResendCandidate>>();
         resender = getDefaultResender();
     }
-    
+
     /**
      * Create default Resender logic.
      * 
      * @return default Resender
      */
-    protected final Resender getDefaultResender() {   
+    protected final Resender getDefaultResender() {
         return new Resender() {
-            public void resend(ObjectMessageContext context, 
-                               boolean requestAcknowledge) {
-                RMProperties properties = 
-                    RMContextUtils.retrieveRMProperties(context, true);
+            public void resend(ObjectMessageContext context, boolean requestAcknowledge) {
+                RMProperties properties = RMContextUtils.retrieveRMProperties(context, true);
                 SequenceType st = properties.getSequence();
                 if (st != null) {
                     LOG.log(Level.INFO, "RESEND_MSG", st.getMessageNumber());
@@ -124,11 +117,11 @@ public class RetransmissionQueue {
                     }
                 } catch (Exception e) {
                     LOG.log(Level.WARNING, "RESEND_FAILED_MSG", e);
-                }  
+                }
             }
         };
     };
-    
+
     /**
      * Refresh the MAPs with a new message ID (to avoid the resend being
      * rejected by the receiver-side WS-Addressing layer as a duplicate).
@@ -136,34 +129,33 @@ public class RetransmissionQueue {
      * @param context the message context
      */
     private void refreshMAPs(MessageContext context) {
-        AddressingProperties maps = 
-            ContextUtils.retrieveMAPs(context, false, true);
+        AddressingProperties maps = ContextUtils.retrieveMAPs(context, false, true);
         String uuid = ContextUtils.generateUUID();
         maps.setMessageID(ContextUtils.getAttributedURI(uuid));
     }
-    
+
     /**
-     * Refresh the RM Properties with an AckRequested if necessary.
-     * Currently the first resend for each sequence on each initiator iteration
-     * includes an AckRequested. The idea is that a timely ACK may cause some of
-     * of the resend to be avoided.
+     * Refresh the RM Properties with an AckRequested if necessary. Currently
+     * the first resend for each sequence on each initiator iteration includes
+     * an AckRequested. The idea is that a timely ACK may cause some of of the
+     * resend to be avoided.
      * 
      * @param context the message context
-     * @param requestAcknowledge true if an AckRequested header should be included 
+     * @param requestAcknowledge true if an AckRequested header should be
+     *            included
      */
     private void refreshRMProperties(MessageContext context, boolean requestAcknowledge) {
-        RMProperties properties =
-            RMContextUtils.retrieveRMProperties(context, true);
+        RMProperties properties = RMContextUtils.retrieveRMProperties(context, true);
         List<AckRequestedType> requests = null;
         if (requestAcknowledge) {
             requests = new ArrayList<AckRequestedType>();
             requests.add(RMUtils.getWSRMFactory().createAckRequestedType());
             Identifier id = properties.getSequence().getIdentifier();
             requests.get(0).setIdentifier(id);
-        } 
+        }
         properties.setAcksRequested(requests);
     }
-    
+
     /**
      * Create a client request for retransmission.
      * 
@@ -185,18 +177,17 @@ public class RetransmissionQueue {
      */
     private void clientResend(ObjectMessageContext context) throws IOException {
         Request request = createClientRequest(context);
-        OutputStreamMessageContext outputStreamContext =
-            request.process(null, true, true);
+        OutputStreamMessageContext outputStreamContext = request.process(null, true, true);
         ClientTransport transport = handler.getClientTransport();
         if (transport != null) {
-            // decoupled response channel always being used with RM, 
+            // decoupled response channel always being used with RM,
             // hence a partial response must be processed
             invokePartial(request, transport, outputStreamContext);
         } else {
             LOG.log(Level.WARNING, "NO_TRANSPORT_FOR_RESEND_MSG");
         }
     }
-    
+
     /**
      * Create a server request for retransmission.
      * 
@@ -210,7 +201,6 @@ public class RetransmissionQueue {
         request.setOneway(false);
         return request;
     }
-
 
     /**
      * Server-side resend.
@@ -226,45 +216,40 @@ public class RetransmissionQueue {
             LOG.log(Level.WARNING, "NO_TRANSPORT_FOR_RESEND_MSG");
         }
     }
-    
+
     /**
      * Invoke a oneway operation, allowing for a partial response.
      * 
      * @param request the request
-     * @param transport the client transport 
+     * @param transport the client transport
      * @param outputStreamContext the output stream message context
      */
-    private void invokePartial(Request request,
-                               ClientTransport transport,
-                               OutputStreamMessageContext outputStreamContext)
-        throws IOException {
-        InputStreamMessageContext inputStreamContext =
-            transport.invoke(outputStreamContext);
-        Response response = new Response(request);     
+    private void invokePartial(Request request, ClientTransport transport,
+                               OutputStreamMessageContext outputStreamContext) throws IOException {
+        InputStreamMessageContext inputStreamContext = transport.invoke(outputStreamContext);
+        Response response = new Response(request);
         response.processProtocol(inputStreamContext);
         response.processLogical(null);
     }
 
     /**
-     * Populates the retransmission queue with messages recovered from persistent
-     * store.
-     *
+     * Populates the retransmission queue with messages recovered from
+     * persistent store.
      */
-    protected void populate(Collection<SourceSequence> seqs) { 
-        LOG.fine(seqs.size() + " active sequences");
+    protected void populate(Collection<SourceSequence> seqs) {
         RMStore store = handler.getStore();
-        for (SourceSequence seq : seqs) {
-            Collection<RMMessage> msgs  = store.getMessages(seq.getIdentifier(), true);
-            LOG.fine("Recovered " + msgs.size() + " messages for this sequence");
-            for (RMMessage msg : msgs) {
-                ObjectMessageContext objCtx = new ObjectMessageContextImpl();
-                objCtx.putAll(msg.getContext());
-                cacheUnacknowledged(objCtx);
-                LOG.fine("cached unacknowledged message nr: " + msg.getMessageNr());
+        if (null != store) {
+            for (SourceSequence seq : seqs) {
+                Collection<RMMessage> msgs = store.getMessages(seq.getIdentifier(), true);
+                for (RMMessage msg : msgs) {
+                    ObjectMessageContext objCtx = new ObjectMessageContextImpl();
+                    objCtx.putAll(msg.getContext());
+                    cacheUnacknowledged(objCtx);
+                }
             }
-        }         
+        }
     }
-    
+
     protected RMSoapHandler getRMSoapHandler() {
         if (null == rmSOAPHandler) {
             AbstractBindingImpl abi = handler.getBinding().getBindingImpl();
@@ -273,11 +258,11 @@ public class RetransmissionQueue {
                 if (h instanceof RMSoapHandler) {
                     rmSOAPHandler = (RMSoapHandler)h;
                 }
-            } 
+            }
         }
         return rmSOAPHandler;
     }
-    
+
     protected MAPCodec getWsaSOAPHandler() {
         if (null == wsaSOAPHandler) {
             AbstractBindingImpl abi = handler.getBinding().getBindingImpl();
@@ -286,20 +271,20 @@ public class RetransmissionQueue {
                 if (h instanceof MAPCodec) {
                     wsaSOAPHandler = (MAPCodec)h;
                 }
-            } 
+            }
         }
         return wsaSOAPHandler;
     }
 
     /**
      * Plug in replacement resend logic (facilitates unit testing).
-     *  
+     * 
      * @param replacement resend logic
      */
     protected void replaceResender(Resender replacement) {
-        resender = replacement;    
+        resender = replacement;
     }
-    
+
     /**
      * Initiate resends.
      * 
@@ -309,25 +294,24 @@ public class RetransmissionQueue {
         if (null == workQueue) {
             LOG.fine("Starting retransmission queue");
             workQueue = queue;
-            // workQueue.schedule(getResendInitiator(), baseRetransmissionInterval); 
-            
+
             TimerTask task = new TimerTask() {
                 public void run() {
                     getResendInitiator().run();
                 }
             };
             timer = new Timer();
-            timer.schedule(task, getBaseRetransmissionInterval(), getBaseRetransmissionInterval());  
+            timer.schedule(task, getBaseRetransmissionInterval(), getBaseRetransmissionInterval());
         }
     }
-    
+
     protected void stop() {
         if (null != timer) {
             LOG.fine("Stopping retransmission queue");
             timer.cancel();
         }
     }
-    
+
     /**
      * Accepts a new resend candidate.
      * 
@@ -340,7 +324,7 @@ public class RetransmissionQueue {
         if (null == rmps) {
             SOAPMessage message = (SOAPMessage)ctx.get(SOAP_MSG_KEY);
             rmps = getRMSoapHandler().unmarshalRMProperties(message);
-            RMContextUtils.storeRMProperties(ctx, rmps, true);            
+            RMContextUtils.storeRMProperties(ctx, rmps, true);
         }
         AddressingProperties maps = ContextUtils.retrieveMAPs(ctx, false, true);
         if (null == maps) {
@@ -352,13 +336,12 @@ public class RetransmissionQueue {
                 ex.printStackTrace();
             }
         }
-        
+
         SequenceType st = rmps.getSequence();
         Identifier sid = st.getIdentifier();
         synchronized (this) {
             String key = sid.getValue();
-            List<ResendCandidate> sequenceCandidates =
-                getSequenceCandidates(key);
+            List<ResendCandidate> sequenceCandidates = getSequenceCandidates(key);
             if (null == sequenceCandidates) {
                 sequenceCandidates = new ArrayList<ResendCandidate>();
                 candidates.put(key, sequenceCandidates);
@@ -370,8 +353,7 @@ public class RetransmissionQueue {
     }
 
     /**
-     * Purge all candidates for the given sequence that
-     * have been acknowledged.
+     * Purge all candidates for the given sequence that have been acknowledged.
      * 
      * @param seq the sequence object.
      */
@@ -395,7 +377,10 @@ public class RetransmissionQueue {
             }
         }
         if (purged.size() > 0) {
-            handler.getStore().removeMessages(seq.getIdentifier(), purged, true);
+            RMStore store = handler.getStore();
+            if (null != store) {
+                store.removeMessages(seq.getIdentifier(), purged, true);
+            }
         }
     }
 
@@ -407,15 +392,15 @@ public class RetransmissionQueue {
         List<ResendCandidate> sequenceCandidates = getSequenceCandidates(seq);
         return sequenceCandidates == null ? 0 : sequenceCandidates.size();
     }
-    
+
     /**
-     * @return a map relating sequence ID to a lists of un-acknowledged 
-     * messages for that sequence
+     * @return a map relating sequence ID to a lists of un-acknowledged messages
+     *         for that sequence
      */
     protected Map<String, List<ResendCandidate>> getUnacknowledged() {
         return candidates;
     }
-    
+
     /**
      * @param seq the sequence under consideration
      * @return the list of resend candidates for that sequence
@@ -424,7 +409,7 @@ public class RetransmissionQueue {
     protected List<ResendCandidate> getSequenceCandidates(SourceSequence seq) {
         return getSequenceCandidates(seq.getIdentifier().getValue());
     }
-    
+
     /**
      * @param key the sequence identifier under consideration
      * @return the list of resend candidates for that sequence
@@ -433,21 +418,21 @@ public class RetransmissionQueue {
     protected List<ResendCandidate> getSequenceCandidates(String key) {
         return candidates.get(key);
     }
-   
+
     /**
      * @return the base retransmission interval
      */
     protected long getBaseRetransmissionInterval() {
         return baseRetransmissionInterval;
     }
-    
+
     /**
      * @return the exponential backoff
      */
     protected int getExponentialBackoff() {
         return exponentialBackoff;
     }
-    
+
     /**
      * Shutdown.
      */
@@ -461,7 +446,7 @@ public class RetransmissionQueue {
     protected synchronized boolean isShutdown() {
         return shutdown;
     }
-    
+
     /**
      * @return the ResendInitiator
      */
@@ -473,27 +458,26 @@ public class RetransmissionQueue {
     }
 
     /**
-     * @param context the message context 
+     * @param context the message context
      * @return a ResendCandidate
      */
     protected ResendCandidate createResendCandidate(ObjectMessageContext context) {
         return new ResendCandidate(context);
     }
-    
+
     /**
-     * Manages scheduling of resend attempts.
-     * A single task runs every base transmission interval,
-     * determining which resend candidates are due a resend attempt.
+     * Manages scheduling of resend attempts. A single task runs every base
+     * transmission interval, determining which resend candidates are due a
+     * resend attempt.
      */
     protected class ResendInitiator implements Runnable {
         public void run() {
             // iterate over resend candidates, resending any that are due
             synchronized (RetransmissionQueue.this) {
-                Iterator<Map.Entry<String, List<ResendCandidate>>> sequences = 
-                    candidates.entrySet().iterator();
+                Iterator<Map.Entry<String, List<ResendCandidate>>> sequences = candidates.entrySet()
+                    .iterator();
                 while (sequences.hasNext()) {
-                    Iterator<ResendCandidate> sequenceCandidates =
-                        sequences.next().getValue().iterator();
+                    Iterator<ResendCandidate> sequenceCandidates = sequences.next().getValue().iterator();
                     boolean requestAck = true;
                     while (sequenceCandidates.hasNext()) {
                         ResendCandidate candidate = sequenceCandidates.next();
@@ -505,20 +489,18 @@ public class RetransmissionQueue {
                 }
             }
             /*
-            if (!isShutdown()) {
-                // schedule next resend initiation task (rescheduling each time,
-                // as opposed to scheduling a periodic task, eliminates the
-                // potential for simultaneous execution)
-                workQueue.schedule(this, getBaseRetransmissionInterval());
-            }
-            */
+             * if (!isShutdown()) { // schedule next resend initiation task
+             * (rescheduling each time, // as opposed to scheduling a periodic
+             * task, eliminates the // potential for simultaneous execution)
+             * workQueue.schedule(this, getBaseRetransmissionInterval()); }
+             */
         }
     }
-    
+
     /**
-     * Represents a candidate for resend, i.e. an unacked outgoing message.
-     * When this is determined as due another resend attempt, an asynchronous
-     * task is scheduled for this purpose.
+     * Represents a candidate for resend, i.e. an unacked outgoing message. When
+     * this is determined as due another resend attempt, an asynchronous task is
+     * scheduled for this purpose.
      */
     protected class ResendCandidate implements Runnable {
         private ObjectMessageContext context;
@@ -535,7 +517,7 @@ public class RetransmissionQueue {
             skipped = -1;
             skips = 1;
         }
-        
+
         /**
          * Async resend logic.
          */
@@ -551,10 +533,10 @@ public class RetransmissionQueue {
                 attempted();
             }
         }
-        
+
         /**
-         * @return true if candidate is due a resend
-         * REVISIT should bound the max number of resend attampts
+         * @return true if candidate is due a resend REVISIT should bound the
+         *         max number of resend attampts
          */
         protected synchronized boolean isDue() {
             boolean due = false;
@@ -564,29 +546,29 @@ public class RetransmissionQueue {
                 skips *= getExponentialBackoff();
                 skipped = 0;
                 due = true;
-            }                    
+            }
             return due;
         }
-        
+
         /**
          * @return if resend attempt is pending
          */
         protected synchronized boolean isPending() {
             return pending;
         }
-       
+
         /**
          * Initiate resend asynchronsly.
          * 
-         * @param requestAcknowledge true if a AckRequest header is to be sent with
-         * resend
+         * @param requestAcknowledge true if a AckRequest header is to be sent
+         *            with resend
          */
         protected synchronized void initiate(boolean requestAcknowledge) {
             includeAckRequested = requestAcknowledge;
             pending = true;
             workQueue.execute(this);
         }
-        
+
         /**
          * ACK has been received for this candidate.
          */
@@ -594,14 +576,14 @@ public class RetransmissionQueue {
             pending = false;
             skips = Integer.MAX_VALUE;
         }
-        
+
         /**
          * @return associated message context
          */
         protected MessageContext getContext() {
             return context;
         }
-                        
+
         /**
          * A resend has been attempted.
          */
@@ -609,10 +591,10 @@ public class RetransmissionQueue {
             pending = false;
         }
     }
-    
+
     /**
      * Encapsulates actual resend logic (pluggable to facilitate unit testing)
-     */ 
+     */
     public interface Resender {
         /**
          * Resend mechanics.

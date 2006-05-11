@@ -68,17 +68,22 @@ public class RMSource extends RMEndpoint {
     }
     
     public void addSequence(SourceSequence seq, boolean persist) {
-        LOG.fine("Adding source sequence: " + seq);
         seq.setSource(this);
         map.put(seq.getIdentifier().getValue(), seq);
         if (persist) {
-            getHandler().getStore().createSourceSequence(seq);
+            RMStore store = getHandler().getStore();
+            if (null != store) {
+                store.createSourceSequence(seq);
+            }
         }
     }
     
     public void removeSequence(SourceSequence seq) {        
         map.remove(seq.getIdentifier().getValue());
-        getHandler().getStore().removeSourceSequence(seq.getIdentifier());
+        RMStore store = getHandler().getStore();
+        if (null != store) {
+            store.removeSourceSequence(seq.getIdentifier());
+        }
     }
     
     public final Collection<SourceSequence> getAllSequences() {        
@@ -204,7 +209,10 @@ public class RMSource extends RMEndpoint {
         ObjectMessageContext clone = getHandler().getBinding().createObjectContext();
         clone.putAll(msg.getContext());
         getRetransmissionQueue().cacheUnacknowledged(clone); 
-        getHandler().getStore().persistOutgoing(seq, msg);
+        RMStore store = getHandler().getStore();
+        if (null != store) {
+            store.persistOutgoing(seq, msg);
+        }
     }
 
     /**
@@ -255,6 +263,10 @@ public class RMSource extends RMEndpoint {
     void restore() {
         RMStore store = getHandler().getStore();
         
+        if (null == store) {
+            return;
+        }
+        
         Collection<RMSourceSequence> dss = store.getSourceSequences(getEndpointId());
         // Don't make any of these sequences the current sequence, thus forcing
         // termination of the recovered sequences as soon as possible
@@ -265,7 +277,9 @@ public class RMSource extends RMEndpoint {
         retransmissionQueue.populate(getAllSequences());
         int n = retransmissionQueue.getUnacknowledged().size();
         if (n > 0) {
-            LOG.fine("Recovered " + n + " messages, start retransmission queue now");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Recovered " + n + " messages, start retransmission queue now");
+            }
             retransmissionQueue.start(getHandler().getBus().getWorkQueueManager().getAutomaticWorkQueue());
         } else {
             LOG.fine("No outgoing messages recovered");

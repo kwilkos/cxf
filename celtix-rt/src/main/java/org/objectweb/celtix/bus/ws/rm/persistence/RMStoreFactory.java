@@ -20,7 +20,9 @@ public class RMStoreFactory {
     public RMStore getStore(Configuration c) {
         
         StoreType s = c.getObject(StoreType.class, "store");
-        assert null != s;
+        if (null == s) {
+            return null;
+        }
         
         if (null == theStore) {
             createStore(s);

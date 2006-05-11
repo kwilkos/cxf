@@ -24,9 +24,12 @@ import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceType;
 
 
+
 public class MessageFlow extends Assert {
+    
     private List<SOAPMessage> outboundMessages;
     private List<LogicalMessageContext> inboundContexts;
+    
     
     public MessageFlow(List<SOAPMessage> o, List<LogicalMessageContext> i) {
         outboundMessages = o;
@@ -304,17 +307,37 @@ public class MessageFlow extends Assert {
             assertEquals("Did not send the expected number of outbound messages." + outboundDump(), 
                          nExpected, outboundMessages.size());
         } else {
-            assertEquals("Did not receive the expected number of inbound messages.", 
+            assertEquals("Did not receive the expected number of inbound messages.",
                          nExpected, inboundContexts.size());
         }
     }
     
-    public void purgePartialResponses() {
+    public void purgePartialResponses() throws Exception {
         for (int i = inboundContexts.size() - 1; i >= 0; i--) {
-            if (null == getAction(inboundContexts.get(i))) {
+            if (isPartialResponse(inboundContexts.get(i))) {
                 inboundContexts.remove(i);
             }
         }
+    }
+    
+    public void verifyPartialResponses(int nExpected) throws Exception {
+        int npr = 0;
+        for (int i =  0; i < inboundContexts.size(); i++) {
+            if (isPartialResponse(inboundContexts.get(i))) {
+                npr++;   
+            }
+        }
+        assertEquals("Inbound messages did not contain expected number of partial responses.",
+                     nExpected, npr);
+    }
+    
+    public boolean isPartialResponse(LogicalMessageContext ctx) throws Exception {
+        return null == getAction(ctx) && emptyBody(ctx);
+    }
+    
+    public boolean emptyBody(LogicalMessageContext ctx) throws Exception {
+        return !((SOAPMessage)ctx.get("org.objectweb.celtix.bindings.soap.message"))
+            .getSOAPPart().getEnvelope().getBody().hasChildNodes();
     }
     
     private String outboundDump() {
@@ -337,4 +360,5 @@ public class MessageFlow extends Assert {
         
         return buf.toString();
     }
+    
 }

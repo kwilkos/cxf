@@ -54,10 +54,7 @@
             Used for configuring the RM persistent store.
         </cm:description>
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
-        <wsrm-conf:store>
-            <wsrm-conf:store-name>File based store</wsrm-conf:store-name>
-            <wsrm-conf:store-class>org.objectweb.celtix.bus.ws.rm.persistence.file.RMFileStore</wsrm-conf:store-class>
-        </wsrm-conf:store>
+        <!-- no default, i.e. no persistence by default -->
     </cm:configItem>
     
 </cm:config>

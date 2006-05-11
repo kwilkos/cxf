@@ -315,7 +315,9 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
                 inSeqId = rmpsIn.getSequence().getIdentifier();
                 inMessageNumber = rmpsIn.getSequence().getMessageNumber();
             }
-            LOG.fine("inbound sequence: " + (null == inSeqId ? "null" : inSeqId.getValue()));
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("inbound sequence: " + (null == inSeqId ? "null" : inSeqId.getValue()));
+            }
 
             // not for partial responses to oneway requests
 

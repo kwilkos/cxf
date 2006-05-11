@@ -49,7 +49,6 @@ public class RMServant {
             supportedDuration = SourceSequence.PT0S;
         }
         Expires ex = cs.getExpires();
-        LOG.info("supported duration: "  + supportedDuration);
 
         if (null != ex || supportedDuration.isShorterThan(SourceSequence.PT0S)) {
             Duration effectiveDuration = supportedDuration;
@@ -75,11 +74,15 @@ public class RMServant {
                 seq.setExpires(offer.getExpires());
                 seq.setTarget(VersionTransformer.convert(cs.getAcksTo()));
                 source.addSequence(seq);
-                source.setCurrent(csr.getIdentifier(), seq);      
-                LOG.fine("Making offered sequence the current sequence for responses to "
-                         + csr.getIdentifier().getValue());
+                source.setCurrent(csr.getIdentifier(), seq);  
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Making offered sequence the current sequence for responses to "
+                             + csr.getIdentifier().getValue());
+                }
             } else {
-                LOG.fine("Refusing inbound sequence offer"); 
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Refusing inbound sequence offer"); 
+                }
                 accept.setAcksTo(RMUtils.createReference(Names.WSA_NONE_ADDRESS));
             }
             csr.setAccept(accept);

@@ -41,13 +41,19 @@ public class RMDestination extends RMEndpoint {
         seq.setDestination(this);
         map.put(seq.getIdentifier().getValue(), seq);
         if (persist) {
-            getHandler().getStore().createDestinationSequence(seq);
+            RMStore store = getHandler().getStore();
+            if (null != store) {
+                store.createDestinationSequence(seq);
+            }
         }
     }
     
     public void removeSequence(DestinationSequence seq) {        
         map.remove(seq.getIdentifier().getValue());
-        getHandler().getStore().removeDestinationSequence(seq.getIdentifier());
+        RMStore store = getHandler().getStore();
+        if (null != store) {
+            store.removeDestinationSequence(seq.getIdentifier());
+        }
     }
     
     public Collection<DestinationSequence> getAllSequences() {        
@@ -116,10 +122,11 @@ public class RMDestination extends RMEndpoint {
     
     void restore() {
         RMStore store = getHandler().getStore();
-        
-        Collection<RMDestinationSequence> dss = store.getDestinationSequences(getEndpointId());
-        for (RMDestinationSequence ds : dss) {
-            addSequence((DestinationSequence)ds, false);
-        } 
+        if (null != store) {
+            Collection<RMDestinationSequence> dss = store.getDestinationSequences(getEndpointId());
+            for (RMDestinationSequence ds : dss) {
+                addSequence((DestinationSequence)ds, false);
+            }
+        }
     }
 }
