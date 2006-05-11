@@ -217,7 +217,10 @@ public class ParameterProcessor extends AbstractProcessor {
             processOutput(method, inputMessage, outputMessage, isRequestResponse);
             return;
         }
-
+        if (outputParts.size() == 0) {
+            addVoidReturn(method);
+            return;
+        }
         Part inputPart = inputParts.iterator().next();
         Part outputPart = outputParts.iterator().next();
         List<? extends Property> inputBlock = ProcessorUtil.getBlock(inputPart, env);
