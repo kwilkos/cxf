@@ -13,6 +13,7 @@ import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
+import org.objectweb.celtix.ws.rm.AcceptType;
 import org.objectweb.celtix.ws.rm.CreateSequenceResponseType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
 import org.objectweb.celtix.ws.rm.Expires;
@@ -26,7 +27,9 @@ public class RMServantTest extends TestCase {
     
     private IMocksControl control = createNiceControl();
     private RMDestination dest;
+    private RMSource src;
     private CreateSequenceType cs;
+    private CreateSequenceResponseType csResp;
     private AttributedURIType to;
     private DestinationPolicyType dp;
     private Identifier sid;
@@ -101,7 +104,48 @@ public class RMServantTest extends TestCase {
         (new RMServant()).terminateSequence(dest, sid);
         
     }
+
+    public void testCreateSequenceResponseNotAccepted() {
+        setupCreateSequenceResponse(false);
+        Identifier unattachedId = control.createMock(Identifier.class);
+        control.replay();
+        
+        RMServant servant = new RMServant();
+        servant.setUnattachedIdentifier(unattachedId);
+        servant.createSequenceResponse(src, csResp, null);
     
+        control.verify();
+    }
+    
+    public void testCreateSequenceResponseAccepted() {
+        setupCreateSequenceResponse(true);
+        Identifier unattachedId = control.createMock(Identifier.class);
+        Identifier offeredId = control.createMock(Identifier.class);
+        control.replay();
+        
+        RMServant servant = new RMServant();
+        servant.setUnattachedIdentifier(unattachedId);
+        servant.createSequenceResponse(src, csResp, offeredId);
+    
+        control.verify();
+    }
+    
+    public void testUnattachedIdentifier() throws SequenceFault {
+        Identifier unattachedId = control.createMock(Identifier.class);
+        control.replay();
+        
+        RMServant servant = new RMServant();
+        assertNull("unexpected unattached ID",
+                   servant.clearUnattachedIdentifier());
+        servant.setUnattachedIdentifier(unattachedId);
+        assertSame("unexpected unattached ID",
+                   unattachedId,
+                   servant.clearUnattachedIdentifier());
+        assertNull("unexpected unattached ID",
+                   servant.clearUnattachedIdentifier());
+    }
+
+
     // expires = "PT24H";
     
     private void setupCreateSequence(String supportedDuration, String requestedDuration, 
@@ -141,6 +185,34 @@ public class RMServantTest extends TestCase {
         expectLastCall().andReturn(ex);        
         
         setupOffer(includeOffer, acceptOffer);
+    }
+    
+    private void setupCreateSequenceResponse(boolean accepted) {
+        src = control.createMock(RMSource.class);
+        dest = control.createMock(RMDestination.class);
+        sid = control.createMock(Identifier.class);
+        csResp = control.createMock(CreateSequenceResponseType.class);
+        csResp.getIdentifier();
+        expectLastCall().andReturn(sid);
+        src.addSequence(isA(SourceSequence.class));
+        expectLastCall();
+        src.setCurrent(isA(Identifier.class), isA(SourceSequence.class));
+        expectLastCall();
+        if (accepted) {
+            RMHandler handler = control.createMock(RMHandler.class);
+            src.getHandler();
+            expectLastCall().andReturn(handler);
+            handler.getDestination();
+            expectLastCall().andReturn(dest);
+            AcceptType accept = control.createMock(AcceptType.class);
+            csResp.getAccept();
+            expectLastCall().andReturn(accept).times(3);
+            accept.getAcksTo();
+            EndpointReferenceType acksTo = TestUtils.getOldEPR("acks");
+            expectLastCall().andReturn(acksTo).times(2);
+            dest.addSequence(isA(DestinationSequence.class));
+            expectLastCall();
+        }
     }
 
     private void setupOffer(boolean includeOffer, boolean acceptOffer)

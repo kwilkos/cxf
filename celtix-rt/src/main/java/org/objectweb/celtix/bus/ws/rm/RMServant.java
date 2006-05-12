@@ -117,6 +117,9 @@ public class RMServant {
             RMDestination dest = source.getHandler().getDestination();
             String address = csr.getAccept().getAcksTo().getAddress().getValue();
             if (!RMUtils.getAddressingConstants().getNoneURI().equals(address)) {
+                //System.out.println("\n***offered: " + offeredId
+                //                   + " csr: " + csr + " accept: "
+                //                   + csr.getAccept() + "\n");
                 DestinationSequence ds = 
                     new DestinationSequence(offeredId, csr.getAccept().getAcksTo(), dest);
                 dest.addSequence(ds);

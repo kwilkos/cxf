@@ -348,4 +348,15 @@ public class DestinationSequenceTest extends TestCase {
         seq.acknowledgmentSent();
         assertFalse(seq.sendAcknowledgement());
     }
+    
+    public void testCorrelationID() {
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
+        String correlationID = "abdc1234";
+        assertNull("unexpected correlation ID", seq.getCorrelationID());
+        seq.setCorrelationID(correlationID);
+        assertEquals("unexpected correlation ID",
+                     correlationID,
+                     seq.getCorrelationID());
+    }
+
 }

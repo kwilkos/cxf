@@ -127,6 +127,83 @@ public class RMSourceTest extends TestCase {
         assertNull(s.getCurrent(sid));
     }
     
+    public void testAwaitCurrentRequestor() throws Exception {
+        Identifier sid = s.generateSequenceIdentifier();
+        SequenceAccessor accessor1 = new SequenceAccessor(null);
+        Thread t1 = new Thread(accessor1);
+        t1.start();
+        Thread.yield();
+        assertEquals("expected blocked accessor thread",
+                     Thread.State.WAITING,
+                     t1.getState());
+        
+        SourceSequence seq = new SourceSequence(sid);
+        s.setCurrent(seq);
+        Thread.yield();
+        assertTrue("unexpected blocked accessor thread",
+                   Thread.State.RUNNABLE.equals(t1.getState())
+                   || Thread.State.TERMINATED.equals(t1.getState()));
+        assertSame("unexpected sequence",
+                   seq,
+                   accessor1.getSequence());
+        assertSame("unexpected sequence",
+                   seq,
+                   s.getCurrent());
+        
+        SequenceAccessor accessor2 = new SequenceAccessor(null);
+        Thread t2 = new Thread(accessor2);
+        t2.start();
+        Thread.yield();
+        assertTrue("unexpected blocked accessor thread",
+                   Thread.State.RUNNABLE.equals(t2.getState())
+                   || Thread.State.TERMINATED.equals(t2.getState()));
+        assertSame("unexpected sequence",
+                   seq,
+                   accessor2.getSequence());
+        assertSame("unexpected sequence",
+                   seq,
+                   s.getCurrent());
+    }
+    
+    public void testAwaitCurrentResponder() throws Exception {
+        Identifier sid = s.generateSequenceIdentifier();
+        SequenceAccessor accessor1 = new SequenceAccessor(sid);
+        Thread t1 = new Thread(accessor1);
+        t1.start();
+        Thread.yield();
+        assertEquals("expected blocked accessor thread",
+                     Thread.State.WAITING,
+                     t1.getState());
+        
+        SourceSequence seq = new SourceSequence(sid);
+        s.setCurrent(sid, seq);
+        Thread.yield();
+        assertTrue("unexpected blocked accessor thread",
+                   Thread.State.RUNNABLE.equals(t1.getState())
+                   || Thread.State.TERMINATED.equals(t1.getState()));
+        assertSame("unexpected sequence",
+                   seq,
+                   accessor1.getSequence());
+        assertSame("unexpected sequence",
+                   seq,
+                   s.getCurrent(sid));
+        
+        SequenceAccessor accessor2 = new SequenceAccessor(sid);
+        Thread t2 = new Thread(accessor2);
+        t2.start();
+        Thread.yield();
+        assertTrue("unexpected blocked accessor thread",
+                   Thread.State.RUNNABLE.equals(t2.getState())
+                   || Thread.State.TERMINATED.equals(t2.getState()));
+        assertSame("unexpected sequence",
+                   seq,
+                   accessor2.getSequence());
+        assertSame("unexpected sequence",
+                   seq,
+                   s.getCurrent(sid));
+    }
+
+    
     public void testAddUnacknowledged() {
         ObjectMessageContext ctx = new ObjectMessageContextImpl();
         AddressingProperties maps = new AddressingPropertiesImpl();
@@ -264,4 +341,22 @@ public class RMSourceTest extends TestCase {
         control.reset();
         return src;
     }
+        
+    private class SequenceAccessor implements Runnable {
+        Identifier id;
+        SourceSequence sequence;
+        
+        SequenceAccessor(Identifier i) {
+            id = i;
+        }
+        
+        public void run() {
+            sequence = s.awaitCurrent(id);
+        }
+        
+        SourceSequence getSequence() {
+            return sequence;
+        }
+    }
+
 }

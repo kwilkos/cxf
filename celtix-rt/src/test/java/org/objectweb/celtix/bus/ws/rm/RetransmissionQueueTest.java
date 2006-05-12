@@ -54,14 +54,16 @@ public class RetransmissionQueueTest extends TestCase {
         new ArrayList<SequenceType>();
     private List<Identifier> identifiers =
         new ArrayList<Identifier>();
+    private List<Object> mocks =
+        new ArrayList<Object>();
     
     public void setUp() {
         control = EasyMock.createNiceControl();
-        handler = control.createMock(RMHandler.class);
+        handler = createMock(RMHandler.class);
         queue = new RetransmissionQueue(handler);
         resender = new TestResender();
         queue.replaceResender(resender);
-        workQueue = control.createMock(WorkQueue.class);
+        workQueue = createMock(WorkQueue.class);
         /*
         workQueue.schedule(queue.getResendInitiator(), 
                            queue.getBaseRetransmissionInterval());        
@@ -74,8 +76,10 @@ public class RetransmissionQueueTest extends TestCase {
         contexts.clear();
         properties.clear();
         sequences.clear();
+        mocks.clear();
+        control.reset();
     }
-
+    
     public void testCtor() {
         ready();
         assertNotNull("expected unacked map", queue.getUnacknowledged());
@@ -413,7 +417,7 @@ public class RetransmissionQueueTest extends TestCase {
                                         BigInteger messageNumber,
                                         boolean storeSequence) {
         ObjectMessageContext context =
-            control.createMock(ObjectMessageContext.class);
+            createMock(ObjectMessageContext.class);
         if (storeSequence) {
             setUpSequenceType(context, sid, messageNumber);
         }
@@ -423,7 +427,7 @@ public class RetransmissionQueueTest extends TestCase {
     }
     
     private void setupContextMAPs(ObjectMessageContext context) {
-        AddressingPropertiesImpl maps = control.createMock(AddressingPropertiesImpl.class);
+        AddressingPropertiesImpl maps = createMock(AddressingPropertiesImpl.class);
         context.get(CLIENT_ADDRESSING_PROPERTIES_OUTBOUND);
         EasyMock.expectLastCall().andReturn(maps);
     }
@@ -446,7 +450,7 @@ public class RetransmissionQueueTest extends TestCase {
         properties.get(i).getSequence();
         EasyMock.expectLastCall().andReturn(sequences.get(i)).times(2);
         AddressingPropertiesImpl maps =
-            control.createMock(AddressingPropertiesImpl.class);
+            createMock(AddressingPropertiesImpl.class);
         contexts.get(i).get(REQUESTOR_ROLE_PROPERTY);
         EasyMock.expectLastCall().andReturn(Boolean.valueOf(isRequestor)).times(2);
         contexts.get(i).get(SERVER_ADDRESSING_PROPERTIES_OUTBOUND);
@@ -454,8 +458,8 @@ public class RetransmissionQueueTest extends TestCase {
         sequences.get(i).getIdentifier();
         EasyMock.expectLastCall().andReturn(identifiers.get(i));
         Transport transport = isRequestor
-                              ? control.createMock(ClientTransport.class)
-                              : control.createMock(ServerTransport.class);
+                              ? createMock(ClientTransport.class)
+                              : createMock(ServerTransport.class);
         if (isRequestor) {
             handler.getClientTransport();
             EasyMock.expectLastCall().andReturn(transport).times(2);
@@ -464,25 +468,25 @@ public class RetransmissionQueueTest extends TestCase {
             EasyMock.expectLastCall().andReturn(transport).times(1);
         }
         AbstractBindingBase binding = 
-            control.createMock(AbstractBindingBase.class);
+            createMock(AbstractBindingBase.class);
         handler.getBinding();
         EasyMock.expectLastCall().andReturn(binding);
         HandlerInvoker handlerInvoker =
-            control.createMock(HandlerInvoker.class);
+            createMock(HandlerInvoker.class);
         binding.createHandlerInvoker();
         EasyMock.expectLastCall().andReturn(handlerInvoker);
         AbstractBindingImpl bindingImpl = 
-            control.createMock(AbstractBindingImpl.class);
+            createMock(AbstractBindingImpl.class);
         binding.getBindingImpl();
         EasyMock.expectLastCall().andReturn(bindingImpl).times(isRequestor
                                                                ? 6
                                                                : 5);
         bindingImpl.createBindingMessageContext(contexts.get(i));
         MessageContext bindingContext = 
-            control.createMock(MessageContext.class);
+            createMock(MessageContext.class);
         EasyMock.expectLastCall().andReturn(bindingContext);
         OutputStreamMessageContext outputStreamContext =
-            control.createMock(OutputStreamMessageContext.class);
+            createMock(OutputStreamMessageContext.class);
         transport.createOutputStreamContext(bindingContext);
         EasyMock.expectLastCall().andReturn(outputStreamContext);
         
@@ -510,7 +514,7 @@ public class RetransmissionQueueTest extends TestCase {
         handlerInvoker.invokeProtocolHandlers(true, bindingContext);
         EasyMock.expectLastCall().andReturn(Boolean.TRUE);
         InputStreamMessageContext inputStreamContext =
-            control.createMock(InputStreamMessageContext.class);
+            createMock(InputStreamMessageContext.class);
         ((ClientTransport)transport).invoke(outputStreamContext);
         EasyMock.expectLastCall().andReturn(inputStreamContext);
         bindingImpl.read(inputStreamContext, bindingContext);
@@ -525,10 +529,10 @@ public class RetransmissionQueueTest extends TestCase {
                             MessageContext bindingContext,
                             OutputStreamMessageContext outputStreamContext) {
         DataBindingCallback callback =
-            control.createMock(ServerDataBindingCallback.class);
+            createMock(ServerDataBindingCallback.class);
         bindingContext.get(DATABINDING_CALLBACK_PROPERTY);
         EasyMock.expectLastCall().andReturn(callback);
-        OutputStream outputStream = control.createMock(OutputStream.class);
+        OutputStream outputStream = createMock(OutputStream.class);
         outputStreamContext.getOutputStream();
         EasyMock.expectLastCall().andReturn(outputStream);
     }
@@ -575,13 +579,13 @@ public class RetransmissionQueueTest extends TestCase {
     private SequenceType setUpSequenceType(ObjectMessageContext context,
                                            String sid,
                                            BigInteger messageNumber) {
-        RMProperties rmps = control.createMock(RMProperties.class);
+        RMProperties rmps = createMock(RMProperties.class);
         if (context != null) {
             context.get(RM_PROPERTIES_OUTBOUND);
             EasyMock.expectLastCall().andReturn(rmps);
         } 
         properties.add(rmps);
-        SequenceType sequence = control.createMock(SequenceType.class);
+        SequenceType sequence = createMock(SequenceType.class);
         if (context != null) {
             rmps.getSequence();
             EasyMock.expectLastCall().andReturn(sequence);
@@ -590,7 +594,7 @@ public class RetransmissionQueueTest extends TestCase {
             sequence.getMessageNumber();
             EasyMock.expectLastCall().andReturn(messageNumber);
         } else {
-            Identifier id = control.createMock(Identifier.class);
+            Identifier id = createMock(Identifier.class);
             sequence.getIdentifier();
             EasyMock.expectLastCall().andReturn(id);
             id.getValue();
@@ -605,8 +609,8 @@ public class RetransmissionQueueTest extends TestCase {
     private SourceSequence setUpSequence(String sid, 
                                    BigInteger[] messageNumbers,
                                    boolean[] isAcked) {
-        SourceSequence sequence = control.createMock(SourceSequence.class);
-        Identifier id = control.createMock(Identifier.class);
+        SourceSequence sequence = createMock(SourceSequence.class);
+        Identifier id = createMock(Identifier.class);
         sequence.getIdentifier();
         EasyMock.expectLastCall().andReturn(id);
         id.getValue();
@@ -623,11 +627,25 @@ public class RetransmissionQueueTest extends TestCase {
         if (includesAcked) {
             sequence.getIdentifier();
             EasyMock.expectLastCall().andReturn(id);
-            RMStore store = control.createMock(RMStore.class);
+            RMStore store = createMock(RMStore.class);
             handler.getStore();
             EasyMock.expectLastCall().andReturn(store);
         }
         return sequence;
+    }
+    
+    /**
+     * Creates a mock object ensuring it remains referenced, so as to
+     * avoid garbage collection and attendant issues with finalizer
+     * calls on mocks.
+     * 
+     * @param toMock the class to mock up
+     * @return the mock object
+     */
+    <T> T createMock(Class<T> toMock) {
+        T ret = control.createMock(toMock);
+        mocks.add(ret);
+        return ret;
     }
     
     private static class TestResender implements RetransmissionQueue.Resender {

@@ -15,6 +15,7 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class TestSoapClientBinding extends SOAPClientBinding {
     boolean sent;
+    boolean discardTransport;
     
     public TestSoapClientBinding(Bus b, EndpointReferenceType ref) throws WSDLException, IOException {
         super(b, ref);
@@ -26,12 +27,16 @@ public class TestSoapClientBinding extends SOAPClientBinding {
     }
     
     public TestClientTransport getClientTransport() throws IOException {
-        return (TestClientTransport)getTransport();
+        return discardTransport ? null : (TestClientTransport)getTransport();
+    }
+    
+    public ClientTransport getTransport() throws IOException {
+        return discardTransport ? null : super.getTransport();
     }
     
     public Transport retrieveTransport() {
         try {
-            return getTransport();
+            return discardTransport ? null : getTransport();
         } catch (IOException ioe) {
             return null;
         }
@@ -44,6 +49,10 @@ public class TestSoapClientBinding extends SOAPClientBinding {
 
     boolean isSent() {
         return sent;
+    }
+    
+    void discardTransport() {
+        discardTransport = true;
     }
     
     /*

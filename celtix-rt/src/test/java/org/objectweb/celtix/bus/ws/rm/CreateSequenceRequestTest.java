@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -18,11 +19,14 @@ import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.bus.ws.addressing.VersionTransformer;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
+import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.Transport;
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.RelatesToType;
 import org.objectweb.celtix.ws.rm.CreateSequenceType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.OfferType;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class CreateSequenceRequestTest extends TestCase {
     
@@ -35,6 +39,9 @@ public class CreateSequenceRequestTest extends TestCase {
     private HandlerChainInvoker hci;
     private SourcePolicyType sp;
     private IMocksControl control;
+    private EndpointReferenceType target;
+    private org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType acksTo;
+    private RelatesToType relatesTo;
     
     static {
         Duration d = null;
@@ -63,6 +70,23 @@ public class CreateSequenceRequestTest extends TestCase {
         source.getSourcePolicies();
         EasyMock.expectLastCall().andReturn(sp);
         
+        target = TestUtils.getEPR("target");
+        acksTo = VersionTransformer.convert(TestUtils.getEPR("acksTo"));
+        relatesTo = ContextUtils.WSA_OBJECT_FACTORY.createRelatesToType();
+        relatesTo.setValue("related");
+    }
+    
+    public void testStatic() {
+        control.reset();
+        assertNotNull(CreateSequenceRequest.createDataBindingCallback());
+        Method method = CreateSequenceRequest.getMethod();
+        assertNotNull("expected method", method);
+        assertEquals("expected method name",
+                     "createSequence",
+                     method.getName());
+        assertEquals("unexpected operation name",
+                     "CreateSequence",
+                     CreateSequenceRequest.getOperationName());        
     }
     
     public void testDefaultConstruction() {     
@@ -77,19 +101,18 @@ public class CreateSequenceRequestTest extends TestCase {
             new CreateSequenceRequest(binding,
                                       transport,
                                       source,
-                                      getEPR("to"),
-                                      VersionTransformer.convert(getEPR("acksTo")),
-                                      ContextUtils.WSA_OBJECT_FACTORY.createRelatesToType());
-        assertNotNull(req);
+                                      target,
+                                      acksTo,
+                                      relatesTo);
         
-        assertNotNull(CreateSequenceRequest.createDataBindingCallback());
+        verifyContext();
+        assertTrue("expected related request", req.isRelatedRequestExpected());
         
         Object[] params = req.getObjectMessageContext().getMessageObjects();
         assertEquals(1, params.length);
         CreateSequenceType cs = (CreateSequenceType)params[0];
         
-        assertEquals(VersionTransformer.convert(getEPR("acksTo")).getAddress().getValue(),
-                     cs.getAcksTo().getAddress().getValue());
+        assertSame(acksTo, cs.getAcksTo());
         assertNull(cs.getExpires());
         
         // default is to include offers
@@ -114,10 +137,12 @@ public class CreateSequenceRequestTest extends TestCase {
             new CreateSequenceRequest(binding,
                                       transport, 
                                       source,
-                                      getEPR("to"),
-                                      VersionTransformer.convert(getEPR("acksTo")),
-                                      ContextUtils.WSA_OBJECT_FACTORY.createRelatesToType());
-        assertNotNull(req);
+                                      target,
+                                      acksTo,
+                                      relatesTo);
+        
+        verifyContext();
+        assertTrue("expected related request", req.isRelatedRequestExpected());
         
         Object[] params = req.getObjectMessageContext().getMessageObjects();
         assertEquals(1, params.length);
@@ -131,7 +156,41 @@ public class CreateSequenceRequestTest extends TestCase {
         control.verify();
     }
     
-    private org.objectweb.celtix.ws.addressing.EndpointReferenceType getEPR(String s) {
-        return EndpointReferenceUtils.getEndpointReference("http://nada.nothing.nowhere.null/" + s);
+    private void verifyContext() {
+        EndpointReferenceType to =
+            (EndpointReferenceType)objectCtx.get("org.objectweb.celtix.ws.addressing.to");
+        assertNotNull("unexpectedly null To", to);
+        assertSame("unexpected To",
+                   target,
+                   to);
+        
+        EndpointReferenceType replyTo =
+            (EndpointReferenceType)objectCtx.get("org.objectweb.celtix.ws.addressing.replyto");
+        assertNotNull("unexpectedly null ReplyTo", replyTo);
+        assertEquals("unexpected ReplyTo",
+                     acksTo.getAddress().getValue(),
+                     replyTo.getAddress().getValue());
+        
+        Boolean usingAddressing = 
+            (Boolean)objectCtx.get("org.objectweb.celtix.ws.addressing.using");
+        assertNotNull("unexpectedly null usingAddressing", usingAddressing);
+        assertTrue("expected usingAddressing", usingAddressing.booleanValue());
+        
+        assertTrue("expected requestor", objectCtx.isRequestorRole());
+
+        AddressingProperties outMAPs =
+            (AddressingProperties)objectCtx.get("javax.xml.ws.addressing.context");
+        assertNotNull("unexpectedly null MAPs", outMAPs);
+        assertEquals("unexpected action", 
+                     "http://schemas.xmlsoap.org/ws/2005/02/rm/CreateSequence",
+                     outMAPs.getAction().getValue());
+        assertSame("expected RelatesTo set to messageID",
+                   relatesTo,
+                   outMAPs.getRelatesTo());
+        
+        Boolean isOneway = 
+            (Boolean)objectCtx.get(OutputStreamMessageContext.ONEWAY_MESSAGE_TF);
+        assertNotNull("unexpectedly null isOneway", isOneway);
+        assertFalse("unexpected isOneway", isOneway.booleanValue());
     }
 }

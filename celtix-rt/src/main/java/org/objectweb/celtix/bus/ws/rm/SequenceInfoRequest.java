@@ -63,6 +63,7 @@ public class SequenceInfoRequest extends Request {
         }
         RMPropertiesImpl rmps = new RMPropertiesImpl();        
         rmps.setAcksRequested(requested);
+        RMContextUtils.storeRMProperties(getObjectMessageContext(), rmps, true);
     }
     
     public void acknowledge(RMDestinationSequence seq) {
