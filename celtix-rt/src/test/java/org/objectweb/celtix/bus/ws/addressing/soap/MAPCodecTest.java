@@ -50,7 +50,6 @@ public class MAPCodecTest extends TestCase {
     private QName[] expectedNames;
     private Class<?>[] expectedDeclaredTypes;
     private Object[] expectedValues;
-    //private JAXBElement<?>[] expectedJAXBElements; 
     private int expectedIndex;
     private String expectedNamespaceURI;
 
@@ -64,7 +63,6 @@ public class MAPCodecTest extends TestCase {
         codec.destroy();
         expectedNames = null;
         expectedDeclaredTypes = null;
-        //expectedJAXBElements = null;
         expectedValues = null;
         expectedIndex = 0;
         expectedNamespaceURI = null;
@@ -345,8 +343,6 @@ public class MAPCodecTest extends TestCase {
             EasyMock.reportMatcher(matcher);
             EasyMock.eq(header);
             marshaller.marshal(null, header);
-            //marshaller.marshal(expectedJAXBElements[i], 
-            //                   header);
             EasyMock.expectLastCall();
         }
         MimeHeaders mimeHeaders = control.createMock(MimeHeaders.class);

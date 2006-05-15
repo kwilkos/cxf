@@ -132,14 +132,14 @@ public class RMSourceTest extends TestCase {
         SequenceAccessor accessor1 = new SequenceAccessor(null);
         Thread t1 = new Thread(accessor1);
         t1.start();
-        Thread.yield();
+        yield();
         assertEquals("expected blocked accessor thread",
                      Thread.State.WAITING,
                      t1.getState());
         
         SourceSequence seq = new SourceSequence(sid);
         s.setCurrent(seq);
-        Thread.yield();
+        yield();
         assertTrue("unexpected blocked accessor thread",
                    Thread.State.RUNNABLE.equals(t1.getState())
                    || Thread.State.TERMINATED.equals(t1.getState()));
@@ -153,7 +153,7 @@ public class RMSourceTest extends TestCase {
         SequenceAccessor accessor2 = new SequenceAccessor(null);
         Thread t2 = new Thread(accessor2);
         t2.start();
-        Thread.yield();
+        yield();
         assertTrue("unexpected blocked accessor thread",
                    Thread.State.RUNNABLE.equals(t2.getState())
                    || Thread.State.TERMINATED.equals(t2.getState()));
@@ -170,14 +170,14 @@ public class RMSourceTest extends TestCase {
         SequenceAccessor accessor1 = new SequenceAccessor(sid);
         Thread t1 = new Thread(accessor1);
         t1.start();
-        Thread.yield();
+        yield();
         assertEquals("expected blocked accessor thread",
                      Thread.State.WAITING,
                      t1.getState());
         
         SourceSequence seq = new SourceSequence(sid);
         s.setCurrent(sid, seq);
-        Thread.yield();
+        yield();
         assertTrue("unexpected blocked accessor thread",
                    Thread.State.RUNNABLE.equals(t1.getState())
                    || Thread.State.TERMINATED.equals(t1.getState()));
@@ -191,7 +191,7 @@ public class RMSourceTest extends TestCase {
         SequenceAccessor accessor2 = new SequenceAccessor(sid);
         Thread t2 = new Thread(accessor2);
         t2.start();
-        Thread.yield();
+        yield();
         assertTrue("unexpected blocked accessor thread",
                    Thread.State.RUNNABLE.equals(t2.getState())
                    || Thread.State.TERMINATED.equals(t2.getState()));
@@ -340,6 +340,10 @@ public class RMSourceTest extends TestCase {
         control.verify();
         control.reset();
         return src;
+    }
+    
+    private void yield() throws Exception {
+        Thread.sleep(250);
     }
         
     private class SequenceAccessor implements Runnable {

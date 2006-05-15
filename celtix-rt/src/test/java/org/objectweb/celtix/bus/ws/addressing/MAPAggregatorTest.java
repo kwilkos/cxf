@@ -21,7 +21,6 @@ import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
 import org.easymock.IMocksControl;
 
-import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -39,9 +38,6 @@ import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSI
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
 
-
-
-
 public class MAPAggregatorTest extends TestCase {
 
     private MAPAggregator aggregator;
@@ -52,8 +48,6 @@ public class MAPAggregatorTest extends TestCase {
     private String expectedRelatesTo;
     private String expectedAction;
     
-    
-
     public void setUp() {
         aggregator = new MAPAggregator();
         aggregator.init(null);
@@ -476,13 +470,9 @@ public class MAPAggregatorTest extends TestCase {
                 control.createMock(OutputStreamMessageContext.class);
             aggregator.serverTransport.rebase(context, replyTo);
             EasyMock.expectLastCall().andReturn(outputContext);
-            DataBindingCallback callback = 
-                new JAXBDataBindingCallback(null,
-                                            DataBindingCallback.Mode.PARTS,
-                                            ContextUtils.getJAXBContext());
-            EasyMock.reportMatcher(new PartialResponseMatcher());
-            EasyMock.reportMatcher(new PartialResponseMatcher());
-            aggregator.serverBinding.partialResponse(outputContext, callback);
+            aggregator.serverBinding.partialResponse(
+                              EasyMock.isA(OutputStreamMessageContext.class),
+                              EasyMock.isA(JAXBDataBindingCallback.class));
             EasyMock.expectLastCall();
         }
         if (outbound || aggregator.messageIDs.size() > 0) {
@@ -551,16 +541,6 @@ public class MAPAggregatorTest extends TestCase {
         }
     } 
     
-    private final class PartialResponseMatcher implements IArgumentMatcher {
-        public boolean matches(Object obj) {
-            return true;
-        }    
-
-        public void appendTo(StringBuffer buffer) {
-            buffer.append("partial response args did not match");
-        }
-    } 
-
     private static interface SEI {
         @RequestWrapper(targetNamespace = "http://foo/bar", className = "SEI", localName = "opRequest")
         @ResponseWrapper(targetNamespace = "http://foo/bar", className = "SEI", localName = "opResponse")

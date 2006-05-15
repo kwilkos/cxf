@@ -113,12 +113,13 @@ public class RMServant {
         // to the local destination sequence list, otherwise we have to wait for
         // and incoming CreateSequence request
         if (null != offeredId) {
-            assert null != csr.getAccept();
+            AcceptType accept = csr.getAccept();
+            assert null != accept;
             RMDestination dest = source.getHandler().getDestination();
-            String address = csr.getAccept().getAcksTo().getAddress().getValue();
+            String address = accept.getAcksTo().getAddress().getValue();
             if (!RMUtils.getAddressingConstants().getNoneURI().equals(address)) {
                 DestinationSequence ds = 
-                    new DestinationSequence(offeredId, csr.getAccept().getAcksTo(), dest);
+                    new DestinationSequence(offeredId, accept.getAcksTo(), dest);
                 dest.addSequence(ds);
             }
         }

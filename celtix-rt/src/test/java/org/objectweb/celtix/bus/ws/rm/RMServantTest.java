@@ -25,7 +25,7 @@ import static org.easymock.classextension.EasyMock.*;
 
 public class RMServantTest extends TestCase {
     
-    private IMocksControl control = createNiceControl();
+    private IMocksControl control;
     private RMDestination dest;
     private RMSource src;
     private CreateSequenceType cs;
@@ -34,6 +34,15 @@ public class RMServantTest extends TestCase {
     private DestinationPolicyType dp;
     private Identifier sid;
     private AddressingProperties maps;
+    
+    protected void setUp() {
+        control = createNiceControl();
+    }
+    
+    protected void tearDown() {
+        control.reset();
+        control = null;
+    }    
 
     public void testCreateSequenceDefault() throws DatatypeConfigurationException, SequenceFault {        
         
@@ -206,7 +215,7 @@ public class RMServantTest extends TestCase {
             expectLastCall().andReturn(dest);
             AcceptType accept = control.createMock(AcceptType.class);
             csResp.getAccept();
-            expectLastCall().andReturn(accept).times(3);
+            expectLastCall().andReturn(accept);
             accept.getAcksTo();
             EndpointReferenceType acksTo = TestUtils.getOldEPR("acks");
             expectLastCall().andReturn(acksTo).times(2);

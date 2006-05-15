@@ -291,7 +291,9 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             if (ContextUtils.isGenericAddress(replyTo)) {
                 
                 try {
-                    replyTo = clientTransport == null ? null : clientTransport.getDecoupledEndpoint();
+                    replyTo = clientTransport == null 
+                              ? null
+                              : clientTransport.getDecoupledEndpoint();
                 } catch (IOException ex) {
                     // ignore
                     replyTo = null;

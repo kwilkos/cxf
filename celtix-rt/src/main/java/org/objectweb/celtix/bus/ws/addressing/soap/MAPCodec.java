@@ -242,10 +242,10 @@ public class MAPCodec
                                                        unmarshaller));
                         } else if (Names.WSA_FAULTTO_NAME.equals(localName)) {
                             maps.setFaultTo(transformer.decodeAsNative(
-                                                                       headerURI,
-                                                                       EndpointReferenceType.class,
-                                                                       headerElement, 
-                                                                       unmarshaller));
+                                                       headerURI,
+                                                       EndpointReferenceType.class,
+                                                       headerElement, 
+                                                       unmarshaller));
                         } else if (Names.WSA_RELATESTO_NAME.equals(localName)) {
                             maps.setRelatesTo(transformer.decodeAsNative(
                                                        headerURI,

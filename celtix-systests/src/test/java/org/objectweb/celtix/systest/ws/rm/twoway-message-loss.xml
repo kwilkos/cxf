@@ -32,26 +32,7 @@
         </property>
     </bean>
     
-    <bean id="rm-handler-all" abstract="true">    
-        
-        <!-- not necessary as this is the default now -->
-        
-        <!--
-        <property name="sourcePolicies">
-            <value>
-                <wsrm-conf:sourcePolicy includeOffer="true">                        
-                </wsrm-conf:sourcePolicy>
-            </value>
-        </property> 
-        
-        <property name="destinationPolicies">
-            <value>
-                <wsrm-conf:destinationPolicy acceptOffers="true"/>
-            </value>
-        </property>   
-        -->
-
-    </bean>
+    <bean id="rm-handler-all" abstract="true"/>
     
     <bean id="celtix.{http://celtix.objectweb.org/greeter_control}GreeterService.rm-handler" 
         class="org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean"
