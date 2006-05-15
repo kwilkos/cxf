@@ -11,29 +11,27 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 public interface EndpointRegistry {
     
     /**
-     * Register the Endpoint to Registry ,
+     * Register the Endpoint to Registry
      * @param ep
      * Endpoint reference
      */
     void registerEndpoint(Endpoint ep);
     
     /**
-     * Unregister the Endpoint to Registry ,and try to stop the Endpoint
+     * Unregister the Endpoint from Registry and try to stop the Endpoint
      * @param ep
      * Endpoint reference
      */
     void unregisterEndpoint(Endpoint ep);
     
     /**
-     * Shuts down the Registry, stop the Endpoint in the registry
-     * @param ep
-     * Endpoint reference
+     * Shuts down the Registry and stops the Endpoints in the registry
      */
     void shutdown();
     
     /**
      * @param epr keyed @{link EndpointReferenceType}.
-     * @return Returns the Endpoint referenced by the given {@link EndpointreferenceType}.
+     * @return Returns the Endpoint referenced by the given {@link EndpointReferenceType}.
      */
     Endpoint getEndpoint(EndpointReferenceType epr);
 

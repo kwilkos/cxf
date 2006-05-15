@@ -263,7 +263,7 @@ public final class EndpointReferenceUtils {
     /**
      * Sets the metadata on the provided endpoint reference.
      * @param ref the endpoint reference.
-     * @param the list of metadata source.
+     * @param metadata the list of metadata source.
      */
     public static void setMetadata(EndpointReferenceType ref, List<Source> metadata) {
         if (null != ref) {
@@ -617,7 +617,7 @@ public final class EndpointReferenceUtils {
     /**
      * Gets an endpoint reference for the provided implementor object.
      * @param manager - the wsdl manager.
-     * @param implementor - the service implementor.
+     * @param implementorClass - the service implementor.
      * @return EndpointReferenceType - the endpoint reference
      * @throws WSDLException
      */

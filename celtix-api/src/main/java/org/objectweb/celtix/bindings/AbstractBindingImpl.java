@@ -44,7 +44,7 @@ public abstract class AbstractBindingImpl implements Binding {
      * incoming messages.
      * 
      * @param includeSystemHandlers
-     * @return
+     * @return the list of handlers
      */
     public List<Handler> getHandlerChain(boolean includeSystemHandlers) {
         if (!includeSystemHandlers) {

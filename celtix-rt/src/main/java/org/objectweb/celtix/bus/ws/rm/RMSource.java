@@ -158,9 +158,9 @@ public class RMSource extends RMEndpoint {
     }
     
     /**
-     * Await the avilability of a sequence corresponding to the given identifier.
+     * Await the availability of a sequence corresponding to the given identifier.
      * 
-     * @param i the sequnce identifier
+     * @param i the sequence identifier
      * @return
      */
     SourceSequence awaitCurrent(Identifier i) {

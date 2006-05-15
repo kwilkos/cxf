@@ -40,7 +40,7 @@ public final class BindingContextUtils {
      * Retrieve data binding callback from message context.
      *
      * @param context the message context
-     * @returned the data binding callback
+     * @return the data binding callback
      */
     public static DataBindingCallback retrieveDataBindingCallback(MessageContext context) {
         return (DataBindingCallback)context.get(DATABINDING_CALLBACK_PROPERTY);
@@ -62,7 +62,7 @@ public final class BindingContextUtils {
      * Retrieve server binding endpoint callback from message context.
      *
      * @param context the message context
-     * @returned the server binding endpoint callback
+     * @return the server binding endpoint callback
      */
     public static ServerBindingEndpointCallback retrieveServerBindingEndpointCallback(
         MessageContext context) {
@@ -106,7 +106,7 @@ public final class BindingContextUtils {
      * Retrieve correlation id from message context.
      *
      * @param context the message context
-     * @returned the correlation id
+     * @return the correlation id
      */
     public static String retrieveCorrelationID(MessageContext context) {
         return (String)context.get(CORRELATION_IN);
@@ -127,7 +127,7 @@ public final class BindingContextUtils {
      * Retrieve value of dispatch property from message context.
      *
      * @param context the message context
-     * @returned the value of dispatch property
+     * @return the value of dispatch property
      */
     public static boolean retrieveDispatch(MessageContext context) {
         Boolean b = (Boolean)context.get(DISPATCH_PROPERTY);
@@ -149,7 +149,7 @@ public final class BindingContextUtils {
      * Retrieve value of async oneway dispatch property from message context.
      *
      * @param context the message context
-     * @returned the value of async oneway dispatch property
+     * @return the value of async oneway dispatch property
      */
     public static boolean retrieveAsyncOnewayDispatch(MessageContext context) {
         Boolean b = (Boolean)context.get(ASYNC_ONEWAY_DISPATCH);
@@ -171,7 +171,7 @@ public final class BindingContextUtils {
      * Retrieve value of decoupled response property from message context.
      *
      * @param context the message context
-     * @returned the value of decoupled response property
+     * @return the value of decoupled response property
      */
     public static boolean retrieveDecoupledResponse(MessageContext context) {
         Boolean b = (Boolean)context.get(DECOUPLED_RESPONSE);

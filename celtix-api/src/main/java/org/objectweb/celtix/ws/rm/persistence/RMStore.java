@@ -92,7 +92,7 @@ public interface RMStore {
      * outbound/inbound messages.
      * 
      * @param sid the identifier of the source sequence
-     * @param messageNr the collection of message numbers
+     * @param messageNrs the collection of message numbers
      * @param outbound true if the message is outbound
      */
     void removeMessages(Identifier sid, Collection<BigInteger> messageNrs, boolean outbound);

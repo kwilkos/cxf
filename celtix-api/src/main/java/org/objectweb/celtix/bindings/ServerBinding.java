@@ -28,7 +28,7 @@ public interface ServerBinding extends BindingBase {
      * Make an initial partial response to an incoming request. The partial
      * response may only contain 'header' information, and not a 'body'.
      * 
-     * @param context object message context
+     * @param outputContext object message context
      * @param callback callback for data binding
      */
     void partialResponse(OutputStreamMessageContext outputContext, 

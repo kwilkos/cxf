@@ -22,7 +22,7 @@ public interface InstrumentationManager {
 
     /**
      * get all instrumentation from the instrumentation manager
-     * @retrun the instrumentation list 
+     * @return the instrumentation list 
      */
     List<Instrumentation> getAllInstrumentation();
 

@@ -680,10 +680,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File xsd = new File(soapinterop, "xsd");
         assertTrue(xsd.exists());
         File[] files = wsdlinterop.listFiles();
-        System.out.println("wsdlinterop file count = " + files.length);
         assertEquals(3, files.length);
         files = xsd.listFiles();
-        System.out.println("xsd file count = " + files.length);
         assertEquals(4, files.length);
 
         Class clz = classLoader

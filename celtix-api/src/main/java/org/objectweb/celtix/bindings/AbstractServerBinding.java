@@ -74,7 +74,7 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
      * Make an initial partial response to an incoming request. The partial
      * response may only contain 'header' information, and not a 'body'.
      * 
-     * @param context object message context
+     * @param outputContext object message context
      * @param callback callback for data binding
      */
     public void partialResponse(OutputStreamMessageContext outputContext, 

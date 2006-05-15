@@ -95,6 +95,8 @@
                     <bottom>-</bottom>
                     <header>Celtix API</header>
                     <footer>Celtix API</footer>
+                    <sourcepath>${basedir}/src/main/java:${basedir}/target/generated/src/main/java</sourcepath>
+                    <subpackages>org.objectweb.celtix</subpackages>
                 </configuration>
             </plugin>
             <plugin>

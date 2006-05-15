@@ -34,7 +34,7 @@ public interface ServerTransport extends Transport {
      * 
      * @param context the MessageContext
      * @param decoupledResponseEndpoint the decoupled response endpoint
-     * @param an output stream message context for the original channel
+     * @return an output stream message context for the original channel
      * @throws IOException If there is an error creating the context.
      */
     OutputStreamMessageContext rebase(MessageContext context, 

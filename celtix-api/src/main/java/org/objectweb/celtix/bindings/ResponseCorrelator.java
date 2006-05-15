@@ -79,7 +79,7 @@ public class ResponseCorrelator implements ResponseCallback {
     /**
      * Wait for a correlated response.
      * 
-     * @param outContext outgoing context containing correlation ID property
+     * @param request outgoing request containing the correlation ID property
      * @return binding-specific context for the correlated response
      */
     public Response getResponse(Request request) {
