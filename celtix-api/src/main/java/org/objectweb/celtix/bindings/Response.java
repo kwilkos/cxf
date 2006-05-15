@@ -72,7 +72,7 @@ public class Response {
      * @param istreamCtx the inut stream messsage context
      */
     public void processProtocol(InputStreamMessageContext istreamCtx) { 
-
+        
         // Output Message For Client    
         
         handlerInvoker.setInbound();
@@ -102,14 +102,16 @@ public class Response {
      * @param callback the data binding callback
      */
 
-    public void processLogical(DataBindingCallback callback) {
+    public void processLogical(DataBindingCallback callback) {        
         assert null != bindingCtx;
         
         if (null != objectCtx) {
             objectCtx.putAll(bindingCtx);
         } else {
             objectCtx = binding.createObjectContext();
-            callback.initObjectContext(objectCtx);
+            if (null != callback) {
+                callback.initObjectContext(objectCtx);
+            }
             objectCtx.putAll(bindingCtx);
         }
 

@@ -102,7 +102,7 @@ public class MessageLossSimulator implements SOAPHandler<SOAPMessageContext> {
     private synchronized boolean continueProcessing(SOAPMessageContext context) {
         System.out.println("*** inboundMessageCount: " + inboundMessageCount);         
         if (!(isOutbound(context) || isRMOutOfBand(context))
-            && ++inboundMessageCount % LOSS_FACTOR == 0 && inboundMessageCount <= 4) {
+            && ++inboundMessageCount % LOSS_FACTOR == 0) {
             discardWSHeaders(context);
             discardBody(context);
             System.out.println("*** Discarding current inbound message ***");
@@ -131,8 +131,9 @@ public class MessageLossSimulator implements SOAPHandler<SOAPMessageContext> {
                 SOAPHeaderElement headerElement =
                     (SOAPHeaderElement)headerElements.next();
                 Name headerName = headerElement.getElementName();
-                if (WSRM_NAMESPACE_URI.equals(headerName.getURI())
-                    || WSRM_NAMESPACE_URI.equals(headerName.getURI())) {
+                // only remove rm headers as absence of addressing headers
+                // causes assertion failures
+                if (WSRM_NAMESPACE_URI.equals(headerName.getURI())) {
                     headerElement.detachNode();
                 }
             }

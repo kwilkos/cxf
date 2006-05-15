@@ -6,6 +6,7 @@
     xmlns:ct="http://celtix.objectweb.org/configuration/types"
     xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"
     xmlns:wsrm-conf="http://celtix.objectweb.org/bus/configuration/wsrm"
+    xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
     xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration"
     xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types">
     
@@ -36,7 +37,17 @@
     
     <bean id="celtix.{http://celtix.objectweb.org/greeter_control}GreeterService.rm-handler" 
         class="org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean"
-        parent="rm-handler-all">           
+        parent="rm-handler-all"> 
+        <!-- avoid server side resends -->
+        <property name="rmAssertion">
+            <value>
+                <wsrm-policy:RMAssertion>         
+                    <wsrm-policy:BaseRetransmissionInterval Milliseconds="30000"/>           
+                    <wsrm-policy:AcknowledgementInterval Milliseconds="2000"/>                                                        
+                </wsrm-policy:RMAssertion>
+            </value>
+        </property> 
+                   
     </bean>
     
     <bean id="celtix.{http://celtix.objectweb.org/greeter_control}GreeterService/GreeterPort.rm-handler" 

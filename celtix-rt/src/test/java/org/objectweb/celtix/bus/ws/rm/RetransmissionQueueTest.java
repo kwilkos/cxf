@@ -485,15 +485,16 @@ public class RetransmissionQueueTest extends TestCase {
         MessageContext bindingContext = 
             createMock(MessageContext.class);
         EasyMock.expectLastCall().andReturn(bindingContext);
+        
         OutputStreamMessageContext outputStreamContext =
             createMock(OutputStreamMessageContext.class);
         transport.createOutputStreamContext(bindingContext);
         EasyMock.expectLastCall().andReturn(outputStreamContext);
         
         if (isRequestor) {
+            
             setUpClientDispatch(handlerInvoker,
-                                contexts.get(i),
-                                bindingContext,
+                                binding,
                                 outputStreamContext,
                                 bindingImpl,
                                 transport);
@@ -506,21 +507,30 @@ public class RetransmissionQueueTest extends TestCase {
 
     private void setUpClientDispatch(
                               HandlerInvoker handlerInvoker,
-                              ObjectMessageContext objectContext,
-                              MessageContext bindingContext,
+                              AbstractBindingBase binding,
                               OutputStreamMessageContext outputStreamContext,
                               AbstractBindingImpl bindingImpl,
                               Transport transport) throws Exception {
-        handlerInvoker.invokeProtocolHandlers(true, bindingContext);
-        EasyMock.expectLastCall().andReturn(Boolean.TRUE);
+             
         InputStreamMessageContext inputStreamContext =
             createMock(InputStreamMessageContext.class);
         ((ClientTransport)transport).invoke(outputStreamContext);
-        EasyMock.expectLastCall().andReturn(inputStreamContext);
+        EasyMock.expectLastCall().andReturn(inputStreamContext);        
+        binding.getBindingImpl();
+        EasyMock.expectLastCall().andReturn(bindingImpl); 
+        bindingImpl.createBindingMessageContext(inputStreamContext);
+        MessageContext bindingContext = 
+            control.createMock(MessageContext.class);
+        EasyMock.expectLastCall().andReturn(bindingContext);        
         bindingImpl.read(inputStreamContext, bindingContext);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall();        
+        handlerInvoker.invokeProtocolHandlers(true, bindingContext);
+        EasyMock.expectLastCall().andReturn(Boolean.TRUE);        
+        ObjectMessageContext objectContext = control.createMock(ObjectMessageContext.class);
+        binding.createObjectContext();
+        EasyMock.expectLastCall().andReturn(objectContext);        
         bindingImpl.hasFault(bindingContext);
-        EasyMock.expectLastCall().andReturn(false);
+        EasyMock.expectLastCall().andReturn(false);        
         bindingImpl.unmarshal(bindingContext, objectContext, null);
         EasyMock.expectLastCall();
     }

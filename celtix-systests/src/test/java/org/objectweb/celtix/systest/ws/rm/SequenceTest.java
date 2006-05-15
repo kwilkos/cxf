@@ -50,7 +50,7 @@ public class SequenceTest extends ClientServerTestBase {
     
     // enable currently disabled tests when transport apis allows to 
     // originate standalone requests from server side
-   
+
     private boolean doTestOnewayAnonymousAcks = true;
     private boolean doTestOnewayDeferredAnonymousAcks = true; 
     private boolean doTestOnewayDeferredNonAnonymousAcks = true;
@@ -60,8 +60,8 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestTwowayNonAnonymousDeferred = true;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = true;    
     private boolean doTestTwowayNonAnonymousNoOffer;
-    private boolean doTestTwowayMessageLoss;
-
+    private boolean doTestTwowayMessageLoss = true;
+    
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
     }
@@ -440,6 +440,7 @@ public class SequenceTest extends ClientServerTestBase {
         greeter.greetMe("one");
         greeter.greetMe("two");
 
+
         // Outbound expected:
         // CreateSequence + (2 * greetMe) + CreateSequenceResponse = 4 messages
         // TODO there should be partial responses to the decoupled responses!
@@ -451,7 +452,7 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyMessageNumbers(new String[] {null, "1", null, "2"}, true);
         mf.verifyLastMessage(new boolean[] {false, false, false, false}, true);
         mf.verifyAcknowledgements(new boolean[] {false, false, false, true}, true);
-
+        
         // Inbound expected:
         // createSequenceResponse + (2 * greetMeResponse) + CreateSequence +
         // (4 * partial response [for each outbound message]) = 8         
@@ -508,16 +509,17 @@ public class SequenceTest extends ClientServerTestBase {
         
         mf.clear();
         
-        // wait for resends to occur
-        // for some reason only the first retransmission for each message works fine
-        // the second time round a message with an empty body is re-transmitted
-        /*
-        mf.verifyMessages(4, true, 1000, 20);
+        // wait for resends to occur - first resend after slightly less than 1.5 + 3 seconds,
+        // next resend after 6 seconds.
+        // Note that although the message loss simulator 'drops' only every second message,
+        // we keep resending both messages because the (full) responses to these messages will not
+        // be processed (due to the way message loss is simulated).
+        // 
+        
+        mf.verifyMessages(4, true, 1000, 15);
         expectedActions = new String[] {GREETME_ACTION, GREETME_ACTION, 
                                         GREETME_ACTION, GREETME_ACTION};
-        */
-        mf.verifyMessages(2, true, 1000, 10);
-        expectedActions = new String[] {GREETME_ACTION, GREETME_ACTION};
+       
         mf.verifyActions(expectedActions, true);
 
     }

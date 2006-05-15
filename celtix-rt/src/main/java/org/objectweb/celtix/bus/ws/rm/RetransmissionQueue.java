@@ -227,8 +227,13 @@ public class RetransmissionQueue {
     private void invokePartial(Request request, ClientTransport transport,
                                OutputStreamMessageContext outputStreamContext) throws IOException {
         InputStreamMessageContext inputStreamContext = transport.invoke(outputStreamContext);
-        Response response = new Response(request);
-        response.processProtocol(inputStreamContext);
+        // create new binding and object message contexts for response so as to not
+        // corrupt the stored context for the message about to be retransmitted
+        // (necessary in case there will be more than one retransmission of
+        // this message)
+        // Response response = new Response(request);
+        Response response = new Response(request.getBinding(), request.getHandlerInvoker());
+        response.processProtocol(inputStreamContext);        
         response.processLogical(null);
     }
 
@@ -301,7 +306,10 @@ public class RetransmissionQueue {
                 }
             };
             timer = new Timer();
-            timer.schedule(task, getBaseRetransmissionInterval(), getBaseRetransmissionInterval());
+            // TODO
+            // delay starting the queue to give the first request a chance to be sent before 
+            // waiting for another period.
+            timer.schedule(task, getBaseRetransmissionInterval() / 2, getBaseRetransmissionInterval());
         }
     }
 
