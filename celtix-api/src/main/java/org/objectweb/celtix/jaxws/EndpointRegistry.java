@@ -2,6 +2,8 @@ package org.objectweb.celtix.jaxws;
 
 import javax.xml.ws.Endpoint;
 
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+
 /**
  * Provider the EndpointRegistry interface for bus
  *
@@ -28,5 +30,12 @@ public interface EndpointRegistry {
      * Endpoint reference
      */
     void shutdown();
+    
+    /**
+     * @param epr keyed @{link EndpointReferenceType}.
+     * @return Returns the Endpoint referenced by the given {@link EndpointreferenceType}.
+     */
+    Endpoint getEndpoint(EndpointReferenceType epr);
+
 
 }
