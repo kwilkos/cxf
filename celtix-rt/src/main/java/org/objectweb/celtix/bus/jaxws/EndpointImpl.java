@@ -59,9 +59,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
     public static final String ENDPOINT_CONFIGURATION_URI = 
         "http://celtix.objectweb.org/bus/jaxws/endpoint-config";
+    private static final String ENABLE_HANDLER_INIT = "enableHandlerInit";
     
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
-
+    
     protected EndpointReferenceType reference;
     
     protected boolean published;
@@ -507,6 +508,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
         HandlerChainType hc = (HandlerChainType)configuration.getObject("handlerChain");
         List<Handler> chain = builder.buildHandlerChainFromConfiguration(hc);
+        builder.setHandlerInitEnabled(configuration.getBoolean(ENABLE_HANDLER_INIT));
+        
         if (null == chain || chain.size() == 0) {
             chain = builder.buildHandlerChainFor(implementorClass);
         }

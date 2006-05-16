@@ -2,6 +2,8 @@ package org.objectweb.celtix.bus.resource;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.List;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -167,6 +169,17 @@ public class ResourceManagerImplTest extends TestCase {
         EasyMock.verify(conf);
     } 
 
+    public void testGetResourceResolvers() {
+    
+        mgr = new ResourceManagerImpl();
+        List<ResourceResolver> resolvers = mgr.getResourceResolvers();
+        assertEquals(DEFAULT_RESOLVER_COUNT, resolvers.size());
+        mgr.addResourceResolver(EasyMock.createMock(ResourceResolver.class));
+
+        assertEquals(DEFAULT_RESOLVER_COUNT, resolvers.size());
+        assertEquals(DEFAULT_RESOLVER_COUNT + 1, mgr.getResourceResolvers().size());
+    }
+    
     public static Test suite() {
         return new TestSuite(ResourceManagerImplTest.class);
     }

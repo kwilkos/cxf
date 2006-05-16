@@ -13,7 +13,8 @@ import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
 
-import org.easymock.EasyMock;
+import org.easymock.classextension.EasyMock;
+import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerInitParamType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerType;
@@ -26,8 +27,13 @@ public class HandlerChainBuilderTest extends TestCase {
     Handler[] logicalHandlers = {allHandlers[0], allHandlers[3]};
     Handler[] protocolHandlers = {allHandlers[1], allHandlers[2]};
 
-    HandlerChainBuilder builder = new HandlerChainBuilder(); 
+    HandlerChainBuilder builder = new HandlerChainBuilder(EasyMock.createNiceMock(Bus.class)); 
 
+    public void setUp() {
+        builder.setHandlerInitEnabled(true);
+    }
+    
+    
     public void testChainSorting() {
 
         List<Handler> sortedHandlerChain = builder.sortHandlers(Arrays.asList(allHandlers));

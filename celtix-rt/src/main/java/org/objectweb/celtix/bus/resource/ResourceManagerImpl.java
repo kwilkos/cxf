@@ -18,9 +18,10 @@ public class ResourceManagerImpl extends DefaultResourceManager {
     public ResourceManagerImpl() {
         super();
     }
+    
     public ResourceManagerImpl(Bus bus) throws BusException { 
         super();
-        resolvers.clear();
+        registeredResolvers.clear();
         
         Configuration conf = bus.getConfiguration(); 
         assert null != conf;
@@ -29,7 +30,7 @@ public class ResourceManagerImpl extends DefaultResourceManager {
         
         try { 
             for (String className : ((StringListType)obj).getItem()) { 
-                if (LOG.isLoggable(Level.FINE)) { 
+                if (LOG.isLoggable(Level.FINEST)) { 
                     LOG.finest("attempting to load resolver " + className);
                 }
                 
@@ -37,7 +38,7 @@ public class ResourceManagerImpl extends DefaultResourceManager {
                     .asSubclass(ResourceResolver.class);
 
                 ResourceResolver rr = clz.newInstance();
-                resolvers.add(rr);
+                registeredResolvers.add(rr);
             } 
         } catch (Exception ex) { 
             throw new BusException(ex);

@@ -17,6 +17,7 @@ import org.objectweb.celtix.common.annotation.AnnotationProcessor;
 import org.objectweb.celtix.common.annotation.AnnotationVisitor;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.resource.ResourceManager;
+import org.objectweb.celtix.resource.ResourceResolver;
 
 
 /**
@@ -28,12 +29,19 @@ public class ResourceInjector implements AnnotationVisitor {
     private static final Logger LOG = LogUtils.getL7dLogger(ResourceInjector.class);
 
     private final ResourceManager resourceManager; 
+    private final List<ResourceResolver> resourceResolvers;
     private Object target; 
 
     public ResourceInjector(ResourceManager resMgr) {
-        resourceManager = resMgr;
+        this(resMgr, resMgr.getResourceResolvers());
     }
 
+    public ResourceInjector(ResourceManager resMgr, List<ResourceResolver> resolvers) {
+        resourceManager = resMgr;
+        resourceResolvers = resolvers;
+    }
+    
+    
     public void inject(Object o) {
 
         AnnotationProcessor processor = new AnnotationProcessor(o); 
@@ -72,7 +80,7 @@ public class ResourceInjector implements AnnotationVisitor {
         Method setter = findSetterForResource(res);
         if (setter != null) { 
             Class<?> type = getResourceType(res, setter); 
-            resource = resourceManager.resolveResource(res.name(), type);
+            resource = resolveResource(res.name(), type);
             if (resource == null) {
                 LOG.log(Level.INFO, "RESOURCE_RESOLVE_FAILED");
                 return;
@@ -85,7 +93,7 @@ public class ResourceInjector implements AnnotationVisitor {
         Field field = findFieldForResource(res);
         if (field != null) { 
             Class<?> type = getResourceType(res, field); 
-            resource = resourceManager.resolveResource(res.name(), type);
+            resource = resolveResource(res.name(), type);
             if (resource == null) {
                 LOG.log(Level.INFO, "RESOURCE_RESOLVE_FAILED");
                 return;
@@ -112,7 +120,7 @@ public class ResourceInjector implements AnnotationVisitor {
         String name = getFieldNameForResource(res, field);
         Class<?> type = getResourceType(res, field); 
         
-        Object resource = resourceManager.resolveResource(name, type);
+        Object resource = resolveResource(name, type);
         if (resource != null) {
             injectField(field, resource);
         } else {
@@ -129,7 +137,7 @@ public class ResourceInjector implements AnnotationVisitor {
         String resourceName = getResourceName(res, method);
         Class<?> clz = getResourceType(res, method); 
 
-        Object resource = resourceManager.resolveResource(resourceName, clz);
+        Object resource = resolveResource(resourceName, clz);
         if (resource != null) {
             invokeSetter(method, resource);
         } else { 
@@ -303,4 +311,7 @@ public class ResourceInjector implements AnnotationVisitor {
         return res.name();
     }
 
+    private Object resolveResource(String resourceName, Class<?> type) {
+        return resourceManager.resolveResource(resourceName, type, resourceResolvers);
+    }
 }

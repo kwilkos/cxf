@@ -2,6 +2,9 @@ package org.objectweb.celtix.common.injection;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.annotation.Resources;
@@ -9,6 +12,7 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.resource.ResourceManager;
+import org.objectweb.celtix.resource.ResourceResolver;
 
 public class ResourceInjectorTest extends TestCase {
     private static final String RESOURCE_ONE = "resource one";
@@ -19,10 +23,13 @@ public class ResourceInjectorTest extends TestCase {
     public void setUp() { 
 
         ResourceManager resMgr = EasyMock.createMock(ResourceManager.class);
+        List<ResourceResolver> resolvers = new ArrayList<ResourceResolver>();
         
-        resMgr.resolveResource("resource1", String.class);
+        resMgr.getResourceResolvers();
+        EasyMock.expectLastCall().andReturn(resolvers);
+        resMgr.resolveResource("resource1", String.class, resolvers);
         EasyMock.expectLastCall().andReturn(RESOURCE_ONE);
-        resMgr.resolveResource("resource2", String.class);
+        resMgr.resolveResource("resource2", String.class, resolvers);
         EasyMock.expectLastCall().andReturn(RESOURCE_TWO);
         EasyMock.replay(resMgr);
         

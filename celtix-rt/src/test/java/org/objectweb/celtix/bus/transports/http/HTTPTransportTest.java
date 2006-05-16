@@ -224,8 +224,8 @@ public class HTTPTransportTest extends TestCase {
         EasyMock.replay(bus);
         client.shutdown();
 
-        assertTrue("Total one call: " + (stop - start), (stop - start) < 400);
-        assertTrue("Total: " + (stop2 - start), (stop2 - start) < 600);
+        assertTrue("Total one call: " + (stop - start), (stop - start) < 700);
+        assertTrue("Total: " + (stop2 - start), (stop2 - start) < 1000);
         assertEquals(new String(outBytes), new String(buffer, 0, outBytes.length));
         Thread.sleep(200);
     }

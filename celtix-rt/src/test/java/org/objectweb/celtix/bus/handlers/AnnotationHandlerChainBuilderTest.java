@@ -14,7 +14,12 @@ import javax.xml.ws.handler.LogicalHandler;
 
 import junit.framework.TestCase;
 
-import org.easymock.EasyMock;
+import org.easymock.classextension.EasyMock;
+import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
+import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerInitParamType;
+import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerType;
+import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
@@ -35,9 +40,58 @@ public class AnnotationHandlerChainBuilderTest extends TestCase {
     Handler[] protocolHandlers = {allHandlers[1], allHandlers[2]}; 
     AnnotatedGreeterImpl greeterImpl = new AnnotatedGreeterImpl(); 
 
-    AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
+    AnnotationHandlerChainBuilder builder;
+    Bus mockBus = EasyMock.createNiceMock(Bus.class); 
+    ResourceManagerImpl resMgr = new ResourceManagerImpl();
 
+    
+    public void setUp() {
+        mockBus.getResourceManager();
+        EasyMock.expectLastCall().andReturn(resMgr).anyTimes();
+        EasyMock.replay(mockBus);
+        builder = new AnnotationHandlerChainBuilder(mockBus);
+        builder.setHandlerInitEnabled(true);
+    }
+    
+    
+    public void testHandlerInitMethodCalled() { 
+        
+        doHandlerInitTest(TestHandlerWithInit.class);
+    }
+    
+    public void testHandlerInitViaInjection() { 
+        
+        doHandlerInitTest(TestHandler.class);
+    }
+    
+    public void testHandlerInitInjectionDisabled() {
 
+        builder.setHandlerInitEnabled(false);
+        
+        HandlerChainType hct = createHandlerConfig(TestHandler.class);
+        List<Handler> handlers = builder.buildHandlerChainFromConfiguration(hct);
+        
+        assertNotNull(handlers);
+        assertEquals("incorrect number of handlers created", 1, handlers.size());
+        TestHandler handler = (TestHandler)handlers.get(0);
+        assertEquals("handler init param should not be initialised", null,
+                     handler.getStringParam());
+        
+    }
+    
+    private void doHandlerInitTest(Class<? extends TestHandler> handlerClass) {
+      
+        HandlerChainType hct = createHandlerConfig(handlerClass); 
+        List<Handler> handlers = builder.buildHandlerChainFromConfiguration(hct);
+        assertNotNull(handlers);
+        assertEquals("incorrect number of handlers created", 1, handlers.size());
+        TestHandler handler = (TestHandler)handlers.get(0);
+        
+        assertEquals("incorrect value in init param", TestHandler.STRING_PARAM_VALUE,
+                     handler.getStringParam());
+    }
+    
+    
     public void testBuildHandlerChainWithExistingHandlers() { 
 
         List<Handler> existingChain = new ArrayList<Handler>(); 
@@ -87,7 +141,7 @@ public class AnnotationHandlerChainBuilderTest extends TestCase {
     } 
 
 
-    public void testBuildHandlerChainNoHanlders() { 
+    public void testBuildHandlerChainNoHandlers() { 
         List<Handler> chain = builder.buildHandlerChainFor(String.class); 
         assertNotNull(chain); 
         assertEquals(0, chain.size()); 
@@ -113,6 +167,20 @@ public class AnnotationHandlerChainBuilderTest extends TestCase {
         } 
     }
     
+    
+    private HandlerChainType createHandlerConfig(Class<? extends TestHandler> handlerClass) {
+        HandlerChainType hct = new HandlerChainType();
+        HandlerType ht = new HandlerType();
+        HandlerInitParamType hip = new HandlerInitParamType();
+        hip.setParamName(TestHandler.STRING_PARAM_NAME);
+        hip.setParamValue(TestHandler.STRING_PARAM_VALUE);
+        ht.getInitParam().add(hip);
+        
+        ht.setHandlerClass(handlerClass.getName());
+        hct.getHandler().add(ht);
+        return hct;
+    }
+
 }
 
 

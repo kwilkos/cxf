@@ -23,6 +23,16 @@ public interface ResourceManager {
      */
     <T> T resolveResource(String name, Class<T> type);
 
+    /** 
+     * Resolve a resource with via a specified list of resovlers.  This allows 
+     * resources to be specified with a locally defined list of resolvers.
+     * 
+     * @param name name of resource to resolve.
+     * @param type type of resource to resolve.
+     * @param resolvers list of <code>ResourceResolvers</codea> to search.
+     * @return the resolved resource or null if nothing found.
+     */
+    <T> T resolveResource(String name, Class<T> type, List<ResourceResolver> resolvers);
 
     /**
      * Open stream to resource.  
@@ -51,7 +61,9 @@ public interface ResourceManager {
 
 
     /**
-     * Get all the currently registered resolvers
+     * Get all the currently registered resolvers.  This method should return 
+     * a copy of the list of resolvers so that resolvers added after this method 
+     * has been called will alter the list returned.
      */
-    List getResourceResolvers();
+    List<ResourceResolver> getResourceResolvers();
 }

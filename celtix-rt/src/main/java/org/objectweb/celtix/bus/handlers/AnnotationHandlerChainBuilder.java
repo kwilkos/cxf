@@ -13,6 +13,7 @@ import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
+import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -22,6 +23,15 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
 
     static final Logger LOG = LogUtils.getL7dLogger(AnnotationHandlerChainBuilder.class);
     
+    public AnnotationHandlerChainBuilder() {
+        // emtpy
+    }
+    
+    public AnnotationHandlerChainBuilder(Bus bus) {
+        super(bus);
+    }
+    
+   
     public List<Handler> buildHandlerChainFor(Class<?> clz, List<Handler> existingHandlers) { 
 
         LOG.fine("building handler chain");
