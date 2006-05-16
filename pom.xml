@@ -139,7 +139,7 @@
         <module>celtix-router</module>
         <module>celtix-js</module>
         <module>celtix-systests</module>
-        <module>celtix-axisinterop</module>
+        <!--<module>celtix-axisinterop</module>-->
     </modules>
 
     <build>
