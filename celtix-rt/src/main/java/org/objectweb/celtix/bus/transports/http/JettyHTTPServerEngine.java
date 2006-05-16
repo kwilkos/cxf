@@ -129,8 +129,14 @@ public final class JettyHTTPServerEngine {
             try {
                 server.start();
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
+                //problem starting server
+                try {
+                    server.stop(true);
+                    server.destroy();
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }    
             }
         }
 
