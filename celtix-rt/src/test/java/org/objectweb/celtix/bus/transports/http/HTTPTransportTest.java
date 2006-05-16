@@ -72,6 +72,10 @@ public class HTTPTransportTest extends TestCase {
     private Lock partialResponseReceivedLock;
     private Condition partialResponseReceivedCondition;
     private boolean partialResponseReceivedNotified;
+    private Lock invokerControlRegainedLock;
+    private Condition invokerControlRegainedCondition;
+    private boolean invokerControlRegainedNotified;
+    private boolean invokerControlRegainedWaitTimedOut;
     private ClientBinding clientBinding;
 
     public HTTPTransportTest(String arg0) {
@@ -99,6 +103,10 @@ public class HTTPTransportTest extends TestCase {
         partialResponseReceivedLock = new ReentrantLock();
         partialResponseReceivedCondition = partialResponseReceivedLock.newCondition();
         partialResponseReceivedNotified = false;
+        invokerControlRegainedLock = new ReentrantLock();
+        invokerControlRegainedCondition = invokerControlRegainedLock.newCondition();
+        invokerControlRegainedNotified = false;
+        invokerControlRegainedWaitTimedOut = false;
         responseCallback = new TestResponseCallback();
         clientBinding = EasyMock.createMock(ClientBinding.class);
     }
@@ -201,22 +209,22 @@ public class HTTPTransportTest extends TestCase {
         ServerTransport server =
             createServerTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
         byte[] buffer = new byte[64];
-        activateServer(server, false, 200, buffer, true, decoupled);
+        activateServer(server, false, true, buffer, true, decoupled);
 
         ClientTransport client =
             createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS, decoupled);
         byte outBytes[] = "Hello World!!!".getBytes();
 
-        long start = System.currentTimeMillis();
         OutputStreamMessageContext octx = doRequest(client, outBytes, true, decoupled);
         client.invokeOneway(octx);
-        long stop = System.currentTimeMillis();
+        signalInvokerControlRegained();
 
         octx = doRequest(client, outBytes, false, decoupled);
         client.invokeOneway(octx);
+        signalInvokerControlRegained();
         octx = doRequest(client, outBytes, false, decoupled);
         client.invokeOneway(octx);
-        long stop2 = System.currentTimeMillis();
+        signalInvokerControlRegained();
 
         server.deactivate();
         EasyMock.reset(bus);
@@ -224,9 +232,6 @@ public class HTTPTransportTest extends TestCase {
         EasyMock.replay(bus);
         client.shutdown();
 
-        assertTrue("Total one call: " + (stop - start), (stop - start) < 700);
-        assertTrue("Total: " + (stop2 - start), (stop2 - start) < 1000);
-        assertEquals(new String(outBytes), new String(buffer, 0, outBytes.length));
         Thread.sleep(200);
     }
 
@@ -243,7 +248,7 @@ public class HTTPTransportTest extends TestCase {
         ServerTransport server =
             createServerTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, address);
 
-        activateServer(server, useAutomaticWorkQueue, 0, null, false, decoupled);
+        activateServer(server, useAutomaticWorkQueue, false, null, false, decoupled);
         //short request
         ClientTransport client =
             createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, address, decoupled);
@@ -278,10 +283,10 @@ public class HTTPTransportTest extends TestCase {
         } catch (IOException ex) {
             //ignore - this is what we want
         }
-        activateServer(server, useAutomaticWorkQueue, 0, null, false, decoupled);
+        activateServer(server, useAutomaticWorkQueue, false, null, false, decoupled);
         doRequestResponse(client, "Hello World   3".getBytes(), false, decoupled);
         server.deactivate();
-        activateServer(server, useAutomaticWorkQueue, 0, null, false, decoupled);
+        activateServer(server, useAutomaticWorkQueue, false, null, false, decoupled);
         doRequestResponse(client, "Hello World   4".getBytes(), false, decoupled);
         server.deactivate();
         EasyMock.reset(bus);
@@ -308,7 +313,7 @@ public class HTTPTransportTest extends TestCase {
 
         ServerTransport server =
             createServerTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
-        activateServer(server, false, 400, null, false, decoupled);
+        activateServer(server, false, true, null, false, decoupled);
 
         ClientTransport client =
             createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS, decoupled);
@@ -318,6 +323,7 @@ public class HTTPTransportTest extends TestCase {
         OutputStreamMessageContext octx = doRequest(client, outBytes, true, decoupled);
         Future<InputStreamMessageContext> f = client.invokeAsync(octx, executor);
         assertNotNull(f);
+        signalInvokerControlRegained();
         int i = 0;
         while (i < 10) {
             Thread.sleep(100);
@@ -333,6 +339,7 @@ public class HTTPTransportTest extends TestCase {
         // blocking read (on new thread)
         octx = doRequest(client, outBytes, false, decoupled);
         f = client.invokeAsync(octx, executor);
+        signalInvokerControlRegained();
         ictx = f.get();
         assertTrue(f.isDone());
         doResponse(client, ictx, outBytes, decoupled);
@@ -342,6 +349,7 @@ public class HTTPTransportTest extends TestCase {
         if (timeoutImplemented) {
             octx = doRequest(client, outBytes, false, decoupled);
             f = client.invokeAsync(octx, executor);
+            signalInvokerControlRegained();
             try {
                 ictx = f.get(200, TimeUnit.MILLISECONDS);
                 fail("Expected TimeoutException not thrown.");
@@ -381,13 +389,13 @@ public class HTTPTransportTest extends TestCase {
 
     private void activateServer(ServerTransport server,
                                 final boolean useAutomaticWorkQueue,
-                                final int delay,
+                                final boolean async,
                                 final byte[] buffer,
                                 final boolean oneWay,
                                 final boolean decoupled) throws Exception {
         ServerTransportCallback callback = new TestServerTransportCallback(server,
                                                                            useAutomaticWorkQueue,
-                                                                           delay,
+                                                                           async,
                                                                            buffer,
                                                                            oneWay,
                                                                            decoupled);
@@ -483,6 +491,37 @@ public class HTTPTransportTest extends TestCase {
             partialResponseReceivedCondition.signal();
         } finally {
             partialResponseReceivedLock.unlock();
+        }
+    }
+    
+    private void awaitInvokerControlRegained() throws Exception {
+        invokerControlRegainedLock.lock();
+        try {
+            long timeout = 5 * 1000000;
+            while (!invokerControlRegainedNotified) {
+                if (timeout > 0L) {
+                    timeout =
+                        invokerControlRegainedCondition.awaitNanos(timeout);
+                } else {
+                    invokerControlRegainedWaitTimedOut = true;
+                    break;
+                }
+            }
+        } finally {
+            invokerControlRegainedNotified = false;
+            invokerControlRegainedLock.unlock();
+        }
+    }
+
+    private void signalInvokerControlRegained() throws Exception {
+        invokerControlRegainedLock.lock();
+        assertFalse("invoker control regained wait timed out",
+                    invokerControlRegainedWaitTimedOut);
+        try {
+            invokerControlRegainedNotified = true;
+            invokerControlRegainedCondition.signal();
+        } finally {
+            invokerControlRegainedLock.unlock();
         }
     }
 
@@ -625,20 +664,20 @@ public class HTTPTransportTest extends TestCase {
     private class TestServerTransportCallback implements ServerTransportCallback {
         private ServerTransport server;
         private boolean useAutomaticWorkQueue;
-        private int delay;
+        private boolean async;
         private byte[] buffer;
         private boolean oneWay;
         private boolean decoupled;
 
         TestServerTransportCallback(ServerTransport s,
                                     boolean uaq,
-                                    int d,
+                                    boolean a,
                                     byte[] b,
                                     boolean ow,
                                     boolean dc) {
             server = s;
             useAutomaticWorkQueue = uaq;
-            delay = d;
+            async = a;
             buffer = b;
             oneWay = ow;
             decoupled = dc;
@@ -674,9 +713,10 @@ public class HTTPTransportTest extends TestCase {
                     transport.postDispatch(ctx, octx);
                 }
 
-                // simulate implementor call
-                if (delay > 0) {
-                    Thread.sleep(delay);
+                // simulate implementor call - this shouldn't block control being
+                // returned to the oneway/async client
+                if (async) {
+                    awaitInvokerControlRegained();
                 }
 
                 if (!oneWay) {
