@@ -100,41 +100,31 @@
 
 
         <!--Versions for various plugins and features -->
-        <checkstyle.version>2.0</checkstyle.version>
+        <antrun.version>1.1</antrun.version>
+        <assembly.version>2.1</assembly.version>
+        <checkstyle.version>2.1</checkstyle.version>
+        <cobertura.version>2.0</cobertura.version>
         <compiler.version>2.0.1</compiler.version>
         <dependency.plugin.version>1.0</dependency.plugin.version>
         <eclipse.plugin.version>2.2</eclipse.plugin.version>
+        <jar.version>2.0</jar.version>
         <javadoc.version>2.0</javadoc.version>
+        <jxr.version>2.0</jxr.version>
+        <mprojectinfo.version>2.0</mprojectinfo.version>
+        <pmd.version>2.0</pmd.version>
+        <resources.version>2.2</resources.version>
+        <site.version>2.0-beta-4</site.version>
+        <surefire-report.version>2.0-beta-1</surefire-report.version>
+        <surefire.version>2.1.3</surefire.version>
+
+
+
         <jaxb.version>2.0EA3</jaxb.version>
         <jaxws.version>2.0-JAXWS-2.0-EA3</jaxws.version>
         <jetty.version>5.1.9</jetty.version>
         <saaj.version>1.3</saaj.version>
-
-        <surefire-report.version>2.0</surefire-report.version>
-        <surefire.version>2.1.3</surefire.version>
         <spring.version>1.2.5</spring.version>
         <wsdl4j.version>1.5.2</wsdl4j.version>
-
-
-        <antrun.version>1.1</antrun.version>
-        <assembly.version>2.0.1</assembly.version>
-        <!--
-        <surefire.version>2.1.3</surefire.version>
-        <compiler.version>2.0.1</compiler.version>
-        <compiler.version>2.0</compiler.version>
-        <javadoc.version>2.0-beta-3</javadoc.version>
-        <surefire-report.version>2.0-beta-1</surefire-report.version>
-        <eclipse.plugin.version>2.1</eclipse.plugin.version>
-        -->
-        <site.version>2.0-beta-4</site.version>
-        <jxr.version>2.0-beta-1</jxr.version>
-        <jar.version>2.0</jar.version>
-        <resources.version>2.1</resources.version>
-        <mprojectinfo.version>2.0-beta-3</mprojectinfo.version>
-
-
-
-
     </properties>
 
     <modules>
@@ -375,11 +365,18 @@
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>${mprojectinfo.version}</version>
             </plugin>
+            <!--   Codehaus is down
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jxr-maven-plugin</artifactId>
                 <version>${jxr.version}</version>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jdepend-maven-plugin</artifactId>
+                <version>${jdepend.version}</version>
+            </plugin>
+            -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>surefire-report-maven-plugin</artifactId>
@@ -389,11 +386,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${javadoc.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jdepend-maven-plugin</artifactId>
-                <version>${jdepend.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -455,11 +447,7 @@
                 </property>
             </activation>
             <properties>
-                <cobertura.version>2.0-SNAPSHOT</cobertura.version>
                 <jdepend.version>2.0-beta-1-SNAPSHOT</jdepend.version>
-                <mprojectinfo.version>2.0-beta-4-SNAPSHOT</mprojectinfo.version>
-                <pmd.version>2.0-alpha-3-SNAPSHOT</pmd.version>
-                <site.version>2.0-SNAPSHOT</site.version>
             </properties>
             <pluginRepositories>
                 <pluginRepository>

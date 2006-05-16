@@ -1,8 +1,12 @@
 package org.objectweb.celtix.tools.processors.wsdl2.compiler;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.common.i18n.Message;
@@ -26,6 +30,21 @@ public class Compiler {
         compileMethodSignature = new Class[2];
         compileMethodSignature[0] = (new String[0]).getClass();
         compileMethodSignature[1] = PrintWriter.class;
+        try {
+            javacMainClass = classLoader.loadClass("com.sun.tools.javac.Main");
+        } catch (ClassNotFoundException e3) {
+            //System.out.println(System.getProperties());
+            //System.out.println(System.getenv());
+            String javaHome = System.getProperty("java.home");
+            
+            try {
+                URL url = new File(javaHome + "/../lib/tools.jar").toURL();
+                URL url2 = new File(javaHome + "/lib/tools.jar").toURL();
+                classLoader = new URLClassLoader(new URL[] {url, url2}, classLoader);
+            } catch (MalformedURLException e) {
+                //ignore
+            }
+        }
         try {
             javacMainClass = classLoader.loadClass("com.sun.tools.javac.Main");
             try {

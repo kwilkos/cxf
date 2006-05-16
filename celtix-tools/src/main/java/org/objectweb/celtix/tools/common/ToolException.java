@@ -27,13 +27,5 @@ public class ToolException extends RuntimeException {
     }
     
 
-    public String toString() {
-        StringBuffer sb = new StringBuffer(super.getMessage());
-
-        return sb.toString();
-    }
-
-   
-
 }
 
