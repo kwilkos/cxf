@@ -142,13 +142,11 @@ public class ServiceImpl extends ServiceDelegate {
                     javax.wsdl.Service service = def.getService(serviceName);
                     if (service.getPorts().size() == 1) {
                         Port port = (Port)service.getPorts().values().iterator().next();
-                        String portNameString = port.getName();
-                        portName = new QName(serviceName.getNamespaceURI(), portNameString);
+                        portName = new QName(serviceName.getNamespaceURI(), port.getName());
                     } else {
                         throw new WebServiceException("Unable to determine portName");                      
                     }
                 } catch (WSDLException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
