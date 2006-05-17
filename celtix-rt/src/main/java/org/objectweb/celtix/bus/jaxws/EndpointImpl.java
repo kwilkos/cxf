@@ -160,6 +160,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         }
         doInit = false;
     }
+    
     private void initOpMap() throws WSDLException {
         Definition def = EndpointReferenceUtils.getWSDLDefinition(bus.getWSDLManager(), reference);
         if (def == null) {

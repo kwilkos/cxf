@@ -22,4 +22,11 @@
       <handler-class>org.objectweb.celtix.systest.handlers.TestStreamHandler</handler-class> 
     </handler> 
   </handler-chain> 
+  <handler-chain>
+     <handler-chain-name>SingleHandlerChain</handler-chain-name> 
+     <handler> 
+      <handler-name>SingleHandler</handler-name> 
+      <handler-class>org.objectweb.celtix.systest.handlers.TestHandler</handler-class> 
+    </handler> 
+  </handler-chain>	  
 </handler-config> 

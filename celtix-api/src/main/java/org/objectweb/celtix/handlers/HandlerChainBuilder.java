@@ -43,7 +43,7 @@ public class HandlerChainBuilder {
         if (null == hc) {
             return null;
         }
-        return sortHandlers(buildHandlerChain(hc));
+        return sortHandlers(buildHandlerChain(hc, getHandlerClassLoader()));
     }
 
     /**
@@ -82,31 +82,26 @@ public class HandlerChainBuilder {
     }
     
     
-    private ClassLoader getHandlerClassLoader() {
+    protected ClassLoader getHandlerClassLoader() {
         return getClass().getClassLoader();
     }
 
-    protected List<Handler> buildHandlerChain(HandlerChainType hc) {
+    protected List<Handler> buildHandlerChain(HandlerChainType hc, ClassLoader classLoader) {
         List<Handler> handlerChain = new ArrayList<Handler>();
         for (HandlerType ht : hc.getHandler()) {
             try {
                 LOG.log(Level.FINE, "loading handler", trimString(ht.getHandlerName()));
 
                 Class<? extends Handler> handlerClass = Class.forName(trimString(ht.getHandlerClass()), true,
-                                                                      getHandlerClassLoader())
-                    .asSubclass(Handler.class);
+                                                                      classLoader).asSubclass(Handler.class);
 
                 Handler handler = handlerClass.newInstance();
                 LOG.fine("adding handler to chain: " + handler);
                 configureHandler(handler, ht);
                 handlerChain.add(handler);
-            } catch (ClassNotFoundException e) {
+            } catch (Exception e) {
                 throw new WebServiceException(new Message("HANDLER_INSTANTIATION_EXC", LOG).toString(), e);
-            } catch (InstantiationException e) {
-                throw new WebServiceException(new Message("HANDLER_INSTANTIATION_EXC", LOG).toString(), e);
-            } catch (IllegalAccessException e) {
-                throw new WebServiceException(new Message("HANDLER_INSTANTIATION_EXC", LOG).toString(), e);
-            }
+            } 
         }
         return handlerChain;
     }

@@ -1,10 +1,13 @@
 package org.objectweb.celtix.systest.handlers;
 
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Endpoint;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
 
@@ -38,11 +41,43 @@ public class RegistrationTest extends ClientServerTestBase {
     }
     
     
-    public void testServerHandlerRegistrationOnBinding() {
+
+    public void testHandlersLoadedThroughCorrectClassLoader() throws Exception {
+     
+        final String className = "test.HiddenServiceImpl";
+        // ensure that the class is not visible to this class loader
+        try {
+            getClass().getClassLoader().loadClass(className);
+            fail("successfully loaded class which should not be visible to classlaoder");
+        } catch (ClassNotFoundException ex) {
+            //emtpy
+        }
         
+
+        // load the service implementation from a jar
+        URL jar = getClass().getResource("/jar-with-service-impl.jar");
+        assertNotNull("unable to load test resource", jar);
+        URLClassLoader loader = new URLClassLoader(new URL[] {jar}, getClass().getClassLoader());
+        Object implementor = loader.loadClass(className).newInstance();
+
+        InputStream in = implementor.getClass().getResourceAsStream("handlers.xml");
+        assertNotNull(in);
+        
+        Endpoint ep = null;
+        try {
+        
+            String address = "http://localhost:0/HandlerTest/SoapPort";
+            ep = Endpoint.publish(address, implementor);
+            List<Handler> handler = ep.getBinding().getHandlerChain();
+            assertEquals(1, handler.size());
+        } finally {
+            if (ep !=  null) {
+                ep.stop();
+            }
+        }
     }
     
-
+    
     /** 
      * test that a handler registered via Service HandlerResolver ends up 
      * in the port's handler chain
@@ -83,3 +118,5 @@ public class RegistrationTest extends ClientServerTestBase {
     }
    
 }
+
+

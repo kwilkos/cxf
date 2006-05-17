@@ -1,8 +1,6 @@
 package org.objectweb.celtix.bus.handlers;
 
 
-
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +48,7 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
                 throw new WebServiceException(new Message("CHAIN_NOT_SPECIFIED_EXC", LOG).toString());
             } 
 
-            chain =  buildHandlerChain(hc); 
+            chain =  buildHandlerChain(hc, clz.getClassLoader()); 
         }
         assert chain != null;
         if (existingHandlers != null) { 
