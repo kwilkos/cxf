@@ -497,7 +497,7 @@ public class HTTPTransportTest extends TestCase {
     private void awaitInvokerControlRegained() throws Exception {
         invokerControlRegainedLock.lock();
         try {
-            long timeout = 10 * 1000000;
+            long timeout = 5 * 1000000;
             while (!invokerControlRegainedNotified) {
                 if (timeout > 0L) {
                     timeout =
@@ -538,8 +538,12 @@ public class HTTPTransportTest extends TestCase {
         mappings.getMap().add(mapping);
 
         bus.getWSDLManager();
-        EasyMock.expectLastCall().andReturn(wsdlManager).times(3);
-        
+        EasyMock.expectLastCall().andReturn(wsdlManager);
+        bus.getWSDLManager();
+        EasyMock.expectLastCall().andReturn(wsdlManager);
+        bus.getWSDLManager();
+        EasyMock.expectLastCall().andReturn(wsdlManager);
+
         BusLifeCycleManager lifecycleManager = EasyMock.createNiceMock(BusLifeCycleManager.class);
         bus.getLifeCycleManager();
         EasyMock.expectLastCall().andReturn(lifecycleManager);
