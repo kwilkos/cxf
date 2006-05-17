@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.WebService;
+import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.bind.JAXBContext;
@@ -132,6 +133,26 @@ public class ServiceImpl extends ServiceDelegate {
         if (serviceName == null) {
             serviceName = getServiceName(wsAnnotation);
         }
+        
+        if (portName == null) {
+            portName = getPortName(wsAnnotation);
+            if (portName == null) {
+                try {
+                    Definition def = bus.getWSDLManager().getDefinition(wsdlLocation);
+                    javax.wsdl.Service service = def.getService(serviceName);
+                    if (service.getPorts().size() == 1) {
+                        Port port = (Port)service.getPorts().values().iterator().next();
+                        String portNameString = port.getName();
+                        portName = new QName(serviceName.getNamespaceURI(), portNameString);
+                    } else {
+                        throw new WebServiceException("Unable to determine portName");                      
+                    }
+                } catch (WSDLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
 
         EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlLocation,
                 serviceName, portName.getLocalPart());
@@ -187,6 +208,15 @@ public class ServiceImpl extends ServiceDelegate {
         }
 
         return serviceQName;
+    }
+    
+    private QName getPortName(WebService wsAnnotation) {
+
+        QName portQName = null;
+        if (wsAnnotation != null && wsAnnotation.portName() != null) {
+            portQName = new QName(wsAnnotation.targetNamespace(), wsAnnotation.portName());
+        }
+        return portQName;
     }
 
     @Override

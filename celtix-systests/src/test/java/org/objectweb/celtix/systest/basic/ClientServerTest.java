@@ -73,6 +73,42 @@ public class ClientServerTest extends ClientServerTestBase {
             throw (Exception)ex.getCause();
         }
     } 
+    
+    public void testBasicConnection2() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+        
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull(service);
+        
+        //getPort only passing in SEI
+        Greeter greeter = service.getPort(Greeter.class);
+        
+        String response1 = new String("Hello Milestone-");
+        String response2 = new String("Bonjour");
+        try {       
+            for (int idx = 0; idx < 5; idx++) {
+                String greeting = greeter.greetMe("Milestone-" + idx);
+                assertNotNull("no response received from service", greeting);
+                String exResponse = response1 + idx;
+                assertEquals(exResponse, greeting);
+                
+                String reply = greeter.sayHi();
+                assertNotNull("no response received from service", reply);
+                assertEquals(response2, reply);
+
+                greeter.greetMeOneWay("Milestone-" + idx);
+                
+                BareDocumentResponse bareres = greeter.testDocLitBare("MySimpleDocument");
+                assertNotNull("no response for operation testDocLitBare", bareres);
+                assertEquals("Celtix", bareres.getCompany());
+                assertTrue(bareres.getId() == 1);  
+                
+            }            
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    } 
 
     public void testAsyncPollingCall() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
