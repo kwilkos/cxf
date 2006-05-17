@@ -16,7 +16,7 @@ public class ShutdownTestServer extends TestServerBase {
         builder.buildConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI, "celtix");
         
         GreeterImpl implementor = new GreeterImpl();
-        String address = "http://localhost:9000/SoapContext/GreeterPort";
+        String address = "http://localhost:9020/SoapContext/GreeterPort";
         Endpoint.publish(address, implementor);
 
     }

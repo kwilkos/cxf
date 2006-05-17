@@ -128,50 +128,6 @@
                         <artifactId>ant-trax</artifactId>
                         <version>1.6.5</version>
                     </dependency>
-                    <dependency>
-                        <groupId>checkstyle</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>4.1</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>pmd</groupId>
-                        <artifactId>pmd</artifactId>
-                        <version>3.6</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>xalan</groupId>
-                                <artifactId>xalan</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>xerces</groupId>
-                                <artifactId>xercesImpl</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>xerces</groupId>
-                                <artifactId>xmlParserAPIs</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>xml-apis</groupId>
-                                <artifactId>xml-apis</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>dom4j</groupId>
-                                <artifactId>dom4j</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>icu4j</groupId>
-                                <artifactId>icu4j</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>servletapi</groupId>
-                                <artifactId>servletapi</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>tagsoup</groupId>
-                                <artifactId>tagsoup</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
                 </dependencies>
                 <executions>
                     <execution>

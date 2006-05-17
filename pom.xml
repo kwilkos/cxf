@@ -88,8 +88,9 @@
     </licenses>
     <properties>
         <topDirectoryLocation>.</topDirectoryLocation>
-        <no.checkstyle>false</no.checkstyle>
-        <no.pmd>false</no.pmd>
+
+        <checkstyle.excludes>**/Foo*.java</checkstyle.excludes>
+        <pmd.excludes>**/Foo*.java</pmd.excludes>
 
         <surefire.fork.mode>once</surefire.fork.mode>
         <surefire.format>brief</surefire.format>
@@ -102,7 +103,6 @@
         <!--Versions for various plugins and features -->
         <antrun.version>1.1</antrun.version>
         <assembly.version>2.1</assembly.version>
-        <checkstyle.version>2.1</checkstyle.version>
         <cobertura.version>2.0</cobertura.version>
         <compiler.version>2.0.1</compiler.version>
         <dependency.plugin.version>1.0</dependency.plugin.version>
@@ -111,11 +111,11 @@
         <javadoc.version>2.0</javadoc.version>
         <jxr.version>2.0</jxr.version>
         <mprojectinfo.version>2.0</mprojectinfo.version>
-        <pmd.version>2.0</pmd.version>
         <resources.version>2.2</resources.version>
-        <site.version>2.0-beta-4</site.version>
-        <surefire-report.version>2.0-beta-1</surefire-report.version>
-        <surefire.version>2.1.3</surefire.version>
+        <site.version>2.0-beta-5</site.version>
+        <surefire-report.version>2.0</surefire-report.version>
+        <surefire.version>2.2</surefire.version>
+
 
 
 
@@ -183,12 +183,12 @@
                     <include>**</include>
                 </includes>
             </testResource>
-	    <testResource>
+            <testResource>
                 <directory>src/test/java</directory>
                 <includes>
                     <exclude>**/*.xml</exclude>
                 </includes>
-		<filtering>true</filtering>
+                <filtering>true</filtering>
             </testResource>
         </testResources>
         <plugins>
@@ -204,78 +204,48 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>${antrun.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>ant</groupId>
-                        <artifactId>ant-trax</artifactId>
-                        <version>1.6.5</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>checkstyle</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>4.1</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>pmd</groupId>
-                        <artifactId>pmd</artifactId>
-                        <version>3.6</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>xalan</groupId>
-                                <artifactId>xalan</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>xerces</groupId>
-                                <artifactId>xercesImpl</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>xerces</groupId>
-                                <artifactId>xmlParserAPIs</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>xml-apis</groupId>
-                                <artifactId>xml-apis</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>dom4j</groupId>
-                                <artifactId>dom4j</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>icu4j</groupId>
-                                <artifactId>icu4j</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>servletapi</groupId>
-                                <artifactId>servletapi</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>tagsoup</groupId>
-                                <artifactId>tagsoup</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
+                <artifactId>maven-checkstyle-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>process-sources</id>
                         <phase>process-sources</phase>
                         <configuration>
-                            <tasks>
-                                <ant antfile="${topDirectoryLocation}/process-sources.xml" dir="${basedir}" inheritRefs="true">
-                                    <target name="checkstyle.${no.checkstyle}"/>
-                                    <target name="pmd.${no.pmd}"/>
-                                    <property name="baselocation" value="${topDirectoryLocation}"/>
-                                </ant>
-                            </tasks>
+                            <configLocation>${basedir}/${topDirectoryLocation}/checkstyle.xml</configLocation>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                            <linkXRef>false</linkXRef>
+                            <excludes>${checkstyle.excludes}</excludes>
+                            <sourceDirectory>${basedir}/src</sourceDirectory>
                         </configuration>
                         <goals>
-                            <goal>run</goal>
+                            <goal>checkstyle</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <configuration>
+                    <rulesets>
+                        <ruleset>${basedir}/.ruleset</ruleset>
+                    </rulesets>
+                    <linkXRef>false</linkXRef>
+                    <excludes>
+                        <exclude>${pmd.excludes}</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>process-sources</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -390,7 +360,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${checkstyle.version}</version>
                 <configuration>
                     <configLocation>${basedir}/${topDirectoryLocation}/checkstyle.xml</configLocation>
                 </configuration>
@@ -398,7 +367,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>${pmd.version}</version>
                 <configuration>
                     <targetJdk>${java.source.version}</targetJdk>
                     <rulesets>
@@ -553,8 +521,20 @@
             </activation>
             <properties>
                 <maven.test.skip>true</maven.test.skip>
-                <no.checkstyle>true</no.checkstyle>
-                <no.pmd>true</no.pmd>
+                <checkstyle.excludes>**/*.java</checkstyle.excludes>
+                <pmd.excludes>**/*.java</pmd.excludes>
+            </properties>
+        </profile>
+        <profile>
+            <id>no.pmd</id>
+            <properties>
+                <pmd.excludes>**/*.java</pmd.excludes>
+            </properties>
+        </profile>
+        <profile>
+            <id>no.checkstyle</id>
+            <properties>
+                <checkstyle.excludes>**/*.java</checkstyle.excludes>
             </properties>
         </profile>
     </profiles>

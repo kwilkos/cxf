@@ -17,12 +17,14 @@ import junit.framework.TestSuite;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.bindings.TestClientBinding;
+import org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
+import org.objectweb.celtix.configuration.impl.TypeSchemaHelper;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 import org.objectweb.celtix.configuration.types.ObjectFactory;
@@ -62,6 +64,10 @@ public class JMSTransportTest extends TestCase {
     }
 
     public void setUp() throws Exception {
+        ConfigurationProviderImpl.clearBeanFactoriesMap();
+        TypeSchemaHelper.clearCache();
+        ConfigurationBuilderFactory.clearBuilder();
+        
         bus = Bus.init();
     }
 
@@ -72,6 +78,10 @@ public class JMSTransportTest extends TestCase {
         if (bus != null) {
             bus.shutdown(true);
         }
+        
+        ConfigurationProviderImpl.clearBeanFactoriesMap();
+        TypeSchemaHelper.clearCache();
+        ConfigurationBuilderFactory.clearBuilder();        
     }
 
     public void testOneWayTextQueueJMSTransport() throws Exception {

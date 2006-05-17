@@ -22,11 +22,9 @@ public class WSDLToJavaXMLFormatTest
         try {
             processor.process();
             fail("Do not catch expected tool exception for xml format binding!");
-        } catch (Exception e) {
-            if (!(e instanceof ToolException && e.toString()
-                .indexOf("missing xml format body element") >= 0)) {
-                fail("Do not catch expected tool exception for xml format binding,"
-                     + " catch other unexpected exception!");
+        } catch (ToolException e) {
+            if (e.toString().indexOf("missing xml format body element") == -1) {
+                throw e;
             }
         }
     }

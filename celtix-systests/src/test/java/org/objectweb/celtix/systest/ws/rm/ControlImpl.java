@@ -36,7 +36,7 @@ public class ControlImpl implements Control {
         tc.configureServer(serviceName);
         
         GreeterImpl implementor = new GreeterImpl();
-        String address = "http://localhost:9000/SoapContext/GreeterPort";
+        String address = "http://localhost:9020/SoapContext/GreeterPort";
         endpoint = Endpoint.publish(address, implementor);
         
         return true;        

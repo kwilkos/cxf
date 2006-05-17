@@ -29,12 +29,15 @@ import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.ConfigurationEventFilter;
+import org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl;
 import org.objectweb.celtix.bus.transports.TestResponseCallback;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
+import org.objectweb.celtix.configuration.impl.TypeSchemaHelper;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 import org.objectweb.celtix.configuration.types.ObjectFactory;
@@ -98,6 +101,11 @@ public class HTTPTransportTest extends TestCase {
     }
 
     public void setUp() throws BusException {
+        ConfigurationProviderImpl.clearBeanFactoriesMap();
+        TypeSchemaHelper.clearCache();
+        ConfigurationBuilderFactory.clearBuilder();        
+
+        
         bus = EasyMock.createMock(Bus.class);
         wsdlManager = new WSDLManagerImpl(null);
         partialResponseReceivedLock = new ReentrantLock();
@@ -129,6 +137,10 @@ public class HTTPTransportTest extends TestCase {
             executorService.shutdownNow();
         }
         JettyHTTPServerEngine.destroyForPort(DECOUPLED_PORT);
+        
+        ConfigurationProviderImpl.clearBeanFactoriesMap();
+        TypeSchemaHelper.clearCache();
+        ConfigurationBuilderFactory.clearBuilder();        
     }
 
     int readBytes(byte bytes[], InputStream ins) throws IOException {

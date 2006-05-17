@@ -219,6 +219,8 @@ public class ServerLauncher {
                     fos = new FileOutputStream(outputDir + className + ".out");
                 } catch (FileNotFoundException fex) {
                     outputDir = System.getProperty("basedir") + "/target/surefire-reports/";
+                    File file = new File(outputDir);
+                    file.mkdirs();
                     fos = new FileOutputStream(outputDir + className + ".out");
                 }
                 PrintStream ps = new PrintStream(fos);
