@@ -1,7 +1,7 @@
 Hello World Demo using WRAPPED Style in XML Binding
 =============================================
 
-This demo illustrates how celtix works with xml binind instead of soap
+This demo illustrates how celtix works with xml binding instead of soap
 binding. And this specific demo shows you how xml binding works
 with the doc-lit wrapped style.
 
