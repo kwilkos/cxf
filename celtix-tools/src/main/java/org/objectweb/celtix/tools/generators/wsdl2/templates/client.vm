@@ -7,6 +7,8 @@ package $intf.PackageName;
  */
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import javax.xml.namespace.QName;
 
 /**
@@ -29,10 +31,14 @@ public final class ${clientClassName} {
             System.out.println("please specify wsdl");
             System.exit(1); 
         }
+        URL wsdlUrl;
+        try {
+            wsdlUrl = new URL(args[0]);
+        } catch (MalformedURLException mue) {
+        	wsdlUrl = new URL("file:///" + args[0]);
+        }
     
-        File wsdl = new File(args[0]);
-    
-        $service.Name ss = new ${service.Name}(wsdl.toURL(), SERVICE_NAME);
+        $service.Name ss = new ${service.Name}(wsdlUrl, SERVICE_NAME);
         $intf.Name port = ss.get${port.PortName}();  
         
 #foreach ($method in $intf.Methods)
