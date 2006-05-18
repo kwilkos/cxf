@@ -123,12 +123,14 @@ public class TwoStageCacheTest extends TestCase {
             System.gc();
         }
         cache.recycle(cache.create());
+        cache.recycle(cache.create());
+        cache.recycle(cache.create());
         
         System.gc();
         while (cache.poll() != null) {
             count++;
         }
-        assertEquals(4, count);    
+        assertTrue("Did not get enough objects " + count, 3 <= count);    
     
     }
 
