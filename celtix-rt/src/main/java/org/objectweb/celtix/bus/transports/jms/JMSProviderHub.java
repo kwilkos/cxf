@@ -9,7 +9,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
-import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
 
 
 /**
@@ -45,11 +44,7 @@ public final class JMSProviderHub {
 
     protected static void connect(JMSTransportBase transport) throws JMSException, NamingException {
         JMSAddressPolicyType  addrDetails = transport.getJmsAddressDetails();
-        JMSServerBehaviorPolicyType serverPolicy = null;
-        if (transport instanceof JMSServerTransport) {
-            serverPolicy = ((JMSServerTransport)transport).getJMSServerBehaviourPolicy();
-        }
-
+      
         // get JMS connection resources and destination
         //
         Context context = JMSUtils.getInitialContext(addrDetails);
@@ -91,8 +86,7 @@ public final class JMSProviderHub {
         JMSSessionFactory sf =
             new JMSSessionFactory(connection,
                                   replyDestination,
-                                  addrDetails,
-                                  serverPolicy,
+                                  transport,
                                   context);
 
         // notify transport that connection is complete

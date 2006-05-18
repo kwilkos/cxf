@@ -2,8 +2,6 @@ package org.objectweb.celtix.bus.transports.jms;
 
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -19,24 +17,24 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlJMSConfigurationProvider;
-import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
 import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
 import org.objectweb.celtix.transports.jms.context.JMSPropertyType;
+import org.objectweb.celtix.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class JMSTransportBase {
     //--Member Variables--------------------------------------------------------
-    private static final Logger LOG = LogUtils.getL7dLogger(JMSTransportBase.class);
     protected JMSAddressPolicyType jmsAddressPolicy;
     protected boolean queueDestinationStyle;
     protected Destination targetDestination;
     protected Destination replyDestination;
     protected JMSSessionFactory sessionFactory;
+    protected JMSSessionPoolConfigPolicy sessionPoolConfig;
     protected Bus bus;
     protected EndpointReferenceType targetEndpoint;
     protected Port port;
@@ -50,6 +48,7 @@ public class JMSTransportBase {
 
         configuration = createConfiguration(bus, epr, isServer);
         jmsAddressPolicy = getAddressPolicy(configuration);
+        sessionPoolConfig = getSessionPoolPolicy(configuration);
         targetEndpoint = epr;
         queueDestinationStyle =
             JMSConstants.JMS_QUEUE.equals(jmsAddressPolicy.getDestinationStyle().value());
@@ -61,6 +60,15 @@ public class JMSTransportBase {
             pol = new JMSAddressPolicyType();
         }
         return pol;
+    }
+    
+    private JMSSessionPoolConfigPolicy getSessionPoolPolicy(Configuration conf) {
+        JMSSessionPoolConfigPolicy sessionPoolCfg = 
+            conf.getObject(JMSSessionPoolConfigPolicy.class, "jmsSessionPool");
+        if (sessionPoolCfg == null) {
+            sessionPoolCfg = new JMSSessionPoolConfigPolicy();
+        }
+        return sessionPoolCfg;
     }
 
 
@@ -107,6 +115,10 @@ public class JMSTransportBase {
 
     public final JMSAddressPolicyType  getJmsAddressDetails() {
         return jmsAddressPolicy;
+    }
+    
+    public final JMSSessionPoolConfigPolicy getSessionPoolConfig() {
+        return sessionPoolConfig;
     }
     /**
      * Callback from the JMSProviderHub indicating the ClientTransport has
@@ -167,11 +179,6 @@ public class JMSTransportBase {
         }
 
         return ret;
-    }
-
-
-    protected final void entry(String trace) {
-        LOG.log(Level.FINE, trace);
     }
 
     protected JMSMessageHeadersType populateIncomingContext(Message message,

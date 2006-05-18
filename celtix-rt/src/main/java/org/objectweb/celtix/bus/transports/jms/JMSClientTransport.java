@@ -33,6 +33,7 @@ import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.jms.JMSClientBehaviorPolicyType;
 import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
+import org.objectweb.celtix.transports.jms.jms_conf.JMSClientConfig;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
@@ -41,11 +42,11 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 public class JMSClientTransport extends JMSTransportBase implements ClientTransport {
     
     private static final Logger LOG = LogUtils.getL7dLogger(JMSClientTransport.class);
-    private static final long DEFAULT_RECEIVE_TIMEOUT = 0;
     
     protected boolean textPayload;
     TransportClientCounters counters;
     private JMSClientBehaviorPolicyType clientBehaviourPolicy;
+    private JMSClientConfig clientConfig;
     private ResponseCallback responseCallback;
     
     public JMSClientTransport(Bus bus, 
@@ -54,7 +55,9 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         throws WSDLException, IOException  {
 
         super(bus, address, false);
+        
         clientBehaviourPolicy = getClientPolicy(configuration);
+        clientConfig = getClientConfig(configuration);
         counters = new TransportClientCounters("JMSClientTransport");
         
         EndpointReferenceUtils.setAddress(address, getAddrUriFromJMSAddrPolicy());
@@ -68,7 +71,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         if (binding != null) {
             responseCallback = binding.createResponseCallback();
         }
-        entry("JMSClientTransport Constructor");
+        LOG.log(Level.FINE, "JMSClientTransport Constructor");
     }
 
     private JMSClientBehaviorPolicyType getClientPolicy(Configuration conf) {
@@ -79,15 +82,28 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         return pol;
     }
     
+    private JMSClientConfig getClientConfig(Configuration conf) {
+        JMSClientConfig clientConf = conf.getObject(JMSClientConfig.class, "jmsClientConfig");
+        if (clientConf == null) {
+            clientConf = new JMSClientConfig();
+        }
+        
+        return clientConf;
+    }
+    
     public JMSClientBehaviorPolicyType getJMSClientBehaviourPolicy() {
         
         return clientBehaviourPolicy;
     }
     
+    public JMSClientConfig getJMSClientConfiguration() {
+        return clientConfig;
+    }
+    
     //TODO: Revisit for proper implementation and changes if any.
 
     public void shutdown() {
-        entry("JMSClientTransport shutdown()");
+        LOG.log(Level.FINE, "JMSClientTransport shutdown()");
 
         // ensure resources held by session factory are released
         //
@@ -194,7 +210,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
      */
     private Object invoke(OutputStreamMessageContext context, boolean responseExpected)
         throws JMSException, NamingException {
-        entry("JMSClientTransport invoke()");
+        LOG.log(Level.FINE, "JMSClientTransport invoke()");
 
         try {
             if (null == sessionFactory) {
@@ -267,7 +283,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         String correlationID = getCorrelationId(headers);
         long ttl = getTimeToLive(headers);
         if (ttl <= 0) {
-            ttl = DEFAULT_RECEIVE_TIMEOUT;
+            ttl = clientConfig.getMessageTimeToLive();
         }
         
         setMessageProperties(headers, message);
@@ -317,7 +333,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         throws JMSException {
         Object response = null;
         
-        long timeout = DEFAULT_RECEIVE_TIMEOUT;
+        long timeout = clientConfig.getClientReceiveTimeout();
 
         Long receiveTimeout = (Long)context.get(JMSConstants.JMS_CLIENT_RECEIVE_TIMEOUT);
 

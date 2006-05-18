@@ -2,12 +2,14 @@
 <cm:config
     xmlns:cm="http://celtix.objectweb.org/configuration/metadata"
     xmlns:jms="http://celtix.objectweb.org/transports/jms"
+    xmlns:jms-conf="http://celtix.objectweb.org/transports/jms/jms-conf"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     namespace="http://celtix.objectweb.org/bus/transports/jms/jms-server-config"
 >
 
     <cm:configImport namespace="http://celtix.objectweb.org/transports/jms" location="schemas/wsdl/jms.xsd"/>
+    <cm:configImport namespace="http://celtix.objectweb.org/transports/jms/jms-conf" location="schemas/wsdl/jms-conf.xsd"/>
 
     <cm:configItem>
         <cm:name>jmsServer</cm:name>
@@ -26,6 +28,20 @@
         <cm:description>Policies for JMS Broker connection.</cm:description>
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
         <jms:address></jms:address>
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>jmsSessionPool</cm:name>
+        <cm:type>jms-conf:JMSSessionPoolConfigPolicy</cm:type>
+        <cm:description>Policy for the JMS Session Pool LowWaterMark and HighWaterMark.</cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+    </cm:configItem>
+
+    <cm:configItem>
+        <cm:name>jmsServerConfig</cm:name>
+        <cm:type>jms-conf:JMSServerConfig</cm:type>
+        <cm:description>Policy for the JMS Server message time-to-live.</cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
     </cm:configItem>
 </cm:config>
 

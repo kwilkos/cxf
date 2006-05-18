@@ -25,6 +25,7 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.AbstractTwoStageCache;
 import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
 import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
+import org.objectweb.celtix.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
 
 
 /**
@@ -85,9 +86,10 @@ import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
  */
 public class JMSSessionFactory {
 
-    private static final int CACHE_HIGH_WATER_MARK = 500;
     private static final Logger LOG = LogUtils.getL7dLogger(JMSSessionFactory.class);
-    private static final int PRIMARY_CACHE_MAX = 20;
+    
+    private int lowWaterMark;
+    private int highWaterMark;
 
     private final Context initialContext;
     private final  Connection theConnection;
@@ -106,14 +108,24 @@ public class JMSSessionFactory {
      */
     public JMSSessionFactory(Connection connection, 
                              Destination replyDestination,
-                             JMSAddressPolicyType addrExt,
-                             JMSServerBehaviorPolicyType serverPolicy,
+                             JMSTransportBase transport,
                              Context context) {
         theConnection = connection;
         theReplyDestination = replyDestination;
-        addressExtensor = addrExt;
+        addressExtensor = transport.getJmsAddressDetails();
+        
+        if (transport instanceof JMSServerTransport) {
+            jmsServerPolicy = ((JMSServerTransport)transport).getJMSServerBehaviourPolicy();
+        } else {
+            jmsServerPolicy = null;
+        }
+        
+        JMSSessionPoolConfigPolicy sessionPoolConfig = transport.getSessionPoolConfig();
+        
+        lowWaterMark = sessionPoolConfig.getLowWaterMark();
+        highWaterMark = sessionPoolConfig.getHighWaterMark();
+         
         isQueueConnection = addressExtensor.getDestinationStyle().value().equals(JMSConstants.JMS_QUEUE);
-        jmsServerPolicy = serverPolicy;
         initialContext = context;
 
         // create session caches (REVISIT sizes should be configurable)
@@ -124,8 +136,8 @@ public class JMSSessionFactory {
             //
             replyCapableSessionCache = 
                 new AbstractTwoStageCache<PooledSession>(
-                            PRIMARY_CACHE_MAX, 
-                            CACHE_HIGH_WATER_MARK, 
+                    lowWaterMark, 
+                    highWaterMark, 
                             0, 
                             this) {
                     public final PooledSession create() throws JMSException {
@@ -143,8 +155,8 @@ public class JMSSessionFactory {
             //
             sendOnlySessionCache = 
                 new AbstractTwoStageCache<PooledSession>(
-                            PRIMARY_CACHE_MAX, 
-                            CACHE_HIGH_WATER_MARK, 
+                    lowWaterMark, 
+                    highWaterMark, 
                             0, 
                             this) {
                     public final PooledSession create() throws JMSException {
@@ -162,8 +174,8 @@ public class JMSSessionFactory {
             //
             sendOnlySessionCache = 
                 new AbstractTwoStageCache<PooledSession>(
-                           PRIMARY_CACHE_MAX, 
-                           CACHE_HIGH_WATER_MARK, 
+                    lowWaterMark, 
+                    highWaterMark, 
                            0, 
                            this) {
                     public final PooledSession create() throws JMSException {

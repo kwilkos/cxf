@@ -118,6 +118,9 @@
                                     </dependencies>
                                 </xsdOption>
                                 <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-conf.xsd</xsd>
+                                </xsdOption>
+                                <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-context.xsd</xsd>
                                 </xsdOption>
                                 <xsdOption>

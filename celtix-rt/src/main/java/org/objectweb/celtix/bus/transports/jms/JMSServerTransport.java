@@ -37,6 +37,7 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
 import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
+import org.objectweb.celtix.transports.jms.jms_conf.JMSServerConfig;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
@@ -51,6 +52,7 @@ public class JMSServerTransport extends JMSTransportBase
     private PooledSession listenerSession;
     private Thread listenerThread;
     private JMSServerBehaviorPolicyType serverBehaviourPolicy;
+    private JMSServerConfig serverConfig;
     
 
 
@@ -58,8 +60,9 @@ public class JMSServerTransport extends JMSTransportBase
         throws WSDLException {
         super(b, address, true);        
         serverBehaviourPolicy = getServerPolicy(configuration);
+        serverConfig = getServerConfig(configuration);
         counters = new TransportServerCounters("JMSServerTranpsort");
-        entry("JMSServerTransport Constructor");
+        LOG.log(Level.FINE, "JMSServerTransport Constructor");
         bus.sendEvent(new ComponentCreatedEvent(this));
     }
     
@@ -71,12 +74,25 @@ public class JMSServerTransport extends JMSTransportBase
         return pol;
     }
     
+    private JMSServerConfig getServerConfig(Configuration conf) {
+        JMSServerConfig serverConf = conf.getObject(JMSServerConfig.class, "jmsServerConfig");
+        if (serverConf == null) {
+            serverConf = new JMSServerConfig();
+        }
+        
+        return serverConf;
+    }
+    
     public JMSServerBehaviorPolicyType getJMSServerBehaviourPolicy() {
         return serverBehaviourPolicy;
     }
+    
+    public JMSServerConfig getServerConfiguration() {
+        return serverConfig;
+    }
 
     public void activate(ServerTransportCallback transportCB) throws IOException {
-        entry("JMSServerTransport activate().... ");
+        LOG.log(Level.FINE, "JMSServerTransport activate().... ");
         callback = transportCB;
 
         try {
@@ -129,7 +145,7 @@ public class JMSServerTransport extends JMSTransportBase
     }
 
     public void shutdown() {
-        entry("JMSServerTransport shutdown()");
+        LOG.log(Level.FINE, "JMSServerTransport shutdown()");
         try {
             this.deactivate();
         } catch (IOException ex) {
@@ -255,6 +271,10 @@ public class JMSServerTransport extends JMSTransportBase
         int deliveryMode = getJMSDeliveryMode(headers);
         int priority = getJMSPriority(headers);
         long ttl = getTimeToLive(headers);
+        
+        if (ttl <= 0) {
+            ttl = serverConfig.getMessageTimeToLive();
+        }
 
         setMessageProperties(headers, reply);
 
