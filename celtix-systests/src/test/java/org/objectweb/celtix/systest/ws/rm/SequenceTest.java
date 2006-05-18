@@ -481,47 +481,36 @@ public class SequenceTest extends ClientServerTestBase {
         greeter.greetMe("three");
         greeter.greetMe("four");
 
-        // CreateSequence and four greetMe messages
+        // Expected outbound:
+        // CreateSequence 
+        // + 4 greetMe messages
+        // + at least 2 resends (message maye be resend multiple times depending
+        // on the timing of the ACKs)
 
-        mf.verifyMessages(5, true);
-        String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, GREETME_ACTION,
-                                                 GREETME_ACTION, GREETME_ACTION, GREETME_ACTION};
-        mf.verifyActions(expectedActions, true);
-        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3", "4"}, true);
-        mf.verifyLastMessage(new boolean[] {false, false, false, false, false}, true);
-        mf.verifyAcknowledgements(new boolean[] {false, false, true, false, true}, true);
+        mf.verifyMessages(7, true, 1000, 15, false);
+        mf.verifyAction(Names.WSRM_CREATE_SEQUENCE_ACTION, 1, true, true);
+        mf.verifyAction(GREETME_ACTION, 6, true, false);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3", "4"}, true, false);
+        mf.verifyLastMessage(new boolean[7], true, false);
+        mf.verifyAcknowledgements(4, true, false);
         
+        // Expected inbound:
         // createSequenceResponse 
-        // + 2 greetMeResponse actions (non-discarded messages)
-        // + 2 greetMe actions (discarded messages)
-        // + 3 partial responses (to CSR & each of the non-discarded messages)
+        // + 4 greetMeResponse actions (non-discarded messages)
+        // + 5 partial responses (to CSR & each of the initial greetMe messages)
+        // + at least 2 further partial response (for each of the resends)
 
-        mf.verifyMessages(8, false);
-        expectedActions = new String[] {null, Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, null,
-                                        GREETME_RESPONSE_ACTION, GREETME_ACTION, null,
-                                        GREETME_RESPONSE_ACTION, GREETME_ACTION};
-        mf.verifyActions(expectedActions, false);
-        mf.verifyMessageNumbers(new String[] {null, null, null, "1", null, null, "2", null}, false);
-        mf.verifyLastMessage(new boolean[8], false);
-        mf.verifyAcknowledgements(new boolean[] {false, false, false, true, false, false, true, false},
-                                  false);
-        
-        
-        mf.clear();
-        
-        // wait for resends to occur - first resend after slightly less than 1.5 + 3 seconds,
-        // next resend after 6 seconds.
-        // Note that although the message loss simulator 'drops' only every second message,
-        // we keep resending both messages because the (full) responses to these messages will not
-        // be processed (due to the way message loss is simulated).
-        // 
-        
-        mf.verifyMessages(4, true, 1000, 15);
-        expectedActions = new String[] {GREETME_ACTION, GREETME_ACTION, 
-                                        GREETME_ACTION, GREETME_ACTION};
-       
-        mf.verifyActions(expectedActions, true);
-
+        mf.verifyMessages(12, false, 1000, 15, false);
+        mf.verifyAction(Names.WSRM_CREATE_SEQUENCE_RESPONSE_ACTION, 1, false, true);
+        mf.verifyAction(GREETME_RESPONSE_ACTION, 4, false, false);
+        mf.verifyAction(null, 7, false, false);
+        // the actual message numbers seen beyond the first two incoming messages
+        // depend on the relative timing of server-side resends of the misdirected
+        // responses, versus new responses to resent requests
+        mf.verifyMessageNumbers(new String[] {"1", "3", null, null, null,
+                                              null, null, null, null}, false, false);
+        mf.verifyLastMessage(new boolean[12], false, false);
+        mf.verifyAcknowledgements(3, false, false);
     }
 
     // --- test setup helpers ---

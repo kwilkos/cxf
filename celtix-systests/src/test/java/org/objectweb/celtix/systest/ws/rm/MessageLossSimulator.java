@@ -1,49 +1,34 @@
 package org.objectweb.celtix.systest.ws.rm;
 
-import java.util.Iterator;
+import java.math.BigInteger;
 import java.util.Map;
-import java.util.Set;
 
-import javax.xml.namespace.QName;
-import javax.xml.soap.Name;
-import javax.xml.soap.Node;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPHeaderElement;
+import javax.xml.ws.handler.LogicalHandler;
+import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.soap.SOAPHandler;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
 
-
+import org.objectweb.celtix.bus.ws.rm.RMContextUtils;
+import org.objectweb.celtix.bus.ws.rm.RMUtils;
+import org.objectweb.celtix.ws.rm.RMProperties;
+import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
+import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
 
 
 /**
- * Discards a protion of inbound application-level messages to simulate 
- * message loss. Note that out-of-band WS-RM protocol messages are always
- * left intact.  
+ * Simulates message loss by suppressing the acknowledgement for certain 
+ * messages, before the WS-RM SOAPHandler encodes.
  */
-public class MessageLossSimulator implements SOAPHandler<SOAPMessageContext> {
-    protected static final String WSA_NAMESPACE_URI = 
-        "http://schemas.xmlsoap.org/ws/2004/08/addressing";
-    protected static final String WSA_ACTION = "Action";
-    protected static final String WSRM_NAMESPACE_URI = 
-        "http://schemas.xmlsoap.org/ws/2005/02/rm";
+public class MessageLossSimulator implements LogicalHandler<LogicalMessageContext> {
     
     /**
-     * Discard every second message
+     * Discard ACK messages 2 & 4
      */
-    private static final int LOSS_FACTOR = 2;
-    private int inboundMessageCount;
+    private static final boolean[] DROP_ACKS = {false, true, false, true};  
 
     public void init(Map<String, Object> map) {
     }
-
-    public Set<QName> getHeaders() {
-        return null;
-    }
-
 
     public void close(MessageContext context) {
     }
@@ -51,108 +36,93 @@ public class MessageLossSimulator implements SOAPHandler<SOAPMessageContext> {
     public void destroy() {
     }
     
-    public boolean handleMessage(SOAPMessageContext context) {
-        System.out.println("*** MessageLoss: handling message");
-        return continueProcessing(context);
+    public boolean handleMessage(LogicalMessageContext context) {
+        simulateLoss(context);
+        return true;
     }
 
-    public boolean handleFault(SOAPMessageContext context) {
+    public boolean handleFault(LogicalMessageContext context) {
         return true;
     }
     
     /**
      * @return true if the current message is outbound
      */
-    protected boolean isOutbound(SOAPMessageContext context) {
+    protected boolean isOutbound(LogicalMessageContext context) {
         Boolean outbound = (Boolean)context.get(MESSAGE_OUTBOUND_PROPERTY);
         return outbound != null && outbound.booleanValue();
     }
 
-    /**
-     * @return the WS-A Action header
-     */
-    protected String getAction(SOAPMessageContext context) {
-        String action = null;
-        try {
-            SOAPHeader header =  
-                context.getMessage().getSOAPPart().getEnvelope().getHeader();
-            Iterator headerElements = header.examineAllHeaderElements();
-            while (headerElements.hasNext()) {
-                SOAPHeaderElement headerElement =
-                    (SOAPHeaderElement)headerElements.next();
-                Name headerName = headerElement.getElementName();
-                if (WSA_NAMESPACE_URI.equals(headerName.getURI())
-                    && WSA_ACTION.equals(headerName.getLocalName())) {
-                    Iterator children = headerElement.getChildElements();
-                    if (children.hasNext()) {
-                        action = ((Node)children.next()).getValue();
-                    }
+    private synchronized void simulateLoss(LogicalMessageContext context) {
+        if (isOutbound(context)) {
+            RMProperties rmps = RMContextUtils.retrieveRMProperties(context, true);
+            if (rmps.getAcks() != null
+                && !ResponseMisdirector.isMisdirected(context)) {
+                // assume single ACK
+                SequenceAcknowledgement ack = rmps.getAcks().iterator().next();
+                int max = getMaxMessage(ack);
+                boolean[] acked = new boolean[max];
+                getAcked(ack, acked);
+                if (dropAcks(acked)) {
+                    ack.getAcknowledgementRange().clear();
+                    updateAcks(ack, acked);
                 }
             }
-        } catch (SOAPException e) {
-            System.out.println("*** failed to determine WS-A Action: " + e);
         }
-        return action;
     }
 
-
-    /**
-     * @return true if the current message should not be discarded
-     */
-    private synchronized boolean continueProcessing(SOAPMessageContext context) {
-        System.out.println("*** inboundMessageCount: " + inboundMessageCount);         
-        if (!(isOutbound(context) || isRMOutOfBand(context))
-            && ++inboundMessageCount % LOSS_FACTOR == 0) {
-            discardWSHeaders(context);
-            discardBody(context);
-            System.out.println("*** Discarding current inbound message ***");
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * @return true if this is a WS-RM out-of-band protocol message
-     */
-    protected boolean isRMOutOfBand(SOAPMessageContext context) {
-        String action = getAction(context);
-        return action != null && action.startsWith(WSRM_NAMESPACE_URI);
-    }
-
-    /**
-     * Discard any WS-* headers from the message
-     */
-    private void discardWSHeaders(SOAPMessageContext context) {
-        try {
-            SOAPHeader header =  
-                context.getMessage().getSOAPPart().getEnvelope().getHeader();
-            Iterator headerElements = header.examineAllHeaderElements();
-            while (headerElements.hasNext()) {
-                SOAPHeaderElement headerElement =
-                    (SOAPHeaderElement)headerElements.next();
-                Name headerName = headerElement.getElementName();
-                // only remove rm headers as absence of addressing headers
-                // causes assertion failures
-                if (WSRM_NAMESPACE_URI.equals(headerName.getURI())) {
-                    headerElement.detachNode();
-                }
+    private int getMaxMessage(SequenceAcknowledgement ack) {
+        BigInteger max = BigInteger.ZERO;
+        for (int i = 0; i < ack.getAcknowledgementRange().size(); i++) {
+            AcknowledgementRange r = ack.getAcknowledgementRange().get(i);
+            if (r.getUpper().compareTo(max) >= 0) {
+                max = r.getUpper();
             }
-        } catch (SOAPException e) {
-            System.out.println("*** discard WS headers failed: " + e);
+        }
+        return max.intValue();
+    }
+
+    private void getAcked(SequenceAcknowledgement ack, boolean[] acked) {
+        for (int i = 0; i < ack.getAcknowledgementRange().size(); i++) {
+            AcknowledgementRange r = ack.getAcknowledgementRange().get(i);
+            for (BigInteger j = r.getLower();
+                 j.compareTo(r.getUpper()) <= 0;
+                 j = j.add(BigInteger.ONE)) {
+                acked[j.intValue() - 1] = true;
+            }
         }
     }
     
-    
-    /**
-     * Discard the body from the message to avoid assertion failure when
-     * unmarshaling partial response (occuring when system tests are run in
-     * fork mode 'none')
-     */
-    private void discardBody(SOAPMessageContext context) {
-        try {
-            context.getMessage().getSOAPBody().removeContents();
-        } catch (SOAPException e) {
-            System.out.println("*** discard body failed: " + e);
+    private boolean dropAcks(boolean[] acked) {
+        boolean dropped = false;
+        for (int i = 0; i < acked.length; i++) {
+            if (i < DROP_ACKS.length && DROP_ACKS[i]) {
+                DROP_ACKS[i] = false;
+                dropped = true;
+                acked[i] = false;
+            }
+        }
+        return dropped;
+    }
+
+    private void updateAcks(SequenceAcknowledgement ack, boolean[] acked) {
+        AcknowledgementRange r = null;
+        for (int i = 0; i < acked.length; i++) {
+            if (acked[i]) {
+                if (r == null) {
+                    r = RMUtils.getWSRMFactory().createSequenceAcknowledgementAcknowledgementRange();
+                    r.setLower(BigInteger.valueOf(i + 1));
+                    r.setUpper(BigInteger.valueOf(i + 1));
+                } else {
+                    r.setUpper(BigInteger.valueOf(i + 1));
+                }
+            }
+            
+            if ((!acked[i] || i + 1 == acked.length)
+                && r != null) {
+                ack.getAcknowledgementRange().add(r);
+                r = null;
+            }
         }
     }
 }

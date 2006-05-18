@@ -87,40 +87,122 @@ public class MessageFlow extends Assert {
         return true;
     }
 
-
-    public void verifyMessageNumbers(String[] expectedMessageNumbers, boolean outbound) throws Exception {
-
-        assertEquals(expectedMessageNumbers.length, outbound ? outboundMessages.size()
-            : inboundContexts.size());
-
-        for (int i = 0; i < expectedMessageNumbers.length; i++) {
-            if (outbound) {
-                SOAPElement se = getSequence(outboundMessages.get(i));
-                if (null == expectedMessageNumbers[i]) {
-                    assertNull("Outbound message " + i + " contains unexpected message number ", se);
-                } else {
-                    assertEquals("Outbound message " + i + " does not contain expected message number "
-                                 + expectedMessageNumbers[i], expectedMessageNumbers[i], 
-                                 getMessageNumber(se));
+    public void verifyAction(String expectedAction,
+                             int expectedCount,
+                             boolean outbound,
+                             boolean exact) throws Exception {
+        int messageCount = outbound ? outboundMessages.size() : inboundContexts.size();
+        int count = 0;
+        for (int i = 0; i < messageCount; i++) {
+            String action = outbound ? getAction(outboundMessages.get(i)) : getAction(inboundContexts.get(i));
+            if (null == expectedAction) {
+                if (action == null) {
+                    count++;
                 }
             } else {
-                SequenceType s = getSequence(inboundContexts.get(i));
-                String messageNumber = null == s ? null : s.getMessageNumber().toString();
-                if (null == expectedMessageNumbers[i]) {
-                    assertNull("Inbound message " + i + " contains unexpected message number ",
-                               messageNumber);
-                } else {
-                    assertEquals("Inbound message " + i + " does not contain expected message number "
-                                 + expectedMessageNumbers[i], expectedMessageNumbers[i], messageNumber);
+                if (expectedAction.equals(action)) {
+                    count++;                    
                 }
+            }
+        }
+        if (exact) {
+            assertEquals("unexpected count for action: " + expectedAction,
+                         expectedCount,
+                         count);
+        } else {
+            assertTrue("unexpected count for action: " + expectedAction + ": " + count,
+                       expectedCount <= count);
+        }
+        
+    }
+
+    public void verifyMessageNumbers(String[] expectedMessageNumbers, boolean outbound) throws Exception {
+        verifyMessageNumbers(expectedMessageNumbers, outbound, true);
+    }
+
+    public void verifyMessageNumbers(String[] expectedMessageNumbers,
+                                     boolean outbound,
+                                     boolean exact) throws Exception {
+
+        int actualMessageCount = 
+            outbound ? outboundMessages.size() : inboundContexts.size();
+        if (exact) {
+            assertEquals(expectedMessageNumbers.length, actualMessageCount);
+        } else {
+            assertTrue(expectedMessageNumbers.length <= actualMessageCount);
+        }
+
+        if (exact) {
+            for (int i = 0; i < expectedMessageNumbers.length; i++) {
+                if (outbound) {
+                    SOAPElement se = getSequence(outboundMessages.get(i));
+                    if (null == expectedMessageNumbers[i]) {
+                        assertNull("Outbound message " + i + " contains unexpected message number ", se);
+                    } else {
+                        assertEquals("Outbound message " + i + " does not contain expected message number "
+                                     + expectedMessageNumbers[i], expectedMessageNumbers[i], 
+                                     getMessageNumber(se));
+                    }
+                } else {
+                    SequenceType s = getSequence(inboundContexts.get(i));
+                    String messageNumber = null == s ? null : s.getMessageNumber().toString();
+                    if (null == expectedMessageNumbers[i]) {
+                        assertNull("Inbound message " + i + " contains unexpected message number ",
+                                   messageNumber);
+                    } else {
+                        assertEquals("Inbound message " + i + " does not contain expected message number "
+                                     + expectedMessageNumbers[i], expectedMessageNumbers[i], messageNumber);
+                    }
+                }
+            }
+        } else {
+            boolean[] matches = new boolean[expectedMessageNumbers.length];
+            for (int i = 0; i < actualMessageCount; i++) {
+                String messageNumber = null;
+                if (outbound) {
+                    SOAPElement se = getSequence(outboundMessages.get(i));
+                    messageNumber = null == se ? null : getMessageNumber(se);
+                } else {
+                    SequenceType s = getSequence(inboundContexts.get(i));
+                    messageNumber = null == s ? null : s.getMessageNumber().toString();
+                }
+                for (int j = 0; j < expectedMessageNumbers.length; j++) {
+                    if (messageNumber == null) {
+                        if (expectedMessageNumbers[j] == null && !matches[j]) {
+                            matches[j] = true;
+                            break;
+                        }
+                    } else {
+                        if (messageNumber.equals(expectedMessageNumbers[j]) && !matches[j]) {
+                            matches[j] = true;
+                            break;                                
+                        }
+                    }
+                }
+            }
+            for (int k = 0; k < expectedMessageNumbers.length; k++) {
+                assertTrue("no match for message number: " + expectedMessageNumbers[k],
+                           matches[k]);
             }
         }
     }
 
-    public void verifyLastMessage(boolean[] expectedLastMessages, boolean outbound) throws Exception {
+    public void verifyLastMessage(boolean[] expectedLastMessages,
+                                  boolean outbound) throws Exception {
+        verifyLastMessage(expectedLastMessages, outbound, true);
+    }
+
+    public void verifyLastMessage(boolean[] expectedLastMessages,
+                                  boolean outbound,
+                                  boolean exact) throws Exception {
         
-        assertEquals(expectedLastMessages.length, outbound ? outboundMessages.size()
-            : inboundContexts.size());
+        int actualMessageCount =
+            outbound ? outboundMessages.size() : inboundContexts.size();
+        if (exact) {
+            assertEquals(expectedLastMessages.length, actualMessageCount);
+        } else {
+            assertTrue(expectedLastMessages.length <= actualMessageCount);
+        }
         
         for (int i = 0; i < expectedLastMessages.length; i++) { 
             boolean lastMessage;
@@ -156,6 +238,31 @@ public class MessageFlow extends Assert {
             }
         }
     }
+    
+    public void verifyAcknowledgements(int expectedAcks,
+                                       boolean outbound,
+                                       boolean exact) throws Exception {
+        
+        int actualMessageCount = 
+            outbound ? outboundMessages.size() : inboundContexts.size();
+        int ackCount = 0;
+        for (int i = 0; i < actualMessageCount; i++) {
+            boolean ack = outbound ? (null != getAcknowledgment(outboundMessages.get(i))) 
+                : (null != getAcknowledgment(inboundContexts.get(i)));
+            if (ack) {
+                ackCount++;
+            }
+        }
+        if (exact) {
+            assertEquals("unexpected number of acks", expectedAcks, ackCount);
+        } else {
+            assertTrue("unexpected number of acks: " + ackCount,
+                       expectedAcks <= ackCount);
+        }
+        
+        
+    }
+
 
     public void verifyAckRequestedOutbound() throws Exception {
         boolean found = false;
@@ -282,20 +389,38 @@ public class MessageFlow extends Assert {
     }
     
     public void verifyMessages(int nExpected, boolean outbound) {
+        verifyMessages(nExpected, outbound, true);
+    }
+    
+    public void verifyMessages(int nExpected, boolean outbound, boolean exact) {
         if (outbound) {
-            assertEquals("Unexpected number of outbound messages" + outboundDump(),
-                         nExpected, outboundMessages.size());
+            if (exact) {
+                assertEquals("Unexpected number of outbound messages" + outboundDump(),
+                             nExpected, outboundMessages.size());
+            } else {
+                assertTrue("Unexpected number of outbound messages: " + outboundDump(),
+                           nExpected <= outboundMessages.size());
+            }
         } else {
-            assertEquals("Unexpected number of inbound messages", nExpected, inboundContexts.size());
+            if (exact) {
+                assertEquals("Unexpected number of inbound messages", nExpected, inboundContexts.size());
+            } else {
+                assertTrue("Unexpected number of inbound messages: " + inboundContexts.size(),
+                           nExpected <= inboundContexts.size());                
+            }
         }
     }
     
     public void verifyMessages(int nExpected, boolean outbound, int interval, int attempts) {
+        verifyMessages(nExpected, outbound, interval, attempts, false);
+    }
+    
+    public void verifyMessages(int nExpected, boolean outbound, int interval, int attempts, boolean exact) {
         for (int i = 0; i < attempts; i++) {
             if ((outbound && outboundMessages.size() < nExpected)
                 || (!outbound && inboundContexts.size() < nExpected)) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(interval);
                 } catch (InterruptedException ex) {
                     // ignore
                 }
@@ -303,13 +428,7 @@ public class MessageFlow extends Assert {
                 break;
             }
         }
-        if (outbound) {
-            assertEquals("Did not send the expected number of outbound messages." + outboundDump(), 
-                         nExpected, outboundMessages.size());
-        } else {
-            assertEquals("Did not receive the expected number of inbound messages.",
-                         nExpected, inboundContexts.size());
-        }
+        verifyMessages(nExpected, outbound, exact);
     }
     
     public void purgePartialResponses() throws Exception {
