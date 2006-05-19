@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2002-2004 The Apache Software Foundation or its licensors,
+  as applicable.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!DOCTYPE faqs PUBLIC "-//APACHE//DTD FAQ V2.0//EN" "http://forrest.apache.org/dtd/faq-v20.dtd">
+
+<faqs>
+  <title>License FAQ</title>
+    <faq>
+      <question>
+		How many Celtix licensing options do I have to choose from?
+      </question>
+      <answer>
+      Two. One option is primarily licensed under the LGPL; the other option is primarily licensed 
+	  under the EPL.  To ensure there is no confusion about which license a user is accepting, 
+	  Celtix offers separate distributions: one primarily licensed under the LGPL and one primarily 
+	  licensed under the EPL.
+      </answer>
+    </faq>
+		<faq>
+	<question>
+	Why are there these two options?  Why not just stick to one or the other?
+	</question>
+	<answer>
+	The LGPL option allows compatibility with other free software projects, such as those 
+	licensed under the GPL and LGPL. The EPL option is more compatible with many other 
+	open source projects, specifically, with Apache and Eclipse projects. For example, the Eclipse 
+	SOA Tools Platform project will be including parts of Celtix in its distribution. Both the EPL 
+	and LGPL include a clause that requires that derivative works be distributed under the same 
+	license as the work from which it is derived.
+	</answer>
+	</faq>
+	<faq>
+	<question>
+	What is meant above by "primarily licensed under"? What other licenses are relevant to the Celtix distributions?
+	</question>
+	<answer>
+	All new code written for and contributed to the Celtix project is licensed under both the LGPL and 
+	the EPL. In addition, the same licenses apply to the collective work, known as a "Celtix distribution". 
+	However, Celtix uses and redistributes a few other open source components that are licensed 
+	differently. As of December 2005, the Celtix binary distribution includes third-party components 
+	licensed under the Apache License CDDL, and CPL (all approved by the Open Source Initiative).
+	</answer>
+	</faq>
+	<faq>
+	<question>
+    How can I find out exactly what third-party components are included in Celtix and what licenses are applicable to them?
+	</question>
+	<answer>
+    <p>There are several ways the Celtix team tries to make the licensing of Celtix and its components clear to users:</p>
+	<ul>
+	<li>Each Celtix distribution includes a file named <code>3party-licenses.txt</code> that identifies the name 
+	    of each third-party component and its applicable license.</li>
+	<li>The directory containing each third-party component will also include a copy of the applicable license.</li>
+	</ul>
+	<p>The Celtix committers do all this because we respect the intellectual property rights and licenses of others, 
+	and we want to make it easy for our users and redistributors to do the same.</p>
+	</answer>
+	</faq>
+		<faq>
+	<question>
+	Could the Celtix source and binary distributions have different applicable licenses?
+	</question>
+	<answer>
+	Yes. In addition to all the components included in the binary distribution, the source distribution includes 
+	some tools necessary for building and contributing to the project.  These tools may be licensed differently 
+	than the other components that are also found in the binary distribution. The <code>3party-licenses.txt</code> 
+	file will list exactly what these components are and what the applicable license is for each one. However, 
+	aside from third-party components, the core Celtix code is still licensed under both the EPL or LGPL 
+	(your choice), for both source and binary form.
+	</answer>
+	</faq>
+</faqs>

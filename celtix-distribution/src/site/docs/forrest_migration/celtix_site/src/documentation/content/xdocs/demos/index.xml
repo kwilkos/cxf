@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+<document> 
+  <header> 
+    <title>Celtix Demos</title> 
+	<abstract>This page is a collection of samples showing what people have developed for Celtix or on top of Celtix. The intent is to demonstrate Celtix's capabilities and provide a starting point for developers.</abstract>
+  </header> 
+  <body> 
+    <section>
+      <title>Overviews</title>
+    <table>
+        <tr>
+          <td>
+            <a href="#intalio">
+              Intalio Integration
+            </a>
+          </td>
+          <td>
+            This demo describes how to write two Celtix applications:
+            <ul>
+              <li>an application that kicks off an Intalio|n3 process</li>
+              <li>an application that provides the business logic representing an Intalio|n3 task.</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="#rss">
+              RSS Integration
+            </a>
+          </td>
+          <td>
+            This demo shows how to use RSS as a place to syndicate Web services in a simple way using Celtix and RSSLib4J.
+            It shows how to wrap the RSSLib4J APIs in order to use them to implement a name lookup for a WSDL from a RSS feed.
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="#bpel">
+              ActiveBPEL Integration
+            </a>
+          </td>
+          <td>
+            This demo shows how to use the ActiveBPEL business process engine to
+            coordinate information flow between multiple Celtix Web services. This demo also shows interoperability between
+            Celtix and the ActiveBPEL engine, which uses Axis as its underlying Web services toolkit.
+          </td>
+        </tr>
+    </table>
+	</section>
+    <section>
+      <title>Detailed Descriptions</title>
+	  <section id="intallio">
+		<title>Intalio Integration</title>
+		<p><strong>Description:</strong>
+      An Intalio|n3 business process may be exposed as a Web service, which allows a client application to
+      initiate a business process by sending a Web service request. Additionally, a task within an Intalio|n3
+      business process may represent an invocation on a distributed Web service. When the process reaches
+      this task, Intalio|n3 sends a Web services request to the external Web service. This application note
+      describes how to write two Celtix applications:
+      </p>
+      <ul>
+        <li>An application that kicks off an Intalio|n3 process</li>
+        <li>An application that provides the business logic representing an Intalio|n3 task</li>
+      </ul>
+    <p><strong>Contributed by:</strong> John Lifter</p>
+    <p><strong>Created:</strong> 29 December 2005</p>
+    <p><strong>Last updated:</strong> 29 December 2005</p>
+    <p><strong>Tested with:</strong> Celtix 1.0</p>
+    <p><strong>Download:</strong></p>
+    <ul>
+      <li>Overview (<a href="./intalio/celtix_intalio_integration.pdf">pdf</a>)</li>
+      <li>Source (<a href="./intalio/celtix_intalio_integration.zip">zip</a>)</li>
+    </ul>
+	  </section>
+	  <section id="rss">
+		<title> RSS Integration</title>
+		<p><strong>Prerequisites:</strong> Please download RSSLib4J from <a href="http://devzone.stealthp.org/cms/index.php?page=RSSLib4J#RSSLib4J"> here</a>.</p>
+		<p><strong>Motivation:</strong> Today there are two fundamental ways to connect to a Web service:</p>
+		<ul>
+		  <li>Bootstrap the consumer with the service's WSDL file.</li>
+		  <li>Use a UDDI registry to look up a service.</li>
+		</ul>
+		<p>The problem for many small organizations is that UDDI is a substantial investment in terms of licensing, programming to the APIs, and perhaps hosting.
+           UDDI seems like a lot of infrastructure for simply looking up a Web service. And if the developer doesn't want to bootstrap using a WSDL file, what other alternative do they have?
+			<br/>
+			Why not use RSS as a place to syndicate Web services in a simple way. I found <a href="http://www.xml.com/pub/a/2002/12/18/dive-into-xml.html#RSS"> this</a> site useful in describing RSS and its various flavors. RSS stands for Really Simple Syndication and is used by news web sites and bloggers to create feeds. Basically RSS provides a channel that contains one or more items. Each item has, among other things, a title, a description, and a link. Usually the link is an HTML link to the news or blog content. However there is no reason why that link cannot be to a link to a service's WSDL.</p>
+		<p><strong>Description:</strong> This demo uses Celtix and an RSS feed parser called RSSLib4J that you can <a href="http://devzone.stealthp.org/cms/index.php?page=RSSLib4J#RSSLib4J"> download here</a>. It includes a simple class that wraps the RSSLib4J APIs in order to use them for a name lookup for a WSDL from the feed.
+<br/>
+This demo is similar to the simple Hello_World demo. The major differences are the source of the WSDL and how the client looks up the service's WSDL.
+The client uses the new RSSSRegistry class to parse the RSS feed. It then uses the link provided through the feed to bootstrap the service's WDL.
+The build.xml has been modified to pickup the RSSLib4J jar file in the demo's lib directory.
+<br/>
+Please read the readme.txt file for more information on running the demo.
+</p>
+    <p><strong>Contributed by:</strong> <a href="mailto:william.henry@iona.com">William Henry</a></p>
+    <p><strong>Created:</strong> 10 January 2006</p>
+    <p><strong>Last updated:</strong> 8 Febuary 2006</p>
+    <p><strong>Tested with:</strong>Celtix 1.0</p>
+    <p><strong>Download:</strong> <a href="./rss/hello_world_RSS.zip">zip</a></p>
+  </section>
+    <section id="bpel">
+	  <title>ActiveBPEL Integration</title>
+	  <p><strong>Description:</strong> In many situations, developers need to integrate several Web service applications into a larger application, such as
+      using a credit checking service, an inventory service, or a shipping service to process a sales order. It is
+      possible to write an application that accepts customer input, invokes the various services, and then returns shipping
+      and billing information to the customer. However, an alternative approach would be to define the process using business process execution
+      language (BPEL) and leave the details of persistence, compensation, coordination, and exception handling to a business process engine.
+      This demo shows how to use the ActiveBPEL business process engine to coordinate information flow between multiple Celtix Web service
+      applications. This demo also shows interoperability between Celtix and the ActiveBPEL engine, which uses Axis as its underlying
+      Web services toolkit.</p>
+	  <p><strong>Contributed by:</strong> John Lifter</p>
+	  <p><strong>Created:</strong> 27 January 2006</p>
+      <p><strong>Last updated:</strong> 27 January 2006</p>
+	  <p><strong>Tested with:</strong> Celtix 1.0</p>
+	  <p><strong>Download:</strong></p>
+    <ul>
+      <li>Overview (<a href="./bepl/celtix_activeBPEL_integration.pdf">pdf</a>)</li>
+      <li>Source (<a href="./bepl/celtix_activeBPEL_integration.zip">zip</a>)</li>
+    </ul>
+	</section>
+	  </section>
+  </body>
+</document>

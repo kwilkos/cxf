@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+<document> 
+  <header> 
+    <title>Celtix Documentation Project</title> 
+  </header> 
+  <body> 
+    <section>
+      <title>Roadmap</title>
+      <p>The full 1.0 Documentation plan in PDF format is available here: <a href="../docs/oneoplan.pdf">1.0 Doc Plan</a></p>
+      <section>
+	  <title>Milestones</title>
+	  <section>
+      <title>Doc Milestone 1 - 4/28/06</title>
+      <ul>
+        <li><strong>Installation Guide</strong></li>
+        <li><strong>Getting Started with Celtix</strong></li>
+        <li><strong>Developing a Service with Celtix</strong></li>
+        <li><strong>Developing a Consumer with Celtix</strong></li>
+        <li><strong>Celtix Configuration Guide</strong></li>
+      </ul>
+	  </section>
+	  <section>
+      <title>Doc Milestone 2 - 5/26/06</title>
+      <ul>
+        <li><strong>Writing Handlers</strong></li>
+        <li><strong>Creating Routes with Celtix</strong></li>
+        <li><strong>Using the JMS Transport</strong></li>
+        <li><strong>Deploying Celtix in a Servlet Container</strong></li>
+      </ul>
+	  </section>
+	  <section>
+      <title>Doc Milestone 3 - 6/30/06</title>
+      <ul>
+        <li><strong>Writing Asynchronous Services</strong></li>
+        <li><strong>Securing Celtix Services</strong></li>
+        <li><strong>Using Reliable Messaging in Celtix</strong></li>
+        <li><strong>Deploying Celtix Applications in a J2EE Environment</strong></li>
+      </ul>
+	  </section>
+	  <section>
+      <title>Docs 1.0 - 7/28/06</title>
+      <ul>
+        <li><strong>Deploying Celtix Applications in an SCA Container</strong></li>
+        <li><strong>Deploying Celtix Applications in a JBI Container</strong></li>
+        <li><strong>Command Line Tool Reference</strong></li>
+      </ul>
+	  </section>
+	  <section>
+      <title>Post 1.0</title>
+      <ul>
+        <li><strong>Implementing a Celtix Transport</strong></li>
+        <li><strong>Implementing a Celtix Binding</strong></li>
+        <li><strong>Extending Celtix Configuration</strong></li>
+        <li><strong>Celtix Architecture Guide</strong></li>
+        <li>Tutorials</li>
+        <li>FAQs</li>
+      </ul>
+	  </section>
+	  </section>
+	  </section>
+	  <section>
+      <title>How to participate</title>
+      <p>To work on the Celtix documentation do the following:</p>
+      <ol>
+        <li>Check the list of tasks in the <a href="http://forge.objectweb.org/pm/task.php?group_project_id=182">documentation subproject</a>.</li>
+        <li>E-mail a notice to the <a href="mailto:celtix-dev@objectweb.org">Celtix developers list</a> stating which document you want to work on.</li>
+        <li>If you are writing a new document, download the proper template from the <a href="#template">Template Area</a>.</li>
+        <li>If you are updating existing documentation, download the current version from the repository and edit that.</li>
+        <li>Send the finished product to the <a href="mailto:celtix-dev@objectweb.org">Celtix developers list</a>.</li>
+      </ol>
+	  </section>
+	  <section id="template">
+      <title>Templates</title>
+      <p>All of the templates are OpenDocument templates. All work submitted to the project should also be in OpenDocument format. Currently, OpenOffice and Star Office are the only packages that fully support OpenDocument. However, there are several other projects that have announced support for this standard.</p>
+      <p>To save the template use your browser's <em>Save Target/Link As</em> feature.</p>
+      <ul>
+        <li><a href="../docs/templates/tutorial.ott">Tutorial Template</a></li>
+        <li><a href="../docs/templates/user_guide.ott">User Guide Template</a></li>
+        <li><a href="../docs/templates/FAQ.ott">FAQ Template</a></li>
+      </ul>
+	  </section>
+  </body>
+</document>

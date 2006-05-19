@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+<document> 
+  <header> 
+    <title>Celtix Documentation</title> 
+  </header> 
+  <body> 
+    <section>
+      <title>Contributing</title>
+      <p>If you are interested in contributing the the Celtix documentation click on the <a href="site:docco/proj">Documentation Project</a> link on the menu.</p>
+    </section>
+	<section>
+	  <title>User FAQs</title>
+      <ul>
+        <li><a href="site:general">General</a></li>
+        <li><a href="site:license">Licensing</a></li>
+        <li><a href="site:project">Project</a></li>
+        <li><a href="site:features">Features</a></li>
+        <li><a href="site:tech">Celtix Technology</a></li>
+      </ul>
+	  </section>
+      <section>
+	  <title>Installation Documentation</title>
+      <ul>
+        <li><a href="../docs/user_guides/installation/installation.html">Installation Guide</a></li>
+        <li><a href="site:rel_notes">Release Notes</a></li>
+      </ul>
+	  </section>
+      <section>
+	  <title>Tutorials</title>
+      <ul>
+        <li><a href="../docs/user_guides/getting_started/getting_started.html">Getting Started with Celtix</a></li>
+      </ul>
+	  </section>
+      <section>
+	  <title>User Guides</title>
+	  <section>
+	  <title>Development</title>
+        <ul>
+		  <li><a href="../docs/user_guides/develop_consumer/develop_consumer.html">Developing a Celtix Consumer</a></li>
+		  <li><a href="site:jms">Using the JMS Transport</a></li>
+		  <li><a href="../docs/user_guides/dynamic_lang/dynamic_lang.html">Using Dynamic Languages to Implement Services</a></li>
+		  <li><a href="../docs/user_guides/management/management.html">Using Celtix Management</a></li>
+		</ul>
+	  </section>
+	  <section>
+	  <title>Deployment</title>
+		<ul>
+          <li><a href="site:config">Using Celtix Configuration</a></li>
+		  <li><a href="../docs/user_guides/tomcat_deploy/deploy_into_tomcat.html">Deploying Celtix into a Servlet Container</a></li>
+        </ul>
+      </section>
+	  </section>
+	  <section>
+	  <title>References</title>
+        <ul>
+          <li><a href="../docs/api/index.html">Celtix APIs</a></li>
+          <li><a href="../docs/user_guides/tools/tools.html">Command-line Tools</a></li>
+        </ul>   
+      </section>
+	  <section>
+	  <title>Arcitecture Guides</title>
+      <ul>
+        <li><a href="https://wiki.objectweb.org/celtix/Wiki.jsp?page=Components">Components</a></li>
+        <li><a href="https://wiki.objectweb.org/celtix/Wiki.jsp?page=RequestHandling">Request Handling</a></li>
+        <li><a href="https://wiki.objectweb.org/celtix/Wiki.jsp?page=CeltixJBIOverview">JBI Integration</a></li>
+      </ul>
+	</section>
+      <section>
+	  <title>Standards</title>
+	  </section>
+  </body>
+</document>
