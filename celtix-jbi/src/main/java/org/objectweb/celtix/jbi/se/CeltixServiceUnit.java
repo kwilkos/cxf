@@ -212,7 +212,7 @@ public class CeltixServiceUnit {
         private Class<?> loadClass(ClassLoader loader, File classFile) { 
             
             String fileName = classFile.toString();
-            String className = fileName.substring(rootPath.length() + 1);
+            String className = fileName.substring(rootPath.length());
             className = className.substring(0, className.length() - ".class".length())
                 .replace(File.separatorChar, '.');
             

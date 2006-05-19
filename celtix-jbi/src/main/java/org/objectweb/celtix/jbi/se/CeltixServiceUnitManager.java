@@ -56,17 +56,35 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
             throw new DeploymentException(ex);
         } 
         
+                
         String msg =  "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+            + "<jbi-task xmlns=\"http://java.sun.com/xml/ns/jbi/management-message\" "  
+            +  "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " 
+            +  "version=\"1.0\" " 
+            +  "xsi:schemaLocation=\"http://java.sun.com/xml/ns/jbi/management-message " 
+            +  "./managementMessage.xsd\">"
+            + "<jbi-task-result>"
+            + "<frmwk-task-result>" 
+            + "<frmwk-task-result-details>" 
+            + "<task-result-details>" 
+            + "<task-id>deploy</task-id>" 
+            + "<task-result>SUCCESS</task-result>" 
+            + "</task-result-details>" 
+            + "<locale>en_US</locale>" 
+            + "</frmwk-task-result-details>"
+            + "<is-cause-framework>YES</is-cause-framework>"
+            + "</frmwk-task-result>"
             + "<component-task-result>"
-            + "  <component-name>" + suName + "</component-name>"
-            + "  <component-task-result-details"
-            + "    xmlns=\"http://java.sun.com/xml/ns/jbi/management-message\">"
-            + "      <task-result-details>"
-            + "          <task-id>deploy</task-id>"
-            + "          <task-result>SUCCESS</task-result>"
-            + "      </task-result-details>"
-            + "  </component-task-result-details>"
-            + "</component-task-result>";
+            + "<component-name>" + ctx.getComponentName() + "</component-name>"
+            + "<component-task-result-details>"
+            + "<task-result-details>"
+            + "<task-id>deploy</task-id>"
+            + "<task-result>SUCCESS</task-result>"
+            + "</task-result-details>"
+            + "</component-task-result-details>"
+            + "</component-task-result>"
+            + "</jbi-task-result>"
+            + "</jbi-task>";
         
         return msg;
     }
@@ -77,16 +95,32 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
         csuMap.remove(suName); 
         
         String msg =  "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+            + "<jbi-task xmlns=\"http://java.sun.com/xml/ns/jbi/management-message\" "  
+            +  "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " 
+            +  "version=\"1.0\" " 
+            +  "xsi:schemaLocation=\"http://java.sun.com/xml/ns/jbi/management-message " 
+            +  "./managementMessage.xsd\">"
+            + "<jbi-task-result>"
+            + "<frmwk-task-result>" 
+            + "<frmwk-task-result-details>" 
+            + "<task-result-details>" 
+            + "<task-id>undeploy</task-id>" 
+            + "<task-result>SUCCESS</task-result>" 
+            + "</task-result-details>" 
+            + "<locale>en_US</locale>" 
+            + "</frmwk-task-result-details>" 
+            + "</frmwk-task-result>"
             + "<component-task-result>"
-            + "  <component-name>" + suName + "</component-name>"
-            + "  <component-task-result-details"
-            + "    xmlns=\"http://java.sun.com/xml/ns/jbi/management-message\">"
-            + "      <task-result-details>"
-            + "          <task-id>undeploy</task-id>"
-            + "          <task-result>SUCCESS</task-result>"
-            + "      </task-result-details>"
-            + "  </component-task-result-details>"
-            + "</component-task-result>";
+            + "<component-name>" + ctx.getComponentName() + "</component-name>"
+            + "<component-task-result-details>"
+            + "<task-result-details>"
+            + "<task-id>undeploy</task-id>"
+            + "<task-result>SUCCESS</task-result>"
+            + "</task-result-details>"
+            + "</component-task-result-details>"
+            + "</component-task-result>"
+            + "</jbi-task-result>"
+            + "</jbi-task>";
         
         return msg;
     }
