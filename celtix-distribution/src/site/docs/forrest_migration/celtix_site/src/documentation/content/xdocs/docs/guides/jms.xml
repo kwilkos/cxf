@@ -342,7 +342,7 @@
 
         <para>For more information on using Celtix configuration see the
         <ulink
-        url="http://celtix.objectweb.org/docs/user_guides/configuration/configuration.html">Celtix
+        url="site:config">Celtix
         Configuration Guide</ulink>.</para>
       </sect3>
     </sect2>
