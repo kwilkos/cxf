@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.jaxws;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +80,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     protected Schema schema;
     protected Map<String, Object> properties;
     protected ServerBinding serverBinding;
+    protected String address; 
     
     protected boolean doInit;
     protected boolean initialised;
@@ -94,6 +96,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     protected Map<QName, ServerDataBindingCallback> callbackMap
         = new ConcurrentHashMap<QName, ServerDataBindingCallback>();
     
+    
     public EndpointImpl(Bus b, Object impl, String bindingId) {
         this(b, impl, bindingId, EndpointReferenceUtils.getEndpointReference(b.getWSDLManager(), impl));
     }
@@ -101,6 +104,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     public EndpointImpl(Bus b, Object impl, String bindingId, EndpointReferenceType ref) {
         this(b, impl, impl.getClass(), bindingId, ref);
     }
+    
+    
     public EndpointImpl(Bus b, Object obj, Class<?> implClass, String bindingId, EndpointReferenceType ref) {
 
         bus = b;
@@ -139,6 +144,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         if (doInit) {
             try {
                 injectResources();
+                initProvider();
                 initProperties();
                 initMetaData();
     
@@ -287,7 +293,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         }
         // apply all changes to configuration and metadata and (re-)activate
         try {
-            String address = getAddressFromContext(serverContext);
+            address = getAddressFromContext(serverContext);
             if (!isContextBindingCompatible(address)) {
                 throw new IllegalArgumentException(
                     new BusException(new Message("BINDING_INCOMPATIBLE_CONTEXT_EXC", LOG)));
@@ -303,8 +309,9 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
      * 
      * @see javax.xml.ws.Endpoint#publish(java.lang.String)
      */
-    public void publish(String address) {
+    public void publish(String addr) {
         
+        address = addr;
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             security.checkPermission(new WebServicePermission("endpointPublish"));    
@@ -417,7 +424,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     String getAddressFromContext(Object ctx) throws Exception {
         List<String> strs = configuration.getStringList("serverContextInspectors");
         Iterator iter = strs.iterator();
-        String address = null;
+        String addr = null;
         while (iter.hasNext()) {
             String className = (String)iter.next();
             
@@ -429,9 +436,9 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
                                   getContextInspectorClassLoader()).asSubclass(ContextInspector.class);
 
                 ContextInspector inspector = inspectorClass.newInstance();
-                address = inspector.getAddress(ctx);
-                if (address != null) {
-                    return address;
+                addr = inspector.getAddress(ctx);
+                if (addr != null) {
+                    return addr;
                 }
             } catch (ClassNotFoundException e) {
                 throw new WebServiceException(
@@ -444,16 +451,16 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
                     new Message("CONTEXT_INSPECTOR_INSTANTIATION_EXC", LOG).toString(), e);
             }
         }
-        return address;
+        return addr;
     }
 
-    protected boolean isContextBindingCompatible(String address) {
-        return serverBinding.isBindingCompatible(address);    
+    protected boolean isContextBindingCompatible(String addr) {
+        return serverBinding.isBindingCompatible(addr);    
     }
 
-    void doPublish(String address) {
+    void doPublish(String addr) {
 
-        EndpointReferenceUtils.setAddress(reference, address);      
+        EndpointReferenceUtils.setAddress(reference, addr);      
         try {
             serverBinding.activate();
             published = true;
@@ -655,5 +662,29 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         }
         return javax.jws.soap.SOAPBinding.Style.DOCUMENT;
     }
-   
+    
+    private void initProvider() {
+        // if no wsdl is specified, lets fake service port name
+        if (wsProvider != null 
+            && (null == wsProvider.wsdlLocation() || "".equals(wsProvider.wsdlLocation()))) {
+            
+            String ns = wsProvider.targetNamespace(); 
+            if (null == ns || "".equals(ns)) {
+                ns = "http://localhost/" + implementorClass.getPackage().getName().replace(".", "/");
+            }
+            
+            try {
+                URL addrURL = new URL(address);
+                String path = addrURL.getPath();
+                if (path.contains("/")) {
+                    int index = path.indexOf("/");
+                    QName serviceName = new QName(ns, path.substring(0, index));
+                    String portName = path.substring(index);
+                    EndpointReferenceUtils.setServiceAndPortName(reference, serviceName, portName);
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
 }

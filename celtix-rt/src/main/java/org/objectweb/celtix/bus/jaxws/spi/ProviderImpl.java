@@ -29,6 +29,7 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
 
     @Override
     public Endpoint createEndpoint(String bindingId, Object implementor) {
+
         Endpoint ep = null;
         if (EndpointUtils.isValidImplementor(implementor)) {
             ep = new EndpointImpl(Bus.getCurrent(), implementor, bindingId);

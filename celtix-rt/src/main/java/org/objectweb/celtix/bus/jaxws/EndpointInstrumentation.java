@@ -58,13 +58,15 @@ public class EndpointInstrumentation implements Instrumentation {
         Port port;
         String portName = null;
         try {
-        
-            port = EndpointReferenceUtils.getPort(endPoint.getBus().getWSDLManager(), 
-                                                  endPoint.getEndpointReferenceType());
-            if (null != port) {
-                portName = port.getName();
-            } else {
-                portName = "";
+            portName = EndpointReferenceUtils.getPortName(endPoint.getEndpointReferenceType());
+            if (portName == null) {
+                port = EndpointReferenceUtils.getPort(endPoint.getBus().getWSDLManager(), 
+                                                      endPoint.getEndpointReferenceType());
+                if (null != port) {
+                    portName = port.getName();
+                } else {
+                    portName = "";
+                }
             }
         
         } catch (WSDLException e) {
@@ -74,6 +76,9 @@ public class EndpointInstrumentation implements Instrumentation {
         if (portName != null) {
             return portName;
         } else {
+            if (null != endPoint.getImplementorClass()) {
+                return endPoint.getImplementorClass().getName();
+            }
             return "";
         }
     }

@@ -6,6 +6,8 @@ import java.net.URL;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.jws.WebService;
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
@@ -118,6 +120,11 @@ public class WSDLManagerImpl implements WSDLManager {
     }
 
     public Definition getDefinition(Class<?> sei) throws WSDLException {
+        
+        if (null == sei.getAnnotation(WebService.class)) {
+            return null;
+        }
+        
         synchronized (definitionsMap) {
             if (definitionsMap.containsKey(sei)) {
                 return definitionsMap.get(sei);

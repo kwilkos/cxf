@@ -7,7 +7,7 @@ import junit.framework.Assert;
 public abstract class AbstractTestServerBase extends Assert {
     
     /** 
-     * template method implemented by test servers.  Initialise 
+     * method implemented by test servers.  Initialise 
      * servants and publish endpoints etc.
      *
      */
@@ -36,7 +36,7 @@ public abstract class AbstractTestServerBase extends Assert {
         return ret;
     }    
     
-    public void start() {
+    public final void start() {
         try { 
             System.out.println("running server");
             run();
@@ -86,7 +86,7 @@ public abstract class AbstractTestServerBase extends Assert {
      * @param log logger to use for diagnostics if assertions fail
      * @return true if assertions hold
      */
-    protected boolean verify(Logger l) {
+    protected boolean verify(Logger log) {
         return true;
     }    
 }

@@ -44,6 +44,12 @@ public class XMLServerBinding extends AbstractServerBinding {
             throw new XMLBindingException("Can not handle RPC style in xml binding");
         }
         
+        // if there is no message and we are dispatching to a provider, let the 
+        // message continue even though we cannot figure out the operation name
+        if (sbeCallback.getWebServiceProvider() != null && msg.getRoot() == null) {
+            return null;
+        }
+        
         NodeList nl = msg.getRoot().getChildNodes();
         boolean matchFound = false;
         
@@ -102,7 +108,13 @@ public class XMLServerBinding extends AbstractServerBinding {
         
         //try to see if we CAN get a callback
         Node node = NodeUtils.getChildElementNode(msg.getRoot());
-        QName qn = new QName(node.getNamespaceURI(), node.getNamespaceURI());
+        if (sbeCallback.getWebServiceProvider() != null && node == null) {
+            return new QName("");
+        }
+        String namespaceURI = node.getNamespaceURI() != null ? node.getNamespaceURI() 
+                                                             : "";
+        
+        QName qn = new QName(namespaceURI, namespaceURI);
         if (sbeCallback.getDataBindingCallback(qn, null,
                                                sbeCallback.getServiceMode()) != null) {
             return qn;

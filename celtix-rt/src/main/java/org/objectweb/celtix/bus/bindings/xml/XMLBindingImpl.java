@@ -1,7 +1,9 @@
 package org.objectweb.celtix.bus.bindings.xml;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,12 +16,22 @@ import javax.wsdl.BindingOutput;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebFault;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import org.xml.sax.SAXParseException;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
@@ -41,8 +53,11 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class XMLBindingImpl extends AbstractBindingImpl {
     private static final Logger LOG = LogUtils.getL7dLogger(XMLBindingImpl.class);
+    
     protected final XMLMessageFactory msgFactory;
     protected final boolean isServer;
+
+    private final Transformer transformer;
     private final XMLUtils xmlUtils = new XMLUtils();
 
     private Bus bus;
@@ -51,6 +66,12 @@ public class XMLBindingImpl extends AbstractBindingImpl {
     public XMLBindingImpl(boolean server) {
         isServer = server;
         msgFactory = XMLMessageFactory.newInstance();
+        try { 
+            transformer = TransformerFactory.newInstance().newTransformer();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+
     }
 
     public XMLBindingImpl(Bus b, EndpointReferenceType ert, boolean server) {
@@ -86,10 +107,12 @@ public class XMLBindingImpl extends AbstractBindingImpl {
     }
 
     public void marshal(ObjectMessageContext objContext, MessageContext mc, DataBindingCallback callback) {
+
+        LOG.entering(getClass().getName(), "marshal");
+        boolean isInputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
+        XMLMessage msg = initXMLMessage();
+
         try {
-            LOG.entering(getClass().getName(), "marshal");
-            boolean isInputMsg = (Boolean)mc.get(ObjectMessageContext.MESSAGE_INPUT);
-            XMLMessage msg = initXMLMessage();
             LOG.log(Level.INFO, "XML_MARSHALLING_START", xmlUtils.toString(msg.getRoot()));
             if (callback.getMode() == DataBindingCallback.Mode.PARTS) {
                 if (callback.getSOAPStyle() == Style.DOCUMENT
@@ -104,11 +127,23 @@ public class XMLBindingImpl extends AbstractBindingImpl {
                     }
                 }
                 addParts(msg.getRoot(), objContext, isInputMsg, callback);
-            } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
-                throw new XMLBindingException("Could not figure out how to marshal data");
-            } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {
-                throw new XMLBindingException("Could not figure out how to marshal data");
-            }
+            } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE
+                      || callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {
+
+                if (findFormat(Source.class, callback.getSupportedFormats()) != null) {
+                    Source source = Source.class.cast(isInputMsg ? objContext.getReturn() 
+                                                                 : objContext.getMessageObjects()[0]);
+                    DOMResult result = new DOMResult();
+                    transformer.transform(source, result);
+
+                    Node newNode = result.getNode() instanceof Document ? result.getNode().getFirstChild()
+                                                                        : result.getNode();
+                    msg.appendChild(msg.getRoot().importNode(newNode, true));                    
+                } else { 
+                    throw new XMLBindingException("Could not figure out how to marshal data");
+                }
+            } 
+            
             LOG.log(Level.INFO, "XML_MARSHALLING_END", xmlUtils.toString(msg.getRoot()));
             ((XMLMessageContext)mc).setMessage(msg);
             LOG.exiting(getClass().getName(), "marshal", "XML binding Mashal OK");
@@ -116,6 +151,16 @@ public class XMLBindingImpl extends AbstractBindingImpl {
             LOG.log(Level.SEVERE, "XML_MARSHALLING_FAILURE_MSG", e);
             throw new XMLBindingException("XML binding marshal exception ", e);
         }
+    }
+    
+    private Class<?> findFormat(Class<?> goal, Class<?>[] supportedFormats) {
+        
+        for (Class<?> format : supportedFormats) {
+            if (Source.class.isAssignableFrom(goal)) {
+                return format;
+            }
+        }
+        return null;
     }
     
     public void marshalFault(ObjectMessageContext objContext,
@@ -175,10 +220,20 @@ public class XMLBindingImpl extends AbstractBindingImpl {
                 LOG.log(Level.INFO, "XML_UNMARSHALLING_START", xmlUtils.toString(root));
                 getParts(root, callback, objContext, isOutputMsg);
                 LOG.log(Level.INFO, "XML_UNMARSHALLING_END", xmlUtils.toString(root));
-            } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE) {
-                throw new XMLBindingException("Could not figure out how to marshal data");
-            } else if (callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {
-                throw new XMLBindingException("Could not figure out how to marshal data");
+            } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE 
+                       || callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {
+                
+                Class<?> format = getSupportedFormat(callback.getSupportedFormats());                
+                if (format != null) { 
+                    Object obj = prepareForFormat(format, xmlMessage.getRoot());
+                    if (isOutputMsg) {
+                        objContext.setReturn(obj);
+                    } else {
+                        objContext.setMessageObjects(obj);
+                    }
+                } else {
+                    throw new XMLBindingException("Could not figure out how to marshal data");
+                }
             }
             LOG.exiting(getClass().getName(), "unmarshal", "XML binding Unmashal OK");
         } catch (Exception e) {
@@ -186,6 +241,33 @@ public class XMLBindingImpl extends AbstractBindingImpl {
             throw new XMLBindingException("XML binding unmarshal exception", e);
         }
     }
+    
+    private Object prepareForFormat(Class<?> format, Document msg) {
+        Object ret = null;
+        
+        if (format.equals(Source.class) || format.equals(DOMSource.class)) {
+            ret = new DOMSource(msg);
+        } else if (format.equals(StreamSource.class)) {
+            // TODO: add support for strema source
+        }
+        return ret;
+    }
+    
+    
+    private Class<?> getSupportedFormat(Class<?>[] formats) {
+
+        Class<?> ret = null;
+        
+        for (Class<?> format : formats) {
+            if (DOMSource.class.isAssignableFrom(format)
+                || StreamSource.class.isAssignableFrom(format)
+                || Source.class.isAssignableFrom(format)) {
+                ret = format;
+            }
+        }
+        return ret;
+    }
+    
     
     public void unmarshalFault(MessageContext context, ObjectMessageContext objContext,
                                DataBindingCallback callback) {
@@ -236,12 +318,22 @@ public class XMLBindingImpl extends AbstractBindingImpl {
         if (!XMLMessageContext.class.isInstance(context)) {
             throw new XMLBindingException("XMLMessageContext not available");
         }
+        assert context instanceof XMLMessageContext : "context is incorrect type";
+        XMLMessageContext xmlContext = XMLMessageContext.class.cast(context);
         try {
-            XMLMessageContext xmlContext = XMLMessageContext.class.cast(context);
             xmlContext.setMessage(msgFactory.createMessage(inContext.getInputStream()));
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "XML_READ_FAILURE_MSG", e);
-            throw new XMLBindingException("XML binding read exception ", e);
+            if (SAXParseException.class.equals(e.getCause().getClass())) {
+                // if the read error was cause by an end of file, allow dispatch to continue
+                // with no message
+                String msg = e.getCause().getMessage();
+                if (msg != null && msg.contains("Premature end of file")) {
+                    xmlContext.setMessage(msgFactory.createMessage());
+                } else {
+                    LOG.log(Level.SEVERE, "XML_READ_FAILURE_MSG", e);
+                    throw new XMLBindingException("XML binding read exception ", e);
+                }
+            }
         }
     }
 

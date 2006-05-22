@@ -95,5 +95,4 @@ public abstract class AbstractClientServerSetupBase extends TestSetup {
         
         return ok;
     }
-    
 }

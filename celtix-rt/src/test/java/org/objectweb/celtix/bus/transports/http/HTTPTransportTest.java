@@ -1,5 +1,6 @@
 package org.objectweb.celtix.bus.transports.http;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -16,6 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
+import javax.xml.ws.handler.MessageContext;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
@@ -51,7 +53,6 @@ import org.objectweb.celtix.transports.TransportFactoryManager;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.celtix.wsdl.WSDLManager;
-import static org.easymock.EasyMock.isA;
 
 public class HTTPTransportTest extends TestCase {
 
@@ -122,9 +123,9 @@ public class HTTPTransportTest extends TestCase {
     public void tearDown() throws Exception {
         EasyMock.reset(bus);
         try {
-            bus.removeListener(isA(JettyHTTPServerTransport.class));
+            bus.removeListener(EasyMock.isA(JettyHTTPServerTransport.class));
         } catch (BusException e) {
-            // TODO nothing to do            
+            // nothing to do            
         }
         EasyMock.expectLastCall();
         checkBusRemovedEvent();        
@@ -214,6 +215,39 @@ public class HTTPTransportTest extends TestCase {
         assertEquals(result, ictx);
     }
 
+    public void testServerTransportSetsContextProperties() throws Exception {
+
+        final String expectedPathInfo = new URL(ADDRESS).getPath();
+        final String expectedQuery = "foo=1&bar=2";
+        
+        factory = createTransportFactory();
+
+        ServerTransport server =
+            createServerTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS);
+
+        ServerTransportCallback callback = new TestServerTransportCallback(server, false, false, 
+                                                                           null, false, false) {
+            public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
+                String method = (String)ctx.get(MessageContext.HTTP_REQUEST_METHOD);
+                String pathInfo = (String)ctx.get(MessageContext.PATH_INFO);
+                String queryString = (String)ctx.get(MessageContext.QUERY_STRING); 
+                
+                assertEquals("incorrect HTTP method received", "POST", method);
+                assertEquals("incorrect pathInfo", expectedPathInfo, pathInfo);
+                assertEquals("incorrect query string", expectedQuery, queryString);
+                super.dispatch(ctx, transport);
+            }
+            
+        };
+        
+        activateServer(callback, server, true, false, null, false, false);
+        //short request
+        ClientTransport client =
+            createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS + "?" + expectedQuery, false);
+        doRequestResponse(client, "Hello World".getBytes(), true, false);
+
+    }
+    
     public void doTestInvokeOneway(boolean decoupled) throws Exception {
 
         factory = createTransportFactory();
@@ -387,18 +421,33 @@ public class HTTPTransportTest extends TestCase {
 
     private void checkBusCreatedEvent() {
         
-        bus.sendEvent(isA(ComponentCreatedEvent.class));
+        bus.sendEvent(EasyMock.isA(ComponentCreatedEvent.class));
 
         EasyMock.expectLastCall();
     }
 
     private void checkBusRemovedEvent() { 
 
-        bus.sendEvent(isA(ComponentRemovedEvent.class));
+        bus.sendEvent(EasyMock.isA(ComponentRemovedEvent.class));
 
         EasyMock.expectLastCall();
     }
 
+
+    private void activateServer(ServerTransportCallback callback, 
+                                ServerTransport server,
+                                final boolean useAutomaticWorkQueue,
+                                final boolean async,
+                                final byte[] buffer,
+                                final boolean oneWay,
+                                final boolean decoupled) throws Exception {
+        EasyMock.reset(bus);
+        Configuration bc = EasyMock.createMock(Configuration.class);
+        bus.getConfiguration();
+        EasyMock.expectLastCall().andReturn(bc);
+        server.activate(callback);
+    }
+    
     private void activateServer(ServerTransport server,
                                 final boolean useAutomaticWorkQueue,
                                 final boolean async,
@@ -411,11 +460,8 @@ public class HTTPTransportTest extends TestCase {
                                                                            buffer,
                                                                            oneWay,
                                                                            decoupled);
-        EasyMock.reset(bus);
-        Configuration bc = EasyMock.createMock(Configuration.class);
-        bus.getConfiguration();
-        EasyMock.expectLastCall().andReturn(bc);
-        server.activate(callback);
+        
+        activateServer(callback, server, useAutomaticWorkQueue, async, buffer, oneWay, decoupled);
     }
 
     private void doRequestResponse(ClientTransport client,
@@ -509,7 +555,7 @@ public class HTTPTransportTest extends TestCase {
     private void awaitInvokerControlRegained() throws Exception {
         invokerControlRegainedLock.lock();
         try {
-            long timeout = 5 * 1000000;
+            long timeout = 10 * 1000000;
             while (!invokerControlRegainedNotified) {
                 if (timeout > 0L) {
                     timeout =
@@ -647,10 +693,10 @@ public class HTTPTransportTest extends TestCase {
         }
         
         try {
-            bus.addListener(isA(JettyHTTPServerTransport.class), 
-                            isA(ConfigurationEventFilter.class));
+            bus.addListener(EasyMock.isA(JettyHTTPServerTransport.class), 
+                            EasyMock.isA(ConfigurationEventFilter.class));
         } catch (BusException e) {
-            // TODO nothing to do            
+            // nothing to do            
         }
         EasyMock.expectLastCall();
 

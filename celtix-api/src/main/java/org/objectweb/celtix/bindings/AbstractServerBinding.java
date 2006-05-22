@@ -2,7 +2,11 @@ package org.objectweb.celtix.bindings;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
@@ -38,8 +42,17 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
 
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractServerBinding.class);
 
+    private static final Map<String, String> PROTOCOL_TRANSPORT_MAP = new HashMap<String, String>(); 
+    
+    // TODO: this should really be read from config...
+    static {
+        PROTOCOL_TRANSPORT_MAP.put("http", "http://schemas.xmlsoap.org/wsdl/http/");
+        PROTOCOL_TRANSPORT_MAP.put("jms", "http://celtix.objectweb.org/transports/jms");
+    }
+    
     protected ServerBindingEndpointCallback sbeCallback;
 
+    
     public AbstractServerBinding(Bus b, EndpointReferenceType ref,
                                  ServerBindingEndpointCallback sbcb) {
         super(b, ref);
@@ -131,7 +144,6 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         final ServerRequest inMsg = new ServerRequest(this, istreamCtx);         
         
         Exception inboundException = null;
-        
         try {
             inMsg.processInbound();   
             if (!inMsg.doDispatch()) {
@@ -189,27 +201,53 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
     }
     
     protected ServerTransport createTransport(EndpointReferenceType ref) throws WSDLException, IOException {
-        
+
+        ServerTransport transport = null;
         try {
-            Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
-            List<?> exts = port.getExtensibilityElements();
-            if (exts.size() > 0) {                
-                ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
-                TransportFactory tf = 
-                    bus.getTransportFactoryManager().
-                        getTransportFactory(el.getElementType().getNamespaceURI());
-                return tf.createServerTransport(ref);
-            }
+            TransportFactory tf = findTransportFactory(ref);
+            transport = tf != null ? tf.createServerTransport(ref) : null;
         } catch (BusException ex) {
             LOG.severe("TRANSPORT_FACTORY_RETRIEVAL_FAILURE_MSG");
+        } 
+        if (transport == null) {
+            LOG.severe("TRANSPORT_FACTORY_RETRIEVAL_FAILURE_MSG");           
         }
-        return null;
+        return transport;
     }
     
     protected ServerTransport serverTransport() {
         return (ServerTransport)transport;
     }
 
+    private TransportFactory findTransportFactory(EndpointReferenceType ref) throws BusException {
+        
+        String transportNamespaceURI = null; 
+        try {
+            // search port definition for transport information
+            Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
+            List<?> exts = port.getExtensibilityElements();
+            if (exts.size() > 0) {
+                ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
+                transportNamespaceURI = el.getElementType().getNamespaceURI();
+            }
+        } catch (WSDLException ex) {
+            // wsdl is not available so
+            // infer transport required from specifed address
+            try {
+                URL address = new URL(EndpointReferenceUtils.getAddress(ref));
+                if (address != null) {
+                    LOG.fine("unable to find transport from wsdl.  Using default from address URI: "
+                             + address);
+                    transportNamespaceURI = PROTOCOL_TRANSPORT_MAP.get(address.getProtocol());
+                }
+            } catch (MalformedURLException muex) {
+                throw new BusException(muex);
+            }
+        }
+        return bus.getTransportFactoryManager().
+            getTransportFactory(transportNamespaceURI);                 
+    }
+    
     /*
     protected void storeSource(MessageContext context, ServerTransport st) {
         BindingContextUtils.storeBinding(context, this);

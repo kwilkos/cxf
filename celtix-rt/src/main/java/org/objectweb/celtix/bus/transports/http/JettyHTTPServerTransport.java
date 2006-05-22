@@ -304,6 +304,10 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport
             BindingContextUtils.storeAsyncOnewayDispatch(ctx, true);
             ctx.put(HTTPServerInputStreamContext.HTTP_REQUEST, req);
             ctx.put(HTTPServerInputStreamContext.HTTP_RESPONSE, resp);
+            ctx.put(MessageContext.HTTP_REQUEST_METHOD, req.getMethod());
+            ctx.put(MessageContext.PATH_INFO, req.getPath());
+            ctx.put(MessageContext.QUERY_STRING, req.getQuery());
+            
             ctx.initContext();
             
             callback.dispatch(ctx, this);
