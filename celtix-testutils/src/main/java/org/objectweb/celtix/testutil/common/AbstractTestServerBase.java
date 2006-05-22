@@ -36,7 +36,7 @@ public abstract class AbstractTestServerBase extends Assert {
         return ret;
     }    
     
-    public final void start() {
+    public void start() {
         try { 
             System.out.println("running server");
             run();
