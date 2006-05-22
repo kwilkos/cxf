@@ -482,18 +482,12 @@
             </properties>
         </profile>
         <profile>
-            <id>JDK1.5.0_05</id>
+            <id>IBMJDK</id>
             <activation>
-                <jdk>1.5.0_05</jdk>
-            </activation>
-            <properties>
-                <compile.flags>-Xlint:fallthrough,finally</compile.flags>
-            </properties>
-        </profile>
-        <profile>
-            <id>JDK1.5.0_04</id>
-            <activation>
-                <jdk>1.5.0_04</jdk>
+                <property>
+                    <name>java.vendor</name>
+                    <value>IBM Corporation</value>
+                </property>
             </activation>
             <properties>
                 <compile.flags>-Xlint:fallthrough,finally</compile.flags>

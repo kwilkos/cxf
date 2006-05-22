@@ -26,8 +26,8 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
@@ -113,9 +113,9 @@ public class SchemaValidator extends AbstractValidator {
         Source[] sources = new Source[schemas.length];
         for (int i = 0; i < schemas.length; i++) {
             // need to validate the schema file
-            docBuilder.parse(schemas[i]);
+            Document doc = docBuilder.parse(schemas[i]);
 
-            StreamSource stream = new StreamSource(schemas[i]);
+            DOMSource stream = new DOMSource(doc, schemas[i]);
             sources[i] = stream;
         }
         return  sf.newSchema(sources);
@@ -247,16 +247,24 @@ public class SchemaValidator extends AbstractValidator {
             };
 
             File[] files = f.listFiles(filter);
-            String[] xsdUrls = new String[files.length];
-            for (int i = 0; i < files.length; i++) {
+            List<String> xsdUrls = new ArrayList<String>(files.length);
+            for (File file : files) {
                 try {
-                    xsdUrls[i] = files[i].toURL().toString();
+                    String s = file.toURL().toString();
+                    
+                    //make sure the wsdl and XML schemas are at the beginning
+                    if (s.indexOf("wsdl") == -1
+                        && s.indexOf("XML") == -1) {
+                        xsdUrls.add(s);
+                    } else {
+                        xsdUrls.add(0, s);
+                    }
                 } catch (MalformedURLException e) {
                     throw new ToolException(e);
                 }
             }
 
-            return xsdUrls;
+            return xsdUrls.toArray(new String[xsdUrls.size()]);
         }
         return null;
     }

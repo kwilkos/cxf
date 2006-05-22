@@ -85,7 +85,7 @@ public class WSDLValidationTest extends ProcessorTestBase {
         processor.process();
 
     }
-     
+
     public void testCommand() {
         PrintStream oldStdErr = System.err;
         try {
@@ -97,10 +97,12 @@ public class WSDLValidationTest extends ProcessorTestBase {
                                              getLocation("/wsdl/hello_world_error_attribute.wsdl")});
             ps.flush();
 
-            assertNotNull("validate exception should be thrown", stdErr.toString());
+            
+            String errString = stdErr.toString();
+            assertNotNull("validate exception should be thrown", errString);
 
-            assertTrue("Error should be found in " + stdErr.toString(),
-                       stdErr.toString().indexOf("line 53 column 56") > -1);
+            assertTrue("Error should be found in " + errString,
+                       errString.indexOf("line 53 column 56") > -1);
 
         } catch (Exception e) {
             // ignore
@@ -136,7 +138,6 @@ public class WSDLValidationTest extends ProcessorTestBase {
             assertTrue("Binding Reference should be located ", errMsg.indexOf("line 129") > -1);
         }
     }
-
     
     
     

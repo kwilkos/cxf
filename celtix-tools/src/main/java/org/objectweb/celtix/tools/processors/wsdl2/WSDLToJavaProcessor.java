@@ -208,7 +208,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             i++;
         }
 
-        String[] files = new String[fileList.size()];
         for (Object o : fileList.toArray()) {
             String file = (String)o;
            

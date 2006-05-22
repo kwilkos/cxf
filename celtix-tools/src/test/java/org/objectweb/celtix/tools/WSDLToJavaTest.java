@@ -1,7 +1,6 @@
 package org.objectweb.celtix.tools;
 
 import java.io.*;
-import java.net.URL;
 
 import org.objectweb.celtix.tools.common.ToolTestBase;
 
@@ -12,9 +11,9 @@ public class WSDLToJavaTest extends ToolTestBase {
     public void setUp() {
         super.setUp();
         try {
-            URL url = WSDLToJavaTest.class.getResource(".");
-            output = new File(url.getFile());
-            output = new File(output, "/resources");
+            File file = File.createTempFile("WSDLToJavaTest", "");
+            output = new File(file.getAbsolutePath() + ".dir");
+            file.delete();
             
             if (!output.exists()) {
                 output.mkdir();
@@ -24,8 +23,22 @@ public class WSDLToJavaTest extends ToolTestBase {
         }
     }
 
+    private void deleteDir(File dir) throws IOException {
+        for (File f : dir.listFiles()) {
+            if (f.isDirectory()) {
+                deleteDir(f);
+            } else {
+                f.delete();
+            }
+        }
+        dir.delete();
+    }
     public void tearDown() {
-        output.deleteOnExit();
+        try {
+            deleteDir(output);
+        } catch (IOException ex) {
+            //ignore
+        }
         output = null;
     }
 

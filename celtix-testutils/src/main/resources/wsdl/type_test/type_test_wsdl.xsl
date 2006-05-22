@@ -114,10 +114,10 @@
       </xsd:element>
       <xsd:element name="testOneway">
         <xsd:complexType>
-          <sequence>
-            <element name="x" type="xsd:string"/>
-            <element name="y" type="xsd:string"/>
-          </sequence>
+          <xsd:sequence>
+            <xsd:element name="x" type="xsd:string"/>
+            <xsd:element name="y" type="xsd:string"/>
+          </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
     </xsl:if>
@@ -192,7 +192,7 @@
   <xsl:template match="itst:it_test_group/*[not(@itst:it_no_test='true')]" mode="elements_in">
     <xsl:param name="namespace"/>
     <xsd:complexType>
-      <sequence>
+      <xsd:sequence>
         <xsl:apply-templates select="." mode="parameter">
           <xsl:with-param name="parametername">x</xsl:with-param>
           <xsl:with-param name="namespace" select="$namespace"/>
@@ -201,7 +201,7 @@
           <xsl:with-param name="parametername">y</xsl:with-param>
           <xsl:with-param name="namespace" select="$namespace"/>
         </xsl:apply-templates>
-      </sequence>
+      </xsd:sequence>
     </xsd:complexType>
   </xsl:template>
 
@@ -209,7 +209,7 @@
   <xsl:template match="itst:it_test_group/*[not(@itst:it_no_test='true')]" mode="elements_out">
     <xsl:param name="namespace"/>
     <xsd:complexType>
-      <sequence>
+      <xsd:sequence>
         <xsl:apply-templates select="." mode="parameter">
           <xsl:with-param name="parametername">return</xsl:with-param>
           <xsl:with-param name="namespace" select="$namespace"/>
@@ -222,7 +222,7 @@
           <xsl:with-param name="parametername">z</xsl:with-param>
           <xsl:with-param name="namespace" select="$namespace"/>
         </xsl:apply-templates>
-      </sequence>
+      </xsd:sequence>
     </xsd:complexType>
   </xsl:template>
 
