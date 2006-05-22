@@ -2,20 +2,20 @@ Celtix Management
 ====================
 
 This demo illustrates how to use the Celtix management facilities.
-Information in the configuration file is used to change the
-management facilities operations. 
+Information in the configuration file is used to configure the
+behavior of Celtix management facilities.
 
-Instrumentation is enabled by setting the bus to handle the celtix basic 
-component created and removed events. JMX is enabled to export the
-basic componnet information through the JMX MBeanServer.
+Celtix instrumentation is done by enabling the bus to handle celtix component 
+lifecycle events, such as component created and removed events, as well
+as service instrumentation, such as service counter. When JMX is enabled, 
+instrumentation info is exported through the JMX MBeanServer.
 
-When setting up the JMX MBServer, you need to do the following:
-1. Set the MBServer to use either the PlatformMBeanServer or your prefered
-   MBeanServer implementation.
-2. Specify the connector URL which the manager console uses to
+To set up JMX MBServer, you need to do the following:
+1. Specify the connector URL that the manager console uses to
    connect to the MBServer.
-3. Set the connector to run in a seperated thread or to run in the deamon
-   mode. 
+2. Specify whether or not the connector is to be run in a seperated thread and 
+   whether or not the connector is to be run in deamon mode. Please refer to 
+   "Understanding the configuration file" section below for details.
 
 Please review the README in the samples directory before
 continuing.
@@ -33,12 +33,6 @@ If your environment is not properly configured, or if you are planning on
 using wsdl2java, javac, and java to build and run the demos, you must set
 the environment by running the script.
 
-If you set the Celtix configuration properties instrumentEnabled and
-JMXEnabled to true, and set up the MBServer to use PlateformMBeanserver, you
-can use jconsole, which comes with  JDK1.5, to explore the Celtix managed
-components.
-
-
 
 Building and running the demo using ant
 ---------------------------------------
@@ -52,22 +46,25 @@ Using either UNIX or Windows:
   ant server
   ant client
 
-To run the demo of how to get and set celtix instrumentation components
-attributes and invoke the components' operation
+"ant jmxconsole" shows how to get and set Celtix components instrumentation
+attributes and how to invoke Celtix components instrumentation operations 
+through programming APIs:
  
   ant jmxconsole 
 
 
-To explore the celtix managed components:
+If you set Celtix configuration properties JMXEnabled to true, 
+you can use jconsole, which comes with JDK1.5, to explore the Celtix managed
+components.
 
-  jconsole (Porvider with JDK 1.5)
+  jconsole
     
   The server JMX Service URL is:
     service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/server  
 
 
-  NOTE: Just enter the JMX service URL as above, and leave the 
-username and password blank in this sample.
+NOTE: Enter the JMX service URL as above, leave the 
+username and password empty in this sample.
 
   
 To remove the code generated from the WSDL file and the .class
@@ -115,7 +112,7 @@ Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/hello_world directory run the commands, entered on a
+From the samples/management directory run the commands, entered on a
 single command line:
 
 UNIX:
@@ -163,15 +160,16 @@ files, either delete the build directory and its contents or run:
 Understanding the configuration file
 ------------------------------------
 
-The configuration files, server.xml and client.xml, are mostly the same.
-They each include one <bean> definition which has two properties. 
+The configuration files server.xml includes one <bean> definition 
+which has two properties. 
+
 The first property specifies the information needed to set the
 Instrumentation manager and JMX manager enabled property.
 The second property specifies the information needed to set the 
 MBServer to use the PlatformMBeanServer, the JMXConnectorServer's 
 basic run mode, and the JMXConnectorServer's connector URL. 
 
-In writing this file, refer to the schema and XML metadata files
+To write this file, refer to the schema and XML metadata files
 that are included within the resources directory under the Celtix
 installation.  The tutorial "Using Celtix Configuration" presents a
 detailed discussion on how these files are used to compose the
