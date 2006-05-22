@@ -166,7 +166,7 @@ public class JavaType {
         sb.append(this.name);
         sb.append("\nType: ");
         sb.append(this.type);
-        sb.append("\nClass Name: ");
+        sb.append("\nClassName: ");
         sb.append(this.className);
         sb.append("\nTargetNamespace: ");
         sb.append(this.targetNamespace);

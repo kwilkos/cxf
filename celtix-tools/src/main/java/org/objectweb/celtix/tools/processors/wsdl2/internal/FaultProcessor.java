@@ -54,11 +54,13 @@ public class FaultProcessor extends AbstractProcessor {
         while (isNameCollision(packageName, name)) {
             name = name + "_Exception";
         }
+        
+        String fullClassName = packageName + "." + name;
+        collector.addExceptionClassName(packageName, name, fullClassName);        
 
-        collector.addExceptionClassName(packageName, name, packageName + "." + name);
-
-        method.addException(new JavaException(name, name, namespace));
-
+        boolean samePackage = method.getInterface().getPackageName().equals(packageName);
+        method.addException(new JavaException(name, samePackage ? name : fullClassName, namespace));
+        
         Map<String, Part> faultParts = faultMessage.getParts();
         Collection<Part> faultValues = faultParts.values();
         
