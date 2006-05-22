@@ -48,6 +48,9 @@ public class XSDToJavaMojo extends AbstractMojo {
         long timestamp = CodegenUtils.getCodegenTimestamp();
         boolean result = true;
         
+        if (xsdOptions == null) {
+            throw new MojoExecutionException("Must specify xsdOptions");           
+        }
         for (int x = 0; x < xsdOptions.length; x++) {
             List list = new ArrayList();
             if (xsdOptions[x].getPackagename() != null) {

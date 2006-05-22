@@ -58,7 +58,12 @@ public class WSDL2JavaMojo extends AbstractMojo {
         
         File classesDir = new File(classesDirectory);
         classesDir.mkdirs();
+
         
+        if (wsdlOptions == null) {
+            throw new MojoExecutionException("Must specify wsdlOptions");           
+        }
+
         StringBuffer buf = new StringBuffer();
         Iterator it = classpathElements.iterator();
         while (it.hasNext()) {
