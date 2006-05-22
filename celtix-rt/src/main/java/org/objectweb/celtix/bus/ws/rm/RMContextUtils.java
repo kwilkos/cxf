@@ -11,10 +11,7 @@ import org.objectweb.celtix.ws.rm.RMProperties;
 
 public final class RMContextUtils {
 
-    /**
-     * Prevents instantiation.
-     */
-    private RMContextUtils() {
+    protected RMContextUtils() {
     }
     
     public static RMProperties retrieveRMProperties(MessageContext context, boolean outbound) {

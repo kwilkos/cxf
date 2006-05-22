@@ -45,6 +45,10 @@
                           <jaxws-types:handler-name>MAPCodec</jaxws-types:handler-name>
                           <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec</jaxws-types:handler-class>
                       </jaxws-types:handler>
+                      <jaxws-types:handler>
+                          <jaxws-types:handler-name>RMPersistenceHandler</jaxws-types:handler-name>
+                          <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.rm.soap.PersistenceHandler</jaxws-types:handler-class>
+                      </jaxws-types:handler>
                   </jaxws-types:postProtocol>
               </jaxws-types:system-handler-chain>
           </value>
@@ -82,9 +86,14 @@
                           <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec</jaxws-types:handler-class>
                       </jaxws-types:handler>
                       <jaxws-types:handler>
+                          <jaxws-types:handler-name>RMPersistenceHandler</jaxws-types:handler-name>
+                          <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.rm.soap.PersistenceHandler</jaxws-types:handler-class>
+                      </jaxws-types:handler>
+                      <jaxws-types:handler>
                           <jaxws-types:handler-name>Outbound Message Recorder</jaxws-types:handler-name>
                           <jaxws-types:handler-class>org.objectweb.celtix.systest.ws.rm.SOAPMessageRecorder</jaxws-types:handler-class>
                       </jaxws-types:handler>
+                      
                   </jaxws-types:postProtocol>                  
               </jaxws-types:system-handler-chain>
           </value>

@@ -9,10 +9,10 @@ import javax.xml.datatype.Duration;
 
 import junit.framework.TestCase;
 
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.bus.configuration.wsrm.AcksPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
-import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
-import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.ObjectFactory;
@@ -23,31 +23,25 @@ import org.objectweb.celtix.ws.rm.policy.RMAssertionType.BaseRetransmissionInter
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType.ExponentialBackoff;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.reset;
-import static org.easymock.classextension.EasyMock.verify;
+import static org.easymock.EasyMock.expect;
 
 public class SourceSequenceTest extends TestCase {
 
+    IMocksControl control;
     ObjectFactory factory = new ObjectFactory();
     Identifier id;
-    EndpointReferenceType ref;
     RMSource source;
     RMDestination destination;
     RMHandler handler;
+    ConfigurationHelper configurationHelper;
     RMAssertionType rma;
     AcksPolicyType ap;
  
     public void setUp() {
-       
+        
         id = factory.createIdentifier();
         id.setValue("seq");
-        ref = createMock(EndpointReferenceType.class);
-        source = createMock(RMSource.class); 
-        destination = createMock(RMDestination.class);
-        handler = createMock(RMHandler.class);
+        
         ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
         rma = RMUtils.getWSRMPolicyFactory().createRMAssertionType();
         BaseRetransmissionInterval bri =
@@ -56,7 +50,7 @@ public class SourceSequenceTest extends TestCase {
         rma.setBaseRetransmissionInterval(bri);
         ExponentialBackoff eb = 
             RMUtils.getWSRMPolicyFactory().createRMAssertionTypeExponentialBackoff();
-        eb.getOtherAttributes().put(RetransmissionQueue.EXPONENTIAL_BACKOFF_BASE_ATTR,
+        eb.getOtherAttributes().put(ConfigurationHelper.EXPONENTIAL_BACKOFF_BASE_ATTR,
                                     RetransmissionQueue.DEFAULT_EXPONENTIAL_BACKOFF);
         
     }
@@ -157,6 +151,7 @@ public class SourceSequenceTest extends TestCase {
         assertSame(ack, seq.getAcknowledgement());
         assertEquals(3, ack.getAcknowledgementRange().size());
         assertTrue(!seq.isAcknowledged(new BigInteger("3")));  
+        assertTrue(seq.isAcknowledged(new BigInteger("5")));
     } 
     
     public void testAllAcknowledged() throws SequenceFault {
@@ -179,31 +174,34 @@ public class SourceSequenceTest extends TestCase {
     
     public void testNextMessageNumber() {     
         SourceSequence seq = null;
-        SourcePolicyType sp = RMUtils.getWSRMConfFactory().createSourcePolicyType();
+        control = EasyMock.createNiceControl();
+        source = control.createMock(RMSource.class); 
+        destination = control.createMock(RMDestination.class);
+        handler = control.createMock(RMHandler.class);
+        configurationHelper = control.createMock(ConfigurationHelper.class);
         
         // default termination policy
         
         SequenceTerminationPolicyType stp = 
             RMUtils.getWSRMConfFactory().createSequenceTerminationPolicyType();        
-        sp.setSequenceTerminationPolicy(stp);
         
         seq = new SourceSequence(id);  
         seq.setSource(source);
-        assertTrue(!nextSequences(seq, sp, 10));
+        assertTrue(!nextMessages(seq, stp, 10));
         
         // termination policy max length = 1
         
         seq = new SourceSequence(id); 
         seq.setSource(source);
         stp.setMaxLength(BigInteger.ONE);
-        assertTrue(nextSequences(seq, sp, 10));
+        assertTrue(nextMessages(seq, stp, 10));
         assertEquals(BigInteger.ONE, seq.getCurrentMessageNr());
         
         // termination policy max length = 5
         seq = new SourceSequence(id); 
         seq.setSource(source);
         stp.setMaxLength(new BigInteger("5"));
-        assertTrue(!nextSequences(seq, sp, 2));
+        assertTrue(!nextMessages(seq, stp, 2));
         
         // termination policy max range exceeded
         
@@ -212,7 +210,7 @@ public class SourceSequenceTest extends TestCase {
         stp.setMaxLength(null);
         stp.setMaxRanges(new Integer(3));
         acknowledge(seq, 1, 2, 4, 5, 6, 8, 9, 10);
-        assertTrue(nextSequences(seq, sp, 10));
+        assertTrue(nextMessages(seq, stp, 10));
         assertEquals(BigInteger.ONE, seq.getCurrentMessageNr());
         
         // termination policy max range not exceeded
@@ -222,25 +220,96 @@ public class SourceSequenceTest extends TestCase {
         stp.setMaxLength(null);
         stp.setMaxRanges(new Integer(4));
         acknowledge(seq, 1, 2, 4, 5, 6, 8, 9, 10);
-        assertTrue(!nextSequences(seq, sp, 10));
+        assertTrue(!nextMessages(seq, stp, 10));
         
         // termination policy max unacknowledged 
     }
+    
+    public void testGetEndpointIdentfier() {
+        SourceSequence seq = null;
+        control = EasyMock.createNiceControl();
+        source = control.createMock(RMSource.class); 
+        handler = control.createMock(RMHandler.class);
+        configurationHelper = control.createMock(ConfigurationHelper.class);  
+        
+        expect(source.getHandler()).andReturn(handler);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper);
+        expect(configurationHelper.getEndpointId())
+            .andReturn("abc.xyz");
+        control.replay();
+        
+        seq = new SourceSequence(id);
+        seq.setSource(source);
+        assertEquals("abc.xyz", seq.getEndpointIdentifier());      
+        control.verify();       
+    }
+    
+    public void testCheckOfferingSequenceClosed() {
+        SourceSequence seq = null;
+        
+        control = EasyMock.createNiceControl();
+        source = control.createMock(RMSource.class); 
+        destination = control.createMock(RMDestination.class);
+        handler = control.createMock(RMHandler.class);
+        configurationHelper = control.createMock(ConfigurationHelper.class);
+        
+        DestinationSequence dseq = control.createMock(DestinationSequence.class);   
+        Identifier did = control.createMock(Identifier.class);
+        
+        
+        expect(source.getHandler()).andReturn(handler);
+        expect(handler.getDestination()).andReturn(destination);
+        expect(destination.getSequence(did)).andReturn(dseq);
+        expect(dseq.getLastMessageNr()).andReturn(BigInteger.ONE);
+        expect(did.getValue()).andReturn("dseq").times(2);
+        
+        control.replay();
+        
+        seq = new SourceSequence(id, null, did);  
+        seq.setSource(source);        
+        seq.nextMessageNumber(did, BigInteger.ONE);
+        assertTrue(seq.isLastMessage());
+        
+        control.verify();
+    }
+    
+    public void testIdentifierEquals() {
+        control = EasyMock.createNiceControl();
+        Identifier id1 = null;
+        Identifier id2 = null;   
+        assertTrue(AbstractSequenceImpl.identifierEquals(id1, id2));
+        
+        id1 = factory.createIdentifier();
+        id1.setValue("seq1"); 
+        assertTrue(!AbstractSequenceImpl.identifierEquals(id1, id2));
+        
+        id2 = factory.createIdentifier();
+        id2.setValue("seq2"); 
+        assertTrue(!AbstractSequenceImpl.identifierEquals(id1, id2));
+        
+        id2.setValue("seq1");
+        assertTrue(AbstractSequenceImpl.identifierEquals(id1, id2));
+    }
    
-    private boolean nextSequences(SourceSequence seq, SourcePolicyType sp, int n) {
-        reset(source);
-        source.getSequenceTerminationPolicy();
-        expectLastCall().andReturn(sp.getSequenceTerminationPolicy());
-        replay(source);
+    private boolean nextMessages(SourceSequence seq, SequenceTerminationPolicyType stp, int n) {
+        
+        control.reset();
+        expect(source.getHandler()).andReturn(handler);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper);
+        expect(configurationHelper.getSequenceTerminationPolicy())
+            .andReturn(stp);
+        control.replay();
         
         int i = 0;
-        while ((i < n) && !seq.isLastMessage()) {
+        while ((i < n) && !seq.isLastMessage()) {            
             assertNotNull(seq.nextMessageNumber());
-            verify(source);
-            reset(source);
-            source.getSequenceTerminationPolicy();
-            expectLastCall().andReturn(sp.getSequenceTerminationPolicy());
-            replay(source);
+            control.verify();
+            control.reset();
+            expect(source.getHandler()).andReturn(handler);
+            expect(handler.getConfigurationHelper()).andReturn(configurationHelper);
+            expect(configurationHelper.getSequenceTerminationPolicy())
+                .andReturn(stp);
+            control.replay();
             i++;
         }
         return seq.isLastMessage();

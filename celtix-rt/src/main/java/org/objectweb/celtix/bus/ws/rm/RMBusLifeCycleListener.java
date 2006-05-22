@@ -33,7 +33,8 @@ public class RMBusLifeCycleListener implements BusLifeCycleListener {
     
     private void terminateSequences() {
         
-        SequenceTerminationPolicyType st = source.getSequenceTerminationPolicy();
+        SequenceTerminationPolicyType st = source.getHandler().getConfigurationHelper()
+            .getSequenceTerminationPolicy();
         if (!st.isTerminateOnShutdown()) {
             LOG.fine("No need to terminate sequences on shutdown");
             return;

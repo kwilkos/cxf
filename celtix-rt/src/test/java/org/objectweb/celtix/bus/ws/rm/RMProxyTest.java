@@ -61,14 +61,17 @@ public class RMProxyTest extends TestCase {
         RMHandler handler = control.createMock(RMHandler.class);
         RMProxy proxy = new RMProxy(handler);
         RMSource source = control.createMock(RMSource.class);
+        ConfigurationHelper ch = control.createMock(ConfigurationHelper.class);
         SourcePolicyType sp = control.createMock(SourcePolicyType.class);
         
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
         sid.setValue("s1");
       
         expect(handler.getBinding()).andReturn(binding);
-        expect(handler.getTransport()).andReturn(ct);  
-        expect(source.getSourcePolicies()).andReturn(sp);
+        expect(handler.getTransport()).andReturn(ct);
+        expect(source.getHandler()).andReturn(handler);
+        expect(handler.getConfigurationHelper()).andReturn(ch); 
+        expect(ch.getSourcePolicies()).andReturn(sp);
         expect(sp.getAcksTo()).andReturn(null);
         expect(sp.getSequenceExpiration()).andReturn(null);
         expect(sp.isIncludeOffer()).andReturn(false);
@@ -92,6 +95,7 @@ public class RMProxyTest extends TestCase {
         RMHandler handler = control.createMock(RMHandler.class);
         RMProxy proxy = new RMProxy(handler);
         RMSource source = control.createMock(RMSource.class);
+        ConfigurationHelper ch = control.createMock(ConfigurationHelper.class);
         SourcePolicyType sp = control.createMock(SourcePolicyType.class);
         
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
@@ -103,7 +107,9 @@ public class RMProxyTest extends TestCase {
       
         expect(handler.getBinding()).andReturn(binding);
         expect(handler.getTransport()).andReturn(ct);
-        expect(source.getSourcePolicies()).andReturn(sp);
+        expect(source.getHandler()).andReturn(handler);
+        expect(handler.getConfigurationHelper()).andReturn(ch);
+        expect(ch.getSourcePolicies()).andReturn(sp);
         expect(sp.getAcksTo()).andReturn(null);
         expect(sp.getSequenceExpiration()).andReturn(null);
         expect(sp.isIncludeOffer()).andReturn(true);   
@@ -129,6 +135,7 @@ public class RMProxyTest extends TestCase {
         RMHandler handler = control.createMock(RMHandler.class);
         RMProxy proxy = new RMProxy(handler);
         RMSource source = control.createMock(RMSource.class);
+        ConfigurationHelper ch = control.createMock(ConfigurationHelper.class);
         SourcePolicyType sp = control.createMock(SourcePolicyType.class);
         
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
@@ -139,7 +146,9 @@ public class RMProxyTest extends TestCase {
 
         expect(handler.getBinding()).andReturn(binding);
         expect(handler.getTransport()).andReturn(ct);
-        expect(source.getSourcePolicies()).andReturn(sp);
+        expect(source.getHandler()).andReturn(handler);
+        expect(handler.getConfigurationHelper()).andReturn(ch);
+        expect(ch.getSourcePolicies()).andReturn(sp);
         expect(sp.getAcksTo()).andReturn(null);
         expect(sp.getSequenceExpiration()).andReturn(null);
         expect(sp.isIncludeOffer()).andReturn(true);   
@@ -278,15 +287,17 @@ public class RMProxyTest extends TestCase {
         TestSoapClientBinding binding = new TestSoapClientBinding(bus, epr);
         IMocksControl control = EasyMock.createNiceControl();
         RMHandler handler = control.createMock(RMHandler.class);
+        ConfigurationHelper ch = control.createMock(ConfigurationHelper.class);
         RMDestination dest = control.createMock(RMDestination.class);
         RMAssertionType rma = control.createMock(RMAssertionType.class);
 
-        dest.getRMAssertion();
-        expectLastCall().andReturn(rma).times(2);
-        rma.getAcknowledgementInterval();
-        expectLastCall().andReturn(null).times(2);
-        dest.getAcksPolicy();
-        expectLastCall().andReturn(null).times(2);
+        expect(dest.getHandler()).andReturn(handler).times(4);
+        expect(handler.getConfigurationHelper()).andReturn(ch).times(4);
+        expect(ch.getRMAssertion()).andReturn(rma).times(2);
+        // dest.getRMAssertion();
+        // expectLastCall().andReturn(rma).times(2);
+        expect(rma.getAcknowledgementInterval()).andReturn(null).times(2);
+        expect(ch.getAcksPolicy()).andReturn(null).times(2);
         
         handler.getBinding();
         EasyMock.expectLastCall().andReturn(binding).times(3);

@@ -45,7 +45,7 @@
                       -->
                       <jaxws-types:handler>
                           <jaxws-types:handler-name>RMPersistenceHandler</jaxws-types:handler-name>
-                          <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.rm.RMPersistenceHandler</jaxws-types:handler-class>
+                          <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.rm.soap.PersistenceHandler</jaxws-types:handler-class>
                       </jaxws-types:handler>
                   </jaxws-types:postProtocol>
               </jaxws-types:system-handler-chain>

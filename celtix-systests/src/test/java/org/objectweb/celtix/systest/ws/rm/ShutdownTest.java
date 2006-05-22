@@ -15,7 +15,6 @@ import junit.framework.TestSuite;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
-import org.objectweb.celtix.bus.busimpl.BusConfigurationBuilder;
 import org.objectweb.celtix.bus.ws.rm.Names;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
@@ -62,7 +61,7 @@ public class ShutdownTest extends ClientServerTestBase {
                 assertNotNull("cannot find test resource", url);
                 configFileName = url.toString(); 
                 ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-                builder.buildConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI, "celtix");
+                builder.clearConfigurations();
 
                 super.setUp();
 
@@ -90,7 +89,6 @@ public class ShutdownTest extends ClientServerTestBase {
         List<SOAPMessage> outboundMessages = null;
         List<LogicalMessageContext> inboundContexts = null;
 
-        
         boolean found = false;
         for (Handler h : handlerChain) {
             if (!found && h instanceof SOAPMessageRecorder) {
@@ -120,6 +118,11 @@ public class ShutdownTest extends ClientServerTestBase {
         
     }
     
+    public void tearDown() {
+        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
+        builder.clearConfigurations();
+    }
+    
     public void testOnewayTerminateOnShutdown() throws Exception {
 
         try {
@@ -130,7 +133,7 @@ public class ShutdownTest extends ClientServerTestBase {
             bus.shutdown(true);
         }
 
-        mf.verifyMessages(6, true);
+        mf.verifyMessages(6, true, 1000, 3);
         String[] expectedActions = new String[] {Names.WSRM_CREATE_SEQUENCE_ACTION, 
                                                  GREETMEONEWAY_ACTION,
                                                  GREETMEONEWAY_ACTION, 

@@ -2,7 +2,6 @@ package org.objectweb.celtix.systest.ws.rm;
 
 import javax.xml.ws.Endpoint;
 
-import org.objectweb.celtix.bus.busimpl.BusConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.systest.common.TestServerBase;
@@ -13,7 +12,7 @@ public class ShutdownTestServer extends TestServerBase {
 
         ControlImpl.setConfigFileProperty("oneway-terminate-on-shutdown");
         ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-        builder.buildConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI, "celtix");
+        builder.clearConfigurations();
         
         GreeterImpl implementor = new GreeterImpl();
         String address = "http://localhost:9020/SoapContext/GreeterPort";

@@ -43,7 +43,7 @@ public class RMServant {
         CreateSequenceResponseType csr = RMUtils.getWSRMFactory().createCreateSequenceResponseType();
         csr.setIdentifier(destination.generateSequenceIdentifier());
 
-        DestinationPolicyType dp = destination.getDestinationPolicies();
+        DestinationPolicyType dp = destination.getHandler().getConfigurationHelper().getDestinationPolicies();
         Duration supportedDuration = dp.getSequenceExpiration();
         if (null == supportedDuration) {
             supportedDuration = SourceSequence.PT0S;

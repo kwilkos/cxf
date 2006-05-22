@@ -152,6 +152,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
         addModel(model);
     }
+    
+    public void clearConfigurations() {
+        configurations.clear();
+    }
+    
+    public void clearModels() {
+        models.clear();
+    }
 
     private InputStream loadResource(String resourceName) {
         return DefaultResourceManager.instance().getResourceAsStream(resourceName);

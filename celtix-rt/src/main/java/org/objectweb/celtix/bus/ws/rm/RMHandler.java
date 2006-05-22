@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
@@ -24,17 +23,10 @@ import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.JAXWSConstants;
 import org.objectweb.celtix.bindings.ServerBinding;
 
-import org.objectweb.celtix.bus.jaxws.EndpointImpl;
-import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.bus.ws.addressing.VersionTransformer;
-import org.objectweb.celtix.bus.ws.rm.persistence.RMStoreFactory;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
-import org.objectweb.celtix.configuration.ConfigurationProvider;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.handlers.SystemHandler;
@@ -55,7 +47,6 @@ import org.objectweb.celtix.ws.rm.SequenceType;
 import org.objectweb.celtix.ws.rm.TerminateSequenceType;
 import org.objectweb.celtix.ws.rm.persistence.RMStore;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemHandler {
 
@@ -67,10 +58,11 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
 
     private RMSource source;
     private RMDestination destination;
+    
     private RMProxy proxy;
     private RMServant servant;
-    private Configuration configuration;
-    private RMStore store;
+    private ConfigurationHelper configurationHelper;
+    private PersistenceManager persistenceManager;
     private Timer timer;
     private boolean busLifeCycleListenerRegistered;
       
@@ -85,28 +77,28 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         servant = new RMServant();
     }
     
+    /**
+     * Rely on order of resource injection and invocation of @postConstruct annotated methods
+     * for system handlers: pre-logical, post-logical, pre-protocol, post-protocol (i.e. assume 
+     * that the logical rm handler is already fully initialised).
+     *
+     */
+    
     @PostConstruct
     protected synchronized void initialise() {
-        if (null == handlers) {
-            handlers = new HashMap<BindingBase, RMHandler>();
-        }
-        handlers.put(getBinding(), this);
         
-        if (null == configuration) {
-            configuration = createConfiguration();
+        getHandlerMap().put(getBinding(), this);
+        
+        if (null == configurationHelper) {
+            configurationHelper = new ConfigurationHelper(getBinding(), null == clientBinding);
         } 
         
-        if (null == store) {
-            store = new RMStoreFactory().getStore(configuration);            
+        if (null == getSource()) {
+            source = new RMSource(this);            
         }
         
-        if (null == getSource()) {
-            source = new RMSource(this);
-            source.restore();
-        }
         if (null == destination) {
             destination = new RMDestination(this);
-            destination.restore();
         }
         
         if (null == timer) {
@@ -120,8 +112,11 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
     }
     
-    public static RMHandler getHandler(BindingBase binding) {
-        return handlers.get(binding);
+    public static Map<BindingBase, RMHandler> getHandlerMap() {
+        if (null == handlers) {
+            handlers = new HashMap<BindingBase, RMHandler>();
+        }
+        return handlers;
     }
 
     public void close(MessageContext context) {
@@ -129,15 +124,10 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     }
 
     public boolean handleFault(LogicalMessageContext context) {
-
-        open(context);
         return false;
     }
 
     public boolean handleMessage(LogicalMessageContext context) {
-
-        open(context);
-
         try {
             if (ContextUtils.isOutbound(context)) {
                 handleOutbound(context);
@@ -150,20 +140,24 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
         return true;
     }
-
-    @PreDestroy
-    public void shutdown() {
-        if (null != getSource()) {
-            getSource().shutdown();
-        }
+    
+    public ConfigurationHelper getConfigurationHelper() {
+        return configurationHelper;
     }
     
-    public Configuration getConfiguration() {
-        return configuration;
+    public PersistenceManager getPersistenceManager() {
+        return persistenceManager;
+    }
+    
+    public void setPersistenceManager(PersistenceManager pm) {
+        persistenceManager = pm;
     }
     
     public RMStore getStore() {
-        return store;
+        if (null != persistenceManager) {
+            return persistenceManager.getStore();
+        }
+        return null;
     }
 
     public Timer getTimer() {
@@ -213,58 +207,19 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         return servant;
     }
     
-    protected RMSource getSource() {
+    public RMSource getSource() {
         return source;        
     }
     
-    protected RMDestination getDestination() {
+    public RMDestination getDestination() {
         return destination;
     }
 
     protected void open(LogicalMessageContext context) {
         // TODO begin transaction
-        getSource().getRetransmissionQueue().start(getBus().getWorkQueueManager()
-                                                   .getAutomaticWorkQueue());
     }
 
-    protected Configuration createConfiguration() {
-        
-        Configuration busCfg = getBinding().getBus().getConfiguration();
-        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-        Configuration parent;
-        org.objectweb.celtix.ws.addressing.EndpointReferenceType ref = getBinding().getEndpointReference();
-
-        if (null != clientBinding) {
-            String id = EndpointReferenceUtils.getServiceName(ref).toString()
-                + "/" + EndpointReferenceUtils.getPortName(ref);
-            parent = builder.getConfiguration(ServiceImpl.PORT_CONFIGURATION_URI,
-                                                                id, busCfg);
-        } else {
-            parent = builder.getConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, EndpointReferenceUtils
-                .getServiceName(ref).toString(), busCfg);
-        }
-
-        Configuration cfg = builder.getConfiguration(RM_CONFIGURATION_URI, RM_CONFIGURATION_ID, parent);
-        if (null == cfg) {
-            cfg = builder.buildConfiguration(RM_CONFIGURATION_URI, RM_CONFIGURATION_ID, parent);
-            
-        }
-        boolean policyProviderRegistered = false;
-        for (ConfigurationProvider p : cfg.getProviders()) {
-            if (p instanceof RMPolicyProvider) {
-                policyProviderRegistered = true;
-                break;
-            }
-        }
-        if (!policyProviderRegistered) {
-            cfg.getProviders().add(new RMPolicyProvider(getBinding().getBus(),
-                                                        getBinding().getEndpointReference()));
-        }
-        
     
-        return cfg;
-
-    }
 
     protected void handleOutbound(LogicalMessageContext context) throws SequenceFault {
         LOG.entering(getClass().getName(), "handleOutbound");
@@ -534,11 +489,5 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         
         return seq;
     }
-
-    public void destroy() {
-        getSource().getRetransmissionQueue().stop();
-    }
     
-    
-
 }

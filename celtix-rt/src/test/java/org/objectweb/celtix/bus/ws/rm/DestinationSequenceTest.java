@@ -1,5 +1,7 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
@@ -9,7 +11,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.bus.configuration.wsrm.AcksPolicyType;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Expires;
@@ -23,12 +25,13 @@ import org.objectweb.celtix.ws.rm.policy.RMAssertionType.BaseRetransmissionInter
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType.ExponentialBackoff;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
+import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createNiceControl;
 
 public class DestinationSequenceTest extends TestCase {
 
+    IMocksControl control;
     ObjectFactory factory = new ObjectFactory();
     Identifier id;
     Expires expires;
@@ -36,17 +39,22 @@ public class DestinationSequenceTest extends TestCase {
     RMSource source;
     RMDestination destination;
     RMHandler handler;
+    ConfigurationHelper configurationHelper;
     RMAssertionType rma;
     AcksPolicyType ap;
  
     public void setUp() {
+        control = createNiceControl();
+        ref = control.createMock(EndpointReferenceType.class);
+        source = control.createMock(RMSource.class); 
+        destination = control.createMock(RMDestination.class);
+        handler = control.createMock(RMHandler.class);
+        configurationHelper = control.createMock(ConfigurationHelper.class);
+                
         expires = factory.createExpires();
         id = factory.createIdentifier();
         id.setValue("seq");
-        ref = createMock(EndpointReferenceType.class);
-        source = createMock(RMSource.class); 
-        destination = createMock(RMDestination.class);
-        handler = createMock(RMHandler.class);
+        
         ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
         rma = RMUtils.getWSRMPolicyFactory().createRMAssertionType();
         BaseRetransmissionInterval bri =
@@ -55,7 +63,7 @@ public class DestinationSequenceTest extends TestCase {
         rma.setBaseRetransmissionInterval(bri);
         ExponentialBackoff eb = 
             RMUtils.getWSRMPolicyFactory().createRMAssertionTypeExponentialBackoff();
-        eb.getOtherAttributes().put(RetransmissionQueue.EXPONENTIAL_BACKOFF_BASE_ATTR,
+        eb.getOtherAttributes().put(ConfigurationHelper.EXPONENTIAL_BACKOFF_BASE_ATTR,
                                     RetransmissionQueue.DEFAULT_EXPONENTIAL_BACKOFF);
         
     }
@@ -96,15 +104,60 @@ public class DestinationSequenceTest extends TestCase {
         assertTrue(!seq.equals(this));
     }
     
-    public void testAcknowledgeBasic() throws SequenceFault {
+    public void testGetSetDestination() {
+        control.replay();
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
+        seq.setDestination(destination);
+        assertSame(destination, seq.getDestination());
+    }
+    
+    public void testGetEndpointIdentifier() {
+        destination.getHandler();
+        expectLastCall().andReturn(handler);
+        handler.getConfigurationHelper();
+        expectLastCall().andReturn(configurationHelper);
+        configurationHelper.getEndpointId();
+        expectLastCall().andReturn("abc.xyz");
+        control.replay();
+        
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
+        seq.setDestination(destination);
+        assertEquals("abc.xyz", seq.getEndpointIdentifier());
+   
+        control.verify();
+    }
+    
+    public void testGetAcknowledgementAsStream() throws SequenceFault {
         destination.getHandler();
         expectLastCall().andReturn(handler).times(2);
-        destination.getRMAssertion();
+        handler.getConfigurationHelper();
+        expectLastCall().andReturn(configurationHelper).times(2);
+        configurationHelper.getRMAssertion();
+        expectLastCall().andReturn(rma);
+        configurationHelper.getAcksPolicy();
+        expectLastCall().andReturn(ap);
+        control.replay();
+        
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
+        List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
+        assertEquals(0, ranges.size());
+              
+        seq.acknowledge(new BigInteger("1"));  
+        assertNotNull(seq.getAcknowledgmentAsStream());
+        
+        control.verify();
+    }
+    
+    public void testAcknowledgeBasic() throws SequenceFault {
+        destination.getHandler();
+        expectLastCall().andReturn(handler).times(4);
+        handler.getConfigurationHelper();
+        expectLastCall().andReturn(configurationHelper).times(4);
+        configurationHelper.getRMAssertion();
         expectLastCall().andReturn(rma).times(2);
-        destination.getAcksPolicy();
+        configurationHelper.getAcksPolicy();
         expectLastCall().andReturn(ap).times(2);
-        replay(destination);
-        replay(handler);
+        control.replay();
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
@@ -121,22 +174,22 @@ public class DestinationSequenceTest extends TestCase {
         r1 = ranges.get(0);
         assertEquals(1, r1.getLower().intValue());
         assertEquals(2, r1.getUpper().intValue());
+        
+        control.verify();
     }
     
     public void testAcknowledgeLastMessageNumberExceeded() throws SequenceFault {  
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         
-        RMAssertionType ra = EasyMock.createMock(RMAssertionType.class);
+        RMAssertionType ra = control.createMock(RMAssertionType.class);
 
-        destination.getRMAssertion();
-        expectLastCall().andReturn(ra);
-        rma.getAcknowledgementInterval();
-        expectLastCall().andReturn(null);
-        destination.getAcksPolicy();
-        expectLastCall().andReturn(null);
-        
-        replay(destination);
+        expect(destination.getHandler()).andReturn(handler).times(2);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(2);
+        expect(configurationHelper.getRMAssertion()).andReturn(ra);
+        expect(ra.getAcknowledgementInterval()).andReturn(null);
+        expect(configurationHelper.getAcksPolicy()).andReturn(null);
+        control.replay();
         
         seq.acknowledge(BigInteger.ONE);
         seq.setLastMessageNumber(BigInteger.ONE);
@@ -146,18 +199,17 @@ public class DestinationSequenceTest extends TestCase {
         } catch (SequenceFault sf) {
             assertEquals("LastMessageNumberExceeded", sf.getFaultInfo().getFaultCode().getLocalPart());
         }
+        
+        control.verify();
     }
     
     public void testAcknowledgeAppendRange() throws SequenceFault {
    
-        destination.getHandler();
-        expectLastCall().andReturn(handler).times(5);
-        destination.getRMAssertion();
-        expectLastCall().andReturn(rma).times(5);
-        destination.getAcksPolicy();
-        expectLastCall().andReturn(ap).times(5);
-        replay(destination);
-        replay(handler);
+        expect(destination.getHandler()).andReturn(handler).times(10);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(10);
+        expect(configurationHelper.getRMAssertion()).andReturn(rma).times(5);
+        expect(configurationHelper.getAcksPolicy()).andReturn(ap).times(5);
+        control.replay();
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();        
@@ -172,18 +224,17 @@ public class DestinationSequenceTest extends TestCase {
         assertEquals(2, r.getUpper().intValue());
         r = ranges.get(1);
         assertEquals(4, r.getLower().intValue());
-        assertEquals(6, r.getUpper().intValue());  
+        assertEquals(6, r.getUpper().intValue()); 
+        
+        control.verify();
     }
     
     public void testAcknowledgeInsertRange() throws SequenceFault {
-        destination.getHandler();
-        expectLastCall().andReturn(handler).times(7);
-        destination.getRMAssertion();
-        expectLastCall().andReturn(rma).times(7);
-        destination.getAcksPolicy();
-        expectLastCall().andReturn(ap).times(7);
-        replay(destination);
-        replay(handler);
+        expect(destination.getHandler()).andReturn(handler).times(14);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(14);
+        expect(configurationHelper.getRMAssertion()).andReturn(rma).times(7);
+        expect(configurationHelper.getAcksPolicy()).andReturn(ap).times(7);
+        control.replay();
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();        
@@ -204,18 +255,17 @@ public class DestinationSequenceTest extends TestCase {
         assertEquals(4, r.getUpper().intValue()); 
         r = ranges.get(2);
         assertEquals(9, r.getLower().intValue());
-        assertEquals(10, r.getUpper().intValue());  
+        assertEquals(10, r.getUpper().intValue()); 
+        
+        control.verify();
     }
     
     public void testAcknowledgePrependRange() throws SequenceFault { 
-        destination.getHandler();
-        expectLastCall().andReturn(handler).times(6);
-        destination.getRMAssertion();
-        expectLastCall().andReturn(rma).times(6);
-        destination.getAcksPolicy();
-        expectLastCall().andReturn(ap).times(6);
-        replay(destination);
-        replay(handler);
+        expect(destination.getHandler()).andReturn(handler).times(12);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(12);
+        expect(configurationHelper.getRMAssertion()).andReturn(rma).times(6);
+        expect(configurationHelper.getAcksPolicy()).andReturn(ap).times(6);
+        control.replay();
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
@@ -231,23 +281,20 @@ public class DestinationSequenceTest extends TestCase {
         assertEquals(2, r.getUpper().intValue());
         r = ranges.get(1);
         assertEquals(4, r.getLower().intValue());
-        assertEquals(6, r.getUpper().intValue());      
+        assertEquals(6, r.getUpper().intValue()); 
+        
+        control.verify();
     }
     
     public void testMonitor() throws SequenceFault {
-        Timer t = new Timer();
-        destination.getHandler();
-        expectLastCall().andReturn(handler).times(15);
-        handler.getTimer();
-        expectLastCall().andReturn(t).times(15);
-        destination.getRMAssertion();
-        expectLastCall().andReturn(rma).times(15);
-        destination.getAcksPolicy();
-        expectLastCall().andReturn(ap).times(15);
-        replay(destination);
-        replay(handler);
-        
-        
+        // Timer t = new Timer();
+        expect(destination.getHandler()).andReturn(handler).times(30);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(30);
+        // expect(handler.getTimer()).andReturn(t).times(15);
+        expect(configurationHelper.getRMAssertion()).andReturn(rma).times(15);
+        expect(configurationHelper.getAcksPolicy()).andReturn(ap).times(15);
+        control.replay();
+                
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         SequenceMonitor monitor = seq.getMonitor();
         assertNotNull(monitor);
@@ -281,17 +328,16 @@ public class DestinationSequenceTest extends TestCase {
         int mpm2 = monitor.getMPM();
         assertTrue(mpm2 > 0);
         assertTrue(mpm1 > mpm2);
+        
+        control.verify();
     }
     
     public void testAcknowledgeImmediate() throws SequenceFault {
-        destination.getHandler();
-        expectLastCall().andReturn(handler).times(1);
-        destination.getRMAssertion();
-        expectLastCall().andReturn(rma).times(1);        
-        destination.getAcksPolicy();
-        expectLastCall().andReturn(ap).times(1);
-        replay(destination);
-        replay(handler);
+        expect(destination.getHandler()).andReturn(handler).times(2);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(2);
+        expect(configurationHelper.getRMAssertion()).andReturn(rma).times(1);
+        expect(configurationHelper.getAcksPolicy()).andReturn(ap).times(1);        
+        control.replay();
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         assertTrue(!seq.sendAcknowledgement());
@@ -301,6 +347,8 @@ public class DestinationSequenceTest extends TestCase {
         assertTrue(seq.sendAcknowledgement());
         seq.acknowledgmentSent();
         assertFalse(seq.sendAcknowledgement());
+        
+        control.verify();
     }
     
     public void testAcknowledgeDeferred() throws SequenceFault, IOException {
@@ -310,28 +358,23 @@ public class DestinationSequenceTest extends TestCase {
         ai.setMilliseconds(new BigInteger("200"));
         rma.setAcknowledgementInterval(ai);        
        
-        Timer timer = new Timer();
-        destination.getHandler();
-        expectLastCall().andReturn(handler).times(3);
-        handler.getTimer();
-        expectLastCall().andReturn(timer).times(1);
-        destination.getRMAssertion();
-        expectLastCall().andReturn(rma).times(3);
-        destination.getAcksPolicy();
-        expectLastCall().andReturn(ap).times(3);
+        Timer timer = new Timer();        
+        expect(destination.getHandler()).andReturn(handler).times(8);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(6);
+        expect(handler.getTimer()).andReturn(timer).times(1);
+        expect(configurationHelper.getRMAssertion()).andReturn(rma).times(3);
+        expect(configurationHelper.getAcksPolicy()).andReturn(ap).times(3);
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         assertTrue(!seq.sendAcknowledgement());
         
-        RMProxy proxy = createMock(RMProxy.class);
+        RMProxy proxy = control.createMock(RMProxy.class);
         handler.getProxy();
         expectLastCall().andReturn(proxy);
         proxy.acknowledge(seq);
         expectLastCall();
         
-        replay(destination);
-        replay(handler);
-        replay(proxy); 
+        control.replay(); 
               
         seq.acknowledge(new BigInteger("1")); 
         seq.acknowledge(new BigInteger("2"));
@@ -347,6 +390,8 @@ public class DestinationSequenceTest extends TestCase {
         assertTrue(seq.sendAcknowledgement());
         seq.acknowledgmentSent();
         assertFalse(seq.sendAcknowledgement());
+        
+        control.verify();
     }
     
     public void testCorrelationID() {

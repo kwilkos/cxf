@@ -34,6 +34,8 @@ public class CreateSequenceRequestTest extends TestCase {
     private static final Duration ONE_DAY;
     private ObjectMessageContext objectCtx;
     private RMSource source;
+    private RMHandler handler;
+    private ConfigurationHelper configurationHelper;
     private AbstractBindingBase binding;
     private Transport transport;
     private HandlerChainInvoker hci;
@@ -58,16 +60,23 @@ public class CreateSequenceRequestTest extends TestCase {
         objectCtx = new ObjectMessageContextImpl(); 
         control = EasyMock.createNiceControl();
         source = control.createMock(RMSource.class);
+        handler = control.createMock(RMHandler.class);
+        configurationHelper = control.createMock(ConfigurationHelper.class);
         binding = control.createMock(AbstractBindingBase.class);
         transport = control.createMock(Transport.class);
         hci = new HandlerChainInvoker(new ArrayList<Handler>());
+        
         sp = RMUtils.getWSRMConfFactory().createSourcePolicyType();
         
         binding.createObjectContext();
         EasyMock.expectLastCall().andReturn(objectCtx);
         binding.createHandlerInvoker();
         EasyMock.expectLastCall().andReturn(hci);
-        source.getSourcePolicies();
+        source.getHandler();
+        EasyMock.expectLastCall().andReturn(handler);
+        handler.getConfigurationHelper();
+        EasyMock.expectLastCall().andReturn(configurationHelper);
+        configurationHelper.getSourcePolicies();
         EasyMock.expectLastCall().andReturn(sp);
         
         target = TestUtils.getEPR("target");

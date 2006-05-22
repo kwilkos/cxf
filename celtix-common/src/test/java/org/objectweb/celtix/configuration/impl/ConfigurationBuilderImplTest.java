@@ -34,8 +34,7 @@ public class ConfigurationBuilderImplTest extends TestCase {
                            DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME);
         orgBuilderClassname = System.getProperty(ConfigurationBuilder.CONFIGURATION_BUILDER_CLASS_PROPERTY);
         System.setProperty(ConfigurationBuilder.CONFIGURATION_BUILDER_CLASS_PROPERTY, 
-                           ConfigurationBuilderImpl.class.getName());
-        
+                           ConfigurationBuilderImpl.class.getName());    
     }
     
     public void tearDown() {
@@ -93,7 +92,14 @@ public class ConfigurationBuilderImplTest extends TestCase {
         builder.addModel(unknownModel);
         assertSame(unknownModel, builder.getModel(UNKNOWN_CONFIGURATION_URI));
         EasyMock.verify(unknownModel); 
+        builder.clearModels();
+        try {
+            builder.getModel(UNKNOWN_CONFIGURATION_URI);
+        } catch (ConfigurationException ex) {
+            assertEquals("UNKNOWN_NAMESPACE_EXC", ex.getCode());
+        }
     }
+    
     
     public void testAddModel() throws Exception {
         ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder(null);
@@ -121,7 +127,7 @@ public class ConfigurationBuilderImplTest extends TestCase {
         builder.addModel(model);
         Configuration parent = EasyMock.createMock(Configuration.class);
         assertNull(builder.getConfiguration(HTTP_LISTENER_CONFIGURATION_URI, 
-                                            HTTP_LISTENER_CONFIGURATION_ID, parent));
+                                            HTTP_LISTENER_CONFIGURATION_ID, parent));        
     }
 
     public void testInvalidParentConfiguration() {
@@ -150,6 +156,9 @@ public class ConfigurationBuilderImplTest extends TestCase {
         } catch (Exception e) {
             fail("Caught unexpected exception");
         }
+        
+        builder.clearConfigurations();
+        assertNull(builder.getConfiguration(BUS_CONFIGURATION_URI, id));
     }
 
     /*    
@@ -203,5 +212,6 @@ public class ConfigurationBuilderImplTest extends TestCase {
         Configuration child = builder.buildConfiguration(HTTP_LISTENER_CONFIGURATION_URI, 
                                                          HTTP_LISTENER_CONFIGURATION_ID);
         assertNotNull(child);
+        builder.clearConfigurations();
     }
 }

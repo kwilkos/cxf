@@ -69,13 +69,13 @@ public class SourceSequence extends AbstractSequenceImpl implements RMSourceSequ
     public BigInteger getCurrentMessageNr() {
         return currentMessageNumber;
     }
-
+    
     /**
      * @return the identifier of the rm source
      */
     public String getEndpointIdentifier() {
         if (null != source) {
-            return source.getEndpointId();
+            return source.getHandler().getConfigurationHelper().getEndpointId();
         }
         return null;
     }
@@ -93,6 +93,15 @@ public class SourceSequence extends AbstractSequenceImpl implements RMSourceSequ
     }
     
     // end RMSourceSequence interface
+    
+    public boolean isAcknowledged(BigInteger m) {
+        for (AcknowledgementRange r : acked.getAcknowledgementRange()) {
+            if (m.subtract(r.getLower()).signum() >= 0 && r.getUpper().subtract(m).signum() >= 0) {
+                return true;
+            }
+        }
+        return false;
+    }
     
     void setSource(RMSource s) {
         source = s;
@@ -191,21 +200,7 @@ public class SourceSequence extends AbstractSequenceImpl implements RMSourceSequ
         return acked;
     }
     
-    /**
-     * Checks if the message with the given number has been acknowledged.
-     * 
-     * @param m the message number
-     * @return true of the message with the given number has been acknowledged.
-     */
-    boolean isAcknowledged(BigInteger m) {
-        for (AcknowledgementRange r : acked.getAcknowledgementRange()) {
-            if (m.subtract(r.getLower()).signum() >= 0 && r.getUpper().subtract(m).signum() >= 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
+   
     /**
      * Returns true if a last message had been sent for this sequence and if all
      * messages for this sequence have been acknowledged.
@@ -263,13 +258,14 @@ public class SourceSequence extends AbstractSequenceImpl implements RMSourceSequ
         } 
         
         if (!lastMessage) {
-            SequenceTerminationPolicyType stp = source.getSequenceTerminationPolicy();
+            SequenceTerminationPolicyType stp = source.getHandler().getConfigurationHelper()
+                .getSequenceTerminationPolicy();
             assert null != stp;
 
             if ((!stp.getMaxLength().equals(BigInteger.ZERO) && stp.getMaxLength()
                 .compareTo(currentMessageNumber) <= 0)
                 || (stp.getMaxRanges() > 0 && acked.getAcknowledgementRange().size() >= stp.getMaxRanges())
-                || (stp.getMaxUnacknowledged() > 0 && source.getRetransmissionQueue()
+                || (stp.getMaxUnacknowledged() > 0 && source.getHandler().getPersistenceManager().getQueue()
                     .countUnacknowledged(this) >= stp.getMaxUnacknowledged())) {
                 lastMessage = true;
             }

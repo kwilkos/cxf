@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.ws.rm;
+package org.objectweb.celtix.bus.ws.rm.soap;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
@@ -25,7 +25,11 @@ import org.objectweb.celtix.bindings.Response;
 import org.objectweb.celtix.bindings.ServerRequest;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
-import org.objectweb.celtix.bus.ws.rm.soap.RMSoapHandler;
+import org.objectweb.celtix.bus.ws.rm.ConfigurationHelper;
+import org.objectweb.celtix.bus.ws.rm.RMContextUtils;
+import org.objectweb.celtix.bus.ws.rm.RMUtils;
+import org.objectweb.celtix.bus.ws.rm.RetransmissionQueue;
+import org.objectweb.celtix.bus.ws.rm.SourceSequence;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -44,15 +48,12 @@ import org.objectweb.celtix.ws.rm.persistence.RMMessage;
 import org.objectweb.celtix.ws.rm.persistence.RMStore;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 
-public class RetransmissionQueue {
-    public static final QName EXPONENTIAL_BACKOFF_BASE_ATTR = new QName(RMHandler.RM_CONFIGURATION_URI,
-                                                                        "exponentialBackoffBase");
-    public static final String DEFAULT_BASE_RETRANSMISSION_INTERVAL = "3000";
-    public static final String DEFAULT_EXPONENTIAL_BACKOFF = "2";
-    private static final String SOAP_MSG_KEY = "org.objectweb.celtix.bindings.soap.message";
-    private static final Logger LOG = LogUtils.getL7dLogger(RetransmissionQueue.class);
+public class RetransmissionQueueImpl implements RetransmissionQueue {
 
-    private RMHandler handler;
+    private static final String SOAP_MSG_KEY = "org.objectweb.celtix.bindings.soap.message";
+    private static final Logger LOG = LogUtils.getL7dLogger(RetransmissionQueueImpl.class);
+
+    private PersistenceHandler handler;
     private RMSoapHandler rmSOAPHandler;
     private MAPCodec wsaSOAPHandler;
     private WorkQueue workQueue;
@@ -67,7 +68,7 @@ public class RetransmissionQueue {
     /**
      * Constructor.
      */
-    public RetransmissionQueue(RMHandler h) {
+    public RetransmissionQueueImpl(PersistenceHandler h) {
         this(h, Long.parseLong(DEFAULT_BASE_RETRANSMISSION_INTERVAL), Integer
             .parseInt(DEFAULT_EXPONENTIAL_BACKOFF));
     }
@@ -75,9 +76,10 @@ public class RetransmissionQueue {
     /**
      * Constructor.
      */
-    public RetransmissionQueue(RMHandler h, RMAssertionType rma) {
+    public RetransmissionQueueImpl(PersistenceHandler h, RMAssertionType rma) {
         this(h, rma.getBaseRetransmissionInterval().getMilliseconds().longValue(), Integer.parseInt(rma
-            .getExponentialBackoff().getOtherAttributes().get(EXPONENTIAL_BACKOFF_BASE_ATTR)));
+            .getExponentialBackoff().getOtherAttributes().get(
+                ConfigurationHelper.EXPONENTIAL_BACKOFF_BASE_ATTR)));
     }
 
     /**
@@ -86,12 +88,119 @@ public class RetransmissionQueue {
      * @param base the base retransmission interval
      * @param backoff the exponential backoff
      */
-    public RetransmissionQueue(RMHandler h, long base, int backoff) {
+    public RetransmissionQueueImpl(PersistenceHandler h, long base, int backoff) {
         handler = h;
         baseRetransmissionInterval = base;
         exponentialBackoff = backoff;
         candidates = new HashMap<String, List<ResendCandidate>>();
         resender = getDefaultResender();
+    }
+
+    /**
+     * @param seq the sequence under consideration
+     * @return the number of unacknowledged messages for that sequence
+     */
+    public synchronized int countUnacknowledged(SourceSequence seq) {
+        List<ResendCandidate> sequenceCandidates = getSequenceCandidates(seq);
+        return sequenceCandidates == null ? 0 : sequenceCandidates.size();
+    }
+    
+    /**
+     * @return true if there are no unacknowledged messages in the queue
+     */
+    public boolean isEmpty() {  
+        return 0 == getUnacknowledged().size();
+    }
+    
+    /**
+     * Accepts a new context for posible future retransmission.
+     * 
+     * @param ctx the message context.
+     */
+    public void addUnacknowledged(ObjectMessageContext context) {
+        cacheUnacknowledged(context);       
+    }
+    
+    /**
+     * Purge all candidates for the given sequence that have been acknowledged.
+     * 
+     * @param seq the sequence object.
+     */
+    public void purgeAcknowledged(SourceSequence seq) {
+        Collection<BigInteger> purged = new ArrayList<BigInteger>();
+        synchronized (this) {
+            List<ResendCandidate> sequenceCandidates = getSequenceCandidates(seq);
+            if (null != sequenceCandidates) {
+                for (int i = sequenceCandidates.size() - 1; i >= 0; i--) {
+                    ResendCandidate candidate = sequenceCandidates.get(i);
+                    RMProperties properties = RMContextUtils.retrieveRMProperties(candidate.getContext(),
+                                                                                  true);
+                    SequenceType st = properties.getSequence();
+                    BigInteger m = st.getMessageNumber();
+                    if (seq.isAcknowledged(m)) {
+                        sequenceCandidates.remove(i);
+                        candidate.resolved();
+                        purged.add(m);
+                    }
+                }
+            }
+        }
+        if (purged.size() > 0) {
+            RMStore store = handler.getStore();
+            if (null != store) {
+                store.removeMessages(seq.getIdentifier(), purged, true);
+            }
+        }
+    }
+
+    /**
+     * Initiate resends.
+     * 
+     * @param queue the work queue providing async execution
+     */
+    public void start(WorkQueue queue) {
+        if (null == workQueue) {
+            LOG.fine("Starting retransmission queue");
+            workQueue = queue;
+
+            TimerTask task = new TimerTask() {
+                public void run() {
+                    getResendInitiator().run();
+                }
+            };
+            timer = new Timer();
+            // TODO
+            // delay starting the queue to give the first request a chance to be sent before 
+            // waiting for another period.
+            timer.schedule(task, getBaseRetransmissionInterval() / 2, getBaseRetransmissionInterval());
+        }
+    }
+    /**
+     * Stops retransmission queue.
+     */ 
+    public void stop() {
+        if (null != timer) {
+            LOG.fine("Stopping retransmission queue");
+            timer.cancel();
+        }
+    }
+
+    /**
+     * Populates the retransmission queue with messages recovered from
+     * persistent store.
+     */
+    public void populate(Collection<SourceSequence> seqs) {
+        RMStore store = handler.getStore();
+        if (null != store) {
+            for (SourceSequence seq : seqs) {
+                Collection<RMMessage> msgs = store.getMessages(seq.getIdentifier(), true);
+                for (RMMessage msg : msgs) {
+                    ObjectMessageContext objCtx = new ObjectMessageContextImpl();
+                    objCtx.putAll(msg.getContext());                    
+                    cacheUnacknowledged(objCtx);
+                }
+            }
+        }
     }
 
     /**
@@ -237,23 +346,7 @@ public class RetransmissionQueue {
         response.processLogical(null);
     }
 
-    /**
-     * Populates the retransmission queue with messages recovered from
-     * persistent store.
-     */
-    protected void populate(Collection<SourceSequence> seqs) {
-        RMStore store = handler.getStore();
-        if (null != store) {
-            for (SourceSequence seq : seqs) {
-                Collection<RMMessage> msgs = store.getMessages(seq.getIdentifier(), true);
-                for (RMMessage msg : msgs) {
-                    ObjectMessageContext objCtx = new ObjectMessageContextImpl();
-                    objCtx.putAll(msg.getContext());
-                    cacheUnacknowledged(objCtx);
-                }
-            }
-        }
-    }
+    
 
     protected RMSoapHandler getRMSoapHandler() {
         if (null == rmSOAPHandler) {
@@ -291,36 +384,6 @@ public class RetransmissionQueue {
     }
 
     /**
-     * Initiate resends.
-     * 
-     * @param queue the work queue providing async execution
-     */
-    protected void start(WorkQueue queue) {
-        if (null == workQueue) {
-            LOG.fine("Starting retransmission queue");
-            workQueue = queue;
-
-            TimerTask task = new TimerTask() {
-                public void run() {
-                    getResendInitiator().run();
-                }
-            };
-            timer = new Timer();
-            // TODO
-            // delay starting the queue to give the first request a chance to be sent before 
-            // waiting for another period.
-            timer.schedule(task, getBaseRetransmissionInterval() / 2, getBaseRetransmissionInterval());
-        }
-    }
-
-    protected void stop() {
-        if (null != timer) {
-            LOG.fine("Stopping retransmission queue");
-            timer.cancel();
-        }
-    }
-
-    /**
      * Accepts a new resend candidate.
      * 
      * @param ctx the message context.
@@ -344,7 +407,6 @@ public class RetransmissionQueue {
                 ex.printStackTrace();
             }
         }
-
         SequenceType st = rmps.getSequence();
         Identifier sid = st.getIdentifier();
         synchronized (this) {
@@ -360,46 +422,8 @@ public class RetransmissionQueue {
         return candidate;
     }
 
-    /**
-     * Purge all candidates for the given sequence that have been acknowledged.
-     * 
-     * @param seq the sequence object.
-     */
-    protected void purgeAcknowledged(SourceSequence seq) {
-        Collection<BigInteger> purged = new ArrayList<BigInteger>();
-        synchronized (this) {
-            List<ResendCandidate> sequenceCandidates = getSequenceCandidates(seq);
-            if (null != sequenceCandidates) {
-                for (int i = sequenceCandidates.size() - 1; i >= 0; i--) {
-                    ResendCandidate candidate = sequenceCandidates.get(i);
-                    RMProperties properties = RMContextUtils.retrieveRMProperties(candidate.getContext(),
-                                                                                  true);
-                    SequenceType st = properties.getSequence();
-                    BigInteger m = st.getMessageNumber();
-                    if (seq.isAcknowledged(m)) {
-                        sequenceCandidates.remove(i);
-                        candidate.resolved();
-                        purged.add(m);
-                    }
-                }
-            }
-        }
-        if (purged.size() > 0) {
-            RMStore store = handler.getStore();
-            if (null != store) {
-                store.removeMessages(seq.getIdentifier(), purged, true);
-            }
-        }
-    }
-
-    /**
-     * @param seq the sequence under consideration
-     * @return the number of unacknowledged messages for that sequence
-     */
-    protected synchronized int countUnacknowledged(SourceSequence seq) {
-        List<ResendCandidate> sequenceCandidates = getSequenceCandidates(seq);
-        return sequenceCandidates == null ? 0 : sequenceCandidates.size();
-    }
+    
+    
 
     /**
      * @return a map relating sequence ID to a lists of un-acknowledged messages
@@ -441,12 +465,13 @@ public class RetransmissionQueue {
         return exponentialBackoff;
     }
 
+
     /**
      * Shutdown.
      */
-    protected synchronized void shutdown() {
+    public synchronized void shutdown() {
         shutdown = true;
-    }
+    }    
 
     /**
      * @return true if shutdown
@@ -481,7 +506,7 @@ public class RetransmissionQueue {
     protected class ResendInitiator implements Runnable {
         public void run() {
             // iterate over resend candidates, resending any that are due
-            synchronized (RetransmissionQueue.this) {
+            synchronized (RetransmissionQueueImpl.this) {
                 Iterator<Map.Entry<String, List<ResendCandidate>>> sequences = candidates.entrySet()
                     .iterator();
                 while (sequences.hasNext()) {
@@ -496,12 +521,6 @@ public class RetransmissionQueue {
                     }
                 }
             }
-            /*
-             * if (!isShutdown()) { // schedule next resend initiation task
-             * (rescheduling each time, // as opposed to scheduling a periodic
-             * task, eliminates the // potential for simultaneous execution)
-             * workQueue.schedule(this, getBaseRetransmissionInterval()); }
-             */
         }
     }
 
@@ -574,7 +593,11 @@ public class RetransmissionQueue {
         protected synchronized void initiate(boolean requestAcknowledge) {
             includeAckRequested = requestAcknowledge;
             pending = true;
-            workQueue.execute(this);
+            try {
+                workQueue.execute(this);
+            } catch (RejectedExecutionException ex) {
+                LOG.log(Level.SEVERE, "RESEND_INITIATION_FAILED_MSG", ex);
+            }
         }
 
         /**
@@ -612,4 +635,6 @@ public class RetransmissionQueue {
          */
         void resend(ObjectMessageContext context, boolean requestAcknowledge);
     }
+
+  
 }

@@ -33,10 +33,6 @@ public final class RMUtils {
         WSRM_PERSISTENCE_UTILS = new PersistenceUtils();       
     }
     
-    /**
-     * prevent instantiation
-     *
-     */
     protected RMUtils() {        
     }
     

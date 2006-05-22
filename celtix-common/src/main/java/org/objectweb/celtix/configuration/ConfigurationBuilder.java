@@ -67,4 +67,16 @@ public interface ConfigurationBuilder {
      */
     ConfigurationMetadata getModel(String namespaceURI);
     
+    /**
+     * Removes all metadata models from its cache.
+     *
+     */
+    void clearModels();
+     
+    /**
+     * Removes all top level configurations from its cache.
+     *
+     */
+    void clearConfigurations();
+    
 }

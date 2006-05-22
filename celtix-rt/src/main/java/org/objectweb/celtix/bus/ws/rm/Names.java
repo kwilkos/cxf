@@ -103,11 +103,7 @@ public final class Names {
         headers.add(WSRM_ACK_REQUESTED_QNAME);
         HEADERS = Collections.unmodifiableSet(headers);
     }
-
-
-    /**
-     * Prevents instantiation.
-     */
-    private Names() {
+    
+    protected Names() {
     }
 }

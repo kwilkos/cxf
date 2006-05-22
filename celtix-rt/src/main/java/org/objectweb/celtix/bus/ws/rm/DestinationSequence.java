@@ -91,7 +91,7 @@ public class DestinationSequence extends AbstractSequenceImpl implements RMDesti
      */
     public String getEndpointIdentifier() {
         if (null != destination) {
-            return destination.getEndpointId();
+            return destination.getHandler().getConfigurationHelper().getEndpointId();
         }
         return null;
     }
@@ -213,13 +213,13 @@ public class DestinationSequence extends AbstractSequenceImpl implements RMDesti
         return new SequenceFault(msg.toString(), sf);
     }
    
-    private void scheduleAcknowledgement() {
-        RMAssertionType rma = destination.getRMAssertion();
+    private void scheduleAcknowledgement() {          
+        RMAssertionType rma = destination.getHandler().getConfigurationHelper().getRMAssertion();
         int delay = 0;
         if (null != rma.getAcknowledgementInterval()) {
             delay = rma.getAcknowledgementInterval().getMilliseconds().intValue();
         }
-        AcksPolicyType ap = destination.getAcksPolicy();
+        AcksPolicyType ap = destination.getHandler().getConfigurationHelper().getAcksPolicy();
         if (delay > 0 && getMonitor().getMPM() >= ap.getIntraMessageThreshold()) {
             scheduleDeferredAcknowledgement(delay);
         } else {

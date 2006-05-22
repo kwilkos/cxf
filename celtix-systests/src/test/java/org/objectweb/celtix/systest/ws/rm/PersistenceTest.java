@@ -20,12 +20,11 @@ import junit.framework.TestSuite;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
-import org.objectweb.celtix.bus.busimpl.BusConfigurationBuilder;
 import org.objectweb.celtix.bus.configuration.wsrm.StoreInitParamType;
 import org.objectweb.celtix.bus.configuration.wsrm.StoreType;
 import org.objectweb.celtix.bus.ws.rm.Names;
-import org.objectweb.celtix.bus.ws.rm.RMHandler;
 import org.objectweb.celtix.bus.ws.rm.persistence.jdbc.RMTxStore;
+import org.objectweb.celtix.bus.ws.rm.soap.PersistenceHandler;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
@@ -62,11 +61,14 @@ public class PersistenceTest extends ClientServerTestBase {
     
     static class PersistenceTestServer extends TestServerBase {
 
+        public PersistenceTestServer() {
+        }
+        
         protected void run() {
 
             ControlImpl.setConfigFileProperty("oneway-client-crash");
             ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-            builder.buildConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI, "celtix");
+            builder.clearConfigurations();
             
             GreeterImpl implementor = new GreeterImpl();
             String address = "http://localhost:9020/SoapContext/GreeterPort";
@@ -106,7 +108,7 @@ public class PersistenceTest extends ClientServerTestBase {
                 assertNotNull("cannot find test resource", url);
                 configFileName = url.toString(); 
                 ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-                builder.buildConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI, "celtix");
+                builder.clearConfigurations();
 
                 super.setUp();
 
@@ -127,7 +129,7 @@ public class PersistenceTest extends ClientServerTestBase {
         System.setProperty("celtix.config.file", configFileName);
         
         bus = Bus.init();
-
+        
         URL wsdl = getClass().getResource("/wsdl/greeter_control.wsdl");
         greeterService = new GreeterService(wsdl, SERVICE_NAME);
 
@@ -172,8 +174,8 @@ public class PersistenceTest extends ClientServerTestBase {
     }
     
     public void tearDown() throws BusException {
-        RMHandler rmh = getRMHandler();
-        rmh.destroy();
+        PersistenceHandler ph = getPersistenceHandler();
+        ph.shutdown();
         
         greeter = null;
         bus.shutdown(true);
@@ -183,8 +185,10 @@ public class PersistenceTest extends ClientServerTestBase {
         } else {
             System.setProperty("celtix.config.file", cfgFileProperty);
         }
+        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
+        builder.clearConfigurations();
     }
-    
+   
     public void testPopulateStore() throws Exception {
         
         greeter.greetMeOneWay("one");
@@ -208,18 +212,18 @@ public class PersistenceTest extends ClientServerTestBase {
         boolean[] expectedAcks = new boolean[5];
         mf.verifyAcknowledgements(expectedAcks, false);
         
-        RMHandler rmh = getRMHandler();
+        PersistenceHandler rmh = getPersistenceHandler();
         assertNotNull(rmh);
         
         RMTxStore store = getStore(rmh);
         assertNotNull(store);
         
         Collection<RMDestinationSequence> dss =
-            store.getDestinationSequences(rmh.getConfiguration().getParent().getId().toString());
+            store.getDestinationSequences(rmh.getConfigurationHelper().getEndpointId());
         assertEquals(1, dss.size());
         
         Collection<RMSourceSequence> sss =
-            store.getSourceSequences(rmh.getConfiguration().getParent().getId().toString());
+            store.getSourceSequences(rmh.getConfigurationHelper().getEndpointId());
         assertEquals(1, sss.size());
         
         Collection<RMMessage> msgs = 
@@ -252,21 +256,21 @@ public class PersistenceTest extends ClientServerTestBase {
 
     }
     
-    private RMHandler getRMHandler() {
+    private PersistenceHandler getPersistenceHandler() {
         BindingProvider provider = (BindingProvider)greeter;
         AbstractBindingImpl abi = (AbstractBindingImpl)provider.getBinding();
-        List<Handler> handlerChain = abi.getPreLogicalSystemHandlers();
+        List<Handler> handlerChain = abi.getPostProtocolSystemHandlers();
         assertTrue(handlerChain.size() > 0);
         for (Handler h : handlerChain) {
-            if (h instanceof RMHandler) {
-                return (RMHandler)h;
+            if (h instanceof PersistenceHandler) {
+                return (PersistenceHandler)h;
             }
         }
         return null;
     }
     
-    private RMTxStore getStore(RMHandler rmh) {
-        Configuration cfg = rmh.getConfiguration();
+    private RMTxStore getStore(PersistenceHandler rmh) {
+        Configuration cfg = rmh.getConfigurationHelper().getConfiguration();
         StoreType s = cfg.getObject(StoreType.class, "store");
         Map<String, String> params = new HashMap<String, String>();
         for (StoreInitParamType p : s.getInitParam()) {

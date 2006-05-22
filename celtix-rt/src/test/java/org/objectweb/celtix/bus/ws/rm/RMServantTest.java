@@ -28,6 +28,8 @@ public class RMServantTest extends TestCase {
     private IMocksControl control;
     private RMDestination dest;
     private RMSource src;
+    private RMHandler handler;
+    private ConfigurationHelper configurationHelper;
     private CreateSequenceType cs;
     private CreateSequenceResponseType csResp;
     private AttributedURIType to;
@@ -161,6 +163,8 @@ public class RMServantTest extends TestCase {
                                          boolean includeOffer, boolean acceptOffer)
         throws DatatypeConfigurationException {
 
+        handler = control.createMock(RMHandler.class);
+        configurationHelper = control.createMock(ConfigurationHelper.class);
         dest = control.createMock(RMDestination.class);
         to = control.createMock(AttributedURIType.class); 
         dp = control.createMock(DestinationPolicyType.class);
@@ -174,8 +178,11 @@ public class RMServantTest extends TestCase {
         dest.generateSequenceIdentifier();
         expectLastCall().andReturn(sid);
         
-        dest.getDestinationPolicies();
-        expectLastCall().andReturn(dp);
+        expect(dest.getHandler()).andReturn(handler);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper);
+        expect(configurationHelper.getDestinationPolicies()).andReturn(dp);
+        // dest.getDestinationPolicies();
+        // expectLastCall().andReturn(dp);
         
         Duration d = null;
         if (null != supportedDuration) {
@@ -199,6 +206,7 @@ public class RMServantTest extends TestCase {
     private void setupCreateSequenceResponse(boolean accepted) {
         src = control.createMock(RMSource.class);
         dest = control.createMock(RMDestination.class);
+        handler = control.createMock(RMHandler.class);
         sid = control.createMock(Identifier.class);
         csResp = control.createMock(CreateSequenceResponseType.class);
         csResp.getIdentifier();
@@ -208,7 +216,6 @@ public class RMServantTest extends TestCase {
         src.setCurrent(isA(Identifier.class), isA(SourceSequence.class));
         expectLastCall();
         if (accepted) {
-            RMHandler handler = control.createMock(RMHandler.class);
             src.getHandler();
             expectLastCall().andReturn(handler);
             handler.getDestination();
@@ -217,7 +224,7 @@ public class RMServantTest extends TestCase {
             csResp.getAccept();
             expectLastCall().andReturn(accept);
             accept.getAcksTo();
-            EndpointReferenceType acksTo = TestUtils.getOldEPR("acks");
+            EndpointReferenceType acksTo = TestUtils.getOldEPR("acks");            
             expectLastCall().andReturn(acksTo).times(2);
             dest.addSequence(isA(DestinationSequence.class));
             expectLastCall();
@@ -244,7 +251,6 @@ public class RMServantTest extends TestCase {
         if (includeOffer && acceptOffer) {
             maps.getTo();
             expectLastCall().andReturn(to);
-            RMHandler handler = control.createMock(RMHandler.class);
             dest.getHandler();
             expectLastCall().andReturn(handler);
             RMSource source = control.createMock(RMSource.class);

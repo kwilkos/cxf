@@ -11,7 +11,7 @@ import org.objectweb.celtix.bus.jaxws.configuration.types.SystemHandlerChainType
 import org.objectweb.celtix.bus.ws.addressing.MAPAggregator;
 import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
 import org.objectweb.celtix.bus.ws.rm.RMHandler;
-import org.objectweb.celtix.bus.ws.rm.RMPersistenceHandler;
+import org.objectweb.celtix.bus.ws.rm.soap.PersistenceHandler;
 import org.objectweb.celtix.bus.ws.rm.soap.RMSoapHandler;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
@@ -121,7 +121,7 @@ public class TestConfigurator {
             boolean persist = true;
             if (persist) {
                 handler = factory.createHandlerType();
-                handler.setHandlerClass(RMPersistenceHandler.class.getName());
+                handler.setHandlerClass(PersistenceHandler.class.getName());
                 handler.setHandlerName("protocol rm persistence handler");
                 handlerChain.getHandler().add(handler);
             }

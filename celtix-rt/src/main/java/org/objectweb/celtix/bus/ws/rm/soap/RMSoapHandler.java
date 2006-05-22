@@ -4,7 +4,6 @@ package org.objectweb.celtix.bus.ws.rm.soap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,12 +63,6 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
     } 
 
     /**
-     * Initialize the handler.
-     */
-    public void init(Map<String, Object> map) {
-    }
-
-    /**
      * @return the set of SOAP headers understood by this handler 
      */
     public Set<QName> getHeaders() {
@@ -103,11 +96,6 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
     public void close(MessageContext context) {
     }
 
-    /**
-     * Release handler resources.
-     */
-    public void destroy() {
-    }
 
     /**
      * Mediate message flow, peforming MAP {en|de}coding.
@@ -115,7 +103,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
      * @param context the messsage context
      * @return true if processing should continue on dispatch path 
      */     
-    private boolean mediate(SOAPMessageContext context) {
+    boolean mediate(SOAPMessageContext context) {
         if (ContextUtils.isOutbound(context)) {
             encode(context);
         } else {

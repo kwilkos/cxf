@@ -1,10 +1,12 @@
-package org.objectweb.celtix.bus.ws.rm;
+package org.objectweb.celtix.bus.ws.rm.soap;
 
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
@@ -16,6 +18,8 @@ import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerDataBindingCallback;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
+import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
+import org.objectweb.celtix.bus.ws.rm.SourceSequence;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -24,9 +28,11 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.workqueue.WorkQueue;
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.RMProperties;
 import org.objectweb.celtix.ws.rm.SequenceType;
+import org.objectweb.celtix.ws.rm.persistence.RMMessage;
 import org.objectweb.celtix.ws.rm.persistence.RMStore;
 
 import static org.objectweb.celtix.bindings.JAXWSConstants.DATABINDING_CALLBACK_PROPERTY;
@@ -42,9 +48,9 @@ import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.RM_PROPERTIES_OUTBOUND
 public class RetransmissionQueueTest extends TestCase {
 
     private IMocksControl control;
-    private RMHandler handler;
+    private PersistenceHandler handler;
     private WorkQueue workQueue;
-    private RetransmissionQueue queue;
+    private RetransmissionQueueImpl queue;
     private TestResender resender;
     private List<ObjectMessageContext> contexts =
         new ArrayList<ObjectMessageContext>();
@@ -59,16 +65,11 @@ public class RetransmissionQueueTest extends TestCase {
     
     public void setUp() {
         control = EasyMock.createNiceControl();
-        handler = createMock(RMHandler.class);
-        queue = new RetransmissionQueue(handler);
+        handler = createMock(PersistenceHandler.class);
+        queue = new RetransmissionQueueImpl(handler);
         resender = new TestResender();
         queue.replaceResender(resender);
         workQueue = createMock(WorkQueue.class);
-        /*
-        workQueue.schedule(queue.getResendInitiator(), 
-                           queue.getBaseRetransmissionInterval());        
-        EasyMock.expectLastCall();
-        */
     }
     
     public void tearDown() {
@@ -110,7 +111,7 @@ public class RetransmissionQueueTest extends TestCase {
         assertEquals("expected non-empty unacked map", 
                      1,
                      queue.getUnacknowledged().size());
-        List<RetransmissionQueue.ResendCandidate> sequence1List = 
+        List<RetransmissionQueueImpl.ResendCandidate> sequence1List = 
             queue.getUnacknowledged().get("sequence1");
         assertNotNull("expected non-null context list", sequence1List);
         assertSame("expected context list entry",
@@ -122,7 +123,7 @@ public class RetransmissionQueueTest extends TestCase {
         assertEquals("unexpected unacked map size", 
                      2,
                      queue.getUnacknowledged().size());
-        List<RetransmissionQueue.ResendCandidate> sequence2List = 
+        List<RetransmissionQueueImpl.ResendCandidate> sequence2List = 
             queue.getUnacknowledged().get("sequence2");
         assertNotNull("expected non-null context list", sequence2List);
         assertSame("expected context list entry",
@@ -147,8 +148,8 @@ public class RetransmissionQueueTest extends TestCase {
         SourceSequence sequence = setUpSequence("sequence1",
                                           messageNumbers, 
                                           new boolean[] {true, false});
-        List<RetransmissionQueue.ResendCandidate> sequenceList =
-            new ArrayList<RetransmissionQueue.ResendCandidate>();
+        List<RetransmissionQueueImpl.ResendCandidate> sequenceList =
+            new ArrayList<RetransmissionQueueImpl.ResendCandidate>();
         queue.getUnacknowledged().put("sequence1", sequenceList);
         ObjectMessageContext context1 =
             setUpContext("sequence1", messageNumbers[0]);
@@ -172,8 +173,8 @@ public class RetransmissionQueueTest extends TestCase {
         SourceSequence sequence = setUpSequence("sequence1",
                                            messageNumbers, 
                                            new boolean[] {false, false});
-        List<RetransmissionQueue.ResendCandidate> sequenceList =
-            new ArrayList<RetransmissionQueue.ResendCandidate>();
+        List<RetransmissionQueueImpl.ResendCandidate> sequenceList =
+            new ArrayList<RetransmissionQueueImpl.ResendCandidate>();
         queue.getUnacknowledged().put("sequence1", sequenceList);
         ObjectMessageContext context1 =
             setUpContext("sequence1", messageNumbers[0]);
@@ -191,14 +192,20 @@ public class RetransmissionQueueTest extends TestCase {
                      2,
                      sequenceList.size());
     }
+    
+    public void testIsEmpty() {
+        ready();
+        assertTrue("queue is not empty" , queue.isEmpty());
+    }
 
     public void testCountUnacknowledged() {
         BigInteger[] messageNumbers = {BigInteger.TEN, BigInteger.ONE};
         SourceSequence sequence = setUpSequence("sequence1",
                                           messageNumbers, 
                                           null);
-        List<RetransmissionQueue.ResendCandidate> sequenceList =
-            new ArrayList<RetransmissionQueue.ResendCandidate>();
+        List<RetransmissionQueueImpl.ResendCandidate> sequenceList =
+            new ArrayList<RetransmissionQueueImpl.ResendCandidate>();
+        
         queue.getUnacknowledged().put("sequence1", sequenceList);
         ObjectMessageContext context1 =
             setUpContext("sequence1", messageNumbers[0], false);
@@ -211,6 +218,7 @@ public class RetransmissionQueueTest extends TestCase {
         assertEquals("unexpected unacked count", 
                      2,
                      queue.countUnacknowledged(sequence));
+        assertTrue("queue is empty", !queue.isEmpty());
     }
     
     public void testCountUnacknowledgedUnknownSequence() {
@@ -225,6 +233,59 @@ public class RetransmissionQueueTest extends TestCase {
                      queue.countUnacknowledged(sequence));
     }
     
+    public void testPopulate() {
+  
+        Collection<SourceSequence> sss = new ArrayList<SourceSequence>();
+        Collection<RMMessage> msgs = new ArrayList<RMMessage>();
+        List<Handler> handlerChain = new ArrayList<Handler>();
+            
+        RMStore store = createMock(RMStore.class);
+        handler.getStore();
+        EasyMock.expectLastCall().andReturn(store);   
+        SourceSequence ss = control.createMock(SourceSequence.class);
+        sss.add(ss);
+        Identifier id = control.createMock(Identifier.class);
+        ss.getIdentifier();
+        EasyMock.expectLastCall().andReturn(id); 
+        RMMessage msg = control.createMock(RMMessage.class);
+        msgs.add(msg);
+        store.getMessages(id, true);
+        EasyMock.expectLastCall().andReturn(msgs); 
+        MessageContext context = control.createMock(MessageContext.class);
+        msg.getContext();
+        EasyMock.expectLastCall().andReturn(context);
+        AbstractBindingBase binding = control.createMock(AbstractBindingBase.class);
+        handler.getBinding();
+        EasyMock.expectLastCall().andReturn(binding).times(2);
+        AbstractBindingImpl abi = control.createMock(AbstractBindingImpl.class);
+        binding.getBindingImpl();
+        EasyMock.expectLastCall().andReturn(abi).times(2);
+        RMSoapHandler rmh = control.createMock(RMSoapHandler.class);
+        MAPCodec wsah = control.createMock(MAPCodec.class);
+        handlerChain.add(rmh);
+        handlerChain.add(wsah);
+        abi.getPostProtocolSystemHandlers();
+        EasyMock.expectLastCall().andReturn(handlerChain).times(2);
+        RMProperties rmps = control.createMock(RMProperties.class);
+        rmh.unmarshalRMProperties(null);
+        EasyMock.expectLastCall().andReturn(rmps);
+        AddressingProperties maps = control.createMock(AddressingProperties.class);
+        wsah.unmarshalMAPs(null);
+        EasyMock.expectLastCall().andReturn(maps);
+        SequenceType st = control.createMock(SequenceType.class);
+        rmps.getSequence();
+        EasyMock.expectLastCall().andReturn(st);
+        st.getIdentifier();
+        EasyMock.expectLastCall().andReturn(id);
+        id.getValue();
+        EasyMock.expectLastCall().andReturn("sequence1");
+        ready();
+        
+        queue.populate(sss);
+        
+        assertTrue("queue is empty", !queue.isEmpty());    
+    }
+    
     public void testResendInitiatorBackoffLogic() {
         ObjectMessageContext context1 = setUpContext("sequence1");
         ObjectMessageContext context2 = setUpContext("sequence2");
@@ -233,13 +294,13 @@ public class RetransmissionQueueTest extends TestCase {
         setupContextMAPs(context2);
         setupContextMAPs(context3);
         ready();
-        RetransmissionQueue.ResendCandidate candidate1 =
+        RetransmissionQueueImpl.ResendCandidate candidate1 =
             queue.cacheUnacknowledged(context1);
-        RetransmissionQueue.ResendCandidate candidate2 =
+        RetransmissionQueueImpl.ResendCandidate candidate2 =
             queue.cacheUnacknowledged(context2);
-        RetransmissionQueue.ResendCandidate candidate3 =
+        RetransmissionQueueImpl.ResendCandidate candidate3 =
             queue.cacheUnacknowledged(context3);
-        RetransmissionQueue.ResendCandidate[] allCandidates = 
+        RetransmissionQueueImpl.ResendCandidate[] allCandidates = 
         {candidate1, candidate2, candidate3};
         boolean [] expectAckRequested = {true, true, false};
 
@@ -285,13 +346,13 @@ public class RetransmissionQueueTest extends TestCase {
         setupContextMAPs(context2);
         setupContextMAPs(context3);
         ready();
-        RetransmissionQueue.ResendCandidate candidate1 =
+        RetransmissionQueueImpl.ResendCandidate candidate1 =
             queue.cacheUnacknowledged(context1);
-        RetransmissionQueue.ResendCandidate candidate2 =
+        RetransmissionQueueImpl.ResendCandidate candidate2 =
             queue.cacheUnacknowledged(context2);
-        RetransmissionQueue.ResendCandidate candidate3 =
+        RetransmissionQueueImpl.ResendCandidate candidate3 =
             queue.cacheUnacknowledged(context3);
-        RetransmissionQueue.ResendCandidate[] allCandidates = 
+        RetransmissionQueueImpl.ResendCandidate[] allCandidates = 
         {candidate1, candidate2, candidate3};
         boolean [] expectAckRequested = {true, true, false};
 
@@ -311,8 +372,7 @@ public class RetransmissionQueueTest extends TestCase {
         runInitiator();
         
         // candidates 1 & 2 run => only these due
-        runInitiator(new RetransmissionQueue.ResendCandidate[] {candidate1, 
-                                                                candidate2});
+        runInitiator(new RetransmissionQueueImpl.ResendCandidate[] {candidate1, candidate2});
 
         runCandidates(allCandidates, expectAckRequested);
 
@@ -320,14 +380,13 @@ public class RetransmissionQueueTest extends TestCase {
         runInitiator();
 
         // candidates 3 run belatedly => now due
-        runInitiator(new RetransmissionQueue.ResendCandidate[] {candidate3});
+        runInitiator(new RetransmissionQueueImpl.ResendCandidate[] {candidate3});
         
         // exponential backoff => none due
         runInitiator();
 
         // candidates 1 & 2 now due
-        runInitiator(new RetransmissionQueue.ResendCandidate[] {candidate1, 
-                                                                candidate2});
+        runInitiator(new RetransmissionQueueImpl.ResendCandidate[] {candidate1, candidate2});
     }
     
     public void testResendInitiatorResolvedLogic() {
@@ -338,13 +397,13 @@ public class RetransmissionQueueTest extends TestCase {
         setupContextMAPs(context2);
         setupContextMAPs(context3);
         ready();
-        RetransmissionQueue.ResendCandidate candidate1 =
+        RetransmissionQueueImpl.ResendCandidate candidate1 =
             queue.cacheUnacknowledged(context1);
-        RetransmissionQueue.ResendCandidate candidate2 =
+        RetransmissionQueueImpl.ResendCandidate candidate2 =
             queue.cacheUnacknowledged(context2);
-        RetransmissionQueue.ResendCandidate candidate3 =
+        RetransmissionQueueImpl.ResendCandidate candidate3 =
             queue.cacheUnacknowledged(context3);
-        RetransmissionQueue.ResendCandidate[] allCandidates = 
+        RetransmissionQueueImpl.ResendCandidate[] allCandidates = 
         {candidate1, candidate2, candidate3};
         boolean [] expectAckRequested = {true, true, false};
         
@@ -362,7 +421,7 @@ public class RetransmissionQueueTest extends TestCase {
         candidate3.resolved();
         
         // candidates 1 & 3 resolved => only candidate2 due
-        runInitiator(new RetransmissionQueue.ResendCandidate[] {candidate2});
+        runInitiator(new RetransmissionQueueImpl.ResendCandidate[] {candidate2});
     }
     
     public void testResenderInitiatorReschedule() {
@@ -391,9 +450,9 @@ public class RetransmissionQueueTest extends TestCase {
         setupContextMAPs(context1);
         queue.replaceResender(queue.getDefaultResender());
         ready();
-        RetransmissionQueue.ResendCandidate candidate1 =
+        RetransmissionQueueImpl.ResendCandidate candidate1 =
             queue.cacheUnacknowledged(context1);
-        RetransmissionQueue.ResendCandidate[] allCandidates = {candidate1};
+        RetransmissionQueueImpl.ResendCandidate[] allCandidates = {candidate1};
 
         // initial run => none due
         runInitiator();
@@ -552,7 +611,7 @@ public class RetransmissionQueueTest extends TestCase {
     }
     
     private void runInitiator(
-                       RetransmissionQueue.ResendCandidate[] dueCandidates) {
+                       RetransmissionQueueImpl.ResendCandidate[] dueCandidates) {
         control.verify();
         control.reset();
         
@@ -572,7 +631,7 @@ public class RetransmissionQueueTest extends TestCase {
     }
     
     private void runCandidates(
-                          RetransmissionQueue.ResendCandidate[] candidates,
+                          RetransmissionQueueImpl.ResendCandidate[] candidates,
                           boolean[] expectAckRequested) {
         for (int i = 0; i < candidates.length; i++) {
             candidates[i].run();
@@ -658,7 +717,7 @@ public class RetransmissionQueueTest extends TestCase {
         return ret;
     }
     
-    private static class TestResender implements RetransmissionQueue.Resender {
+    private static class TestResender implements RetransmissionQueueImpl.Resender {
         ObjectMessageContext context;
         boolean includeAckRequested;
         

@@ -7,20 +7,17 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.objectweb.celtix.bus.configuration.wsrm.AcksPolicyType;
-import org.objectweb.celtix.bus.configuration.wsrm.DestinationPolicyType;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.SequenceType;
-import org.objectweb.celtix.ws.rm.persistence.RMDestinationSequence;
 import org.objectweb.celtix.ws.rm.persistence.RMStore;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 public class RMDestination extends RMEndpoint {
 
     private static final Logger LOG = LogUtils.getL7dLogger(RMDestination.class);
-    private static final String DESTINATION_POLICIES_PROPERTY_NAME = "destinationPolicies";
+    
   
     private Map<String, DestinationSequence> map;
     
@@ -60,24 +57,6 @@ public class RMDestination extends RMEndpoint {
         return map.values();
     }
   
-    public DestinationPolicyType getDestinationPolicies() {
-        DestinationPolicyType dp = getHandler().getConfiguration()
-            .getObject(DestinationPolicyType.class, DESTINATION_POLICIES_PROPERTY_NAME);
-        if (null == dp) {
-            dp = RMUtils.getWSRMConfFactory().createDestinationPolicyType();
-        }
-        return dp;
-    }
-    
-    public AcksPolicyType getAcksPolicy() {
-        DestinationPolicyType dp = getDestinationPolicies();
-        assert null != dp;
-        AcksPolicyType ap = dp.getAcksPolicy();
-        if (null == ap) {
-            ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
-        }
-        return ap;
-    }
     
     
    /**
@@ -117,16 +96,6 @@ public class RMDestination extends RMEndpoint {
             }
         } else {
             throw DestinationSequence.createUnknownSequenceFault(sequenceType.getIdentifier());
-        }
-    }
-    
-    void restore() {
-        RMStore store = getHandler().getStore();
-        if (null != store) {
-            Collection<RMDestinationSequence> dss = store.getDestinationSequences(getEndpointId());
-            for (RMDestinationSequence ds : dss) {
-                addSequence((DestinationSequence)ds, false);
-            }
         }
     }
 }

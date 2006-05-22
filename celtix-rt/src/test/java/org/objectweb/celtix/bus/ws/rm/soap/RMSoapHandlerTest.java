@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bus.ws.rm.soap;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +22,8 @@ import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
 
 import junit.framework.TestCase;
 
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.bus.bindings.TestInputStreamContext;
 import org.objectweb.celtix.bus.bindings.soap.SOAPBindingImpl;
 import org.objectweb.celtix.bus.bindings.soap.W3CConstants;
@@ -38,8 +41,7 @@ import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
 import org.objectweb.celtix.ws.rm.SequenceType;
 
-
-
+import static org.easymock.classextension.EasyMock.expect;
 
 public class RMSoapHandlerTest extends TestCase {
 
@@ -47,29 +49,63 @@ public class RMSoapHandlerTest extends TestCase {
     private static final BigInteger MSG1_MESSAGE_NUMBER = BigInteger.ONE;
     private static final BigInteger MSG2_MESSAGE_NUMBER = BigInteger.ONE.add(BigInteger.ONE);
 
-    SequenceType s1;
-    SequenceType s2;
-    SequenceAcknowledgement ack1;
-    SequenceAcknowledgement ack2;
-    AckRequestedType ar1;
-    AckRequestedType ar2;
-    SOAPBindingImpl sb = new SOAPBindingImpl(false);
+    private IMocksControl control;
+    private RMSoapHandler codec;
+    
+    private SequenceType s1;
+    private SequenceType s2;
+    private SequenceAcknowledgement ack1;
+    private SequenceAcknowledgement ack2;
+    private AckRequestedType ar1;
+    private AckRequestedType ar2;
+    private SOAPBindingImpl sb = new SOAPBindingImpl(false);
+    
+    public void setUp() {
+        control = EasyMock.createNiceControl(); 
+        codec = new RMSoapHandler();
+    }
 
     public void testGetHeaders() throws Exception {
 
-        RMSoapHandler codec = new RMSoapHandler();
-        codec.init(null);
         Set<QName> headers = codec.getHeaders();
         assertTrue("expected Sequence header", headers.contains(Names.WSRM_SEQUENCE_QNAME));
         assertTrue("expected SequenceAcknowledgment header", headers.contains(Names.WSRM_SEQUENCE_ACK_QNAME));
         assertTrue("expected AckRequested header", headers.contains(Names.WSRM_ACK_REQUESTED_QNAME));
+    }
+    
+    public void testClose() {
+        SOAPMessageContext ctx = control.createMock(SOAPMessageContext.class);
+        codec.close(ctx);
+    }
+    
+    public void testHandleMessage() throws NoSuchMethodException {
+        Method m = RMSoapHandler.class.getDeclaredMethod("mediate", 
+            new Class[] {SOAPMessageContext.class});
+        codec = control.createMock(RMSoapHandler.class, new Method[] {m});
+        SOAPMessageContext ctx = control.createMock(SOAPMessageContext.class);
+        expect(codec.mediate(ctx)).andReturn(true);
+        
+        control.replay();
+        assertTrue(codec.handleMessage(ctx));
+        control.verify();
+    }
+    
+    public void testHandleFault() throws NoSuchMethodException {
+        Method m = RMSoapHandler.class.getDeclaredMethod("mediate", 
+            new Class[] {SOAPMessageContext.class});
+        codec = control.createMock(RMSoapHandler.class, new Method[] {m});
+        SOAPMessageContext ctx = control.createMock(SOAPMessageContext.class);
+        expect(codec.mediate(ctx)).andReturn(true);
+        
+        control.replay();
+        assertTrue(codec.handleFault(ctx));
+        control.verify();
     }
 
     public void testOutbound() throws Exception {
 
         setUpOutbound();
         SOAPMessageContext context = null;
-        RMSoapHandler codec = new RMSoapHandler();
 
         // no RM headers
 
@@ -133,7 +169,6 @@ public class RMSoapHandlerTest extends TestCase {
     }
 
     public void testInboundSequence() throws IOException {
-        RMSoapHandler codec = new RMSoapHandler();
         TestInputStreamContext istreamCtx = new TestInputStreamContext();
         istreamCtx.setInputStream(RMEndpointTest.class
             .getResourceAsStream("resources/spec/Message1.xml"));
@@ -154,7 +189,6 @@ public class RMSoapHandlerTest extends TestCase {
     }
 
     public void testInboundAcknowledgements() throws IOException {
-        RMSoapHandler codec = new RMSoapHandler();
         TestInputStreamContext istreamCtx = new TestInputStreamContext();
         istreamCtx.setInputStream(RMEndpointTest.class
             .getResourceAsStream("resources/spec/Acknowledgment.xml"));
@@ -177,7 +211,6 @@ public class RMSoapHandlerTest extends TestCase {
     }
 
     public void testInboundAcksRequested() throws IOException {
-        RMSoapHandler codec = new RMSoapHandler();
         TestInputStreamContext istreamCtx = new TestInputStreamContext();
         istreamCtx.setInputStream(RMEndpointTest.class
             .getResourceAsStream("resources/spec/Retransmission.xml"));

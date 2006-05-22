@@ -91,7 +91,7 @@ public class CreateSequenceRequest extends Request {
     }
     
     private void setMessageParameters(RMSource source, EndpointReferenceType defaultAcksTo) {
-        SourcePolicyType sourcePolicies = source.getSourcePolicies();
+        SourcePolicyType sourcePolicies = source.getHandler().getConfigurationHelper().getSourcePolicies();
         assert null != sourcePolicies;
         
         CreateSequenceType cs = RMUtils.getWSRMFactory().createCreateSequenceType();
