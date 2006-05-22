@@ -27,7 +27,7 @@ public class WSDL11Validator extends AbstractValidator {
 
             String[] schemas = (String[])env.get(ToolConstants.CFG_SCHEMA_URL);
             
-            SchemaWSDLValidator schemaValidator = new SchemaWSDLValidator(schemaDir, (String)env
+            SchemaValidator schemaValidator = new SchemaValidator(schemaDir, (String)env
                 .get(ToolConstants.CFG_WSDLURL), schemas, false);
 
             if (!schemaValidator.isValid()) {              
@@ -42,7 +42,6 @@ public class WSDL11Validator extends AbstractValidator {
             throw new ToolException("Schema dir should be defined before validate wsdl");
         }
 
-        
         validators.add(new UniqueBodyPartsValidator(this.def));
         validators.add(new WSIBPValidator(this.def));
         validators.add(new MIMEBindingValidator(this.def));

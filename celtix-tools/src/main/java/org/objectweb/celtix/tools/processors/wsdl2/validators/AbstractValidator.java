@@ -4,13 +4,10 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.wsdl.Definition;
-
-import org.w3c.dom.Node;
+import javax.xml.stream.Location;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolException;
-import org.objectweb.celtix.tools.common.WSDLConstants;
-import org.objectweb.celtix.tools.utils.ElementLocator;
 
 public abstract class AbstractValidator {
     protected List<String> errorMessages = new Vector<String>();
@@ -21,9 +18,9 @@ public abstract class AbstractValidator {
         this.def = definition;
     }
 
-    public AbstractValidator(String schemaDir) throws ToolException {        
+    public AbstractValidator(String schemaDir) throws ToolException {
     }
-    
+
     public AbstractValidator(Definition definition, ProcessorEnvironment pEnv) {
         this.def = definition;
         this.env = pEnv;
@@ -44,10 +41,9 @@ public abstract class AbstractValidator {
         return strbuffer.toString();
     }
 
-    public void addError(Node node, String msg) {
-        ElementLocator locator = (ElementLocator)node.getUserData(WSDLConstants.NODE_LOCATION);
-        String errMsg = "line " + locator.getLine() + " column " + locator.getColumn();
-        errMsg = errMsg + " of " + def.getDocumentBaseURI() + " " + msg;
+    public void addError(Location loc, String msg) {
+        String errMsg = loc != null ? "line " + loc.getLineNumber() + " of " : "";
+        errMsg = errMsg + def.getDocumentBaseURI() + " " + msg;
         addErrorMessage(errMsg);
     }
 }

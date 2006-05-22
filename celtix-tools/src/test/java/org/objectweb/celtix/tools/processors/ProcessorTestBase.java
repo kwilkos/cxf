@@ -11,49 +11,48 @@ import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolException;
 
 public class ProcessorTestBase extends TestCase {
-    
+
     private static final int RETRY_SLEEP_MILLIS = 10;
     protected ProcessorEnvironment env = new ProcessorEnvironment();
     protected File output;
-        
+
     public void setUp() throws Exception {
         URL url = ProcessorTestBase.class.getResource(".");
         output = new File(url.getFile());
         output = new File(output, "/resources");
         mkDir(output);
     }
-    
+
     public void tearDown() {
         removeDir(output);
         output = null;
         env = null;
     }
-    
+
     private void mkDir(File dir) {
         if (dir == null) {
             throw new ToolException("dir attribute is required");
         }
-        
+
         if (dir.isFile()) {
             throw new ToolException("Unable to create directory as a file "
-                                    + "already exists with that name: "
-                                    + dir.getAbsolutePath());
+                                    + "already exists with that name: " + dir.getAbsolutePath());
         }
 
         if (!dir.exists()) {
             boolean result = doMkDirs(dir);
             if (!result) {
                 String msg = "Directory " + dir.getAbsolutePath()
-                    + " creation was not successful for an unknown reason";
+                             + " creation was not successful for an unknown reason";
                 throw new ToolException(msg);
             }
         }
     }
 
     /**
-     * Attempt to fix possible race condition when creating
-     * directories on WinXP, also Windows2000. If the mkdirs does not work,
-     * wait a little and try again.
+     * Attempt to fix possible race condition when creating directories on
+     * WinXP, also Windows2000. If the mkdirs does not work, wait a little and
+     * try again.
      */
     private boolean doMkDirs(File f) {
         if (!f.mkdirs()) {
@@ -66,7 +65,7 @@ public class ProcessorTestBase extends TestCase {
         }
         return true;
     }
-    
+
     private void removeDir(File d) {
         String[] list = d.list();
         if (list == null) {
@@ -104,7 +103,7 @@ public class ProcessorTestBase extends TestCase {
         String osName = System.getProperty("os.name").toLowerCase(Locale.US);
         return osName.indexOf("windows") > -1;
     }
-    
+
     protected String getClassPath() {
         ClassLoader loader = getClass().getClassLoader();
         StringBuffer classPath = new StringBuffer();
@@ -113,12 +112,14 @@ public class ProcessorTestBase extends TestCase {
             for (URL url : urlLoader.getURLs()) {
                 String file = url.getFile();
                 if (file.indexOf("junit") == -1) {
-                    classPath.append(url.getFile());
+                    //
+                    classPath.append(url.getFile().substring(1));
                     classPath.append(System.getProperty("path.separator"));
                 }
             }
         }
+
         return classPath.toString();
     }
-      
+
 }

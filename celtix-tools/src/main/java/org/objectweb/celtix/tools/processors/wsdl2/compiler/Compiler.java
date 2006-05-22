@@ -1,73 +1,42 @@
 package org.objectweb.celtix.tools.processors.wsdl2.compiler;
 
 import java.io.File;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.logging.Logger;
-
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.tools.common.ToolException;
-import org.objectweb.celtix.tools.processors.wsdl2.WSDLToProcessor;
+import java.io.IOException;
 
 public class Compiler {
-    private static final Logger LOG = LogUtils.getL7dLogger(WSDLToProcessor.class);
-    private OutputStream out;
+    public boolean internalCompile(String[] args) {
 
-    public Compiler(OutputStream o) {
-        this.out = o;
-    }
-
-    public boolean internalCompile(String[] args) throws ToolException {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-     
-        Class javacMainClass = null;
-        Class[] compileMethodSignature;
-        compileMethodSignature = new Class[2];
-        compileMethodSignature[0] = (new String[0]).getClass();
-        compileMethodSignature[1] = PrintWriter.class;
+        Process p = null;
         try {
-            javacMainClass = classLoader.loadClass("com.sun.tools.javac.Main");
-        } catch (ClassNotFoundException e3) {
-            //System.out.println(System.getProperties());
-            //System.out.println(System.getenv());
-            String javaHome = System.getProperty("java.home");
-            
-            try {
-                URL url = new File(javaHome + "/../lib/tools.jar").toURL();
-                URL url2 = new File(javaHome + "/lib/tools.jar").toURL();
-                classLoader = new URLClassLoader(new URL[] {url, url2}, classLoader);
-            } catch (MalformedURLException e) {
-                //ignore
-            }
-        }
-        try {
-            javacMainClass = classLoader.loadClass("com.sun.tools.javac.Main");
-            try {
 
-                Method compileMethod = javacMainClass.getMethod("compile", compileMethodSignature);
-                try {
-                    Object result = compileMethod.invoke(null, new Object[] {args, new PrintWriter(out)});
-                    if (!(result instanceof Integer)) {
-                        return false;
-                    }
-                    return ((Integer)result).intValue() == 0;
-                } catch (Exception e1) {
-                    Message msg = new Message("FAIL_TO_COMPILE_GENERATE_CODES", LOG);
-                    throw new ToolException(msg, e1);
-                }
-            } catch (NoSuchMethodException e2) {
-                throw new ToolException(e2.getMessage(), e2);
+            for (int i = 0; i < args.length; i++) {
+                if (!"/".equals(File.separator) && args[i].indexOf("package-info") == -1) {
+                    args[i] = args[i].replace(File.separatorChar, '/');
+                }              
             }
-        } catch (ClassNotFoundException e3) {
-            throw new ToolException(e3.getMessage(), e3);
-            
-        } catch (SecurityException e4) {
-            throw new ToolException(e4.getMessage() , e4);
+
+            p = Runtime.getRuntime().exec(args);
+            if (p.getErrorStream() != null) {
+                StreamPrinter errorStreamPrinter = new StreamPrinter(p.getErrorStream(), "error", System.err);
+                errorStreamPrinter.run();
+            }
+            if (p.getInputStream() != null) {
+                StreamPrinter infoStreamPrinter = new StreamPrinter(p.getInputStream(), "info", System.err);
+                infoStreamPrinter.run();
+            }
+
+            if (p != null) {
+                return p.waitFor() == 0 ? true : false;
+            }
+        } catch (SecurityException e) {
+            // ignore
+        } catch (InterruptedException e) {
+            // ignore
+
+        } catch (IOException e) {
+            // ignore
         }
+
+        return false;
     }
 }

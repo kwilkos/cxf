@@ -21,6 +21,8 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     private File classFile;
     
     public void setUp() throws Exception {
+       
+        
         super.setUp();
         wj2Processor = new WSDLToJavaProcessor();
         j2wProcessor = new JavaToWSDLProcessor();

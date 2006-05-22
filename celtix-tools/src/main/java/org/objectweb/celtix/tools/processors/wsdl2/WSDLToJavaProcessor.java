@@ -139,42 +139,47 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
     private void compile() throws ToolException {
         ClassCollector classCollector = (ClassCollector)env.get(ToolConstants.GENERATED_CLASS_COLLECTOR);
         List<String> argList = new ArrayList<String>();
+        List<String> fileList = new ArrayList<String>();
 
         String javaClasspath = System.getProperty("java.class.path");
         // hard code celtix.jar
-        boolean classpathSetted = javaClasspath != null && (javaClasspath.indexOf("celtix.jar") >= 0);
+        boolean classpathSetted = javaClasspath != null ? true : false;
+        // && (javaClasspath.indexOf("celtix.jar") >= 0);
         if (env.isVerbose()) {
             argList.add("-verbose");
         }
 
+        if (env.get(ToolConstants.CFG_CLASSDIR) != null) {
+            argList.add("-d");
+            argList.add(((String)env.get(ToolConstants.CFG_CLASSDIR)).replace(File.pathSeparatorChar, '/'));
+        }
+
         if (!classpathSetted) {
-            System.setProperty("java.ext.dirs", this.getClass().getClassLoader().getResource(".").getFile()
-                                                + "../lib/");
+            argList.add("-extdirs");
+            argList.add(getClass().getClassLoader().getResource(".").getFile() + "../lib/");
         } else {
             argList.add("-classpath");
             argList.add(javaClasspath);
+            // System.err.println(Arrays.asList(javaClasspath.split(";")));
         }
 
-        if (env.get(ToolConstants.CFG_CLASSDIR) != null) {
-            argList.add("-d");
-            argList.add((String)env.get(ToolConstants.CFG_CLASSDIR));
-        }
-
+        String outPutDir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
+        // System.out.println("---outPutDir---- " + outPutDir);
         Set<String> dirSet = new HashSet<String>();
         Iterator ite = classCollector.getGeneratedFileInfo().iterator();
         while (ite.hasNext()) {
             String fileName = (String)ite.next();
-            fileName = fileName.replaceAll("\\.", "/");
-            String dirName = fileName.substring(0, fileName.lastIndexOf("/") + 1);
-            String outPutDir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
-            if (!dirSet.contains(dirName)) {
-                String path = outPutDir + "/" + dirName;
+            fileName = fileName.replace('.', File.separatorChar);
+            String dirName = fileName.substring(0, fileName.lastIndexOf(File.separator) + 1);
+            String path = outPutDir + File.separator + dirName;
+            if (!dirSet.contains(path)) {
+
                 dirSet.add(path);
                 File file = new File(path);
                 if (file.isDirectory()) {
                     for (String str : file.list()) {
                         if (str.endsWith("java")) {
-                            argList.add(path + File.separator + str);
+                            fileList.add(path + str);
                         } else {
                             // copy generated xml file or others to class
                             // directory
@@ -194,17 +199,26 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
         }
 
-        String[] args = new String[argList.size()];
-        int i = 0;
+        String[] arguments = new String[argList.size() + fileList.size() + 1];
+        arguments[0] = "javac";
+        int i = 1;
         for (Object obj : argList.toArray()) {
             String arg = (String)obj;
-            args[i] = arg;
+            arguments[i] = arg;
             i++;
         }
 
-        Compiler compiler = new Compiler(System.out);
+        String[] files = new String[fileList.size()];
+        for (Object o : fileList.toArray()) {
+            String file = (String)o;
+           
+            arguments[i] = file;
+            i++;
+        }
 
-        if (!compiler.internalCompile(args)) {
+        Compiler compiler = new Compiler();
+
+        if (!compiler.internalCompile(arguments)) {
             Message msg = new Message("FAIL_TO_COMPILE_GENERATE_CODES", LOG);
             throw new ToolException(msg);
         }

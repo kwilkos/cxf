@@ -225,7 +225,10 @@ public class CommandLineParserTest extends TestCase {
         usage += "version" + lineSeparator + lineSeparator;
         usage += "<wsdlurl>" + lineSeparator;
         usage += "WSDL/SCHEMA URL" + lineSeparator + lineSeparator;        
-        assertEquals("testUsage failed", usage, parser.getDetailedUsage());
+        assertEquals("testUsage failed", 
+                     usage.replaceAll(lineSeparator, "").replace(" ", ""), 
+                     parser.getDetailedUsage().replaceAll(lineSeparator, "")
+                     .replaceAll(" ", "").replaceAll("\\\t", ""));
     }
 
     public void testOtherMethods() throws Exception {

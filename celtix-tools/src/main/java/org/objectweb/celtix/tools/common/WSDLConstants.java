@@ -77,7 +77,9 @@ public final class WSDLConstants {
     public static final String ATTR_PART_ELEMENT = "element";
     public static final String ATTR_PART_TYPE = "type";
     public static final String ATTR_TYPE = "type";
-    //For LineNumDOMParser getUserData(location)
+    
+    
+    //For Stax2DOM getUserData(location)
     public static final String NODE_LOCATION = "location";
 
     public static final int DOC_WRAPPED = 1;

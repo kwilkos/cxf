@@ -123,6 +123,7 @@ public class ParameterProcessor extends AbstractProcessor {
     private void processReturn(JavaMethod method, Part part) {
         String name = part == null ? "return" : part.getName();
         String type = part == null ? "void" : ProcessorUtil.resolvePartType(part, this.env);
+ 
         String namespace = part == null ? null : ProcessorUtil.resolvePartNamespace(part);
 
         JavaReturn returnType = new JavaReturn(name, type, namespace);
@@ -193,7 +194,7 @@ public class ParameterProcessor extends AbstractProcessor {
         }
 
         if (isRequestResponse && outParts.size() == 1) {
-            processReturn(method, outputParts.iterator().next());
+            processReturn(method, outParts.get(0));
             return;
         } else {
             processReturn(method, null);

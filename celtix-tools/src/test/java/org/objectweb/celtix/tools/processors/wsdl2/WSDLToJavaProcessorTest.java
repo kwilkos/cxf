@@ -110,6 +110,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testHelloWorld() throws Exception {
+       
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
         processor.setEnvironment(env);
         processor.process();
@@ -400,7 +401,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         Class para = classLoader.loadClass("org.objectweb.hello_world_holder.types.GreetMe");
         Method method = clz.getMethod("sayHi", new Class[] {para, Holder.class});
-        assertEquals("SayHi", method.getReturnType().getSimpleName());
+        assertEquals("GreetMeResponse", method.getReturnType().getSimpleName());
 
         WebParam webParamAnno = AnnotationUtil.getWebParam(method, "greetMe");
         assertEquals(true, webParamAnno.header());

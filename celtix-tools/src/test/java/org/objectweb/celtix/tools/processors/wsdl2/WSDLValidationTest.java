@@ -130,10 +130,10 @@ public class WSDLValidationTest extends ProcessorTestBase {
             fail("validate exception should be thrown");
         } catch (ToolException e) {
             String errMsg = e.getMessage();
-            assertTrue("Part reference error should be located ", errMsg.indexOf("line 57 column 54") > -1);
-            assertTrue("Part reference error should be located ", errMsg.indexOf("line 69 column 46") > -1);
-            assertTrue("PortType reference should be located ", errMsg.indexOf("line 99 column 63") > -1);
-            assertTrue("Binding Reference should be located ", errMsg.indexOf("line 129 column 65") > -1);
+            assertTrue("Part reference error should be located ", errMsg.indexOf("line 57") > -1);
+            assertTrue("Part reference error should be located ", errMsg.indexOf("line 69") > -1);
+            assertTrue("PortType reference should be located ", errMsg.indexOf("line 99") > -1);
+            assertTrue("Binding Reference should be located ", errMsg.indexOf("line 129") > -1);
         }
     }
 
