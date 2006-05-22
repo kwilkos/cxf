@@ -109,16 +109,15 @@ public class ProcessorTestBase extends TestCase {
         StringBuffer classPath = new StringBuffer();
         if (loader instanceof URLClassLoader) {
             URLClassLoader urlLoader = (URLClassLoader)loader;
-            for (URL url : urlLoader.getURLs()) {
-                String file = url.getFile();
-                if (file.indexOf("junit") == -1) {
-                    //
-                    classPath.append(url.getFile().substring(1));
+            for (URL url : urlLoader.getURLs()) {               
+                File file = new File(url.getFile());
+                String filename = file.getAbsolutePath();                
+                if (filename.indexOf("junit") == -1) {
+                    classPath.append(filename);
                     classPath.append(System.getProperty("path.separator"));
                 }
             }
         }
-
         return classPath.toString();
     }
 
