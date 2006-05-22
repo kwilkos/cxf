@@ -21,14 +21,13 @@
     <title>WSDL Namespace</title>
 
     <para>The WSDL extensions for defining a JMS endpoint are defined in the
-    namespace <filename>http://celtix.objectweb.org/transports/jms</filename>.
+    namespace <classname>http://celtix.objectweb.org/transports/jms</classname>.
     In order to use the JMS extensions you will need to add the line shown in
     <xref linkend="wsdlNamespace" /> to the definitions element of your
     contract.</para>
 
     <example id="wsdlNamespace">
       <title>JMS Extension Namespace</title>
-
       <programlisting>xmlns:jms="http://celtix.objectweb.org/transports/jms"</programlisting>
     </example>
   </sect1>
@@ -38,7 +37,7 @@
 
     <para>The Celtix JMS endpoint configuration properties are specified under
     the namespace
-    <filename>http://celtix.objectweb.org/transports/jms</filename>. In order
+    <classname>http://celtix.objectweb.org/transports/jms</classname>. In order
     to use the JMS configuration properties you will need to add the line
     shown in <xref linkend="configNamespace" /> to the beans element of your
     configuration.</para>
@@ -59,11 +58,11 @@
 
     <orderedlist>
       <listitem>
-        <para><xref linkend="BasicWSDL" /></para>
+        <para><ulink url="#BasicWSDL">WSDL</ulink></para>
       </listitem>
 
       <listitem>
-        <para><xref linkend="BasicConfig" /></para>
+        <para><ulink url="#BasicConfig">Configuratoin</ulink></para>
       </listitem>
     </orderedlist>
 
@@ -71,18 +70,18 @@
       <title>Using WSDL</title>
 
       <para>The JMS destination information is provided using the
-      <classname>jms:address</classname> element and its child, the
-      <classname>jms:JMSNamingProperties</classname> element. The
-      <classname>jms:address</classname> element’s attributes specify the
+      <sgmltag class="element">jms:address</sgmltag> element and its child, the
+      <sgmltag class="element">jms:JMSNamingProperties</sgmltag> element. The
+      <sgmltag class="element">jms:address</sgmltag> element’s attributes specify the
       information needed to identify the JMS broker and the destination. The
-      <classname>jms:JMSNamingProperties</classname> element specifies the
+      <sgmltag class="element">jms:JMSNamingProperties</sgmltag> element specifies the
       Java properties used to connect to the JNDI service.</para>
 
       <sect3>
         <title>The address Element</title>
 
         <para>The basic configuration for a JMS endpoint is done by using a
-        <classname>jms:address</classname> element as the child of your
+        <sgmltag class="element">jms:address</sgmltag> element as the child of your
         service’s port element. The<classname> jms:address</classname> element
         uses the attributes described in <xref linkend="Table5" /> to
         configure the connection to the JMS broker.</para>
@@ -98,49 +97,37 @@
                 <entry><para>Description</para></entry>
               </row>
             </thead>
-
             <tbody>
               <row>
-                <entry><classname>destinationStyle</classname></entry>
-
+                <entry><sgmltag class="attribute">destinationStyle</sgmltag></entry>
                 <entry><para>Specifies if the JMS destination is a JMS queue
                 or a JMS topic.</para></entry>
               </row>
-
               <row>
-                <entry><classname>jndiConnectionFactoryName</classname></entry>
-
+                <entry><sgmltag class="attribute">jndiConnectionFactoryName</sgmltag></entry>
                 <entry><para>Specifies the JNDI name bound to the JMS
                 connection factory to use when connecting to the JMS
                 destination.</para></entry>
               </row>
-
               <row>
-                <entry><classname>jndiDestinationName</classname></entry>
-
+                <entry><sgmltag class="attribute">jndiDestinationName</sgmltag></entry>
                 <entry><para>Specifies the JNDI name bound to the JMS
                 destination to which requests are sent.</para></entry>
               </row>
-
               <row>
-                <entry><classname>jndiReplyDestinationName</classname></entry>
-
+                <entry><sgmltag class="attribute">jndiReplyDestinationName</sgmltag></entry>
                 <entry><para>Specifies the JNDI name bound to the JMS
                 destinations where replies are sent. This attribute allows you
                 to use a user defined destination for replies. For more
                 details see <xref linkend="ReplyDest" />.</para></entry>
               </row>
-
               <row>
-                <entry><classname>connectionUserName</classname></entry>
-
+                <entry><sgmltag class="attribute">connectionUserName</sgmltag></entry>
                 <entry><para>Specifies the username to use when connecting to
                 a JMS broker.</para></entry>
               </row>
-
               <row>
-                <entry><classname>connectionPassword</classname></entry>
-
+                <entry><sgmltag class="attribute">connectionPassword</sgmltag></entry>
                 <entry><para>Specifies the password to use when connecting to
                 a JMS broker.</para></entry>
               </row>
@@ -153,15 +140,15 @@
         <title>The JMSNamingProperties Element</title>
 
         <para>To increase interoperability with JMS and JNDI providers, the
-        jms:address element has a child element,
-        <classname>jms:JMSNamingProperties</classname>, that allows you to
+        <sgmltag class="element">jms:address</sgmltag> element has a child element,
+        <sgmltag class="element">jms:JMSNamingProperties</sgmltag>, that allows you to
         specify the values used to populate the properties used when
         connecting to the JNDI provider. The
-        <classname>jms:JMSNamingProperties</classname> element has two
-        attributes: <classname>name</classname> and
-        <classname>value</classname>. The name attribute specifies the name of
-        the property to set. The value attribute specifies the value for the
-        specified property. jms:JMSNamingProperties element can also be used
+        <sgmltag class="element">jms:JMSNamingProperties</sgmltag> element has two
+        attributes: <sgmltag class="attribute">name</sgmltag class="attribute"> and
+        <sgmltag class="attribute">value</sgmltag class="attribute">. <sgmltag class="attribute">name</sgmltag> 
+		specifies the name of the property to set. <sgmltag class="attribute">value</sgmltag> attribute specifies the value for the
+        specified property. <sgmltag class="element">jms:JMSNamingProperties</sgmltag> element can also be used
         for specification of provider specific properties.</para>
 
         <para>The following is a list of common JNDI properties that can be
@@ -239,12 +226,12 @@
 
         <para>By default, Celtix endpoints using JMS create a temporary queue
         for sending replies back and forth. You can change this behavior by
-        setting the <classname>jndiReplyDestinationName</classname> attribute
+        setting the <sgmltag class="attribute">jndiReplyDestinationName</sgmltag> attribute
         in the endpoint's contract. A Celtix client endpoint will listen for
         replies on the specified destination and it will specify the value of
         the attribute in the <classname>ReplyTo</classname> field of all
         outgoing requests. A Celtix service endpoint will use the value of the
-        <classname>jndiReplyDestinationName</classname> attribute as the
+        <sgmltag class="attribute">jndiReplyDestinationName</sgmltag> attribute as the
         location for placing replies if there is no destination specified in
         the request’s <classname>ReplyTo</classname> field.</para>
       </sect3>
@@ -289,7 +276,7 @@
       <classname>jms:address</classname>. It is identical to the
       <classname>jms:address</classname> element used in the WSDL file. Its
       attributes are listed in <xref linkend="Table5" />. Like the
-      <classname>jms:address</classname> element in the WSDL file, the
+      <sgmltag class="element">jms:address</sgmltag> element in the WSDL file, the
       <classname>jms:address</classname> property also has a
       <classname>jms:JMSNamingProperties</classname> child element that is
       used to specify additional information used to connect to a JNDI
@@ -341,9 +328,7 @@
         <title>More information</title>
 
         <para>For more information on using Celtix configuration see the
-        <ulink
-        url="site:config">Celtix
-        Configuration Guide</ulink>.</para>
+        <ulink url="site:config">Celtix Configuration Guide</ulink>.</para>
       </sect3>
     </sect2>
   </sect1>
@@ -356,13 +341,13 @@
     <classname>ObjectMessage</classname> or a JMS
     <classname>TextMessage</classname>. When using an
     <classname>ObjectMessage</classname> the consumer endpoint uses a
-    <classname>byte[]</classname> as the method for storing data into and
+    <type>byte[]</type> as the method for storing data into and
     retrieving data from the JMS message body. When messages are sent, the
     message data, including any formating information, is packaged into a
-    <classname>byte[]</classname> and placed into the JMS message body before
+    <type>byte[]</type> and placed into the JMS message body before
     it is placed on the wire. When messages are received, the consumer
     endpoint will attempt to unmarshall the data stored in the JMS body as if
-    it were packed in a <classname>byte[]</classname>.</para>
+    it were packed in a <type>byte[]</type>.</para>
 
     <para>When using a <classname>TextMessage</classname>, the consumer
     endpoint uses a string as the method for storing and retrieving data from
@@ -383,11 +368,10 @@
 
     <orderedlist>
       <listitem>
-        <para><xref linkend="ConsumerConfig" /></para>
+        <para><ulink url="#ConsumerConfig">Configuration</ulink></para>
       </listitem>
-
       <listitem>
-        <para><xref linkend="ConsumerWSDL" /></para>
+        <para><ulink url="#ConsumerWSDL">WSDL</ulink></para>
       </listitem>
     </orderedlist>
 
@@ -411,7 +395,6 @@
           <tbody>
             <row>
               <entry><para><classname>messageType</classname></para></entry>
-
               <entry><para>Specifies how the message data will be packaged as
               a JMS message. <classname>text</classname> specifies that the
               data will be packaged as a <classname>TextMessage</classname>.
@@ -464,9 +447,7 @@
         <title>More information</title>
 
         <para>For more information on using Celtix configuration see the
-        <ulink
-        url="http://celtix.objectweb.org/docs/user_guides/configuration/configuration.html">Celtix
-        Configuration Guide</ulink>.</para>
+        <ulink url="site:config">Celtix Configuration Guide</ulink>.</para>
       </sect3>
     </sect2>
 
@@ -474,9 +455,9 @@
       <title>Using WSDL</title>
 
       <para>The type of messages accepted by a JMS consumer endpoint is
-      configured using the optional <classname>jms:client</classname> element.
-      The <classname>jms:client</classname> element is a child of the WSDL
-      port element and has one attribute:</para>
+      configured using the optional <sgmltag class="element">jms:client</sgmltag> element.
+      The <sgmltag class="element">jms:client</sgmltag> element is a child of the WSDL
+      <sgmltag class="element">port</sgmltag> element and has one attribute:</para>
 
       <table id="Table1">
         <title>JMS Client WSDL Extensions</title>
@@ -484,8 +465,7 @@
         <tgroup cols="2">
           <tbody>
             <row>
-              <entry><para><classname>messageType</classname></para></entry>
-
+              <entry><para><sgmltag class="attribute">messageType</sgmltag></para></entry>
               <entry><para>Specifies how the message data will be packaged as
               a JMS message. <classname>text</classname> specifies that the
               data will be packaged as a <classname>TextMessage</classname>.
@@ -509,15 +489,12 @@
       <listitem>
         <para>how messages are correlated</para>
       </listitem>
-
       <listitem>
         <para>the use of durable subscriptions</para>
       </listitem>
-
       <listitem>
         <para>if the service uses local JMS transactions</para>
       </listitem>
-
       <listitem>
         <para>the message selectors used by the endpoint</para>
       </listitem>
@@ -527,11 +504,10 @@
 
     <orderedlist>
       <listitem>
-        <para><xref linkend="ServiceConfig" /></para>
+        <para><ulink url="#ServiceConfig">Configuration</ulink></para>
       </listitem>
-
       <listitem>
-        <para><xref linkend="ServiceWSDL" /></para>
+        <para><ulink url="#ServiceWSDL">WSDL</ulink></para>
       </listitem>
     </orderedlist>
 
@@ -553,7 +529,6 @@
           <thead>
             <row>
               <entry><para>Attribute</para></entry>
-
               <entry><para>Description</para></entry>
             </row>
           </thead>
@@ -645,8 +620,8 @@
       <title>Using WSDL</title>
 
       <para>Service endpoint behaviors are configured using the optional
-      <classname>jms:server</classname> element. The
-      <classname>jms:server</classname> element is a child of the WSDL port
+      <sgmltag class="element">jms:server</sgmltag> element. The
+      <sgmltag class="element">jms:server</sgmltag> element is a child of the WSDL port
       element and has the following attributes:</para>
 
       <table id="Table2">
@@ -656,38 +631,30 @@
           <thead>
             <row>
               <entry><para>Attribute</para></entry>
-
               <entry><para>Description</para></entry>
             </row>
           </thead>
 
           <tbody>
             <row>
-              <entry><para><classname>useMessageIDAsCorrealationID</classname></para></entry>
-
+              <entry><para><sgmltag class="attribute">useMessageIDAsCorrealationID</sgmltag></para></entry>
               <entry><para>Specifies whether JMS will use the message ID to
               correlate messages. The default is
               <classname>false</classname>.</para></entry>
             </row>
-
             <row>
-              <entry><para><classname>durableSubscriberName</classname></para></entry>
-
+              <entry><para><sgmltag class="attribute">durableSubscriberName</sgmltag></para></entry>
               <entry><para>Specifies the name used to register a durable
               subscription.</para></entry>
             </row>
-
             <row>
-              <entry><para><classname>messageSelector</classname></para></entry>
-
+              <entry><para><sgmltag class="attribute">messageSelector</sgmltag></para></entry>
               <entry><para>Specifies the string value of a message selector to
               use. For more information on the syntax used to specify message
               selectors, see the JMS 1.1 specification.</para></entry>
             </row>
-
             <row>
-              <entry><para><classname>transactional</classname></para></entry>
-
+              <entry><para><sgmltag class="element">transactional</sgmltag></para></entry>
               <entry><para>Specifies whether the local JMS broker will create
               transactions around message processing. The default is
               <classname>false</classname>. Currently, this is not supported
@@ -719,9 +686,8 @@
 
         <para>The JMS properties table lists the properties in the JMS header
         that you can inspect. The JMS header properties are retrieved using
-        the response context's <classname>get()</classname> method and
-        supplying the value
-        <classname>org.objectweb.celtix.jms.client.response.headers</classname>.
+        the response context's <methodname>get()</methodname> method and
+        supplying the value <classname>org.objectweb.celtix.jms.client.response.headers</classname>.
         The returned properties will be of type
         <classname>JMSMessageHeadersType</classname>.</para>
 
@@ -732,9 +698,7 @@
             <thead>
               <row>
                 <entry><para>Property Name</para></entry>
-
                 <entry><para>Property Type</para></entry>
-
                 <entry><para>Getter Method</para></entry>
               </row>
             </thead>
@@ -742,82 +706,55 @@
             <tbody>
               <row>
                 <entry><para>Correlation ID</para></entry>
-
-                <entry><classname>string</classname></entry>
-
-                <entry><classname>getJMSCorralationID()</classname></entry>
+                <entry><type>string</type></entry>
+                <entry><methodname>getJMSCorralationID()</methodname></entry>
               </row>
-
               <row>
                 <entry><para>Delivery Mode</para></entry>
-
-                <entry><classname>int</classname></entry>
-
-                <entry><classname>getJMSDeliveryMode()</classname></entry>
+                <entry><type>int</type></entry>
+                <entry><methodname>getJMSDeliveryMode()</methodname></entry>
               </row>
-
               <row>
                 <entry><para>Message Expiration</para></entry>
-
-                <entry><classname>long</classname></entry>
-
-                <entry><classname>getJMSExpiration()</classname></entry>
+                <entry><type>long</type></entry>
+                <entry><methodname>getJMSExpiration()</methodname></entry>
               </row>
-
               <row>
                 <entry><para>Message ID</para></entry>
-
-                <entry><classname>string</classname></entry>
-
-                <entry><classname>getJMSMessageID()</classname></entry>
+                <entry><type>string</type></entry>
+                <entry><methodname>getJMSMessageID()</methodname></entry>
               </row>
-
               <row>
                 <entry><para>Priority</para></entry>
-
-                <entry><classname>int</classname></entry>
-
-                <entry><classname>getJMSPriority()</classname></entry>
+                <entry><type>int</type></entry>
+                <entry><methodname>getJMSPriority()</methodname></entry>
               </row>
-
               <row>
                 <entry><para>Redelivered</para></entry>
-
-                <entry><classname>boolean</classname></entry>
-
-                <entry><classname>getJMSRedlivered()</classname></entry>
+                <entry><type>boolean</type></entry>
+                <entry><methodname>getJMSRedlivered()</methodname></entry>
               </row>
-
               <row>
                 <entry><para>Time Stamp</para></entry>
-
-                <entry><classname>long</classname></entry>
-
-                <entry><classname>getJMSTimeStamp()</classname></entry>
+                <entry><type>long</type></entry>
+                <entry><methodname>getJMSTimeStamp()</methodname></entry>
               </row>
-
               <row>
                 <entry><para>Type</para></entry>
-
-                <entry><classname>string</classname></entry>
-
-                <entry><classname>getJMSType()</classname></entry>
+                <entry><type>string</type></entry>
+                <entry><methodname>getJMSType()</methodname></entry>
               </row>
-
               <row>
                 <entry><para>Time To Live</para></entry>
-
-                <entry><classname>long</classname></entry>
-
-                <entry><classname>getTimeToLive()</classname></entry>
+                <entry><type>long</type></entry>
+                <entry><methodname>getTimeToLive()</methodname></entry>
               </row>
             </tbody>
           </tgroup>
         </table>
 
         <para>In addition, you can inspect any optional properties stored in
-        the JMS header using
-        <classname>JMSMessageHeadersType.getProperty()</classname>. The
+        the JMS header using <methodname>JMSMessageHeadersType.getProperty()</methodname>. The
         optional properties are returned as a <classname>List</classname> of
         <classname>JMSPropertyType</classname>. Optional properties are stored
         as name/value pairs.</para>
@@ -910,9 +847,7 @@ if (handler instanceof BindingProvider)
           <thead>
             <row>
               <entry><para>Property Name</para></entry>
-
               <entry><para>Property Type</para></entry>
-
               <entry><para>Setter Method</para></entry>
             </row>
           </thead>
@@ -920,26 +855,18 @@ if (handler instanceof BindingProvider)
           <tbody>
             <row>
               <entry><para>Correlation ID</para></entry>
-
-              <entry><para><classname>string</classname></para></entry>
-
-              <entry><para><classname>setJMSCorralationID()</classname></para></entry>
+              <entry><type>string</type></entry>
+              <entry><methodname>setJMSCorralationID()</methodname></entry>
             </row>
-
             <row>
               <entry><para>Delivery Mode</para></entry>
-
-              <entry><para><classname>int</classname></para></entry>
-
-              <entry><para><classname>setJMSDeliveryMode()</classname></para></entry>
+              <entry><type>int</type></entry>
+              <entry><methodname>setJMSDeliveryMode()</methodname></entry>
             </row>
-
             <row>
               <entry><para>Time To Live</para></entry>
-
-              <entry><para><classname>long</classname></para></entry>
-
-              <entry><para><classname>setTimeToLive()</classname></para></entry>
+              <entry><type>long</type></entry>
+              <entry><methodname>setTimeToLive()</methodname></entry>
             </row>
           </tbody>
         </tgroup>
@@ -960,7 +887,7 @@ if (handler instanceof BindingProvider)
 
         <listitem>
           <para>Set the values into the request context by calling the request
-          context's <classname>put()</classname> method using
+          context's <methodname>put()</methodname> method using
           <classname>org.objectweb.celtix.jms.client.request.headers</classname>
           as the first argument and the new
           <classname>JMSMessageHeadersType</classname> object as the second
@@ -980,26 +907,19 @@ if (handler instanceof BindingProvider)
 
         <orderedlist>
           <listitem>
-            <para>Create a <classname>JMSPropertyType</classname>
-            object.</para>
+            <para>Create a <classname>JMSPropertyType</classname> object.</para>
           </listitem>
-
           <listitem>
-            <para>Set the property's name field using
-            <classname>setName()</classname>.</para>
+            <para>Set the property's name field using <methodname>setName()</methodname>.</para>
           </listitem>
-
           <listitem>
-            <para>Set the property's value field using
-            <classname>setValue()</classname>.</para>
+            <para>Set the property's value field using <methodname>setValue()</methodname>.</para>
           </listitem>
-
           <listitem>
             <para>Add the property to the JMS message header to the JMS
             message header using
-            <classname>JMSMessageHeadersType.getProperty().add(JMSPropertyType)</classname>.</para>
+            <methodname>JMSMessageHeadersType.getProperty().add(JMSPropertyType)</methodname>.</para>
           </listitem>
-
           <listitem>
             <para>Repeat steps 1 through 4 until all of the properties have
             been added to the message header.</para>
@@ -1013,9 +933,9 @@ if (handler instanceof BindingProvider)
         <para>In addition to the JMS header properties, you can set the amount
         of time a consumer endpoint will wait for a response before timing
         out. You set the value by calling the request context's
-        <classname>put()</classname> method with
+        <methodname>put()</methodname> method with
         <classname>org.celtix.jms.client.timeout</classname> as the first
-        argument and a <classname>long</classname> representing the amount of
+        argument and a <type>long</type> representing the amount of
         time in milliseconds that you want to consumer to wait as the second
         argument.</para>
       </sect3>

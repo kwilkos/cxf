@@ -104,10 +104,10 @@
     <sect2>
       <title>Beans element</title>
 
-      <para>In the opening <classname>beans</classname> element, you must
+      <para>In the opening <sgmltag class="element">beans</sgmltag> element, you must
       include namespace declarations for the schema files that define
       acceptable configuration entries. The file may then include one, or
-      more, <classname>bean</classname> elements, each of which corresponds to
+      more, <sgmltag class="element">bean</sgmltag> elements, each of which corresponds to
       a configurable component in Celtix.</para>
     </sect2>
 
@@ -115,36 +115,35 @@
       <title>Bean element</title>
 
       <para>The example file in this section shows three ways of specifying a
-      <classname>bean</classname> element. The first approach is used to
+      <sgmltag class="element">bean</sgmltag> element. The first approach is used to
       define an abstract configuration, which is a configuration that is
-      reused in another <classname>bean</classname> element. Because this
+      reused in another <sgmltag class="element">bean</sgmltag> element. Because this
       declaration only describes configuration entries that are reused in
       another declaration, there is no corresponding class entry. The second
       approach is used to define a bean that reuses the configuration entries
-      defined in an abstract <classname>bean</classname> element. The value of
-      the <classname>parent</classname> attribute is the
-      <classname>id</classname> of the abstract bean. And the third approach
-      is used to completely define a bean.</para>
+      defined in an abstract <sgmltag class="element">bean</sgmltag> element. The value of
+      the <sgmltag class="attribute">parent</sgmltag> attribute is the
+      id of the abstract bean. And the third approach is used to completely define a bean.</para>
 
       <sect3>
         <title>Id attribute</title>
 
-        <para>The <classname>id</classname> attribute represents the component
+        <para>The <sgmltag class="attribute">id</sgmltag> attribute represents the component
         to which the configuration is applied, for example, a bus, a service,
         a port, a transport, or a Celtix service. The value you supply for the
-        <classname>id</classname> attribute generally includes a bus
+        <sgmltag class="element">id</sgmltag> attribute generally includes a bus
         identifier and the name of the service, or the service and port, to
         which the configuration applies, that is, the value of the
-        <classname>id</classname> attribute is derived from the configuration
+        <sgmltag class="element">id</sgmltag> attribute is derived from the configuration
         hierarchy. However, the id value is nothing more than a unique string,
         so there are exceptions to this rule (for example, configuration
         entries for the Celtix routing service). The
-        <classname>class</classname> attribute provides the class name of a
+        <sgmltag class="element">class</sgmltag> attribute provides the class name of a
         bean in the Spring Framework infrastructure that is responsible for
         managing the configuration entries.</para>
 
-        <para>Specifying values for the <classname>id</classname> attribute
-        and the <classname>class</classname> attribute is fairly
+        <para>Specifying values for the <sgmltag class="attribute">id</sgmltag> attribute
+        and the <sgmltag class="element">class</sgmltag> attribute is fairly
         straight-forward. The information needed to create an id that
         indicates the configurable component can be derived from the WSDL file
         for the service (although the id can be any unique string), whereas
@@ -157,13 +156,13 @@
     <sect2>
       <title>Property element</title>
 
-      <para>The <classname>property</classname> element corresponds to a
-      configurable variable, identified by a <classname>name</classname>
-      attribute, and the content within the <classname>value</classname>
+      <para>The <sgmltag class="element">property</sgmltag> element corresponds to a
+      configurable variable, identified by a <sgmltag class="attribute">name</sgmltag>
+      attribute, and the content within the <sgmltag class="attribute">value</sgmltag>
       element is the value for that configuration entry.</para>
 
-      <para>To complete the information in the <classname>property</classname>
-      element and the <classname>value</classname> elements, you need to use
+      <para>To complete the information in the <sgmltag class="element">property</sgmltag>
+      element and the <sgmltag class="element">value</sgmltag> elements, you need to use
       the types that are defined in several schema and metadata XML files,
       which are described in the next section.</para>
     </sect2>
@@ -194,7 +193,7 @@
 
     <para><filename>resources/schemas/configuration/metadata.xsd</filename></para>
 
-    <para>Each <classname>configItem</classname> element represents a
+    <para>Each <sgmltag class="element">configItem</sgmltag> element represents a
     configurable variable for the component.</para>
 
     <para>The Celtix XML metadata files are as follows:</para>
@@ -221,8 +220,8 @@
       <para>The namespace assigned to this file's content is:
       <classname>http://celtix.objectweb.org/bus/bus-config</classname>. When
       writing a configuration file that includes Bus related configuration
-      entries, the value of the <classname>class</classname> attribute in the
-      <classname>bean</classname> element is derived from the following
+      entries, the value of the <sgmltag class="attribute">class</sgmltag> attribute in the
+      <sgmltag class="element">bean</sgmltag> element is derived from the following
       namespace declaration:
       <classname>org.objectweb.celtix.bus.bus_config.spring.BusConfigBean</classname>.</para>
     </sect2>
@@ -791,164 +790,82 @@
       <para>You also need the name assigned to the Celtix bus. By default, in
       a simple application where the bus instance is created transparently by
       the Celtix runtime, the bus name is celtix.</para>
-
-      <para>&lt;?xml version="1.0" encoding="UTF-8"?&gt;</para>
-
-      <para>&lt;wsdl:definitions name="HelloWorld"</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;targetNamespace="http://objectweb.org/hello_world"</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;wsdl:types&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;schema targetNamespace=</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"http://objectweb.org/hello_world_soap_http/types"</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/schema&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;/wsdl:types&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;wsdl:message name="..."&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;...</para>
-
-      <para>&nbsp;&nbsp;&lt;/wsdl:message&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;.</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;.</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;.</para>
-
-      <para>&nbsp;&nbsp;&lt;wsdl:message name="..."&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;...</para>
-
-      <para>&nbsp;&nbsp;&lt;/wsdl:message&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;wsdl:portType name="..."&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:operation name="..."&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:input message="..."
-      name="..." /&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:output message="..."
-      name="..." /&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/wsdl:operation&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:operation name="..."&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:input message="..."
-      name="..." /&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:output message="..."
-      name="..." /&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/wsdl:operation&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;/wsdl:portType&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;wsdl:binding name="..." type="..."&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;soap:binding style="document"</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transport="http://schemas.xmlsoap.org/soap/http"
-      /&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:operation name="..."&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;soap:operation
-      soapAction="" style="document" /&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:input
-      name="..."&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;soap:body
-      use="literal" /&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/wsdl:input&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:output
-      name="..."&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;soap:body
-      use="literal" /&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/wsdl:output&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/wsdl:operation&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:operation name="..."&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;soap:operation
-      soapAction="" style="document" /&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:input
-      name="..."&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;soap:body
-      use="literal" /&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/wsdl:input&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:output
-      name="..."&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;soap:body
-      use="literal"/&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/wsdl:output&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/wsdl:operation&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;/wsdl:binding&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;wsdl:service name="SOAPService"&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl:port binding="..."
-      name="SoapPort"&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;soap:address
-      location="http://localhost:9000/SoapContext/SoapPort" /&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/wsdl:port&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;/wsdl:service&gt;</para>
-
-      <para>&lt;/wsdl:definitions&gt;</para>
-
+<programlisting>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;wsdl:definitions name="HelloWorld"
+                   targetNamespace="http://objectweb.org/hello_world"
+                   ...&gt;
+  &lt;wsdl:types&gt;
+    &lt;schema targetNamespace="http://objectweb.org/hello_world_soap_http/types"
+            ...&gt;
+      ...
+    &lt;/schema&gt;
+  &lt;/wsdl:types&gt;
+  &lt;wsdl:message name="..."&gt;
+    ...
+  &lt;/wsdl:message&gt;
+    .
+    .
+    .
+  &lt;wsdl:message name="..."&gt;
+    ...
+  &lt;/wsdl:message&gt;
+  &lt;wsdl:portType name="..."&gt;
+    &lt;wsdl:operation name="..."&gt;
+      &lt;wsdl:input message="..." name="..." /&gt;
+      &lt;wsdl:output message="..." name="..." /&gt;
+    &lt;/wsdl:operation&gt;
+    .
+    .
+    .
+    &lt;wsdl:operation name="..."&gt;
+      &lt;wsdl:input message="..." name="..." /&gt;
+      &lt;wsdl:output message="..." name="..." /&gt;
+    &lt;/wsdl:operation&gt;
+  &lt;/wsdl:portType&gt;
+  &lt;wsdl:binding name="..." type="..."&gt;
+    &lt;soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" /&gt;
+    &lt;wsdl:operation name="..."&gt;
+      &lt;soap:operation soapAction="" style="document" /&gt;
+      &lt;wsdl:input name="..."&gt;
+        &lt;soap:body use="literal" /&gt;
+      &lt;/wsdl:input&gt;
+      &lt;wsdl:output name="..."&gt;
+        &lt;soap:body use="literal" /&gt;
+      &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+    .
+    .
+    .
+    &lt;wsdl:operation name="..."&gt;
+      &lt;soap:operation soapAction="" style="document" /&gt;
+      &lt;wsdl:input name="..."&gt;
+        &lt;soap:body use="literal" /&gt;
+      &lt;/wsdl:input&gt;
+      &lt;wsdl:output name="..."&gt;
+        &lt;soap:body use="literal"/&gt;
+      &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+  &lt;/wsdl:binding&gt;
+  &lt;wsdl:service name="SOAPService"&gt;
+    &lt;wsdl:port binding="..." name="SoapPort"&gt;
+      &lt;soap:address location="http://localhost:9000/SoapContext/SoapPort" /&gt;
+    &lt;/wsdl:port&gt;
+  &lt;/wsdl:service&gt;
+&lt;/wsdl:definitions&gt;
+</programlisting>
+	  
       <para>The following table lists which pieces of information are needed
       to create the id for each configurable component and shows the resulting
       value specific to this WSDL file.</para>
 
-      <informaltable frame="all">
+      <table frame="all">
+	  <title>Information Needed to Create Component IDs</title>
         <tgroup cols="3">
           <thead>
             <row>
               <entry><para>Component</para></entry>
-
               <entry><para>Instance Identifier</para></entry>
-
               <entry><para>id Value</para></entry>
             </row>
           </thead>
@@ -956,59 +873,42 @@
           <tbody>
             <row>
               <entry><para>Bus</para></entry>
-
               <entry><para>Bus name</para></entry>
-
               <entry><para>celtix</para></entry>
             </row>
-
             <row>
               <entry><para>Endpoint</para></entry>
-
               <entry><para>Bus name and QName of service</para></entry>
-
               <entry><para>celtix.{http://objectweb.org/hello_world}SOAPService</para></entry>
             </row>
-
             <row>
               <entry><para>Port</para></entry>
-
               <entry><para>Bus name, QName of service, and name of
               port</para></entry>
-
               <entry><para>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort</para></entry>
             </row>
-
             <row>
               <entry><para>HTTP Client Transport</para></entry>
-
               <entry><para>Bus name, QName of service, name of port, and
               string constant</para></entry>
-
               <entry><para>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort.http-client</para></entry>
             </row>
-
             <row>
               <entry><para>HTTP Server Transport</para></entry>
-
               <entry><para>Bus name, QName of service, name of port, and
               string constant</para></entry>
-
               <entry><para>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort.http-server</para></entry>
             </row>
-
             <row>
               <entry><para>HTTP Listener</para></entry>
-
               <entry><para>Bus name, string constant, and port number (where
               port number is the TCP/IP port number set in the server mainline
               code).</para></entry>
-
               <entry><para>celtix.http-listener.port_number</para></entry>
             </row>
           </tbody>
         </tgroup>
-      </informaltable>
+      </table>
     </sect2>
 
     <sect2>
@@ -1017,7 +917,8 @@
       <para>The best way to learn how to complete the rest of the Celtix
       configuration file is to look at some examples.</para>
 
-      <para>Setting the endpoint URL</para>
+<sect3>
+      <title>Setting the endpoint URL</title>
 
       <para>The most straightforward example is where you want to configure
       the client application so that the URL used to invoke on the endpoint is
@@ -1025,244 +926,168 @@
       The following fragment shows the corresponding property element for the
       hello world example. This corresponds to the configuration entry that
       sets the URL:</para>
-
-      <para>&lt;bean
-      id="celtix.{http://objectweb.org/hello_world}SOAPService.SoapPort"</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean"&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;property name="address"&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;value&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;ct:stringValue&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://localhost:9002/SoapContext/SoapPort</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/ct:stringValue&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/value&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;/property&gt;</para>
-
-      <para>&lt;/bean&gt;</para>
+<programlisting>
+&lt;bean id="celtix.{http://objectweb.org/hello_world}SOAPService.SoapPort"
+      class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean"&gt;
+  &lt;property name="address"&gt;
+    &lt;value&gt;
+      &lt;ct:stringValue&gt;
+        http://localhost:9002/SoapContext/SoapPort
+      &lt;/ct:stringValue&gt;
+    &lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;
+</programlisting>
 
       <para>Because you are configuring an HTTP port, the appropriate XML
-      metadata file to use as a guide is port-config.xml, and the desired
-      configItem element is address. Assign the value of the configItem's name
-      attribute to the property element's name attribute. In the value
+      metadata file to use as a guide is <filename>port-config.xml</filename>, and the desired
+      <classname>configItem</classname> element is address. Assign the value of the <classname>configItem</classname> element's 
+	  <classname>name</classname> attribute to the property element's name attribute. In the <classname>value</classname>
       element, enter a string that is the desired URL. Notice that the element
-      used to delimit the URL correspond to an element type defined in the
-      schema file std-types.xsd. The configuration scheme also supports a
-      shorthand notation that eliminates the stringValue tags.</para>
+      used to delimit the URL corresponds to an element type defined in the
+      schema file <filename>std-types.xsd</filename>. The configuration scheme also supports a
+      shorthand notation that eliminates the <classname>stringValue</classname> tags.</para>
+<programlisting>
+&lt;value&gt;http://localhost:9002/SoapContext/SoapPort&lt;/value&gt;
+</programlisting>
+</sect3>
 
-      <para>&lt;value&gt;http://localhost:9002/SoapContext/SoapPort&lt;/value&gt;</para>
+<sect3>
+      <title>Specifying a handler</title>
 
-      <para>Specifying a handler</para>
-
-      <para>The server configuration file (celtix-server.xml) included in the
+      <para>The server configuration file (<filename>celtix-server.xml</filename>) included in the
       handlers product demo shows a more complex example:</para>
 
-      <para>&lt;?xml version="1.0" encoding="UTF-8"?&gt;</para>
+<programlisting>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE beans SYSTEM  "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd"&gt;
 
-      <para>&lt;!DOCTYPE beans SYSTEM</para>
-
-      <para>&nbsp;&nbsp;"http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd"&gt;</para>
-
-      <para>&lt;beans</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;xmlns:ct="http://celtix.objectweb.org/configuration/types"</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types"&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;bean
-      id="celtix.{http://www.objectweb.org/handlers}AddNumbersService"</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;class=</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean"&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;property
-      name="handlerChain"&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;value&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:handler-chain&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:handler&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:handler-name&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;File
-      Logging Handler</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/jaxws-types:handler-name&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:handler-class&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;demo.handlers.common.FileLoggingHandler</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/jaxws-types:handler-class&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/jaxws-types:handler&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/jaxws-types:handler-chain&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/value&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/property&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;/bean&gt;</para>
-
-      <para>&lt;/beans&gt;</para>
+&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
+       xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types"&gt;
+  &lt;bean id="celtix.{http://www.objectweb.org/handlers}AddNumbersService"
+        class="org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean"&gt;
+    &lt;property name="handlerChain"&gt;
+      &lt;value&gt;
+        &lt;jaxws-types:handler-chain&gt;
+          &lt;jaxws-types:handler&gt;
+            &lt;jaxws-types:handler-name&gt;
+              File Logging Handler
+            &lt;/jaxws-types:handler-name&gt;
+            &lt;jaxws-types:handler-class&gt;
+              demo.handlers.common.FileLoggingHandler
+            &lt;/jaxws-types:handler-class&gt;
+          &lt;/jaxws-types:handler&gt;
+        &lt;/jaxws-types:handler-chain&gt;
+      &lt;/value&gt;
+    &lt;/property&gt;
+  &lt;/bean&gt;
+&lt;/beans&gt;
+</programlisting>
 
       <para>Because you are configuring a service endpoint, the appropriate
-      XML metadata file to use as a guide is endpoint-config.xml, and the
-      desired configItem element is handlerChain. Assign the value of the
-      configItem's name attribute to the property element's name attribute. In
-      the value element, you need to make entries that identify the class in
+      XML metadata file to use as a guide is <filename>endpoint-config.xml</filename>, and the
+      desired <classname>configItem</classname> element is handlerChain. Assign the value of the
+      <classname>configItem</classname> element's <classname>name</classname> attribute to the 
+	  <classname>property</classname> element's <classname>name</classname> attribute. In
+      the <classname>value</classname> element, you need to make entries that identify the class in
       your application that implements the handler you want to deploy.</para>
 
-      <para>Deciding what to place in the value element is a little more
+      <para>Deciding what to place in the <classname>value</classname> element is a little more
       complex than in the previous example. In the metadata XML file, the
       handlerChain entry corresponds to the handlerChainType defined in the
-      schema file jaxws-types.xsd. However, because the handlerChainType is a
+      schema file <filename>jaxws-types.xsd</filename>. However, because the handlerChainType is a
       complex type, and the configuration file must include an element type,
       you identify the handler-chain element type as a suitable replacement.
       Then you look up the composition of the handlerChainType and determine
       that it includes a optional handler-name, of type string, and a sequence
       of zero or more handlerType instances.</para>
 
-      <para>&lt;xs:complexType name="handlerChainType"&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;xs:sequence&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;xs:element name="handler-chain-name"
-      type="xs:string"</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minOccurs="0"/&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;xs:element name="handler"
-      type="tns:handlerType"</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minOccurs="0"
-      maxOccurs="unbounded"/&gt;</para>
-
-      <para>&nbsp;&nbsp;/xs:sequence&gt;</para>
-
-      <para>&lt;/xs:complexType&gt;</para>
+<programlisting>
+&lt;xs:complexType name="handlerChainType"&gt;
+  &lt;xs:sequence&gt;
+    &lt;xs:element name="handler-chain-name" type="xs:string" minOccurs="0"/&gt;
+    &lt;xs:element name="handler" type="tns:handlerType" minOccurs="0" maxOccurs="unbounded"/&gt;
+  &lt;/xs:sequence&gt;
+&lt;/xs:complexType&gt;
+</programlisting>
 
       <para>And the handlerType is also a sequence in which only the second
       element is required:</para>
 
-      <para>&lt;xs:complexType name="handlerType"&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;xs:sequence&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;xs:element name="handler-name"
-      type="xs:string" minOccurs="0"/&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;xs:element name="handler-class"
-      type="xs:string"/&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;xs:element name="init-param"
-      type="tns:handlerInitParamType"</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nillable="false"
-      minOccurs="0" maxOccurs="unbounded"/&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;/xs:sequence&gt;</para>
-
-      <para>&lt;/xs:complexType&gt;</para>
+<programlisting>
+&lt;xs:complexType name="handlerType"&gt;
+  &lt;xs:sequence&gt;
+    &lt;xs:element name="handler-name" type="xs:string" minOccurs="0"/&gt;
+    &lt;xs:element name="handler-class" type="xs:string"/&gt;
+    &lt;xs:element name="init-param" type="tns:handlerInitParamType"
+                nillable="false" minOccurs="0" maxOccurs="unbounded"/&gt;
+  &lt;/xs:sequence&gt;
+&lt;/xs:complexType&gt;
+</programlisting>
 
       <para>In the configuration file, use the handler-name and handler-class
       types to specify the handler class.</para>
 
-      <para>&lt;value&gt;</para>
+<programlisting>
+&lt;value&gt;
+  &lt;jaxws-types:handler-chain&gt;
+    &lt;jaxws-types:handler&gt;
+      &lt;jaxws-types:handler-name&gt;
+        File Logging Handler
+      &lt;/jaxws-types:handler-name&gt;
+      &lt;jaxws-types:handler-class&gt;
+        demo.handlers.common.FileLoggingHandler
+      &lt;/jaxws-types:handler-class&gt;
+    &lt;/jaxws-types:handler&gt;
+  &lt;/jaxws-types:handler-chain&gt;
+&lt;/value&gt;
+</programlisting>
+</sect3>
 
-      <para>&nbsp;&nbsp;&lt;jaxws-types:handler-chain&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:handler&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:handler-name&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;File Logging
-      Handler</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/jaxws-types:handler-name&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:handler-class&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;demo.handlers.common.FileLoggingHandler</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/jaxws-types:handler-class&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/jaxws-types:handler&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;/jaxws-types:handler-chain&gt;</para>
-
-      <para>&lt;/value&gt;</para>
-
-      <para>Specifying initialization parameters</para>
+<sect3>
+      <title>Specifying initialization parameters</title>
 
       <para>If your handler class requires initialization parameters, the
       handlerType allows for this through its init-param element, which is an
-      instance of handlerInitParamType. The handlerInitParamType is a sequence
+      instance of <classname>handlerInitParamType</classname>. <classname>handlerInitParamType</classname> is a sequence
       of name value pairs that correspond to the handler's initialization
-      values. Because the handlerInitParamType is an unbounded sequence, your
+      values. Because <classname>handlerInitParamType</classname> is an unbounded sequence, your
       configuration entry may have as many init-param elements as required.
       The following fragment illustrates how the init-param elements would be
       included in the configuration file.</para>
 
-      <para>&lt;property name="handlerChain"&gt;</para>
+<programlisting>
+&lt;property name="handlerChain"&gt;
+  &lt;value&gt;
+    &lt;jaxws-types:handler-chain&gt;
+      &lt;jaxws-types:handler&gt;
+        &lt;jaxws-types:handler-name&gt;...&lt;/jaxws-types:handler-name&gt;
+        &lt;jaxws-types:handler-class&gt;...&lt;/jaxws-types:handler-class&gt;
+        &lt;jaxws-types:init-param&gt;
+          &lt;jaxws-types:param-name&gt;arg1&lt;/jaxws-types:param-name&gt;
+          &lt;jaxws-types:param-value&gt;value1&lt;/jaxws-types:param-value&gt;
+        &lt;/jaxws-types:init-param&gt;
+        &lt;jaxws-types:init-param&gt;
+          &lt;jaxws-types:param-name&gt;arg2&lt;/jaxws-types:param-name&gt;
+          &lt;jaxws-types:param-value&gt;value2&lt;/jaxws-types:param-value&gt;
+        &lt;/jaxws-types:init-param&gt;
+      &lt;/jaxws-types:handler&gt;
+    &lt;/jaxws-types:handler-chain&gt;
+  &lt;/value&gt;
+&lt;/property&gt;
+</programlisting>
+</sect3>
 
-      <para>&nbsp;&nbsp;&lt;value&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:handler-chain&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:handler&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:handler-name&gt;...&lt;/jaxws-types:handler-name&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:handler-class&gt;...&lt;/jaxws-types:handler-class&gt;</para>
-
-      <para></para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:init-param&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:param-name&gt;arg1&lt;/jaxws-types:param-name&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:param-value&gt;value1&lt;/jaxws-types:param-value&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/jaxws-types:init-param&gt;</para>
-
-      <para></para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:init-param&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:param-name&gt;arg2&lt;/jaxws-types:param-name&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jaxws-types:param-value&gt;value2&lt;/jaxws-types:param-value&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/jaxws-types:init-param&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/jaxws-types:handler&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/jaxws-types:handler-chain&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;/value&gt;</para>
-
-      <para>&lt;/property&gt;</para>
-
-      <para>Specifying authorization information</para>
+<sect3>
+      <title>Specifying authorization information</title>
 
       <para>Because you are configuring the client service, the appropriate
-      metadata XML file to use as a guide is http-client-config.xml. The
-      desired configItem element is authorization. Assign the value of the
-      configItem name element to the property element's name attribute.</para>
+      metadata XML file to use as a guide is <filename>http-client-config.xml</filename>. The
+      desired <classname>configItem</classname> element is authorization. Assign the value of the
+      configItem name element to the <sgmltag class="element">property</sgmltag> element's <sgmltag class="attribute">name</sgmltag> attribute.</para>
 
       <para>In the metadata XML file, the authorization entry corresponds to
-      the AuthorizationPolicy type defined in the schema file security.xsd.
+      the AuthorizationPolicy type defined in the schema file <filename>security.xsd</filename>.
       However, because the AuthorizationPolicy type is a complex type, and the
       configuration file must include a element type, you identify the
       authorization element as a suitable replacement. Then look up the
@@ -1270,32 +1095,19 @@
       sequence of the following elements: UserName, Password,
       AuthorizationType, and Authorization.</para>
 
-      <para>&lt;xs:complexType name="AuthorizationPolicy"&gt;</para>
+<programlisting>
+&lt;xs:complexType name="AuthorizationPolicy"&gt;
+  &lt;xs:sequence&gt;
+    &lt;xs:element name="UserName" type="xs:string" minOccurs="0"/&gt;
+    &lt;xs:element name="Password" type="xs:string" minOccurs="0"/&gt;
+    &lt;xs:element name="AuthorizationType" type="xs:string" minOccurs="0"/&gt;
+    &lt;xs:element name="Authorization" type="xs:string" minOccurs="0"/&gt;
+  &lt;/xs:sequence&gt;
+&lt;/xs:complexType&gt;
+&lt;xs:element name="authorization" type="tns:AuthorizationPolicy"/&gt;
+</programlisting>
 
-      <para>&nbsp;&nbsp;&lt;xs:sequence&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;xs:element name="UserName"
-      type="xs:string" minOccurs="0"/&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;xs:element name="Password"
-      type="xs:string" minOccurs="0"/&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;xs:element name="AuthorizationType"
-      type="xs:string" minOccurs="0"/&gt;</para>
-
-      <para>&nbsp;&nbsp;&nbsp;&nbsp;&lt;xs:element name="Authorization"
-      type="xs:string" minOccurs="0"/&gt;</para>
-
-      <para>&nbsp;&nbsp;&lt;/xs:sequence&gt;</para>
-
-      <para>&lt;/xs:complexType&gt;</para>
-
-      <para></para>
-
-      <para>&lt;xs:element name="authorization"
-      type="tns:AuthorizationPolicy"/&gt;</para>
-
-      <para>Combining this information, leads to the following bean element.
+      <para>Combining this information, leads to the following <sgmltag class="element">bean</sgmltag> element.
       Note the use of the sec: namespace prefix. You must include the
       corresponding namespace declaration at the beginning of the
       configuration file.</para>
@@ -1331,13 +1143,15 @@
       <para>&nbsp;&nbsp;&lt;/bean&gt;</para>
 
       <para>&lt;/beans&gt;</para>
+</sect3>
 
-      <para>Setting transport attributes</para>
+<sect3>
+      <title>Setting transport attributes</title>
 
       <para>The configItem element httpClient in the http-client-config.xml
       metadata file indicates that the HTTPClientPolicy type can be used to
-      set transport attributes. The HTTPClientPolicy type, defined in the
-      resources/schemas/wsdl/http-conf.xsd schema file, is a complex type
+      set transport attributes. The HTTPClientPolicy type, defined in 
+      <filename>resources/schemas/wsdl/http-conf.xsd</filename>, is a complex type
       consisting of multiple attributes. This example illustrates how to use
       attributes to send the request to a proxy server.</para>
 
@@ -1481,6 +1295,7 @@
       <para>&nbsp;&nbsp;&lt;/bean&gt;</para>
 
       <para>&lt;/beans&gt;</para>
+</sect3>
     </sect2>
   </sect1>
 
