@@ -69,7 +69,15 @@ public final class JMSProviderHub {
                 connection = tcf.createTopicConnection();
             }
         }
-
+        
+        if (transport instanceof JMSServerTransport) {
+            String clientID = null;
+            clientID = ((JMSServerTransport) transport).
+            getServerConfiguration().getDurableSubscriptionClientId();
+            if  (clientID != null) {
+                connection.setClientID(clientID);
+            }
+        }
         connection.start();
 
         Destination requestDestination = 

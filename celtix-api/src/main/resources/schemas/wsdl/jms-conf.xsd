@@ -23,6 +23,7 @@
     
     <xs:complexType name="JMSServerConfig">
         <xs:attribute name="messageTimeToLive" type="xs:long" default="0" />
+        <xs:attribute name="durableSubscriptionClientId" type="xs:string" />
     </xs:complexType>
     
     <xs:element name="sessionPoolConfig" type="jms-conf:JMSSessionPoolConfigPolicy"/>

@@ -93,6 +93,7 @@
         <value>
             <jms-conf:serverConfig
                 messageTimeToLive="500"
+                durableSubscriptionClientId="test-server-id"
             />
         </value>
       </property>

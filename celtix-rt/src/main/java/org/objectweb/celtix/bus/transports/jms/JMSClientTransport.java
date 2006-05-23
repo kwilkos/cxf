@@ -96,7 +96,7 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
         return clientBehaviourPolicy;
     }
     
-    public JMSClientConfig getJMSClientConfiguration() {
+    public JMSClientConfig getClientConfiguration() {
         return clientConfig;
     }
     

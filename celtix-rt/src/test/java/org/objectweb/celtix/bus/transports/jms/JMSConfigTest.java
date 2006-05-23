@@ -103,7 +103,7 @@ public class JMSConfigTest extends TestCase {
         assertTrue("JMSClientPolicy messageType should be text ",
                    JMSConstants.TEXT_MESSAGE_TYPE.equals(clientPolicy.getMessageType().value()));
         
-        JMSClientConfig cltConf = clientTransport.getJMSClientConfiguration();
+        JMSClientConfig cltConf = clientTransport.getClientConfiguration();
         assertTrue("clientConfig should not be null ...", cltConf  != null);
         assertTrue("Client receive timeout should be 0", cltConf.getClientReceiveTimeout() == 0);
         assertTrue("Client message time-to-live should be 0", cltConf.getMessageTimeToLive() == 0);
@@ -141,13 +141,16 @@ public class JMSConfigTest extends TestCase {
                    serverPolicy.getDurableSubscriberName() == null);
         
         JMSServerConfig  srvConf = serverTransport.getServerConfiguration();
-        assertTrue("clientConfig should not be null ...", srvConf  != null);
-        assertTrue("Client message time-to-live should be 0", srvConf.getMessageTimeToLive() == 0);
+        assertTrue("serverConfig should not be null ...", srvConf  != null);
+        assertTrue("Server message time-to-live should be 0", srvConf.getMessageTimeToLive() == 0);
+        assertTrue("durableSubscriptionClientId should be null", 
+                   srvConf.getDurableSubscriptionClientId() == null);
         
         JMSSessionPoolConfigPolicy sessConf = serverTransport.getSessionPoolConfig();
         assertTrue("JMS Session pool config cannot be null", sessConf != null);
         assertTrue("JMS Session pool lowWaterMark should be 20...", sessConf.getLowWaterMark() == 20);
         assertTrue("JMS Session pool HighWaterMark should be 500...", sessConf.getHighWaterMark() == 500);
+        
     }
 
     public void testClientConfig() throws Exception {
@@ -177,7 +180,7 @@ public class JMSConfigTest extends TestCase {
         assertTrue("JMSClientPolicy messageType should be text ",
                    JMSConstants.BINARY_MESSAGE_TYPE.equals(clientPolicy.getMessageType().value()));
         
-        JMSClientConfig cltConf = clientTransport.getJMSClientConfiguration();
+        JMSClientConfig cltConf = clientTransport.getClientConfiguration();
         assertTrue("clientConfig should not be null ...", cltConf  != null);
         assertTrue("Client receive timeout should be 500", cltConf.getClientReceiveTimeout() == 500);
         assertTrue("Client message time-to-live should be 500", cltConf.getMessageTimeToLive() == 500);
@@ -221,8 +224,10 @@ public class JMSConfigTest extends TestCase {
                    "Celtix_subscriber".equals(serverPolicy.getDurableSubscriberName()));
         
         JMSServerConfig  srvConf = serverTransport.getServerConfiguration();
-        assertTrue("clientConfig should not be null ...", srvConf  != null);
-        assertTrue("Client message time-to-live should be 500", srvConf.getMessageTimeToLive() == 500);
+        assertTrue("serverConfig should not be null ...", srvConf  != null);
+        assertTrue("Server message time-to-live should be 500", srvConf.getMessageTimeToLive() == 500);
+        assertTrue("durableSubscriptionClientId should not be null", 
+                   srvConf.getDurableSubscriptionClientId() != null);
         
         JMSSessionPoolConfigPolicy sessConf = serverTransport.getSessionPoolConfig();
         assertTrue("JMS Session pool config cannot be null", sessConf != null);
