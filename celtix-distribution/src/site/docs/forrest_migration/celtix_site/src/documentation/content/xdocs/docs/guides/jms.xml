@@ -145,8 +145,8 @@
         specify the values used to populate the properties used when
         connecting to the JNDI provider. The
         <sgmltag class="element">jms:JMSNamingProperties</sgmltag> element has two
-        attributes: <sgmltag class="attribute">name</sgmltag class="attribute"> and
-        <sgmltag class="attribute">value</sgmltag class="attribute">. <sgmltag class="attribute">name</sgmltag> 
+        attributes: <sgmltag class="attribute">name</sgmltag> and
+        <sgmltag class="attribute">value</sgmltag>. <sgmltag class="attribute">name</sgmltag> 
 		specifies the name of the property to set. <sgmltag class="attribute">value</sgmltag> attribute specifies the value for the
         specified property. <sgmltag class="element">jms:JMSNamingProperties</sgmltag> element can also be used
         for specification of provider specific properties.</para>

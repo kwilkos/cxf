@@ -78,6 +78,8 @@ See http://forrest.apache.org/docs/linking.html for more info
 	<rel_notes href="release_notes.txt" />
 	<jms href="guides/jms.html" />
 	<config href="guides/configuration.html" />
+	<dyn_lang href="guides/dynamic_lang.html" />
+	<toolsref href="refs/tools.html" />
   </docco>
   
   <!--

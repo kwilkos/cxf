@@ -39,7 +39,7 @@
         <ul>
 		  <li><a href="../docs/user_guides/develop_consumer/develop_consumer.html">Developing a Celtix Consumer</a></li>
 		  <li><a href="site:jms">Using the JMS Transport</a></li>
-		  <li><a href="../docs/user_guides/dynamic_lang/dynamic_lang.html">Using Dynamic Languages to Implement Services</a></li>
+		  <li><a href="site:dyn_lang">Using Dynamic Languages to Implement Services</a></li>
 		  <li><a href="../docs/user_guides/management/management.html">Using Celtix Management</a></li>
 		</ul>
 	  </section>
@@ -55,7 +55,7 @@
 	  <title>References</title>
         <ul>
           <li><a href="../docs/api/index.html">Celtix APIs</a></li>
-          <li><a href="../docs/user_guides/tools/tools.html">Command-line Tools</a></li>
+          <li><a href="site:toolsref">Command-line Tools</a></li>
         </ul>   
       </section>
 	  <section>

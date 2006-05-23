@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<article lang="en-US">
+  <title>Using Dynamic Languages to Implement Services</title>
+
+  <sect1>
+    <title>Overview</title>
+
+    <para>JavaScript, also known by its formal name ECMAScript, is one of the
+    many dynamic languages that are growing in prevalence in development
+    environments. It provides a quick and lightweight means of creating
+    functionality that can be run on a number of platforms. Another strength
+    of JavaScript is that applications can be quickly rewritten.</para>
+
+    <para>Celtix provides support for developing services using JavaScript and
+    ECMAScript for XML(E4X). The pattern used to develop these services are
+    similar to JAX-WS Provider implementations that handle their requests and
+    responses (either SOAP messages or SOAP payloads) as DOM documents.</para>
+  </sect1>
+
+  <sect1>
+    <title>Implementing a Service in JavaScript</title>
+
+    <para>Writing a service in JavaScript is a two step process:</para>
+
+    <orderedlist>
+      <listitem>
+        <para><ulink url="#metadata">Define</ulink> the JAX-WS style
+        metadata.</para>
+      </listitem>
+
+      <listitem>
+        <para><ulink url="#impl">Implement</ulink> the service's business
+        logic.</para>
+      </listitem>
+    </orderedlist>
+
+    <sect2 id="metadata">
+      <title>Defining the Metadata</title>
+
+      <para>Normal Java providers typically use Java annotations to specify
+      JAX-WS metadata. Since JavaScript does not support annotations, you use
+      ordinary JavaScript variables to specify metadata for JavaScript
+      implementations. Celtix treats any JavaScript variable in your code
+      whose name equals or begins with <varname>WebServiceProvider</varname>
+      as a JAX-WS metadata variable.</para>
+
+      <para>Properties of the variable are expected to specify the same
+      metadata that the JAX-WS WebServiceProvider annotation specifies,
+      including:</para>
+
+      <orderedlist>
+        <listitem>
+          <para><varname>wsdlLocation</varname> specifies a URL for the WSDL
+          defining the service.</para>
+        </listitem>
+
+        <listitem>
+          <para><varname>serviceName</varname> specifies the name of the
+          service.</para>
+        </listitem>
+
+        <listitem>
+          <para><varname>portName</varname> specifies the service's
+          port/interface name.</para>
+        </listitem>
+
+        <listitem>
+          <para><varname>targetNamespace</varname> specifies the target
+          namespace of the service.</para>
+        </listitem>
+      </orderedlist>
+
+      <para>The JavaScript <varname>WebServiceProvider</varname> can also
+      specify the following optional properties:</para>
+
+      <orderedlist>
+        <listitem>
+          <para><varname>ServiceMode</varname> indicates whether the specified
+          service handles SOAP payload documents or full SOAP message
+          documents. This property mimics the JAX-WS ServiceMode annotation.
+          The default value is <constant>PAYLOAD</constant>.</para>
+        </listitem>
+
+        <listitem>
+          <para><varname>BindingMode</varname> indicates the service binding
+          ID URL. The default is the SOAP 1.1/HTTP binding.</para>
+        </listitem>
+
+        <listitem>
+          <para><varname>EndpointAddress</varname> indicates the URL consumer
+          applications use to communicate with this service. The property is
+          optional but has no default.</para>
+        </listitem>
+      </orderedlist>
+
+      <para><xref linkend="example1" /> shows a metadata description for a
+      JavaScript service implementation.</para>
+
+      <example id="example1">
+	  <title>Javascript Web Service Metadata</title>
+        <programlisting>var WebServiceProvider1 = {
+    'wsdlLocation': 'file:./wsdl/hello_world.wsdl',
+    'serviceName': 'SOAPService1',
+    'portName': 'SoapPort1',
+    'targetNamespace': 'http://objectweb.org/hello_world_soap_http',
+};</programlisting>
+      </example>
+    </sect2>
+
+    <sect2 id="impl">
+      <title>Implementing the Service Logic</title>
+
+      <para>You implement the service's logic using the required
+      <function>invoke</function> property of the
+      <varname>WebServiceProvider</varname> variable. This variable is a
+      function that accepts one input argument, a
+      <classname>javax.xml.transform.dom.DOMSource</classname> node, and
+      returns a document of the same type. The <function>invoke</function>
+      function can manipulate either the input or output documents using the
+      regular Java <classname>DOMSource</classname> class interface just as a
+      Java application would.</para>
+
+      <para><xref linkend="example2" /> shows an <function>invoke</function> function for a
+      simple JavaScript service implementation.</para>
+	  
+	  <example id="example2">
+	  <title>Javascript Service Implementation</title>
+	  <programlisting>WebServiceProvider.invoke = function(document) {
+    var ns4 = "http://objectweb.org/hello_world_soap_http/types";
+    var list = document.getElementsByTagNameNS(ns4, "requestType");
+    var name = list.item(0).getFirstChild().getNodeValue();
+    var newDoc = document.getImplementation().createDocument(ns4, "ns4:greetMeResponse", null);
+    var el = newDoc.createElementNS(ns4, "ns4:responseType");
+    var txt = newDoc.createTextNode("Hi " + name);
+    el.insertBefore(txt, null);
+    newDoc.getDocumentElement().insertBefore(el, null);
+    return newDoc;
+}</programlisting>
+</example>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Implementing a Service in ECMAScript for XML(E4X)</title>
+
+    <para>Writing a Celtix service using E4X is very similar to writing a
+    service using JavaScript. You define the JAX-WS metadata using the same
+    <varname>WebServiceProvider</varname> variable in JavaScript. You also
+    implement the service's logic in the <varname>WebServiceProvider</varname>
+    variable's <function>invoke</function> property.</para>
+
+    <para>The only difference between the two approaches is the type of
+    document the implementation manipulates. When working with E4X, the
+    implementation receives requests as an E4X XML document and returns a
+    document of the same type. These documents are manipulated using built-in
+    E4X XML features.</para>
+
+    <para><xref linkend="example3" /> shows an <function>invoke</function> function for a simple E4X service
+    implementation.</para>
+	<example id="example3">
+	<title>E4X Service Implementation</title>
+	<programlisting>var SOAP_ENV = new Namespace('SOAP-ENV',
+                             'http://schemas.xmlsoap.org/soap/envelope/');
+var xs = new Namespace('xs', 'http://www.w3.org/2001/XMLSchema');
+var xsi = new Namespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+var ns = new Namespace('ns', 'http://objectweb.org/hello_world_soap_http/types');
+
+WebServiceProvider1.invoke = function(req) {
+    default xml namespace = ns;
+    var name = (req..requestType)[0];
+    default xml namespace = SOAP_ENV;
+    var resp = &lt;SOAP-ENV:Envelope xmlns:SOAP-ENV={SOAP_ENV} xmlns:xs={xs} xmlns:xsi={xsi}/&gt;;
+    resp.Body = &lt;Body/&gt;;
+    resp.Body.ns::greetMeResponse = &lt;ns:greetMeResponse xmlns:ns={ns}/&gt;;
+    resp.Body.ns::greetMeResponse.ns::responseType = 'Hi ' + name;
+    return resp;
+}</programlisting>
+</example>
+  </sect1>
+
+  <sect1>
+    <title>Deploying Scripted Services</title>
+
+    <para>Celtix provides a lightweight container that allows you to deploy
+    your Javascript and E4X services and take advantage of Celtix's pluggable
+    transport infrastructure.</para>
+
+    <note>
+      <para>Script based services can work with SOAP messages. So, while they
+      are multi-transport, they can only use the SOAP binding.</para>
+    </note>
+
+    <para>You deploy them into the container using the following
+    command:</para>
+
+    <para><userinput><command>java org.objectweb.celtix.js.rhino.ServerApp</command>
+    <optional><option>-a</option> <replaceable>addressURL</replaceable></optional>
+    <optional><option>-b</option> <replaceable>baseAddressURL</replaceable></optional>
+    <replaceable>file.js</replaceable>
+    <optional><replaceable>file2.js</replaceable> <replaceable>file3.jsx</replaceable> ...</optional></userinput></para>
+
+    <para>The <classname>org.objectweb.celtix.js.rhino.ServerApp</classname>
+    class, shorted to <classname>ServerApp</classname> below, takes one or
+    more Javascript files, suffixed with a <filename>.js</filename>, or E4X
+    files, suffixed with a <filename>.jsx</filename>, and loads them into the
+    Celtix runtime. If <classname>ServerApp</classname> locates JAX-WS
+    metadata in the files it creates and registers a JAX-WS
+    <classname>Provider&lt;DOMSource&gt;</classname> object for each service.
+    The <classname>Provider&lt;DOMSource&gt;</classname> object delegates the
+    processing of requests to the implementation stored in the associated
+    file. <classname>ServerApp</classname> can also take the name of a
+    directory containing Javascript and E4X files. It will load all of the
+    scripts that contain JAX-WS metadata, load them, and publish a service
+    endpoint for each one.</para>
+
+    <para><classname>ServerApp</classname> has three optional
+    arguments:</para>
+
+    <table frame="all" id="Table1">
+      <title>Optional Arguments</title>
+
+      <tgroup cols="2">
+        <thead>
+          <row>
+            <entry><para>Argument</para></entry>
+            <entry><para>Description</para></entry>
+          </row>
+        </thead>
+
+        <tbody>
+          <row>
+            <entry><para><option>-a</option>
+            <replaceable>addressURL</replaceable></para></entry>
+            <entry><para>Specifies the address at which
+            <classname>ServerApp</classname> publishes the service endpoint
+            implementation found in the script file following the
+            URL.</para></entry>
+          </row>
+          <row>
+            <entry><para><option>-b</option>
+            <replaceable>baseAddressURL</replaceable></para></entry>
+            <entry><para>Specifies the base address used by
+            <classname>ServerApp</classname> when publishing the service
+            endpoints defined by the script files. The full address for the
+            service endpoints is formed by appending the service's port name
+            to the base address.</para></entry>
+          </row>
+          <row>
+            <entry><para><option>-v</option></para></entry>
+            <entry><para>Specifies that <classname>ServerApp</classname> is to
+            run in verbose mode.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>The optional arguments take precedence over any addressing
+    information provided in <varname>EndpointAddress</varname> properties that appear in the
+    JAX-WS metadata.</para>
+
+    <para>For example, if you deployed a Javascript service using the command
+    shown in <xref linkend="example4" />, your service would be deployed at
+    <classname>http://celtix.objectweb.org/goodness</classname>.</para>
+	<example id="example4">
+	<title>Deploying a Service at a Specified Address</title>
+	<para><userinput><command>java org.objectweb.celtix.js.rhino.ServerApp</command> 
+	<option>-a http://celtix.objectweb.org/goodness</option> hello_world.jsx</userinput></para>
+	</example>
+
+    <para>To deploy a number of services using a common base URL you could use
+    the command shown in <xref linkend="example5" />. If the service defined by 
+	<filename>hello_world.jsx</filename> had port name of helloWorld, 
+	<classname>ServerApp</classname> would publish it at
+    <classname>http://celtix.objectweb.org/helloWorld</classname>. If the service 
+	defined by <filename>goodbye_moon.js</filename> had a port name of blue, 
+	<classname>ServerApp</classname> would publish at
+    <classname>http://celtix.objectweb.org/blue</classname>.</para>
+	<example id="example5">
+	<title>Deploying a Group of Services to a Base Address</title>
+	<para><userinput><command>java org.objectweb.celtix.js.rhino.ServerApp</command> 
+	<option>-b http://celtix.objectweb.org</option> 
+	hello_world.jsx goodbye_moon.js</userinput></para>
+	</example>
+
+    <para>You can also combine the arguments as shown in <xref linkend="example6" />. Your
+    service would be deployed at <classname>http://celtix.objectweb.org/goodness</classname>.
+    <classname>ServerApp</classname> would publish three service endpoints:</para>
+	<example id="example6">
+	<title>Combining the Command Line Arguments</title>
+	<para><userinput><command>java org.objectweb.celtix.js.rhino.ServerApp</command> 
+	<option>-b http://celtix.objectweb.org</option> hello_world.jsx goodbye_moon.js 
+	<option>-a http://celtix.objectweb.org/goodness</option> chocolate.jsx</userinput></para>
+	</example>
+
+    <orderedlist>
+      <listitem>
+        <para>The service defined by hello_world.jsx at
+        http://celtix.objectweb.org/helloWorld.</para>
+      </listitem>
+      <listitem>
+        <para>The service defined by goodbye_moon.js at
+        http://celtix.objectweb.org/blue.</para>
+      </listitem>
+      <listitem>
+        <para>The service defined by chocolate.jsx at
+        http://celtix.objectweb.org/goodness.</para>
+      </listitem>
+    </orderedlist>
+  </sect1>
+</article>
