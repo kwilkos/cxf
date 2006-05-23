@@ -291,11 +291,10 @@ public class RMProxyTest extends TestCase {
         RMDestination dest = control.createMock(RMDestination.class);
         RMAssertionType rma = control.createMock(RMAssertionType.class);
 
-        expect(dest.getHandler()).andReturn(handler).times(4);
+        expect(dest.getHandler()).andReturn(handler).times(6);
         expect(handler.getConfigurationHelper()).andReturn(ch).times(4);
+        expect(handler.getStore()).andReturn(null).times(2);
         expect(ch.getRMAssertion()).andReturn(rma).times(2);
-        // dest.getRMAssertion();
-        // expectLastCall().andReturn(rma).times(2);
         expect(rma.getAcknowledgementInterval()).andReturn(null).times(2);
         expect(ch.getAcksPolicy()).andReturn(null).times(2);
         

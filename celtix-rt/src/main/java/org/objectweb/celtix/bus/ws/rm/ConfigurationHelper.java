@@ -7,6 +7,7 @@ import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bus.configuration.wsrm.AcksPolicyType;
+import org.objectweb.celtix.bus.configuration.wsrm.DeliveryAssuranceType;
 import org.objectweb.celtix.bus.configuration.wsrm.DestinationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
@@ -32,8 +33,8 @@ public class ConfigurationHelper {
     public static final QName EXPONENTIAL_BACKOFF_BASE_ATTR = new QName(RM_CONFIGURATION_URI,
         "exponentialBackoffBase");
 
-    // static final String POLICIES_PROPERTY_NAME = "policies";
     static final String RMASSERTION_PROPERTY_NAME = "rmAssertion";
+    static final String DELIVERY_ASSURANCE_PROPERTY_NAME = "deliveryAssurance";
     static final String SOURCE_POLICIES_PROPERTY_NAME = "sourcePolicies";
     static final String DESTINATION_POLICIES_PROPERTY_NAME = "destinationPolicies";
     
@@ -100,6 +101,12 @@ public class ConfigurationHelper {
         }
 
         return a;
+    }
+    
+    public DeliveryAssuranceType getDeliveryAssurance() {
+        DeliveryAssuranceType da = configuration.getObject(DeliveryAssuranceType.class, 
+                                                           DELIVERY_ASSURANCE_PROPERTY_NAME);
+        return da;
     }
 
     public String getEndpointId() {

@@ -285,9 +285,12 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
      * @param marshaller the JAXB marshaller to use
      * @return the decoded EndpointReference
      */
-    private <T> T decodeProperty(Class<T> clz,
+    public <T> T decodeProperty(Class<T> clz,
                             SOAPHeaderElement headerElement,
                             Unmarshaller unmarshaller) throws JAXBException {
+        if (null == unmarshaller) {
+            unmarshaller = getJAXBContext().createUnmarshaller();
+        }
         JAXBElement<T> element =
             unmarshaller.unmarshal(headerElement, clz);
         return element.getValue();

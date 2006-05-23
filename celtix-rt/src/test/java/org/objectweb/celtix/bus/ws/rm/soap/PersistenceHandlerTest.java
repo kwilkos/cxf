@@ -4,8 +4,10 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
@@ -16,13 +18,16 @@ import junit.framework.TestCase;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.AbstractClientBinding;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
 import org.objectweb.celtix.bus.busimpl.BusConfigurationBuilder;
+import org.objectweb.celtix.bus.configuration.wsrm.DeliveryAssuranceType;
 import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.VersionTransformer;
+import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
 import org.objectweb.celtix.bus.ws.rm.ConfigurationHelper;
 import org.objectweb.celtix.bus.ws.rm.DestinationSequence;
 import org.objectweb.celtix.bus.ws.rm.RMDestination;
@@ -79,7 +84,15 @@ public class PersistenceHandlerTest extends TestCase {
     
     public void setUp() {
         control = EasyMock.createNiceControl();  
-        handler = new PersistenceHandler();  
+        handler = new PersistenceHandler();
+        clientBinding = null;
+        serverBinding = null;
+        ch = null;
+        store = null;
+        queue = null;
+        bus = null;
+        wqm = null;
+        wq = null;
     }  
     
     public void tearDown() {        
@@ -192,6 +205,11 @@ public class PersistenceHandlerTest extends TestCase {
     public void doTestHandleMessage(boolean outbound) {
         setupQueue(); 
         SOAPMessageContext ctx = control.createMock(SOAPMessageContext.class);
+        if (outbound) {
+            setupAtLeastOnce(false);
+        }  else {
+            setupInOrder(false);
+        }
         expect(ctx.get(MESSAGE_OUTBOUND_PROPERTY)).andReturn(outbound ? Boolean.TRUE : Boolean.FALSE);
         
         control.replay();
@@ -203,13 +221,18 @@ public class PersistenceHandlerTest extends TestCase {
         doTestHandleFault(true);
     } 
     
-    public void testHandlerFaultInbound() {
+    public void testHandleFaultInbound() {
         doTestHandleFault(false);
     }
     
     private void doTestHandleFault(boolean outbound) {
         setupQueue(); 
         SOAPMessageContext ctx = control.createMock(SOAPMessageContext.class);
+        if (outbound) {
+            setupAtLeastOnce(false);
+        } else {
+            setupInOrder(false);
+        }
         expect(ctx.get(MESSAGE_OUTBOUND_PROPERTY)).andReturn(outbound ? Boolean.TRUE : Boolean.FALSE);
         
         control.replay();
@@ -217,9 +240,18 @@ public class PersistenceHandlerTest extends TestCase {
         control.verify();
     }
     
-    
+    public void testHandleOutboundAtLeastOnceNotSet() {
+        SOAPMessageContext ctx = control.createMock(SOAPMessageContext.class);
+        setupAtLeastOnce(false);
+        
+        control.replay();
+        handler.handleOutbound(ctx);
+        control.verify();      
+    }
+        
     public void testHandleOutboundRMControlMessage() {
         SOAPMessageContext ctx = setupContext(RMUtils.getRMConstants().getSequenceInfoAction());
+        setupAtLeastOnce(true);
         
         control.replay();
         handler.handleOutbound(ctx);
@@ -228,7 +260,7 @@ public class PersistenceHandlerTest extends TestCase {
     
     public void testHandleOutboundApplicationMessageNoRMPs() {
         SOAPMessageContext ctx = setupContext(APP_MSG_ACTION);
-        
+        setupAtLeastOnce(true);       
         expect(ctx.get(RM_PROPERTIES_OUTBOUND)).andReturn(null);
         
         control.replay();
@@ -238,6 +270,7 @@ public class PersistenceHandlerTest extends TestCase {
     
     public void testHandleOutboundApplicationMessageRMPsNoSequence() {
         SOAPMessageContext ctx = setupContext(APP_MSG_ACTION);
+        setupAtLeastOnce(true);
         RMPropertiesImpl rmps = control.createMock(RMPropertiesImpl.class);
         expect(ctx.get(RM_PROPERTIES_OUTBOUND)).andReturn(rmps);
         expect(rmps.getSequence()).andReturn(null);
@@ -277,6 +310,7 @@ public class PersistenceHandlerTest extends TestCase {
             new Class[] {SourceSequence.class, RMMessage.class});
         handler = control.createMock(PersistenceHandler.class, new Method[] {m});
         SOAPMessageContext ctx = setupContext(APP_MSG_ACTION);
+        setupAtLeastOnce(true);
         RMPropertiesImpl rmps = control.createMock(RMPropertiesImpl.class);
         expect(ctx.get(RM_PROPERTIES_OUTBOUND)).andReturn(rmps);
         SequenceType st = control.createMock(SequenceType.class);
@@ -341,6 +375,38 @@ public class PersistenceHandlerTest extends TestCase {
         control.verify();
     }
     
+    public void testGetWsaSOAPHandler() {        
+        clientBinding = control.createMock(AbstractClientBinding.class);
+        handler.clientBinding = clientBinding;
+        AbstractBindingImpl abi = control.createMock(AbstractBindingImpl.class);
+        List<Handler> handlerChain = new ArrayList<Handler>();
+        MAPCodec wsah = control.createMock(MAPCodec.class);
+        handlerChain.add(wsah);
+        expect(clientBinding.getBindingImpl()).andReturn(abi);
+        expect(abi.getPostProtocolSystemHandlers()).andReturn(handlerChain);
+        
+        control.replay();
+        assertSame(wsah, handler.getWsaSOAPHandler());
+        assertSame(wsah, handler.getWsaSOAPHandler());
+        control.verify();
+    }
+    
+    public void testGetRMSoapHandler() {
+        clientBinding = control.createMock(AbstractClientBinding.class);
+        handler.clientBinding = clientBinding;
+        AbstractBindingImpl abi = control.createMock(AbstractBindingImpl.class);
+        List<Handler> handlerChain = new ArrayList<Handler>();
+        RMSoapHandler rmh = control.createMock(RMSoapHandler.class);
+        handlerChain.add(rmh);
+        expect(clientBinding.getBindingImpl()).andReturn(abi);
+        expect(abi.getPostProtocolSystemHandlers()).andReturn(handlerChain);
+        
+        control.replay();
+        assertSame(rmh, handler.getRMSoapHandler());
+        assertSame(rmh, handler.getRMSoapHandler());
+        control.verify();
+    }
+    
     private void setupConfigurationBuilder(boolean server) {
         Configuration configuration;
         ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
@@ -377,8 +443,8 @@ public class PersistenceHandlerTest extends TestCase {
     }
     
     private SOAPMessageContext setupContext(String action) {
-        SOAPMessageContext ctx = control.createMock(SOAPMessageContext.class);
-        AddressingPropertiesImpl maps = control.createMock(AddressingPropertiesImpl.class);
+        SOAPMessageContext ctx = control.createMock(SOAPMessageContext.class);       
+        AddressingPropertiesImpl maps = control.createMock(AddressingPropertiesImpl.class);        
         expect(ctx.get(CLIENT_ADDRESSING_PROPERTIES_OUTBOUND)).andReturn(maps);
         maps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
         expectLastCall();
@@ -386,6 +452,38 @@ public class PersistenceHandlerTest extends TestCase {
         expect(maps.getAction()).andReturn(uri).times(2);
         expect(uri.getValue()).andReturn(action);
         return ctx;
+    }
+    
+    private void setupAtLeastOnce(boolean atLeastOnce) {
+        if (null == ch) {
+            ch = control.createMock(ConfigurationHelper.class);  
+        }
+        if (null == store) {
+            store = control.createMock(RMStore.class); 
+        }
+        if (null == queue) {
+            queue = control.createMock(RetransmissionQueue.class);
+        }
+        handler.initialise(ch, store, queue);
+        DeliveryAssuranceType da = control.createMock(DeliveryAssuranceType.class);
+        expect(ch.getDeliveryAssurance()).andReturn(da);
+        expect(da.isSetAtLeastOnce()).andReturn(atLeastOnce);
+    }
+    
+    private void setupInOrder(boolean inOrder) {
+        if (null == ch) {
+            ch = control.createMock(ConfigurationHelper.class);  
+        }
+        if (null == store) {
+            store = control.createMock(RMStore.class); 
+        }
+        if (null == queue) {
+            queue = control.createMock(RetransmissionQueue.class);
+        }
+        handler.initialise(ch, store, queue);
+        DeliveryAssuranceType da = control.createMock(DeliveryAssuranceType.class);
+        expect(ch.getDeliveryAssurance()).andReturn(da);
+        expect(da.isSetInOrder()).andReturn(inOrder);
     }
     
     private void setupQueue() {

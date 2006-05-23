@@ -28,6 +28,18 @@
     </cm:configItem>
     
     <cm:configItem>
+        <cm:name>deliveryAssurance</cm:name>
+        <cm:type>wsrm-conf:deliveryAssuranceType</cm:type>
+        <cm:description>
+            Used to describe an RM endpoint's delivery assurance.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <wsrm-conf:deliveryAssurance>
+            <wsrm-conf:AtLeastOnce/>
+        </wsrm-conf:deliveryAssurance>
+    </cm:configItem>
+    
+    <cm:configItem>
         <cm:name>sourcePolicies</cm:name>
         <cm:type>wsrm-conf:sourcePolicyType</cm:type>
         <cm:description>

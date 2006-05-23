@@ -23,8 +23,6 @@ public class SourceSequence extends AbstractSequenceImpl implements RMSourceSequ
     public static final Duration PT0S;
     private static final Logger LOG = LogUtils.getL7dLogger(SourceSequence.class);
     
-    private SequenceAcknowledgement acked;
-    
     private Date expires;
     private RMSource source;
     private BigInteger currentMessageNumber;
@@ -93,15 +91,6 @@ public class SourceSequence extends AbstractSequenceImpl implements RMSourceSequ
     }
     
     // end RMSourceSequence interface
-    
-    public boolean isAcknowledged(BigInteger m) {
-        for (AcknowledgementRange r : acked.getAcknowledgementRange()) {
-            if (m.subtract(r.getLower()).signum() >= 0 && r.getUpper().subtract(m).signum() >= 0) {
-                return true;
-            }
-        }
-        return false;
-    }
     
     void setSource(RMSource s) {
         source = s;

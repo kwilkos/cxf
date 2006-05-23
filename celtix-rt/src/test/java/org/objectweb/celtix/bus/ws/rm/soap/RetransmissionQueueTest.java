@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
@@ -237,7 +236,7 @@ public class RetransmissionQueueTest extends TestCase {
   
         Collection<SourceSequence> sss = new ArrayList<SourceSequence>();
         Collection<RMMessage> msgs = new ArrayList<RMMessage>();
-        List<Handler> handlerChain = new ArrayList<Handler>();
+        // List<Handler> handlerChain = new ArrayList<Handler>();
             
         RMStore store = createMock(RMStore.class);
         handler.getStore();
@@ -254,18 +253,26 @@ public class RetransmissionQueueTest extends TestCase {
         MessageContext context = control.createMock(MessageContext.class);
         msg.getContext();
         EasyMock.expectLastCall().andReturn(context);
+        /*
         AbstractBindingBase binding = control.createMock(AbstractBindingBase.class);
         handler.getBinding();
         EasyMock.expectLastCall().andReturn(binding).times(2);
         AbstractBindingImpl abi = control.createMock(AbstractBindingImpl.class);
         binding.getBindingImpl();
         EasyMock.expectLastCall().andReturn(abi).times(2);
+        */
         RMSoapHandler rmh = control.createMock(RMSoapHandler.class);
         MAPCodec wsah = control.createMock(MAPCodec.class);
+        /*
         handlerChain.add(rmh);
         handlerChain.add(wsah);
         abi.getPostProtocolSystemHandlers();
         EasyMock.expectLastCall().andReturn(handlerChain).times(2);
+        */
+        handler.getWsaSOAPHandler();
+        EasyMock.expectLastCall().andReturn(wsah);
+        handler.getRMSoapHandler();
+        EasyMock.expectLastCall().andReturn(rmh);
         RMProperties rmps = control.createMock(RMProperties.class);
         rmh.unmarshalRMProperties(null);
         EasyMock.expectLastCall().andReturn(rmps);

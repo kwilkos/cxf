@@ -2,24 +2,38 @@ package org.objectweb.celtix.bus.ws.rm.soap;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
+import javax.xml.soap.Name;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPHeaderElement;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.objectweb.celtix.bindings.AbstractBindingBase;
+import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.JAXWSConstants;
 import org.objectweb.celtix.bindings.ServerBinding;
+import org.objectweb.celtix.bus.configuration.wsrm.DeliveryAssuranceType;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.bus.ws.addressing.VersionTransformer;
+import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
 import org.objectweb.celtix.bus.ws.rm.ConfigurationHelper;
 import org.objectweb.celtix.bus.ws.rm.DestinationSequence;
 import org.objectweb.celtix.bus.ws.rm.Names;
@@ -39,6 +53,7 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.rm.Identifier;
+import org.objectweb.celtix.ws.rm.SequenceType;
 import org.objectweb.celtix.ws.rm.persistence.RMDestinationSequence;
 import org.objectweb.celtix.ws.rm.persistence.RMMessage;
 import org.objectweb.celtix.ws.rm.persistence.RMSourceSequence;
@@ -58,12 +73,13 @@ public class PersistenceHandler implements SOAPHandler<SOAPMessageContext>,
     private RMStore store;
     private RetransmissionQueue retransmissionQueue;
     private ConfigurationHelper configurationHelper;
+    private RMSoapHandler rmSOAPHandler;
+    private MAPCodec wsaSOAPHandler;
     
     @PostConstruct
     public synchronized void initialise() {
         RMHandler handler = RMHandler.getHandlerMap().get(getBinding());  
         handler.setPersistenceManager(this);
-        LOG.fine("Set persistence manager.");
      
         configurationHelper = new ConfigurationHelper(getBinding(), null == clientBinding);
         
@@ -92,6 +108,8 @@ public class PersistenceHandler implements SOAPHandler<SOAPMessageContext>,
         initQueue();
         if (ContextUtils.isOutbound(context)) {
             handleOutbound(context);
+        } else {
+            handleInbound(context);
         }
         return true;
     }
@@ -100,6 +118,8 @@ public class PersistenceHandler implements SOAPHandler<SOAPMessageContext>,
         initQueue();
         if (ContextUtils.isOutbound(context)) {
             handleOutbound(context);
+        } else {
+            handleInbound(context);
         }
         return true;
     }
@@ -119,14 +139,48 @@ public class PersistenceHandler implements SOAPHandler<SOAPMessageContext>,
     }
     
     // --- protected or private ---
+    
+    protected RMSoapHandler getRMSoapHandler() {
+        if (null == rmSOAPHandler) {
+            AbstractBindingImpl abi = getBinding().getBindingImpl();
+            List<Handler> handlerChain = abi.getPostProtocolSystemHandlers();
+            for (Handler h : handlerChain) {
+                if (h instanceof RMSoapHandler) {
+                    rmSOAPHandler = (RMSoapHandler)h;
+                }
+            }
+        }
+        return rmSOAPHandler;
+    }
+
+    protected MAPCodec getWsaSOAPHandler() {
+        if (null == wsaSOAPHandler) {
+            AbstractBindingImpl abi = getBinding().getBindingImpl();
+            List<Handler> handlerChain = abi.getPostProtocolSystemHandlers();
+            for (Handler h : handlerChain) {
+                if (h instanceof MAPCodec) {
+                    wsaSOAPHandler = (MAPCodec)h;
+                }
+            }
+        }
+        return wsaSOAPHandler;
+    }
+
        
     void handleOutbound(SOAPMessageContext context) {
+        
         LOG.entering(getClass().getName(), "handleOutbound");
+        
+        DeliveryAssuranceType da = configurationHelper.getDeliveryAssurance();
+        if (!da.isSetAtLeastOnce()) {
+            return;
+        }
+        
         // do nothing unless this is an application message        
         
         if (!isApplicationMessage(context)) {
             return; 
-        }
+        }   
         
         // tell the source to store a copy of the message in the
         // retransmission queue
@@ -158,7 +212,29 @@ public class PersistenceHandler implements SOAPHandler<SOAPMessageContext>,
         SourceSequence seq = new SourceSequence(sid, null, null, mn, lm);         
         RMMessageImpl msg = new RMMessageImpl(mn, context);
         cacheUnacknowledged(seq, msg);
-    }    
+    }
+    
+    void handleInbound(SOAPMessageContext context) {
+        LOG.entering(getClass().getName(), "handleOutbound");
+        
+        DeliveryAssuranceType da = configurationHelper.getDeliveryAssurance();
+        if (!(da.isSetInOrder() && da.isSetAtLeastOnce())) {
+            return;
+        }
+        
+        if (null == getStore()) {
+            return;            
+        }
+        
+        SequenceType s = getSequence(context.getMessage());
+        if (null == s) {
+            return;
+        }
+        
+        RMMessage msg = new RMMessageImpl(s.getMessageNumber(), context);        
+        RMDestinationSequence ds = new DestinationSequence(s.getIdentifier(), null, null, null);
+        getStore().persistIncoming(ds, msg);        
+    }
     
     void restore() {        
         if (null == store) {
@@ -252,6 +328,33 @@ public class PersistenceHandler implements SOAPHandler<SOAPMessageContext>,
     private void initQueue() {
         getQueue().start(getBinding().getBus().getWorkQueueManager()
                          .getAutomaticWorkQueue());
+    }
+    
+    private SequenceType getSequence(SOAPMessage message) {
+        SOAPHeader header = null;
+        try {
+            SOAPEnvelope env = message.getSOAPPart().getEnvelope();
+            header = env.getHeader();
+        } catch (SOAPException ex) {
+            LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", ex);  
+        }
+        
+        Iterator headerElements = header.examineAllHeaderElements();
+        while (headerElements.hasNext()) {
+            SOAPHeaderElement headerElement = 
+                (SOAPHeaderElement)headerElements.next();
+            Name headerName = headerElement.getElementName();
+            String localName = headerName.getLocalName(); 
+            if (Names.WSRM_NAMESPACE_NAME.equals(headerName.getURI())
+                && Names.WSRM_SEQUENCE_NAME.equals(localName)) {
+                try {
+                    return getRMSoapHandler().decodeProperty(SequenceType.class, headerElement, null); 
+                } catch (JAXBException ex) {
+                    LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", ex);
+                }
+            }
+        }
+        return null;
     }
     
 }

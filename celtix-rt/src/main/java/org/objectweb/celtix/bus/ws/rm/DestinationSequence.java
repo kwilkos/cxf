@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.bus.configuration.wsrm.AcksPolicyType;
+import org.objectweb.celtix.bus.configuration.wsrm.DeliveryAssuranceType;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
@@ -18,14 +20,13 @@ import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
 import org.objectweb.celtix.ws.rm.SequenceFaultType;
 import org.objectweb.celtix.ws.rm.persistence.RMDestinationSequence;
+import org.objectweb.celtix.ws.rm.persistence.RMStore;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 import org.objectweb.celtix.ws.rm.wsdl.SequenceFault;
 
 public class DestinationSequence extends AbstractSequenceImpl implements RMDestinationSequence {
 
     private static final Logger LOG = LogUtils.getL7dLogger(DestinationSequence.class);
-
-    private SequenceAcknowledgement acked;
 
     private RMDestination destination;
     private EndpointReferenceType acksTo;
@@ -108,9 +109,7 @@ public class DestinationSequence extends AbstractSequenceImpl implements RMDesti
     
     void setLastMessageNumber(BigInteger lmn) {
         lastMessageNumber = lmn;
-    }
-   
-    
+    }    
     
     /**
      * Returns the monitor for this sequence.
@@ -140,41 +139,95 @@ public class DestinationSequence extends AbstractSequenceImpl implements RMDesti
         
         monitor.acknowledgeMessage();
         
-        boolean done = false;
-        int i = 0;
-        for (; i < acked.getAcknowledgementRange().size(); i++) {
-            AcknowledgementRange r = acked.getAcknowledgementRange().get(i);
-            if (r.getLower().compareTo(messageNumber) <= 0 
-                && r.getUpper().compareTo(messageNumber) >= 0) {
-                done = true;
-                break;
-            } else {
-                BigInteger diff = r.getLower().subtract(messageNumber);
-                if (diff.signum() == 1) {
-                    if (diff.equals(BigInteger.ONE)) {
-                        r.setLower(messageNumber);
-                        done = true;
-                    }
-                    break;
-                } else if (messageNumber.subtract(r.getUpper()).equals(BigInteger.ONE)) {
-                    r.setUpper(messageNumber);
+        synchronized (this) {
+            boolean done = false;
+            int i = 0;
+            for (; i < acked.getAcknowledgementRange().size(); i++) {
+                AcknowledgementRange r = acked.getAcknowledgementRange().get(i);
+                if (r.getLower().compareTo(messageNumber) <= 0 
+                    && r.getUpper().compareTo(messageNumber) >= 0) {
                     done = true;
                     break;
+                } else {
+                    BigInteger diff = r.getLower().subtract(messageNumber);
+                    if (diff.signum() == 1) {
+                        if (diff.equals(BigInteger.ONE)) {
+                            r.setLower(messageNumber);
+                            done = true;
+                        }
+                        break;
+                    } else if (messageNumber.subtract(r.getUpper()).equals(BigInteger.ONE)) {
+                        r.setUpper(messageNumber);
+                        done = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!done) {
+                AcknowledgementRange range = RMUtils.getWSRMFactory()
+                    .createSequenceAcknowledgementAcknowledgementRange();
+                range.setLower(messageNumber);
+                range.setUpper(messageNumber);
+                acked.getAcknowledgementRange().add(i, range);
+            }
+            
+            notifyAll();
+        }
+        
+        purgeAcknowledged(messageNumber);
+        
+        scheduleAcknowledgement();
+    }
+    
+    /**
+     * Ensures that the delivery assurance is honored, e.g. by throwing an 
+     * exception if the message had already been delivered and the delivery
+     * assurance is AtMostOnce.
+     * This method blocks in case the delivery assurance is 
+     * InOrder and and not all messages with lower message numbers have been 
+     * delivered.
+     * 
+     * @param s the SequenceType object including identifier and message number
+     */
+    boolean applyDeliveryAssurance(BigInteger mn) {
+        DeliveryAssuranceType da = destination.getHandler().getConfigurationHelper().getDeliveryAssurance();
+        if (da.isSetAtMostOnce() && isAcknowledged(mn)) {
+            Message msg = new Message("MESSAGE_ALREADY_DELIVERED", LOG, mn, getIdentifier().getValue());
+            LOG.log(Level.SEVERE, msg.toString());
+            return false;
+        } 
+        if (da.isSetInOrder() && da.isSetAtLeastOnce()) {
+            synchronized (this) {
+                boolean ok = allPredecessorsAcknowledged(mn);
+                while (!ok) {
+                    try {
+                        wait();                        
+                        ok = allPredecessorsAcknowledged(mn);
+                    } catch (InterruptedException ie) {
+                        // ignore
+                    }
                 }
             }
         }
-
-        if (!done) {
-            AcknowledgementRange range = RMUtils.getWSRMFactory()
-                .createSequenceAcknowledgementAcknowledgementRange();
-            range.setLower(messageNumber);
-            range.setUpper(messageNumber);
-            acked.getAcknowledgementRange().add(i, range);
-        }
-               
-        scheduleAcknowledgement();
+        return true;
     }
-
+    
+    synchronized boolean allPredecessorsAcknowledged(BigInteger mn) {
+        return acked.getAcknowledgementRange().size() == 1
+            && acked.getAcknowledgementRange().get(0).getLower().equals(BigInteger.ONE)
+            && acked.getAcknowledgementRange().get(0).getUpper().subtract(mn).signum() >= 0;
+    }
+    
+    void purgeAcknowledged(BigInteger messageNr) {
+        RMStore store = destination.getHandler().getStore();
+        if (null == store) {
+            return;
+        }
+        Collection<BigInteger> messageNrs = new ArrayList<BigInteger>();
+        messageNrs.add(messageNr);
+        store.removeMessages(getIdentifier(), messageNrs, false);
+    }
 
     /**
      * Called after an acknowledgement header for this sequence has been added to an outgoing message.
@@ -232,7 +285,7 @@ public class DestinationSequence extends AbstractSequenceImpl implements RMDesti
         acknowledgeOnNextOccasion = true;
     }
 
-    private void scheduleDeferredAcknowledgement(int delay) {
+    private synchronized void scheduleDeferredAcknowledgement(int delay) {
         if (null == deferredAcknowledgments) {
             deferredAcknowledgments = new ArrayList<DeferredAcknowledgment>();
         }
@@ -260,4 +313,6 @@ public class DestinationSequence extends AbstractSequenceImpl implements RMDesti
             }
         }
     }
+    
+    
 }

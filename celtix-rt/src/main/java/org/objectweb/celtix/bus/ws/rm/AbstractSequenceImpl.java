@@ -1,10 +1,15 @@
 package org.objectweb.celtix.bus.ws.rm;
 
+import java.math.BigInteger;
+
 import org.objectweb.celtix.ws.rm.Identifier;
+import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
+import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
 
 public abstract class AbstractSequenceImpl {
     
     protected final Identifier id;
+    protected SequenceAcknowledgement acked;
     
     protected AbstractSequenceImpl(Identifier i) {
         id = i;
@@ -42,6 +47,15 @@ public abstract class AbstractSequenceImpl {
         } else {
             return null != id2 && id1.getValue().equals(id2.getValue());
         }
+    }
+    
+    public synchronized boolean isAcknowledged(BigInteger m) {
+        for (AcknowledgementRange r : acked.getAcknowledgementRange()) {
+            if (m.subtract(r.getLower()).signum() >= 0 && r.getUpper().subtract(m).signum() >= 0) {
+                return true;
+            }
+        }
+        return false;
     }
    
 }

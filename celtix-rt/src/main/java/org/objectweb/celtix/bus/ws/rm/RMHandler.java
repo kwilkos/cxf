@@ -124,21 +124,11 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
     }
 
     public boolean handleFault(LogicalMessageContext context) {
-        return false;
+        return handle(context);
     }
 
     public boolean handleMessage(LogicalMessageContext context) {
-        try {
-            if (ContextUtils.isOutbound(context)) {
-                handleOutbound(context);
-            } else {
-                handleInbound(context);
-            }
-        } catch (SequenceFault sf) {
-            sf.printStackTrace();
-            LOG.log(Level.SEVERE, "SequenceFault", sf);
-        }
-        return true;
+        return handle(context);
     }
     
     public ConfigurationHelper getConfigurationHelper() {
@@ -219,7 +209,18 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         // TODO begin transaction
     }
 
-    
+    protected boolean handle(LogicalMessageContext context) {
+        try {
+            if (ContextUtils.isOutbound(context)) {
+                handleOutbound(context);
+            } else {
+                handleInbound(context);
+            }
+        } catch (SequenceFault sf) {
+            LOG.log(Level.SEVERE, "SequenceFault", sf);
+        }
+        return true;
+    }
 
     protected void handleOutbound(LogicalMessageContext context) throws SequenceFault {
         LOG.entering(getClass().getName(), "handleOutbound");
@@ -384,10 +385,12 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             processAcknowledgmentRequests(rmps);  
             
             processSequence(rmps, maps);
+            
+            processDeliveryAssurance(rmps);
         }
     }
 
-    private void processAcknowledgments(RMProperties rmps) {
+    void processAcknowledgments(RMProperties rmps) {
         Collection<SequenceAcknowledgement> acks = rmps.getAcks();
         if (null != acks) {
             for (SequenceAcknowledgement ack : acks) {
@@ -396,16 +399,17 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
     }
 
-    private void processSequence(RMProperties rmps, AddressingProperties maps) throws SequenceFault {
+    void processSequence(RMProperties rmps, AddressingProperties maps) throws SequenceFault {
         SequenceType s = rmps.getSequence();
         if (null == s) {
             return;
-        }   
+        }  
+
         getDestination().acknowledge(s, 
             null == maps.getReplyTo() ? null : maps.getReplyTo().getAddress().getValue());
     }
 
-    private void processAcknowledgmentRequests(RMProperties rmps) {
+    void processAcknowledgmentRequests(RMProperties rmps) {
         Collection<AckRequestedType> requested = rmps.getAcksRequested();
         if (null != requested) {
             for (AckRequestedType ar : requested) {
@@ -418,8 +422,17 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
             }
         }
     }
+    
+    boolean processDeliveryAssurance(RMProperties rmps) {
+        SequenceType s = rmps.getSequence();
+        if (null == s) {
+            return true;
+        }  
+        DestinationSequence ds = destination.getSequence(s.getIdentifier());
+        return ds.applyDeliveryAssurance(s.getMessageNumber());       
+    }
 
-    private void addAcknowledgements(RMPropertiesImpl rmpsOut, Identifier inSeqId, AttributedURI to) {
+    void addAcknowledgements(RMPropertiesImpl rmpsOut, Identifier inSeqId, AttributedURI to) {
 
         for (DestinationSequence seq : getDestination().getAllSequences()) {
             if (seq.sendAcknowledgement()
@@ -488,6 +501,23 @@ public class RMHandler implements LogicalHandler<LogicalMessageContext>, SystemH
         }
         
         return seq;
+    }
+    
+    /** 
+     * for unit tests
+     */
+    protected void setInitialised(ConfigurationHelper ch,
+                                  RMSource s,
+                                  RMDestination d,
+                                  Timer t,
+                                  boolean registered
+                                  ) {
+        configurationHelper = ch;
+        source = s;
+        destination = d;
+        timer = t;
+        busLifeCycleListenerRegistered = registered;
+        initialise();
     }
     
 }

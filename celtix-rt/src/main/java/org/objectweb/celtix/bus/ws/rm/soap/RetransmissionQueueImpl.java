@@ -15,16 +15,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bindings.AbstractBindingBase;
-import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.Request;
 import org.objectweb.celtix.bindings.Response;
 import org.objectweb.celtix.bindings.ServerRequest;
 import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
-import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
 import org.objectweb.celtix.bus.ws.rm.ConfigurationHelper;
 import org.objectweb.celtix.bus.ws.rm.RMContextUtils;
 import org.objectweb.celtix.bus.ws.rm.RMUtils;
@@ -54,8 +51,6 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     private static final Logger LOG = LogUtils.getL7dLogger(RetransmissionQueueImpl.class);
 
     private PersistenceHandler handler;
-    private RMSoapHandler rmSOAPHandler;
-    private MAPCodec wsaSOAPHandler;
     private WorkQueue workQueue;
     private long baseRetransmissionInterval;
     private int exponentialBackoff;
@@ -347,33 +342,6 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     }
 
     
-
-    protected RMSoapHandler getRMSoapHandler() {
-        if (null == rmSOAPHandler) {
-            AbstractBindingImpl abi = handler.getBinding().getBindingImpl();
-            List<Handler> handlerChain = abi.getPostProtocolSystemHandlers();
-            for (Handler h : handlerChain) {
-                if (h instanceof RMSoapHandler) {
-                    rmSOAPHandler = (RMSoapHandler)h;
-                }
-            }
-        }
-        return rmSOAPHandler;
-    }
-
-    protected MAPCodec getWsaSOAPHandler() {
-        if (null == wsaSOAPHandler) {
-            AbstractBindingImpl abi = handler.getBinding().getBindingImpl();
-            List<Handler> handlerChain = abi.getPostProtocolSystemHandlers();
-            for (Handler h : handlerChain) {
-                if (h instanceof MAPCodec) {
-                    wsaSOAPHandler = (MAPCodec)h;
-                }
-            }
-        }
-        return wsaSOAPHandler;
-    }
-
     /**
      * Plug in replacement resend logic (facilitates unit testing).
      * 
@@ -394,14 +362,14 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
         RMProperties rmps = RMContextUtils.retrieveRMProperties(ctx, true);
         if (null == rmps) {
             SOAPMessage message = (SOAPMessage)ctx.get(SOAP_MSG_KEY);
-            rmps = getRMSoapHandler().unmarshalRMProperties(message);
+            rmps = handler.getRMSoapHandler().unmarshalRMProperties(message);
             RMContextUtils.storeRMProperties(ctx, rmps, true);
         }
         AddressingProperties maps = ContextUtils.retrieveMAPs(ctx, false, true);
         if (null == maps) {
             SOAPMessage message = (SOAPMessage)ctx.get(SOAP_MSG_KEY);
             try {
-                maps = getWsaSOAPHandler().unmarshalMAPs(message);
+                maps = handler.getWsaSOAPHandler().unmarshalMAPs(message);
                 ContextUtils.storeMAPs(maps, ctx, true);
             } catch (Exception ex) {
                 ex.printStackTrace();

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.ws.rm.Identifier;
@@ -56,8 +55,8 @@ public class RMDestination extends RMEndpoint {
     public Collection<DestinationSequence> getAllSequences() {        
         return map.values();
     }
+
   
-    
     
    /**
     * Acknowledges receipt of a message. If the message is the last in the sequence, 

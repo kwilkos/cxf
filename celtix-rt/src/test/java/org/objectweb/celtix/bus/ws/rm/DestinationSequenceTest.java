@@ -4,6 +4,7 @@ package org.objectweb.celtix.bus.ws.rm;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
@@ -13,6 +14,7 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.bus.configuration.wsrm.AcksPolicyType;
+import org.objectweb.celtix.bus.configuration.wsrm.DeliveryAssuranceType;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.Expires;
 import org.objectweb.celtix.ws.rm.Identifier;
@@ -129,7 +131,9 @@ public class DestinationSequenceTest extends TestCase {
     
     public void testGetAcknowledgementAsStream() throws SequenceFault {
         destination.getHandler();
-        expectLastCall().andReturn(handler).times(2);
+        expectLastCall().andReturn(handler).times(3);
+        handler.getStore();
+        expectLastCall().andReturn(null);
         handler.getConfigurationHelper();
         expectLastCall().andReturn(configurationHelper).times(2);
         configurationHelper.getRMAssertion();
@@ -150,7 +154,9 @@ public class DestinationSequenceTest extends TestCase {
     
     public void testAcknowledgeBasic() throws SequenceFault {
         destination.getHandler();
-        expectLastCall().andReturn(handler).times(4);
+        expectLastCall().andReturn(handler).times(6);
+        handler.getStore();
+        expectLastCall().andReturn(null).times(2);
         handler.getConfigurationHelper();
         expectLastCall().andReturn(configurationHelper).times(4);
         configurationHelper.getRMAssertion();
@@ -184,8 +190,9 @@ public class DestinationSequenceTest extends TestCase {
         
         RMAssertionType ra = control.createMock(RMAssertionType.class);
 
-        expect(destination.getHandler()).andReturn(handler).times(2);
-        expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(2);
+        expect(destination.getHandler()).andReturn(handler).times(3);
+        expect(handler.getStore()).andReturn(null);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(2);        
         expect(configurationHelper.getRMAssertion()).andReturn(ra);
         expect(ra.getAcknowledgementInterval()).andReturn(null);
         expect(configurationHelper.getAcksPolicy()).andReturn(null);
@@ -205,7 +212,8 @@ public class DestinationSequenceTest extends TestCase {
     
     public void testAcknowledgeAppendRange() throws SequenceFault {
    
-        expect(destination.getHandler()).andReturn(handler).times(10);
+        expect(destination.getHandler()).andReturn(handler).times(15);
+        expect(handler.getStore()).andReturn(null).times(5);
         expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(10);
         expect(configurationHelper.getRMAssertion()).andReturn(rma).times(5);
         expect(configurationHelper.getAcksPolicy()).andReturn(ap).times(5);
@@ -230,7 +238,8 @@ public class DestinationSequenceTest extends TestCase {
     }
     
     public void testAcknowledgeInsertRange() throws SequenceFault {
-        expect(destination.getHandler()).andReturn(handler).times(14);
+        expect(destination.getHandler()).andReturn(handler).times(21);
+        expect(handler.getStore()).andReturn(null).times(7);
         expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(14);
         expect(configurationHelper.getRMAssertion()).andReturn(rma).times(7);
         expect(configurationHelper.getAcksPolicy()).andReturn(ap).times(7);
@@ -261,7 +270,8 @@ public class DestinationSequenceTest extends TestCase {
     }
     
     public void testAcknowledgePrependRange() throws SequenceFault { 
-        expect(destination.getHandler()).andReturn(handler).times(12);
+        expect(destination.getHandler()).andReturn(handler).times(18);
+        expect(handler.getStore()).andReturn(null).times(6);
         expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(12);
         expect(configurationHelper.getRMAssertion()).andReturn(rma).times(6);
         expect(configurationHelper.getAcksPolicy()).andReturn(ap).times(6);
@@ -287,10 +297,9 @@ public class DestinationSequenceTest extends TestCase {
     }
     
     public void testMonitor() throws SequenceFault {
-        // Timer t = new Timer();
-        expect(destination.getHandler()).andReturn(handler).times(30);
+        expect(destination.getHandler()).andReturn(handler).times(45);
+        expect(handler.getStore()).andReturn(null).times(15);
         expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(30);
-        // expect(handler.getTimer()).andReturn(t).times(15);
         expect(configurationHelper.getRMAssertion()).andReturn(rma).times(15);
         expect(configurationHelper.getAcksPolicy()).andReturn(ap).times(15);
         control.replay();
@@ -333,7 +342,8 @@ public class DestinationSequenceTest extends TestCase {
     }
     
     public void testAcknowledgeImmediate() throws SequenceFault {
-        expect(destination.getHandler()).andReturn(handler).times(2);
+        expect(destination.getHandler()).andReturn(handler).times(3);
+        expect(handler.getStore()).andReturn(null);
         expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(2);
         expect(configurationHelper.getRMAssertion()).andReturn(rma).times(1);
         expect(configurationHelper.getAcksPolicy()).andReturn(ap).times(1);        
@@ -359,7 +369,8 @@ public class DestinationSequenceTest extends TestCase {
         rma.setAcknowledgementInterval(ai);        
        
         Timer timer = new Timer();        
-        expect(destination.getHandler()).andReturn(handler).times(8);
+        expect(destination.getHandler()).andReturn(handler).times(11);
+        expect(handler.getStore()).andReturn(null).times(3);
         expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(6);
         expect(handler.getTimer()).andReturn(timer).times(1);
         expect(configurationHelper.getRMAssertion()).andReturn(rma).times(3);
@@ -402,6 +413,175 @@ public class DestinationSequenceTest extends TestCase {
         assertEquals("unexpected correlation ID",
                      correlationID,
                      seq.getCorrelationID());
+    }
+    
+    public void testApplyDeliveryAssuranceAtMostOnce() {
+        BigInteger mn = BigInteger.TEN;
+        DeliveryAssuranceType da = control.createMock(DeliveryAssuranceType.class);
+        SequenceAcknowledgement ack = control.createMock(SequenceAcknowledgement.class);
+        List<AcknowledgementRange> ranges = new ArrayList<AcknowledgementRange>();
+        AcknowledgementRange r = control.createMock(AcknowledgementRange.class);
+        expect(destination.getHandler()).andReturn(handler);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper); 
+        expect(configurationHelper.getDeliveryAssurance()).andReturn(da);
+        expect(da.isSetAtMostOnce()).andReturn(true);            
+        expect(ack.getAcknowledgementRange()).andReturn(ranges);
+        
+        control.replay();        
+        DestinationSequence ds = new DestinationSequence(id, ref, null, ack);
+        ds.setDestination(destination);
+        assertTrue("message had already been delivered", ds.applyDeliveryAssurance(mn));
+        control.verify();
+        
+        control.reset();
+        ranges.add(r);
+        expect(destination.getHandler()).andReturn(handler);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper);
+        expect(configurationHelper.getDeliveryAssurance()).andReturn(da);
+        expect(da.isSetAtMostOnce()).andReturn(true);            
+        expect(ack.getAcknowledgementRange()).andReturn(ranges);
+        expect(r.getLower()).andReturn(new BigInteger("5"));
+        expect(r.getUpper()).andReturn(new BigInteger("15"));
+        control.replay();        
+        assertTrue("message has not yet been delivered", !ds.applyDeliveryAssurance(mn));
+        control.verify();
+    }
+    
+    public void testInOrderNoWait() {
+        BigInteger mn = BigInteger.TEN;
+        DeliveryAssuranceType da = control.createMock(DeliveryAssuranceType.class);
+        SequenceAcknowledgement ack = control.createMock(SequenceAcknowledgement.class);
+        List<AcknowledgementRange> ranges = new ArrayList<AcknowledgementRange>();
+        AcknowledgementRange r = control.createMock(AcknowledgementRange.class);
+        ranges.add(r);
+        expect(destination.getHandler()).andReturn(handler);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper); 
+        expect(configurationHelper.getDeliveryAssurance()).andReturn(da);
+        expect(da.isSetAtMostOnce()).andReturn(false);
+        expect(da.isSetAtLeastOnce()).andReturn(true);
+        expect(da.isSetInOrder()).andReturn(true); 
+        expect(ack.getAcknowledgementRange()).andReturn(ranges).times(3);
+        expect(r.getLower()).andReturn(BigInteger.ONE);
+        expect(r.getUpper()).andReturn(new BigInteger("15"));
+        control.replay(); 
+        DestinationSequence ds = new DestinationSequence(id, ref, null, ack);
+        ds.setDestination(destination);
+        assertTrue(ds.applyDeliveryAssurance(mn));
+        control.verify();
+    }
+    
+    public void testInOrderWait() {
+        DeliveryAssuranceType da = control.createMock(DeliveryAssuranceType.class);
+        rma = control.createMock(RMAssertionType.class);
+        SequenceAcknowledgement ack = RMUtils.getWSRMFactory().createSequenceAcknowledgement();
+        List<AcknowledgementRange> ranges = new ArrayList<AcknowledgementRange>();
+        final int n = 5;
+        final AcknowledgementRange r = 
+            RMUtils.getWSRMFactory().createSequenceAcknowledgementAcknowledgementRange();
+        r.setUpper(new BigInteger(Integer.toString(n)));
+        ranges.add(r);
+        final DestinationSequence ds = new DestinationSequence(id, ref, null, ack);
+        ds.setDestination(destination);
+        
+        
+        
+        class Acknowledger extends Thread {
+            BigInteger mn;
+            
+            Acknowledger(String mnStr) {
+                mn = new BigInteger(mnStr);
+            }
+            
+            public void run() {
+                try {
+                    ds.acknowledge(mn);
+                    ds.applyDeliveryAssurance(mn);
+                } catch (SequenceFault ex) {
+                    // ignore
+                }
+            }            
+        }
+        
+        
+        
+        expect(destination.getHandler()).andReturn(handler).times(n * 4);
+        expect(handler.getStore()).andReturn(null).times(n);
+        expect(handler.getConfigurationHelper()).andReturn(configurationHelper).times(n * 3); 
+        expect(configurationHelper.getDeliveryAssurance()).andReturn(da).times(n);
+        expect(da.isSetAtMostOnce()).andReturn(false).times(n);
+        expect(da.isSetAtLeastOnce()).andReturn(true).times(n);
+        expect(da.isSetInOrder()).andReturn(true).times(n); 
+        expect(configurationHelper.getRMAssertion()).andReturn(rma).times(n);
+        expect(rma.getAcknowledgementInterval()).andReturn(null).times(n);
+        expect(configurationHelper.getAcksPolicy()).andReturn(null).times(n);
+ 
+        control.replay(); 
+        
+        Thread[] threads = new Thread[n];
+        for (int i = n - 1; i >= 0; i--) {
+            threads[i] = new Acknowledger(Integer.toString(i + 1));
+            threads[i].start();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+        
+        boolean timedOut = false;
+        for (int i = 0; i < n; i++) {
+            try {
+                threads[i].join(1000); 
+            } catch (InterruptedException ex) {
+                timedOut = true;
+            }
+        }
+        assertTrue("timed out waiting for messages to be processed in order", !timedOut);
+        
+        control.verify();
+    }
+    
+    public void testAllPredecessorsAcknowledged() {
+        SequenceAcknowledgement ack = control.createMock(SequenceAcknowledgement.class);
+        List<AcknowledgementRange> ranges = new ArrayList<AcknowledgementRange>();
+        AcknowledgementRange r = control.createMock(AcknowledgementRange.class);
+        expect(ack.getAcknowledgementRange()).andReturn(ranges);
+        control.replay();
+        DestinationSequence ds = new DestinationSequence(id, ref, null, ack);
+        ds.setDestination(destination);
+        assertTrue("all predecessors acknowledged", !ds.allPredecessorsAcknowledged(BigInteger.TEN));
+        control.verify();
+        
+        control.reset();
+        ranges.add(r);
+        expect(ack.getAcknowledgementRange()).andReturn(ranges).times(2);
+        expect(r.getLower()).andReturn(BigInteger.TEN);
+        control.replay();
+        assertTrue("all predecessors acknowledged", !ds.allPredecessorsAcknowledged(BigInteger.TEN));
+        control.verify();
+        
+        control.reset();
+        expect(ack.getAcknowledgementRange()).andReturn(ranges).times(3);
+        expect(r.getLower()).andReturn(BigInteger.ONE);
+        expect(r.getUpper()).andReturn(new BigInteger("5"));
+        control.replay();
+        assertTrue("all predecessors acknowledged", !ds.allPredecessorsAcknowledged(BigInteger.TEN));
+        control.verify();
+        
+        control.reset();
+        expect(ack.getAcknowledgementRange()).andReturn(ranges).times(3);
+        expect(r.getLower()).andReturn(BigInteger.ONE);
+        expect(r.getUpper()).andReturn(BigInteger.TEN);
+        control.replay();
+        assertTrue("not all predecessors acknowledged", ds.allPredecessorsAcknowledged(BigInteger.TEN));
+        control.verify();
+        
+        ranges.add(r);
+        control.reset();
+        expect(ack.getAcknowledgementRange()).andReturn(ranges);
+        control.replay();
+        assertTrue("all predecessors acknowledged", !ds.allPredecessorsAcknowledged(BigInteger.TEN));
+        control.verify();
     }
 
 }

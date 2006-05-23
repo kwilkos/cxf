@@ -9,6 +9,7 @@ import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bus.busimpl.BusConfigurationBuilder;
+import org.objectweb.celtix.bus.configuration.wsrm.DeliveryAssuranceType;
 import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.configuration.Configuration;
@@ -52,6 +53,13 @@ public class ConfigurationHelperTest extends TestCase {
     
     public void testGetEndpointId() {
         assertEquals("celtix." + SERVICE_NAME.toString(), ch.getEndpointId());
+    }
+    
+    public void testGetDeliveryAssurance() {
+        DeliveryAssuranceType da = ch.getDeliveryAssurance();
+        assertTrue(da.isSetAtLeastOnce());
+        assertTrue(!da.isSetAtMostOnce());
+        assertTrue(!da.isSetInOrder());
     }
       
     public void testGetRMAssertion() {
