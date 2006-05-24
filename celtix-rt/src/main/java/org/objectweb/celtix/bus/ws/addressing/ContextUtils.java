@@ -311,8 +311,11 @@ public final class ContextUtils {
      * 
      * @param inMAPs the incoming MAPs
      * @param context the message context
+     * @param serverBinding the server binding
+     * @param serverTransport the server transport
      */
-    public static void rebaseTransport(AddressingProperties inMAPs,
+    public static void rebaseTransport(EndpointReferenceType reference,
+                                       String namespaceURI,
                                        MessageContext context,
                                        ServerBinding serverBinding, 
                                        ServerTransport serverTransport) {
@@ -324,13 +327,13 @@ public final class ContextUtils {
         maps.setReplyTo(WSA_OBJECT_FACTORY.createEndpointReferenceType());
         maps.getReplyTo().setAddress(getAttributedURI(Names.WSA_NONE_ADDRESS));
         maps.setAction(getAttributedURI(""));
-        maps.exposeAs(inMAPs.getNamespaceURI());
+        maps.exposeAs(namespaceURI);
         storeMAPs(maps, context, true, true, true, true);
 
         if (serverTransport != null && serverBinding != null) {
             try {
                 OutputStreamMessageContext outputContext =
-                    serverTransport.rebase(context, inMAPs.getReplyTo());
+                    serverTransport.rebase(context, reference);
                 if (outputContext != null) {
                     serverBinding.partialResponse(outputContext, 
                                                   getDataBindingCallback());

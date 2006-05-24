@@ -93,12 +93,15 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport
         OutputStreamMessageContext outputContext = null;
         HttpRequest request = 
             (HttpRequest)context.get(HTTPServerInputStreamContext.HTTP_REQUEST);
-        HttpResponse response = 
-            (HttpResponse)context.get(HTTPServerInputStreamContext.HTTP_RESPONSE);
-        if (response != null) {
-            outputContext = new HTTPServerRebasedOutputStreamContext(context, request, response);
-            context.put(HTTPServerInputStreamContext.HTTP_RESPONSE, decoupledResponseEndpoint);
+        Object response = 
+            context.get(HTTPServerInputStreamContext.HTTP_RESPONSE);
+        if (response instanceof HttpResponse) {
+            outputContext =
+                new HTTPServerRebasedOutputStreamContext(context, 
+                                                         request,
+                                                         (HttpResponse)response);
         }
+        context.put(HTTPServerInputStreamContext.HTTP_RESPONSE, decoupledResponseEndpoint);
         return outputContext;
     }
     

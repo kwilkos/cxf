@@ -118,7 +118,7 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
      * @param context the messsage context
      */
     public boolean handleMessage(LogicalMessageContext context) {
-        return mediate(context);
+        return mediate(context, false);
     }
 
     /**
@@ -127,7 +127,7 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
      * @param context the messsage context
      */
     public boolean handleFault(LogicalMessageContext context) {
-        return mediate(context);
+        return mediate(context, true);
     }
 
     /**
@@ -195,14 +195,15 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
      * Mediate message flow.
      *
      * @param context the messsage context
+     * @param isFault true if a fault is being mediated
      * @return true if processing should continue on dispatch path 
      */
-    private boolean mediate(LogicalMessageContext context) {    
+    private boolean mediate(LogicalMessageContext context, boolean isFault) {    
         boolean continueProcessing = true;
         if (ContextUtils.isOutbound(context)) {
             if (usingAddressing(context)) {
                 // request/response MAPs must be aggregated
-                aggregate(context);
+                aggregate(context, isFault);
             }
         } else if (!ContextUtils.isRequestor(context)) {
             // responder validates incoming MAPs
@@ -212,12 +213,16 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             if (continueProcessing) {
                 if (ContextUtils.isOneway(context)
                     || !ContextUtils.isGenericAddress(maps.getReplyTo())) {
-                    ContextUtils.rebaseTransport(maps, context, serverBinding, serverTransport);
+                    ContextUtils.rebaseTransport(maps.getReplyTo(),
+                                                 maps.getNamespaceURI(),
+                                                 context,
+                                                 serverBinding,
+                                                 serverTransport);
                 }            
             } else {
                 // validation failure => dispatch is aborted, response MAPs 
                 // must be aggregated
-                aggregate(context);
+                aggregate(context, isFault);
             }
         }
         return continueProcessing;
@@ -227,11 +232,12 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
      * Perform MAP aggregation.
      *
      * @param context the messsage context
+     * @param isFault true if a fault is being mediated
      */
-    private void aggregate(LogicalMessageContext context) {
+    private void aggregate(LogicalMessageContext context, boolean isFault) {
         AddressingPropertiesImpl maps = assembleGeneric(context);
         boolean isRequestor = ContextUtils.isRequestor(context);
-        addRoleSpecific(maps, isRequestor, context);
+        addRoleSpecific(maps, context, isRequestor, isFault);
         // outbound property always used to store MAPs, as this handler 
         // aggregates only when either:
         // a) message really is outbound
@@ -274,13 +280,15 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
      * Add MAPs which are specific to the requestor or responder role.
      *
      * @param maps the MAPs being assembled
+     * @param context the messsage context
      * @param isRequestor true iff the current messaging role is that of 
      * requestor 
-     * @param context the messsage context
+     * @param isFault true if a fault is being mediated
      */
     private void addRoleSpecific(AddressingPropertiesImpl maps, 
+                                 MessageContext context,
                                  boolean isRequestor,
-                                 MessageContext context) {
+                                 boolean isFault) {
         if (isRequestor) {
             // add request-specific MAPs
             boolean isOneway = ContextUtils.isOneway(context);
@@ -329,6 +337,15 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             if (inMAPs.getMessageID() != null) {
                 String inMessageID = inMAPs.getMessageID().getValue();
                 maps.setRelatesTo(ContextUtils.getRelatesTo(inMessageID));
+            }
+
+            if (isFault
+                && !ContextUtils.isGenericAddress(inMAPs.getFaultTo())) {
+                ContextUtils.rebaseTransport(inMAPs.getFaultTo(),
+                                             inMAPs.getNamespaceURI(),
+                                             context,
+                                             serverBinding,
+                                             serverTransport);
             }
         }
     }

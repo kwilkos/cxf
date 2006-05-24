@@ -23,6 +23,7 @@ import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 import org.objectweb.hello_world_soap_http.BadRecordLitFault;
 import org.objectweb.hello_world_soap_http.Greeter;
@@ -44,6 +45,8 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
         new QName("http://objectweb.org/hello_world_soap_http", "SOAPServiceAddressing");
     private static final QName PORT_NAME =
         new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
+    private static final String NOWHERE = "http://nowhere.nada.nothing.nought:5555";
+    private static final String DECOUPLED = "http://localhost:9999/decoupled_endpoint";
     private static Map<Object, Map<String, String>> messageIDs =
         new HashMap<Object, Map<String, String>>();
     private Greeter greeter;
@@ -151,6 +154,33 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
             assertEquals("unexpected response received from service", 
                          "Hello explicit3",
                          greeting);
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
+    
+    public void testFaultTo() throws Exception {
+        try {
+            String greeting = greeter.greetMe("warmup");
+            assertEquals("unexpected response received from service", 
+                         "Hello warmup",
+                         greeting);
+            checkVerification();
+
+            Map<String, Object> requestContext = 
+                ((BindingProvider)greeter).getRequestContext();
+            AddressingProperties maps = new AddressingPropertiesImpl();
+            maps.setReplyTo(EndpointReferenceUtils.getEndpointReference(NOWHERE));
+            maps.setFaultTo(EndpointReferenceUtils.getEndpointReference(DECOUPLED));
+            requestContext.put(CLIENT_ADDRESSING_PROPERTIES, maps);
+            try {
+                greeter.testDocLitFault("BadRecordLitFault");
+                fail("expected fault from service");
+            } catch (BadRecordLitFault brlf) {
+                checkVerification();
+            } catch (UndeclaredThrowableException ex) {
+                throw (Exception)ex.getCause();
+            }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
         }

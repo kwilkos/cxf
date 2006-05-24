@@ -248,7 +248,14 @@ public class MAPAggregatorTest extends TestCase {
     }
 
     public void testResponderOutboundFault() throws Exception {
-        LogicalMessageContext context = setUpContext(false, true, false);
+        LogicalMessageContext context = setUpContext(new boolean[] {false,
+                                                                    true,
+                                                                    false,
+                                                                    false,
+                                                                    false,
+                                                                    true,
+                                                                    false,
+                                                                    true});
         boolean proceed = aggregator.handleFault(context);
         assertTrue("expected dispatch to proceed", proceed);
         control.verify();
@@ -320,6 +327,7 @@ public class MAPAggregatorTest extends TestCase {
                             decoupled,
                             false);
     }
+
     
     private LogicalMessageContext setUpContext(boolean requestor, 
                                                boolean outbound,
@@ -329,7 +337,31 @@ public class MAPAggregatorTest extends TestCase {
                                                boolean decoupled,
                                                boolean zeroLengthAction) 
         throws Exception {
+        boolean[] params = {requestor, 
+                            outbound,
+                            oneway,
+                            usingAddressing,
+                            mapsInContext,
+                            decoupled,
+                            zeroLengthAction,
+                            false};  
+        return setUpContext(params);
+    }
 
+    /**
+     * Boolean array is used to work around checkstyle rule limiting
+     * parameter cardinality to 7. 
+     */
+    private LogicalMessageContext setUpContext(boolean[] params)
+        throws Exception {
+        boolean requestor = params[0]; 
+        boolean outbound = params[1];
+        boolean oneway = params[2];
+        boolean usingAddressing = params[3];
+        boolean mapsInContext = params[4];
+        boolean decoupled = params[5];
+        boolean zeroLengthAction = params[6];
+        boolean fault = params[7];
         LogicalMessageContext context =
             control.createMock(LogicalMessageContext.class);
         context.get(MESSAGE_OUTBOUND_PROPERTY);
@@ -350,7 +382,8 @@ public class MAPAggregatorTest extends TestCase {
                            oneway,
                            outbound,
                            decoupled,
-                           zeroLengthAction);
+                           zeroLengthAction,
+                           fault);
         }
         control.replay();
         return context;
@@ -443,7 +476,8 @@ public class MAPAggregatorTest extends TestCase {
                                 boolean oneway,
                                 boolean outbound,
                                 boolean decoupled,
-                                boolean zeroLengthAction) throws Exception {
+                                boolean zeroLengthAction,
+                                boolean fault) throws Exception {
         context.get(REQUESTOR_ROLE_PROPERTY);
         EasyMock.expectLastCall().andReturn(Boolean.FALSE);
         AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
@@ -453,6 +487,12 @@ public class MAPAggregatorTest extends TestCase {
                                           ? "http://localhost:9999/decoupled"
                                           : Names.WSA_ANONYMOUS_ADDRESS));
         maps.setReplyTo(replyTo);
+        EndpointReferenceType faultTo = new EndpointReferenceType();
+        faultTo.setAddress(
+            ContextUtils.getAttributedURI(decoupled
+                                          ? "http://localhost:9999/fault"
+                                          : Names.WSA_ANONYMOUS_ADDRESS));
+        maps.setFaultTo(faultTo);
         AttributedURIType id = 
             ContextUtils.getAttributedURI("urn:uuid:12345");
         maps.setMessageID(id);
@@ -461,11 +501,11 @@ public class MAPAggregatorTest extends TestCase {
         }
         context.get(SERVER_ADDRESSING_PROPERTIES_INBOUND);
         EasyMock.expectLastCall().andReturn(maps);
-        if (oneway || decoupled) {
+        aggregator.serverBinding = control.createMock(ServerBinding.class);
+        aggregator.serverTransport = control.createMock(ServerTransport.class);
+        if (!outbound && (oneway || decoupled)) {
             context.get(ONEWAY_MESSAGE_TF);
-            EasyMock.expectLastCall().andReturn(Boolean.valueOf(oneway));            
-            aggregator.serverBinding = control.createMock(ServerBinding.class);
-            aggregator.serverTransport = control.createMock(ServerTransport.class);
+            EasyMock.expectLastCall().andReturn(Boolean.valueOf(oneway));
             OutputStreamMessageContext outputContext = 
                 control.createMock(OutputStreamMessageContext.class);
             aggregator.serverTransport.rebase(context, replyTo);
@@ -488,8 +528,15 @@ public class MAPAggregatorTest extends TestCase {
             EasyMock.expectLastCall().andReturn(Boolean.FALSE);
             context.get(SERVER_ADDRESSING_PROPERTIES_INBOUND);
             EasyMock.expectLastCall().andReturn(maps);
+            if (fault) {
+                aggregator.serverTransport.rebase(EasyMock.same(context),
+                                                  EasyMock.same(faultTo));
+                EasyMock.expectLastCall().andReturn(null);
+            }
             EasyMock.eq(SERVER_ADDRESSING_PROPERTIES_OUTBOUND);
-            expectedTo = Names.WSA_ANONYMOUS_ADDRESS;
+            expectedTo = decoupled
+                         ? "http://localhost:9999/decoupled"
+                         : Names.WSA_ANONYMOUS_ADDRESS;
             expectedRelatesTo = maps.getMessageID().getValue();
             EasyMock.reportMatcher(new MAPMatcher());
             context.put(SERVER_ADDRESSING_PROPERTIES_OUTBOUND,
