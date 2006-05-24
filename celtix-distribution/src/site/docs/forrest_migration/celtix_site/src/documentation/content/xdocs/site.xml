@@ -80,6 +80,7 @@ See http://forrest.apache.org/docs/linking.html for more info
 	<config href="guides/configuration.html" />
 	<dyn_lang href="guides/dynamic_lang.html" />
 	<toolsref href="refs/tools.html" />
+	<tomcat href="guides/tomcat_deploy.html" />
   </docco>
   
   <!--

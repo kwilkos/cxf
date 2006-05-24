@@ -89,7 +89,7 @@
 		  <li>setting endpoint conneciton behavior</li>
 		  <li>using the internal contexts in JMS consumer endpoints</li>
 		</ul>
-		<p>In addition, the command line tools <a href="./docs/user_guides/tools/tools.html">guide</a> has been updated.</p>
+		<p>In addition, the command line tools <a href="site:toolsref">guide</a> has been updated.</p>
 	  </section>
 	</section>
     <section id="news">

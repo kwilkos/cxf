@@ -11,21 +11,58 @@
     the code generation process. The syntax of the command is summarized in
     the following illustration.</para>
 
-    <para>wsdl2java -p &lt;[wsdl-namespace =]Package-Name&gt;* -b
-    &lt;binding-name&gt;*</para>
+    <cmdsynopsis>
+      <command>wsdl2java</command>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-d
-    &lt;output-directory&gt; -compile -classdir
-    &lt;compile-classes-directory&gt;</para>
+      <group>
+        <arg><option>-?</option></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-client
-    -server -impl -all -ant</para>
+        <arg><option>-help</option></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-nexclude
-    &lt;schema-namespace [= java-packagename]&gt;*</para>
+        <arg><option>-h</option></arg>
+      </group>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-exsh
-    &lt;(true, false)&gt; -validate -v -verbose -quiet &lt;wsdlfile&gt;</para>
+      <arg><option>-p</option> <arg rep="repeat"><arg
+      choice="opt"><replaceable>wsdl-namespace</replaceable>=</arg><replaceable>Package-Name</replaceable></arg></arg>
+
+      <arg><option>-b</option> <arg
+      rep="repeat"><replaceable>binding-name</replaceable></arg></arg>
+
+      <arg><option>-d</option>
+      <replaceable>output-directory</replaceable></arg>
+
+      <arg><option>-compile</option></arg>
+
+      <arg><option>-classdir</option>
+      <replaceable>compile-class-dir</replaceable></arg>
+
+      <arg><option>-client</option></arg>
+
+      <arg><option>-server</option></arg>
+
+      <arg><option>-impl</option></arg>
+
+      <arg><option>-all</option></arg>
+
+      <arg><option>-ant</option></arg>
+
+      <arg><option>-nexclude</option> <arg
+      rep="repeat"><replaceable>schema-namespace</replaceable><arg>=<replaceable>java-packagename</replaceable></arg></arg></arg>
+
+      <arg><option>-exsh</option> (true/false)</arg>
+
+      <arg><option>-validate</option></arg>
+
+      <arg><option>-v</option></arg>
+
+      <group>
+        <arg><option>-verbose</option></arg>
+
+        <arg><option>-quiet</option></arg>
+      </group>
+
+      <arg choice="req"><replaceable>wsdlfile</replaceable></arg>
+    </cmdsynopsis>
 
     <para>The arguments used to manage the code generation process are
     reviewed in the following table.</para>
@@ -50,8 +87,7 @@
           </row>
 
           <row>
-            <entry><para><option>-p</option>
-            &lt;<optional><replaceable>wsdl-namespace</replaceable>=</optional><replaceable>Package-name</replaceable>&gt;*</para></entry>
+            <entry><synopsis><option>-p</option> <optional><replaceable>wsdl-namespace</replaceable>=</optional><replaceable>Package-name</replaceable></synopsis></entry>
 
             <entry><para>Specifies zero, or more, package names to use for the
             generated code. Optionally specifies the WSDL namespace to package
@@ -59,8 +95,8 @@
           </row>
 
           <row>
-            <entry><para><option>-b
-            </option>&lt;<replaceable>binding-file-name</replaceable>&gt;*</para></entry>
+            <entry><para><option>-b</option>
+            <replaceable>binding-file-name</replaceable></para></entry>
 
             <entry><para>Specifies zero, or more, JAXWS or JAXB binding files.
             Use spaces to separate multiple entries.</para></entry>
@@ -82,7 +118,7 @@
 
           <row>
             <entry><option>-classdir</option>
-            <replaceable>class-dir</replaceable></entry>
+            <replaceable>complile-class-dir</replaceable></entry>
 
             <entry><para>Specifies the directory into which the compiled class
             files are written.</para></entry>
@@ -126,8 +162,7 @@
           </row>
 
           <row>
-            <entry><para><option>-nexclude</option>
-            <replaceable>schema-namespace</replaceable><optional>=<replaceable>java-packagename</replaceable></optional></para></entry>
+            <entry><synopsis><option>-nexclude</option> <replaceable>schema-namespace</replaceable><optional>=<replaceable>java-packagename</replaceable></optional></synopsis></entry>
 
             <entry><para>Ignore the specified WSDL schema namespace when
             generating code. This option may be specified multiple times.
@@ -137,7 +172,7 @@
 
           <row>
             <entry><para><option>-exsh</option>
-            (<constant>true</constant>/<constant>false</constant>)</para></entry>
+            (<literal>true</literal>/<literal>false</literal>)</para></entry>
 
             <entry><para>Enables or disables processing of extended soap
             header message binding.</para></entry>
@@ -194,11 +229,37 @@
     file. The syntax of the command is summarized in the following
     illustration.</para>
 
-    <para>java2wsdl -o &lt;output-file&gt; -cp &lt;class-path&gt; -t
-    &lt;target-namespace&gt;</para>
+    <cmdsynopsis>
+      <command>java2wsdl</command>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-servicename
-    &lt;service-name&gt; -h -v -verbose -quiet &lt;classname&gt;</para>
+      <group>
+        <arg><option>-?</option></arg>
+
+        <arg><option>-help</option></arg>
+
+        <arg><option>-h</option></arg>
+      </group>
+
+      <arg><option>-o</option> <replaceable>output-file</replaceable></arg>
+
+      <arg><option>-cp</option> <replaceable>class-path</replaceable></arg>
+
+      <arg><option>-t</option>
+      <replaceable>target-namespace</replaceable></arg>
+
+      <arg><option>-servicename</option>
+      <replaceable>service-name</replaceable></arg>
+
+      <arg><option>-v</option></arg>
+
+      <group>
+        <arg><option>-verbose</option></arg>
+
+        <arg><option>-quiet</option></arg>
+      </group>
+
+      <arg choice="req"><replaceable>classname</replaceable></arg>
+    </cmdsynopsis>
 
     <para>The arguments used to manage the WSDL file generation are reviewed
     in the following table.</para>
@@ -252,8 +313,8 @@
             <replaceable>service-name</replaceable></para></entry>
 
             <entry><para>Specifies the value of the generated <sgmltag
-            class="element">service</sgmltag> element's name
-            attribute.</para></entry>
+            class="element">service</sgmltag> element's <sgmltag
+            class="attribute">name</sgmltag> attribute.</para></entry>
           </row>
 
           <row>
@@ -302,16 +363,43 @@
     element. The syntax of the command is summarized in the following
     illustration.</para>
 
-    <para>wsdl2soap -i &lt;port-type-name&gt; -b &lt;binding-name&gt;</para>
+    <cmdsynopsis>
+      <command>wsdl2soap</command>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-d
-    &lt;output-directory&gt; -o &lt;output-file&gt;</para>
+      <group>
+        <arg><option>-?</option></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-n
-    &lt;soap-body-namespace&gt; -style &lt;(document/rpc)&gt;</para>
+        <arg><option>-help</option></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-use
-    &lt;(literal/encoded)&gt; -h -v -verbose -quiet &lt;wsdlurl&gt;</para>
+        <arg><option>-h</option></arg>
+      </group>
+
+      <arg><option>-i</option> <replaceable>port-type-name</replaceable></arg>
+
+      <arg><option>-b</option> <replaceable>binding-name</replaceable></arg>
+
+      <arg><option>-d</option>
+      <replaceable>output-directory</replaceable></arg>
+
+      <arg><option>-o</option> <replaceable>output-file</replaceable></arg>
+
+      <arg><option>-n</option>
+      <replaceable>soap-body-namespace</replaceable></arg>
+
+      <arg><option>-style</option> (document/rpc)</arg>
+
+      <arg><option>-use</option> (literal/encoded)</arg>
+
+      <arg><option>-v</option></arg>
+
+      <group>
+        <arg><option>-verbose</option></arg>
+
+        <arg><option>-quiet</option></arg>
+      </group>
+
+      <arg choice="req"><replaceable>wsdlurl</replaceable></arg>
+    </cmdsynopsis>
 
     <para>The arguments used to manage the WSDL file generation are reviewed
     in the following table.</para>
@@ -379,7 +467,7 @@
 
           <row>
             <entry><para><option>-style</option>
-            (<constant>document</constant>/<constant>rpc</constant>)</para></entry>
+            (<literal>document</literal>/<literal>rpc</literal>)</para></entry>
 
             <entry><para>Specifies the encoding style (document or RPC) to use
             in the SOAP binding. The default is
@@ -388,7 +476,7 @@
 
           <row>
             <entry><para><option>-use</option>
-            (<constant>literal</constant>/<constant>encoded</constant>)</para></entry>
+            (<literal>literal</literal>/<literal>encoded</literal>)</para></entry>
 
             <entry><para>Specifies the binding use (encoded or literal) to use
             in the SOAP binding. The default is
@@ -440,38 +528,68 @@
     <para><application>wsdl2service</application> creates a new WSDL file
     containing an HTTP or JMS service definition from an existing WSDL
     document containing a binding element. The syntax of the command is
-    summarized in the following illustration.</para>
+    summarized below:</para>
 
-    <para>wsdl2service -transport &lt;http/jms&gt; -e
-    &lt;service-name&gt;</para>
+    <cmdsynopsis>
+      <command>wsdl2service</command>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-p
-    &lt;port-name&gt; -n &lt;attribute-binding-name&gt;</para>
+      <group>
+        <arg><option>-?</option></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[-a
-    &lt;address&gt;] -jds &lt;jms-destionation-Style(queue/topic)&gt;</para>
+        <arg><option>-help</option></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-jpu
-    &lt;jms-jndi-provider-URL&gt; -jcf
-    &lt;jms-initial-context-factory&gt;</para>
+        <arg><option>-h</option></arg>
+      </group>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-jfn
-    &lt;jms-jndi-connection-factory-name&gt;</para>
+      <arg><option>-transport</option> (http/jms)</arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-jdn
-    &lt;jms-jndi-destination-name&gt;</para>
+      <arg><option>-e</option> <replaceable>service-name</replaceable></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-jmt
-    &lt;jms-message-type(text/binary)&gt;</para>
+      <arg><option>-p</option> <replaceable>port-name</replaceable></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-jmc
-    &lt;use-messageid-as-correlationid(true/false)&gt;</para>
+      <arg choice="req"><option>-n</option>
+      <replaceable>binding-name</replaceable></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-jsn
-    &lt;durable-subscriber-name&gt; -o &lt;output-file&gt;</para>
+      <arg><option>-a</option> <replaceable>address</replaceable></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-d
-    &lt;output-directory&gt; -h -v -verbose -quiet &lt;wsdlurl&gt;</para>
+      <group>
+        <arg><option>-jds</option> (queue/topic)</arg>
+
+        <arg><option>-jpu</option>
+        <replaceable>jndi-provider-URL</replaceable></arg>
+
+        <arg><option>-jcf</option>
+        <replaceable>initial-context-factory</replaceable></arg>
+
+        <arg><option>-jfn</option>
+        <replaceable>jndi-connection-factory-name</replaceable></arg>
+
+        <arg><option>-jdn</option>
+        <replaceable>jndi-destination-name</replaceable></arg>
+
+        <arg><option>-jmt</option> (text/binary)</arg>
+
+        <arg><option>-jmc</option> (true/false)</arg>
+
+        <arg><option>-jsn</option>
+        <replaceable>durable-subscriber-name</replaceable></arg>
+      </group>
+
+      <arg><option>-o</option> <replaceable>output-file</replaceable></arg>
+
+      <arg><option>-d
+      </option><replaceable>output-directory</replaceable></arg>
+
+      <arg><option>-v</option></arg>
+
+      <group>
+        <arg><option>-verbose</option></arg>
+
+        <arg><option>-quiet</option></arg>
+      </group>
+
+      <arg choice="req"><replaceable>wsdlurl</replaceable></arg>
+    </cmdsynopsis>
 
     <para>The arguments used to manage the WSDL file generation are reviewed
     in the following table.</para>
@@ -498,7 +616,7 @@
 
           <row>
             <entry><para><option>-transport</option>
-            (<constant>http</constant>/<constant>jms</constant>)</para></entry>
+            (<literal>http</literal>/<literal>jms</literal>)</para></entry>
 
             <entry><para>Specifies the type of transport to use for the
             generated service.</para></entry>
@@ -542,7 +660,7 @@
 
           <row>
             <entry><para><option>-jds</option>
-            (<constant>queue</constant>/<constant>topic</constant>)</para></entry>
+            (<literal>queue</literal>/<literal>topic</literal>)</para></entry>
 
             <entry><para>Specifies the JMS destination style.</para></entry>
           </row>
@@ -581,14 +699,14 @@
 
           <row>
             <entry><para><option>-jmt</option>
-            (<constant>text</constant>/<constant>binary</constant>)</para></entry>
+            (<literal>text</literal>/<literal>binary</literal>)</para></entry>
 
             <entry><para>Specifies the JMS message type.</para></entry>
           </row>
 
           <row>
             <entry><para><option>-jmc</option>
-            (<constant>true</constant>/<constant>false</constant>)</para></entry>
+            (<literal>true</literal>/<literal>false</literal>)</para></entry>
 
             <entry><para>Specifies if the <classname>MessageID</classname> is
             used as the <classname>CorrelationID</classname>.</para></entry>
@@ -659,17 +777,31 @@
     <title>The Celtix wsdl2xml Utility</title>
 
     <para><application>wsdl2xml</application> generates an XML binding from an
-    existing WSDL document containing a &lt;portType&gt; definition. The
-    syntax of the command is summarized in the following illustration.</para>
+    existing WSDL document containing a portType definition. The syntax of the
+    command is summarized below:</para>
 
-    <para>wsdl2xml -i &lt;port-type-name&gt; -b &lt;binding-name&gt; -e
-    &lt;service-name&gt;</para>
+    <cmdsynopsis>
+	<command>wsdl2xml</command>
+	<group>
+        <arg><option>-?</option></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-p
-    &lt;port-name&gt; -a &lt;address&gt; -d &lt;output-directory&gt;</para>
+        <arg><option>-help</option></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-o
-    &lt;output-file&gt; -h -v -verbose -quiet &lt;wsdlurl&gt;</para>
+        <arg><option>-h</option></arg>
+      </group>
+	<arg><option>-i</option> <replaceable>port-type-name</replaceable></arg>
+	<arg><option>-b</option> <replaceable>binding-name</replaceable></arg>
+	<arg><option>-e</option> <replaceable>service-name</replaceable></arg>
+	<arg><option>-p</option> <replaceable>port-name</replaceable></arg>
+	<arg><option>-a</option> <replaceable>address</replaceable></arg>
+	<arg><option>-d</option> <replaceable>output-directory</replaceable></arg>
+	<arg><option>-o</option> <replaceable>output-file</replaceable></arg>
+	<arg><option>-v</option></arg>
+	<group>
+	<arg><option>-verbose</option></arg><arg><option>-quiet</option></arg>
+	</group>
+	<arg choice="req"><replaceable>wsdlurl</replaceable></arg>
+	</cmdsynopsis>
 
     <para>The arguments used to manage WSDL file generation are reviewed in
     the following table.</para>
@@ -797,16 +929,28 @@
     <para><application>xsd2wsdl</application> imports an XMLSchema document
     and generates a WSDL file containing a <sgmltag
     class="element">types</sgmltag> element populated by the types defined in
-    the XMLSchema document. The syntax of the command is summarized in the
-    following illustration.</para>
+    the XMLSchema document. The syntax of the command is summarized
+    below:</para>
 
-    <para>xsd2wsdl -t &lt;target-name-space&gt; -n &lt;wsdl-name&gt;</para>
+    <cmdsynopsis>
+	<command>xsd2wsdl</command>
+	<group>
+        <arg><option>-?</option></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-d
-    &lt;output-directory&gt; -o &lt;output-file&gt;</para>
+        <arg><option>-help</option></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-h -v -verbose
-    -quiet &lt;xsdurl&gt;</para>
+        <arg><option>-h</option></arg>
+      </group>
+	<arg><option>-t</option> <replaceable>target-namespace</replaceable></arg>
+	<arg><option>-n</option> <replaceable>wsdl-name</replaceable></arg>
+	<arg><option>-d</option> <replaceable>output-directory</replaceable></arg>
+	<arg><option>-o</option> <replaceable>output-file</replaceable></arg>
+	<arg><option>-v</option></arg>
+	<group>
+	<arg><option>-verbose</option></arg><arg><option>-quiet</option></arg>
+	</group>
+	<arg choice="req"><replaceable>xsdurl</replaceable></arg>
+	</cmdsynopsis>
 
     <para>The arguments used to manage WSDL file generation are reviewed in
     the following table.</para>
@@ -906,11 +1050,23 @@
     <para><application>wsdlvalidator</application> validates whether a wsdl
     file or wsdl url is well-formed and schema conformed.</para>
 
-    <para>wsdlvalidator -d &lt;schema-directory&gt; -s
-    &lt;schema-url&gt;*</para>
+    <cmdsynopsis>
+	<command>wsdlvalidator</command>
+      <group>
+        <arg><option>-?</option></arg>
 
-    <para>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-h
-    -v -verbose -quiet &lt;wsdlurl&gt;</para>
+        <arg><option>-help</option></arg>
+
+        <arg><option>-h</option></arg>
+      </group>
+	  <arg><option>-d</option> <replaceable>schema-directory</replaceable></arg>
+	  <arg><option>-s</option> <arg rep="repeat"><replaceable>schema-url</replaceable></arg></arg>
+	  <arg><option>-v</option></arg>
+	  <group>
+	  <arg><option>-verbose</option></arg><arg><option>-quiet</option></arg>
+	  </group>
+	  <arg choice="req"><replaceable>wsdlurl</replaceable></arg>
+	  </cmdsynopsis>
 
     <para>The arguments used to validate WSDL file are reviewed in the
     following table.</para>

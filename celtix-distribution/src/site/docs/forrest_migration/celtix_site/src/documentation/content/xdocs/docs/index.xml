@@ -47,7 +47,7 @@
 	  <title>Deployment</title>
 		<ul>
           <li><a href="site:config">Using Celtix Configuration</a></li>
-		  <li><a href="../docs/user_guides/tomcat_deploy/deploy_into_tomcat.html">Deploying Celtix into a Servlet Container</a></li>
+		  <li><a href="site:tomcat">Deploying Celtix into a Servlet Container</a></li>
         </ul>
       </section>
 	  </section>
