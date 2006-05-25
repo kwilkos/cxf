@@ -42,7 +42,15 @@
     <filename>.war</filename> file and view its contents; then extract the
     archive to a temporary location.</para>
 
-    <inlinegraphic fileref="" width="" />
+    <figure id="fig_1">
+      <title>Celtix WAR Structure</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="./images/tomcat_war.gif" />
+        </imageobject>
+      </mediaobject>
+    </figure>
 
     <para>Alternatively, if you installed the <filename>.war</filename>
     file(s) into Tomcat, you can view the contents from the
@@ -359,7 +367,14 @@
           the hello_world_RPCLit example's WSDL file into the combined
           deployment.</para>
 
-          <para><inlinegraphic fileref="" width="" /></para>
+          <figure>
+		  <title>Celtix WAR Updated for Demos</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="./images/tomcat_war2.gif" />
+        </imageobject>
+      </mediaobject>
+    </figure>
         </listitem>
 
         <listitem>
@@ -472,7 +487,7 @@ set CATALINA_HOME=C:\apache-tomcat-[version]</userinput></screen>
       installed Tomcat using the Windows installer, start the executable
       program <command>Tomcat5.exe</command>. Both the scripts and the
       executable are in the
-      <filename><envar>CATALINA_HOME</envar>/bin</filename> directory.</para>
+      <filename>CATALINA_HOME/bin</filename> directory.</para>
 
       <para>By default, Tomcat is configured to use TCP/IP port 8080 to
       service requests. You can confirm that your Tomcat has been properly
@@ -481,7 +496,7 @@ set CATALINA_HOME=C:\apache-tomcat-[version]</userinput></screen>
       If everything is properly set, the browser will display a confirmatory
       page. If necessary, you can change any of the Tomcat TCP/IP ports used
       by editing the <filename>server.xml</filename> file, which is located in
-      the <filename><envar>CATALINA_HOME</envar>/conf</filename>
+      the <filename>CATALINA_HOME/conf</filename>
       directory.</para>
     </sect2>
   </sect1>

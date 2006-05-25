@@ -32,7 +32,7 @@
 
       <mediaobject>
         <imageobject>
-          <imagedata fileref="images/configuration.gif" />
+          <imagedata fileref="./images/configuration.gif" />
         </imageobject>
       </mediaobject>
     </figure>

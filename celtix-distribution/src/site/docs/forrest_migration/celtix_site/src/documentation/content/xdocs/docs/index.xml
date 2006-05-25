@@ -22,7 +22,7 @@
       <section>
 	  <title>Installation Documentation</title>
       <ul>
-        <li><a href="../docs/user_guides/installation/installation.html">Installation Guide</a></li>
+        <li><a href="site:install">Installation Guide</a></li>
         <li><a href="site:rel_notes">Release Notes</a></li>
       </ul>
 	  </section>
