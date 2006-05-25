@@ -58,6 +58,17 @@ public final class EndpointReferenceUtils {
                                                          "wsdlLocation");
     private static final Transformer XML_TRANSFORMER;
     static {
+        
+        //To Support IBM JDK 
+        //If use the default transformFactory ,org.apache.xalan.processor.TransformerFactoryImpl \
+        //when transform stuff will lost attributes 
+        
+        
+        if (System.getProperty("java.vendor").indexOf("IBM") > -1) {
+            System.setProperty("javax.xml.transform.TransformerFactory", 
+                               "org.apache.xalan.xsltc.trax.TransformerFactoryImpl");
+        }
+        
         Transformer transformer = null;
         try {
             TransformerFactory tf = TransformerFactory.newInstance();

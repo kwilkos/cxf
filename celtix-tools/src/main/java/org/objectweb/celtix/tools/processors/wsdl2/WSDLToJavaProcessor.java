@@ -160,11 +160,10 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         } else {
             argList.add("-classpath");
             argList.add(javaClasspath);
-            // System.err.println(Arrays.asList(javaClasspath.split(";")));
         }
 
         String outPutDir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
-        // System.out.println("---outPutDir---- " + outPutDir);
+
         Set<String> dirSet = new HashSet<String>();
         Iterator ite = classCollector.getGeneratedFileInfo().iterator();
         while (ite.hasNext()) {

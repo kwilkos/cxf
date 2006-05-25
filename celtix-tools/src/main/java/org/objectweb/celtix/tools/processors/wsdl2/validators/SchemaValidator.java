@@ -1,9 +1,13 @@
 package org.objectweb.celtix.tools.processors.wsdl2.validators;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,6 +40,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
 
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -87,7 +93,7 @@ public class SchemaValidator extends AbstractValidator {
     }
 
     public boolean validate(String wsdlsource, String[] schemas, boolean deep) throws ToolException {
-        
+
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         try {
             docFactory.setNamespaceAware(true);
@@ -95,7 +101,7 @@ public class SchemaValidator extends AbstractValidator {
         } catch (ParserConfigurationException e) {
             throw new ToolException(e);
         }
-        
+
         String systemId = null;
         try {
             systemId = getWsdlUrl(wsdlsource);
@@ -103,23 +109,31 @@ public class SchemaValidator extends AbstractValidator {
             throw new ToolException(ioe);
         }
         InputSource is = new InputSource(systemId);
-    
+
         return validate(is, schemas, deep);
 
     }
 
-    private Schema createValidator(String[] schemas) throws SAXException, IOException {
+    private Schema createSchema(String[] schemas) throws SAXException, IOException {
+
         SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+
+        SchemaResourceResolver resourceResolver = new SchemaResourceResolver();
+
+        sf.setResourceResolver(resourceResolver);
+      
         Source[] sources = new Source[schemas.length];
+
         for (int i = 0; i < schemas.length; i++) {
             // need to validate the schema file
             Document doc = docBuilder.parse(schemas[i]);
-
+            
             DOMSource stream = new DOMSource(doc, schemas[i]);
+
             sources[i] = stream;
         }
-        return  sf.newSchema(sources);
-      
+        return sf.newSchema(sources);
+
     }
 
     public boolean validate(InputSource wsdlsource, String[] schemas, boolean deep) throws ToolException {
@@ -133,8 +147,8 @@ public class SchemaValidator extends AbstractValidator {
 
             SAXSource saxSource = new SAXSource(saxParser.getXMLReader(), wsdlsource);
 
-            Schema schema = createValidator(schemas);
-            
+            Schema schema = createSchema(schemas);
+
             Validator validator = schema.newValidator();
 
             NewStackTraceErrorHandler errHandler = new NewStackTraceErrorHandler();
@@ -164,20 +178,18 @@ public class SchemaValidator extends AbstractValidator {
                 WSDLExtensionRegister register = new WSDLExtensionRegister(wsdlFactory, reader);
                 register.registerExtenstions();
                 def = reader.readWSDL(wsdlsource.getSystemId());
-               
+
                 XMLInputFactory factory = XMLInputFactory.newInstance();
                 factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
-               
-                
+
                 File file = new File(new URI(wsdlsource.getSystemId()));
                 xmlEventReader = factory.createXMLEventReader(new FileReader(file));
-                
 
             } catch (WSDLException e) {
                 throw new ToolException(e);
             } catch (XMLStreamException streamEx) {
                 throw new ToolException(streamEx);
-            } catch (URISyntaxException e) { 
+            } catch (URISyntaxException e) {
                 throw new ToolException(e);
             }
             WSDLElementReferenceValidator wsdlRefValiadtor = 
@@ -247,23 +259,19 @@ public class SchemaValidator extends AbstractValidator {
             };
 
             File[] files = f.listFiles(filter);
+            
             List<String> xsdUrls = new ArrayList<String>(files.length);
             for (File file : files) {
                 try {
                     String s = file.toURL().toString();
-                    
-                    //make sure the wsdl and XML schemas are at the beginning
-                    if (s.indexOf("wsdl") == -1
-                        && s.indexOf("XML") == -1) {
-                        xsdUrls.add(s);
-                    } else {
+                    xsdUrls.add(s);
+                    if (s.indexOf("http-conf") > 0) {
                         xsdUrls.add(0, s);
                     }
                 } catch (MalformedURLException e) {
                     throw new ToolException(e);
                 }
             }
-
             return xsdUrls.toArray(new String[xsdUrls.size()]);
         }
         return null;
@@ -364,6 +372,127 @@ class NewStackTraceErrorHandler implements ErrorHandler {
 
     private void addError(SAXParseException ex) {
         addError(getErrorMessage(ex), ex);
+    }
+
+}
+
+class SchemaResourceResolver implements LSResourceResolver {
+    public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId,
+                                   String baseURI) {        
+        String schemaLocation = baseURI.substring(0, baseURI.lastIndexOf("/") + 1);
+        
+        if (systemId.indexOf("http://") < 0) {
+            systemId =  schemaLocation + systemId; 
+        }
+        
+        LSInput lsin = new LSInputImpl();
+        URI uri = null;
+        try {
+            uri = new URI(systemId);
+        } catch (URISyntaxException e1) {
+            return null;
+        }
+
+        File file = new File(uri);
+        FileInputStream inputStrem = null;
+
+        try {
+            inputStrem = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            return null;
+        }
+        
+        lsin.setSystemId(systemId);
+        lsin.setByteStream(inputStrem);
+        return lsin;
+    }
+}
+
+class LSInputImpl implements LSInput {
+
+    protected String fPublicId;
+    protected String fSystemId;
+    protected String fBaseSystemId;
+
+    protected InputStream fByteStream;
+    protected Reader fCharStream;
+    protected String fData;
+
+    protected String fEncoding;
+
+    protected boolean fCertifiedText;
+
+    public LSInputImpl() {
+    }
+
+    public LSInputImpl(String publicId, String systemId, InputStream byteStream) {
+        fPublicId = publicId;
+        fSystemId = systemId;
+        fByteStream = byteStream;
+    }
+
+    public InputStream getByteStream() {
+        return fByteStream;
+    }
+
+    public void setByteStream(InputStream byteStream) {
+        fByteStream = byteStream;
+    }
+
+    public Reader getCharacterStream() {
+        return fCharStream;
+    }
+
+    public void setCharacterStream(Reader characterStream) {
+        fCharStream = characterStream;
+    }
+
+    public String getStringData() {
+        return fData;
+    }
+
+    public void setStringData(String stringData) {
+        fData = stringData;
+    }
+
+    public String getEncoding() {
+        return fEncoding;
+    }
+
+    public void setEncoding(String encoding) {
+        fEncoding = encoding;
+    }
+
+    public String getPublicId() {
+        return fPublicId;
+    }
+
+    public void setPublicId(String publicId) {
+        fPublicId = publicId;
+    }
+
+    public String getSystemId() {
+        return fSystemId;
+    }
+
+    public void setSystemId(String systemId) {
+        fSystemId = systemId;
+    }
+
+    public String getBaseURI() {
+        return fBaseSystemId;
+    }
+
+    public void setBaseURI(String baseURI) {
+        fBaseSystemId = baseURI;
+    }
+
+    public boolean getCertifiedText() {
+        return fCertifiedText;
+    }
+
+    public void setCertifiedText(boolean certifiedText) {
+        fCertifiedText = certifiedText;
     }
 
 }
