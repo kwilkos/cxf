@@ -21,6 +21,10 @@
         <url>http://forge.objectweb.org/tracker/?group_id=192</url>
     </issueManagement>
 
+    <prerequisites>
+        <maven>2.0.4</maven>
+    </prerequisites>
+
     <distributionManagement>
         <!-- After deploy, you need to go to http://forge.objectweb.org/projects/maven/ and hit the Push button -->
         <repository>
@@ -89,8 +93,8 @@
     <properties>
         <topDirectoryLocation>.</topDirectoryLocation>
 
-        <checkstyle.excludes>**/Foo*.java</checkstyle.excludes>
-        <pmd.excludes>**/Foo*.java</pmd.excludes>
+        <checkstyle.excludes>**/build/**/*.java</checkstyle.excludes>
+        <pmd.excludes>**/build/**/*.java</pmd.excludes>
 
         <surefire.fork.mode>once</surefire.fork.mode>
         <surefire.format>brief</surefire.format>
