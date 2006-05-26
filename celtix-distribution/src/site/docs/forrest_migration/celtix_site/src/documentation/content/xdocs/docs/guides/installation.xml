@@ -66,7 +66,7 @@ the source distribution.</para>
 <sect1>
 <title>Installation Prerequisites</title>
 <para>Before installing Celtix 1.0, you must ensure that you have the following product versions installed:</para>
-<orderedlist>
+<itemizedlist>
 <listitem>
 <para>JDK 1.5.0_06 (JDK 5.0 update 6) and above. Celtix requires this version of the JDK for 
 compilation and execution.</para>
@@ -78,7 +78,7 @@ applications. It is also possible to compile and run Celtix applications using
 alternative approach, see the discussion in each sample application's <filename>README</filename> 
 file.</para>
 </listitem>
-</orderedlist>
+</itemizedlist>
 <sect2>
 <title>Java 5 Developer’s Kit</title>
 <para>You must install the J2SE Development Kit (JDK) 5.0, which can be downloaded from the following location:</para>
@@ -86,7 +86,7 @@ file.</para>
 <ulink url="http://java.sun.com/j2se/1.5.0/download.jsp">http://java.sun.com/j2se/1.5.0/download.jsp</ulink>
 </para>
 <para>After installing the JDK, set or modify the following environment variables:</para>
-<orderedlist>
+<itemizedlist>
 <listitem>
 <para><envar>JAVA_HOME</envar> — set this to point at the root directory of the JDK 5.0 
 installation.</para>
@@ -95,7 +95,7 @@ installation.</para>
 <para><envar>PATH</envar> — ensure that your PATH includes the <filename>%JAVA_HOME%\bin</filename> 
 directory (Windows) or <filename>$JAVA_HOME/bin</filename> directory (UNIX).</para>
 </listitem>
-</orderedlist>
+</itemizedlist>
 </sect2>
 <sect2><title>Apache Ant 1.6</title>
 <para>Each Celtix sample application includes a <filename>build.xml</filename> file that enables 
@@ -121,25 +121,25 @@ binaries. A Maven installation is provided with the source distribution. For mor
 <sect2>
 <title>Installing the Celtix Binary Distribution</title>
 <para>To install either of the binary distributions (EPL or LGPL), perform the following steps:</para>
-<orderedlist>
-<listitem>
+<procedure>
+<step>
 <para>Download the distribution file to a local directory.</para>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>Create an installation directory, (for example, <filename>celtix_install</filename>).</para>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>Open a command window and move to the installation directory. Confirm that the 
 <envar>%JAVA_HOME%</envar><filename>\bin</filename> (Windows) or 
 <envar>$JAVA_HOME</envar><filename>/bin</filename> (UNIX) directory is on the <envar>PATH</envar>.</para>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>Use the java executable to extract the archive, for example:</para>
-<screen>
+<para>
 <userinput>java -jar <replaceable>path_to_Celtix_binary_distribution_file</replaceable></userinput>
-</screen>
-</listitem>
-<listitem>
+</para>
+</step>
+<step>
 <para>The extraction process will create the following directory structure:</para>
 <figure>
 <title>Celtix Binary Distrobution Structure</title>
@@ -149,8 +149,8 @@ binaries. A Maven installation is provided with the source distribution. For mor
         </imageobject>
       </mediaobject>
     </figure>
-</listitem>
-</orderedlist>
+</step>
+</procedure>
 </sect2>
 <sect2 id="source_install">
 <title>Installing and Building the Celtix Source Distribution</title>
@@ -165,25 +165,25 @@ repository.</para>
 and <ulink url="https://wiki.objectweb.org/celtix/Wiki.jsp?page=Maven2Information">https://wiki.objectweb.org/celtix/Wiki.jsp?page=Maven2Information</ulink>.
 </para>
 <para>To install and build either of the source distributions (EPL or LGPL), perform the following steps:</para>
-<orderedlist>
-<listitem>
+<procedure>
+<step>
 <para>Download the distribution file to a local directory.</para>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>Create an installation directory, (for example, <filename>celtix-install</filename>).</para>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>Open a command window and move to the installation directory. Confirm that the 
 <filename>%JAVA_HOME%\bin</filename> (Windows) or <filename>$JAVA_HOME/bin</filename> (UNIX) 
 directory is on the PATH.</para>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>Use the java executable to extract the archive, for example:</para>
-<screen>
+<para>
 <userinput>java -jar <replaceable>path_to_Celtix_source_distribution</replaceable></userinput>
-</screen>
-</listitem>
-<listitem>
+</para>
+</step>
+<step>
 <para>The extraction process creates the following directory structure:</para>
 <figure>
 <title>Celtix Source Distrobution Structure</title>
@@ -193,8 +193,8 @@ directory is on the PATH.</para>
         </imageobject>
       </mediaobject>
     </figure>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>
 To build Celtix, you must set your environment for Apache Maven. Ensure that the following environment variables are set:</para>
 <informaltable frame="all">
@@ -265,32 +265,32 @@ To build Celtix, you must set your environment for Apache Maven. Ensure that the
 </tbody>
 </tgroup>
 </informaltable>
-</listitem>
-<listitem>
-<para>Move to the celtix-src directory under your Celtix installation directory.</para>
-</listitem>
-<listitem>
+</step>
+<step>
+<para>Move to the <filename>celtix-src</filename> directory under your Celtix installation directory.</para>
+</step>
+<step>
 <para>To build Celtix, enter the following command:</para>
-<screen><userinput>mvn install</userinput></screen>
-</listitem>
-<listitem>
+<para><userinput>mvn install</userinput></para>
+</step>
+<step>
 <para>This command builds the product and runs all of the system and unit tests. To avoid running 
 the tests, use the following command:</para>
-<screen><userinput>mvn -Dmaven.test.skip install</userinput></screen>
-</listitem>
-<listitem>
+<para><userinput>mvn -Dmaven.test.skip install</userinput></para>
+</step>
+<step>
 <para>Move to the subdirectory 
-<replaceable>celtix-src</replaceable><filename>\celtix-distribution</filename> (Windows) or 
-<replaceable>celtix-src</replaceable><filename>/celtix-distribution</filename> (UNIX), and enter 
+<filename>celtix-src\celtix-distribution</filename> (Windows) or 
+<filename>celtix-src/celtix-distribution</filename> (UNIX), and enter 
 the following command:</para>
-<screen><userinput>mvn compile</userinput></screen>
+<para><userinput>mvn compile</userinput></para>
 <para>Alternatively, you can build JAR files suitable for distribution using the following command:</para>
-<screen><userinput>mvn install</userinput></screen>
-</listitem>
-</orderedlist>
+<para><userinput>mvn install</userinput></para>
+</step>
+</procedure>
 <para>The JAR files are located in the following directory: 
-<replaceable>celtix-src</replaceable><filename>\celtix-distribution\target</filename> (Windows) or 
-<replaceable>celtix-src</replaceable><filename>\celtix-distribution\target</filename> (UNIX).</para>
+<filename>celtix-src\celtix-distribution\target</filename> (Windows) or 
+<filename>celtix-src\celtix-distribution\target</filename> (UNIX).</para>
 </sect2>
 </sect1>
 <sect1>
@@ -370,14 +370,14 @@ batch file that sets these environment variables.</para>
 ><sect2>
 <title>Setting the Environment for the Source Distribution</title>
 <para>Before you can compile and run the sample applications, you must set the environment so that 
-the directories holding the <application>Celtix</application>, Java, and Ant utility applications 
-are on the <envar>PATH</envar>.</para>
+the directories holding the Celtix, Java, and Ant utility applications are on the 
+<envar>PATH</envar>.</para>
 <para>Open a command window and move to the samples subdirectory under your Celtix installation. 
 Ensure that the following environment variables are set (note the different value for the 
 <envar>CELTIX_HOME</envar> variable). When using the source distribution, you should use the Ant 
-build system; with this version of the product the <application>Celtix</application> product JAR 
-files are distributed throughout the product directories, and providing an accurate 
-<envar>CLASSPATH</envar> would be challenging.</para>
+build system; with this version of the product the Celtix product JAR files are distributed 
+throughout the product directories, and providing an accurate <envar>CLASSPATH</envar> would be 
+challenging.</para>
 <para>You may find it convenient to write a script or batch file that sets these environment variables.</para>
 <informaltable frame="all">
 <tgroup cols="2">
@@ -452,31 +452,31 @@ files are distributed throughout the product directories, and providing an accur
 <sect2>
 <title>Running a Sample Application</title>
 <para>To build and run the Hello World application, perform the following steps:</para>
-<orderedlist>
-<listitem>
+<procedure>
+<step>
 <para>Open a command window, and ensure that your environment is set.</para>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>Change directory to <filename>%CELTIX_HOME%\samples\hello_world</filename> (Windows) 
 or <filename>$CELTIX_HOME/samples/hello_world</filename> (UNIX).</para>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>Enter <userinput>ant build</userinput> to build both the client and server applications.</para>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>Open a new command window and set the environment.</para>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>Change directory to <filename>%CELTIX_HOME%\samples\hello_world</filename> (Windows) or 
 <filename>$CELTIX_HOME/samples/hello_world</filename> (UNIX).</para>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>Enter <userinput>ant server</userinput>.</para>
-</listitem>
-<listitem>
+</step>
+<step>
 <para>In the first command window, enter <userinput>ant client</userinput>.</para>
-</listitem>
-</orderedlist>
+</step>
+</procedure>
 </sect2>
 </sect1>
 </article>

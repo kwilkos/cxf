@@ -209,7 +209,7 @@
       defines the metadata for configuring the bus component. This file
       describes the following configurable variables:</para>
 
-      <orderedlist>
+      <itemizedlist>
         <listitem>
           <para><classname>bindingFactories</classname></para>
         </listitem>
@@ -221,7 +221,7 @@
         <listitem>
           <para><classname>resourceResolvers</classname></para>
         </listitem>
-      </orderedlist>
+      </itemizedlist>
 
       <para>The namespace assigned to this file's content is:
       <classname>http://celtix.objectweb.org/bus/bus-config</classname>. When
@@ -239,7 +239,7 @@
       defines the metadata for configuring the endpoint (server) component.
       This file describes the following configurable variables:</para>
 
-      <orderedlist>
+      <itemizedlist>
         <listitem>
           <para><classname>handlerChain</classname></para>
         </listitem>
@@ -255,7 +255,7 @@
         <listitem>
           <para><classname>enableSchemaValidation</classname></para>
         </listitem>
-      </orderedlist>
+      </itemizedlist>
 
       <para>The namespace assigned to this file's content is
       <classname>http://celtix.objectweb.org/bus/jaxws/endpoint-config</classname>.
@@ -274,7 +274,7 @@
       transport. This file describes the following configurable
       variables:</para>
 
-      <orderedlist>
+      <itemizedlist>
         <listitem>
           <para><classname>httpClient</classname></para>
         </listitem>
@@ -290,7 +290,7 @@
         <listitem>
           <para><classname>ssl</classname></para>
         </listitem>
-      </orderedlist>
+      </itemizedlist>
 
       <para>The namespace assigned to this file's content is:
       <classname>http://celtix.objectweb.org/bus/transports/http/http-client-config</classname>.
@@ -308,7 +308,7 @@
       defines the metadata for configuring an HTTP transport listener. This
       file describes the following configurable variables:</para>
 
-      <orderedlist>
+      <itemizedlist>
         <listitem>
           <para><classname>httpListener</classname></para>
         </listitem>
@@ -316,7 +316,7 @@
         <listitem>
           <para><classname>ssl</classname></para>
         </listitem>
-      </orderedlist>
+      </itemizedlist>
 
       <para>The namespace assigned to this file's content is:
       <classname>http://celtix.objectweb.org/bus/transports/http/http-listener-config</classname>.
@@ -335,7 +335,7 @@
       transport. This file describes the following configurable
       variables:</para>
 
-      <orderedlist>
+      <itemizedlist>
         <listitem>
           <para><classname>httpServer</classname></para>
         </listitem>
@@ -347,7 +347,7 @@
         <listitem>
           <para><classname>ssl</classname></para>
         </listitem>
-      </orderedlist>
+      </itemizedlist>
 
       <para>When writing a configuration file that includes http server
       related configuration entries, the value of the <sgmltag
@@ -363,7 +363,7 @@
       defines the metadata for configuring instrumentation. This file
       describes the following configurable variables:</para>
 
-      <orderedlist>
+      <itemizedlist>
         <listitem>
           <para><classname>InstrumentationControl</classname></para>
         </listitem>
@@ -371,7 +371,7 @@
         <listitem>
           <para><classname>MBServer</classname></para>
         </listitem>
-      </orderedlist>
+      </itemizedlist>
 
       <para>When writing a configuration file that includes instrumentation
       related configuration entries, the value of the <sgmltag
@@ -387,7 +387,7 @@
       defines the metadata for configuring the service (client) JMS transport.
       This file describes the following configurable variables:</para>
 
-      <orderedlist>
+      <itemizedlist>
         <listitem>
           <para><classname>jmsClient</classname></para>
         </listitem>
@@ -395,7 +395,7 @@
         <listitem>
           <para><classname>jmsAddress</classname></para>
         </listitem>
-      </orderedlist>
+      </itemizedlist>
 
       <para>The namespace assigned to this file's content is
       <classname>http://celtix.objectweb.org/bus/transports/jms/jms-client-config</classname>.
@@ -414,7 +414,7 @@
       transport. This file describes the following configurable
       variables:</para>
 
-      <orderedlist>
+      <itemizedlist>
         <listitem>
           <para><classname>jmsServer</classname></para>
         </listitem>
@@ -422,7 +422,7 @@
         <listitem>
           <para><classname>jmsAddress</classname></para>
         </listitem>
-      </orderedlist>
+      </itemizedlist>
 
       <para>When writing a configuration file that includes jms server related
       configuration entries, the value of the <sgmltag
@@ -438,7 +438,7 @@
       defines the metadata for configuring the endpoint's port component. This
       file describes the following configurable variables:</para>
 
-      <orderedlist>
+      <itemizedlist>
         <listitem>
           <para><classname>address</classname></para>
         </listitem>
@@ -462,7 +462,7 @@
         <listitem>
           <para><classname>enableSchemaValidataion</classname></para>
         </listitem>
-      </orderedlist>
+      </itemizedlist>
 
       <para>The namespace assigned to this file's content is
       <classname>http://celtix.objectweb.org/bus/jaxws/port-config</classname>.
@@ -480,7 +480,7 @@
       defines the metadata for configuring WS-Reliable Messaging (WS-RM). This
       file describes three configurable variables:</para>
 
-      <orderedlist>
+      <itemizedlist>
         <listitem>
           <para><classname>rmAssertion</classname></para>
         </listitem>
@@ -492,7 +492,7 @@
         <listitem>
           <para><classname>destinationPolicies</classname></para>
         </listitem>
-      </orderedlist>
+      </itemizedlist>
 
       <para>The namespace assigned to this file's content is:
       <classname>http://celtix.objectweb.org/bus/ws/rm/rm-config</classname>.
@@ -542,7 +542,7 @@
     associated schema files. The schema files are located in the following
     subdirectories:</para>
 
-    <orderedlist>
+    <itemizedlist>
       <listitem>
         <para><filename>resources/schemas/configuration</filename></para>
       </listitem>
@@ -550,7 +550,7 @@
       <listitem>
         <para><filename>resources/schemas/wsdl</filename></para>
       </listitem>
-    </orderedlist>
+    </itemizedlist>
 
     <para>A simple example using the Celtix routing service will help to
     illustrate.</para>
@@ -712,7 +712,7 @@
       <para>In the opening beans element, you should include namespace
       declarations corresponding to the Celtix schema files:</para>
 
-      <orderedlist>
+      <itemizedlist>
         <listitem>
           <para><filename>org/objectweb/celtix/configuration/config-metadata/types.xsd</filename></para>
         </listitem>
@@ -720,7 +720,7 @@
         <listitem>
           <para><filename>org/objectweb/celtix/configuration/config-metadata/metadata.xsd</filename></para>
         </listitem>
-      </orderedlist>
+      </itemizedlist>
 
       <para>These declarations are then available to all <sgmltag
       class="element">bean</sgmltag> elements in the configuration file. The
@@ -1328,8 +1328,8 @@
       <para>For this example, you build on the hello_world product demo. You
       need to perform the following steps:</para>
 
-      <orderedlist>
-        <listitem>
+      <procedure>
+        <step>
           <para>Build this demo and confirm that it runs successfully using
           both the ant utility and the java executable, as described in the
           demo <filename>README</filename> file.</para>
@@ -1369,32 +1369,32 @@ public class Server
     &lt;soap:address location="http://localhost:9000/SoapContext/SoapPort"/&gt;
   &lt;/wsdl:port&gt;
 &lt;/wsdl:service&gt;</programlisting>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>In a text editor, open the WSDL file and change the TCP/IP
           port (any value is acceptable, just be certain that it is an unused
           port number).</para>
 
           <programlisting>&lt;soap:address location="http://localhost:9002/SoapContext/SoapPort"/&gt;</programlisting>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Save the WSDL file.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Now if you try to run the client, it will be unable to contact
           the server and the invocation requests will fail.</para>
-        </listitem>
-      </orderedlist>
+        </step>
+      </procedure>
     </sect2>
 
     <sect2>
       <title>The Configuration File</title>
 
-      <orderedlist>
-        <listitem>
+      <procedure>
+        <step>
           <para>Write a configuration file that sets the address property of
           the PortConfigBean, for example:</para>
 
@@ -1418,9 +1418,9 @@ public class Server
           <programlisting>&lt;value&gt;
   http://localhost:9000/SoapContext/SoapPort
 &lt;/value&gt;</programlisting>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Add a <sgmltag class="element">bean</sgmltag> element for a
           HttpClientConfigBean and include a <sgmltag
           class="element">property</sgmltag> element to set authorization
@@ -1471,38 +1471,38 @@ public class Server
           <filename>port-config.xml</filename> metadata file, and the second
           represents configurable settings in the
           <filename>http-client-config.xml</filename> metadata file.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Save this file in text format into the
           <filename>installationDirectory/celtix/samples/hello_world</filename>
           directory; you may give the file any name; the next section assumes
           that the file is saved as <filename>client.xml</filename>. The WSDL
           file now has an incorrect URL while the configuration file and
           server mainline have the same URL.</para>
-        </listitem>
-      </orderedlist>
+        </step>
+      </procedure>
     </sect2>
 
     <sect2>
       <title>Running the Example</title>
 
-      <orderedlist>
-        <listitem>
+      <procedure>
+        <step>
           <para>Build the applications by issuing the <command>ant
           build</command> command. Then, using either the ant utility or the
           java executable, start the server application as described in the
           README.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>When running the client application, you must force it to read
           the configuration file. You do this by providing a
           <option>-D</option> command line argument to the java
           executable.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>To run the client using the java executable, enter the
           command:</para>
 
@@ -1510,15 +1510,15 @@ public class Server
           <option>-Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties</option>
           <option>-Dceltix.config.file=file:///%CELTIX_HOME%\samples\hello_world\client.xml</option>
           demo.hw.client.Client .\wsdl\hello_world.wsdl</userinput></para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>To run the client using the ant utility, you will need to edit
           the <filename>build.xml</filename> file that is in the directory
           <filename><replaceable>installationDirectory</replaceable>/celtix/samples/hello_world</filename>.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Open this file in a text editor and modify the client
           target.</para>
 
@@ -1529,8 +1529,8 @@ public class Server
               param1="${basedir}/wsdl/hello_world.wsdl"
               param2="${op}" param3="${param}"/&gt;
 &lt;/target&gt;</programlisting>
-        </listitem>
-      </orderedlist>
+        </step>
+      </procedure>
     </sect2>
   </sect1>
 </article>

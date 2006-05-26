@@ -47,7 +47,7 @@
       as a JAX-WS metadata variable.</para>
 
       <para>Properties of the variable are expected to specify the same
-      metadata that the JAX-WS WebServiceProvider annotation specifies,
+      metadata that the JAX-WS <classname>WebServiceProvider</classname> annotation specifies,
       including:</para>
 
       <itemizedlist>

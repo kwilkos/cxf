@@ -337,18 +337,18 @@
       context:
       <literal>http://hostname:port/applications/celtix/</literal>.</para>
 
-      <orderedlist>
-        <listitem>
+      <procedure>
+        <step>
           <para>Be certain that Tomcat is not running.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Rename the directory <filename>webapps/helloworld</filename>
           to <filename>webapps/applications</filename>. Expand each
           subdirectory.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Copy the directory
           <filename>webapps/helloworldrpclit/WEB-INF/classes/demo/hwRPCLit</filename>
           and paste it into the directory
@@ -356,9 +356,9 @@
           step copies the directory containing the endpoint application,
           specifically the implementation class, from the hello_world_RPCLit
           example into the combined deployment.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Copy the directory
           <filename>webapps/helloworldrpclit/WEB-INF/classes/demo/org/objectweb/hello_world_rpclit</filename>
           and paste it into the directory
@@ -375,16 +375,16 @@
         </imageobject>
       </mediaobject>
     </figure>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Copy the file
           <filename>webapps/helloworldrpclit/WEB-INF/wsdl/hello_world_RPCLit.wsdl</filename>
           and paste it into the directory
           <filename>webapps/applications/WEB-INF/wsdl</filename>.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>In a text editor, open the file
           <filename>webapps/helloworldrpclit/WEB-INF/celtix-servlet.xml</filename>
           and copy the entire <sgmltag class="element">endpoint</sgmltag>
@@ -409,19 +409,19 @@
             port="{http://objectweb.org/hello_world_soap_http}SOAPPort"
             url-pattern="/hello_world" /&gt;
 &lt;/endpoints&gt;</programlisting>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Delete the <filename>helloworldrpclit</filename> subdirectory
           and the two <filename>.war</filename> files from the
           <filename>webapps</filename> directory.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Restart Tomcat.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Access the hello_world_RPCLit Web service using the URL:
           <literal>http://hostname:port/applications/celtix/hello_world_rpclit</literal></para>
 
@@ -429,7 +429,7 @@
           <filename>celtix/samples/hello_world_RPCLit</filename> directory,
           run the client with the command:</para>
 
-          <screen><userinput>java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties demo.hwRPCLit.client.Client http://localhost:8080/applications/celtix/hello_world_rpclit</userinput></screen>
+          <para><userinput>java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties demo.hwRPCLit.client.Client http://localhost:8080/applications/celtix/hello_world_rpclit</userinput></para>
 
           <para>Access the hello_world Web service using the URL:
           <literal>http://hostname:port/applications/celtix/hello_world</literal></para>
@@ -437,9 +437,9 @@
           <para>From the <filename>celtix/samples/hello_world</filename>
           directory, run the client with the command:</para>
 
-          <screen><userinput>java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties demo.hw.client.Client http://localhost:8080/applications/celtix/hello_world</userinput></screen>
-        </listitem>
-      </orderedlist>
+          <para><userinput>java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties demo.hw.client.Client http://localhost:8080/applications/celtix/hello_world</userinput></para>
+        </step>
+      </procedure>
     </sect2>
 
     <sect2 id="tomcat_install">
@@ -468,14 +468,18 @@
       environment variables. Open a command window and issue the following
       commands:</para>
 
-      <screen><userinput>set JAVA_HOME=C:\j2sdk5.0
-set CATALINA_HOME=C:\apache-tomcat-[version]</userinput></screen>
+	  <para>
+      <userinput>set JAVA_HOME=C:\j2sdk5.0</userinput>
+</para>
+<para>
+	  <userinput>set CATALINA_HOME=C:\apache-tomcat-<replaceable>[version]</replaceable></userinput>
+</para>
 
       <para>If you installed Tomcat using the Windows installer, you only need
       to set one environment variable. Open a command window and issue the
       following commands:</para>
 
-      <screen><userinput>set JAVA_HOME=C:\j2sdk5.0</userinput></screen>
+      <para><userinput>set JAVA_HOME=C:\j2sdk5.0</userinput></para>
 
       <para>Rather than setting these values explicitly in a command window,
       you may find it more convenient to set these variables through your

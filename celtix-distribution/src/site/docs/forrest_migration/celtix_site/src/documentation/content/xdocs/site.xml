@@ -82,6 +82,8 @@ See http://forrest.apache.org/docs/linking.html for more info
 	<toolsref href="refs/tools.html" />
 	<tomcat href="guides/tomcat_deploy.html" />
 	<install href="guides/installation.html" />
+	<get_started href="guides/getting_started.html" />
+	<mgmt href="guides/management.html" />
   </docco>
   
   <!--

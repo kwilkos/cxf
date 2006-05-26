@@ -29,7 +29,7 @@
       <section>
 	  <title>Tutorials</title>
       <ul>
-        <li><a href="../docs/user_guides/getting_started/getting_started.html">Getting Started with Celtix</a></li>
+        <li><a href="site:get_started">Getting Started with Celtix</a></li>
       </ul>
 	  </section>
       <section>
@@ -40,7 +40,7 @@
 		  <li><a href="../docs/user_guides/develop_consumer/develop_consumer.html">Developing a Celtix Consumer</a></li>
 		  <li><a href="site:jms">Using the JMS Transport</a></li>
 		  <li><a href="site:dyn_lang">Using Dynamic Languages to Implement Services</a></li>
-		  <li><a href="../docs/user_guides/management/management.html">Using Celtix Management</a></li>
+		  <li><a href="site:mgmt">Using Celtix Management</a></li>
 		</ul>
 	  </section>
 	  <section>

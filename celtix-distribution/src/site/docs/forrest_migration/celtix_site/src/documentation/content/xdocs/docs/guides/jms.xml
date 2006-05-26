@@ -56,7 +56,7 @@
     establish a connection to the proper destination. This information can be
     provided in one of two places:</para>
 
-    <orderedlist>
+    <itemizedlist>
       <listitem>
         <para><ulink url="#BasicWSDL">WSDL</ulink></para>
       </listitem>
@@ -64,7 +64,7 @@
       <listitem>
         <para><ulink url="#BasicConfig">Configuratoin</ulink></para>
       </listitem>
-    </orderedlist>
+    </itemizedlist>
 
     <sect2 id="BasicWSDL">
       <title>Using WSDL</title>
@@ -245,8 +245,7 @@
         <example id="Table3">
           <title>Celtix JMS Port</title>
 
-          <programlisting>
-&lt;service name="JMSService"&gt;
+          <programlisting>&lt;service name="JMSService"&gt;
   &lt;port binding="tns:Greeter_SOAPBinding" name="SoapPort"&gt;
     &lt;jms:address jndiConnectionFactoryName="ConnectionFactory"
                  jndiDestinationName="dynamicQueues/test.Celtix.jmstransport"&gt;
@@ -256,8 +255,7 @@
                              value="tcp://localhost:61616"/&gt;
     &lt;/jms:address&gt;
   &lt;/port&gt;
-&lt;/service&gt;
-            </programlisting>
+&lt;/service&gt;</programlisting>
         </example>
       </sect3>
     </sect2>
@@ -297,8 +295,7 @@
         <example id="Table9">
           <title>Addressing Information in Celtix Configuration</title>
 
-          <programlisting>
-&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
+          <programlisting>&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
           xmlns:jms="http://celtix.objectweb.org/transports/jms"&gt;
 ...
   &lt;bean id="celtix.{http://celtix.objectweb.org/jms_conf_test}HelloWorldQueueBinMsgService/HelloWorldQueueBinMsgPort.jms-client"
@@ -319,8 +316,7 @@
       &lt;/value&gt;
     &lt;/property&gt;
 ...
-&lt;/beans&gt;
-		</programlisting>
+&lt;/beans&gt;</programlisting>
         </example>
       </sect3>
 
@@ -366,14 +362,14 @@
 
     <para>Consumer endpoint can be configured in one of two ways:</para>
 
-    <orderedlist>
+    <itemizedlist>
       <listitem>
         <para><ulink url="#ConsumerConfig">Configuration</ulink></para>
       </listitem>
       <listitem>
         <para><ulink url="#ConsumerWSDL">WSDL</ulink></para>
       </listitem>
-    </orderedlist>
+    </itemizedlist>
 
     <para>The recommended method is to place the consumer endpoint specific
     information into the Celtix configuration file for the endpoint.</para>
@@ -415,8 +411,7 @@
         <example id="Table8">
           <title>Configuration for a JMS consumer endpoint</title>
 
-          <programlisting>
-&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
+          <programlisting>&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
        xmlns:jms="http://celtix.objectweb.org/transports/jms"&gt;
 ...
   &lt;bean id="celtix.{http://celtix.objectweb.org/jms_conf_test}HelloWorldQueueBinMsgService/HelloWorldQueueBinMsgPort.jms-client"
@@ -428,8 +423,7 @@
     &lt;/property&gt;
   &lt;/bean&gt;
 ...
-&lt;/beans&gt;
-        </programlisting>
+&lt;/beans&gt;</programlisting>
         </example>
       </sect3>
 
@@ -485,7 +479,7 @@
     <para>JMS service endpoints have a number of behaviors that are
     configurable in the contract. These include:</para>
 
-    <orderedlist>
+    <itemizedlist>
       <listitem>
         <para>how messages are correlated</para>
       </listitem>
@@ -498,18 +492,18 @@
       <listitem>
         <para>the message selectors used by the endpoint</para>
       </listitem>
-    </orderedlist>
+    </itemizedlist>
 
     <para>Service endpoints can be configure in one of two ways:</para>
 
-    <orderedlist>
+    <itemizedlist>
       <listitem>
         <para><ulink url="#ServiceConfig">Configuration</ulink></para>
       </listitem>
       <listitem>
         <para><ulink url="#ServiceWSDL">WSDL</ulink></para>
       </listitem>
-    </orderedlist>
+    </itemizedlist>
 
     <sect2 id="ServiceConfig">
       <title>Using Celtix Configuration</title>
@@ -578,8 +572,7 @@
         <example id="Table11">
           <title>Configuration for a JMS service endpoint</title>
 
-          <programlisting>
-&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
+          <programlisting>&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
        xmlns:jms="http://celtix.objectweb.org/transports/jms"&gt;
 ...
   &lt;bean id="celtix.{http://celtix.objectweb.org/jms_conf_test}HelloWorldQueueBinMsgService/HelloWorldQueueBinMsgPort.jms-server"
@@ -594,8 +587,7 @@
     &lt;/property&gt;
   &lt;/bean&gt;
 ...
-&lt;/beans&gt;
-            </programlisting>
+&lt;/beans&gt;</programlisting>
         </example>
       </sect3>
 
@@ -769,8 +761,7 @@
         <example id="Table13">
           <title>Reading JMS Properties from the Response Context</title>
 
-          <programlisting>
-// Proxy greeter initialized previously
+          <programlisting>// Proxy greeter initialized previously
 InvocationHandler handler = Proxy.getInvocationHandler(greeter);
 
 
@@ -791,8 +782,7 @@ if (handler instanceof BindingProvider)
     System.out.println("Message Priority: "+responseHdr.getJMSPriority());
     System.out.println("Redelivered: "+responseHdr.getRedelivered());
   }
-}
-            </programlisting>
+}</programlisting>
         </example>
 
         <para>The code in <xref linkend="Table13" /> does the
@@ -874,26 +864,26 @@ if (handler instanceof BindingProvider)
 
       <para>To set these properties do the following:</para>
 
-      <orderedlist>
-        <listitem>
+      <procedure>
+        <step>
           <para>Create a <classname>JMSMessageHeadersType</classname>
           object.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Populate the values you wish to set using the appropriate
           setter methods from the JMS properties table.</para>
-        </listitem>
+        </step>
 
-        <listitem>
+        <step>
           <para>Set the values into the request context by calling the request
           context's <methodname>put()</methodname> method using
           <classname>org.objectweb.celtix.jms.client.request.headers</classname>
           as the first argument and the new
           <classname>JMSMessageHeadersType</classname> object as the second
           argument.</para>
-        </listitem>
-      </orderedlist>
+        </step>
+      </procedure>
 
       <sect3>
         <title>Optional JMS Header Properties</title>
@@ -905,26 +895,26 @@ if (handler instanceof BindingProvider)
         <classname>List</classname> of <classname>JMSPropertyType</classname>.
         To add optional properties to the JMS header do the following:</para>
 
-        <orderedlist>
-          <listitem>
+        <procedure>
+          <step>
             <para>Create a <classname>JMSPropertyType</classname> object.</para>
-          </listitem>
-          <listitem>
+          </step>
+          <step>
             <para>Set the property's name field using <methodname>setName()</methodname>.</para>
-          </listitem>
-          <listitem>
+          </step>
+          <step>
             <para>Set the property's value field using <methodname>setValue()</methodname>.</para>
-          </listitem>
-          <listitem>
+          </step>
+          <step>
             <para>Add the property to the JMS message header to the JMS
             message header using
             <methodname>JMSMessageHeadersType.getProperty().add(JMSPropertyType)</methodname>.</para>
-          </listitem>
-          <listitem>
+          </step>
+          <step>
             <para>Repeat steps 1 through 4 until all of the properties have
             been added to the message header.</para>
-          </listitem>
-        </orderedlist>
+          </step>
+        </procedure>
       </sect3>
 
       <sect3>
@@ -949,8 +939,7 @@ if (handler instanceof BindingProvider)
         <example id="settingProps">
           <title>Setting JMS Properties using the Request Context</title>
 
-          <programlisting>
-// Proxy greeter initialized previously
+          <programlisting>// Proxy greeter initialized previously
 InvocationHandler handler = Proxy.getInvocationHandler(greeter);
 
 
@@ -973,8 +962,7 @@ if (handler instanceof BindingProvider)
   requestContext.put("org.objectweb.celtix.jms.client.request.headers", requestHdr);
 
   requestContext.put("org.objectweb.celtix.client.timeout", new Long(1000));
-}
-            </programlisting>
+}</programlisting>
         </example>
 
         <para>The code in <xref linkend="settingProps" /> does the
