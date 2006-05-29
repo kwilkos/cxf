@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bus.jaxws;
 
-import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -20,9 +19,10 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.UnmarshalException;
 import javax.xml.bind.Unmarshaller;
 
-import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
 import javax.xml.validation.Schema;
 import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
@@ -55,12 +55,9 @@ public final class JAXBEncoderDecoder {
             classes.add(AttributedQNameType.class);
             classes.add(ServiceNameType.class);
             classes.add(ObjectFactory.class);
-            try {
-                context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
-                contextMap.put(cls, context);
-            } catch (JAXBException ex) {
-                throw ex;
-            }
+
+            context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
+            contextMap.put(cls, context);
         }
         return context;
     }
@@ -89,16 +86,11 @@ public final class JAXBEncoderDecoder {
         }
         return cls;
     }
+    
     private static void addClass(Class cls, Set<Class> classes) {
         if (cls.isArray()) {
             classes.add(cls);
             return;
-            /*
-            Class c2 = getValidClass(cls);
-            if (c2 != null) {
-                classes.add(cls);
-                return;
-            }*/
         }
         cls = getValidClass(cls);
         if (null != cls) {
@@ -118,6 +110,7 @@ public final class JAXBEncoderDecoder {
             }
         }
     }
+    
     private static void addType(Type cls, Set<Class> classes) {
         if (cls instanceof Class) {
             addClass((Class)cls, classes);
@@ -132,7 +125,9 @@ public final class JAXBEncoderDecoder {
     }
     
     //collect ALL the classes that are accessed by the class
-    private static void getClassesForContext(Class<?> theClass, Set<Class> classes, ClassLoader loader) {
+    private static void getClassesForContext(Class<?> theClass, 
+                                             Set<Class> classes, 
+                                             ClassLoader loader) {
         Method methods[] = theClass.getMethods();
         for (Method meth : methods) {
             //only methods marked as WebMethods are interesting to us
@@ -191,41 +186,36 @@ public final class JAXBEncoderDecoder {
         }
     }
     
+    private static Marshaller createMarshaller(JAXBContext context,
+                                               Class<?> cls) {
+        Marshaller jm = null;
+        try {
+            if (context == null) {
+                context = JAXBContext.newInstance(cls);
+            }
+            
+            jm = context.createMarshaller();
+            jm.setProperty(Marshaller.JAXB_ENCODING , "UTF-8");
+            jm.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        } catch (JAXBException je) {
+            throw new ProtocolException("Marshalling Error", je);
+        }
+        
+        return jm;
+    }
+    
     public static void marshall(JAXBContext context, Schema schema,
                                 Object elValue, QName elNname,  Node destNode) {
         
+        Class<?> cls = null != elValue ? elValue.getClass() : null;
+        Marshaller u = createMarshaller(context, cls);
+        Object mObj = elValue;      
+
         try {
-            if (context == null) {
-                context = JAXBContext.newInstance(elValue.getClass());
-            }
-            Object mObj = elValue;
-            Marshaller u = context.createMarshaller();
-            u.setProperty(Marshaller.JAXB_ENCODING , "UTF-8");
-            u.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-            if (elValue.getClass().isAnnotationPresent(XmlRootElement.class)) {
-                String packageName = elValue.getClass().getPackage().getName();
-                Class<?> objectFactory = Class.forName(packageName + ".ObjectFactory", false, 
-                                                       elValue.getClass().getClassLoader());
-
-                Method methods[] = objectFactory.getDeclaredMethods();
-                for (Method method : methods) {
-                    if (method.getParameterTypes().length == 1
-                        && method.getParameterTypes()[0].equals(elValue.getClass())) {
-
-                        XmlElementDecl elementDecl = method.getAnnotation(XmlElementDecl.class);
-                        if (null != elementDecl) {
-                            QName elementType = new QName(elementDecl.namespace(), elementDecl.name());
-                            if (elementType.equals(elNname)) {
-                                mObj = method.invoke(objectFactory.newInstance(),
-                                                    elValue);                        
-                            }
-                        }
-                    } 
-                }
-            } else {
+            if (null != cls 
+                && !cls.isAnnotationPresent(XmlRootElement.class)) {
                 mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
-                    .newInstance(elNname, mObj.getClass(), mObj);
+                    .newInstance(elNname, cls, mObj);
             }
             u.setSchema(schema);
             u.marshal(mObj, destNode);
@@ -241,9 +231,79 @@ public final class JAXBEncoderDecoder {
             throw new ProtocolException("Marshalling Error", ex);
         }
     }
+
+    public static void marshall(JAXBContext context, Schema schema,
+                                Object elValue, QName elName, XMLEventWriter writer) {
+        
+        Class<?> cls = null != elValue ? elValue.getClass() : null;
+        Marshaller u = createMarshaller(context, elValue.getClass());
+        Object mObj = elValue;      
+        
+        try {
+            if (null != cls 
+                && !cls.isAnnotationPresent(XmlRootElement.class)) {
+                mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
+                        .newInstance(elName, cls, mObj);
+            }
+            //No START_DOCUMENT/END_DOCUMENT events are generated.
+            u.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);            
+            u.setSchema(schema);
+            u.marshal(mObj, writer);
+        } catch (MarshalException me) {
+            // It's helpful to include the cause in the case of
+            // schema validation exceptions.
+            String message = "Marshalling error ";
+            if (me.getCause() != null) {
+                message += me.getCause();
+            }
+            throw new ProtocolException(message, me);
+        } catch (Exception ex) {
+            throw new ProtocolException("Marshalling error", ex);
+        }
+    }
+
+    private static Unmarshaller createUnmarshaller(JAXBContext context,
+                                                   Class<?> cls) {
+        Unmarshaller um = null;
+        try {
+            if (context == null) {
+                context = JAXBContext.newInstance(cls);
+            }
+            
+            um = context.createUnmarshaller();            
+        } catch (JAXBException je) {
+            throw new ProtocolException("Marshalling Error", je);
+        }
+        
+        return um;
+    }
     
     public static Object unmarshall(JAXBContext context, Schema schema,
                                     Node srcNode, QName elName, Class<?> clazz) {
+        Object obj = null;
+        try {
+            Unmarshaller u = createUnmarshaller(context, clazz);
+            u.setSchema(schema);
+
+            obj = (clazz != null) ? u.unmarshal(srcNode, clazz) 
+                                  : u.unmarshal(srcNode);
+        } catch (UnmarshalException ue) {
+            // It's helpful to include the cause in the case of
+            // schema validation exceptions.
+            String message = "Unmarshalling error ";
+            if (ue.getCause() != null) {
+                message += ue.getCause();
+            }
+            throw new ProtocolException(message, ue);
+        } catch (Exception ex) {
+            throw new ProtocolException("Unmarshalling error", ex);
+        }
+        return getElementValue(obj, elName);
+    }
+
+    public static Object unmarshall(JAXBContext context, Schema schema,
+                                    XMLEventReader reader, QName elName, Class<?> clazz) {
+        
         Object obj = null;
         try {
             if (context == null) {
@@ -252,14 +312,8 @@ public final class JAXBEncoderDecoder {
             Unmarshaller u = context.createUnmarshaller();
             u.setSchema(schema);
 
-            obj = (clazz != null) ? u.unmarshal(srcNode, clazz) : u.unmarshal(srcNode);
-            
-            if (obj instanceof JAXBElement<?>) {
-                JAXBElement<?> el = (JAXBElement<?>)obj;
-                if (isSame(el.getName(), elName)) {
-                    obj = el.getValue();
-                }
-            }
+            obj = (clazz != null) ? u.unmarshal(reader, clazz) 
+                                  : u.unmarshal(reader);
         } catch (UnmarshalException ue) {
             // It's helpful to include the cause in the case of
             // schema validation exceptions.
@@ -271,9 +325,23 @@ public final class JAXBEncoderDecoder {
         } catch (Exception ex) {
             throw new ProtocolException("Unmarshalling error", ex);
         }
-        return obj;
+        return getElementValue(obj, elName);
     }
 
+    private static Object getElementValue(Object obj, QName elName) {
+        if (null == obj) {
+            return null;
+        }
+        
+        if (obj instanceof JAXBElement<?>) {
+            JAXBElement<?> el = (JAXBElement<?>)obj;
+            if (isSame(el.getName(), elName)) {
+                obj = el.getValue();
+            }
+        }
+        return obj;
+    }
+    
     private static boolean isSame(QName messageQName, QName methodQName) {
         boolean same = false;
         if (StringUtils.isEmpty(messageQName.getNamespaceURI())) {
@@ -282,35 +350,6 @@ public final class JAXBEncoderDecoder {
             same = messageQName.equals(methodQName);
         }
         return same;
-    }
-
-    public static Object unmarshall(JAXBContext context, Schema schema, Node srcNode, QName elName) {
-        Object obj = null;
-        try {
-            Unmarshaller u = context.createUnmarshaller();
-            u.setSchema(schema);
-
-            obj = u.unmarshal(srcNode);
-            
-            if (obj instanceof JAXBElement<?>) {
-                JAXBElement<?> el = (JAXBElement<?>)obj;
-                if (el.getName().equals(elName)) {
-                    obj = el.getValue();
-                }
-            }
-        } catch (UnmarshalException ue) {
-            // It's helpful to include the cause in the case of
-            // schema validation exceptions.
-            String message = "Unmarshalling error ";
-            if (ue.getCause() != null) {
-                message += ue.getCause();
-            }
-            throw new ProtocolException(message, ue);
-            
-        } catch (Exception ex) {
-            throw new ProtocolException("Unmarshalling error", ex);
-        }
-        return obj;
     }
     
     public static Class getClassFromType(Type t) {
@@ -327,16 +366,5 @@ public final class JAXBEncoderDecoder {
         // JAXB Code Generated.
         assert false;
         throw new IllegalArgumentException("Cannot get Class object from unknown Type");
-    }
-    
-    public static String toString(Object obj) throws JAXBException {
-        String name = obj.getClass().getPackage().getName();
-        JAXBContext context = JAXBContext.newInstance(name);
-        JAXBElement<Object> el = new JAXBElement<Object>(new QName("test"), Object.class, obj);
-        Marshaller m = context.createMarshaller();
-        StringWriter writer = new StringWriter();
-        m.marshal(el, writer);
-
-        return writer.toString();       
     }
 }

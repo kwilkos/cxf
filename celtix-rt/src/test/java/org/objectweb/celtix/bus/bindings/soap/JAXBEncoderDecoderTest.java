@@ -1,14 +1,22 @@
 package org.objectweb.celtix.bus.bindings.soap;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPFactory;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -58,7 +66,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         assertNotNull(schema);
     }
 
-    public void testMarshall() throws Exception {
+    public void testMarshallIntoDOM() throws Exception {
         String str = new String("Hello");
         QName inCorrectElName = new QName("http://test_jaxb_marshall", "requestType");
         SOAPFactory soapElFactory = SOAPFactory.newInstance();
@@ -103,6 +111,64 @@ public class JAXBEncoderDecoderTest extends TestCase {
             //expected - not a valid object
         }
     }
+
+    public void testMarshallIntoStax() throws Exception {
+        GreetMe obj = new GreetMe();
+        obj.setRequestType("Hello");
+        QName elName = new QName(wrapperAnnotation.targetNamespace(),
+                                 wrapperAnnotation.localName());
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        XMLOutputFactory opFactory = XMLOutputFactory.newInstance();
+        opFactory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, Boolean.TRUE);
+        XMLEventWriter writer = opFactory.createXMLEventWriter(baos);
+
+        //STARTDOCUMENT/ENDDOCUMENT is not required
+        //writer.add(eFactory.createStartDocument("utf-8", "1.0"));        
+        JAXBEncoderDecoder.marshall(context, null, obj, elName, writer);
+        //writer.add(eFactory.createEndDocument());
+        writer.flush();
+        writer.close();
+        
+        //System.out.println(baos.toString());
+        
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        XMLInputFactory ipFactory = XMLInputFactory.newInstance();
+        XMLEventReader reader = ipFactory.createXMLEventReader(bais);
+        
+        Unmarshaller um = context.createUnmarshaller();        
+        Object val = um.unmarshal(reader, GreetMe.class);
+        assertTrue(val instanceof JAXBElement);
+        val = ((JAXBElement)val).getValue();
+        assertTrue(val instanceof GreetMe);
+        assertEquals(obj.getRequestType(), 
+                     ((GreetMe)val).getRequestType());
+    }
+
+    public void testUnmarshallFromStax() throws Exception {
+        QName elName = new QName(wrapperAnnotation.targetNamespace(),
+                                 wrapperAnnotation.localName());
+        
+        InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+        XMLEventReader reader = 
+            factory.createXMLEventReader(is);
+
+        QName[] tags = {SOAPConstants.SOAP_ENV, SOAPConstants.SOAP_BODY};
+
+        StaxEventFilter filter = new StaxEventFilter(tags);
+        reader = factory.createFilteredReader(reader, filter);
+
+        //Remove START_DOCUMENT & START_ELEMENT pertaining to Envelope and Body Tags.
+
+        Object val = JAXBEncoderDecoder.unmarshall(context, null, reader, elName, GreetMe.class);
+        assertNotNull(val);
+        assertTrue(val instanceof GreetMe);
+        assertEquals("TestSOAPInputPMessage", 
+                     ((GreetMe)val).getRequestType());
+
+        is.close();
+    }
     
     public void testMarshalRPCLit() throws Exception {
         SOAPFactory soapElFactory = SOAPFactory.newInstance();
@@ -135,8 +201,9 @@ public class JAXBEncoderDecoderTest extends TestCase {
         assertEquals(GreetMe.class,  obj.getClass());
         assertEquals(str, ((GreetMe)obj).getRequestType());
         
+        Node n = null;
         try {
-            JAXBEncoderDecoder.unmarshall(context, null, null, null, String.class);
+            JAXBEncoderDecoder.unmarshall(context, null, n, null, String.class);
             fail("Should have received a ProtocolException");
         } catch (ProtocolException pe) {
             //Expected Exception
@@ -191,8 +258,6 @@ public class JAXBEncoderDecoderTest extends TestCase {
             assertTrue(cls.equals(paramTypes[idx]));
             idx++;
         }
-        
-        
     }
 }
 

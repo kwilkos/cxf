@@ -54,17 +54,10 @@ public final class WrapperHelper {
                 if (method.getParameterTypes() != null 
                     && method.getParameterTypes().length == 1
                     && modifier.equals(method.getName())) {
-                    
-                    Class<?> clazz = method.getParameterTypes()[0];
-                    if (method.getParameterTypes()[0].isPrimitive()) {
-                        clazz = el.type();
-                    }
-                    
-                    if (clazz.isAssignableFrom(part.getClass())) {
-                        method.invoke(wrapperType, part);
-                        setInvoked = true;
-                        break;
-                    }
+
+                    method.invoke(wrapperType, part);
+                    setInvoked = true;
+                    break;
                 }
             }
             
@@ -103,26 +96,8 @@ public final class WrapperHelper {
         for (Method method : wrapperType.getClass().getMethods()) {
             if (method.getParameterTypes().length == 0
                 && accessor.equals(method.getName())) {
-                
-                Class<?> clazz = method.getReturnType();
 
-                if (clazz.isPrimitive() && !partClazz.isPrimitive()) {
-                    for (Field field : wrapperType.getClass().getDeclaredFields()) {
-                        if (JAXBUtils.isJavaKeyword(partName)) {
-                            partName = JAXBUtils.nameToIdentifier(
-                                            partName, 
-                                           JAXBUtils.IdentifierType.VARIABLE);
-                        }
-                        if (field.getName().equals(partName)) {
-                            //JAXB Type get XmlElement Annotation
-                            clazz = field.getAnnotation(XmlElement.class).type();
-                        } 
-                    }
-                }
-                //TODO Support For Nillable Attribute
-                if (clazz.isAssignableFrom(partClazz)) {
-                    return method.invoke(wrapperType);
-                }
+                return method.invoke(wrapperType);
             }
         }
         return null;

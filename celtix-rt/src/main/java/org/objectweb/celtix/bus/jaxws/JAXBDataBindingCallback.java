@@ -17,6 +17,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.soap.Detail;
 import javax.xml.soap.SOAPFault;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
 import javax.xml.validation.Schema;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Holder;
@@ -33,6 +35,8 @@ import org.objectweb.celtix.bindings.ServerDataBindingCallback;
 import org.objectweb.celtix.bus.bindings.soap.SOAPConstants;
 import org.objectweb.celtix.bus.bindings.xml.XMLFault;
 import org.objectweb.celtix.bus.jaxws.io.DetailDataWriter;
+import org.objectweb.celtix.bus.jaxws.io.EventDataReader;
+import org.objectweb.celtix.bus.jaxws.io.EventDataWriter;
 import org.objectweb.celtix.bus.jaxws.io.NodeDataReader;
 import org.objectweb.celtix.bus.jaxws.io.NodeDataWriter;
 import org.objectweb.celtix.bus.jaxws.io.SOAPFaultDataReader;
@@ -104,9 +108,10 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
     
     public Class<?>[] getSupportedFormats() {
         if (mode == Mode.PARTS) {
-            return new Class<?>[] {Node.class, Detail.class, SOAPFault.class};
+            return new Class<?>[] {Node.class, Detail.class, SOAPFault.class, 
+                                   XMLEventReader.class, XMLEventWriter.class};
         }
-        // TODO Auto-generated method stub
+
         return null;
     }
 
@@ -117,8 +122,9 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
             return new DetailDataWriter<T>(this);
         } else if (cls == XMLFault.class) {
             return new XMLFaultWriter<T>(this);
+        } else if (cls == XMLEventWriter.class) {
+            return new EventDataWriter<T>(this);
         }
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -129,8 +135,10 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
             return new SOAPFaultDataReader<T>(this);
         } else if (cls == XMLFault.class) {
             return new XMLFaultReader<T>(this);
+        } else if (cls == XMLEventReader.class) {
+            return new EventDataReader<T>(this);
         }
-        // TODO Auto-generated method stub
+
         return null;
     }
 
@@ -324,7 +332,7 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
 
     public Object createWrapperType(ObjectMessageContext objCtx, boolean isOutBound) {
         String wrapperType = isOutBound ? getResponseWrapperType()
-            : getRequestWrapperType();
+                                        : getRequestWrapperType();
         
         Object wrapperObj = null;
         try {

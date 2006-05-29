@@ -58,8 +58,9 @@ class SOAPMessageContextImpl extends MessageContextWrapper implements SOAPMessag
         //Assuming ultimate receiver.
         while (iter.hasNext()) {
             SOAPHeaderElement headerNode = (SOAPHeaderElement)iter.next();
-            Object headerValue = JAXBEncoderDecoder.unmarshall(jaxbContext,
-                null, headerNode, headerName);
+            Object headerValue = 
+                JAXBEncoderDecoder.unmarshall(jaxbContext, null, 
+                                              headerNode, headerName, null);
             assert headerValue != null;
             headerList.add(headerValue);            
         }
