@@ -215,7 +215,11 @@ public class CeltixServiceUnit {
             String className = fileName.substring(rootPath.length());
             className = className.substring(0, className.length() - ".class".length())
                 .replace(File.separatorChar, '.');
-            
+            if (className.startsWith(".")) {
+                // ServiceMix and OpenESB are little different with rootPath, so here className may be begin
+                // with "."
+                className = className.substring(1, className.length());
+            }
             try { 
                 return loader.loadClass(className);
             } catch (ClassNotFoundException ex) { 
