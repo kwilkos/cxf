@@ -47,9 +47,6 @@ public class SequenceTest extends ClientServerTestBase {
     private String currentConfiguration;
     private MessageFlow mf;
 
-    // enable currently disabled tests when transport apis allows to
-    // originate standalone requests from server side
-
     private boolean doTestOnewayAnonymousAcks = true;
     private boolean doTestOnewayDeferredAnonymousAcks = true;
     private boolean doTestOnewayDeferredNonAnonymousAcks = true;
@@ -58,7 +55,7 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestTwowayNonAnonymous = true;
     private boolean doTestTwowayNonAnonymousDeferred = true;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = true;
-    private boolean doTestTwowayNonAnonymousNoOffer;
+    private boolean doTestTwowayNonAnonymousNoOffer = true;
     private boolean doTestTwowayMessageLoss = true;
 
     public static void main(String[] args) {

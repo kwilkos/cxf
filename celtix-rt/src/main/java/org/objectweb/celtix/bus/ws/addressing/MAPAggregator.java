@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bus.ws.addressing;
 
 
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -264,7 +263,7 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
         if (maps.getTo() == null) {
             // To cached in context by transport
             EndpointReferenceType reference = 
-                clientTransport == null ? null : clientTransport.getTargetEndpoint();
+                ContextUtils.retrieveTo(clientTransport, context);
             maps.setTo(reference != null 
                        ? reference.getAddress()
                        : ContextUtils.getAttributedURI(Names.WSA_NONE_ADDRESS));
@@ -297,16 +296,8 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
             // current invocation
             EndpointReferenceType replyTo = maps.getReplyTo();
             if (ContextUtils.isGenericAddress(replyTo)) {
-                
-                try {
-                    replyTo = clientTransport == null 
-                              ? null
-                              : clientTransport.getDecoupledEndpoint();
-                } catch (IOException ex) {
-                    // ignore
-                    replyTo = null;
-                }
-                
+                replyTo = 
+                    ContextUtils.retrieveReplyTo(clientTransport, context);
                 if (replyTo == null || isOneway) {
                     AttributedURIType address =
                         ContextUtils.getAttributedURI(isOneway
@@ -384,12 +375,12 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
      * @return true if incoming MAPs are valid
      * @pre inbound message, not requestor
      */
-    private boolean validateIncomingMAPs(AddressingProperties maps, MessageContext context) {        
-        if (null != configuration && configuration.getBoolean("allowDuplicates")) {
-            return true;
-        }
+    private boolean validateIncomingMAPs(AddressingProperties maps,
+                                         MessageContext context) {
         boolean valid = true;
-        if (maps != null) {
+        if ((null == configuration 
+            || !configuration.getBoolean("allowDuplicates"))
+            && maps != null) {
             AttributedURIType messageID = maps.getMessageID();
             if (messageID != null
                 && messageIDs.put(messageID.getValue(), 

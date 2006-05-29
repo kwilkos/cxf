@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus.ws.addressing;
 
 
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -24,6 +25,7 @@ import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
@@ -382,13 +384,12 @@ public final class ContextUtils {
     /**
      * Retrieve To EPR from the context.
      *
+     * @param transport the ClientTransport if available
      * @param context the message context
      * @returned the retrieved EPR
      */
-    public static EndpointReferenceType retrieveTo(MessageContext context) {
-        /*
-        // required?
-        ClientTransport transport = BindingContextUtils.retrieveClientTransport(context);
+    public static EndpointReferenceType retrieveTo(ClientTransport transport,
+                                                   MessageContext context) {
         EndpointReferenceType to = null;
         if (transport != null) {
             to = transport.getTargetEndpoint();
@@ -396,8 +397,6 @@ public final class ContextUtils {
             to = (EndpointReferenceType)context.get(TO_PROPERTY);
         }
         return to;
-        */
-        return (EndpointReferenceType)context.get(TO_PROPERTY);
     }
     
     /**
@@ -407,7 +406,7 @@ public final class ContextUtils {
      * @param context the message context
      */   
     public static void storeReplyTo(EndpointReferenceType replyTo,
-                                       MessageContext context) {
+                                    MessageContext context) {
         context.put(REPLYTO_PROPERTY, replyTo);
         context.setScope(REPLYTO_PROPERTY, MessageContext.Scope.APPLICATION);
     }
@@ -415,13 +414,12 @@ public final class ContextUtils {
     /**
      * Retrieve ReplyTo EPR from the context.
      *
+     * @param transport the ClientTransport if available
      * @param context the message context
      * @returned the retrieved EPR
      */
-    public static EndpointReferenceType retrieveReplyTo(MessageContext context) {
-        /*
-        // required?
-        ClientTransport transport = BindingContextUtils.retrieveClientTransport(context);
+    public static EndpointReferenceType retrieveReplyTo(ClientTransport transport,
+                                                        MessageContext context) {
         EndpointReferenceType replyTo = null;
         if (transport != null) {
             try {
@@ -433,8 +431,6 @@ public final class ContextUtils {
             replyTo = (EndpointReferenceType)context.get(REPLYTO_PROPERTY);
         }
         return replyTo;
-        */
-        return (EndpointReferenceType)context.get(REPLYTO_PROPERTY);
     }
 
     /**

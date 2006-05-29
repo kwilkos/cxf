@@ -41,7 +41,7 @@ public abstract class AbstractHTTPRequestorOutputStreamContext
             super.put(HTTP_REQUEST_HEADERS, headers);
         }
 
-        EndpointReferenceType to = ContextUtils.retrieveTo(ctx);
+        EndpointReferenceType to = ContextUtils.retrieveTo(null, ctx);
         if (to != null && to.getAddress() != null) {
             URL url = new URL(to.getAddress().getValue());
             connection = getConnection(url);
