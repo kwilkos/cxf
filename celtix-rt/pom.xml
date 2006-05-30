@@ -60,6 +60,12 @@
             <artifactId>saaj-impl</artifactId>
             <version>${saaj.version}</version>
             <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
