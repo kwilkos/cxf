@@ -47,8 +47,8 @@
       as a JAX-WS metadata variable.</para>
 
       <para>Properties of the variable are expected to specify the same
-      metadata that the JAX-WS <classname>WebServiceProvider</classname> annotation specifies,
-      including:</para>
+      metadata that the JAX-WS <literal role="annotation">WebServiceProvider</literal> annotation 
+	  specifies, including:</para>
 
       <itemizedlist>
         <listitem>
@@ -232,39 +232,39 @@ WebServiceProvider1.invoke = function(req) {
       <tgroup cols="2">
         <thead>
           <row>
-            <entry><para>Argument</para></entry>
+            <entry>Argument</entry>
 
-            <entry><para>Description</para></entry>
+            <entry>Description</entry>
           </row>
         </thead>
 
         <tbody>
           <row>
-            <entry><para><option>-a</option>
-            <replaceable>addressURL</replaceable></para></entry>
+            <entry><option>-a</option>
+            <replaceable>addressURL</replaceable></entry>
 
-            <entry><para>Specifies the address at which
+            <entry>Specifies the address at which
             <classname>ServerApp</classname> publishes the service endpoint
             implementation found in the script file following the
-            URL.</para></entry>
+            URL.</entry>
           </row>
 
           <row>
-            <entry><para><option>-b</option>
-            <replaceable>baseAddressURL</replaceable></para></entry>
+            <entry><option>-b</option>
+            <replaceable>baseAddressURL</replaceable></entry>
 
-            <entry><para>Specifies the base address used by
+            <entry>Specifies the base address used by
             <classname>ServerApp</classname> when publishing the service
             endpoints defined by the script files. The full address for the
             service endpoints is formed by appending the service's port name
-            to the base address.</para></entry>
+            to the base address.</entry>
           </row>
 
           <row>
             <entry><option>-v</option></entry>
 
-            <entry><para>Specifies that <classname>ServerApp</classname> is to
-            run in verbose mode.</para></entry>
+            <entry>Specifies that <classname>ServerApp</classname> is to
+            run in verbose mode.</entry>
           </row>
         </tbody>
       </tgroup>

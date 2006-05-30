@@ -272,7 +272,7 @@
       <classname>jmsAddress</classname> property. The
       <classname>jmsAddress</classname> property has a single value:
       <classname>jms:address</classname>. It is identical to the
-      <classname>jms:address</classname> element used in the WSDL file. Its
+      <sgmltag class="element">jms:address</sgmltag> element used in the WSDL file. Its
       attributes are listed in <xref linkend="Table5" />. Like the
       <sgmltag class="element">jms:address</sgmltag> element in the WSDL file, the
       <classname>jms:address</classname> property also has a

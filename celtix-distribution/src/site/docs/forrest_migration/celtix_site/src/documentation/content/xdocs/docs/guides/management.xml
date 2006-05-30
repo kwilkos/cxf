@@ -72,71 +72,55 @@ other information from the service's WSDL contract.</para>
 <tgroup cols="2">
 <thead>
 <row>
-<entry>
-<para>Component</para>
-</entry>
-<entry>
-<para>Properties</para>
-</entry>
+<entry>Component</entry>
+<entry>Properties</entry>
 </row>
 </thead>
 <tbody>
 <row>
+<entry>CeltixBus</entry>
 <entry>
-<para>CeltixBus</para>
-</entry>
-<entry>
-<para><constant>type=Bus,name=</constant><replaceable>busName</replaceable></para>
+<constant>type=Bus,name=</constant><replaceable>busName</replaceable>
 </entry>
 </row>
 <row>
+<entry>WorkQueue</entry>
 <entry>
-<para>WorkQueue</para>
-</entry>
-<entry>
-<para><constant>type=Bus.WorkQueue,Bus=</constant><replaceable>busName</replaceable>
-<constant>,name=WorkQueue</constant></para>
+<constant>type=Bus.WorkQueue,Bus=</constant><replaceable>busName</replaceable>
+<constant>,name=WorkQueue</constant>
 </entry>
 </row>
 <row>
+<entry>WSDLManager</entry>
 <entry>
-<para>WSDLManager</para>
-</entry>
-<entry>
-<para><constant>type=Bus.WSDLManager,Bus=</constant><replaceable>busName</replaceable>
-<constant>,name=WSDLManager</constant></para>
+<constant>type=Bus.WSDLManager,Bus=</constant><replaceable>busName</replaceable>
+<constant>,name=WSDLManager</constant>
 </entry>
 </row>
 <row>
+<entry>Endpoint</entry>
 <entry>
-<para>Endpoint</para>
-</entry>
-<entry>
-<para><constant>type=Bus.Endpoint,Bus=</constant><replaceable>busName</replaceable>
+<constant>type=Bus.Endpoint,Bus=</constant><replaceable>busName</replaceable>
 <constant>,Bus.Service=</constant><replaceable>WSDLServiceQName</replaceable>
-<constant>,Bus.Port=</constant><replaceable>WSDLPort</replaceable><constant>,name=Endpoint</constant></para>
+<constant>,Bus.Port=</constant><replaceable>WSDLPort</replaceable><constant>,name=Endpoint</constant>
 </entry>
 </row>
 <row>
+<entry>HTTP Server Transport</entry>
 <entry>
-<para>HTTP Server Transport</para>
-</entry>
-<entry>
-<para><constant>type=Bus.Service.Port.HTTPServerTransport,Bus=</constant>
+<constant>type=Bus.Service.Port.HTTPServerTransport,Bus=</constant>
 <replaceable>busName</replaceable><constant>,Bus.Service=</constant>
 <replaceable>WSDLServiceQName</replaceable><constant>,Bus.Port=</constant>
-<replaceable>WSDLPort</replaceable><constant>,name=HTTPServerTransport</constant></para>
+<replaceable>WSDLPort</replaceable><constant>,name=HTTPServerTransport</constant>
 </entry>
 </row>
 <row>
+<entry>JMS Server Transport</entry>
 <entry>
-<para>JMS Server Transport</para>
-</entry>
-<entry>
-<para><constant>type=Bus.Service.Port.JMSServerTransport,Bus=</constant>
+<constant>type=Bus.Service.Port.JMSServerTransport,Bus=</constant>
 <replaceable>busName</replaceable><constant>,Bus.Service=</constant>
 <replaceable>WSDLServiceQName</replaceable><constant>,Bus.Port=</constant>
-<replaceable>WSDLPort</replaceable><constant>,name=JMSServerTransport</constant></para>
+<replaceable>WSDLPort</replaceable><constant>,name=JMSServerTransport</constant>
 </entry>
 </row>
 </tbody>
@@ -313,65 +297,40 @@ Specifies if the WorkQueue is full.
 <tgroup cols="4">
 <thead>
 <row>
-<entry>
-<para>Name</para>
-</entry>
-<entry>
-<para>Description</para>
-</entry>
-<entry>
-<para>Type</para>
-</entry>
-<entry>
-<para>Read/Write</para>
-</entry>
+<entry>Name</entry>
+<entry>Description</entry>
+<entry>Type</entry>
+<entry>Read/Write</entry>
 </row>
 </thead>
 <tbody>
 <row>
-<entry>
-<para>Services</para>
-</entry>
-<entry>
-<para>Specifies the list of service elements loaded by the WSDL manager. The service elements are 
-identified by their QName.</para>
-</entry>
+<entry>Services</entry>
+<entry>Specifies the list of services loaded by the WSDL manager. The services are identified by 
+their QName.</entry>
 <entry>
 <type>String[]</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>Ports</para>
-</entry>
-<entry>
-<para>Specifies the list of port elements loaded by the WSDL Manager. The port elements are 
-identified by the value of their name attribute.</para>
-</entry>
+<entry>Ports</entry>
+<entry>Specifies the list of <sgmltag class="element">port</sgmltag> elements loaded by the WSDL 
+Manager. The <sgmltag class="element">port</sgmltag> elements are identified by the value of their 
+<sgmltag class="attribute">name</sgmltag> attribute.</entry>
 <entry>
 <type>String[]</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>Bindings</para>
-</entry>
-<entry>
-<para>Specifies the list of binding elements loaded by the WSDL manager. The binding elements are 
-identified by the value of their <sgmltag class="attribute">name</sgmltag> attribute.</para>
-</entry>
+<entry>Bindings</entry>
+<entry>Specifies the list of binding elements loaded by the WSDL manager. The binding elements are 
+identified by the value of their <sgmltag class="attribute">name</sgmltag> attribute.</entry>
 <entry>
 <type>String[]</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 </tbody>
 </tgroup>
@@ -385,33 +344,22 @@ identified by the value of their <sgmltag class="attribute">name</sgmltag> attri
 <tgroup cols="4">
 <thead>
 <row>
-<entry>
-<para>Name</para>
-</entry>
-<entry>
-<para>Description</para>
-</entry>
-<entry>
-<para>Parameters</para>
-</entry>
-<entry>
-<para>Return Type</para>
-</entry>
+<entry>Name</entry>
+<entry>Description</entry>
+<entry>Parameters</entry>
+<entry>Return Type</entry>
 </row>
 </thead>
 <tbody>
 <row>
-<entry>
-<para>GetOperation</para>
-</entry>
-<entry>
-<para>Returns the list of <sgmltag class="element">operation</sgmltag> elements for a given 
+<entry>GetOperation</entry>
+<entry>Returns the list of <sgmltag class="element">operation</sgmltag> elements for a given 
 endpoint. The <sgmltag class="element">operation</sgmltag> elements are identified by the value of 
-their <sgmltag class="attribute">name</sgmltag> attribute.</para>
-</entry>
+their <sgmltag class="attribute">name</sgmltag> attribute.</entry>
 <entry>
-<para><parameter>serviceQName</parameter></para>
-<para><parameter>portTypeName</parameter></para>
+<parameter>serviceQName</parameter>
+<para />
+<parameter>portTypeName</parameter>
 </entry>
 <entry>
 <type>String[]</type>
@@ -434,79 +382,47 @@ allows you to monitor and control the state of an endpoint based on its service 
 <tgroup cols="4">
 <thead>
 <row>
-<entry>
-<para>Name</para>
-</entry>
-<entry>
-<para>Description</para>
-</entry>
-<entry>
-<para>Type</para>
-</entry>
-<entry>
-<para>Read/Write</para>
-</entry>
+<entry>Name</entry>
+<entry>Description</entry>
+<entry>Type</entry>
+<entry>Read/Write</entry>
 </row>
 </thead>
 <tbody>
 <row>
-<entry>
-<para>ServiceName</para>
-</entry>
-<entry>
-<para>Specifies the service QName implemented by the endpoint.</para>
-</entry>
+<entry>ServiceName</entry>
+<entry>Specifies the service QName implemented by the endpoint.</entry>
 <entry>
 <type>String</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>PortName</para>
-</entry>
-<entry>
-<para>Specifies the <sgmltag class="element">port</sgmltag> element used to register the endpoint. 
+<entry>PortName</entry>
+<entry>Specifies the <sgmltag class="element">port</sgmltag> element used to register the endpoint. 
 The <sgmltag class="element">port</sgmltag> element is identified by the value of its 
-<sgmltag class="attribute">name</sgmltag> attribute.</para>
-</entry>
+<sgmltag class="attribute">name</sgmltag> attribute.</entry>
 <entry>
 <type>String</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>HandlerChains</para>
-</entry>
-<entry>
-<para>Specifies the list of <classname>MassageHandler</classname> objects used by the endpoint. 
-The objects are identified by their class name.</para>
-</entry>
+<entry>HandlerChains</entry>
+<entry>Specifies the list of <classname>MassageHandler</classname> objects used by the endpoint. 
+The objects are identified by their class name.</entry>
 <entry>
 <type>String[]</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>State</para>
-</entry>
-<entry>
-<para>Specifies the state of the service. Possible values are ...</para>
-</entry>
+<entry>State</entry>
+<entry>Specifies the state of the service</entry>
 <entry>
 <type>String</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 </tbody>
 </tgroup>
@@ -520,28 +436,16 @@ The objects are identified by their class name.</para>
 <tgroup cols="4">
 <thead>
 <row>
-<entry>
-<para>Name</para>
-</entry>
-<entry>
-<para>Description</para>
-</entry>
-<entry>
-<para>Parameters</para>
-</entry>
-<entry>
-<para>Return Type</para>
-</entry>
+<entry>Name</entry>
+<entry>Description</entry>
+<entry>Parameters</entry>
+<entry>Return Type</entry>
 </row>
 </thead>
 <tbody>
 <row>
-<entry>
-<para>start</para>
-</entry>
-<entry>
-<para>Activates the endpoint to accept requests.</para>
-</entry>
+<entry>start</entry>
+<entry>Activates the endpoint to accept requests.</entry>
 <entry>
 <parameter>None</parameter>
 </entry>
@@ -550,12 +454,8 @@ The objects are identified by their class name.</para>
 </entry>
 </row>
 <row>
-<entry>
-<para>stop</para>
-</entry>
-<entry>
-<para>Deactivates the endpoint.</para>
-</entry>
+<entry>stop</entry>
+<entry>Deactivates the endpoint.</entry>
 <entry>
 <parameter>None</parameter>
 </entry>
@@ -576,110 +476,66 @@ address to instantiate. It provides a logical view of the HTTP transport for the
 <title>Attributes</title>
 <para><xref linkend="Table8" /> lists the managed attributes for the HTTPServerTransport component.</para>
 <table id="Table8">
-<title>\Managed Attributes for the HTTPServerTransport Component</title>
+<title>Managed Attributes for the HTTPServerTransport Component</title>
 <tgroup cols="4">
 <thead>
 <row>
-<entry>
-<para>Name</para>
-</entry>
-<entry>
-<para>Description</para>
-</entry>
-<entry>
-<para>Type</para>
-</entry>
-<entry>
-<para>Read/Write</para>
-</entry>
+<entry>Name</entry>
+<entry>Description</entry>
+<entry>Type</entry>
+<entry>Read/Write</entry>
 </row>
 </thead>
 <tbody>
 <row>
-<entry>
-<para>ServiceName</para>
-</entry>
-<entry>
-<para>Specifies the QName of the service using this instance of the HTTP server transport.</para>
-</entry>
+<entry>ServiceName</entry>
+<entry>Specifies the QName of the service using this instance of the HTTP server transport.</entry>
 <entry>
 <type>String</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>PortName</para>
-</entry>
-<entry>
-<para>Specifies the <sgmltag class="element">port</sgmltag> element of the endpoint using this 
+<entry>PortName</entry>
+<entry>Specifies the <sgmltag class="element">port</sgmltag> element of the endpoint using this 
 instance of the HTTP server tranport. The <sgmltag class="element">port</sgmltag> element is 
-identified by the value of its <sgmltag class="attribute">name</sgmltag> attribute.</para>
-</entry>
+identified by the value of its <sgmltag class="attribute">name</sgmltag> attribute.</entry>
 <entry>
 <type>String</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>URL</para>
-</entry>
-<entry>
-<para>Specifies the URL to which this instance of the HTTP server transport listens.</para>
-</entry>
+<entry>URL</entry>
+<entry>Specifies the URL to which this instance of the HTTP server transport listens.</entry>
 <entry>
 <type>String</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>TotalError</para>
-</entry>
-<entry>
-<para>Species the number of request processing errors handled by this endpoint.</para>
-</entry>
+<entry>TotalError</entry>
+<entry>Species the number of request processing errors handled by this endpoint.</entry>
 <entry>
 <type>Integer</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>RequestTotal</para>
-</entry>
-<entry>
-<para>Specifies the number of requests received by this endpoint.</para>
-</entry>
+<entry>RequestTotal</entry>
+<entry>Specifies the number of requests received by this endpoint.</entry>
 <entry>
 <type>Integer</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>RequestOneWay</para>
-</entry>
-<entry>
-<para>Specifies the number of oneway requests received by this endpoint.</para>
-</entry>
+<entry>RequestOneWay</entry>
+<entry>Specifies the number of oneway requests received by this endpoint.</entry>
 <entry>
 <type>Integer</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 </tbody>
 </tgroup>
@@ -698,106 +554,62 @@ instantiate. It provides a logical view of the JMS transport for the service sid
 <tgroup cols="4">
 <thead>
 <row>
-<entry>
-<para>Name</para>
-</entry>
-<entry>
-<para>Description</para>
-</entry>
-<entry>
-<para>Type</para>
-</entry>
-<entry>
-<para>Read/Write</para>
-</entry>
+<entry>Name</entry>
+<entry>Description</entry>
+<entry>Type</entry>
+<entry>Read/Write</entry>
 </row>
 </thead>
 <tbody>
 <row>
-<entry>
-<para>ServiceName</para>
-</entry>
-<entry>
-<para>Specifies the QName of the service using this instance of the JMS server transport.</para>
-</entry>
+<entry>ServiceName</entry>
+<entry>Specifies the QName of the service using this instance of the JMS server transport.</entry>
 <entry>
 <type>String</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>PortName</para>
-</entry>
-<entry>
-<para>Specifies the <sgmltag class="element">port</sgmltag> element of the endpoint using this 
+<entry>PortName</entry>
+<entry>Specifies the <sgmltag class="element">port</sgmltag> element of the endpoint using this 
 instance of the JMS server tranport. The <sgmltag class="element">port</sgmltag> element is 
-identified by the value of its <sgmltag class="attribute">name</sgmltag> attribute.</para>
-</entry>
+identified by the value of its <sgmltag class="attribute">name</sgmltag> attribute.</entry>
 <entry>
 <type>String</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>URL</para>
-</entry>
-<entry>
-<para>Specifies the URL to which this instance of the HTTP server transport listens.</para>
-</entry>
+<entry>URL</entry>
+<entry>Specifies the URL to which this instance of the HTTP server transport listens.</entry>
 <entry>
 <type>String</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>TotalError</para>
-</entry>
-<entry>
-<para>Species the number of request processing errors handled by this endpoint.</para>
-</entry>
+<entry>TotalError</entry>
+<entry>Species the number of request processing errors handled by this endpoint.</entry>
 <entry>
 <type>Integer</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>RequestTotal</para>
-</entry>
-<entry>
-<para>Specifies the number of requests received by this endpoint.</para>
-</entry>
+<entry>RequestTotal</entry>
+<entry>Specifies the number of requests received by this endpoint.</entry>
 <entry>
 <type>Integer</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 <row>
-<entry>
-<para>RequestOneWay</para>
-</entry>
-<entry>
-<para>Specifies the number of oneway requests received by this endpoint.</para>
-</entry>
+<entry>RequestOneWay</entry>
+<entry>Specifies the number of oneway requests received by this endpoint.</entry>
 <entry>
 <type>Integer</type>
 </entry>
-<entry>
-<para>R</para>
-</entry>
+<entry>R</entry>
 </row>
 </tbody>
 </tgroup>
@@ -866,8 +678,32 @@ service implementation.</para>
 <para>Implement the MBean class.</para>
 </step>
 </procedure>
-<para>Example 2 shows the interface for a standard MBean.</para>
-<para>Example 3 shows the class that implements the MBean defined in Example 2.</para>
+<para><xref linkend="Example2" /> shows the interface for a standard MBean.</para>
+<example id="Example2">
+<title>Standard MBean Interface</title>
+<programlisting>public interface ServerNameMBean
+{
+  String getServiceName();
+  String getAddress();
+}</programlisting>
+</example>
+<para><xref linkend="Example3" /> shows the class that implements the MBean defined in 
+<xref linkend="Example2" />.</para>
+<example id="Example3">
+<title>MBean Implementation</title>
+<programlisting>public class ServerName
+{
+  String getServiceName()
+  {
+    return "SOAPService";
+  }
+
+  String getAddress()
+  {
+    return "12 IONA Way";
+  }
+}</programlisting>
+</example>
 </sect3>
 <sect3>
 <title>Registering the MBean</title>
@@ -887,7 +723,7 @@ when your service is initialized.</para>
 <methodname>bus.getInstrumentationManager().getMBeanServer()</methodname>.</para>
 </step>
 <step>
-<para>Create an ObjectName for your MBean.</para>
+<para>Create an <classname>ObjectName</classname> for your MBean.</para>
 <note>
 <para>It is recommended that you follow the naming conventions suggested in 
 <xref linkend="instrumented" />. However, you can choose any naming scheme you desire.</para>
@@ -897,7 +733,28 @@ when your service is initialized.</para>
 <para>Register your MBean server using the server’s <methodname>registerMBean()</methodname> method.</para>
 </step>
 </procedure>
-<para>Example 4 shows code for registering a custom MBean with the Cetlix MBean server.</para>
+<para><xref linkend="Example4" /> shows code for registering a custom MBean with the Cetlix MBean server.</para>
+<example id="Example4">
+<title>Registering a Custom MBean</title>
+<programlisting>import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import org.objectweb.celtix.Bus;
+
+...
+// Instantiate the MBean
+ServerName sName = new ServerName();
+
+// Get the MBean server
+Bus bus.getCurrent();
+MBeanServer mbserver = bus.getInstrumentationManager().getMBeanServer();
+
+// Create ObjectName
+ObjectName name = new ObjectName("my.demo.instrumentation:type=CustomMBean,Bus=" + bus.getBusID() + "name=ServerNameMBean");
+
+// Register MBean
+mbserver.registerMBean(sName, name);
+...</programlisting>
+</example>
 </sect3>
 </sect2>
 <sect2 id="celtix">
@@ -909,7 +766,8 @@ your Instrumentation because the Celtix wrappers handle it all for you.</para>
 <note>
 <para>You will, however, be responsible for cleaning up all instances of your custom instrumentation.</para>
 </note>
-<para>To add custom instrumentation using the Instrumentation interface do the following:</para>
+<para>To add custom instrumentation using the <classname>Instrumentation</classname> interface do 
+the following:</para>
 <procedure>
 <step>
 <para>
@@ -944,62 +802,41 @@ instrumentation class.</para>
 <tgroup cols="3">
 <thead>
 <row>
-<entry>
-<para>Purpose</para>
-</entry>
-<entry>
-<para>JDK 5.0 Annotation</para>
-</entry>
-<entry>
-<para>Attribute / Annotation Type</para>
-</entry>
+<entry>Purpose</entry>
+<entry>JDK 5.0 Annotation</entry>
+<entry>Attribute / Annotation Type</entry>
 </row>
 </thead>
 <tbody>
 <row>
+<entry>Mark all instances of a class as a JMX managed resource</entry>
 <entry>
-<para>Mark all instances of a class as a JMX managed resource</para>
+<literal role="annotation">@ManagedResource</literal>
 </entry>
-<entry>
-<para>@ManagedResource</para>
-</entry>
-<entry>
-<para>Class</para>
-</entry>
+<entry>Class</entry>
 </row>
 <row>
+<entry>Mark a method as a JMX operation.</entry>
 <entry>
-<para>Mark a method as a JMX operation</para>
+<classname>@ManagedOperation</classname>
 </entry>
-<entry>
-<para>@ManagedOperation</para>
-</entry>
-<entry>
-<para>Method</para>
-</entry>
+<entry>Method</entry>
 </row>
 <row>
+<entry>Mark a getter or a setter as one half of a JMX attribute.</entry>
 <entry>
-<para>Mark a getter or a setter as one half of a JMX attribute</para>
+<classname>@ManagedAttribute</classname>
 </entry>
-<entry>
-<para>@ManagedAttribute</para>
-</entry>
-<entry>
-<para>Method</para>
-</entry>
+<entry>Method</entry>
 </row>
 <row>
+<entry>Describe the parameters of a managed operation.</entry>
 <entry>
-<para>Describe the parameters of a managed operation</para>
+<classname>@ManagedOperationParameter</classname>
+<para />
+<classname>@ManagedOperationParameters</classname>
 </entry>
-<entry>
-<para>@ManagedOperationParameter</para>
-<para>@ManagedOperationParameters</para>
-</entry>
-<entry>
-<para>Method</para>
-</entry>
+<entry>Method</entry>
 </row>
 </tbody>
 </tgroup>
@@ -1011,15 +848,9 @@ annotations.</para>
 <tgroup cols="3">
 <thead>
 <row>
-<entry>
-<para>Parameter</para>
-</entry>
-<entry>
-<para>Description</para>
-</entry>
-<entry>
-<para>Annotation</para>
-</entry>
+<entry>Parameter</entry>
+<entry>Description</entry>
+<entry>Annotation</entry>
 </row>
 </thead>
 <tbody>
@@ -1027,148 +858,185 @@ annotations.</para>
 <entry>
 <parameter>componentName</parameter>
 </entry>
+<entry>Specifies the name of the managed respurce.</entry>
 <entry>
-<para>Specifies the name of the managed respurce.</para>
-</entry>
-<entry>
-<para>ManagedResource</para>
+<literal role="annotation">ManagedResource</literal>
 </entry>
 </row>
 <row>
 <entry>
 <parameter>description</parameter>
 </entry>
+<entry>Specifies a user-friendly description of the resource, attribute, or operation.</entry>
 <entry>
-<para>Specifies a user-friendly description of the resource, attribute, or operation.</para>
-</entry>
-<entry>
-<para>ManagedResource</para>
-<para>ManagedAttribute</para>
-<para>ManagedOperation</para>
-<para>ManagedOperationParameter</para>
+<literal role="annotation">ManagedResource</literal>
+<para />
+<literal role="annotation">ManagedAttribute</literal>
+<para />
+<literal role="annotation">ManagedOperation</literal>
+<para />
+<literal role="annotation">ManagedOperationParameter</literal>
 </entry>
 </row>
 <row>
 <entry>
 <parameter>currencyTimeLimit</parameter>
 </entry>
+<entry>Specifies the value of the currencyTimeLimt descriptor field.</entry>
 <entry>
-<para>Specifies the value of the currencyTimeLimt descriptor field.</para>
-</entry>
-<entry>
-<para>ManagedResource</para>
-<para>ManagedAttribute</para>
+<literal role="annotation">ManagedResource</literal>
+<para />
+<literal role="annotation">ManagedAttribute</literal>
 </entry>
 </row>
 <row>
 <entry>
 <parameter>defaultValue</parameter>
 </entry>
+<entry>Specifies the value of the defaultValue descriptor field.</entry>
 <entry>
-<para>Specifies the value of the defaultValue descriptor field.</para>
-</entry>
-<entry>
-<para>ManagedAttribute</para>
+<classname>ManagedAttribute</classname>
 </entry>
 </row>
 <row>
 <entry>
 <parameter>log</parameter>
 </entry>
+<entry>Specifies the value of the log descriptor field.</entry>
 <entry>
-<para>Specifies the value of the log descriptor field.</para>
-</entry>
-<entry>
-<para>ManagedResource</para>
+<literal role="annotation">ManagedResource</literal>
 </entry>
 </row>
 <row>
 <entry>
 <parameter>logFile</parameter>
 </entry>
+<entry>Specifies the value of the logFile descriptor field.</entry>
 <entry>
-<para>Specifies the value of the logFile descriptor field.</para>
-</entry>
-<entry>
-<parameter>ManagedResource</parameter>
+<literal role="annotation">ManagedResource</literal>
 </entry>
 </row>
 <row>
 <entry>
 <parameter>persistPolicy</parameter>
 </entry>
+<entry>Specifies the value of the persistPolicy descriptor field.</entry>
 <entry>
-<para>Specifies the value of the persistPolicy descriptor field.</para>
-</entry>
-<entry>
-<para>ManagedResource</para>
+<literal role="annotation">ManagedResource</literal>
 </entry>
 </row>
 <row>
 <entry>
 <parameter>persistPeriod</parameter>
 </entry>
+<entry>Specifies the value of the persistPeriod descriptor field.</entry>
 <entry>
-<para>Specifies the value of the persistPeriod descriptor field.</para>
-</entry>
-<entry>
-<para>ManagedResource</para>
+<literal role="annotation">ManagedResource</literal>
 </entry>
 </row>
 <row>
 <entry>
 <parameter>persistLocation</parameter>
 </entry>
+<entry>Specifies the value of the persistLocation descriptor field.</entry>
 <entry>
-<para>Specifies the value of the persistLocation descriptor field.</para>
-</entry>
-<entry>
-<para>ManagedResource</para>
+<literal role="annotation">ManagedResource</literal>
 </entry>
 </row>
 <row>
 <entry>
 <parameter>persistName</parameter>
 </entry>
+<entry>Specifies the value of the persistName descriptor field.</entry>
 <entry>
-<para>Specifies the value of the persistName descriptor field.</para>
-</entry>
-<entry>
-<para>ManagedResource</para>
+<literal role="annotation">ManagedResource</literal>
 </entry>
 </row>
 <row>
 <entry>
 <parameter>name</parameter>
 </entry>
+<entry>Specifies the display name of an operation parameter.</entry>
 <entry>
-<para>Specifies the display name of an operation parameter.</para>
-</entry>
-<entry>
-<para>ManagedOperationParameter</para>
+<literal role="annotation">ManagedOperationParameter</literal>
 </entry>
 </row>
 <row>
 <entry>
 <parameter>index</parameter>
 </entry>
+<entry>Specifies the index of an operation parameter.</entry>
 <entry>
-<para>Specifies the index of an operation parameter.</para>
-</entry>
-<entry>
-<para>ManagedOperationParameter</para>
+<literal role="annotation">ManagedOperationParameter</literal>
 </entry>
 </row>
 </tbody>
 </tgroup>
 </table>
 <para>When you are implementing your custom instrumentation class, you should annotate the class 
-with the ManagedResource attribute. Any management operation you wish to expose within the 
-instrumentation class should be annotated with the ManagedOperation attribute. For attributes you 
-wish to expose, you will should annotate their getter and setter methods with the ManagedAttribute 
+with  <literal role="annotation">ManagedResource</literal>. Any management operation you wish to 
+expose within the instrumentation class should be annotated with 
+<literal role="annotation">ManagedOperation</literal>. For attributes you wish to 
+expose, you will should annotate their getter and setter methods with the ManagedAttribute 
 attribute. If you want to make an attribute read-only or write-only, you can omit the annotation 
 from either its setter method or its getter method.</para>
-<para>Example 5 shows a Celtix instrumentation class.</para>
+<para><xref linkend="Example5" /> shows a Celtix instrumentation class.</para>
+<example id="Example5">
+<title>A Celtix Instrumentation Class</title>
+<programlisting>import org.objectweb.celtix.bus.management.jmx.export.ManagedAttribute;
+import org.objectweb.celtix.bus.management.jmx.export.ManagedOperation;
+import org.objectweb.celtix.bus.management.jmx.export.ManagedResource;
+
+@ManagedResource(componentName="GreeterInstrumentation",
+                 description="Celtix instrumentation demo.",
+                 currencyTimeLimit=15, persistPolicy="OnUpdate")
+public class GreeterInstrumentation implements Instrumentation {
+
+  private GreeterImpl greeter;
+
+  public GreeterInstrumentation(GreeterImpl gi) {
+    greeter = gi;
+  }
+
+  // set up the management component type name
+  public String getInstrumentationName() {
+    return "GreeterInstrumentation";
+  }
+
+  // set up the management component reference
+  public Object getComponent() {
+    return thins;
+  }
+
+  // set up the unique name for the ObjectName
+  public String getUniqueInstrumentationName() {
+    return ",name=Demo.Management";
+  }
+
+  // The attributes being exposed through JMX
+  @ManagedAttribute(description="Get the GreetMe call counter")
+  public Integer getGreetMeCounter() {
+    return greeter.requestCounters[0];
+  }
+
+  @ManagedAttribute(description="Get the Ping me call counter")
+  public Integer getPingMeCounter() {
+    return greeter.requestCounters[3];
+  }
+
+  @ManagedAttribute(description="Set the Ping me call counter");\
+  public void setPingMeCounter(Integer value) {
+    greeter.requestCounters[3] = value;
+  }
+
+  // The operations being exposed through JXM
+  @ManagedOperation(description="Set the SayHi reutrn name.",
+                    currencyTimeLimit=-1)
+  public void setSayHiReturnName(String name) {
+    greeter.returnName = name;
+  }
+}</programlisting>
+</example>
 </sect3>
 <sect3 id="activate">
 <title>Activating your custom instrumentation</title>
@@ -1192,7 +1060,18 @@ with the MBean server.</para>
 <classname>InstrumentationManager</classname>.</para>
 </step>
 </procedure>
-<para>Example 6 shows code for activating your custom instrumentation.</para>
+<para><xref linkend="Example6" /> shows code for activating your custom instrumentation.</para>
+<example id="Example6">
+<title>Activating Custom Celtix Instrumentation</title>
+<programlisting>import org.objectweb.celtix.bus.management.Instrumentation;
+import org.objectweb.celtix.bus.management.InstrumentationManager;
+
+...
+Instrumentation in = new GreeterInstrumentation(this);
+Bus bus = Bus.getCurrent();
+InstrumentationManager im = bus.getInstrumentationManager();
+im.register(in);</programlisting>
+</example>
 </sect3>
 <sect3 id="deactivate">
 <title>Deactivating your custom instrumentation</title>
@@ -1201,7 +1080,16 @@ You must explicitly tell the bus to remove the ModelMBean created for your instr
 the <methodname>InstrumentationManager.unregister()</methodname> method. This method removes the 
 MBean from the Celtix MBean server, destroys the associated ModelMBean, and frees up any resources 
 used by it.</para>
-<para>Example 7 shows code for deactivating your custom instrumentation.</para>
+<para><xref linkend="Example7" /> shows code for deactivating your custom instrumentation.</para>
+<example id="Example7">
+<title>Deactivating Custom Celtix Instrumentation</title>
+<programlisting>import org.objectweb.celtix.bus.management.InstrumentationManager;
+
+...
+Bus bus = Bus.getCurrent();
+InstrumentationManager im = bus.getInstrumentationManager();
+im.unregister(in);</programlisting>
+</example>
 </sect3>
 </sect2>
 </sect1>
@@ -1228,36 +1116,32 @@ below to the beans element of your configuration file.</para>
 <programlisting>xmlns:im="http://celtix.objectweb.org/bus/instrumentation"</programlisting>
 <sect2 id="instrumentcontrol">
 <title>Configuring the instrumentation event listeners</title>
-<para><xref linkend="Table12" /> lists the values for the im:instrumentationControl property.</para>
+<para><xref linkend="Table12" /> lists the values for the 
+<classname>im:instrumentationControl</classname> property.</para>
 <table id="Table12">
 <title>instrumentationControl Values</title>
 <tgroup cols="2">
 <thead>
 <row>
-<entry>
-<para>Value</para>
-</entry>
-<entry>
-<para>Description</para>
-</entry>
+<entry>Value</entry>
+<entry>Description</entry>
 </row>
 </thead>
 <tbody>
 <row>
 <entry>
-<para>InstrumentationEnable</para>
+<classname>InstrumentationEnable</classname>
 </entry>
 <entry>
-<para>Specifies if the Celtix runtime's instrumentation created and removed events are enabled or 
-disabled.</para>
+Specifies if the Celtix runtime's instrumentation created and removed events are enabled or disabled.
 </entry>
 </row>
 <row>
 <entry>
-<para>JMXEnable</para>
+<classname>JMXEnable</classname>
 </entry>
 <entry>
-<para>Specifies if the Celtix JMX MBean register and unregister events are enabled or disabled.</para>
+Specifies if the Celtix JMX MBean register and unregister events are enabled or disabled.
 </entry>
 </row>
 </tbody>
@@ -1266,43 +1150,41 @@ disabled.</para>
 </sect2>
 <sect2 id="mbserver">
 <title>Configuring the MBean server</title>
-<para><xref linkend="Table13" /> lists the values for the im:MBServer property.</para>
+<para><xref linkend="Table13" /> lists the values for the <classname>im:MBServer</classname> 
+property.</para>
 <table id="Table13">
 <title>MBServer Values</title>
 <tgroup cols="2">
 <thead>
 <row>
-<entry>
-<para>Value</para>
-</entry>
-<entry>
-<para>Description</para>
-</entry>
+<entry>Value</entry>
+<entry>Description</entry>
 </row>
 </thead>
 <tbody>
 <row>
 <entry>
-<para>JMXConnector</para>
+<classname>JMXConnector</classname>
 </entry>
 <entry>
-<para>Specifies how to set up the JMXConnectorServer which provides the remote connection to a 
-JMXServer. This value has three sub-values:</para>
+Specifies how to set up the JMXConnectorServer which provides the remote connection to a 
+JMXServer. This value has three sub-values:
 <itemizedlist>
 <listitem>
-<para>Threaded specifies specifies if the JMXConnectorServer can run in a new thread. The default 
-value is <constant>false</constant>.</para>
+<para><classname>Threaded</classname> specifies specifies if the JMXConnectorServer can run in a 
+new thread. The default value is <constant>false</constant>.</para>
 </listitem>
 <listitem>
-<para>Daemon specifies if the thread created for the JMXConnectorServer runs in Daemon mode. The 
-default value is <constant>true</constant>.</para>
+<para><classname>Daemon</classname> specifies if the thread created for the JMXConnectorServer 
+runs in Daemon mode. The default value is <constant>true</constant>.</para>
 <note>
-<para>This is only applicable if Threaded is set to true.</para>
+<para>This is only applicable if <classname>Threaded</classname> is set to 
+<constant>true</constant>.</para>
 </note>
 </listitem>
 <listitem>
-<para>JMXServiceURL specifies the JMXServiceURL used for remote access through the JMX Remote API. 
-For more information see the 
+<para><classname>JMXServiceURL</classname> specifies the JMXServiceURL used for remote access 
+through the JMX Remote API. For more information see the 
 <ulink url="http://java.sun.com/j2se/1.5.0/docs/api/javax/management/remote/rmi/package-summary.html">JMX 
 remote.rmi package documentation</ulink>.</para>
 </listitem>
@@ -1336,6 +1218,7 @@ management information for a deployed Celtix-enabled application using jconsole 
 </step>
 </procedure>
 <para>The URL of your Celtix MBean server will either be the default Celtix JMXServiceURL or the 
-value specified by the JMXServiceURL property in your application configuration.</para>
+value specified by the <classname>JMXServiceURL</classname> property in your application 
+configuration.</para>
 </sect1>
 </article>

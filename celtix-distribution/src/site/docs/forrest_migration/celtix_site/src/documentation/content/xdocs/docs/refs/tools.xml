@@ -71,146 +71,146 @@
       <tgroup cols="2">
         <thead>
           <row>
-            <entry><para>Command Line Argument</para></entry>
+            <entry>Option</entry>
 
-            <entry><para>Interpretation</para></entry>
+            <entry>Interpretation</entry>
           </row>
         </thead>
 
         <tbody>
           <row>
-            <entry><para><option>-?</option></para>
-            <para><option>-help</option></para>
-            <para><option>-h</option></para></entry>
+            <entry><option>-?</option>
+            <para />
+			<option>-help</option>
+            <para />
+			<option>-h</option></entry>
 
-            <entry><para>Displays the help for this utility.</para></entry>
+            <entry>Displays the help for this utility.</entry>
           </row>
 
           <row>
             <entry><synopsis><option>-p</option> <optional><replaceable>wsdl-namespace</replaceable>=</optional><replaceable>Package-name</replaceable></synopsis></entry>
 
-            <entry><para>Specifies zero, or more, package names to use for the
+            <entry>Specifies zero, or more, package names to use for the
             generated code. Optionally specifies the WSDL namespace to package
-            name mapping.</para></entry>
+            name mapping.</entry>
           </row>
 
           <row>
-            <entry><para><option>-b</option>
-            <replaceable>binding-file-name</replaceable></para></entry>
+            <entry><option>-b</option>
+            <replaceable>binding-file-name</replaceable></entry>
 
-            <entry><para>Specifies zero, or more, JAXWS or JAXB binding files.
-            Use spaces to separate multiple entries.</para></entry>
+            <entry>Specifies zero, or more, JAXWS or JAXB binding files.
+            Use spaces to separate multiple entries.</entry>
           </row>
 
           <row>
-            <entry><para><option>-d</option>
-            <replaceable>output-directory</replaceable></para></entry>
+            <entry><option>-d</option>
+            <replaceable>output-directory</replaceable></entry>
 
-            <entry><para>Specifies the directory into which the generated code
-            files are written.</para></entry>
+            <entry>Specifies the directory into which the generated code
+            files are written.</entry>
           </row>
 
           <row>
             <entry><option>-compile</option></entry>
 
-            <entry><para>Compiles generated Java files.</para></entry>
+            <entry>Compiles generated Java files.</entry>
           </row>
 
           <row>
             <entry><option>-classdir</option>
             <replaceable>complile-class-dir</replaceable></entry>
 
-            <entry><para>Specifies the directory into which the compiled class
-            files are written.</para></entry>
+            <entry>Specifies the directory into which the compiled class
+            files are written.</entry>
           </row>
 
           <row>
             <entry><option>-client</option></entry>
 
-            <entry><para>Generates starting point code for a client
-            mainline.</para></entry>
+            <entry>Generates starting point code for a client
+            mainline.</entry>
           </row>
 
           <row>
             <entry><option>-server</option></entry>
 
-            <entry><para>Generates starting point code for a server
-            mainline.</para></entry>
+            <entry>Generates starting point code for a server
+            mainline.</entry>
           </row>
 
           <row>
             <entry><option>-impl</option></entry>
 
-            <entry><para>Generates starting point code for an implementation
-            object.</para></entry>
+            <entry>Generates starting point code for an implementation
+            object.</entry>
           </row>
 
           <row>
             <entry><option>-all</option></entry>
 
-            <entry><para>Generates all starting point code: types, service
+            <entry>Generates all starting point code: types, service
             proxy, service interface, server mainline, client mainline,
             implementation object, and an Ant <filename>build.xml</filename>
-            file.</para></entry>
+            file.</entry>
           </row>
 
           <row>
             <entry><option>-ant</option></entry>
 
-            <entry><para>Generates the Ant <filename>build.xml</filename>
-            file.</para></entry>
+            <entry>Generates the Ant <filename>build.xml</filename>
+            file.</entry>
           </row>
 
           <row>
             <entry><synopsis><option>-nexclude</option> <replaceable>schema-namespace</replaceable><optional>=<replaceable>java-packagename</replaceable></optional></synopsis></entry>
 
-            <entry><para>Ignore the specified WSDL schema namespace when
+            <entry>Ignore the specified WSDL schema namespace when
             generating code. This option may be specified multiple times.
             Also, optionally specifies the Java package name used by types
-            described in the excluded namespace(s).</para></entry>
+            described in the excluded namespace(s).</entry>
           </row>
 
           <row>
-            <entry><para><option>-exsh</option>
-            (<literal>true</literal>/<literal>false</literal>)</para></entry>
+            <entry><option>-exsh</option>
+            (<literal>true</literal>/<literal>false</literal>)</entry>
 
-            <entry><para>Enables or disables processing of extended soap
-            header message binding.</para></entry>
+            <entry>Enables or disables processing of extended soap
+            header message binding.</entry>
           </row>
 
           <row>
             <entry><option>-validate</option></entry>
 
-            <entry><para>Enables or disables validating the wsdl before
-            generate the code</para></entry>
+            <entry>Enables or disables validating the wsdl before
+            generating the code.</entry>
           </row>
 
           <row>
             <entry><option>-v</option></entry>
 
-            <entry><para>Displays the version number for the
-            tool.</para></entry>
+            <entry>Displays the version number for the
+            tool.</entry>
           </row>
 
           <row>
             <entry><option>-verbose</option></entry>
 
-            <entry><para>Displays comments during the code generation
-            process.</para></entry>
+            <entry>Displays comments during the code generation process.</entry>
           </row>
 
           <row>
             <entry><option>-quiet</option></entry>
 
-            <entry><para>Suppresses comments during the code generation
-            process.</para></entry>
+            <entry>Suppresses comments during the code generation process.</entry>
           </row>
 
           <row>
             <entry><replaceable>wsdlfile</replaceable></entry>
 
-            <entry><para>The path and name of the WSDL file to use in
-            generating the code.</para></entry>
+            <entry>The path and name of the WSDL file to use in
+            generating the code.</entry>
           </row>
         </tbody>
       </tgroup>
@@ -268,9 +268,9 @@
       <tgroup cols="2">
         <thead>
           <row>
-            <entry><para>Command Line Argument</para></entry>
+            <entry>Option</entry>
 
-            <entry><para>Interpretation</para></entry>
+            <entry>Interpretation</entry>
           </row>
         </thead>
 
@@ -408,29 +408,31 @@
       <tgroup cols="2">
         <thead>
           <row>
-            <entry><para>Command Line Argument</para></entry>
+            <entry>Option</entry>
 
-            <entry><para>Interpretation</para></entry>
+            <entry>Interpretation</entry>
           </row>
         </thead>
 
         <tbody>
           <row>
-            <entry><para><option>-?</option></para>
-            <para><option>-help</option></para>
-            <para><option>-h</option></para></entry>
+            <entry><option>-?</option>
+            <para />
+			<option>-help</option>
+            <para />
+			<option>-h</option></entry>
 
-            <entry><para>Displays the online help for this
-            utility.</para></entry>
+            <entry>Displays the online help for this
+            utility.</entry>
           </row>
 
           <row>
-            <entry><para><option>-i</option>
-            <replaceable>port-type-name</replaceable></para></entry>
+            <entry><option>-i</option>
+            <replaceable>port-type-name</replaceable></entry>
 
-            <entry><para>Specifies the <sgmltag
+            <entry>Specifies the <sgmltag
             class="element">portType</sgmltag> element for which a binding
-            should be generated.</para></entry>
+            should be generated.</entry>
           </row>
 
           <row>
@@ -598,9 +600,9 @@
       <tgroup cols="2">
         <thead>
           <row>
-            <entry><para>Command Line Argument</para></entry>
+            <entry>Option</entry>
 
-            <entry><para>Interpretation</para></entry>
+            <entry>Interpretation</entry>
           </row>
         </thead>
 
@@ -810,109 +812,110 @@
       <tgroup cols="2">
         <thead>
           <row>
-            <entry><para>Command Line Argument</para></entry>
+            <entry>Option</entry>
 
-            <entry><para>Interpretation</para></entry>
+            <entry>Interpretation</entry>
           </row>
         </thead>
 
         <tbody>
           <row>
-            <entry><para><option>-?</option></para>
-            <para><option>-help</option></para>
-            <para><option>-h</option></para></entry>
+            <entry><option>-?</option>
+            <para />
+			<option>-help</option>
+            <para /><option>-h</option></entry>
 
-            <entry><para>Displays the online help for this
-            utility.</para></entry>
+            <entry>Displays the online help for this
+            utility.</entry>
           </row>
 
           <row>
-            <entry><para><option>-i</option>
-            <replaceable>port-type-name</replaceable></para></entry>
+            <entry><option>-i</option>
+            <replaceable>port-type-name</replaceable></entry>
 
-            <entry><para>Specifies the <sgmltag
-            class="element">portType</sgmltag> element to use.</para></entry>
+            <entry>Specifies the <sgmltag
+            class="element">portType</sgmltag> element to use.</entry>
           </row>
 
           <row>
-            <entry><para><option>-b</option>
-            <replaceable>binding-name</replaceable></para></entry>
+            <entry><option>-b</option>
+            <replaceable>binding-name</replaceable></entry>
 
-            <entry><para>Specifies the name of the generated XML
-            binding.</para></entry>
+            <entry>Specifies the name of the generated XML
+            binding.</entry>
           </row>
 
           <row>
-            <entry><para><option>-e</option>
-            <replaceable>service-name</replaceable></para></entry>
+            <entry><option>-e</option>
+            <replaceable>service-name</replaceable></entry>
 
-            <entry><para>Specifies the value of the generated <sgmltag
+            <entry>Specifies the value of the generated <sgmltag
             class="element">service</sgmltag> element's <sgmltag
-            class="attribute">name</sgmltag> attribute.</para></entry>
+            class="attribute">name</sgmltag> attribute.</entry>
           </row>
 
           <row>
-            <entry><para><option>-p</option>
-            <replaceable>port-name</replaceable></para></entry>
+            <entry><option>-p</option>
+            <replaceable>port-name</replaceable></entry>
 
-            <entry><para>Specifies the value of the generated <sgmltag
+            <entry>Specifies the value of the generated <sgmltag
             class="element">port</sgmltag> element's <sgmltag
             class="attribute">name</sgmltag> attribute. To specify multiple
             <sgmltag class="element">port</sgmltag> elements, separate the
-            names by a space.</para></entry>
+            names by a space.</entry>
           </row>
 
           <row>
-            <entry><para><option>-a</option>
-            <replaceable>address</replaceable></para></entry>
+            <entry><option>-a</option>
+            <replaceable>address</replaceable></entry>
 
-            <entry><para>Specifies the value used in the <sgmltag
+            <entry>Specifies the value used in the <sgmltag
             class="element">address</sgmltag> element of the generated
-            <sgmltag class="element">port</sgmltag> element.</para></entry>
+            <sgmltag class="element">port</sgmltag> element.</entry>
           </row>
 
           <row>
-            <entry><para><option>-d</option>
-            <replaceable>output-directory</replaceable></para></entry>
+            <entry><option>-d</option>
+            <replaceable>output-directory</replaceable></entry>
 
-            <entry><para>Specifies the directory to place generated WSDL
-            file.</para></entry>
+            <entry>Specifies the directory to place generated WSDL
+            file.</entry>
           </row>
 
           <row>
-            <entry><para><option>-o</option>
-            <replaceable>output-file</replaceable></para></entry>
+            <entry><option>-o</option>
+            <replaceable>output-file</replaceable></entry>
 
-            <entry><para>Specifies the name of the generated WSDL
-            file.</para></entry>
+            <entry>Specifies the name of the generated WSDL
+            file.</entry>
           </row>
 
           <row>
             <entry><option>-v</option></entry>
 
-            <entry><para>Displays the version number for the
-            tool.</para></entry>
+            <entry>Displays the version number for the
+            tool.</entry>
           </row>
 
           <row>
             <entry><option>-verbose</option></entry>
 
-            <entry><para>Displays comments during the code generation
-            process.</para></entry>
+            <entry>Displays comments during the code generation
+            process.</entry>
           </row>
 
           <row>
             <entry><option>-quiet</option></entry>
 
-            <entry><para>Suppresses comments during the code generation
-            process.</para></entry>
+            <entry>Suppresses comments during the code generation
+            process.</entry>
           </row>
 
           <row>
             <entry><replaceable>wsdlurl</replaceable></entry>
 
-            <entry><para>The path and name of the existing WSDL
-            file.</para></entry>
+            <entry>The path and name of the existing WSDL
+            file.</entry>
           </row>
         </tbody>
       </tgroup>
@@ -959,81 +962,83 @@
       <tgroup cols="2">
         <thead>
           <row>
-            <entry><para>Command Line Argument</para></entry>
+            <entry>Option</entry>
 
-            <entry><para>Interpretation</para></entry>
+            <entry>Interpretation</entry>
           </row>
         </thead>
 
         <tbody>
           <row>
-            <entry><para><option>-?</option></para>
-            <para><option>-help</option></para>
-            <para><option>-h</option></para></entry>
+            <entry><option>-?</option>
+            <para />
+			<option>-help</option>
+            <para />
+			<option>-h</option></entry>
 
-            <entry><para>Displays the online help for this
-            utility.</para></entry>
+            <entry>Displays the online help for this
+            utility.</entry>
           </row>
 
           <row>
-            <entry><para><option>-t</option>
-            <replaceable>target-namespace</replaceable></para></entry>
+            <entry><option>-t</option>
+            <replaceable>target-namespace</replaceable></entry>
 
-            <entry><para>Specifies the target namespace for the generated
-            WSDL.</para></entry>
+            <entry>Specifies the target namespace for the generated
+            WSDL.</entry>
           </row>
 
           <row>
-            <entry><para><option>-n</option>
-            <replaceable>wsdl-name</replaceable></para></entry>
+            <entry><option>-n</option>
+            <replaceable>wsdl-name</replaceable></entry>
 
-            <entry><para>Specifies the value of the generated <sgmltag
+            <entry>Specifies the value of the generated <sgmltag
             class="element">definition</sgmltag> element's <sgmltag
-            class="attribute">name</sgmltag> attribute.</para></entry>
+            class="attribute">name</sgmltag> attribute.</entry>
           </row>
 
           <row>
-            <entry><para><option>-d</option>
-            <replaceable>output-directory</replaceable></para></entry>
+            <entry><option>-d</option>
+            <replaceable>output-directory</replaceable></entry>
 
-            <entry><para>Specifies the directory in which the generated WSDL
-            is placed.</para></entry>
+            <entry>Specifies the directory in which the generated WSDL
+            is placed.</entry>
           </row>
 
           <row>
-            <entry><para><option>-o</option>
-            <replaceable>output-file</replaceable></para></entry>
+            <entry><option>-o</option>
+            <replaceable>output-file</replaceable></entry>
 
-            <entry><para>Specifies the name of the generated WSDL
-            file.</para></entry>
+            <entry>Specifies the name of the generated WSDL
+            file.</entry>
           </row>
 
           <row>
             <entry><option>-v</option></entry>
 
-            <entry><para>Displays the version number for the
-            tool.</para></entry>
+            <entry>Displays the version number for the
+            tool.</entry>
           </row>
 
           <row>
             <entry><option>-verbose</option></entry>
 
-            <entry><para>Displays comments during the code generation
-            process.</para></entry>
+            <entry>Displays comments during the code generation
+            process.</entry>
           </row>
 
           <row>
             <entry><option>-quiet</option></entry>
 
-            <entry><para>Suppresses comments during the code generation
-            process.</para></entry>
+            <entry>Suppresses comments during the code generation
+            process.</entry>
           </row>
 
           <row>
             <entry><replaceable>xsdurl</replaceable></entry>
 
-            <entry><para>The path and name of the existing XSDSchema
-            file.</para></entry>
+            <entry>The path and name of the existing XSDSchema
+            file.</entry>
           </row>
         </tbody>
       </tgroup>
@@ -1075,65 +1080,65 @@
       <tgroup cols="2">
         <thead>
           <row>
-            <entry><para>Command Line Argument</para></entry>
+            <entry>Option</entry>
 
-            <entry><para>Interpretation</para></entry>
+            <entry>Interpretation</entry>
           </row>
         </thead>
 
         <tbody>
           <row>
-            <entry><para><option>-?</option></para>
-            <para><option>-help</option></para>
-            <para><option>-h</option></para></entry>
+            <entry><option>-?</option>
+            <para />
+			<option>-help</option>
+            <para />
+			<option>-h</option></entry>
 
-            <entry><para>Displays the online help for this
-            utility.</para></entry>
+            <entry>Displays the online help for this
+            utility.</entry>
           </row>
 
           <row>
-            <entry><para><option>-d</option>
-            <replaceable>schema-directory</replaceable></para></entry>
+            <entry><option>-d</option>
+            <replaceable>schema-directory</replaceable></entry>
 
-            <entry><para>Specifies the directory used to search for
-            schemas</para></entry>
+            <entry>Specifies the directory used to search for
+            schemas.</entry>
           </row>
 
           <row>
-            <entry><para><option>-s</option>
-            <replaceable>schema-url</replaceable></para></entry>
+            <entry><option>-s</option>
+            <replaceable>schema-url</replaceable></entry>
 
-            <entry><para>Specifies the URL of a user specific schema to be
+            <entry>Specifies the URL of a user specific schema to be
             included in the validation of the contract. This switch can appear
-            multiple times.</para></entry>
+            multiple times.</entry>
           </row>
 
           <row>
             <entry><option>-v</option></entry>
 
-            <entry><para>Displays the version number for the
-            tool.</para></entry>
+            <entry>Displays the version number for the
+            tool.</entry>
           </row>
 
           <row>
             <entry><option>-verbose</option></entry>
 
-            <entry><para>Displays comments during the
-            validation.</para></entry>
+            <entry>Displays comments during the
+            validation.</entry>
           </row>
 
           <row>
             <entry><option>-quiet</option></entry>
 
-            <entry><para>Suppresses comments during the
-            validation</para></entry>
+            <entry>Suppresses comments during the validation.</entry>
           </row>
 
           <row>
             <entry><replaceable>wsdlurl</replaceable></entry>
 
-            <entry><para>The path and name of the existing WSDL
-            file</para></entry>
+            <entry>The path and name of the existing WSDL file</entry>
           </row>
         </tbody>
       </tgroup>
