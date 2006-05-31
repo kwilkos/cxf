@@ -37,7 +37,7 @@
 	  <section>
 	  <title>Development</title>
         <ul>
-		  <li><a href="../docs/user_guides/develop_consumer/develop_consumer.html">Developing a Celtix Consumer</a></li>
+		  <li><a href="site:consumer_dev">Developing a Celtix Consumer</a></li>
 		  <li><a href="site:jms">Using the JMS Transport</a></li>
 		  <li><a href="site:dyn_lang">Using Dynamic Languages to Implement Services</a></li>
 		  <li><a href="site:mgmt">Using Celtix Management</a></li>

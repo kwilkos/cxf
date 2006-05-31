@@ -92,44 +92,44 @@
           <tgroup cols="2">
             <thead>
               <row>
-                <entry><para>Attribute</para></entry>
+                <entry>Attribute</entry>
 
-                <entry><para>Description</para></entry>
+                <entry>Description</entry>
               </row>
             </thead>
             <tbody>
               <row>
                 <entry><sgmltag class="attribute">destinationStyle</sgmltag></entry>
-                <entry><para>Specifies if the JMS destination is a JMS queue
-                or a JMS topic.</para></entry>
+                <entry>Specifies if the JMS destination is a JMS queue
+                or a JMS topic.</entry>
               </row>
               <row>
                 <entry><sgmltag class="attribute">jndiConnectionFactoryName</sgmltag></entry>
-                <entry><para>Specifies the JNDI name bound to the JMS
+                <entry>Specifies the JNDI name bound to the JMS
                 connection factory to use when connecting to the JMS
-                destination.</para></entry>
+                destination.</entry>
               </row>
               <row>
                 <entry><sgmltag class="attribute">jndiDestinationName</sgmltag></entry>
-                <entry><para>Specifies the JNDI name bound to the JMS
-                destination to which requests are sent.</para></entry>
+                <entry>Specifies the JNDI name bound to the JMS
+                destination to which requests are sent.</entry>
               </row>
               <row>
                 <entry><sgmltag class="attribute">jndiReplyDestinationName</sgmltag></entry>
-                <entry><para>Specifies the JNDI name bound to the JMS
+                <entry>Specifies the JNDI name bound to the JMS
                 destinations where replies are sent. This attribute allows you
                 to use a user defined destination for replies. For more
-                details see <xref linkend="ReplyDest" />.</para></entry>
+                details see <xref linkend="ReplyDest" />.</entry>
               </row>
               <row>
                 <entry><sgmltag class="attribute">connectionUserName</sgmltag></entry>
-                <entry><para>Specifies the username to use when connecting to
-                a JMS broker.</para></entry>
+                <entry>Specifies the username to use when connecting to
+                a JMS broker.</entry>
               </row>
               <row>
                 <entry><sgmltag class="attribute">connectionPassword</sgmltag></entry>
-                <entry><para>Specifies the password to use when connecting to
-                a JMS broker.</para></entry>
+                <entry>Specifies the password to use when connecting to
+                a JMS broker.</entry>
               </row>
             </tbody>
           </tgroup>
@@ -390,13 +390,13 @@
         <tgroup cols="2">
           <tbody>
             <row>
-              <entry><para><classname>messageType</classname></para></entry>
-              <entry><para>Specifies how the message data will be packaged as
+              <entry><classname>messageType</classname></entry>
+              <entry>Specifies how the message data will be packaged as
               a JMS message. <classname>text</classname> specifies that the
               data will be packaged as a <classname>TextMessage</classname>.
               <classname>binary</classname> specifies that the data will be
               packaged as an
-              <classname>ObjectMessage</classname>.</para></entry>
+              <classname>ObjectMessage</classname>.</entry>
             </row>
           </tbody>
         </tgroup>
@@ -459,13 +459,13 @@
         <tgroup cols="2">
           <tbody>
             <row>
-              <entry><para><sgmltag class="attribute">messageType</sgmltag></para></entry>
-              <entry><para>Specifies how the message data will be packaged as
+              <entry><sgmltag class="attribute">messageType</sgmltag></entry>
+              <entry>Specifies how the message data will be packaged as
               a JMS message. <classname>text</classname> specifies that the
               data will be packaged as a <classname>TextMessage</classname>.
               <classname>binary</classname> specifies that the data will be
               packaged as an
-              <classname>ObjectMessage</classname>.</para></entry>
+              <classname>ObjectMessage</classname>.</entry>
             </row>
           </tbody>
         </tgroup>
@@ -522,42 +522,42 @@
         <tgroup cols="2">
           <thead>
             <row>
-              <entry><para>Attribute</para></entry>
-              <entry><para>Description</para></entry>
+              <entry>Attribute</entry>
+              <entry>Description</entry>
             </row>
           </thead>
 
           <tbody>
             <row>
-              <entry><para><classname>useMessageIDAsCorrealationID</classname></para></entry>
+              <entry><classname>useMessageIDAsCorrealationID</classname></entry>
 
-              <entry><para>Specifies whether the JMS broker will use the
+              <entry>Specifies whether the JMS broker will use the
               message ID to correlate messages. The default is
-              <classname>false</classname>.</para></entry>
+              <constant>false</constant>.</entry>
             </row>
 
             <row>
-              <entry><para><classname>durableSubscriberName</classname></para></entry>
+              <entry><classname>durableSubscriberName</classname></entry>
 
-              <entry><para>Specifies the name used to register a durable
-              subscription.</para></entry>
+              <entry>Specifies the name used to register a durable
+              subscription.</entry>
             </row>
 
             <row>
-              <entry><para><classname>messageSelector</classname></para></entry>
+              <entry><classname>messageSelector</classname></entry>
 
-              <entry><para>Specifies the string value of a message selector to
+              <entry>Specifies the string value of a message selector to
               use. For more information on the syntax used to specify message
-              selectors, see the JMS 1.1 specification.</para></entry>
+              selectors, see the JMS 1.1 specification.</entry>
             </row>
 
             <row>
-              <entry><para><classname>transactional</classname></para></entry>
+              <entry><classname>transactional</classname></entry>
 
-              <entry><para>Specifies whether the local JMS broker will create
+              <entry>Specifies whether the local JMS broker will create
               transactions around message processing. The default is
-              <classname>false</classname>. Currently, this is not supported
-              by the runtime.</para></entry>
+              <constant>false</constant>. Currently, this is not supported
+              by the runtime.</entry>
             </row>
           </tbody>
         </tgroup>
@@ -622,35 +622,35 @@
         <tgroup cols="2">
           <thead>
             <row>
-              <entry><para>Attribute</para></entry>
-              <entry><para>Description</para></entry>
+              <entry>Attribute</entry>
+              <entry>Description</entry>
             </row>
           </thead>
 
           <tbody>
             <row>
-              <entry><para><sgmltag class="attribute">useMessageIDAsCorrealationID</sgmltag></para></entry>
-              <entry><para>Specifies whether JMS will use the message ID to
+              <entry><sgmltag class="attribute">useMessageIDAsCorrealationID</sgmltag></entry>
+              <entry>Specifies whether JMS will use the message ID to
               correlate messages. The default is
-              <classname>false</classname>.</para></entry>
+              <constant>false</constant>.</entry>
             </row>
             <row>
-              <entry><para><sgmltag class="attribute">durableSubscriberName</sgmltag></para></entry>
-              <entry><para>Specifies the name used to register a durable
-              subscription.</para></entry>
+              <entry><sgmltag class="attribute">durableSubscriberName</sgmltag></entry>
+              <entry>Specifies the name used to register a durable
+              subscription.</entry>
             </row>
             <row>
-              <entry><para><sgmltag class="attribute">messageSelector</sgmltag></para></entry>
-              <entry><para>Specifies the string value of a message selector to
+              <entry><sgmltag class="attribute">messageSelector</sgmltag></entry>
+              <entry>Specifies the string value of a message selector to
               use. For more information on the syntax used to specify message
-              selectors, see the JMS 1.1 specification.</para></entry>
+              selectors, see the JMS 1.1 specification.</entry>
             </row>
             <row>
-              <entry><para><sgmltag class="element">transactional</sgmltag></para></entry>
-              <entry><para>Specifies whether the local JMS broker will create
+              <entry><sgmltag class="element">transactional</sgmltag></entry>
+              <entry>Specifies whether the local JMS broker will create
               transactions around message processing. The default is
-              <classname>false</classname>. Currently, this is not supported
-              by the runtime.</para></entry>
+              <constant>false</constant>. Currently, this is not supported
+              by the runtime.</entry>
             </row>
           </tbody>
         </tgroup>
@@ -689,55 +689,55 @@
           <tgroup cols="3">
             <thead>
               <row>
-                <entry><para>Property Name</para></entry>
-                <entry><para>Property Type</para></entry>
-                <entry><para>Getter Method</para></entry>
+                <entry>Property Name</entry>
+                <entry>Property Type</entry>
+                <entry>Getter Method</entry>
               </row>
             </thead>
 
             <tbody>
               <row>
-                <entry><para>Correlation ID</para></entry>
+                <entry>Correlation ID</entry>
                 <entry><type>string</type></entry>
                 <entry><methodname>getJMSCorralationID()</methodname></entry>
               </row>
               <row>
-                <entry><para>Delivery Mode</para></entry>
+                <entry>Delivery Mode</entry>
                 <entry><type>int</type></entry>
                 <entry><methodname>getJMSDeliveryMode()</methodname></entry>
               </row>
               <row>
-                <entry><para>Message Expiration</para></entry>
+                <entry>Message Expiration</entry>
                 <entry><type>long</type></entry>
                 <entry><methodname>getJMSExpiration()</methodname></entry>
               </row>
               <row>
-                <entry><para>Message ID</para></entry>
+                <entry>Message ID</entry>
                 <entry><type>string</type></entry>
                 <entry><methodname>getJMSMessageID()</methodname></entry>
               </row>
               <row>
-                <entry><para>Priority</para></entry>
+                <entry>Priority</entry>
                 <entry><type>int</type></entry>
                 <entry><methodname>getJMSPriority()</methodname></entry>
               </row>
               <row>
-                <entry><para>Redelivered</para></entry>
+                <entry>Redelivered</entry>
                 <entry><type>boolean</type></entry>
                 <entry><methodname>getJMSRedlivered()</methodname></entry>
               </row>
               <row>
-                <entry><para>Time Stamp</para></entry>
+                <entry>Time Stamp</entry>
                 <entry><type>long</type></entry>
                 <entry><methodname>getJMSTimeStamp()</methodname></entry>
               </row>
               <row>
-                <entry><para>Type</para></entry>
+                <entry>Type</entry>
                 <entry><type>string</type></entry>
                 <entry><methodname>getJMSType()</methodname></entry>
               </row>
               <row>
-                <entry><para>Time To Live</para></entry>
+                <entry>Time To Live</entry>
                 <entry><type>long</type></entry>
                 <entry><methodname>getTimeToLive()</methodname></entry>
               </row>
@@ -836,25 +836,25 @@ if (handler instanceof BindingProvider)
         <tgroup cols="3">
           <thead>
             <row>
-              <entry><para>Property Name</para></entry>
-              <entry><para>Property Type</para></entry>
-              <entry><para>Setter Method</para></entry>
+              <entry>Property Name</entry>
+              <entry>Property Type</entry>
+              <entry>Setter Method</entry>
             </row>
           </thead>
 
           <tbody>
             <row>
-              <entry><para>Correlation ID</para></entry>
+              <entry>Correlation ID</entry>
               <entry><type>string</type></entry>
               <entry><methodname>setJMSCorralationID()</methodname></entry>
             </row>
             <row>
-              <entry><para>Delivery Mode</para></entry>
+              <entry>Delivery Mode</entry>
               <entry><type>int</type></entry>
               <entry><methodname>setJMSDeliveryMode()</methodname></entry>
             </row>
             <row>
-              <entry><para>Time To Live</para></entry>
+              <entry>Time To Live</entry>
               <entry><type>long</type></entry>
               <entry><methodname>setTimeToLive()</methodname></entry>
             </row>

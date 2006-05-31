@@ -218,7 +218,7 @@
 
     <para>You should note how these URLs are specified when running the sample
     applications. If you choose to run the client application using
-    <application>Ant</application>, the URL is derived from information
+    Ant, the URL is derived from information
     supplied on the command line combined with information that is already
     included in the <markup>&lt;target
     name=“client-servlet”...&gt;&lt;celtix-run.../&gt;&lt;/target&gt;</markup>

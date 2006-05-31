@@ -319,7 +319,7 @@
       </itemizedlist>
 
       <para>The namespace assigned to this file's content is:
-      <classname>http://celtix.objectweb.org/bus/transports/http/http-listener-config</classname>.
+      <literal>http://celtix.objectweb.org/bus/transports/http/http-listener-config</literal>.
       When writing a configuration file that includes http listener related
       configuration entries, the value of the <sgmltag
       class="attribute">class</sgmltag> attribute in the <sgmltag
@@ -465,7 +465,7 @@
       </itemizedlist>
 
       <para>The namespace assigned to this file's content is
-      <classname>http://celtix.objectweb.org/bus/jaxws/port-config</classname>.
+      <literal>http://celtix.objectweb.org/bus/jaxws/port-config</literal>.
       When writing a configuration file that includes port related
       configuration entries, the value of the <sgmltag
       class="attribute">class</sgmltag> attribute in the <sgmltag
@@ -495,7 +495,7 @@
       </itemizedlist>
 
       <para>The namespace assigned to this file's content is:
-      <classname>http://celtix.objectweb.org/bus/ws/rm/rm-config</classname>.
+      <literal>http://celtix.objectweb.org/bus/ws/rm/rm-config</literal>.
       When writing a configuration file that includes WS-RM related
       configuration entries, the value of the <sgmltag
       class="attribute">class</sgmltag> attribute in the <sgmltag
@@ -754,83 +754,59 @@
         <tgroup cols="2">
           <thead>
             <row>
-              <entry><para>Component</para></entry>
-
-              <entry><para>Bean Class Name</para></entry>
+              <entry>Component</entry>
+              <entry>Bean Class Name</entry>
             </row>
           </thead>
-
           <tbody>
             <row>
-              <entry><para>Bus</para></entry>
-
+              <entry>Bus</entry>
               <entry><classname>org.objectweb.celtix.bus.bus_config.spring.BusConfigBean</classname></entry>
             </row>
-
             <row>
-              <entry><para>Endpoint</para></entry>
-
+              <entry>Endpoint</entry>
               <entry><classname>org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean</classname></entry>
             </row>
-
             <row>
-              <entry><para>Port</para></entry>
-
+              <entry>Port</entry>
               <entry><classname>org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean</classname></entry>
             </row>
-
             <row>
-              <entry><para>HTTP Client Transport</para></entry>
-
+              <entry>HTTP Client Transport</entry>
               <entry><classname>org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean</classname></entry>
             </row>
-
             <row>
-              <entry><para>HTTP Server Transport</para></entry>
-
+              <entry>HTTP Server Transport</entry>
               <entry><classname>org.objectweb.celtix.bus.transports.http.http_server_config.spring.HttpServerConfigBean</classname></entry>
             </row>
-
             <row>
-              <entry><para>HTTP Listener</para></entry>
-
+              <entry>HTTP Listener</entry>
               <entry><classname>org.objectweb.celtix.bus.transports.http.http_listener_config.spring.HttpListenerConfigBean</classname></entry>
             </row>
-
             <row>
-              <entry><para>JMS Client Transport</para></entry>
-
+              <entry>JMS Client Transport</entry>
               <entry><classname>org.objectweb.celtix.bus.transports.jms.jms_client_config.spring.JmsServerConfigBean</classname></entry>
             </row>
-
             <row>
-              <entry><para>JMS Server Transport</para></entry>
-
+              <entry>JMS Server Transport</entry>
               <entry><classname>org.objectweb.celtix.bus.transports.jms.jms_server_config.spring.JmsServerConfigBean</classname></entry>
             </row>
-
             <row>
-              <entry><para>Instrumentation</para></entry>
-
+              <entry>Instrumentation</entry>
               <entry><classname>org.objectweb.celtix.bus.instrumentation.spring.InstrumentationConfigBean</classname></entry>
             </row>
-
             <row>
-              <entry><para>Reliable Messaging</para></entry>
-
+              <entry>Reliable Messaging</entry>
               <entry><classname>org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean</classname></entry>
             </row>
-
             <row>
-              <entry><para>Routing Service</para></entry>
-
+              <entry>Routing Service</entry>
               <entry><classname>org.objectweb.celtix.routing.configuration.spring.ConfigurationBean</classname></entry>
             </row>
           </tbody>
         </tgroup>
       </table>
     </sect2>
-
     <sect2>
       <title>The id Attribute</title>
 
@@ -930,70 +906,48 @@
 
       <table frame="all">
         <title>Information Needed to Create Component IDs</title>
-
         <tgroup cols="3">
           <thead>
             <row>
-              <entry><para>Component</para></entry>
-
-              <entry><para>Instance Identifier</para></entry>
-
-              <entry><para>id Value</para></entry>
+              <entry>Component</entry>
+              <entry>Instance Identifier</entry>
+              <entry>id Value</entry>
             </row>
           </thead>
-
           <tbody>
             <row>
-              <entry><para>Bus</para></entry>
-
-              <entry><para>Bus name</para></entry>
-
-              <entry><para>celtix</para></entry>
+              <entry>Bus</entry>
+              <entry>Bus name</entry>
+              <entry>celtix</entry>
             </row>
-
             <row>
-              <entry><para>Endpoint</para></entry>
-
-              <entry><para>Bus name and QName of service</para></entry>
-
-              <entry><para>celtix.{http://objectweb.org/hello_world}SOAPService</para></entry>
+              <entry>Endpoint</entry>
+              <entry>Bus name and QName of service</entry>
+              <entry>celtix.{http://objectweb.org/hello_world}SOAPService</entry>
             </row>
-
             <row>
-              <entry><para>Port</para></entry>
-
-              <entry><para>Bus name, QName of service, and name of
-              port</para></entry>
-
-              <entry><para>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort</para></entry>
+              <entry>Port</entry>
+              <entry>Bus name, QName of service, and name of port</entry>
+              <entry>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort</entry>
             </row>
-
             <row>
-              <entry><para>HTTP Client Transport</para></entry>
-
-              <entry><para>Bus name, QName of service, name of port, and
-              string constant</para></entry>
-
-              <entry><para>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort.http-client</para></entry>
+              <entry>HTTP Client Transport</entry>
+              <entry>Bus name, QName of service, name of port, and
+              string constant</entry>
+              <entry>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort.http-client</entry>
             </row>
-
             <row>
-              <entry><para>HTTP Server Transport</para></entry>
-
-              <entry><para>Bus name, QName of service, name of port, and
-              string constant</para></entry>
-
-              <entry><para>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort.http-server</para></entry>
+              <entry>HTTP Server Transport</entry>
+              <entry>Bus name, QName of service, name of port, and
+              string constant</entry>
+              <entry>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort.http-server</entry>
             </row>
-
             <row>
-              <entry><para>HTTP Listener</para></entry>
-
-              <entry><para>Bus name, string constant, and port number (where
+              <entry>HTTP Listener</entry>
+              <entry>Bus name, string constant, and port number (where
               port number is the TCP/IP port number set in the server mainline
-              code).</para></entry>
-
-              <entry><para>celtix.http-listener.port_number</para></entry>
+              code).</entry>
+              <entry>celtix.http-listener.port_number</entry>
             </row>
           </tbody>
         </tgroup>

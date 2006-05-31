@@ -276,73 +276,61 @@
 
         <tbody>
           <row>
-            <entry><para><option>-?</option></para>
-            <para><option>-help</option></para>
-            <para><option>-h</option></para></entry>
+            <entry><option>-?</option>
+			<para />
+			<option>-help</option>
+            <para />
+			<option>-h</option></entry>
 
-            <entry><para>Displays the online help for this
-            utility.</para></entry>
+            <entry>Displays the online help for this
+            utility.</entry>
           </row>
 
           <row>
-            <entry><para><option>-o</option>
-            <replaceable>output-file</replaceable></para></entry>
+            <entry><option>-o</option>
+            <replaceable>output-file</replaceable></entry>
 
-            <entry><para>Specifies the name of the generated WSDL
-            file.</para></entry>
+            <entry>Specifies the name of the generated WSDL
+            file.</entry>
           </row>
 
           <row>
-            <entry><para><option>-cp</option>
-            <replaceable>class-path</replaceable></para></entry>
-
-            <entry><para>Specify the SEI and types class search path of
-            directories and zip/jar files.</para></entry>
+            <entry><option>-cp</option>
+            <replaceable>class-path</replaceable></entry>
+            <entry>Specify the SEI and types class search path of
+            directories and zip/jar files.</entry>
           </row>
 
           <row>
-            <entry><para><option>-t</option>
-            <replaceable>target-namespace</replaceable></para></entry>
-
-            <entry><para>Specifies the target namespace to use in the
-            generated WSDL file.</para></entry>
+            <entry><option>-t</option>
+            <replaceable>target-namespace</replaceable></entry>
+            <entry>Specifies the target namespace to use in the
+            generated WSDL file.</entry>
           </row>
 
           <row>
-            <entry><para><option>-servicename</option>
-            <replaceable>service-name</replaceable></para></entry>
+            <entry><option>-servicename</option>
+            <replaceable>service-name</replaceable></entry>
 
-            <entry><para>Specifies the value of the generated <sgmltag
+            <entry>Specifies the value of the generated <sgmltag
             class="element">service</sgmltag> element's <sgmltag
-            class="attribute">name</sgmltag> attribute.</para></entry>
+            class="attribute">name</sgmltag> attribute.</entry>
           </row>
-
           <row>
             <entry><option>-v</option></entry>
-
-            <entry><para>Displays the version number for the
-            tool.</para></entry>
+            <entry>Displays the version number for the tool.</entry>
           </row>
-
           <row>
             <entry><option>-verbose</option></entry>
-
-            <entry><para>Displays comments during the code generation
-            process.</para></entry>
+            <entry>Displays comments during the code generation process.</entry>
           </row>
-
           <row>
             <entry><option>-quiet</option></entry>
-
-            <entry><para>Suppresses comments during the code generation
-            process.</para></entry>
+            <entry>Suppresses comments during the code generation process.</entry>
           </row>
-
           <row>
             <entry><replaceable>classname</replaceable></entry>
-
-            <entry><para>Specifies the name of the service endpoint
-            class.</para></entry>
+            <entry>Specifies the name of the service endpoint class.</entry>
           </row>
         </tbody>
       </tgroup>
@@ -409,11 +397,9 @@
         <thead>
           <row>
             <entry>Option</entry>
-
             <entry>Interpretation</entry>
           </row>
         </thead>
-
         <tbody>
           <row>
             <entry><option>-?</option>
@@ -421,7 +407,6 @@
 			<option>-help</option>
             <para />
 			<option>-h</option></entry>
-
             <entry>Displays the online help for this
             utility.</entry>
           </row>
@@ -438,80 +423,53 @@
           <row>
             <entry><para><option>-b</option>
             <replaceable>binding-name</replaceable></para></entry>
-
-            <entry><para>Specifies the name of the generated SOAP
-            binding.</para></entry>
+            <entry>Specifies the name of the generated SOAP
+            binding.</entry>
           </row>
-
           <row>
-            <entry><para><option>-d</option>
-            <replaceable>output-directory</replaceable></para></entry>
-
-            <entry><para>Specifies the directory to place generated WSDL
-            file.</para></entry>
+            <entry><option>-d</option> <replaceable>output-directory</replaceable></entry>
+            <entry>Specifies the directory to place generated WSDL file.</entry>
           </row>
-
           <row>
-            <entry><para><option>-o</option>
-            <replaceable>output-file</replaceable></para></entry>
-
-            <entry><para>Specifies the name of the generated WSDL
-            file.</para></entry>
+            <entry><option>-o</option>
+            <replaceable>output-file</replaceable></entry>
+            <entry>Specifies the name of the generated WSDL file.</entry>
           </row>
-
           <row>
-            <entry><para><option>-n
-            </option><replaceable>soap-body-namespace</replaceable></para></entry>
-
-            <entry><para>Specifies the SOAP body namespace when the style is
-            RPC.</para></entry>
+            <entry><option>-n</option> <replaceable>soap-body-namespace</replaceable></entry>
+            <entry>Specifies the SOAP body namespace when the style is RPC.</entry>
           </row>
-
           <row>
-            <entry><para><option>-style</option>
-            (<literal>document</literal>/<literal>rpc</literal>)</para></entry>
+            <entry><option>-style</option>
+            (<constant>document</constant>/<constant>rpc</constant>)</entry>
 
-            <entry><para>Specifies the encoding style (document or RPC) to use
-            in the SOAP binding. The default is
-            <constant>document</constant>.</para></entry>
+            <entry>Specifies the encoding style (document or RPC) to use
+            in the SOAP binding. The default is <constant>document</constant>.</entry>
           </row>
-
           <row>
-            <entry><para><option>-use</option>
-            (<literal>literal</literal>/<literal>encoded</literal>)</para></entry>
+            <entry><option>-use</option>
+            (<constant>literal</constant>/<constant>encoded</constant>)</entry>
 
-            <entry><para>Specifies the binding use (encoded or literal) to use
-            in the SOAP binding. The default is
-            <constant>literal.</constant></para></entry>
+            <entry>Specifies the binding use (encoded or literal) to use
+            in the SOAP binding. The default is <constant>literal</constant>.</entry>
           </row>
-
           <row>
             <entry><option>-v</option></entry>
-
-            <entry><para>Displays the version number for the
-            tool.</para></entry>
+            <entry>Displays the version number for the tool.</entry>
           </row>
-
           <row>
             <entry><option>-verbose</option></entry>
-
-            <entry><para>Displays comments during the code generation
-            process.</para></entry>
+            <entry>Displays comments during the code generation process.</entry>
           </row>
-
           <row>
             <entry><option>-quiet</option></entry>
-
-            <entry><para>Suppresses comments during the code generation
-            process.</para></entry>
+            <entry>Suppresses comments during the code generation process.</entry>
           </row>
-
           <row>
             <entry><replaceable>wsdlurl</replaceable></entry>
-
-            <entry><para>The path and name of the WSDL file containing the
+            <entry>The path and name of the WSDL file containing the
             <sgmltag class="element">portType</sgmltag> element
-            definition.</para></entry>
+            definition.</entry>
           </row>
         </tbody>
       </tgroup>
@@ -601,169 +559,108 @@
         <thead>
           <row>
             <entry>Option</entry>
-
             <entry>Interpretation</entry>
           </row>
         </thead>
-
         <tbody>
           <row>
-            <entry><para><option>-?</option></para>
-            <para><option>-help</option></para>
-            <para><option>-h</option></para></entry>
-
-            <entry><para>Displays the online help for this
-            utility.</para></entry>
+            <entry><option>-?</option>
+            <para /><option>-help</option>
+            <para /><option>-h</option></entry>
+            <entry>Displays the online help for this
+            utility.</entry>
           </row>
-
           <row>
-            <entry><para><option>-transport</option>
-            (<literal>http</literal>/<literal>jms</literal>)</para></entry>
-
-            <entry><para>Specifies the type of transport to use for the
-            generated service.</para></entry>
+            <entry><option>-transport</option>
+            (<constant>http</constant>/<constant>jms</constant>)</entry>
+            <entry>Specifies the type of transport to use for the
+            generated service.</entry>
           </row>
-
           <row>
-            <entry><para><option>-e</option>
-            <replaceable>service-name</replaceable></para></entry>
-
-            <entry><para>Specifies the value of the generated <sgmltag
+            <entry><option>-e</option>
+            <replaceable>service-name</replaceable></entry>
+            <entry>Specifies the value of the generated <sgmltag
             class="element">service</sgmltag> element's <sgmltag
-            class="attribute">name</sgmltag> attribute.</para></entry>
+            class="attribute">name</sgmltag> attribute.</entry>
           </row>
-
           <row>
-            <entry><para><option>-p</option>
-            <replaceable>port-name</replaceable></para></entry>
+            <entry><option>-p</option>
+            <replaceable>port-name</replaceable></entry>
 
-            <entry><para>Specifies the value of the generated <sgmltag
+            <entry>Specifies the value of the generated <sgmltag
             class="element">port</sgmltag> element's <sgmltag
             class="attribute">name</sgmltag> attribute. To specify multiple
-            port elements, separate the names by a space.</para></entry>
+            port elements, separate the names by a space.</entry>
           </row>
-
           <row>
-            <entry><para><option>-a</option>
-            <replaceable>address</replaceable></para></entry>
-
-            <entry><para>Specifies the value used in the <sgmltag
+            <entry><option>-a</option> <replaceable>address</replaceable></entry>
+            <entry>Specifies the value used in the <sgmltag
             class="element">address</sgmltag> element of the
-            port.</para></entry>
+            port.</entry>
           </row>
-
           <row>
-            <entry><para><option>-n</option>
-            <replaceable>binding-name</replaceable></para></entry>
-
-            <entry><para>Specifies the binding used to generate the
-            service.</para></entry>
+            <entry><option>-n</option> <replaceable>binding-name</replaceable></entry>
+            <entry>Specifies the binding used to generate the service.</entry>
           </row>
-
           <row>
-            <entry><para><option>-jds</option>
-            (<literal>queue</literal>/<literal>topic</literal>)</para></entry>
-
-            <entry><para>Specifies the JMS destination style.</para></entry>
+            <entry><option>-jds</option>
+            (<constant>queue</constant>/<constant>topic</constant>)</entry>
+            <entry>Specifies the JMS destination style.</entry>
           </row>
-
           <row>
-            <entry><para><option>-jpu</option>
-            <replaceable>jndi-provider-URL</replaceable></para></entry>
-
-            <entry><para>Specifies the URL of the JMS JNDI
-            provider.</para></entry>
+            <entry><option>-jpu</option> <replaceable>jndi-provider-URL</replaceable></entry>
+            <entry>Specifies the URL of the JMS JNDI provider.</entry>
           </row>
-
           <row>
-            <entry><para><option>-jcf</option>
-            <replaceable>initial-context-factory</replaceable></para></entry>
-
-            <entry><para>Specifies the JMS initial context
-            factory.</para></entry>
+            <entry><option>-jcf</option> <replaceable>initial-context-factory</replaceable></entry>
+            <entry>Specifies the JMS initial context factory.</entry>
           </row>
-
           <row>
-            <entry><para><option>-jfn</option>
-            <replaceable>jndi-connection-factory-name</replaceable></para></entry>
-
-            <entry><para>Specifies the JMS JNDI connection factory
-            name.</para></entry>
+            <entry><option>-jfn</option> <replaceable>jndi-connection-factory-name</replaceable></entry>
+            <entry>Specifies the JMS JNDI connection factory name.</entry>
           </row>
-
           <row>
-            <entry><para><option>-jdn</option>
-            <replaceable>jndi-destination-name</replaceable></para></entry>
-
-            <entry><para>Specifies the JMS JNDI destination
-            name.</para></entry>
+            <entry><option>-jdn</option> <replaceable>jndi-destination-name</replaceable></entry>
+            <entry>Specifies the JMS JNDI destination name.</entry>
           </row>
-
           <row>
-            <entry><para><option>-jmt</option>
-            (<literal>text</literal>/<literal>binary</literal>)</para></entry>
-
-            <entry><para>Specifies the JMS message type.</para></entry>
+            <entry><option>-jmt</option>
+            (<constant>text</constant>/<constant>binary</constant>)</entry>
+            <entry>Specifies the JMS message type.</entry>
           </row>
-
           <row>
-            <entry><para><option>-jmc</option>
-            (<literal>true</literal>/<literal>false</literal>)</para></entry>
-
-            <entry><para>Specifies if the <classname>MessageID</classname> is
-            used as the <classname>CorrelationID</classname>.</para></entry>
+            <entry><option>-jmc</option>
+            (<constant>true</constant>/<constant>false</constant>)</entry>
+            <entry>Specifies if the <classname>MessageID</classname> is
+            used as the <classname>CorrelationID</classname>.</entry>
           </row>
-
           <row>
-            <entry><para><option>-jsn</option>
-            <replaceable>durable-subscriber-name</replaceable></para></entry>
-
-            <entry><para>Specifies an optional durable subscriber
-            name.</para></entry>
+            <entry><option>-jsn</option> <replaceable>durable-subscriber-name</replaceable></entry>
+            <entry>Specifies an optional durable subscriber name.</entry>
           </row>
-
           <row>
-            <entry><para><option>-o</option>
-            <replaceable>output-file</replaceable></para></entry>
-
-            <entry><para>Specifies the name of the generated WSDL
-            file.</para></entry>
+            <entry><option>-o</option> <replaceable>output-file</replaceable></entry>
+            <entry>Specifies the name of the generated WSDL file.</entry>
           </row>
-
           <row>
-            <entry><para><option>-d</option>
-            <replaceable>output-directory</replaceable></para></entry>
-
-            <entry><para>Specifies the directory in which the generated WSDL
-            is placed.</para></entry>
+            <entry><option>-d</option> <replaceable>output-directory</replaceable></entry>
+            <entry>Specifies the directory in which the generated WSDL is placed.</entry>
           </row>
-
           <row>
             <entry><option>-v</option></entry>
-
-            <entry><para>Displays the version number for the
-            tool.</para></entry>
+            <entry>Displays the version number for the tool.</entry>
           </row>
-
           <row>
             <entry><option>-verbose</option></entry>
-
-            <entry><para>Displays comments during the code generation
-            process.</para></entry>
+            <entry>Displays comments during the code generation process.</entry>
           </row>
-
           <row>
             <entry><option>-quiet</option></entry>
-
-            <entry><para>Suppresses comments during the code generation
-            process.</para></entry>
+            <entry>Suppresses comments during the code generation process.</entry>
           </row>
-
           <row>
             <entry><replaceable>wsdlurl</replaceable></entry>
-
-            <entry><para>The path and name of the existing WSDL
-            file.</para></entry>
+            <entry>The path and name of the existing WSDL file.</entry>
           </row>
         </tbody>
       </tgroup>
@@ -813,109 +710,71 @@
         <thead>
           <row>
             <entry>Option</entry>
-
             <entry>Interpretation</entry>
           </row>
         </thead>
-
         <tbody>
           <row>
             <entry><option>-?</option>
             <para />
 			<option>-help</option>
             <para /><option>-h</option></entry>
-
             <entry>Displays the online help for this
             utility.</entry>
           </row>
-
           <row>
-            <entry><option>-i</option>
-            <replaceable>port-type-name</replaceable></entry>
-
+            <entry><option>-i</option> <replaceable>port-type-name</replaceable></entry>
             <entry>Specifies the <sgmltag
             class="element">portType</sgmltag> element to use.</entry>
           </row>
-
           <row>
-            <entry><option>-b</option>
-            <replaceable>binding-name</replaceable></entry>
-
+            <entry><option>-b</option> <replaceable>binding-name</replaceable></entry>
             <entry>Specifies the name of the generated XML
             binding.</entry>
           </row>
-
           <row>
-            <entry><option>-e</option>
-            <replaceable>service-name</replaceable></entry>
-
+            <entry><option>-e</option> <replaceable>service-name</replaceable></entry>
             <entry>Specifies the value of the generated <sgmltag
             class="element">service</sgmltag> element's <sgmltag
             class="attribute">name</sgmltag> attribute.</entry>
           </row>
-
           <row>
-            <entry><option>-p</option>
-            <replaceable>port-name</replaceable></entry>
-
+            <entry><option>-p</option> <replaceable>port-name</replaceable></entry>
             <entry>Specifies the value of the generated <sgmltag
             class="element">port</sgmltag> element's <sgmltag
             class="attribute">name</sgmltag> attribute. To specify multiple
             <sgmltag class="element">port</sgmltag> elements, separate the
             names by a space.</entry>
           </row>
-
           <row>
-            <entry><option>-a</option>
-            <replaceable>address</replaceable></entry>
-
+            <entry><option>-a</option> <replaceable>address</replaceable></entry>
             <entry>Specifies the value used in the <sgmltag
             class="element">address</sgmltag> element of the generated
             <sgmltag class="element">port</sgmltag> element.</entry>
           </row>
-
           <row>
-            <entry><option>-d</option>
-            <replaceable>output-directory</replaceable></entry>
-
-            <entry>Specifies the directory to place generated WSDL
-            file.</entry>
+            <entry><option>-d</option> <replaceable>output-directory</replaceable></entry>
+            <entry>Specifies the directory to place generated WSDL file.</entry>
           </row>
-
           <row>
-            <entry><option>-o</option>
-            <replaceable>output-file</replaceable></entry>
-
-            <entry>Specifies the name of the generated WSDL
-            file.</entry>
+            <entry><option>-o</option> <replaceable>output-file</replaceable></entry>
+            <entry>Specifies the name of the generated WSDL file.</entry>
           </row>
-
           <row>
             <entry><option>-v</option></entry>
-
-            <entry>Displays the version number for the
-            tool.</entry>
+            <entry>Displays the version number for the tool.</entry>
           </row>
-
           <row>
             <entry><option>-verbose</option></entry>
-
-            <entry>Displays comments during the code generation
-            process.</entry>
+            <entry>Displays comments during the code generation process.</entry>
           </row>
-
           <row>
             <entry><option>-quiet</option></entry>
-
-            <entry>Suppresses comments during the code generation
-            process.</entry>
+            <entry>Suppresses comments during the code generation process.</entry>
           </row>
-
           <row>
             <entry><replaceable>wsdlurl</replaceable></entry>
-
-            <entry>The path and name of the existing WSDL
-            file.</entry>
+            <entry>The path and name of the existing WSDL file.</entry>
           </row>
         </tbody>
       </tgroup>

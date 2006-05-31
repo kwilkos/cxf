@@ -24,17 +24,17 @@
 
     <para>Writing a service in JavaScript is a two step process:</para>
 
-    <orderedlist>
-      <listitem>
+    <procedure>
+      <step>
         <para><ulink url="#metadata">Define</ulink> the JAX-WS style
         metadata.</para>
-      </listitem>
+      </step>
 
-      <listitem>
+      <step>
         <para><ulink url="#impl">Implement</ulink> the service's business
         logic.</para>
-      </listitem>
-    </orderedlist>
+      </step>
+    </procedure>
 
     <sect2 id="metadata">
       <title>Defining the Metadata</title>

@@ -29,7 +29,7 @@ port type, Greeter, with a SOAP binding, Greeter_SOAPBinding, and a service, SOA
 has a single port, SoapPort.</para>
 <example id="Table3">
 <title>HelloWorld WSDL Contract</title>
-<prgramlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;wsdl:definitions name="HelloWorld" targetNamespace="http://objectweb.org/hello_world_soap_http"
                   xmlns="http://schemas.xmlsoap.org/wsdl/"
                   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
@@ -174,7 +174,7 @@ generated automatically by running the Celtix wsdl2service utility.</para>
 <title>Generating the Stub Code</title>
 <para>After defining the WSDL contract, you can generate client code using the Celtix wsdl2java 
 utility. Enter the following command at a command-line prompt:</para>
-<userinput>wsdl2java -ant -client -d <replaceable>ClientDir</replaceable> hello_world.wsdl</userinput>
+<screen><userinput>wsdl2java -ant -client -d <replaceable>ClientDir</replaceable> hello_world.wsdl</userinput></screen>
 <para>Where <replaceable>ClientDir</replaceable> is the location of a directory where you would 
 like to put the generated files and <filename>hello_world.wsdl</filename> is a file containing the 
 contract shown in <xref linkend="Table3" />. The -ant option generates an ant 
@@ -214,11 +214,12 @@ type. In JAX-WS terminology, this Java interface is a service endpoint interface
 <sgmltag class="element">service</sgmltag> element.</para>
 </listitem>
 <listitem>
-<para><classname>PingMeFault<classname> is a Java exception class (extending 
+<para><classname>PingMeFault</classname> is a Java exception class (extending 
 <classname>java.lang.Exception</classname>) that represents the pingMeFault WSDL 
 <sgmltag class="element">fault</sgmltag> element.</para>
 </listitem>
 </itemizedlist>
+</listitem>
 <listitem>
 <para>Classes representing XML types (in the 
 <classname>org.objectweb.hello_world_soap_http.types</classname> package) — in the HelloWorld 
@@ -247,6 +248,7 @@ stub classes:</para>
 <classname>ServiceName</classname>, which extends the <classname>javax.xml.ws.Service</classname> 
 base class.</para>
 <example id="Table2">
+<title>Outline of a Generated Service Class</title>
 <programlisting>public class ServiceName extends javax.xml.ws.Service
 {
   ...
@@ -264,7 +266,6 @@ base class.</para>
 <itemizedlist>
 <listitem>
 <para>Constructor methods — the following forms of constructor are defined:</para>
-</listitem>
 <itemizedlist>
 <listitem>
 <para><methodname><replaceable>ServiceName</replaceable>(URL wsdlLocation, QName serviceName)</methodname> 
@@ -279,8 +280,9 @@ wsdl2java command). Using this constructor presupposes that the WSDL contract re
 its original location.</para>
 </listitem>
 </itemizedlist>
+</listitem>
 <listitem>
-<para><methodname>get<replaceable>PortName</replaceable>() methods — for every 
+<para><methodname>get<replaceable>PortName</replaceable>()</methodname> methods — for every 
 <replaceable>PortName</replaceable> port defined on the <replaceable>ServiceName</replaceable> 
 service, Celtix generates a corresponding 
 <methodname>get<replaceable>PortName</replaceable>()</methodname> method in Java. Therefore, a 
@@ -413,7 +415,7 @@ classes are loaded. Hence, there is no need to call a special function in order 
 </listitem>
 <listitem>
 <para>The client expects a single string argument that gives the location of the WSDL contract for 
-HelloWorld. The WSDL location is stored in <varname>wsdlURL<varname>.</para>
+HelloWorld. The WSDL location is stored in <varname>wsdlURL</varname>.</para>
 </listitem>
 <listitem>
 <para>A new port object (which enables you to access the remote server endpoint) is created in two 
@@ -642,7 +644,7 @@ template for a binding declaration file that switches on asynchronous invocation
 <title>Template for an Asynchronous Binding Declaration</title>
 <programlisting>&lt;bindings xmlns:xsd="http://www.w3.org/2001/XMLSchema"
           xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-          wsdlLocation="<replacable>AffectedWSDLContract</replaceable>"
+          wsdlLocation="<replaceable>AffectedWSDLContract</replaceable>"
           xmlns="http://java.sun.com/xml/ns/jaxws"&gt;
   &lt;bindings node="<replaceable>AffectedNode</replaceable>"&gt;
     &lt;enableAsyncMapping&gt;true&lt;/enableAsyncMapping&gt;
@@ -654,7 +656,7 @@ that is affected by this binding declaration. The <replaceable>AffectedNode</rep
 XPath value that specifies which node (or nodes) from the WSDL contract are affected by this 
 binding declaration. You can set <replaceable>AffectedNode</replaceable> to 
 <sgmltag class="element">wsdl:definitions</sgmltag>, if you want the entire WSDL contract to be 
-affected. The <sgmltag class="element">jaxws:enableAsyncMapping element is set to 
+affected. The <sgmltag class="element">jaxws:enableAsyncMapping</sgmltag> element is set to 
 <constant>true</constant> to enable the asynchronous invocation feature.</para>
 <para>For example, if you want to generate asynchronous methods only for the GreeterAsync port 
 type, you could specify 
@@ -714,181 +716,170 @@ the polling approach to asynchronous invocation</para>
 </sect2>
 <sect2>
 <title>Implementing an Asynchronous Client with the Polling Approach</title>
-<para>Listing 10 illustrates the polling approach to making an asynchronous operation call. Using this approach, the client invokes the operation by calling the special Java method, OperationNameAsync(), that returns a javax.xml.ws.Response&lt;T&gt; object, where T is the type of the operation's response message. The Response&lt;T&gt; object can be polled at a later stage to check whether the operation's response message has arrived.</para>
-<informaltable frame="all">
-<tgroup cols="1"><tbody>
-<row>
-<entry>
-<para>package demo.hw.client;</para>
-<para/>
-<para>import java.io.File;</para>
-<para>import java.util.concurrent.Future;</para>
-<para/>
-<para>import javax.xml.namespace.QName;</para>
-<para>import javax.xml.ws.Response;</para>
-<para/>
-<para>import org.objectweb.hello_world_async_soap_http.GreeterAsync;</para>
-<para>import org.objectweb.hello_world_async_soap_http.SOAPService;</para>
-<para>import org.objectweb.hello_world_async_soap_http.types.GreetMeSometimeResponse;</para>
-<para/>
-<para>public final class Client {</para>
-<para/>
-<para>private static final QName SERVICE_NAME </para>
-<para>= new QName("http://objectweb.org/hello_world_async_soap_http", "SOAPService");</para>
-<para/>
-<para>private Client() {</para>
-<para>} </para>
-<para/>
-<para>public static void main(String args[]) throws Exception {</para>
-<para>...</para>
-<para>// Polling approach:</para>
-<para>Response&lt;GreetMeSometimeResponse&gt; greetMeSomeTimeResp = </para>
-<para>port.greetMeSometimeAsync(System.getProperty("user.name"));</para>
-<para>while (!greetMeSomeTimeResp.isDone()) {</para>
-<para>Thread.sleep(100);</para>
-<para>}</para>
-<para>GreetMeSometimeResponse reply = greetMeSomeTimeResp.get();</para>
-<para>...</para>
-<para>System.exit(0);</para>
-<para>}</para>
-<para>}</para>
-</entry>
-</row></tbody></tgroup>
-</informaltable>
-<para>Listing 10: Polling Approach for an Asynchronous Operation Call</para>
-<para>The greetMeSometimeAsync() method invokes the greetMeSometimes operation, transmitting the input parameters to the remote service and returning a reference to a javax.xml.ws.Response&lt;GreetMeSometimeResponse&gt; object. The Response class is defined by extending the standard java.util.concurrency.Future&lt;T&gt; interface, which is specifically designed for polling the outcome of work performed by a concurrent thread. There are essentially two basic approaches to polling using the Response object:</para>
-<orderedlist>
+<para><xref linkend="async4" /> illustrates the polling approach to making an asynchronous 
+operation call. Using this approach, the client invokes the operation by calling the special Java 
+method, <methodname><replaceable>OperationName</replaceable>Async()</methodname>, that returns a 
+<classname>javax.xml.ws.Response&lt;T&gt;</classname> object, where T is the type of the 
+operation's response message. The <classname>Response&lt;T&gt;</classname> object can be polled at 
+a later stage to check whether the operation's response message has arrived.</para>
+<example id="async4">
+<title>Polling Approach for an Asynchronous Operation Call</title>
+<programlisting>package demo.hw.client;
+
+import java.io.File;
+import java.util.concurrent.Future;
+
+import javax.xml.namespace.QName;
+import javax.xml.ws.Response;
+
+import org.objectweb.hello_world_async_soap_http.GreeterAsync;
+import org.objectweb.hello_world_async_soap_http.SOAPService;
+import org.objectweb.hello_world_async_soap_http.types.GreetMeSometimeResponse;
+
+public final class Client {
+  private static final QName SERVICE_NAME
+    = new QName("http://objectweb.org/hello_world_async_soap_http", "SOAPService");
+
+  private Client() {}
+
+  public static void main(String args[]) throws Exception {
+    ...
+    // Polling approach:
+    Response&lt;GreetMeSometimeResponse&gt; greetMeSomeTimeResp =
+      port.greetMeSometimeAsync(System.getProperty("user.name"));
+      while (!greetMeSomeTimeResp.isDone()) {
+        Thread.sleep(100);
+      }
+      GreetMeSometimeResponse reply = greetMeSomeTimeResp.get();
+      ...
+      System.exit(0);
+  }
+}</programlisting>
+</example>
+<para>The <methodname>greetMeSometimeAsync()</methodname> method invokes the 
+<methodname>greetMeSometimes</methodname> operation, transmitting the input parameters to the 
+remote service and returning a reference to a 
+<classname>javax.xml.ws.Response&lt;GreetMeSometimeResponse&gt;</classname> object. The 
+<classname>Response</classname> class is defined by extending the standard 
+<classname>java.util.concurrency.Future&lt;T&gt;</classname> interface, which is specifically 
+designed for polling the outcome of work performed by a concurrent thread. There are essentially 
+two basic approaches to polling using the <classname>Response</classname> object:</para>
+<itemizedlist>
 <listitem>
-<para>Non-blocking polling — before attempting to get the result, check whether the response has arrived by calling the non-blocking Response&lt;T&gt;.isDone() method. For example:</para>
+<para>Non-blocking polling — before attempting to get the result, check whether the response has 
+arrived by calling the non-blocking <methodname>Response&lt;T&gt;.isDone()</methodname> method. 
+For example:</para>
+<programlisting>Response&lt;GreetMeSometimeResponse&gt; greetMeSomeTimeResp = ...;
+
+if (greetMeSomeTimeResp.isDone()) {
+  GreetMeSometimeResponse reply = greetMeSomeTimeResp.get();
+}</programlisting>
 </listitem>
-</orderedlist>
-<informaltable frame="all">
-<tgroup cols="1"><tbody>
-<row>
-<entry>
-<para>// Java</para>
-<para>Response&lt;GreetMeSometimeResponse&gt; greetMeSomeTimeResp = ...;</para>
-<para/>
-<para>if (greetMeSomeTimeResp.isDone()) {</para>
-<para>GreetMeSometimeResponse reply = greetMeSomeTimeResp.get();</para>
-<para>}</para>
-</entry>
-</row></tbody></tgroup>
-</informaltable>
-<orderedlist>
 <listitem>
-<para>Blocking polling — call Response&lt;T&gt;.get() right away and block until the response arrives (optionally specifying a timeout). For example, to poll for a response, with a 60 second timeout:</para>
+<para>Blocking polling — call <methodname>Response&lt;T&gt;.get()</methodname> right away and 
+block until the response arrives (optionally specifying a timeout). For example, to poll for a 
+response, with a 60 second timeout:</para>
+<programlisting>Response&lt;GreetMeSometimeResponse&gt; greetMeSomeTimeResp = ...;
+
+GreetMeSometimeResponse reply = greetMeSomeTimeResp.get(
+  60L,
+  java.util.concurrent.TimeUnit.SECONDS
+  );</programlisting>
 </listitem>
-</orderedlist>
-<informaltable frame="all">
-<tgroup cols="1"><tbody>
-<row>
-<entry>
-<para>// Java</para>
-<para>Response&lt;GreetMeSometimeResponse&gt; greetMeSomeTimeResp = ...;</para>
-<para/>
-<para>GreetMeSometimeResponse reply = greetMeSomeTimeResp.get(</para>
-<para>60L,</para>
-<para>java.util.concurrent.TimeUnit.SECONDS</para>
-<para>);</para>
-</entry>
-</row></tbody></tgroup>
-</informaltable>
-<para/></sect3><sect3><title>Implementing an Asynchronous Client with the Callback Approach</title>
-<para>An alternative approach to making an asynchronous operation invocation is to implement a callback class, by deriving from the javax.xml.ws.AsyncHandler interface. This callback class must implement a handleResponse() method, which is called by the Celtix runtime to notify the client that the response has arrived. Listing 11 shows an outline of the AsyncHandler interface that you need to implement.</para>
-<informaltable frame="all">
-<tgroup cols="1"><tbody>
-<row>
-<entry>
-<para>// Java</para>
-<para>package javax.xml.ws;</para>
-<para/>
-<para>public interface AsyncHandler&lt;T&gt;</para>
-<para>{</para>
-<para>void handleResponse(Response&lt;T&gt; res);</para>
-<para>}</para>
-</entry>
-</row></tbody></tgroup>
-</informaltable>
-<para>Listing 11: The javax.xml.ws.AsyncHandler Interface</para>
-<para>In this example, a callback class, TestAsyncHandler, is defined as shown in Listing 12.</para>
-<informaltable frame="all">
-<tgroup cols="1"><tbody>
-<row>
-<entry>
-<para>package demo.hw.client;</para>
-<para/>
-<para>import javax.xml.ws.AsyncHandler;</para>
-<para>import javax.xml.ws.Response;</para>
-<para/>
-<para>import org.objectweb.hello_world_async_soap_http.types.GreetMeSometimeResponse;</para>
-<para/>
-<para>public class TestAsyncHandler implements AsyncHandler&lt;GreetMeSometimeResponse&gt; {</para>
-<para>private GreetMeSometimeResponse reply;</para>
-<para/>
-<para>public void handleResponse(Response&lt;GreetMeSometimeResponse&gt; response) {</para>
-<para>try {</para>
-<para>reply = response.get();</para>
-<para>} catch (Exception ex) {</para>
-<para>ex.printStackTrace();</para>
-<para>}</para>
-<para>}</para>
-<para/>
-<para>public String getResponse() {</para>
-<para>return reply.getResponseType();</para>
-<para>}</para>
-<para/>
-<para>}</para>
-</entry>
-</row></tbody></tgroup>
-</informaltable>
-<para>Listing 12: The TestAsyncHandler Callback Class</para>
-<para>The implementation of the handleResponse() method shown in Listing 12 simply gets the response data and stores it in a member variable, reply. The extra getResponse() method is just a convenience method that extracts the sole output parameter (that is, responseType) from the response.</para>
-<para>Listing 13 illustrates the callback approach to making an asynchronous operation call. Using this approach, the client invokes the operation by calling the special Java method, OperationNameAsync(), that returns a java.util.concurrency.Future&lt;?&gt; object and takes an extra parameter of AsyncHandler&lt;T&gt; type. </para>
-<informaltable frame="all">
-<tgroup cols="1"><tbody>
-<row>
-<entry>
-<para>package demo.hw.client;</para>
-<para/>
-<para>import java.io.File;</para>
-<para>import java.util.concurrent.Future;</para>
-<para/>
-<para>import javax.xml.namespace.QName;</para>
-<para>import javax.xml.ws.Response;</para>
-<para/>
-<para>import org.objectweb.hello_world_async_soap_http.GreeterAsync;</para>
-<para>import org.objectweb.hello_world_async_soap_http.SOAPService;</para>
-<para>import org.objectweb.hello_world_async_soap_http.types.GreetMeSometimeResponse;</para>
-<para/>
-<para>public final class Client {</para>
-<para/>
-<para>private static final QName SERVICE_NAME </para>
-<para>= new QName("http://objectweb.org/hello_world_async_soap_http", "SOAPService");</para>
-<para/>
-<para>private Client() {</para>
-<para>} </para>
-<para/>
-<para>public static void main(String args[]) throws Exception {</para>
-<para>...</para>
-<para>// Callback approach</para>
-<para>TestAsyncHandler testAsyncHandler = new TestAsyncHandler();</para>
-<para>System.out.println("Invoking greetMeSometimeAsync using callback object...");</para>
-<para>Future&lt;?&gt; response = port.greetMeSometimeAsync(System.getProperty("user.name"), testAsyncHandler);</para>
-<para>while (!response.isDone()) {</para>
-<para>Thread.sleep(100);</para>
-<para>} </para>
-<para>resp = testAsyncHandler.getResponse();</para>
-<para>...</para>
-<para>System.exit(0);</para>
-<para>}</para>
-<para>}</para>
-</entry>
-</row></tbody></tgroup>
-</informaltable>
-<para>Listing 13: Callback Approach for an Asynchronous Operation Call</para>
-<para>The Future&lt;?&gt; object returned by greetMeSometimeAsync() can be used only to test whether or not a response has arrived yet — for example, by calling response.isDone(). The value of the response is only made available to the callback object, testAsyncHandler.</para>
-<para/>
+</itemizedlist>
+</sect2>
+<sect2>
+<title>Implementing an Asynchronous Client with the Callback Approach</title>
+<para>An alternative approach to making an asynchronous operation invocation is to implement a 
+callback class, by deriving from the <classname>javax.xml.ws.AsyncHandler</classname> interface. 
+This callback class must implement a <methodname>handleResponse()</methodname> method, which is 
+called by the Celtix runtime to notify the client that the response has arrived. 
+<xref linkend="async5" /> shows an outline of the <classname>AsyncHandler</classname> interface 
+that you need to implement.</para>
+<example id="async5">
+<title>The javax.xml.ws.AsyncHandler Interface</title>
+<programlisting>package javax.xml.ws;
+
+public interface AsyncHandler&lt;T&gt;
+{
+  void handleResponse(Response&lt;T&gt; res);
+}</programlisting>
+</example>
+<para>In this example, a callback class, <classname>TestAsyncHandler</classname>, is defined as 
+shown in <xref linkend="async6" />.</para>
+<example id="async6">
+<title>The TestAsyncHandler Callback Class</title>
+<programlisting>package demo.hw.client;
+
+import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Response;
+
+import org.objectweb.hello_world_async_soap_http.types.GreetMeSometimeResponse;
+
+public class TestAsyncHandler implements AsyncHandler&lt;GreetMeSometimeResponse&gt; {
+  private GreetMeSometimeResponse reply;
+
+  public void handleResponse(Response&lt;GreetMeSometimeResponse&gt; response) {
+    try {
+      reply = response.get();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+
+  public String getResponse() {
+    return reply.getResponseType();
+  }
+}</programlisting>
+</example>
+<para>The implementation of <methodname>handleResponse()</methodname> shown in 
+<xref linkend="async6" /> simply gets the response data and stores it in a member variable, 
+<varname>reply</varname>. The extra <methodname>getResponse()</methodname> method is just a 
+convenience method that extracts the sole output parameter (that is, responseType) from the response.</para>
+<para><xref linkend="async7" /> illustrates the callback approach to making an asynchronous 
+operation call. Using this approach, the client invokes the operation by calling the special Java 
+method, <methodname><replaceable>OperationName</replaceable>Async()</methodname>, that returns a 
+<classname>java.util.concurrency.Future&lt;?&gt;</classname> object and takes an extra parameter 
+of <classname>AsyncHandler&lt;T&gt;</classname>. </para>
+<example id="async7">
+<title>Callback Approach for an Asynchronous Operation Call</title>
+<programlisting>package demo.hw.client;
+
+import java.io.File;
+import java.util.concurrent.Future;
+
+import javax.xml.namespace.QName;
+import javax.xml.ws.Response;
+
+import org.objectweb.hello_world_async_soap_http.GreeterAsync;
+import org.objectweb.hello_world_async_soap_http.SOAPService;
+import org.objectweb.hello_world_async_soap_http.types.GreetMeSometimeResponse;
+
+public final class Client {
+  private static final QName SERVICE_NAME
+    = new QName("http://objectweb.org/hello_world_async_soap_http", "SOAPService");
+
+  private Client() {}
+
+  public static void main(String args[]) throws Exception {
+    ...
+    // Callback approach
+    TestAsyncHandler testAsyncHandler = new TestAsyncHandler();
+    System.out.println("Invoking greetMeSometimeAsync using callback object...");
+    Future&lt;?&gt; response = port.greetMeSometimeAsync(System.getProperty("user.name"), testAsyncHandler);
+    while (!response.isDone()) {
+      Thread.sleep(100);
+    }
+    resp = testAsyncHandler.getResponse();
+    ...
+    System.exit(0);
+  }
+}</programlisting>
+</example>
+<para>The <classname>Future&lt;?&gt;</classname> object returned by 
+<methodname>greetMeSometimeAsync()</methodname> can be used only to test whether or not a response 
+has arrived yet — for example, by calling <methodname>response.isDone()</methodname>. The value of 
+the response is only made available to the callback object, <classname>testAsyncHandler</classname>.</para>
 </sect2>
 </sect1>
 </article>

@@ -21,22 +21,14 @@ distribution. Each distribution is also provided under two licensing agreements:
 <tgroup cols="3">
 <thead>
 <row>
-<entry>
-<para>Distribution</para>
-</entry>
-<entry>
-<para>EPL</para>
-</entry>
-<entry>
-<para>LGPL</para>
-</entry>
+<entry>Distribution</entry>
+<entry>EPL</entry>
+<entry>LGPL</entry>
 </row>
 </thead>
 <tbody>
 <row>
-<entry>
-<para>Source</para>
-</entry>
+<entry>Source</entry>
 <entry>
 <filename>celtix-1.0-src-epl.jar</filename>
 </entry>
@@ -45,9 +37,7 @@ distribution. Each distribution is also provided under two licensing agreements:
 </entry>
 </row>
 <row>
-<entry>
-<para>Binary</para>
-</entry>
+<entry>Binary</entry>
 <entry>
 <filename>celtix-1.0-bin-epl.jar</filename>
 </entry>
@@ -73,10 +63,9 @@ compilation and execution.</para>
 </listitem>
 <listitem>
 <para>Apache Ant 1.6.5 and above. Ant is optionally used to compile and execute Celtix 
-applications. It is also possible to compile and run Celtix applications using 
-<command>javac</command> and <command>java</command> directly. For further information on this 
-alternative approach, see the discussion in each sample application's <filename>README</filename> 
-file.</para>
+applications. It is also possible to compile and run Celtix applications using javac and java 
+directly. For further information on this alternative approach, see the discussion in each 
+sample application's <filename>README</filename> file.</para>
 </listitem>
 </itemizedlist>
 <sect2>
@@ -201,56 +190,51 @@ To build Celtix, you must set your environment for Apache Maven. Ensure that the
 <tgroup cols="2">
 <thead>
 <row>
-<entry>
-<para>Environment Variable</para>
-</entry>
-<entry>
-<para>Value</para>
-</entry>
+<entry>Environment Variable</entry>
+<entry>Value</entry>
 </row>
-</thead><tbody>
+</thead>
+<tbody>
 <row>
 <entry>
 <envar>JAVA_HOME</envar>
 </entry>
-<entry>
-<para>JDK installation directory (for example, <filename>C:\jdk1.5</filename>)</para>
-</entry>
+<entry>JDK installation directory (for example, <filename>C:\jdk1.5</filename>)</entry>
 </row>
 <row>
 <entry>
 <envar>CELTIX_INSTALL</envar>
 </entry>
-<entry>
-<para>Celtix installation directory (for example, <filename>C:\celtix-install</filename>)</para>
-</entry>
+<entry>Celtix installation directory (for example, <filename>C:\celtix-install</filename>)</entry>
 </row>
 <row>
 <entry>
 <envar>CLASSPATH</envar>
 </entry>
-<entry>
-<para>&lt;empty&gt;</para>
-</entry>
+<entry>&lt;empty&gt;</entry>
 </row>
 <row>
 <entry>
 <envar>MAVEN_HOME</envar>
 </entry>
 <entry>
-<para>Windows: <filename>%CELTIX_INSTALL%\celtix-src\maven</filename></para>
-<para>UNIX: <filename>$CELTIX_INSTALL/celtix-src/maven</filename></para>
+Windows: <filename>%CELTIX_INSTALL%\celtix-src\maven</filename>
+<para />
+UNIX: <filename>$CELTIX_INSTALL/celtix-src/maven</filename>
 </entry>
 </row>
 <row>
 <entry>
-<para><envar>MAVEN_OPTS</envar></para>
+<envar>MAVEN_OPTS</envar>
 </entry>
 <entry>
-<para>Windows:</para>
-<para><userinput>-ea -Djava.util.logging.config.file=%CELTIX_INSTALL%\celtix-src\celtix-common\src\test\resources\logging.properties</userinput></para>
-<para>UNIX:</para>
-<para><userinput>-ea -Djava.util.logging.config.file=$CELTIX_INSTALL/celtix-src/celtix-common/src/test/resources/logging.properties</userinput></para>
+Windows:
+<para />
+<userinput>-ea -Djava.util.logging.config.file=%CELTIX_INSTALL%\celtix-src\celtix-common\src\test\resources\logging.properties</userinput>
+<para />
+UNIX:
+<para />
+<userinput>-ea -Djava.util.logging.config.file=$CELTIX_INSTALL/celtix-src/celtix-common/src/test/resources/logging.properties</userinput>
 </entry>
 </row>
 <row>
@@ -258,8 +242,9 @@ To build Celtix, you must set your environment for Apache Maven. Ensure that the
 <envar>PATH</envar>
 </entry>
 <entry>
-<para>Windows: <filename>%MAVEN_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename></para>
-<para>UNIX: <filename>$MAVEN_HOME/bin:$JAVA_HOME/bin;$PATH</filename></para>
+Windows: <filename>%MAVEN_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename>
+<para />
+UNIX: <filename>$MAVEN_HOME/bin:$JAVA_HOME/bin;$PATH</filename>
 </entry>
 </row>
 </tbody>
@@ -311,12 +296,8 @@ batch file that sets these environment variables.</para>
 <tgroup cols="2">
 <thead>
 <row>
-<entry>
-<para>Environment Variable</para>
-</entry>
-<entry>
-<para>Value</para>
-</entry>
+<entry>Environment Variable</entry>
+<entry>Value</entry>
 </row>
 </thead>
 <tbody>
@@ -325,7 +306,7 @@ batch file that sets these environment variables.</para>
 <envar>JAVA_HOME</envar>
 </entry>
 <entry>
-<para>JDK installation directory (for example, <filename>C:\jdk1.5</filename>) </para>
+JDK installation directory (for example, <filename>C:\jdk1.5</filename>)
 </entry>
 </row>
 <row>
@@ -333,7 +314,7 @@ batch file that sets these environment variables.</para>
 <envar>CELTIX_HOME</envar>
 </entry>
 <entry>
-<para>Celtix installation directory (for example, <filename>C:\Celtix-install\celtix</filename>)</para>
+Celtix installation directory (for example, <filename>C:\Celtix-install\celtix</filename>)
 </entry>
 </row>
 <row>
@@ -341,8 +322,9 @@ batch file that sets these environment variables.</para>
 <envar>CLASSPATH</envar>
 </entry>
 <entry>
-<para>Windows: <filename>.;%CELTIX_HOME%\lib\celtix.jar;.\build\classes</filename></para>
-<para>UNIX: <filename>.:$CELTIX_HOME/lib/celtix.jar:./build/classes</filename></para>
+Windows: <filename>.;%CELTIX_HOME%\lib\celtix.jar;.\build\classes</filename>
+<para />
+UNIX: <filename>.:$CELTIX_HOME/lib/celtix.jar:./build/classes</filename>
 </entry>
 </row>
 <row>
@@ -350,8 +332,9 @@ batch file that sets these environment variables.</para>
 <envar>ANT_HOME</envar>
 </entry>
 <entry>
-<para>Windows: <replaceable>Ant-install-dir</replaceable><filename>\apache-ant-1.6.5</filename></para>
-<para>UNIX: <replaceable>Ant-install-dir</replaceable><filename>/apache-ant-1.6.5</filename></para>
+Windows: <replaceable>Ant-install-dir</replaceable><filename>\apache-ant-1.6.5</filename>
+<para />
+UNIX: <replaceable>Ant-install-dir</replaceable><filename>/apache-ant-1.6.5</filename>
 </entry>
 </row>
 <row>
@@ -359,8 +342,9 @@ batch file that sets these environment variables.</para>
 <envar>PATH</envar>
 </entry>
 <entry>
-<para>Windows: <filename>%ANT_HOME%\bin;%CELTIX_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename></para>
-<para>UNIX: <filename>$MAVEN_HOME/bin:$CELTIX_HOME/bin:$JAVA_HOME/bin;$PATH</filename></para>
+Windows: <filename>%ANT_HOME%\bin;%CELTIX_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename>
+<para />
+UNIX: <filename>$MAVEN_HOME/bin:$CELTIX_HOME/bin:$JAVA_HOME/bin;$PATH</filename>
 </entry>
 </row>
 </tbody>
@@ -383,12 +367,8 @@ challenging.</para>
 <tgroup cols="2">
 <thead>
 <row>
-<entry>
-<para>Environment Variable</para>
-</entry>
-<entry>
-<para>Value</para>
-</entry>
+<entry>Environment Variable</entry>
+<entry>Value</entry>
 </row>
 </thead>
 <tbody>
@@ -397,7 +377,7 @@ challenging.</para>
 <envar>JAVA_HOME</envar>
 </entry>
 <entry>
-<para>JDK installation directory (for example, <filename>C:\jdk1.5</filename>)</para>
+JDK installation directory (for example, <filename>C:\jdk1.5</filename>)
 </entry>
 </row>
 <row>
@@ -405,8 +385,8 @@ challenging.</para>
 <envar>CELTIX_HOME</envar>
 </entry>
 <entry>
-<para>Celtix installation directory (for example, 
-<filename>C:\Celtix-install\celtix-src\celtix-distribution\src\main</filename>)</para>
+Celtix installation directory (for example, 
+<filename>C:\Celtix-install\celtix-src\celtix-distribution\src\main</filename>)
 </entry>
 </row>
 <row>
@@ -414,8 +394,9 @@ challenging.</para>
 <envar>CLASSPATH</envar>
 </entry>
 <entry>
-<para>Windows: <filename>.;.\build\classes</filename></para>
-<para>UNIX: <filename>.:./build/classes</filename></para>
+Windows: <filename>.;.\build\classes</filename>
+<para />
+UNIX: <filename>.:./build/classes</filename>
 </entry>
 </row>
 <row>
@@ -423,9 +404,10 @@ challenging.</para>
 <envar>ANT_HOME</envar>
 </entry>
 <entry>
-<para>Windows: 
-<replaceable>Ant-install-dir</replaceable><filename>\apache-ant-1.6.5</filename></para>
-<para>UNIX: <replaceable>Ant-install-dir</replaceable><filename>/apache-ant-1.6.5</filename></para>
+Windows: 
+<replaceable>Ant-install-dir</replaceable><filename>\apache-ant-1.6.5</filename>
+<para />
+UNIX: <replaceable>Ant-install-dir</replaceable><filename>/apache-ant-1.6.5</filename>
 </entry>
 </row>
 <row>
@@ -433,7 +415,7 @@ challenging.</para>
 <envar>ANT_ARGS</envar>
 </entry>
 <entry>
-<para>UNIX: <option>Dmaven.repo.local=<replaceable>maven_repository_path</replaceable></option></para>
+UNIX: <option>Dmaven.repo.local=<replaceable>maven_repository_path</replaceable></option>
 </entry>
 </row>
 <row>
@@ -441,8 +423,9 @@ challenging.</para>
 <envar>PATH</envar>
 </entry>
 <entry>
-<para>Windows: <filename>%ANT_HOME%\bin;%CELTIX_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename></para>
-<para>UNIX: <filename>$ANT_HOME/bin:$CELTIX_HOME/bin:$JAVA_HOME/bin;$PATH</filename></para>
+Windows: <filename>%ANT_HOME%\bin;%CELTIX_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename>
+<para />
+UNIX: <filename>$ANT_HOME/bin:$CELTIX_HOME/bin:$JAVA_HOME/bin;$PATH</filename>
 </entry>
 </row>
 </tbody>
