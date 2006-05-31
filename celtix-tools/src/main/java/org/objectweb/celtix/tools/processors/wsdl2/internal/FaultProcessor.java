@@ -80,7 +80,7 @@ public class FaultProcessor extends AbstractProcessor {
             fField.setQName(ProcessorUtil.getElementName(part));
             
             if (!method.getInterface().getPackageName().equals(fPackageName)) {
-                fField.setClassName(fPackageName + "." + fType);
+                fField.setClassName(ProcessorUtil.getFullClzName(part, env, this.collector));                
             }
             if (!fType.equals(ProcessorUtil.resolvePartType(part))) {
                 fField.setClassName(ProcessorUtil.resolvePartType(part, jaxbModel, true));
