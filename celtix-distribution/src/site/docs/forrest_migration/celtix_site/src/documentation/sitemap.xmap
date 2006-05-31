@@ -59,10 +59,10 @@ src="org.apache.cocoon.selection.ParameterSelector" />
          <map:select type="parameter">
            <map:parameter name="parameter-selector-test" value="{sourcetype}" />
          <map:when test="docbook-v4.1.2">
-           <map:transform src="http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl" />
-           <map:transform src="{forrest:stylesheets}/html2document.xsl" />
-           <map:transform type="idgen" />
-           <map:serialize type="xml-document" />
+		 <map:transform src="{project:resources.stylesheets}\docbook\html\docbook.xsl" />
+		 <map:transform src="{forrest:stylesheets}/html2document.xsl" />
+		 <map:transform type="idgen" />
+		 <map:serialize type="xml-document" />
          </map:when>
        </map:select>
      </map:act>
