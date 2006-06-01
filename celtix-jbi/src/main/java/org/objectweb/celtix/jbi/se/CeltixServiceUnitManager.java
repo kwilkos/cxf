@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.jbi.JBIException;
 import javax.jbi.component.ComponentContext;
 import javax.jbi.component.ServiceUnitManager;
 import javax.jbi.management.DeploymentException;
@@ -40,23 +39,13 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     // Implementation of javax.jbi.component.ServiceUnitManager
     
     public final void shutDown(final String suName) throws DeploymentException {
-        LOG.info("SU Manaager shutdown " + suName);
+        LOG.info("SU Manager shutdown " + suName);
+        serviceUnits.remove(suName);
     }
     
     public final String deploy(final String suName, final String suRootPath) throws DeploymentException {
-        LOG.info("SU Manaager deploy " + suName + " path: " + suRootPath);
+        LOG.info("SU Manager deploy " + suName + " path: " + suRootPath);
         
-        try { 
-            Thread.currentThread().setContextClassLoader(componentParentLoader);
-            CeltixServiceUnit csu = new CeltixServiceUnit(bus, suRootPath, componentParentLoader);
-            csu.prepare(ctx);
-            serviceUnits.put(suName, csu); 
-        } catch (Exception ex) { 
-            ex.printStackTrace();
-            throw new DeploymentException(ex);
-        } 
-        
-                
         String msg =  "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
             + "<jbi-task xmlns=\"http://java.sun.com/xml/ns/jbi/management-message\" "  
             +  "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " 
@@ -90,7 +79,7 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     }
     
     public final String undeploy(final String suName, final String suRootPath) throws DeploymentException {
-        LOG.info("SU Manaager undeploy " + suName + " path: " + suRootPath);
+        LOG.info("SU Manager undeploy " + suName + " path: " + suRootPath);
         
         csuMap.remove(suName); 
         
@@ -126,25 +115,29 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     }
     
     public final void init(final String suName, final String suRootPath) throws DeploymentException {
-        LOG.info("SU Manaager init " + suName + " path: " + suRootPath);
+        LOG.info("SU Manager init " + suName + " path: " + suRootPath);
+     
+        try { 
+            Thread.currentThread().setContextClassLoader(componentParentLoader);
+            CeltixServiceUnit csu = new CeltixServiceUnit(bus, suRootPath, componentParentLoader);
+            csu.prepare(ctx);
+            serviceUnits.put(suName, csu); 
+        } catch (Exception ex) { 
+            ex.printStackTrace();
+            throw new DeploymentException(ex);
+        }
     }
     
     public final void start(final String suName) throws DeploymentException {
-        LOG.info("SU Manaager start " + suName);
+        LOG.info("SU Manager start " + suName);
         
-        try { 
-            CeltixServiceUnit csu = serviceUnits.get(suName); 
-            assert csu != null;
-            
-            if (csu.isServiceProvider()) { 
-                ServiceEndpoint ref = ctx.activateEndpoint(csu.getServiceName(), csu.getEndpointName()); 
-                LOG.fine("activated endpoint: " + ref.getEndpointName() 
-                         + " service: " + ref.getServiceName());
-                csuMap.put(ref, csu);
-            }
-        } catch (JBIException ex) { 
-            ex.printStackTrace();
-        } 
+        CeltixServiceUnit csu = serviceUnits.get(suName); 
+        assert csu != null;
+        csu.start(ctx, this); 
+    }
+    
+    public void putServiceEndpoint(ServiceEndpoint ref, CeltixServiceUnit csu) {
+        csuMap.put(ref, csu);
     }
     
     public final CeltixServiceUnit getServiceUnitForEndpoint(ServiceEndpoint ep) { 
@@ -152,7 +145,8 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     } 
     
     public final void stop(final String suName) throws DeploymentException {
-        LOG.info("SU Manaager stop " + suName);
+        LOG.info("SU Manager stop " + suName);
+        serviceUnits.get(suName).stop(ctx);
     }
     
     Document getServiceDescription(final ServiceEndpoint serviceEndpoint) { 
