@@ -31,11 +31,11 @@ src="org.apache.forrest.sourcetype.SourceTypeAction">
 	    <map:selector logger="sitemap.selector.parameter" name="parameter" 
 src="org.apache.cocoon.selection.ParameterSelector" />
      </map:selectors>
-   </map:components>
+	 </map:components>
 
    <map:resources>
    </map:resources>
-
+   
   <map:pipelines>
    <map:pipeline>
      <map:match pattern="old_site/*.html">
@@ -60,9 +60,15 @@ src="org.apache.cocoon.selection.ParameterSelector" />
            <map:parameter name="parameter-selector-test" value="{sourcetype}" />
          <map:when test="docbook-v4.1.2">
 		 <map:transform src="{project:resources.stylesheets}\docbook\html\docbook.xsl" />
+		 <map:transform src="{forrest:stylesheets}/html2htmlbody.xsl" />
+<!--
 		 <map:transform src="{forrest:stylesheets}/html2document.xsl" />
+-->
 		 <map:transform type="idgen" />
+		 <map:serialize type="html" />
+<!--
 		 <map:serialize type="xml-document" />
+-->
          </map:when>
        </map:select>
      </map:act>
