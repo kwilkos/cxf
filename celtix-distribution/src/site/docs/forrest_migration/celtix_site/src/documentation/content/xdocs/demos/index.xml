@@ -2,8 +2,8 @@
 <!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
 <document> 
   <header> 
-    <title>Celtix Demos</title> 
-	<abstract>This page is a collection of samples showing what people have developed for Celtix or on top of Celtix. The intent is to demonstrate Celtix's capabilities and provide a starting point for developers.</abstract>
+    <title>CeltiXfire Demos</title> 
+	<abstract>This page is a collection of samples showing what people have developed for CeltiXfire or on top of CeltiXfire. The intent is to demonstrate CeltiXfire's capabilities and provide a starting point for developers.</abstract>
   </header> 
   <body> 
     <section>
@@ -16,7 +16,7 @@
             </a>
           </td>
           <td>
-            This demo describes how to write two Celtix applications:
+            This demo describes how to write two CeltiXfire applications:
             <ul>
               <li>an application that kicks off an Intalio|n3 process</li>
               <li>an application that provides the business logic representing an Intalio|n3 task.</li>
@@ -30,7 +30,7 @@
             </a>
           </td>
           <td>
-            This demo shows how to use RSS as a place to syndicate Web services in a simple way using Celtix and RSSLib4J.
+            This demo shows how to use RSS as a place to syndicate Web services in a simple way using CeltiXfire and RSSLib4J.
             It shows how to wrap the RSSLib4J APIs in order to use them to implement a name lookup for a WSDL from a RSS feed.
           </td>
         </tr>
@@ -42,8 +42,8 @@
           </td>
           <td>
             This demo shows how to use the ActiveBPEL business process engine to
-            coordinate information flow between multiple Celtix Web services. This demo also shows interoperability between
-            Celtix and the ActiveBPEL engine, which uses Axis as its underlying Web services toolkit.
+            coordinate information flow between multiple CeltiXfire Web services. This demo also shows interoperability between
+            CeltiXfire and the ActiveBPEL engine, which uses Axis as its underlying Web services toolkit.
           </td>
         </tr>
     </table>
@@ -57,7 +57,7 @@
       initiate a business process by sending a Web service request. Additionally, a task within an Intalio|n3
       business process may represent an invocation on a distributed Web service. When the process reaches
       this task, Intalio|n3 sends a Web services request to the external Web service. This application note
-      describes how to write two Celtix applications:
+      describes how to write two CeltiXfire applications:
       </p>
       <ul>
         <li>An application that kicks off an Intalio|n3 process</li>
@@ -85,7 +85,7 @@
            UDDI seems like a lot of infrastructure for simply looking up a Web service. And if the developer doesn't want to bootstrap using a WSDL file, what other alternative do they have?
 			<br/>
 			Why not use RSS as a place to syndicate Web services in a simple way. I found <a href="http://www.xml.com/pub/a/2002/12/18/dive-into-xml.html#RSS"> this</a> site useful in describing RSS and its various flavors. RSS stands for Really Simple Syndication and is used by news web sites and bloggers to create feeds. Basically RSS provides a channel that contains one or more items. Each item has, among other things, a title, a description, and a link. Usually the link is an HTML link to the news or blog content. However there is no reason why that link cannot be to a link to a service's WSDL.</p>
-		<p><strong>Description:</strong> This demo uses Celtix and an RSS feed parser called RSSLib4J that you can <a href="http://devzone.stealthp.org/cms/index.php?page=RSSLib4J#RSSLib4J"> download here</a>. It includes a simple class that wraps the RSSLib4J APIs in order to use them for a name lookup for a WSDL from the feed.
+		<p><strong>Description:</strong> This demo uses CeltiXfire and an RSS feed parser called RSSLib4J that you can <a href="http://devzone.stealthp.org/cms/index.php?page=RSSLib4J#RSSLib4J"> download here</a>. It includes a simple class that wraps the RSSLib4J APIs in order to use them for a name lookup for a WSDL from the feed.
 <br/>
 This demo is similar to the simple Hello_World demo. The major differences are the source of the WSDL and how the client looks up the service's WSDL.
 The client uses the new RSSSRegistry class to parse the RSS feed. It then uses the link provided through the feed to bootstrap the service's WDL.
@@ -106,8 +106,8 @@ Please read the readme.txt file for more information on running the demo.
       possible to write an application that accepts customer input, invokes the various services, and then returns shipping
       and billing information to the customer. However, an alternative approach would be to define the process using business process execution
       language (BPEL) and leave the details of persistence, compensation, coordination, and exception handling to a business process engine.
-      This demo shows how to use the ActiveBPEL business process engine to coordinate information flow between multiple Celtix Web service
-      applications. This demo also shows interoperability between Celtix and the ActiveBPEL engine, which uses Axis as its underlying
+      This demo shows how to use the ActiveBPEL business process engine to coordinate information flow between multiple CeltiXfire Web service
+      applications. This demo also shows interoperability between CeltiXfire and the ActiveBPEL engine, which uses Axis as its underlying
       Web services toolkit.</p>
 	  <p><strong>Contributed by:</strong> John Lifter</p>
 	  <p><strong>Created:</strong> 27 January 2006</p>

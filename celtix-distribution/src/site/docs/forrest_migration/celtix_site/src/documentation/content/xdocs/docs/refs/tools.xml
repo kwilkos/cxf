@@ -5,7 +5,7 @@
   <title>Command Line Tools</title>
 
   <sect1>
-    <title>The Celtix wsdl2java Utility</title>
+    <title>The CeltiXfire wsdl2java Utility</title>
 
     <para><application>wsdl2java</application> gives you greater control over
     the code generation process. The syntax of the command is summarized in
@@ -79,11 +79,8 @@
 
         <tbody>
           <row>
-            <entry><option>-?</option>
-            <para />
-			<option>-help</option>
-            <para />
-			<option>-h</option></entry>
+            <entry><option>-?</option> <para></para> <option>-help</option>
+            <para></para> <option>-h</option></entry>
 
             <entry>Displays the help for this utility.</entry>
           </row>
@@ -100,16 +97,16 @@
             <entry><option>-b</option>
             <replaceable>binding-file-name</replaceable></entry>
 
-            <entry>Specifies zero, or more, JAXWS or JAXB binding files.
-            Use spaces to separate multiple entries.</entry>
+            <entry>Specifies zero, or more, JAXWS or JAXB binding files. Use
+            spaces to separate multiple entries.</entry>
           </row>
 
           <row>
             <entry><option>-d</option>
             <replaceable>output-directory</replaceable></entry>
 
-            <entry>Specifies the directory into which the generated code
-            files are written.</entry>
+            <entry>Specifies the directory into which the generated code files
+            are written.</entry>
           </row>
 
           <row>
@@ -122,8 +119,8 @@
             <entry><option>-classdir</option>
             <replaceable>complile-class-dir</replaceable></entry>
 
-            <entry>Specifies the directory into which the compiled class
-            files are written.</entry>
+            <entry>Specifies the directory into which the compiled class files
+            are written.</entry>
           </row>
 
           <row>
@@ -150,8 +147,8 @@
           <row>
             <entry><option>-all</option></entry>
 
-            <entry>Generates all starting point code: types, service
-            proxy, service interface, server mainline, client mainline,
+            <entry>Generates all starting point code: types, service proxy,
+            service interface, server mainline, client mainline,
             implementation object, and an Ant <filename>build.xml</filename>
             file.</entry>
           </row>
@@ -166,51 +163,52 @@
           <row>
             <entry><synopsis><option>-nexclude</option> <replaceable>schema-namespace</replaceable><optional>=<replaceable>java-packagename</replaceable></optional></synopsis></entry>
 
-            <entry>Ignore the specified WSDL schema namespace when
-            generating code. This option may be specified multiple times.
-            Also, optionally specifies the Java package name used by types
-            described in the excluded namespace(s).</entry>
+            <entry>Ignore the specified WSDL schema namespace when generating
+            code. This option may be specified multiple times. Also,
+            optionally specifies the Java package name used by types described
+            in the excluded namespace(s).</entry>
           </row>
 
           <row>
             <entry><option>-exsh</option>
             (<literal>true</literal>/<literal>false</literal>)</entry>
 
-            <entry>Enables or disables processing of extended soap
-            header message binding.</entry>
+            <entry>Enables or disables processing of extended soap header
+            message binding.</entry>
           </row>
 
           <row>
             <entry><option>-validate</option></entry>
 
-            <entry>Enables or disables validating the wsdl before
-            generating the code.</entry>
+            <entry>Enables or disables validating the wsdl before generating
+            the code.</entry>
           </row>
 
           <row>
             <entry><option>-v</option></entry>
 
-            <entry>Displays the version number for the
-            tool.</entry>
+            <entry>Displays the version number for the tool.</entry>
           </row>
 
           <row>
             <entry><option>-verbose</option></entry>
 
-            <entry>Displays comments during the code generation process.</entry>
+            <entry>Displays comments during the code generation
+            process.</entry>
           </row>
 
           <row>
             <entry><option>-quiet</option></entry>
 
-            <entry>Suppresses comments during the code generation process.</entry>
+            <entry>Suppresses comments during the code generation
+            process.</entry>
           </row>
 
           <row>
             <entry><replaceable>wsdlfile</replaceable></entry>
 
-            <entry>The path and name of the WSDL file to use in
-            generating the code.</entry>
+            <entry>The path and name of the WSDL file to use in generating the
+            code.</entry>
           </row>
         </tbody>
       </tgroup>
@@ -222,7 +220,7 @@
   </sect1>
 
   <sect1>
-    <title>The Celtix java2wsdl Utility</title>
+    <title>The CeltiXfire java2wsdl Utility</title>
 
     <para><application>java2wsdl</application> uses a Web service endpoint's
     implementation (SEI) class and associated types classes to generate a WSDL
@@ -276,36 +274,33 @@
 
         <tbody>
           <row>
-            <entry><option>-?</option>
-			<para />
-			<option>-help</option>
-            <para />
-			<option>-h</option></entry>
+            <entry><option>-?</option> <para></para> <option>-help</option>
+            <para></para> <option>-h</option></entry>
 
-            <entry>Displays the online help for this
-            utility.</entry>
+            <entry>Displays the online help for this utility.</entry>
           </row>
 
           <row>
             <entry><option>-o</option>
             <replaceable>output-file</replaceable></entry>
 
-            <entry>Specifies the name of the generated WSDL
-            file.</entry>
+            <entry>Specifies the name of the generated WSDL file.</entry>
           </row>
 
           <row>
             <entry><option>-cp</option>
             <replaceable>class-path</replaceable></entry>
-            <entry>Specify the SEI and types class search path of
-            directories and zip/jar files.</entry>
+
+            <entry>Specify the SEI and types class search path of directories
+            and zip/jar files.</entry>
           </row>
 
           <row>
             <entry><option>-t</option>
             <replaceable>target-namespace</replaceable></entry>
-            <entry>Specifies the target namespace to use in the
-            generated WSDL file.</entry>
+
+            <entry>Specifies the target namespace to use in the generated WSDL
+            file.</entry>
           </row>
 
           <row>
@@ -316,20 +311,30 @@
             class="element">service</sgmltag> element's <sgmltag
             class="attribute">name</sgmltag> attribute.</entry>
           </row>
+
           <row>
             <entry><option>-v</option></entry>
+
             <entry>Displays the version number for the tool.</entry>
           </row>
+
           <row>
             <entry><option>-verbose</option></entry>
-            <entry>Displays comments during the code generation process.</entry>
+
+            <entry>Displays comments during the code generation
+            process.</entry>
           </row>
+
           <row>
             <entry><option>-quiet</option></entry>
-            <entry>Suppresses comments during the code generation process.</entry>
+
+            <entry>Suppresses comments during the code generation
+            process.</entry>
           </row>
+
           <row>
             <entry><replaceable>classname</replaceable></entry>
+
             <entry>Specifies the name of the service endpoint class.</entry>
           </row>
         </tbody>
@@ -344,7 +349,7 @@
   </sect1>
 
   <sect1>
-    <title>The Celtix wsdl2soap Utility</title>
+    <title>The CeltiXfire wsdl2soap Utility</title>
 
     <para><application>wsdl2soap</application> will generate a new WSDL file
     with a SOAP binding from an existing WSDL file containing a portType
@@ -397,79 +402,100 @@
         <thead>
           <row>
             <entry>Option</entry>
+
             <entry>Interpretation</entry>
           </row>
         </thead>
+
         <tbody>
           <row>
-            <entry><option>-?</option>
-            <para />
-			<option>-help</option>
-            <para />
-			<option>-h</option></entry>
-            <entry>Displays the online help for this
-            utility.</entry>
+            <entry><option>-?</option> <para></para> <option>-help</option>
+            <para></para> <option>-h</option></entry>
+
+            <entry>Displays the online help for this utility.</entry>
           </row>
 
           <row>
             <entry><option>-i</option>
             <replaceable>port-type-name</replaceable></entry>
 
-            <entry>Specifies the <sgmltag
-            class="element">portType</sgmltag> element for which a binding
-            should be generated.</entry>
+            <entry>Specifies the <sgmltag class="element">portType</sgmltag>
+            element for which a binding should be generated.</entry>
           </row>
 
           <row>
             <entry><para><option>-b</option>
             <replaceable>binding-name</replaceable></para></entry>
-            <entry>Specifies the name of the generated SOAP
-            binding.</entry>
+
+            <entry>Specifies the name of the generated SOAP binding.</entry>
           </row>
+
           <row>
-            <entry><option>-d</option> <replaceable>output-directory</replaceable></entry>
-            <entry>Specifies the directory to place generated WSDL file.</entry>
+            <entry><option>-d</option>
+            <replaceable>output-directory</replaceable></entry>
+
+            <entry>Specifies the directory to place generated WSDL
+            file.</entry>
           </row>
+
           <row>
             <entry><option>-o</option>
             <replaceable>output-file</replaceable></entry>
+
             <entry>Specifies the name of the generated WSDL file.</entry>
           </row>
+
           <row>
-            <entry><option>-n</option> <replaceable>soap-body-namespace</replaceable></entry>
-            <entry>Specifies the SOAP body namespace when the style is RPC.</entry>
+            <entry><option>-n</option>
+            <replaceable>soap-body-namespace</replaceable></entry>
+
+            <entry>Specifies the SOAP body namespace when the style is
+            RPC.</entry>
           </row>
+
           <row>
             <entry><option>-style</option>
             (<constant>document</constant>/<constant>rpc</constant>)</entry>
 
-            <entry>Specifies the encoding style (document or RPC) to use
-            in the SOAP binding. The default is <constant>document</constant>.</entry>
+            <entry>Specifies the encoding style (document or RPC) to use in
+            the SOAP binding. The default is
+            <constant>document</constant>.</entry>
           </row>
+
           <row>
             <entry><option>-use</option>
             (<constant>literal</constant>/<constant>encoded</constant>)</entry>
 
-            <entry>Specifies the binding use (encoded or literal) to use
-            in the SOAP binding. The default is <constant>literal</constant>.</entry>
+            <entry>Specifies the binding use (encoded or literal) to use in
+            the SOAP binding. The default is
+            <constant>literal</constant>.</entry>
           </row>
+
           <row>
             <entry><option>-v</option></entry>
+
             <entry>Displays the version number for the tool.</entry>
           </row>
+
           <row>
             <entry><option>-verbose</option></entry>
-            <entry>Displays comments during the code generation process.</entry>
+
+            <entry>Displays comments during the code generation
+            process.</entry>
           </row>
+
           <row>
             <entry><option>-quiet</option></entry>
-            <entry>Suppresses comments during the code generation process.</entry>
+
+            <entry>Suppresses comments during the code generation
+            process.</entry>
           </row>
+
           <row>
             <entry><replaceable>wsdlurl</replaceable></entry>
-            <entry>The path and name of the WSDL file containing the
-            <sgmltag class="element">portType</sgmltag> element
-            definition.</entry>
+
+            <entry>The path and name of the WSDL file containing the <sgmltag
+            class="element">portType</sgmltag> element definition.</entry>
           </row>
         </tbody>
       </tgroup>
@@ -483,7 +509,7 @@
   </sect1>
 
   <sect1>
-    <title>The Celtix wsdl2service Utility</title>
+    <title>The CeltiXfire wsdl2service Utility</title>
 
     <para><application>wsdl2service</application> creates a new WSDL file
     containing an HTTP or JMS service definition from an existing WSDL
@@ -559,30 +585,36 @@
         <thead>
           <row>
             <entry>Option</entry>
+
             <entry>Interpretation</entry>
           </row>
         </thead>
+
         <tbody>
           <row>
-            <entry><option>-?</option>
-            <para /><option>-help</option>
-            <para /><option>-h</option></entry>
-            <entry>Displays the online help for this
-            utility.</entry>
+            <entry><option>-?</option> <para></para><option>-help</option>
+            <para></para><option>-h</option></entry>
+
+            <entry>Displays the online help for this utility.</entry>
           </row>
+
           <row>
             <entry><option>-transport</option>
             (<constant>http</constant>/<constant>jms</constant>)</entry>
-            <entry>Specifies the type of transport to use for the
-            generated service.</entry>
+
+            <entry>Specifies the type of transport to use for the generated
+            service.</entry>
           </row>
+
           <row>
             <entry><option>-e</option>
             <replaceable>service-name</replaceable></entry>
+
             <entry>Specifies the value of the generated <sgmltag
             class="element">service</sgmltag> element's <sgmltag
             class="attribute">name</sgmltag> attribute.</entry>
           </row>
+
           <row>
             <entry><option>-p</option>
             <replaceable>port-name</replaceable></entry>
@@ -592,74 +624,117 @@
             class="attribute">name</sgmltag> attribute. To specify multiple
             port elements, separate the names by a space.</entry>
           </row>
+
           <row>
-            <entry><option>-a</option> <replaceable>address</replaceable></entry>
+            <entry><option>-a</option>
+            <replaceable>address</replaceable></entry>
+
             <entry>Specifies the value used in the <sgmltag
-            class="element">address</sgmltag> element of the
-            port.</entry>
+            class="element">address</sgmltag> element of the port.</entry>
           </row>
+
           <row>
-            <entry><option>-n</option> <replaceable>binding-name</replaceable></entry>
+            <entry><option>-n</option>
+            <replaceable>binding-name</replaceable></entry>
+
             <entry>Specifies the binding used to generate the service.</entry>
           </row>
+
           <row>
             <entry><option>-jds</option>
             (<constant>queue</constant>/<constant>topic</constant>)</entry>
+
             <entry>Specifies the JMS destination style.</entry>
           </row>
+
           <row>
-            <entry><option>-jpu</option> <replaceable>jndi-provider-URL</replaceable></entry>
+            <entry><option>-jpu</option>
+            <replaceable>jndi-provider-URL</replaceable></entry>
+
             <entry>Specifies the URL of the JMS JNDI provider.</entry>
           </row>
+
           <row>
-            <entry><option>-jcf</option> <replaceable>initial-context-factory</replaceable></entry>
+            <entry><option>-jcf</option>
+            <replaceable>initial-context-factory</replaceable></entry>
+
             <entry>Specifies the JMS initial context factory.</entry>
           </row>
+
           <row>
-            <entry><option>-jfn</option> <replaceable>jndi-connection-factory-name</replaceable></entry>
+            <entry><option>-jfn</option>
+            <replaceable>jndi-connection-factory-name</replaceable></entry>
+
             <entry>Specifies the JMS JNDI connection factory name.</entry>
           </row>
+
           <row>
-            <entry><option>-jdn</option> <replaceable>jndi-destination-name</replaceable></entry>
+            <entry><option>-jdn</option>
+            <replaceable>jndi-destination-name</replaceable></entry>
+
             <entry>Specifies the JMS JNDI destination name.</entry>
           </row>
+
           <row>
             <entry><option>-jmt</option>
             (<constant>text</constant>/<constant>binary</constant>)</entry>
+
             <entry>Specifies the JMS message type.</entry>
           </row>
+
           <row>
             <entry><option>-jmc</option>
             (<constant>true</constant>/<constant>false</constant>)</entry>
-            <entry>Specifies if the <classname>MessageID</classname> is
-            used as the <classname>CorrelationID</classname>.</entry>
+
+            <entry>Specifies if the <classname>MessageID</classname> is used
+            as the <classname>CorrelationID</classname>.</entry>
           </row>
+
           <row>
-            <entry><option>-jsn</option> <replaceable>durable-subscriber-name</replaceable></entry>
+            <entry><option>-jsn</option>
+            <replaceable>durable-subscriber-name</replaceable></entry>
+
             <entry>Specifies an optional durable subscriber name.</entry>
           </row>
+
           <row>
-            <entry><option>-o</option> <replaceable>output-file</replaceable></entry>
+            <entry><option>-o</option>
+            <replaceable>output-file</replaceable></entry>
+
             <entry>Specifies the name of the generated WSDL file.</entry>
           </row>
+
           <row>
-            <entry><option>-d</option> <replaceable>output-directory</replaceable></entry>
-            <entry>Specifies the directory in which the generated WSDL is placed.</entry>
+            <entry><option>-d</option>
+            <replaceable>output-directory</replaceable></entry>
+
+            <entry>Specifies the directory in which the generated WSDL is
+            placed.</entry>
           </row>
+
           <row>
             <entry><option>-v</option></entry>
+
             <entry>Displays the version number for the tool.</entry>
           </row>
+
           <row>
             <entry><option>-verbose</option></entry>
-            <entry>Displays comments during the code generation process.</entry>
+
+            <entry>Displays comments during the code generation
+            process.</entry>
           </row>
+
           <row>
             <entry><option>-quiet</option></entry>
-            <entry>Suppresses comments during the code generation process.</entry>
+
+            <entry>Suppresses comments during the code generation
+            process.</entry>
           </row>
+
           <row>
             <entry><replaceable>wsdlurl</replaceable></entry>
+
             <entry>The path and name of the existing WSDL file.</entry>
           </row>
         </tbody>
@@ -673,34 +748,48 @@
   </sect1>
 
   <sect1>
-    <title>The Celtix wsdl2xml Utility</title>
+    <title>The CeltiXfire wsdl2xml Utility</title>
 
     <para><application>wsdl2xml</application> generates an XML binding from an
     existing WSDL document containing a portType definition. The syntax of the
     command is summarized below:</para>
 
     <cmdsynopsis>
-	<command>wsdl2xml</command>
-	<group>
+      <command>wsdl2xml</command>
+
+      <group>
         <arg><option>-?</option></arg>
 
         <arg><option>-help</option></arg>
 
         <arg><option>-h</option></arg>
       </group>
-	<arg><option>-i</option> <replaceable>port-type-name</replaceable></arg>
-	<arg><option>-b</option> <replaceable>binding-name</replaceable></arg>
-	<arg><option>-e</option> <replaceable>service-name</replaceable></arg>
-	<arg><option>-p</option> <replaceable>port-name</replaceable></arg>
-	<arg><option>-a</option> <replaceable>address</replaceable></arg>
-	<arg><option>-d</option> <replaceable>output-directory</replaceable></arg>
-	<arg><option>-o</option> <replaceable>output-file</replaceable></arg>
-	<arg><option>-v</option></arg>
-	<group>
-	<arg><option>-verbose</option></arg><arg><option>-quiet</option></arg>
-	</group>
-	<arg choice="req"><replaceable>wsdlurl</replaceable></arg>
-	</cmdsynopsis>
+
+      <arg><option>-i</option> <replaceable>port-type-name</replaceable></arg>
+
+      <arg><option>-b</option> <replaceable>binding-name</replaceable></arg>
+
+      <arg><option>-e</option> <replaceable>service-name</replaceable></arg>
+
+      <arg><option>-p</option> <replaceable>port-name</replaceable></arg>
+
+      <arg><option>-a</option> <replaceable>address</replaceable></arg>
+
+      <arg><option>-d</option>
+      <replaceable>output-directory</replaceable></arg>
+
+      <arg><option>-o</option> <replaceable>output-file</replaceable></arg>
+
+      <arg><option>-v</option></arg>
+
+      <group>
+        <arg><option>-verbose</option></arg>
+
+        <arg><option>-quiet</option></arg>
+      </group>
+
+      <arg choice="req"><replaceable>wsdlurl</replaceable></arg>
+    </cmdsynopsis>
 
     <para>The arguments used to manage WSDL file generation are reviewed in
     the following table.</para>
@@ -710,70 +799,101 @@
         <thead>
           <row>
             <entry>Option</entry>
+
             <entry>Interpretation</entry>
           </row>
         </thead>
+
         <tbody>
           <row>
-            <entry><option>-?</option>
-            <para />
-			<option>-help</option>
-            <para /><option>-h</option></entry>
-            <entry>Displays the online help for this
-            utility.</entry>
+            <entry><option>-?</option> <para></para> <option>-help</option>
+            <para></para><option>-h</option></entry>
+
+            <entry>Displays the online help for this utility.</entry>
           </row>
+
           <row>
-            <entry><option>-i</option> <replaceable>port-type-name</replaceable></entry>
-            <entry>Specifies the <sgmltag
-            class="element">portType</sgmltag> element to use.</entry>
+            <entry><option>-i</option>
+            <replaceable>port-type-name</replaceable></entry>
+
+            <entry>Specifies the <sgmltag class="element">portType</sgmltag>
+            element to use.</entry>
           </row>
+
           <row>
-            <entry><option>-b</option> <replaceable>binding-name</replaceable></entry>
-            <entry>Specifies the name of the generated XML
-            binding.</entry>
+            <entry><option>-b</option>
+            <replaceable>binding-name</replaceable></entry>
+
+            <entry>Specifies the name of the generated XML binding.</entry>
           </row>
+
           <row>
-            <entry><option>-e</option> <replaceable>service-name</replaceable></entry>
+            <entry><option>-e</option>
+            <replaceable>service-name</replaceable></entry>
+
             <entry>Specifies the value of the generated <sgmltag
             class="element">service</sgmltag> element's <sgmltag
             class="attribute">name</sgmltag> attribute.</entry>
           </row>
+
           <row>
-            <entry><option>-p</option> <replaceable>port-name</replaceable></entry>
+            <entry><option>-p</option>
+            <replaceable>port-name</replaceable></entry>
+
             <entry>Specifies the value of the generated <sgmltag
             class="element">port</sgmltag> element's <sgmltag
             class="attribute">name</sgmltag> attribute. To specify multiple
             <sgmltag class="element">port</sgmltag> elements, separate the
             names by a space.</entry>
           </row>
+
           <row>
-            <entry><option>-a</option> <replaceable>address</replaceable></entry>
+            <entry><option>-a</option>
+            <replaceable>address</replaceable></entry>
+
             <entry>Specifies the value used in the <sgmltag
             class="element">address</sgmltag> element of the generated
             <sgmltag class="element">port</sgmltag> element.</entry>
           </row>
+
           <row>
-            <entry><option>-d</option> <replaceable>output-directory</replaceable></entry>
-            <entry>Specifies the directory to place generated WSDL file.</entry>
+            <entry><option>-d</option>
+            <replaceable>output-directory</replaceable></entry>
+
+            <entry>Specifies the directory to place generated WSDL
+            file.</entry>
           </row>
+
           <row>
-            <entry><option>-o</option> <replaceable>output-file</replaceable></entry>
+            <entry><option>-o</option>
+            <replaceable>output-file</replaceable></entry>
+
             <entry>Specifies the name of the generated WSDL file.</entry>
           </row>
+
           <row>
             <entry><option>-v</option></entry>
+
             <entry>Displays the version number for the tool.</entry>
           </row>
+
           <row>
             <entry><option>-verbose</option></entry>
-            <entry>Displays comments during the code generation process.</entry>
+
+            <entry>Displays comments during the code generation
+            process.</entry>
           </row>
+
           <row>
             <entry><option>-quiet</option></entry>
-            <entry>Suppresses comments during the code generation process.</entry>
+
+            <entry>Suppresses comments during the code generation
+            process.</entry>
           </row>
+
           <row>
             <entry><replaceable>wsdlurl</replaceable></entry>
+
             <entry>The path and name of the existing WSDL file.</entry>
           </row>
         </tbody>
@@ -786,7 +906,7 @@
   </sect1>
 
   <sect1>
-    <title>The Celtix xsd2wsdl Utility</title>
+    <title>The CeltiXfire xsd2wsdl Utility</title>
 
     <para><application>xsd2wsdl</application> imports an XMLSchema document
     and generates a WSDL file containing a <sgmltag
@@ -795,24 +915,36 @@
     below:</para>
 
     <cmdsynopsis>
-	<command>xsd2wsdl</command>
-	<group>
+      <command>xsd2wsdl</command>
+
+      <group>
         <arg><option>-?</option></arg>
 
         <arg><option>-help</option></arg>
 
         <arg><option>-h</option></arg>
       </group>
-	<arg><option>-t</option> <replaceable>target-namespace</replaceable></arg>
-	<arg><option>-n</option> <replaceable>wsdl-name</replaceable></arg>
-	<arg><option>-d</option> <replaceable>output-directory</replaceable></arg>
-	<arg><option>-o</option> <replaceable>output-file</replaceable></arg>
-	<arg><option>-v</option></arg>
-	<group>
-	<arg><option>-verbose</option></arg><arg><option>-quiet</option></arg>
-	</group>
-	<arg choice="req"><replaceable>xsdurl</replaceable></arg>
-	</cmdsynopsis>
+
+      <arg><option>-t</option>
+      <replaceable>target-namespace</replaceable></arg>
+
+      <arg><option>-n</option> <replaceable>wsdl-name</replaceable></arg>
+
+      <arg><option>-d</option>
+      <replaceable>output-directory</replaceable></arg>
+
+      <arg><option>-o</option> <replaceable>output-file</replaceable></arg>
+
+      <arg><option>-v</option></arg>
+
+      <group>
+        <arg><option>-verbose</option></arg>
+
+        <arg><option>-quiet</option></arg>
+      </group>
+
+      <arg choice="req"><replaceable>xsdurl</replaceable></arg>
+    </cmdsynopsis>
 
     <para>The arguments used to manage WSDL file generation are reviewed in
     the following table.</para>
@@ -829,14 +961,10 @@
 
         <tbody>
           <row>
-            <entry><option>-?</option>
-            <para />
-			<option>-help</option>
-            <para />
-			<option>-h</option></entry>
+            <entry><option>-?</option> <para></para> <option>-help</option>
+            <para></para> <option>-h</option></entry>
 
-            <entry>Displays the online help for this
-            utility.</entry>
+            <entry>Displays the online help for this utility.</entry>
           </row>
 
           <row>
@@ -860,23 +988,21 @@
             <entry><option>-d</option>
             <replaceable>output-directory</replaceable></entry>
 
-            <entry>Specifies the directory in which the generated WSDL
-            is placed.</entry>
+            <entry>Specifies the directory in which the generated WSDL is
+            placed.</entry>
           </row>
 
           <row>
             <entry><option>-o</option>
             <replaceable>output-file</replaceable></entry>
 
-            <entry>Specifies the name of the generated WSDL
-            file.</entry>
+            <entry>Specifies the name of the generated WSDL file.</entry>
           </row>
 
           <row>
             <entry><option>-v</option></entry>
 
-            <entry>Displays the version number for the
-            tool.</entry>
+            <entry>Displays the version number for the tool.</entry>
           </row>
 
           <row>
@@ -896,8 +1022,7 @@
           <row>
             <entry><replaceable>xsdurl</replaceable></entry>
 
-            <entry>The path and name of the existing XSDSchema
-            file.</entry>
+            <entry>The path and name of the existing XSDSchema file.</entry>
           </row>
         </tbody>
       </tgroup>
@@ -909,13 +1034,14 @@
   </sect1>
 
   <sect1>
-    <title>The Celtix wsdlvalidator Utility</title>
+    <title>The CeltiXfire wsdlvalidator Utility</title>
 
     <para><application>wsdlvalidator</application> validates whether a wsdl
     file or wsdl url is well-formed and schema conformed.</para>
 
     <cmdsynopsis>
-	<command>wsdlvalidator</command>
+      <command>wsdlvalidator</command>
+
       <group>
         <arg><option>-?</option></arg>
 
@@ -923,14 +1049,23 @@
 
         <arg><option>-h</option></arg>
       </group>
-	  <arg><option>-d</option> <replaceable>schema-directory</replaceable></arg>
-	  <arg><option>-s</option> <arg rep="repeat"><replaceable>schema-url</replaceable></arg></arg>
-	  <arg><option>-v</option></arg>
-	  <group>
-	  <arg><option>-verbose</option></arg><arg><option>-quiet</option></arg>
-	  </group>
-	  <arg choice="req"><replaceable>wsdlurl</replaceable></arg>
-	  </cmdsynopsis>
+
+      <arg><option>-d</option>
+      <replaceable>schema-directory</replaceable></arg>
+
+      <arg><option>-s</option> <arg
+      rep="repeat"><replaceable>schema-url</replaceable></arg></arg>
+
+      <arg><option>-v</option></arg>
+
+      <group>
+        <arg><option>-verbose</option></arg>
+
+        <arg><option>-quiet</option></arg>
+      </group>
+
+      <arg choice="req"><replaceable>wsdlurl</replaceable></arg>
+    </cmdsynopsis>
 
     <para>The arguments used to validate WSDL file are reviewed in the
     following table.</para>
@@ -947,45 +1082,38 @@
 
         <tbody>
           <row>
-            <entry><option>-?</option>
-            <para />
-			<option>-help</option>
-            <para />
-			<option>-h</option></entry>
+            <entry><option>-?</option> <para></para> <option>-help</option>
+            <para></para> <option>-h</option></entry>
 
-            <entry>Displays the online help for this
-            utility.</entry>
+            <entry>Displays the online help for this utility.</entry>
           </row>
 
           <row>
             <entry><option>-d</option>
             <replaceable>schema-directory</replaceable></entry>
 
-            <entry>Specifies the directory used to search for
-            schemas.</entry>
+            <entry>Specifies the directory used to search for schemas.</entry>
           </row>
 
           <row>
             <entry><option>-s</option>
             <replaceable>schema-url</replaceable></entry>
 
-            <entry>Specifies the URL of a user specific schema to be
-            included in the validation of the contract. This switch can appear
-            multiple times.</entry>
+            <entry>Specifies the URL of a user specific schema to be included
+            in the validation of the contract. This switch can appear multiple
+            times.</entry>
           </row>
 
           <row>
             <entry><option>-v</option></entry>
 
-            <entry>Displays the version number for the
-            tool.</entry>
+            <entry>Displays the version number for the tool.</entry>
           </row>
 
           <row>
             <entry><option>-verbose</option></entry>
 
-            <entry>Displays comments during the
-            validation.</entry>
+            <entry>Displays comments during the validation.</entry>
           </row>
 
           <row>

@@ -2,8 +2,8 @@
 <!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
 <document> 
   <header> 
-    <title>Celtix: The Open Source ESB</title> 
-	<abstract>Celtix delivers a Java enterprise service bus (ESB) runtime and set of APIs that make it easy to add transports, message formats, and security features. The goal is to simplify the construction, integration and flexible reuse of technical and business components using a standards-based, service-oriented architecture.</abstract>
+    <title>CeltiXfire: The Open Source ESB</title> 
+	<abstract>CeltiXfire delivers a Java enterprise service bus (ESB) runtime and set of APIs that make it easy to add transports, message formats, and security features. The goal is to simplify the construction, integration and flexible reuse of technical and business components using a standards-based, service-oriented architecture.</abstract>
   </header> 
   <body> 
     <section id="updates">

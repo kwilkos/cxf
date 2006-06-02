@@ -24,7 +24,7 @@
     <title>Basics</title>
     <faq>
       <question>
-        What is Celtix?
+        What is CeltiXfire?
       </question>
       <answer>
     Cetlix is an open source Java Web services ESB implementation. It is based on JAX-WS 2.0.
@@ -60,26 +60,26 @@
 	<title>Relationship to Other ESBs</title>
 	<faq>
 	<question>
-	How does Celtix compare to other open source ESBs like Mule and ServiceMix?
+	How does CeltiXfire compare to other open source ESBs like Mule and ServiceMix?
 	</question>
 	<answer>
-	Celtix is the only ESB that implements the JAX-WS specification. Also, Celtix has the ability 
+	CeltiXfire is the only ESB that implements the JAX-WS specification. Also, CeltiXfire has the ability 
 	to send SOAP messages over HTTP built-in, and it does not require any external program for 
-	this functionality, like Apache Axis. Also, Celtix is not based on a particular messaging 
+	this functionality, like Apache Axis. Also, CeltiXfire is not based on a particular messaging 
 	technology. It supports JMS and comes with ActiveMQ, but it can work with any JMS implementation. 
-	Celtix is extensible, so it is possible to write other messaging transports for Celtix since
-	the messaging bus is not tightly bound to how Celtix works.
+	CeltiXfire is extensible, so it is possible to write other messaging transports for CeltiXfire since
+	the messaging bus is not tightly bound to how CeltiXfire works.
 	</answer>
 	</faq>
 	<faq>
 	<question>
-	How does Celtix compare to commercial ESBs?
+	How does CeltiXfire compare to commercial ESBs?
 	</question>
 	<answer>
-	Due to the rapid innovation capability of an open source community, Celtix is comparable, 
-	and ahead in some ways, in capability to commercial Java-centric ESBs. For example, Celtix is 
+	Due to the rapid innovation capability of an open source community, CeltiXfire is comparable, 
+	and ahead in some ways, in capability to commercial Java-centric ESBs. For example, CeltiXfire is 
 	currently the only ESB with JAX-WS support. The non-Java-centric ESBs complement and interoperate 
-	with Celtix to provide additional transports and bindings, i.e. IONA's Artix product provides 
+	with CeltiXfire to provide additional transports and bindings, i.e. IONA's Artix product provides 
 	additional capabilities to integrate with IBM MQ, CORBA, Tuxedo, etc.
 	</answer>
 	</faq>
@@ -88,25 +88,25 @@
 	<title>Relationship to Other Open Source Projects</title>
 	<faq>
 	<question>
-	Does Celtix use other open source projects?
+	Does CeltiXfire use other open source projects?
 	</question>
 	<answer>
-	<p>Yes. Celtix is built and packaged using Maven 2.0 from Apache. The Web site is built using Forrest 
-	from Apache. All of the documentation for the Celtix project is written using OpenOffice 2.0.</p>
-    <p>The Celtix team is also working with the STP project at the Eclipse foundation to build a set of GUI tools for developing SOAs.</p>
+	<p>Yes. CeltiXfire is built and packaged using Maven 2.0 from Apache. The Web site is built using Forrest 
+	from Apache. All of the documentation for the CeltiXfire project is written using OpenOffice 2.0.</p>
+    <p>The CeltiXfire team is also working with the STP project at the Eclipse foundation to build a set of GUI tools for developing SOAs.</p>
 	</answer>
 	</faq>
 	<faq>
 	<question>
-	What other open source projects does Celtix work with?
+	What other open source projects does CeltiXfire work with?
 	</question>
 	<answer>
-	Currently a number of open source projects are in discussions with the Celtix project about taking shared dependencies.
+	Currently a number of open source projects are in discussions with the CeltiXfire project about taking shared dependencies.
 	</answer>
 	</faq>
 	<faq>
 	<question>
-	Are members of the Celtix community working with any open-source JBI projects?
+	Are members of the CeltiXfire community working with any open-source JBI projects?
 	</question>
 	<answer>
 	Yes.
@@ -114,7 +114,7 @@
 	</faq>
 	<faq>
 	<question>
-	Are members of the Celtix community working with any open-source SCA projects?
+	Are members of the CeltiXfire community working with any open-source SCA projects?
 	</question>
 	<answer>
 	Yes.

@@ -23,15 +23,15 @@
 <title>Transports</title> 
  <faq>
       <question>
-	    What transports does Celtix support?
+	    What transports does CeltiXfire support?
       </question>
       <answer>
-      <p>Currently, Celtix supports the following transports:</p>
+      <p>Currently, CeltiXfire supports the following transports:</p>
 	  <ul>
 	  <li>HTTP/S</li>
 	  <li>JMS</li>
 	  </ul>
-	  <p>In addition, Celtix provides an extensibility API, which makes it easy to add transports to the Celtix runtime.</p>
+	  <p>In addition, CeltiXfire provides an extensibility API, which makes it easy to add transports to the CeltiXfire runtime.</p>
       </answer>
     </faq>
 </faqsection>
@@ -39,15 +39,15 @@
 <title>Bindings</title>
 		<faq>
 	<question>
-	What bindings does Celtix support?
+	What bindings does CeltiXfire support?
 	</question>
 	<answer>
-	<p>Currently, Celtix supports the following bindings:</p>
+	<p>Currently, CeltiXfire supports the following bindings:</p>
 	<ul>
 	<li>SOAP 1.1</li>
 	<li>Native XML</li>
 	</ul>
-	<p>In addition, Celtix provides an extensibility API, which makes it easy to add bindings to the Celtix runtime.</p>
+	<p>In addition, CeltiXfire provides an extensibility API, which makes it easy to add bindings to the CeltiXfire runtime.</p>
 	</answer>
 	</faq>
 </faqsection>
@@ -55,18 +55,18 @@
 <title>Language Support</title>
 	<faq>
 	<question>
-	What versions of Java does Celtix support?
+	What versions of Java does CeltiXfire support?
 	</question>
 	<answer>
-	Celtix supports Java 1.5.
+	CeltiXfire supports Java 1.5.
 	</answer>
 	</faq>
 	<faq>
 	<question>
-    Does Celtix support development languages other than Java?
+    Does CeltiXfire support development languages other than Java?
 	</question>
 	<answer>
-    Yes. Celtix supports the development of services using Javascript and E4X.
+    Yes. CeltiXfire supports the development of services using Javascript and E4X.
 	</answer>
 	</faq>
 </faqsection>
@@ -74,10 +74,10 @@
 <title>Tools</title>
 		<faq>
 	<question>
-	Does Celtix provide any tools to assist in developing applications with Celtix?
+	Does CeltiXfire provide any tools to assist in developing applications with CeltiXfire?
 	</question>
 	<answer>
-	<p>Celtix includes a number of command-line based tools for generating the artifacts needed to develop applications with Celtix. These include:</p>
+	<p>CeltiXfire includes a number of command-line based tools for generating the artifacts needed to develop applications with CeltiXfire. These include:</p>
 	<ul>
 <li><code>wsdl2java</code> for generating Java code from a service contract.</li>
 <li><code>java2wsdl</code> for generating a service contract from a Java class.</li>
@@ -88,10 +88,10 @@
 	</faq>
 <faq>
 	<question>
-	Are there any GUI tools for working with Celtix?
+	Are there any GUI tools for working with CeltiXfire?
 	</question>
 	<answer>
-	No. Celtix is working with the STP project at the Eclipse project to develop GUI based tools for working with SOAs.
+	No. CeltiXfire is working with the STP project at the Eclipse project to develop GUI based tools for working with SOAs.
 	</answer>
 </faq>
 </faqsection>
@@ -99,11 +99,11 @@
 <title>Orchestration</title>
 	<faq>
 		<question>
-		Does Celtix provide any orchestration features?
+		Does CeltiXfire provide any orchestration features?
 		</question>
 		<answer>
-		No. However, Celtix services can be orchestrated using a number of BPEL engines. There is a 
-		demo illustrating Celtix working with Intalio's BPEL offering on the demo page at 
+		No. However, CeltiXfire services can be orchestrated using a number of BPEL engines. There is a 
+		demo illustrating CeltiXfire working with Intalio's BPEL offering on the demo page at 
 		<a href="site:demos/home">demos page</a>.
 		</answer>
 	</faq>

@@ -31,10 +31,10 @@
     </faq>
 		<faq>
 	<question>
-	What is the road map for Celtix?
+	What is the road map for CeltiXfire?
 	</question>
 	<answer>
-	As with all open source project road maps, the road map for Celtix is dependent on the 
+	As with all open source project road maps, the road map for CeltiXfire is dependent on the 
 	needs of the users and the willingness of contributors to work on those features. There 
 	is a list of proposed features on the mile stone page at 
 	https://wiki.objectweb.org/celtix/Wiki.jsp?page=Milestones. We welcome user feedback 
@@ -43,20 +43,20 @@
 	</faq>
 	<faq>
 	<question>
-	How do I contribute to the Celtix project?
+	How do I contribute to the CeltiXfire project?
 	</question>
 	<answer>
-	Celtix is an open source project and accepts all contributions that are approved by the 
-	community. To find out more about contributing, visit the Celtix project's getting started 
+	CeltiXfire is an open source project and accepts all contributions that are approved by the 
+	community. To find out more about contributing, visit the CeltiXfire project's getting started 
 	page at https://wiki.objectweb.org/celtix/Wiki.jsp?page=GettingStarted.
 	</answer>
 	</faq>
 	<faq>
 	<question>
-    Are there any licensing restrictions that apply to using Celtix?
+    Are there any licensing restrictions that apply to using CeltiXfire?
 	</question>
 	<answer>
-    Celtix is licensed under both the LPGL and the EPL. The packages for distribution under each 
+    CeltiXfire is licensed under both the LPGL and the EPL. The packages for distribution under each 
 	license is available from the download page. For more information, see the <a href="site:license">License FAQ</a>.
 	</answer>
 	</faq>
@@ -65,12 +65,12 @@
 	What is a milestone release?
 	</question>
 	<answer>
-	<p>A milestone release is an interim release of Celtix that occurs at regular intervals so that users can 
-	take advantage of new features without having to build Celtix from the repository. Each milestone release 
+	<p>A milestone release is an interim release of CeltiXfire that occurs at regular intervals so that users can 
+	take advantage of new features without having to build CeltiXfire from the repository. Each milestone release 
 	contains new features and functionality (sometimes, partly implemented), but there is no guarantee that 
 	testing is complete. In general, milestone releases should be regarded as less stable and are not 
 	suitable for deployment.</p>
-    <p>This contrasts with regular releases of Celtix, where every effort is made to ensure that the release 
+    <p>This contrasts with regular releases of CeltiXfire, where every effort is made to ensure that the release 
 	is stable and testing is complete.</p>
 	</answer>
 	</faq>

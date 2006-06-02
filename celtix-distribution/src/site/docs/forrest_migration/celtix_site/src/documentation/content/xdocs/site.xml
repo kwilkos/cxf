@@ -30,7 +30,7 @@ This file contains an outline of the site's information content.  It is used to:
 See http://forrest.apache.org/docs/linking.html for more info
 -->
 
-<site label="Celtix" href="" xmlns="http://apache.org/forrest/linkmap/1.0">
+<site label="CeltiXfire" href="" xmlns="http://apache.org/forrest/linkmap/1.0">
    <!-- Note: No matter what you configure here, Forrest will always try to load
        index.html when you request http://yourHost/.
        'How can I use a start-up-page other than index.html?' in the FAQs has more 

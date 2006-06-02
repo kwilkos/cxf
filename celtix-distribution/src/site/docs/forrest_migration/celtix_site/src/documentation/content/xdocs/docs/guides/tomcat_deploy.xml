@@ -2,12 +2,12 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 <article lang="en-US">
-  <title>Deploying Celtix into a Servlet Container</title>
+  <title>Deploying CeltiXfire into a Servlet Container</title>
 
   <sect1>
     <title>Overview</title>
 
-    <para>It is possible to deploy a Celtix Web service endpoint into a
+    <para>It is possible to deploy a CeltiXfire Web service endpoint into a
     servlet container such as Tomcat. The sample applications hello_world and
     hello_world_RPCLit demonstrate this capability. However, these examples
     illustrate a very basic approach to accomplishing this task. This document
@@ -15,13 +15,13 @@
     efficient.</para>
 
     <para>Before discussing these alternative approaches, it is essential that
-    you understand what is needed to deploy a Celtix Web service endpoint into
-    Tomcat. If you need guidance on installing Tomcat, refer to the last
+    you understand what is needed to deploy a CeltiXfire Web service endpoint
+    into Tomcat. If you need guidance on installing Tomcat, refer to the last
     section in this document – <xref linkend="tomcat_install" />.</para>
   </sect1>
 
   <sect1>
-    <title>A Deployed Celtix Web Service</title>
+    <title>A Deployed CeltiXfire Web Service</title>
 
     <para>Go to either the hello_world or hello_world_RPCLit examples and
     follow the instructions to build the <filename>.war</filename> file.
@@ -43,7 +43,7 @@
     archive to a temporary location.</para>
 
     <figure id="fig_1">
-      <title>Celtix WAR Structure</title>
+      <title>CeltiXfire WAR Structure</title>
 
       <mediaobject>
         <imageobject>
@@ -67,8 +67,8 @@
     later in this document.</para>
 
     <para>The <filename>lib</filename> directory includes all of the JAR files
-    from your Celtix installation's <filename>lib</filename> directory, and
-    the <filename>wsdl</filename> directory contains the WSDL file for the
+    from your CeltiXfire installation's <filename>lib</filename> directory,
+    and the <filename>wsdl</filename> directory contains the WSDL file for the
     application.</para>
 
     <para>The <filename>WEB-INF</filename> directory includes two XML files:
@@ -81,7 +81,7 @@
 
       <para><filename>web.xml</filename> is the standard servlet deployment
       descriptor file while <filename>celtix-servlet.xml</filename> includes
-      configuration information specific to the Celtix Web service
+      configuration information specific to the CeltiXfire Web service
       endpoint.</para>
 
       <sect3>
@@ -115,8 +115,8 @@
 &lt;/web-app&gt;</programlisting>
 
         <para>Note that the servlet class is not actually part of your
-        application. It is pre-written and part of your Celtix installation.
-        This class file is located in the file
+        application. It is pre-written and part of your CeltiXfire
+        installation. This class file is located in the file
         <filename>celtix-rt-<replaceable>version
         number</replaceable>.jar</filename>, which is one of the files
         included in the <filename>lib</filename> directory.</para>
@@ -129,7 +129,7 @@
       <sect3>
         <title>The celtix-servlet.xml File</title>
 
-        <para>This file contains content specific to the Celtix Web service
+        <para>This file contains content specific to the cXf Web service
         application.</para>
 
         <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -165,8 +165,8 @@
         invoke on the Web service.</para>
 
         <para>As you will see later in this document, if you want to deploy
-        multiple Celtix Web service endpoints into the same Tomcat instance,
-        you can simply add additional <sgmltag
+        multiple CeltiXfire Web service endpoints into the same Tomcat
+        instance, you can simply add additional <sgmltag
         class="element">endpoint</sgmltag> elements to this XML file.</para>
       </sect3>
     </sect2>
@@ -178,7 +178,7 @@
     <para>In order to access the Web service endpoint, client applications
     need a URL. Since the endpoint is hosted within Tomcat, access will be
     through the TCP/IP port used by Tomcat and not through the URL specified
-    in the WSDL file. In the Celtix example applications, access to the
+    in the WSDL file. In the CeltiXfire example applications, access to the
     hello_world Web service deployed into Tomcat uses the URL
     <literal>http://hostname:port/helloworld/celtix/hello_world</literal> and
     access to the hello_world_RPCLit Web service uses the URL
@@ -217,10 +217,9 @@
     </orderedlist>
 
     <para>You should note how these URLs are specified when running the sample
-    applications. If you choose to run the client application using
-    Ant, the URL is derived from information
-    supplied on the command line combined with information that is already
-    included in the <markup>&lt;target
+    applications. If you choose to run the client application using Ant, the
+    URL is derived from information supplied on the command line combined with
+    information that is already included in the <markup>&lt;target
     name=“client-servlet”...&gt;&lt;celtix-run.../&gt;&lt;/target&gt;</markup>
     tags in <filename>build.xml</filename>. If you run the application using
     java, you must supply the URL as a command line parameter.</para>
@@ -229,9 +228,9 @@
   <sect1>
     <title>Alternative Deployment Approaches</title>
 
-    <para>While the approach used in the Celtix example applications
-    demonstrates how Celtix Web services can be deployed into Tomcat, there
-    are some improvements that you can make.</para>
+    <para>While the approach used in the CeltiXfire example applications
+    demonstrates how CeltiXfire Web services can be deployed into Tomcat,
+    there are some improvements that you can make.</para>
 
     <itemizedlist>
       <listitem>
@@ -243,14 +242,14 @@
       </listitem>
 
       <listitem>
-        <para>Many of the Celtix JAR files are not needed.</para>
+        <para>Many of the CeltiXfire JAR files are not needed.</para>
       </listitem>
 
       <listitem>
-        <para>The Celtix JAR files can be moved into the
+        <para>The CeltiXfire JAR files can be moved into the
         <filename>shared/lib</filename> subdirectory under your Tomcat
         installation. With this arrangement, these files are shared by all
-        Celtix applications that are deployed into Tomcat.</para>
+        CeltiXfire applications that are deployed into Tomcat.</para>
       </listitem>
 
       <listitem>
@@ -267,7 +266,7 @@
     Web service and extending <filename>celtix-servlet.xml</filename> with
     another <sgmltag class="element">endpoint</sgmltag> entry. There is no
     need to actually generate the <filename>.war</filename> file, which will
-    include files (client mainline, server mainline, Celtix JARS, and
+    include files (client mainline, server mainline, CeltiXfire JARS, and
     <filename>web.xml</filename>) that you do not need.</para>
 
     <para>To illustrate these points, you can rework the hello_world and
@@ -302,7 +301,7 @@
       </sect3>
 
       <sect3>
-        <title>Removing Unneeded Celtix JAR Files</title>
+        <title>Removing Unneeded CeltiXfire JAR Files</title>
 
         <para>Delete the following JAR files from the
         <filename>webapps/helloworld/WEB-INF/lib</filename> directory:
@@ -311,14 +310,14 @@
     </sect2>
 
     <sect2>
-      <title>Relocating the Celtix JAR Files</title>
+      <title>Relocating the CeltiXfire JAR Files</title>
 
       <para>Move the contents of the
       <filename>webapps/helloworld/WEB-INF/lib</filename> directory into the
-      <filename>shared/lib</filename> directory. The Celtix JAR files will now
-      be available to all Celtix applications deployed into this Tomcat
-      instance. (REVISIT at v1.0 GA; approach to generating, and contents of,
-      the <filename>.war</filename> file may change.)</para>
+      <filename>shared/lib</filename> directory. The CeltiXfire JAR files will
+      now be available to all CeltiXfire applications deployed into this
+      Tomcat instance. (REVISIT at v1.0 GA; approach to generating, and
+      contents of, the <filename>.war</filename> file may change.)</para>
     </sect2>
 
     <sect2>
@@ -368,13 +367,14 @@
           deployment.</para>
 
           <figure>
-		  <title>Celtix WAR Updated for Demos</title>
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="./images/tomcat_war2.gif" />
-        </imageobject>
-      </mediaobject>
-    </figure>
+            <title>CeltiXfire WAR Updated for Demos</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="./images/tomcat_war2.gif" />
+              </imageobject>
+            </mediaobject>
+          </figure>
         </step>
 
         <step>
@@ -429,7 +429,10 @@
           <filename>celtix/samples/hello_world_RPCLit</filename> directory,
           run the client with the command:</para>
 
-          <para><userinput>java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties demo.hwRPCLit.client.Client http://localhost:8080/applications/celtix/hello_world_rpclit</userinput></para>
+          <para><userinput>java
+          -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+          demo.hwRPCLit.client.Client
+          http://localhost:8080/applications/celtix/hello_world_rpclit</userinput></para>
 
           <para>Access the hello_world Web service using the URL:
           <literal>http://hostname:port/applications/celtix/hello_world</literal></para>
@@ -437,7 +440,10 @@
           <para>From the <filename>celtix/samples/hello_world</filename>
           directory, run the client with the command:</para>
 
-          <para><userinput>java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties demo.hw.client.Client http://localhost:8080/applications/celtix/hello_world</userinput></para>
+          <para><userinput>java
+          -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+          demo.hw.client.Client
+          http://localhost:8080/applications/celtix/hello_world</userinput></para>
         </step>
       </procedure>
     </sect2>
@@ -445,10 +451,10 @@
     <sect2 id="tomcat_install">
       <title>Installing Tomcat</title>
 
-      <para>Since Celtix requires the Java 2 Standard Edition, v5.0 or later,
-      it is essential that you use a version of Tomcat that is compatible with
-      this version of Java. Tomcat v5.5.x is the proper choice and may be
-      downloaded from the Apache Software Foundation site at <ulink
+      <para>Since CeltiXfire requires the Java 2 Standard Edition, v5.0 or
+      later, it is essential that you use a version of Tomcat that is
+      compatible with this version of Java. Tomcat v5.5.x is the proper choice
+      and may be downloaded from the Apache Software Foundation site at <ulink
       url="http://tomcat.apache.org/download-55.cgi">http://tomcat.apache.org/download-55.cgi</ulink>.</para>
 
       <para>For Windows, an executable installer is available. Alternatively
@@ -468,12 +474,10 @@
       environment variables. Open a command window and issue the following
       commands:</para>
 
-	  <para>
-      <userinput>set JAVA_HOME=C:\j2sdk5.0</userinput>
-</para>
-<para>
-	  <userinput>set CATALINA_HOME=C:\apache-tomcat-<replaceable>[version]</replaceable></userinput>
-</para>
+      <para><userinput>set JAVA_HOME=C:\j2sdk5.0</userinput></para>
+
+      <para><userinput>set
+      CATALINA_HOME=C:\apache-tomcat-<replaceable>[version]</replaceable></userinput></para>
 
       <para>If you installed Tomcat using the Windows installer, you only need
       to set one environment variable. Open a command window and issue the
@@ -490,8 +494,8 @@
       <command>startup.bat</command> or <command>startup.sh</command>. If you
       installed Tomcat using the Windows installer, start the executable
       program <command>Tomcat5.exe</command>. Both the scripts and the
-      executable are in the
-      <filename>CATALINA_HOME/bin</filename> directory.</para>
+      executable are in the <filename>CATALINA_HOME/bin</filename>
+      directory.</para>
 
       <para>By default, Tomcat is configured to use TCP/IP port 8080 to
       service requests. You can confirm that your Tomcat has been properly
@@ -500,8 +504,7 @@
       If everything is properly set, the browser will display a confirmatory
       page. If necessary, you can change any of the Tomcat TCP/IP ports used
       by editing the <filename>server.xml</filename> file, which is located in
-      the <filename>CATALINA_HOME/conf</filename>
-      directory.</para>
+      the <filename>CATALINA_HOME/conf</filename> directory.</para>
     </sect2>
   </sect1>
 </article>

@@ -13,10 +13,11 @@
     functionality that can be run on a number of platforms. Another strength
     of JavaScript is that applications can be quickly rewritten.</para>
 
-    <para>Celtix provides support for developing services using JavaScript and
-    ECMAScript for XML(E4X). The pattern used to develop these services are
-    similar to JAX-WS Provider implementations that handle their requests and
-    responses (either SOAP messages or SOAP payloads) as DOM documents.</para>
+    <para>CeltiXfire provides support for developing services using JavaScript
+    and ECMAScript for XML(E4X). The pattern used to develop these services
+    are similar to JAX-WS Provider implementations that handle their requests
+    and responses (either SOAP messages or SOAP payloads) as DOM
+    documents.</para>
   </sect1>
 
   <sect1>
@@ -42,13 +43,14 @@
       <para>Normal Java providers typically use Java annotations to specify
       JAX-WS metadata. Since JavaScript does not support annotations, you use
       ordinary JavaScript variables to specify metadata for JavaScript
-      implementations. Celtix treats any JavaScript variable in your code
+      implementations. CeltiXfire treats any JavaScript variable in your code
       whose name equals or begins with <varname>WebServiceProvider</varname>
       as a JAX-WS metadata variable.</para>
 
       <para>Properties of the variable are expected to specify the same
-      metadata that the JAX-WS <literal role="annotation">WebServiceProvider</literal> annotation 
-	  specifies, including:</para>
+      metadata that the JAX-WS <literal
+      role="annotation">WebServiceProvider</literal> annotation specifies,
+      including:</para>
 
       <itemizedlist>
         <listitem>
@@ -147,7 +149,7 @@
   <sect1>
     <title>Implementing a Service in ECMAScript for XML(E4X)</title>
 
-    <para>Writing a Celtix service using E4X is very similar to writing a
+    <para>Writing a CeltiXfire service using E4X is very similar to writing a
     service using JavaScript. You define the JAX-WS metadata using the same
     <varname>WebServiceProvider</varname> variable in JavaScript. You also
     implement the service's logic in the <varname>WebServiceProvider</varname>
@@ -187,9 +189,9 @@ WebServiceProvider1.invoke = function(req) {
   <sect1>
     <title>Deploying Scripted Services</title>
 
-    <para>Celtix provides a lightweight container that allows you to deploy
-    your Javascript and E4X services and take advantage of Celtix's pluggable
-    transport infrastructure.</para>
+    <para>CeltiXfire provides a lightweight container that allows you to
+    deploy your Javascript and E4X services and take advantage of CeltiXfire's
+    pluggable transport infrastructure.</para>
 
     <note>
       <para>Script based services work with SOAP messages. So, while they are
@@ -213,7 +215,7 @@ WebServiceProvider1.invoke = function(req) {
     class, shorted to <classname>ServerApp</classname> below, takes one or
     more Javascript files, suffixed with a <filename>.js</filename>, or E4X
     files, suffixed with a <filename>.jsx</filename>, and loads them into the
-    Celtix runtime. If <classname>ServerApp</classname> locates JAX-WS
+    CeltiXfire runtime. If <classname>ServerApp</classname> locates JAX-WS
     metadata in the files it creates and registers a JAX-WS
     <classname>Provider&lt;DOMSource&gt;</classname> object for each service.
     The <classname>Provider&lt;DOMSource&gt;</classname> object delegates the
@@ -245,8 +247,7 @@ WebServiceProvider1.invoke = function(req) {
 
             <entry>Specifies the address at which
             <classname>ServerApp</classname> publishes the service endpoint
-            implementation found in the script file following the
-            URL.</entry>
+            implementation found in the script file following the URL.</entry>
           </row>
 
           <row>
@@ -263,8 +264,8 @@ WebServiceProvider1.invoke = function(req) {
           <row>
             <entry><option>-v</option></entry>
 
-            <entry>Specifies that <classname>ServerApp</classname> is to
-            run in verbose mode.</entry>
+            <entry>Specifies that <classname>ServerApp</classname> is to run
+            in verbose mode.</entry>
           </row>
         </tbody>
       </tgroup>
@@ -298,7 +299,8 @@ WebServiceProvider1.invoke = function(req) {
       <title>Deploying a Group of Services to a Base Address</title>
 
       <para><userinput>java org.objectweb.celtix.js.rhino.ServerApp -b
-      http://celtix.objectweb.org hello_world.jsx goodbye_moon.js</userinput></para>
+      http://celtix.objectweb.org hello_world.jsx
+      goodbye_moon.js</userinput></para>
     </example>
 
     <para>You can also combine the arguments as shown in <xref

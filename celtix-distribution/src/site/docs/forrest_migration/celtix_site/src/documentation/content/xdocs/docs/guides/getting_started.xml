@@ -1,28 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 <article lang="en-US">
-<title>Getting Started with Celtix</title>
-<sect1>
-<title>Overview</title>
-<para>This document shows you how to get started with Celtix. It describes how to build and run a 
-basic SOAP over HTTP client and server.</para>
-<para>For information on how to install Celtix and set up your development environment, see 
-<ulink url="site:install">The Celtix Installation Guide</ulink>, which is included in the product 
-download and is available from the Celtix website, 
-<ulink url="http://celtix.objectweb.org/docs/index.html">http://celtix.objectweb.org/docs/index.html</ulink>.</para>
-<para>This document was written for the Celtix 1.0 release. As Celtix matures future versions 
-might deviate from the material covered in this document. The Celtix team will endeavor, however, 
-to keep this document as up-to-date as possible.</para>
-</sect1>
-<sect1>
-<title>Using a Script to Set Up the Shell Environment</title>
-<para><ulink url="site:install">The Celtix Installation Guide</ulink> describes how to set up your 
-development environment. To avoid having to set the environment variables for every command 
-window, you can use a script. An example script, <filename>setenvs.bat</filename>, for use on 
-Windows with the Celtix binary distribution, is shown below in <xref linkend="example1" />.</para>
-<example id="example1">
-<title>Setting Celtix Environment for Binary Distribution</title>
-<programlisting>@echo off
+  <title>Getting Started with CeltiXfire</title>
+
+  <sect1>
+    <title>Overview</title>
+
+    <para>This document shows you how to get started with CeltiXfire. It
+    describes how to build and run a basic SOAP over HTTP client and
+    server.</para>
+
+    <para>For information on how to install CeltiXfire and set up your
+    development environment, see <ulink url="site:install">The CeltiXfire
+    Installation Guide</ulink>, which is included in the product download and
+    is available from the CeltiXfire website, <ulink
+    url="http://celtix.objectweb.org/docs/index.html">http://celtix.objectweb.org/docs/index.html</ulink>.</para>
+
+    <para>This document was written for the Celtix 1.0 release. As CeltiXfire
+    matures future versions might deviate from the material covered in this
+    document. The CeltiXfire team will endeavor, however, to keep this
+    document as up-to-date as possible.</para>
+  </sect1>
+
+  <sect1>
+    <title>Using a Script to Set Up the Shell Environment</title>
+
+    <para><ulink url="site:install">The CeltiXfire Installation Guide</ulink>
+    describes how to set up your development environment. To avoid having to
+    set the environment variables for every command window, you can use a
+    script. An example script, <filename>setenvs.bat</filename>, for use on
+    Windows with the CeltiXfire binary distribution, is shown below in <xref
+    linkend="example1" />.</para>
+
+    <example id="example1">
+      <title>Setting CeltiXfire Environment for Binary Distribution</title>
+
+      <programlisting>@echo off
 REM Ensure that the values for the following variables are 
 REM set correctly for your installation.
 set CELTIX_HOME=c:\Celtix_bin4\celtix
@@ -45,13 +59,17 @@ set PATH=%ANT_HOME%\bin;%PATH%
 set CELTIX_JAR=%CELTIX_HOME%\lib\celtix.jar
 set CLASSPATH=%CELTIX_JAR%;.;.\build\classes;%CLASSPATH%
 title Celtix Shell</programlisting>
-</example>
-<para>A corresponding script for use on Windows with the Celtix source distribution is shown in 
-<xref linkend="example2" />. This script is only suitable for compiling and running Celtix applications when using 
-the Apache Ant build system, as described in the rest of this document.</para>
-<example id="example2">
-<title>Setting Celtix Environment for Source Distribution</title>
-<programlisting>@echo off
+    </example>
+
+    <para>A corresponding script for use on Windows with the CeltiXfire source
+    distribution is shown in <xref linkend="example2" />. This script is only
+    suitable for compiling and running CeltiXfire applications when using the
+    Apache Ant build system, as described in the rest of this document.</para>
+
+    <example id="example2">
+      <title>Setting CeltiXfire Environment for Source Distribution</title>
+
+      <programlisting>@echo off
 REM Ensure that the values for the following variables are 
 REM set correctly for your installation.
 set JAVA_HOME=c:\jdk1.5.0
@@ -71,75 +89,121 @@ set PATH=%ANT_HOME%\bin;%PATH%
 
 set CLASSPATH=.;.\build\classes;%CLASSPATH%
 title Celtix Shell</programlisting>
-</example>
-</sect1>
-<sect1>
-<title>Celtix Development Environment</title>
-<para>Developing applications with Celtix code is no different from developing with any other Java 
-library or API. You set the <envar>CLASSPATH</envar> appropriately and begin coding. You can 
-develop with your favorite text editor, Integrated Development Environment (IDE), or build system. 
-In this section, we recommend two open-source tools that are used extensively by Celtix developers:</para>
-<itemizedlist>
-<listitem>
-<para><ulink url="#using_eclipse">Eclipse</ulink></para>
-</listitem>
-<listitem>
-<para><ulink url="#using_ant">Apache Ant</ulink></para>
-</listitem>
-</itemizedlist>
-<sect2 id="using_eclipse">
-<title>Using Celtix with Eclipse</title>
-<para>Eclipse provides an excellent Java IDE for Celtix development. It is available from 
-<ulink url="http://www.eclipse.org/">http://www.eclipse.org</ulink>. Celtix requires you to use 
-Eclipse 3.1.1 or higher. This is because Celtix requires support for Java 1.5 language constructs, 
-which are only available in Eclipse 3.1.1 or higher.</para>
-<para>Eclipse allows you to store collections of JARs and classes that can be reused across 
-projects as <emphasis>User Libraries</emphasis>. To create a Celtix user library:</para>
-<procedure>
-<step>
-<para>Open Eclipse and navigate to:</para>
-<para><menuchoice><guimenu>Window</guimenu><guimenuitem>Preferences...</guimenuitem></menuchoice></para>
-<para>This opens the Eclispe <interface>Preference</interface> window.</para>
-</step>
-<step>
- <para>From the <interface>Preference</interface> window's menu select:</para>
- <para><menuchoice><guimenu>Java</guimenu><guisubmenu>Build Path</guisubmenu><guimenuitem>User Libraries</guimenuitem></menuchoice></para>
- </step>
-<step>
-<para>Create a new user library by selecting <guibutton>New</guibutton> and giving it a name, such 
-as Celtix.</para>
-</step>
-<step>
-<para>Highlight your newly created Celtix user library and select <guibutton>Add JARs</guibutton>. 
-Add the <filename>celtix.jar</filename> file to the user library. In the Celtix binary 
-distribution, the <filename>celtix.jar</filename> file can be found in the 
-<filename>CELTIX_HOME/lib</filename> directory.</para>
-</step>
-</procedure>
-<para>At the time of writing, Eclipse could not pick up the manifest classpath present in the 
-<filename>celtix.jar</filename> file. As a result, you must add all of the JAX-WS JAR files to 
-your user library as well. In the Celtix binary distribution these files can be found in the 
-<filename>CELTIX_HOME/lib</filename> directory.</para>
-<para>After you have created a user library for Celtix, you can add it to the Java project build 
-path and Eclipse will auto-compile your code.</para>
-</sect2>
-<sect2 id="using_ant">
-<title>Using Celtix with Ant</title>
-<para>Many Java developers use the Apache Ant build system. It is available from 
-<ulink url="http://ant.apache.org/">http://ant.apache.org</ulink>. The Celtix samples, available 
-in the <filename>CELTIX_HOME/samples</filename> directory of your Celtix installation, include 
-example Ant build files. <xref linkend="example3" /> shows one such file.</para>
-<example id="example3">
-<title>Celtix Sample Applications Ant <filename>build.xml</filename> File</title>
-<programlisting><markup>&lt;project default="build"&gt;
+    </example>
+  </sect1>
+
+  <sect1>
+    <title>CeltiXfire Development Environment</title>
+
+    <para>Developing applications with CeltiXfire code is no different from
+    developing with any other Java library or API. You set the
+    <envar>CLASSPATH</envar> appropriately and begin coding. You can develop
+    with your favorite text editor, Integrated Development Environment (IDE),
+    or build system. In this section, we recommend two open-source tools that
+    are used extensively by CeltiXfire developers:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para><ulink url="#using_eclipse">Eclipse</ulink></para>
+      </listitem>
+
+      <listitem>
+        <para><ulink url="#using_ant">Apache Ant</ulink></para>
+      </listitem>
+    </itemizedlist>
+
+    <sect2 id="using_eclipse">
+      <title>Using CeltiXfire with Eclipse</title>
+
+      <para>Eclipse provides an excellent Java IDE for CeltiXfire development.
+      It is available from <ulink
+      url="http://www.eclipse.org/">http://www.eclipse.org</ulink>. CeltiXfire
+      requires you to use Eclipse 3.1.1 or higher. This is because CeltiXfire
+      requires support for Java 1.5 language constructs, which are only
+      available in Eclipse 3.1.1 or higher.</para>
+
+      <para>Eclipse allows you to store collections of JARs and classes that
+      can be reused across projects as <emphasis>User Libraries</emphasis>. To
+      create a CeltiXfire user library:</para>
+
+      <procedure>
+        <step>
+          <para>Open Eclipse and navigate to:</para>
+
+          <para><menuchoice>
+              <guimenu>Window</guimenu>
+
+              <guimenuitem>Preferences...</guimenuitem>
+            </menuchoice></para>
+
+          <para>This opens the Eclispe <interface>Preference</interface>
+          window.</para>
+        </step>
+
+        <step>
+          <para>From the <interface>Preference</interface> window's menu
+          select:</para>
+
+          <para><menuchoice>
+              <guimenu>Java</guimenu>
+
+              <guisubmenu>Build Path</guisubmenu>
+
+              <guimenuitem>User Libraries</guimenuitem>
+            </menuchoice></para>
+        </step>
+
+        <step>
+          <para>Create a new user library by selecting
+          <guibutton>New</guibutton> and giving it a name, such as
+          CeltiXfire.</para>
+        </step>
+
+        <step>
+          <para>Highlight your newly created CeltiXfire user library and
+          select <guibutton>Add JARs</guibutton>. Add the
+          <filename>celtix.jar</filename> file to the user library. In the
+          CeltiXfire binary distribution, the <filename>celtix.jar</filename>
+          file can be found in the <filename>CELTIX_HOME/lib</filename>
+          directory.</para>
+        </step>
+      </procedure>
+
+      <para>At the time of writing, Eclipse could not pick up the manifest
+      classpath present in the <filename>celtix.jar</filename> file. As a
+      result, you must add all of the JAX-WS JAR files to your user library as
+      well. In the CeltiXfire binary distribution these files can be found in
+      the <filename>CELTIX_HOME/lib</filename> directory.</para>
+
+      <para>After you have created a user library for CeltiXfire, you can add
+      it to the Java project build path and Eclipse will auto-compile your
+      code.</para>
+    </sect2>
+
+    <sect2 id="using_ant">
+      <title>Using CeltiXfire with Ant</title>
+
+      <para>Many Java developers use the Apache Ant build system. It is
+      available from <ulink
+      url="http://ant.apache.org/">http://ant.apache.org</ulink>. The
+      CeltiXfire samples, available in the
+      <filename>CELTIX_HOME/samples</filename> directory of your CeltiXfire
+      installation, include example Ant build files. <xref
+      linkend="example3" /> shows one such file.</para>
+
+      <example id="example3">
+        <title>CeltiXfire Sample Applications Ant
+        <filename>build.xml</filename> File</title>
+
+        <programlisting><markup>&lt;project default="build"&gt;
     &lt;!-- Import generic celtix build.xml file --&gt;
     &lt;property environment="env"/&gt;
     &lt;import file="${env.CELTIX_HOME}/samples/common_build.xml"/&gt;
 
     &lt;target name="generate.code" unless="codegen.notrequired"&gt;
-      &lt;echo message="Generating code using wsdl2java..."/&gt;
-      &lt;wsdl2java file="HelloWorld.wsdl"/&gt;
-      &lt;touch file="${codegen.timestamp.file}"/&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;echo message="Generating code using wsdl2java..."/&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;wsdl2java file="HelloWorld.wsdl"/&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;touch file="${codegen.timestamp.file}"/&gt;
     &lt;/target&gt;
 
     &lt;!-- Targets to run the client and server --&gt;
@@ -151,163 +215,245 @@ example Ant build files. <xref linkend="example3" /> shows one such file.</para>
         &lt;celtixrun classname="helloworld.Client"/&gt;
     &lt;/target&gt;
 &lt;/project&gt;</markup></programlisting>
-</example>
-<para>The build file shown in <xref linkend="example3" /> can be explained as follows:</para>
-<orderedlist>
-<listitem>
-<para>Imports <filename>common_build.xml</filename>. <filename>common_build.xml</filename> 
-includes most of the commands that compile and run the sample applications. It can be found in the 
-<filename>CELTIX_HOME/samples</filename> directory of your Celtix installation.</para>
-</listitem>
-<listitem>
-<para>The <varname>codegen.notrequired</varname> variable is <constant>true</constant> if no XSD 
-or WSDL files in the project have changed since the last time wsdl2java was run. If 
-you do not declare <varname>wsdl.dir</varname> as a property that identifies the location of XSD 
-and/or WSDL files, then the default value of <filename>./wsdl</filename> is used.</para>
-</listitem>
-<listitem>
-<para>The <literal>wsdl2java</literal> task generates Java code from the specified WSDL file.</para>
-</listitem>
-<listitem>
-<para>The <literal>celtixrun</literal> task runs a Java class with the appropriate 
-<literal>CLASSPATH</literal> and <literal>JVM</literal> argument settings for use with Celtix.</para>
-</listitem>
-</orderedlist>
-<para><filename>common_build.xml</filename> and <filename>build.xml</filename> are supplied with 
-the Celtix sample applications are useful models for building applications using a directory 
-structure similar to that used by the Celtix samples.</para>
-</sect2>
-</sect1>
-<sect1>
-<title>Directory Structure for Celtix Projects</title>
-<para>How you arrange a project's directory structure depends on whether you are modeling your 
-hierarchy on the Celtix samples, available in the <filename>CELTIX_HOME/samples</filename> 
-directory of your Celtix installation, or using the Celtix wsdl2java utility to generate starting 
-point code. wsdl2java is a command-line utility that you can use to generate Java files from a 
-specified WSDL file, including files that represent the types, service proxy, and service 
-interface for an application, starting point code for the client and server mainlines, and the 
-implementation object. Which files are generated is dependent of the command-line switches that 
-you use. For more information on wsdl2java, see the 
-<ulink url="site:toolsref">Celtix Command-Line Tools</ulink> documentation.</para>
-<sect2>
-<title>The Celtix Sample Application Approach</title>
-<para>The Celtix sample applications use wsdl2java to generate files that represent the types, 
-service proxy, and service interface for an application. wsdl2java is not used to generate 
-starting point code for the client and server mainlines or the implementation object. These files 
-are provided as completed implementations so that the sample applications run without requiring 
-the user to add processing logic.</para>
-<para>The Celtix sample applications contain the following directories:</para>
-<itemizedlist>
-<listitem>
-<para><filename>build/classes</filename>, which contains compiled Java classes, including those 
-generated by wsdl2java.</para>
-</listitem>
-<listitem>
-<para><filename>build/src</filename>, which contains Java source code generated by 
-wsdl2java.</para>
-</listitem>
-<listitem>
-<para><filename>src</filename>, which contains the supplied Java source code. These files can be 
-in a different Java package than the Java source code files generated by wsdl2java.</para>
-</listitem>
-<listitem>
-<para><filename>wsdl</filename>, which contains WSDL and XSD files.</para>
-</listitem>
-</itemizedlist>
-<para>The top-level project directory contains the Ant build file (<filename>build.xml</filename>).</para>
-<para>As shown in <xref linkend="example3" /> above, <filename>build.xml</filename> imports 
-<filename>common_build.xml</filename>, which is located at the top level of the Celtix samples 
-directory, <filename>CELTIX_HOME/samples</filename>.</para>
-</sect2>
-<sect2>
-<title>The Developer Driven Approach</title>
-<para>The developer driven approach uses wsdl2java to generate the 
-complete complement of source code files, starting point code for the client mainline, server 
-mainline, and implementation object. These files are included in the same Java package as the 
-files representing the types, service proxy, and service interface.</para>
-<para>Developer written Celtix applications contain the following directories:</para>
-<itemizedlist>
-<listitem>
-<para>A project directory that includes:</para>
-<itemizedlist>
-<listitem>
-<para>One, or more, top-level application directories that contain:</para>
-<itemizedlist>
-<listitem>
-<para>The source code files for the application. The source code files include both the files 
-generated by wsdl2java as well as any other files that you want to include in the application.</para>
-</listitem>
-<listitem>
-<para>A <filename>build/classes</filename> subdirectory that contains the compiled application 
-files.</para>
-</listitem>
-<listitem>
-<para>The generated Ant build file (<filename>build.xml</filename>).</para>
-</listitem>
-</itemizedlist>
-</listitem>
-<listitem>
-<para>A <filename>wsdl</filename> directory that contains WSDL and XSD files.</para>
-</listitem>
-</itemizedlist>
-</listitem>
-</itemizedlist>
-<para><xref linkend="figure1" /> illustrates this directory hierarchy:</para>
-<figure id="figure1">
-<title>Developer Driven Project Structure</title>
-     <mediaobject>
-        <imageobject>
-          <imagedata fileref="./images/getting_started1.gif" />
-        </imageobject>
-      </mediaobject>
-    </figure>
-<itemizedlist>
-<listitem>
-<para>The project directory is <filename>hello_world</filename>.</para>
-<itemizedlist>
-<listitem>
-<para>The top-level application directory is client.</para>
-<itemizedlist>
-<listitem>
-<para>The source code generated by wsdl2java is in the package hierarchies 
-<classname>org/objectweb/hello_world_soap_http</classname> and 
-<classname>org/objectweb/hello_world_soap_http/types</classname> under the 
-<filename>hello_world/client</filename> directory. The package name was derived from the target 
-namespace defined in the WSDL file.</para>
-</listitem>
-<listitem>
-<para>The <filename>hello_world/client/build/classes</filename> directory includes the compiled 
-code in the package hierarchies <classname>org/objectweb/hello_world_soap_http</classname> and 
-<classname>org/objectweb/hello_world_soap_http/types</classname>.</para>
-</listitem>
-</itemizedlist>
-</listitem>
-<listitem>
-<para>The <filename>wsdl</filename> directory contains the WSDL file used to generate the application code.</para>
-</listitem>
-</itemizedlist>
-</listitem>
-</itemizedlist>
-</sect2>
-</sect1>
-<sect1>
-<title>Writing a SOAP over HTTP Client and Server with Celtix</title>
-<para>This section describes how you can use Celtix to write a SOAP over HTTP client and server. 
-Both the Celtix sample application approach and the developer driven approach are discussed.</para>
-<para>The <classname>HelloWorld</classname> interface used in this section is defined in the 
-<filename>HelloWorld.wsdl</filename> WSDL file shown in <xref linkend="example5" />. It 
-corresponds to the Java interface shown in <xref linkend="example4" />. It is slightly different 
-to the WSDL file used in the HelloWorld sample that is included with the Celtix distribution.</para>
-<example id="example4">
-<title>HelloWorld Interface</title>
-<programlisting>public interface HelloWorld
+      </example>
+
+      <para>The build file shown in <xref linkend="example3" /> can be
+      explained as follows:</para>
+
+      <orderedlist>
+        <listitem>
+          <para>Imports <filename>common_build.xml</filename>.
+          <filename>common_build.xml</filename> includes most of the commands
+          that compile and run the sample applications. It can be found in the
+          <filename>CELTIX_HOME/samples</filename> directory of your
+          CeltiXfire installation.</para>
+        </listitem>
+
+        <listitem>
+          <para>The <varname>codegen.notrequired</varname> variable is
+          <constant>true</constant> if no XSD or WSDL files in the project
+          have changed since the last time wsdl2java was run. If you do not
+          declare <varname>wsdl.dir</varname> as a property that identifies
+          the location of XSD and/or WSDL files, then the default value of
+          <filename>./wsdl</filename> is used.</para>
+        </listitem>
+
+        <listitem>
+          <para>The <literal>wsdl2java</literal> task generates Java code from
+          the specified WSDL file.</para>
+        </listitem>
+
+        <listitem>
+          <para>The <literal>celtixrun</literal> task runs a Java class with
+          the appropriate <literal>CLASSPATH</literal> and
+          <literal>JVM</literal> argument settings for use with
+          CeltiXfire.</para>
+        </listitem>
+      </orderedlist>
+
+      <para><filename>common_build.xml</filename> and
+      <filename>build.xml</filename> are supplied with the CeltiXfire sample
+      applications are useful models for building applications using a
+      directory structure similar to that used by the CeltiXfire
+      samples.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Directory Structure for CeltiXfire Projects</title>
+
+    <para>How you arrange a project's directory structure depends on whether
+    you are modeling your hierarchy on the CeltiXfire samples, available in
+    the <filename>CELTIX_HOME/samples</filename> directory of your CeltiXfire
+    installation, or using the CeltiXfire wsdl2java utility to generate
+    starting point code. wsdl2java is a command-line utility that you can use
+    to generate Java files from a specified WSDL file, including files that
+    represent the types, service proxy, and service interface for an
+    application, starting point code for the client and server mainlines, and
+    the implementation object. Which files are generated is dependent of the
+    command-line switches that you use. For more information on wsdl2java, see
+    the <ulink url="site:toolsref">CeltiXfire Command-Line Tools</ulink>
+    documentation.</para>
+
+    <sect2>
+      <title>The CeltiXfire Sample Application Approach</title>
+
+      <para>The CeltiXfire sample applications use wsdl2java to generate files
+      that represent the types, service proxy, and service interface for an
+      application. wsdl2java is not used to generate starting point code for
+      the client and server mainlines or the implementation object. These
+      files are provided as completed implementations so that the sample
+      applications run without requiring the user to add processing
+      logic.</para>
+
+      <para>The CeltiXfire sample applications contain the following
+      directories:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><filename>build/classes</filename>, which contains compiled
+          Java classes, including those generated by wsdl2java.</para>
+        </listitem>
+
+        <listitem>
+          <para><filename>build/src</filename>, which contains Java source
+          code generated by wsdl2java.</para>
+        </listitem>
+
+        <listitem>
+          <para><filename>src</filename>, which contains the supplied Java
+          source code. These files can be in a different Java package than the
+          Java source code files generated by wsdl2java.</para>
+        </listitem>
+
+        <listitem>
+          <para><filename>wsdl</filename>, which contains WSDL and XSD
+          files.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The top-level project directory contains the Ant build file
+      (<filename>build.xml</filename>).</para>
+
+      <para>As shown in <xref linkend="example3" /> above,
+      <filename>build.xml</filename> imports
+      <filename>common_build.xml</filename>, which is located at the top level
+      of the CeltiXfire samples directory,
+      <filename>CELTIX_HOME/samples</filename>.</para>
+    </sect2>
+
+    <sect2>
+      <title>The Developer Driven Approach</title>
+
+      <para>The developer driven approach uses wsdl2java to generate the
+      complete complement of source code files, starting point code for the
+      client mainline, server mainline, and implementation object. These files
+      are included in the same Java package as the files representing the
+      types, service proxy, and service interface.</para>
+
+      <para>Developer written CeltiXfire applications contain the following
+      directories:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>A project directory that includes:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>One, or more, top-level application directories that
+              contain:</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>The source code files for the application. The source
+                  code files include both the files generated by wsdl2java as
+                  well as any other files that you want to include in the
+                  application.</para>
+                </listitem>
+
+                <listitem>
+                  <para>A <filename>build/classes</filename> subdirectory that
+                  contains the compiled application files.</para>
+                </listitem>
+
+                <listitem>
+                  <para>The generated Ant build file
+                  (<filename>build.xml</filename>).</para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
+            <listitem>
+              <para>A <filename>wsdl</filename> directory that contains WSDL
+              and XSD files.</para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+      </itemizedlist>
+
+      <para><xref linkend="figure1" /> illustrates this directory
+      hierarchy:</para>
+
+      <figure id="figure1">
+        <title>Developer Driven Project Structure</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="./images/getting_started1.gif" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <itemizedlist>
+        <listitem>
+          <para>The project directory is
+          <filename>hello_world</filename>.</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>The top-level application directory is client.</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>The source code generated by wsdl2java is in the
+                  package hierarchies
+                  <classname>org/objectweb/hello_world_soap_http</classname>
+                  and
+                  <classname>org/objectweb/hello_world_soap_http/types</classname>
+                  under the <filename>hello_world/client</filename> directory.
+                  The package name was derived from the target namespace
+                  defined in the WSDL file.</para>
+                </listitem>
+
+                <listitem>
+                  <para>The
+                  <filename>hello_world/client/build/classes</filename>
+                  directory includes the compiled code in the package
+                  hierarchies
+                  <classname>org/objectweb/hello_world_soap_http</classname>
+                  and
+                  <classname>org/objectweb/hello_world_soap_http/types</classname>.</para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
+            <listitem>
+              <para>The <filename>wsdl</filename> directory contains the WSDL
+              file used to generate the application code.</para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Writing a SOAP over HTTP Client and Server with CeltiXfire</title>
+
+    <para>This section describes how you can use CeltiXfire to write a SOAP
+    over HTTP client and server. Both the CeltiXfire sample application
+    approach and the developer driven approach are discussed.</para>
+
+    <para>The <classname>HelloWorld</classname> interface used in this section
+    is defined in the <filename>HelloWorld.wsdl</filename> WSDL file shown in
+    <xref linkend="example5" />. It corresponds to the Java interface shown in
+    <xref linkend="example4" />. It is slightly different to the WSDL file
+    used in the HelloWorld sample that is included with the CeltiXfire
+    distribution.</para>
+
+    <example id="example4">
+      <title>HelloWorld Interface</title>
+
+      <programlisting>public interface HelloWorld
 {
-  public String sayHello(String message);
+&nbsp;&nbsp;public String sayHello(String message);
 }</programlisting>
-</example>
-<example id="example5">
-<title>HelloWorld WSDL</title>
-<programlisting><markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+    </example>
+
+    <example id="example5">
+      <title>HelloWorld WSDL</title>
+
+      <programlisting><markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!--WSDL file template--&gt;
 &lt;!--(c) 2005, IONA Technologies, Inc.--&gt;
 &lt;definitions name="HelloWorld.wsdl"
@@ -319,8 +465,8 @@ to the WSDL file used in the HelloWorld sample that is included with the Celtix 
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
 &gt;types&gt;
     &gt;schema targetNamespace="http://www.celtix.org/courseware/HelloWorld"
-            xmlns="http://www.w3.org/2001/XMLSchema"
-            xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xmlns="http://www.w3.org/2001/XMLSchema"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"&gt;
       &lt;element name="sayHello"&gt;
         &lt;complexType&gt;
           &lt;sequence&gt;
@@ -365,58 +511,81 @@ to the WSDL file used in the HelloWorld sample that is included with the Celtix 
     &lt;/operation&gt;
   &lt;/binding&gt;
   &lt;service name="HelloWorldService"&gt;
-    &lt;port binding="tns:HelloWorld_DocLiteral_SOAPBinding" name="SOAPOverHTTP">
+    &lt;port binding="tns:HelloWorld_DocLiteral_SOAPBinding" name="SOAPOverHTTP"&gt;
       &lt;soap:address location="http://localhost:9090/helloworld"/&gt;
     &lt;/port&gt;
   &lt;service&gt;
 &lt;/definitions&gt;</markup></programlisting>
-</example>
-<sect2>
-<title>Using the Celtix Sample Application Approach</title>
-<para>Use the Celtix sample application approach to build applications when working with the 
-Celtix source distribution. In the Celtix source distribution, the collection of JAR files that 
-comprise the Celtix product are distributed throughout the product directories. As a result, it is 
-somewhat involved to list all of these JAR files on the <envar>CLASSPATH</envar>. When you use the 
-Celtix sample application approach, <filename>common_build.xml</filename> correctly sets the 
-<envar>CLASSPATH</envar>.</para>
-<para>To use the Celtix sample application approach, do the following:</para>
-<procedure>
-<step>
-<para>
-Replicate the directory hierarchy used in the sample applications. For instance, using the 
-<classname>HelloWorld</classname> interface described in <xref linkend="example4" /> as an 
-example, create the following directory structure:
-</para>
-</step>
-<step>
-<para>Place your WSDL file into the <filename>wsdl</filename> directory. For example, place 
-<filename>HelloWorld.wsdl</filename>, shown in Example 5 in the <filename>wsdl</filename> directory.</para>
-</step>
-<step>
-<para>Copy a <filename>build.xml</filename> file from one of the sample applications and modify it 
-as required. For example, place the <filename>build.xml</filename> file shown in 
-<xref linkend="example6" /> in the top-level <filename>HelloWorld</filename> directory.</para>
-</step>
-<step>
-<para>Write the client mainline, server mainline, and implementation object source code files and 
-add them to the <filename>src</filename> directory.</para>
-</step>
-<step>
-<para>Use Ant to generate code for the type, service proxy, and service interface files and to 
-compile the applications. For example, from the top-level <filename>HelloWorld</filename> 
-directory, issue the <userinput>ant build</userinput> command. This creates the 
-<filename>build/classes</filename> directory hierarchy and generates the type, service proxy, and 
-service interface files, and compiles the applications.</para>
-</step>
-<step>
-<para>Use Ant to run the client and server applications. For example, from the top-level 
-<filename>HelloWorld</filename> directory, issue the <userinput>ant server</userinput> and 
-<userinput>ant client</userinput> commands to run the client and server applications.</para>
-</step>
-</procedure>
-<example id="example6">
-<title>HelloWorld Application Ant Build File</title>
-<programlisting><markup>&lt;?xml version="1.0"?&gt;
+    </example>
+
+    <sect2>
+      <title>Using the CeltiXfire Sample Application Approach</title>
+
+      <para>Use the CeltiXfire sample application approach to build
+      applications when working with the CeltiXfire source distribution. In
+      the CeltiXfire source distribution, the collection of JAR files that
+      comprise the CeltiXfire product are distributed throughout the product
+      directories. As a result, it is somewhat involved to list all of these
+      JAR files on the <envar>CLASSPATH</envar>. When you use the CeltiXfire
+      sample application approach, <filename>common_build.xml</filename>
+      correctly sets the <envar>CLASSPATH</envar>.</para>
+
+      <para>To use the CeltiXfire sample application approach, do the
+      following:</para>
+
+      <procedure>
+        <step>
+          <para>Replicate the directory hierarchy used in the sample
+          applications. For instance, using the
+          <classname>HelloWorld</classname> interface described in <xref
+          linkend="example4" /> as an example, create the following directory
+          structure:</para>
+        </step>
+
+        <step>
+          <para>Place your WSDL file into the <filename>wsdl</filename>
+          directory. For example, place <filename>HelloWorld.wsdl</filename>,
+          shown in Example 5 in the <filename>wsdl</filename>
+          directory.</para>
+        </step>
+
+        <step>
+          <para>Copy a <filename>build.xml</filename> file from one of the
+          sample applications and modify it as required. For example, place
+          the <filename>build.xml</filename> file shown in <xref
+          linkend="example6" /> in the top-level
+          <filename>HelloWorld</filename> directory.</para>
+        </step>
+
+        <step>
+          <para>Write the client mainline, server mainline, and implementation
+          object source code files and add them to the
+          <filename>src</filename> directory.</para>
+        </step>
+
+        <step>
+          <para>Use Ant to generate code for the type, service proxy, and
+          service interface files and to compile the applications. For
+          example, from the top-level <filename>HelloWorld</filename>
+          directory, issue the <userinput>ant build</userinput> command. This
+          creates the <filename>build/classes</filename> directory hierarchy
+          and generates the type, service proxy, and service interface files,
+          and compiles the applications.</para>
+        </step>
+
+        <step>
+          <para>Use Ant to run the client and server applications. For
+          example, from the top-level <filename>HelloWorld</filename>
+          directory, issue the <userinput>ant server</userinput> and
+          <userinput>ant client</userinput> commands to run the client and
+          server applications.</para>
+        </step>
+      </procedure>
+
+      <example id="example6">
+        <title>HelloWorld Application Ant Build File</title>
+
+        <programlisting><markup>&lt;?xml version="1.0"?&gt;
 &lt;project name="HelloWorld Application" default="build" basedir="."&gt;
     &lt;import file="../common_build.xml"/&gt;
 
@@ -438,84 +607,123 @@ service interface files, and compiles the applications.</para>
         &lt;wsdl2java file="HelloWorld.wsdl"/&gt;
     &lt;/target&gt;
 &lt;/project&gt;</markup></programlisting>
-</example>
-</sect2>
-<sect2>
-<title>Using the Developer Driven Approach</title>
-<para>The developer driven approach refers to an approach in which you use wsdl2java to generate 
-an Ant <filename>build.xml</filename> file that accurately lists all Celtix JARs on the 
-<envar>CLASSPATH</envar>. This approach is suitable when you are working with the Celtix binary 
-distribution.</para>
-<para>To use the developer driven approach, do the following:</para>
-<procedure>
-<step>
-<para>Create the project directory structure as shown in <xref linkend="figure2" />.</para>
-<figure id="figure2">
-<title>Developer Driven Directory Structure</title>
-     <mediaobject>
-        <imageobject>
-          <imagedata fileref="./images/getting_started2.gif" />
-        </imageobject>
-      </mediaobject>
-    </figure>
-</step>
-<step>
-<para>Place the WSDL file into the <filename>wsdl</filename> directory. Use the 
-<filename>HelloWorld.wsdl</filename> file shown in Example 5 as an example.</para>
-</step>
-<step>
-<para>Use wsdl2java to generate the starting point code, including the 
-client mainline, for the client application. For example, from the <filename>HelloWorld</filename> 
-top-level directory, issue the following command:</para>
-<para><userinput>wsdl2java -client -d client -ant .\wsdl\HelloWorld.wsdl</userinput></para>
-</step>
-<step>
-<para>Use wsdl2java to generate starting point code, including the 
-server mainline and implementation object, for the server application. For example, from the 
-<filename>HelloWorld</filename> top-level directory, issue the following command:</para>
-<para><userinput>wsdl2java -server -impl -d server -ant .\wsdl\HelloWorld.wsdl</userinput></para>
-</step>
-<step>
-<para>Complete coding the client mainline and implementation object.</para>
-</step>
-<step>
-<para>wsdl2java creates an Ant <filename>build.xml</filename> file in 
-each of the top-level application directories—client and server. Issue the command 
-<userinput>ant build</userinput> in each of these directories to compile your applications.</para>
-</step>
-</procedure>
-<sect3>
-<title>Running the Applications using Ant</title>
-<para>You can use Ant to run each of the applications. The actual syntax of the command depends on 
-the name of the port type defined in the WSDL file. For example, in the 
-<filename>HelloWorld.wsdl</filename> file, the port type is called HelloWorld, and 
-<filename>build.xml</filename> file targets used to run the client and server applications are 
-HelloWorld.Client and HelloWorld.Server.</para>
-</sect3>
-<sect3>
-<title>Running the Applications using java</title>
-<para>The Celtix runtime uses the <classname>java.util.logging</classname> framework. You can 
-configure Celtix logging levels by pointing the JVM to a <filename>logging.properties</filename> 
-file by defining the JVM system variable <literal>java.util.logging.config.file</literal>. 
-Celtix provides a default <filename>logging.properties</filename> file in the 
-<filename>etc</filename> directory, so you can use: 
-<userinput>-Djava.util.logging.config.file=%CELTIX_HOME%/etc/logging.properties</userinput>.</para>
-<para>To run the server application using Java, move to the <filename>server/build/classes</filename> 
-directory and issue the following command:</para>
-<para>
-<userinput>java -Djava.util.logging.config.file=%CELTIX_HOME%/etc/logging.properties 
-<replaceable>&lt;full package name of server&gt;</replaceable></userinput>
-</para>
-<para>To run the client application, move to the <filename>client/build/classes</filename> 
-directory and issue the following command:</para>
-<para>
-<userinput>java -Djava.util.logging.config.file=%CELTIX_HOME%/etc/logging.properties 
-<replaceable>&lt;full package name of client&gt;</replaceable> 
-<replaceable>&lt;path to WSDL file&gt;</replaceable></userinput></para>
-<note>
-<para>You must supply the relative, or absolute, path to the WSDL file when running the client.</para>
-</note>
-</sect3>
-</sect2>
-</sect1>
+      </example>
+    </sect2>
+
+    <sect2>
+      <title>Using the Developer Driven Approach</title>
+
+      <para>The developer driven approach refers to an approach in which you
+      use wsdl2java to generate an Ant <filename>build.xml</filename> file
+      that accurately lists all CeltiXfire JARs on the
+      <envar>CLASSPATH</envar>. This approach is suitable when you are working
+      with the CeltiXfire binary distribution.</para>
+
+      <para>To use the developer driven approach, do the following:</para>
+
+      <procedure>
+        <step>
+          <para>Create the project directory structure as shown in <xref
+          linkend="figure2" />.</para>
+
+          <figure id="figure2">
+            <title>Developer Driven Directory Structure</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="./images/getting_started2.gif" />
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </step>
+
+        <step>
+          <para>Place the WSDL file into the <filename>wsdl</filename>
+          directory. Use the <filename>HelloWorld.wsdl</filename> file shown
+          in Example 5 as an example.</para>
+        </step>
+
+        <step>
+          <para>Use wsdl2java to generate the starting point code, including
+          the client mainline, for the client application. For example, from
+          the <filename>HelloWorld</filename> top-level directory, issue the
+          following command:</para>
+
+          <para><userinput>wsdl2java -client -d client -ant
+          .\wsdl\HelloWorld.wsdl</userinput></para>
+        </step>
+
+        <step>
+          <para>Use wsdl2java to generate starting point code, including the
+          server mainline and implementation object, for the server
+          application. For example, from the <filename>HelloWorld</filename>
+          top-level directory, issue the following command:</para>
+
+          <para><userinput>wsdl2java -server -impl -d server -ant
+          .\wsdl\HelloWorld.wsdl</userinput></para>
+        </step>
+
+        <step>
+          <para>Complete coding the client mainline and implementation
+          object.</para>
+        </step>
+
+        <step>
+          <para>wsdl2java creates an Ant <filename>build.xml</filename> file
+          in each of the top-level application directories—client and server.
+          Issue the command <userinput>ant build</userinput> in each of these
+          directories to compile your applications.</para>
+        </step>
+      </procedure>
+
+      <sect3>
+        <title>Running the Applications using Ant</title>
+
+        <para>You can use Ant to run each of the applications. The actual
+        syntax of the command depends on the name of the port type defined in
+        the WSDL file. For example, in the
+        <filename>HelloWorld.wsdl</filename> file, the port type is called
+        HelloWorld, and <filename>build.xml</filename> file targets used to
+        run the client and server applications are HelloWorld.Client and
+        HelloWorld.Server.</para>
+      </sect3>
+
+      <sect3>
+        <title>Running the Applications using java</title>
+
+        <para>The CeltiXfire runtime uses the
+        <classname>java.util.logging</classname> framework. You can configure
+        CeltiXfire logging levels by pointing the JVM to a
+        <filename>logging.properties</filename> file by defining the JVM
+        system variable <literal>java.util.logging.config.file</literal>.
+        CeltiXfire provides a default <filename>logging.properties</filename>
+        file in the <filename>etc</filename> directory, so you can use:
+        <userinput>-Djava.util.logging.config.file=%CELTIX_HOME%/etc/logging.properties</userinput>.</para>
+
+        <para>To run the server application using Java, move to the
+        <filename>server/build/classes</filename> directory and issue the
+        following command:</para>
+
+        <para><userinput>java
+        -Djava.util.logging.config.file=%CELTIX_HOME%/etc/logging.properties
+        <replaceable>&lt;full package name of
+        server&gt;</replaceable></userinput></para>
+
+        <para>To run the client application, move to the
+        <filename>client/build/classes</filename> directory and issue the
+        following command:</para>
+
+        <para><userinput>java
+        -Djava.util.logging.config.file=%CELTIX_HOME%/etc/logging.properties
+        <replaceable>&lt;full package name of client&gt;</replaceable>
+        <replaceable>&lt;path to WSDL
+        file&gt;</replaceable></userinput></para>
+
+        <note>
+          <para>You must supply the relative, or absolute, path to the WSDL
+          file when running the client.</para>
+        </note>
+      </sect3>
+    </sect2>
+  </sect1>
 </article>
