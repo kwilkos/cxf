@@ -22,6 +22,8 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.ResponseCallback;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -38,7 +40,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
  */
 public class JBIClientTransport implements ClientTransport {
     
-    private static final Logger LOG = Logger.getLogger(JBIClientTransport.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(JBIClientTransport.class);
     private final DeliveryChannel channel; 
     private final EndpointReferenceType endpointRef; 
     private final QName serviceName;
@@ -54,7 +56,7 @@ public class JBIClientTransport implements ClientTransport {
     } 
     
     public void invokeOneway(OutputStreamMessageContext context) throws IOException {
-        throw new RuntimeException("not yet implemented");
+        throw new RuntimeException(new Message("NOT.IMPLEMENTED", LOG).toString());
     }
     
     public InputStreamMessageContext invoke(OutputStreamMessageContext context)
@@ -64,18 +66,18 @@ public class JBIClientTransport implements ClientTransport {
             Method targetMethod = (Method)context.get(ObjectMessageContext.METHOD_OBJ);
             Class<?> clz = targetMethod.getDeclaringClass(); 
             
-            LOG.fine("invoking service " + clz);
+            LOG.fine(new Message("INVOKE.SERVICE", LOG).toString() + clz);
             
             WebService ws = clz.getAnnotation(WebService.class);
             assert ws != null;
             QName interfaceName = new QName(ws.targetNamespace(), ws.name());
             
             MessageExchangeFactory factory = channel.createExchangeFactoryForService(serviceName);
-            LOG.fine("create message exchange svc: " + serviceName);
+            LOG.fine(new Message("CREATE.MESSAGE.EXCHANGE", LOG).toString() + serviceName);
             InOut xchng = factory.createInOutExchange();
             
             NormalizedMessage inMsg = xchng.createMessage();
-            LOG.fine("exchange endpoint: " + xchng.getEndpoint());
+            LOG.fine(new Message("EXCHANGE.ENDPOINT", LOG).toString() + xchng.getEndpoint());
             
             InputStream ins = null;
             
@@ -96,11 +98,11 @@ public class JBIClientTransport implements ClientTransport {
                 ins = JBIMessageHelper.convertMessageToInputStream(outMsg.getContent());
                 
             } else { 
-                System.out.println("no message yet");
+                LOG.info(new Message("NO.MESSAGE", LOG).toString());
             } 
             
             if (ins == null) { 
-                throw new IOException("unable to retrieve message");
+                throw new IOException(new Message("UNABLE.RETRIEVE.MESSAGE", LOG).toString());
             } 
             return new JBIInputStreamMessageContext(context, ins);
             
@@ -112,7 +114,7 @@ public class JBIClientTransport implements ClientTransport {
     
     Source getMessageContent(OutputStreamMessageContext context) {
         assert context instanceof JBIOutputStreamMessageContext 
-            : "context must be of type JBIOutputStreamMessageContext";
+            : new Message("CONTEXT.MUST.BE", LOG).toString();
     
         JBIOutputStreamMessageContext ctx = (JBIOutputStreamMessageContext)context;
         ByteArrayOutputStream bos = (ByteArrayOutputStream)ctx.getOutputStream();
@@ -123,7 +125,7 @@ public class JBIClientTransport implements ClientTransport {
     public Future<InputStreamMessageContext> invokeAsync(OutputStreamMessageContext context, 
                                                          Executor executor) 
         throws IOException { 
-        throw new RuntimeException("not yet implemented");
+        throw new RuntimeException(new Message("NOT.IMPLEMENTED", LOG).toString());
     }
     
     public void finalPrepareOutputStreamContext(OutputStreamMessageContext context) 

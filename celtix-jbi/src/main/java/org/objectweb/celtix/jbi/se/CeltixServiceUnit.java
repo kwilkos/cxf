@@ -23,6 +23,8 @@ import org.w3c.dom.NodeList;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.bus.jaxws.EndpointUtils;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.jbi.ServiceConsumer;
 
 /**
@@ -30,7 +32,7 @@ import org.objectweb.celtix.jbi.ServiceConsumer;
  */
 public class CeltixServiceUnit {
     
-    private static final Logger LOG = Logger.getLogger(CeltixServiceUnit.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(CeltixServiceUnit.class);
     
     private final Bus bus; 
     
@@ -51,7 +53,7 @@ public class CeltixServiceUnit {
             url = new File(path + File.separator).toURL();
             
         } catch (MalformedURLException ex) {
-            LOG.log(Level.SEVERE, "failed to initialize service unit", ex);
+            LOG.log(Level.SEVERE, new Message("SU.FAILED.INIT", LOG).toString(), ex);
         } 
         bus = b;
         rootPath = path;
@@ -69,7 +71,8 @@ public class CeltixServiceUnit {
             try {
                 ctx.deactivateEndpoint(ref);
             } catch (JBIException e) {
-                LOG.severe("failed to deactive Endpoint" + ref + e);
+                LOG.severe(new Message("SU.FAILED.DEACTIVE.ENDPOINT", LOG).toString() 
+                           + ref + e);
             }
         } else {
             serviceConsumer.stop();
@@ -78,19 +81,19 @@ public class CeltixServiceUnit {
     
     public void start(ComponentContext ctx, CeltixServiceUnitManager serviceUnitManager) {
         if (isServiceProvider()) { 
-            LOG.info("starting provider");
+            LOG.info(new Message("SU.START.PROVIDER", LOG).toString());
             ref = null;
             try {
                 ref = ctx.activateEndpoint(getServiceName(), getEndpointName());
             } catch (JBIException e) {
-                LOG.severe("failed to active Endpoint" + e);
+                LOG.severe(new Message("SU.FAIED.ACTIVE.ENDPOINT", LOG).toString() + e);
             } 
-            LOG.fine("activated endpoint: " + ref.getEndpointName() 
+            LOG.info("activated endpoint: " + ref.getEndpointName() 
                      + " service: " + ref.getServiceName());
             serviceUnitManager.putServiceEndpoint(ref, this);
             
         } else {
-            LOG.info("starting consumer");
+            LOG.info(new Message("SU.START.CONSUMER", LOG).toString());
             new Thread(serviceConsumer).start();
         }
     }
@@ -119,11 +122,10 @@ public class CeltixServiceUnit {
             WebServiceClassFinder finder = new WebServiceClassFinder(rootPath, parentLoader);
             Collection<Class<?>> classes = finder.findWebServiceClasses(); 
             if (classes.size() > 0) {
-                LOG.info("publishing endpoint");
+                LOG.info(new Message("SU.PUBLISH.ENDPOINT", LOG).toString());
                 isProvider = true;
                 Class<?> clz = classes.iterator().next();
                 serviceImplementation = clz.newInstance();
-                LOG.info("the class name is " + serviceImplementation.getClass());
                 if (EndpointUtils.isValidImplementor(serviceImplementation)) {
                     endpoint = new EndpointImpl(bus, serviceImplementation, null);
                     //dummy endpoint to publish on
@@ -143,7 +145,7 @@ public class CeltixServiceUnit {
                 ex = (Exception)ex.getCause();
             } 
    
-            LOG.log(Level.SEVERE, "failed to publish endpoint", ex);
+            LOG.log(Level.SEVERE, new Message("SU.FAILED.PUBLISH.ENDPOINT", LOG).toString(), ex);
         } 
     } 
     
@@ -164,7 +166,8 @@ public class CeltixServiceUnit {
                 DocumentBuilder builder = factory.newDocumentBuilder();
                 doc = builder.parse(ws.wsdlLocation());
             } else { 
-                LOG.severe("could not get WebService annotation from " + serviceImplementation);
+                LOG.severe(new Message("SU.COULDNOT.GET.ANNOTATION", LOG).toString() 
+                           + serviceImplementation);
             }
         } catch (Exception ex) {
             ex.printStackTrace();

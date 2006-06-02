@@ -12,12 +12,14 @@ import java.util.logging.Logger;
 
 import javax.jws.WebService;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.jbi.ServiceConsumer;
 
 
 public class WebServiceClassFinder {
     
-    private static final Logger LOG = Logger.getLogger(WebServiceClassFinder.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(WebServiceClassFinder.class);
     private final String rootPath;
     private final ClassLoader parent;
 
@@ -88,7 +90,7 @@ public class WebServiceClassFinder {
         try {
             return loader.loadClass(className);
         } catch (ClassNotFoundException ex) {
-            LOG.severe("failed to load class: " + className);
+            LOG.severe(new Message("FAILED.LOAD.CLASS", LOG) + className);
         }
         return null;
     }

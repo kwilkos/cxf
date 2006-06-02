@@ -9,6 +9,8 @@ import javax.wsdl.WSDLException;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.ResponseCallback;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.jbi.se.CeltixServiceUnitManager;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
@@ -20,7 +22,7 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
  */
 public class JBITransportFactory implements TransportFactory {
 
-    private static final Logger LOG = Logger.getLogger(JBITransportFactory.class.getName()); 
+    private static final Logger LOG = LogUtils.getL7dLogger(JBITransportFactory.class); 
 
     private CeltixServiceUnitManager suManager; 
     private DeliveryChannel deliveryChannel;
@@ -35,7 +37,7 @@ public class JBITransportFactory implements TransportFactory {
     }
 
     public void setDeliveryChannel(DeliveryChannel newDeliverychannel) {
-        LOG.fine("configuring DeliveryChannel: " + newDeliverychannel);
+        LOG.fine(new Message("CONFIG.DELIVERY.CHANNEL", LOG).toString() + newDeliverychannel);
         deliveryChannel = newDeliverychannel;
     }
 
@@ -47,20 +49,21 @@ public class JBITransportFactory implements TransportFactory {
         if (sum == null) { 
             Thread.dumpStack(); 
         } 
-        LOG.fine("configuring ServiceUnitManager: " + sum);
+        LOG.fine(new Message("CONFIG.SU.MANAGER", LOG).toString() + sum);
         suManager = sum;
     }
 
 
     public ServerTransport createServerTransport(EndpointReferenceType address)
         throws WSDLException, IOException {
-        LOG.info("creating JBI server transport");
+        LOG.info(new Message("CREATE.SERVER.TRANSPORT", LOG).toString());
         
         if (suManager == null || deliveryChannel == null) { 
-            LOG.severe("JBITransportFactory is not properly initialised");
-            LOG.severe("CeltixServiceUnitManager: " + suManager);
-            LOG.severe("DeliveryChannel: " + deliveryChannel);
-            throw new IllegalStateException("JBITransport factory not fully initalised");
+            LOG.severe(new Message("JBI.TRANSPORT.FACTORY.NOT.INITIALIZED", LOG).toString());
+            LOG.severe(new Message("SU.MANAGER", LOG).toString() + suManager);
+            LOG.severe(new Message("DELIVERY.CHANNEL", LOG).toString() + deliveryChannel);
+            throw new IllegalStateException(new Message("JBI.TRANSPORT.FACTORY.NOT.FULLY.INITIALIZED", 
+                                                        LOG).toString());
         }
 
         return new JBIServerTransport(suManager, deliveryChannel); 
@@ -69,7 +72,7 @@ public class JBITransportFactory implements TransportFactory {
     public ServerTransport createTransientServerTransport(EndpointReferenceType address)
         throws WSDLException, IOException { 
 
-        throw new RuntimeException("not yet implemented");
+        throw new RuntimeException(new Message("NOT.IMPLEMENTED", LOG).toString());
     }
  
     
@@ -77,12 +80,13 @@ public class JBITransportFactory implements TransportFactory {
                                                  ClientBinding binding)
         throws WSDLException, IOException { 
 
-        LOG.info("creating JBI client transport");
+        LOG.info(new Message("CREATE.CLIENT.TRANSPORT", LOG).toString());
 
         if (deliveryChannel == null) { 
-            LOG.severe("JBITransportFactory is not properly initialised");
-            LOG.severe("DeliveryChannel: " + deliveryChannel);
-            throw new IllegalStateException("JBITransport factory not fully initalised");
+            LOG.severe(new Message("JBI.TRANSPORT.FACTORY.NOT.INITIALIZED", LOG).toString());
+            LOG.severe(new Message("DELIVERY.CHANNEL", LOG).toString() + deliveryChannel);
+            throw new IllegalStateException(new Message("JBI.TRANSPORT.FACTORY.NOT.FULLY.INITIALIZED", 
+                                                        LOG).toString());
         }
 
         return new JBIClientTransport(deliveryChannel, address, binding);
@@ -91,6 +95,6 @@ public class JBITransportFactory implements TransportFactory {
 
 
     public void setResponseCallback(ResponseCallback callback) {
-        throw new RuntimeException("not yet implemented");
+        throw new RuntimeException(new Message("NOT.IMPLEMENTED", LOG).toString());
     } 
 }

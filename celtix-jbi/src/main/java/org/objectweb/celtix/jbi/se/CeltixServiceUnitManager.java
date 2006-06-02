@@ -13,13 +13,15 @@ import javax.jbi.servicedesc.ServiceEndpoint;
 import org.w3c.dom.Document;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 
 /** Manage deployment of service units to the Celtix service engine
  * 
  */
 public class CeltixServiceUnitManager implements ServiceUnitManager {
     
-    private static final Logger LOG = Logger.getLogger(CeltixServiceUnitManager.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(CeltixServiceUnitManager.class);
     
     private ComponentContext ctx; 
     private final Map<String, CeltixServiceUnit> serviceUnits 
@@ -39,12 +41,38 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     // Implementation of javax.jbi.component.ServiceUnitManager
     
     public final void shutDown(final String suName) throws DeploymentException {
-        LOG.info("SU Manager shutdown " + suName);
+        LOG.info(new Message("SU.MANAGER.SHUTDOWN", LOG) + suName);
+        if (suName == null) {
+            throw new DeploymentException(new Message("SU.NAME.NULL", LOG).toString());
+        } 
+        if (suName.length() == 0) {
+            throw new DeploymentException(new Message("SU.NAME.EMPTY", LOG).toString());
+        }
+        if (!serviceUnits.containsKey(suName)) {
+            throw new DeploymentException(new Message("UNDEPLOYED.SU", LOG).toString() + suName);
+        }
         serviceUnits.remove(suName);
     }
     
     public final String deploy(final String suName, final String suRootPath) throws DeploymentException {
-        LOG.info("SU Manager deploy " + suName + " path: " + suRootPath);
+        LOG.info(new Message("SU.MANAGER.DEPLOY", LOG) + suName + " path: " + suRootPath);
+        
+        if (suName == null) {
+            throw new DeploymentException(new Message("SU.NAME.NULL", LOG).toString());
+        } 
+        if (suName.length() == 0) {
+            throw new DeploymentException(new Message("SU.NAME.EMPTY", LOG).toString());
+        }
+        if (serviceUnits.containsKey(suName)) {
+            throw new DeploymentException(new Message("DUPLICATED.SU", LOG) + suName);
+        }
+        
+        if (suRootPath == null) {
+            throw new DeploymentException(new Message("SU.ROOT.NULL", LOG).toString());
+        } 
+        if (suRootPath.length() == 0) {
+            throw new DeploymentException(new Message("SU.ROOT.EMPTY", LOG).toString());
+        }
         
         String msg =  "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
             + "<jbi-task xmlns=\"http://java.sun.com/xml/ns/jbi/management-message\" "  
@@ -79,9 +107,22 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     }
     
     public final String undeploy(final String suName, final String suRootPath) throws DeploymentException {
-        LOG.info("SU Manager undeploy " + suName + " path: " + suRootPath);
+        LOG.info(new Message("SU.MANAGER.UNDEPLOY", LOG) + suName + " path: " + suRootPath);
         
-        csuMap.remove(suName); 
+        if (suName == null) {
+            throw new DeploymentException(new Message("SU.NAME.NULL", LOG).toString());
+        } 
+        if (suName.length() == 0) {
+            throw new DeploymentException(new Message("SU.NAME.EMPTY", LOG).toString());
+        }
+                
+        if (suRootPath == null) {
+            throw new DeploymentException(new Message("SU.ROOT.NULL", LOG).toString());
+        } 
+        if (suRootPath.length() == 0) {
+            throw new DeploymentException(new Message("SU.ROOT.EMPTY", LOG).toString());
+        }
+        
         
         String msg =  "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
             + "<jbi-task xmlns=\"http://java.sun.com/xml/ns/jbi/management-message\" "  
@@ -110,18 +151,32 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
             + "</component-task-result>"
             + "</jbi-task-result>"
             + "</jbi-task>";
-        
+        serviceUnits.remove(suName);
         return msg;
     }
     
     public final void init(final String suName, final String suRootPath) throws DeploymentException {
-        LOG.info("SU Manager init " + suName + " path: " + suRootPath);
+        LOG.info(new Message("SU.MANAGER.INIT", LOG) + suName + " path: " + suRootPath);
      
+        if (suName == null) {
+            throw new DeploymentException(new Message("SU.NAME.NULL", LOG).toString());
+        } 
+        if (suName.length() == 0) {
+            throw new DeploymentException(new Message("SU.NAME.EMPTY", LOG).toString());
+        }
+                
+        if (suRootPath == null) {
+            throw new DeploymentException(new Message("SU.ROOT.NULL", LOG).toString());
+        } 
+        if (suRootPath.length() == 0) {
+            throw new DeploymentException(new Message("SU.ROOT.EMPTY", LOG).toString());
+        }
+        
         try { 
             Thread.currentThread().setContextClassLoader(componentParentLoader);
             CeltixServiceUnit csu = new CeltixServiceUnit(bus, suRootPath, componentParentLoader);
             csu.prepare(ctx);
-            serviceUnits.put(suName, csu); 
+            serviceUnits.put(suName, csu);    
         } catch (Exception ex) { 
             ex.printStackTrace();
             throw new DeploymentException(ex);
@@ -129,7 +184,16 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     }
     
     public final void start(final String suName) throws DeploymentException {
-        LOG.info("SU Manager start " + suName);
+        LOG.info(new Message("SU.MANAGER.START", LOG) + suName);
+        if (suName == null) {
+            throw new DeploymentException(new Message("SU.NAME.NULL", LOG).toString());
+        } 
+        if (suName.length() == 0) {
+            throw new DeploymentException(new Message("SU.NAME.EMPTY", LOG).toString());
+        }
+        if (!serviceUnits.containsKey(suName)) {
+            throw new DeploymentException(new Message("UNDEPLOYED.SU", LOG) + suName);
+        }
         
         CeltixServiceUnit csu = serviceUnits.get(suName); 
         assert csu != null;
@@ -145,7 +209,16 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     } 
     
     public final void stop(final String suName) throws DeploymentException {
-        LOG.info("SU Manager stop " + suName);
+        LOG.info(new Message("SU.MANAGER.STOP", LOG) + suName);
+        if (suName == null) {
+            throw new DeploymentException(new Message("SU.NAME.NULL", LOG).toString());
+        } 
+        if (suName.length() == 0) {
+            throw new DeploymentException(new Message("SU.NAME.EMPTY", LOG).toString());
+        }
+        if (!serviceUnits.containsKey(suName)) {
+            throw new DeploymentException(new Message("UNDEPLOYED.SU", LOG) + suName);
+        }
         serviceUnits.get(suName).stop(ctx);
     }
     

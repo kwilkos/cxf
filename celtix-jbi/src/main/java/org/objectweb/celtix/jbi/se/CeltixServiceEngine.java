@@ -23,6 +23,8 @@ import org.w3c.dom.DocumentFragment;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.jbi.transport.JBITransportFactory;
 
 
@@ -35,7 +37,7 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
     private static final String PROVIDER_PROP = "javax.xml.ws.spi.Provider";
     
     
-    private static final Logger LOG = Logger.getLogger(CeltixServiceEngine.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(CeltixServiceEngine.class);
     
     private ComponentContext ctx; 
     private CeltixServiceUnitManager suManager;
@@ -51,7 +53,7 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
     }
     
     public final void shutDown() throws JBIException {
-        LOG.fine("Shutting down CeltixServiceEngine");
+        LOG.info(new Message("SE.SHUTDOWN", LOG).toString());
     }
     
     public final void init(final ComponentContext componentContext) throws JBIException {
@@ -68,9 +70,9 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
             
             if (celtixConfig.exists()) { 
                 System.setProperty("celtix.config.file", celtixConfig.toURL().toString());
-                LOG.fine("set Celtix configuration to: " + System.getProperty("celtix.config.file"));
+                LOG.info(new Message("SE.SET.CONFIGURATION", LOG) + System.getProperty("celtix.config.file"));
             } else { 
-                LOG.severe("could not find Celtix configuration in " + metaInfDir);
+                LOG.severe(new Message("SE.NOT.FOUND.CONFIGURATION", LOG).toString() + metaInfDir);
             } 
             
             ComponentClassLoader loader = createClassLoader();
@@ -79,11 +81,11 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
             suManager = new CeltixServiceUnitManager(bus, componentContext, loader);
             registerJBITransport(bus, suManager);
             
-            LOG.info("Celtix Service Engine installation root:" + componentContext.getInstallRoot());
-            LOG.info("CeltixServiceEngine init complete");
+            LOG.info(new Message("SE.INSTALL.ROOT", LOG) + componentContext.getInstallRoot());
+            LOG.info(new Message("SE.INIT.COMPLETE", LOG).toString());
         } catch (Throwable ex) { 
             ex.printStackTrace();
-            LOG.log(Level.SEVERE, "failed to initilialize bus", ex);
+            LOG.log(Level.SEVERE, new Message("SE.FAILED.INIT.BUS", LOG).toString(), ex);
             throw new JBIException(ex);
         } 
     }
@@ -92,11 +94,11 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
     private void initializeBus() throws JBIException { 
         
         try { 
-            LOG.fine("initialising bus");
+            LOG.info(new Message("SE.INIT.BUS", LOG).toString());
             bus = Bus.init();
-            LOG.fine("init complete");
+            LOG.info(new Message("SE.INIT.BUS.COMPLETE", LOG).toString());
         } catch (Exception ex) { 
-            LOG.log(Level.SEVERE, "bus initialization failed", ex);
+            LOG.log(Level.SEVERE, new Message("SE.FAILED.INIT.BUS", LOG).toString(), ex);
             throw new JBIException(ex);
         } 
     } 
@@ -105,17 +107,17 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
     public final void start() throws JBIException {
         
         try { 
-            LOG.fine("CeltixServiceEngine starting");
+            LOG.info(new Message("SE.STARTUP", LOG).toString());
             DeliveryChannel chnl = ctx.getDeliveryChannel();
             configureJBITransportFactory(chnl, suManager); 
-            LOG.fine("CeltixServiceEngine startup complete");
+            LOG.info(new Message("SE.STARTUP.COMPLETE", LOG).toString());
         } catch (BusException ex) {
             throw new JBIException(ex);
         }
     }
     
     public final void stop() throws JBIException {
-        LOG.fine("CeltixServiceEngine stopped");
+        LOG.info(new Message("SE.STOP", LOG).toString());
     }
     
     // Implementation of javax.jbi.component.Component
@@ -167,7 +169,8 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
             getTransportFactory().init(argBus);
             getTransportFactory().setServiceUnitManager(mgr);
         } catch (Exception ex) {
-            throw new JBIException("failed to register JBI transport factory", ex);
+            throw new JBIException(new Message("SE.FAILED.REGISTER.TRANSPORT.FACTORY", 
+                                               LOG).toString(), ex);
         }
     } 
     
@@ -181,7 +184,7 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
             
             return transportFactory;
         } catch (BusException ex) { 
-            LOG.log(Level.SEVERE, "error initializing bus", ex);
+            LOG.log(Level.SEVERE, new Message("SE.FAILED.INIT.BUS", LOG).toString(), ex);
             throw ex;
         }
     }
@@ -206,7 +209,7 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
             
             return new ComponentClassLoader(urls, getClass().getClassLoader());
         } catch (MalformedURLException ex) { 
-            throw new JBIException("failed to construct component classloader", ex);
+            throw new JBIException(new Message("SE.FAILED.CLASSLOADER", LOG).toString(), ex);
         } 
     } 
 }

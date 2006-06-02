@@ -13,11 +13,13 @@ import junit.framework.TestCase;
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.jbi.transport.JBITransportFactory;
 
 public class CeltixServiceUnitTest extends TestCase {
     
-    private static final Logger LOG = Logger.getLogger(CeltixServiceUnitTest.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(CeltixServiceUnitTest.class);
     private static final String ROOT_PATH = 
         "/service-assemblies/celtix-demo-service-assembly/version_1/sus/" 
             + "CeltixServiceEngine/JBIDemoSE_AProvider";
@@ -35,33 +37,49 @@ public class CeltixServiceUnitTest extends TestCase {
         System.setProperty("celtix.config.file", getClass().getResource(CELTIX_CONFIG).toString());
         absCsuPath = getClass().getResource(ROOT_PATH).getFile();
         bus = Bus.init();
-               
-                
+             
         ComponentClassLoader componentClassLoader = 
             new ComponentClassLoader(new URL[0], getClass().getClassLoader());  
          
         csuManager = new CeltixServiceUnitManager(bus, ctx, componentClassLoader);
         
         csu = new CeltixServiceUnit(bus, absCsuPath, componentClassLoader);
-        
-    }
-    
-    public void tearDown() throws Exception {
-        
-    }
-    
-    public void testPrepare() throws Exception {
         registerJBITransport(bus, csuManager);
         channel.accept();
         EasyMock.expectLastCall().andReturn(null);
         EasyMock.expectLastCall().anyTimes();
         
         EasyMock.replay(channel);
+    }
+    
+    public void tearDown() throws Exception {
+        bus.shutdown(false);
+    }
+    
+    public void testPrepare() throws Exception {
         csu.prepare(ctx);
         assertTrue(csu.isServiceProvider());
+        assertEquals(csu.getServiceName().getNamespaceURI(), "http://objectweb.org/hello_world");
+        assertEquals(csu.getServiceName().getLocalPart(), "HelloWorldService");
+    }
+    
+    public void testEndpintName() throws Exception {
         assertEquals(csu.getEndpointName(), "SE_Endpoint");
     }
     
+    public void testServiceName() throws Exception {
+        csu.prepare(ctx);
+        assertEquals(csu.getServiceName().getNamespaceURI(), "http://objectweb.org/hello_world");
+        assertEquals(csu.getServiceName().getLocalPart(), "HelloWorldService");
+    }
+    
+    public void testStart() throws Exception {
+        
+    }
+    
+    public void testStop() throws Exception {
+        
+    }
     
     private void registerJBITransport(Bus argBus, CeltixServiceUnitManager mgr) throws JBIException { 
         try { 
@@ -69,7 +87,7 @@ public class CeltixServiceUnitTest extends TestCase {
             getTransportFactory().init(argBus);
             getTransportFactory().setServiceUnitManager(mgr);
         } catch (Exception ex) {
-            throw new JBIException("failed to register JBI transport factory", ex);
+            throw new JBIException(new Message("SE.FAILED.REGISTER.TRANSPORT.FACTORY", LOG).toString(), ex);
         }
     } 
     
@@ -83,10 +101,9 @@ public class CeltixServiceUnitTest extends TestCase {
             transportFactory.setDeliveryChannel(channel);
             return transportFactory;
         } catch (BusException ex) { 
-            LOG.log(Level.SEVERE, "error initializing bus", ex);
+            LOG.log(Level.SEVERE, new Message("SE.FAILED.INIT.BUS", LOG).toString(), ex);
             throw ex;
         } 
     }
-    
-    
+      
 }

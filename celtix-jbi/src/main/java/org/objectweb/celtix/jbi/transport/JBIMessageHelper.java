@@ -13,10 +13,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
+
 
 public final class JBIMessageHelper { 
     
-    private static final Logger LOG = Logger.getLogger(JBIMessageHelper.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(JBIMessageHelper.class);
     
     private static final TransformerFactory TRANSFORMER_FACTORY 
         = TransformerFactory.newInstance();
@@ -34,7 +37,7 @@ public final class JBIMessageHelper {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
         StreamResult result = new StreamResult(baos);
         transformer.transform(src, result);
-        LOG.finest("received message: " + new String(baos.toByteArray()));
+        LOG.finest(new Message("RECEIVED.MESSAGE", LOG) + new String(baos.toByteArray()));
         
         return new ByteArrayInputStream(baos.toByteArray());
     } 

@@ -21,6 +21,8 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.w3c.dom.Document;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -37,7 +39,7 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
  */
 public class JBIServerTransport implements ServerTransport {
     
-    private static final Logger LOG = Logger.getLogger(JBIServerTransport.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(JBIServerTransport.class);
     
     private static final String MESSAGE_EXCHANGE_PROPERTY = "celtix.jbi.message.exchange";
     private final CeltixServiceUnitManager suManager; 
@@ -71,7 +73,7 @@ public class JBIServerTransport implements ServerTransport {
     
     public void activate(ServerTransportCallback cb) throws IOException { 
         // activate endpoints here 
-        LOG.info("activating JBI server transport");
+        LOG.info(new Message("ACTIVE.JBI.SERVER.TRANSPORT", LOG).toString());
         callback = cb;
         dispatcher = new JBIDispatcher();
         new Thread(dispatcher).start();
@@ -88,19 +90,19 @@ public class JBIServerTransport implements ServerTransport {
             JBIOutputStreamMessageContext jbiCtx = (JBIOutputStreamMessageContext)msgContext;
             ByteArrayOutputStream baos = (ByteArrayOutputStream)jbiCtx.getOutputStream();
             ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-            LOG.finest("building document from bytes");
+            LOG.finest(new Message("BUILDING.DOCUMENT", LOG).toString());
             DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
             Document doc = builder.parse(bais);
             
             MessageExchange xchng = (MessageExchange)ctx.get(MESSAGE_EXCHANGE_PROPERTY);
-            LOG.fine("creating NormalizedMessage");
+            LOG.fine(new Message("CREATE.NORMALIZED.MESSAGE", LOG).toString());
             NormalizedMessage msg = xchng.createMessage();
             msg.setContent(new DOMSource(doc));
             xchng.setMessage(msg, "out");
-            LOG.fine("postDispatch sending out message to NWR");
+            LOG.fine(new Message("POST.DISPATCH", LOG).toString());
             channel.send(xchng);
         } catch (Exception ex) { 
-            LOG.log(Level.SEVERE, "error sending Out message", ex);
+            LOG.log(Level.SEVERE, new Message("ERROR.SEND.MESSAGE", LOG).toString(), ex);
         }
     } 
     
@@ -123,11 +125,11 @@ public class JBIServerTransport implements ServerTransport {
             // dispatch through callback
             
             ObjectMessageContext ctx = new ObjectMessageContextImpl();
-            LOG.finest("dispatching message on callback: " + cb);
+            LOG.finest(new Message("DISPATCH.MESSAGE.ON.CALLBACK", LOG).toString() + cb);
             ctx.put(MESSAGE_EXCHANGE_PROPERTY, exchange);
             cb.dispatch(new JBIInputStreamMessageContext(ctx, in), this);
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "error preparing message", ex);
+            LOG.log(Level.SEVERE, new Message("ERROR.PREPARE.MESSAGE", LOG).toString(), ex);
             throw new IOException(ex.getMessage());
         }
     }
@@ -139,7 +141,7 @@ public class JBIServerTransport implements ServerTransport {
             
             try { 
                 running = true;
-                LOG.fine("JBIServerTransport message receiving thread started");
+                LOG.fine(new Message("RECEIVE.THREAD.START", LOG).toString());
                 do { 
                     MessageExchange exchange = channel.accept(); 
                     if (exchange != null) { 
@@ -153,10 +155,10 @@ public class JBIServerTransport implements ServerTransport {
                         try { 
                             Thread.currentThread().setContextClassLoader(csu.getClassLoader());
                             if (csu != null) { 
-                                LOG.finest("dispatching to Celtix service unit");
+                                LOG.finest(new Message("DISPATCH.TO.SU", LOG).toString());
                                 dispatch(exchange, callback);
                             } else {
-                                LOG.info("no CeltixServiceUnit found");
+                                LOG.info(new Message("NO.SU.FOUND", LOG).toString());
                             }
                         } finally { 
                             Thread.currentThread().setContextClassLoader(oldLoader);
@@ -164,9 +166,9 @@ public class JBIServerTransport implements ServerTransport {
                     } 
                 } while(running);
             } catch (Exception ex) {
-                LOG.log(Level.SEVERE, "error running dispatch thread", ex);
+                LOG.log(Level.SEVERE, new Message("ERROR.DISPATCH.THREAD", LOG).toString(), ex);
             } 
-            LOG.fine("JBIServerTransport message processing thread exitting");
+            LOG.fine(new Message("JBI.SERVER.TRANSPORT.MESSAGE.PROCESS.THREAD.EXIT", LOG).toString());
         }
     }
 }
