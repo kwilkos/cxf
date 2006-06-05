@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<chapter>
+  <title>Writing Documentation for CeltiXfire</title>
+
+  <synopsis>All documentation for the CeltiXfire project is written in XML. Depending on the type of document, the content will be in either XDOC and Docbook.</synopsis>
+
+  <sect1>
+    <title>Why XML Based Documents?</title>
+
+    <para>The easy answer is because XML is cool!! However, it does have some
+    distinct advantages over other means of sourcing documentation:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>It is stored as text files.</para>
+      </listitem>
+
+      <listitem>
+        <para>It provides structure to a document.</para>
+      </listitem>
+
+      <listitem>
+        <para>It is an easy way to single source documentation.</para>
+      </listitem>
+    </itemizedlist>
+
+    <sect2>
+      <title>Text vs. Binary</title>
+
+      <para>Text files have a number of advantages over binary formats:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>They tend to take up less space.</para>
+        </listitem>
+
+        <listitem>
+          <para>They can be edited by a slew of freely available tools.</para>
+        </listitem>
+
+        <listitem>
+          <para>They can be easily diffed when being commited to a
+          repository.</para>
+        </listitem>
+
+        <listitem>
+          <para>They are readable by both humans and machines.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>Structure</title>
+
+      <para>Writing documentation with a markup language may give writers
+      visions of troff and LaTex. Unlike those markups, the XML tags used by
+      both XDOC and Docbook are used to describe the structure of a document.
+      It also provides tags to help identify different types of content with
+      in your document.</para>
+
+      <para>This means that it It makes no assumptions about the presentation
+      of the content. Using a structured markup allows you to worry about
+      creating and structuring your content.</para>
+    </sect2>
+
+    <sect2>
+      <title>Single source, mutliple outputs</title>
+
+      <para>Formating is handled by beckend processing tools. CeltiXfile uses
+      Apache Forrest to generate HTML and PDF versions of its content. There
+      are also a number of other tools, both opensource and commercial, that
+      generate documentation from XML source. This means that all of the
+      writers can work on a consistent framework no matter wht the eventual
+      output medium is going to be.</para>
+
+      <para>Using these tools, you can completely customize the look of your
+      documentation without needing to change the documentation source. If at
+      some point in the future you decide to update the look and feel of your
+      documentation, you simply update the stylesheets used to process the
+      XML. The source content never needs to change.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>General Guidelines</title>
+
+    <sect2>
+      <title>Types of XML Used</title>
+
+      <para>Depending on the type of document you are writing you will use one
+      of two types of XML:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><ulink url="#FAQ">FAQs in XDOC</ulink></para>
+        </listitem>
+
+        <listitem>
+          <para><ulink url="#the_rest">Everything else in
+          Docbook</ulink></para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>Formating the XML</title>
+
+      <para>To make the source as readable as possible there are a few general
+      guidlines to follow when writing CeltiXfire documentation:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Keep lines under 100 characters long so that they can be read
+          easily.</para>
+        </listitem>
+
+        <listitem>
+          <para>Don't leave white space between elements.</para>
+        </listitem>
+
+        <listitem>
+          <para>Use indenting to show the heiracrhy.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+  </sect1>
+
+  <sect1 id="FAQ">
+    <title>Writing FAQs</title>
+
+    <para>FAQs are written using Apache's xdoc format. This format was chosen
+    for its simplicity. You can find more information on the xdoc format used
+    for FAQs <ulink
+    url="http://forrest.apache.org/dtdx/faq-v20.dtdx.html">here</ulink>.</para>
+
+    <para>Depending on the complexity of the FAQ topic, you can include FAQ
+    sections inside of an FAQ document. Typically, however, an FAQ should have
+    fewer than 20 questions.</para>
+
+    <para>When naming an FAQ you need to append <filename>-faq</filename> to
+    the name of the file. For example, an FAQ about the CeltiXfire JAX-WS
+    implementation could be called <filename>jaxws-faq.xml</filename>.</para>
+  </sect1>
+
+  <sect1 id="the_rest">
+    <title>Writing General Documentation</title>
+
+    <para>All other types of documentation are written using Docbook. Docbook
+    provides a structured, XML based grammar for writing complex technical
+    documentation. It is also an OASIS standard. This makes it a natural fit
+    for writing opensource documentation.</para>
+
+    <para>The remainder of this styleguide discusses how the CeltiXfire
+    project uses Docbook. For more general references and some help getting
+    familiar with Docbook, see the following:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para><ulink url="http://docbook.org/">Docbook.org</ulink></para>
+      </listitem>
+
+      <listitem>
+        <para><ulink
+        url="http://opensource.bureau-cornavin.com/crash-course/">The Crash
+        Course to Docbook</ulink></para>
+      </listitem>
+
+      <listitem>
+        <para><ulink url="http://nwalsh.com/docbook/">Norman Walsh's Docbook
+        page</ulink></para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+</chapter>

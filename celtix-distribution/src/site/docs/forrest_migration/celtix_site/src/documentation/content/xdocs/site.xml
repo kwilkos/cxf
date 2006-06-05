@@ -85,6 +85,7 @@ See http://forrest.apache.org/docs/linking.html for more info
 	<get_started href="guides/getting_started.html" />
 	<mgmt href="guides/management.html" />
 	<consumer_dev href="guides/develop_consumer.html" />
+	<style href="styleguide/styleguide.html" />
   </docco>
   
   <!--

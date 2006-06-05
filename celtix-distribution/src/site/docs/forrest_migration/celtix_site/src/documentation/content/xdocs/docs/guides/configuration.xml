@@ -94,11 +94,11 @@
   &lt;/bean&gt;
 &lt;/beans&gt;</programlisting>
 
-    <para>With the exception of the URL listed in the
-    <classname>DOCTYPE</classname> declaration, this syntax derives directly
-    from the Spring Framework XMLBeanFactory configuration file. Starting from
-    this basic framework, your task is to fill in the entries indicated by the
-    ellipsis (...).</para>
+    <para>With the exception of the URL listed in the <sgmltag
+    class="element">DOCTYPE</sgmltag> declaration, this syntax derives
+    directly from the Spring Framework XMLBeanFactory configuration file.
+    Starting from this basic framework, your task is to fill in the entries
+    indicated by the ellipsis (...).</para>
 
     <sect2>
       <title>Beans element</title>
@@ -561,7 +561,7 @@
       <para>Review the content of the <filename>router-config.xml</filename>
       metadata XML file:</para>
 
-      <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+      <programlisting id="routexml" xreflabel="router-config.xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;cm:config xmlns:cm="http://celtix.objectweb.org/configuration/metadata"
            <emphasis>xmlns:router-conf="http://celtix.objectweb.org/routing/configuration"</emphasis>
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -582,7 +582,7 @@
 &lt;/cm:config&gt;</programlisting>
 
       <para>You can extract the following information from this file
-      (highlighted in the example XML):</para>
+      (highlighted in <xref linkend="routexml" />):</para>
 
       <orderedlist>
         <listitem>

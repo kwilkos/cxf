@@ -65,7 +65,7 @@
       <ol>
         <li>Check the list of tasks in the <a href="http://forge.objectweb.org/pm/task.php?group_project_id=182">documentation subproject</a>.</li>
         <li>E-mail a notice to the <a href="mailto:celtix-dev@objectweb.org">CeltiXfire developers list</a> stating which document you want to work on.</li>
-        <li>If you are writing a new document, see the CeltiXfire Documentation Guide.</li>
+        <li>If you are writing a new document, see the <a href="site:style">CeltiXfire Style Guide</a>.</li>
         <li>If you are updating existing documentation, download the current version from the repository and edit that.</li>
         <li>Send the finished product to the <a href="mailto:celtix-dev@objectweb.org">CeltiXfire developers list</a>.</li>
       </ol>
