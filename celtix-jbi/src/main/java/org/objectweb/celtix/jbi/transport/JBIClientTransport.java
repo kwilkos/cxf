@@ -10,6 +10,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import javax.jbi.messaging.DeliveryChannel;
+import javax.jbi.messaging.InOnly;
 import javax.jbi.messaging.InOut;
 import javax.jbi.messaging.MessageExchangeFactory;
 import javax.jbi.messaging.NormalizedMessage;
@@ -56,42 +57,83 @@ public class JBIClientTransport implements ClientTransport {
     } 
     
     public void invokeOneway(OutputStreamMessageContext context) throws IOException {
-        throw new RuntimeException(new Message("NOT.IMPLEMENTED", LOG).toString());
-    }
-    
-    public InputStreamMessageContext invoke(OutputStreamMessageContext context)
-        throws IOException { 
-        
-        try { 
+        try {
+            LOG.info("it's in-only invokation");
             Method targetMethod = (Method)context.get(ObjectMessageContext.METHOD_OBJ);
             Class<?> clz = targetMethod.getDeclaringClass(); 
             
-            LOG.fine(new Message("INVOKE.SERVICE", LOG).toString() + clz);
+            LOG.info(new Message("INVOKE.SERVICE", LOG).toString() + clz);
             
             WebService ws = clz.getAnnotation(WebService.class);
             assert ws != null;
             QName interfaceName = new QName(ws.targetNamespace(), ws.name());
             
             MessageExchangeFactory factory = channel.createExchangeFactoryForService(serviceName);
-            LOG.fine(new Message("CREATE.MESSAGE.EXCHANGE", LOG).toString() + serviceName);
-            InOut xchng = factory.createInOutExchange();
+            LOG.info(new Message("CREATE.MESSAGE.EXCHANGE", LOG).toString() + serviceName);
+            InOnly xchng = factory.createInOnlyExchange();
             
             NormalizedMessage inMsg = xchng.createMessage();
-            LOG.fine(new Message("EXCHANGE.ENDPOINT", LOG).toString() + xchng.getEndpoint());
-            
-            InputStream ins = null;
+            LOG.info(new Message("EXCHANGE.ENDPOINT", LOG).toString() + xchng.getEndpoint());
             
             if (inMsg != null) { 
-                LOG.fine("setup message contents on " + inMsg);
+                LOG.info("setup message contents on " + inMsg);
                 inMsg.setContent(getMessageContent(context));
                 xchng.setService(serviceName); 
-                LOG.fine("service for exchange " + serviceName);
+                LOG.info("service for exchange " + serviceName);
                 
                 xchng.setInterfaceName(interfaceName); 
                 
                 xchng.setOperation(new QName(targetMethod.getName())); 
                 xchng.setInMessage(inMsg);
-                LOG.fine("sending message");
+                LOG.info("sending message");
+                channel.send(xchng);
+                
+                                
+            } else { 
+                LOG.info(new Message("NO.MESSAGE", LOG).toString());
+            } 
+            
+                        
+        } catch (Exception ex) { 
+            ex.printStackTrace();
+            throw new IOException(ex.toString());
+        } 
+    }
+    
+    public InputStreamMessageContext invoke(OutputStreamMessageContext context)
+        throws IOException { 
+        
+        try {
+            LOG.info("it's in-out invokation");
+            Method targetMethod = (Method)context.get(ObjectMessageContext.METHOD_OBJ);
+            Class<?> clz = targetMethod.getDeclaringClass(); 
+            
+            LOG.info(new Message("INVOKE.SERVICE", LOG).toString() + clz);
+            
+            WebService ws = clz.getAnnotation(WebService.class);
+            assert ws != null;
+            QName interfaceName = new QName(ws.targetNamespace(), ws.name());
+            
+            MessageExchangeFactory factory = channel.createExchangeFactoryForService(serviceName);
+            LOG.info(new Message("CREATE.MESSAGE.EXCHANGE", LOG).toString() + serviceName);
+            InOut xchng = factory.createInOutExchange();
+            
+            NormalizedMessage inMsg = xchng.createMessage();
+            LOG.info(new Message("EXCHANGE.ENDPOINT", LOG).toString() + xchng.getEndpoint());
+            
+            InputStream ins = null;
+            
+            if (inMsg != null) { 
+                LOG.info("setup message contents on " + inMsg);
+                inMsg.setContent(getMessageContent(context));
+                xchng.setService(serviceName); 
+                LOG.info("service for exchange " + serviceName);
+                
+                xchng.setInterfaceName(interfaceName); 
+                
+                xchng.setOperation(new QName(targetMethod.getName())); 
+                xchng.setInMessage(inMsg);
+                LOG.info("sending message");
                 channel.sendSync(xchng);
                 
                 NormalizedMessage outMsg = xchng.getOutMessage();

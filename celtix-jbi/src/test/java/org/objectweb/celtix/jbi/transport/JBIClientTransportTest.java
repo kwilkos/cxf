@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 
 import javax.jbi.messaging.DeliveryChannel;
+import javax.jbi.messaging.InOnly;
 import javax.jbi.messaging.InOut;
 import javax.jbi.messaging.MessageExchangeFactory;
 import javax.jbi.messaging.NormalizedMessage;
@@ -84,8 +85,40 @@ public class JBIClientTransportTest extends TestCase {
     }
 
  
-    public void testInvokeOneway() {
-
+    public void testInvokeOneway() throws Exception {
+        MessageExchangeFactory factory = EasyMock.createMock(MessageExchangeFactory.class);
+        InOnly exchange = EasyMock.createMock(InOnly.class);
+        NormalizedMessage message = EasyMock.createMock(NormalizedMessage.class); 
+                
+        channel.createExchangeFactoryForService(serviceName); 
+        EasyMock.expectLastCall().andReturn(factory);
+        factory.createInOnlyExchange();
+        EasyMock.expectLastCall().andReturn(exchange);
+        exchange.createMessage();
+        EasyMock.expectLastCall().andReturn(message);
+        exchange.getEndpoint();
+        EasyMock.expectLastCall().andReturn(null);
+        message.setContent((Source)EasyMock.notNull());
+        exchange.setService(serviceName);
+        exchange.setInterfaceName(new QName("http://objectweb.org/hello_world_soap_http", "Greeter"));
+        exchange.setOperation(new QName(targetMethod.getName()));
+        exchange.setInMessage(message); 
+        channel.send(exchange);
+        EasyMock.expectLastCall();
+                                
+        EasyMock.replay(channel);
+        EasyMock.replay(factory);
+        EasyMock.replay(exchange);
+        EasyMock.replay(message);
+        
+        clientTransport.invokeOneway(outCtx);
+        
+        EasyMock.verify(channel);
+        EasyMock.verify(factory);
+        EasyMock.verify(exchange);
+        EasyMock.verify(message);
+        
+        
     }
     
       

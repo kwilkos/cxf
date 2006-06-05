@@ -87,20 +87,24 @@ public class JBIServerTransport implements ServerTransport {
     public void postDispatch(MessageContext ctx, OutputStreamMessageContext msgContext) { 
         
         try { 
-            JBIOutputStreamMessageContext jbiCtx = (JBIOutputStreamMessageContext)msgContext;
-            ByteArrayOutputStream baos = (ByteArrayOutputStream)jbiCtx.getOutputStream();
-            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-            LOG.finest(new Message("BUILDING.DOCUMENT", LOG).toString());
-            DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
-            Document doc = builder.parse(bais);
+            if (msgContext.isOneWay()) {
+                return;
+            } else {
+                JBIOutputStreamMessageContext jbiCtx = (JBIOutputStreamMessageContext)msgContext;
+                ByteArrayOutputStream baos = (ByteArrayOutputStream)jbiCtx.getOutputStream();
+                ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+                LOG.finest(new Message("BUILDING.DOCUMENT", LOG).toString());
+                DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
+                Document doc = builder.parse(bais);
             
-            MessageExchange xchng = (MessageExchange)ctx.get(MESSAGE_EXCHANGE_PROPERTY);
-            LOG.fine(new Message("CREATE.NORMALIZED.MESSAGE", LOG).toString());
-            NormalizedMessage msg = xchng.createMessage();
-            msg.setContent(new DOMSource(doc));
-            xchng.setMessage(msg, "out");
-            LOG.fine(new Message("POST.DISPATCH", LOG).toString());
-            channel.send(xchng);
+                MessageExchange xchng = (MessageExchange)ctx.get(MESSAGE_EXCHANGE_PROPERTY);
+                LOG.fine(new Message("CREATE.NORMALIZED.MESSAGE", LOG).toString());
+                NormalizedMessage msg = xchng.createMessage();
+                msg.setContent(new DOMSource(doc));
+                xchng.setMessage(msg, "out");
+                LOG.fine(new Message("POST.DISPATCH", LOG).toString());
+                channel.send(xchng);
+            }
         } catch (Exception ex) { 
             LOG.log(Level.SEVERE, new Message("ERROR.SEND.MESSAGE", LOG).toString(), ex);
         }
