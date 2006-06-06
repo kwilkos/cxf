@@ -25,6 +25,8 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.jbi.se.state.ServiceEngineStateFactory;
+import org.objectweb.celtix.jbi.se.state.ServiceEngineStateMachine;
 import org.objectweb.celtix.jbi.transport.JBITransportFactory;
 
 
@@ -43,7 +45,10 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
     private CeltixServiceUnitManager suManager;
     private Bus bus; 
    
+    private ServiceEngineStateFactory stateFactory = ServiceEngineStateFactory.getInstance();
+    
     public CeltixServiceEngine() {
+        stateFactory.setCurrentState(stateFactory.getShutdownState());
     }
     
     // Implementation of javax.jbi.component.ComponentLifeCycle
@@ -53,13 +58,22 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
     }
     
     public final void shutDown() throws JBIException {
-        LOG.info(new Message("SE.SHUTDOWN", LOG).toString());
+        try {
+            LOG.info(new Message("SE.SHUTDOWN", LOG).toString());
+            stateFactory.getCurrentState().changeState(ServiceEngineStateMachine.SEOperation.shutdown);
+        } catch (Throwable ex) { 
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            throw new JBIException(ex);
+        } 
     }
     
     public final void init(final ComponentContext componentContext) throws JBIException {
         
         
-        try { 
+        try {
+            stateFactory.getCurrentState().changeState(ServiceEngineStateMachine.SEOperation.init);
+         
+            //REVISIT: should move init operation to ServiceEngineShutdown.class
             Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
             
             System.setProperty(PROVIDER_PROP, "org.objectweb.celtix.bus.jaxws.spi.ProviderImpl");
@@ -84,7 +98,6 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
             LOG.info(new Message("SE.INSTALL.ROOT", LOG) + componentContext.getInstallRoot());
             LOG.info(new Message("SE.INIT.COMPLETE", LOG).toString());
         } catch (Throwable ex) { 
-            ex.printStackTrace();
             LOG.log(Level.SEVERE, new Message("SE.FAILED.INIT.BUS", LOG).toString(), ex);
             throw new JBIException(ex);
         } 
@@ -105,19 +118,27 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
     
     
     public final void start() throws JBIException {
-        
         try { 
             LOG.info(new Message("SE.STARTUP", LOG).toString());
+            stateFactory.getCurrentState().changeState(ServiceEngineStateMachine.SEOperation.start);
+            //REVISIT: should move start operation to ServiceEngineStart.class
             DeliveryChannel chnl = ctx.getDeliveryChannel();
             configureJBITransportFactory(chnl, suManager); 
             LOG.info(new Message("SE.STARTUP.COMPLETE", LOG).toString());
-        } catch (BusException ex) {
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             throw new JBIException(ex);
         }
     }
     
     public final void stop() throws JBIException {
-        LOG.info(new Message("SE.STOP", LOG).toString());
+        try {
+            LOG.info(new Message("SE.STOP", LOG).toString());
+            stateFactory.getCurrentState().changeState(ServiceEngineStateMachine.SEOperation.stop);
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            throw new JBIException(ex);
+        }
     }
     
     // Implementation of javax.jbi.component.Component
