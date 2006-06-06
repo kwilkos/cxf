@@ -7,6 +7,8 @@ public class JavaServiceClass extends JavaClass {
 
     private final List<JavaPort> ports = new ArrayList<JavaPort>();
   
+    private String serviceName;
+    
     public JavaServiceClass(JavaModel model) {
         super(model);
     }
@@ -18,5 +20,14 @@ public class JavaServiceClass extends JavaClass {
     public List getPorts() {
         return ports;
     }
+    
+    public void setServiceName(String name) {
+        this.serviceName = name;
+    }
+    
+    public String getServiceName() {
+        return serviceName;
+    }
+    
 
 }

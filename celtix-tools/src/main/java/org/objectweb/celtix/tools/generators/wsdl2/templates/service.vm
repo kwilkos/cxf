@@ -20,7 +20,7 @@ import ${port.PackageName}.${port.InterfaceClass};
 public class ${service.Name} extends Service {
 
     private final static URL WSDL_LOCATION;
-    private final static QName SERVICE = new QName("$service.Namespace", "$service.Name");
+    private final static QName SERVICE = new QName("$service.Namespace", "$service.ServiceName");
 #foreach ($port in ${service.Ports})
     private final static QName $port.PortName = new QName("$service.Namespace", "$port.PortName");
 #end

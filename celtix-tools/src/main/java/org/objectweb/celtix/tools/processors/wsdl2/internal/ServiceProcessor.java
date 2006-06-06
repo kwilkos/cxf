@@ -115,6 +115,7 @@ public class ServiceProcessor extends AbstractProcessor {
         }
 
         sclz.setName(name);
+        sclz.setServiceName(service.getQName().getLocalPart());
         sclz.setNamespace(namespace);
         sclz.setPackageName(packageName);
 
