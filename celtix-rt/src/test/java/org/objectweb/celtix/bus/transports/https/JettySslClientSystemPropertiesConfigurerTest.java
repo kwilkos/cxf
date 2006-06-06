@@ -104,11 +104,19 @@ public class JettySslClientSystemPropertiesConfigurerTest extends TestCase {
         assertTrue("Key password not being read", 
                    handler.checkLogContainsString("The key  password was found to be set as a "
                                                   + "system property and will be used."));
-        assertTrue("Key manager factory is being being read from somewhere unknown", 
-                   handler.checkLogContainsString("The keystore key manager factory "
-                                                  + "algorithm has not been set in configuration "
-                                                  + "so the default value SunX509 will be used."));
         
+        if (this.isIBMJDK()) {
+
+            assertTrue("Key manager factory is being being read from somewhere unknown", handler
+                .checkLogContainsString("The keystore key manager factory "
+                                        + "algorithm has not been set in configuration "
+                                        + "so the default value IbmX509 will be used."));
+        } else {
+            assertTrue("Key manager factory is being being read from somewhere unknown", handler
+                .checkLogContainsString("The keystore key manager factory "
+                                        + "algorithm has not been set in configuration "
+                                        + "so the default value SunX509 will be used."));
+        }
         assertTrue("Trust manager factory is being being read from somewhere unknown", 
                    handler.checkLogContainsString("The truststore key manager factory "
                                                   + "algorithm has not been set in configuration "
@@ -164,5 +172,13 @@ public class JettySslClientSystemPropertiesConfigurerTest extends TestCase {
         str += DROP_BACK_SRC_DIR  + fileName;
         return str;
     }
+    
+    public boolean isIBMJDK() {
+        if (System.getProperty("java.vendor").indexOf("IBM") > -1) {
+            return true;
+        }
+        return false;
+    }
+    
 }
 
