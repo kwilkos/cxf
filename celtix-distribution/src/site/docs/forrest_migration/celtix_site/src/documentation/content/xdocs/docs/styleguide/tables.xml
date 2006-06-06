@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 <chapter>
   <title>Tables</title>
 
@@ -9,7 +7,33 @@
   <sect1>
     <title>Types of Tables</title>
 
-    <para></para>
+    <para>There are two types of tables in docbook:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Informal tables</para>
+      </listitem>
+
+      <listitem>
+        <para>Tables</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>An informal table is simply a table that does not have a title.
+    Tables must have a title element and are listed in a list of tables if it
+    is generated.</para>
+
+    <sect2>
+      <title>When to Use an Informal Table</title>
+
+      <para></para>
+    </sect2>
+
+    <sect2>
+      <title>When to Use a Table</title>
+
+      <para></para>
+    </sect2>
   </sect1>
 
   <sect1>
