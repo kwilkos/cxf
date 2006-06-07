@@ -4,7 +4,12 @@ import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 
+import org.objectweb.celtix.hello_world_jms.BadRecordLitFault;
 import org.objectweb.celtix.hello_world_jms.HelloWorldPortType;
+import org.objectweb.celtix.hello_world_jms.NoSuchCodeLitFault;
+import org.objectweb.celtix.hello_world_jms.types.ErrorCode;
+import org.objectweb.celtix.hello_world_jms.types.NoSuchCodeLit;
+import org.objectweb.celtix.hello_world_jms.types.TestRpcLitFaultResponse;
 import org.objectweb.celtix.systest.ws.addressing.VerificationCache;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 
@@ -45,6 +50,23 @@ public class GreeterImpl implements HelloWorldPortType {
         AddressingProperties maps = (AddressingProperties)
             context.getMessageContext().get(property);
         verificationCache.put(MAPTest.verifyMAPs(maps, this));
+    }
+    
+    public TestRpcLitFaultResponse testRpcLitFault(String faultType) 
+        throws BadRecordLitFault, NoSuchCodeLitFault {
+        if (faultType.equals(BadRecordLitFault.class.getSimpleName())) {
+            throw new BadRecordLitFault("TestBadRecordLit", "BadRecordLitFault");
+        }
+        if (faultType.equals(NoSuchCodeLitFault.class.getSimpleName())) {
+            ErrorCode ec = new ErrorCode();
+            ec.setMajor((short)1);
+            ec.setMinor((short)1);
+            NoSuchCodeLit nscl = new NoSuchCodeLit();
+            nscl.setCode(ec);
+            throw new NoSuchCodeLitFault("TestNoSuchCodeLit", nscl);
+        }
+        
+        return new TestRpcLitFaultResponse();
     }
 
 }

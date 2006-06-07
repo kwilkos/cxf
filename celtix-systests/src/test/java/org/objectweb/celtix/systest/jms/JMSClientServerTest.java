@@ -14,12 +14,14 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.objectweb.celtix.bus.transports.jms.JMSConstants;
+import org.objectweb.celtix.hello_world_jms.BadRecordLitFault;
 import org.objectweb.celtix.hello_world_jms.HelloWorldOneWayPort;
 import org.objectweb.celtix.hello_world_jms.HelloWorldOneWayQueueService;
 import org.objectweb.celtix.hello_world_jms.HelloWorldPortType;
 import org.objectweb.celtix.hello_world_jms.HelloWorldPubSubPort;
 import org.objectweb.celtix.hello_world_jms.HelloWorldPubSubService;
 import org.objectweb.celtix.hello_world_jms.HelloWorldService;
+import org.objectweb.celtix.hello_world_jms.NoSuchCodeLitFault;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
@@ -73,6 +75,21 @@ public class JMSClientServerTest extends ClientServerTestBase {
                 String reply = greeter.sayHi();
                 assertNotNull("no response received from service", reply);
                 assertEquals(response2, reply);
+                
+                try {
+                    greeter.testRpcLitFault("BadRecordLitFault");
+                    fail("Should have thrown BadRecoedLitFault");
+                } catch (BadRecordLitFault ex) {
+                    assertNotNull(ex.getFaultInfo());
+                }
+                
+                try {
+                    greeter.testRpcLitFault("NoSuchCodeLitFault");
+                    fail("Should have thrown NoSuchCodeLitFault exception");
+                } catch (NoSuchCodeLitFault nslf) {
+                    assertNotNull(nslf.getFaultInfo());
+                    assertNotNull(nslf.getFaultInfo().getCode());
+                } 
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();

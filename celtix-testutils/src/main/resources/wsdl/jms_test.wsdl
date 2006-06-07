@@ -1,10 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions name="HelloWorldService" targetNamespace="http://celtix.objectweb.org/hello_world_jms" 
+<definitions name="HelloWorldService" 
+    targetNamespace="http://celtix.objectweb.org/hello_world_jms" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:jms="http://celtix.objectweb.org/transports/jms" 
+    xmlns:x1="http://celtix.objectweb.org/hello_world_jms/types"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://celtix.objectweb.org/hello_world_jms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-    xmlns:xsd1="http://celtix.objectweb.org/hello_world_jms/xsd">
+    xmlns:tns="http://celtix.objectweb.org/hello_world_jms" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <types>
+        <schema targetNamespace="http://celtix.objectweb.org/hello_world_jms/types"      xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://celtix.objectweb.org/hello_world_jms/types" elementFormDefault="qualified">
+            <complexType name="ErrorCode">
+                 <sequence>
+                    <element name="minor" type="short"/>
+                    <element name="major" type="short"/>
+                </sequence>
+            </complexType>
+                <complexType name="testRpcLitFault">
+                    <sequence>
+                        <element name="faultType" type="string"/>
+                    </sequence>
+                </complexType>
+                <complexType name="testRpcLitFaultResponse">
+                    <sequence/>
+                </complexType>
+
+                <complexType name="NoSuchCodeLit">
+                    <sequence>
+                        <element name="code" type="x1:ErrorCode"/>
+                    </sequence>
+                </complexType>
+            <complexType name="BadRecord">
+                <sequence>
+                    <element name="reason" type="string"/>
+                    <element name="code" type="short"/>
+                </sequence>
+            </complexType>
+        </schema>
+    </types>
+
     <message name="greetMe">
         <part name="stringParam0" type="xsd:string"/>
     </message>
@@ -19,6 +52,19 @@
         <part name="stringParam0" type="xsd:string"/>
     </message>
     
+    <message name="testRpcLitFaultRequest">
+        <part name="in" type="xsd:string"/>
+    </message>
+    <message name="testRpcLitFaultResponse">
+        <part name="out" type="x1:testRpcLitFaultResponse"/>
+    </message>
+    <message name="NoSuchCodeLitFault">
+        <part name="NoSuchCodeLit" type="x1:NoSuchCodeLit"/>
+    </message>
+    <message name="BadRecordLitFault">
+        <part name="BadRecordLit" type="xsd:string"/>
+    </message>
+    
     <portType name="HelloWorldPortType">
         <operation name="greetMe">
             <input message="tns:greetMe" name="greetMe"/>
@@ -30,6 +76,12 @@
         </operation>
         <operation name="greetMeOneWay">
             <input message="tns:greetMeOneWay" name="greetMeOneWay"/>
+        </operation>
+        <operation name="testRpcLitFault">
+            <input name="testRpcLitFaultRequest" message="tns:testRpcLitFaultRequest"/>
+            <output name="testRpcLitFaultResponse" message="tns:testRpcLitFaultResponse"/>
+            <fault name="NoSuchCodeLitFault" message="tns:NoSuchCodeLitFault"/>
+            <fault name="BadRecordLitFault" message="tns:BadRecordLitFault"/>
         </operation>
     </portType>
     
@@ -75,6 +127,22 @@
                 <soap:body 
                     namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
             </input>
+        </operation>
+
+         <operation name="testRpcLitFault">
+            <soap:operation style="rpc"/>
+            <input>
+                <soap:body namespace="http://celtix.objectweb.org/hello_world_jms"  use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://celtix.objectweb.org/hello_world_jms"  use="literal"/>
+            </output>
+            <fault name="NoSuchCodeLitFault">
+                <soap:fault name="NoSuchCodeLitFault" namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </fault>
+            <fault name="BadRecordLitFault">
+                <soap:fault name="BadRecordLitFault" namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+            </fault>
         </operation>
     </binding>
 
