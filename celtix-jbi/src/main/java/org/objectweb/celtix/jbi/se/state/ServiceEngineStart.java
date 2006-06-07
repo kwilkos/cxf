@@ -4,16 +4,18 @@ import java.util.logging.Logger;
 
 import javax.jbi.JBIException;
 
+import javax.jbi.component.ComponentContext;
+
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.jbi.se.state.ServiceEngineStateMachine.SEOperation;
 
-public class ServiceEngineStart implements ServiceEngineStateMachine {
+public class ServiceEngineStart extends AbstractServiceEngineStateMachine {
 
     
     private static final Logger LOG = LogUtils.getL7dLogger(ServiceEngineStart.class);
     
     
-    public void changeState(SEOperation operation) throws JBIException {
+    public void changeState(SEOperation operation, ComponentContext context) throws JBIException {
         LOG.info("in start state");
         if (operation == SEOperation.stop) {
             ServiceEngineStateFactory.getInstance().setCurrentState(

@@ -16,18 +16,18 @@ public class ServiceEngineStopTest extends TestCase {
     }
     
     public void testStartOperation() throws Exception {
-        stop.changeState(SEOperation.start);
+        stop.changeState(SEOperation.start, null);
         assertTrue(stateFactory.getCurrentState() instanceof ServiceEngineStart);
     }
     
     public void testShutdownOperation() throws Exception {
-        stop.changeState(SEOperation.shutdown);
+        stop.changeState(SEOperation.shutdown, null);
         assertTrue(stateFactory.getCurrentState() instanceof ServiceEngineShutdown);
     }
     
     public void testStopOperation() throws Exception {
         try {
-            stop.changeState(SEOperation.stop);
+            stop.changeState(SEOperation.stop, null);
         } catch (JBIException e) {
             return;
         }
@@ -36,7 +36,7 @@ public class ServiceEngineStopTest extends TestCase {
     
     public void testInitOperation() throws Exception {
         try {
-            stop.changeState(SEOperation.init);
+            stop.changeState(SEOperation.init, null);
         } catch (JBIException e) {
             return;
         }
