@@ -56,9 +56,9 @@
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
 
             <htmlemail mailhost="amereast-ems2.iona.com"
-                returnaddress="celtix-build@objectweb.org"
+                returnaddress="eng-celtix-dev@iona.com"
                 returnname="Celtix Build Machine"
-                defaultsuffix="@users.forge.objectweb.org"
+                defaultsuffix="@iona.com"
                 buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/celtix"
                 skipusers="false"
                 subjectprefix="Celtix Cruisecontrol Build Result: "
@@ -66,8 +66,8 @@
                 xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
                 logdir="/x1/celtix_cruisecontrol/logs/celtix"
                 >
-                <always address="celtix-build@objectweb.org" />
-                <failure address="celtix-build@objectweb.org" />
+                <always address="eng-celtix-dev@iona.com" />
+                <failure address="eng-celtix-dev@iona.com" />
             </htmlemail>
         </publishers>
     </project>
@@ -99,9 +99,9 @@
             <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/build.out.clean" dest="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
 
             <htmlemail mailhost="amereast-ems2.iona.com"
-                returnaddress="celtix-build@objectweb.org"
+                returnaddress="eng-celtix-dev@iona.com"
                 returnname="Celtix Build Machine"
-                defaultsuffix="@users.forge.objectweb.org"
+                defaultsuffix="@iona.com"
                 buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/celtix-distribution"
                 skipusers="false"
                 subjectprefix="Celtix Distribution Cruisecontrol Build Result: "
@@ -109,8 +109,8 @@
                 xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
                 logdir="/x1/celtix_cruisecontrol/logs/celtix-distribution"
                 >
-                <always address="celtix-build@objectweb.org" />
-                <failure address="celtix-build@objectweb.org" />
+                <always address="eng-celtix-dev@iona.com" />
+                <failure address="eng-celtix-dev@iona.com" />
             </htmlemail>
         </publishers>
     </project>    
@@ -144,9 +144,9 @@
                 <property name="LOG_DIR" value="/x1/celtix_cruisecontrol/logs/celtix-cpitest"/>
             </antpublisher>
             <htmlemail mailhost="amereast-ems2.iona.com"
-                returnaddress="celtix-build@objectweb.org"
+                returnaddress="eng-celtix-dev@iona.com"
                 returnname="Celtix Build Machine"
-                defaultsuffix="@users.forge.objectweb.org"
+                defaultsuffix="@iona.com"
                 buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/celtix-cpitest"
                 skipusers="true"
                 subjectprefix="Celtix CPI-Test Cruisecontrol Build Result: "
@@ -154,8 +154,8 @@
                 xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
                 logdir="/x1/celtix_cruisecontrol/logs/celtix-cpitest"
                 >
-                <always address="celtix-build@objectweb.org" />
-                <failure address="celtix-build@objectweb.org" />
+                <always address="eng-celtix-dev@iona.com" />
+                <failure address="eng-celtix-dev@iona.com" />
             </htmlemail>
         </publishers>
     </project>
