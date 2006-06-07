@@ -58,7 +58,7 @@ public class JSClientServerTest extends ClientServerTestBase {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
 
-        QName serviceName = new QName(NS, "SOAPServiceTest1");
+        QName serviceName = new QName(NS, "SOAPService_Test1");
         QName portName = new QName(NS, "SoapPort_Test1");
 
         SOAPServiceTest1 service = new SOAPServiceTest1(wsdl, serviceName);
@@ -80,7 +80,7 @@ public class JSClientServerTest extends ClientServerTestBase {
             throw (Exception)ex.getCause();
         }
     }
-    
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(JSClientServerTest.class);
     }
