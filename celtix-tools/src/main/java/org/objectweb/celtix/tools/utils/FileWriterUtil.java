@@ -30,7 +30,7 @@ public class FileWriterUtil {
         if (fn.exists() && !fn.delete()) {
             throw new IOException(fn + ": Can't delete previous version");
         }
-        return new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(fn)), "Cp1252");
+        return new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(fn)));
     }
 
     public boolean isCollision(String packageName, String fileName) throws ToolException {
