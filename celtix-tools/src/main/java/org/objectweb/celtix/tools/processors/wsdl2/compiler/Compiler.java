@@ -29,12 +29,13 @@ public class Compiler {
                 return p.waitFor() == 0 ? true : false;
             }
         } catch (SecurityException e) {
-            // ignore
+            System.err.println("[ERROR] SecurityException during exec() of compiler \"" + args[0] + "\".");
         } catch (InterruptedException e) {
             // ignore
 
         } catch (IOException e) {
-            // ignore
+            System.err.print("[ERROR] IOException during exec() of compiler \"" + args[0] + "\"");
+            System.err.println(". Check your path environment variable.");
         }
 
         return false;
