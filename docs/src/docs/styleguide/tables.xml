@@ -228,77 +228,87 @@
       of table where the columns and spans had different
       specifications.</para>
 
-      <para><xref linkend="tgroupattrs" /> shows the attributes for the
-      <sgmltag class="element">tgroup</sgmltag> element. Attributes in the
-      <sgmltag class="element">tgroup</sgmltag> element override the
-      corresponding attributes from the root element.</para>
+      <sect3>
+        <title>Attributes</title>
 
-      <table id="tgroupattrs">
-        <title>Attributes for the <sgmltag class="element">tgroup</sgmltag>
-        Element</title>
+        <para><xref linkend="tgroupattrs" /> shows the attributes for the
+        <sgmltag class="element">tgroup</sgmltag> element. Attributes in the
+        <sgmltag class="element">tgroup</sgmltag> element override the
+        corresponding attributes from the root element.</para>
 
-        <tgroup cols="3">
-          <colspec colwidth="1.5in" />
+        <table id="tgroupattrs">
+          <title>Attributes for the <sgmltag class="element">tgroup</sgmltag>
+          Element</title>
 
-          <thead>
-            <row>
-              <entry align="center">Attribute</entry>
+          <tgroup cols="3">
+            <colspec colwidth="1.5in" />
 
-              <entry align="center">Description</entry>
+            <thead>
+              <row>
+                <entry align="center">Attribute</entry>
 
-              <entry align="center">Values</entry>
-            </row>
-          </thead>
+                <entry align="center">Description</entry>
 
-          <tbody>
-            <row>
-              <entry><sgmltag class="attribute">colsep</sgmltag></entry>
+                <entry align="center">Values</entry>
+              </row>
+            </thead>
 
-              <entry>Specifies if a rule will be drawn between the columns of
-              the group.</entry>
+            <tbody>
+              <row>
+                <entry><sgmltag class="attribute">colsep</sgmltag></entry>
 
-              <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
-              class="attvalue">1</sgmltag>(default)</entry>
-            </row>
+                <entry>Specifies if a rule will be drawn between the columns
+                of the group.</entry>
 
-            <row>
-              <entry><sgmltag class="attribute">rowsep</sgmltag></entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
+                class="attvalue">1</sgmltag>(default)</entry>
+              </row>
 
-              <entry>Specifies if a rule will be drawn between the rows of the
-              group.</entry>
+              <row>
+                <entry><sgmltag class="attribute">rowsep</sgmltag></entry>
 
-              <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
-              class="attvalue">1</sgmltag>(default)</entry>
-            </row>
+                <entry>Specifies if a rule will be drawn between the rows of
+                the group.</entry>
 
-            <row>
-              <entry><sgmltag>align</sgmltag></entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
+                class="attvalue">1</sgmltag>(default)</entry>
+              </row>
 
-              <entry>Specifies the horizontal alignment of the entries in the
-              group.</entry>
+              <row>
+                <entry><sgmltag>align</sgmltag></entry>
 
-              <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag
-              class="attvalue">justify</sgmltag>, <sgmltag
-              class="attvalue">right</sgmltag>, <sgmltag
-              class="attvalue">left</sgmltag>(default)</entry>
-            </row>
+                <entry>Specifies the horizontal alignment of the entries in
+                the group.</entry>
 
-            <row>
-              <entry><sgmltag>cols</sgmltag></entry>
+                <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag
+                class="attvalue">justify</sgmltag>, <sgmltag
+                class="attvalue">right</sgmltag>, <sgmltag
+                class="attvalue">left</sgmltag>(default)</entry>
+              </row>
 
-              <entry>A required attribute that specifies the number of columns
-              in the group.</entry>
+              <row>
+                <entry><sgmltag>cols</sgmltag></entry>
 
-              <entry>&gt;=1</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+                <entry>A required attribute that specifies the number of
+                columns in the group.</entry>
 
-      <note>
-        <para>Attributes not listed in <xref linkend="tgroupattrs" /> are not
-        used in CeltiXfire documentation.</para>
-      </note>
+                <entry>&gt;=1</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+
+        <note>
+          <para>Attributes not listed in <xref linkend="tgroupattrs" /> are
+          not used in CeltiXfire documentation.</para>
+        </note>
+      </sect3>
+
+      <sect3>
+        <title>Example</title>
+
+        <para></para>
+      </sect3>
     </sect2>
 
     <sect2>
@@ -312,97 +322,107 @@
       the entries in one column in a group. You can set different properties
       for each column in a group.</para>
 
-      <para><xref linkend="colattrs" /> shows the attributes for the <sgmltag
-      class="element">colspec</sgmltag> element. Attributes in the <sgmltag
-      class="element">colspec</sgmltag> element override corresponding
-      attributes in the <sgmltag class="element">tgroup</sgmltag> element and
-      the root element.</para>
+      <sect3>
+        <title>Attributes</title>
 
-      <table id="colattrs">
-        <title>Attributes for the <sgmltag class="element">colspec</sgmltag>
-        Element</title>
+        <para><xref linkend="colattrs" /> shows the attributes for the
+        <sgmltag class="element">colspec</sgmltag> element. Attributes in the
+        <sgmltag class="element">colspec</sgmltag> element override
+        corresponding attributes in the <sgmltag
+        class="element">tgroup</sgmltag> element and the root element.</para>
 
-        <tgroup cols="3">
-          <colspec colwidth="1.5in" />
+        <table id="colattrs">
+          <title>Attributes for the <sgmltag class="element">colspec</sgmltag>
+          Element</title>
 
-          <thead>
-            <row>
-              <entry align="center">Attribute</entry>
+          <tgroup cols="3">
+            <colspec colwidth="1.5in" />
 
-              <entry align="center">Description</entry>
+            <thead>
+              <row>
+                <entry align="center">Attribute</entry>
 
-              <entry align="center">Values</entry>
-            </row>
-          </thead>
+                <entry align="center">Description</entry>
 
-          <tbody>
-            <row>
-              <entry><sgmltag class="attribute">colsep</sgmltag></entry>
+                <entry align="center">Values</entry>
+              </row>
+            </thead>
 
-              <entry>Specifies if a rule will be drawn to the right of entries
-              in the column.</entry>
+            <tbody>
+              <row>
+                <entry><sgmltag class="attribute">colsep</sgmltag></entry>
 
-              <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
-              class="attvalue">1</sgmltag>(default)</entry>
-            </row>
+                <entry>Specifies if a rule will be drawn to the right of
+                entries in the column.</entry>
 
-            <row>
-              <entry><sgmltag class="attribute">rowsep</sgmltag></entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
+                class="attvalue">1</sgmltag>(default)</entry>
+              </row>
 
-              <entry>Specifies if a rule will be drawn between the rows in the
-              column.</entry>
+              <row>
+                <entry><sgmltag class="attribute">rowsep</sgmltag></entry>
 
-              <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
-              class="attvalue">1</sgmltag>(default)</entry>
-            </row>
+                <entry>Specifies if a rule will be drawn between the rows in
+                the column.</entry>
 
-            <row>
-              <entry><sgmltag>align</sgmltag></entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
+                class="attvalue">1</sgmltag>(default)</entry>
+              </row>
 
-              <entry>Specifies the horizontal alignment of the entries in the
-              column.</entry>
+              <row>
+                <entry><sgmltag>align</sgmltag></entry>
 
-              <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag
-              class="attvalue">justify</sgmltag>, <sgmltag
-              class="attvalue">right</sgmltag>, <sgmltag
-              class="attvalue">left</sgmltag>(default)</entry>
-            </row>
+                <entry>Specifies the horizontal alignment of the entries in
+                the column.</entry>
 
-            <row>
-              <entry><sgmltag>colnum</sgmltag></entry>
+                <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag
+                class="attvalue">justify</sgmltag>, <sgmltag
+                class="attvalue">right</sgmltag>, <sgmltag
+                class="attvalue">left</sgmltag>(default)</entry>
+              </row>
 
-              <entry>Specifies the number of the column being
-              specified.</entry>
+              <row>
+                <entry><sgmltag>colnum</sgmltag></entry>
 
-              <entry>1&lt;=<replaceable>X</replaceable>&lt;=number of columns
-              </entry>
-            </row>
+                <entry>Specifies the number of the column being
+                specified.</entry>
 
-            <row>
-              <entry><sgmltag class="attribute">colname</sgmltag></entry>
+                <entry>1&lt;=<replaceable>X</replaceable>&lt;=number of
+                columns</entry>
+              </row>
 
-              <entry>Specifies a unique identifier by which the column can be
-              referenced by other elements in the group.</entry>
+              <row>
+                <entry><sgmltag class="attribute">colname</sgmltag></entry>
 
-              <entry>a unique string</entry>
-            </row>
+                <entry>Specifies a unique identifier by which the column can
+                be referenced by other elements in the group.</entry>
 
-            <row>
-              <entry><sgmltag class="attribute">colwidth</sgmltag></entry>
+                <entry>a unique string</entry>
+              </row>
 
-              <entry>Specifies the width of the column.</entry>
+              <row>
+                <entry><sgmltag class="attribute">colwidth</sgmltag></entry>
 
-              <entry>Can be either a fixed measure using either points(pts),
-              inches(in), or centimeters(cm).</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+                <entry>Specifies the width of the column.</entry>
 
-      <note>
-        <para>Attributes not listed in <xref linkend="colattrs" /> are not
-        used in CeltiXfire documentation.</para>
-      </note>
+                <entry>Can be either a fixed measure using either points(pts),
+                inches(in), or centimeters(cm).</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+
+        <note>
+          <para>Attributes not listed in <xref linkend="colattrs" /> are not
+          used in CeltiXfire documentation.</para>
+        </note>
+      </sect3>
+
+      <sect3>
+        <title>Example</title>
+
+        <para></para>
+      </sect3>
     </sect2>
 
     <sect2>
@@ -410,118 +430,147 @@
 
       <para>Docbook allows you to define properties for cells that span
       columns and name them for use by the cells in the group. To define a
-      span you use the <sgmltag class="element">spanspec</sgmltag> element.
-      The spanspec element has three required attributes as described in <xref
-      linkend="spanreqattrs" />.</para>
+      span you use the <sgmltag class="element">spanspec</sgmltag>
+      element.</para>
 
-      <table frame="sides" id="spanreqattrs">
-        <title>Required Attributes for the <sgmltag
-        class="element">spanspec</sgmltag> Element</title>
+      <sect3>
+        <title>Required Attributes</title>
 
-        <tgroup cols="2">
-          <colspec colwidth="1.5in" />
+        <para>The <sgmltag class="element">spanspec</sgmltag> element has
+        three required attributes as described in <xref
+        linkend="spanreqattrs" />.</para>
 
-          <thead>
-            <row>
-              <entry align="center">Attribute</entry>
+        <table frame="sides" id="spanreqattrs">
+          <title>Required Attributes for the <sgmltag
+          class="element">spanspec</sgmltag> Element</title>
 
-              <entry align="center">Description</entry>
-            </row>
-          </thead>
+          <tgroup cols="2">
+            <colspec colwidth="1.5in" />
 
-          <tbody>
-            <row>
-              <entry><sgmltag class="attribute">spanname</sgmltag></entry>
+            <thead>
+              <row>
+                <entry align="center">Attribute</entry>
 
-              <entry>Specifies the name by which cells will refer to the
-              span.</entry>
-            </row>
+                <entry align="center">Description</entry>
+              </row>
+            </thead>
 
-            <row>
-              <entry><sgmltag class="attribute">namest</sgmltag></entry>
+            <tbody>
+              <row>
+                <entry><sgmltag class="attribute">spanname</sgmltag></entry>
 
-              <entry>Specifies the name, as declared in a <sgmltag
-              class="element">colspec</sgmltag> element's <sgmltag
-              class="attribute">colname</sgmltag> attribute, of the starting
-              column for the span.</entry>
-            </row>
+                <entry>Specifies the name by which cells will refer to the
+                span.</entry>
+              </row>
 
-            <row>
-              <entry><sgmltag>nameend</sgmltag></entry>
+              <row>
+                <entry><sgmltag class="attribute">namest</sgmltag></entry>
 
-              <entry>Specifies the name, as declared in a <sgmltag
-              class="element">colspec</sgmltag> element's <sgmltag
-              class="attribute">colname</sgmltag> attribute, of the ending
-              column for the span.</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+                <entry>Specifies the name, as declared in a <sgmltag
+                class="element">colspec</sgmltag> element's <sgmltag
+                class="attribute">colname</sgmltag> attribute, of the starting
+                column for the span.</entry>
+              </row>
 
-      <para>In addition to the required attributes, the <sgmltag
-      class="element">spanspec</sgmltag> element can also have the attributes
-      described in <xref linkend="spanoptattrs" />. Attributes in the <sgmltag
-      class="element">spanspec</sgmltag> element override corresponding
-      attributes in the <sgmltag class="element">tgroup</sgmltag> element and
-      the root element.</para>
+              <row>
+                <entry><sgmltag>nameend</sgmltag></entry>
 
-      <table id="spanoptattrs">
-        <title>Optional Attributes for the <sgmltag
-        class="element">spanspec</sgmltag> Element</title>
+                <entry>Specifies the name, as declared in a <sgmltag
+                class="element">colspec</sgmltag> element's <sgmltag
+                class="attribute">colname</sgmltag> attribute, of the ending
+                column for the span.</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+      </sect3>
 
-        <tgroup cols="3">
-          <colspec colwidth="1.5in" />
+      <sect3>
+        <title>Optional Attributes</title>
 
-          <thead>
-            <row>
-              <entry align="center">Attribute</entry>
+        <para>In addition to the required attributes, the <sgmltag
+        class="element">spanspec</sgmltag> element can also have the
+        attributes described in <xref linkend="spanoptattrs" />. Attributes in
+        the <sgmltag class="element">spanspec</sgmltag> element override
+        corresponding attributes in the <sgmltag
+        class="element">tgroup</sgmltag> element and the root element.</para>
 
-              <entry align="center">Description</entry>
+        <table id="spanoptattrs">
+          <title>Optional Attributes for the <sgmltag
+          class="element">spanspec</sgmltag> Element</title>
 
-              <entry align="center">Values</entry>
-            </row>
-          </thead>
+          <tgroup cols="3">
+            <colspec colwidth="1.5in" />
 
-          <tbody>
-            <row>
-              <entry><sgmltag class="attribute">colsep</sgmltag></entry>
+            <thead>
+              <row>
+                <entry align="center">Attribute</entry>
 
-              <entry>Specifies if a rule will be drawn to the right of entries
-              in the span.</entry>
+                <entry align="center">Description</entry>
 
-              <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
-              class="attvalue">1</sgmltag>(default)</entry>
-            </row>
+                <entry align="center">Values</entry>
+              </row>
+            </thead>
 
-            <row>
-              <entry><sgmltag class="attribute">rowsep</sgmltag></entry>
+            <tbody>
+              <row>
+                <entry><sgmltag class="attribute">colsep</sgmltag></entry>
 
-              <entry>Specifies if a rule will be drawn below the rows in the
-              span.</entry>
+                <entry>Specifies if a rule will be drawn to the right of
+                entries in the span.</entry>
 
-              <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
-              class="attvalue">1</sgmltag>(default)</entry>
-            </row>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
+                class="attvalue">1</sgmltag>(default)</entry>
+              </row>
 
-            <row>
-              <entry><sgmltag>align</sgmltag></entry>
+              <row>
+                <entry><sgmltag class="attribute">rowsep</sgmltag></entry>
 
-              <entry>Specifies the horizontal alignment of the entry in the
-              span.</entry>
+                <entry>Specifies if a rule will be drawn below the rows in the
+                span.</entry>
 
-              <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag
-              class="attvalue">justify</sgmltag>, <sgmltag
-              class="attvalue">right</sgmltag>, <sgmltag
-              class="attvalue">left</sgmltag>(default)</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
+                class="attvalue">1</sgmltag>(default)</entry>
+              </row>
 
-      <note>
-        <para>Attributes not listed in <xref linkend="spanoptattrs" /> are not
-        used in CeltiXfire documentation.</para>
-      </note>
+              <row>
+                <entry><sgmltag>align</sgmltag></entry>
+
+                <entry>Specifies the horizontal alignment of the entry in the
+                span.</entry>
+
+                <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag
+                class="attvalue">justify</sgmltag>, <sgmltag
+                class="attvalue">right</sgmltag>, <sgmltag
+                class="attvalue">left</sgmltag>(default)</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+
+        <note>
+          <para>Attributes not listed in <xref linkend="spanoptattrs" /> are
+          not used in CeltiXfire documentation.</para>
+        </note>
+      </sect3>
+
+      <sect3>
+        <title>Example</title>
+
+        <para></para>
+      </sect3>
+    </sect2>
+
+    <sect2>
+      <title>Adding Rows to a Table</title>
+
+      <para></para>
+    </sect2>
+
+    <sect2>
+      <title>Example</title>
+
+      <para></para>
     </sect2>
   </sect1>
 </chapter>
