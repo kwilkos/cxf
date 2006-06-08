@@ -247,25 +247,4 @@ public class RMSourceTest extends TestCase {
         control.verify();
     }
 
-    private void yield() throws Exception {
-        Thread.sleep(250);
-    }
-
-    private class SequenceAccessor implements Runnable {
-        Identifier id;
-        SourceSequence sequence;
-
-        SequenceAccessor(Identifier i) {
-            id = i;
-        }
-
-        public void run() {
-            sequence = s.awaitCurrent(id);
-        }
-
-        SourceSequence getSequence() {
-            return sequence;
-        }
-    }
-
 }

@@ -11,7 +11,7 @@ import org.objectweb.hello_world.HelloWorldService;
 
 public class HelloWorldConsumer implements ServiceConsumer { 
 
-    private volatile boolean running = false; 
+    private volatile boolean running; 
     private ComponentContext ctx; 
 
     public void setComponentContext(ComponentContext cc) { 
@@ -53,7 +53,7 @@ public class HelloWorldConsumer implements ServiceConsumer {
 
         final QName serviceName = 
             new QName("http://objectweb.org/hello_world", "HelloWorldService");
-	    
+
         boolean ready = false;
         do { 
             ServiceEndpoint[] eps = ctx.getEndpointsForService(serviceName); 
@@ -61,7 +61,8 @@ public class HelloWorldConsumer implements ServiceConsumer {
                 System.out.println("waiting for endpoints to become active");
                 try { 
                     Thread.sleep(5000); 
-                } catch (Exception ex) { 
+                } catch (Exception ex) {
+                    //ignore
                 }
             } else {
                 System.out.println("endpoints ready, pump starting");
