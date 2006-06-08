@@ -25,6 +25,12 @@
             <artifactId>celtix-rt</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
+            <artifactId>celtix-jbi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
