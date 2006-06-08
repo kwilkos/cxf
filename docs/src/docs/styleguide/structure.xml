@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter>
+  <title>Structuring CeltiXFire Documents</title>
+
+  <synopsis>CeltiXfire documentation is based around small, digestible topics. To facilitate this it only uses a small number of the docbook structural tags..</synopsis>
+
+  <sect1>
+    <title>Top-level Elements</title>
+
+    <para>Because we strive to keep individual documents as specific as
+    possible, CeltiXfire documents use the <sgmltag
+    class="element">article</sgmltag> element as their root element. If you
+    are writing a document that you feel needs to be more than an article,
+    consider breaking the topic into smaller chunks. This does not mean you
+    cannot link to other documents, but documents should not have such a large
+    scope that they need to be more than an article.</para>
+
+    <para><xref linkend="topLevel" /> shows a sample CeltiXfire
+    document.</para>
+
+    <example id="topLevel">
+      <title>High-level View of a CeltiXfire Document</title>
+
+      <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd"&gt;
+&lt;article lang="en-US"&gt;
+  &lt;title&gt;Developing a Consumer with CeltiXfire&lt;/title&gt;
+...
+&lt;/article&gt;</programlisting>
+    </example>
+  </sect1>
+
+  <sect1>
+    <title>Attributions</title>
+
+    <para>CeltiXfire does not use the attribution elements.</para>
+  </sect1>
+
+  <sect1>
+    <title>Sections</title>
+
+    <para>CeltiXfire documents are broken into sections. Generally, a document
+    should have five or less sections. If you need more sections, it may be
+    because the topic for your document is too broad or you need to reconsider
+    how you are chunking the information. Top level sections are denoted using
+    <sgmltag class="element">sect1</sgmltag> elements.</para>
+
+    <para>Top-level sections can be broken down into 5 or less subsections.
+    Subsections are denoted using <sgmltag class="element">sect2</sgmltag>
+    elements.</para>
+
+    <para>Like top-level sections, subsections can be broken up into 5 or less
+    block-sections. Block-sections are denoted using <sgmltag
+    class="element">sect3</sgmltag> elements. Block-sections cannot be
+    subdivided.</para>
+
+    <para>While it is considered good practice to supply a descriptive value
+    for the <sgmltag class="attribute">id</sgmltag> attribute, it is not
+    required.</para>
+
+    <para>shows a more detailed view of a CeltiXfire document.</para>
+
+    <example id="sectLevel">
+      <title>Detailed View of a CeltiXfire Document</title>
+
+      <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd"&gt;
+&lt;article lang="en-US"&gt;
+  &lt;title&gt;Developing a Consumer with CeltiXfire&lt;/title&gt;
+  &lt;sect1 id="stubGen"&gt;
+    &lt;title&gt;Generating Stub Code&lt;/title&gt;
+    ...
+  &lt;/sect1&gt;
+  &lt;sect1 id="..."&gt;
+    ...
+    &lt;sect2 id="subsection"&gt;
+      &lt;title&gt;Sample Subsection&lt;/title&gt;
+      ...
+    &lt;/sect2&gt;
+  &lt;/sect1&gt;
+&lt;/article&gt;</programlisting>
+    </example>
+  </sect1>
+</chapter>

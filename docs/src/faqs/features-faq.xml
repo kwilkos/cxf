@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2002-2004 The Apache Software Foundation or its licensors,
+  as applicable.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!DOCTYPE faqs PUBLIC "-//APACHE//DTD FAQ V2.0//EN" "http://forrest.apache.org/dtd/faq-v20.dtd">
+
+<faqs>
+  <title>Feature FAQ</title>
+<faqsection>
+<title>Transports</title> 
+ <faq>
+      <question>
+	    What transports does CeltiXfire support?
+      </question>
+      <answer>
+      <p>Currently, CeltiXfire supports the following transports:</p>
+	  <ul>
+	  <li>HTTP/S</li>
+	  <li>JMS</li>
+	  </ul>
+	  <p>In addition, CeltiXfire provides an extensibility API, which makes it easy to add transports to the CeltiXfire runtime.</p>
+      </answer>
+    </faq>
+</faqsection>
+<faqsection>
+<title>Bindings</title>
+		<faq>
+	<question>
+	What bindings does CeltiXfire support?
+	</question>
+	<answer>
+	<p>Currently, CeltiXfire supports the following bindings:</p>
+	<ul>
+	<li>SOAP 1.1</li>
+	<li>Native XML</li>
+	</ul>
+	<p>In addition, CeltiXfire provides an extensibility API, which makes it easy to add bindings to the CeltiXfire runtime.</p>
+	</answer>
+	</faq>
+</faqsection>
+<faqsection>
+<title>Language Support</title>
+	<faq>
+	<question>
+	What versions of Java does CeltiXfire support?
+	</question>
+	<answer>
+	CeltiXfire supports Java 1.5.
+	</answer>
+	</faq>
+	<faq>
+	<question>
+    Does CeltiXfire support development languages other than Java?
+	</question>
+	<answer>
+    Yes. CeltiXfire supports the development of services using Javascript and E4X.
+	</answer>
+	</faq>
+</faqsection>
+<faqsection>
+<title>Tools</title>
+		<faq>
+	<question>
+	Does CeltiXfire provide any tools to assist in developing applications with CeltiXfire?
+	</question>
+	<answer>
+	<p>CeltiXfire includes a number of command-line based tools for generating the artifacts needed to develop applications with CeltiXfire. These include:</p>
+	<ul>
+<li><code>wsdl2java</code> for generating Java code from a service contract.</li>
+<li><code>java2wsdl</code> for generating a service contract from a Java class.</li>
+<li><code>xsd2wsdl</code> for generating a service contract from an XMLSchema document.</li>
+</ul>
+<p>In addition there are a number of command lines tools for manipulating service contracts.</p>
+	</answer>
+	</faq>
+<faq>
+	<question>
+	Are there any GUI tools for working with CeltiXfire?
+	</question>
+	<answer>
+	No. CeltiXfire is working with the STP project at the Eclipse project to develop GUI based tools for working with SOAs.
+	</answer>
+</faq>
+</faqsection>
+<faqsection>
+<title>Orchestration</title>
+	<faq>
+		<question>
+		Does CeltiXfire provide any orchestration features?
+		</question>
+		<answer>
+		No. However, CeltiXfire services can be orchestrated using a number of BPEL engines. There is a 
+		demo illustrating CeltiXfire working with Intalio's BPEL offering on the demo page at 
+		<a href="site:demos/home">demos page</a>.
+		</answer>
+	</faq>
+</faqsection>
+</faqs>

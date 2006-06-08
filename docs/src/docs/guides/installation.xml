@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<article lang="en-US">
+  <title>CeltiXfire Installation Guide</title>
+
+  <sect1>
+    <title>Downloading CeltiXfire</title>
+
+    <para>You can download a CeltiXfire distribution from the CeltiXfire
+    project page on the ObjectWeb site: <ulink
+    url="http://forge.objectweb.org/projects/celtix">http://forge.objectweb.org/projects/celtix</ulink>.</para>
+
+    <para>CeltiXfire is provided as an extractable JAR file. You can select
+    either a source or binary distribution. Each distribution is also provided
+    under two licensing agreements:</para>
+
+    <orderedlist>
+      <listitem>
+        <para>Eclipse Public License (EPL)</para>
+      </listitem>
+
+      <listitem>
+        <para>Lesser General Public License (LGPL)</para>
+      </listitem>
+    </orderedlist>
+
+    <para>The available JAR files are as follows:</para>
+
+    <informaltable frame="all">
+      <tgroup cols="3">
+        <thead>
+          <row>
+            <entry>Distribution</entry>
+
+            <entry>EPL</entry>
+
+            <entry>LGPL</entry>
+          </row>
+        </thead>
+
+        <tbody>
+          <row>
+            <entry>Source</entry>
+
+            <entry><filename>celtix-1.0-src-epl.jar</filename></entry>
+
+            <entry><filename>celtix-1.0-src-lgpl.jar</filename></entry>
+          </row>
+
+          <row>
+            <entry>Binary</entry>
+
+            <entry><filename>celtix-1.0-bin-epl.jar</filename></entry>
+
+            <entry><filename>celtix-1.0-bin-lgpl.jar</filename></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+
+    <para>Download the version that best suits your needs. Users interested in
+    running the product samples and/or writing CeltiXfire applications should
+    select the binary distribution. Users interested in reviewing the source
+    code, and perhaps contributing to the CeltiXfire project, might choose to
+    use the source distribution.</para>
+  </sect1>
+
+  <sect1>
+    <title>Installation Prerequisites</title>
+
+    <para>Before installing Celtix 1.0, you must ensure that you have the
+    following product versions installed:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>JDK 1.5.0_06 (JDK 5.0 update 6) and above. CeltiXfire requires
+        this version of the JDK for compilation and execution.</para>
+      </listitem>
+
+      <listitem>
+        <para>Apache Ant 1.6.5 and above. Ant is optionally used to compile
+        and execute CeltiXfire applications. It is also possible to compile
+        and run CeltiXfire applications using javac and java directly. For
+        further information on this alternative approach, see the discussion
+        in each sample application's <filename>README</filename> file.</para>
+      </listitem>
+    </itemizedlist>
+
+    <sect2>
+      <title>Java 5 Developer’s Kit</title>
+
+      <para>You must install the J2SE Development Kit (JDK) 5.0, which can be
+      downloaded from the following location:</para>
+
+      <para><ulink
+      url="http://java.sun.com/j2se/1.5.0/download.jsp">http://java.sun.com/j2se/1.5.0/download.jsp</ulink></para>
+
+      <para>After installing the JDK, set or modify the following environment
+      variables:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><envar>JAVA_HOME</envar> — set this to point at the root
+          directory of the JDK 5.0 installation.</para>
+        </listitem>
+
+        <listitem>
+          <para><envar>PATH</envar> — ensure that your PATH includes the
+          <filename>%JAVA_HOME%\bin</filename> directory (Windows) or
+          <filename>$JAVA_HOME/bin</filename> directory (UNIX).</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>Apache Ant 1.6</title>
+
+      <para>Each CeltiXfire sample application includes a
+      <filename>build.xml</filename> file that enables you to use Apache Ant
+      to compile and run the application. If you wish to use this feature, you
+      must install the Apache Ant 1.6 build utility, which can be downloaded
+      from the following location:</para>
+
+      <para><ulink
+      url="http://ant.apache.org/bindownload.cgi">http://ant.apache.org/bindownload.cgi</ulink></para>
+
+      <para>After installing Apache Ant, add the
+      <replaceable>AntInstallDir</replaceable><filename>/bin</filename>
+      (Windows) or
+      <replaceable>AntInstallDir</replaceable><filename>/bin</filename> (UNIX)
+      directory to your <envar>PATH</envar>. Place this at the start of your
+      <envar>PATH</envar> if previous versions of Ant may be configured by
+      other products on your <envar>PATH</envar>.</para>
+
+      <para>In addition, the source distribution of CeltiXfire uses Apache
+      Maven to build the CeltiXfire binaries. A Maven installation is provided
+      with the source distribution. For more details, see <xref
+      linkend="source_install" />.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Installation Instructions</title>
+
+    <para>You can install CeltiXfire on any operating system that supports the
+    Java 5 platform.</para>
+
+    <sect2>
+      <title>Installing the CeltiXfire Binary Distribution</title>
+
+      <para>To install either of the binary distributions (EPL or LGPL),
+      perform the following steps:</para>
+
+      <procedure>
+        <step>
+          <para>Download the distribution file to a local directory.</para>
+        </step>
+
+        <step>
+          <para>Create an installation directory, (for example,
+          <filename>celtix_install</filename>).</para>
+        </step>
+
+        <step>
+          <para>Open a command window and move to the installation directory.
+          Confirm that the <envar>%JAVA_HOME%</envar><filename>\bin</filename>
+          (Windows) or <envar>$JAVA_HOME</envar><filename>/bin</filename>
+          (UNIX) directory is on the <envar>PATH</envar>.</para>
+        </step>
+
+        <step>
+          <para>Use the java executable to extract the archive, for
+          example:</para>
+
+          <para><userinput>java -jar
+          <replaceable>path_to_Celtix_binary_distribution_file</replaceable></userinput></para>
+        </step>
+
+        <step>
+          <para>The extraction process will create the following directory
+          structure:</para>
+
+          <figure>
+            <title>CeltiXfire Binary Distrobution Structure</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="./images/installation1.gif" />
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </step>
+      </procedure>
+    </sect2>
+
+    <sect2 id="source_install">
+      <title>Installing and Building the CeltiXfire Source
+      Distribution</title>
+
+      <para>To build CeltiXfire from the source distribution, you must have an
+      active Internet connection. This is because Apache Maven will attempt to
+      download various artifacts from a public repository at <ulink
+      url="http://www.ibiblio.org/">http://www.ibiblio.org/</ulink>. If you
+      wish to become an active contributor to the CeltiXfire project and need
+      to frequently rebuild your CeltiXfire installation, you may find it
+      convenient to either use a public mirror repository, or to set up your
+      own local repository.</para>
+
+      <para>For more information, see: <ulink
+      url="http://maven.apache.org/guides/mini/guide-mirror-settings.html">http://maven.apache.org/guides/mini/guide-mirror-settings.html</ulink>
+      and <ulink
+      url="https://wiki.objectweb.org/celtix/Wiki.jsp?page=Maven2Information">https://wiki.objectweb.org/celtix/Wiki.jsp?page=Maven2Information</ulink>.</para>
+
+      <para>To install and build either of the source distributions (EPL or
+      LGPL), perform the following steps:</para>
+
+      <procedure>
+        <step>
+          <para>Download the distribution file to a local directory.</para>
+        </step>
+
+        <step>
+          <para>Create an installation directory, (for example,
+          <filename>celtix-install</filename>).</para>
+        </step>
+
+        <step>
+          <para>Open a command window and move to the installation directory.
+          Confirm that the <filename>%JAVA_HOME%\bin</filename> (Windows) or
+          <filename>$JAVA_HOME/bin</filename> (UNIX) directory is on the
+          PATH.</para>
+        </step>
+
+        <step>
+          <para>Use the java executable to extract the archive, for
+          example:</para>
+
+          <para><userinput>java -jar
+          <replaceable>path_to_Celtix_source_distribution</replaceable></userinput></para>
+        </step>
+
+        <step>
+          <para>The extraction process creates the following directory
+          structure:</para>
+
+          <figure>
+            <title>CeltiXfire Source Distrobution Structure</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="./images/installation2.gif" />
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </step>
+
+        <step>
+          <para>To build CeltiXfire, you must set your environment for Apache
+          Maven. Ensure that the following environment variables are
+          set:</para>
+
+          <informaltable frame="all">
+            <tgroup cols="2">
+              <thead>
+                <row>
+                  <entry>Environment Variable</entry>
+
+                  <entry>Value</entry>
+                </row>
+              </thead>
+
+              <tbody>
+                <row>
+                  <entry><envar>JAVA_HOME</envar></entry>
+
+                  <entry>JDK installation directory (for example,
+                  <filename>C:\jdk1.5</filename>)</entry>
+                </row>
+
+                <row>
+                  <entry><envar>CELTIX_INSTALL</envar></entry>
+
+                  <entry>CeltiXfire installation directory (for example,
+                  <filename>C:\celtix-install</filename>)</entry>
+                </row>
+
+                <row>
+                  <entry><envar>CLASSPATH</envar></entry>
+
+                  <entry>&lt;empty&gt;</entry>
+                </row>
+
+                <row>
+                  <entry><envar>MAVEN_HOME</envar></entry>
+
+                  <entry>Windows:
+                  <filename>%CELTIX_INSTALL%\celtix-src\maven</filename>
+                  <para></para> UNIX:
+                  <filename>$CELTIX_INSTALL/celtix-src/maven</filename></entry>
+                </row>
+
+                <row>
+                  <entry><envar>MAVEN_OPTS</envar></entry>
+
+                  <entry>Windows: <para></para> <userinput>-ea
+                  -Djava.util.logging.config.file=%CELTIX_INSTALL%\celtix-src\celtix-common\src\test\resources\logging.properties</userinput>
+                  <para></para> UNIX: <para></para> <userinput>-ea
+                  -Djava.util.logging.config.file=$CELTIX_INSTALL/celtix-src/celtix-common/src/test/resources/logging.properties</userinput></entry>
+                </row>
+
+                <row>
+                  <entry><envar>PATH</envar></entry>
+
+                  <entry>Windows:
+                  <filename>%MAVEN_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename>
+                  <para></para> UNIX:
+                  <filename>$MAVEN_HOME/bin:$JAVA_HOME/bin;$PATH</filename></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </step>
+
+        <step>
+          <para>Move to the <filename>celtix-src</filename> directory under
+          your CeltiXfire installation directory.</para>
+        </step>
+
+        <step>
+          <para>To build CeltiXfire, enter the following command:</para>
+
+          <para><userinput>mvn install</userinput></para>
+        </step>
+
+        <step>
+          <para>This command builds the product and runs all of the system and
+          unit tests. To avoid running the tests, use the following
+          command:</para>
+
+          <para><userinput>mvn -Dmaven.test.skip install</userinput></para>
+        </step>
+
+        <step>
+          <para>Move to the subdirectory
+          <filename>celtix-src\celtix-distribution</filename> (Windows) or
+          <filename>celtix-src/celtix-distribution</filename> (UNIX), and
+          enter the following command:</para>
+
+          <para><userinput>mvn compile</userinput></para>
+
+          <para>Alternatively, you can build JAR files suitable for
+          distribution using the following command:</para>
+
+          <para><userinput>mvn install</userinput></para>
+        </step>
+      </procedure>
+
+      <para>The JAR files are located in the following directory:
+      <filename>celtix-src\celtix-distribution\target</filename> (Windows) or
+      <filename>celtix-src\celtix-distribution\target</filename>
+      (UNIX).</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Testing the Installation</title>
+
+    <para>To test the installation of CeltiXfire, try running the basic Hello
+    World sample application, or any of the other samples.</para>
+
+    <sect2>
+      <title>Setting the Environment for the Binary Distribution</title>
+
+      <para>Before you can compile and run the sample applications, you must
+      set the environment so that the directories holding the
+      <application>CeltiXfire</application>, Java, and Ant utility
+      applications are on the <envar>PATH</envar>.</para>
+
+      <para>Open a command window, and move to the
+      <filename>samples</filename> subdirectory under your CeltiXfire
+      installation. Ensure that the following environment variables are set.
+      If you will be using the Ant build system exclusively, the
+      <filename>celtix.jar</filename> file does not need to be included in the
+      <envar>CLASSPATH</envar> variable. You may find it convenient to write a
+      script or batch file that sets these environment variables.</para>
+
+      <informaltable frame="all">
+        <tgroup cols="2">
+          <thead>
+            <row>
+              <entry>Environment Variable</entry>
+
+              <entry>Value</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry><envar>JAVA_HOME</envar></entry>
+
+              <entry>JDK installation directory (for example,
+              <filename>C:\jdk1.5</filename>)</entry>
+            </row>
+
+            <row>
+              <entry><envar>CELTIX_HOME</envar></entry>
+
+              <entry>CeltiXfire installation directory (for example,
+              <filename>C:\Celtix-install\celtix</filename>)</entry>
+            </row>
+
+            <row>
+              <entry><envar>CLASSPATH</envar></entry>
+
+              <entry>Windows:
+              <filename>.;%CELTIX_HOME%\lib\celtix.jar;.\build\classes</filename>
+              <para></para> UNIX:
+              <filename>.:$CELTIX_HOME/lib/celtix.jar:./build/classes</filename></entry>
+            </row>
+
+            <row>
+              <entry><envar>ANT_HOME</envar></entry>
+
+              <entry>Windows:
+              <replaceable>Ant-install-dir</replaceable><filename>\apache-ant-1.6.5</filename>
+              <para></para> UNIX:
+              <replaceable>Ant-install-dir</replaceable><filename>/apache-ant-1.6.5</filename></entry>
+            </row>
+
+            <row>
+              <entry><envar>PATH</envar></entry>
+
+              <entry>Windows:
+              <filename>%ANT_HOME%\bin;%CELTIX_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename>
+              <para></para> UNIX:
+              <filename>$MAVEN_HOME/bin:$CELTIX_HOME/bin:$JAVA_HOME/bin;$PATH</filename></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </informaltable>
+    </sect2>
+
+    <sect2>
+      <title>Setting the Environment for the Source Distribution</title>
+
+      <para>Before you can compile and run the sample applications, you must
+      set the environment so that the directories holding the Celtix, Java,
+      and Ant utility applications are on the <envar>PATH</envar>.</para>
+
+      <para>Open a command window and move to the samples subdirectory under
+      your Celtix installation. Ensure that the following environment
+      variables are set (note the different value for the
+      <envar>CELTIX_HOME</envar> variable). When using the source
+      distribution, you should use the Ant build system; with this version of
+      the product the Celtix product JAR files are distributed throughout the
+      product directories, and providing an accurate <envar>CLASSPATH</envar>
+      would be challenging.</para>
+
+      <para>You may find it convenient to write a script or batch file that
+      sets these environment variables.</para>
+
+      <informaltable frame="all">
+        <tgroup cols="2">
+          <thead>
+            <row>
+              <entry>Environment Variable</entry>
+
+              <entry>Value</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry><envar>JAVA_HOME</envar></entry>
+
+              <entry>JDK installation directory (for example,
+              <filename>C:\jdk1.5</filename>)</entry>
+            </row>
+
+            <row>
+              <entry><envar>CELTIX_HOME</envar></entry>
+
+              <entry>Celtix installation directory (for example,
+              <filename>C:\Celtix-install\celtix-src\celtix-distribution\src\main</filename>)</entry>
+            </row>
+
+            <row>
+              <entry><envar>CLASSPATH</envar></entry>
+
+              <entry>Windows: <filename>.;.\build\classes</filename>
+              <para></para> UNIX:
+              <filename>.:./build/classes</filename></entry>
+            </row>
+
+            <row>
+              <entry><envar>ANT_HOME</envar></entry>
+
+              <entry>Windows:
+              <replaceable>Ant-install-dir</replaceable><filename>\apache-ant-1.6.5</filename>
+              <para></para> UNIX:
+              <replaceable>Ant-install-dir</replaceable><filename>/apache-ant-1.6.5</filename></entry>
+            </row>
+
+            <row>
+              <entry><envar>ANT_ARGS</envar></entry>
+
+              <entry>UNIX:
+              <option>Dmaven.repo.local=<replaceable>maven_repository_path</replaceable></option></entry>
+            </row>
+
+            <row>
+              <entry><envar>PATH</envar></entry>
+
+              <entry>Windows:
+              <filename>%ANT_HOME%\bin;%CELTIX_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename>
+              <para></para> UNIX:
+              <filename>$ANT_HOME/bin:$CELTIX_HOME/bin:$JAVA_HOME/bin;$PATH</filename></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </informaltable>
+    </sect2>
+
+    <sect2>
+      <title>Running a Sample Application</title>
+
+      <para>To build and run the Hello World application, perform the
+      following steps:</para>
+
+      <procedure>
+        <step>
+          <para>Open a command window, and ensure that your environment is
+          set.</para>
+        </step>
+
+        <step>
+          <para>Change directory to
+          <filename>%CELTIX_HOME%\samples\hello_world</filename> (Windows) or
+          <filename>$CELTIX_HOME/samples/hello_world</filename> (UNIX).</para>
+        </step>
+
+        <step>
+          <para>Enter <userinput>ant build</userinput> to build both the
+          client and server applications.</para>
+        </step>
+
+        <step>
+          <para>Open a new command window and set the environment.</para>
+        </step>
+
+        <step>
+          <para>Change directory to
+          <filename>%CELTIX_HOME%\samples\hello_world</filename> (Windows) or
+          <filename>$CELTIX_HOME/samples/hello_world</filename> (UNIX).</para>
+        </step>
+
+        <step>
+          <para>Enter <userinput>ant server</userinput>.</para>
+        </step>
+
+        <step>
+          <para>In the first command window, enter <userinput>ant
+          client</userinput>.</para>
+        </step>
+      </procedure>
+    </sect2>
+  </sect1>
+</article>

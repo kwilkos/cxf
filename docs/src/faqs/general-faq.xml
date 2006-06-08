@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2002-2004 The Apache Software Foundation or its licensors,
+  as applicable.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!DOCTYPE faqs PUBLIC "-//APACHE//DTD FAQ V2.0//EN" "http://forrest.apache.org/dtd/faq-v20.dtd">
+
+<faqs>
+  <title>General FAQ</title>
+
+  <faqsection id="basic">
+    <title>Basics</title>
+    <faq>
+      <question>
+        What is CeltiXfire?
+      </question>
+      <answer>
+    Cetlix is an open source Java Web services ESB implementation. It is based on JAX-WS 2.0.
+      </answer>
+    </faq>
+	<faq>
+	<question>
+	What is an ESB?
+	</question>
+	<answer>
+	ESB stands for Enterprise Service Bus. An ESB is the layer of technology that makes SOA possible. 
+	It enables the abstraction by translating the messages defining the services into data that can 
+	be manipulated by a physical process implementing a service. Essentially, an ESB is the yarn 
+	that weaves a SOA together.
+	</answer>
+	</faq>
+	<faq>
+	<question>
+	What is SOA?
+	</question>
+	<answer>
+	SOA stands for Service-Oriented Architecture. Service-Oriented Architecture is an approach 
+	to software architecture with the goal to decouple the agents of work in a software system 
+	from the functionality advertised by those agents.  An agent offers a contract, representing 
+	a service, which can then be consumed by other software agents that require work to be done. 
+	In SOA terms, the contract-offering agent is the Service Provider, and the contract itself 
+	represents the Service. Using SOA, system designers can describe the core functions of the 
+	system as service elements that can be composed and reused to form business applications.
+	</answer>
+	</faq>
+	</faqsection>
+	<faqsection id="esbrelates">
+	<title>Relationship to Other ESBs</title>
+	<faq>
+	<question>
+	How does CeltiXfire compare to other open source ESBs like Mule and ServiceMix?
+	</question>
+	<answer>
+	CeltiXfire is the only ESB that implements the JAX-WS specification. Also, CeltiXfire has the ability 
+	to send SOAP messages over HTTP built-in, and it does not require any external program for 
+	this functionality, like Apache Axis. Also, CeltiXfire is not based on a particular messaging 
+	technology. It supports JMS and comes with ActiveMQ, but it can work with any JMS implementation. 
+	CeltiXfire is extensible, so it is possible to write other messaging transports for CeltiXfire since
+	the messaging bus is not tightly bound to how CeltiXfire works.
+	</answer>
+	</faq>
+	<faq>
+	<question>
+	How does CeltiXfire compare to commercial ESBs?
+	</question>
+	<answer>
+	Due to the rapid innovation capability of an open source community, CeltiXfire is comparable, 
+	and ahead in some ways, in capability to commercial Java-centric ESBs. For example, CeltiXfire is 
+	currently the only ESB with JAX-WS support. The non-Java-centric ESBs complement and interoperate 
+	with CeltiXfire to provide additional transports and bindings, i.e. IONA's Artix product provides 
+	additional capabilities to integrate with IBM MQ, CORBA, Tuxedo, etc.
+	</answer>
+	</faq>
+	</faqsection>
+	<faqsection id="osrelates">
+	<title>Relationship to Other Open Source Projects</title>
+	<faq>
+	<question>
+	Does CeltiXfire use other open source projects?
+	</question>
+	<answer>
+	<p>Yes. CeltiXfire is built and packaged using Maven 2.0 from Apache. The Web site is built using Forrest 
+	from Apache. All of the documentation for the CeltiXfire project is written using OpenOffice 2.0.</p>
+    <p>The CeltiXfire team is also working with the STP project at the Eclipse foundation to build a set of GUI tools for developing SOAs.</p>
+	</answer>
+	</faq>
+	<faq>
+	<question>
+	What other open source projects does CeltiXfire work with?
+	</question>
+	<answer>
+	Currently a number of open source projects are in discussions with the CeltiXfire project about taking shared dependencies.
+	</answer>
+	</faq>
+	<faq>
+	<question>
+	Are members of the CeltiXfire community working with any open-source JBI projects?
+	</question>
+	<answer>
+	Yes.
+	</answer>
+	</faq>
+	<faq>
+	<question>
+	Are members of the CeltiXfire community working with any open-source SCA projects?
+	</question>
+	<answer>
+	Yes.
+	</answer>
+	</faq>
+	</faqsection>
+</faqs>
