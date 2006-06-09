@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
-            <artifactId>celtix-rt</artifactId>
+            <artifactId>internal</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

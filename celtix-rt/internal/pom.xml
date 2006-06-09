@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.objectweb.celtix</groupId>
-    <artifactId>celtix-rt</artifactId>
+    <artifactId>internal</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
     <name>Celtix Runtime</name>
@@ -10,12 +10,12 @@
 
     <parent>
         <groupId>org.objectweb.celtix</groupId>
-        <artifactId>celtix</artifactId>
+        <artifactId>celtix-rt</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
     <properties>
-        <topDirectoryLocation>..</topDirectoryLocation>
+        <topDirectoryLocation>../..</topDirectoryLocation>
     </properties>
 
     <dependencies>
