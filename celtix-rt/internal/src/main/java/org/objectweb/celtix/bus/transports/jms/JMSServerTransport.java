@@ -62,6 +62,10 @@ public class JMSServerTransport extends JMSTransportBase
         serverBehaviourPolicy = getServerPolicy(configuration);
         serverConfig = getServerConfig(configuration);
         counters = new TransportServerCounters("JMSServerTranpsort");
+        Boolean counterMonitoring = b.getConfiguration().getBoolean("servicesMonitoring");
+        if (counterMonitoring) {
+            counters.resetCounters();
+        }
         LOG.log(Level.FINE, "JMSServerTransport Constructor");
         bus.sendEvent(new ComponentCreatedEvent(this));
     }

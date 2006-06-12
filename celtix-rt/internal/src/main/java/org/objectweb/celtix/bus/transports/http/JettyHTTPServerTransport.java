@@ -49,6 +49,11 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport
         super(b, ref);
         counters = new TransportServerCounters("JettyHTTPServerTransport");
         engine = JettyHTTPServerEngine.getForPort(bus, nurl.getProtocol(), nurl.getPort());
+        //Check the servicesMonitoring value, and set the Counters's states        
+        Boolean counterMonitoring = bus.getConfiguration().getBoolean("servicesMonitoring");
+        if (counterMonitoring) {
+            counters.resetCounters();
+        }        
         //register the configuration event
         ConfigurationEventFilter configurationEventFilter = new ConfigurationEventFilter();
         try {

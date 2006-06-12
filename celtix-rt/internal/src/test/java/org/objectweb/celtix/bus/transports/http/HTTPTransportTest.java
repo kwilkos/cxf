@@ -418,7 +418,14 @@ public class HTTPTransportTest extends TestCase {
         }
     }
     
-
+    private void checkServiceMoinitoringConfiguration() {
+        Configuration cfg = EasyMock.createMock(Configuration.class);        
+        bus.getConfiguration();
+        EasyMock.expectLastCall().andReturn(cfg);
+        cfg.getBoolean("servicesMonitoring");
+        EasyMock.expectLastCall().andReturn(true);
+    }
+    
     private void checkBusCreatedEvent() {
         
         bus.sendEvent(EasyMock.isA(ComponentCreatedEvent.class));
@@ -691,6 +698,8 @@ public class HTTPTransportTest extends TestCase {
             EasyMock.expectLastCall().andReturn(null);
             first = false;
         }
+        // check the bus configuration call for serviceMoinitoring 
+        checkServiceMoinitoringConfiguration();
         
         try {
             bus.addListener(EasyMock.isA(JettyHTTPServerTransport.class), 
