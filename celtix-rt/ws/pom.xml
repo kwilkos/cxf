@@ -2,15 +2,15 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.objectweb.celtix</groupId>
-    <artifactId>celtix-rt</artifactId>
+    <artifactId>ws</artifactId>
     <packaging>pom</packaging>
     <version>1.1-SNAPSHOT</version>
-    <name>Celtix Runtime</name>
+    <name>CeltiXfire WS</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
         <groupId>org.objectweb.celtix</groupId>
-        <artifactId>celtix</artifactId>
+        <artifactId>celtix-rt</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
@@ -19,7 +19,7 @@
     </properties>
 
     <modules>
-        <module>internal</module>
-        <module>ws</module>
+        <module>addr</module>
+        <module>rm</module>
     </modules>
 </project>

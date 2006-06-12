@@ -15,11 +15,11 @@ import java.util.Map;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bus.transports.http.HTTPClientTransport.HTTPClientInputStreamContext;
-import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.ws.addressing.WSAContextUtils;
 
 public abstract class AbstractHTTPRequestorOutputStreamContext
     extends MessageContextWrapper
@@ -41,7 +41,8 @@ public abstract class AbstractHTTPRequestorOutputStreamContext
             super.put(HTTP_REQUEST_HEADERS, headers);
         }
 
-        EndpointReferenceType to = ContextUtils.retrieveTo(null, ctx);
+        // TODO
+        EndpointReferenceType to = WSAContextUtils.retrieveTo(null, ctx);
         if (to != null && to.getAddress() != null) {
             URL url = new URL(to.getAddress().getValue());
             connection = getConnection(url);

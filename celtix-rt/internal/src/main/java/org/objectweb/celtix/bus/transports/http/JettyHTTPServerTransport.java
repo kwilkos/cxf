@@ -32,7 +32,6 @@ import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.ConfigurationEvent;
 import org.objectweb.celtix.bus.configuration.ConfigurationEventFilter;
 import org.objectweb.celtix.bus.management.counters.TransportServerCounters;
-import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -212,8 +211,7 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport
     public OutputStreamMessageContext createOutputStreamContext(MessageContext context)
         throws IOException {
         OutputStreamMessageContext ret = null;
-        // REVISIT: move isRequestor to BindingContextUtils
-        if (ContextUtils.isRequestor(context)) {
+        if (BindingContextUtils.isRequestor(context)) {
             // create client output stream context
             ret = new AbstractHTTPRequestorOutputStreamContext(context) {
                 protected URLConnection getConnection(URL url) throws IOException {

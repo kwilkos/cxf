@@ -36,6 +36,18 @@
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
+            <artifactId>addr</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
+            <artifactId>rm</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
             <artifactId>celtix-router</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

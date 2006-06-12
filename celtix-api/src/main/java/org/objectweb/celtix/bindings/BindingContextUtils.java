@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bindings;
 
-
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -11,7 +10,7 @@ import static org.objectweb.celtix.bindings.JAXWSConstants.SERVER_BINDING_ENDPOI
 import static org.objectweb.celtix.context.InputStreamMessageContext.ASYNC_ONEWAY_DISPATCH;
 import static org.objectweb.celtix.context.InputStreamMessageContext.DECOUPLED_RESPONSE;
 import static org.objectweb.celtix.context.ObjectMessageContext.CORRELATION_IN;
-
+import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
 
 /**
  * Holder for utility methods relating to contexts.
@@ -177,5 +176,16 @@ public final class BindingContextUtils {
         Boolean b = (Boolean)context.get(DECOUPLED_RESPONSE);
         return b != null && b.booleanValue();
     }
-    
+
+   /**
+    * Determine if context indicates current messaging role is that of
+    * requestor.
+    *
+    * @param context the current MessageContext
+    * @return true iff the current messaging role is that of requestor
+    */
+    public static boolean isRequestor(MessageContext context) {
+        Boolean requestor = (Boolean)context.get(REQUESTOR_ROLE_PROPERTY);
+        return requestor != null && requestor.booleanValue();
+    }
 }
