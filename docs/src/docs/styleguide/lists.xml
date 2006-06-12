@@ -2,8 +2,6 @@
 <chapter>
   <title>Lists</title>
 
-  <synopsis>Docbook defines several types of lists. CeltiXFire documents primarily use itemized lists and ordered lists.</synopsis>
-
   <sect1>
     <title>Simple Lists</title>
 

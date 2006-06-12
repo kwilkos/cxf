@@ -2,8 +2,6 @@
 <chapter>
   <title>Structuring CeltiXFire Documents</title>
 
-  <synopsis>CeltiXfire documentation is based around small, digestible topics. To facilitate this it only uses a small number of the docbook structural tags..</synopsis>
-
   <sect1>
     <title>Top-level Elements</title>
 

@@ -2,8 +2,6 @@
 <chapter>
   <title>Writing Documentation for CeltiXfire</title>
 
-  <synopsis>All documentation for the CeltiXfire project is written in XML. Depending on the type of document, the content will be in either XDOC and Docbook.</synopsis>
-
   <sect1>
     <title>Why XML Based Documents?</title>
 

@@ -2,12 +2,10 @@
 <chapter>
   <title>Tables</title>
 
-  <synopsis>Tables in Docbook use a rich markup.</synopsis>
-
   <sect1>
     <title>Types of Tables</title>
 
-    <para>There are two types of tables in docbook:</para>
+    <para>There are two types of tables in Docbook:</para>
 
     <itemizedlist>
       <listitem>
@@ -234,7 +232,7 @@
         <para><xref linkend="tgroupattrs" /> shows the attributes for the
         <sgmltag class="element">tgroup</sgmltag> element. Attributes in the
         <sgmltag class="element">tgroup</sgmltag> element override the
-        corresponding attributes from the root element.</para>
+        corresponding attributes from the table's root element.</para>
 
         <table id="tgroupattrs">
           <title>Attributes for the <sgmltag class="element">tgroup</sgmltag>
@@ -307,7 +305,17 @@
       <sect3>
         <title>Example</title>
 
-        <para></para>
+        <para><xref linkend="groupexample" /> shows the markup for a <sgmltag
+        class="element">tgroup</sgmltag> element that defines a 3 column
+        table.</para>
+
+        <informalexample id="groupexample" xreflabel="The following">
+          <programlisting>&lt;informaltable ...&gt;
+  &lt;tgroup cols="3" colsep="1" rowsep="1" &gt;
+    ...
+  &lt;/tgroup&gt;
+&lt;/table&gt;</programlisting>
+        </informalexample>
       </sect3>
     </sect2>
 
@@ -328,8 +336,9 @@
         <para><xref linkend="colattrs" /> shows the attributes for the
         <sgmltag class="element">colspec</sgmltag> element. Attributes in the
         <sgmltag class="element">colspec</sgmltag> element override
-        corresponding attributes in the <sgmltag
-        class="element">tgroup</sgmltag> element and the root element.</para>
+        corresponding attributes in the parent <sgmltag
+        class="element">tgroup</sgmltag> element and the table's root
+        element.</para>
 
         <table id="colattrs">
           <title>Attributes for the <sgmltag class="element">colspec</sgmltag>
@@ -421,7 +430,19 @@
       <sect3>
         <title>Example</title>
 
-        <para></para>
+        <para><xref linkend="colspecexample" /> shows the markup for
+        specifying a column that is two inches wide and whose content is
+        justified.</para>
+
+        <informalexample id="colspecexample" xreflabel="The following">
+          <programlisting>&lt;table ...&gt;
+  &lt;title&gt;...&lt;/title&gt;
+  &lt;tgroup ... &gt;
+    &lt;colspec align="justify" colwidth="2in" colname="2incol" /&gt;
+    ...
+  &lt;/tgroup&gt;
+&lt;/table&gt;</programlisting>
+        </informalexample>
       </sect3>
     </sect2>
 
@@ -492,8 +513,9 @@
         class="element">spanspec</sgmltag> element can also have the
         attributes described in <xref linkend="spanoptattrs" />. Attributes in
         the <sgmltag class="element">spanspec</sgmltag> element override
-        corresponding attributes in the <sgmltag
-        class="element">tgroup</sgmltag> element and the root element.</para>
+        corresponding attributes in the parent <sgmltag
+        class="element">tgroup</sgmltag> element and the table's root
+        element.</para>
 
         <table id="spanoptattrs">
           <title>Optional Attributes for the <sgmltag
@@ -557,20 +579,554 @@
       <sect3>
         <title>Example</title>
 
-        <para></para>
+        <para><xref linkend="spanexample" /> shows the markup for a span that
+        crosses the second and third column of a five column table. The
+        contents of the span are centered.</para>
+
+        <informalexample id="spanexample" xreflabel="The following">
+          <programlisting>&lt;informaltable ...&gt;
+  &lt;tgroup  cols="5" &gt;
+    &lt;colspec colnum="2" colname="c2" /&gt;
+    &lt;colspec colnum="3" colname="c3" /&gt;
+    &lt;spanspec spanname="midspan" namest="c2" endst="c3"
+              align="center" /&gt;
+    ...
+&lt;/informaltable&gt;</programlisting>
+        </informalexample>
+      </sect3>
+    </sect2>
+
+    <sect2>
+      <title>Adding a Heading Row to a Table</title>
+
+      <para>Tables in CeltiXfire documentation can have one heading row. They
+      are specified using a <sgmltag class="element">thead</sgmltag> element.
+      The <sgmltag class="element">thead</sgmltag> element is a child of a
+      <sgmltag>tgroup</sgmltag> element. It must be placed after any <sgmltag
+      class="element">colspec</sgmltag> elements and <sgmltag
+      class="element">spanspec</sgmltag> elements. It should also be placed
+      before any <sgmltag class="element">tbody</sgmltag> elements.</para>
+
+      <sect3>
+        <title>Attributes</title>
+
+        <para><xref linkend="theadattrs" /> lists the attributes of the
+        <sgmltag class="element">thead</sgmltag> element.</para>
+
+        <table id="theadattrs">
+          <title>Attributes for the <sgmltag class="element">thead</sgmltag>
+          Element</title>
+
+          <tgroup cols="3">
+            <colspec colwidth="1.5in" />
+
+            <thead>
+              <row>
+                <entry align="center">Attribute</entry>
+
+                <entry align="center">Description</entry>
+
+                <entry align="center">Values</entry>
+              </row>
+            </thead>
+
+            <tbody>
+              <row>
+                <entry><sgmltag>valign</sgmltag></entry>
+
+                <entry>Specifies the vertical alignment of the entry in the
+                heading.</entry>
+
+                <entry><sgmltag class="attvalue">top</sgmltag>, <sgmltag
+                class="attvalue">bottom</sgmltag>, <sgmltag
+                class="attvalue">middle</sgmltag>(default)</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+      </sect3>
+
+      <sect3>
+        <title>Adding content</title>
+
+        <para>The content of the heading row is specified using a single
+        <sgmltag class="element">row</sgmltag> element and one entry <sgmltag
+        class="element">child</sgmltag> element for each column in the table.
+        For more information on the row element and the entry element see
+        <xref linkend="rowsect" /> and <xref linkend="entrysect" />.</para>
+      </sect3>
+
+      <sect3>
+        <title>Example</title>
+
+        <para><xref linkend="theadexample" /> shows the markup for tables used
+        in this chapter.</para>
+
+        <informalexample id="theadexample" xreflabel="The following">
+          <programlisting>&lt;table ...&gt;
+  &lt;tgroup  cols="3" &gt;
+    &lt;colspec ... /&gt;
+    &lt;thead&gt;
+      &lt;row&gt;
+        &lt;entry align="center"&gt;
+          Attribute
+        &lt;/entry&gt;
+        &lt;entry align="center"&gt;
+          Description
+        &lt;/entry&gt;
+        &lt;entry align="center"&gt;
+          Values
+        &lt;/entry&gt;
+      &lt;/row&gt;
+    &lt;/thead&gt;
+    ...
+  &lt;/tgroup&gt;
+&lt;/informaltable&gt;</programlisting>
+        </informalexample>
       </sect3>
     </sect2>
 
     <sect2>
       <title>Adding Rows to a Table</title>
 
-      <para></para>
+      <para>The rows that make up the body of a table are defined inside of a
+      <sgmltag class="element">tbody</sgmltag> element. Each row in the table
+      is defined using a <sgmltag class="element">row</sgmltag> element. The
+      contents of each column in the row is defined using an <sgmltag
+      class="element">entry</sgmltag> element.</para>
+
+      <sect3>
+        <title>The <sgmltag class="element">tbody</sgmltag> Element</title>
+
+        <para>The <sgmltag class="element">tbody</sgmltag> element is a
+        wrapper for all of the rows in the body of a group. It is placed after
+        all of the <sgmltag class="element">colspec</sgmltag> elements, all of
+        the <sgmltag class="element">spanspec</sgmltag> elements, and the
+        <sgmltag class="element">thead</sgmltag> element. It has a single
+        attribute, <sgmltag class="attribute">valign</sgmltag>, that is
+        described in <xref linkend="theadattrs" />.</para>
+      </sect3>
+
+      <sect3>
+        <title id="rowsect">The <sgmltag class="element">row</sgmltag>
+        Element</title>
+
+        <para>Rows in a table are defined using the <sgmltag>row</sgmltag>
+        element. Each <sgmltag>row</sgmltag> element wraps a number of
+        <sgmltag>entry</sgmltag> children elements that cannot exceed the
+        number columns specified in the <sgmltag>tgroup</sgmltag> element's
+        <sgmltag>cols</sgmltag> attribute. It is possible to have less
+        <sgmltag>entry</sgmltag> child elements. This can happen when you wish
+        to have empty columns, when one entry spans multiple columns, or if
+        there is an entry from a prevois row that verticaly spans the row
+        being specified.</para>
+
+        <important>
+          <para>When spans are being used the number of
+          <sgmltag>entry</sgmltag> elements plus the number of columns being
+          spanned cannot add up to more than the number of columns defined for
+          the group.</para>
+        </important>
+
+        <para>The <sgmltag class="element">row</sgmltag> element has two
+        attributes as described in <xref linkend="rowattrs" />. Attributes in
+        the <sgmltag class="element">row</sgmltag> element override
+        corresponding attributes in the parent <sgmltag
+        class="element">tbody</sgmltag> element, the enclosing <sgmltag
+        class="element">tgroup</sgmltag> element, the <sgmltag
+        class="element">colspec</sgmltag> elements in the group, and the
+        table's root element.</para>
+
+        <table id="rowattrs">
+          <title>Attributes for the <sgmltag class="element">row</sgmltag>
+          Element</title>
+
+          <tgroup cols="3">
+            <colspec colwidth="1.5in" />
+
+            <thead>
+              <row>
+                <entry align="center">Attribute</entry>
+
+                <entry align="center">Description</entry>
+
+                <entry align="center">Values</entry>
+              </row>
+            </thead>
+
+            <tbody>
+              <row>
+                <entry><sgmltag class="attribute">rowsep</sgmltag></entry>
+
+                <entry>Specifies if a rule will be drawn below all of the
+                entries in the row.</entry>
+
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
+                class="attvalue">1</sgmltag>(default)</entry>
+              </row>
+
+              <row>
+                <entry><sgmltag>valign</sgmltag></entry>
+
+                <entry>Specifies the vertical alignment of the entry in the
+                heading.</entry>
+
+                <entry><sgmltag class="attvalue">top</sgmltag>, <sgmltag
+                class="attvalue">bottom</sgmltag>, <sgmltag
+                class="attvalue">middle</sgmltag>(default)</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+      </sect3>
+
+      <sect3>
+        <title id="entrysect">The <sgmltag class="element">entry</sgmltag>
+        Element</title>
+
+        <para>The contents of of a table are specified using
+        <sgmltag>entry</sgmltag> elements. <sgmltag>entry</sgmltag> elements
+        are children of the <sgmltag>row</sgmltag> element and hold the
+        contents for a column in the row.</para>
+
+        <para>The contents of a table entry can be specified using either text
+        with in-line markup elements or using block-level markup elements such
+        as the <sgmltag class="element">para</sgmltag> element, the <sgmltag
+        class="element">procedure</sgmltag> element, or one of the list types.
+        However, if you intend to use one of the block-level markup elements
+        you must place all of the content inside a block-level element. For
+        example, if you want to use a list in a table entry, along with some
+        text outside the list, you must place all of the content, including
+        the list, inside a <sgmltag class="element">para</sgmltag>
+        element.</para>
+
+        <para>The <sgmltag class="element">entry</sgmltag> element's
+        attributes are described in <xref linkend="entryattrs" />. Attributes
+        in the <sgmltag class="element">entry</sgmltag> element override
+        corresponding attributes in the parent <sgmltag
+        class="element">row</sgmltag> element, the enclosing <sgmltag
+        class="element">tbody</sgmltag> element, the enclosing <sgmltag
+        class="element">tgroup</sgmltag> element, the <sgmltag
+        class="element">colspec</sgmltag> elements in the group, the <sgmltag
+        class="element">spansec</sgmltag> elements in the group, and the
+        table's root element.</para>
+
+        <table id="entryattrs">
+          <title>Attributes for the <sgmltag class="element">entry</sgmltag>
+          Element</title>
+
+          <tgroup cols="3">
+            <colspec colwidth="1.5in" />
+
+            <thead>
+              <row>
+                <entry align="center">Attribute</entry>
+
+                <entry align="center">Description</entry>
+
+                <entry align="center">Values</entry>
+              </row>
+            </thead>
+
+            <tbody>
+              <row>
+                <entry><sgmltag class="attribute">rowsep</sgmltag></entry>
+
+                <entry>Specifies if a rule will be drawn below the
+                entry.</entry>
+
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
+                class="attvalue">1</sgmltag>(default)</entry>
+              </row>
+
+              <row>
+                <entry><sgmltag>valign</sgmltag></entry>
+
+                <entry>Specifies the vertical alignment of the entry.</entry>
+
+                <entry><sgmltag class="attvalue">top</sgmltag>, <sgmltag
+                class="attvalue">bottom</sgmltag>, <sgmltag
+                class="attvalue">middle</sgmltag>(default)</entry>
+              </row>
+
+              <row>
+                <entry><sgmltag class="attribute">colsep</sgmltag></entry>
+
+                <entry>Specifies if a rule will be drawn to the right of the
+                entry.</entry>
+
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag
+                class="attvalue">1</sgmltag>(default)</entry>
+              </row>
+
+              <row>
+                <entry><sgmltag class="attribute">namest</sgmltag></entry>
+
+                <entry>Specifies the name of the left-most column the entry
+                will span.</entry>
+
+                <entry>The value of the <sgmltag
+                class="attribute">name</sgmltag> attribute of the <sgmltag
+                class="element">colspec</sgmltag> element defining the
+                left-most column of the span.</entry>
+              </row>
+
+              <row>
+                <entry><sgmltag class="attribute">nameend</sgmltag></entry>
+
+                <entry>Specifies the right-most column the entry will
+                span.</entry>
+
+                <entry>The value of the <sgmltag
+                class="attribute">name</sgmltag> attribute of the <sgmltag
+                class="element">colspec</sgmltag> element defining the
+                right-most column of the span.</entry>
+              </row>
+
+              <row>
+                <entry><sgmltag class="attribute">spanname</sgmltag></entry>
+
+                <entry>Specifies a defined span to use for the entry. This
+                attribute should not be used with <sgmltag
+                class="attribute">namest</sgmltag> and <sgmltag
+                class="attribute">nameend</sgmltag>.</entry>
+
+                <entry>The value of the <sgmltag
+                class="attribute">name</sgmltag> attribute of the <sgmltag
+                class="element">spanspec</sgmltag> element defining the span
+                to use for the entry.</entry>
+              </row>
+
+              <row>
+                <entry><sgmltag class="attribute">align</sgmltag></entry>
+
+                <entry>Specifies the horizontal alignment of the contents in
+                the entry.</entry>
+
+                <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag
+                class="attvalue">justify</sgmltag>, <sgmltag
+                class="attvalue">right</sgmltag>, <sgmltag
+                class="attvalue">left</sgmltag>(default)</entry>
+              </row>
+
+              <row>
+                <entry><sgmltag class="attribute">morerows</sgmltag></entry>
+
+                <entry>Specifies the number of additional rows the entry will
+                span.</entry>
+
+                <entry>&gt;1</entry>
+              </row>
+
+              <row>
+                <entry><sgmltag class="attribute">colname</sgmltag></entry>
+
+                <entry>Specifies the column, defined by a colspec element, in
+                which the entry belongs.<note>
+                    <para>You must specify entries from left to right.</para>
+                  </note></entry>
+
+                <entry>The value of the <sgmltag
+                class="attribute">name</sgmltag> attribute of the <sgmltag
+                class="element">colspec</sgmltag> element defining the column
+                of the span.</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+
+        <note>
+          <para>Attributes not listed in <xref linkend="entryattrs" /> are not
+          used in CeltiXfire documentation.</para>
+        </note>
+      </sect3>
+
+      <sect3>
+        <title>Example</title>
+
+        <para><xref linkend="tbodyexample" /> shows the markup for tables used
+        in this chapter.</para>
+
+        <informalexample id="tbodyexample" xreflabel="The following">
+          <programlisting>&lt;table ...&gt;
+  &lt;tgroup  cols="3" &gt;
+    &lt;colspec ... /&gt;
+    ...
+    &lt;tbody&gt;
+      &lt;row&gt;
+        &lt;entry&gt;&lt;sgmltag class="attribute"&gt;colsep&lt;/sgmltag&gt;&lt;/entry&gt;
+        &lt;entry&gt;Specifies if a rule will be drawn to the right of
+                entries in the span.&lt;/entry&gt;
+        &lt;entry&gt;&lt;sgmltag class="attvalue"&gt;0&lt;/sgmltag&gt;, &lt;sgmltag
+                class="attvalue"&gt;1&lt;/sgmltag&gt;(default)&lt;/entry&gt;
+      &lt;/row&gt;
+      &lt;row&gt;
+        &lt;entry&gt;&lt;sgmltag class="attribute"&gt;rowsep&lt;/sgmltag&gt;&lt;/entry&gt;
+        &lt;entry&gt;Specifies if a rule will be drawn below the rows in the
+                span.&lt;/entry&gt;
+        &lt;entry&gt;&lt;sgmltag class="attvalue"&gt;0&lt;/sgmltag&gt;, &lt;sgmltag
+                class="attvalue"&gt;1&lt;/sgmltag&gt;(default)&lt;/entry&gt;
+      &lt;/row&gt;
+      &lt;row&gt;
+        &lt;entry&gt;&lt;sgmltag&gt;align&lt;/sgmltag&gt;&lt;/entry&gt;
+        &lt;entry&gt;Specifies the horizontal alignment of the entry in the
+                span.&lt;/entry&gt;
+        &lt;entry&gt;&lt;sgmltag class="attvalue"&gt;center&lt;/sgmltag&gt;, &lt;sgmltag
+                class="attvalue"&gt;justify&lt;/sgmltag&gt;, &lt;sgmltag
+                class="attvalue"&gt;right&lt;/sgmltag&gt;, &lt;sgmltag
+                class="attvalue"&gt;left&lt;/sgmltag&gt;(default)&lt;/entry&gt;
+      &lt;/row&gt;
+    &lt;/tbody&gt;
+  &lt;/tgroup&gt;
+&lt;/informaltable&gt;</programlisting>
+        </informalexample>
+      </sect3>
     </sect2>
 
     <sect2>
       <title>Example</title>
 
-      <para></para>
+      <para><xref linkend="tableexample" /> shows a table that uses most of
+      the features of a table.</para>
+
+      <table id="tableexample">
+        <title>Complicated Table</title>
+
+        <tgroup cols="6">
+          <colspec align="center" colname="c1" colnum="1" />
+
+          <colspec align="justify" colname="c2" colnum="2" />
+
+          <colspec colname="c3" />
+
+          <colspec colname="c4" colnum="4" />
+
+          <colspec align="right" colname="c5" colnum="5" />
+
+          <colspec align="left" colname="c6" />
+
+          <spanspec align="center" nameend="c5" namest="c2" spanname="25" />
+
+          <spanspec align="left" nameend="c4" namest="c1" spanname="14" />
+
+          <thead>
+            <row>
+              <entry>c1</entry>
+
+              <entry>c2</entry>
+
+              <entry>c3</entry>
+
+              <entry>c4</entry>
+
+              <entry>c5</entry>
+
+              <entry>c6</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry>Pomegranate</entry>
+
+              <entry>Pineapple</entry>
+
+              <entry>Mango</entry>
+
+              <entry>Carambola</entry>
+
+              <entry>Banana</entry>
+
+              <entry>Papaya</entry>
+            </row>
+
+            <row>
+              <entry>Apples</entry>
+
+              <entry align="right">Kiwis</entry>
+
+              <entry align="center" nameend="c5" namest="c3">Passion
+              Fruits</entry>
+
+              <entry>Watermellon</entry>
+            </row>
+
+            <row>
+              <entry spanname="14">Strawberries</entry>
+
+              <entry>Cantalope</entry>
+
+              <entry>Tamarind</entry>
+            </row>
+
+            <row>
+              <entry>Lychee</entry>
+
+              <entry spanname="25">Boysenberry</entry>
+
+              <entry>Guava</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para><xref linkend="tablemarkup" /> shows the markup for <xref
+      linkend="tableexample" />.</para>
+
+      <example id="tablemarkup">
+        <title>Markup for a Table</title>
+
+        <programlisting>&lt;table id="tableexample"&gt;
+  &lt;title&gt;Complicated Table&lt;/title&gt;
+  &lt;tgroup cols="6"&gt;
+    &lt;colspec align="center" colname="c1" colnum="1" /&gt;
+    &lt;colspec align="justify" colname="c2" colnum="2" /&gt;
+    &lt;colspec colname="c3" /&gt;
+    &lt;colspec colname="c4" colnum="4" /&gt;
+    &lt;colspec align="right" colname="c5" colnum="5" /&gt;
+    &lt;colspec align="left" colname="c6" /&gt;
+    &lt;spanspec align="center" nameend="c5" namest="c2" spanname="25" /&gt;
+    &lt;spanspec align="left" nameend="c4" namest="c1" spanname="14" /&gt;
+    &lt;thead&gt;
+      &lt;row&gt;
+        &lt;entry&gt;c1&lt;/entry&gt;
+        &lt;entry&gt;c2&lt;/entry&gt;
+        &lt;entry&gt;c3&lt;/entry&gt;
+        &lt;entry&gt;c4&lt;/entry&gt;
+        &lt;entry&gt;c5&lt;/entry&gt;
+        &lt;entry&gt;c6&lt;/entry&gt;
+      &lt;/row&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;row&gt;
+        &lt;entry&gt;Pomegranate&lt;/entry&gt;
+        &lt;entry&gt;Pineapple&lt;/entry&gt;
+        &lt;entry&gt;Mango&lt;/entry&gt;
+        &lt;entry&gt;Carambola&lt;/entry&gt;
+        &lt;entry&gt;Banana&lt;/entry&gt;
+        &lt;entry&gt;Papaya&lt;/entry&gt;
+      &lt;/row&gt;
+      &lt;row&gt;
+        &lt;entry&gt;Apples&lt;/entry&gt;
+        &lt;entry align="right"&gt;Kiwis&lt;/entry&gt;
+        &lt;entry align="center" nameend="c5" namest="c3"&gt;Passion
+          Fruits&lt;/entry&gt;
+        &lt;entry&gt;Watermellon&lt;/entry&gt;
+      &lt;/row&gt;
+      &lt;row&gt;
+        &lt;entry spanname="14"&gt;Strawberries&lt;/entry&gt;
+        &lt;entry&gt;Cantalope&lt;/entry&gt;
+        &lt;entry&gt;Tamarind&lt;/entry&gt;
+      &lt;/row&gt;
+      &lt;row&gt;
+        &lt;entry&gt;Lychee&lt;/entry&gt;
+        &lt;entry spanname="25"&gt;Boysenberry&lt;/entry&gt;
+        &lt;entry&gt;Guava&lt;/entry&gt;
+      &lt;/row&gt;
+    &lt;/tbody&gt;
+  &lt;/tgroup&gt;
+&lt;/table&gt;</programlisting>
+      </example>
     </sect2>
   </sect1>
 </chapter>
