@@ -21,7 +21,7 @@ public class HelloWorldProvider implements Greeter {
         System.out.println("Message received: " + me + "\n");
         return "Hello " + me;
     }
-                                                                                                                                                             
+ 
     /* (non-Javadoc)
      * @see org.objectweb.hello_world_soap_http.Greeter#greetMeOneWay(java.lang.String)
      */
@@ -29,7 +29,7 @@ public class HelloWorldProvider implements Greeter {
         System.out.println("Executing operation greetMeOneWay\n");
         System.out.println("Hello there " + me);
     }
-                                                                                                                                                             
+ 
     /* (non-Javadoc)
      * @see org.objectweb.hello_world_soap_http.Greeter#sayHi()
      */
@@ -37,7 +37,7 @@ public class HelloWorldProvider implements Greeter {
         System.out.println("Executing operation sayHi\n");
         return "Bonjour";
     }
-                                                                                                                                                             
+ 
     public void pingMe() throws PingMeFault {
         FaultDetail faultDetail = new FaultDetail();
         faultDetail.setMajor((short)2);

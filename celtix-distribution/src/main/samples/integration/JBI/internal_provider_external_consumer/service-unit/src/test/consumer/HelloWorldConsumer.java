@@ -1,19 +1,15 @@
 package test.consumer;
 
-import javax.jbi.component.ComponentContext;
-import javax.jbi.servicedesc.ServiceEndpoint;
-import javax.xml.namespace.QName;
-import javax.xml.ws.ProtocolException;
 
 import org.objectweb.hello_world_soap_http.Greeter;
-import org.objectweb.hello_world_soap_http.SOAPService;
 import org.objectweb.hello_world_soap_http.PingMeFault;
+import org.objectweb.hello_world_soap_http.SOAPService;
 
 
-public class HelloWorldConsumer { 
-
+public final class HelloWorldConsumer { 
+    
     private HelloWorldConsumer() {
-    } 
+    }
 
     public static void main(String args[]) throws Exception {
         
