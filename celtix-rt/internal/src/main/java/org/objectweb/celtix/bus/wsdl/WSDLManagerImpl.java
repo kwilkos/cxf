@@ -21,6 +21,8 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.management.Instrumentation;
+import org.objectweb.celtix.management.InstrumentationFactory;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 /**
@@ -28,7 +30,7 @@ import org.objectweb.celtix.wsdl.WSDLManager;
  * 
  * @author dkulp
  */
-public class WSDLManagerImpl implements WSDLManager {
+public class WSDLManagerImpl implements WSDLManager, InstrumentationFactory {
 
     private static final Logger LOG = LogUtils
             .getL7dLogger(WSDLManagerImpl.class);
@@ -261,5 +263,7 @@ public class WSDLManagerImpl implements WSDLManager {
         }
     }
 
-
+    public Instrumentation createInstrumentation() {
+        return  new WSDLManagerInstrumentation(this);
+    }
 }

@@ -13,33 +13,34 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusEventListener;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.bus.busimpl.CeltixBus;
-import org.objectweb.celtix.bus.busimpl.CeltixBusInstrumentation;
+// import org.objectweb.celtix.bus.busimpl.CeltixBus;
+//import org.objectweb.celtix.bus.busimpl.CeltixBusInstrumentation;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 
 import org.objectweb.celtix.bus.instrumentation.InstrumentationPolicyType;
 import org.objectweb.celtix.bus.instrumentation.MBServerPolicyType;
-import org.objectweb.celtix.bus.jaxws.EndpointImpl;
-import org.objectweb.celtix.bus.jaxws.EndpointInstrumentation;
+// import org.objectweb.celtix.bus.jaxws.EndpointImpl;
+//import org.objectweb.celtix.bus.jaxws.EndpointInstrumentation;
 import org.objectweb.celtix.bus.management.jmx.JMXManagedComponentManager;
-import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
-import org.objectweb.celtix.bus.transports.http.HTTPClientTransportInstrumentation;
-import org.objectweb.celtix.bus.transports.http.HTTPServerTransportInstrumentation;
-import org.objectweb.celtix.bus.transports.http.JettyHTTPServerTransport;
-import org.objectweb.celtix.bus.transports.jms.JMSClientTransport;
-import org.objectweb.celtix.bus.transports.jms.JMSClientTransportInstrumentation;
-import org.objectweb.celtix.bus.transports.jms.JMSServerTransport;
-import org.objectweb.celtix.bus.transports.jms.JMSServerTransportInstrumentation;
-import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
-import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
-import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
-import org.objectweb.celtix.bus.wsdl.WSDLManagerInstrumentation;
+// import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
+// import org.objectweb.celtix.bus.transports.http.HTTPClientTransportInstrumentation;
+// import org.objectweb.celtix.bus.transports.http.HTTPServerTransportInstrumentation;
+// import org.objectweb.celtix.bus.transports.http.JettyHTTPServerTransport;
+// import org.objectweb.celtix.bus.transports.jms.JMSClientTransport;
+//import org.objectweb.celtix.bus.transports.jms.JMSClientTransportInstrumentation;
+// import org.objectweb.celtix.bus.transports.jms.JMSServerTransport;
+//import org.objectweb.celtix.bus.transports.jms.JMSServerTransportInstrumentation;
+//import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
+// import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
+// import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
+//import org.objectweb.celtix.bus.wsdl.WSDLManagerInstrumentation;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.management.Instrumentation;
+import org.objectweb.celtix.management.InstrumentationFactory;
 import org.objectweb.celtix.management.InstrumentationManager;
 
 
@@ -180,8 +181,8 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     // get the instance and create the right component
     public void processEvent(BusEvent e) throws BusException {
         Instrumentation it;
-        if (e.getID().equals(ComponentCreatedEvent.COMPONENT_CREATED_EVENT)) {            
-            it = createInstrumentation(e.getSource());
+        if (e.getID().equals(ComponentCreatedEvent.COMPONENT_CREATED_EVENT)) {
+            it = ((InstrumentationFactory)(e.getSource())).createInstrumentation();
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.info("Instrumentation register " + e.getSource().getClass().getName());
             }   
@@ -195,54 +196,6 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
         }
     }
     
-    
-    private Instrumentation createInstrumentation(Object component) {
-        Instrumentation it = null;
-        // if the componenet implements the instrumentation interface, 
-        // just return the object itself
-        
-        if (Instrumentation.class.isAssignableFrom(component.getClass())) {
-            it = (Instrumentation)component;            
-            return it;
-        }
-        
-        if (CeltixBus.class.isAssignableFrom(component.getClass())) {
-            it = new CeltixBusInstrumentation(
-                          (CeltixBus)component);            
-        }        
-        if (WSDLManagerImpl.class.isAssignableFrom(component.getClass())) {
-            it = new WSDLManagerInstrumentation(
-                          (WSDLManagerImpl)component);           
-        }
-        if (WorkQueueManagerImpl.class.isAssignableFrom(component.getClass())) {
-            it = new WorkQueueInstrumentation(
-                          (WorkQueueManagerImpl)component);            
-        }
-        if (HTTPClientTransport.class.isAssignableFrom(component.getClass())) {
-            it = new HTTPClientTransportInstrumentation(
-                          (HTTPClientTransport)component);            
-        }
-        if (JettyHTTPServerTransport.class.isAssignableFrom(component.getClass())) {
-            it = new HTTPServerTransportInstrumentation(
-                           (JettyHTTPServerTransport)component);           
-        }
-        if (JMSServerTransport.class.isAssignableFrom(component.getClass())) {
-            it = new JMSServerTransportInstrumentation(
-                           (JMSServerTransport)component);          
-        }        
-        if (JMSClientTransport.class.isAssignableFrom(component.getClass())) {
-            it = new JMSClientTransportInstrumentation(
-                           (JMSClientTransport)component);           
-        }
-        if (EndpointImpl.class.isAssignableFrom(component.getClass())) {
-            it = new EndpointInstrumentation(
-                           (EndpointImpl)component);           
-        }
-        
-        return it;
-    }
-
-   
     public List<Instrumentation> getAllInstrumentation() {
         // TODO need to add more qurey interface
         return instrumentations;

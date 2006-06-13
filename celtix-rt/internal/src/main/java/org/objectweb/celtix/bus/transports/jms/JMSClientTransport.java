@@ -30,6 +30,8 @@ import org.objectweb.celtix.configuration.Configuration;
 
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.management.Instrumentation;
+import org.objectweb.celtix.management.InstrumentationFactory;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.jms.JMSClientBehaviorPolicyType;
 import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
@@ -39,7 +41,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
 
-public class JMSClientTransport extends JMSTransportBase implements ClientTransport {
+public class JMSClientTransport extends JMSTransportBase implements ClientTransport, InstrumentationFactory {
     
     private static final Logger LOG = LogUtils.getL7dLogger(JMSClientTransport.class);
     
@@ -358,5 +360,9 @@ public class JMSClientTransport extends JMSTransportBase implements ClientTransp
             //throw new JMSException(error);
             return null;
         }
+    }
+    
+    public Instrumentation createInstrumentation() {
+        return  new JMSClientTransportInstrumentation(this);
     }
 }

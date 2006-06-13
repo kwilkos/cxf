@@ -9,7 +9,7 @@ import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedOperatio
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedOperationParameters;
 import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
 import org.objectweb.celtix.management.Instrumentation;
-
+import org.objectweb.celtix.management.InstrumentationFactory;
 
 @ManagedResource(componentName = "AnnotationTest", description = "My Managed Bean",
                  persistPolicy = "OnUpdate", currencyTimeLimit = 15 , 
@@ -18,7 +18,7 @@ import org.objectweb.celtix.management.Instrumentation;
                  persistLocation = "/local/work", persistName = "bar.jmx")
 @ManagedNotifications({@ManagedNotification(name = "My Notification",
                                             notificationTypes = {"type.foo", "type.bar" }) })
-public class AnnotationTestInstrumentation implements Instrumentation {
+public class AnnotationTestInstrumentation implements Instrumentation, InstrumentationFactory {
 
     private String name; 
 
@@ -95,4 +95,8 @@ public class AnnotationTestInstrumentation implements Instrumentation {
         return "AnnotationTestInstrumentation";
     }
 
+    public Instrumentation createInstrumentation() {
+        //        return  new AnnotationTestInstrumentation(this);
+        return this;
+    }
 }

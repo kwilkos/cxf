@@ -22,6 +22,8 @@ import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.jaxws.EndpointRegistry;
+import org.objectweb.celtix.management.Instrumentation;
+import org.objectweb.celtix.management.InstrumentationFactory;
 import org.objectweb.celtix.management.InstrumentationManager;
 import org.objectweb.celtix.plugins.PluginManager;
 import org.objectweb.celtix.resource.ResourceManager;
@@ -30,7 +32,7 @@ import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 
-public class CeltixBus extends Bus implements BusEventListener {
+public class CeltixBus extends Bus implements BusEventListener, InstrumentationFactory {
 
     public static final String CELTIX_WSDLMANAGER = "celtix.WSDLManager";
     public static final String CELTIX_TRANSPORTFACTORYMANAGER = "celtix.TRANSPORTFACTORYMANAGER";
@@ -299,5 +301,9 @@ public class CeltixBus extends Bus implements BusEventListener {
             servicesMonitoring = configuration.getBoolean("servicesMonitoring");
         }
 
+    }
+
+    public Instrumentation createInstrumentation() {
+        return new CeltixBusInstrumentation(this);
     }
 }

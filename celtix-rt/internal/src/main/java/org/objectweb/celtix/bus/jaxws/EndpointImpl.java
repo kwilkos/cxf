@@ -52,11 +52,13 @@ import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.endpoints.ContextInspector;
+import org.objectweb.celtix.management.Instrumentation;
+import org.objectweb.celtix.management.InstrumentationFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint
-    implements ServerBindingEndpointCallback {
+    implements ServerBindingEndpointCallback, InstrumentationFactory {
 
     public static final String ENDPOINT_CONFIGURATION_URI = 
         "http://celtix.objectweb.org/bus/jaxws/endpoint-config";
@@ -686,5 +688,9 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
                 ex.printStackTrace();
             }
         }
+    }
+    
+    public Instrumentation createInstrumentation() {
+        return new EndpointInstrumentation(this);
     }
 }

@@ -3,19 +3,22 @@ package org.objectweb.celtix.bus.management;
 import java.util.List;
 import junit.framework.TestCase;
 
-import org.easymock.classextension.EasyMock;
+//import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 
 import org.objectweb.celtix.bus.management.jmx.export.AnnotationTestInstrumentation;
-import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
-import org.objectweb.celtix.bus.transports.jms.JMSClientTransport;
+// import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
+// import org.objectweb.celtix.bus.transports.jms.JMSClientTransport;
+//import org.objectweb.celtix.bus.management.MockComponent;
 import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationManager;
+
+//import org.objectweb.celtix.management.MockComponentInstrumentation;
 
 
 public class InstrumentationManagerTest extends TestCase {
@@ -68,18 +71,20 @@ public class InstrumentationManagerTest extends TestCase {
         //im.getAllInstrumentation();
         WorkQueueManagerImpl wqm = new WorkQueueManagerImpl(bus);
         bus.sendEvent(new ComponentCreatedEvent(wqm));        
+
+        MockComponent mc = new MockComponent();
+        bus.sendEvent(new ComponentCreatedEvent(mc));
+//         JMSClientTransport jct = 
+//             EasyMock.createMock(JMSClientTransport.class);
+//         bus.sendEvent(new ComponentCreatedEvent(jct));
         
-        JMSClientTransport jct = 
-            EasyMock.createMock(JMSClientTransport.class);
-        bus.sendEvent(new ComponentCreatedEvent(jct));
-        
-        HTTPClientTransport hct = 
-            EasyMock.createMock(HTTPClientTransport.class);
-        bus.sendEvent(new ComponentCreatedEvent(hct));
+//         HTTPClientTransport hct = 
+//             EasyMock.createMock(HTTPClientTransport.class);
+//         bus.sendEvent(new ComponentCreatedEvent(hct));
         
         // TODO should test for the im getInstrumentation 
         List<Instrumentation> list = im.getAllInstrumentation();        
-        assertEquals("Too many instrumented items", 5, list.size());
+        assertEquals("Too many instrumented items", 4, list.size());
         // sleep for the MBServer connector thread startup 
         try {
             Thread.sleep(100);
@@ -88,8 +93,9 @@ public class InstrumentationManagerTest extends TestCase {
         }
         
         bus.sendEvent(new ComponentRemovedEvent(wqm));
-        bus.sendEvent(new ComponentRemovedEvent(jct));
-        bus.sendEvent(new ComponentRemovedEvent(hct));
+        bus.sendEvent(new ComponentRemovedEvent(mc));
+//         bus.sendEvent(new ComponentRemovedEvent(jct));
+//         bus.sendEvent(new ComponentRemovedEvent(hct));
         assertEquals("Instrumented stuff not removed from list", 2, list.size());
         bus.shutdown(true);
         assertEquals("Instrumented stuff not removed from list", 0, list.size());

@@ -5,10 +5,12 @@ import java.util.logging.Logger;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
 import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
+import org.objectweb.celtix.management.Instrumentation;
+import org.objectweb.celtix.management.InstrumentationFactory;
 import org.objectweb.celtix.workqueue.AutomaticWorkQueue;
 import org.objectweb.celtix.workqueue.WorkQueueManager;
 
-public class WorkQueueManagerImpl implements WorkQueueManager {
+public class WorkQueueManagerImpl implements WorkQueueManager, InstrumentationFactory {
 
     private static final Logger LOG =
         Logger.getLogger(WorkQueueManagerImpl.class.getName());
@@ -122,5 +124,8 @@ public class WorkQueueManagerImpl implements WorkQueueManager {
         return new AutomaticWorkQueueImpl(maxQueueSize, initialThreads, hwm, lwm, dequeueTimeout);
                
     }
-
+    
+    public Instrumentation createInstrumentation() {
+        return  new WorkQueueInstrumentation(this);
+    }
 }

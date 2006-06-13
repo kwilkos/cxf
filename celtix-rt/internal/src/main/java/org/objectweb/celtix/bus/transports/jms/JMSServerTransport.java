@@ -33,6 +33,8 @@ import org.objectweb.celtix.bus.management.counters.TransportServerCounters;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.management.Instrumentation;
+import org.objectweb.celtix.management.InstrumentationFactory;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
@@ -42,7 +44,7 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
 public class JMSServerTransport extends JMSTransportBase 
-    implements ServerTransport, BusEventListener {
+    implements ServerTransport, BusEventListener, InstrumentationFactory {
     static final Logger LOG = LogUtils.getL7dLogger(JMSServerTransport.class);
     private static final String JMS_SERVER_TRANSPORT_MESSAGE =
         JMSServerTransport.class.getName() + ".IncomingMessage";
@@ -429,5 +431,9 @@ public class JMSServerTransport extends JMSTransportBase
                 counters.stopCounters();
             }
         }
+    }
+
+    public Instrumentation createInstrumentation() {
+        return  new JMSServerTransportInstrumentation(this);
     }
 }

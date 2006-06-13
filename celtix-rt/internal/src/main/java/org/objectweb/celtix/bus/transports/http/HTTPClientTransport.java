@@ -60,6 +60,8 @@ import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.management.Instrumentation;
+import org.objectweb.celtix.management.InstrumentationFactory;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -67,7 +69,7 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
 
-public class HTTPClientTransport implements ClientTransport {
+public class HTTPClientTransport implements ClientTransport, InstrumentationFactory {
 
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPClientTransport.class);
 
@@ -786,5 +788,9 @@ public class HTTPClientTransport implements ClientTransport {
             resp.commit();
             req.setHandled(true);
         }
+    }
+    
+    public Instrumentation createInstrumentation() {
+        return new HTTPClientTransportInstrumentation(this);
     }
 }
