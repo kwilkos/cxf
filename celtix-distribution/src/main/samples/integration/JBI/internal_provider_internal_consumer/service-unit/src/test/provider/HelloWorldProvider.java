@@ -1,6 +1,10 @@
 package test.provider;
 
 import org.objectweb.hello_world.Greeter;
+import org.objectweb.hello_world.PingMeFault;
+import org.objectweb.hello_world.types.FaultDetail;
+
+
 
 @javax.jws.WebService(name = "Greeter", serviceName = "HelloWorldService", 
                       targetNamespace = "http://objectweb.org/hello_world", 
@@ -20,4 +24,13 @@ public class HelloWorldProvider implements Greeter {
     public void sayHi() {
         System.out.println("Executing operation sayHi");
     }
+
+    public void pingMe() throws PingMeFault {
+        FaultDetail faultDetail = new FaultDetail();
+        faultDetail.setMajor((short)2);
+        faultDetail.setMinor((short)1);
+        System.out.println("Executing operation pingMe, throwing PingMeFault exception\n");
+        throw new PingMeFault("PingMeFault raised by server", faultDetail);
+    }
+
 }

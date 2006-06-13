@@ -7,6 +7,7 @@ import javax.xml.namespace.QName;
 import org.objectweb.celtix.jbi.ServiceConsumer;
 import org.objectweb.hello_world.Greeter;
 import org.objectweb.hello_world.HelloWorldService;
+import org.objectweb.hello_world.PingMeFault;
 
 
 public class HelloWorldConsumer implements ServiceConsumer { 
@@ -41,6 +42,13 @@ public class HelloWorldConsumer implements ServiceConsumer {
                 System.out.println("greetMe service says: " + ret);
 
                 g.sayHi();
+                try {
+                    System.out.println("Invoking pingMe, expecting exception...");
+                    g.pingMe();
+                } catch (PingMeFault ex) {
+                    System.out.println("Expected exception: PingMeFault has occurred: " + ex.getMessage());
+                }
+
                 Thread.sleep(10000);
             } while (running);
         } catch (Exception ex) { 
@@ -53,7 +61,6 @@ public class HelloWorldConsumer implements ServiceConsumer {
 
         final QName serviceName = 
             new QName("http://objectweb.org/hello_world", "HelloWorldService");
-
         boolean ready = false;
         do { 
             ServiceEndpoint[] eps = ctx.getEndpointsForService(serviceName); 
@@ -61,8 +68,8 @@ public class HelloWorldConsumer implements ServiceConsumer {
                 System.out.println("waiting for endpoints to become active");
                 try { 
                     Thread.sleep(5000); 
-                } catch (Exception ex) {
-                    //ignore
+                } catch (Exception ex) { 
+                    //ignore it
                 }
             } else {
                 System.out.println("endpoints ready, pump starting");

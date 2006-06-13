@@ -27,6 +27,23 @@
                     </sequence>
                 </complexType>
             </element>
+	
+	    <element name="pingMe">
+                <complexType/>
+            </element>
+            <element name="pingMeResponse">
+                <complexType/>
+            </element>
+            <element name="faultDetail">
+                <complexType>
+                    <sequence>
+                        <element name="minor" type="short"/>
+                        <element name="major" type="short"/>
+                    </sequence>
+                </complexType>
+            </element>
+
+
         </schema>
     </wsdl:types>
 
@@ -42,7 +59,18 @@
     <wsdl:message name="greetMeResponse">
         <wsdl:part element="x1:greetMeResponse" name="out"/>
     </wsdl:message>
+
+    <wsdl:message name="pingMeRequest">
+        <wsdl:part name="in" element="x1:pingMe"/>
+    </wsdl:message>
+    <wsdl:message name="pingMeResponse">
+        <wsdl:part name="out" element="x1:pingMeResponse"/>
+    </wsdl:message>
+    <wsdl:message name="pingMeFault">
+        <wsdl:part name="faultDetail" element="x1:faultDetail"/>
+    </wsdl:message>
     
+
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
             <wsdl:input message="tns:sayHiRequest" name="sayHiRequest"/>
@@ -51,6 +79,12 @@
         <wsdl:operation name="greetMe">
             <wsdl:input message="tns:greetMeRequest" name="greetMeRequest"/>
             <wsdl:output message="tns:greetMeResponse" name="greetMeResponse"/>
+        </wsdl:operation>
+
+	<wsdl:operation name="pingMe">
+            <wsdl:input name="pingMeRequest" message="tns:pingMeRequest"/>
+            <wsdl:output name="pingMeResponse" message="tns:pingMeResponse"/>
+            <wsdl:fault name="pingMeFault" message="tns:pingMeFault"/>
         </wsdl:operation>
         
     </wsdl:portType>
@@ -76,6 +110,20 @@
             </wsdl:output>
         </wsdl:operation>
         
+        <wsdl:operation name="pingMe">
+            <soap:operation style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="pingMeFault">
+                <soap:fault name="pingMeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+
     </wsdl:binding>
 
     <wsdl:service name="HelloWorldService">
