@@ -316,12 +316,12 @@
                     <buildcommands>
                         <java.lang.String>org.eclipse.jdt.core.javabuilder</java.lang.String>
                         <java.lang.String>com.atlassw.tools.eclipse.checkstyle.CheckstyleBuilder</java.lang.String>
-                        <java.lang.String>net.sourceforge.pmd.eclipse.pmdBuilder</java.lang.String>
+                        <java.lang.String>net.sourceforge.pmd.runtime.pmdBuilder</java.lang.String>
                     </buildcommands>
                     <projectnatures>
                         <nature>org.eclipse.jdt.core.javanature</nature>
                         <nature>com.atlassw.tools.eclipse.checkstyle.CheckstyleNature</nature>
-                        <nature>net.sourceforge.pmd.eclipse.pmdNature</nature>
+                        <nature>net.sourceforge.pmd.runtime.pmdNature</nature>
                     </projectnatures>
                 </configuration>
             </plugin>
