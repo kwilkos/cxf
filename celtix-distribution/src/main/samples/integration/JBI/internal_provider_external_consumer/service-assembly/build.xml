@@ -1,0 +1,30 @@
+<project name="jbi-demo-service-engine" default="build">
+
+  <property name="build.dir" location="./build"/>
+  <property name="build.lib.dir" location="${build.dir}/lib"/>
+  <property name="src.dir" location="./src"/>
+
+  <property file="../build.properties"/>
+  
+  <target name="build" depends="build-service-assembly"/>
+
+
+  <target name="build-service-assembly">
+    <mkdir dir="${build.lib.dir}"/>
+    <jar destfile="${build.lib.dir}/celtix-service-assembly.zip">
+      <fileset dir="../service-unit/build/lib">
+	<include name="celtix-service-provider.jar"/>
+	<include name="binding-su.zip"/>
+      </fileset>
+      <metainf dir="./etc">
+	<include name="jbi.xml"/>
+      </metainf>
+    </jar>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+  </target>
+
+</project>
+

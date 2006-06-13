@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<jbi xmlns="http://java.sun.com/xml/ns/jbi" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0" xsi:schemaLocation="http://java.sun.com/xml/ns/jbi ./jbi.xsd">
+  <service-assembly> 
+    <identification> 
+      <name>celtix-demo-service-assembly</name> 
+      <description>Service Assembly for JBI Demo Component</description> 
+    </identification> 
+    <service-unit> 
+      <identification> 
+        <name>JBIDemoSE_AProvider</name> 
+        <description>Service Engine Service Provider Sub-Assembly for JBI Demo</description> 
+      </identification> 
+      <target> 
+        <artifacts-zip>celtix-service-provider.jar</artifacts-zip> 
+        <component-name>CeltixServiceEngine</component-name> 
+      </target> 
+    </service-unit> 
+    <service-unit>
+       <identification>
+         <name>binding-su</name>
+         <description>Contains the binding</description>
+       </identification>
+       <target>
+         <artifacts-zip>binding-su.zip</artifacts-zip>
+         <component-name>servicemix-http</component-name>
+       </target>
+     </service-unit>
+
+  </service-assembly> 
+</jbi>
