@@ -159,15 +159,21 @@ public class CeltixServiceUnit {
         
         Document doc = null;
         try { 
-            WebService ws = serviceImplementation.getClass().getAnnotation(WebService.class);
+            WebService ws = null;
+            WebServiceClassFinder finder = new WebServiceClassFinder(rootPath, parentLoader);
+            Collection<Class<?>> classes = finder.findWebServiceInterface(); 
+            if (classes.size() > 0) {
+                Class<?> clz = classes.iterator().next();
+                ws = clz.getAnnotation(WebService.class);
+            }
             if (ws != null) { 
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 factory.setNamespaceAware(true);
                 DocumentBuilder builder = factory.newDocumentBuilder();
                 doc = builder.parse(ws.wsdlLocation());
+                
             } else { 
-                LOG.severe(new Message("SU.COULDNOT.GET.ANNOTATION", LOG).toString() 
-                           + serviceImplementation);
+                LOG.severe(new Message("SU.COULDNOT.GET.ANNOTATION", LOG).toString());
             }
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -49,6 +49,16 @@ public class WebServiceClassFinder {
             }
         });
     }
+    
+    public Collection<Class<?>> findWebServiceInterface() throws MalformedURLException {
+
+        return find(new Matcher() {
+            public boolean accept(Class<?> clz) {
+                return clz.getAnnotation(WebService.class) != null
+                       && (clz.getModifiers() & Modifier.INTERFACE) == Modifier.INTERFACE;
+            }
+        });
+    }
 
     private Collection<Class<?>> find(Matcher matcher) throws MalformedURLException {
         List<Class<?>> classes = new ArrayList<Class<?>>();
