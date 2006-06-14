@@ -52,12 +52,12 @@ And then you can see logs from the shell which you start servicemix, including
 ServiceEngine install log, Service Assembly deploy log, celtix service
 consumer and provider communication log.
 
-Install the Celtix Service Engine:
+Install and start the Celtix Service Engine:
 
  > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml  install-component -Dsm.install.file=./service-engine/build/lib/celtix-service-engine.jar
  > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml  start-component -Dsm.component.name=CeltixServiceEngine
 
-Deploy the Celtix demo service assembly
+Deploy and start the Celtix demo service assembly
 
  > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml  deploy-service-assembly -Dsm.deploy.file=./service-assembly/build/lib/celtix-service-assembly.zip 
  > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml  start-service-assembly -Dsm.service.assembly.name=celtix-demo-service-assembly
