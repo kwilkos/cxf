@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cxf-rt-ws-addr</artifactId>
     <packaging>jar</packaging>
-    <name>Celtix WS Addressing</name>
+    <name>CeltiXfire WS Addressing</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
