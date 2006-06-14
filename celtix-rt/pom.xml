@@ -21,6 +21,7 @@
     <modules>
         <module>internal</module>
         <module>bindings</module>
+        <module>transports/jms</module>
         <module>ws</module>
     </modules>
 </project>
