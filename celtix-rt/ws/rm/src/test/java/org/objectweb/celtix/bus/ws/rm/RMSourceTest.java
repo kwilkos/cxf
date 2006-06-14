@@ -72,9 +72,12 @@ public class RMSourceTest extends TestCase {
         assertNull(s.getCurrent(sid));
     }
 
-    /*
+
 
     public void testAwaitCurrentRequestor() throws Exception {
+        if (System.getProperty("java.vendor").indexOf("IBM") > -1) {
+            return;
+        }
         Identifier sid = s.generateSequenceIdentifier();
         SequenceAccessor accessor1 = new SequenceAccessor(null);
         Thread t1 = new Thread(accessor1);
@@ -113,6 +116,9 @@ public class RMSourceTest extends TestCase {
     }
 
     public void testAwaitCurrentResponder() throws Exception {
+        if (System.getProperty("java.vendor").indexOf("IBM") > -1) {
+            return;
+        }
         Identifier sid = s.generateSequenceIdentifier();
         SequenceAccessor accessor1 = new SequenceAccessor(sid);
         Thread t1 = new Thread(accessor1);
@@ -150,7 +156,7 @@ public class RMSourceTest extends TestCase {
                    s.getCurrent(sid));
     }
 
-    */
+
 
     public void testSetAcknowledgedUnknownSequence() {
         Identifier sid = s.generateSequenceIdentifier();
