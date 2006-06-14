@@ -20,6 +20,7 @@
 
     <modules>
         <module>internal</module>
+        <module>bindings</module>
         <module>ws</module>
     </modules>
 </project>

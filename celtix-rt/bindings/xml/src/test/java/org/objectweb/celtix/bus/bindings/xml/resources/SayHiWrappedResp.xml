@@ -1,0 +1,1 @@
+<?xml version='1.0' encoding='utf-8'?><m1:sayHiResponse xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:m1="http://objectweb.org/xml_http_wrapped" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><response>Hello from Celtix</response></m1:sayHiResponse>
