@@ -36,13 +36,13 @@
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
-            <artifactId>addr</artifactId>
+            <artifactId>cxf-rt-ws-addr</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
-            <artifactId>rm</artifactId>
+            <artifactId>cxf-rt-ws-rm</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
