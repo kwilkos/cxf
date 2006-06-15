@@ -254,7 +254,7 @@ public class RMSourceTest extends TestCase {
         control.verify();
     }
 
-     private void yield() throws Exception {
+    private void yield() throws Exception {
         Thread.sleep(250);
     }
 
@@ -274,7 +274,5 @@ public class RMSourceTest extends TestCase {
             return sequence;
         }
     }
-
-
 
 }
