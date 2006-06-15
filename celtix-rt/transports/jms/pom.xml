@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.objectweb.celtix</groupId>
-    <artifactId>cxf-rt-transport-jms</artifactId>
+    <artifactId>cxf-rt-transports-jms</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
     <name>CeltiXfire Runtime JMS Transport</name>
