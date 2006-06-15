@@ -33,11 +33,6 @@
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
-            <artifactId>cxf-tools-internal</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.objectweb.celtix</groupId>
             <artifactId>celtix-api</artifactId>
             <version>${project.version}</version>
         </dependency>
