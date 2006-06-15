@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+           targetNamespace="http://schemas.iona.com/bindings/xmlformat"
+           xmlns:xformat="http://schemas.iona.com/bindings/xmlformat"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+  <xs:import namespace = "http://schemas.xmlsoap.org/wsdl/"/>
+
+  <xs:element name="binding" type="xformat:tBinding" />
+  <xs:complexType name="tBinding" >
+    <xs:complexContent>
+      <xs:extension base="wsdl:tExtensibilityElement" >
+        <xs:attribute name="rootNode" type="xs:QName" use="optional" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="body" type="xformat:tBody" />
+  <xs:complexType name="tBody" >
+    <xs:complexContent>
+      <xs:extension base="wsdl:tExtensibilityElement" >
+        <xs:attribute name="rootNode" type="xs:QName" use="optional" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+</xs:schema>
