@@ -56,7 +56,7 @@
 
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
-            <artifactId>celtix-tools</artifactId>
+            <artifactId>cxf-tools-internal</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
