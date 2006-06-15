@@ -54,6 +54,11 @@
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
+            <artifactId>cxf-transports-jms</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
             <artifactId>celtix-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

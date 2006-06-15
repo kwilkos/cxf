@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.objectweb.celtix</groupId>
-    <artifactId>celtix-rt-test</artifactId>
+    <artifactId>cxf-rt-test</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
     <name>Celtix Runtime test to be fixed</name>
@@ -64,21 +64,7 @@
 
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
-            <artifactId>cxf-rt-bindings-soap</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.objectweb.celtix</groupId>
-            <artifactId>cxf-rt-bindings-xml</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.objectweb.celtix.rt</groupId>
-            <artifactId>cxf-transport-jms</artifactId>
+            <artifactId>cxf-transports-jms</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

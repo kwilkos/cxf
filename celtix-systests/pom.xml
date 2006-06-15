@@ -36,6 +36,11 @@
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
+            <artifactId>cxf-transports-jms</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
             <artifactId>cxf-rt-ws-addr</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
