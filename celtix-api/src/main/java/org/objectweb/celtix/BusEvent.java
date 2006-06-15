@@ -11,7 +11,9 @@ public class BusEvent extends EventObject {
      * Constant used for generic Bus Event ID.
      */
     public static final String BUS_EVENT = "org.objectweb.celtix.bus.event";
-
+    public static final String COMPONENT_CREATED_EVENT = "COMPONENT_CREATED_EVENT";
+    public static final String COMPONENT_REMOVED_EVENT = "COMPONENT_REMOVED_EVENT";
+    
     private String eventId;
 
     /**

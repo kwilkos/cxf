@@ -105,7 +105,7 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
 
         lifeCycleManager.initComplete();
         //send bus component created event
-        this.sendEvent(new ComponentCreatedEvent(this));
+        this.sendEvent(new BusEvent(this, BusEvent.COMPONENT_CREATED_EVENT));
     }
 
     /**
@@ -141,7 +141,7 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
         transportFactoryManager.shutdown();
         bindingManager.shutdown();
         wsdlManager.shutdown();
-        this.sendEvent(new ComponentRemovedEvent(this));
+        this.sendEvent(new BusEvent(this, BusEvent.COMPONENT_REMOVED_EVENT));
         // handlerRegistry.shutdown(wait);
         // clientRegistry.shutdown(wait);
         // bindingManager.shutdown(wait);

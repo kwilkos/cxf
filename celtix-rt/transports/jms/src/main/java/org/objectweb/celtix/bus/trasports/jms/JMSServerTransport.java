@@ -26,8 +26,6 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusEventListener;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
-import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.ConfigurationEvent;
 import org.objectweb.celtix.bus.management.counters.TransportServerCounters;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -69,7 +67,7 @@ public class JMSServerTransport extends JMSTransportBase
             counters.resetCounters();
         }
         LOG.log(Level.FINE, "JMSServerTransport Constructor");
-        bus.sendEvent(new ComponentCreatedEvent(this));
+        bus.sendEvent(new BusEvent(this, BusEvent.COMPONENT_CREATED_EVENT));
     }
     
     private JMSServerBehaviorPolicyType getServerPolicy(Configuration conf) {
@@ -157,7 +155,7 @@ public class JMSServerTransport extends JMSTransportBase
         } catch (IOException ex) {
             // Ignore for now.
         }
-        bus.sendEvent(new ComponentRemovedEvent(this)); 
+        bus.sendEvent(new BusEvent(this, BusEvent.COMPONENT_REMOVED_EVENT)); 
     }
 
     public void postDispatch(MessageContext bindingContext, OutputStreamMessageContext context)

@@ -19,6 +19,7 @@
     </properties>
 
     <modules>
+        <module>management</module>
         <module>internal</module>
 	<!--<module>rt-test</module>-->
         <module>datamodel</module>

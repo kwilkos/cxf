@@ -3,8 +3,7 @@ package org.objectweb.celtix.bus.workqueue;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
-import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
+import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationFactory;
 import org.objectweb.celtix.workqueue.AutomaticWorkQueue;
@@ -32,7 +31,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager, InstrumentationFa
     public synchronized AutomaticWorkQueue getAutomaticWorkQueue() {
         if (autoQueue == null) {
             autoQueue = createAutomaticWorkQueue();
-            bus.sendEvent(new ComponentCreatedEvent(this));
+            bus.sendEvent(new BusEvent(this, BusEvent.COMPONENT_CREATED_EVENT));
         }
         return autoQueue;
     }
@@ -69,7 +68,7 @@ public class WorkQueueManagerImpl implements WorkQueueManager, InstrumentationFa
 
         //sent out remove event.
         
-        bus.sendEvent(new ComponentRemovedEvent(this));
+        bus.sendEvent(new BusEvent(this, BusEvent.COMPONENT_REMOVED_EVENT));
        
         synchronized (this) {
             notifyAll();

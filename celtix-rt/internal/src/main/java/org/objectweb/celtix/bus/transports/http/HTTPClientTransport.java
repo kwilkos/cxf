@@ -39,11 +39,10 @@ import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.ResponseCallback;
-import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
-import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
 import org.objectweb.celtix.bus.configuration.security.SSLClientPolicy;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlHttpConfigurationProvider;
@@ -122,7 +121,7 @@ public class HTTPClientTransport implements ClientTransport, InstrumentationFact
         authPolicy = getAuthPolicy("authorization", configuration);
         proxyAuthPolicy = getAuthPolicy("proxyAuthorization", configuration);
         sslClientPolicy = getSSLClientPolicy(configuration);
-        bus.sendEvent(new ComponentCreatedEvent(this));
+        bus.sendEvent(new BusEvent(this, BusEvent.COMPONENT_CREATED_EVENT));
 
     }
 
@@ -247,7 +246,7 @@ public class HTTPClientTransport implements ClientTransport, InstrumentationFact
             }
         }
 
-        bus.sendEvent(new ComponentRemovedEvent(this));
+        bus.sendEvent(new BusEvent(this, BusEvent.COMPONENT_REMOVED_EVENT));
     }
 
     protected InputStreamMessageContext getResponseContext(

@@ -26,10 +26,9 @@ import junit.framework.TestSuite;
 
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.ClientBinding;
-import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
-import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.ConfigurationEventFilter;
 import org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl;
 import org.objectweb.celtix.bus.transports.TestResponseCallback;
@@ -428,14 +427,16 @@ public class HTTPTransportTest extends TestCase {
     
     private void checkBusCreatedEvent() {
         
-        bus.sendEvent(EasyMock.isA(ComponentCreatedEvent.class));
+        //        bus.sendEvent(EasyMock.isA(ComponentCreatedEvent.class));
+        bus.sendEvent(EasyMock.isA(BusEvent.class));
 
         EasyMock.expectLastCall();
     }
 
     private void checkBusRemovedEvent() { 
 
-        bus.sendEvent(EasyMock.isA(ComponentRemovedEvent.class));
+        //        bus.sendEvent(EasyMock.isA(ComponentRemovedEvent.class));
+        bus.sendEvent(EasyMock.isA(BusEvent.class));
 
         EasyMock.expectLastCall();
     }

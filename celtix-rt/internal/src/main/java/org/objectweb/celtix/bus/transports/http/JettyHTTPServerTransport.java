@@ -27,8 +27,6 @@ import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusEventListener;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingContextUtils;
-import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
-import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.bus.configuration.ConfigurationEvent;
 import org.objectweb.celtix.bus.configuration.ConfigurationEventFilter;
 import org.objectweb.celtix.bus.management.counters.TransportServerCounters;
@@ -63,7 +61,7 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport
             LOG.log(Level.SEVERE, "REMOVE_LISTENER_FAILURE_MSG", ex);            
         }
         
-        bus.sendEvent(new ComponentCreatedEvent(this));
+        bus.sendEvent(new BusEvent(this, BusEvent.COMPONENT_CREATED_EVENT));
     }
     
     public void shutdown() {  
@@ -72,7 +70,7 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport
         } catch (BusException ex) {            
             LOG.log(Level.SEVERE, "REMOVE_LISTENER_FAILURE_MSG", ex);            
         }
-        bus.sendEvent(new ComponentRemovedEvent(this)); 
+        bus.sendEvent(new BusEvent(this, BusEvent.COMPONENT_REMOVED_EVENT)); 
     }
     
     

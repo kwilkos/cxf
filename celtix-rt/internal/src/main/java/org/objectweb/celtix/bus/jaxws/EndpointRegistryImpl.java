@@ -8,8 +8,7 @@ import java.util.logging.Logger;
 import javax.xml.ws.Endpoint;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
-import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
+import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.jaxws.EndpointRegistry;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -35,7 +34,7 @@ public class EndpointRegistryImpl implements EndpointRegistry {
         } else {
             endpoints.put(epr, epl);
             if (bus != null) {               
-                bus.sendEvent(new ComponentCreatedEvent(epl));
+                bus.sendEvent(new BusEvent(epl, BusEvent.COMPONENT_CREATED_EVENT));
             }
         }
     }
@@ -55,7 +54,7 @@ public class EndpointRegistryImpl implements EndpointRegistry {
         for (Endpoint ep : endpoints.values()) {
             if (ep.isPublished()) {
                 ep.stop();
-                bus.sendEvent(new ComponentRemovedEvent((EndpointImpl)ep));
+                bus.sendEvent(new BusEvent((EndpointImpl)ep, BusEvent.COMPONENT_REMOVED_EVENT));
             }
         }
         endpoints.clear();

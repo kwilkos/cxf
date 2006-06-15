@@ -13,28 +13,9 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusEventListener;
 import org.objectweb.celtix.BusException;
-// import org.objectweb.celtix.bus.busimpl.CeltixBus;
-//import org.objectweb.celtix.bus.busimpl.CeltixBusInstrumentation;
-import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
-import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
-
 import org.objectweb.celtix.bus.instrumentation.InstrumentationPolicyType;
 import org.objectweb.celtix.bus.instrumentation.MBServerPolicyType;
-// import org.objectweb.celtix.bus.jaxws.EndpointImpl;
-//import org.objectweb.celtix.bus.jaxws.EndpointInstrumentation;
 import org.objectweb.celtix.bus.management.jmx.JMXManagedComponentManager;
-// import org.objectweb.celtix.bus.transports.http.HTTPClientTransport;
-// import org.objectweb.celtix.bus.transports.http.HTTPClientTransportInstrumentation;
-// import org.objectweb.celtix.bus.transports.http.HTTPServerTransportInstrumentation;
-// import org.objectweb.celtix.bus.transports.http.JettyHTTPServerTransport;
-// import org.objectweb.celtix.bus.transports.jms.JMSClientTransport;
-//import org.objectweb.celtix.bus.transports.jms.JMSClientTransportInstrumentation;
-// import org.objectweb.celtix.bus.transports.jms.JMSServerTransport;
-//import org.objectweb.celtix.bus.transports.jms.JMSServerTransportInstrumentation;
-//import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
-// import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
-// import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
-//import org.objectweb.celtix.bus.wsdl.WSDLManagerInstrumentation;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
@@ -181,14 +162,14 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     // get the instance and create the right component
     public void processEvent(BusEvent e) throws BusException {
         Instrumentation it;
-        if (e.getID().equals(ComponentCreatedEvent.COMPONENT_CREATED_EVENT)) {
+        if (e.getID().equals(BusEvent.COMPONENT_CREATED_EVENT)) {
             it = ((InstrumentationFactory)(e.getSource())).createInstrumentation();
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.info("Instrumentation register " + e.getSource().getClass().getName());
             }   
             register(it);          
             
-        } else if (e.getID().equals(ComponentRemovedEvent.COMPONENT_REMOVED_EVENT)) {           
+        } else if (e.getID().equals(BusEvent.COMPONENT_REMOVED_EVENT)) {           
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.info("Instrumentation unregister " + e.getSource().getClass().getName());
             }    

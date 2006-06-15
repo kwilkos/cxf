@@ -17,9 +17,8 @@ import javax.wsdl.xml.WSDLReader;
 import org.w3c.dom.Element;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.bus.busimpl.ComponentCreatedEvent;
-import org.objectweb.celtix.bus.busimpl.ComponentRemovedEvent;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationFactory;
@@ -54,7 +53,7 @@ public class WSDLManagerImpl implements WSDLManager, InstrumentationFactory {
         definitionsMap = new WeakHashMap<Object, Definition>();
         // null check for the unit test
         if (bus != null) {
-            bus.sendEvent(new ComponentCreatedEvent(this));
+            bus.sendEvent(new BusEvent(this, BusEvent.COMPONENT_CREATED_EVENT));
         }
     }
 
@@ -259,7 +258,7 @@ public class WSDLManagerImpl implements WSDLManager, InstrumentationFactory {
 
     public void shutdown() {
         if (bus != null) {
-            bus.sendEvent(new ComponentRemovedEvent(this));
+            bus.sendEvent(new BusEvent(this, BusEvent.COMPONENT_REMOVED_EVENT));
         }
     }
 
