@@ -25,6 +25,8 @@
         <module>datamodel</module>
         <module>bindings</module>
         <module>transports/jms</module>
+        <module>transports/http</module>
+        <module>transports/servlet</module>
         <module>ws</module>
     </modules>
 </project>

@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.objectweb.celtix</groupId>
-    <artifactId>cxf-rt-transport-jms</artifactId>
+    <artifactId>cxf-rt-transport-servlet</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
-    <name>CeltiXfire Runtime JMS Transport</name>
+    <name>CeltiXfire Runtime servlet server transport</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
@@ -32,8 +32,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>1.5.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.objectweb.celtix</groupId>
-            <artifactId>cxf-tools-internal</artifactId>
+            <artifactId>celtix-tools</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -52,6 +58,12 @@
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
             <artifactId>internal</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
+            <artifactId>cxf-rt-transport-http</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -167,7 +179,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>jetty</groupId>
+            <artifactId>org.mortbay.jetty</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
 
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
+        </dependency>
     </dependencies>
 
 </project>
