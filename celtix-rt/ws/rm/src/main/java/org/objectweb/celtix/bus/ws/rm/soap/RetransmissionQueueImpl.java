@@ -212,8 +212,9 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
                     LOG.log(Level.INFO, "RESEND_MSG", st.getMessageNumber());
                 }
                 try {
-                    refreshMAPs(context);
-                    refreshRMProperties(context, requestAcknowledge);
+                    SOAPMessage msg = (SOAPMessage)context.get(SOAP_MSG_KEY);
+                    RMSoapHandler.encode(msg,
+                                         refreshRMProperties(context, requestAcknowledge));
                     if (ContextUtils.isRequestor(context)) {
                         clientResend(context);
                     } else {
@@ -227,28 +228,16 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     };
 
     /**
-     * Refresh the MAPs with a new message ID (to avoid the resend being
-     * rejected by the receiver-side WS-Addressing layer as a duplicate).
-     * 
-     * @param context the message context
-     */
-    private void refreshMAPs(MessageContext context) {
-        AddressingProperties maps = ContextUtils.retrieveMAPs(context, false, true);
-        String uuid = ContextUtils.generateUUID();
-        maps.setMessageID(ContextUtils.getAttributedURI(uuid));
-    }
-
-    /**
      * Refresh the RM Properties with an AckRequested if necessary. Currently
      * the first resend for each sequence on each initiator iteration includes
      * an AckRequested. The idea is that a timely ACK may cause some of of the
      * resend to be avoided.
      * 
      * @param context the message context
-     * @param requestAcknowledge true if an AckRequested header should be
-     *            included
-     */
-    private void refreshRMProperties(MessageContext context, boolean requestAcknowledge) {
+     * @param requestAcknowledge true if an AckRequested header should be included
+     * @return the refreshed RM Properties
+      */
+    private RMProperties refreshRMProperties(MessageContext context, boolean requestAcknowledge) {
         RMProperties properties = RMContextUtils.retrieveRMProperties(context, true);
         List<AckRequestedType> requests = null;
         if (requestAcknowledge) {
@@ -258,6 +247,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             requests.get(0).setIdentifier(id);
         }
         properties.setAcksRequested(requests);
+        return properties;
     }
 
     /**

@@ -4,8 +4,15 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.soap.Name;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPHeaderElement;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.soap.SOAPPart;
 import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
@@ -18,6 +25,7 @@ import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerDataBindingCallback;
 import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
+import org.objectweb.celtix.bus.ws.rm.Names;
 import org.objectweb.celtix.bus.ws.rm.SourceSequence;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -37,7 +45,6 @@ import org.objectweb.celtix.ws.rm.persistence.RMStore;
 import static org.objectweb.celtix.bindings.JAXWSConstants.DATABINDING_CALLBACK_PROPERTY;
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
-import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
 import static org.objectweb.celtix.ws.rm.JAXWSRMConstants.RM_PROPERTIES_OUTBOUND;
 
 
@@ -460,13 +467,13 @@ public class RetransmissionQueueTest extends TestCase {
         RetransmissionQueueImpl.ResendCandidate candidate1 =
             queue.cacheUnacknowledged(context1);
         RetransmissionQueueImpl.ResendCandidate[] allCandidates = {candidate1};
-
+    
         // initial run => none due
         runInitiator();
-
+    
         // single candidate due
         runInitiator(allCandidates);
-        setUpDefaultResender(0, isRequestor);
+        setUpDefaultResender(0, isRequestor, context1);
         allCandidates[0].run();
     }
 
@@ -498,12 +505,59 @@ public class RetransmissionQueueTest extends TestCase {
         EasyMock.expectLastCall().andReturn(maps);
     }
     
+    private void setupContextMessage(ObjectMessageContext context) throws Exception {
+        SOAPMessage message = createMock(SOAPMessage.class);
+        context.get("org.objectweb.celtix.bindings.soap.message");
+        EasyMock.expectLastCall().andReturn(message);
+        SOAPPart part = createMock(SOAPPart.class);
+        message.getSOAPPart();
+        EasyMock.expectLastCall().andReturn(part);
+        SOAPEnvelope env = createMock(SOAPEnvelope.class);
+        part.getEnvelope();
+        EasyMock.expectLastCall().andReturn(env);
+        SOAPHeader header = createMock(SOAPHeader.class);
+        env.getHeader();
+        EasyMock.expectLastCall().andReturn(header).times(2);
+        Iterator headerElements = createMock(Iterator.class);
+        header.examineAllHeaderElements();
+        EasyMock.expectLastCall().andReturn(headerElements);
+        
+        // RM header element
+        headerElements.hasNext();
+        EasyMock.expectLastCall().andReturn(true);
+        SOAPHeaderElement headerElement = createMock(SOAPHeaderElement.class);
+        headerElements.next();
+        EasyMock.expectLastCall().andReturn(headerElement);
+        Name headerName = createMock(Name.class);
+        headerElement.getElementName();
+        EasyMock.expectLastCall().andReturn(headerName);
+        headerName.getURI();
+        EasyMock.expectLastCall().andReturn(Names.WSRM_NAMESPACE_NAME);
+        headerElement.detachNode();
+        EasyMock.expectLastCall();
+        
+        // non-RM header element
+        headerElements.hasNext();
+        EasyMock.expectLastCall().andReturn(true);
+        headerElements.next();
+        EasyMock.expectLastCall().andReturn(headerElement);
+        headerElement.getElementName();
+        EasyMock.expectLastCall().andReturn(headerName);
+        headerName.getURI();
+        EasyMock.expectLastCall().andReturn(Names.WSA_NAMESPACE_NAME);
+
+        headerElements.hasNext();
+        EasyMock.expectLastCall().andReturn(false);
+    }
+
     private void ready() {
         control.replay();
         queue.start(workQueue);
     }
     
-    private void setUpDefaultResender(int i, boolean isRequestor) 
+    private void setUpDefaultResender(int i,
+                                      boolean isRequestor,
+                                      ObjectMessageContext context) 
         throws Exception {
         assertTrue("too few contexts", i < contexts.size());
         assertTrue("too few properties", i < properties.size());
@@ -515,12 +569,11 @@ public class RetransmissionQueueTest extends TestCase {
         EasyMock.expectLastCall().andReturn(properties.get(i)).times(2);
         properties.get(i).getSequence();
         EasyMock.expectLastCall().andReturn(sequences.get(i)).times(2);
-        AddressingPropertiesImpl maps =
-            createMock(AddressingPropertiesImpl.class);
+        
+        setupContextMessage(context);
+        
         contexts.get(i).get(REQUESTOR_ROLE_PROPERTY);
-        EasyMock.expectLastCall().andReturn(Boolean.valueOf(isRequestor)).times(2);
-        contexts.get(i).get(SERVER_ADDRESSING_PROPERTIES_OUTBOUND);
-        EasyMock.expectLastCall().andReturn(maps);
+        EasyMock.expectLastCall().andReturn(Boolean.valueOf(isRequestor));
         sequences.get(i).getIdentifier();
         EasyMock.expectLastCall().andReturn(identifiers.get(i));
         Transport transport = isRequestor

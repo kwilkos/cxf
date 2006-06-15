@@ -51,10 +51,11 @@ import org.objectweb.celtix.ws.rm.SequenceType;
  */
 public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
 
+    protected static JAXBContext jaxbContext;
+
     private static final Logger LOG = LogUtils.getL7dLogger(RMSoapHandler.class);
     private static final String WS_RM_PACKAGE = 
         SequenceType.class.getPackage().getName();
-    protected JAXBContext jaxbContext;
 
     /**
      * Constructor.
@@ -125,6 +126,17 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
             return;
         }
         SOAPMessage message = context.getMessage();
+        encode(message, rmps);
+    }
+
+    /**
+     * Encode the current RM properties  in protocol-specific headers.
+     *
+     * @param message the SOAP message.
+     * @param rmps the current RM properties.
+     */
+
+    public static void encode(SOAPMessage message, RMProperties rmps) {
         try {
             SOAPEnvelope env = message.getSOAPPart().getEnvelope();
             SOAPHeader header = env.getHeader() != null 
@@ -250,7 +262,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
     /**
      * @return a JAXBContext
      */
-    private synchronized JAXBContext getJAXBContext() throws JAXBException {
+    private static synchronized JAXBContext getJAXBContext() throws JAXBException {
         if (jaxbContext == null) {
             jaxbContext = JAXBContext.newInstance(WS_RM_PACKAGE);
         }
@@ -266,11 +278,12 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
      * @param header the SOAP header
      * @param marshaller the JAXB marshaller to use
      */
-    private <T> void encodeProperty(T value, 
-                                    QName qname, 
-                                    Class<T> clz, 
-                                    SOAPHeader header,
-                                    Marshaller marshaller) throws JAXBException {        
+    private static <T> void encodeProperty(T value, 
+                                           QName qname, 
+                                           Class<T> clz, 
+                                           SOAPHeader header,
+                                           Marshaller marshaller)
+        throws JAXBException {
         if (value != null) {
             LOG.log(Level.INFO, "encoding " + value + " into RM header {0}", qname);
             marshaller.marshal(new JAXBElement<T>(qname, clz, value), header);
@@ -285,9 +298,10 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
      * @param marshaller the JAXB marshaller to use
      * @return the decoded EndpointReference
      */
-    public <T> T decodeProperty(Class<T> clz,
-                            SOAPHeaderElement headerElement,
-                            Unmarshaller unmarshaller) throws JAXBException {
+    public static <T> T decodeProperty(Class<T> clz,
+                                       SOAPHeaderElement headerElement,
+                                       Unmarshaller unmarshaller)
+        throws JAXBException {
         if (null == unmarshaller) {
             unmarshaller = getJAXBContext().createUnmarshaller();
         }
@@ -303,7 +317,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
      *
      * @param header the SOAP header
      */
-    private void discardRMHeaders(SOAPHeader header) throws SOAPException {
+    private static void discardRMHeaders(SOAPHeader header) throws SOAPException {
         Iterator headerElements = header.examineAllHeaderElements();
         while (headerElements.hasNext()) {
             SOAPHeaderElement headerElement =
@@ -313,6 +327,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
                 headerElement.detachNode();
             }
             
+            // REVISIT should detach wsa:Action on resend
             if (org.objectweb.celtix.bus.ws.addressing.Names.WSA_NAMESPACE_NAME
                 .equals(headerName.getURI())
                 && org.objectweb.celtix.bus.ws.addressing.Names.WSA_ACTION_NAME

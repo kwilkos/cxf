@@ -326,7 +326,7 @@ public class MessageFlow extends Assert {
             String localName = headerName.getLocalName();
             if (headerName.getURI().equals(Names.WSRM_NAMESPACE_NAME)
                 && localName.equals(Names.WSRM_SEQUENCE_NAME)) {
-                return (SOAPElement)header.getChildElements().next();
+                return headerElement;
             }
         }
         return null;
