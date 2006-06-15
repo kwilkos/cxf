@@ -348,7 +348,7 @@ public class PersistenceHandler implements SOAPHandler<SOAPMessageContext>,
             if (Names.WSRM_NAMESPACE_NAME.equals(headerName.getURI())
                 && Names.WSRM_SEQUENCE_NAME.equals(localName)) {
                 try {
-                    return getRMSoapHandler().decodeProperty(SequenceType.class, headerElement, null); 
+                    return RMSoapHandler.decodeProperty(SequenceType.class, headerElement, null); 
                 } catch (JAXBException ex) {
                     LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", ex);
                 }
