@@ -73,7 +73,7 @@ public class RMSourceTest extends TestCase {
     }
 
 
-
+   
     public void testAwaitCurrentRequestor() throws Exception {
         if (System.getProperty("java.vendor").indexOf("IBM") > -1) {
             return;
@@ -114,6 +114,7 @@ public class RMSourceTest extends TestCase {
                    seq,
                    s.getCurrent());
     }
+
 
     public void testAwaitCurrentResponder() throws Exception {
         if (System.getProperty("java.vendor").indexOf("IBM") > -1) {
@@ -252,5 +253,28 @@ public class RMSourceTest extends TestCase {
 
         control.verify();
     }
+
+     private void yield() throws Exception {
+        Thread.sleep(250);
+    }
+
+    private class SequenceAccessor implements Runnable {
+        Identifier id;
+        SourceSequence sequence;
+
+        SequenceAccessor(Identifier i) {
+            id = i;
+        }
+
+        public void run() {
+            sequence = s.awaitCurrent(id);
+        }
+
+        SourceSequence getSequence() {
+            return sequence;
+        }
+    }
+
+
 
 }
