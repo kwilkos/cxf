@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedAttribute;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
-
 import org.objectweb.celtix.management.Instrumentation;
+import org.objectweb.celtix.management.annotation.ManagedAttribute;
+import org.objectweb.celtix.management.annotation.ManagedResource;
 
 
 @ManagedResource(componentName = "CeltixBus", 

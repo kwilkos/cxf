@@ -5,21 +5,20 @@ import java.lang.reflect.Method;
 import javax.management.Descriptor;
 import javax.management.modelmbean.ModelMBeanInfo;
 
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedAttribute;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedNotification;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedNotifications;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedOperation;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedOperationParameter;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedOperationParameters;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
+import org.objectweb.celtix.management.annotation.ManagedAttribute;
+import org.objectweb.celtix.management.annotation.ManagedNotification;
+import org.objectweb.celtix.management.annotation.ManagedNotifications;
+import org.objectweb.celtix.management.annotation.ManagedOperation;
+import org.objectweb.celtix.management.annotation.ManagedOperationParameter;
+import org.objectweb.celtix.management.annotation.ManagedOperationParameters;
+import org.objectweb.celtix.management.annotation.ManagedResource;
 
 
 public class ModelMBeanAssembler {
     private ModelMBeanInfoSupporter supporter = new ModelMBeanInfoSupporter();
    
-    @SuppressWarnings("unchecked")
-    public ManagedResource getManagedResource(Class clazz) {
-        return (ManagedResource)clazz.getAnnotation(ManagedResource.class);        
+    public ManagedResource getManagedResource(Class<?> clazz) {
+        return clazz.getAnnotation(ManagedResource.class);        
     }
 
     public ManagedAttribute getManagedAttribute(Method method) {
@@ -41,10 +40,9 @@ public class ModelMBeanAssembler {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
-    public ManagedNotification[] getManagedNotifications(Class clazz) {
+    public ManagedNotification[] getManagedNotifications(Class<?> clazz) {
         ManagedNotifications notificationsAnn = 
-            (ManagedNotifications)clazz.getAnnotation(ManagedNotifications.class);
+            clazz.getAnnotation(ManagedNotifications.class);
         ManagedNotification[] result = null;
         if (null == notificationsAnn) {
             return new ManagedNotification[0];

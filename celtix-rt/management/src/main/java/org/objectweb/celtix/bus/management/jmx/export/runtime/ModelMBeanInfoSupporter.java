@@ -17,9 +17,9 @@ import javax.management.modelmbean.ModelMBeanInfoSupport;
 import javax.management.modelmbean.ModelMBeanNotificationInfo;
 import javax.management.modelmbean.ModelMBeanOperationInfo;
 
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedAttribute;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedOperation;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
+import org.objectweb.celtix.management.annotation.ManagedAttribute;
+import org.objectweb.celtix.management.annotation.ManagedOperation;
+import org.objectweb.celtix.management.annotation.ManagedResource;
 
 public class ModelMBeanInfoSupporter {
     protected Map<String, ModelMBeanAttributeInfo> attributes

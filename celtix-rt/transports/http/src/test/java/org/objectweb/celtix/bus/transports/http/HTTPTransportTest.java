@@ -49,6 +49,7 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.TransportFactoryManager;
+import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.objectweb.celtix.wsdl.WSDLManager;
@@ -68,7 +69,7 @@ public class HTTPTransportTest extends TestCase {
 
     Bus bus;
     private WSDLManager wsdlManager;
-    private WorkQueueManagerImpl queueManager;
+    private WorkQueueManager queueManager;
     private ExecutorService executorService;
     private TestResponseCallback responseCallback;
     private HTTPTransportFactory factory;

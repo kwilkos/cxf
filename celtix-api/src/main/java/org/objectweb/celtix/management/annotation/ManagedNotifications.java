@@ -1,19 +1,19 @@
-package org.objectweb.celtix.bus.management.jmx.export.annotation;
+
+package org.objectweb.celtix.management.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-@Target(ElementType.METHOD)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+@Inherited
 @Documented
-public @interface ManagedOperation {
+public @interface ManagedNotifications {
 
-    String description() default "";
-
-    int currencyTimeLimit() default -1;
-
+    ManagedNotification[] value();
 }

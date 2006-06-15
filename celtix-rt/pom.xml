@@ -19,6 +19,7 @@
     </properties>
 
     <modules>
+        <module>core</module>
     	<module>databinding/jaxb</module>
         <module>management</module>
         <module>internal</module>

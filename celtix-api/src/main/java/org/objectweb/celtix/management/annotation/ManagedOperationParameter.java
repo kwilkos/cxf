@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.management.jmx.export.annotation;
+package org.objectweb.celtix.management.annotation;
 
 
 public @interface ManagedOperationParameter {

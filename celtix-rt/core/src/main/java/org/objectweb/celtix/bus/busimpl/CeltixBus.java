@@ -13,8 +13,6 @@ import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bus.bindings.BindingManagerImpl;
 import org.objectweb.celtix.bus.configuration.ConfigurationEvent;
 import org.objectweb.celtix.bus.configuration.ConfigurationEventFilter;
-import org.objectweb.celtix.bus.jaxws.EndpointRegistryImpl;
-import org.objectweb.celtix.bus.management.InstrumentationManagerImpl;
 import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
@@ -40,7 +38,7 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
     private Configuration configuration;
     private BindingManager bindingManager;
     private Object clientRegistry;
-    private EndpointRegistryImpl endpointRegistry;
+    private EndpointRegistry endpointRegistry;
     private TransportFactoryManager transportFactoryManager;
     private WSDLManager wsdlManager;
     private PluginManager pluginManager;
@@ -78,7 +76,15 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
         busID = (String)configuration.getId();
         servicesMonitoring = configuration.getBoolean("servicesMonitoring");
 
-        instrumentationManager = new InstrumentationManagerImpl(this);
+        try {
+            //REVISIT - dynamic discovery of objects, generic registry instead of fields
+            Object o = Class.forName("org.objectweb.celtix.bus.management.InstrumentationManagerImpl")
+                .getConstructor(Bus.class).newInstance(this);
+            instrumentationManager = (InstrumentationManager)o;
+        } catch (Exception e) {
+            //ignore for now
+        }
+
 
         if (properties.get(CELTIX_WSDLMANAGER) != null) {
             wsdlManager = (WSDLManager)properties.get(CELTIX_WSDLMANAGER);
@@ -96,11 +102,17 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
         workQueueManager = new WorkQueueManagerImpl(this);
         resourceManager = new ResourceManagerImpl(this);
 
-        // create and initialise the remaining objects:
-        // clientRegistry = new ClientRegistry(this);
-
-        endpointRegistry = new EndpointRegistryImpl(this);
-
+        try {
+            //REVISIT - dynamic discovery of objects, generic registry instead of fields
+            Object o = Class.forName("org.objectweb.celtix.bus.jaxws.EndpointRegistryImpl")
+                .getConstructor(Bus.class).newInstance(this);
+            endpointRegistry = (EndpointRegistry)o;
+        } catch (Exception e) {
+            //ignore for now
+        }
+        
+        
+        
         Bus.setCurrent(this);
 
         lifeCycleManager.initComplete();

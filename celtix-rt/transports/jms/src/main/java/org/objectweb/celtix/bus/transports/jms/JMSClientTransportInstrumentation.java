@@ -2,9 +2,9 @@ package org.objectweb.celtix.bus.transports.jms;
 
 
 import org.objectweb.celtix.bus.management.counters.TransportClientCounters;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedAttribute;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
 import org.objectweb.celtix.management.Instrumentation;
+import org.objectweb.celtix.management.annotation.ManagedAttribute;
+import org.objectweb.celtix.management.annotation.ManagedResource;
 
 @ManagedResource(componentName = "JMSClientTransport", 
                  description = "The Celtix bus JMS Client Transport component ", 
