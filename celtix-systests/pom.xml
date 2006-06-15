@@ -36,7 +36,7 @@
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
-            <artifactId>cxf-rt-transport-http</artifactId>
+            <artifactId>cxf-rt-transports-http</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
