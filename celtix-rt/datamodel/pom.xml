@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cxf-rt-datamodel</artifactId>
     <packaging>jar</packaging>
-    <name>CeltiXfire Data Model</name>
+    <name>CeltiXfire Runtime Data Model</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>

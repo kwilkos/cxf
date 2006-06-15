@@ -5,7 +5,7 @@
     <artifactId>cxf-tools-validator</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
-    <name>CeltixFire Command Line Tools Validator</name>
+    <name>CeltiXfire Command Line Tools Validator</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>

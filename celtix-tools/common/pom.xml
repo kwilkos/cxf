@@ -5,7 +5,7 @@
     <artifactId>cxf-tools-common</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
-    <name>CeltixFire Command Line Tools Common</name>
+    <name>CeltiXfire Command Line Tools Common</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>

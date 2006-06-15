@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cxf-rt-bindings-soap</artifactId>
     <packaging>jar</packaging>
-    <name>CeltiXfire Bindings SOAP</name>
+    <name>CeltiXfire Runtime Bindings SOAP</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>

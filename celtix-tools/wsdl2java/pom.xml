@@ -5,7 +5,7 @@
     <artifactId>cxf-tools-wsdl2java</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
-    <name>CeltixFire Command Line Tools Wsdl2java</name>
+    <name>CeltiXfire Command Line Tools Wsdl2java</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>

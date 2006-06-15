@@ -5,7 +5,7 @@
     <artifactId>cxf-tools-internal</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
-    <name>CeltixFire Command Line Tools Internal</name>
+    <name>CeltiXfire Command Line Tools Internal</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>

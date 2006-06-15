@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cxf-rt-ws-rm</artifactId>
     <packaging>jar</packaging>
-    <name>CeltiXfire WS RM</name>
+    <name>CeltiXfire Runtime WS RM</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>

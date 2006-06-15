@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cxf-rt-bindings-xml</artifactId>
     <packaging>jar</packaging>
-    <name>CeltiXfire Bindings XML</name>
+    <name>CeltiXfire Runtime Bindings XML</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>

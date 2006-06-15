@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cxf-rt-bindings</artifactId>
     <packaging>pom</packaging>
-    <name>CeltiXfire Bindings</name>
+    <name>CeltiXfire Runtime Bindings</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
