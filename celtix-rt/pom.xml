@@ -21,6 +21,7 @@
     <modules>
         <module>internal</module>
 	<!--<module>rt-test</module>-->
+        <module>datamodel</module>
         <module>bindings</module>
         <module>transports/jms</module>
         <module>ws</module>
