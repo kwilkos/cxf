@@ -17,6 +17,7 @@ import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceProvider;
 
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 
 public final class EndpointUtils {
 

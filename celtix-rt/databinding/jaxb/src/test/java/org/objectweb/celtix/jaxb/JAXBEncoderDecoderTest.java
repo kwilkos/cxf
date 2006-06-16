@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.bindings.soap;
+package org.objectweb.celtix.jaxb;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
+import org.objectweb.celtix.testutil.common.TestUtil;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
 import org.objectweb.hello_world_soap_http.types.StringStruct;
@@ -39,6 +39,11 @@ import org.objectweb.type_test.doc.TypeTestPortType;
  * @author apaibir
  */
 public class JAXBEncoderDecoderTest extends TestCase {
+    public static final QName  SOAP_ENV = 
+            new QName("http://schemas.xmlsoap.org/soap/envelope/", "Envelope");
+    public static final QName  SOAP_BODY = 
+            new QName("http://schemas.xmlsoap.org/soap/envelope/", "Body");
+
     RequestWrapper wrapperAnnotation;
     JAXBContext context;
     Schema schema;
@@ -55,7 +60,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         super.setUp();
 
         context = JAXBEncoderDecoder.createJAXBContextForClass(Greeter.class);
-        Method method = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
+        Method method = TestUtil.getMethod(Greeter.class, "greetMe");
         wrapperAnnotation = method.getAnnotation(RequestWrapper.class);
         
         InputStream is =  getClass().getResourceAsStream("resources/StringStruct.xsd");
@@ -154,8 +159,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         XMLEventReader reader = 
             factory.createXMLEventReader(is);
 
-        QName[] tags = {SOAPConstants.SOAP_ENV, SOAPConstants.SOAP_BODY};
-
+        QName[] tags = {SOAP_ENV, SOAP_BODY};
         StaxEventFilter filter = new StaxEventFilter(tags);
         reader = factory.createFilteredReader(reader, filter);
 
@@ -237,7 +241,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
     } 
     
     public void testGetClassFromType() throws Exception {
-        Method testByte = SOAPMessageUtil.getMethod(TypeTestPortType.class, "testByte");
+        Method testByte = TestUtil.getMethod(TypeTestPortType.class, "testByte");
         Type[] genericParameterTypes = testByte.getGenericParameterTypes();
         Class<?>[] paramTypes = testByte.getParameterTypes();
  
@@ -248,7 +252,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
             idx++;
         }
         
-        Method testBase64Binary = SOAPMessageUtil.getMethod(TypeTestPortType.class, "testBase64Binary");
+        Method testBase64Binary = TestUtil.getMethod(TypeTestPortType.class, "testBase64Binary");
         genericParameterTypes = testBase64Binary.getGenericParameterTypes();
         paramTypes = testBase64Binary.getParameterTypes();
  

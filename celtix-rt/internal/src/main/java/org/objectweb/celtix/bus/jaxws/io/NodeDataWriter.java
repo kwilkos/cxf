@@ -6,8 +6,8 @@ import org.w3c.dom.Node;
 
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
-import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 
 public class NodeDataWriter<T> implements DataWriter<T> {
     final JAXBDataBindingCallback callback;

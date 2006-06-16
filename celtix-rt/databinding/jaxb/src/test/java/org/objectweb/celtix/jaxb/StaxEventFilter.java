@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.bindings.soap;
+package org.objectweb.celtix.jaxb;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.EventFilter;

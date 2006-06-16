@@ -14,8 +14,8 @@ import org.w3c.dom.NodeList;
 
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
-import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 
 public class SOAPFaultDataReader<T> implements DataReader<T> {
     final JAXBDataBindingCallback callback;

@@ -16,8 +16,8 @@ import javax.xml.ws.WebServiceException;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bus.jaxws.ClassHelper;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
-import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.jaxb.JAXBUtils;
 
 public class EventDataReader<T> implements DataReader<T> {

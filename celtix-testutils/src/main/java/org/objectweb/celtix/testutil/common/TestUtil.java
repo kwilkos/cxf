@@ -1,6 +1,7 @@
 package org.objectweb.celtix.testutil.common;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -42,5 +43,15 @@ public final class TestUtil {
             }
         }
         return classPath.toString();
+    }
+
+    public static Method getMethod(Class<?> clazz, String methodName) {
+        Method[] declMethods = clazz.getDeclaredMethods();
+        for (Method method : declMethods) {
+            if (method.getName().equals(methodName)) {
+                return method;
+            }
+        }
+        return null;
     }    
 }

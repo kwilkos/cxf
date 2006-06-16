@@ -15,8 +15,8 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.context.MessageContextWrapper;
+import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 
 class SOAPMessageContextImpl extends MessageContextWrapper implements SOAPMessageContext {
     private static final long serialVersionUID = 1L;

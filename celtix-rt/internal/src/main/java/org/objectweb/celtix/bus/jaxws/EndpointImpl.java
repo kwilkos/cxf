@@ -52,6 +52,7 @@ import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.endpoints.ContextInspector;
+import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;

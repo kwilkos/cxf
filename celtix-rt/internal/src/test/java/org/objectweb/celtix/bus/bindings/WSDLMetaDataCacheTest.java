@@ -21,8 +21,8 @@ import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
-import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.hello_world_doc_lit_bare.PutLastTradedPricePortType;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 

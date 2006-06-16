@@ -9,8 +9,8 @@ import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
-import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 
 public class DetailDataWriter<T> implements DataWriter<T> {
     final JAXBDataBindingCallback callback;
