@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws;
+package org.objectweb.celtix.jaxb;
 
 import java.lang.reflect.InvocationTargetException;
 

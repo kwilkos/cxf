@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws.io;
+package org.objectweb.celtix.jaxb.io;
 
 
 
@@ -17,8 +17,8 @@ import javax.xml.transform.stream.StreamSource;
 import org.w3c.dom.Document;
 
 import org.objectweb.celtix.bindings.DataWriter;
-import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.DynamicDataBindingCallback;
 
 public class SOAPBodyDataWriter<T> implements DataWriter<T> {
 

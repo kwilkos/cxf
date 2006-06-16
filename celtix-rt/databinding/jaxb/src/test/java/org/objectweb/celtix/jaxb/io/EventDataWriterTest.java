@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws.io;
+package org.objectweb.celtix.jaxb.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -20,11 +20,11 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.bindings.DataWriter;
-import org.objectweb.celtix.bus.bindings.soap.SOAPMessageUtil;
-import org.objectweb.celtix.bus.bindings.soap.StaxEventFilter;
-import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
+import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
+import org.objectweb.celtix.jaxb.StaxEventFilter;
+import org.objectweb.celtix.testutil.common.TestUtil;
 import org.objectweb.hello_world_soap_http.Greeter;
 
 public class EventDataWriterTest extends TestCase {
@@ -47,7 +47,7 @@ public class EventDataWriterTest extends TestCase {
 
     public void testWrite() throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(Greeter.class);
-        Method m = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
+        Method m = TestUtil.getMethod(Greeter.class, "greetMe");
         JAXBDataBindingCallback cb = 
             new JAXBDataBindingCallback(m, Mode.PARTS, ctx);
         
@@ -84,7 +84,7 @@ public class EventDataWriterTest extends TestCase {
 
     public void testWriteWrapper() throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(Greeter.class);
-        Method m = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
+        Method m = TestUtil.getMethod(Greeter.class, "greetMe");
         JAXBDataBindingCallback cb = 
             new JAXBDataBindingCallback(m, Mode.PARTS, ctx);
         

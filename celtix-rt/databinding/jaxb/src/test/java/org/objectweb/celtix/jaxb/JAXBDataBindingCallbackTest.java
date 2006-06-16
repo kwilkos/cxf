@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws;
+package org.objectweb.celtix.jaxb;
 
 import java.lang.reflect.Method;
 
@@ -22,9 +22,9 @@ import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.bindings.soap.SOAPConstants;
-import org.objectweb.celtix.bus.bindings.soap.SOAPMessageUtil;
-import org.objectweb.celtix.bus.jaxws.io.EventDataReader;
-import org.objectweb.celtix.bus.jaxws.io.EventDataWriter;
+import org.objectweb.celtix.jaxb.io.EventDataReader;
+import org.objectweb.celtix.jaxb.io.EventDataWriter;
+import org.objectweb.celtix.testutil.common.TestUtil;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
@@ -45,13 +45,11 @@ public class JAXBDataBindingCallbackTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        msgInfo = new JAXBDataBindingCallback(SOAPMessageUtil.getMethod(Greeter.class, "greetMe"),
-                                          DataBindingCallback.Mode.PARTS,
-                                          null);
+        Method m = TestUtil.getMethod(Greeter.class, "greetMe");
+        msgInfo = new JAXBDataBindingCallback(m, DataBindingCallback.Mode.PARTS, null);
 
-        rpcMsgInfo = new JAXBDataBindingCallback(SOAPMessageUtil.getMethod(GreeterRPCLit.class, "greetMe"),
-                                             DataBindingCallback.Mode.PARTS,
-                                             null);
+        m = TestUtil.getMethod(GreeterRPCLit.class, "greetMe");
+        rpcMsgInfo = new JAXBDataBindingCallback(m, DataBindingCallback.Mode.PARTS, null);
     }
 
     public void testGetSoapStyle() throws Exception {
@@ -181,7 +179,7 @@ public class JAXBDataBindingCallbackTest extends TestCase {
         QName faultName = new QName("http://objectweb.org/hello_world_soap_http/types", "NoSuchCodeLit");
         assertNull(jaxbmi.getWebFault(faultName));
 
-        jaxbmi = new JAXBDataBindingCallback(SOAPMessageUtil.getMethod(Greeter.class, "testDocLitFault"),
+        jaxbmi = new JAXBDataBindingCallback(TestUtil.getMethod(Greeter.class, "testDocLitFault"),
                                               DataBindingCallback.Mode.PARTS,
                                               null);
         Class<?> clazz = jaxbmi.getWebFault(faultName);

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws.io;
+package org.objectweb.celtix.jaxb.io;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
@@ -8,8 +8,8 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import org.objectweb.celtix.bindings.DataWriter;
-import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.DynamicDataBindingCallback;
 
 public class SOAPMessageDataWriter<T> implements DataWriter<T> {
 

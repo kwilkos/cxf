@@ -32,6 +32,7 @@ import org.objectweb.celtix.bus.bindings.TestOutputStreamContext;
 import org.objectweb.celtix.bus.bindings.soap.SOAPClientBinding;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.jaxb.DynamicDataBindingCallback;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws.io;
+package org.objectweb.celtix.jaxb.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,7 @@ import org.xml.sax.InputSource;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
-import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
+import org.objectweb.celtix.jaxb.DynamicDataBindingCallback;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
 
 public class SOAPBodyDataWriterTest<T> extends TestCase {

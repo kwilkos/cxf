@@ -11,9 +11,9 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bus.bindings.soap.SOAPBindingImpl;
-import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
+import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.hello_world_soap_http.Greeter;
 
 public class PersistenceUtilsTest extends TestCase {

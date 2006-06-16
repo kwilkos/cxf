@@ -12,11 +12,11 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bus.bindings.TestInputStreamContext;
-import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.helpers.XMLUtils;
+import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.hello_world_xml_http.wrapped.Greeter;
 import org.objectweb.hello_world_xml_http.wrapped.PingMeFault;
 import org.objectweb.hello_world_xml_http.wrapped.types.FaultDetail;

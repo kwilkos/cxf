@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws.io;
+package org.objectweb.celtix.jaxb.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,8 +22,8 @@ import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 
 import org.objectweb.celtix.bindings.DataReader;
-import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.DynamicDataBindingCallback;
 
 public class SOAPBodyDataReader<T> implements DataReader<T> {
     

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws.io;
+package org.objectweb.celtix.jaxb.io;
 
 import java.lang.reflect.Method;
 import javax.xml.namespace.QName;
@@ -8,8 +8,8 @@ import org.w3c.dom.*;
 
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bus.bindings.xml.XMLFault;
-import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 
 public class XMLFaultWriter<T> implements DataWriter<T> {

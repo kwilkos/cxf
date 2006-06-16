@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws;
+package org.objectweb.celtix.jaxb;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,12 +16,12 @@ import javax.xml.soap.SOAPBody;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
-import org.objectweb.celtix.bus.jaxws.io.SOAPBodyDataReader;
-import org.objectweb.celtix.bus.jaxws.io.SOAPBodyDataWriter;
-import org.objectweb.celtix.bus.jaxws.io.SOAPMessageDataReader;
-import org.objectweb.celtix.bus.jaxws.io.SOAPMessageDataWriter;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.io.SOAPBodyDataReader;
+import org.objectweb.celtix.jaxb.io.SOAPBodyDataWriter;
+import org.objectweb.celtix.jaxb.io.SOAPMessageDataReader;
+import org.objectweb.celtix.jaxb.io.SOAPMessageDataWriter;
 
 public class DynamicDataBindingCallback implements DataBindingCallback {
     

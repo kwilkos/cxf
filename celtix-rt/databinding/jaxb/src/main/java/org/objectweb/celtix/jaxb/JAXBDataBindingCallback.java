@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws;
+package org.objectweb.celtix.jaxb;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -21,6 +21,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.validation.Schema;
 import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
@@ -34,18 +35,16 @@ import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bindings.ServerDataBindingCallback;
 import org.objectweb.celtix.bus.bindings.soap.SOAPConstants;
 import org.objectweb.celtix.bus.bindings.xml.XMLFault;
-import org.objectweb.celtix.bus.jaxws.io.DetailDataWriter;
-import org.objectweb.celtix.bus.jaxws.io.EventDataReader;
-import org.objectweb.celtix.bus.jaxws.io.EventDataWriter;
-import org.objectweb.celtix.bus.jaxws.io.NodeDataReader;
-import org.objectweb.celtix.bus.jaxws.io.NodeDataWriter;
-import org.objectweb.celtix.bus.jaxws.io.SOAPFaultDataReader;
-import org.objectweb.celtix.bus.jaxws.io.XMLFaultReader;
-import org.objectweb.celtix.bus.jaxws.io.XMLFaultWriter;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
-import org.objectweb.celtix.jaxb.JAXBUtils;
-import org.objectweb.celtix.jaxb.WrapperHelper;
+import org.objectweb.celtix.jaxb.io.DetailDataWriter;
+import org.objectweb.celtix.jaxb.io.EventDataReader;
+import org.objectweb.celtix.jaxb.io.EventDataWriter;
+import org.objectweb.celtix.jaxb.io.NodeDataReader;
+import org.objectweb.celtix.jaxb.io.NodeDataWriter;
+import org.objectweb.celtix.jaxb.io.SOAPFaultDataReader;
+import org.objectweb.celtix.jaxb.io.XMLFaultReader;
+import org.objectweb.celtix.jaxb.io.XMLFaultWriter;
 
 
 public class JAXBDataBindingCallback implements ServerDataBindingCallback {
@@ -64,9 +63,9 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
     private WebService webServiceAnnotation;
     private final JAXBContext context;
     private final Schema schema;
-    private final EndpointImpl endpoint;
+    private final Endpoint endpoint;
     private final Object impl;
-    
+
     public JAXBDataBindingCallback(Method m, Mode md, JAXBContext ctx) {
         this(m, md, ctx, null);
     }
@@ -74,7 +73,7 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
         this(m, md, ctx, s, null);
     }
     
-    public JAXBDataBindingCallback(Method m, Mode md, JAXBContext ctx, Schema s, EndpointImpl ep) {
+    public JAXBDataBindingCallback(Method m, Mode md, JAXBContext ctx, Schema s, Endpoint ep) {
         method = m;
         mode = md;
         context = ctx;
@@ -161,7 +160,7 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
             reqWrapper = method.getAnnotation(RequestWrapper.class);
             //Get the RequestWrapper
             respWrapper = method.getAnnotation(ResponseWrapper.class);
-            
+
             if (JAXBUtils.isAsync(method)) {
                 Class[] paramTypes = method.getParameterTypes();
                 if (paramTypes != null && paramTypes.length > 0 
@@ -199,9 +198,14 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
         if (null != soapBindAnnotation) {
             return soapBindAnnotation.style();
         }
-        if (endpoint != null) {
-            return endpoint.getStyle();            
-        }
+
+        //EndpointImpl.getStyle() gets the Style Annotation from SEI if null returns DOCUMENT Style.
+        //This is redundant as this.init() retireves the annotation from SEI method 
+        //if null then from SEI. Added as part of patch from Qbjectweb-Guillame 
+        //REVISIT
+        //if (endpoint != null) {
+        //    return endpoint.getStyle();            
+        //}
         return Style.DOCUMENT;
     }
     
@@ -432,11 +436,17 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
             throw e;
         } catch (Exception e) {
             throw new InvocationTargetException(e);
-        } finally {
+        } 
+        /* 
+        //EndpointImpl.releaseImplementor() is a no-op and EndpointImpl is a celtix runtime class.
+        //Added as part of patch from Qbjectweb-Guillame 
+        //REVISIT .
+        finally {
             if (impl == null) {
                 endpoint.releaseImplementor(o);
             }
         }
+        */
     }
 
 

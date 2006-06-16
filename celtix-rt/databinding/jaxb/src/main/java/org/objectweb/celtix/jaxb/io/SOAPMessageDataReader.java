@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws.io;
+package org.objectweb.celtix.jaxb.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,8 +13,8 @@ import javax.xml.transform.stream.StreamSource;
 import org.xml.sax.InputSource;
 
 import org.objectweb.celtix.bindings.DataReader;
-import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.DynamicDataBindingCallback;
 
 public class SOAPMessageDataReader<T> implements DataReader<T> {
     

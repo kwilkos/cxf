@@ -1,9 +1,9 @@
-package org.objectweb.celtix.bus.jaxws.io;
+package org.objectweb.celtix.jaxb.io;
 
 import javax.xml.bind.JAXBContext;
 
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
-import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
+import org.objectweb.celtix.jaxb.DynamicDataBindingCallback;
 
 public class TestDynamicDataBindingCallback extends DynamicDataBindingCallback {
 

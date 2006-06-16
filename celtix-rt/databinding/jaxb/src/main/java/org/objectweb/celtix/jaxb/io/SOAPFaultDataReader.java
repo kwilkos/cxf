@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws.io;
+package org.objectweb.celtix.jaxb.io;
 
 
 import java.lang.reflect.Constructor;
@@ -13,8 +13,8 @@ import org.w3c.dom.NodeList;
 
 
 import org.objectweb.celtix.bindings.DataReader;
-import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 
 public class SOAPFaultDataReader<T> implements DataReader<T> {

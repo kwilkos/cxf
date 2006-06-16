@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws.io;
+package org.objectweb.celtix.jaxb.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +15,7 @@ import org.xml.sax.InputSource;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
-import org.objectweb.celtix.bus.jaxws.DynamicDataBindingCallback;
+import org.objectweb.celtix.jaxb.DynamicDataBindingCallback;
 
 public class SOAPMessageDataWriterTest<T> extends TestCase {
     

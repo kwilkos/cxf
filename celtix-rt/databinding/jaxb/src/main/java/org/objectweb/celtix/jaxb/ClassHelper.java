@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws;
+package org.objectweb.celtix.jaxb;
 
 public final class ClassHelper {
 

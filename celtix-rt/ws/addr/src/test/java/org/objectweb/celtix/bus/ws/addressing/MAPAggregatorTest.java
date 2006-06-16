@@ -22,8 +22,8 @@ import org.easymock.IArgumentMatcher;
 import org.easymock.IMocksControl;
 
 import org.objectweb.celtix.bindings.ServerBinding;
-import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
+import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;

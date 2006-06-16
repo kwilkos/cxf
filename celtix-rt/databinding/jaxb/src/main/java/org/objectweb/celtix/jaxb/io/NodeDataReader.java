@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws.io;
+package org.objectweb.celtix.jaxb.io;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -13,10 +13,10 @@ import javax.xml.ws.WebServiceException;
 import org.w3c.dom.Node;
 
 import org.objectweb.celtix.bindings.DataReader;
-import org.objectweb.celtix.bus.jaxws.ClassHelper;
-import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.helpers.NodeUtils;
+import org.objectweb.celtix.jaxb.ClassHelper;
+import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.jaxb.JAXBUtils;
 

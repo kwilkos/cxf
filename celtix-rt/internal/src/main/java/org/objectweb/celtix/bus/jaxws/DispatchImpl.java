@@ -20,6 +20,7 @@ import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.jaxb.DynamicDataBindingCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T> {
