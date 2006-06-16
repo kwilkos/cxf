@@ -30,5 +30,6 @@
         <module>transports/http</module>
         <module>transports/servlet</module>
         <module>ws</module>
+        <module>rt-test</module>
     </modules>
 </project>

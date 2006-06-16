@@ -19,9 +19,9 @@ import org.objectweb.celtix.bus.bindings.soap.SOAPMessageUtil;
 import org.objectweb.celtix.bus.bindings.soap.SoapBindingImplTest;
 import org.objectweb.celtix.bus.bindings.soap.StaxEventFilter;
 import org.objectweb.celtix.bus.jaxws.JAXBDataBindingCallback;
-import org.objectweb.celtix.bus.jaxws.JAXBEncoderDecoder;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
+import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.hello_world_soap_http.Greeter;
  
 public class EventDataReaderTest extends TestCase {

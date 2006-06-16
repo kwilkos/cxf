@@ -89,6 +89,12 @@
 
         <dependency>
             <groupId>org.objectweb.celtix</groupId>
+            <artifactId>cxf-rt-databinding-jaxb</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
             <artifactId>cxf-rt-bindings-xml</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
