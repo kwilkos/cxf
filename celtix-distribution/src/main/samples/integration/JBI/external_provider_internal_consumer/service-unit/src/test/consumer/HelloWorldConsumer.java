@@ -7,8 +7,8 @@ import javax.xml.namespace.QName;
 import org.objectweb.celtix.jbi.ServiceConsumer;
 
 import org.objectweb.hello_world_soap_jms.Greeter;
-import org.objectweb.hello_world_soap_jms.PingMeFault;
 import org.objectweb.hello_world_soap_jms.JMSGreeterService;
+import org.objectweb.hello_world_soap_jms.PingMeFault;
 
 
 public class HelloWorldConsumer implements ServiceConsumer { 
