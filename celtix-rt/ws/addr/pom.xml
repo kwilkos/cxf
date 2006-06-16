@@ -7,7 +7,7 @@
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
-        <groupId>org.objectweb.celtix</groupId>
+        <groupId>org.objectweb.celtixfire</groupId>
         <artifactId>cxf-rt-ws</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
@@ -37,25 +37,25 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtix</groupId>
+            <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>cxf-tools-internal</artifactId>
             <version>${project.version}</version>
         </dependency>
         -->
         <dependency>
-            <groupId>org.objectweb.celtix</groupId>
-            <artifactId>celtix-api</artifactId>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtix</groupId>
+            <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>internal</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.objectweb.celtix</groupId>
-            <artifactId>celtix-testutils</artifactId>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -194,8 +194,8 @@
         <plugins>
             <!--
             <plugin>
-                <groupId>org.objectweb.celtix</groupId>
-                <artifactId>celtix-codegen-plugin</artifactId>
+                <groupId>org.objectweb.celtixfire</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>

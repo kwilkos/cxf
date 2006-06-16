@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.objectweb.celtix</groupId>
-    <artifactId>celtix-api</artifactId>
+    <groupId>org.objectweb.celtixfire</groupId>
+    <artifactId>cxf-api</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
-    <name>Celtix Public API</name>
+    <name>CeltiXfire Public API</name>
     <url>http://celtix.objectweb.org/</url>
 
 
     <parent>
-        <groupId>org.objectweb.celtix</groupId>
+        <groupId>org.objectweb.celtixfire</groupId>
         <artifactId>celtix</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
@@ -40,21 +40,21 @@
         </dependency>
 
         <dependency>
-            <groupId>org.objectweb.celtix</groupId>
-            <artifactId>celtix-common</artifactId>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-common</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.objectweb.celtix</groupId>
-            <artifactId>celtix-testutils</artifactId>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
         
         <dependency>
-            <groupId>org.objectweb.celtix</groupId>
+            <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>cxf-tools-internal</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -100,8 +100,8 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.objectweb.celtix</groupId>
-                <artifactId>celtix-codegen-plugin</artifactId>
+                <groupId>org.objectweb.celtixfire</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>

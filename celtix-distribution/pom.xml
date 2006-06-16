@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.objectweb.celtix</groupId>
-    <artifactId>celtix-distribution</artifactId>
+    <groupId>org.objectweb.celtixfire</groupId>
+    <artifactId>cxf-distribution</artifactId>
     <version>1.1-SNAPSHOT</version>
-    <name>Celtix Distribution</name>
+    <name>CeltiXfire Distribution</name>
     <url>http://celtix.objectweb.org/</url>
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.objectweb.celtix</groupId>
-        <artifactId>celtix</artifactId>
+        <groupId>org.objectweb.celtixfire</groupId>
+        <artifactId>cxf</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
@@ -21,13 +21,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.objectweb.celtix</groupId>
+            <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>internal</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtix</groupId>
-            <artifactId>celtix-jbi</artifactId>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-jbi</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -60,8 +60,8 @@
                             <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.objectweb.celtix</groupId>
-                                    <artifactId>celtix-api</artifactId>
+                                    <groupId>org.objectweb.celtixfire</groupId>
+                                    <artifactId>cxf-api</artifactId>
                                     <version>${project.version}</version>
                                     <classifier>javadoc</classifier>
                                 </artifactItem>
@@ -80,18 +80,18 @@
                             <outputDirectory>${project.build.directory}/additional-libs</outputDirectory>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.objectweb.celtix</groupId>
-                                    <artifactId>celtix-router</artifactId>
+                                    <groupId>org.objectweb.celtixfire</groupId>
+                                    <artifactId>cxf-router</artifactId>
                                     <version>${project.version}</version>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.objectweb.celtix</groupId>
-                                    <artifactId>celtix-js</artifactId>
+                                    <groupId>org.objectweb.celtixfire</groupId>
+                                    <artifactId>cxf-js</artifactId>
                                     <version>${project.version}</version>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.objectweb.celtix</groupId>
-                                    <artifactId>celtix-geronimo</artifactId>
+                                    <groupId>org.objectweb.celtixfire</groupId>
+                                    <artifactId>cxf-geronimo</artifactId>
                                     <version>${project.version}</version>
                                 </artifactItem>
                                 <artifactItem>

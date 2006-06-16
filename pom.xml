@@ -4,10 +4,10 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.objectweb.celtix</groupId>
-    <artifactId>celtix</artifactId>
+    <groupId>org.objectweb.celtixfire</groupId>
+    <artifactId>celtixfire</artifactId>
     <version>1.1-SNAPSHOT</version>
-    <name>Celtix</name>
+    <name>CeltiXfire</name>
     <url>http://celtix.objectweb.org/</url>
 
     <packaging>pom</packaging>
@@ -47,7 +47,7 @@
     <inceptionYear>2005</inceptionYear>
     <mailingLists>
         <mailingList>
-            <name>Celtix Open Source Java ESB Mailing List</name>
+            <name>CeltiXfire Open Source Java ESB Mailing List</name>
             <subscribe>celtix-subscribe@objectweb.org</subscribe>
             <unsubscribe>celtix-unsubscribe@objectweb.org</unsubscribe>
             <post>celtix@objectweb.org</post>

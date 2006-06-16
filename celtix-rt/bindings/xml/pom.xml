@@ -7,7 +7,7 @@
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
-        <groupId>org.objectweb.celtix</groupId>
+        <groupId>org.objectweb.celtixfire</groupId>
         <artifactId>cxf-rt-bindings</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
