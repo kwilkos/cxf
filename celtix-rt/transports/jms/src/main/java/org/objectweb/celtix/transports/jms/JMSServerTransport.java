@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.transports.jms;
+package org.objectweb.celtix.transports.jms;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,7 +35,7 @@ import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationFactory;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
-import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
+//import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
 import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
 import org.objectweb.celtix.transports.jms.jms_conf.JMSServerConfig;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;

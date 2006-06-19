@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.transports.jms;
+package org.objectweb.celtix.transports.jms;
 
 import java.util.Enumeration;
 import java.util.List;
@@ -20,7 +20,7 @@ import org.objectweb.celtix.bus.configuration.wsdl.WsdlJMSConfigurationProvider;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
-import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
+//import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
 import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
 import org.objectweb.celtix.transports.jms.context.JMSPropertyType;
 import org.objectweb.celtix.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;

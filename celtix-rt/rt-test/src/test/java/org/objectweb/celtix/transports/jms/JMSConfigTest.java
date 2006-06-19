@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.transports.jms;
+package org.objectweb.celtix.transports.jms;
 
 import java.net.URL;
 
@@ -12,9 +12,9 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.configuration.impl.TypeSchemaHelper;
-import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
-import org.objectweb.celtix.transports.jms.JMSClientBehaviorPolicyType;
-import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
+//import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
+//import org.objectweb.celtix.transports.jms.JMSClientBehaviorPolicyType;
+//import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
 import org.objectweb.celtix.transports.jms.jms_conf.JMSClientConfig;
 import org.objectweb.celtix.transports.jms.jms_conf.JMSServerConfig;
 import org.objectweb.celtix.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.transports.jms;
+package org.objectweb.celtix.transports.jms;
 
 import java.io.InputStream;
 import org.objectweb.celtix.context.GenericMessageContext;

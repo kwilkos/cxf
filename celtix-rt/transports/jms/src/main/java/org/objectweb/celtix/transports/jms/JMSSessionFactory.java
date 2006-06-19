@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.transports.jms;
+package org.objectweb.celtix.transports.jms;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -23,8 +23,8 @@ import javax.naming.NamingException;
 
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.AbstractTwoStageCache;
-import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
-import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
+//import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
+//import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
 import org.objectweb.celtix.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
 
 

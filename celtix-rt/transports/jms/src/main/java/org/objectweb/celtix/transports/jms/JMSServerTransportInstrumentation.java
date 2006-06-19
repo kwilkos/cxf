@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.transports.jms;
+package org.objectweb.celtix.transports.jms;
 
 import org.objectweb.celtix.bus.management.TransportInstrumentation;
 import org.objectweb.celtix.bus.management.counters.TransportServerCounters;

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.transports.jms;
+package org.objectweb.celtix.transports.jms;
 
 
 import java.util.Enumeration;
@@ -10,8 +10,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
-import org.objectweb.celtix.transports.jms.JMSNamingPropertyType;
+//import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
+//import org.objectweb.celtix.transports.jms.JMSNamingPropertyType;
 
 
 public final class JMSUtils {

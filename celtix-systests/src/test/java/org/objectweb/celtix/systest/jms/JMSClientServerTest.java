@@ -13,7 +13,6 @@ import javax.xml.ws.BindingProvider;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.objectweb.celtix.bus.transports.jms.JMSConstants;
 import org.objectweb.celtix.hello_world_jms.BadRecordLitFault;
 import org.objectweb.celtix.hello_world_jms.HelloWorldOneWayPort;
 import org.objectweb.celtix.hello_world_jms.HelloWorldOneWayQueueService;
@@ -24,6 +23,7 @@ import org.objectweb.celtix.hello_world_jms.HelloWorldService;
 import org.objectweb.celtix.hello_world_jms.NoSuchCodeLitFault;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
+import org.objectweb.celtix.transports.jms.JMSConstants;
 import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
 import org.objectweb.celtix.transports.jms.context.JMSPropertyType;
 

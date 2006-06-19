@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.transports.jms;
+package org.objectweb.celtix.transports.jms;
 
 import java.io.IOException;
 
@@ -11,9 +11,9 @@ import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
-import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
-import org.objectweb.celtix.transports.jms.JMSClientBehaviorPolicyType;
-import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
+//import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
+//import org.objectweb.celtix.transports.jms.JMSClientBehaviorPolicyType;
+//import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 

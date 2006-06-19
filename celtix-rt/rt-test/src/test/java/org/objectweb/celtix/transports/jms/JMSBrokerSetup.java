@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.objectweb.celtix.bus.transports.jms;
+package org.objectweb.celtix.transports.jms;
 
 import junit.extensions.TestSetup;
 import junit.framework.TestSuite;

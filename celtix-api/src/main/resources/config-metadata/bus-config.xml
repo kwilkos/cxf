@@ -52,7 +52,7 @@
                 <ct:namespace>http://celtix.objectweb.org/transports/http/configuration</ct:namespace>
             </ct:map>
             <ct:map>
-                <ct:classname>org.objectweb.celtix.bus.transports.jms.JMSTransportFactory</ct:classname>
+                <ct:classname>org.objectweb.celtix.transports.jms.JMSTransportFactory</ct:classname>
                 <ct:namespace>http://celtix.objectweb.org/transports/jms</ct:namespace>
                 <ct:namespace>http://celtix.objectweb.org/transports/jms/configuration</ct:namespace>
             </ct:map>

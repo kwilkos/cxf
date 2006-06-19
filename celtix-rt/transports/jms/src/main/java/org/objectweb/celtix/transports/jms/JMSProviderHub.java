@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.transports.jms;
+package org.objectweb.celtix.transports.jms;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -8,7 +8,7 @@ import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
+//import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
 
 
 /**
