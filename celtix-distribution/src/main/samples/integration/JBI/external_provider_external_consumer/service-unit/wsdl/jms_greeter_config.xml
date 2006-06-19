@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM 
+     "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
+    xmlns:jms="http://celtix.objectweb.org/transports/jms">
+
+  <bean id="celtix.{http://objectweb.org/hello_world}JMSGreeterService.GreeterPort.jms-client"
+        class="org.objectweb.celtix.bus.transports.jms.jms_client_config.spring.JmsClientConfigBean">
+      
+      <property name="jmsClient">
+          <value>
+              <jms:client messageType="text"/>
+          </value>
+      </property>
+      
+  </bean>
+  
+  <bean id="celtix.{http://objectweb.org/hello_world}JMSGreeterService.GreeterPort.jms-server"
+        class="org.objectweb.celtix.bus.transports.jms.jms_server_config.spring.JmsServerConfigBean">
+        
+      <property name="jmsServer">
+          <value>
+             <jms:server
+                 useMessageIDAsCorrelationID="true"
+                 durableSubscriberName="Celtix_subscriber"
+             />
+          </value>
+      </property>
+  </bean>
+
+</beans>
