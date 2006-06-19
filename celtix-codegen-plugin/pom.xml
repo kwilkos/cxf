@@ -56,9 +56,21 @@
 
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-tools-internal</artifactId>
+            <artifactId>cxf-tools-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+         <dependency>
+	    <groupId>org.objectweb.celtixfire</groupId>
+	    <artifactId>cxf-tools-validator</artifactId>
+	    <version>${project.version}</version>
+        </dependency>
+        <dependency>
+	    <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-tools-wsdl2java</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>

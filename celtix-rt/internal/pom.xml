@@ -37,11 +37,11 @@
             <version>1.5.3</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-tools-internal</artifactId>
+            <artifactId>cxf-tools-common</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>cxf-api</artifactId>

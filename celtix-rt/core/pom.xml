@@ -39,9 +39,16 @@
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-tools-internal</artifactId>
+            <artifactId>cxf-tools-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+         <dependency>
+	    <groupId>org.objectweb.celtixfire</groupId>
+	    <artifactId>cxf-tools-java2wsdl</artifactId>
+	    <version>${project.version}</version>
+        </dependency>
+        
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>cxf-api</artifactId>

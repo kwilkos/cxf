@@ -43,8 +43,8 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
+        
+       <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>internal</artifactId>
             <version>${project.version}</version>
