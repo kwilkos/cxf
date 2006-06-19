@@ -2,21 +2,32 @@ package org.objectweb.celtix.configuration.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.objectweb.celtix.common.i18n.BundleUtils;
 import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
 import org.objectweb.celtix.resource.DefaultResourceManager;
+import org.springframework.core.io.UrlResource;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
+        
     protected static final ResourceBundle BUNDLE =
         BundleUtils.getBundle(ConfigurationBuilderImpl.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationBuilderImpl.class);
+    private static final String METADATA_RESOURCE_MAPPINGS_RESOURCE 
+        = "META-INF/config-metadata-mappings.xml";
 
     protected Map<String, Map<String, Configuration>> configurations;
     private Map<String, ConfigurationMetadata> models;
@@ -25,16 +36,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     public ConfigurationBuilderImpl() {
         models = new HashMap<String, ConfigurationMetadata>();
         configurations = new HashMap<String, Map<String, Configuration>>();
-
-        /*
-        add("config-metadata/bus-config.xml");
-        add("config-metadata/endpoint-config.xml");
-        add("config-metadata/http-client-config.xml");
-        add("config-metadata/http-listener-config.xml");
-        add("config-metadata/http-server-config.xml");
-        add("config-metadata/port-config.xml");
-        add("config-metadata/service-config.xml");
-        */
     }
 
     public Configuration getConfiguration(String namespaceUri, String id) {
@@ -123,11 +124,62 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
 
     public ConfigurationMetadata getModel(String namespaceUri) {
-        return models.get(namespaceUri);
+        ConfigurationMetadata model = models.get(namespaceUri);
+        if (null == model) {
+            String resourceName = getResourceName(namespaceUri);
+            if (null != resourceName) {
+                model = loadModel(resourceName);
+                addModel(model);
+            }
+        }
+        return model;
     }
 
-    public void addModel(String resource) {
+    public void addModel(String resource) {        
+        addModel(loadModel(resource));
+    }
+    
+    public void clearConfigurations() {
+        configurations.clear();
+    }
+    
+    public void clearModels() {
+        models.clear();
+    }
+    
+    private String getResourceName(String namespaceURI) {
+        String resourceName = null;
+        Enumeration<URL> candidates;
+        try { 
+            candidates = Thread.currentThread().getContextClassLoader()
+                .getResources(METADATA_RESOURCE_MAPPINGS_RESOURCE);
+            while (candidates.hasMoreElements()) {
+                URL url = candidates.nextElement();
+                UrlResource ur = new UrlResource(url); 
+                Properties mappings = new Properties();
+                mappings.loadFromXML(ur.getInputStream()); 
+                resourceName = mappings.getProperty(namespaceURI);
+                if (null != resourceName) {
+                    break;
+                }
+            }
+        } catch (IOException ex) {
+            Message msg = new Message("CANNOT_FIND_METADATA_FOR_NAMESPACE_MSG", BUNDLE, namespaceURI);
+            LOG.log(Level.WARNING, msg.toString(), ex);
+            return null;
+        }
+        if (null == resourceName) {
+            Message msg = new Message("CANNOT_FIND_METADATA_FOR_NAMESPACE_MSG", BUNDLE, namespaceURI);
+            LOG.log(Level.WARNING, msg.toString());
+        }
+        return resourceName;
+    }
 
+    private InputStream loadResource(String resourceName) {
+        return DefaultResourceManager.instance().getResourceAsStream(resourceName);
+    }
+    
+    private ConfigurationMetadata loadModel(String resource) {
         InputStream is = null;
         if (resource != null) {
             is = loadResource(resource);
@@ -150,18 +202,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
             model = new ConfigurationMetadataImpl();
         }
 
-        addModel(model);
-    }
-    
-    public void clearConfigurations() {
-        configurations.clear();
-    }
-    
-    public void clearModels() {
-        models.clear();
-    }
-
-    private InputStream loadResource(String resourceName) {
-        return DefaultResourceManager.instance().getResourceAsStream(resourceName);
+        return model;
     }
 }

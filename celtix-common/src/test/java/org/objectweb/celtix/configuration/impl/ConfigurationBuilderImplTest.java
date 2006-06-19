@@ -13,6 +13,8 @@ import org.objectweb.celtix.configuration.ConfigurationMetadata;
 
 public class ConfigurationBuilderImplTest extends TestCase {
     
+    private static final String TEST_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/configuration/test/meta1";
     private static final String BUS_CONFIGURATION_URI = "http://celtix.objectweb.org/bus/bus-config";
     private static final String HTTP_LISTENER_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/transports/http/http-listener-config";
@@ -34,7 +36,7 @@ public class ConfigurationBuilderImplTest extends TestCase {
                            DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME);
         orgBuilderClassname = System.getProperty(ConfigurationBuilder.CONFIGURATION_BUILDER_CLASS_PROPERTY);
         System.setProperty(ConfigurationBuilder.CONFIGURATION_BUILDER_CLASS_PROPERTY, 
-                           ConfigurationBuilderImpl.class.getName());    
+                           ConfigurationBuilderImpl.class.getName());          
     }
     
     public void tearDown() {
@@ -214,4 +216,12 @@ public class ConfigurationBuilderImplTest extends TestCase {
         assertNotNull(child);
         builder.clearConfigurations();
     }
+    
+    public void testGetResourceName() {
+        ConfigurationBuilder builder = new ConfigurationBuilderImpl();
+        assertNull("Found metadata resource", builder.getModel(BUS_CONFIGURATION_URI));
+        assertNotNull("Could not find metadata resource", builder.getModel(TEST_CONFIGURATION_URI));   
+    }
+    
+    
 }

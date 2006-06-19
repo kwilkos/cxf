@@ -376,6 +376,11 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
             }
 
             soapMessage = msgFactory.createMessage(headers, inCtx.getInputStream());
+            if (LOG.isLoggable(Level.FINE)) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                soapMessage.writeTo(baos);
+                LOG.log(Level.FINE, baos.toString());
+            }
             //Test if it is a valid SOAP 1.1 Message
             code = FAULTCODE_VERSIONMISMATCH;
             soapMessage.getSOAPPart().getEnvelope();

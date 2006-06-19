@@ -29,8 +29,6 @@ public class RouterManager {
         "router";
     public static final String ROUTING_WSDL_ID =
         "routesWSDL";
-    public static final String ROUTER_CONFIG_RESOURCE =
-        "config-metadata/router-config.xml";
     private final Bus bus;
     private final Configuration config;
     private URLClassLoader seiClassLoader;
@@ -52,7 +50,6 @@ public class RouterManager {
         assert null != busCfg;
         Configuration cfg = null;
         ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
-        cb.addModel(ROUTER_CONFIG_RESOURCE);
         cfg = cb.getConfiguration(ROUTING_CONFIGURATION_URI, 
                                   ROUTING_CONFIGURATION_ID,
                                   busCfg);
