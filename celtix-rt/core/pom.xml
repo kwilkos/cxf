@@ -67,4 +67,33 @@
 
     </dependencies>
 
+
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.objectweb.celtixfire</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <configuration>
+                            <testSourceRoot>${basedir}/target/generated/src/test/java</testSourceRoot>
+                            <beanfiles>
+                                <beanfile>${basedir}/src/test/java/org/objectweb/celtix/bus/configuration/resources/top.xml</beanfile>
+                                <beanfile>${basedir}/src/test/java/org/objectweb/celtix/bus/configuration/resources/leaf.xml</beanfile>
+                            </beanfiles>
+                        </configuration>
+                        <goals>
+                            <goal>beangen</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
