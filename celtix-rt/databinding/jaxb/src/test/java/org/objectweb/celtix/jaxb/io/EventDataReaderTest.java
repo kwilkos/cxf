@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.jaxws.io;
+package org.objectweb.celtix.jaxb.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,13 +15,11 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bus.bindings.soap.SOAPConstants;
-import org.objectweb.celtix.bus.bindings.soap.SOAPMessageUtil;
-import org.objectweb.celtix.bus.bindings.soap.SoapBindingImplTest;
-import org.objectweb.celtix.bus.bindings.soap.StaxEventFilter;
-import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
+import org.objectweb.celtix.jaxb.StaxEventFilter;
+import org.objectweb.celtix.testutil.common.TestUtil;
 import org.objectweb.hello_world_soap_http.Greeter;
  
 public class EventDataReaderTest extends TestCase {
@@ -31,7 +29,7 @@ public class EventDataReaderTest extends TestCase {
     private InputStream is;
 
     public void setUp() throws Exception {
-        is =  SoapBindingImplTest.class.getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
+        is =  getClass().getResourceAsStream("../resources/GreetMeDocLiteralReq.xml");
         assertNotNull(is);
         factory = XMLInputFactory.newInstance();
         evntReader = factory.createXMLEventReader(is);
@@ -44,7 +42,7 @@ public class EventDataReaderTest extends TestCase {
 
     public void testRead() throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(Greeter.class);
-        Method m = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
+        Method m = TestUtil.getMethod(Greeter.class, "greetMe");
         JAXBDataBindingCallback cb = 
             new JAXBDataBindingCallback(m, Mode.PARTS, ctx);
 
@@ -70,7 +68,7 @@ public class EventDataReaderTest extends TestCase {
     
     public void testReadWrapper() throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(Greeter.class);
-        Method m = SOAPMessageUtil.getMethod(Greeter.class, "greetMe");
+        Method m = TestUtil.getMethod(Greeter.class, "greetMe");
         JAXBDataBindingCallback cb = 
             new JAXBDataBindingCallback(m, Mode.PARTS, ctx);
 
@@ -82,7 +80,7 @@ public class EventDataReaderTest extends TestCase {
 
         DataReader<XMLEventReader> reader = cb.createReader(XMLEventReader.class);
         assertNotNull(reader);
-        ObjectMessageContext objCtx = new ObjectMessageContextImpl();
+        ObjectMessageContextImpl objCtx = new ObjectMessageContextImpl();
         objCtx.setMessageObjects(new Object[1]);
         
         reader.readWrapper(objCtx, false, localReader);
