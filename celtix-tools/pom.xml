@@ -19,12 +19,10 @@
     </properties>
     
     <modules>
-            <module>internal</module>
             <module>common</module>
             <module>validator</module>
             <module>wsdl2java</module>
             <module>java2wsdl</module>
-            <!--module>others</module-->
-            
+            <module>misctools</module>            
     </modules>
 </project>

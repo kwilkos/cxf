@@ -4,11 +4,12 @@ import javax.xml.namespace.QName;
 
 public final class ToolConstants {
 
-    public static final String TOOLSPECS_BASE = "/org/objectweb/celtix/tools/common/toolspec/toolspecs/";
+    //public static final String TOOLSPECS_BASE = "/org/objectweb/celtix/tools/common/toolspec/toolspecs/";
+    public static final String TOOLSPECS_BASE = "/org/objectweb/celtix/tools/";
     public static final String SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
     public static final String XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
     public static final String WSDL_NAMESPACE_URI = "http://schemas.xmlsoap.org/wsdl/";
-    
+
     public static final String DEFAULT_TEMP_DIR = "gen_tmp";
     public static final String CFG_OUTPUTDIR = "outputdir";
     public static final String CFG_OUTPUTFILE = "outputfile";
@@ -16,7 +17,7 @@ public final class ToolConstants {
     public static final String CFG_NAMESPACE = "namespace";
     public static final String CFG_VERBOSE = "verbose";
     public static final String CFG_PORT = "port";
-    public static final String CFG_BINDING = "binding";    
+    public static final String CFG_BINDING = "binding";
     public static final String CFG_WEBSERVICE = "webservice";
     public static final String CFG_SERVER = "server";
     public static final String CFG_CLIENT = "client";
@@ -35,19 +36,19 @@ public final class ToolConstants {
     public static final String CFG_DEFAULT_EX = "defaultex";
 
     public static final String CFG_VALIDATE_WSDL = "validate";
-    
-   
+
+
     // WSDL2Java Constants
-    
+
     public static final String CFG_TYPES = "types";
     public static final String CFG_INTERFACE = "interface";
     public static final String CFG_NIGNOREEXCLUDE = "nignoreexclude";
     public static final String CFG_ANT = "ant";
     public static final String CFG_LIB_REF = "library.references";
     public static final String CFG_ANT_PROP = "ant.prop";
-    
+
     // Java2WSDL Constants
-    
+
     public static final String CFG_CLASSPATH = "classpath";
     public static final String CFG_TNS = "tns";
     public static final String CFG_SERVICENAME = "servicename";
@@ -55,31 +56,31 @@ public final class ToolConstants {
     public static final String CFG_USETYPES = "usetypes";
     public static final String CFG_CLASSNAME = "classname";
     public static final String CFG_PORTTYPE = "porttype";
- 
+
 
     // WSDL2Service Constants
     public static final String CFG_ADDRESS = "address";
     public static final String CFG_TRANSPORT = "transport";
     public static final String CFG_SERVICE = "service";
     public static final String CFG_BINDING_ATTR = "attrbinding";
-    
-    // WSDL2Soap Constants    
+
+    // WSDL2Soap Constants
     public static final String CFG_STYLE = "style";
-    public static final String CFG_USE = "use";    
-    
+    public static final String CFG_USE = "use";
+
     // XSD2WSDL Constants
     public static final String CFG_XSDURL = "xsdurl";
     public static final String CFG_NAME = "name";
-    
-    
+
+
     // WsdlValidator
     public static final String CFG_DEEP = "deep";
     public static final String CFG_SCHEMA_DIR = "schemaDir";
     public static final String CFG_SCHEMA_URL = "schemaURL";
     public static final String CELTIX_SCHEMA_DIR = "celtix_schema_dir";
-    
-    
-        
+
+
+
     // WSDL2Java Processor Constants
     public static final String SEI_GENERATOR = "sei.generator";
     public static final String FAULT_GENERATOR = "fault.generator";
@@ -102,13 +103,13 @@ public final class ToolConstants {
     public static final String JAXWS_BINDING_VERSION = "version";
 
     public static final String ASYNC_METHOD_SUFFIX = "Async";
-    
+
     public static final String HANDLER_CHAINS_URI = "http://java.sun.com/xml/ns/javaee";
     public static final String HANDLER_CHAIN = "handler-chain";
     public static final String HANDLER_CHAINS = "handler-chains";
 
     public static final String RAW_JAXB_MODEL = "rawjaxbmodel";
-    
+
     // JMS adress
     public static final String NS_JMS_ADDRESS = "http://celtix.objectweb.org/transports/jms";
     public static final QName  JMS_ADDRESS = new QName(NS_JMS_ADDRESS, "address");
@@ -121,7 +122,7 @@ public final class ToolConstants {
     public static final String JMS_ADDR_INIT_CTX = "initialContextFactory";
     public static final String JMS_ADDR_SUBSCRIBER_NAME = "durableSubscriberName";
     public static final String JMS_ADDR_MSGID_TO_CORRID = "useMessageIDAsCorrelationID";
-    
+
     // XML Binding
     public static final String XMLBINDING_ROOTNODE = "rootNode";
     public static final String XMLBINDING_HTTP_LOCATION = "location";
@@ -132,6 +133,6 @@ public final class ToolConstants {
     public static final QName  XML_HTTP_ADDRESS = new QName(NS_XML_HTTP, "address");
     public static final QName  XML_FORMAT = new QName(NS_XML_FORMAT, "body");
     public static final QName  XML_BINDING_FORMAT = new QName(NS_XML_FORMAT, "binding");
-    
-   
+
+
 }
