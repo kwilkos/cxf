@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bus.ws.rm;
+package org.objectweb.celtix.ws.rm;
 
 import java.io.IOException;
 
