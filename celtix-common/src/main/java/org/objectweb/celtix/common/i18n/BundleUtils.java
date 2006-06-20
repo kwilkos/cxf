@@ -9,7 +9,7 @@ import java.util.ResourceBundle;
  */
 public final class BundleUtils {
     /**
-     * The resource bundle naming convention for class is a.b.c is a.b.Messages
+     * The default resource bundle naming convention for class is a.b.c is a.b.Messages
      */
     private static final String MESSAGE_BUNDLE = ".Messages";
 
@@ -20,7 +20,8 @@ public final class BundleUtils {
     }
 
     /**
-     * Encapsulates the logic related to naming a resource bundle. 
+     * Encapsulates the logic related to naming the default resource bundle
+     * for a class. 
      *
      * @param cls the Class requiring the bundle
      * @return an appropriate ResourceBundle name
@@ -28,14 +29,38 @@ public final class BundleUtils {
     public static String getBundleName(Class cls) {
         return cls.getPackage().getName() + MESSAGE_BUNDLE;
     }
+    
+    /**
+     * Encapsulates the logic related to naming the resource bundle
+     * with the given relative name for a class. 
+     *
+     * @param cls the Class requiring the bundle
+     * @return an appropriate ResourceBundle name
+     */
+    public static String getBundleName(Class cls, String name) {
+        return cls.getPackage().getName() + "." + name;
+    }
 
     /**
-     * Encapsulates the logic related to locating a resource bundle. 
+     * Encapsulates the logic related to locating the default resource bundle
+     * for a class. 
      *
      * @param cls the Class requiring the bundle
      * @return an appropriate ResourceBundle
      */
     public static ResourceBundle getBundle(Class cls) {
         return ResourceBundle.getBundle(getBundleName(cls));
+    }
+    
+    /**
+     * Encapsulates the logic related to locating the resource bundle with the given 
+     * relative name for a class.
+     *
+     * @param cls the Class requiring the bundle
+     * @param name the name of the resource
+     * @return an appropriate ResourceBundle
+     */
+    public static ResourceBundle getBundle(Class cls, String name) {
+        return ResourceBundle.getBundle(getBundleName(cls, name));
     }
 }

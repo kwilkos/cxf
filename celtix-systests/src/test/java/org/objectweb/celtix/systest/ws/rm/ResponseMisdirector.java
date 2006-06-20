@@ -9,9 +9,9 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 
-import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
-import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
-import org.objectweb.celtix.bus.ws.rm.RMContextUtils;
+import org.objectweb.celtix.ws.addressing.AddressingPropertiesImpl;
+import org.objectweb.celtix.ws.addressing.ContextUtils;
+import org.objectweb.celtix.ws.rm.RMContextUtils;
 import org.objectweb.celtix.ws.rm.RMProperties;
 
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;

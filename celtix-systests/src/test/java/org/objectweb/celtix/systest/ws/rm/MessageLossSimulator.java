@@ -9,9 +9,9 @@ import javax.xml.ws.handler.MessageContext;
 
 import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
 
-import org.objectweb.celtix.bus.ws.rm.RMContextUtils;
-import org.objectweb.celtix.bus.ws.rm.RMUtils;
+import org.objectweb.celtix.ws.rm.RMContextUtils;
 import org.objectweb.celtix.ws.rm.RMProperties;
+import org.objectweb.celtix.ws.rm.RMUtils;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
 

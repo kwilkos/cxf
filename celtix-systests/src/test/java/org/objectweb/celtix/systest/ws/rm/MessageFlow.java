@@ -15,10 +15,10 @@ import javax.xml.ws.handler.LogicalMessageContext;
 
 import junit.framework.Assert;
 
-import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
-import org.objectweb.celtix.bus.ws.rm.Names;
-import org.objectweb.celtix.bus.ws.rm.RMContextUtils;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.ws.addressing.ContextUtils;
+import org.objectweb.celtix.ws.rm.Names;
+import org.objectweb.celtix.ws.rm.RMContextUtils;
 import org.objectweb.celtix.ws.rm.RMProperties;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
 import org.objectweb.celtix.ws.rm.SequenceType;
@@ -298,10 +298,10 @@ public class MessageFlow extends Assert {
             SOAPHeaderElement headerElement = (SOAPHeaderElement)headerElements.next();
             Name headerName = headerElement.getElementName();
             String localName = headerName.getLocalName();
-            if ((headerName.getURI().equals(org.objectweb.celtix.bus.ws.addressing.Names.WSA_NAMESPACE_NAME) 
-                || headerName.getURI().equals(org.objectweb.celtix.bus.ws.addressing.VersionTransformer
+            if ((headerName.getURI().equals(org.objectweb.celtix.ws.addressing.Names.WSA_NAMESPACE_NAME) 
+                || headerName.getURI().equals(org.objectweb.celtix.ws.addressing.VersionTransformer
                                               .Names200408.WSA_NAMESPACE_NAME))
-                && localName.equals(org.objectweb.celtix.bus.ws.addressing.Names.WSA_ACTION_NAME)) {
+                && localName.equals(org.objectweb.celtix.ws.addressing.Names.WSA_ACTION_NAME)) {
                 return headerElement.getTextContent();
             }
         }

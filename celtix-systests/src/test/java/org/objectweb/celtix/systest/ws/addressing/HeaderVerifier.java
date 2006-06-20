@@ -22,11 +22,11 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
-import org.objectweb.celtix.bus.ws.addressing.Names;
-import org.objectweb.celtix.bus.ws.addressing.soap.VersionTransformer;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
+import org.objectweb.celtix.ws.addressing.ContextUtils;
+import org.objectweb.celtix.ws.addressing.Names;
+import org.objectweb.celtix.ws.addressing.soap.VersionTransformer;
 import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;

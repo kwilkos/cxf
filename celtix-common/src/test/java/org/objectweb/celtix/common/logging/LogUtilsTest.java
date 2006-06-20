@@ -22,6 +22,10 @@ public class LogUtilsTest extends TestCase {
         assertEquals("unexpected resource bundle name",
                      BundleUtils.getBundleName(LogUtilsTest.class),
                      LOG.getResourceBundleName());
+        Logger otherLogger = LogUtils.getL7dLogger(LogUtilsTest.class, "Messages");
+        assertEquals("unexpected resource bundle name",
+                     BundleUtils.getBundleName(LogUtilsTest.class, "Messages"),
+                     otherLogger.getResourceBundleName());
     }
 
     public void testHandleL7dMessage() throws Exception {

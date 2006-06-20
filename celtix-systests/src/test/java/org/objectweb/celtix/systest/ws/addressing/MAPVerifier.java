@@ -10,9 +10,10 @@ import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
-import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
-import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
-import org.objectweb.celtix.bus.ws.addressing.Names;
+import org.objectweb.celtix.ws.addressing.AddressingPropertiesImpl;
+import org.objectweb.celtix.ws.addressing.ContextUtils;
+import org.objectweb.celtix.ws.addressing.Names;
+
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
 

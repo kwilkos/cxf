@@ -11,8 +11,8 @@ import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bus.context.LogicalMessageContextImpl;
-import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.context.GenericMessageContext;
+import org.objectweb.celtix.ws.addressing.ContextUtils;
 
 public class LogicalMessageContextRecorder implements LogicalHandler<LogicalMessageContext> {
     

@@ -8,14 +8,14 @@ import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.SystemHandlerChainType;
-import org.objectweb.celtix.bus.ws.addressing.MAPAggregator;
-import org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec;
-import org.objectweb.celtix.bus.ws.rm.RMHandler;
-import org.objectweb.celtix.bus.ws.rm.soap.PersistenceHandler;
-import org.objectweb.celtix.bus.ws.rm.soap.RMSoapHandler;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
+import org.objectweb.celtix.ws.addressing.MAPAggregator;
+import org.objectweb.celtix.ws.addressing.soap.MAPCodec;
+import org.objectweb.celtix.ws.rm.RMHandler;
+import org.objectweb.celtix.ws.rm.soap.PersistenceHandler;
+import org.objectweb.celtix.ws.rm.soap.RMSoapHandler;
 
 public class TestConfigurator {
 

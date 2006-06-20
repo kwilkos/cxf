@@ -15,14 +15,14 @@ import javax.xml.ws.handler.Handler;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.objectweb.celtix.bus.ws.addressing.AddressingPropertiesImpl;
-import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
-import org.objectweb.celtix.bus.ws.addressing.Names;
-import org.objectweb.celtix.bus.ws.addressing.soap.VersionTransformer;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.ws.addressing.AddressingPropertiesImpl;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
+import org.objectweb.celtix.ws.addressing.ContextUtils;
+import org.objectweb.celtix.ws.addressing.Names;
+import org.objectweb.celtix.ws.addressing.soap.VersionTransformer;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 import org.objectweb.hello_world_soap_http.BadRecordLitFault;

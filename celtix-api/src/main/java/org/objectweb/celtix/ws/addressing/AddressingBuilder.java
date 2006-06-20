@@ -20,7 +20,7 @@ import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.DEFAULT_ADDRESS
 public abstract class AddressingBuilder implements AddressingType {
 
     private static final Logger LOG = 
-        LogUtils.getL7dLogger(AddressingBuilder.class);
+        LogUtils.getL7dLogger(AddressingBuilder.class, "APIMessages");
     private static AddressingBuilder builder;
 
     /**

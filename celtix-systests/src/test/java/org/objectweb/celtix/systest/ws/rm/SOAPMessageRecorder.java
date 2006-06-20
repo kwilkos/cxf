@@ -9,9 +9,9 @@ import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 
-import org.objectweb.celtix.bus.ws.addressing.ContextUtils;
 import org.objectweb.celtix.context.StreamMessageContext;
 import org.objectweb.celtix.handlers.StreamHandler;
+import org.objectweb.celtix.ws.addressing.ContextUtils;
 
 public class SOAPMessageRecorder implements StreamHandler {
     

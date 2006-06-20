@@ -10,6 +10,9 @@ public class BundleUtilsTest extends TestCase {
         assertEquals("unexpected resource bundle name",
                      "org.objectweb.celtix.common.i18n.Messages",
                      BundleUtils.getBundleName(getClass()));
+        assertEquals("unexpected resource bundle name",
+                     "org.objectweb.celtix.common.i18n.Messages",
+                     BundleUtils.getBundleName(getClass(), "Messages"));
     }
 
     public void testGetBundle() throws Exception {
@@ -18,6 +21,10 @@ public class BundleUtilsTest extends TestCase {
         assertEquals("unexpected resource", 
                      "localized message",
                      bundle.getString("I18N_MSG"));
-                     
+        ResourceBundle nonDefaultBundle = BundleUtils.getBundle(getClass(), "Messages");
+        assertNotNull("expected resource bundle", nonDefaultBundle);
+        assertEquals("unexpected resource", 
+                     "localized message",
+                     nonDefaultBundle.getString("I18N_MSG"));             
     }
 }

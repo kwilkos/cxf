@@ -22,13 +22,24 @@ public final class LogUtils {
     }
 
     /**
-     * Get a Logger with an associated resource bundle.
+     * Get a Logger with the associated default resource bundle for the class.
      *
      * @param cls the Class to contain the Logger
      * @return an appropriate Logger 
      */
     public static Logger getL7dLogger(Class cls) {
         return Logger.getLogger(cls.getName(), BundleUtils.getBundleName(cls));
+    }
+    
+    /**
+     * Get a Logger with an associated resource bundle.
+     *
+     * @param cls the Class to contain the Logger
+     * @param name the resource name
+     * @return an appropriate Logger 
+     */
+    public static Logger getL7dLogger(Class cls, String name) {
+        return Logger.getLogger(cls.getName(), BundleUtils.getBundleName(cls, name));
     }
 
     /**

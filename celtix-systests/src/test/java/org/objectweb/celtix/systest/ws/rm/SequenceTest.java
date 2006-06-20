@@ -14,8 +14,6 @@ import junit.framework.TestSuite;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
-import org.objectweb.celtix.bus.ws.rm.Names;
-import org.objectweb.celtix.bus.ws.rm.soap.PersistenceHandler;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.greeter_control.Control;
@@ -24,6 +22,8 @@ import org.objectweb.celtix.greeter_control.Greeter;
 import org.objectweb.celtix.greeter_control.GreeterService;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
+import org.objectweb.celtix.ws.rm.Names;
+import org.objectweb.celtix.ws.rm.soap.PersistenceHandler;
 
 /**
  * Tests Reliable Messaging.
