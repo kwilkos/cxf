@@ -18,11 +18,11 @@ import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.transports.http.AbstractHTTPServerOutputStreamContext;
-import org.objectweb.celtix.bus.transports.http.AbstractHTTPServerTransport;
-import org.objectweb.celtix.bus.transports.http.HTTPServerInputStreamContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransportCallback;
+import org.objectweb.celtix.transports.http.AbstractHTTPServerOutputStreamContext;
+import org.objectweb.celtix.transports.http.AbstractHTTPServerTransport;
+import org.objectweb.celtix.transports.http.HTTPServerInputStreamContext;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 import org.xmlsoap.schemas.wsdl.http.AddressType;

@@ -15,9 +15,9 @@ import javax.xml.ws.handler.MessageContext;
 import org.apache.geronimo.webservices.WebServiceContainer.Request;
 import org.apache.geronimo.webservices.WebServiceContainer.Response;
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.transports.http.AbstractHTTPServerTransport;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.transports.ServerTransportCallback;
+import org.objectweb.celtix.transports.http.AbstractHTTPServerTransport;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class GeronimoServerTransport extends AbstractHTTPServerTransport 

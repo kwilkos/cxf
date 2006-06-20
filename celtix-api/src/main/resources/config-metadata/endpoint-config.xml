@@ -58,7 +58,7 @@
         </cm:description>
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>    
         <std-types:stringListValue>
-            <std-types:item>org.objectweb.celtix.bus.transports.http.JettyContextInspector</std-types:item>
+            <std-types:item>org.objectweb.celtix.transports.http.JettyContextInspector</std-types:item>
             <std-types:item>org.objectweb.celtix.ws.addressing.EndpointReferenceTypeContextInspector</std-types:item>
 	</std-types:stringListValue>
     </cm:configItem>
