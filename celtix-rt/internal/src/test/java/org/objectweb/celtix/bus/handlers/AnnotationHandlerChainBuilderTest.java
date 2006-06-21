@@ -189,7 +189,7 @@ class InvalidAnnotation extends AnnotatedGreeterImpl {
 }
 
 
-@HandlerChain(file = "handlers.xml", name = "yoohoo")
+@HandlerChain(file = "handlers_notafile.xml", name = "yoohoo")
 class InvalidName extends AnnotatedGreeterImpl {
 }
 
@@ -197,13 +197,13 @@ class InvalidName extends AnnotatedGreeterImpl {
 class NoSuchClassName extends AnnotatedGreeterImpl {
 }
 
-@HandlerChain(file = "../../../hello_world_soap_http/handlers.xml", name = "HandlerChainNoInitParam")
+@HandlerChain(file = "./handlers.xml", name = "HandlerChainNoInitParam")
 class HandlerChainNoInit extends AnnotatedGreeterImpl {
 }
 
 
 @WebService(name = "Greeter")
-@HandlerChain(file = "../../../hello_world_soap_http/handlers.xml", name = "TestHandlerChain")
+@HandlerChain(file = "./handlers.xml", name = "TestHandlerChain")
 interface GreeterWithHandlerChain extends Greeter { 
 
 } 
