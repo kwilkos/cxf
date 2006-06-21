@@ -32,7 +32,7 @@ public class WSDLValidationTest extends ToolTestBase {
             assertTrue("Non Unique Body Parts Error should be discovered",
                        getStdErr().indexOf("Non unique body part") > -1);
         } catch (Exception e) {
-            // do nothing
+            e.printStackTrace();
         }
     }
 
@@ -46,7 +46,7 @@ public class WSDLValidationTest extends ToolTestBase {
                        getStdErr().indexOf("Mixted style ,Wrong WSDL") > -1);
 
         } catch (Exception e) {
-            // do nothing
+            e.printStackTrace();
         }
     }
 
@@ -59,7 +59,7 @@ public class WSDLValidationTest extends ToolTestBase {
             assertTrue("Refere type element error   should be discovered",
                        getStdErr().indexOf("using the element attribute") > -1);
         } catch (Exception e) {
-            // do nothing
+            e.printStackTrace();
         }
     }
 
@@ -73,7 +73,7 @@ public class WSDLValidationTest extends ToolTestBase {
                        getStdErr().indexOf(" is not allowed to appear in element") > -1);
 
         } catch (Exception e) {
-            // do nothing
+            e.printStackTrace();
         }
     }
 
@@ -89,7 +89,7 @@ public class WSDLValidationTest extends ToolTestBase {
 
 
         } catch (Exception e) {
-            // do nothing
+            e.printStackTrace();
         }
 
     }
