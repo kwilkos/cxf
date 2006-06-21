@@ -29,10 +29,11 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bus.configuration.ConfigurationEvent;
 import org.objectweb.celtix.bus.configuration.ConfigurationEventFilter;
-import org.objectweb.celtix.bus.management.counters.TransportServerCounters;
+
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationFactory;
+import org.objectweb.celtix.management.counters.TransportServerCounters;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;

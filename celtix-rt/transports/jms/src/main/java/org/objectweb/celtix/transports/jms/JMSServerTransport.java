@@ -27,12 +27,13 @@ import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusEventListener;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.configuration.ConfigurationEvent;
-import org.objectweb.celtix.bus.management.counters.TransportServerCounters;
+
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationFactory;
+import org.objectweb.celtix.management.counters.TransportServerCounters;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 //import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;

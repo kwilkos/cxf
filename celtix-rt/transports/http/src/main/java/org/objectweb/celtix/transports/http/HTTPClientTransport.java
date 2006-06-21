@@ -1,8 +1,5 @@
 package org.objectweb.celtix.transports.http;
 
-
-
-
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -47,7 +44,6 @@ import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
 import org.objectweb.celtix.bus.configuration.security.SSLClientPolicy;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlHttpConfigurationProvider;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlPortProvider;
-import org.objectweb.celtix.bus.management.counters.TransportClientCounters;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
@@ -60,6 +56,7 @@ import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationFactory;
+import org.objectweb.celtix.management.counters.TransportClientCounters;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 import org.objectweb.celtix.transports.https.JettySslClientConfigurer;

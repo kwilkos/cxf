@@ -78,7 +78,7 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
 
         try {
             //REVISIT - dynamic discovery of objects, generic registry instead of fields
-            Object o = Class.forName("org.objectweb.celtix.bus.management.InstrumentationManagerImpl")
+            Object o = Class.forName("org.objectweb.celtix.management.InstrumentationManagerImpl")
                 .getConstructor(Bus.class).newInstance(this);
             instrumentationManager = (InstrumentationManager)o;
         } catch (Exception e) {

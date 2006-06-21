@@ -1,12 +1,10 @@
 package org.objectweb.celtix.transports.http;
 
-
-
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
-import org.objectweb.celtix.bus.management.counters.TransportClientCounters;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.annotation.ManagedAttribute;
 import org.objectweb.celtix.management.annotation.ManagedResource;
+import org.objectweb.celtix.management.counters.TransportClientCounters;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 
 @ManagedResource(componentName = "HTTPClientTransport", 
