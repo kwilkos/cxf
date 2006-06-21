@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Binding;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.Response;
@@ -186,6 +187,13 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T> 
             throwWebServiceException(ex);
         } 
 
+    }
+
+    public Binding getBinding() {
+        if (null == super.getBinding()) {
+            init();
+        }
+        return super.getBinding();
     }
 
     private  ClientBinding createClientBinding() {

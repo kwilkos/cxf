@@ -81,17 +81,28 @@ public class ServiceImpl extends ServiceDelegate {
         return createPort(null, serviceEndpointInterface);
     }
 
-    public <T> Dispatch<T> createDispatch(QName portName, Class<T> serviceEndpointInterface,
-                                    Service.Mode mode) {
+    public <T> Dispatch<T> createDispatch(QName portName, 
+                                          Class<T> serviceEndpointInterface,
+                                          Service.Mode mode) {
         EndpointReferenceType ref =
             EndpointReferenceUtils.getEndpointReference(wsdlLocation,
                                                         serviceName,
                                                         portName.getLocalPart());
         createPortConfiguration(portName, ref);
-        return new DispatchImpl<T>(bus, ref, mode, serviceEndpointInterface, executor);
+        
+        Dispatch<T> disp = 
+            new DispatchImpl<T>(bus, ref, mode, 
+                                serviceEndpointInterface, executor);
+        
+        //Set The Handler Chain
+        createHandlerChainForBinding(serviceEndpointInterface, portName, disp.getBinding());
+        
+        return disp;
     }
 
-    public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Service.Mode mode) {
+    public Dispatch<Object> createDispatch(QName portName, 
+                                           JAXBContext context, 
+                                           Service.Mode mode) {
 
         EndpointReferenceType ref =
             EndpointReferenceUtils.getEndpointReference(wsdlLocation,
@@ -99,7 +110,13 @@ public class ServiceImpl extends ServiceDelegate {
                                                         portName.getLocalPart());
         createPortConfiguration(portName, ref);
 
-        return new DispatchImpl<Object>(bus, ref, mode, context, Object.class, executor);
+        Dispatch<Object> disp = 
+            new DispatchImpl<Object>(bus, ref, mode, 
+                                     context, Object.class, executor);
+        
+        createHandlerChainForBinding(null, portName, disp.getBinding());
+        
+        return disp;
     }
 
     public QName getServiceName() {
@@ -180,8 +197,10 @@ public class ServiceImpl extends ServiceDelegate {
         assert handlerResolver != null;
         PortInfoImpl portInfo = new PortInfoImpl(serviceName, portName, null);
         List<Handler> handlers = handlerResolver.getHandlerChain(portInfo);
-        AnnotationHandlerChainBuilder handlerChainBuilder = new AnnotationHandlerChainBuilder();
-        handlers = handlerChainBuilder.buildHandlerChainFor(serviceEndpointInterface, handlers);
+        if (null != serviceEndpointInterface) {
+            AnnotationHandlerChainBuilder handlerChainBuilder = new AnnotationHandlerChainBuilder();
+            handlers = handlerChainBuilder.buildHandlerChainFor(serviceEndpointInterface, handlers);
+        }
         binding.setHandlerChain(handlers);
     }
 
