@@ -9,7 +9,6 @@ import org.objectweb.celtix.BusException;
 
 import org.objectweb.celtix.bus.workqueue.WorkQueueInstrumentation;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
-import org.objectweb.celtix.management.jmx.export.AnnotationTestInstrumentation;
 
 //import org.objectweb.celtix.management.MockComponentInstrumentation;
 

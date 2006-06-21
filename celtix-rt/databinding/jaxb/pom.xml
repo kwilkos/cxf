@@ -38,13 +38,6 @@
             <version>${project.version}</version>
         </dependency>
 
-<!--
-        <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>internal</artifactId>
-            <version>${project.version}</version>
-        </dependency>
--->
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>cxf-rt-datamodel</artifactId>

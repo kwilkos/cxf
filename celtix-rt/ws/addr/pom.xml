@@ -29,19 +29,7 @@
             <version>2.2</version>
             <scope>test</scope>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>1.5.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-tools-internal</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        -->
+
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>cxf-api</artifactId>
@@ -49,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>internal</artifactId>
+            <artifactId>cxf-rt-jaxws</artifactId>
             <version>${project.version}</version>
         </dependency>
 

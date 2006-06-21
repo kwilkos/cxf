@@ -22,7 +22,7 @@
         <module>core</module>
     	<module>databinding/jaxb</module>
         <module>management</module>
-        <module>internal</module>
+        <module>frontend/jaxws</module>
 	<!--<module>rt-test</module>-->
         <module>datamodel</module>
         <module>bindings</module>

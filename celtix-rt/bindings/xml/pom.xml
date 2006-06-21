@@ -16,4 +16,30 @@
         <topDirectoryLocation>../../..</topDirectoryLocation>
     </properties>
 
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-databinding-jaxb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-jaxws</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-testutils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
 </project>

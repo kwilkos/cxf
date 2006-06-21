@@ -64,9 +64,14 @@
 
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>internal</artifactId>
+            <artifactId>cxf-rt-jaxws</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-management</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

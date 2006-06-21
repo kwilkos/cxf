@@ -36,7 +36,16 @@
             <artifactId>cxf-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-management</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>cxf-testutils</artifactId>
@@ -44,12 +53,6 @@
             <scope>test</scope>
         </dependency>
         
-       <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>internal</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>com.sun.xml</groupId>
             <artifactId>saaj-impl</artifactId>
