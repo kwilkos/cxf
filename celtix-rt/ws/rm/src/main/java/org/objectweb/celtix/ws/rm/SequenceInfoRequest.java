@@ -82,7 +82,6 @@ public class SequenceInfoRequest extends Request {
         RMPropertiesImpl rmps = new RMPropertiesImpl(); 
         seq.nextAndLastMessageNumber();
         rmps.setSequence(seq);
-        assert seq.isLastMessage();
         RMContextUtils.storeRMProperties(getObjectMessageContext(), rmps, true);
     }
 }

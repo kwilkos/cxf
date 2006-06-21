@@ -151,7 +151,7 @@ public class RMProxy {
         }
     }
     
-    private void send(Request request, DataBindingCallback callback)
+    protected void send(Request request, DataBindingCallback callback)
         throws IOException {        
         
         boolean isOneway = request.isOneway();
@@ -236,5 +236,9 @@ public class RMProxy {
     private SourceSequence getFirstSequence(Collection<SourceSequence> seqs) {
         Iterator<SourceSequence> i = seqs.iterator();
         return i.hasNext() ? i.next() : null;
+    }
+    
+    protected void setHandler(RMHandler h) {
+        handler = h;
     }
 }

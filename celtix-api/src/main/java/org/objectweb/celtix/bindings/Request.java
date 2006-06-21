@@ -61,7 +61,7 @@ public class Request {
         objectCtx.put(OutputStreamMessageContext.ONEWAY_MESSAGE_TF, oneWay);
     }
     
-    public final boolean isOneway() {
+    public boolean isOneway() {
         return ((Boolean)objectCtx.get(OutputStreamMessageContext.ONEWAY_MESSAGE_TF)).booleanValue();
     }
 
