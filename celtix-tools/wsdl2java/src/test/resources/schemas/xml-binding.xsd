@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-           targetNamespace="http://schemas.iona.com/bindings/xmlformat"
-           xmlns:xformat="http://schemas.iona.com/bindings/xmlformat"
+	   targetNamespace="http://celtix.objectweb.org/bindings/xmlformat"
+	   xmlns:xformat="http://celtix.objectweb.org/bindings/xmlformat"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified">
 
