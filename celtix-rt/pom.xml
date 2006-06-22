@@ -23,6 +23,7 @@
     	<module>databinding/jaxb</module>
         <module>management</module>
         <module>frontend/jaxws</module>
+        <module>frontend/js</module>
 	<!--<module>rt-test</module>-->
         <module>datamodel</module>
         <module>bindings</module>
