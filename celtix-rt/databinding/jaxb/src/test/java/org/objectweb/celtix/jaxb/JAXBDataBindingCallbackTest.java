@@ -21,7 +21,7 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.DataWriter;
-import org.objectweb.celtix.bus.bindings.soap.SOAPConstants;
+import org.objectweb.celtix.datamodel.soap.SOAPConstants;
 import org.objectweb.celtix.jaxb.io.EventDataReader;
 import org.objectweb.celtix.jaxb.io.EventDataWriter;
 import org.objectweb.celtix.testutil.common.TestUtil;

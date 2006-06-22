@@ -16,7 +16,7 @@ import junit.framework.TestSuite;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.bus.bindings.TestClientBinding;
+import org.objectweb.celtix.bindings.TestClientBinding;
 import org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl;
 import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;

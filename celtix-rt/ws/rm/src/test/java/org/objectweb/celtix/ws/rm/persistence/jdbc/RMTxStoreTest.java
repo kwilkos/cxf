@@ -25,7 +25,7 @@ import junit.framework.TestSuite;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-import org.objectweb.celtix.bus.bindings.soap.SOAPBindingImpl;
+import org.objectweb.celtix.bindings.soap.SOAPBindingImpl;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.DestinationSequence;

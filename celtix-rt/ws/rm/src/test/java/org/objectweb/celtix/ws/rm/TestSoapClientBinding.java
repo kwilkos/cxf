@@ -7,7 +7,7 @@ import javax.wsdl.WSDLException;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.Request;
-import org.objectweb.celtix.bus.bindings.soap.SOAPClientBinding;
+import org.objectweb.celtix.bindings.soap.SOAPClientBinding;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.Transport;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;

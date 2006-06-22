@@ -24,10 +24,10 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-import org.objectweb.celtix.bus.bindings.soap.SOAPBindingImpl;
-import org.objectweb.celtix.bus.bindings.soap.W3CConstants;
+import org.objectweb.celtix.bindings.soap.SOAPBindingImpl;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
+import org.objectweb.celtix.datamodel.soap.W3CConstants;
 import org.objectweb.celtix.ws.rm.AckRequestedType;
 import org.objectweb.celtix.ws.rm.Identifier;
 import org.objectweb.celtix.ws.rm.Names;

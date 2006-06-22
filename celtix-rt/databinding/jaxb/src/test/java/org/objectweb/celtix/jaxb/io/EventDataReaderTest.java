@@ -14,8 +14,8 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.bindings.DataReader;
-import org.objectweb.celtix.bus.bindings.soap.SOAPConstants;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
+import org.objectweb.celtix.datamodel.soap.SOAPConstants;
 import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.jaxb.StaxEventFilter;

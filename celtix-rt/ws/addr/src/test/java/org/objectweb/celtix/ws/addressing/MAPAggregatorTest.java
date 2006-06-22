@@ -27,10 +27,10 @@ import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 
-import static org.objectweb.celtix.bus.bindings.soap.SOAPConstants.SOAP_ENV_ENCSTYLE;
 import static org.objectweb.celtix.context.ObjectMessageContext.METHOD_OBJ;
 import static org.objectweb.celtix.context.ObjectMessageContext.REQUESTOR_ROLE_PROPERTY;
 import static org.objectweb.celtix.context.OutputStreamMessageContext.ONEWAY_MESSAGE_TF;
+import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_ENV_ENCSTYLE;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND;
 import static org.objectweb.celtix.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;

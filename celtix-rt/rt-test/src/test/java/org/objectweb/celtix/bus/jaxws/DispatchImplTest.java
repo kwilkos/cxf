@@ -28,8 +28,8 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.bindings.ResponseCallback;
-import org.objectweb.celtix.bus.bindings.TestOutputStreamContext;
-import org.objectweb.celtix.bus.bindings.soap.SOAPClientBinding;
+import org.objectweb.celtix.bindings.TestOutputStreamContext;
+import org.objectweb.celtix.bindings.soap.SOAPClientBinding;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.jaxb.DynamicDataBindingCallback;
@@ -110,7 +110,7 @@ public class DispatchImplTest<T> extends TestCase {
     public void testInvokeForFaults() throws Exception {
         
         InputStream is =  
-            getClass().getResourceAsStream("../bindings/soap/resources/BadRecordDocLiteral.xml");
+            getClass().getResourceAsStream("../../bindings/soap/resources/BadRecordDocLiteral.xml");
         SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null,  is);
         assertNotNull(soapReqMsg);
         

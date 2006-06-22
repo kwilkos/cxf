@@ -10,7 +10,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback;
-import org.objectweb.celtix.bus.bindings.soap.SOAPBindingImpl;
+import org.objectweb.celtix.bindings.soap.SOAPBindingImpl;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
