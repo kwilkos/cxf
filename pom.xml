@@ -27,6 +27,7 @@
 
     <distributionManagement>
         <!-- After deploy, you need to go to http://forge.objectweb.org/projects/maven/ and hit the Push button -->
+        <!--
         <repository>
             <id>objectweb</id>
             <name>ObjectWeb Maven Repository</name>
@@ -41,6 +42,18 @@
             <id>celtix.website</id>
             <url>file:/tmp/site</url>
         </site>
+        --> 
+        <repository>
+            <id>iona</id>
+            <name>IONA Maven Repository</name>
+            <url>scp://maven-repo.boston.amer.iona.com/x1/iona-repository/release</url>
+        </repository>
+        <snapshotRepository>
+            <id>iona-snapshot</id>
+            <name>IONA Maven Snapshot Repository</name>
+            <url>scp://maven-repo.boston.amer.iona.com/x1/iona-repository/snapshot</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
 
     </distributionManagement>
 
