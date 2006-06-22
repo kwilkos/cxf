@@ -99,7 +99,7 @@
         <surefire.fork.mode>once</surefire.fork.mode>
         <surefire.format>brief</surefire.format>
         <surefire.usefile>false</surefire.usefile>
-        <compile.forked>true</compile.forked>
+        <compile.forked>false</compile.forked>
         <java.source.version>1.5</java.source.version>
         <compile.flags>-Xlint:unchecked,deprecation,fallthrough,finally</compile.flags>
 

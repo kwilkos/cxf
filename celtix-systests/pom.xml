@@ -75,7 +75,7 @@
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-js</artifactId>
+            <artifactId>cxf-rt-js</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
