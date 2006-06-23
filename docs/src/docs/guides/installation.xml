@@ -4,7 +4,7 @@
 <article lang="en-US">
   <title>CeltiXfire Installation Guide</title>
 
-  <sect1>
+  <section>
     <title>Downloading CeltiXfire</title>
 
     <para>You can download a CeltiXfire distribution from the CeltiXfire
@@ -64,9 +64,9 @@
     select the binary distribution. Users interested in reviewing the source
     code, and perhaps contributing to the CeltiXfire project, might choose to
     use the source distribution.</para>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>Installation Prerequisites</title>
 
     <para>Before installing Celtix 1.0, you must ensure that you have the
@@ -87,7 +87,7 @@
       </listitem>
     </itemizedlist>
 
-    <sect2>
+    <section>
       <title>Java 5 Developer’s Kit</title>
 
       <para>You must install the J2SE Development Kit (JDK) 5.0, which can be
@@ -111,9 +111,9 @@
           <filename>$JAVA_HOME/bin</filename> directory (UNIX).</para>
         </listitem>
       </itemizedlist>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Apache Ant 1.6</title>
 
       <para>Each CeltiXfire sample application includes a
@@ -137,16 +137,16 @@
       Maven to build the CeltiXfire binaries. A Maven installation is provided
       with the source distribution. For more details, see <xref
       linkend="source_install" />.</para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Installation Instructions</title>
 
     <para>You can install CeltiXfire on any operating system that supports the
     Java 5 platform.</para>
 
-    <sect2>
+    <section>
       <title>Installing the CeltiXfire Binary Distribution</title>
 
       <para>To install either of the binary distributions (EPL or LGPL),
@@ -192,9 +192,9 @@
           </figure>
         </step>
       </procedure>
-    </sect2>
+    </section>
 
-    <sect2 id="source_install">
+    <section id="source_install">
       <title>Installing and Building the CeltiXfire Source
       Distribution</title>
 
@@ -360,16 +360,16 @@
       <filename>celtix-src\celtix-distribution\target</filename> (Windows) or
       <filename>celtix-src\celtix-distribution\target</filename>
       (UNIX).</para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Testing the Installation</title>
 
     <para>To test the installation of CeltiXfire, try running the basic Hello
     World sample application, or any of the other samples.</para>
 
-    <sect2>
+    <section>
       <title>Setting the Environment for the Binary Distribution</title>
 
       <para>Before you can compile and run the sample applications, you must
@@ -439,9 +439,9 @@
           </tbody>
         </tgroup>
       </informaltable>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Setting the Environment for the Source Distribution</title>
 
       <para>Before you can compile and run the sample applications, you must
@@ -520,9 +520,9 @@
           </tbody>
         </tgroup>
       </informaltable>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Running a Sample Application</title>
 
       <para>To build and run the Hello World application, perform the
@@ -564,6 +564,6 @@
           client</userinput>.</para>
         </step>
       </procedure>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 </article>

@@ -2,7 +2,7 @@
 <chapter>
   <title>Tables</title>
 
-  <sect1>
+  <section>
     <title>Types of Tables</title>
 
     <para>There are two types of tables in Docbook:</para>
@@ -20,9 +20,9 @@
     <para>An informal table is simply a table that does not have a title.
     Tables must have a title element and are listed in a list of tables if it
     is generated.</para>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>Specifying a Table</title>
 
     <para>Both informal tables and tables use the same markup elements to
@@ -109,7 +109,7 @@
       <para>CeltiXfire documentation does not use table footers.</para>
     </note>
 
-    <sect2>
+    <section>
       <title>Table Root Elements</title>
 
       <para>Depending on the type of table you are using you will use either
@@ -208,9 +208,9 @@
         <para>Attributes not listed in <xref linkend="rootattrs" /> are not
         used in CeltiXfire documentation.</para>
       </note>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>The tgroup Element</title>
 
       <para>The <sgmltag class="element">tgroup</sgmltag> element groups
@@ -226,7 +226,7 @@
       of table where the columns and spans had different
       specifications.</para>
 
-      <sect3>
+      <section>
         <title>Attributes</title>
 
         <para><xref linkend="tgroupattrs" /> shows the attributes for the
@@ -300,9 +300,9 @@
           <para>Attributes not listed in <xref linkend="tgroupattrs" /> are
           not used in CeltiXfire documentation.</para>
         </note>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Example</title>
 
         <para><xref linkend="groupexample" /> shows the markup for a <sgmltag
@@ -316,10 +316,10 @@
   &lt;/tgroup&gt;
 &lt;/table&gt;</programlisting>
         </informalexample>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2>
+    <section>
       <title>Specifying Column Properties</title>
 
       <para>If you desire, you can specify a number of the display properties
@@ -330,7 +330,7 @@
       the entries in one column in a group. You can set different properties
       for each column in a group.</para>
 
-      <sect3>
+      <section>
         <title>Attributes</title>
 
         <para><xref linkend="colattrs" /> shows the attributes for the
@@ -425,9 +425,9 @@
           <para>Attributes not listed in <xref linkend="colattrs" /> are not
           used in CeltiXfire documentation.</para>
         </note>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Example</title>
 
         <para><xref linkend="colspecexample" /> shows the markup for
@@ -443,10 +443,10 @@
   &lt;/tgroup&gt;
 &lt;/table&gt;</programlisting>
         </informalexample>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2>
+    <section>
       <title>Defining Spans</title>
 
       <para>Docbook allows you to define properties for cells that span
@@ -454,7 +454,7 @@
       span you use the <sgmltag class="element">spanspec</sgmltag>
       element.</para>
 
-      <sect3>
+      <section>
         <title>Required Attributes</title>
 
         <para>The <sgmltag class="element">spanspec</sgmltag> element has
@@ -504,9 +504,9 @@
             </tbody>
           </tgroup>
         </table>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Optional Attributes</title>
 
         <para>In addition to the required attributes, the <sgmltag
@@ -574,9 +574,9 @@
           <para>Attributes not listed in <xref linkend="spanoptattrs" /> are
           not used in CeltiXfire documentation.</para>
         </note>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Example</title>
 
         <para><xref linkend="spanexample" /> shows the markup for a span that
@@ -593,10 +593,10 @@
     ...
 &lt;/informaltable&gt;</programlisting>
         </informalexample>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2>
+    <section>
       <title>Adding a Heading Row to a Table</title>
 
       <para>Tables in CeltiXfire documentation can have one heading row. They
@@ -607,7 +607,7 @@
       class="element">spanspec</sgmltag> elements. It should also be placed
       before any <sgmltag class="element">tbody</sgmltag> elements.</para>
 
-      <sect3>
+      <section>
         <title>Attributes</title>
 
         <para><xref linkend="theadattrs" /> lists the attributes of the
@@ -644,9 +644,9 @@
             </tbody>
           </tgroup>
         </table>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Adding content</title>
 
         <para>The content of the heading row is specified using a single
@@ -654,9 +654,9 @@
         class="element">child</sgmltag> element for each column in the table.
         For more information on the row element and the entry element see
         <xref linkend="rowsect" /> and <xref linkend="entrysect" />.</para>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Example</title>
 
         <para><xref linkend="theadexample" /> shows the markup for tables used
@@ -683,10 +683,10 @@
   &lt;/tgroup&gt;
 &lt;/informaltable&gt;</programlisting>
         </informalexample>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2>
+    <section>
       <title>Adding Rows to a Table</title>
 
       <para>The rows that make up the body of a table are defined inside of a
@@ -695,7 +695,7 @@
       contents of each column in the row is defined using an <sgmltag
       class="element">entry</sgmltag> element.</para>
 
-      <sect3>
+      <section>
         <title>The <sgmltag class="element">tbody</sgmltag> Element</title>
 
         <para>The <sgmltag class="element">tbody</sgmltag> element is a
@@ -705,9 +705,9 @@
         <sgmltag class="element">thead</sgmltag> element. It has a single
         attribute, <sgmltag class="attribute">valign</sgmltag>, that is
         described in <xref linkend="theadattrs" />.</para>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title id="rowsect">The <sgmltag class="element">row</sgmltag>
         Element</title>
 
@@ -778,9 +778,9 @@
             </tbody>
           </tgroup>
         </table>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title id="entrysect">The <sgmltag class="element">entry</sgmltag>
         Element</title>
 
@@ -939,9 +939,9 @@
           <para>Attributes not listed in <xref linkend="entryattrs" /> are not
           used in CeltiXfire documentation.</para>
         </note>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Example</title>
 
         <para><xref linkend="tbodyexample" /> shows the markup for tables used
@@ -980,10 +980,10 @@
   &lt;/tgroup&gt;
 &lt;/informaltable&gt;</programlisting>
         </informalexample>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2>
+    <section>
       <title>Example</title>
 
       <para><xref linkend="tableexample" /> shows a table that uses most of
@@ -1127,6 +1127,6 @@
   &lt;/tgroup&gt;
 &lt;/table&gt;</programlisting>
       </example>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 </chapter>

@@ -4,7 +4,7 @@
 <article lang="en-US">
   <title>Using Dynamic Languages to Implement Services</title>
 
-  <sect1>
+  <section>
     <title>Overview</title>
 
     <para>JavaScript, also known by its formal name ECMAScript, is one of the
@@ -18,9 +18,9 @@
     are similar to JAX-WS Provider implementations that handle their requests
     and responses (either SOAP messages or SOAP payloads) as DOM
     documents.</para>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>Implementing a Service in JavaScript</title>
 
     <para>Writing a service in JavaScript is a two step process:</para>
@@ -37,7 +37,7 @@
       </step>
     </procedure>
 
-    <sect2 id="metadata">
+    <section id="metadata">
       <title>Defining the Metadata</title>
 
       <para>Normal Java providers typically use Java annotations to specify
@@ -110,9 +110,9 @@
     'targetNamespace': 'http://objectweb.org/hello_world_soap_http',
 };</programlisting>
       </example>
-    </sect2>
+    </section>
 
-    <sect2 id="impl">
+    <section id="impl">
       <title>Implementing the Service Logic</title>
 
       <para>You implement the service's logic using the required
@@ -143,10 +143,10 @@
     return newDoc;
 }</programlisting>
       </example>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Implementing a Service in ECMAScript for XML(E4X)</title>
 
     <para>Writing a CeltiXfire service using E4X is very similar to writing a
@@ -184,9 +184,9 @@ WebServiceProvider1.invoke = function(req) {
     return resp;
 }</programlisting>
     </example>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>Deploying Scripted Services</title>
 
     <para>CeltiXfire provides a lightweight container that allows you to
@@ -333,5 +333,5 @@ WebServiceProvider1.invoke = function(req) {
         <classname>http://celtix.objectweb.org/goodness</classname>.</para>
       </listitem>
     </orderedlist>
-  </sect1>
+  </section>
 </article>

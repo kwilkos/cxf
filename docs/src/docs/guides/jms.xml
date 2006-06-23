@@ -4,7 +4,7 @@
 <article lang="en-US">
   <title>Using the Java Messaging System</title>
 
-  <sect1>
+  <section>
     <title>Overview</title>
 
     <para>CeltiXfire provides a transport plug-in that enables endpoints to
@@ -15,9 +15,9 @@
     provider, CeltiXfire supports the passing of messages packaged as either a
     JMS <classname>ObjectMessage</classname> or a JMS
     <classname>TextMessage</classname>.</para>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>WSDL Namespace</title>
 
     <para>The WSDL extensions for defining a JMS endpoint are defined in the
@@ -32,9 +32,9 @@
 
       <programlisting>xmlns:jms="http://celtix.objectweb.org/transports/jms"</programlisting>
     </example>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>Configuration Namespace</title>
 
     <para>The CeltiXfire JMS endpoint configuration properties are specified
@@ -49,9 +49,9 @@
 
       <programlisting>xmlns:jms="http://celtix.objectweb.org/transports/jms"</programlisting>
     </example>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>Basic Endpoint Configuration</title>
 
     <para>JMS endpoints need to know certain basic information about how to
@@ -68,7 +68,7 @@
       </listitem>
     </itemizedlist>
 
-    <sect2 id="BasicWSDL">
+    <section id="BasicWSDL">
       <title>Using WSDL</title>
 
       <para>The JMS destination information is provided using the <sgmltag
@@ -80,7 +80,7 @@
       class="element">jms:JMSNamingProperties</sgmltag> element specifies the
       Java properties used to connect to the JNDI service.</para>
 
-      <sect3>
+      <section>
         <title>The address Element</title>
 
         <para>The basic configuration for a JMS endpoint is done by using a
@@ -154,9 +154,9 @@
             </tbody>
           </tgroup>
         </table>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>The JMSNamingProperties Element</title>
 
         <para>To increase interoperability with JMS and JNDI providers, the
@@ -241,9 +241,9 @@
         <para>For more details on what information to use in these attributes,
         check your JNDI provider’s documentation and consult the Java API
         reference material.</para>
-      </sect3>
+      </section>
 
-      <sect3 id="ReplyDest">
+      <section id="ReplyDest">
         <title>Using a Named Reply Destination</title>
 
         <para>By default, CeltiXfire endpoints using JMS create a temporary
@@ -258,9 +258,9 @@
         attribute as the location for placing replies if there is no
         destination specified in the request’s <classname>ReplyTo</classname>
         field.</para>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Example</title>
 
         <para><xref linkend="Table3" /> shows an example of an CeltiXfire JMS
@@ -281,10 +281,10 @@
   &lt;/port&gt;
 &lt;/service&gt;</programlisting>
         </example>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2 id="BasicConfig">
+    <section id="BasicConfig">
       <title>Using CeltiXfire Configuration</title>
 
       <para>In addition to using the WSDL file to specify the connection
@@ -309,7 +309,7 @@
       either the client configuration bean or the service configuration
       bean.</para>
 
-      <sect3>
+      <section>
         <title>Example</title>
 
         <para><xref linkend="Table9" /> shows a CeltiXfire configuration entry
@@ -342,19 +342,19 @@
 ...
 &lt;/beans&gt;</programlisting>
         </example>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>More information</title>
 
         <para>For more information on using CeltiXfire configuration see the
         <ulink url="site:config">CeltiXfire Configuration
         Guide</ulink>.</para>
-      </sect3>
-    </sect2>
-  </sect1>
+      </section>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Consumer Endpoint Configuration</title>
 
     <para>JMS consumer endpoints specify the type of messages they use. JMS
@@ -401,7 +401,7 @@
     information into the CeltiXfire configuration file for the
     endpoint.</para>
 
-    <sect2 id="ConsumerConfig">
+    <section id="ConsumerConfig">
       <title>Using CeltiXfire Configuration</title>
 
       <para>Consumer endpoint configuration is specified using the
@@ -429,7 +429,7 @@
         </tgroup>
       </table>
 
-      <sect3>
+      <section>
         <title>Example</title>
 
         <para><xref linkend="Table8" /> shows a CeltiXfire configuration entry
@@ -452,9 +452,9 @@
 ...
 &lt;/beans&gt;</programlisting>
         </example>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Adding address information</title>
 
         <para>In addition to specifying the <classname>jmsClient</classname>
@@ -462,18 +462,18 @@
         consumer for contacting a service endpoint. This is done by adding the
         <classname>jmsAddress</classname> property to the consumer endpoint's
         configuration bean.</para>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>More information</title>
 
         <para>For more information on using CeltiXfire configuration see the
         <ulink url="site:config">CeltiXfire Configuration
         Guide</ulink>.</para>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2 id="ConsumerWSDL">
+    <section id="ConsumerWSDL">
       <title>Using WSDL</title>
 
       <para>The type of messages accepted by a JMS consumer endpoint is
@@ -500,10 +500,10 @@
           </tbody>
         </tgroup>
       </table>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Service Endpoint Configuration</title>
 
     <para>JMS service endpoints have a number of behaviors that are
@@ -539,7 +539,7 @@
       </listitem>
     </itemizedlist>
 
-    <sect2 id="ServiceConfig">
+    <section id="ServiceConfig">
       <title>Using CeltiXfire Configuration</title>
 
       <para>Service endpoint configuration is specified using the
@@ -598,7 +598,7 @@
         </tgroup>
       </table>
 
-      <sect3>
+      <section>
         <title>Example</title>
 
         <para><xref linkend="Table11" /> shows a CeltiXfire configuration
@@ -624,27 +624,27 @@
 ...
 &lt;/beans&gt;</programlisting>
         </example>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Adding address information</title>
 
         <para>In addition to specifying the <classname>jmsServer</classname>
         property, you can also specify the contact information of the service
         endpoint. This is done by adding the <classname>jmsAddress</classname>
         property to the service endpoint's configuration bean.</para>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>More information</title>
 
         <para>For more information on using CeltiXfire configuration see the
         <ulink url="site:config">CeltiXfire Configuration
         Guide</ulink>.</para>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2 id="ServiceWSDL">
+    <section id="ServiceWSDL">
       <title>Using WSDL</title>
 
       <para>Service endpoint behaviors are configured using the optional
@@ -702,17 +702,17 @@
           </tbody>
         </tgroup>
       </table>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Using the JMS Context</title>
 
     <para>The CeltiXfire context mechanism can be used to inspect a number of
     the properties associated with a JMS message. The context mechanism can
     also be used to override some of the JMS endpoint's configuration.</para>
 
-    <sect2>
+    <section>
       <title>Inspecting JMS Properties</title>
 
       <para>Once a message has been successfully retrieved from the JMS
@@ -720,7 +720,7 @@
       response context. In addition, you can see how long the client will wait
       for a response before timing out.</para>
 
-      <sect3>
+      <section>
         <title>JMS Header Properties</title>
 
         <para>The JMS properties table lists the properties in the JMS header
@@ -827,9 +827,9 @@
         optional properties are returned as a <classname>List</classname> of
         <classname>JMSPropertyType</classname>. Optional properties are stored
         as name/value pairs.</para>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Example</title>
 
         <para><xref linkend="Table13" /> shows code for inspecting some of the
@@ -890,10 +890,10 @@ if (handler instanceof BindingProvider)
             <para>Prints some of the message header properties.</para>
           </listitem>
         </orderedlist>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2>
+    <section>
       <title>Setting JMS Properties</title>
 
       <para>Using the request context in a consumer endpoint, you can set a
@@ -972,7 +972,7 @@ if (handler instanceof BindingProvider)
         </step>
       </procedure>
 
-      <sect3>
+      <section>
         <title>Optional JMS Header Properties</title>
 
         <para>You can also set optional properties into the JMS header.
@@ -1009,9 +1009,9 @@ if (handler instanceof BindingProvider)
             been added to the message header.</para>
           </step>
         </procedure>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Client Receive Timeout</title>
 
         <para>In addition to the JMS header properties, you can set the amount
@@ -1022,9 +1022,9 @@ if (handler instanceof BindingProvider)
         argument and a <type>long</type> representing the amount of time in
         milliseconds that you want to consumer to wait as the second
         argument.</para>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Example</title>
 
         <para><xref linkend="settingProps" /> shows code for setting some of
@@ -1113,7 +1113,7 @@ if (handler instanceof BindingProvider)
             <para>Sets the client receive timeout property to 1 second.</para>
           </listitem>
         </orderedlist>
-      </sect3>
-    </sect2>
-  </sect1>
+      </section>
+    </section>
+  </section>
 </article>

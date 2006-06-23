@@ -4,7 +4,7 @@
 <article lang="en-US">
   <title>Using CeltiXfire Configuration</title>
 
-  <sect1>
+  <section>
     <title>Overview</title>
 
     <para>This document describes how to write and use a CeltiXfire
@@ -58,9 +58,9 @@
     <para>Refer to the CeltiXfire configuration Wiki page for the most current
     description of this functionality. This page is located at: (<ulink
     url="https://wiki.objectweb.org/celtix/Wiki.jsp?page=ConfigurationDocumentation">https://wiki.objectweb.org/celtix/Wiki.jsp?page=ConfigurationDocumentation</ulink>).</para>
-  </sect1>
+  </section>
 
-  <sect1 id="file_struct">
+  <section id="file_struct">
     <title>Structure of a CeltiXfire Configuration File</title>
 
     <para>A CeltiXfire configuration file has the syntax shown in the
@@ -100,7 +100,7 @@
     Starting from this basic framework, your task is to fill in the entries
     indicated by the ellipsis (...).</para>
 
-    <sect2>
+    <section>
       <title>Beans element</title>
 
       <para>In the opening <sgmltag class="element">beans</sgmltag> element,
@@ -108,9 +108,9 @@
       acceptable configuration entries. The file may then include one, or
       more, <sgmltag class="element">bean</sgmltag> elements, each of which
       corresponds to a configurable component in CeltiXfire.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Bean element</title>
 
       <para>The example file in this section shows three ways of specifying a
@@ -125,7 +125,7 @@
       class="attribute">parent</sgmltag> attribute is the id of the abstract
       bean. And the third approach is used to completely define a bean.</para>
 
-      <sect3>
+      <section>
         <title>Id attribute</title>
 
         <para>The <sgmltag class="attribute">id</sgmltag> attribute represents
@@ -152,10 +152,10 @@
         create the class name is derived from the namespace URI of the
         metadata XML file that defines acceptable configuration entries for
         the component being configured.</para>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2>
+    <section>
       <title>Property element</title>
 
       <para>The <sgmltag class="element">property</sgmltag> element
@@ -169,10 +169,10 @@
       class="element">value</sgmltag> elements, you need to use the types that
       are defined in several schema and metadata XML files, which are
       described in the next section.</para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>The CeltiXfire Metadata XML Files</title>
 
     <para>For each configurable component, CeltiXfire provides an XML file
@@ -203,7 +203,7 @@
 
     <para>The CeltiXfire XML metadata files are as follows:</para>
 
-    <sect2>
+    <section>
       <title>bus-config.xml</title>
 
       <para><filename>resources/config-metadata/bus-config.xml</filename>
@@ -231,9 +231,9 @@
       attribute in the <sgmltag class="element">bean</sgmltag> element is
       derived from the following namespace declaration:
       <classname>org.objectweb.celtix.bus.bus_config.spring.BusConfigBean</classname>.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>endpoint-config.xml</title>
 
       <para><filename>resources/config-metadata/endpoint-config.xml</filename>
@@ -265,9 +265,9 @@
       class="attribute">class</sgmltag> attribute in the <sgmltag
       class="element">bean</sgmltag> element is:
       <classname>org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean</classname>.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>http-client-config.xml</title>
 
       <para><filename>resources/config-metadata/http-client-config.xml</filename>
@@ -300,9 +300,9 @@
       class="attribute">class</sgmltag> attribute in the <sgmltag
       class="element">bean</sgmltag> element is:
       <classname>org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean</classname>.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>http-listener-config.xml</title>
 
       <para><filename>resources/config-metadata/http-listener-config.xml</filename>
@@ -326,9 +326,9 @@
       class="attribute">class</sgmltag> attribute in the <sgmltag
       class="element">bean</sgmltag> element is:
       <classname>org.objectweb.celtix.bus.transports.http.http_server_config.spring.HttpListenerConfigBean</classname>.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>http-server-config.xml</title>
 
       <para><filename>resources/config-metadata/http-server-config.xml</filename>
@@ -355,9 +355,9 @@
       class="attribute">class</sgmltag> attribute in the <sgmltag
       class="element">bean</sgmltag> element is:
       <classname>org.objectweb.celtix.bus.transports.http.http_server_config.spring.HttpServerConfigBean</classname>.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>instrumentation-config.xml</title>
 
       <para><filename>resources/config-metadata/instrumentation-config.xml</filename>
@@ -379,9 +379,9 @@
       class="attribute">class</sgmltag> attribute in the <sgmltag
       class="element">bean</sgmltag> element is:
       <classname>org.objectweb.celtix.bus.instrumentation.spring.InstrumentationConfigBean</classname>.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>jms-client-config.xml</title>
 
       <para><filename>resources/config-metadata/jms-client-config.xml</filename>
@@ -405,9 +405,9 @@
       class="attribute">class</sgmltag> attribute in the <sgmltag
       class="element">bean</sgmltag> element is:
       <classname>org.objectweb.celtix.bus.transports.jms.jms_client_config.spring.JmsClientConfigBean</classname>.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>jms-server-config.xml</title>
 
       <para><filename>resources/config-metadata/jms-server-config.xml</filename>
@@ -430,9 +430,9 @@
       class="attribute">class</sgmltag> attribute in the <sgmltag
       class="element">bean</sgmltag> element is:
       <classname>org.objectweb.celtix.bus.transports.jms.jms_server_config.spring.JmsServerConfigBean</classname>.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>port-config.xml</title>
 
       <para><filename>resources/config-metadata/port-config.xml</filename>
@@ -472,9 +472,9 @@
       class="attribute">class</sgmltag> attribute in the <sgmltag
       class="element">bean</sgmltag> element is:
       <classname>org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean</classname>.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>rm-config.xml</title>
 
       <para><filename>resources/config-metadata/rm-config.xml</filename>
@@ -501,9 +501,9 @@
       entries, the value of the <sgmltag class="attribute">class</sgmltag>
       attribute in the <sgmltag class="element">bean</sgmltag> element is:
       <classname>org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean</classname>.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>router-config.xml</title>
 
       <para><filename>resources/config-metadata/router-config.xml</filename>
@@ -515,18 +515,18 @@
       entries, the value of the <sgmltag class="attribute">class</sgmltag>
       attribute in the <sgmltag class="element">bean</sgmltag> element is:
       <classname>org.objectweb.celtix.routing.configuration.spring.ConfigurationBean</classname>.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>service-config.xml</title>
 
       <para><filename>resources/config-metadata/service-config.xml</filename>
       is a placeholder for future service level configuration settings. It
       currently has no content.</para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>The CeltiXfire Schema Files</title>
 
     <para>Your starting point for specifying a configuration entry is the
@@ -555,7 +555,7 @@
     <para>A simple example using the CeltiXfire routing service will help to
     illustrate.</para>
 
-    <sect2>
+    <section>
       <title>Configuring the Routing Service</title>
 
       <para>Review the content of the <filename>router-config.xml</filename>
@@ -685,10 +685,10 @@
       class="element">url</sgmltag> elements, and not the
       <classname>urlListPolicy</classname> type . A more complex example is
       presented in the next section.</para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Writing a CeltiXfire Configuration File</title>
 
     <para>Review the structure of a CeltiXfire configuration file (see <xref
@@ -706,7 +706,7 @@
     process as you must use the information in the schema and XML metadata
     files as guides to the proper syntax.</para>
 
-    <sect2>
+    <section>
       <title>The Namespace Declarations</title>
 
       <para>In the opening beans element, you should include namespace
@@ -732,9 +732,9 @@
 
 &lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
        xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types"&gt;</programlisting>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>The class Attribute</title>
 
       <para>The section on The CeltiXfire Metadata XML Files explains how the
@@ -829,9 +829,9 @@
           </tbody>
         </tgroup>
       </table>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>The id Attribute</title>
 
       <para>The value of the <sgmltag class="attribute">id</sgmltag> attribute
@@ -997,15 +997,15 @@
           </tbody>
         </tgroup>
       </table>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>The property Element</title>
 
       <para>The best way to learn how to complete the rest of the CeltiXfire
       configuration file is to look at some examples.</para>
 
-      <sect3>
+      <section>
         <title>Setting the endpoint URL</title>
 
         <para>The most straightforward example is where you want to configure
@@ -1044,9 +1044,9 @@
         class="element">stringValue</sgmltag> tags.</para>
 
         <programlisting>&lt;value&gt;http://localhost:9002/SoapContext/SoapPort&lt;/value&gt;</programlisting>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Specifying a handler</title>
 
         <para>The server configuration file
@@ -1135,9 +1135,9 @@
     &lt;/jaxws-types:handler&gt;
   &lt;/jaxws-types:handler-chain&gt;
 &lt;/value&gt;</programlisting>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Specifying initialization parameters</title>
 
         <para>If your handler class requires initialization parameters, the
@@ -1171,9 +1171,9 @@
     &lt;/jaxws-types:handler-chain&gt;
   &lt;/value&gt;
 &lt;/property&gt;</programlisting>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Specifying authorization information</title>
 
         <para>Because you are configuring the client service, the appropriate
@@ -1226,9 +1226,9 @@
     &lt;/property&gt;
   &lt;/bean&gt;
 &lt;/beans&gt;</programlisting>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Setting transport attributes</title>
 
         <para>The <sgmltag class="element">configItem</sgmltag> element
@@ -1308,11 +1308,11 @@
   &lt;/bean&gt;
 &lt;/beans&gt;
 </programlisting>
-      </sect3>
-    </sect2>
-  </sect1>
+      </section>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>An Example Application</title>
 
     <para>CeltiXfire includes several sample applications that illustrate
@@ -1321,7 +1321,7 @@
     write a CeltiXfire configuration file, this example will show you how to
     direct your application to use the configuration file.</para>
 
-    <sect2>
+    <section>
       <title>The Application Code</title>
 
       <para>For this example, you build on the hello_world product demo. You
@@ -1387,9 +1387,9 @@ public class Server
           the server and the invocation requests will fail.</para>
         </step>
       </procedure>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>The Configuration File</title>
 
       <procedure>
@@ -1481,9 +1481,9 @@ public class Server
           server mainline have the same URL.</para>
         </step>
       </procedure>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Running the Example</title>
 
       <procedure>
@@ -1530,6 +1530,6 @@ public class Server
 &lt;/target&gt;</programlisting>
         </step>
       </procedure>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 </article>

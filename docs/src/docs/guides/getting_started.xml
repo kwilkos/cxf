@@ -4,7 +4,7 @@
 <article lang="en-US">
   <title>Getting Started with CeltiXfire</title>
 
-  <sect1>
+  <section>
     <title>Overview</title>
 
     <para>This document shows you how to get started with CeltiXfire. It
@@ -21,9 +21,9 @@
     matures future versions might deviate from the material covered in this
     document. The CeltiXfire team will endeavor, however, to keep this
     document as up-to-date as possible.</para>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>Using a Script to Set Up the Shell Environment</title>
 
     <para><ulink url="site:install">The CeltiXfire Installation Guide</ulink>
@@ -90,9 +90,9 @@ set PATH=%ANT_HOME%\bin;%PATH%
 set CLASSPATH=.;.\build\classes;%CLASSPATH%
 title Celtix Shell</programlisting>
     </example>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>CeltiXfire Development Environment</title>
 
     <para>Developing applications with CeltiXfire code is no different from
@@ -112,7 +112,7 @@ title Celtix Shell</programlisting>
       </listitem>
     </itemizedlist>
 
-    <sect2 id="using_eclipse">
+    <section id="using_eclipse">
       <title>Using CeltiXfire with Eclipse</title>
 
       <para>Eclipse provides an excellent Java IDE for CeltiXfire development.
@@ -178,9 +178,9 @@ title Celtix Shell</programlisting>
       <para>After you have created a user library for CeltiXfire, you can add
       it to the Java project build path and Eclipse will auto-compile your
       code.</para>
-    </sect2>
+    </section>
 
-    <sect2 id="using_ant">
+    <section id="using_ant">
       <title>Using CeltiXfire with Ant</title>
 
       <para>Many Java developers use the Apache Ant build system. It is
@@ -256,10 +256,10 @@ title Celtix Shell</programlisting>
       applications are useful models for building applications using a
       directory structure similar to that used by the CeltiXfire
       samples.</para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Directory Structure for CeltiXfire Projects</title>
 
     <para>How you arrange a project's directory structure depends on whether
@@ -275,7 +275,7 @@ title Celtix Shell</programlisting>
     the <ulink url="site:toolsref">CeltiXfire Command-Line Tools</ulink>
     documentation.</para>
 
-    <sect2>
+    <section>
       <title>The CeltiXfire Sample Application Approach</title>
 
       <para>The CeltiXfire sample applications use wsdl2java to generate files
@@ -320,9 +320,9 @@ title Celtix Shell</programlisting>
       <filename>common_build.xml</filename>, which is located at the top level
       of the CeltiXfire samples directory,
       <filename>CELTIX_HOME/samples</filename>.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>The Developer Driven Approach</title>
 
       <para>The developer driven approach uses wsdl2java to generate the
@@ -424,10 +424,10 @@ title Celtix Shell</programlisting>
           </itemizedlist>
         </listitem>
       </itemizedlist>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Writing a SOAP over HTTP Client and Server with CeltiXfire</title>
 
     <para>This section describes how you can use CeltiXfire to write a SOAP
@@ -518,7 +518,7 @@ title Celtix Shell</programlisting>
 &lt;/definitions&gt;</markup></programlisting>
     </example>
 
-    <sect2>
+    <section>
       <title>Using the CeltiXfire Sample Application Approach</title>
 
       <para>Use the CeltiXfire sample application approach to build
@@ -608,9 +608,9 @@ title Celtix Shell</programlisting>
     &lt;/target&gt;
 &lt;/project&gt;</markup></programlisting>
       </example>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Using the Developer Driven Approach</title>
 
       <para>The developer driven approach refers to an approach in which you
@@ -676,7 +676,7 @@ title Celtix Shell</programlisting>
         </step>
       </procedure>
 
-      <sect3>
+      <section>
         <title>Running the Applications using Ant</title>
 
         <para>You can use Ant to run each of the applications. The actual
@@ -686,9 +686,9 @@ title Celtix Shell</programlisting>
         HelloWorld, and <filename>build.xml</filename> file targets used to
         run the client and server applications are HelloWorld.Client and
         HelloWorld.Server.</para>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Running the Applications using java</title>
 
         <para>The CeltiXfire runtime uses the
@@ -723,7 +723,7 @@ title Celtix Shell</programlisting>
           <para>You must supply the relative, or absolute, path to the WSDL
           file when running the client.</para>
         </note>
-      </sect3>
-    </sect2>
-  </sect1>
+      </section>
+    </section>
+  </section>
 </article>

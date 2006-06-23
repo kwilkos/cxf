@@ -4,7 +4,7 @@
 <article lang="en-US">
   <title>Command Line Tools</title>
 
-  <sect1>
+  <section>
     <title>The CeltiXfire wsdl2java Utility</title>
 
     <para><application>wsdl2java</application> gives you greater control over
@@ -217,9 +217,9 @@
     <para>You must specify the absolute or relative path to the WSDL file as
     the last argument. All other arguments are optional and may be listed in
     any order.</para>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>The CeltiXfire java2wsdl Utility</title>
 
     <para><application>java2wsdl</application> uses a Web service endpoint's
@@ -346,9 +346,9 @@
     will search and load the service endpoint class and types classes. Make
     certain these classes are on the <envar>CLASSPATH</envar> or in a location
     identified through the <option>-cp</option> flag.</para>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>The CeltiXfire wsdl2soap Utility</title>
 
     <para><application>wsdl2soap</application> will generate a new WSDL file
@@ -506,9 +506,9 @@
     <option>-style rpc</option> argument is specified, the <option>-n</option>
     <replaceable>soap-body-namspace</replaceable> argument is also required.
     All other arguments are optional and may be listed in any order.</para>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>The CeltiXfire wsdl2service Utility</title>
 
     <para><application>wsdl2service</application> creates a new WSDL file
@@ -745,9 +745,9 @@
     <replaceable>binding-name</replaceable> argument and the
     <replaceable>wsdlurl</replaceable> argument. All other arguments are
     optional and may be listed in any order.</para>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>The CeltiXfire wsdl2xml Utility</title>
 
     <para><application>wsdl2xml</application> generates an XML binding from an
@@ -903,9 +903,9 @@
     <para>The <option>-i </option><replaceable>port-type-name</replaceable>
     and the <replaceable>wsdlurl</replaceable> arguments are required. All
     other arguments are optional and may be listed in any order.</para>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>The CeltiXfire xsd2wsdl Utility</title>
 
     <para><application>xsd2wsdl</application> imports an XMLSchema document
@@ -1031,9 +1031,9 @@
     <para>The <option>-t </option><replaceable>target-namespace</replaceable>
     and the <replaceable>xsdurl</replaceable> arguments are required. All
     other arguments are optional and may be listed in any order.</para>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>The CeltiXfire wsdlvalidator Utility</title>
 
     <para><application>wsdlvalidator</application> validates whether a wsdl
@@ -1130,5 +1130,5 @@
         </tbody>
       </tgroup>
     </informaltable>
-  </sect1>
+  </section>
 </article>

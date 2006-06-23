@@ -2,7 +2,7 @@
 <chapter>
   <title>Writing Documentation for CeltiXfire</title>
 
-  <sect1>
+  <section>
     <title>Why XML Based Documents?</title>
 
     <para>The easy answer is because XML is cool!! However, it does have some
@@ -22,7 +22,7 @@
       </listitem>
     </itemizedlist>
 
-    <sect2>
+    <section>
       <title>Text vs. Binary</title>
 
       <para>Text files have a number of advantages over binary formats:</para>
@@ -45,9 +45,9 @@
           <para>They are readable by both humans and machines.</para>
         </listitem>
       </itemizedlist>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Structure</title>
 
       <para>Writing documentation with a markup language may give writers
@@ -59,9 +59,9 @@
       <para>This means that it It makes no assumptions about the presentation
       of the content. Using a structured markup allows you to worry about
       creating and structuring your content.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Single source, multiple outputs</title>
 
       <para>Formating is handled by back end processing tools. CeltiXfire uses
@@ -76,13 +76,13 @@
       some point in the future you decide to update the look and feel of your
       documentation, you simply update the stylesheets used to process the
       XML. The source content never needs to change.</para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>General Guidelines</title>
 
-    <sect2>
+    <section>
       <title>Types of XML Used</title>
 
       <para>Depending on the type of document you are writing you will use one
@@ -98,9 +98,9 @@
           Docbook</ulink></para>
         </listitem>
       </itemizedlist>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Formating the XML</title>
 
       <para>To make the source as readable as possible there are a few general
@@ -120,10 +120,10 @@
           <para>Use indenting to show the hierarchy.</para>
         </listitem>
       </itemizedlist>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1 id="FAQ">
+  <section id="FAQ">
     <title>Writing FAQs</title>
 
     <para>FAQs are written using Apache's xdoc format. This format was chosen
@@ -138,9 +138,9 @@
     <para>When naming an FAQ you need to append <filename>-faq</filename> to
     the name of the file. For example, an FAQ about the CeltiXfire JAX-WS
     implementation could be called <filename>jaxws-faq.xml</filename>.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="the_rest">
+  <section id="the_rest">
     <title>Writing General Documentation</title>
 
     <para>All other types of documentation are written using Docbook. Docbook
@@ -168,5 +168,5 @@
         page</ulink></para>
       </listitem>
     </itemizedlist>
-  </sect1>
+  </section>
 </chapter>

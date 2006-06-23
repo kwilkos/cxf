@@ -4,7 +4,7 @@
 <article lang="en-US">
   <title>Developing a Consumer with CeltiXfire</title>
 
-  <sect1>
+  <section>
     <title>Generating the Stub Code</title>
 
     <para>The starting point for developing a service consumer (or client) in
@@ -36,7 +36,7 @@
       </listitem>
     </itemizedlist>
 
-    <sect2>
+    <section>
       <title>Basic HelloWorld WSDL contract</title>
 
       <para><xref linkend="Table3" /> shows the HelloWorld WSDL contract. This
@@ -200,9 +200,9 @@
       CeltiXfire wsdl2soap or wsdl2xml utilities. Likewise, the SOAPService
       service can be generated automatically by running the CeltiXfire
       wsdl2service utility.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Generating the Stub Code</title>
 
       <para>After defining the WSDL contract, you can generate client code
@@ -257,9 +257,10 @@
 
           <itemizedlist>
             <listitem>
-              <para><classname>Greeter</classname> is a Java interface that
-              represents the Greeter WSDL port type. In JAX-WS terminology,
-              this Java interface is a service endpoint interface.</para>
+              <para><interfacename>Greeter</interfacename> is a Java interface
+              that represents the Greeter WSDL port type. In JAX-WS
+              terminology, this Java interface is a service endpoint
+              interface.</para>
             </listitem>
 
             <listitem>
@@ -269,10 +270,11 @@
             </listitem>
 
             <listitem>
-              <para><classname>PingMeFault</classname> is a Java exception
-              class (extending <classname>java.lang.Exception</classname>)
-              that represents the pingMeFault WSDL <sgmltag
-              class="element">fault</sgmltag> element.</para>
+              <para><exceptionname>PingMeFault</exceptionname> is a Java
+              exception class (extending
+              <classname>java.lang.Exception</classname>) that represents the
+              pingMeFault WSDL <sgmltag class="element">fault</sgmltag>
+              element.</para>
             </listitem>
           </itemizedlist>
         </listitem>
@@ -286,10 +288,10 @@
           model.</para>
         </listitem>
       </itemizedlist>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Implementing a CeltiXfire Client</title>
 
     <para>This section describes how to write the code for a simple Java
@@ -308,7 +310,7 @@
       </listitem>
     </itemizedlist>
 
-    <sect2>
+    <section>
       <title>Generated Service Class</title>
 
       <para><xref linkend="Table2" /> shows the typical outline a generated
@@ -374,9 +376,9 @@
           methods.</para>
         </listitem>
       </itemizedlist>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Service Endpoint Interface</title>
 
       <para>For every port type defined in the original WSDL contract, you can
@@ -426,9 +428,9 @@ public interface Greeter
   public void pingMe() throws PingMeFault;
 }</programlisting>
       </example>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Client Main Function</title>
 
       <para><xref linkend="Table1" /> shows the Java code that implements the
@@ -553,10 +555,10 @@ Greeter port = ss.getSoapPort();</programlisting>
           <classname>PingMeFault</classname> fault exception.</para>
         </listitem>
       </orderedlist>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Setting Connection Properties with Contexts</title>
 
     <para>You can use JAX-WS contexts to customize the properties of a client
@@ -587,7 +589,7 @@ Greeter port = ss.getSoapPort();</programlisting>
       </listitem>
     </itemizedlist>
 
-    <sect2>
+    <section>
       <title>Setting a Request Context</title>
 
       <para>To set a particular request context property,
@@ -614,9 +616,9 @@ port.SomeOperation();</programlisting>
       hash map that has keys of <type>String</type> and values of arbitrary
       type. Use <methodname>java.util.Map.put()</methodname> to create a new
       entry in the hash map.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Reading a Response Context</title>
 
       <para>To retrieve a particular response context property,
@@ -640,9 +642,9 @@ PropertyType propValue = (PropertyType) responseContext.get(ContextPropertyName)
       hash map that has keys <type>String</type> and values of arbitrary type.
       Use <methodname>java.util.Map.get()</methodname> to access an entry in
       the hash map of response context properties.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Contexts Supported by CeltiXfire</title>
 
       <para>CeltiXfire supports the following context properties:</para>
@@ -668,10 +670,10 @@ PropertyType propValue = (PropertyType) responseContext.get(ContextPropertyName)
           </tbody>
         </tgroup>
       </table>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Asynchronous Invocation Model</title>
 
     <para>In addition to the usual synchronous mode of invocation, CeltiXfire
@@ -701,7 +703,7 @@ PropertyType propValue = (PropertyType) responseContext.get(ContextPropertyName)
     <para>Both of these asynchronous invocation approaches are described here
     and illustrated by code examples.</para>
 
-    <sect2>
+    <section>
       <title>WSDL Contract for Asynchronous Example</title>
 
       <para><xref linkend="async1" /> shows the WSDL contract that is used for
@@ -767,9 +769,9 @@ PropertyType propValue = (PropertyType) responseContext.get(ContextPropertyName)
   &lt;/wsdl:service&gt;
 &lt;/wsdl:definitions&gt;</programlisting>
       </example>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Generating the Asynchronous Stub Code</title>
 
       <para>The asynchronous style of invocation requires extra stub code (for
@@ -908,9 +910,9 @@ public interface GreeterAsync {
 
       <para>The details of the callback approach and the polling approach are
       discussed in the following subsections.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Implementing an Asynchronous Client with the Polling
       Approach</title>
 
@@ -1001,9 +1003,9 @@ GreetMeSometimeResponse reply = greetMeSomeTimeResp.get(
   );</programlisting>
         </listitem>
       </itemizedlist>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Implementing an Asynchronous Client with the Callback
       Approach</title>
 
@@ -1118,6 +1120,6 @@ public final class Client {
       <methodname>response.isDone()</methodname>. The value of the response is
       only made available to the callback object,
       <classname>testAsyncHandler</classname>.</para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 </article>

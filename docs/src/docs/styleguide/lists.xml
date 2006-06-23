@@ -2,7 +2,7 @@
 <chapter>
   <title>Lists</title>
 
-  <sect1>
+  <section>
     <title>Simple Lists</title>
 
     <para>Simple lists are like a grocery list. They are a simple list of
@@ -11,7 +11,7 @@
     code listings or multiple paragraphs. They are rarely used in CeltiXfire
     documentation.</para>
 
-    <sect2>
+    <section>
       <title>Specifying a simple list</title>
 
       <para>A simple list is specified by a <sgmltag
@@ -63,9 +63,9 @@
       class="element">member</sgmltag> element. The contents of each
       <sgmltag>member</sgmltag> element can only contain character data and
       inline elements.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Example</title>
 
       <para><xref linkend="simpmarkup" /> shows the markup for a simple
@@ -81,10 +81,10 @@
   &lt;member&gt;Gummy Bears&lt;/member&gt;
 &lt;/simplelist&gt;</programlisting>
       </example>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Itemized Lists</title>
 
     <para>An itemized list is used for lists where the order of the items in
@@ -92,7 +92,7 @@
     are created by the <sgmltag class="element">ul</sgmltag> tag in
     HTML.</para>
 
-    <sect2>
+    <section>
       <title>Specifying an Itemized List</title>
 
       <para>An itemized list is specified by an <sgmltag
@@ -110,9 +110,9 @@
       class="element">listitem</sgmltag> element will be indented to the same
       level. You can also specify sub-lists within a <sgmltag
       class="element">listitem</sgmltag> element.</para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Example</title>
 
       <para><xref linkend="itemmarkup" /> shows the markup for an itemized
@@ -138,10 +138,10 @@
   &lt;/listitem&gt;
 &lt;/itemizedlist&gt;</programlisting>
       </example>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Ordered List</title>
 
     <para>An ordered list is a list where the order of the elements is
@@ -149,7 +149,7 @@
     are created using the <sgmltag class="element">ol</sgmltag> tag in
     HTML.</para>
 
-    <sect2>
+    <section>
       <title>Specifying an Ordered List</title>
 
       <para>Ordered lists are specified by an <sgmltag
@@ -220,18 +220,18 @@
       class="element">listitem</sgmltag> element will be indented to the same
       level. You can also specify sub-lists within a <sgmltag
       class="element">listitem</sgmltag> element.</para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Segmented Lists</title>
 
     <para>Segmented lists are a special type of list where the items consist
     of a group of labeled elements. They are not used in the CeltiXfire
     documentation.</para>
-  </sect1>
+  </section>
 
-  <sect1>
+  <section>
     <title>Variable Lists</title>
 
     <para>A variable list looks similar to a glossary. It consists of a word,
@@ -272,7 +272,7 @@
       </varlistentry>
     </variablelist>
 
-    <sect2>
+    <section>
       <title>Specifying a Variable List</title>
 
       <para>Variable lists are specified by a <sgmltag
@@ -291,7 +291,7 @@
       class="element">term</sgmltag> and <sgmltag
       class="element">listitem</sgmltag>.</para>
 
-      <sect3>
+      <section>
         <title>Specifying terms</title>
 
         <para>You can specify one or more <sgmltag
@@ -301,9 +301,9 @@
         markup elements. Each <sgmltag class="element">term</sgmltag> element
         should contain a single term or phrase that the list item
         describes.</para>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Describing a term</title>
 
         <para>You describe the term, or terms, defined by the <sgmltag
@@ -315,10 +315,10 @@
         class="element">listitem</sgmltag> element will be indented to the
         same level. You can also specify sub-lists within a <sgmltag
         class="element">listitem</sgmltag> element.</para>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2>
+    <section>
       <title>Example</title>
 
       <para><xref linkend="varmarkup" /> shows the markup representing <xref
@@ -353,10 +353,10 @@
   &lt;/varlistentry&gt;
 &lt;/variablelist&gt;</programlisting>
       </example>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1>
+  <section>
     <title>Glossary Lists</title>
 
     <para>A glossary list is a special case of a variable list. It is used
@@ -403,7 +403,7 @@
       </glossentry>
     </glosslist>
 
-    <sect2>
+    <section>
       <title>Specifying a Glossary List</title>
 
       <para>A glossary list is specified using the <sgmltag
@@ -421,7 +421,7 @@
       class="element">glosssee</sgmltag> element to xref with other
       definitions.</para>
 
-      <sect3>
+      <section>
         <title>Specifying a Term</title>
 
         <para>A <sgmltag class="element">glossentry</sgmltag> element can have
@@ -436,9 +436,9 @@
           entry. When used in this manner, you supply a value for the <sgmltag
           class="attribute">linkend</sgmltag> attribute.</para>
         </note>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Defining a Term</title>
 
         <para>You define a term using either one or more <sgmltag
@@ -454,10 +454,10 @@
         "See" entry in a dictionary. It has one attribute, <sgmltag
         class="attribute">otherterm</sgmltag>, whose value is the id of the
         term to which the reader is redirected.</para>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2>
+    <section>
       <title>Example</title>
 
       <para><xref linkend="glossmarkup" /> shows the markup for <xref
@@ -497,6 +497,6 @@
   &lt;/glossentry&gt;
 &lt;/glosslist&gt;</programlisting>
       </example>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 </chapter>
