@@ -14,28 +14,28 @@
     <artifactId>j2ee-deployer</artifactId>
     <version>${geronimo.version}</version>
   </import>
-  
+
   <dependency>
-    <groupId>celtix</groupId>
-    <artifactId>celtix-geronimo</artifactId>
+    <groupId>org.objectweb.celtixfire</groupId>
+    <artifactId>cxf-geronimo</artifactId>
     <version>${project.version}</version>
   </dependency>
 
   <dependency>
-    <groupId>celtix</groupId>
-    <artifactId>celtix-api</artifactId>
+    <groupId>org.objectweb.celtixfire</groupId>
+    <artifactId>cxf-api</artifactId>
     <version>${project.version}</version>
   </dependency>
 
   <dependency>
-    <groupId>celtix</groupId>
-    <artifactId>celtix-rt</artifactId>
+    <groupId>org.objectweb.celtixfire</groupId>
+    <artifactId>cxf-rt</artifactId>
     <version>${project.version}</version>
   </dependency>
 
   <dependency>
-    <groupId>celtix</groupId>
-    <artifactId>celtix-common</artifactId>
+    <groupId>org.objectweb.celtixfire</groupId>
+    <artifactId>cxf-common</artifactId>
     <version>${project.version}</version>
   </dependency>
 
@@ -62,8 +62,8 @@
     <artifactId>org.mortbay.jetty</artifactId>
     <version>${jetty.version}</version>
   </dependency>
-			
-	
+
+
  <dependency>
     <groupId>celtix</groupId>
     <artifactId>jaxb-api</artifactId>
@@ -105,7 +105,7 @@
     <artifactId>saaj-api</artifactId>
     <version>${saaj.version}</version>
   </dependency>
-	
+
  <dependency>
   	<groupId>celtix</groupId>
     <artifactId>saaj-impl</artifactId>
@@ -135,18 +135,18 @@
     <artifactId>geronimo-naming</artifactId>
     <version>${geronimo.version}</version>
   </dependency>
-  
+
   <!-- ensure that we only see our version of these classes -->
   <hidden-classes>
-	  <!-- SAAJ --> 
+	  <!-- SAAJ -->
       <filter>javax.xml.soap</filter>
   </hidden-classes>
   <hidden-classes>
-	  <!-- SAAJ Implementation --> 
+	  <!-- SAAJ Implementation -->
       <filter>com.sun.xml.messaging</filter>
   </hidden-classes>
 
-		
+
   <gbean name="WebServiceBuilder" class="org.objectweb.celtix.geronimo.builder.CeltixBuilder">
   </gbean>
 </configuration>

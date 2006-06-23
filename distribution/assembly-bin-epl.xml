@@ -50,14 +50,14 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>../celtix-api/src/main/resources</directory>
+            <directory>../api/src/main/resources</directory>
             <outputDirectory>celtix/resources</outputDirectory>
             <includes>
                 <include>**/*</include>
             </includes>
         </fileSet>
         <fileSet>
-            <directory>../celtix-router/src/main/resources</directory>
+            <directory>../router/src/main/resources</directory>
             <outputDirectory>celtix/resources</outputDirectory>
             <includes>
                 <include>**/*</include>
