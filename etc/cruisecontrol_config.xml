@@ -117,7 +117,7 @@
     <project name="celtix-cpitest">
         <bootstrappers>
             <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/celtix"/>
-            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/sandbox/cpi"/>
+            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/sandbox/celtix-cpi"/>
         </bootstrappers>
         <modificationset quietperiod="60">
             <buildstatus logdir="/x1/celtix_cruisecontrol/logs/distribution"/>
