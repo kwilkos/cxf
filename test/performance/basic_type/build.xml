@@ -7,7 +7,7 @@
     <target name="client" description="run basic_type client">
         <property name="param" value=""/>
         <property name="pipe" value=""/>
-        <celtix.perform.run classname="org.objectweb.celtix.performance.basic_type.client.Client" argline=
+        <celtix.client.run classname="org.objectweb.celtix.performance.basic_type.client.Client" argline=
                 "-WSDL ${wsdl.dir}/${wsdl.file} 
 			 -Amount ${celtix.running.time} 
 			 -BasedOn ${celtix.basedon}
@@ -17,7 +17,7 @@
     </target>
 
     <target name="server" description="run basic_type server">
-        <celtixrun classname="org.objectweb.celtix.performance.basic_type.server.Server" param1="${basedir}/wsdl/${wsdl.file}"/>
+        <celtix.server.run classname="org.objectweb.celtix.performance.basic_type.server.Server" argline="-WSDL ${basedir}/wsdl/${wsdl.file}"/>
     </target>
 
      <target name="generate.code">

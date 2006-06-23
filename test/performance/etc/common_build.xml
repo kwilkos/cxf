@@ -125,7 +125,7 @@
         
     <target name="build"  depends="compile" description="build demo client and server"/>
 
-    <macrodef name="celtix.perform.run">
+    <macrodef name="celtix.server.run">
         <attribute name="classname"/>
         <attribute name="argline" default=""/>
         <sequential>
@@ -135,6 +135,19 @@
                 <arg line="@{argline}"/>
                 <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
 		<sysproperty key="log4j.configuration" value="file:///${celtix.etc.dir}/log4j.properties"/>
+            </java>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="celtix.client.run">
+        <attribute name="classname"/>
+        <attribute name="argline" default=""/>         <sequential>
+            <java classname="@{classname}" fork="yes" maxMemory="512M" >
+                <jvmarg value="-Xms256M"/>
+                <classpath refid="celtix.classpath"/>
+                <arg line="@{argline}"/>
+                <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
+                <sysproperty key="log4j.configuration" value="file:///${celtix.etc.dir}/log4j.properties"/>
             </java>
         </sequential>
     </macrodef>
