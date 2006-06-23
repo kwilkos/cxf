@@ -16,7 +16,7 @@ set CELTIX_JAR=%CELTIX_HOME%\lib\celtix.jar
 
 set CELTIX_SCHEMA_DIR=%CELTIX_HOME%\resources\schemas\wsdl
 
-"%JAVA_HOME%\bin\java" -cp "%CELTIX_JAR%;%SUN_TOOL_PATH%;%CLASSPATH%" -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" -Dceltix_schema_dir="%CELTIX_SCHEMA_DIR%" org.objectweb.celtix.tools.WSDLToJava %*
+"%JAVA_HOME%\bin\java" -cp "%CELTIX_JAR%;%SUN_TOOL_PATH%;%CLASSPATH%" -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" -Dceltix_schema_dir="%CELTIX_SCHEMA_DIR%" org.objectweb.celtix.tools.wsdl2java.WSDLToJava %*
 
 @endlocal
 

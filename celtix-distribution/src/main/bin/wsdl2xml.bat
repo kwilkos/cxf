@@ -14,7 +14,7 @@ if not exist "%CELTIX_HOME%\lib\celtix.jar" goto no_celtix_jar
 
 set CELTIX_JAR=%CELTIX_HOME%\lib\celtix.jar
 
-"%JAVA_HOME%\bin\java" -cp "%CELTIX_JAR%;%SUN_TOOL_PATH%;%CLASSPATH%" -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" org.objectweb.celtix.tools.WSDLToXML %*
+"%JAVA_HOME%\bin\java" -cp "%CELTIX_JAR%;%SUN_TOOL_PATH%;%CLASSPATH%" -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" org.objectweb.celtix.tools.misc.WSDLToXML %*
 
 @endlocal
 
