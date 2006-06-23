@@ -86,7 +86,7 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.objectweb.celtixfire</groupId>
-                                    <artifactId>cxf-js</artifactId>
+                                    <artifactId>cxf-rt-js</artifactId>
                                     <version>${project.version}</version>
                                 </artifactItem>
                                 <artifactItem>
