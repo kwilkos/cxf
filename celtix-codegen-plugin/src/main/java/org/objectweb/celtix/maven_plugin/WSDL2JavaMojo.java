@@ -10,7 +10,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.ExitException;
 import org.apache.tools.ant.util.optional.NoExitSecurityManager;
-import org.objectweb.celtix.tools.WSDLToJava;
+import org.objectweb.celtix.tools.wsdl2java.WSDLToJava;
 /**
  * @goal wsdl2java
  * @description Celtix WSDL To Java Tool

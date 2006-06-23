@@ -185,7 +185,7 @@ public class WSDLManagerImpl implements WSDLManager, InstrumentationFactory {
 
         try {
             int result = 0;
-            org.objectweb.celtix.tools.JavaToWSDL.runTool(new String[] {"-o",
+            org.objectweb.celtix.tools.java2wsdl.JavaToWSDL.runTool(new String[] {"-o",
                     tmp.getPath() + "/tmp.wsdl", sei.getName() });            
             if (0 != result) {
                 LOG.log(Level.SEVERE, "WSDL_GENERATION_BAD_RESULT_MSG", result);
@@ -227,7 +227,7 @@ public class WSDLManagerImpl implements WSDLManager, InstrumentationFactory {
              * LOG.log(Level.SEVERE, "WSDL_UNREADABLE_MSG", ex); }
              */
 
-            definition = org.objectweb.celtix.tools.JavaToWSDL.getDefinition();
+            definition = org.objectweb.celtix.tools.java2wsdl.JavaToWSDL.getDefinition();
 
         } finally {
             class Directory {

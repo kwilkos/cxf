@@ -1,7 +1,8 @@
 package org.objectweb.celtix.tools.common.model;
 
 import java.util.*;
-import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBinding;
+
+import org.objectweb.celtix.tools.common.extensions.jaxws.JAXWSBinding;
 
 public class JavaModel {
 

@@ -3,8 +3,9 @@ package org.objectweb.celtix.tools.common;
 import java.io.*;
 import java.util.*;
 import org.xml.sax.InputSource;
-import org.objectweb.celtix.tools.utils.PropertyUtil;
-import org.objectweb.celtix.tools.utils.URIParserUtil;
+
+import org.objectweb.celtix.tools.util.PropertyUtil;
+import org.objectweb.celtix.tools.util.URIParserUtil;
 
 public class ProcessorEnvironment {
 
@@ -13,33 +14,30 @@ public class ProcessorEnvironment {
     private Map<String, String> namespacePackageMap = new HashMap<String, String>();
     private Map<String, String> excludeNamespacePackageMap = new HashMap<String, String>();
     private final Map<String, InputSource> jaxbBindingFiles = new HashMap<String, InputSource>();
-
     public ProcessorEnvironment() {
     }
+   
 
-    public void loadDefaultNS2Pck() {
+    public void loadDefaultNS2Pck(InputStream ins) {
         try {
             PropertyUtil properties = new PropertyUtil();
-            properties.load(getResourceAsStream(ToolConstants.TOOLSPECS_BASE + "namespace2package.cfg"));
+            properties.load(ins);
             namespacePackageMap.putAll(properties.getMaps());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void loadDefaultExcludes() {
+    public void loadDefaultExcludes(InputStream ins) {
         try {
             PropertyUtil properties = new PropertyUtil();
-            properties.load(getResourceAsStream(ToolConstants.TOOLSPECS_BASE + "wsdltojavaexclude.cfg"));
+            properties.load(ins);
             excludeNamespacePackageMap.putAll(properties.getMaps());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private InputStream getResourceAsStream(String file) throws IOException {
-        return ProcessorEnvironment.class.getResourceAsStream(file);
-    }
 
     public void setParameters(Map<String, Object> map) {
         this.paramMap = map;

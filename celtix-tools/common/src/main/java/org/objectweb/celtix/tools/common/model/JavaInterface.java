@@ -4,7 +4,7 @@ import java.util.*;
 import javax.jws.soap.SOAPBinding;
 import org.w3c.dom.Element;
 import org.objectweb.celtix.tools.common.ToolException;
-import org.objectweb.celtix.tools.extensions.jaxws.JAXWSBinding;
+import org.objectweb.celtix.tools.common.extensions.jaxws.JAXWSBinding;
 
 public class JavaInterface {
 

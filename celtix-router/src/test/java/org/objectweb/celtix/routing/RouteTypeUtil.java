@@ -8,9 +8,10 @@ import org.objectweb.celtix.routing.configuration.DestinationType;
 import org.objectweb.celtix.routing.configuration.RouteType;
 import org.objectweb.celtix.routing.configuration.SourceType;
 import org.objectweb.celtix.testutil.common.TestUtil;
-import org.objectweb.celtix.tools.WSDLToJava;
-import org.objectweb.celtix.tools.common.ToolConstants;
+
 import org.objectweb.celtix.tools.common.toolspec.ToolRunner;
+
+import org.objectweb.celtix.tools.wsdl2java.WSDLToJava;
 
 public final class RouteTypeUtil {
     private RouteTypeUtil() {
@@ -48,8 +49,7 @@ public final class RouteTypeUtil {
                                      wsdlUrl};
 
         ToolRunner.runTool(WSDLToJava.class,
-                           WSDLToJava.class.getResourceAsStream(ToolConstants.TOOLSPECS_BASE
-                                                                + "wsdl2java.xml"),
+                           WSDLToJava.class.getResourceAsStream("wsdl2java.xml"),
                            false,
                            args);        
     }

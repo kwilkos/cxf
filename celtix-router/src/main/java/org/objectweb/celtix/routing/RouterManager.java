@@ -18,9 +18,10 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.routing.configuration.UrlListPolicy;
-import org.objectweb.celtix.tools.WSDLToJava;
-import org.objectweb.celtix.tools.common.ToolConstants;
+
 import org.objectweb.celtix.tools.common.toolspec.ToolRunner;
+
+import org.objectweb.celtix.tools.wsdl2java.WSDLToJava;
 
 public class RouterManager {
     public static final String ROUTING_CONFIGURATION_URI = 
@@ -118,8 +119,7 @@ public class RouterManager {
                                              file};
     
                 ToolRunner.runTool(WSDLToJava.class,
-                                   WSDLToJava.class.getResourceAsStream(ToolConstants.TOOLSPECS_BASE
-                                                                        + "wsdl2java.xml"),
+                                   WSDLToJava.class.getResourceAsStream("wsdl2java.xml"),
                                    false,
                                    args);
             }

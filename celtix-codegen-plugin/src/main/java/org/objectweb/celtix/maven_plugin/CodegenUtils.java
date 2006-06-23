@@ -8,7 +8,7 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.objectweb.celtix.tools.WSDLToJava;
+import org.objectweb.celtix.tools.wsdl2java.WSDLToJava;
 
 
 public final class CodegenUtils {
