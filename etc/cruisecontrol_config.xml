@@ -79,7 +79,7 @@
             <svn localWorkingCopy="/x1/celtix_cruisecontrol/celtix/trunk"/>
         </modificationset>
         <listeners>
-            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/distribution/currentbuild.txt"/>
+            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/celtix-distribution/currentbuild.txt"/>
         </listeners>
         <schedule>
             <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
@@ -93,10 +93,10 @@
                  time="2100" timeout="3600">
             </ant>
         </schedule>
-        <log dir="/x1/celtix_cruisecontrol/logs/distribution"/>
+        <log dir="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
         <publishers>
-            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/distribution/build.out" dest="/x1/celtix_cruisecontrol/logs/distribution"/>
-            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/distribution/build.out.clean" dest="/x1/celtix_cruisecontrol/logs/distribution"/>
+            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/distribution/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
+            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/distribution/build.out.clean" dest="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
 
             <htmlemail mailhost="amereast-ems2.iona.com"
                 returnaddress="eng-celtix-dev@iona.com"
@@ -107,7 +107,7 @@
                 subjectprefix="Celtix Distribution Cruisecontrol Build Result: "
                 css="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
                 xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
-                logdir="/x1/celtix_cruisecontrol/logs/distribution"
+                logdir="/x1/celtix_cruisecontrol/logs/celtix-distribution"
                 >
                 <always address="eng-celtix-dev@iona.com" />
                 <failure address="eng-celtix-dev@iona.com" />
@@ -120,10 +120,10 @@
             <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/sandbox/celtix-cpi"/>
         </bootstrappers>
         <modificationset quietperiod="60">
-            <buildstatus logdir="/x1/celtix_cruisecontrol/logs/distribution"/>
+            <buildstatus logdir="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
         </modificationset>
         <listeners>
-            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/cpitest/currentbuild.txt"/>
+            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/celtix-cpitest/currentbuild.txt"/>
         </listeners>
         <schedule interval="120">
             <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
@@ -133,7 +133,7 @@
                     <property name="BINARY_KIT_DIR" value="/x1/celtix_cruisecontrol/celtix/trunk/distribution/target"/>
             </ant>
         </schedule>
-        <log dir="/x1/celtix_cruisecontrol/logs/cpitest">
+        <log dir="/x1/celtix_cruisecontrol/logs/celtix-cpitest">
             <merge dir="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source/xsyte_result"/>
         </log>
         <publishers>
@@ -141,7 +141,7 @@
                  antworkingdir="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source"
                  buildfile="cpi-report.xml"
                  target="publish">
-                <property name="LOG_DIR" value="/x1/celtix_cruisecontrol/logs/cpitest"/>
+                <property name="LOG_DIR" value="/x1/celtix_cruisecontrol/logs/celtix-cpitest"/>
             </antpublisher>
             <htmlemail mailhost="amereast-ems2.iona.com"
                 returnaddress="eng-celtix-dev@iona.com"
@@ -152,7 +152,7 @@
                 subjectprefix="Celtix CPI-Test Cruisecontrol Build Result: "
                 css="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
                 xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
-                logdir="/x1/celtix_cruisecontrol/logs/cpitest"
+                logdir="/x1/celtix_cruisecontrol/logs/celtix-cpitest"
                 >
                 <always address="eng-celtix-dev@iona.com" />
                 <failure address="eng-celtix-dev@iona.com" />
