@@ -10,49 +10,49 @@
             <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/celtix/currentbuild.txt"/>
         </listeners>
         <schedule interval="120">
-            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/tools/ant/1.6.5/bin/ant"
+            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
                  buildfile="build.xml" target="cruisecontrol.build"
                  antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true" timeout="1800">
             </ant>
         </schedule>
         <log dir="/x1/celtix_cruisecontrol/logs/celtix">
-            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-common/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-tools/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-api/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-rt/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-jbi/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-router/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-systests/target/surefire-reports"/>
-            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-axisinterop/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/common/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/tools/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/api/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/rt/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/jbi/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/router/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/systests/target/surefire-reports"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/axisinterop/target/surefire-reports"/>
         </log>
         <publishers>
             <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
             <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/build.out.clean" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
 
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-common/target/surefire-reports"
-                subdirectory="celtix-common"
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/common/target/surefire-reports"
+                subdirectory="common"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-tools/target/surefire-reports"
-                subdirectory="celtix-tools"
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/tools/target/surefire-reports"
+                subdirectory="tools"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-api/target/surefire-reports"
-                subdirectory="celtix-api"
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/api/target/surefire-reports"
+                subdirectory="api"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-rt/target/surefire-reports"
-                subdirectory="celtix-rt"
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/rt/target/surefire-reports"
+                subdirectory="rt"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-jbi/target/surefire-reports"
-                subdirectory="celtix-jbi"
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/jbi/target/surefire-reports"
+                subdirectory="jbi"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-router/target/surefire-reports"
-                subdirectory="celtix-router"
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/router/target/surefire-reports"
+                subdirectory="router"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
 
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-systests/target/surefire-reports"
-                subdirectory="celtix-systests"
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/systests/target/surefire-reports"
+                subdirectory="systests"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/celtix-axisinterop/target/surefire-reports"
-                subdirectory="celtix-axisinterop"
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/axisinterop/target/surefire-reports"
+                subdirectory="axisinterop"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
 
             <htmlemail mailhost="amereast-ems2.iona.com"
@@ -79,35 +79,35 @@
             <svn localWorkingCopy="/x1/celtix_cruisecontrol/celtix/trunk"/>
         </modificationset>
         <listeners>
-            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/celtix-distribution/currentbuild.txt"/>
+            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/distribution/currentbuild.txt"/>
         </listeners>
         <schedule>
-            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/tools/ant/1.6.5/bin/ant"
+            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
                  buildfile="build.xml" target="cruisecontrol.build.distribution"
                  antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true"
                  time="0900" timeout="3600">
             </ant>
-            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/tools/ant/1.6.5/bin/ant"
+            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
                  buildfile="build.xml" target="cruisecontrol.build.distribution"
                  antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true"
                  time="2100" timeout="3600">
             </ant>
         </schedule>
-        <log dir="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
+        <log dir="/x1/celtix_cruisecontrol/logs/distribution"/>
         <publishers>
-            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
-            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/build.out.clean" dest="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
+            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/distribution/build.out" dest="/x1/celtix_cruisecontrol/logs/distribution"/>
+            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/distribution/build.out.clean" dest="/x1/celtix_cruisecontrol/logs/distribution"/>
 
             <htmlemail mailhost="amereast-ems2.iona.com"
                 returnaddress="eng-celtix-dev@iona.com"
                 returnname="Celtix Build Machine"
                 defaultsuffix="@iona.com"
-                buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/celtix-distribution"
+                buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/distribution"
                 skipusers="false"
                 subjectprefix="Celtix Distribution Cruisecontrol Build Result: "
                 css="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
                 xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
-                logdir="/x1/celtix_cruisecontrol/logs/celtix-distribution"
+                logdir="/x1/celtix_cruisecontrol/logs/distribution"
                 >
                 <always address="eng-celtix-dev@iona.com" />
                 <failure address="eng-celtix-dev@iona.com" />
@@ -117,42 +117,42 @@
     <project name="celtix-cpitest">
         <bootstrappers>
             <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/celtix"/>
-            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/sandbox/celtix-cpi"/>
+            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/sandbox/cpi"/>
         </bootstrappers>
         <modificationset quietperiod="60">
-            <buildstatus logdir="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
+            <buildstatus logdir="/x1/celtix_cruisecontrol/logs/distribution"/>
         </modificationset>
         <listeners>
-            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/celtix-cpitest/currentbuild.txt"/>
+            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/cpitest/currentbuild.txt"/>
         </listeners>
         <schedule interval="120">
-            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/tools/ant/1.6.5/bin/ant"
+            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
                  buildfile="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source/build.xml" target="cpitest"
                  antWorkingDir="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source" 
                  uselogger="true" timeout="1800">
-                    <property name="BINARY_KIT_DIR" value="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/target"/>
+                    <property name="BINARY_KIT_DIR" value="/x1/celtix_cruisecontrol/celtix/trunk/distribution/target"/>
             </ant>
         </schedule>
-        <log dir="/x1/celtix_cruisecontrol/logs/celtix-cpitest">
+        <log dir="/x1/celtix_cruisecontrol/logs/cpitest">
             <merge dir="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source/xsyte_result"/>
         </log>
         <publishers>
-            <antpublisher antscript="/x1/celtix_cruisecontrol/celtix/trunk/celtix-distribution/tools/ant/1.6.5/bin/ant"
+            <antpublisher antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
                  antworkingdir="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source"
                  buildfile="cpi-report.xml"
                  target="publish">
-                <property name="LOG_DIR" value="/x1/celtix_cruisecontrol/logs/celtix-cpitest"/>
+                <property name="LOG_DIR" value="/x1/celtix_cruisecontrol/logs/cpitest"/>
             </antpublisher>
             <htmlemail mailhost="amereast-ems2.iona.com"
                 returnaddress="eng-celtix-dev@iona.com"
                 returnname="Celtix Build Machine"
                 defaultsuffix="@iona.com"
-                buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/celtix-cpitest"
+                buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/cpitest"
                 skipusers="true"
                 subjectprefix="Celtix CPI-Test Cruisecontrol Build Result: "
                 css="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
                 xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
-                logdir="/x1/celtix_cruisecontrol/logs/celtix-cpitest"
+                logdir="/x1/celtix_cruisecontrol/logs/cpitest"
                 >
                 <always address="eng-celtix-dev@iona.com" />
                 <failure address="eng-celtix-dev@iona.com" />
