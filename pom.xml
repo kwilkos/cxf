@@ -42,7 +42,7 @@
             <id>celtix.website</id>
             <url>file:/tmp/site</url>
         </site>
-        --> 
+        -->
         <repository>
             <id>iona</id>
             <name>IONA Maven Repository</name>
@@ -153,9 +153,9 @@
         <module>celtix-testutils</module>
         <module>celtix-api</module>
         <module>celtix-rt</module>
-        <module>celtix-jbi</module>
-        <module>celtix-geronimo</module>
-        <module>celtix-router</module>
+        <module>cxf-jbi</module>
+        <module>cxf-geronimo</module>
+        <module>cxf-router</module>
         <module>celtix-systests</module>
         <!--<module>celtix-axisinterop</module>-->
     </modules>
