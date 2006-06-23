@@ -147,17 +147,17 @@
     </properties>
 
     <modules>
-        <module>celtix-common</module>
-        <module>celtix-tools</module>
-        <module>celtix-codegen-plugin</module>
-        <module>celtix-testutils</module>
-        <module>celtix-api</module>
-        <module>celtix-rt</module>
-        <module>cxf-jbi</module>
-        <module>cxf-geronimo</module>
-        <module>cxf-router</module>
-        <module>celtix-systests</module>
-        <!--<module>celtix-axisinterop</module>-->
+        <module>common</module>
+        <module>tools</module>
+        <module>codegen-plugin</module>
+        <module>testutils</module>
+        <module>api</module>
+        <module>rt</module>
+        <module>jbi</module>
+        <module>geronimo</module>
+        <module>router</module>
+        <module>systests</module>
+        <!--<module>axisinterop</module>-->
     </modules>
 
     <build>
