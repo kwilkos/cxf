@@ -1,5 +1,5 @@
 var WebServiceProvider = {
-    'wsdlLocation': 'file:../celtix-testutils/target/classes/wsdl/hello_world.wsdl',
+    'wsdlLocation': 'file:../testutils/target/classes/wsdl/hello_world.wsdl',
     'serviceName': 'SOAPService',
     'portName': 'SoapPort',
     'targetNamespace': 'http://objectweb.org/hello_world_soap_http',
