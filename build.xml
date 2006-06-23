@@ -26,13 +26,13 @@
 
 
     <target name="cruisecontrol.build.distribution">
-        <delete file="celtix-distribution/build.out"/>
-        <delete file="celtix-distribution/build.out.clean"/>
-        <exec executable="mvn" dir="${basedir}/celtix-distribution" failonerror="false" output="celtix-distribution/build.out.clean" logError="true">
+        <delete file="distribution/build.out"/>
+        <delete file="distribution/build.out.clean"/>
+        <exec executable="mvn" dir="${basedir}/distribution" failonerror="false" output="distribution/build.out.clean" logError="true">
             <arg line="clean -Drelease"/>
         </exec>
-        <exec executable="mvn" dir="${basedir}/celtix-distribution" failonerror="false" resultproperty="build.result"
-            output="celtix-distribution/build.out" logError="true">
+        <exec executable="mvn" dir="${basedir}/distribution" failonerror="false" resultproperty="build.result"
+            output="distribution/build.out" logError="true">
             <arg line="install -Drelease"/>
         </exec>
 
@@ -42,7 +42,7 @@
                 <equals arg1="${build.result}" arg2="0"/>
             </not>
         </condition>
-        <loadfile property="build.out" srcFile="celtix-distribution/build.out">
+        <loadfile property="build.out" srcFile="distribution/build.out">
             <filterchain>
                 <tailfilter lines="25"/>
             </filterchain>
