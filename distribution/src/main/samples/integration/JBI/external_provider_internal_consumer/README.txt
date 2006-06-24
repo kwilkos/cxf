@@ -63,8 +63,7 @@ Install and start the Celtix Service Engine:
 
 Install and start the ServiceMix soap binding component
 
- > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml
- install-component  -Dsm.install.file=$SERVICE_MIX_HOME/components/servicemix-jms-3.0-SNAPSHOT-installer.zip 
+ > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml install-component  -Dsm.install.file=$SERVICE_MIX_HOME/components/servicemix-jms-3.0-SNAPSHOT-installer.zip 
  > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml  start-component -Dsm.component.name=servicemix-jms
 
 Deploy the and start Celtix demo service assembly
