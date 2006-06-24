@@ -61,7 +61,7 @@ Install and start the Celtix Service Engine:
  > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml  install-component -Dsm.install.file=./service-engine/build/lib/celtix-service-engine.jar
  > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml  start-component -Dsm.component.name=CeltixServiceEngine
 
-Install and start the ServiceMix soap binding component
+Install and start the ServiceMix jms binding component
 
  > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml install-component  -Dsm.install.file=$SERVICE_MIX_HOME/components/servicemix-jms-3.0-SNAPSHOT-installer.zip 
  > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml  start-component -Dsm.component.name=servicemix-jms
