@@ -185,7 +185,7 @@
             </condition>
             <property name="binding.arg" value=""/>
 
-            <java failonerror="true" classname="org.objectweb.celtix.tools.WSDLToJava" fork="yes">
+            <java failonerror="true" classname="org.objectweb.celtix.tools.wsdl2java.WSDLToJava" fork="yes">
                 <classpath>
                     <path refid="celtix.classpath" />
                 </classpath>
