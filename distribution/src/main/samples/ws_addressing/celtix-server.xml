@@ -11,11 +11,11 @@
               <jaxws-types:handler-chain>
                  <jaxws-types:handler>
                       <jaxws-types:handler-name>MAPAggregator</jaxws-types:handler-name>
-                      <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.addressing.MAPAggregator</jaxws-types:handler-class>
+                      <jaxws-types:handler-class>org.objectweb.celtix.ws.addressing.MAPAggregator</jaxws-types:handler-class>
                   </jaxws-types:handler>
                   <jaxws-types:handler>
                       <jaxws-types:handler-name>MAPCodec</jaxws-types:handler-name>
-                      <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec</jaxws-types:handler-class>
+                      <jaxws-types:handler-class>org.objectweb.celtix.ws.addressing.soap.MAPCodec</jaxws-types:handler-class>
                   </jaxws-types:handler>
                   <jaxws-types:handler>
                       <jaxws-types:handler-name>HeaderSnooper</jaxws-types:handler-name>
