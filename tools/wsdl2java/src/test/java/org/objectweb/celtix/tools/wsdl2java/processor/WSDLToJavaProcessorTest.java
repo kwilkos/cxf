@@ -725,6 +725,23 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             .getCanonicalName());
     }
 
+    public void testMultiSchemaParsing() throws Exception {
+        String[] args = new String[] {"-d", output.getCanonicalPath(),
+                                      getLocation("/wsdl/multi_schema.wsdl")};
+        WSDLToJava.main(args);
+
+        assertNotNull(output);
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File tempuri = new File(org, "tempuri");
+        assertTrue(tempuri.exists());
+        File header = new File(tempuri, "header");
+        assertTrue(header.exists());
+
+        File[] files = header.listFiles();
+        assertEquals(3, files.length);
+    }
+
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
     }

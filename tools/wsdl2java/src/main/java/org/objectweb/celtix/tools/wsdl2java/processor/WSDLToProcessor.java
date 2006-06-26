@@ -254,6 +254,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             schemaCompilerGenCode.setClassNameAllocator(allocator);
             schemaCompilerGenCode.setErrorListener(this);
         }
+        List schemaSystemidList = new ArrayList();
         for (Schema schema : schemaList) {
             boolean skipGenCode = false;
 
@@ -269,6 +270,10 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             }
             customizeSchema(schemaElement, targetNamespace);
             String systemid = schema.getDocumentBaseURI();
+            if (schemaSystemidList.contains(systemid)) {
+                systemid = schema.getDocumentBaseURI() + "#" + targetNamespace;
+            }
+            schemaSystemidList.add(systemid);
             schemaCompiler.parseSchema(systemid, schemaElement);
             if (env.isExcludeNamespaceEnabled() && !skipGenCode) {
                 schemaCompilerGenCode.parseSchema(systemid, schemaElement);
