@@ -1,10 +1,10 @@
 package demo.hw.server;
 
 
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedAttribute;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedOperation;
-import org.objectweb.celtix.bus.management.jmx.export.annotation.ManagedResource;
 import org.objectweb.celtix.management.Instrumentation;
+import org.objectweb.celtix.management.annotation.ManagedAttribute;
+import org.objectweb.celtix.management.annotation.ManagedOperation;
+import org.objectweb.celtix.management.annotation.ManagedResource;
 
 @ManagedResource(componentName = "GreeterInstrumentationName",
                  description = "The Celtix Service instrumentation demo component ",
