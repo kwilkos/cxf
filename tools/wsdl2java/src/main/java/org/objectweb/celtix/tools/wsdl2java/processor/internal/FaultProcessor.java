@@ -10,6 +10,7 @@ import javax.wsdl.Part;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
+
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaException;
@@ -70,11 +71,31 @@ public class FaultProcessor extends AbstractProcessor {
         expClass.setPackageName(packageName);
         S2JJAXBModel jaxbModel = (S2JJAXBModel)env.get(ToolConstants.RAW_JAXB_MODEL);
         for (Part part : faultValues) {
+            String fName;
+            String fNamespace;
+            
+            if (part.getElementName() != null) {
+                fName = part.getElementName().getLocalPart();               
+                fNamespace = part.getElementName().getNamespaceURI();
+               
+                /*
+                 * org.objectweb.celtix.common.i18n.Message msg = new
+                 * org.objectweb.celtix.common.i18n.Message("WSDL_FAULT_MSG_PART_ELEMENT_MISSING_ERROR",
+                 * LOG, faultMessage, part.getName()); throw new
+                 * ToolException(msg);
+                 */
 
-            String fName = part.getName();
+            } else {
+                fName = part.getName();
+                fNamespace = part.getTypeName().getNamespaceURI();
+
+            }
+            
             String fType = ProcessorUtil.resolvePartType(part, jaxbModel);
-            String fNamespace = ProcessorUtil.resolvePartNamespace(part);
-            String fPackageName = ProcessorUtil.parsePackageName(fNamespace, env.mapPackageName(fNamespace));
+            String fPackageName = ProcessorUtil.parsePackageName(fNamespace, env
+                                                                 .mapPackageName(fNamespace));
+            
+            
 
             JavaField fField = new JavaField(fName, fType, fNamespace);
             fField.setQName(ProcessorUtil.getElementName(part));

@@ -15,6 +15,7 @@ import javax.jws.soap.SOAPBinding;
 import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
+import javax.xml.ws.WebFault;
 
 import org.objectweb.celtix.tools.common.ProcessorTestBase;
 import org.objectweb.celtix.tools.common.ToolConstants;
@@ -42,7 +43,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         processor = null;
 
     }
-    
+
     public void testRPCLit() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_rpc_lit.wsdl"));
         processor.setEnvironment(env);
@@ -693,7 +694,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals(method.getName() + "()" + " Annotation : WebMethod.operationName ", "echoVoid",
                      webMethodAnno.operationName());
     }
-    
+
     public void testWsdlImport() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_wsdl_import.wsdl"));
         processor.setEnvironment(env);
@@ -725,6 +726,30 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             .getCanonicalName());
     }
 
+    public void testWebFault() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/InvoiceServer-issue305570.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File objectweb = new File(org, "objectweb");
+        assertTrue(objectweb.exists());
+        File invoiceserver = new File(objectweb, "invoiceserver");
+        assertTrue(invoiceserver.exists());
+        File invoice = new File(objectweb, "invoice");
+        assertTrue(invoice.exists());
+
+        Class clz = classLoader.loadClass("org.objectweb.invoiceserver.NoSuchCustomerFault");
+        WebFault webFault = AnnotationUtil.getPrivClassAnnotation(clz, WebFault.class);
+        assertEquals("WebFault annotaion name attribute error", "NoSuchCustomer", webFault.name());
+
+    }
+
+
     public void testMultiSchemaParsing() throws Exception {
         String[] args = new String[] {"-d", output.getCanonicalPath(),
                                       getLocation("/wsdl/multi_schema.wsdl")};
@@ -741,6 +766,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File[] files = header.listFiles();
         assertEquals(3, files.length);
     }
+
 
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
