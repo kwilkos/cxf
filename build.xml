@@ -111,7 +111,7 @@
 
 
         <exec executable="mvn${bat.ext}" dir="${basedir}">
-            <arg line="process-test-sources -Pnochecks eclipse:eclipse -Declipse.downloadSources=${eclipse.downloadSources}"/>
+            <arg line="process-test-sources -Pnochecks eclipse:eclipse -DdownloadSources=${eclipse.downloadSources}"/>
         </exec>
     </target>
 </project>

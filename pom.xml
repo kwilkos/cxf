@@ -323,7 +323,7 @@
                     <artifactId>maven-eclipse-plugin</artifactId>
                     <version>${eclipse.plugin.version}</version>
                     <configuration>
-                        <downloadSources>true</downloadSources>
+                        <!--downloadSources>true</downloadSources-->
                         <buildcommands>
                             <java.lang.String>org.eclipse.jdt.core.javabuilder</java.lang.String>
                             <java.lang.String>com.atlassw.tools.eclipse.checkstyle.CheckstyleBuilder</java.lang.String>
