@@ -51,11 +51,13 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
     }
     
     protected ServerBindingEndpointCallback sbeCallback;
+    private final EndpointReferenceType endpointReference;
 
     
     public AbstractServerBinding(Bus b, EndpointReferenceType ref,
                                  ServerBindingEndpointCallback sbcb) {
         super(b, ref);
+        endpointReference = ref;
         sbeCallback = sbcb;
     }
 
@@ -141,6 +143,13 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         // storeSource(istreamCtx, t);
         BindingContextUtils.storeServerBindingEndpointCallback(istreamCtx, sbeCallback);
         
+        try {
+            istreamCtx.put(ObjectMessageContext.WSDL_DESCRIPTION, 
+                          new java.net.URI(EndpointReferenceUtils.getWSDLLocation(endpointReference)));
+        } catch (Exception e) {
+            LOG.info("Exception storing WSDL_DESCRIPTION URI");
+        }
+
         final ServerRequest inMsg = new ServerRequest(this, istreamCtx);         
         
         Exception inboundException = null;

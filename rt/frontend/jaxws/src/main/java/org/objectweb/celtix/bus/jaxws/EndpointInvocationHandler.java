@@ -41,10 +41,12 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
     private JAXBContext context;
     private Schema schema;
     private final ServiceDelegate service;
+    private final EndpointReferenceType endpointReference;
     
     public EndpointInvocationHandler(Bus b, EndpointReferenceType reference,
                                      ServiceDelegate s, Configuration configuration, Class<?> portSEI) {
         bus = b;
+        endpointReference = reference;
         service = s;
         portTypeInterface = portSEI;
         clientBinding = createBinding(reference, configuration);
@@ -99,6 +101,8 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         objMsgContext.setMessageObjects(parameters);
         objMsgContext.put(METHOD, method);
         objMsgContext.put(ObjectMessageContext.METHOD_OBJ, method);
+        objMsgContext.put(ObjectMessageContext.WSDL_DESCRIPTION, 
+                new java.net.URI(EndpointReferenceUtils.getWSDLLocation(endpointReference)));
 
         boolean isOneway = (method.getAnnotation(Oneway.class) != null) ? true : false;
         boolean isAsync = method.getName().endsWith("Async");

@@ -17,6 +17,7 @@ import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -25,6 +26,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.context.StreamMessageContext;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.handler_test.HandlerTest;
@@ -120,6 +122,60 @@ public class HandlerInvocationTest extends ClientServerTestBase {
         }
     }
 
+    public void testDescription() throws PingException { 
+        TestHandler<LogicalMessageContext> handler = new TestHandler<LogicalMessageContext>(false) {
+            public boolean handleMessage(LogicalMessageContext ctx) {
+                super.handleMessage(ctx);
+                try {
+                    java.net.URI wsdlDescription = (java.net.URI) ctx.get(MessageContext.WSDL_DESCRIPTION);
+                    assertNotNull(wsdlDescription);
+                } catch (Exception e) {
+                    e.printStackTrace(); 
+                    fail(e.toString());
+                }
+                return true;
+            }
+        };
+        TestSOAPHandler soapHandler = new TestSOAPHandler<SOAPMessageContext>(false) {
+            public boolean handleMessage(SOAPMessageContext ctx) {
+                super.handleMessage(ctx);
+                try {
+                    java.net.URI wsdlDescription = (java.net.URI) ctx.get(MessageContext.WSDL_DESCRIPTION);
+                    assertNotNull(wsdlDescription);
+                } catch (Exception e) {
+                    e.printStackTrace(); 
+                    fail(e.toString());
+                }
+                return true;
+            }
+        };           
+        TestStreamHandler streamHandler = new TestStreamHandler(false) {
+            public boolean handleMessage(StreamMessageContext ctx) {
+                super.handleMessage(ctx);
+                try {
+                    java.net.URI wsdlDescription = (java.net.URI) ctx.get(MessageContext.WSDL_DESCRIPTION);
+                    assertNotNull(wsdlDescription);
+                } catch (Exception e) {
+                    e.printStackTrace(); 
+                    fail(e.toString());
+                }
+                return false;
+            }
+        };           
+
+        addHandlersToChain((BindingProvider)handlerTest, handler, soapHandler, streamHandler);
+
+        List<String> resp = handlerTest.ping();
+        assertNotNull(resp); 
+        
+        assertEquals("handler was not invoked", 2, handler.getHandleMessageInvoked());
+        assertEquals("handle message was not invoked", 2, soapHandler.getHandleMessageInvoked());
+        assertEquals("handler was not invoked", 1, streamHandler.getHandleMessageInvoked());
+        assertTrue("close must be  called", handler.isCloseInvoked());
+        assertTrue("close must be  called", soapHandler.isCloseInvoked());
+        assertTrue("close must be called", streamHandler.isCloseInvoked());
+    }
+    
     public void testHandlersInvokedForDispatch() throws Exception {
 
         Dispatch<SOAPMessage> disp = service.createDispatch(portName,

@@ -12,6 +12,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.context.StreamMessageContext;
 import org.objectweb.celtix.handlers.StreamHandler;
+import org.objectweb.handler_test.PingException;
 
 public class  TestStreamHandler extends TestHandlerBase 
     implements StreamHandler {
@@ -30,12 +31,20 @@ public class  TestStreamHandler extends TestHandlerBase
         return "streamHandler" + getId();
     }
     
-    public final boolean handleMessage(StreamMessageContext ctx) {
+    public boolean handleMessage(StreamMessageContext ctx) {
 
         methodCalled("handleMessage"); 
         printHandlerInfo("handleMessage", isOutbound(ctx));
 
         if (isServerSideHandler()) { 
+            try {
+                java.net.URI wsdlDescription = (java.net.URI) ctx.get(MessageContext.WSDL_DESCRIPTION);
+                if (wsdlDescription == null) {
+                    throw new PingException("WSDLDescription not found");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             if (!isOutbound(ctx)) { 
                 getHandlerInfoList(ctx).add(getHandlerId());
             } else { 

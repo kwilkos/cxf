@@ -15,6 +15,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.objectweb.handler_test.PingException;
 
 /**
  * Describe class TestSOAPHandler here.
@@ -46,7 +47,7 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
         return "soapHandler" + getId();
     }
     
-    public final boolean handleMessage(T ctx) {
+    public boolean handleMessage(T ctx) {
 
         boolean continueProcessing = true; 
 
@@ -58,6 +59,10 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
             SOAPMessage msg = ctx.getMessage();
 
             if (isServerSideHandler()) {
+                java.net.URI wsdlDescription = (java.net.URI) ctx.get(MessageContext.WSDL_DESCRIPTION);
+                if (wsdlDescription == null) {
+                    throw new PingException("WSDLDescription not found");
+                }
                 if (outbound) {
                     continueProcessing = true;
                 } else {
