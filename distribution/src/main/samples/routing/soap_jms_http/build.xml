@@ -14,7 +14,7 @@
 
     <path id="routing.classpath">
         <fileset dir="${celtix.home}/lib">
-            <include name="celtix-router-*.jar"/>
+            <include name="cxf-router-*.jar"/>
         </fileset>
         <pathelement location="${basedir}"/>
     </path>
