@@ -53,6 +53,10 @@ public class Soap11 implements SoapVersion {
         return INSTANCE;
     }
 
+    public String getSoapMimeType() {
+        return "text/xml; charset=" + SoapMessage.CHARSET;
+    }
+
     public double getVersion() {
         return version;
     }
@@ -98,4 +102,5 @@ public class Soap11 implements SoapVersion {
     public String getNextRole() {
         return nextRole;
     }
+    
 }

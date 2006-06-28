@@ -9,6 +9,8 @@ import org.objectweb.celtix.rio.message.AbstractWrappedMessage;
 
 public class SoapMessage extends AbstractWrappedMessage {
 
+    public static final String CHARSET = "utf-8";
+    
     private SoapVersion version;
     
     public SoapMessage(Message message) {

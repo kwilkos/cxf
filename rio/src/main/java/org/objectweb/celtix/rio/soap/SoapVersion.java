@@ -22,7 +22,7 @@ import javax.xml.namespace.QName;
 /**
  * @version $Revision: 429 $
  */
-interface SoapVersion {
+public interface SoapVersion {
 
     double getVersion();
 
@@ -47,4 +47,6 @@ interface SoapVersion {
     String getUltimateReceiverRole();
 
     String getNextRole();
+    
+    String getSoapMimeType();
 }
