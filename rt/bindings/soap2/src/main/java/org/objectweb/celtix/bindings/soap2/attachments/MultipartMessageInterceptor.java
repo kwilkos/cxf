@@ -1,4 +1,4 @@
-package org.objectweb.celtix.rio.attachments;
+package org.objectweb.celtix.bindings.soap2.attachments;
 
 import java.io.File;
 import java.io.IOException;
