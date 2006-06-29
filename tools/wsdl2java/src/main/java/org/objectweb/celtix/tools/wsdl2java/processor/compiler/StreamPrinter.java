@@ -35,7 +35,7 @@ public class StreamPrinter extends Thread {
             String line = br.readLine();
             while (line != null) {
                 if (pw != null) {
-                    pw.println(msg + ">" + line);
+                    pw.println(msg + " " + line);
                 }
                 line = br.readLine();
             }

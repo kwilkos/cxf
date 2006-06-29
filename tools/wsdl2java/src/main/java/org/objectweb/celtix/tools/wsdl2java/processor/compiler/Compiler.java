@@ -16,14 +16,20 @@ public class Compiler {
             }
 
             p = Runtime.getRuntime().exec(args);
+                  
             if (p.getErrorStream() != null) {
-                StreamPrinter errorStreamPrinter = new StreamPrinter(p.getErrorStream(), "error", System.err);
+                StreamPrinter errorStreamPrinter = 
+                    new StreamPrinter(p.getErrorStream(), "", System.out);
                 errorStreamPrinter.run();
             }
+            
+            
             if (p.getInputStream() != null) {
-                StreamPrinter infoStreamPrinter = new StreamPrinter(p.getInputStream(), "info", System.err);
+                StreamPrinter infoStreamPrinter = new StreamPrinter(p.getInputStream(), "[INFO]", System.out);
                 infoStreamPrinter.run();
             }
+            
+            
 
             if (p != null) {
                 return p.waitFor() == 0 ? true : false;

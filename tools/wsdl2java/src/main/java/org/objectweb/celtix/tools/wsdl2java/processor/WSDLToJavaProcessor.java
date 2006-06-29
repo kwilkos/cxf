@@ -90,7 +90,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
                 return;
             }
         } catch (IOException e) {
-            Message msg = new Message("FAIL_TO_GENERATE_TYPES", LOG);
+            Message msg = new Message("FAIL_TO_GENERATE_TYPES : " + e.getMessage(), LOG);
             throw new ToolException(msg);
 
         }

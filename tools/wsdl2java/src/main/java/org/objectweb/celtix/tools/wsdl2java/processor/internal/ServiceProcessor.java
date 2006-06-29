@@ -133,7 +133,8 @@ public class ServiceProcessor extends AbstractProcessor {
     }
 
     private JavaPort processPort(JavaModel model, Port port) throws ToolException {
-        JavaPort jport = new JavaPort(port.getName());
+        JavaPort jport = new JavaPort(ProcessorUtil.mangleNameToClassName(port.getName()));
+        jport.setPortName(port.getName());
         Binding binding = port.getBinding();
         // TODO: extend other bindings
         jport.setBindingAdress(getPortAddress(port));

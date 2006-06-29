@@ -39,7 +39,7 @@ public final class ${clientClassName} {
         }
     
         $service.Name ss = new ${service.Name}(wsdlUrl, SERVICE_NAME);
-        $intf.Name port = ss.get${port.PortName}();  
+        $intf.Name port = ss.get${port.Name}();  
         
 #foreach ($method in $intf.Methods)
 

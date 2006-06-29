@@ -16,13 +16,13 @@ import ${port.PackageName}.${port.InterfaceClass};
  * 
  */
 
-@WebServiceClient(name = "${service.Name}", targetNamespace = "$service.Namespace", wsdlLocation = "$wsdlLocation")
+@WebServiceClient(name = "${service.ServiceName}", targetNamespace = "$service.Namespace", wsdlLocation = "$wsdlLocation")
 public class ${service.Name} extends Service {
 
     private final static URL WSDL_LOCATION;
     private final static QName SERVICE = new QName("$service.Namespace", "$service.ServiceName");
 #foreach ($port in ${service.Ports})
-    private final static QName $port.PortName = new QName("$service.Namespace", "$port.PortName");
+    private final static QName $port.Name = new QName("$service.Namespace", "$port.PortName");
 #end
     static {
         URL url = null;
@@ -46,11 +46,11 @@ public class ${service.Name} extends Service {
     /**
      * 
      * @return
-     *     returns ${port.PortName}
+     *     returns ${port.Name}
      */
     @WebEndpoint(name = "${port.PortName}")
-    public ${port.InterfaceClass} get${port.PortName}() {
-        return (${port.InterfaceClass})super.getPort($port.PortName, ${port.InterfaceClass}.class);
+    public ${port.InterfaceClass} get${port.Name}() {
+        return (${port.InterfaceClass})super.getPort($port.Name, ${port.InterfaceClass}.class);
     }
 #end
 

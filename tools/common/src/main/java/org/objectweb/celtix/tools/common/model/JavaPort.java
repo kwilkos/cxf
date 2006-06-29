@@ -17,6 +17,8 @@ public class JavaPort {
     private String interfaceClass; 
     private String packageName;
     private String namespace;
+    private String portName;
+    private String methodName;
     
     public JavaPort(String pname) {
         this.name = pname;
@@ -38,11 +40,11 @@ public class JavaPort {
         return this.style;
     }
 
-    public void setPortName(String portname) {
+    public void setName(String portname) {
         name = portname;
     }
 
-    public String getPortName() {
+    public String getName() {
         return name;
     }
 
@@ -111,5 +113,22 @@ public class JavaPort {
 
     public String getNameSpace() {
         return this.namespace;
-    }   
+    }
+    
+    public void setPortName(String pname) {
+        portName = pname;
+    }
+    
+    public String getPortName() {
+        return portName;
+    }
+    
+    public void setMethodName(String mname) {
+        methodName = mname;       
+    }
+    
+    public String getMethodName(String mname) {
+        return methodName;
+    }
+    
 }
