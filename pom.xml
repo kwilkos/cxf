@@ -152,6 +152,7 @@
         <module>codegen-plugin</module>
         <module>testutils</module>
         <module>api</module>
+        <module>rio</module>
         <module>rt</module>
         <module>jbi</module>
         <module>geronimo</module>
