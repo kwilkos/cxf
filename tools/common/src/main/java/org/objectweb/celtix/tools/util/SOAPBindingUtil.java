@@ -1,6 +1,7 @@
 package org.objectweb.celtix.tools.util;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public final class SOAPBindingUtil {
@@ -20,5 +21,5 @@ public final class SOAPBindingUtil {
 
     public static String getBindingAnnotation(String key) {
         return bindingMap.get(key.toUpperCase());
-    }
+    }  
 }

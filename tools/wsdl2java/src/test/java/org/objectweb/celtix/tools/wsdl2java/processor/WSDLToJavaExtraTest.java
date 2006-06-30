@@ -39,6 +39,19 @@ public class WSDLToJavaExtraTest extends ProcessorTestBase {
         processor.process();
 
     }
+    
+    
+    public void testAb2456() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/ab2456.wsdl"));
+        processor.setEnvironment(env);
+        try {
+            processor.process();
+        } catch (Exception e) {
+            assertEquals("Unsupported exception should be thorwn",
+                         "Rpc/encoded wsdls are not supported in JAXWS 2.0", e.getMessage());
+        }
+    }
+    
      
     private String getLocation(String wsdlFile) {
         return WSDLToJavaExtraTest.class.getResource(wsdlFile).getFile();

@@ -13,7 +13,9 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.jws.soap.SOAPBinding;
 import javax.wsdl.Binding;
+import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.Message;
@@ -41,6 +43,7 @@ import com.sun.tools.xjc.api.XJC;
 import org.apache.velocity.app.Velocity;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.StringUtils;
+import org.objectweb.celtix.helpers.WSDLHelper;
 
 import org.objectweb.celtix.tools.common.Processor;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
@@ -367,11 +370,12 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
 
     protected void init() throws ToolException {
         parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));
+        checkSupported(getWSDLDefinition());
+        validateWSDL();
         parseCustomization();
         initVelocity();
         classColletor = new ClassCollector();
         env.put(ToolConstants.GENERATED_CLASS_COLLECTOR, classColletor);
-
         initJAXBModel();
 
     }
@@ -439,6 +443,64 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         if (this.env.isVerbose()) {
             System.err.println("Parsing schema warning " + exception.toString());
         }
+    }
+    
+    public void checkSupported(Definition def) throws ToolException {
+        if (isSOAP12Binding(wsdlDefinition)) {
+            org.objectweb.celtix.common.i18n.Message msg = 
+                new org.objectweb.celtix.common.i18n.Message("SOAP12_UNSUPPORTED", LOG);
+            throw new ToolException(msg);
+        }
+        
+        if (isRPCEncoded(wsdlDefinition)) {
+            org.objectweb.celtix.common.i18n.Message msg = 
+                new org.objectweb.celtix.common.i18n.Message("UNSUPPORTED_RPC_ENCODED", LOG);
+            throw new ToolException(msg);
+        }
+    }
+    
+    private boolean isSOAP12Binding(Definition def) {
+        String namespace = "";
+        for (Iterator ite = def.getNamespaces().values().iterator(); ite.hasNext();) {
+            namespace = (String)ite.next();
+            if (namespace != null
+                && namespace.toLowerCase().indexOf("http://schemas.xmlsoap.org/wsdl/soap12") >= 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean isRPCEncoded(Definition def) {
+        WSDLHelper whelper = new WSDLHelper();
+        Iterator ite1 = def.getBindings().values().iterator();
+        while (ite1.hasNext()) {
+            Binding binding = (Binding)ite1.next();
+            String bindingStyle = whelper.getBindingStyle(binding);
+            
+            Iterator ite2 = binding.getBindingOperations().iterator();
+            while (ite2.hasNext()) {
+                BindingOperation bop = (BindingOperation)ite2.next();
+                String bopStyle = whelper.getSOAPOperationStyle(bop);
+               
+                String outputUse = "";
+                if (whelper.getBindingOutputSOAPBody(bop) != null) {
+                    outputUse = whelper.getBindingOutputSOAPBody(bop).getUse();
+                }
+                String inputUse = "";
+                if (whelper.getBindingInputSOAPBody(bop) != null) {
+                    inputUse = whelper.getBindingInputSOAPBody(bop).getUse();
+                }
+                if ((SOAPBinding.Style.RPC.name().equalsIgnoreCase(bindingStyle) 
+                    || SOAPBinding.Style.RPC.name().equalsIgnoreCase(bopStyle)) 
+                    &&  (SOAPBinding.Use.ENCODED.name().equalsIgnoreCase(inputUse) 
+                        || SOAPBinding.Use.ENCODED.name().equalsIgnoreCase(outputUse))) {
+                    return true;
+                }
+            }
+           
+        }
+        return false;
     }
 
 }

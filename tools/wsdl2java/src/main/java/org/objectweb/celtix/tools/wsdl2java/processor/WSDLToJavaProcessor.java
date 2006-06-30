@@ -19,17 +19,12 @@ import com.sun.codemodel.writer.FileCodeWriter;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 
 import org.objectweb.celtix.common.i18n.Message;
-
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
-
 import org.objectweb.celtix.tools.common.extensions.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.common.extensions.jaxws.JAXWSBinding;
-
 import org.objectweb.celtix.tools.common.model.JavaModel;
-
 import org.objectweb.celtix.tools.util.ClassCollector;
-
 import org.objectweb.celtix.tools.wsdl2java.generator.AntGenerator;
 import org.objectweb.celtix.tools.wsdl2java.generator.ClientGenerator;
 import org.objectweb.celtix.tools.wsdl2java.generator.FaultGenerator;
@@ -56,12 +51,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
     }
 
     public void process() throws ToolException {
-        validateWSDL();
-        init();
-        if (isSOAP12Binding(wsdlDefinition)) {
-            Message msg = new Message("SOAP12_UNSUPPORTED", LOG);
-            throw new ToolException(msg);
-        }
+        init();      
         generateTypes();
         JavaModel jmodel = wsdlDefinitionToJavaModel(getWSDLDefinition());
         if (jmodel == null) {
@@ -254,17 +244,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             throw new ToolException(msg, e);
         }
     }
-
-    private boolean isSOAP12Binding(Definition def) {
-        String namespace = "";
-        for (Iterator ite = def.getNamespaces().values().iterator(); ite.hasNext();) {
-            namespace = (String)ite.next();
-            if (namespace != null
-                && namespace.toLowerCase().indexOf("http://schemas.xmlsoap.org/wsdl/soap12") >= 0) {
-                return true;
-            }
-        }
-        return false;
-    }
+    
+   
 
 }
