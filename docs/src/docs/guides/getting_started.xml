@@ -434,11 +434,11 @@ title Celtix Shell</programlisting>
     over HTTP client and server. Both the CeltiXfire sample application
     approach and the developer driven approach are discussed.</para>
 
-    <para>The <classname>HelloWorld</classname> interface used in this section
-    is defined in the <filename>HelloWorld.wsdl</filename> WSDL file shown in
-    <xref linkend="example5" />. It corresponds to the Java interface shown in
-    <xref linkend="example4" />. It is slightly different to the WSDL file
-    used in the HelloWorld sample that is included with the CeltiXfire
+    <para>The <interfacename>HelloWorld</interfacename> interface used in this
+    section is defined in the <filename>HelloWorld.wsdl</filename> WSDL file
+    shown in <xref linkend="example5" />. It corresponds to the Java interface
+    shown in <xref linkend="example4" />. It is slightly different to the WSDL
+    file used in the HelloWorld sample that is included with the CeltiXfire
     distribution.</para>
 
     <example id="example4">
@@ -537,9 +537,9 @@ title Celtix Shell</programlisting>
         <step>
           <para>Replicate the directory hierarchy used in the sample
           applications. For instance, using the
-          <classname>HelloWorld</classname> interface described in <xref
-          linkend="example4" /> as an example, create the following directory
-          structure:</para>
+          <interfacename>HelloWorld</interfacename> interface described in
+          <xref linkend="example4" /> as an example, create the following
+          directory structure:</para>
         </step>
 
         <step>

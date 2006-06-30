@@ -306,7 +306,7 @@
 
       <listitem>
         <para>Service endpoint interface (that is,
-        <classname>Greeter</classname>).</para>
+        <interfacename>Greeter</interfacename>).</para>
       </listitem>
     </itemizedlist>
 
@@ -685,8 +685,9 @@ PropertyType propValue = (PropertyType) responseContext.get(ContextPropertyName)
         you call a special method that has no output parameters, but returns a
         <classname>javax.xml.ws.Response</classname> instance. The
         <classname>Response</classname> object (which inherits from the
-        <classname>javax.util.concurrency.Future</classname> interface) can be
-        polled to check whether or not a response message has arrived.</para>
+        <interfacename>javax.util.concurrency.Future</interfacename>
+        interface) can be polled to check whether or not a response message
+        has arrived.</para>
       </listitem>
 
       <listitem>
@@ -849,8 +850,7 @@ PropertyType propValue = (PropertyType) responseContext.get(ContextPropertyName)
       stub files with asynchronous support by entering the following wsdl2java
       command:</para>
 
-      <screen>
-<userinput>wsdl2java -ant -client -d ClientDir -b async_binding.xml hello_world.wsdl</userinput>
+      <screen><userinput>wsdl2java -ant -client -d ClientDir -b async_binding.xml hello_world.wsdl</userinput>
 </screen>
 
       <para>When you run the wsdl2java command, you specify the location of
@@ -969,10 +969,11 @@ public final class Client {
       <classname>javax.xml.ws.Response&lt;GreetMeSometimeResponse&gt;</classname>
       object. The <classname>Response</classname> class is defined by
       extending the standard
-      <classname>java.util.concurrency.Future&lt;T&gt;</classname> interface,
-      which is specifically designed for polling the outcome of work performed
-      by a concurrent thread. There are essentially two basic approaches to
-      polling using the <classname>Response</classname> object:</para>
+      <interfacename>java.util.concurrency.Future&lt;T&gt;</interfacename>
+      interface, which is specifically designed for polling the outcome of
+      work performed by a concurrent thread. There are essentially two basic
+      approaches to polling using the <classname>Response</classname>
+      object:</para>
 
       <itemizedlist>
         <listitem>
@@ -1011,12 +1012,12 @@ GreetMeSometimeResponse reply = greetMeSomeTimeResp.get(
 
       <para>An alternative approach to making an asynchronous operation
       invocation is to implement a callback class, by deriving from the
-      <classname>javax.xml.ws.AsyncHandler</classname> interface. This
+      <interfacename>javax.xml.ws.AsyncHandler</interfacename> interface. This
       callback class must implement a
       <methodname>handleResponse()</methodname> method, which is called by the
       CeltiXfire runtime to notify the client that the response has arrived.
       <xref linkend="async5" /> shows an outline of the
-      <classname>AsyncHandler</classname> interface that you need to
+      <interfacename>AsyncHandler</interfacename> interface that you need to
       implement.</para>
 
       <example id="async5">

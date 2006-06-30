@@ -865,13 +865,13 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
 
             <itemizedlist>
               <listitem>
-                <para>Standard MBeans use the <classname>MBean</classname>
-                inteface.</para>
+                <para>Standard MBeans use the
+                <interfacename>MBean</interfacename> inteface.</para>
               </listitem>
 
               <listitem>
                 <para>Dynamic MBeans use the
-                <classname>DynamicMBean</classname> interface.</para>
+                <interfacename>DynamicMBean</interfacename> interface.</para>
               </listitem>
             </itemizedlist>
           </step>
@@ -1001,14 +1001,14 @@ mbserver.registerMBean(sName, name);
       </note>
 
       <para>To add custom instrumentation using the
-      <classname>Instrumentation</classname> interface do the
+      <interfacename>Instrumentation</interfacename> interface do the
       following:</para>
 
       <procedure>
         <step>
           <para><ulink url="#writeclass">Write</ulink> an instrumentation
           class that implements the
-          <classname>org.objectweb.celtix.Instrumentation</classname>
+          <interfacename>org.objectweb.celtix.Instrumentation</interfacename>
           interface.</para>
         </step>
 
