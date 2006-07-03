@@ -13,10 +13,15 @@ import java.util.List;
 import java.util.Map;
 
 import javax.activation.DataHandler;
+import javax.activation.DataSource;
 
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.rio.Attachment;
 import org.objectweb.celtix.rio.Message;
@@ -58,6 +63,9 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
         } catch (MessagingException me) {
             message.put(AbstractWrappedMessage.INBOUND_EXCEPTION, me);
 
+        } catch (XMLStreamException xse) {
+            message.put(AbstractWrappedMessage.INBOUND_EXCEPTION, xse);
+
         } catch (IOException ioe) {
             message.put(AbstractWrappedMessage.INBOUND_EXCEPTION, ioe);
 
@@ -80,7 +88,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
      * @throws IOException
      */
     private void init() throws IOException {
-        httpHeaders = (Map)message.get(AbstractWrappedMessage.MIME_HTTP_HEADERS);
+        httpHeaders = (Map)message.get(MessageContext.HTTP_REQUEST_HEADERS);
         if (httpHeaders == null) {
             return;
         } else {
@@ -109,7 +117,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
             if (i == -1 || end == -1) {
                 throw new IOException("Invalid content type: missing boundary! " + contentType);
             }
-            this.boundary = "--" + contentType.substring(i + len, end);            
+            this.boundary = "--" + contentType.substring(i + len, end);
             this.stream = new PushbackInputStream(input, boundary.length());
             if (!readTillFirstBoundary(stream, boundary.getBytes())) {
                 throw new IOException("Couldn't find MIME boundary: " + boundary);
@@ -120,9 +128,16 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
     /**
      * construct the primary soap body part and attachments
      */
-    private void process() throws MessagingException, IOException {
+    private void process() throws MessagingException, IOException, XMLStreamException {
+
         Attachment soapMimePart = readMimePart();
         message.setSource(Attachment.class, soapMimePart);
+
+        XMLInputFactory f = XMLInputFactory.newInstance();
+        InputStream xmlInputStream = soapMimePart.getDataHandler().getInputStream();
+        XMLStreamReader r = f.createXMLStreamReader(xmlInputStream);
+        message.setSource(XMLStreamReader.class, r);
+
         Collection<Attachment> attachments = message.getAttachments();
         for (Attachment att = readMimePart(); att != null && att.getId() != null; att = readMimePart()) {
             attachments.add(att);
@@ -146,13 +161,13 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
         int value = pushbackInStream.read();
         pushbackInStream.unread(value);
         while (value != -1) {
-            value = pushbackInStream.read();            
+            value = pushbackInStream.read();
             if ((byte)value == boundaryParam[0]) {
                 int boundaryIndex = 0;
                 while (value != -1 && (boundaryIndex < boundaryParam.length)
                        && ((byte)value == boundaryParam[boundaryIndex])) {
-                    
-                    value = pushbackInStream.read();                    
+
+                    value = pushbackInStream.read();
                     if (value == -1) {
                         throw new IOException("Unexpected End while searching for first Mime Boundary");
                     }
@@ -161,10 +176,10 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
                 if (boundaryIndex == boundaryParam.length) {
                     // boundary found
                     pushbackInStream.read();
-                    return true;                                        
+                    return true;
                 }
             }
-        }        
+        }
         return false;
     }
 
@@ -182,8 +197,8 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
         copy(partStream, cos);
         final String ct = headers.getHeader("Content-Type", null);
         cache.add(cos);
-        // DataSource source = new AttachmentDataSource(ct, cos);
-        DataHandler dh = new DataHandler(cos, ct);
+        DataSource source = new AttachmentDataSource(ct, cos);
+        DataHandler dh = new DataHandler(source);
         String id = headers.getHeader("Content-ID", null);
         if (id != null && id.startsWith("<")) {
             id = id.substring(1, id.length() - 1);

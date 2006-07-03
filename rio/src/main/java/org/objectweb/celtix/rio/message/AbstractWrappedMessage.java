@@ -17,7 +17,6 @@ import org.objectweb.celtix.rio.Message;
  */
 public abstract class AbstractWrappedMessage implements Message {
 
-    public static final String MIME_HTTP_HEADERS = "HTTP_HEADERS";
     public static final String INBOUND_EXCEPTION = "INBOUND_EXCEPTION";
     
     private Message message;

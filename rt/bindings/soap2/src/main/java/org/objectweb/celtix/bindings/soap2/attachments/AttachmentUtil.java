@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bindings.soap2.attachments;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -11,6 +12,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.UUID;
 
+import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeBodyPart;
@@ -19,10 +21,10 @@ import javax.mail.internet.MimeMultipart;
 import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.rio.Attachment;
-
 import org.objectweb.celtix.rio.soap.Soap11;
 import org.objectweb.celtix.rio.soap.Soap12;
 import org.objectweb.celtix.rio.soap.SoapMessage;
+import org.objectweb.celtix.rio.soap.SoapVersion;
 
 public final class AttachmentUtil {
 
@@ -41,16 +43,24 @@ public final class AttachmentUtil {
 
     public static String serializeMultipartMessage(SoapMessage soapMessage, OutputStream out)
         throws MessagingException, IOException {
+        
         Session session = Session.getDefaultInstance(new Properties(), null);
         MimeMessage mimeMessage = new MimeMessage(session);
-        Attachment primaryMimePart = soapMessage.getResult(Attachment.class);
-        String subType = getMimeSubType(soapMessage);
+        String soapPartId = createContentID(null);
+        String subType = getMimeSubType(soapMessage.getVersion(), soapPartId);
         MimeMultipart mimeMP = new MimeMultipart(subType);
+               
+        InputStream in = (InputStream) soapMessage.getResult(InputStream.class);
+        AttachmentDataSource ads = new AttachmentDataSource("application/xop+xml", in);
         MimeBodyPart soapPart = new MimeBodyPart();
-        soapPart.setDataHandler(primaryMimePart.getDataHandler());
-        soapPart.setContentID("<" + primaryMimePart.getId() + ">");
+        soapPart.setDataHandler(new DataHandler(ads));
+        soapPart.setContentID("<" + soapPartId  + ">");
+        soapPart.addHeader("Content-Type", "application/xop+xml");        
+        soapPart.addHeader("type", soapMessage.getVersion().getSoapMimeType());
+        soapPart.addHeader("charset", SoapMessage.CHARSET);
         soapPart.addHeader("Content-Transfer-Encoding", "binary");
         mimeMP.addBodyPart(soapPart);
+        
         for (Iterator itr = soapMessage.getAttachments().iterator(); itr.hasNext();) {
             Attachment att = (Attachment)itr.next();
             MimeBodyPart part = new MimeBodyPart();
@@ -100,13 +110,12 @@ public final class AttachmentUtil {
      * @param message
      * @return
      */
-    public static String getMimeSubType(SoapMessage message) {
+    public static String getMimeSubType(SoapVersion soapVersion, String soapPartId) {
         StringBuffer ct = new StringBuffer();
         ct.append("related; ");
         ct.append("type=\"application/xop+xml\"; ");
-        ct.append("start=\"<" + message.getResult(Attachment.class).getId() + ">\"; ");
-        ct.append("start-info=\"" + message.getVersion().getSoapMimeType() + "\"");
-        //ct.append("\r\n\tboundary=\"----=_Part_0_11197591.1151515867156\" ");
+        ct.append("start=\"<" + soapPartId + ">\"; ");
+        ct.append("start-info=\"" + soapVersion.getSoapMimeType() + "\"");
         return ct.toString();
     }
 
@@ -128,7 +137,7 @@ public final class AttachmentUtil {
                 return null;
             } catch (MalformedURLException e) {
                 try {
-                    cid = URLEncoder.encode(ns, "UTF-8");
+                    cid = URLEncoder.encode(ns, SoapMessage.CHARSET);
                 } catch (UnsupportedEncodingException e1) {
                     throw new WebServiceException("Encoding content id with namespace error", e);
                 }
