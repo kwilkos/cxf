@@ -33,7 +33,7 @@ public final class TestMimeUtil {
         URL url1 = clazz.getResource("my.wav");
         URL url2 = clazz.getResource("me.jpg");
         Image image = Toolkit.getDefaultToolkit().createImage(url2);
-        detailObj.setImage(image);
+        detailObj.setPhoto(image);
         File file = new File(url1.getFile());
         FileInputStream fi = new FileInputStream(file);
         byte[] buffer = new byte[(int) file.length()];
