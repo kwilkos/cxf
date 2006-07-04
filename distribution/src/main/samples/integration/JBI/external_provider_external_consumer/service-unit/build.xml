@@ -73,7 +73,6 @@
 
   <target name="server" description="run demo client">
       <celtixrun classname="test.provider.Server" 
-            jvmarg1="-Dceltix.config.file=file:////home/ffang/celtix/samples/integration/JBI/external_provider_internal_consumer/service-unit/wsdl/jms_greeter_config.xml"
             param1="./wsdl/hello_world.wsdl"/>
   </target>
 
