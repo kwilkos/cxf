@@ -157,6 +157,7 @@
         <module>jbi</module>
         <module>geronimo</module>
         <module>router</module>
+        <module>jca</module>
         <module>systests</module>
         <!--<module>axisinterop</module>-->
     </modules>
