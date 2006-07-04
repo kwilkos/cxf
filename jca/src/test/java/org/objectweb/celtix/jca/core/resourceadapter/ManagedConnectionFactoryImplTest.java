@@ -29,10 +29,10 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertTrue("ManagedConnectionFactoryImpl is ResourceBean", mcf instanceof ResourceBean);
     }
 
-    @SuppressWarnings("unchecked")
+    
     public void testMatchConnectionSameConnectioRequestInfoNotBound() throws Exception {
         Subject subject = null;
-        Set connectionSet = new HashSet<AbstractManagedConnectionImpl>();
+        Set<AbstractManagedConnectionImpl> connectionSet = new HashSet<AbstractManagedConnectionImpl>();
         ConnectionRequestInfo cri = new DummyConnectionRequestInfo();
         DummyManagedConnectionImpl con1 = new DummyManagedConnectionImpl(mcf, cri, subject);
         connectionSet.add(con1);
@@ -41,10 +41,10 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals(con1, mcon);
     }
 
-    @SuppressWarnings("unchecked")
+   
     public void testMatchConnectionSameConnectioRequestInfoBound() throws Exception {
         Subject subject = null;
-        Set connectionSet = new HashSet();
+        Set<AbstractManagedConnectionImpl> connectionSet = new HashSet<AbstractManagedConnectionImpl>();
         ConnectionRequestInfo cri = new DummyConnectionRequestInfo();
         DummyManagedConnectionImpl con1 = new DummyManagedConnectionImpl(mcf, cri, subject);
         con1.setBound(true);
@@ -54,7 +54,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals(con1, mcon);
     }
 
-    @SuppressWarnings("unchecked")
+    
     public void testMatchConnectionDifferentConnectioRequestInfoNotBound() throws Exception {
         ConnectionRequestInfo cri1 = new DummyConnectionRequestInfo();
         ConnectionRequestInfo cri2 = new DummyConnectionRequestInfo();
@@ -62,7 +62,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         Subject subject = null;
         assertTrue("request info object are differnt", cri1 != cri2);
 
-        Set connectionSet = new HashSet();
+        Set<AbstractManagedConnectionImpl> connectionSet = new HashSet<AbstractManagedConnectionImpl>();
         DummyManagedConnectionImpl con1 = new DummyManagedConnectionImpl(mcf, cri1, subject);
         connectionSet.add(con1);
 
@@ -70,7 +70,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals("incorrect connection returned", con1, mcon);
     }
 
-    @SuppressWarnings("unchecked")
+   
     public void testMatchConnectionDifferentConnectioRequestInfoBound() throws Exception {
         ConnectionRequestInfo cri1 = new DummyConnectionRequestInfo();
         ConnectionRequestInfo cri2 = new DummyConnectionRequestInfo();
@@ -79,7 +79,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
 
         assertTrue("request info object are differnt", cri1 != cri2);
 
-        Set connectionSet = new HashSet();
+        Set<AbstractManagedConnectionImpl> connectionSet = new HashSet<AbstractManagedConnectionImpl>();
         DummyManagedConnectionImpl con1 = new DummyManagedConnectionImpl(mcf, cri1, subject);
         con1.setBound(true);
         connectionSet.add(con1);
@@ -88,10 +88,10 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertTrue("should not get a match", mcon == null);
     }
 
-    @SuppressWarnings("unchecked")
+    
     public void testMatchConnectionInvalidatedWithSameConnectioRequestInfo() throws Exception {
         Subject subject = null;
-        Set connectionSet = new HashSet();
+        Set<AbstractManagedConnectionImpl> connectionSet = new HashSet<AbstractManagedConnectionImpl>();
         ConnectionRequestInfo cri = new DummyConnectionRequestInfo();
 
         DummyManagedConnectionImpl con1 = new DummyManagedConnectionImpl(mcf, cri, subject);

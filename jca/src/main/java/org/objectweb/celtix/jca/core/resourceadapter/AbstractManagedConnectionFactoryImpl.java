@@ -18,7 +18,7 @@ import javax.security.auth.Subject;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.jca.core.logging.LoggerHelper;
 
-// need to build the logging 
+ 
 public abstract class AbstractManagedConnectionFactoryImpl extends ResourceBean 
     implements ManagedConnectionFactory {
 

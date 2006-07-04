@@ -19,15 +19,15 @@ public class ResourceBean implements Serializable {
 
     public static final String DEFAULT_VALUE_STRING = "DEFAULT";
     public static final String LOG_LEVEL = "log.level";
-    public static final String CONFIG_DOMAIN = "artix";
+    public static final String CONFIG_DOMAIN = "celtix";
     public static final String CONFIG_SCOPE = "j2ee";
-    public static final String MONITOR_POLL_INTERVAL = "120";
+    public static final String DEFAULT_MONITOR_POLL_INTERVAL = "120";
     public static final String JAAS_LOGIN_CONFIG = "jaas.login.config.name";
     public static final String JAAS_LOGIN_USER = "jaas.login.user.name";
     public static final String JAAS_LOGIN_PASSWORD = "jaas.login.password";
     public static final String EJB_SERVICE_PROPERTIES_URL = "ejb.service.properties.url";
     public static final String MONITOR_EJB_SERVICE_PROPERTIES = "monitor.ejb.service.properties";
-    public static final String POLL_INTERVAL_PROPERTY = "monitor.poll.interval";
+    public static final String MONITOR_POLL_INTERVAL = "monitor.poll.interval";
     public static final String CELTIX_INSTALL_DIR_PROPERTY = "celtix.install.dir";
     public static final String CELTIX_CE_URL = "celtix.ce.url";
     private static final long serialVersionUID = -9186743162164946039L;
