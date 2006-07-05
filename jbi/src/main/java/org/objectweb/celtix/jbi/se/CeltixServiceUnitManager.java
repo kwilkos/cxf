@@ -41,7 +41,7 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     // Implementation of javax.jbi.component.ServiceUnitManager
     
     public final void shutDown(final String suName) throws DeploymentException {
-        LOG.info(new Message("SU.MANAGER.SHUTDOWN", LOG) + suName);
+        LOG.fine(new Message("SU.MANAGER.SHUTDOWN", LOG) + suName);
         if (suName == null) {
             throw new DeploymentException(new Message("SU.NAME.NULL", LOG).toString());
         } 
@@ -55,7 +55,7 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     }
     
     public final String deploy(final String suName, final String suRootPath) throws DeploymentException {
-        LOG.info(new Message("SU.MANAGER.DEPLOY", LOG) + suName + " path: " + suRootPath);
+        LOG.fine(new Message("SU.MANAGER.DEPLOY", LOG) + suName + " path: " + suRootPath);
         
         if (suName == null) {
             throw new DeploymentException(new Message("SU.NAME.NULL", LOG).toString());
@@ -107,7 +107,7 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     }
     
     public final String undeploy(final String suName, final String suRootPath) throws DeploymentException {
-        LOG.info(new Message("SU.MANAGER.UNDEPLOY", LOG) + suName + " path: " + suRootPath);
+        LOG.fine(new Message("SU.MANAGER.UNDEPLOY", LOG) + suName + " path: " + suRootPath);
         
         if (suName == null) {
             throw new DeploymentException(new Message("SU.NAME.NULL", LOG).toString());
@@ -156,7 +156,7 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     }
     
     public final void init(final String suName, final String suRootPath) throws DeploymentException {
-        LOG.info(new Message("SU.MANAGER.INIT", LOG) + suName + " path: " + suRootPath);
+        LOG.fine(new Message("SU.MANAGER.INIT", LOG) + suName + " path: " + suRootPath);
      
         if (suName == null) {
             throw new DeploymentException(new Message("SU.NAME.NULL", LOG).toString());
@@ -184,7 +184,7 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     }
     
     public final void start(final String suName) throws DeploymentException {
-        LOG.info(new Message("SU.MANAGER.START", LOG) + suName);
+        LOG.fine(new Message("SU.MANAGER.START", LOG) + suName);
         if (suName == null) {
             throw new DeploymentException(new Message("SU.NAME.NULL", LOG).toString());
         } 
@@ -209,7 +209,7 @@ public class CeltixServiceUnitManager implements ServiceUnitManager {
     } 
     
     public final void stop(final String suName) throws DeploymentException {
-        LOG.info(new Message("SU.MANAGER.STOP", LOG) + suName);
+        LOG.fine(new Message("SU.MANAGER.STOP", LOG) + suName);
         if (suName == null) {
             throw new DeploymentException(new Message("SU.NAME.NULL", LOG).toString());
         } 

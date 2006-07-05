@@ -17,7 +17,7 @@ public class ServiceEngineStop extends AbstractServiceEngineStateMachine {
     private static final Logger LOG = LogUtils.getL7dLogger(ServiceEngineStop.class);
     
     public void changeState(SEOperation operation, ComponentContext context) throws JBIException {
-        LOG.info("in stop state");
+        LOG.fine("in stop state");
         if (operation == SEOperation.start) {
             startSE();
             ServiceEngineStateFactory.getInstance().setCurrentState(
@@ -39,7 +39,7 @@ public class ServiceEngineStop extends AbstractServiceEngineStateMachine {
             }
             DeliveryChannel chnl = ctx.getDeliveryChannel();
             configureJBITransportFactory(chnl, suManager); 
-            LOG.info(new Message("SE.STARTUP.COMPLETE", LOG).toString());
+            LOG.fine(new Message("SE.STARTUP.COMPLETE", LOG).toString());
             
         } catch (Throwable e) {
             throw new JBIException(e);

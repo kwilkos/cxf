@@ -86,19 +86,19 @@ public class CeltixServiceUnit {
     
     public void start(ComponentContext ctx, CeltixServiceUnitManager serviceUnitManager) {
         if (isServiceProvider()) { 
-            LOG.info(new Message("SU.START.PROVIDER", LOG).toString());
+            LOG.fine(new Message("SU.START.PROVIDER", LOG).toString());
             ref = null;
             try {
                 ref = ctx.activateEndpoint(getServiceName(), getEndpointName());
             } catch (JBIException e) {
                 LOG.severe(new Message("SU.FAIED.ACTIVE.ENDPOINT", LOG).toString() + e);
             } 
-            LOG.info("activated endpoint: " + ref.getEndpointName() 
+            LOG.fine("activated endpoint: " + ref.getEndpointName() 
                      + " service: " + ref.getServiceName());
             serviceUnitManager.putServiceEndpoint(ref, this);
             
         } else {
-            LOG.info(new Message("SU.START.CONSUMER", LOG).toString());
+            LOG.fine(new Message("SU.START.CONSUMER", LOG).toString());
             new Thread(serviceConsumer).start();
         }
     }
@@ -143,7 +143,7 @@ public class CeltixServiceUnit {
             WebServiceClassFinder finder = new WebServiceClassFinder(rootPath, parentLoader);
             Collection<Class<?>> classes = finder.findWebServiceClasses(); 
             if (classes.size() > 0) {
-                LOG.info(new Message("SU.PUBLISH.ENDPOINT", LOG).toString());
+                LOG.fine(new Message("SU.PUBLISH.ENDPOINT", LOG).toString());
                 isProvider = true;
                 Class<?> clz = classes.iterator().next();
                 serviceImplementation = clz.newInstance();
@@ -263,7 +263,7 @@ public class CeltixServiceUnit {
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
-            LOG.info(new Message("SE.SET.CONFIGURATION", LOG) + System.getProperty("celtix.config.file"));
+            LOG.fine(new Message("SE.SET.CONFIGURATION", LOG) + System.getProperty("celtix.config.file"));
         } else { 
             LOG.severe(new Message("SE.NOT.FOUND.CONFIGURATION", LOG).toString() + metaInfDir);
         } 
@@ -289,7 +289,7 @@ public class CeltixServiceUnit {
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
-            LOG.info(new Message("SE.SET.CONFIGURATION", LOG) + System.getProperty("celtix.config.file"));
+            LOG.fine(new Message("SE.SET.CONFIGURATION", LOG) + System.getProperty("celtix.config.file"));
         } else { 
             LOG.severe(new Message("SE.NOT.FOUND.CONFIGURATION", LOG).toString() + metaInfDir);
         } 

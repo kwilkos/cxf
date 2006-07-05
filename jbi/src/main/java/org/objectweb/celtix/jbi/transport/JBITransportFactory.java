@@ -56,7 +56,7 @@ public class JBITransportFactory implements TransportFactory {
 
     public ServerTransport createServerTransport(EndpointReferenceType address)
         throws WSDLException, IOException {
-        LOG.info(new Message("CREATE.SERVER.TRANSPORT", LOG).toString());
+        LOG.fine(new Message("CREATE.SERVER.TRANSPORT", LOG).toString());
         
         if (suManager == null || deliveryChannel == null) { 
             LOG.severe(new Message("JBI.TRANSPORT.FACTORY.NOT.INITIALIZED", LOG).toString());
@@ -80,7 +80,7 @@ public class JBITransportFactory implements TransportFactory {
                                                  ClientBinding binding)
         throws WSDLException, IOException { 
 
-        LOG.info(new Message("CREATE.CLIENT.TRANSPORT", LOG).toString());
+        LOG.fine(new Message("CREATE.CLIENT.TRANSPORT", LOG).toString());
 
         if (deliveryChannel == null) { 
             LOG.severe(new Message("JBI.TRANSPORT.FACTORY.NOT.INITIALIZED", LOG).toString());

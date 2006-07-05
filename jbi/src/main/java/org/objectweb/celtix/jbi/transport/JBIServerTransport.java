@@ -101,7 +101,7 @@ public class JBIServerTransport implements ServerTransport {
                 LOG.fine(new Message("CREATE.NORMALIZED.MESSAGE", LOG).toString());
                 NormalizedMessage msg = xchng.createMessage();
                 msg.setContent(new DOMSource(doc));
-                LOG.info("the message class is " + xchng.getClass().getName());
+                LOG.fine("the message class is " + xchng.getClass().getName());
                 xchng.setMessage(msg, "out");
                 LOG.fine(new Message("POST.DISPATCH", LOG).toString());
                 channel.send(xchng);
@@ -146,7 +146,7 @@ public class JBIServerTransport implements ServerTransport {
             
             try { 
                 running = true;
-                LOG.info(new Message("RECEIVE.THREAD.START", LOG).toString());
+                LOG.fine(new Message("RECEIVE.THREAD.START", LOG).toString());
                 do { 
                     MessageExchange exchange = channel.accept(); 
                     if (exchange != null) { 
@@ -160,10 +160,10 @@ public class JBIServerTransport implements ServerTransport {
                         try { 
                             Thread.currentThread().setContextClassLoader(csu.getClassLoader());
                             if (csu != null) { 
-                                LOG.info(new Message("DISPATCH.TO.SU", LOG).toString());
+                                LOG.fine(new Message("DISPATCH.TO.SU", LOG).toString());
                                 dispatch(exchange, callback);
                             } else {
-                                LOG.info(new Message("NO.SU.FOUND", LOG).toString());
+                                LOG.fine(new Message("NO.SU.FOUND", LOG).toString());
                             }
                         } finally { 
                             Thread.currentThread().setContextClassLoader(oldLoader);

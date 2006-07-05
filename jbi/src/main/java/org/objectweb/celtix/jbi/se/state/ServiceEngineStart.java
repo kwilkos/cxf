@@ -16,7 +16,7 @@ public class ServiceEngineStart extends AbstractServiceEngineStateMachine {
     
     
     public void changeState(SEOperation operation, ComponentContext context) throws JBIException {
-        LOG.info("in start state");
+        LOG.fine("in start state");
         if (operation == SEOperation.stop) {
             ServiceEngineStateFactory.getInstance().setCurrentState(
                 ServiceEngineStateFactory.getInstance().getStopState());

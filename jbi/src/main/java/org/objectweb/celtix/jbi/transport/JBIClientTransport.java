@@ -58,39 +58,39 @@ public class JBIClientTransport implements ClientTransport {
     
     public void invokeOneway(OutputStreamMessageContext context) throws IOException {
         try {
-            LOG.info("it's in-only invokation");
+            LOG.fine("it's in-only invokation");
             Method targetMethod = (Method)context.get(ObjectMessageContext.METHOD_OBJ);
             Class<?> clz = targetMethod.getDeclaringClass(); 
             
-            LOG.info(new Message("INVOKE.SERVICE", LOG).toString() + clz);
+            LOG.fine(new Message("INVOKE.SERVICE", LOG).toString() + clz);
             
             WebService ws = clz.getAnnotation(WebService.class);
             assert ws != null;
             QName interfaceName = new QName(ws.targetNamespace(), ws.name());
             
             MessageExchangeFactory factory = channel.createExchangeFactoryForService(serviceName);
-            LOG.info(new Message("CREATE.MESSAGE.EXCHANGE", LOG).toString() + serviceName);
+            LOG.fine(new Message("CREATE.MESSAGE.EXCHANGE", LOG).toString() + serviceName);
             InOnly xchng = factory.createInOnlyExchange();
             
             NormalizedMessage inMsg = xchng.createMessage();
-            LOG.info(new Message("EXCHANGE.ENDPOINT", LOG).toString() + xchng.getEndpoint());
+            LOG.fine(new Message("EXCHANGE.ENDPOINT", LOG).toString() + xchng.getEndpoint());
             
             if (inMsg != null) { 
-                LOG.info("setup message contents on " + inMsg);
+                LOG.fine("setup message contents on " + inMsg);
                 inMsg.setContent(getMessageContent(context));
                 xchng.setService(serviceName); 
-                LOG.info("service for exchange " + serviceName);
+                LOG.fine("service for exchange " + serviceName);
                 
                 xchng.setInterfaceName(interfaceName); 
                 
                 xchng.setOperation(new QName(targetMethod.getName())); 
                 xchng.setInMessage(inMsg);
-                LOG.info("sending message");
+                LOG.fine("sending message");
                 channel.send(xchng);
                 
                                 
             } else { 
-                LOG.info(new Message("NO.MESSAGE", LOG).toString());
+                LOG.fine(new Message("NO.MESSAGE", LOG).toString());
             } 
             
                         
@@ -104,43 +104,43 @@ public class JBIClientTransport implements ClientTransport {
         throws IOException { 
         
         try {
-            LOG.info("it's in-out invokation");
+            LOG.fine("it's in-out invokation");
             Method targetMethod = (Method)context.get(ObjectMessageContext.METHOD_OBJ);
             Class<?> clz = targetMethod.getDeclaringClass(); 
             
-            LOG.info(new Message("INVOKE.SERVICE", LOG).toString() + clz);
+            LOG.fine(new Message("INVOKE.SERVICE", LOG).toString() + clz);
             
             WebService ws = clz.getAnnotation(WebService.class);
             assert ws != null;
             QName interfaceName = new QName(ws.targetNamespace(), ws.name());
             
             MessageExchangeFactory factory = channel.createExchangeFactoryForService(serviceName);
-            LOG.info(new Message("CREATE.MESSAGE.EXCHANGE", LOG).toString() + serviceName);
+            LOG.fine(new Message("CREATE.MESSAGE.EXCHANGE", LOG).toString() + serviceName);
             InOut xchng = factory.createInOutExchange();
             
             NormalizedMessage inMsg = xchng.createMessage();
-            LOG.info(new Message("EXCHANGE.ENDPOINT", LOG).toString() + xchng.getEndpoint());
+            LOG.fine(new Message("EXCHANGE.ENDPOINT", LOG).toString() + xchng.getEndpoint());
             
             InputStream ins = null;
             
             if (inMsg != null) { 
-                LOG.info("setup message contents on " + inMsg);
+                LOG.fine("setup message contents on " + inMsg);
                 inMsg.setContent(getMessageContent(context));
                 xchng.setService(serviceName); 
-                LOG.info("service for exchange " + serviceName);
+                LOG.fine("service for exchange " + serviceName);
                 
                 xchng.setInterfaceName(interfaceName); 
                 
                 xchng.setOperation(new QName(targetMethod.getName())); 
                 xchng.setInMessage(inMsg);
-                LOG.info("sending message");
+                LOG.fine("sending message");
                 channel.sendSync(xchng);
                 
                 NormalizedMessage outMsg = xchng.getOutMessage();
                 ins = JBIMessageHelper.convertMessageToInputStream(outMsg.getContent());
                 
             } else { 
-                LOG.info(new Message("NO.MESSAGE", LOG).toString());
+                LOG.fine(new Message("NO.MESSAGE", LOG).toString());
             } 
             
             if (ins == null) { 

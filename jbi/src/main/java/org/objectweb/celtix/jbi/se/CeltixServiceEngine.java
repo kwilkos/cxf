@@ -48,7 +48,7 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
     
     public final void shutDown() throws JBIException {
         try {
-            LOG.info(new Message("SE.SHUTDOWN", LOG).toString());
+            LOG.fine(new Message("SE.SHUTDOWN", LOG).toString());
             stateFactory.getCurrentState().changeState(ServiceEngineStateMachine.SEOperation.shutdown, null);
         } catch (Throwable ex) { 
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -72,7 +72,7 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
     
     public final void start() throws JBIException {
         try { 
-            LOG.info(new Message("SE.STARTUP", LOG).toString());
+            LOG.fine(new Message("SE.STARTUP", LOG).toString());
             stateFactory.getCurrentState().changeState(ServiceEngineStateMachine.SEOperation.start, null);
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -82,7 +82,7 @@ public class CeltixServiceEngine implements ComponentLifeCycle, Component {
     
     public final void stop() throws JBIException {
         try {
-            LOG.info(new Message("SE.STOP", LOG).toString());
+            LOG.fine(new Message("SE.STOP", LOG).toString());
             stateFactory.getCurrentState().changeState(ServiceEngineStateMachine.SEOperation.stop, null);
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

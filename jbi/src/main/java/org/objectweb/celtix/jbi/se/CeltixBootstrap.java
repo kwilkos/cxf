@@ -26,20 +26,20 @@ public class CeltixBootstrap implements Bootstrap {
     }
 
     public final void cleanUp() throws JBIException {
-        LOG.info(new Message("BOOTSTRAP.CLEANUP", LOG).toString());
+        LOG.fine(new Message("BOOTSTRAP.CLEANUP", LOG).toString());
        
     }
 
     public final void onInstall() throws JBIException {
-        LOG.info(new Message("BOOTSTRAP.ONINSTALL", LOG).toString());
+        LOG.fine(new Message("BOOTSTRAP.ONINSTALL", LOG).toString());
 
     }
 
     public final void onUninstall() throws JBIException {
-        LOG.info(new Message("BOOTSTRAP.ONUNINSTALL", LOG).toString());
+        LOG.fine(new Message("BOOTSTRAP.ONUNINSTALL", LOG).toString());
     }
 
     public final void init(final InstallationContext argCtx) throws JBIException {
-        LOG.info(new Message("BOOTSTRAP.INIT", LOG).toString());
+        LOG.fine(new Message("BOOTSTRAP.INIT", LOG).toString());
     }
 }

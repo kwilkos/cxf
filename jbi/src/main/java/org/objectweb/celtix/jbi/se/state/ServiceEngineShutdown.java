@@ -23,7 +23,7 @@ public class ServiceEngineShutdown extends AbstractServiceEngineStateMachine {
     
        
     public void changeState(SEOperation operation, ComponentContext context) throws JBIException {
-        LOG.info("in shutdown state");
+        LOG.fine("in shutdown state");
         if (operation == SEOperation.init) {
             initSE(context);
             ServiceEngineStateFactory.getInstance().setCurrentState(
@@ -64,8 +64,8 @@ public class ServiceEngineShutdown extends AbstractServiceEngineStateMachine {
             suManager = new CeltixServiceUnitManager(bus, ctx, loader);
             registerJBITransport(bus, suManager);
             
-            LOG.info(new Message("SE.INSTALL.ROOT", LOG) + installRoot);
-            LOG.info(new Message("SE.INIT.COMPLETE", LOG).toString());
+            LOG.fine(new Message("SE.INSTALL.ROOT", LOG) + installRoot);
+            LOG.fine(new Message("SE.INIT.COMPLETE", LOG).toString());
             
         } catch (Throwable e) {
             throw new JBIException(e);
@@ -75,9 +75,9 @@ public class ServiceEngineShutdown extends AbstractServiceEngineStateMachine {
     private void initializeBus() throws JBIException { 
         
         try { 
-            LOG.info(new Message("SE.INIT.BUS", LOG).toString());
+            LOG.fine(new Message("SE.INIT.BUS", LOG).toString());
             bus = Bus.init();
-            LOG.info(new Message("SE.INIT.BUS.COMPLETE", LOG).toString());
+            LOG.fine(new Message("SE.INIT.BUS.COMPLETE", LOG).toString());
         } catch (Exception ex) { 
             LOG.log(Level.SEVERE, new Message("SE.FAILED.INIT.BUS", LOG).toString(), ex);
             throw new JBIException(ex);
