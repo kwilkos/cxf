@@ -89,6 +89,55 @@ public class WSDLToJavaExtraTest extends ProcessorTestBase {
         processor.process();
 
     }
+    
+    public void testCallBackWithNormalRequest() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/callback_with_normal_requests.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+    }
+    
+    public void testCallBackWithOneWayRequest() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/callback_with_oneway_requests.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+    }
+    
+    
+    public void testCitiToRPM() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/cititorpm.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+    }
+    
+    public void testCompound() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/compound1.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+    }
+    
+    public void testDerived() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/derived.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+    }
+    
+    
+    public void testFaults() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/faults.wsdl"));
+        processor.setEnvironment(env);
+        try {
+            processor.process();
+        } catch (Exception e) {
+            assertEquals("Unsupported exception should be thorwn",
+                         "Rpc/encoded wsdls are not supported in JAXWS 2.0", e.getMessage());
+        }
+
+    }
 
     private String getLocation(String wsdlFile) {
         return WSDLToJavaExtraTest.class.getResource(wsdlFile).getFile();

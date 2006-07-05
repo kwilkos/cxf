@@ -1,0 +1,108 @@
+<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:tns="http://www.transunion.com/rpm"
+	xmlns:bank="http://www.citibank.com/"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:http="http://schemas.iona.com/transports/http"
+	xmlns:http-conf="http://schemas.iona.com/transports/http/configuration"
+	targetNamespace="http://www.transunion.com/rpm" name="SSI">
+	<types>
+		<schema targetNamespace="http://www.transunion.com/rpm" xmlns="http://www.w3.org/2001/XMLSchema">
+			<import namespace="http://www.transunion.com/rpm"
+				schemaLocation="rpmsuper.xsd" />
+		</schema>
+		<schema targetNamespace="http://www.citibank.com/" xmlns="http://www.w3.org/2001/XMLSchema">
+			<import namespace="http://www.citibank.com/"
+				schemaLocation="citibank.xsd" />
+		</schema>
+		
+	</types>
+	<message name="CitiBankRequest">
+		<part element="bank:CitiBankMessageElement"
+			name="CitiBankRequest" />
+	</message>
+
+	<message name="rpmMessage">
+		<part name="rpmMessage" element="tns:rpm" />
+	</message>
+
+	<portType name="CitiBankRequestPortType">
+		<operation name="processCitiRequestData">
+			<input message="tns:CitiBankRequest" name="citiRequestData" />
+		</operation>
+	</portType>
+
+	<portType name="rpmPortType">
+		<operation name="processRpmRequestData">
+			<input message="tns:rpmMessage" name="rpmRequestData" />
+		</operation>
+	</portType>
+
+	<portType name="transformer">
+		<operation name="transformer_operation">
+			<input message="tns:CitiBankRequest"
+				name="transformer_operationRequestData" />
+			<output message="tns:rpmMessage"
+				name="transformer_operationResponseData" />
+		</operation>
+	</portType>
+
+	<binding name="CitiBankRequestPortType_SOAPBinding"
+		type="tns:CitiBankRequestPortType">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<operation name="processCitiRequestData">
+			<soap:operation soapAction="" style="document" />
+			<input name="citiRequestData">
+				<soap:body use="literal" />
+			</input>
+		</operation>
+	</binding>
+
+	<binding name="transformer_SOAPBinding" type="tns:transformer">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<operation name="transformer_operation">
+			<soap:operation soapAction="" style="document" />
+			<input name="transformer_operationRequestData">
+				<soap:body use="literal" />
+			</input>
+			<output name="transformer_operationResponseData">
+				<soap:body use="literal" />
+			</output>
+		</operation>
+	</binding>
+
+	<binding name="SSI_SOAPBinding" type="tns:rpmPortType">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<operation name="processRpmRequestData">
+			<soap:operation style="document" />
+			<input name="rpmRequestdata">
+				<soap:body use="literal" />
+			</input>
+		</operation>
+	</binding>
+
+	<service name="CitiBankService">
+		<port binding="tns:CitiBankRequestPortType_SOAPBinding"
+			name="citiPort">
+			<soap:address location="http://localhost:9000/" />
+		</port>
+	</service>
+
+	<service name="transformer_service">
+		<port binding="tns:transformer_SOAPBinding"
+			name="transformer_port">
+			<soap:address location="http://localhost:9100" />
+		</port>
+	</service>
+
+	<service name="rpmService">
+		<port binding="tns:SSI_SOAPBinding" name="rpmPort">
+			<soap:address location="http://localhost:9200" />
+		</port>
+	</service>
+
+</wsdl:definitions>
