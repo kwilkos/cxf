@@ -44,6 +44,8 @@ public final class BuiltInTypesJavaMappingUtil {
         jTypeMapping.put("unsignedint", "long");
         jTypeMapping.put("unsignedshort", "int");
         jTypeMapping.put("unsignedbyte", "short");
+        jTypeMapping.put("anytype", "Object");
+        
     }
     private BuiltInTypesJavaMappingUtil() {
     }
@@ -64,6 +66,7 @@ public final class BuiltInTypesJavaMappingUtil {
             return typeAndAnnotation.getTypeClass().boxify().fullName();
         } else {
             return typeAndAnnotation.getTypeClass().fullName();
+           
         }
     }
     

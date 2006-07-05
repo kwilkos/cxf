@@ -14,7 +14,7 @@ public class WSDLToJavaExtraTest extends ProcessorTestBase {
         classFile.mkdir();
         System.setProperty("java.class.path", getClassPath() + classFile.getCanonicalPath()
                                               + File.separatorChar);
-        
+
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
@@ -25,24 +25,23 @@ public class WSDLToJavaExtraTest extends ProcessorTestBase {
         processor = null;
 
     }
-    
+
     public void testAb2301() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/ab2301.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/ab2301.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
     }
-        
+
     public void testAb2371() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/ab2371.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/ab2371.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
     }
-    
-    
+
     public void testAb2456() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/ab2456.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/ab2456.wsdl"));
         processor.setEnvironment(env);
         try {
             processor.process();
@@ -51,8 +50,46 @@ public class WSDLToJavaExtraTest extends ProcessorTestBase {
                          "Rpc/encoded wsdls are not supported in JAXWS 2.0", e.getMessage());
         }
     }
-    
-     
+
+    public void testAb5110() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/ab5110.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+    }
+
+    public void testParserXml() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/artixparsexml.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+    }
+
+    public void testBank() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/bank.wsdl"));
+        processor.setEnvironment(env);
+        try {
+            processor.process();
+        } catch (Exception e) {
+            assertEquals("Unsupported exception should be thorwn",
+                         "Rpc/encoded wsdls are not supported in JAXWS 2.0", e.getMessage());
+        }
+    }
+
+    public void testBank2() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/bank2.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+    }
+
+    public void testBasicSql() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/extra/basic_sql.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+    }
+
     private String getLocation(String wsdlFile) {
         return WSDLToJavaExtraTest.class.getResource(wsdlFile).getFile();
     }
