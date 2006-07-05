@@ -66,7 +66,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     public static final String ENDPOINT_CONFIGURATION_URI = 
         "http://celtix.objectweb.org/bus/jaxws/endpoint-config";
     private static final String ENABLE_HANDLER_INIT = "enableHandlerInit";
-    
+    private static final String IS_IN_CELTIX_SERVICE_ENGINE = "isInCeltixServiceEngine";
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
     
     protected EndpointReferenceType reference;
@@ -520,6 +520,15 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         LOG.fine("loading handler chain for endpoint");
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
         HandlerChainType hc = (HandlerChainType)configuration.getObject("handlerChain");
+        try {
+            if (configuration.getBoolean(IS_IN_CELTIX_SERVICE_ENGINE)) {
+                LOG.info("will set class loader");
+                LOG.info("the classloader is " + implementorClass.getClassLoader());
+                builder.setHandlerClassLoader(implementorClass.getClassLoader());
+            }
+        } catch (Exception e) {
+            LOG.info("Exception Caught:" + e);
+        }
         List<Handler> chain = builder.buildHandlerChainFromConfiguration(hc);
         builder.setHandlerInitEnabled(configuration.getBoolean(ENABLE_HANDLER_INIT));
         

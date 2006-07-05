@@ -30,6 +30,7 @@ public class HandlerChainBuilder {
     
     private boolean handlerInitEnabled; 
    
+    private ClassLoader handlerLoader;
 
     public HandlerChainBuilder(Bus aBus) {
         bus = aBus;
@@ -81,9 +82,21 @@ public class HandlerChainBuilder {
         return handlerInitEnabled;
     }
     
-    
+    //will add container class loader configuration item later
     protected ClassLoader getHandlerClassLoader() {
-        return getClass().getClassLoader();
+        //return getClass().getClassLoader();
+        LOG.info("getHandlerClassLoader is called");
+        if (handlerLoader != null) {
+            LOG.info("get the class loader we set");
+            return handlerLoader;
+        } else {
+            LOG.info("get the class loader which is not set by us");
+            return getClass().getClassLoader();
+        }
+    }
+    
+    public void setHandlerClassLoader(ClassLoader loader) {
+        handlerLoader = loader;
     }
 
     protected List<Handler> buildHandlerChain(HandlerChainType hc, ClassLoader classLoader) {

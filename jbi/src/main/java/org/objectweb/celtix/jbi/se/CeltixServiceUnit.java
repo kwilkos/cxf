@@ -20,11 +20,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.bus.jaxws.EndpointUtils;
+import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.jbi.ServiceConsumer;
 
 /**
@@ -108,7 +113,23 @@ public class CeltixServiceUnit {
                 serviceName = new QName(ws.targetNamespace(), ws.serviceName());
             }
             ret = serviceName;
-        } 
+        } else {
+            WebService ws;
+            WebServiceClassFinder finder = new WebServiceClassFinder(rootPath, parentLoader);
+            Collection<Class<?>> classes = null;
+            try {
+                classes = finder.findWebServiceInterface();
+            } catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } 
+            if (classes.size() > 0) {
+                Class<?> clz = classes.iterator().next();
+                ws = clz.getAnnotation(WebService.class);
+                serviceName = new QName(ws.targetNamespace(), ws.serviceName());
+                ret = serviceName;
+            }
+        }
         return ret;
     } 
     
@@ -127,12 +148,16 @@ public class CeltixServiceUnit {
                 Class<?> clz = classes.iterator().next();
                 serviceImplementation = clz.newInstance();
                 if (EndpointUtils.isValidImplementor(serviceImplementation)) {
+                    createProviderConfiguration();
+                    
                     endpoint = new EndpointImpl(bus, serviceImplementation, null);
                     //dummy endpoint to publish on
                     endpoint.publish("http://foo/bar/baz");
+                    
                 }
                 
             } else {
+                createConsumerConfiguration();
                 classes = finder.findServiceConsumerClasses();
                 Class<?> clz = classes.iterator().next();
                 serviceConsumer = (ServiceConsumer)clz.newInstance();
@@ -198,8 +223,11 @@ public class CeltixServiceUnit {
             Document doc = builder.parse(jbiXml.toURL().toString());
             
             Element providesEl = (Element)findNode(doc.getDocumentElement(), "provides");
+            Element consumersEl = (Element)findNode(doc.getDocumentElement(), "consumes");
             if (providesEl != null) {
                 endpointName = providesEl.getAttribute("endpoint-name");
+            } else if (consumersEl != null) {
+                endpointName = consumersEl.getAttribute("endpoint-name");
             }
         } catch (Exception ex) { 
             LOG.log(Level.SEVERE, "error parsing " + jbiXml, ex);
@@ -225,5 +253,55 @@ public class CeltixServiceUnit {
         return null;
     } 
     
+    private void createProviderConfiguration() {
+        String oldConfiguration = System.getProperty("celtix.config.file");
+        File metaInfDir = new File(rootPath, "META-INF");
+        File celtixConfig = new File(metaInfDir, "celtix-server.xml"); 
+        if (celtixConfig.exists()) { 
+            try {
+                System.setProperty("celtix.config.file", celtixConfig.toURL().toString());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            LOG.info(new Message("SE.SET.CONFIGURATION", LOG) + System.getProperty("celtix.config.file"));
+        } else { 
+            LOG.severe(new Message("SE.NOT.FOUND.CONFIGURATION", LOG).toString() + metaInfDir);
+        } 
+        
+        Configuration busCfg = bus.getConfiguration();
+        if (null == busCfg) {
+            return;
+        }
+
+        String id = getServiceName().toString();
+        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        cb.buildConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, id, busCfg);
+        System.setProperty("celtix.config.file", oldConfiguration);
+    }
     
+    private void createConsumerConfiguration() {
+        String oldConfiguration = System.getProperty("celtix.config.file");
+        File metaInfDir = new File(rootPath, "META-INF");
+        File celtixConfig = new File(metaInfDir, "celtix-client.xml"); 
+        if (celtixConfig.exists()) { 
+            try {
+                System.setProperty("celtix.config.file", celtixConfig.toURL().toString());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            LOG.info(new Message("SE.SET.CONFIGURATION", LOG) + System.getProperty("celtix.config.file"));
+        } else { 
+            LOG.severe(new Message("SE.NOT.FOUND.CONFIGURATION", LOG).toString() + metaInfDir);
+        } 
+        
+        Configuration busCfg = bus.getConfiguration();
+        if (null == busCfg) {
+            return;
+        }
+        String id = getServiceName().toString() + "/" + getEndpointName();
+        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        cb.buildConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, id, busCfg);
+        System.setProperty("celtix.config.file", oldConfiguration);
+    }
+
 }
