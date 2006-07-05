@@ -18,9 +18,6 @@ import javax.activation.DataSource;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.rio.Attachment;
@@ -62,9 +59,6 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
             message.getInterceptorChain().doIntercept(message);
         } catch (MessagingException me) {
             message.put(AbstractWrappedMessage.INBOUND_EXCEPTION, me);
-
-        } catch (XMLStreamException xse) {
-            message.put(AbstractWrappedMessage.INBOUND_EXCEPTION, xse);
 
         } catch (IOException ioe) {
             message.put(AbstractWrappedMessage.INBOUND_EXCEPTION, ioe);
@@ -128,15 +122,13 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
     /**
      * construct the primary soap body part and attachments
      */
-    private void process() throws MessagingException, IOException, XMLStreamException {
+    private void process() throws MessagingException, IOException {
 
         Attachment soapMimePart = readMimePart();
         message.setSource(Attachment.class, soapMimePart);
 
-        XMLInputFactory f = XMLInputFactory.newInstance();
-        InputStream xmlInputStream = soapMimePart.getDataHandler().getInputStream();
-        XMLStreamReader r = f.createXMLStreamReader(xmlInputStream);
-        message.setSource(XMLStreamReader.class, r);
+        InputStream in = soapMimePart.getDataHandler().getInputStream();
+        message.setSource(InputStream.class, in);      
 
         Collection<Attachment> attachments = message.getAttachments();
         for (Attachment att = readMimePart(); att != null && att.getId() != null; att = readMimePart()) {

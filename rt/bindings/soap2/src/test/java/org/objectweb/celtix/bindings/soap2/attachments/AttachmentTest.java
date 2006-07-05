@@ -19,11 +19,11 @@ import javax.xml.bind.UnmarshalException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
@@ -154,6 +154,10 @@ public class AttachmentTest extends TestCase {
             soapMessage.setResult(InputStream.class, cosXml.getInputStream());
             // Do intercept
             testDoIntercept(soapMessage, true);
+
+        } catch (XMLStreamException xse) {
+            fail(xse.getStackTrace().toString());
+
         } catch (MarshalException me) {
             // It's helpful to include the cause in the case of
             // schema validation exceptions.
@@ -161,9 +165,10 @@ public class AttachmentTest extends TestCase {
             if (me.getCause() != null) {
                 message += me.getCause();
             }
-            throw new ProtocolException(message, me);
+            fail(me.getStackTrace().toString());
+
         } catch (Exception ex) {
-            throw new ProtocolException("Marshalling error", ex);
+            fail(ex.getStackTrace().toString());
         }
         // serialize message to transport output stream
 
@@ -191,6 +196,13 @@ public class AttachmentTest extends TestCase {
             assertTrue(primarySoapPart.getDataHandler() != null);
 
             XMLStreamReader xsr = (XMLStreamReader)soapMessage.getSource(XMLStreamReader.class);
+            if (xsr == null) {
+                InputStream in = (InputStream)soapMessage.getSource(InputStream.class);
+                assertTrue(in != null);
+                XMLInputFactory f = XMLInputFactory.newInstance();
+                xsr = f.createXMLStreamReader(in);
+                soapMessage.setSource(XMLStreamReader.class, xsr);
+            }
             assertTrue(xsr != null);
 
             if (testXmlConent) {
