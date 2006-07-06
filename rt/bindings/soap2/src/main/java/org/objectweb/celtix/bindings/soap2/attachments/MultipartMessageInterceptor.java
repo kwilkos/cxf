@@ -52,9 +52,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
         try {
             this.message = (AbstractWrappedMessage)messageParam;
             init();
-            if (isMultipartType) {
-                process();
-            }
+            process();
             // continue interceptor chain processing
             message.getInterceptorChain().doIntercept(message);
         } catch (MessagingException me) {
@@ -128,12 +126,15 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
         message.setSource(Attachment.class, soapMimePart);
 
         InputStream in = soapMimePart.getDataHandler().getInputStream();
-        message.setSource(InputStream.class, in);      
+        message.setSource(InputStream.class, in);
 
-        Collection<Attachment> attachments = message.getAttachments();
-        for (Attachment att = readMimePart(); att != null && att.getId() != null; att = readMimePart()) {
-            attachments.add(att);
+        if (isMultipartType) {
+            Collection<Attachment> attachments = message.getAttachments();
+            for (Attachment att = readMimePart(); att != null && att.getId() != null; att = readMimePart()) {
+                attachments.add(att);
+            }
         }
+
     }
 
     /**
