@@ -107,8 +107,9 @@
 
         <listitem>
           <para><envar>PATH</envar> — ensure that your PATH includes the
-          <filename>%JAVA_HOME%\bin</filename> directory (Windows) or
-          <filename>$JAVA_HOME/bin</filename> directory (UNIX).</para>
+          <filename class="directory">%JAVA_HOME%\bin</filename> directory
+          (Windows) or <filename class="directory">$JAVA_HOME/bin</filename>
+          directory (UNIX).</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -126,12 +127,13 @@
       url="http://ant.apache.org/bindownload.cgi">http://ant.apache.org/bindownload.cgi</ulink></para>
 
       <para>After installing Apache Ant, add the
-      <replaceable>AntInstallDir</replaceable><filename>/bin</filename>
-      (Windows) or
-      <replaceable>AntInstallDir</replaceable><filename>/bin</filename> (UNIX)
-      directory to your <envar>PATH</envar>. Place this at the start of your
-      <envar>PATH</envar> if previous versions of Ant may be configured by
-      other products on your <envar>PATH</envar>.</para>
+      <replaceable>AntInstallDir</replaceable><filename
+      class="directory">/bin</filename> (Windows) or
+      <replaceable>AntInstallDir</replaceable><filename
+      class="directory">/bin</filename> (UNIX) directory to your
+      <envar>PATH</envar>. Place this at the start of your <envar>PATH</envar>
+      if previous versions of Ant may be configured by other products on your
+      <envar>PATH</envar>.</para>
 
       <para>In addition, the source distribution of CeltiXfire uses Apache
       Maven to build the CeltiXfire binaries. A Maven installation is provided
@@ -158,19 +160,20 @@
         </step>
 
         <step>
-          <para>Create an installation directory, (for example,
-          <filename>celtix_install</filename>).</para>
+          <para>Create an installation directory, (for example, <filename
+          class="directory">celtix_install</filename>).</para>
         </step>
 
         <step>
           <para>Open a command window and move to the installation directory.
-          Confirm that the <envar>%JAVA_HOME%</envar><filename>\bin</filename>
-          (Windows) or <envar>$JAVA_HOME</envar><filename>/bin</filename>
+          Confirm that the <envar>%JAVA_HOME%</envar><filename
+          class="directory">\bin</filename> (Windows) or
+          <envar>$JAVA_HOME</envar><filename class="directory">/bin</filename>
           (UNIX) directory is on the <envar>PATH</envar>.</para>
         </step>
 
         <step>
-          <para>Use the java executable to extract the archive, for
+          <para>Use the Java executable to extract the archive, for
           example:</para>
 
           <para><userinput>java -jar
@@ -186,7 +189,8 @@
 
             <mediaobject>
               <imageobject>
-                <imagedata fileref="./images/installation1.gif" />
+                <imagedata align="center" fileref="./images/installation1.gif"
+                           format="GIF" />
               </imageobject>
             </mediaobject>
           </figure>
@@ -221,15 +225,16 @@
         </step>
 
         <step>
-          <para>Create an installation directory, (for example,
-          <filename>celtix-install</filename>).</para>
+          <para>Create an installation directory, (for example, <filename
+          class="directory">celtix-install</filename>).</para>
         </step>
 
         <step>
           <para>Open a command window and move to the installation directory.
-          Confirm that the <filename>%JAVA_HOME%\bin</filename> (Windows) or
-          <filename>$JAVA_HOME/bin</filename> (UNIX) directory is on the
-          PATH.</para>
+          Confirm that the <filename
+          class="directory">%JAVA_HOME%\bin</filename> (Windows) or <filename
+          class="directory">$JAVA_HOME/bin</filename> (UNIX) directory is on
+          the PATH.</para>
         </step>
 
         <step>
@@ -249,7 +254,8 @@
 
             <mediaobject>
               <imageobject>
-                <imagedata fileref="./images/installation2.gif" />
+                <imagedata align="center" fileref="./images/installation2.gif"
+                           format="GIF" />
               </imageobject>
             </mediaobject>
           </figure>
@@ -274,15 +280,16 @@
                 <row>
                   <entry><envar>JAVA_HOME</envar></entry>
 
-                  <entry>JDK installation directory (for example,
-                  <filename>C:\jdk1.5</filename>)</entry>
+                  <entry>JDK installation directory (for example, <filename
+                  class="directory">C:\jdk1.5</filename>)</entry>
                 </row>
 
                 <row>
                   <entry><envar>CELTIX_INSTALL</envar></entry>
 
                   <entry>CeltiXfire installation directory (for example,
-                  <filename>C:\celtix-install</filename>)</entry>
+                  <filename
+                  class="directory">C:\celtix-install</filename>)</entry>
                 </row>
 
                 <row>
@@ -294,10 +301,10 @@
                 <row>
                   <entry><envar>MAVEN_HOME</envar></entry>
 
-                  <entry>Windows:
-                  <filename>%CELTIX_INSTALL%\celtix-src\maven</filename>
-                  <para></para> UNIX:
-                  <filename>$CELTIX_INSTALL/celtix-src/maven</filename></entry>
+                  <entry>Windows: <filename
+                  class="directory">%CELTIX_INSTALL%\celtix-src\maven</filename>
+                  <para></para> UNIX: <filename
+                  class="directory">$CELTIX_INSTALL/celtix-src/maven</filename></entry>
                 </row>
 
                 <row>
@@ -312,10 +319,10 @@
                 <row>
                   <entry><envar>PATH</envar></entry>
 
-                  <entry>Windows:
-                  <filename>%MAVEN_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename>
-                  <para></para> UNIX:
-                  <filename>$MAVEN_HOME/bin:$JAVA_HOME/bin;$PATH</filename></entry>
+                  <entry>Windows: <filename
+                  class="directory">%MAVEN_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename>
+                  <para></para> UNIX: <filename
+                  class="directory">$MAVEN_HOME/bin:$JAVA_HOME/bin;$PATH</filename></entry>
                 </row>
               </tbody>
             </tgroup>
@@ -323,8 +330,8 @@
         </step>
 
         <step>
-          <para>Move to the <filename>celtix-src</filename> directory under
-          your CeltiXfire installation directory.</para>
+          <para>Move to the <filename class="directory">celtix-src</filename>
+          directory under your CeltiXfire installation directory.</para>
         </step>
 
         <step>
@@ -342,10 +349,11 @@
         </step>
 
         <step>
-          <para>Move to the subdirectory
-          <filename>celtix-src\celtix-distribution</filename> (Windows) or
-          <filename>celtix-src/celtix-distribution</filename> (UNIX), and
-          enter the following command:</para>
+          <para>Move to the subdirectory <filename
+          class="directory">celtix-src\celtix-distribution</filename>
+          (Windows) or <filename
+          class="directory">celtix-src/celtix-distribution</filename> (UNIX),
+          and enter the following command:</para>
 
           <para><userinput>mvn compile</userinput></para>
 
@@ -356,9 +364,10 @@
         </step>
       </procedure>
 
-      <para>The JAR files are located in the following directory:
-      <filename>celtix-src\celtix-distribution\target</filename> (Windows) or
-      <filename>celtix-src\celtix-distribution\target</filename>
+      <para>The JAR files are located in the following directory: <filename
+      class="directory">celtix-src\celtix-distribution\target</filename>
+      (Windows) or <filename
+      class="directory">celtix-src\celtix-distribution\target</filename>
       (UNIX).</para>
     </section>
   </section>
@@ -399,42 +408,43 @@
             <row>
               <entry><envar>JAVA_HOME</envar></entry>
 
-              <entry>JDK installation directory (for example,
-              <filename>C:\jdk1.5</filename>)</entry>
+              <entry>JDK installation directory (for example, <filename
+              class="directory">C:\jdk1.5</filename>)</entry>
             </row>
 
             <row>
               <entry><envar>CELTIX_HOME</envar></entry>
 
-              <entry>CeltiXfire installation directory (for example,
-              <filename>C:\Celtix-install\celtix</filename>)</entry>
+              <entry>CeltiXfire installation directory (for example, <filename
+              class="directory">C:\Celtix-install\celtix</filename>)</entry>
             </row>
 
             <row>
               <entry><envar>CLASSPATH</envar></entry>
 
-              <entry>Windows:
-              <filename>.;%CELTIX_HOME%\lib\celtix.jar;.\build\classes</filename>
-              <para></para> UNIX:
-              <filename>.:$CELTIX_HOME/lib/celtix.jar:./build/classes</filename></entry>
+              <entry>Windows: <filename
+              class="directory">.;%CELTIX_HOME%\lib\celtix.jar;.\build\classes</filename>
+              <para></para> UNIX: <filename
+              class="directory">.:$CELTIX_HOME/lib/celtix.jar:./build/classes</filename></entry>
             </row>
 
             <row>
               <entry><envar>ANT_HOME</envar></entry>
 
               <entry>Windows:
-              <replaceable>Ant-install-dir</replaceable><filename>\apache-ant-1.6.5</filename>
-              <para></para> UNIX:
-              <replaceable>Ant-install-dir</replaceable><filename>/apache-ant-1.6.5</filename></entry>
+              <replaceable>Ant-install-dir</replaceable><filename
+              class="directory">\apache-ant-1.6.5</filename> <para></para>
+              UNIX: <replaceable>Ant-install-dir</replaceable><filename
+              class="directory">/apache-ant-1.6.5</filename></entry>
             </row>
 
             <row>
               <entry><envar>PATH</envar></entry>
 
-              <entry>Windows:
-              <filename>%ANT_HOME%\bin;%CELTIX_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename>
-              <para></para> UNIX:
-              <filename>$MAVEN_HOME/bin:$CELTIX_HOME/bin:$JAVA_HOME/bin;$PATH</filename></entry>
+              <entry>Windows: <filename
+              class="directory">%ANT_HOME%\bin;%CELTIX_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename>
+              <para></para> UNIX: <filename
+              class="directory">$MAVEN_HOME/bin:$CELTIX_HOME/bin:$JAVA_HOME/bin;$PATH</filename></entry>
             </row>
           </tbody>
         </tgroup>
@@ -474,32 +484,34 @@
             <row>
               <entry><envar>JAVA_HOME</envar></entry>
 
-              <entry>JDK installation directory (for example,
-              <filename>C:\jdk1.5</filename>)</entry>
+              <entry>JDK installation directory (for example, <filename
+              class="directory">C:\jdk1.5</filename>)</entry>
             </row>
 
             <row>
               <entry><envar>CELTIX_HOME</envar></entry>
 
-              <entry>Celtix installation directory (for example,
-              <filename>C:\Celtix-install\celtix-src\celtix-distribution\src\main</filename>)</entry>
+              <entry>Celtix installation directory (for example, <filename
+              class="directory">C:\Celtix-install\celtix-src\celtix-distribution\src\main</filename>)</entry>
             </row>
 
             <row>
               <entry><envar>CLASSPATH</envar></entry>
 
-              <entry>Windows: <filename>.;.\build\classes</filename>
-              <para></para> UNIX:
-              <filename>.:./build/classes</filename></entry>
+              <entry>Windows: <filename
+              class="directory">.;.\build\classes</filename> <para></para>
+              UNIX: <filename
+              class="directory">.:./build/classes</filename></entry>
             </row>
 
             <row>
               <entry><envar>ANT_HOME</envar></entry>
 
               <entry>Windows:
-              <replaceable>Ant-install-dir</replaceable><filename>\apache-ant-1.6.5</filename>
-              <para></para> UNIX:
-              <replaceable>Ant-install-dir</replaceable><filename>/apache-ant-1.6.5</filename></entry>
+              <replaceable>Ant-install-dir</replaceable><filename
+              class="directory">\apache-ant-1.6.5</filename> <para></para>
+              UNIX: <replaceable>Ant-install-dir</replaceable><filename
+              class="directory">/apache-ant-1.6.5</filename></entry>
             </row>
 
             <row>
@@ -512,10 +524,10 @@
             <row>
               <entry><envar>PATH</envar></entry>
 
-              <entry>Windows:
-              <filename>%ANT_HOME%\bin;%CELTIX_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename>
-              <para></para> UNIX:
-              <filename>$ANT_HOME/bin:$CELTIX_HOME/bin:$JAVA_HOME/bin;$PATH</filename></entry>
+              <entry>Windows: <filename
+              class="directory">%ANT_HOME%\bin;%CELTIX_HOME%\bin;%JAVA_HOME%\bin;%PATH%</filename>
+              <para></para> UNIX: <filename
+              class="directory">$ANT_HOME/bin:$CELTIX_HOME/bin:$JAVA_HOME/bin;$PATH</filename></entry>
             </row>
           </tbody>
         </tgroup>
@@ -535,9 +547,11 @@
         </step>
 
         <step>
-          <para>Change directory to
-          <filename>%CELTIX_HOME%\samples\hello_world</filename> (Windows) or
-          <filename>$CELTIX_HOME/samples/hello_world</filename> (UNIX).</para>
+          <para>Change directory to <filename
+          class="directory">%CELTIX_HOME%\samples\hello_world</filename>
+          (Windows) or <filename
+          class="directory">$CELTIX_HOME/samples/hello_world</filename>
+          (UNIX).</para>
         </step>
 
         <step>
@@ -550,9 +564,11 @@
         </step>
 
         <step>
-          <para>Change directory to
-          <filename>%CELTIX_HOME%\samples\hello_world</filename> (Windows) or
-          <filename>$CELTIX_HOME/samples/hello_world</filename> (UNIX).</para>
+          <para>Change directory to <filename
+          class="directory">%CELTIX_HOME%\samples\hello_world</filename>
+          (Windows) or <filename
+          class="directory">$CELTIX_HOME/samples/hello_world</filename>
+          (UNIX).</para>
         </step>
 
         <step>

@@ -6,6 +6,7 @@
 <!ENTITY chap2 SYSTEM "structure.xml">
 <!ENTITY chap3 SYSTEM "lists.xml">
 <!ENTITY chap4 SYSTEM "tables.xml">
+<!ENTITY chap5 SYSTEM "programing.xml">
 ]>
 
 <book>
@@ -14,4 +15,5 @@
 &chap2;
 &chap3;
 &chap4;
+&chap5;
 </book>
