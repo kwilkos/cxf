@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" 
+		   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+		   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <SOAP-ENV:Body>
+	<ns1:sendReceiveDataResponse xmlns:ns1="http://objectweb.org/hello_world_rpclit">
+	    <out xmlns:ns5="http://objectweb.org/hello_world_rpclit/types">
+		<ns5:elem1>this is element 1</ns5:elem1>
+		<ns5:elem2>this is element 2</ns5:elem2>
+		<ns5:elem3>42</ns5:elem3>
+	    </out>
+	</ns1:sendReceiveDataResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+
