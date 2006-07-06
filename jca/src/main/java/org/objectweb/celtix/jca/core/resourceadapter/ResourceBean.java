@@ -63,11 +63,11 @@ public class ResourceBean implements Serializable {
         return getPluginProps().getProperty(CELTIX_INSTALL_DIR_PROPERTY);
     }
 
-    protected Properties getPluginProps() {
+    public Properties getPluginProps() {
         return pluginProps;
     }
 
-    protected void setProperty(String propName, String propValue) {
+    public void setProperty(String propName, String propValue) {
         if (!DEFAULT_VALUE_STRING.equals(propValue)) {
             LOG.log(Level.INFO, "SETTING_PROPERTY", new Object[] {propName, propValue});
             getPluginProps().setProperty(propName, propValue);
