@@ -73,15 +73,4 @@
         <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
     </cm:configItem>
 
-    <cm:configItem>
-        <cm:name>isInCeltixServiceEngine</cm:name>
-        <cm:type>xs:boolean</cm:type>
-        <cm:description>
-            isInCeltixServiceEngine is false by default.  
-            Set this to true if endpoint is deployed into Celtix
-            Service Engine.
-        </cm:description>
-        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
-    </cm:configItem>
- 
 </cm:config>
