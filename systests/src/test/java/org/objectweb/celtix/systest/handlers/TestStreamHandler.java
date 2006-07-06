@@ -38,8 +38,10 @@ public class  TestStreamHandler extends TestHandlerBase
 
         if (isServerSideHandler()) { 
             try {
-                java.net.URI wsdlDescription = (java.net.URI) ctx.get(MessageContext.WSDL_DESCRIPTION);
-                if (wsdlDescription == null) {
+                Object wsdlDescription = ctx.get(MessageContext.WSDL_DESCRIPTION);
+                if (wsdlDescription == null 
+                    || (!((wsdlDescription instanceof java.net.URI)
+                        || (wsdlDescription instanceof java.net.URL)))) {
                     throw new PingException("WSDLDescription not found");
                 }
             } catch (Exception e) {

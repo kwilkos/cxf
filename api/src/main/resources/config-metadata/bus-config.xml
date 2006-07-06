@@ -11,53 +11,6 @@
    <!-- configuration metadata for component Bus  -->
    
     <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
-    
-    <cm:configItem>
-        <cm:name>bindingFactories</cm:name>
-        <cm:type>ct:classNamespaceMappingListType</cm:type>
-        <cm:description>        
-        Specifies (by classname) the binding factories to be registered with the bus,
-        and, for each factory, the list of supported binding URIs.  
-        </cm:description>   
-        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
-        <ct:classNamespaceMappingListValue>
-            <ct:map>
-                <ct:classname>org.objectweb.celtix.bindings.soap.SOAPBindingFactory</ct:classname>
-                <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/</ct:namespace>
-                <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/http</ct:namespace>
-                <ct:namespace>http://celtix.objectweb.org/transports/jms</ct:namespace>
-            </ct:map>
-            <ct:map>
-                <ct:classname>org.objectweb.celtix.bindings.xml.XMLBindingFactory</ct:classname>
-                <ct:namespace>http://celtix.objectweb.org/bindings/xmlformat</ct:namespace>
-                <ct:namespace>http://schemas.xmlsoap.org/wsdl/http/</ct:namespace>
-            </ct:map>
-        </ct:classNamespaceMappingListValue>
-    </cm:configItem>
-    
-    <cm:configItem>
-        <cm:name>transportFactories</cm:name>
-        <cm:type>ct:classNamespaceMappingListType</cm:type>
-        <cm:description>
-        Specifies (by classname) the transport factories to be registered with the bus,
-        and, for each factory, the list of supported transport URIs.  
-        </cm:description>
-        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>    
-        <ct:classNamespaceMappingListValue>
-            <ct:map>
-                <ct:classname>org.objectweb.celtix.transports.http.HTTPTransportFactory</ct:classname>
-                <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/</ct:namespace>
-                <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/http</ct:namespace>
-                <ct:namespace>http://schemas.xmlsoap.org/wsdl/http/</ct:namespace>
-                <ct:namespace>http://celtix.objectweb.org/transports/http/configuration</ct:namespace>
-            </ct:map>
-            <ct:map>
-                <ct:classname>org.objectweb.celtix.transports.jms.JMSTransportFactory</ct:classname>
-                <ct:namespace>http://celtix.objectweb.org/transports/jms</ct:namespace>
-                <ct:namespace>http://celtix.objectweb.org/transports/jms/configuration</ct:namespace>
-            </ct:map>
-        </ct:classNamespaceMappingListValue>
-    </cm:configItem>
 
     <cm:configItem>
         <cm:name>resourceResolvers</cm:name>

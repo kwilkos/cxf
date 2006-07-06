@@ -7,7 +7,6 @@ import java.net.URL;
 import java.util.Map;
 
 import javax.wsdl.WSDLException;
-import javax.xml.bind.JAXBException;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.ClientBinding;
@@ -15,14 +14,10 @@ import org.objectweb.celtix.buslifecycle.BusLifeCycleListener;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.TransportFactory;
-import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
-import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 import org.objectweb.celtix.transports.http.protocol.pipe.Handler;
 import org.objectweb.celtix.transports.http.protocol.pipe.PipeHTTPServerTransport;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
-import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
-import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class HTTPTransportFactory implements TransportFactory {
     protected Bus bus;
@@ -47,20 +42,7 @@ public class HTTPTransportFactory implements TransportFactory {
     
     public void init(Bus b) {
         bus = b;
-        try {
-            JAXBExtensionHelper.addExtensions(bus.getWSDLManager().getExtenstionRegistry(),
-                                              javax.wsdl.Port.class,
-                                              HTTPClientPolicy.class);
-            JAXBExtensionHelper.addExtensions(bus.getWSDLManager().getExtenstionRegistry(),
-                                              javax.wsdl.Port.class,
-                                              HTTPServerPolicy.class);
-            JAXBExtensionHelper.addExtensions(bus.getWSDLManager().getExtenstionRegistry(),
-                                              javax.wsdl.Port.class,
-                                              AddressType.class);
 
-        } catch (JAXBException e) {
-            //ignore, we can continue without the extension registered
-        }
         String val = System.getProperty("java.protocol.handler.pkgs");
         if (val == null) {
             System.setProperty("java.protocol.handler.pkgs",

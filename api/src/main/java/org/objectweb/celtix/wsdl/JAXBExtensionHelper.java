@@ -22,6 +22,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Element;
 
+
 /**
  * JAXBExtensionHelper
  * @author dkulp
@@ -30,10 +31,19 @@ import org.w3c.dom.Element;
 public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeserializer {
     final JAXBContext context;
     final Class<? extends TExtensibilityElementImpl> typeClass;
-    
+      
     public JAXBExtensionHelper(JAXBContext c, Class<? extends TExtensibilityElementImpl> cls) {
         context = c;
         typeClass = cls;
+    }
+    
+    public static void addExtensions(ExtensionRegistry registry, String parentType, String elementType,
+                                     ClassLoader cl) throws JAXBException, ClassNotFoundException {
+        Class<?> parentTypeClass = Class.forName(parentType, true, cl);
+
+        Class<? extends TExtensibilityElementImpl> elementTypeClass = Class.forName(elementType, true, cl)
+            .asSubclass(TExtensibilityElementImpl.class);
+        addExtensions(registry, parentTypeClass, elementTypeClass);
     }
     
     public static void addExtensions(ExtensionRegistry registry,

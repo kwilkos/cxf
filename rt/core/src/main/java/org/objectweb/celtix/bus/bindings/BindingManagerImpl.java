@@ -8,37 +8,37 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.BindingManager;
-import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
+import org.objectweb.celtix.bus.configuration.utils.StandardTypesHelper;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 
 public final class BindingManagerImpl implements BindingManager {
 
+    private static final String FACTORY_NAMESPACE_MAPPINGS_RESOURCE = "META-INF/bindings.xml";
+    
     final Map<String, BindingFactory> bindingFactories;
+    List<ClassNamespaceMappingType> factoryNamespaceMappings;
     private final Bus bus;
     
-    public BindingManagerImpl(Bus b) throws BusException {
+    public BindingManagerImpl(Bus b) {
         bindingFactories = new ConcurrentHashMap<String, BindingFactory>();
         bus = b;
-        
-        Object obj = bus.getConfiguration().getObject("bindingFactories");
-        
-        List<ClassNamespaceMappingType> factoryMappings = ((ClassNamespaceMappingListType)obj).getMap();
-        for (ClassNamespaceMappingType mapping : factoryMappings) {
-            String classname = mapping.getClassname();
-            List<String> namespaceList = mapping.getNamespace();
-            String[] namespaces = new String[namespaceList.size()];
-            namespaceList.toArray(namespaces);
-            loadBindingFactory(classname, namespaces);
-        }       
-        
+  
+        factoryNamespaceMappings = 
+            StandardTypesHelper.getFactoryNamespaceMappings(FACTORY_NAMESPACE_MAPPINGS_RESOURCE,
+                                                                   getClass().getClassLoader());       
     }
     
-    private void loadBindingFactory(String className, String ...namespaceURIs) throws BusException {
+    public List<ClassNamespaceMappingType> getFactoryNamespaceMappings() {
+        return factoryNamespaceMappings;
+    }
+    
+    BindingFactory loadBindingFactory(String className, String ...namespaceURIs) throws BusException {
+        BindingFactory factory = null;
         try {
             Class<? extends BindingFactory> clazz = 
                     Class.forName(className).asSubclass(BindingFactory.class);
 
-            BindingFactory factory = clazz.newInstance();
+            factory = clazz.newInstance();
             factory.init(bus);
 
             for (String namespace : namespaceURIs) {
@@ -51,6 +51,7 @@ public final class BindingManagerImpl implements BindingManager {
         } catch (IllegalAccessException iae) {
             throw new BusException(iae);
         }
+        return factory;
     }
     
     public void registerBinding(String name,
@@ -62,12 +63,22 @@ public final class BindingManagerImpl implements BindingManager {
         bindingFactories.remove(name);
     }
     
-    public BindingFactory getBindingFactory(String name) throws BusException {
-        return bindingFactories.get(name);
+    public BindingFactory getBindingFactory(String namespace) throws BusException {
+        BindingFactory factory = bindingFactories.get(namespace);
+        if (null == factory) {            
+            for (ClassNamespaceMappingType mapping : factoryNamespaceMappings) {
+                if (StandardTypesHelper.supportsNamespace(mapping, namespace)) {
+                    String[] namespaces = new String[mapping.getNamespace().size()];
+                    mapping.getNamespace().toArray(namespaces);
+                    factory = loadBindingFactory(mapping.getClassname(), namespaces);
+                    break;
+                }
+            }
+        }
+        return factory;
     }
     
     public void shutdown() {
         //no nothing to do
-    }
-        
+    }    
 }

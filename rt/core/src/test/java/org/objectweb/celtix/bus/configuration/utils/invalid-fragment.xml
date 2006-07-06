@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <comment>mapping of transport factory class - transport namespace URIs</comment>
+    <entry key="org.objectweb.celtix.transports.http.HTTPTransportFactory">
+        http://schemas.xmlsoap.org/wsdl/soap/
+        http://schemas.xmlsoap.org/wsdl/soap/http
+        http://schemas.xmlsoap.org/wsdl/http/
+        http://celtix.objectweb.org/transports/http/configuration
+    </entry>
+</properties>

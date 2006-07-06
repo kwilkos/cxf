@@ -3,6 +3,8 @@ package org.objectweb.celtix.bus.jaxws;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -101,9 +103,24 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         objMsgContext.setMessageObjects(parameters);
         objMsgContext.put(METHOD, method);
         objMsgContext.put(ObjectMessageContext.METHOD_OBJ, method);
-        objMsgContext.put(ObjectMessageContext.WSDL_DESCRIPTION, 
-                new java.net.URI(EndpointReferenceUtils.getWSDLLocation(endpointReference)));
-
+        // TODO: Expect EndpointReferenceUtils.getWSDLLocation to return a URL in future
+        String wsdlLocation = EndpointReferenceUtils.getWSDLLocation(endpointReference); 
+        if (null != wsdlLocation) {
+            try {
+                objMsgContext.put(ObjectMessageContext.WSDL_DESCRIPTION, 
+                    new java.net.URI(wsdlLocation));
+            } catch (URISyntaxException ex) {
+                LOG.log(Level.WARNING, "WSDL_DESCRIPTION_URI_MSG", ex);
+            }
+            if (null == objMsgContext.get(ObjectMessageContext.WSDL_DESCRIPTION)) {
+                try {
+                    objMsgContext.put(ObjectMessageContext.WSDL_DESCRIPTION,
+                                      new java.net.URL(wsdlLocation)); 
+                } catch (MalformedURLException ex) {
+                    LOG.log(Level.WARNING, "WSDL_DESCRIPTION_URL_MSG", ex);
+                }
+            }
+        }
         boolean isOneway = (method.getAnnotation(Oneway.class) != null) ? true : false;
         boolean isAsync = method.getName().endsWith("Async");
 

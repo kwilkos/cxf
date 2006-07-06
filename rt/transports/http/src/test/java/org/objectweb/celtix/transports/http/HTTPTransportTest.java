@@ -30,16 +30,12 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bus.configuration.ConfigurationEventFilter;
 import org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl;
-import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.configuration.impl.TypeSchemaHelper;
-import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
-import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
-import org.objectweb.celtix.configuration.types.ObjectFactory;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -47,7 +43,6 @@ import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.TestResponseCallback;
-import org.objectweb.celtix.transports.TransportFactoryManager;
 import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -714,16 +709,9 @@ public class HTTPTransportTest extends TestCase {
     }
 
     private HTTPTransportFactory createTransportFactory() throws BusException {
+
         EasyMock.reset(bus);
         Configuration bc = EasyMock.createMock(Configuration.class);
-
-        String transportId = "http://celtix.objectweb.org/transports/http/configuration";
-        ObjectFactory of = new ObjectFactory();
-        ClassNamespaceMappingListType mappings = of.createClassNamespaceMappingListType();
-        ClassNamespaceMappingType mapping = of.createClassNamespaceMappingType();
-        mapping.setClassname("org.objectweb.celtix.transports.http.HTTPTransportFactory");
-        mapping.getNamespace().add(transportId);
-        mappings.getMap().add(mapping);
 
         bus.getWSDLManager();
         EasyMock.expectLastCall().andReturn(wsdlManager);
@@ -735,17 +723,16 @@ public class HTTPTransportTest extends TestCase {
         BusLifeCycleManager lifecycleManager = EasyMock.createNiceMock(BusLifeCycleManager.class);
         bus.getLifeCycleManager();
         EasyMock.expectLastCall().andReturn(lifecycleManager);
-        bus.getConfiguration();
-        EasyMock.expectLastCall().andReturn(bc);
-        bc.getObject("transportFactories");
-        EasyMock.expectLastCall().andReturn(mappings);
+
         // check the transportFactoryManager create event
         checkBusCreatedEvent();
         EasyMock.replay(bus);
         EasyMock.replay(bc);
 
-        TransportFactoryManager tfm = new TransportFactoryManagerImpl(bus);
-        return (HTTPTransportFactory)tfm.getTransportFactory(transportId);
+        HTTPTransportFactory tfm = new HTTPTransportFactory();
+        tfm.init(bus);
+        return tfm;
+        
     }
 
     private ClientTransport createClientTransport(URL wsdlUrl,

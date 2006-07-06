@@ -13,15 +13,19 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
+import javax.xml.bind.JAXBException;
 
 import org.w3c.dom.Element;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bus.configuration.utils.StandardTypesHelper;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.types.ExtensionType;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationFactory;
+import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
 /**
@@ -33,6 +37,7 @@ public class WSDLManagerImpl implements WSDLManager, InstrumentationFactory {
 
     private static final Logger LOG = LogUtils
             .getL7dLogger(WSDLManagerImpl.class);
+    private static final String EXTENSIONS_RESOURCE = "META-INF/extensions.xml";
 
     final ExtensionRegistry registry;
 
@@ -54,6 +59,21 @@ public class WSDLManagerImpl implements WSDLManager, InstrumentationFactory {
         // null check for the unit test
         if (bus != null) {
             bus.sendEvent(new BusEvent(this, BusEvent.COMPONENT_CREATED_EVENT));
+        }
+        
+        // register initial extensions
+        for (ExtensionType e
+            : StandardTypesHelper.getExtensions(EXTENSIONS_RESOURCE, getClass().getClassLoader())) {
+            try {
+                JAXBExtensionHelper.addExtensions(registry, 
+                                                  e.getParentType(), 
+                                                  e.getElementType(), 
+                                                  getClass().getClassLoader());
+            } catch (ClassNotFoundException ex) {
+                LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);
+            } catch (JAXBException ex) {
+                LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);
+            }
         }
     }
 

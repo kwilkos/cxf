@@ -3,6 +3,7 @@ package org.objectweb.celtix.bindings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -143,13 +144,24 @@ public abstract class AbstractServerBinding extends AbstractBindingBase implemen
         // storeSource(istreamCtx, t);
         BindingContextUtils.storeServerBindingEndpointCallback(istreamCtx, sbeCallback);
         
-        try {
-            istreamCtx.put(ObjectMessageContext.WSDL_DESCRIPTION, 
-                          new java.net.URI(EndpointReferenceUtils.getWSDLLocation(endpointReference)));
-        } catch (Exception e) {
-            LOG.info("Exception storing WSDL_DESCRIPTION URI");
+        // TODO: Expect EndpointReferenceUtils.getWSDLLocation to return a URL in future
+        String wsdlLocation = EndpointReferenceUtils.getWSDLLocation(endpointReference); 
+        if (null != wsdlLocation) {
+            try {
+                istreamCtx.put(ObjectMessageContext.WSDL_DESCRIPTION, 
+                    new java.net.URI(wsdlLocation));
+            } catch (URISyntaxException ex) {
+                LOG.log(Level.WARNING, "WSDL_DESCRIPTION_URI_MSG", ex);
+            }
+            if (null == istreamCtx.get(ObjectMessageContext.WSDL_DESCRIPTION)) {
+                try {
+                    istreamCtx.put(ObjectMessageContext.WSDL_DESCRIPTION,
+                                      new java.net.URL(wsdlLocation)); 
+                } catch (MalformedURLException ex) {
+                    LOG.log(Level.WARNING, "WSDL_DESCRIPTION_URL_MSG", ex);
+                }
+            }
         }
-
         final ServerRequest inMsg = new ServerRequest(this, istreamCtx);         
         
         Exception inboundException = null;

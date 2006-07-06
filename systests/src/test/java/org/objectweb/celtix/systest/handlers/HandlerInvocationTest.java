@@ -126,39 +126,24 @@ public class HandlerInvocationTest extends ClientServerTestBase {
         TestHandler<LogicalMessageContext> handler = new TestHandler<LogicalMessageContext>(false) {
             public boolean handleMessage(LogicalMessageContext ctx) {
                 super.handleMessage(ctx);
-                try {
-                    java.net.URI wsdlDescription = (java.net.URI) ctx.get(MessageContext.WSDL_DESCRIPTION);
-                    assertNotNull(wsdlDescription);
-                } catch (Exception e) {
-                    e.printStackTrace(); 
-                    fail(e.toString());
-                }
+                assertTrue("wsdl description not found or invalid",
+                           isValidWsdlDescription(ctx.get(MessageContext.WSDL_DESCRIPTION)));
                 return true;
             }
         };
         TestSOAPHandler soapHandler = new TestSOAPHandler<SOAPMessageContext>(false) {
             public boolean handleMessage(SOAPMessageContext ctx) {
                 super.handleMessage(ctx);
-                try {
-                    java.net.URI wsdlDescription = (java.net.URI) ctx.get(MessageContext.WSDL_DESCRIPTION);
-                    assertNotNull(wsdlDescription);
-                } catch (Exception e) {
-                    e.printStackTrace(); 
-                    fail(e.toString());
-                }
+                assertTrue("wsdl description not found or invalid",
+                           isValidWsdlDescription(ctx.get(MessageContext.WSDL_DESCRIPTION)));
                 return true;
             }
         };           
         TestStreamHandler streamHandler = new TestStreamHandler(false) {
             public boolean handleMessage(StreamMessageContext ctx) {
                 super.handleMessage(ctx);
-                try {
-                    java.net.URI wsdlDescription = (java.net.URI) ctx.get(MessageContext.WSDL_DESCRIPTION);
-                    assertNotNull(wsdlDescription);
-                } catch (Exception e) {
-                    e.printStackTrace(); 
-                    fail(e.toString());
-                }
+                assertTrue("wsdl description not found or invalid",
+                           isValidWsdlDescription(ctx.get(MessageContext.WSDL_DESCRIPTION)));
                 return false;
             }
         };           
@@ -399,5 +384,11 @@ public class HandlerInvocationTest extends ClientServerTestBase {
             stringList = pr.getHandlersInfo();
         }
         return stringList;
+    }
+    
+    private boolean isValidWsdlDescription(Object wsdlDescription) {
+        return (wsdlDescription != null) 
+            && ((wsdlDescription instanceof java.net.URI)
+                || (wsdlDescription instanceof java.net.URL));
     }
 }

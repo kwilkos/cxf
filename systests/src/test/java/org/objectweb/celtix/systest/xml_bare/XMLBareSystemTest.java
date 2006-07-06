@@ -7,6 +7,7 @@ import javax.xml.namespace.QName;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
 import org.objectweb.hello_world_xml_http.bare.Greeter;
@@ -29,6 +30,9 @@ public class XMLBareSystemTest extends ClientServerTestBase {
     }
 
     public void testBasicConnection() throws Exception {
+        
+        Bus bus = Bus.init();
+        bus.getTransportFactoryManager().getTransportFactory("http://schemas.xmlsoap.org/wsdl/soap/http");
         URL wsdl = getClass().getResource("/wsdl/hello_world_xml_bare.wsdl");
         assertNotNull(wsdl);
         

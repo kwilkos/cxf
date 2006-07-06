@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
+import org.objectweb.celtix.bus.bindings.BindingManagerImpl;
+import org.objectweb.celtix.bus.transports.TransportFactoryManagerImpl;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.annotation.ManagedAttribute;
@@ -26,8 +27,15 @@ public class CeltixBusInstrumentation implements Instrumentation {
     public CeltixBusInstrumentation(CeltixBus b) {
         bus = b;       
         objectName = b.getBusID();
-        bindingFactories = getFactoriesInfor("bindingFactories");
-        transportFactories = getFactoriesInfor("transportFactories");
+        // TODO: asmyth
+        // extend BindingManager, TransportFactoryManager API to avoid the cast
+        // or (better) present a dynamic view of the available binding and
+        // transport factories
+        bindingFactories = getFactoriesInfor(((BindingManagerImpl)b.getBindingManager())
+                                             .getFactoryNamespaceMappings());
+        
+        transportFactories = getFactoriesInfor(((TransportFactoryManagerImpl)b.getTransportFactoryManager())
+                                               .getFactoryNamespaceMappings());
     }
         
     
@@ -40,11 +48,8 @@ public class CeltixBusInstrumentation implements Instrumentation {
         return INSTRUMENTED_NAME;
     }
     
-    public final String[] getFactoriesInfor(String cfgName) {  
+    public final String[] getFactoriesInfor(List<ClassNamespaceMappingType> factoryMappings) {  
         List<String> factoriesList = new ArrayList<String>();        
-        Object obj = bus.getConfiguration().getObject(cfgName);
-        assert obj != null;
-        List<ClassNamespaceMappingType> factoryMappings = ((ClassNamespaceMappingListType)obj).getMap();
         for (ClassNamespaceMappingType mapping : factoryMappings) {
             String classname = mapping.getClassname();
             List<String> namespaceList = mapping.getNamespace();

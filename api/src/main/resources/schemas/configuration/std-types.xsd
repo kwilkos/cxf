@@ -37,6 +37,7 @@ elementFormDefault="qualified"
 	
 	<xs:element name="stringListValue" type="tns:stringListType"/>
 	<xs:element name="classNamespaceMappingListValue" type="tns:classNamespaceMappingListType"/>
+	<xs:element name="extensionTypeListValue" type="tns:extensionTypeList"/>
 	
 	<!--
         Standard configuration types
@@ -88,5 +89,18 @@ elementFormDefault="qualified"
 		<xs:sequence id="mappings">
 			<xs:element name="map" type="tns:classNamespaceMappingType" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="extensionType">
+	    <xs:sequence>
+	        <xs:element name="parentType" type="xs:string"/>
+	        <xs:element name="elementType" type="xs:string"/>
+	    </xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="extensionTypeList">
+	    <xs:sequence id="extensions">
+	        <xs:element name="extension" type="tns:extensionType" minOccurs="0" maxOccurs="unbounded"/>
+	    </xs:sequence>
 	</xs:complexType>
 </xs:schema>

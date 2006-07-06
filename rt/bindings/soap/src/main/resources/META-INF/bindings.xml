@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ct:classNamespaceMappingListValue xmlns:ct="http://celtix.objectweb.org/configuration/types">
+    <ct:map>
+        <ct:classname>org.objectweb.celtix.bindings.soap.SOAPBindingFactory</ct:classname>
+        <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/</ct:namespace>
+        <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/http</ct:namespace>
+        <ct:namespace>http://celtix.objectweb.org/transports/jms</ct:namespace>
+    </ct:map>
+</ct:classNamespaceMappingListValue>
