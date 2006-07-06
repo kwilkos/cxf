@@ -67,9 +67,10 @@ public class ReadHeaderInterceptorTest extends TestCase {
             }
             if (qname.getLocalPart().equals("passenger")) {
                 Element passenger = soapMessage.getHeaders().get(qname);
-                assertTrue(passenger.getChildNodes().getLength() == 1);
-                assertTrue(passenger.getChildNodes().item(0).getLocalName().equals("name"));
-                assertTrue(passenger.getChildNodes().item(0).getTextContent().equals("Åke Jógvan Øyvind"));
+                assertNotNull(passenger);
+                assertEquals(1, passenger.getChildNodes().getLength());
+                assertEquals("name", passenger.getChildNodes().item(0).getLocalName());
+                assertEquals("Bob", passenger.getChildNodes().item(0).getTextContent());
             }
 
         }

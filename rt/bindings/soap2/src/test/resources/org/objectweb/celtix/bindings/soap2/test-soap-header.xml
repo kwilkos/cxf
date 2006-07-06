@@ -9,7 +9,7 @@
   <n:passenger xmlns:n="http://mycompany.example.com/employees"
           env:role="http://www.w3.org/2003/05/soap-envelope/role/next"
            env:mustUnderstand="true">
-   <n:name>Åke Jógvan Øyvind</n:name>
+   <n:name>Bob</n:name>
   </n:passenger>
  </env:Header>
  <env:Body>
