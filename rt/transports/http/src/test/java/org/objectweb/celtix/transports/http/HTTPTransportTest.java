@@ -1,6 +1,7 @@
 package org.objectweb.celtix.transports.http;
 
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -14,7 +15,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
@@ -23,7 +23,6 @@ import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
@@ -49,6 +48,7 @@ import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.transports.ServerTransportCallback;
 import org.objectweb.celtix.transports.TestResponseCallback;
 import org.objectweb.celtix.transports.TransportFactoryManager;
+import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 import org.objectweb.celtix.workqueue.WorkQueueManager;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -246,6 +246,127 @@ public class HTTPTransportTest extends TestCase {
             createClientTransport(WSDL_URL, SERVICE_NAME, PORT_NAME, ADDRESS + "?" + expectedQuery, false);
         doRequestResponse(client, "Hello World".getBytes(), true, false);
 
+    }
+
+
+    public void testStemMatchingOfURL() throws Exception {
+        final String subaddr = "http://localhost:9000/containers/subcontext";
+        final String topaddr = "http://localhost:9000/containers";
+        final URL subaddrURL = new URL(subaddr);
+        final URL topaddrURL = new URL(topaddr);
+        final QName serviceName = new QName("http://com.iona/", "containers");
+        factory = createTransportFactory();
+        
+        EasyMock.reset(bus);
+
+        Configuration serverCfg = EasyMock.createMock(Configuration.class);
+        ServerTransport server = helpSetupServerSide(topaddrURL, serviceName, serverCfg);
+        
+        
+        ServerTransportCallback callback = new TestServerTransportCallback(server, false, false, 
+                                                                           null, false, false) {
+            public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
+                String pathInfo = (String)ctx.get(MessageContext.PATH_INFO);
+                if (getCalls() == 0) {
+                    // First callback, should be subcontext
+                    assertEquals("incorrect pathInfo", subaddrURL.getPath(), pathInfo);
+                } else {
+                    if (getCalls() == 1) {
+                        // Second callback, should be top context
+                        assertEquals("incorrect pathInfo", 
+                                     topaddrURL.getPath(), pathInfo);                        
+                    } else {
+                        fail("Unexpected number of calls to server transport callback: " 
+                             + getCalls());
+                    }
+                }
+                super.dispatch(ctx, transport);
+            }            
+        };                
+
+        EasyMock.reset(serverCfg);
+        serverCfg.getString("contextMatchStrategy");
+        EasyMock.expectLastCall().andReturn("stem");
+        EasyMock.replay(serverCfg);
+        
+        activateServer(callback, server, true, false, null, false, false);
+        
+        EasyMock.verify(serverCfg);
+        
+        // Both of these client invocations should go the same server
+        // callback instance - the invocations are trivial, just touch
+        // the endpoint, content is immaterial.
+        
+        // Request to the subcontext: /containers/subcontext
+        try {
+            subaddrURL.openStream().close();
+        } catch (FileNotFoundException fnf) {
+            fail("Subcontext not matched as expected.");
+        }
+        
+        // Request to the top context: /containers        
+        topaddrURL.openStream().close();
+
+    }
+
+    private ServerTransport helpSetupServerSide(
+            final URL topaddrURL, final QName serviceName, Configuration serverCfg) 
+        throws WSDLException, IOException {
+        Configuration bc = EasyMock.createMock(Configuration.class);
+        Configuration ec = EasyMock.createMock(Configuration.class);
+        
+        bus.getConfiguration();
+        EasyMock.expectLastCall().andReturn(bc);
+        bc.getChild("http://celtix.objectweb.org/bus/jaxws/endpoint-config", serviceName.toString());
+        EasyMock.expectLastCall().andReturn(ec);
+        ec.getChild("http://celtix.objectweb.org/bus/transports/http/http-server-config", "http-server");
+        EasyMock.expectLastCall().andReturn(serverCfg);
+
+        serverCfg.getObject(HTTPServerPolicy.class, "httpServer");
+        EasyMock.expectLastCall().andReturn(null);        
+      
+        bus.getWSDLManager();
+        EasyMock.expectLastCall().andReturn(wsdlManager);
+        if (first) {
+            //first call will configure the port listener
+            bus.getConfiguration();
+            EasyMock.expectLastCall().andReturn(bc);
+            bc.getChild("http://celtix.objectweb.org/bus/transports/http/http-listener-config",
+                        "http-listener." + topaddrURL.getPort());
+            EasyMock.expectLastCall().andReturn(null);
+            first = false;
+        }
+
+        
+        // check the bus configuration call for serviceMoinitoring 
+        checkServiceMoinitoringConfiguration();
+        
+        try {
+            bus.addListener(EasyMock.isA(JettyHTTPServerTransport.class), 
+                            EasyMock.isA(ConfigurationEventFilter.class));
+        } catch (BusException e) {
+            // nothing to do            
+        }
+        EasyMock.expectLastCall();
+
+        checkBusCreatedEvent();
+
+        EasyMock.replay(bus);
+        EasyMock.replay(bc);
+        EasyMock.replay(ec);
+        EasyMock.replay(serverCfg);
+        
+        EndpointReferenceType ref = 
+            EndpointReferenceUtils.getEndpointReference(topaddrURL, serviceName, null);
+        EndpointReferenceUtils.setAddress(ref, topaddrURL.toString());
+        ServerTransport server = factory.createServerTransport(ref);
+
+        EasyMock.verify(bus);
+        EasyMock.verify(bc);
+        EasyMock.verify(ec);
+        EasyMock.verify(serverCfg);
+        
+        return server;
     }
     
     public void doTestInvokeOneway(boolean decoupled) throws Exception {
@@ -737,6 +858,7 @@ public class HTTPTransportTest extends TestCase {
         private byte[] buffer;
         private boolean oneWay;
         private boolean decoupled;
+        private int calls;
 
         TestServerTransportCallback(ServerTransport s,
                                     boolean uaq,
@@ -750,9 +872,11 @@ public class HTTPTransportTest extends TestCase {
             buffer = b;
             oneWay = ow;
             decoupled = dc;
+            calls = 0;
         }
 
         public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
+            ++calls;
             try {
                 byte[] bytes = buffer;
                 if (null == bytes) {
@@ -813,6 +937,11 @@ public class HTTPTransportTest extends TestCase {
             } else {
                 return null;
             }
+        }
+
+        
+        public int getCalls() {
+            return calls;
         }
     }
 }

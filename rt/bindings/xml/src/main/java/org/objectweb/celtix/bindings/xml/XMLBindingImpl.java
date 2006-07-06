@@ -135,7 +135,7 @@ public class XMLBindingImpl extends AbstractBindingImpl {
                 addParts(msg.getRoot(), objContext, isInputMsg, callback);
             } else if (callback.getMode() == DataBindingCallback.Mode.MESSAGE
                       || callback.getMode() == DataBindingCallback.Mode.PAYLOAD) {
-
+                
                 if (findFormat(Source.class, callback.getSupportedFormats()) != null) {
                     Source source = Source.class.cast(isInputMsg ? objContext.getReturn() 
                                                                  : objContext.getMessageObjects()[0]);
@@ -144,7 +144,9 @@ public class XMLBindingImpl extends AbstractBindingImpl {
 
                     Node newNode = result.getNode() instanceof Document ? result.getNode().getFirstChild()
                                                                         : result.getNode();
-                    msg.appendChild(msg.getRoot().importNode(newNode, true));                    
+                    if (newNode != null) {
+                        msg.appendChild(msg.getRoot().importNode(newNode, true));                    
+                    }
                 } else { 
                     throw new XMLBindingException("Could not figure out how to marshal data");
                 }

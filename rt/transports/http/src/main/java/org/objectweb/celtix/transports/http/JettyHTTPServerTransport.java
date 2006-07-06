@@ -77,15 +77,27 @@ public class JettyHTTPServerTransport extends AbstractHTTPServerTransport
     
     public synchronized void activate(ServerTransportCallback cb) throws IOException {
         callback = cb;
-        engine.addServant(url, new AbstractHttpHandler() {
-            public void handle(String pathInContext, String pathParams,
-                               HttpRequest req, HttpResponse resp)
-                throws IOException {
-                if (pathInContext.equals(getName())) {
-                    doService(req, resp);                    
-                }
-            }
-        });
+        if ("stem".equals(configuration.getString("contextMatchStrategy"))) {
+            engine.addServant(url, new AbstractHttpHandler() {
+                    public void handle(String pathInContext, String pathParams,
+                                       HttpRequest req, HttpResponse resp)
+                        throws IOException {
+                        if (pathInContext.startsWith(getName())) {
+                            doService(req, resp);                    
+                        }
+                    }
+                });
+        } else {
+            engine.addServant(url, new AbstractHttpHandler() {
+                    public void handle(String pathInContext, String pathParams,
+                                       HttpRequest req, HttpResponse resp)
+                        throws IOException {
+                        if (pathInContext.equals(getName())) {
+                            doService(req, resp);
+                        }
+                    }
+                });
+        }
     }
 
     public void deactivate() throws IOException {

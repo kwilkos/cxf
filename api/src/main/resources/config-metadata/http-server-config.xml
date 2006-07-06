@@ -38,4 +38,13 @@
         <!-- attribute values are defaulted -->
         <sec:sslServer></sec:sslServer>
     </cm:configItem>
+
+    <cm:configItem>
+        <cm:name>contextMatchStrategy</cm:name>
+        <cm:type>xs:string</cm:type>
+        <cm:description>Context matching strategy</cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+	<std-types:stringValue xmlns:std-types="http://celtix.objectweb.org/configuration/types">exact</std-types:stringValue>
+    </cm:configItem>
+
 </cm:config>
