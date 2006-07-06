@@ -13,7 +13,7 @@
     </parent>
 
     <properties>
-        <topDirectoryLocation>..</topDirectoryLocation>
+        <topDirectoryLocation>../..</topDirectoryLocation>
     </properties>
 
     <modules>
