@@ -76,6 +76,7 @@ public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {
                                         + "can't find <Soap:Header> in message part!");
             }
         } catch (Exception e) {
+            e.printStackTrace(System.out);
             throw e;
         }
     }
