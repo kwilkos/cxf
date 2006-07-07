@@ -481,9 +481,12 @@ public final class EndpointReferenceUtils {
                 if (jaxbVal instanceof ServiceNameType) {
                     Port port = null;
                     ServiceNameType snt = (ServiceNameType)jaxbVal;
-                    LOG.log(Level.FINEST, "found service name ", snt.getEndpointName());
+                    LOG.log(Level.FINEST, "found service name " + snt.getValue().getLocalPart());
                     Service service = def.getService(snt.getValue());
                     if (service == null) {
+                        LOG.log(Level.WARNING, "can't find the service name ["
+                                + snt.getValue()
+                                + "], using the default service name in wsdl");
                         service = (Service)def.getServices().values().iterator().next();
                         if (service == null) {
                             return null;
@@ -498,6 +501,9 @@ public final class EndpointReferenceUtils {
                     // FIXME this needs to be looked at service.getPort(endpoint)
                     //should not return null when endpoint is valid
                     if (port == null) {
+                        LOG.log(Level.WARNING, "can't find the port name ["
+                                + endpoint
+                                + "], using the default port name in wsdl");
                         port = (Port)service.getPorts().values().iterator().next();
                     }
                     return port;
