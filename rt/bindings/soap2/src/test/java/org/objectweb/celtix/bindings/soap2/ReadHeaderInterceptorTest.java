@@ -3,12 +3,10 @@ package org.objectweb.celtix.bindings.soap2;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
-import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
@@ -50,12 +48,12 @@ public class ReadHeaderInterceptorTest extends TestCase {
             fail("Failed in creating soap message");
         }
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
-        assertEquals(2, soapMessage.getHeaders().size());
-        Iterator it = soapMessage.getHeaders().keySet().iterator();
-        while (it.hasNext()) {
-            QName qname = (QName)it.next();
-            if (qname.getLocalPart().equals("reservation")) {
-                Element reservation = soapMessage.getHeaders().get(qname);                
+        Element eleHeaders = soapMessage.getHeaders(Element.class);        
+        assertEquals(2, eleHeaders.getChildNodes().getLength());
+        for (int i = 0; i < eleHeaders.getChildNodes().getLength(); i++) {
+            Element ele = (Element)eleHeaders.getChildNodes().item(i);            
+            if (ele.getLocalName().equals("reservation")) {
+                Element reservation = ele;                
                 assertEquals(2, reservation.getChildNodes().getLength());
                 assertEquals("reference", reservation.getChildNodes().item(0).getLocalName());
                 assertEquals("uuid:093a2da1-q345-739r-ba5d-pqff98fe8j7d", reservation.getChildNodes().item(0)
@@ -65,8 +63,8 @@ public class ReadHeaderInterceptorTest extends TestCase {
                     .getTextContent());
 
             }
-            if (qname.getLocalPart().equals("passenger")) {
-                Element passenger = soapMessage.getHeaders().get(qname);
+            if (ele.getLocalName().equals("passenger")) {
+                Element passenger = ele;
                 assertNotNull(passenger);                
                 assertEquals(1, passenger.getChildNodes().getLength());
                 assertEquals("name", passenger.getChildNodes().item(0).getLocalName());

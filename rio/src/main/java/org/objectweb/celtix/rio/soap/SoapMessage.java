@@ -3,10 +3,6 @@ package org.objectweb.celtix.rio.soap;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.namespace.QName;
-
-import org.w3c.dom.Element;
-
 import org.objectweb.celtix.rio.Message;
 import org.objectweb.celtix.rio.message.AbstractWrappedMessage;
 
@@ -14,7 +10,7 @@ public class SoapMessage extends AbstractWrappedMessage {
 
     public static final String CHARSET = "utf-8";
     
-    private Map<QName, Element> headers = new HashMap<QName, Element>(); 
+    private Map<Class, Object> headers = new HashMap<Class, Object>(); 
     
     private SoapVersion version;
     
@@ -30,15 +26,12 @@ public class SoapMessage extends AbstractWrappedMessage {
         this.version = v;
     }
 
-    public Map<QName, Element> getHeaders() {
-        return headers;
-    }
+    public <T> T getHeaders(Class<T> format) {
+        return (T) headers.get(format);
+    }  
 
-    public Element getHeader(QName name) {
-        return headers.get(name);
+    public <T> void setHeaders(Class<T> format, Object content) {
+        headers.put(format, content);
     }
-
-    public void setHeader(QName name, Element headerElement) {
-        headers.put(name, headerElement);
-    }
+  
 }

@@ -85,10 +85,7 @@ public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {
         QName name = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());
         Element eleHeaders = doc.createElementNS(name.getNamespaceURI(), name.getLocalPart());
         processElement(null, eleHeaders);
-        for (int i = 0; i < eleHeaders.getChildNodes().getLength(); i++) {
-            Element ele = (Element)eleHeaders.getChildNodes().item(i);
-            message.setHeader(new QName(ele.getNamespaceURI(), ele.getTagName()), ele);
-        }
+        message.setHeaders(Element.class, eleHeaders);
     }
 
     private void processElement(Element parent, Element ele) throws XMLStreamException {
