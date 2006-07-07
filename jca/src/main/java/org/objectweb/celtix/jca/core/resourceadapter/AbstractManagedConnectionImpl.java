@@ -10,7 +10,6 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionEvent;
 import javax.resource.spi.ConnectionEventListener;
 import javax.resource.spi.ConnectionRequestInfo;
-import javax.resource.spi.LocalTransaction;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionMetaData;
 import javax.security.auth.Subject;
@@ -46,9 +45,9 @@ public abstract class AbstractManagedConnectionImpl implements ManagedConnection
 
     public abstract void associateConnection(Object arg0) throws ResourceException;
 
-    public abstract LocalTransaction getLocalTransaction() throws ResourceException;
+    //public abstract LocalTransaction getLocalTransaction() throws ResourceException;
 
-    public abstract javax.transaction.xa.XAResource getXAResource() throws ResourceException;
+    //public abstract javax.transaction.xa.XAResource getXAResource() throws ResourceException;
 
     public abstract Object getConnection(Subject aSubject, ConnectionRequestInfo aCrInfo)
         throws ResourceException;

@@ -29,6 +29,7 @@ public class ProxyInvocationHandler extends CeltixInvocationHandlerBase  {
         LOG.fine(this + " on " + method);
         Object o = getData().getManagedConnection().getManagedConnectionFactory();
         ManagedConnectionFactoryImpl mcf = (ManagedConnectionFactoryImpl)o;
+        //NOTE reset the inited bus to current ,so Celtix-rt can play with JCA setup bus
         Bus.setCurrent(mcf.getBus());
         return invokeNext(proxy, method, args);
     }

@@ -20,13 +20,12 @@ import javax.resource.ResourceException;
 import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.jca.core.resourceadapter.ResourceAdapterInternalException;
 import org.objectweb.celtix.jca.core.resourceadapter.UriHandlerInit;
 
 public class BusFactory {
     
-    private static final Logger LOG = LogUtils.getL7dLogger(BusFactory.class);
+    private static final Logger LOG = Logger.getLogger(BusFactory.class.getName());
 
     private Bus bus;
     private List servantsCache = new Vector();
@@ -383,7 +382,7 @@ public class BusFactory {
 
     
     private String getBusClassName() {
-        return System.getProperty("test.bus.class", "com.iona.jbus.Bus");
+        return System.getProperty("test.bus.class", "org.objectweb.celtix.Bus");
     }
 
     protected List getRegisteredServants() {

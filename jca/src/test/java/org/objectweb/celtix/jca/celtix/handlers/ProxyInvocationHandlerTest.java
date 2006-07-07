@@ -42,6 +42,8 @@ public class  ProxyInvocationHandlerTest extends AbstractInvocationHandlerTest {
         Bus b = Bus.getCurrent();
        
         assertSame("Current Bus has been set and is as expected, val=" + b, b, mockBus);
+        // set back the JVM current local variable
+        Bus.setCurrent(null);
     }
 
     public static Test suite() {

@@ -38,7 +38,7 @@ public class AssociatedManagedConnectionFactoryImpl
 
     public void setResourceAdapter(ResourceAdapter aRA) throws ResourceException {
         LOG.info("Associate Resource Adapter with ManagedConnectionFactory by appserver. ra = " + ra);
-        if (!(ra instanceof ResourceAdapterImpl)) {
+        if (!(aRA instanceof ResourceAdapterImpl)) {
             throw new ResourceAdapterInternalException(
                 "ResourceAdapter is not correct, it should be instance of ResourceAdapterImpl");
         }

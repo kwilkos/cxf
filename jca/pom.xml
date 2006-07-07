@@ -38,10 +38,29 @@
             <version>1.5.3</version>
             <scope>test</scope>
         </dependency>
+	
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-jaxws</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>cxf-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+         <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-bindings-soap</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-bindings-xml</artifactId>
             <version>${project.version}</version>
         </dependency>
 

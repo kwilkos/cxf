@@ -3,7 +3,6 @@ package org.objectweb.celtix.jca.celtix;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.URL;
-import java.rmi.Remote;
 import java.util.logging.Logger;
 
 import javax.resource.NotSupportedException;
@@ -32,7 +31,7 @@ public class ManagedConnectionImpl
     //private XAResource xa_resource;
 
     private InvocationHandlerFactory handlerFactory;
-    private CeltixLocalTransaction localTx;
+    //private CeltixLocalTransaction localTx;
     private Object celtixService;
     private boolean connectionHandleActive;
 
@@ -179,11 +178,11 @@ public class ManagedConnectionImpl
         }
         LOG.info("getLocalTransaction called, returning " + localTx);
         return localTx;
-    }*/
+    }
 
     public CeltixTransaction getCeltixTransaction() {
         return localTx;
-    }
+    }*/
 
     // Compliance: WL9 checks
     // implemention of Connection method - never used as real Connection impl is
@@ -209,7 +208,7 @@ public class ManagedConnectionImpl
 
     private InvocationHandler createInvocationHandler(Object obj, Subject subject) throws ResourceException {
 
-        return getHandlerFactory().createHandlers((Remote)obj, subject);
+        return getHandlerFactory().createHandlers(obj, subject);
     }
 
     private InvocationHandlerFactory getHandlerFactory() throws ResourceException {
@@ -259,15 +258,19 @@ public class ManagedConnectionImpl
         this.celtixService = null;
         super.destroy();
     }
-
-    @Override
-    public LocalTransaction getLocalTransaction() throws ResourceException {
+   
+    public CeltixTransaction getCeltixTransaction() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    @Override
     public XAResource getXAResource() throws ResourceException {
+        // TODO Auto-generated method stub
+        // should throw the exception
+        return null;
+    }
+
+    public LocalTransaction getLocalTransaction() throws ResourceException {
         // TODO Auto-generated method stub
         return null;
     }
