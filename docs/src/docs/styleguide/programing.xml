@@ -4,25 +4,88 @@
 
   <section>
     <title>Overview</title>
+
+    <para>There are several instances when you will need to code in the
+    CeltiXfire documentation. You may need to use a class name, interface
+    name, or element name as part of a sentence. You will also need to provide
+    long code samples in many places. Docbook has a number of elements that
+    are used for placing code in your documentation. </para>
+
+    <note>
+      <para>XML mark-up, such as WSDL and XMLSchema, are also considered code
+      for the purposes of CeltiXfire documentation.</para>
+    </note>
   </section>
 
   <section>
-    <title>Image Data</title>
+    <title>Code Listings</title>
+
+    <section>
+      <title>Examples</title>
+
+      <para>When providing code examples, you need to seperate them from the
+      text and provide a caption for them. To do this you use the <sgmltag
+      class="element">example</sgmltag> element. You should always provide a
+      descriptive value for the <sgmltag class="element">example</sgmltag>
+      element's <sgmltag class="attribute">id</sgmltag> attribute.</para>
+
+      <para>As shown in <xref linkend="example_example" />, the first child of
+      the example element is a title element. The contents of the title
+      element will be used as the caption of the example. It will also be used
+      as the text for any cross references.</para>
+
+      <note>
+        <para>If you want to have different text appear when cross referencing
+        an example, set the <sgmltag class="element">example</sgmltag>
+        element's <sgmltag class="attribute">xreflabel</sgmltag>
+        attribute.</para>
+      </note>
+
+      <para>The last child of the example element is the <sgmltag
+      class="element">programlisting</sgmltag> element. The <sgmltag
+      class="element">programlisting</sgmltag> element contains the code
+      sample itself. Any text placed inside the programlisting element is
+      treated literally. Therefore, any spacing that you use will be exactly
+      reproduced when the document is produced.</para>
+
+      <warning>
+        <para>When using XML inside a <sgmltag>programlisting</sgmltag>
+        element you must not use the <code>&lt;</code> or <code>&gt;</code>
+        characters. Instead use <wordasword>&amp;lt;</wordasword> and
+        <wordasword>&amp;gt;</wordasword>.</para>
+      </warning>
+
+      <example id="example_example">
+        <title>Example Mark-Up</title>
+
+        <programlisting></programlisting>
+      </example>
+
+      <section>
+        <title>Using Callouts</title>
+
+        <para>I need to figure out how to write the mark-up for using
+        callouts. It is complicated and I haven't had time to really try
+        it.</para>
+      </section>
+    </section>
+
+    <section>
+      <title>Code Blocks</title>
+
+      <para>These are short code listings that are not in-lined.</para>
+    </section>
   </section>
 
   <section>
-    <title>Figures and Diagrams</title>
+    <title>In-Line Code</title>
+
+    <para></para>
   </section>
 
   <section>
-    <title>Screen Shots</title>
-  </section>
+    <title>Class Synopses</title>
 
-  <section>
-    <title>In-Line Graphics</title>
-  </section>
-
-  <section>
-    <title>Adding Alternate Text</title>
+    <para></para>
   </section>
 </chapter>
