@@ -104,7 +104,7 @@ public final class JAXWSClassServiceBuilder {
             for (Annotation anot : paramAnnotations) {
                 if (anot instanceof WebParam) {
                     WebParam wb = (WebParam)anot;
-                    QName qn = new QName(wb.name(), wb.targetNamespace());
+                    QName qn = new QName(wb.targetNamespace(), wb.name());
                     if (wb.mode() != WebParam.Mode.OUT) {
                         MessagePartInfo mpi = min.addMessagePart(qn);
                         mpi.setHeader(wb.header());

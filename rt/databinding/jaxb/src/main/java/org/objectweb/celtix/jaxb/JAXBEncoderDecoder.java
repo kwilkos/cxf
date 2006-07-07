@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.validation.Schema;
 import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
@@ -303,6 +304,33 @@ public final class JAXBEncoderDecoder {
 
     public static Object unmarshall(JAXBContext context, Schema schema,
                                     XMLEventReader reader, QName elName, Class<?> clazz) {
+        
+        Object obj = null;
+        try {
+            if (context == null) {
+                context = JAXBContext.newInstance(clazz);
+            }
+            Unmarshaller u = context.createUnmarshaller();
+            u.setSchema(schema);
+
+            obj = (clazz != null) ? u.unmarshal(reader, clazz) 
+                                  : u.unmarshal(reader);
+        } catch (UnmarshalException ue) {
+            // It's helpful to include the cause in the case of
+            // schema validation exceptions.
+            String message = "Unmarshalling error ";
+            if (ue.getCause() != null) {
+                message += ue.getCause();
+            }
+            throw new ProtocolException(message, ue);
+        } catch (Exception ex) {
+            throw new ProtocolException("Unmarshalling error", ex);
+        }
+        return getElementValue(obj, elName);
+    }
+
+    public static Object unmarshall(JAXBContext context, Schema schema,
+                                    XMLStreamReader reader, QName elName, Class<?> clazz) {
         
         Object obj = null;
         try {

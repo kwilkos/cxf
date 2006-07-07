@@ -16,6 +16,10 @@ public class DepthXMLStreamReader implements XMLStreamReader {
         this.reader = r;
     }
 
+    public XMLStreamReader getReader() {
+        return this.reader;
+    }
+
     public int getDepth() {
         return depth;
     }

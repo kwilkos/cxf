@@ -1,5 +1,6 @@
 package org.objectweb.celtix.servicemodel;
 
+import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 public class JAXWSClassServiceBuilderTest extends TestCase {
@@ -25,6 +26,10 @@ public class JAXWSClassServiceBuilderTest extends TestCase {
         assertNotNull("Did not find operation greetMeOneWay", op);
         assertTrue("greetMeOneWay should be oneway", op.isOneWay());
         assertEquals("greetMeOneWay parameter count wrong", 1, op.getInput().size());
+
+        MessagePartInfo p = op.getInput().getMessageParts().get(0);
+        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "requestType"), p.getName());
+        
         assertNull("greetMeOneWay should not have an output", op.getOutput());
         
         op = service.getOperation("testDocLitFault");

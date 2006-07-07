@@ -3,6 +3,7 @@ package org.objectweb.celtix.bindings.soap2.utils;
 import java.io.*;
 import java.util.*;
 
+import javax.xml.stream.StreamFilter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -40,6 +41,14 @@ public final class StaxUtils {
         } catch (XMLStreamException e) {
             throw new RuntimeException("Cant' create XMLStreamWriter", e);
         }
+    }
+
+    public static XMLStreamReader createFilteredReader(XMLStreamReader reader, StreamFilter filter) {
+        try {
+            return getXMLInputFactory().createFilteredReader(reader, filter);
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Cant' create XMLStreamReader", e);
+        }        
     }
 
     public static XMLStreamReader createXMLStreamReader(InputStream in) {
