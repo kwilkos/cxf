@@ -19,6 +19,7 @@
     </properties>
 
     <modules>
+        <module>databinding/jaxb</module>
         <module>bindings</module>
     </modules>
 </project>
