@@ -27,10 +27,10 @@ public class SoapMessage extends AbstractWrappedMessage {
     }
 
     public <T> T getHeaders(Class<T> format) {
-        return (T) headers.get(format);
+        return format.cast(headers.get(format));
     }  
 
-    public <T> void setHeaders(Class<T> format, Object content) {
+    public <T> void setHeaders(Class<T> format, T content) {
         headers.put(format, content);
     }
   

@@ -105,10 +105,9 @@ public class SoapOutInterceptorTest extends TestCase {
         while (xmlReader.hasNext()) {
             // Skip the contents of soap headers
             eventType = xmlReader.next();
-            if (eventType == XMLStreamConstants.END_ELEMENT) {                
-                if ("passenger".equals(xmlReader.getLocalName())) {
-                    break;
-                }
+            if (eventType == XMLStreamConstants.END_ELEMENT
+                && "passenger".equals(xmlReader.getLocalName())) {
+                break;
             }
         }
         while (xmlReader.hasNext()) {

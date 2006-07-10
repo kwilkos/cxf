@@ -78,7 +78,7 @@ public class RPCInterceptorTest extends TestBase {
 
         message.getInterceptorChain().doIntercept(message);
 
-        List<Object> parameters = (List<Object>) message.get("PARAMETERS");
+        List<?> parameters = (List<?>) message.get("PARAMETERS");
         assertEquals(1, parameters.size());
 
         assertEquals("sendReceiveData", (String) message.get(MessageContext.WSDL_OPERATION));
