@@ -23,8 +23,9 @@ public abstract class AbstractServiceEngineStateMachine implements ServiceEngine
     static Bus bus;
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractServiceEngineStateMachine.class);
     private static final String JBI_TRANSPORT_ID = "http://celtix.object.org/transport/jbi";
-      
-   
+    private static final String HTTP_TRANSPORT_ID = "http://schemas.xmlsoap.org/soap/http";
+    private static final String HTTP_TRANSPORT_ID1 = "http://schemas.xmlsoap.org/wsdl/soap/";
+    private static final String JMS_TRANSPORT_ID = "http://celtix.objectweb.org/transports/jms";
 
     public void changeState(SEOperation operation, ComponentContext context) throws JBIException {
         
@@ -43,7 +44,7 @@ public abstract class AbstractServiceEngineStateMachine implements ServiceEngine
             JBITransportFactory transportFactory = 
                 (JBITransportFactory)bus.getTransportFactoryManager()
                     .getTransportFactory(JBI_TRANSPORT_ID);
-        
+            
             return transportFactory;
         } catch (BusException ex) { 
             LOG.log(Level.SEVERE, new Message("SE.FAILED.INIT.BUS", LOG).toString(), ex);
@@ -56,6 +57,14 @@ public abstract class AbstractServiceEngineStateMachine implements ServiceEngine
            
             getTransportFactory().init(argBus);
             getTransportFactory().setServiceUnitManager(mgr);
+            bus.getTransportFactoryManager().registerTransportFactory(
+                JBI_TRANSPORT_ID, getTransportFactory());
+            bus.getTransportFactoryManager().registerTransportFactory(
+                HTTP_TRANSPORT_ID, getTransportFactory());
+            bus.getTransportFactoryManager().registerTransportFactory(
+                HTTP_TRANSPORT_ID1, getTransportFactory());
+            bus.getTransportFactoryManager().registerTransportFactory(
+                JMS_TRANSPORT_ID, getTransportFactory());
         } catch (Exception ex) {
             throw new JBIException(new Message("SE.FAILED.REGISTER.TRANSPORT.FACTORY", 
                                                LOG).toString(), ex);
