@@ -28,6 +28,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.bindings.soap2.TestUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.types.DetailType;
 
 import org.objectweb.celtix.rio.Attachment;
@@ -59,7 +60,7 @@ public class AttachmentTest extends TestCase {
 
     public void testDoInterceptOfSoap12() {
         try {
-            soapMessage = TestMimeUtil.createSoapMessage(new Soap12(), chain, this.getClass());
+            soapMessage = TestUtil.createSoapMessage(new Soap12(), chain, this.getClass());
         } catch (IOException ioe) {
             fail(ioe.getStackTrace().toString());
         }
@@ -68,7 +69,7 @@ public class AttachmentTest extends TestCase {
 
     public void testDoInterceptOfSoap11() {
         try {
-            soapMessage = TestMimeUtil.createSoapMessage(new Soap11(), chain, this.getClass());
+            soapMessage = TestUtil.createSoapMessage(new Soap11(), chain, this.getClass());
         } catch (IOException ioe) {
             fail(ioe.getStackTrace().toString());
         }
@@ -78,7 +79,7 @@ public class AttachmentTest extends TestCase {
     public void testDoUnmarshallXopEnabled() {
         Object obj = null;
         try {
-            soapMessage = TestMimeUtil.createSoapMessage(new Soap12(), chain, this.getClass());
+            soapMessage = TestUtil.createSoapMessage(new Soap12(), chain, this.getClass());
             testDoIntercept(soapMessage, false);
 
             JAXBContext context = JAXBContext
@@ -126,9 +127,9 @@ public class AttachmentTest extends TestCase {
     public void testDoMarshallXopEnabled() {
         // mashalling data object
         QName elName = new QName("http://celtix.objectweb.org/bindings/soap2/attachments/types", "Detail");
-        soapMessage = TestMimeUtil.createEmptySoapMessage(new Soap12(), chain);
+        soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
         try {
-            DetailType detailObj = TestMimeUtil.createDetailObject(this.getClass());
+            DetailType detailObj = TestUtil.createDetailObject(this.getClass());
             Class<?> cls = DetailType.class;
             JAXBContext context = JAXBContext
                 .newInstance("org.objectweb.celtix.bindings.soap2.attachments.types");

@@ -18,6 +18,7 @@ import org.objectweb.celtix.rio.Message;
 public abstract class AbstractWrappedMessage implements Message {
 
     public static final String INBOUND_EXCEPTION = "INBOUND_EXCEPTION";
+    public static final String OUTBOUND_EXCEPTION = "OUTBOUND_EXCEPTION";
     
     private Message message;
 

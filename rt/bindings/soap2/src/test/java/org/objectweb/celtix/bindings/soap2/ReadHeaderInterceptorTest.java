@@ -14,7 +14,7 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
-import org.objectweb.celtix.bindings.soap2.attachments.TestMimeUtil;
+
 import org.objectweb.celtix.rio.Attachment;
 import org.objectweb.celtix.rio.phase.Phase;
 import org.objectweb.celtix.rio.phase.PhaseInterceptorChain;
@@ -76,7 +76,7 @@ public class ReadHeaderInterceptorTest extends TestCase {
 
     private void prepareSoapMessage() throws IOException {
 
-        soapMessage = TestMimeUtil.createEmptySoapMessage(new Soap12(), chain);
+        soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
         ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass()
             .getResourceAsStream("test-soap-header.xml"), "Application/xop+xml");
         String cid = AttachmentUtil.createContentID("http://celtix.objectweb.org");

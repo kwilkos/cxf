@@ -6,7 +6,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.soap.SOAPException;
-import javax.xml.stream.XMLInputFactory;
+
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -15,7 +15,7 @@ import javax.xml.ws.WebServiceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.datamodel.soap.SOAPConstants;
+import org.objectweb.celtix.bindings.soap2.utils.StaxUtils;
 
 import org.objectweb.celtix.rio.Message;
 import org.objectweb.celtix.rio.message.AbstractWrappedMessage;
@@ -47,9 +47,7 @@ public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {
         if (in == null) {
             throw new WebServiceException("Missing Soap part input stream in soap message");
         }
-
-        XMLInputFactory f = XMLInputFactory.newInstance();
-        xmlReader = f.createXMLStreamReader(in);
+        xmlReader = StaxUtils.createXMLStreamReader(in);
         message.setSource(XMLStreamReader.class, xmlReader);
     }
 
@@ -58,9 +56,9 @@ public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {
         try {
             while (xmlReader.hasNext()) {
                 xmlReader.nextTag();
-                if (xmlReader.getLocalName().equals(SOAPConstants.SOAP_ENV.getLocalPart())) {
+                if (xmlReader.getLocalName().equals(message.getVersion().getEnvelope().getLocalPart())) {
                     xmlReader.nextTag();
-                    if (xmlReader.getLocalName().equals(SOAPConstants.SOAP_HEADER.getLocalPart())) {
+                    if (xmlReader.getLocalName().equals(message.getVersion().getHeader().getLocalPart())) {
                         found = true;
                         break;
                     }
@@ -84,6 +82,7 @@ public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {
     private void addHeaderElementIntoDoc() throws XMLStreamException {
         QName name = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());
         Element eleHeaders = doc.createElementNS(name.getNamespaceURI(), name.getLocalPart());
+        eleHeaders.setPrefix(message.getVersion().getPrefix());
         processElement(null, eleHeaders);
         message.setHeaders(Element.class, eleHeaders);
     }
@@ -93,11 +92,13 @@ public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {
         StringBuffer sb = null;
         boolean hasChild = false;
         boolean readEndTag = false;
+        int eventType = -1;
         while (xmlReader.hasNext()) {
-            int eventType = xmlReader.next();
+            eventType = xmlReader.next();
             if (eventType == XMLStreamConstants.START_ELEMENT) {
                 QName name = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());
                 Element eleChild = doc.createElementNS(name.getNamespaceURI(), name.getLocalPart());
+                eleChild.setPrefix(xmlReader.getPrefix());
                 hasChild = true;
                 processElement(ele, eleChild);
             } else if (eventType == XMLStreamConstants.END_ELEMENT) {
