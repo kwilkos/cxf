@@ -20,6 +20,7 @@ import javax.xml.soap.SOAPFault;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.validation.Schema;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Endpoint;
@@ -47,6 +48,7 @@ import org.objectweb.celtix.jaxb.io.SOAPFaultDataReader;
 import org.objectweb.celtix.jaxb.io.XMLFaultReader;
 import org.objectweb.celtix.jaxb.io.XMLFaultWriter;
 import org.objectweb.celtix.jaxb.io.XMLStreamDataReader;
+import org.objectweb.celtix.jaxb.io.XMLStreamDataWriter;
 
 
 public class JAXBDataBindingCallback implements ServerDataBindingCallback {
@@ -111,7 +113,7 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
         if (mode == Mode.PARTS) {
             return new Class<?>[] {Node.class, Detail.class, SOAPFault.class,
                                    XMLEventReader.class, XMLEventWriter.class,
-                                   XMLStreamReader.class};
+                                   XMLStreamReader.class, XMLStreamWriter.class};
         }
 
         return null;
@@ -126,6 +128,8 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
             return new XMLFaultWriter<T>(this);
         } else if (cls == XMLEventWriter.class) {
             return new EventDataWriter<T>(this);
+        } else if (cls == XMLStreamWriter.class) {
+            return new XMLStreamDataWriter<T>(this);
         }
         return null;
     }

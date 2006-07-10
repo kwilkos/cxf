@@ -24,6 +24,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.validation.Schema;
 import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
@@ -238,7 +239,38 @@ public final class JAXBEncoderDecoder {
         
         Class<?> cls = null != elValue ? elValue.getClass() : null;
         Marshaller u = createMarshaller(context, elValue.getClass());
-        Object mObj = elValue;      
+        Object mObj = elValue;
+        
+        try {
+            if (null != cls 
+                && !cls.isAnnotationPresent(XmlRootElement.class)) {
+                mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
+                        .newInstance(elName, cls, mObj);
+            }
+            //No START_DOCUMENT/END_DOCUMENT events are generated.
+            u.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);            
+            u.setSchema(schema);
+            u.marshal(mObj, writer);
+        } catch (MarshalException me) {
+            // It's helpful to include the cause in the case of
+            // schema validation exceptions.
+            String message = "Marshalling error ";
+            if (me.getCause() != null) {
+                message += me.getCause();
+            }
+            throw new ProtocolException(message, me);
+        } catch (Exception ex) {
+            throw new ProtocolException("Marshalling error", ex);
+        }
+    }
+
+
+    public static void marshall(JAXBContext context, Schema schema,
+                                Object elValue, QName elName, XMLStreamWriter writer) {
+        
+        Class<?> cls = null != elValue ? elValue.getClass() : null;
+        Marshaller u = createMarshaller(context, elValue.getClass());
+        Object mObj = elValue;
         
         try {
             if (null != cls 
