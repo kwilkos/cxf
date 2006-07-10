@@ -1,6 +1,5 @@
 package org.objectweb.celtix.tools.wsdl2java.processor.internal;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,9 +38,12 @@ public class PortTypeProcessor extends AbstractProcessor {
         String packageName = ProcessorUtil.parsePackageName(namespace, env.mapPackageName(namespace));
 
         String location = (String)env.get(ToolConstants.CFG_WSDLURL);
+        String urlLocation;
         try {
             location = ProcessorUtil.getAbsolutePath(location);
-        } catch (IOException ioe) {
+            urlLocation = ProcessorUtil.getWSDLURL(location).toString();
+            
+        } catch (Exception ioe) {
             Message msg = new Message("CANNOT_FIND_WSDL", LOG, env.get(ToolConstants.CFG_WSDLURL));
             throw new ToolException(msg, ioe);
         }
@@ -50,7 +52,7 @@ public class PortTypeProcessor extends AbstractProcessor {
         intf.setName(ProcessorUtil.mangleNameToClassName(serviceName));
         intf.setNamespace(namespace);
         intf.setPackageName(packageName);
-        intf.setLocation(location);
+        intf.setLocation(urlLocation);
 
         List operations = portType.getOperations();
        

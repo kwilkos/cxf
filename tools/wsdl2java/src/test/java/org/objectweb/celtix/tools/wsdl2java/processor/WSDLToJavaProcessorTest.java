@@ -63,8 +63,14 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals(3, files.length);
         files = types.listFiles();
         assertEquals(files.length, 3);
-
+        
+        
+        
         Class clz = classLoader.loadClass("org.objectweb.hello_world_rpclit.GreeterRPCLit");
+        
+        javax.jws.WebService ws = AnnotationUtil.getPrivClassAnnotation(clz, javax.jws.WebService.class);
+        assertTrue("Webservice annotation wsdlLocation should begin with file", 
+                   ws.wsdlLocation().startsWith("file"));
 
         SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
         assertEquals("LITERAL", soapBindingAnno.use().toString());
@@ -95,6 +101,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals(3, files.length);
 
         Class clz = classLoader.loadClass("org.objectweb.hello_world_async_soap_http.GreeterAsync");
+        
+        
         Method method1 = clz.getMethod("greetMeSometimeAsync", new Class[] {java.lang.String.class,
                                                                             javax.xml.ws.AsyncHandler.class});
         WebMethod webMethodAnno1 = AnnotationUtil.getPrivMethodAnnotation(method1, WebMethod.class);

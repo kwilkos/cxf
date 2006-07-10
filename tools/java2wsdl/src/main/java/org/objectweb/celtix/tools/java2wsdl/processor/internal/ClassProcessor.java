@@ -61,7 +61,7 @@ public class ClassProcessor {
         }
 
         WebMethod webMethod = AnnotationUtil.getPrivMethodAnnotation(method, WebMethod.class);
-        if (webMethod == null || (webMethod != null && webMethod.exclude())) {
+        if (webMethod != null && webMethod.exclude()) {
             return;
         }
 
@@ -83,12 +83,12 @@ public class ClassProcessor {
         if (webMethod != null) {
             operationName = webMethod.operationName().length() > 0
                 ? webMethod.operationName() : operationName;
+            javaMethod.setSoapAction(webMethod.action());
         }
-
         javaMethod.setName(operationName);
-        javaMethod.setSoapAction(webMethod.action());
-
         
+       
+        //process aysnMethod
         if (isAsynMethod(method)) {
             return;
         }

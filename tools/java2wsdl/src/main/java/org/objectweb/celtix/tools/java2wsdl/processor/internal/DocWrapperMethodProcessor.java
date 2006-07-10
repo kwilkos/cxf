@@ -60,7 +60,7 @@ public class DocWrapperMethodProcessor {
             reqName = reqWrapper.localName().length() > 0 ? reqWrapper.localName() : reqName;
             reqNS = reqWrapper.targetNamespace().length() > 0 ? reqWrapper.targetNamespace() : reqNS;
         } else {
-            reqClassName = model.getPackageName() + ".types." + AnnotationUtil.capitalize(method.getName());
+            reqClassName = model.getPackageName() + ".jaxws." + AnnotationUtil.capitalize(method.getName());
         }
 
         Class reqClass = null;
@@ -90,7 +90,7 @@ public class DocWrapperMethodProcessor {
                 resName = resWrapper.localName().length() > 0 ? resWrapper.localName() : resName;
                 resNS = resWrapper.targetNamespace().length() > 0 ? resWrapper.targetNamespace() : resNS;
             } else {
-                resClassName = model.getPackageName() + ".types." 
+                resClassName = model.getPackageName() + ".jaxws." 
                     + AnnotationUtil.capitalize(method.getName())
                                + "Response";
             }
@@ -141,9 +141,10 @@ public class DocWrapperMethodProcessor {
         Annotation[][] paraAnns = AnnotationUtil.getPrivParameterAnnotations(method);
         List<JavaParameter> paras = new ArrayList<JavaParameter>();
         int i = 0;
+        JavaParameter jp = null;
         for (Class clazzType : parameterTypes) {
-            String paraName = "arg" + i;
-            String partName;
+            String paraName = method.getName();
+            String partName = "arg" + i;
             String paraTNS = model.getTargetNameSpace();
             Class clazz = clazzType;
             boolean holder = isHolder(clazzType);
@@ -160,7 +161,7 @@ public class DocWrapperMethodProcessor {
 
                     QName requestQN = new QName(paraTNS, paraName);
                     TypeReference typeref = new TypeReference(requestQN, clazz, paraAnns[i]);
-                    JavaParameter jp;
+                    
                     if (holder) {
                         if (webParam.mode() == WebParam.Mode.INOUT) {
                             jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref,
@@ -176,9 +177,17 @@ public class DocWrapperMethodProcessor {
                     jp.setPartName(partName);
                     jp.setHeader(webParam.header());
                     jp.setTargetNamespace(paraTNS);
-                    paras.add(jp);
                 }
             }
+            if (paraAnns[i].length == 0) {
+                TypeReference typeref = new TypeReference(new QName(paraTNS, paraName), clazz, 
+                                                          paraAnns[i]);             
+                jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref, JavaType.Style.IN);
+                jp.setPartName(partName);
+                jp.setTargetNamespace(paraTNS);             
+
+            }                          
+            paras.add(jp);
             i++;
         }
 

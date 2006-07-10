@@ -84,7 +84,7 @@ public class MessagePortTypeGenerator {
                 while (ite2.hasNext()) {
                     JavaParameter jp = (JavaParameter)ite2.next();
                     QName qname = jxbcontext.getTypeName(jp.getTypeReference());                  
-                    addPartByTypeName(inputMessage, jp.getName(), qname);
+                    addPartByTypeName(inputMessage, jp.getPartName(), qname);
                 }
 
             }
@@ -124,7 +124,7 @@ public class MessagePortTypeGenerator {
                 while (ite2.hasNext()) {
                     JavaParameter jp = (JavaParameter)ite2.next();
                     QName qname = jxbcontext.getTypeName(jp.getTypeReference());
-                    addPartByTypeName(outputMessage, jp.getName(), qname);
+                    addPartByTypeName(outputMessage, jp.getPartName(), qname);
                 }
 
             }

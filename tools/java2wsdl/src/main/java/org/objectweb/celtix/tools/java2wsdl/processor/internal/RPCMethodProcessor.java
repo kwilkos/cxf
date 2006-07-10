@@ -61,7 +61,7 @@ public class RPCMethodProcessor {
             Class returnType = method.getReturnType();
             String resultName = method.getName() + "Response";
             String resultTNS = targetNS;
-            String resultPartName = null;
+            String resultPartName = "return";
             WebResult webResult = method.getAnnotation(WebResult.class);
             boolean webResultHeader = false;
             if (webResult != null) {
@@ -108,14 +108,15 @@ public class RPCMethodProcessor {
         List<JavaParameter> paras = new ArrayList<JavaParameter>();
         int i = 0;
         for (Class clazzType : parameterTypes) {
-            String paraName = "arg" + i;
-            String partName;
+            String paraName = method.getName() + i;
+            String partName = "arg" + i;
             String paraTNS = model.getTargetNameSpace();
             Class clazz = clazzType;
             boolean holder = isHolder(clazzType);
             if (holder) {
                 clazz = getHoldedClass(clazzType, parameterGenTypes[i]);
             }
+            JavaParameter jp = null;
             for (Annotation anno : paraAnns[i]) {
                 if (anno.annotationType() == WebParam.class) {
                     WebParam webParam = (WebParam)anno;
@@ -126,7 +127,7 @@ public class RPCMethodProcessor {
 
                     QName requestQN = new QName(paraTNS, paraName);
                     TypeReference typeref = new TypeReference(requestQN, clazz, paraAnns[i]);
-                    JavaParameter jp;
+                   
                     if (holder) {
                         if (webParam.mode() == WebParam.Mode.INOUT) {
                             jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref,
@@ -138,13 +139,20 @@ public class RPCMethodProcessor {
                     } else {
                         jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref, JavaType.Style.IN);
                     }
-                    jp.setName(paraName);
                     jp.setPartName(partName);
                     jp.setHeader(webParam.header());
                     jp.setTargetNamespace(paraTNS);
-                    paras.add(jp);
                 }
             }
+            if (paraAnns[i].length == 0) {
+                TypeReference typeref = new TypeReference(new QName(paraTNS, paraName), clazz, 
+                                                          paraAnns[i]);             
+                jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref, JavaType.Style.IN);
+                jp.setPartName(partName);
+                jp.setTargetNamespace(paraTNS);             
+
+            }                          
+            paras.add(jp);
             i++;
         }
 

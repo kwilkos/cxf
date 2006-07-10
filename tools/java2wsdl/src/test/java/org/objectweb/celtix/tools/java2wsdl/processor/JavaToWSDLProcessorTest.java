@@ -38,6 +38,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         j2wProcessor = null;
         wj2Processor = null;
     }
+    
 
     public void testAsyn() throws Exception {
         
@@ -154,7 +155,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         File schemaFile2 = new File(output, "schema2.xsd");        
         assertTrue(schemaFile2.exists());
     }
-    
+
     
     private String getLocation(String wsdlFile) {
         return JavaToWSDLProcessorTest.class.getResource(wsdlFile).getFile();

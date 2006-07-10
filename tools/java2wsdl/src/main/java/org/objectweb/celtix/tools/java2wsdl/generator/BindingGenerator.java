@@ -81,7 +81,9 @@ public class BindingGenerator {
         // generate soap binding action
         SOAPOperation soapOperation = generateSoapAction();
         soapOperation.setStyle(jmethod.getSoapStyle().name().toLowerCase());
-        soapOperation.setSoapActionURI(jmethod.getSoapAction());
+        if (jmethod.getSoapAction() != null && !jmethod.getSoapAction().equals("")) {
+            soapOperation.setSoapActionURI(jmethod.getSoapAction());
+        }
         operation.addExtensibilityElement(soapOperation);
 
         generateInputSoapBody(jmethod, operation, jmethod.getRequest());
@@ -251,8 +253,7 @@ public class BindingGenerator {
         bindingInput.addExtensibilityElement(body);
 
     }
-    
-    
+
     private void splitSoapHeaderBodyParams(WSDLParameter param, List<JavaParameter> bodyList,
                                            List<JavaParameter> headerList) {
         for (JavaParameter jpara : param.getChildren()) {

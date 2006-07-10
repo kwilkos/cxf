@@ -59,6 +59,9 @@ public class DocBareMethodProcessor {
             webResultHeader = webResult.header();
             resultTNS = webResult.targetNamespace().length() > 0 ? webResult.targetNamespace() : resultTNS;
             resultPartName = webResult.partName().length() > 0 ? webResult.partName() : resultName;
+        } else {
+            //Default name is return
+            resultPartName = "return";
         }
 
         // get return type class
@@ -75,7 +78,6 @@ public class DocBareMethodProcessor {
             JavaParameter jp = new JavaParameter(resultName, typeRef, JavaType.Style.OUT);
             jp.setPartName(resultPartName);
             jp.setTargetNamespace(resultTNS);
-            jp.setName(resultName);
             jp.setHeader(webResultHeader);
             response.addChildren(jp);
             javaMethod.addResponse(response);
@@ -141,14 +143,14 @@ public class DocBareMethodProcessor {
 
         int i = 0;
         for (Class clazzType : parameterTypes) {
-            String paraName = "arg" + i;
-            String partName;
+            String paraName = "arg" + i;            
             String paraTNS = model.getTargetNameSpace();
             Class clazz = clazzType;
             boolean holder = isHolder(clazzType);
             if (holder) {
                 clazz = getHoldedClass(clazzType, parameterGenTypes[i]);
             }
+            JavaParameter jp = null; 
             for (Annotation anno : paraAnns[i]) {
                 if (anno.annotationType() == WebParam.class) {
                     WebParam webParam = (WebParam)anno;
@@ -170,13 +172,11 @@ public class DocBareMethodProcessor {
                     }
 
                     paraName = webParam.name().length() > 0 ? webParam.name() : paraName;
-                    partName = webParam.partName().length() > 0 ? webParam.partName() : paraName;
+                    String partName = webParam.partName().length() > 0 ? webParam.partName() : paraName;
                     paraTNS = webParam.targetNamespace().length() > 0
                         ? webParam.targetNamespace() : paraTNS;
-
-                    QName requestQN = new QName(paraTNS, paraName);
-                    TypeReference typeref = new TypeReference(requestQN, clazz, paraAnns[i]);
-                    JavaParameter jp;
+                    TypeReference typeref = new TypeReference(new QName(paraTNS, method.getName() + i), 
+                                                              clazz, paraAnns[i]);
                     if (holder) {
                         if (webParam.mode() == WebParam.Mode.INOUT) {
                             jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref,
@@ -188,28 +188,37 @@ public class DocBareMethodProcessor {
                     } else {
                         jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref, JavaType.Style.IN);
                     }
-                    jp.setName(paraName);
                     jp.setPartName(partName);
                     jp.setHeader(webParam.header());
                     jp.setTargetNamespace(paraTNS);
-                    paras.add(jp);
+                
                 }
             }
+            
+            if (paraAnns[i].length == 0) {
+                TypeReference typeref = new TypeReference(new QName(paraTNS, method.getName() + i), clazz, 
+                                                          paraAnns[i]);             
+                jp = new JavaParameter(typeref.tagName.getLocalPart(), typeref, JavaType.Style.IN);
+                jp.setPartName(paraName);
+                jp.setTargetNamespace(paraTNS);             
+                criteria1 = true;
+                criteria3 = true;
+            }   
+            
+            if (!criteria1) {
+                throw new ToolException(new Message("DOC_BARE_METHOD_CRITERIA1", LOG));
+            }
+            if (!criteria2) {
+                throw new ToolException(new Message("DOC_BARE_METHOD_CRITERIA2", LOG));
+            }
+            criteria3 = nonHeaderParamCount <= 1 ? true : false;
+            if (!criteria3) {
+                throw new ToolException(new Message("DOC_BARE_METHOD_CRITERIA3", LOG));
+            }
+            paras.add(jp);
             i++;
         }
-        if (!criteria1) {
-            Message message = new Message("DOC_BARE_METHOD_CRITERIA1", LOG);
-            throw new ToolException(message);
-        }
-        if (!criteria2) {
-            Message message = new Message("DOC_BARE_METHOD_CRITERIA2", LOG);
-            throw new ToolException(message);
-        }
-        criteria3 = nonHeaderParamCount <= 1 ? true : false;
-        if (!criteria3) {
-            Message message = new Message("DOC_BARE_METHOD_CRITERIA3", LOG);
-            throw new ToolException(message);
-        }
+       
         return paras;
     }
 
