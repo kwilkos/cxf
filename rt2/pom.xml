@@ -5,7 +5,7 @@
     <artifactId>cxf-rt2</artifactId>
     <packaging>pom</packaging>
     <version>1.1-SNAPSHOT</version>
-    <name>CeltiXfire Runtime</name>
+    <name>CeltiXfire Runtime v2</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>

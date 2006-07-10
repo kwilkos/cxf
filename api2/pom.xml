@@ -6,7 +6,7 @@
     <groupId>org.objectweb.celtixfire</groupId>
     <artifactId>cxf-api2</artifactId>
     <packaging>jar</packaging>
-    <name>CeltiXfire API</name>
+    <name>CeltiXfire API v2</name>
     <version>1.1-SNAPSHOT</version>
 
     <parent>

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cxf-rt2-bindings</artifactId>
     <packaging>pom</packaging>
-    <name>CeltiXfire Runtime Bindings</name>
+    <name>CeltiXfire Runtime Bindings v2</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
@@ -17,7 +17,7 @@
     </properties>
 
     <modules>
-        <module>soap2</module>
+        <module>soap</module>
     </modules>
 
 </project>
