@@ -16,19 +16,32 @@
     </parent>
 
     <properties>
-	<topDirectoryLocation>..</topDirectoryLocation>
+        <topDirectoryLocation>..</topDirectoryLocation>
     </properties>
 
     <dependencies>
-	<dependency>
-	    <groupId>javax.activation</groupId>
-	    <artifactId>activation</artifactId>
-	    <version>1.1</version>
-	</dependency>	
-	<dependency>
-	    <groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
-	    <version>3.8.1</version>
-	</dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1</version>
+        </dependency>	
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-testutils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
