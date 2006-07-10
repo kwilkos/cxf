@@ -3,11 +3,11 @@ package org.objectweb.celtix.bindings.soap2.binding;
 import java.io.*;
 import java.util.*;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.ws.handler.MessageContext;
-import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
+import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.jaxb.utils.DepthXMLStreamReader;
 import org.objectweb.celtix.jaxb.utils.StaxStreamFilter;
 import org.objectweb.celtix.jaxb.utils.StaxUtils;
@@ -46,6 +46,9 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
         }
 
         String opName = xmlReader.getLocalName();
+        if (!isInboundMessage() && opName.endsWith("Response")) {
+            opName = opName.substring(0, opName.length() - 8);
+        }
 
         Service service = (Service) message.get(SERVICE_MODEL);
         OperationInfo operation = service.getOperation(opName);
@@ -58,10 +61,18 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
         storeOperation(operation);
 
         MessageInfo msg;
-        if (message.containsKey(INBOUND_MESSAGE)) {
+        if (isInboundMessage()) {
             msg = operation.getInput();
         } else {
             msg = operation.getOutput();
+            if (msg.getMessageParts().size() > 0 && !msg.getMessageParts().get(0).isHeader()) {
+                StaxUtils.nextEvent(this.xmlReader);
+                StaxUtils.toNextElement(this.xmlReader);
+                Object retVal = getDataReader().read(msg.getMessageParts().get(0).getName(),
+                                                     -1,
+                                                     this.xmlReader);
+                message.put("RETURN", retVal);
+            }
         }
         
         List<Object> parameters = new ArrayList<Object>();
@@ -80,26 +91,40 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
                 throw new RuntimeException("Parameter " + name + " does not exist!");
             }
             try {
-                parameters.add(readParameter(this.xmlReader, p));
+                parameters.add(readParameter(this.xmlReader, p, parameters.size()));
             } catch (Exception e) {
+                e.printStackTrace();
                 throw new RuntimeException("Read parameter failed");
             }
         }
         message.put("PARAMETERS", parameters);
         
-        // message.getInterceptorChain().doIntercept(message);
+        message.getInterceptorChain().doIntercept(message);
+    }
+
+    protected boolean isInboundMessage() {
+        return this.soapMessage.containsKey(INBOUND_MESSAGE);
+    }
+
+    protected DataReader<XMLStreamReader> getDataReader() {
+        DataBindingCallback callback = (DataBindingCallback) this.soapMessage.get("JAXB_CALLBACK");
+
+        DataReader<XMLStreamReader> dataReader = null;
+        for (Class<?> cls : callback.getSupportedFormats()) {
+            if (cls == XMLStreamReader.class) {
+                dataReader = callback.createReader(XMLStreamReader.class);
+                break;
+            }
+        }
+
+        if (dataReader == null) {
+            throw new RuntimeException("Could not figure out how to unmarshal data");
+        }
+        return dataReader;
     }
     
-    protected Object readParameter(XMLStreamReader reader, MessagePartInfo p) throws Exception {
-        JAXBContext context = (JAXBContext) this.soapMessage.get("JAXB_CONTEXT");
-        // TODO. currently don't know where to get the type class of the parameter.
-        //       for unit test convenient, just assume that the class type info can get from the message.
-        return JAXBEncoderDecoder.unmarshall(context,
-                                             null,
-                                             reader,
-                                             p.getName(),
-                                             (Class) this.soapMessage.get("test.parameter"));
-        // return JAXBEncoderDecoder.unmarshall(context, null, reader, p.getName(), p.getTypeClass());
+    protected Object readParameter(XMLStreamReader reader, MessagePartInfo p, int idx) throws Exception {
+        return getDataReader().read(p.getName(), idx, reader);
     }
 
 

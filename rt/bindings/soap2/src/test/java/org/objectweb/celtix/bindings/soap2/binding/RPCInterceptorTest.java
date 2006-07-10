@@ -1,13 +1,17 @@
 package org.objectweb.celtix.bindings.soap2.binding;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.ws.handler.MessageContext;
+
+import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.bindings.soap2.TestUtil;
+import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.jaxb.utils.DepthXMLStreamReader;
 import org.objectweb.celtix.jaxb.utils.StaxStreamFilter;
@@ -19,8 +23,10 @@ import org.objectweb.celtix.servicemodel.MessageInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
 import org.objectweb.celtix.servicemodel.OperationInfo;
 import org.objectweb.celtix.servicemodel.Service;
+
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
+
 import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_BODY;
 import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_ENV;
 
@@ -63,13 +69,12 @@ public class RPCInterceptorTest extends TestBase {
         assertEquals("this is element 2", s.getElem2());
     }
 
-    public void testInterceptorRPCLit() throws Exception {
+    public void testInterceptorRPCLitInbound() throws Exception {
         SoapMessage message = TestUtil.createEmptySoapMessage(new Soap11(), chain);
         message.setSource(InputStream.class, getTestStream(getClass(), "resources/greetMeRpcLitReq.xml"));
         message.put("service.model", getTestService());
         message.put("message.inbound", "message.inbound");
-        message.put("test.parameter", MyComplexStruct.class);
-        message.put("JAXB_CONTEXT", JAXBEncoderDecoder.createJAXBContextForClass(GreeterRPCLit.class));
+        message.put("JAXB_CALLBACK", getTestCallback());
 
         message.getInterceptorChain().doIntercept(message);
 
@@ -82,6 +87,27 @@ public class RPCInterceptorTest extends TestBase {
         assertTrue(obj instanceof MyComplexStruct);
         MyComplexStruct s = (MyComplexStruct) obj;
         assertEquals("this is element 2", s.getElem2());
+    }
+
+    public void testInterceptorRPCLitOutbound() throws Exception {
+        SoapMessage message = TestUtil.createEmptySoapMessage(new Soap11(), chain);
+        message.setSource(InputStream.class, getTestStream(getClass(), "resources/greetMeRpcLitResp.xml"));
+        message.put("service.model", getTestService());
+        message.put("JAXB_CALLBACK", getTestCallback());
+
+        message.getInterceptorChain().doIntercept(message);
+        Object retValue = message.get("RETURN");
+        assertNotNull(retValue);
+        assertTrue(retValue instanceof MyComplexStruct);
+        MyComplexStruct s = (MyComplexStruct) retValue;
+        assertEquals("return is element 2", s.getElem2());
+    }
+
+    protected JAXBDataBindingCallback getTestCallback() throws Exception {
+        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(GreeterRPCLit.class);
+        Method m = org.objectweb.celtix.testutil.common.TestUtil.getMethod(GreeterRPCLit.class,
+                                                                           "sendReceiveData");
+        return new JAXBDataBindingCallback(m, Mode.PARTS, ctx);
     }
 
     public Service getTestService() {

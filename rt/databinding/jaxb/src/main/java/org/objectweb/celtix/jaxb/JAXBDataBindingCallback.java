@@ -109,8 +109,9 @@ public class JAXBDataBindingCallback implements ServerDataBindingCallback {
     
     public Class<?>[] getSupportedFormats() {
         if (mode == Mode.PARTS) {
-            return new Class<?>[] {Node.class, Detail.class, SOAPFault.class, 
-                                   XMLEventReader.class, XMLEventWriter.class};
+            return new Class<?>[] {Node.class, Detail.class, SOAPFault.class,
+                                   XMLEventReader.class, XMLEventWriter.class,
+                                   XMLStreamReader.class};
         }
 
         return null;

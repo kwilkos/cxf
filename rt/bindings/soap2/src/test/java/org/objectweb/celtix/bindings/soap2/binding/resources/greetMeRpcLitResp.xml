@@ -5,8 +5,8 @@
     <SOAP-ENV:Body>
 	<ns1:sendReceiveDataResponse xmlns:ns1="http://objectweb.org/hello_world_rpclit">
 	    <out xmlns:ns5="http://objectweb.org/hello_world_rpclit/types">
-		<ns5:elem1>this is element 1</ns5:elem1>
-		<ns5:elem2>this is element 2</ns5:elem2>
+		<ns5:elem1>return is element 1</ns5:elem1>
+		<ns5:elem2>return is element 2</ns5:elem2>
 		<ns5:elem3>42</ns5:elem3>
 	    </out>
 	</ns1:sendReceiveDataResponse>
