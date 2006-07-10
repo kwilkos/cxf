@@ -69,7 +69,7 @@ public class ResourceBean implements Serializable {
 
     public void setProperty(String propName, String propValue) {
         if (!DEFAULT_VALUE_STRING.equals(propValue)) {
-            LOG.log(Level.INFO, "SETTING_PROPERTY", new Object[] {propName, propValue});
+            LOG.log(Level.CONFIG, "SETTING_PROPERTY", new Object[] {propName, propValue});
             getPluginProps().setProperty(propName, propValue);
         }
         if (LOG_LEVEL.equals(propName)) {
@@ -99,7 +99,7 @@ public class ResourceBean implements Serializable {
         try {
             url = createURL(spec, msg);
             url.openStream();
-            LOG.info("Validated url=" + url);
+            LOG.config("Validated url=" + url);
         } catch (IOException ioe) {
             throw new ResourceAdapterInternalException(msg, ioe);
         }
@@ -108,12 +108,12 @@ public class ResourceBean implements Serializable {
     public void validateProperties() throws ResourceException {
         if (!pluginProps.containsKey(CELTIX_INSTALL_DIR_PROPERTY)) {
             throw new ResourceAdapterInternalException(
-                "Configuration validation failed: The ArtixInstallDir property must be specified");
+                "Configuration validation failed: The CeltixInstallDir property must be specified");
         }
 
         if (getPropsURL(pluginProps.getProperty(CELTIX_CE_URL)) == null) {
             throw new ResourceAdapterInternalException(
-                "Configuration validation failed: ArtixCEURL property must be specified");
+                "Configuration validation failed: CeltixCEURL property must be specified");
         }
 
         if (!(pluginProps.containsKey(JAAS_LOGIN_CONFIG)

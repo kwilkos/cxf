@@ -45,7 +45,7 @@ public class InvocationHandlerFactory {
         CeltixInvocationHandler last = null;
 
         // Create data member
-        CeltixInvocationHandlerData data = new CeltixInvocationHandlerDataExtend();
+        CeltixInvocationHandlerData data = new CeltixInvocationHandlerDataImpl();
         data.setBus(bus);
         data.setManagedConnection(managedConnection);
         data.setSubject(subject);

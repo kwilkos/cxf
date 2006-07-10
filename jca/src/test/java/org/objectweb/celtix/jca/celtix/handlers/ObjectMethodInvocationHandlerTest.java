@@ -25,7 +25,7 @@ public class ObjectMethodInvocationHandlerTest extends AbstractInvocationHandler
         super.setUp(); 
         target.lastMethod = null; 
         dummyHandler.invokeCalled = false;         
-        data = new CeltixInvocationHandlerDataExtend();
+        data = new CeltixInvocationHandlerDataImpl();
         data.setTarget(target);
         handler = new ObjectMethodInvocationHandler(data);
         handler.setNext((CeltixInvocationHandler)dummyHandler); 
@@ -74,8 +74,8 @@ public class ObjectMethodInvocationHandlerTest extends AbstractInvocationHandler
     public void testEqualsThroughProxies() { 
 
         Class[] interfaces = {TestInterface.class};
-        CeltixInvocationHandlerData data1 = new CeltixInvocationHandlerDataExtend();
-        CeltixInvocationHandlerData data2 = new CeltixInvocationHandlerDataExtend();
+        CeltixInvocationHandlerData data1 = new CeltixInvocationHandlerDataImpl();
+        CeltixInvocationHandlerData data2 = new CeltixInvocationHandlerDataImpl();
         data1.setTarget(new TestTarget());
         data2.setTarget(new TestTarget());
         ObjectMethodInvocationHandler handler1 = new ObjectMethodInvocationHandler(data1); 

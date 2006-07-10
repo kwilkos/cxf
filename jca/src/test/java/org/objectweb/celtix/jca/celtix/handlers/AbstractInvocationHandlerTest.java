@@ -2,7 +2,6 @@ package org.objectweb.celtix.jca.celtix.handlers;
 
 
 import org.objectweb.celtix.jca.celtix.CeltixInvocationHandler;
-import org.objectweb.celtix.jca.celtix.CeltixManagedConnection;
 import org.objectweb.celtix.jca.celtix.CeltixManagedConnectionFactory;
 
 public abstract class AbstractInvocationHandlerTest 
@@ -43,7 +42,7 @@ public abstract class AbstractInvocationHandlerTest
 
         CeltixInvocationHandler handler = getHandler();
 
-        handler.getData().setManagedConnection((CeltixManagedConnection)mockManagedConnection);
+        handler.getData().setManagedConnection(mockManagedConnection);
         assertSame("bus must be retrievable after set", mockManagedConnection, handler.getData()
             .getManagedConnection());
     }

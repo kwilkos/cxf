@@ -23,7 +23,7 @@ public class  ProxyInvocationHandlerTest extends AbstractInvocationHandlerTest {
     @SuppressWarnings("unchecked")
     public void setUp() { 
         super.setUp(); 
-        data = new CeltixInvocationHandlerDataExtend();
+        data = new CeltixInvocationHandlerDataImpl();
         testObject = new ProxyInvocationHandler(data);
         testObject.getData().setManagedConnection((CeltixManagedConnection)mci);
         assertTrue(testObject instanceof CeltixInvocationHandlerBase); 

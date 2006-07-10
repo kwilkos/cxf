@@ -6,8 +6,7 @@ import javax.security.auth.Subject;
 import org.objectweb.celtix.Bus;
 
 public interface CeltixInvocationHandlerData  {
-
-    // need to rewrite
+  
     void setTarget(Object t); 
     Object getTarget(); 
     

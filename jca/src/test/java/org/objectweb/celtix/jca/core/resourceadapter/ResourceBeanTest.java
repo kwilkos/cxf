@@ -30,14 +30,14 @@ public class ResourceBeanTest extends TestCase {
         rb.setDisableConsoleLogging(true);
     }
 
-    public void testValidatePropertiesThrowExceptionForBadArtixCeUrl() throws Exception {
+    public void testValidatePropertiesThrowExceptionForBadCeltixCeUrl() throws Exception {
         try {
             Properties p = new Properties();
             ResourceBean resBean = new ResourceBean(p);
             resBean.setCeltixInstallDir("/vob/aspen");
-            p.setProperty(ResourceBean.CELTIX_CE_URL, "bad:/bad_artix_ce.xml");
+            p.setProperty(ResourceBean.CELTIX_CE_URL, "bad:/bad_Celtix_ce.xml");
             resBean.validateProperties();
-            fail("expect an exception due to bad ArtixCEURL configuration.");
+            fail("expect an exception due to bad CeltixCEURL configuration.");
         } catch (ResourceException re) {
             assertTrue("Cause is MalformedURLException, cause: " + re.getCause(),
                        re.getCause() instanceof MalformedURLException);
@@ -45,16 +45,16 @@ public class ResourceBeanTest extends TestCase {
         }
     }
 
-    public void testValidatePropertiesThrowExceptionForArtixCeUrlNotSet() throws Exception {
+    public void testValidatePropertiesThrowExceptionForCeltixCeUrlNotSet() throws Exception {
         try {
             ResourceBean resBean = new ResourceBean();
             resBean.setCeltixInstallDir("/vob/aspen");
             resBean.validateProperties();
-            fail("Exception expected due to Artix CE URL property not set");
+            fail("Exception expected due to Celtix CE URL property not set");
         } catch (ResourceException re) {
             assertNull("no cause for this exception : " + re.getCause(), re.getCause());
-            assertTrue("Error message should contains ArtixCEURL",
-                       re.getMessage().indexOf("ArtixCEURL") != -1);
+            assertTrue("Error message should contains CeltixCEURL",
+                       re.getMessage().indexOf("CeltixCEURL") != -1);
         }
     }
 

@@ -44,12 +44,18 @@ public abstract class ManagedConnectionTestBase extends TestCase {
         subj = new Subject();
         
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        
+        QName serviceName = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
+        
+        QName serviceName2 = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService2");
+        
+        QName portName = new QName("http://objectweb.org/hello_world_soap_http", "SoapPort");
+        
+        QName portName2 = new QName("http://objectweb.org/hello_world_soap_http", "SoapPort2");
 
-        cri = new CeltixConnectionRequestInfo(Greeter.class, wsdl, new QName("service"),
-                                             new QName("fooPort"));
+        cri = new CeltixConnectionRequestInfo(Greeter.class, wsdl, serviceName, portName);
 
-        cri2 = new CeltixConnectionRequestInfo(Greeter.class, wsdl, new QName("service2"),
-                                              new QName("fooPort2"));
+        cri2 = new CeltixConnectionRequestInfo(Greeter.class, wsdl, serviceName2, portName2);
 
         mockBus = Bus.init();
         
@@ -57,7 +63,7 @@ public abstract class ManagedConnectionTestBase extends TestCase {
         
         factory.getBus();
         
-        EasyMock.expectLastCall().andReturn(mockBus).times(2);
+        EasyMock.expectLastCall().andReturn(mockBus).anyTimes();
         EasyMock.replay(factory);
         
         

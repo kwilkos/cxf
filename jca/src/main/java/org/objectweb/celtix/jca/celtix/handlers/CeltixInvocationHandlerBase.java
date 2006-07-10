@@ -84,7 +84,7 @@ abstract class CeltixInvocationHandlerBase<T> implements CeltixInvocationHandler
 
 }
 
-class CeltixInvocationHandlerDataExtend implements CeltixInvocationHandlerData {
+class CeltixInvocationHandlerDataImpl implements CeltixInvocationHandlerData {
     private Bus bus;
     private CeltixManagedConnection managedConnection;
     private Subject subject;

@@ -9,10 +9,9 @@ import org.objectweb.celtix.jca.celtix.CeltixInvocationHandlerData;
 public class DummyHandler implements CeltixInvocationHandler { 
 
     boolean invokeCalled; 
-   
 
     public CeltixInvocationHandlerData getData() {
-        return new CeltixInvocationHandlerDataExtend();
+        return new CeltixInvocationHandlerDataImpl();
     }
    
     // Implementation of java.lang.reflect.InvocationHandler

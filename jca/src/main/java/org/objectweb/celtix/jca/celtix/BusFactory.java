@@ -39,25 +39,14 @@ public class BusFactory {
     }
 
     protected String[] getBusArgs() throws ResourceException {
-        //TODO need to rewrite , there only setup the BUSID
+        //There is only setting up the BUSID
         
-        String celtixDomainsDir = mcf.getCeltixInstallDir();
+        String busId = mcf.getConfigurationScope();
+        LOG.config("BUSid=" + busId);
 
-        String orbDomainName = mcf.getConfigurationDomain();
-        LOG.info("ORBDomainName=" + orbDomainName);
-
-        String orbId = mcf.getConfigurationScope();
-        LOG.info("ORBid=" + orbId);
-
-        String busArgs[] = new String[6];
-        busArgs[0] = "-ORBconfig_domains_dir";
-        busArgs[1] = celtixDomainsDir;
-        busArgs[2] = "-ORBdomain_name";
-        busArgs[3] = orbDomainName;
-        busArgs[4] = "-ORBid";
-        busArgs[5] = orbId;
-      
-
+        String busArgs[] = new String[2];
+        busArgs[0] = "-BUSid";
+        busArgs[1] = busId;
         return busArgs;
     }
 
@@ -67,7 +56,7 @@ public class BusFactory {
             Class types[] = {String[].class, Hashtable.class};
             Method method = busClazz.getMethod("init", types);
             bus = (Bus)method.invoke(null, new Object[] {getBusArgs()});
-            LOG.info("initialize complete, bus=" + bus);
+            LOG.config("initialize complete, bus=" + bus);
         } catch (Exception ex) {
             throw new ResourceAdapterInternalException("Failed to initialize artix runtime", ex);
         }
@@ -76,7 +65,7 @@ public class BusFactory {
     }
     
     protected synchronized void init() throws ResourceException {
-        LOG.info("initialising... the bus");
+        LOG.config("initialising... the bus");
         new UriHandlerInit();
 
         ClassLoader original = Thread.currentThread().getContextClassLoader();
@@ -101,7 +90,7 @@ public class BusFactory {
     
     void initialiseServants() throws ResourceException {
         if (isMonitorEJBServicePropertiesEnabled()) {
-            LOG.info("ejb service properties update enabled. ");
+            LOG.config("ejb service properties update enabled. ");
             startPropertiesMonitorThread();
         } else {
             URL propsUrl = mcf.getEJBServicePropertiesURLInstance();
@@ -128,7 +117,7 @@ public class BusFactory {
 
         deregisterServants(bus);
 
-        LOG.info("Initialising EJB endpoints...");
+        LOG.config("Initialising EJB endpoints...");
         String loginConfigName = mcf.getJAASLoginConfigName();
         if (loginConfigName == null) {
             loginConfigName = "other";
@@ -138,7 +127,7 @@ public class BusFactory {
         while (keys.hasMoreElements()) {
             String jndiName = (String)keys.nextElement();
             String serviceName = (String)ejbServants.getProperty(jndiName);
-            LOG.info("Found ejb endpoint: jndi name=" + jndiName + ", wsdl service=" + serviceName);
+            LOG.config("Found ejb endpoint: jndi name=" + jndiName + ", wsdl service=" + serviceName);
             //TODO publish the service endpoint 
             /* try {
                 

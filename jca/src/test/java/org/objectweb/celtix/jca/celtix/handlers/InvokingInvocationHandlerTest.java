@@ -25,7 +25,7 @@ public class InvokingInvocationHandlerTest
     public void setUp() {
         super.setUp();
         target = new TestTarget();
-        data = new CeltixInvocationHandlerDataExtend();
+        data = new CeltixInvocationHandlerDataImpl();
         data.setTarget(target);
         handler = new InvokingInvocationHandler(data);
         Class[] interfaces = {TestInterface.class};
@@ -34,7 +34,7 @@ public class InvokingInvocationHandlerTest
                                                      handler);
         handler.getData().setTarget(target);
 
-        CeltixInvocationHandlerData data2 = new CeltixInvocationHandlerDataExtend();
+        CeltixInvocationHandlerData data2 = new CeltixInvocationHandlerDataImpl();
         CeltixInvocationHandler handler2 = new InvokingInvocationHandler(data2);
         test2 = (TestInterface)Proxy.newProxyInstance(TestInterface.class.getClassLoader(), interfaces,
                                                       handler2);
