@@ -1,6 +1,5 @@
 package org.objectweb.celtix.systest.callback;
 
-import java.io.File;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
@@ -31,7 +30,6 @@ public class ServerImpl implements ServerPortType  {
     }
     
     public String registerCallback(EndpointReferenceType callback) {
-        
         try {
             Bus bus = Bus.init();
             WSDLManager manager = new WSDLManagerImpl(bus);
@@ -51,7 +49,7 @@ public class ServerImpl implements ServerPortType  {
             seiName.append(JAXBUtils.nameToIdentifier(interfaceName.getLocalPart(),
                                                       JAXBUtils.IdentifierType.INTERFACE));
             
-            Class<?> sei = null;    
+            Class<?> sei = null; 
             try {
                 sei = Class.forName(seiName.toString(), 
                                     true, manager.getClass().getClassLoader());
@@ -59,8 +57,7 @@ public class ServerImpl implements ServerPortType  {
                 ex.printStackTrace();
             }
             
-            URL wsdlURL = (new File(wsdlLocation)).toURL();             
-            
+            URL wsdlURL = new URL(wsdlLocation);            
             Service service = Service.create(wsdlURL, serviceName);
             CallbackPortType port =  (CallbackPortType)service.getPort(portName, sei);
 
