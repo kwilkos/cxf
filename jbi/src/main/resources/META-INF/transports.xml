@@ -3,7 +3,5 @@
     <ct:map>
         <ct:classname>org.objectweb.celtix.jbi.transport.JBITransportFactory</ct:classname>
         <ct:namespace>http://celtix.object.org/transport/jbi</ct:namespace>
-        <ct:namespace>http://schemas.xmlsoap.org/soap/http</ct:namespace>
-        <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/</ct:namespace>
     </ct:map>
 </ct:classNamespaceMappingListValue>
