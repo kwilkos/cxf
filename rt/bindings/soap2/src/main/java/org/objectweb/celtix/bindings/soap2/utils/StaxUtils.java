@@ -109,5 +109,27 @@ public final class StaxUtils {
             throw new RuntimeException("Couldn't parse stream.", e);
         }
     }
+
+    public static boolean toNextText(DepthXMLStreamReader reader) {
+        if (reader.getEventType() == XMLStreamReader.CHARACTERS) {
+            return true;
+        }
+        
+        
+        try {
+            int depth = reader.getDepth();
+            
+            for (int event = reader.getEventType();
+                 reader.getDepth() >= depth && reader.hasNext();
+                 event = reader.next()) {
+                if (event == XMLStreamReader.CHARACTERS && reader.getDepth() == depth + 1) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Couldn't parse stream.", e);
+        }
+    }
 }
 

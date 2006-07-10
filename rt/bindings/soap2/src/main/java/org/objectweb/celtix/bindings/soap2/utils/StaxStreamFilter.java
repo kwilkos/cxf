@@ -13,10 +13,6 @@ public class StaxStreamFilter implements StreamFilter {
 
     public boolean accept(XMLStreamReader reader) {
 
-        if (!reader.isStartElement() && !reader.isEndElement()) {
-            return false;
-        }
-
         if (reader.isStartElement()) {
             QName elName = reader.getName();
             for (QName tag : tags) {

@@ -9,7 +9,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.soap2.TestUtil;
 import org.objectweb.celtix.bindings.soap2.utils.DepthXMLStreamReader;
-//import org.objectweb.celtix.bindings.soap2.utils.StaxStreamFilter;
+import org.objectweb.celtix.bindings.soap2.utils.StaxStreamFilter;
 import org.objectweb.celtix.bindings.soap2.utils.StaxUtils;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.rio.soap.Soap11;
@@ -21,8 +21,8 @@ import org.objectweb.celtix.servicemodel.OperationInfo;
 import org.objectweb.celtix.servicemodel.Service;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
-// import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_BODY;
-// import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_ENV;
+import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_BODY;
+import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_ENV;
 
 public class RPCInterceptorTest extends TestBase {
 
@@ -31,8 +31,8 @@ public class RPCInterceptorTest extends TestBase {
     public void setUp() throws Exception {
         super.setUp();
         XMLStreamReader xr = getXMLStreamReader(getTestStream(getClass(), "resources/greetMeRpcLitReq.xml"));
-        //         StaxStreamFilter filter = new StaxStreamFilter(new QName[]{SOAP_ENV, SOAP_BODY});
-        //         xr = StaxUtils.createFilteredReader(xr, filter);
+        StaxStreamFilter filter = new StaxStreamFilter(new QName[]{SOAP_ENV, SOAP_BODY});
+        xr = StaxUtils.createFilteredReader(xr, filter);
         reader = new DepthXMLStreamReader(xr);
 
         RPCInterceptor interceptor = new RPCInterceptor();
@@ -41,15 +41,6 @@ public class RPCInterceptorTest extends TestBase {
     }
 
     public void testGetMethodArgument() throws Exception {
-        StaxUtils.toNextElement(reader);
-        assertEquals("Envelope", reader.getLocalName());
-        
-        StaxUtils.nextEvent(reader);
-        StaxUtils.toNextElement(reader);
-
-        assertEquals("Body", reader.getLocalName());
-
-        StaxUtils.nextEvent(reader);
         StaxUtils.toNextElement(reader);
 
         assertEquals("sendReceiveData", reader.getLocalName());
@@ -72,7 +63,7 @@ public class RPCInterceptorTest extends TestBase {
         assertEquals("this is element 2", s.getElem2());
     }
 
-    public void testInterceptor() throws Exception {
+    public void testInterceptorRPCLit() throws Exception {
         SoapMessage message = TestUtil.createEmptySoapMessage(new Soap11(), chain);
         message.setSource(InputStream.class, getTestStream(getClass(), "resources/greetMeRpcLitReq.xml"));
         message.put("service.model", getTestService());
@@ -91,7 +82,6 @@ public class RPCInterceptorTest extends TestBase {
         assertTrue(obj instanceof MyComplexStruct);
         MyComplexStruct s = (MyComplexStruct) obj;
         assertEquals("this is element 2", s.getElem2());
-        
     }
 
     public Service getTestService() {

@@ -8,6 +8,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.soap2.utils.DepthXMLStreamReader;
+import org.objectweb.celtix.bindings.soap2.utils.StaxStreamFilter;
 import org.objectweb.celtix.bindings.soap2.utils.StaxUtils;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.rio.Message;
@@ -17,6 +18,9 @@ import org.objectweb.celtix.servicemodel.MessageInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
 import org.objectweb.celtix.servicemodel.OperationInfo;
 import org.objectweb.celtix.servicemodel.Service;
+        
+import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_BODY;
+import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_ENV;
 
 public class RPCInterceptor extends AbstractPhaseInterceptor {
     
@@ -36,12 +40,6 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
         
         this.xmlReader = getXMLStreamReader(message);
 
-        StaxUtils.toNextElement(this.xmlReader);
-        
-        StaxUtils.nextEvent(this.xmlReader);
-        StaxUtils.toNextElement(this.xmlReader);
-
-        StaxUtils.nextEvent(this.xmlReader);
         if (!StaxUtils.toNextElement(this.xmlReader)) {
             message.put(RPC_INTERCEPTOR_EXCEPTION,
                         new RuntimeException("There must be a method name element."));
@@ -111,6 +109,8 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
     
     private DepthXMLStreamReader getXMLStreamReader(Message message) {
         XMLStreamReader xr = StaxUtils.createXMLStreamReader(message.getSource(InputStream.class));
+        StaxStreamFilter filter = new StaxStreamFilter(new QName[]{SOAP_ENV, SOAP_BODY});
+        xr = StaxUtils.createFilteredReader(xr, filter);
         return new DepthXMLStreamReader(xr);
     }
 }
