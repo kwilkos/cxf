@@ -153,9 +153,10 @@
         <module>tools</module>
         <module>codegen-plugin</module>
         <module>testutils</module>
+        <module>api2</module>
         <module>api</module>
-        <module>rio</module>
         <module>rt</module>
+        <module>rt2</module>
         <module>jbi</module>
         <module>geronimo</module>
         <module>router</module>

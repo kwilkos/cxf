@@ -19,7 +19,6 @@
     <modules>
         <module>soap</module>
         <module>xml</module>
-        <module>soap2</module>
     </modules>
 
 </project>
