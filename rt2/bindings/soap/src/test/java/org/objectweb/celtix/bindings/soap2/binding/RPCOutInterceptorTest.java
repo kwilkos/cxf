@@ -16,7 +16,6 @@ import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
 
 public class RPCOutInterceptorTest extends TestBase {
 
-    private XMLStreamWriter writer;
     private ByteArrayOutputStream baos;
     
     public void setUp() throws Exception {

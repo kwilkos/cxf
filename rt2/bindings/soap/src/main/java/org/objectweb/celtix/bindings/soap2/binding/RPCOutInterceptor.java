@@ -79,7 +79,7 @@ public class RPCOutInterceptor extends AbstractPhaseInterceptor {
     private void addParts(OperationInfo operation) {
         int noArgs = operation.getInput().size();
 
-        List<Object> parts = (List<Object>) this.soapMessage.get("PARAMETERS");
+        List<?> parts = (List<?>)this.soapMessage.get("PARAMETERS");
         Object[] args = parts.toArray();
         
         for (int idx = 0; idx < noArgs; idx++) {

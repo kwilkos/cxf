@@ -6,7 +6,6 @@ import java.util.*;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.soap2.TestBase;
-import org.objectweb.celtix.jaxb.utils.DepthXMLStreamReader;
 import org.objectweb.celtix.servicemodel.MessageInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
 import org.objectweb.celtix.servicemodel.OperationInfo;
@@ -17,7 +16,6 @@ import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
 
 public class RPCInterceptorTest extends TestBase {
 
-    private DepthXMLStreamReader reader;
     
     public void setUp() throws Exception {
         super.setUp();
