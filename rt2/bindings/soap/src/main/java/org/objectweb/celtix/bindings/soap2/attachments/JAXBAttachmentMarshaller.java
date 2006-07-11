@@ -6,8 +6,8 @@ import java.util.UUID;
 import javax.activation.DataHandler;
 import javax.xml.bind.attachment.AttachmentMarshaller;
 
-import org.objectweb.celtix.rio.Attachment;
-import org.objectweb.celtix.rio.soap.SoapMessage;
+import org.objectweb.celtix.bindings.soap2.SoapMessage;
+import org.objectweb.celtix.message.Attachment;
 
 public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
 

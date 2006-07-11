@@ -156,7 +156,7 @@
         <module>api2</module>
         <module>api</module>
         <module>rt</module>
-        <!--module>rt2</module-->
+        <module>rt2</module>
         <module>jbi</module>
         <module>geronimo</module>
         <module>router</module>

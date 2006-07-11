@@ -15,12 +15,12 @@
  * limitations under the License. 
  * 
  **/
-package org.objectweb.celtix.rio.soap;
+package org.objectweb.celtix.bindings.soap2;
 
 import javax.xml.namespace.QName;
 
 /**
- * @version $Revision: 429 $
+ * @version $Revision$
  */
 public interface SoapVersion {
 

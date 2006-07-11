@@ -1,4 +1,4 @@
-package org.objectweb.celtix.rio.soap;
+package org.objectweb.celtix.bindings.soap2;
 
 import java.util.HashMap;
 import java.util.Iterator;

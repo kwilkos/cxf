@@ -1,4 +1,4 @@
-package org.objectweb.celtix.rio.phase;
+package org.objectweb.celtix.phase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.objectweb.celtix.rio.Interceptor;
-import org.objectweb.celtix.rio.InterceptorChain;
-import org.objectweb.celtix.rio.Message;
+import org.objectweb.celtix.interceptors.Interceptor;
+import org.objectweb.celtix.interceptors.InterceptorChain;
+import org.objectweb.celtix.message.Message;
 
 /**
  * A PhaseInterceptorChain orders Interceptors according to the

@@ -1,8 +1,11 @@
-package org.objectweb.celtix.rio;
+package org.objectweb.celtix.message;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+
+import org.objectweb.celtix.channels.Channel;
+import org.objectweb.celtix.interceptors.InterceptorChain;
 
 public interface Message extends Map<String, Object> {
     String getId();

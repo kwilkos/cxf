@@ -1,4 +1,4 @@
-package org.objectweb.celtix.rio.message;
+package org.objectweb.celtix.message;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,11 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.objectweb.celtix.rio.Attachment;
-import org.objectweb.celtix.rio.Channel;
-import org.objectweb.celtix.rio.Exchange;
-import org.objectweb.celtix.rio.InterceptorChain;
-import org.objectweb.celtix.rio.Message;
+import org.objectweb.celtix.channels.Channel;
+import org.objectweb.celtix.interceptors.InterceptorChain;
 
 public class MessageImpl extends HashMap<String, Object> implements Message {
     private List<Attachment> attachments = new ArrayList<Attachment>();

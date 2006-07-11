@@ -1,11 +1,11 @@
-package org.objectweb.celtix.rio.examples;
+package org.objectweb.celtix.examples;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.objectweb.celtix.rio.Interceptor;
-import org.objectweb.celtix.rio.Message;
+import org.objectweb.celtix.interceptors.Interceptor;
+import org.objectweb.celtix.message.Message;
 
 public class GZipOutInterceptor implements Interceptor {
 

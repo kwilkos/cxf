@@ -20,10 +20,10 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 import javax.xml.ws.handler.MessageContext;
 
-import org.objectweb.celtix.rio.Attachment;
-import org.objectweb.celtix.rio.Message;
-import org.objectweb.celtix.rio.message.AbstractWrappedMessage;
-import org.objectweb.celtix.rio.phase.AbstractPhaseInterceptor;
+import org.objectweb.celtix.message.AbstractWrappedMessage;
+import org.objectweb.celtix.message.Attachment;
+import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 
 public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
 

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.rio;
+package org.objectweb.celtix.message;
 
 /**
  * Listens for a messages from a Channel.

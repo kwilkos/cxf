@@ -15,21 +15,21 @@
  * limitations under the License. 
  * 
  **/
-package org.objectweb.celtix.rio.soap;
+package org.objectweb.celtix.bindings.soap2;
 
 import javax.xml.namespace.QName;
 
 /**
- * Represents the SOAP 1.2 version
+ * Represents the SOAP 1.1 version
  * 
- * @version $Revision: 429 $
+ * @version $Revision$
  */
-public class Soap12 implements SoapVersion {
-    private static Soap12 instance = new Soap12();
+public class Soap11 implements SoapVersion {
+    private static final Soap11 INSTANCE = new Soap11();
 
-    private final double version = 1.2;
+    private final double version = 1.1;
 
-    private final String namespace = "http://www.w3.org/2003/05/soap-envelope";
+    private final String namespace = "http://schemas.xmlsoap.org/soap/envelope/";
 
     private final String prefix = "soap";
 
@@ -39,7 +39,7 @@ public class Soap12 implements SoapVersion {
 
     private final String nextRole = namespace + "/role/next";
 
-    private final String soapEncodingStyle = "http://www.w3.org/2003/05/soap-encoding";
+    private final String soapEncodingStyle = "http://schemas.xmlsoap.org/soap/encoding/";
 
     private final QName envelope = new QName(namespace, "Envelope", prefix);
 
@@ -49,14 +49,14 @@ public class Soap12 implements SoapVersion {
 
     private final QName fault = new QName(namespace, "Fault", prefix);
 
-    public static Soap12 getInstance() {
-        return instance;
+    public static Soap11 getInstance() {
+        return INSTANCE;
     }
 
     public String getSoapMimeType() {
-        return "application/soap+xml; charset=" + SoapMessage.CHARSET;
+        return "text/xml; charset=" + SoapMessage.CHARSET;
     }
-    
+
     public double getVersion() {
         return version;
     }
@@ -84,7 +84,7 @@ public class Soap12 implements SoapVersion {
     public QName getFault() {
         return fault;
     }
-    
+
     public String getSoapEncodingStyle() {
         return soapEncodingStyle;
     }
@@ -102,4 +102,5 @@ public class Soap12 implements SoapVersion {
     public String getNextRole() {
         return nextRole;
     }
+    
 }

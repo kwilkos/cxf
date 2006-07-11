@@ -1,4 +1,6 @@
-package org.objectweb.celtix.rio;
+package org.objectweb.celtix.interceptors;
+
+import org.objectweb.celtix.message.Message;
 
 public interface Interceptor<T extends Message> {
     /**

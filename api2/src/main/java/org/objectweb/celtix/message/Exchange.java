@@ -1,6 +1,8 @@
-package org.objectweb.celtix.rio;
+package org.objectweb.celtix.message;
 
 import java.util.Map;
+
+import org.objectweb.celtix.channels.Channel;
 
 public interface Exchange extends Map<String, Object> {
     Message getInMessage();

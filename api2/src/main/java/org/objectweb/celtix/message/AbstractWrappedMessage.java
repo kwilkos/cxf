@@ -1,14 +1,11 @@
-package org.objectweb.celtix.rio.message;
+package org.objectweb.celtix.message;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.objectweb.celtix.rio.Attachment;
-import org.objectweb.celtix.rio.Channel;
-import org.objectweb.celtix.rio.Exchange;
-import org.objectweb.celtix.rio.InterceptorChain;
-import org.objectweb.celtix.rio.Message;
+import org.objectweb.celtix.channels.Channel;
+import org.objectweb.celtix.interceptors.InterceptorChain;
 
 /**
  * A base class to build your own message implementations on.

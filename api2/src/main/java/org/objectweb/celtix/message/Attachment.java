@@ -1,4 +1,4 @@
-package org.objectweb.celtix.rio;
+package org.objectweb.celtix.message;
 
 import java.util.Iterator;
 

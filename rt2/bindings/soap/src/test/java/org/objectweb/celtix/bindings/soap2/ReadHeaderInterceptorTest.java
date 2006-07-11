@@ -11,8 +11,7 @@ import org.w3c.dom.Element;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 
-import org.objectweb.celtix.rio.Attachment;
-import org.objectweb.celtix.rio.soap.Soap12;
+import org.objectweb.celtix.message.Attachment;
 
 public class ReadHeaderInterceptorTest extends TestBase {
 

@@ -1,14 +1,15 @@
-package org.objectweb.celtix.rio;
+package org.objectweb.celtix.interceptors;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.rio.message.MessageImpl;
-import org.objectweb.celtix.rio.phase.AbstractPhaseInterceptor;
-import org.objectweb.celtix.rio.phase.Phase;
-import org.objectweb.celtix.rio.phase.PhaseInterceptorChain;
+import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.message.MessageImpl;
+import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.objectweb.celtix.phase.Phase;
+import org.objectweb.celtix.phase.PhaseInterceptorChain;
 
 public class PhaseInterceptorChainTest extends TestCase {
 

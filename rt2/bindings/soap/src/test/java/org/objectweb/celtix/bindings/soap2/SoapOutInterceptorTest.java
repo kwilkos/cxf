@@ -9,14 +9,14 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
+
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.CachedOutputStream;
 import org.objectweb.celtix.jaxb.utils.StaxUtils;
+import org.objectweb.celtix.message.AbstractWrappedMessage;
+import org.objectweb.celtix.message.Attachment;
 
-import org.objectweb.celtix.rio.Attachment;
-import org.objectweb.celtix.rio.message.AbstractWrappedMessage;
-import org.objectweb.celtix.rio.soap.Soap12;
 
 public class SoapOutInterceptorTest extends TestBase {
     private ReadHeadersInterceptor rhi;

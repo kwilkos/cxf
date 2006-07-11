@@ -1,9 +1,9 @@
-package org.objectweb.celtix.rio.phase;
+package org.objectweb.celtix.phase;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.objectweb.celtix.rio.Interceptor;
+import org.objectweb.celtix.interceptors.Interceptor;
 
 /**
  * A phase interceptor participates in a PhaseInterceptorChain.
@@ -11,7 +11,7 @@ import org.objectweb.celtix.rio.Interceptor;
  * The before and after properties contain a list of Ids that the
  * particular interceptor runs before or after.
  * </pre> 
- * @see org.objectweb.celtix.rio.phase.PhaseInterceptorChain
+ * @see org.objectweb.celtix.phase.PhaseInterceptorChain
  * @author Dan Diephouse
  */
 public abstract class AbstractPhaseInterceptor implements Interceptor {

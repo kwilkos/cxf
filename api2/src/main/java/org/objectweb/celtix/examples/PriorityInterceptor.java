@@ -1,9 +1,9 @@
-package org.objectweb.celtix.rio.examples;
+package org.objectweb.celtix.examples;
 
 import java.util.concurrent.Executor;
 
-import org.objectweb.celtix.rio.Interceptor;
-import org.objectweb.celtix.rio.Message;
+import org.objectweb.celtix.interceptors.Interceptor;
+import org.objectweb.celtix.message.Message;
 
 public class PriorityInterceptor implements Interceptor {
 

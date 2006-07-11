@@ -16,11 +16,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.objectweb.celtix.jaxb.utils.StaxUtils;
+import org.objectweb.celtix.message.AbstractWrappedMessage;
+import org.objectweb.celtix.message.Message;
 
-import org.objectweb.celtix.rio.Message;
-import org.objectweb.celtix.rio.message.AbstractWrappedMessage;
-import org.objectweb.celtix.rio.phase.AbstractPhaseInterceptor;
-import org.objectweb.celtix.rio.soap.SoapMessage;
+import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 
 
 public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {

@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javax.activation.DataHandler;
 
-import org.objectweb.celtix.rio.Attachment;
+import org.objectweb.celtix.message.Attachment;
 
 public class AttachmentImpl implements Attachment {
 

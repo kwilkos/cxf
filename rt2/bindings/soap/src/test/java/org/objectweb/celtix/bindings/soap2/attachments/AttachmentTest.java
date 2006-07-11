@@ -20,13 +20,13 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.bindings.soap2.Soap11;
+import org.objectweb.celtix.bindings.soap2.Soap12;
+import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.bindings.soap2.TestBase;
 import org.objectweb.celtix.bindings.soap2.TestUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.types.DetailType;
-import org.objectweb.celtix.rio.Attachment;
-import org.objectweb.celtix.rio.soap.Soap11;
-import org.objectweb.celtix.rio.soap.Soap12;
-import org.objectweb.celtix.rio.soap.SoapMessage;
+import org.objectweb.celtix.message.Attachment;
 
 public class AttachmentTest extends TestBase {
 

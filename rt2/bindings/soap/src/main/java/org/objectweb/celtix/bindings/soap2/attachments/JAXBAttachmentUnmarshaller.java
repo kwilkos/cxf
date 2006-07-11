@@ -9,8 +9,8 @@ import javax.activation.DataHandler;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
 import javax.xml.ws.WebServiceException;
 
-import org.objectweb.celtix.rio.Attachment;
-import org.objectweb.celtix.rio.soap.SoapMessage;
+import org.objectweb.celtix.bindings.soap2.SoapMessage;
+import org.objectweb.celtix.message.Attachment;
 
 public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
 

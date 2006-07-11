@@ -1,4 +1,4 @@
-package org.objectweb.celtix.rio.phase;
+package org.objectweb.celtix.phase;
 
 import java.util.Comparator;
 

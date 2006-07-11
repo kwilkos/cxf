@@ -13,10 +13,8 @@ import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.jaxb.utils.StaxUtils;
-import org.objectweb.celtix.rio.phase.Phase;
-import org.objectweb.celtix.rio.phase.PhaseInterceptorChain;
-import org.objectweb.celtix.rio.soap.Soap11;
-import org.objectweb.celtix.rio.soap.SoapMessage;
+import org.objectweb.celtix.phase.Phase;
+import org.objectweb.celtix.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.servicemodel.JAXWSClassServiceBuilder;
 import org.objectweb.celtix.servicemodel.Service;
 

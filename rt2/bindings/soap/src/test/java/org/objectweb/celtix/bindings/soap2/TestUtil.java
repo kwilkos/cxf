@@ -15,11 +15,9 @@ import javax.mail.util.ByteArrayDataSource;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.types.DetailType;
-import org.objectweb.celtix.rio.Attachment;
-import org.objectweb.celtix.rio.InterceptorChain;
-import org.objectweb.celtix.rio.message.MessageImpl;
-import org.objectweb.celtix.rio.soap.SoapMessage;
-import org.objectweb.celtix.rio.soap.SoapVersion;
+import org.objectweb.celtix.interceptors.InterceptorChain;
+import org.objectweb.celtix.message.Attachment;
+import org.objectweb.celtix.message.MessageImpl;
 
 public final class TestUtil {
 

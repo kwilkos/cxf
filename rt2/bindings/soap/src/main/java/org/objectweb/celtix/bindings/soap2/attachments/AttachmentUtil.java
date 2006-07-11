@@ -20,11 +20,11 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.xml.ws.WebServiceException;
 
-import org.objectweb.celtix.rio.Attachment;
-import org.objectweb.celtix.rio.soap.Soap11;
-import org.objectweb.celtix.rio.soap.Soap12;
-import org.objectweb.celtix.rio.soap.SoapMessage;
-import org.objectweb.celtix.rio.soap.SoapVersion;
+import org.objectweb.celtix.bindings.soap2.Soap11;
+import org.objectweb.celtix.bindings.soap2.Soap12;
+import org.objectweb.celtix.bindings.soap2.SoapMessage;
+import org.objectweb.celtix.bindings.soap2.SoapVersion;
+import org.objectweb.celtix.message.Attachment;
 
 public final class AttachmentUtil {
 
