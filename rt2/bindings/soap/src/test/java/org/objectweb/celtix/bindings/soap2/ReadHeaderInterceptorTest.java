@@ -1,44 +1,29 @@
 package org.objectweb.celtix.bindings.soap2;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 
 import org.w3c.dom.Element;
 
-import junit.framework.TestCase;
-
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 
 import org.objectweb.celtix.rio.Attachment;
-import org.objectweb.celtix.rio.phase.Phase;
-import org.objectweb.celtix.rio.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.rio.soap.Soap12;
-import org.objectweb.celtix.rio.soap.SoapMessage;
 
-public class ReadHeaderInterceptorTest extends TestCase {
+public class ReadHeaderInterceptorTest extends TestBase {
 
-    private PhaseInterceptorChain chain;
-    private SoapMessage soapMessage;
     private ReadHeadersInterceptor rhi;
 
     public void setUp() throws Exception {
-        List<Phase> phases = new ArrayList<Phase>();
-        Phase phase1 = new Phase("phase1", 1);
-        phases.add(phase1);
-        chain = new PhaseInterceptorChain(phases);
+        super.setUp();
+        
         rhi = new ReadHeadersInterceptor();
         rhi.setPhase("phase1");
         chain.add(rhi);
-    }
-
-    public void tearDown() {
-
     }
 
     public void testDoIntercept() {

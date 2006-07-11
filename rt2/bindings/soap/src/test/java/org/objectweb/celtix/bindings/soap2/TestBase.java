@@ -1,11 +1,11 @@
-package org.objectweb.celtix.bindings.soap2.binding;
+package org.objectweb.celtix.bindings.soap2;
 
 import java.io.*;
 import java.util.*;
 
 import javax.xml.stream.XMLStreamReader;
 import junit.framework.TestCase;
-import org.objectweb.celtix.bindings.soap2.utils.StaxUtils;
+import org.objectweb.celtix.jaxb.utils.StaxUtils;
 import org.objectweb.celtix.rio.phase.Phase;
 import org.objectweb.celtix.rio.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.rio.soap.SoapMessage;
@@ -18,7 +18,9 @@ public class TestBase extends TestCase {
     public void setUp() throws Exception {
         List<Phase> phases = new ArrayList<Phase>();
         Phase phase1 = new Phase("phase1", 1);
+        Phase phase2 = new Phase("phase2", 2);
         phases.add(phase1);
+        phases.add(phase2);
         chain = new PhaseInterceptorChain(phases);
     }
 

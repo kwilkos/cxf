@@ -15,7 +15,7 @@ import javax.xml.ws.WebServiceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.bindings.soap2.utils.StaxUtils;
+import org.objectweb.celtix.jaxb.utils.StaxUtils;
 
 import org.objectweb.celtix.rio.Message;
 import org.objectweb.celtix.rio.message.AbstractWrappedMessage;

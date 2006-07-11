@@ -1,14 +1,8 @@
 package org.objectweb.celtix.bindings.soap2.attachments;
 
 import java.awt.Image;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 import javax.mail.MessagingException;
 import javax.xml.bind.JAXBContext;
@@ -26,36 +20,23 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.ws.handler.MessageContext;
 
-import junit.framework.TestCase;
-
+import org.objectweb.celtix.bindings.soap2.TestBase;
 import org.objectweb.celtix.bindings.soap2.TestUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.types.DetailType;
-
 import org.objectweb.celtix.rio.Attachment;
-import org.objectweb.celtix.rio.phase.Phase;
-import org.objectweb.celtix.rio.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.rio.soap.Soap11;
 import org.objectweb.celtix.rio.soap.Soap12;
 import org.objectweb.celtix.rio.soap.SoapMessage;
 
-public class AttachmentTest extends TestCase {
+public class AttachmentTest extends TestBase {
 
-    private PhaseInterceptorChain chain;
     private MultipartMessageInterceptor mmi;
-    private SoapMessage soapMessage;
 
     public void setUp() throws Exception {
-        List<Phase> phases = new ArrayList<Phase>();
-        Phase phase1 = new Phase("phase1", 1);
-        phases.add(phase1);
-        chain = new PhaseInterceptorChain(phases);
+        super.setUp();
         mmi = new MultipartMessageInterceptor();
         mmi.setPhase("phase1");
         chain.add(mmi);
-    }
-
-    public void tearDown() {
-
     }
 
     public void testDoInterceptOfSoap12() {

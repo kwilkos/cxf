@@ -1,10 +1,7 @@
 package org.objectweb.celtix.bindings.soap2;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -12,34 +9,21 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
-import junit.framework.TestCase;
-
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.CachedOutputStream;
-import org.objectweb.celtix.bindings.soap2.utils.StaxUtils;
+import org.objectweb.celtix.jaxb.utils.StaxUtils;
 
 import org.objectweb.celtix.rio.Attachment;
 import org.objectweb.celtix.rio.message.AbstractWrappedMessage;
-import org.objectweb.celtix.rio.phase.Phase;
-import org.objectweb.celtix.rio.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.rio.soap.Soap12;
-import org.objectweb.celtix.rio.soap.SoapMessage;
 
-public class SoapOutInterceptorTest extends TestCase {
-    private PhaseInterceptorChain chain;
-    private SoapMessage soapMessage;
+public class SoapOutInterceptorTest extends TestBase {
     private ReadHeadersInterceptor rhi;
     private SoapOutInterceptor soi;
 
     public void setUp() throws Exception {
-        List<Phase> phases = new ArrayList<Phase>();
-        Phase phase1 = new Phase("phase1", 1);
-        Phase phase2 = new Phase("phase2", 2);
-        phases.add(phase1);
-        phases.add(phase2);
-        chain = new PhaseInterceptorChain(phases);
-
+        super.setUp();
         rhi = new ReadHeadersInterceptor();
         rhi.setPhase("phase1");
         chain.add(rhi);
@@ -47,10 +31,6 @@ public class SoapOutInterceptorTest extends TestCase {
         soi = new SoapOutInterceptor();
         soi.setPhase("phase2");
         chain.add(soi);
-    }
-
-    public void tearDown() {
-
     }
 
     public void testDoIntercept() {

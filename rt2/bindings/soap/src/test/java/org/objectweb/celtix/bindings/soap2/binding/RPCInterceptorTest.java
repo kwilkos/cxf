@@ -10,6 +10,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
+import org.objectweb.celtix.bindings.soap2.TestBase;
 import org.objectweb.celtix.bindings.soap2.TestUtil;
 import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;

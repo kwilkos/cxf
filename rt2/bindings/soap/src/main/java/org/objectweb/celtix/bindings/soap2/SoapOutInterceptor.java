@@ -12,7 +12,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 //import org.objectweb.celtix.bindings.soap2.utils.NamespaceContextImpl;
-import org.objectweb.celtix.bindings.soap2.utils.StaxUtils;
+import org.objectweb.celtix.jaxb.utils.StaxUtils;
 
 import org.objectweb.celtix.rio.Message;
 import org.objectweb.celtix.rio.message.AbstractWrappedMessage;
