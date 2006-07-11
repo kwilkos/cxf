@@ -13,9 +13,9 @@ import javax.xml.stream.XMLStreamReader;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.CachedOutputStream;
-import org.objectweb.celtix.jaxb.utils.StaxUtils;
 import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Attachment;
+import org.objectweb.celtix.staxutils.StaxUtils;
 
 
 public class SoapOutInterceptorTest extends TestBase {

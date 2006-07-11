@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb.utils;
+package org.objectweb.celtix.staxutils;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -10,7 +10,7 @@ public class FragmentStreamReaderTest extends TestCase {
     public void testReader() throws Exception {
         XMLInputFactory ifactory = StaxUtils.getXMLInputFactory();
         XMLStreamReader reader = 
-            ifactory.createXMLStreamReader(getClass().getResourceAsStream("../resources/amazon.xml"));
+            ifactory.createXMLStreamReader(getClass().getResourceAsStream("./resources/amazon.xml"));
         
         DepthXMLStreamReader dr = new DepthXMLStreamReader(reader);
         

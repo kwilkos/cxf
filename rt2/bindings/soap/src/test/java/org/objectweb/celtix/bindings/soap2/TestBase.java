@@ -12,11 +12,11 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
-import org.objectweb.celtix.jaxb.utils.StaxUtils;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.servicemodel.JAXWSClassServiceBuilder;
-import org.objectweb.celtix.servicemodel.Service;
+import org.objectweb.celtix.servicemodel.ServiceInfo;
+import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class TestBase extends TestCase {
 
@@ -37,7 +37,7 @@ public class TestBase extends TestCase {
     public void tearDown() throws Exception {
     }
 
-    public InputStream getTestStream(Class clz, String file) {
+    public InputStream getTestStream(Class<?> clz, String file) {
         return clz.getResourceAsStream(file);
     }
 
@@ -49,11 +49,11 @@ public class TestBase extends TestCase {
         return StaxUtils.createXMLStreamWriter(os);
     }
 
-    public Service getTestService(Class clz) {
+    public ServiceInfo getTestService(Class<?> clz) {
         return JAXWSClassServiceBuilder.buildService(clz);
     }
 
-    protected JAXBDataBindingCallback getTestCallback(Class clz, String methodName) throws Exception {
+    protected JAXBDataBindingCallback getTestCallback(Class<?> clz, String methodName) throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
         Method m = org.objectweb.celtix.testutil.common.TestUtil.getMethod(clz,
                                                                            methodName);

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb.utils;
+package org.objectweb.celtix.staxutils;
 
 import java.io.*;
 
@@ -7,14 +7,16 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
 import junit.framework.TestCase;
-import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_BODY;
-import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_ENV;
 
 public class StaxStreamFilterTest extends TestCase {
+    public static final QName  SOAP_ENV = 
+        new QName("http://schemas.xmlsoap.org/soap/envelope/", "Envelope");
+    public static final QName  SOAP_BODY = 
+        new QName("http://schemas.xmlsoap.org/soap/envelope/", "Body");
 
     public void testFilter() throws Exception {
         StaxStreamFilter filter = new StaxStreamFilter(new QName[]{SOAP_ENV, SOAP_BODY});
-        String soapMessage = "..//resources/sayHiRpcLiteralReq.xml";
+        String soapMessage = "./resources/sayHiRpcLiteralReq.xml";
         XMLStreamReader reader = StaxUtils.createXMLStreamReader(getTestStream(soapMessage));
         reader = StaxUtils.createFilteredReader(reader, filter);
         
@@ -28,7 +30,7 @@ public class StaxStreamFilterTest extends TestCase {
 
     public void testFilterRPC() throws Exception {
         StaxStreamFilter filter = new StaxStreamFilter(new QName[]{SOAP_ENV, SOAP_BODY});
-        String soapMessage = "../resources/greetMeRpcLitReq.xml";
+        String soapMessage = "./resources/greetMeRpcLitReq.xml";
         XMLStreamReader reader = StaxUtils.createXMLStreamReader(getTestStream(soapMessage));
         reader = StaxUtils.createFilteredReader(reader, filter);
         

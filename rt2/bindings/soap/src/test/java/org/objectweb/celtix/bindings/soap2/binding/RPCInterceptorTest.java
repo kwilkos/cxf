@@ -6,10 +6,11 @@ import java.util.*;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.soap2.TestBase;
+import org.objectweb.celtix.servicemodel.BindingInfo;
 import org.objectweb.celtix.servicemodel.MessageInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
 import org.objectweb.celtix.servicemodel.OperationInfo;
-import org.objectweb.celtix.servicemodel.Service;
+import org.objectweb.celtix.servicemodel.ServiceInfo;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
 
@@ -25,7 +26,7 @@ public class RPCInterceptorTest extends TestBase {
         chain.add(interceptor);
 
 
-        soapMessage.put("service.model", getTestService());
+        soapMessage.put("service.model.binding", getTestService());
         soapMessage.put("JAXB_CALLBACK", getTestCallback(GreeterRPCLit.class, "sendReceiveData"));
     }
 
@@ -58,10 +59,13 @@ public class RPCInterceptorTest extends TestBase {
         assertEquals("return is element 2", s.getElem2());
     }
     
-    public Service getTestService() {
-        Service service = getTestService(GreeterRPCLit.class);
+    public BindingInfo getTestService() {
+        ServiceInfo service = getTestService(GreeterRPCLit.class);
         assertNotNull(service);
-        OperationInfo op = service.getOperation("sendReceiveData");
+        
+        BindingInfo binding = service.getPort("GreeterRPCLitPort").getBinding();
+        assertNotNull(binding);
+        OperationInfo op = binding.getOperation("sendReceiveData");
         assertNotNull(op);
         assertEquals(1, op.getInput().size());
         assertEquals(1, op.getOutput().size());
@@ -69,6 +73,6 @@ public class RPCInterceptorTest extends TestBase {
         assertEquals(1, msg.getMessageParts().size());
         MessagePartInfo part = msg.getMessageParts().get(0);
         assertEquals(new QName("in"), part.getName());
-        return service;
+        return binding;
     }
 }

@@ -15,11 +15,11 @@ import javax.xml.ws.WebServiceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.jaxb.utils.StaxUtils;
 import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Message;
-
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.objectweb.celtix.staxutils.StaxUtils;
+
 
 
 public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {

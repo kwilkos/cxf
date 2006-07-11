@@ -18,8 +18,8 @@ import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
-import org.objectweb.celtix.jaxb.utils.DepthXMLStreamReader;
-import org.objectweb.celtix.jaxb.utils.StaxUtils;
+import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
+import org.objectweb.celtix.staxutils.StaxUtils;
 import org.objectweb.celtix.testutil.common.TestUtil;
 import org.objectweb.hello_world_soap_http.Greeter;
 

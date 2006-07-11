@@ -6,12 +6,13 @@ import junit.framework.TestCase;
 
 public class BusFactoryTest extends TestCase {
 
-    private String urlPrefix;
+    //private String urlPrefix;
 
     public BusFactoryTest(String name) {
         super(name);
     }
 
+    /*
     public void setUp() throws Exception {
        
         urlPrefix = "file://";
@@ -19,6 +20,7 @@ public class BusFactoryTest extends TestCase {
             urlPrefix = "file:/";
         }
     }
+    */
 
     public void testSetAppserverClassLoader() {
         ClassLoader loader = new DummyClassLoader();

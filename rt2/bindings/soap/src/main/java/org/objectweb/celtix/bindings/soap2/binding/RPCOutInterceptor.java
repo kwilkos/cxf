@@ -14,17 +14,17 @@ import org.objectweb.celtix.helpers.NSStack;
 import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.objectweb.celtix.servicemodel.BindingInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
 import org.objectweb.celtix.servicemodel.OperationInfo;
-import org.objectweb.celtix.servicemodel.Service;
 
 public class RPCOutInterceptor extends AbstractPhaseInterceptor {
     
-    private static final String SERVICE_MODEL = "service.model";
+    private static final String SERVICE_MODEL_BINDING = "service.model.binding";
     private static final String INBOUND_MESSAGE = "message.inbound";
     
     private SoapMessage soapMessage;
-    private Service service;
+    private BindingInfo bindingInfo;
     private NSStack nsStack;
     private XMLStreamWriter xmlWriter;
     private DataWriter<XMLStreamWriter> dataWriter;
@@ -36,7 +36,7 @@ public class RPCOutInterceptor extends AbstractPhaseInterceptor {
         this.soapMessage = (SoapMessage) message;
         
         this.xmlWriter = getXMLStreamWriter(message);
-        this.service = (Service) message.get(SERVICE_MODEL);
+        this.bindingInfo = (BindingInfo) message.get(SERVICE_MODEL_BINDING);
         nsStack = new NSStack();
         nsStack.push();
     }
@@ -53,7 +53,7 @@ public class RPCOutInterceptor extends AbstractPhaseInterceptor {
             
             addOperationNode();
 
-            OperationInfo operation = this.service.getOperation(getOperationName());
+            OperationInfo operation = this.bindingInfo.getOperation(getOperationName());
             
             if (isOutboundMessage()) {
                 addReturnPart(operation);
@@ -142,7 +142,7 @@ public class RPCOutInterceptor extends AbstractPhaseInterceptor {
 
     protected void addOperationNode() throws XMLStreamException {
         String responseSuffix = isOutboundMessage() ? "Response" : "";
-        String namespaceURI = this.service.getTargetNamespace();
+        String namespaceURI = this.bindingInfo.getPort().getService().getTargetNamespace();
         nsStack.add(namespaceURI);
         String prefix = nsStack.getPrefix(namespaceURI);
 

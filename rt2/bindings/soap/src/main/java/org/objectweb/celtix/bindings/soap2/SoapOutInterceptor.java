@@ -16,12 +16,12 @@ import org.w3c.dom.Text;
 
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.CachedOutputStream;
-import org.objectweb.celtix.jaxb.utils.StaxUtils;
 import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Attachment;
 import org.objectweb.celtix.message.Message;
-
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.objectweb.celtix.staxutils.StaxUtils;
+
 
 public class SoapOutInterceptor extends AbstractPhaseInterceptor {
 

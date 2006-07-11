@@ -35,30 +35,48 @@ public final class JAXWSClassServiceBuilder {
     }
     
     
-    public static Service buildService(Class<?> cls) {
-        Service service = new Service();
-        service.setProperty(JAXWS_CLASS, cls);
-        
+    public static ServiceInfo buildService(Class<?> cls) {
+        ServiceInfo si = new ServiceInfo();
         WebService webServiceAnnotation = cls.getAnnotation(WebService.class);
         if (webServiceAnnotation != null) {
-            service.setTargetNamespace(webServiceAnnotation.targetNamespace());
+            si.setTargetNamespace(webServiceAnnotation.targetNamespace());
+            
+            String sn = webServiceAnnotation.serviceName();
+            if ("".equals(sn)) {
+                sn = cls.getSimpleName() + "Service";
+            }
+            si.setName(new QName(si.getTargetNamespace(), sn));
         }
+        
+        buildService(si, cls);
+        return si;
+    }
+    public static void buildService(ServiceInfo service, Class<?> cls) {
+        WebService webServiceAnnotation = cls.getAnnotation(WebService.class);
+        String pn = cls.getSimpleName() + "Port";
+        if (webServiceAnnotation != null && !"".equals(webServiceAnnotation.portName())) {
+            pn = webServiceAnnotation.portName();
+        }
+        
+        PortInfo pi = service.createPort(pn);
+        
+        BindingInfo binding = pi.createBinding(new QName("NS", "LP"));
+        binding.setProperty(JAXWS_CLASS, cls);
+        
         
         for (Method method : cls.getMethods()) {
             WebMethod webMethod = method.getAnnotation(WebMethod.class);
             if (webMethod != null
                 && !JAXBUtils.isAsync(method)) {
                 //don't do the Async methods as the information will come fine from the sync versions
-                addMethod(service, method);
+                addMethod(binding, method);
             }
         }
-        
-        return service;
     }
     
-    private static void addMethod(Service service, Method method) {
+    private static void addMethod(BindingInfo binding, Method method) {
         WebMethod webMethod = method.getAnnotation(WebMethod.class);
-        OperationInfo op = service.addOperation(webMethod.operationName());
+        OperationInfo op = binding.addOperation(webMethod.operationName());
         op.setProperty(JAXWS_METHOD, method);
         op.setSOAPAction(webMethod.action());
         
@@ -67,10 +85,15 @@ public final class JAXWSClassServiceBuilder {
             soapBindAnnotation = method.getDeclaringClass().getAnnotation(SOAPBinding.class);
         }
 
-        MessageInfo min = op.createMessage(new QName(service.getTargetNamespace(), op.getName()));
+        MessageInfo min = op.createMessage(new QName(binding.getPort()
+                                                     .getService()
+                                                     .getTargetNamespace(),
+                                                     op.getName()));
         op.setInput(min);
         
-        MessageInfo mout = op.createMessage(new QName(service.getTargetNamespace(),
+        MessageInfo mout = op.createMessage(new QName(binding.getPort()
+                                                      .getService()
+                                                      .getTargetNamespace(),
                                                       op.getName() + "Response"));
         if (method.getAnnotation(Oneway.class) == null) {
             op.setOutput(mout);

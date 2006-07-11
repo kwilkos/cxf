@@ -13,6 +13,7 @@ import javax.wsdl.Message;
 import javax.wsdl.Operation;
 import javax.wsdl.Output;
 import javax.wsdl.Port;
+import javax.wsdl.Service;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.wsdl.extensions.soap.SOAPOperation;
@@ -20,6 +21,7 @@ import javax.wsdl.extensions.soap.SOAPOperation;
 public final class WSDLServiceBuilder {
     
     public static final String WSDL_DEFINITION = WSDLServiceBuilder.class.getName() + ".DEFINITION";
+    public static final String WSDL_SERVICE = WSDLServiceBuilder.class.getName() + ".SERVICE";
     public static final String WSDL_PORT = WSDLServiceBuilder.class.getName() + ".PORT";
     public static final String WSDL_BINDING = WSDLServiceBuilder.class.getName() + ".BINDING";
     
@@ -31,40 +33,54 @@ public final class WSDLServiceBuilder {
         //utility class - never contructed
     }
     
-    
-    public static Service buildService(Definition def, Port p) {
-        Service service = new Service();
+    public static ServiceInfo buildService(Definition def, Service serv) {
+        ServiceInfo service = new ServiceInfo();
         service.setProperty(WSDL_DEFINITION, def);
-        service.setProperty(WSDL_PORT, p);
-        
-        Binding bind = p.getBinding();
-        if (bind == null) {
-            throw new IllegalArgumentException("WSDL binding cannot be found for " + p.getName());
+        service.setProperty(WSDL_SERVICE, serv);
+        service.setTargetNamespace(def.getTargetNamespace());
+
+        for (Object obj : serv.getPorts().values()) {
+            buildPort(service, (Port)obj);
         }
-        service.setProperty(WSDL_BINDING, bind);
         
-        service.setTargetNamespace(bind.getPortType().getQName().getNamespaceURI());
+        return service;
+    }
+    
+    public static PortInfo buildPort(ServiceInfo si, Port p) {
+        PortInfo pi = si.createPort(p.getName());
+        pi.setProperty(WSDL_PORT, p);
+        buildBinding(pi, p.getBinding());
+        return pi;
+    }
+    public static BindingInfo buildBinding(PortInfo pi, Binding bind) {
+        
+        if (bind == null) {
+            throw new IllegalArgumentException("WSDL binding cannot be found for " + pi.getName());
+        }
+        BindingInfo binding = pi.createBinding(bind.getQName());
+        binding.setProperty(WSDL_BINDING, bind);
+        
         
         
         SOAPBinding soapBinding = getExtensibilityElement(bind.getExtensibilityElements(),
                                                           SOAPBinding.class);
         if (soapBinding != null) {
-            service.setDefaultRPC("RPC".equals(soapBinding.getStyle().toUpperCase()));
+            binding.setDefaultRPC("RPC".equals(soapBinding.getStyle().toUpperCase()));
         }
         
         for (Iterator it = bind.getBindingOperations().iterator(); it.hasNext();) {
             final BindingOperation bindingOperation = (BindingOperation)it.next();
             if (bindingOperation.getOperation() != null) {
-                addOperation(service, bindingOperation);
+                addOperation(binding, bindingOperation);
             }
         }
         
-        return service;
+        return binding;
     }
  
     
-    private static void addOperation(Service service, BindingOperation bindingOp) {
-        OperationInfo opInfo = service.addOperation(bindingOp.getName());
+    private static void addOperation(BindingInfo binding, BindingOperation bindingOp) {
+        OperationInfo opInfo = binding.addOperation(bindingOp.getName());
         opInfo.setProperty(WSDL_BINDING_OPERATION, bindingOp);
         opInfo.setProperty(WSDL_OPERATION, bindingOp.getOperation());
         
@@ -76,7 +92,7 @@ public final class WSDLServiceBuilder {
             
             opInfo.setRPC("RPC".equalsIgnoreCase(soapOperation.getStyle()));
         } else {
-            opInfo.setRPC(service.isDefaultRPC());
+            opInfo.setRPC(binding.isDefaultRPC());
         }
         if (soapOperation != null) {
             String soapAction = soapOperation.getSoapActionURI();

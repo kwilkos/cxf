@@ -8,8 +8,10 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.soap2.TestBase;
-import org.objectweb.celtix.jaxb.utils.DepthXMLStreamReader;
-import org.objectweb.celtix.jaxb.utils.StaxUtils;
+import org.objectweb.celtix.servicemodel.BindingInfo;
+import org.objectweb.celtix.servicemodel.ServiceInfo;
+import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
+import org.objectweb.celtix.staxutils.StaxUtils;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
 
@@ -27,7 +29,11 @@ public class RPCOutInterceptorTest extends TestBase {
 
         baos =  new ByteArrayOutputStream();
 
-        soapMessage.put("service.model", getTestService(GreeterRPCLit.class));
+        ServiceInfo service = getTestService(GreeterRPCLit.class);
+        BindingInfo binfo = service.getPort("GreeterRPCLitPort").getBinding();
+        
+        soapMessage.put("service.model", service);
+        soapMessage.put("service.model.binding", binfo);
         soapMessage.setResult(XMLStreamWriter.class, getXMLStreamWriter(baos));
         soapMessage.put(MessageContext.WSDL_OPERATION, "sendReceiveData");
         soapMessage.put("JAXB_CALLBACK", getTestCallback(GreeterRPCLit.class, "sendReceiveData"));

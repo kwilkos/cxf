@@ -90,5 +90,13 @@
             <artifactId>wsdl4j</artifactId>
             <version>${wsdl4j.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>woodstox</groupId>
+            <artifactId>wstx-asl</artifactId>
+            <version>2.9.3</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>

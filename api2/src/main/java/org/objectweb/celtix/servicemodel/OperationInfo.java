@@ -12,7 +12,7 @@ import javax.xml.namespace.QName;
  */
 public final class OperationInfo extends AbstractPropertiesHolder {
     
-    final Service service;
+    final BindingInfo service;
     String opName;
     
     MessageInfo inputMessage;
@@ -26,7 +26,7 @@ public final class OperationInfo extends AbstractPropertiesHolder {
     DataWriterFactory writerFactory;
     Invoker invoker;
     
-    OperationInfo(Service serv, String n) { 
+    OperationInfo(BindingInfo serv, String n) { 
         service = serv;
         setName(n);
     }

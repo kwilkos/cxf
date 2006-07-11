@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb.utils;
+package org.objectweb.celtix.staxutils;
 
 import java.io.*;
 
@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 public class StaxUtilsTest extends TestCase {
 
     public void testFactoryCreation() {
-        XMLStreamReader reader = StaxUtils.createXMLStreamReader(getTestStream("../resources/amazon.xml"));
+        XMLStreamReader reader = StaxUtils.createXMLStreamReader(getTestStream("./resources/amazon.xml"));
         assertTrue(reader != null);
     }
 
@@ -17,7 +17,7 @@ public class StaxUtilsTest extends TestCase {
     }
 
     public void testToNextElement() {
-        String soapMessage = "../resources/sayHiRpcLiteralReq.xml";
+        String soapMessage = "./resources/sayHiRpcLiteralReq.xml";
         XMLStreamReader r = StaxUtils.createXMLStreamReader(getTestStream(soapMessage));
         DepthXMLStreamReader reader = new DepthXMLStreamReader(r);
         assertTrue(StaxUtils.toNextElement(reader));

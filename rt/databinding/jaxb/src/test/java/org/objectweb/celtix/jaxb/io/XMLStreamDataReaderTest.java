@@ -17,7 +17,7 @@ import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.datamodel.soap.SOAPConstants;
 import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
-import org.objectweb.celtix.jaxb.utils.StaxStreamFilter;
+import org.objectweb.celtix.staxutils.StaxStreamFilter;
 import org.objectweb.celtix.testutil.common.TestUtil;
 import org.objectweb.hello_world_soap_http.Greeter;
  

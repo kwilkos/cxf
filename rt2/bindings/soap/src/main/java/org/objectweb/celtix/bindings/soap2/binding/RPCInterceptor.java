@@ -9,22 +9,22 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.soap2.SoapMessage;
-import org.objectweb.celtix.jaxb.utils.DepthXMLStreamReader;
-import org.objectweb.celtix.jaxb.utils.StaxStreamFilter;
-import org.objectweb.celtix.jaxb.utils.StaxUtils;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.objectweb.celtix.servicemodel.BindingInfo;
 import org.objectweb.celtix.servicemodel.MessageInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
 import org.objectweb.celtix.servicemodel.OperationInfo;
-import org.objectweb.celtix.servicemodel.Service;
+import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
+import org.objectweb.celtix.staxutils.StaxStreamFilter;
+import org.objectweb.celtix.staxutils.StaxUtils;
         
 import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_BODY;
 import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_ENV;
 
 public class RPCInterceptor extends AbstractPhaseInterceptor {
     
-    private static final String SERVICE_MODEL = "service.model";
+    private static final String SERVICE_MODEL_BINDING = "service.model.binding";
     private static final String RPC_INTERCEPTOR_EXCEPTION = "rpc.interceptor.exception";
     private static final String INBOUND_MESSAGE = "message.inbound";
     
@@ -50,7 +50,7 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
             opName = opName.substring(0, opName.length() - 8);
         }
 
-        Service service = (Service) message.get(SERVICE_MODEL);
+        BindingInfo service = (BindingInfo)message.get(SERVICE_MODEL_BINDING);
         OperationInfo operation = service.getOperation(opName);
 
         if (operation == null) {

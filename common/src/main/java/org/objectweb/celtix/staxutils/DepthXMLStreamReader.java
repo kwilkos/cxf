@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb.utils;
+package org.objectweb.celtix.staxutils;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
