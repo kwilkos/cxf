@@ -13,13 +13,13 @@ import java.io.OutputStream;
 
 public class CachedOutputStream extends OutputStream {
     private OutputStream currentStream;
-    private int threshold;
+    private long threshold;
     private int totalLength;
     private boolean inmem;
     private File tempFile;
     private File outputDir;
 
-    public CachedOutputStream(int thresholdParam, File outputDirParam) throws IOException {
+    public CachedOutputStream(long thresholdParam, File outputDirParam) throws IOException {
         this.threshold = thresholdParam;
         this.outputDir = outputDirParam;
 
