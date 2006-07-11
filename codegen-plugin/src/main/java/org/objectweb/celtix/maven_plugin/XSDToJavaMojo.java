@@ -37,7 +37,7 @@ public class XSDToJavaMojo extends AbstractMojo {
     /**
      * @parameter
      */
-    XSDOption xsdOptions[];
+    XsdOption xsdOptions[];
 
     
     public void execute() throws MojoExecutionException {

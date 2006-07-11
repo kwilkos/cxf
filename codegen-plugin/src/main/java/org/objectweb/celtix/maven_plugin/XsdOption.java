@@ -2,7 +2,7 @@ package org.objectweb.celtix.maven_plugin;
 
 import java.io.File;
 
-public class XSDOption {
+public class XsdOption {
     String xsd;
     String packagename;
     String bindingFile;
