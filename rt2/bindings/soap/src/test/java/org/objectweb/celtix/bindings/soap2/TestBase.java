@@ -1,14 +1,24 @@
 package org.objectweb.celtix.bindings.soap2;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.util.*;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import junit.framework.TestCase;
+
+import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
+import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
+import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.jaxb.utils.StaxUtils;
 import org.objectweb.celtix.rio.phase.Phase;
 import org.objectweb.celtix.rio.phase.PhaseInterceptorChain;
+import org.objectweb.celtix.rio.soap.Soap11;
 import org.objectweb.celtix.rio.soap.SoapMessage;
+import org.objectweb.celtix.servicemodel.JAXWSClassServiceBuilder;
+import org.objectweb.celtix.servicemodel.Service;
 
 public class TestBase extends TestCase {
 
@@ -22,9 +32,11 @@ public class TestBase extends TestCase {
         phases.add(phase1);
         phases.add(phase2);
         chain = new PhaseInterceptorChain(phases);
+
+        soapMessage = TestUtil.createEmptySoapMessage(new Soap11(), chain);
     }
 
-    public void tearDown() {
+    public void tearDown() throws Exception {
     }
 
     public InputStream getTestStream(Class clz, String file) {
@@ -33,5 +45,20 @@ public class TestBase extends TestCase {
 
     public XMLStreamReader getXMLStreamReader(InputStream is) {
         return StaxUtils.createXMLStreamReader(is);
+    }
+
+    public XMLStreamWriter getXMLStreamWriter(OutputStream os) {
+        return StaxUtils.createXMLStreamWriter(os);
+    }
+
+    public Service getTestService(Class clz) {
+        return JAXWSClassServiceBuilder.buildService(clz);
+    }
+
+    protected JAXBDataBindingCallback getTestCallback(Class clz, String methodName) throws Exception {
+        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
+        Method m = org.objectweb.celtix.testutil.common.TestUtil.getMethod(clz,
+                                                                           methodName);
+        return new JAXBDataBindingCallback(m, Mode.PARTS, ctx);
     }
 }

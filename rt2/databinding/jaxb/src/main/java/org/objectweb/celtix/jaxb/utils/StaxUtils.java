@@ -131,5 +131,20 @@ public final class StaxUtils {
             throw new RuntimeException("Couldn't parse stream.", e);
         }
     }
+
+    public static void writeStartElement(XMLStreamWriter writer, String prefix, String name, String namespace)
+        throws XMLStreamException {
+        if (prefix == null) {
+            prefix = "";
+        }
+
+        if (namespace.length() > 0) {
+            writer.writeStartElement(prefix, name, namespace);
+            writer.writeNamespace(prefix, namespace);
+        } else {
+            writer.writeStartElement(name);
+            writer.writeDefaultNamespace("");
+        }
+    }
 }
 
