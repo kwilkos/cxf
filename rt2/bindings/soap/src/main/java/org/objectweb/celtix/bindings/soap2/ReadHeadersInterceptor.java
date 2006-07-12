@@ -34,11 +34,12 @@ public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {
         try {
             init();
             process();
-            // continue interceptor chain processing
-            message.getInterceptorChain().doIntercept(message);
         } catch (Exception e) {
             message.put(AbstractWrappedMessage.INBOUND_EXCEPTION, e);
+            return;
         }
+        // continue interceptor chain processing
+        message.getInterceptorChain().doIntercept(message);
     }
 
     private void init() throws Exception {

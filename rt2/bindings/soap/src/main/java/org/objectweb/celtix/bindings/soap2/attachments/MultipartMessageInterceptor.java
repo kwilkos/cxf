@@ -53,15 +53,15 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
             this.message = (AbstractWrappedMessage)messageParam;
             init();
             process();
-            // continue interceptor chain processing
-            message.getInterceptorChain().doIntercept(message);
         } catch (MessagingException me) {
             message.put(AbstractWrappedMessage.INBOUND_EXCEPTION, me);
-
+            return;
         } catch (IOException ioe) {
             message.put(AbstractWrappedMessage.INBOUND_EXCEPTION, ioe);
-
+            return;
         }
+        // continue interceptor chain processing
+        message.getInterceptorChain().doIntercept(message);
     }
 
     /**

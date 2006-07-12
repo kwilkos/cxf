@@ -57,11 +57,12 @@ public class SoapOutInterceptor extends AbstractPhaseInterceptor {
             } else {
                 streamCopy(cos.getInputStream(), ops);
             }
-            // Continue the Chain processing
-            message.getInterceptorChain().doIntercept(message);
         } catch (Exception e) {
             soapMessage.put(AbstractWrappedMessage.OUTBOUND_EXCEPTION, e);
+            return;
         }
+        // Continue the Chain processing
+        message.getInterceptorChain().doIntercept(message);
     }
 
     private static void streamCopy(InputStream input, OutputStream output) throws IOException {
