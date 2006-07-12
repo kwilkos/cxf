@@ -1,5 +1,8 @@
 package org.objectweb.celtix.jaxws.handlers;
 
+import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.MessageContext;
+
 import junit.framework.TestCase;
 
 import org.easymock.classextension.IMocksControl;
@@ -9,7 +12,7 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
 
-public class ProtocolHandlerInterceptorTest extends TestCase {
+public class AbstractProtocolHandlerInterceptorTest extends TestCase {
     
     private IMocksControl control;
     private HandlerChainInvoker invoker;
@@ -28,14 +31,32 @@ public class ProtocolHandlerInterceptorTest extends TestCase {
     public void testInterceptSuccess() {
         expect(invoker.invokeProtocolHandlers(true, message)).andReturn(true);
         control.replay();
-        ProtocolHandlerInterceptor pi = new ProtocolHandlerInterceptor(invoker);
+        AbstractProtocolHandlerInterceptor pi = new IIOPHandlerInterceptor(invoker);
         pi.intercept(message);
     }
     
     public void testInterceptFailure() {
         expect(invoker.invokeProtocolHandlers(true, message)).andReturn(false);
         control.replay();
-        ProtocolHandlerInterceptor pi = new ProtocolHandlerInterceptor(invoker);
+        AbstractProtocolHandlerInterceptor pi = new IIOPHandlerInterceptor(invoker);
         pi.intercept(message);  
     }
+    
+    interface IIOPMessageContext extends MessageContext {
+        
+    }
+     
+    interface IIOPHandler<T extends IIOPMessageContext> extends Handler {
+        
+    }
+    
+    class IIOPHandlerInterceptor extends AbstractProtocolHandlerInterceptor {
+
+        IIOPHandlerInterceptor(HandlerChainInvoker i) {
+            super(i);
+        }        
+        
+    }
+    
+    
 }

@@ -41,9 +41,7 @@ public class HandlerChainInvoker {
 
     public HandlerChainInvoker(List<Handler> hc) {
         this(hc, true);
-    } 
-
-   
+    }    
 
     public HandlerChainInvoker(List<Handler> hc, boolean isOutbound) {
         if (LOG.isLoggable(Level.FINE)) {
@@ -62,6 +60,18 @@ public class HandlerChainInvoker {
             }
         }
         outbound = isOutbound;
+    }
+    
+    public List<LogicalHandler> getLogicalHandlers() { 
+        return logicalHandlers;
+    } 
+
+    public List<Handler> getProtocolHandlers() { 
+        return protocolHandlers;
+    }
+
+    public List<? extends Handler> getStreamHandlers() { 
+        return streamHandlers;
     }
 
     public boolean invokeLogicalHandlers(boolean requestor, Message message) { 
@@ -169,18 +179,6 @@ public class HandlerChainInvoker {
 
     List getInvokedHandlers() { 
         return Collections.unmodifiableList(invokedHandlers);
-    }
-
-    public List<LogicalHandler> getLogicalHandlers() { 
-        return logicalHandlers;
-    } 
-
-    List<Handler> getProtocolHandlers() { 
-        return protocolHandlers;
-    }
-
-    List<? extends Handler> getStreamHandlers() { 
-        return streamHandlers;
     }
     
     private <T extends Handler> void invokeClose(List<T> handlers, MessageContext context) {

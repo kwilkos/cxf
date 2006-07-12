@@ -144,6 +144,8 @@
         <saaj.version>1.3</saaj.version>
         <spring.version>1.2.5</spring.version>
         <wsdl4j.version>1.5.2</wsdl4j.version>
+        <derby.version>10.1.1.0</derby.version>
+
 
         <eclipse.workspace.dir>${basedir}/${topDirectoryLocation}/../workspace</eclipse.workspace.dir>
     </properties>

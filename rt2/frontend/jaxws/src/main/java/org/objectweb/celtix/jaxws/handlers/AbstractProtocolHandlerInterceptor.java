@@ -2,9 +2,9 @@ package org.objectweb.celtix.jaxws.handlers;
 
 import org.objectweb.celtix.message.Message;
 
-public class ProtocolHandlerInterceptor extends AbstractJAXWSHandlerInterceptor {
+public abstract class AbstractProtocolHandlerInterceptor extends AbstractJAXWSHandlerInterceptor {
 
-    public ProtocolHandlerInterceptor(HandlerChainInvoker invoker) {
+    protected AbstractProtocolHandlerInterceptor(HandlerChainInvoker invoker) {
         super(invoker);
     }
     

@@ -4,7 +4,7 @@ import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.message.Message;
 
 public abstract class AbstractJAXWSHandlerInterceptor implements Interceptor {
-    HandlerChainInvoker invoker;
+    protected HandlerChainInvoker invoker;
     
     AbstractJAXWSHandlerInterceptor(HandlerChainInvoker i) {
         invoker = i;
