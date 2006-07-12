@@ -17,6 +17,7 @@ import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.servicemodel.BindingInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
 import org.objectweb.celtix.servicemodel.OperationInfo;
+import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class RPCOutInterceptor extends AbstractPhaseInterceptor {
     
@@ -125,21 +126,6 @@ public class RPCOutInterceptor extends AbstractPhaseInterceptor {
         return (String) this.soapMessage.get(MessageContext.WSDL_OPERATION);
     }
 
-    public void writeStartElement(XMLStreamWriter writer, String prefix, String name, String namespace)
-        throws XMLStreamException {
-        if (prefix == null) {
-            prefix = "";
-        }
-
-        if (namespace.length() > 0) {
-            writer.writeStartElement(prefix, name, namespace);
-            writer.writeNamespace(prefix, namespace);
-        } else {
-            writer.writeStartElement(name);
-            writer.writeDefaultNamespace("");
-        }
-    }
-
     protected void addOperationNode() throws XMLStreamException {
         String responseSuffix = isOutboundMessage() ? "Response" : "";
         String namespaceURI = this.bindingInfo.getPort().getService().getTargetNamespace();
@@ -148,8 +134,7 @@ public class RPCOutInterceptor extends AbstractPhaseInterceptor {
 
         String operationName = getOperationName() + responseSuffix;
 
-        // TODO. use the writeStartElement
-        writeStartElement(this.xmlWriter, prefix, operationName, namespaceURI);
+        StaxUtils.writeStartElement(this.xmlWriter, prefix, operationName, namespaceURI);
     }
 
     private XMLStreamWriter getXMLStreamWriter(Message message) {

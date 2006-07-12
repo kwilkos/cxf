@@ -9,6 +9,7 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
 import org.objectweb.celtix.bindings.soap2.SoapMessage;
+import org.objectweb.celtix.bindings.soap2.SoapVersion;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.servicemodel.BindingInfo;
@@ -19,9 +20,6 @@ import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
 import org.objectweb.celtix.staxutils.StaxStreamFilter;
 import org.objectweb.celtix.staxutils.StaxUtils;
         
-import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_BODY;
-import static org.objectweb.celtix.datamodel.soap.SOAPConstants.SOAP_ENV;
-
 public class RPCInterceptor extends AbstractPhaseInterceptor {
     
     private static final String SERVICE_MODEL_BINDING = "service.model.binding";
@@ -32,16 +30,18 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
 
     private DepthXMLStreamReader xmlReader;
 
-    public void intercept(Message message) {
+    private void init(Message message) {
         if (!(message instanceof SoapMessage)) {
             return;
         }
         this.soapMessage = (SoapMessage) message;
         
-        this.xmlReader = getXMLStreamReader(message);
+        this.xmlReader = getXMLStreamReader();
+    }
 
+    private String getOperationName() {
         if (!StaxUtils.toNextElement(this.xmlReader)) {
-            message.put(RPC_INTERCEPTOR_EXCEPTION,
+            this.soapMessage.put(RPC_INTERCEPTOR_EXCEPTION,
                         new RuntimeException("There must be a method name element."));
         }
 
@@ -49,14 +49,24 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
         if (!isInboundMessage() && opName.endsWith("Response")) {
             opName = opName.substring(0, opName.length() - 8);
         }
+        return opName;
+    }
 
-        BindingInfo service = (BindingInfo)message.get(SERVICE_MODEL_BINDING);
+    private OperationInfo getOperation(String opName) {
+        BindingInfo service = (BindingInfo) this.soapMessage.get(SERVICE_MODEL_BINDING);
         OperationInfo operation = service.getOperation(opName);
 
         if (operation == null) {
-            message.put(RPC_INTERCEPTOR_EXCEPTION,
+            this.soapMessage.put(RPC_INTERCEPTOR_EXCEPTION,
                         new RuntimeException("Could not find operation:" + opName));
         }
+        return operation;
+    }
+
+    public void intercept(Message message) {
+        init(message);
+
+        OperationInfo operation = getOperation(getOperationName());
         
         storeOperation(operation);
 
@@ -132,9 +142,11 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
         this.soapMessage.put(MessageContext.WSDL_OPERATION, operation.getName());
     }
     
-    private DepthXMLStreamReader getXMLStreamReader(Message message) {
-        XMLStreamReader xr = StaxUtils.createXMLStreamReader(message.getSource(InputStream.class));
-        StaxStreamFilter filter = new StaxStreamFilter(new QName[]{SOAP_ENV, SOAP_BODY});
+    private DepthXMLStreamReader getXMLStreamReader() {
+        SoapVersion version = this.soapMessage.getVersion();
+        XMLStreamReader xr = StaxUtils.createXMLStreamReader(this.soapMessage.getSource(InputStream.class));
+        StaxStreamFilter filter = new StaxStreamFilter(new QName[]{version.getEnvelope(),
+                                                                   version.getBody()});
         xr = StaxUtils.createFilteredReader(xr, filter);
         return new DepthXMLStreamReader(xr);
     }
