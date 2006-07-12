@@ -43,7 +43,6 @@
             <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>cxf-rt-jaxws</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
