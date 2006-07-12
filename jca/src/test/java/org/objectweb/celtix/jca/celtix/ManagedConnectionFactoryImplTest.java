@@ -208,12 +208,10 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
     public void testMatchManagedConnectionsWithBoundConnections() throws Exception {
 
     
-        Subject subj = new Subject();
-        //NOTE Clean up the current bus instance
-        //Bus.setCurrent(null);
+        Subject subj = new Subject();       
 
         Bus bus = Bus.init();
-        //EasyMock.reset(bus);
+        
         ManagedConnectionFactoryImpl factory = EasyMock.createMock(ManagedConnectionFactoryImpl.class);
         factory.getBus();
         // In ManagedConnectionImpl:
@@ -240,9 +238,11 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertSame("MC1 must be selected.", mci.matchManagedConnections(mcSet, subj, cri), mc1);
         assertSame("MC2 must be selected.", mci.matchManagedConnections(mcSet, subj, cri2), mc2);
         assertNull("No connection must be selected.", mci.matchManagedConnections(mcSet, subj, cri3));
+        bus.shutdown(true);
     }
 
     public void testValidateConnection() throws Exception {
+        // call the no action method
         mci.validateReference(null, null);
     }
 

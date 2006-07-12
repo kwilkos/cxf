@@ -110,7 +110,8 @@ public class ResourceBean implements Serializable {
             throw new ResourceAdapterInternalException(
                 "Configuration validation failed: The CeltixInstallDir property must be specified");
         }
-
+        //NOTE don't check the below properties
+        /* 
         if (getPropsURL(pluginProps.getProperty(CELTIX_CE_URL)) == null) {
             throw new ResourceAdapterInternalException(
                 "Configuration validation failed: CeltixCEURL property must be specified");
@@ -129,7 +130,7 @@ public class ResourceBean implements Serializable {
                      + ", JAASLoginPassword="
                      + pluginProps.getProperty(JAAS_LOGIN_PASSWORD));
          
-        }
+        }*/
     }
 
 }

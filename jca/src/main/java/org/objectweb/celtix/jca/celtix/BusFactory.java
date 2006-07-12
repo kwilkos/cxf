@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -52,13 +51,12 @@ public class BusFactory {
 
     private Bus initBus(ClassLoader loader) throws ResourceException {
         try {
-            Class busClazz = Class.forName(getBusClassName(), true, loader);
-            Class types[] = {String[].class, Hashtable.class};
-            Method method = busClazz.getMethod("init", types);
+            Class busClazz = Class.forName(getBusClassName(), true, loader);            
+            Method method = busClazz.getMethod("init", String[].class);            
             bus = (Bus)method.invoke(null, new Object[] {getBusArgs()});
             LOG.config("initialize complete, bus=" + bus);
         } catch (Exception ex) {
-            throw new ResourceAdapterInternalException("Failed to initialize artix runtime", ex);
+            throw new ResourceAdapterInternalException("Failed to initialize celtix runtime", ex);
         }
 
         return bus;

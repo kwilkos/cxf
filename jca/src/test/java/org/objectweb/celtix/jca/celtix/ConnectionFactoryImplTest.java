@@ -71,7 +71,7 @@ public class ConnectionFactoryImplTest extends TestCase {
         Object o = cf.getConnection(Runnable.class, new URL("file:/tmp/foo"), new QName(""), new QName(""));
         assertNull("got the result (the passed in ConnectionRequestInfo) from out mock manager",
                    o);
-        //EasyMock.verify(mockConnectionManager); 
+        EasyMock.verify(mockConnectionManager); 
     }
 
     public void testGetConnectionWithNoPortReturnsConnectionWithRightManager() throws Exception {

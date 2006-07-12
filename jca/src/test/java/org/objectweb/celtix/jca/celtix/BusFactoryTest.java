@@ -1,7 +1,25 @@
 package org.objectweb.celtix.jca.celtix;
 
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ResourceBundle;
+
+
+import javax.resource.ResourceException;
+import javax.xml.namespace.QName;
+
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
+import org.easymock.classextension.EasyMock;
+import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.jca.celtix.test.DummyBus;
+import org.objectweb.celtix.jca.core.resourceadapter.ResourceAdapterInternalException;
 
 
 public class BusFactoryTest extends TestCase {
@@ -55,50 +73,41 @@ public class BusFactoryTest extends TestCase {
         assertEquals("Wrong Argument. ", args[1],  "a.b.c");        
     }
 
-  /*
     public void testBusInitGetProps() throws Exception {
+        DummyBus.reset();
         System.setProperty("test.bus.class", DummyBus.class.getName());
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-        mcf.setCeltixInstallDir(DummyBus.vobRoot());
-        mcf.setCeltixCEURL(DummyBus.CeltixCEURL);
+        mcf.setCeltixInstallDir(DummyBus.getCeltixHome());
+        //mcf.setCeltixCEURL(DummyBus.CeltixCEURL);
 
-        assertEquals("bus not yet initialized", DummyBus.initializeCount, 0);
+        assertEquals("bus not yet initialized", DummyBus.getInitializeCount(), 0);
 
-        DummyBus.mockInvoke = new MockInvoke() {
-            public Object invoke(Object[] args) throws Exception {
-                assertNotNull("props is not null", args[1]);
-                assertTrue("props is a hashtable", args[1] instanceof Hashtable);
-                DummyBus.initializeCount = 100;
-                return null;
-            }
-        };
-
+        
         BusFactory busFactory = new BusFactory(mcf);
         busFactory.create(null, null);
 
-        assertEquals("bus initialized ", DummyBus.initializeCount, 100);
+        assertEquals("bus initialized ", DummyBus.getInitializeCount(), 1);
+       
     }
 
     public void testInitBusThrowsException() throws Exception {
+        DummyBus.reset();
         System.setProperty("test.bus.class", DummyBus.class.getName());
-        final Exception thrown = new org.omg.CORBA.INITIALIZE("DummyBus testThrowException");
+        final Exception thrown = new BusException(new Message("tested bus exception!", 
+                                                              (ResourceBundle)null, new Object[]{}));
 
         ClassLoader originalCl = Thread.currentThread().getContextClassLoader();
         try {
             ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-            mcf.setCeltixInstallDir(DummyBus.vobRoot());
-            mcf.setCeltixCEURL(DummyBus.CeltixCEURL);
+            mcf.setCeltixInstallDir(DummyBus.getCeltixHome());
+           // mcf.setCeltixCEURL(DummyBus.CeltixCEURL);
             BusFactory busFactory = new BusFactory(mcf);
 
             // do this for MockObject creation
             Thread.currentThread().setContextClassLoader(busFactory.getClass().getClassLoader());
-
-            Class dummyBusClass = Class.forName(DummyBus.class.getName(), true, busFactory.getClass()
-                .getClassLoader());
-            Field initializeCount = dummyBusClass.getField("initializeCount");
-            Field dummyBusInvoke = dummyBusClass.getField("mockInvoke");
-            dummyBusInvoke.set(null, thrown);
-
+            DummyBus.setThrowException(true);
+            
+                       
             try {
                 busFactory.create(null, null);
                 fail("did not get expected resource exception");
@@ -107,7 +116,7 @@ public class BusFactoryTest extends TestCase {
                 assertEquals("cause is expected type", thrown.getClass(), re.getCause().getClass());
             }
 
-            assertEquals("init was called once", 1, initializeCount.getInt(null));
+            assertEquals("init was called once", 1, DummyBus.getInitializeCount());
 
         } finally {
             Thread.currentThread().setContextClassLoader(originalCl);
@@ -115,12 +124,13 @@ public class BusFactoryTest extends TestCase {
     }
 
     public void testInitBusSetsThreadContextClassLoader() throws Exception {
+        DummyBus.reset();
         System.setProperty("test.bus.class", DummyBus.class.getName());
         ClassLoader originalCl = Thread.currentThread().getContextClassLoader();
         try {
             ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-            mcf.setCeltixInstallDir(DummyBus.vobRoot());
-            mcf.setCeltixCEURL(DummyBus.CeltixCEURL);
+            mcf.setCeltixInstallDir(DummyBus.getCeltixHome());
+            //mcf.setCeltixCEURL(DummyBus.CeltixCEURL);
             BusFactory busFactory = new BusFactory(mcf);
 
             // do this for MockObject creation
@@ -133,12 +143,9 @@ public class BusFactoryTest extends TestCase {
 
             busFactory.create(null, null);
 
-            // do some checks
-            Field initializeCount = dummyBusClass.getField("initializeCount");
-            Field correctClassLoader = dummyBusClass.getField("correctThreadContextClassLoader");
-
-            assertEquals("init was called once", 1, initializeCount.getInt(null));
-            assertTrue("loader is correct in init", correctClassLoader.getBoolean(null));
+         
+            assertEquals("init was called once", 1, DummyBus.getInitializeCount());
+            assertTrue("loader is correct in init", DummyBus.isCorrectThreadContextClassLoader());
 
         } finally {
             Thread.currentThread().setContextClassLoader(originalCl);
@@ -146,24 +153,26 @@ public class BusFactoryTest extends TestCase {
     }
 
     // service strings to qname localparts
-    static final Object[][] ejbServantServicePropsTestStrings = 
-        new Object[][] {{"serviceName", new QName("serviceName")},
-                        {"a/b", new QName("a/b")},
-                        {"{http://somenamespace}serviceName,portName",
-                            new QName("http://somenamespace", "serviceName")},
-                        {"{http://addd}n,portName@http://a",
-                            new QName("http://addd", "n")},
-                        {"{http://somenamespace}serviceName@file:/a/b/wsdl.wsdl",
-                            new QName("http://somenamespace", "serviceName")},
-                        {"{http://somenamespace}serviceName@http://a?param=1",
-                            new QName("http://somenamespace", "serviceName")}};
+   
 
     public void testValidQNameFromString() throws Exception {
+        final Object[][] ejbServantServicePorpsTestStrings =
+            new Object[][] {{"serviceName", new QName("serviceName")},
+                            {"a/b", new QName("a/b")},
+                            {"{http://somenamespace}serviceName,portName",
+                                new QName("http://somenamespace", "serviceName")},
+                            {"{http://addd}n,portName@http://a",
+                                new QName("http://addd", "n")},
+                            {"{http://somenamespace}serviceName@file:/a/b/wsdl.wsdl",
+                                new QName("http://somenamespace", "serviceName")},
+                            {"{http://somenamespace}serviceName@http://a?param=1",
+                                new QName("http://somenamespace", "serviceName")}};
+        
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         BusFactory busFactory = new BusFactory(mcf);
-        for (int i = 0; i < ejbServantServicePropsTestStrings.length; i++) {
-            String val = (String)ejbServantServicePropsTestStrings[i][0];
-            QName expected = (QName)ejbServantServicePropsTestStrings[i][1];
+        for (int i = 0; i < ejbServantServicePorpsTestStrings.length; i++) {
+            String val = (String)ejbServantServicePorpsTestStrings[i][0];
+            QName expected = (QName)ejbServantServicePorpsTestStrings[i][1];
 
             assertEquals("correct qname from mapping for " + val, expected, busFactory
                 .serviceQNameFromString(val));
@@ -181,17 +190,18 @@ public class BusFactoryTest extends TestCase {
         }
     }
 
-    // service strings to wsdl urls
-    static final String[][] ejbServantServicePropsTestStringsWsdlLoc = 
-        new String[][] {{"serviceName", null},
-                        {"a/b", null},
-                        {"{http://somenamespace}serviceName", null},
-                        {"{http://somenamespace}serviceName,portName@file:/a/b/wsdl.wsdl", 
-                            "file:/a/b/wsdl.wsdl"},
-                        {"{http://somenamespace}serviceName,portName@http://a?param=1",
-                            "http://a?param=1"}};
+    
 
     public void testWsdlLocFromString() throws Exception {
+        //service strings to wsdl urls
+        final String[][] ejbServantServicePropsTestStringsWsdlLoc = 
+            new String[][] {{"serviceName", null},
+                            {"a/b", null},
+                            {"{http://somenamespace}serviceName", null},
+                            {"{http://somenamespace}serviceName,portName@file:/a/b/wsdl.wsdl", 
+                                "file:/a/b/wsdl.wsdl"},
+                            {"{http://somenamespace}serviceName,portName@http://a?param=1",
+                                "http://a?param=1"}};
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         BusFactory busFactory = new BusFactory(mcf);
         for (int i = 0; i < ejbServantServicePropsTestStringsWsdlLoc.length; i++) {
@@ -203,17 +213,18 @@ public class BusFactoryTest extends TestCase {
         }
     }
 
-    // service strings to portName
-    static final String[][] ejbServantServicePropsTestStringsPortName = 
-        new String[][] {{"serviceName", null},
-                        {"a/b", null},
-                        {"{http://somenamespace}serviceName", null},
-                        {"{http://somenamespace}serviceName,portName1@file:/a/b/wsdl.wsdl",
-                            "portName1"},
-                        {"{http://somenamespace}serviceName,portName2@http://a?param=1", 
-                            "portName2"}};
-
+    
     public void testPortNameFromString() throws Exception {
+        //service strings to portName
+        final String[][] ejbServantServicePropsTestStringsPortName = 
+            new String[][] {{"serviceName", null},
+                            {"a/b", null},
+                            {"{http://somenamespace}serviceName", null},
+                            {"{http://somenamespace}serviceName,portName1@file:/a/b/wsdl.wsdl",
+                                "portName1"},
+                            {"{http://somenamespace}serviceName,portName2@http://a?param=1", 
+                                "portName2"}};
+
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         BusFactory busFactory = new BusFactory(mcf);
         for (int i = 0; i < ejbServantServicePropsTestStringsPortName.length; i++) {
@@ -266,11 +277,11 @@ public class BusFactoryTest extends TestCase {
 
     public void testInvalidMonitorConfigNoPropsURL() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-        mcf.setMonitorEJBServiceProperties(new Boolean(true));
+        mcf.setMonitorEJBServiceProperties(Boolean.TRUE);
         BusFactory busFactory = new BusFactory(mcf);
         try {
-            MockObject mockBus = MockObjectFactory.create(Bus.class);
-            busFactory.setBus((Bus)mockBus);
+            Bus mockBus = EasyMock.createMock(Bus.class);
+            busFactory.setBus(mockBus);
             busFactory.initialiseServants();
             fail("exception expected");
         } catch (ResourceAdapterInternalException re) {
@@ -278,24 +289,25 @@ public class BusFactoryTest extends TestCase {
                 .indexOf("EJBServicePropertiesURL is not set") != -1);
         }
     }
-
+    
+    /*
     public void testInitServants() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-        mcf.setEJBServicePropertiesURL(urlPrefix + DummyBus.vobRoot()
-                                       + "/test/unit/com/iona/jca/Celtix/ejb_servants.properties");
+        //get resource 
+        URL propFile = getClass().getResource("ejb_servants.properties");
+        mcf.setEJBServicePropertiesURL(propFile.toString());
         BusFactory busFactory = new BusFactory(mcf);
-        MockObject mockBus = MockObjectFactory.create(Bus.class);
+        Bus mockBus = EasyMock.createMock(Bus.class);
 
         busFactory.setBus((Bus)mockBus);
         busFactory.initialiseServants();
-        assertEquals("called twice", 2, mockBus.getCallCount("registerServant", new Class[] {Servant.class,
-                                                                                             QName.class}));
+        
     }
 
     public void testAddServantsCache() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         BusFactory busFactory = new BusFactory(mcf);
-        Bus mockBus = (Bus)MockObjectFactory.create(Bus.class);
+        Bus mockBus = EasyMock.createMock(Bus.class);
         Properties props = new Properties();
         props.put("jndiName", "{http://com.iona}serviceName,portName@file:///");
         assertTrue("there's no registered servants at beginning", busFactory.getRegisteredServants()
@@ -478,8 +490,9 @@ public class BusFactoryTest extends TestCase {
     }
 
     public void testPropertiesMonitorThread() throws Exception {
-        File origFile = new File(DummyBus.vobRoot() 
-                                 + "/test/unit/com/iona/jca/Celtix/ejb_servants.properties");
+        FileChannel in, out;
+        URL propFile = getClass().getResource("ejb_servants.properties");
+        File origFile = new File(propFile.toString());
         File tmpFile = File.createTempFile("anyname", "properties");
         File tmpDir = tmpFile.getParentFile();
 
@@ -492,20 +505,21 @@ public class BusFactoryTest extends TestCase {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         mcf.setEJBServicePropertiesURL(testFile.toURI().toURL().toString());
         BusFactory busFactory = new BusFactory(mcf);
-        MockObject mockBus = MockObjectFactory.create(Bus.class);
+        Bus mockBus = EasyMock.createMock(Bus.class);
         busFactory.setBus((Bus)mockBus);
 
         BusFactory.EJBServicePropertiesMonitorRunnable propsRunnable = 
             busFactory.new EJBServicePropertiesMonitorRunnable(10);
         propsRunnable.setContinue(false);
         propsRunnable.run();
-        assertEquals("not called ", 0, mockBus.getCallCount("registerServant", new Class[] {Servant.class,
-                                                                                            QName.class}));
+        //need to rewrite
+        //assertEquals("not called ", 0, mockBus.getCallCount("registerServant", new Class[] {Servant.class,
+                                                                                           // QName.class}));
 
         testFile.createNewFile();
         assertTrue("file exist", testFile.exists());
 
-        FileChannel in, out;
+        
         try {
             in = new FileInputStream(origFile).getChannel();
             out = new FileOutputStream(testFile).getChannel();
@@ -579,7 +593,7 @@ public class BusFactoryTest extends TestCase {
                                                                                             QName.class}));
     }
 
-    public void testInitServantsWithBootstrapContextNotNull() throws Exception {
+   public void testInitServantsWithBootstrapContextNotNull() throws Exception {
         System.setProperty("test.bus.class", DummyBus.class.getName());
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         mcf.setCeltixInstallDir(DummyBus.vobRoot());
@@ -605,7 +619,7 @@ public class BusFactoryTest extends TestCase {
         assertTrue("XAResource not registered", !BusFactory.resourceRegistered);
         busFactory.registerXAResource();
         assertTrue("XAResource not registered", !BusFactory.resourceRegistered);
-    }
+    }*/
 
   
    
@@ -615,7 +629,7 @@ public class BusFactoryTest extends TestCase {
 
     public static void main(String[] args) {
         TestRunner.main(new String[] {BusFactoryTest.class.getName()});
-    }*/
+    }
 }
 
 
