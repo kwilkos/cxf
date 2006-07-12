@@ -19,7 +19,7 @@
     </properties>
 
     <modules>
-        <!--module>databinding/jaxb</module-->
+        <module>databinding/jaxb</module>
         <module>frontend/jaxws</module>
         <module>bindings</module>
     </modules>
