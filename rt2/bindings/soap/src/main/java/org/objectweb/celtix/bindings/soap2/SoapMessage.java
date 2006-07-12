@@ -3,6 +3,8 @@ package org.objectweb.celtix.bindings.soap2;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.ws.soap.SOAPBinding;
+
 import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Message;
 
@@ -13,6 +15,8 @@ public class SoapMessage extends AbstractWrappedMessage {
     private Map<Class, Object> headers = new HashMap<Class, Object>(); 
     
     private SoapVersion version;
+    
+    private SOAPBinding soapBinding;
     
     public SoapMessage(Message message) {
         super(message);
@@ -34,4 +38,8 @@ public class SoapMessage extends AbstractWrappedMessage {
         headers.put(format, content);
     }
   
+    
+    public SOAPBinding getSOAPBinding() {
+        return soapBinding;
+    }
 }

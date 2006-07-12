@@ -13,9 +13,6 @@ import org.objectweb.celtix.interceptors.InterceptorChain;
  * @author Dan
  */
 public abstract class AbstractWrappedMessage implements Message {
-
-    public static final String INBOUND_EXCEPTION = "INBOUND_EXCEPTION";
-    public static final String OUTBOUND_EXCEPTION = "OUTBOUND_EXCEPTION";
     
     private Message message;
 

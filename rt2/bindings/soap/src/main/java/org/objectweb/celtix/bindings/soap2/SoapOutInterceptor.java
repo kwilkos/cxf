@@ -16,7 +16,6 @@ import org.w3c.dom.Text;
 
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.CachedOutputStream;
-import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Attachment;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
@@ -58,7 +57,7 @@ public class SoapOutInterceptor extends AbstractPhaseInterceptor {
                 streamCopy(cos.getInputStream(), ops);
             }
         } catch (Exception e) {
-            soapMessage.put(AbstractWrappedMessage.OUTBOUND_EXCEPTION, e);
+            soapMessage.put(Message.OUTBOUND_EXCEPTION, e);
             return;
         }
         // Continue the Chain processing

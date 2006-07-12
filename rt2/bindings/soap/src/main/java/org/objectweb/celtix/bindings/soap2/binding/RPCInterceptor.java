@@ -8,11 +8,11 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
+import org.objectweb.celtix.bindings.soap2.ServiceModelUtil;
 import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.bindings.soap2.SoapVersion;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
-import org.objectweb.celtix.servicemodel.BindingInfo;
 import org.objectweb.celtix.servicemodel.MessageInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
 import org.objectweb.celtix.servicemodel.OperationInfo;
@@ -21,8 +21,7 @@ import org.objectweb.celtix.staxutils.StaxStreamFilter;
 import org.objectweb.celtix.staxutils.StaxUtils;
         
 public class RPCInterceptor extends AbstractPhaseInterceptor {
-    
-    private static final String SERVICE_MODEL_BINDING = "service.model.binding";
+        
     private static final String RPC_INTERCEPTOR_EXCEPTION = "rpc.interceptor.exception";
     private static final String INBOUND_MESSAGE = "message.inbound";
     
@@ -53,9 +52,7 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
     }
 
     private OperationInfo getOperation(String opName) {
-        BindingInfo service = (BindingInfo) this.soapMessage.get(SERVICE_MODEL_BINDING);
-        OperationInfo operation = service.getOperation(opName);
-
+        OperationInfo operation = ServiceModelUtil.getOperation(this.soapMessage, opName);
         if (operation == null) {
             this.soapMessage.put(RPC_INTERCEPTOR_EXCEPTION,
                         new RuntimeException("Could not find operation:" + opName));

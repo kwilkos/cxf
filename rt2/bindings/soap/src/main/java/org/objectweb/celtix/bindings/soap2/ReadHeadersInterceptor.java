@@ -15,12 +15,9 @@ import javax.xml.ws.WebServiceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.staxutils.StaxUtils;
-
-
 
 public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {
 
@@ -35,7 +32,7 @@ public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {
             init();
             process();
         } catch (Exception e) {
-            message.put(AbstractWrappedMessage.INBOUND_EXCEPTION, e);
+            message.put(Message.INBOUND_EXCEPTION, e);
             return;
         }
         // continue interceptor chain processing
