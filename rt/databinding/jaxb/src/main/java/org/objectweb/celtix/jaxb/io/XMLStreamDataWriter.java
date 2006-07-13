@@ -27,6 +27,9 @@ public class XMLStreamDataWriter<T> implements DataWriter<T> {
     }
     
     public void writeWrapper(ObjectMessageContext objCtx, boolean isOutBound, T output) {
-        // TODO.
+        Object obj = callback.createWrapperType(objCtx, isOutBound);
+        QName elName = isOutBound ? callback.getResponseWrapperQName()
+                         : callback.getRequestWrapperQName();
+        write(obj, elName, output);
     }
 }

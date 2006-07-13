@@ -16,6 +16,7 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.bindings.DataWriter;
+import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
@@ -26,14 +27,14 @@ import org.objectweb.hello_world_soap_http.Greeter;
 public class XMLStreamDataWriterTest extends TestCase {
 
     private ByteArrayOutputStream baos;
-    private XMLStreamWriter evntWriter;
+    private XMLStreamWriter streamWriter;
     private XMLInputFactory inFactory;
 
     public void setUp() throws Exception {
         baos =  new ByteArrayOutputStream();
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        evntWriter = factory.createXMLStreamWriter(baos);
-        assertNotNull(evntWriter);
+        streamWriter = factory.createXMLStreamWriter(baos);
+        assertNotNull(streamWriter);
         inFactory = XMLInputFactory.newInstance();
     }
 
@@ -55,8 +56,8 @@ public class XMLStreamDataWriterTest extends TestCase {
         QName elName = new QName(wp.targetNamespace(), 
                                  wp.name());
         
-        dw.write(val, elName, evntWriter);
-        evntWriter.flush();
+        dw.write(val, elName, streamWriter);
+        streamWriter.flush();
 
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
         XMLStreamReader xr = inFactory.createXMLStreamReader(bais);
@@ -65,6 +66,74 @@ public class XMLStreamDataWriterTest extends TestCase {
         assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "requestType"),
                      reader.getName());
 
+        StaxUtils.nextEvent(reader);
+        StaxUtils.toNextText(reader);
+        assertEquals("TESTOUTPUTMESSAGE", reader.getText());
+    }
+
+    public void testWriteWrapper() throws Exception {
+        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(Greeter.class);
+        Method m = TestUtil.getMethod(Greeter.class, "greetMe");
+        JAXBDataBindingCallback cb = 
+            new JAXBDataBindingCallback(m, Mode.PARTS, ctx);
+        
+        DataWriter<XMLStreamWriter> dw = cb.createWriter(XMLStreamWriter.class);
+        assertNotNull(dw);
+
+        String val = new String("TESTOUTPUTMESSAGE");
+        
+        ObjectMessageContextImpl objCtx = new ObjectMessageContextImpl();
+        objCtx.setMessageObjects(new Object[] {val});
+        
+        dw.writeWrapper(objCtx, false, streamWriter);
+        streamWriter.flush();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        XMLStreamReader xr = inFactory.createXMLStreamReader(bais);
+        DepthXMLStreamReader reader = new DepthXMLStreamReader(xr);
+        StaxUtils.toNextElement(reader);
+        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe"),
+                     reader.getName());
+
+        StaxUtils.nextEvent(reader);
+        StaxUtils.toNextElement(reader);
+        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "requestType"),
+                     reader.getName());
+        
+        StaxUtils.nextEvent(reader);
+        StaxUtils.toNextText(reader);
+        assertEquals("TESTOUTPUTMESSAGE", reader.getText());
+    }
+
+    public void testWriteWrapperReturn() throws Exception {
+        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(Greeter.class);
+        Method m = TestUtil.getMethod(Greeter.class, "greetMe");
+        JAXBDataBindingCallback cb = 
+            new JAXBDataBindingCallback(m, Mode.PARTS, ctx);
+        
+        DataWriter<XMLStreamWriter> dw = cb.createWriter(XMLStreamWriter.class);
+        assertNotNull(dw);
+
+        String retVal = new String("TESTOUTPUTMESSAGE");
+        
+        ObjectMessageContextImpl objCtx = new ObjectMessageContextImpl();
+        objCtx.setReturn(retVal);
+        
+        dw.writeWrapper(objCtx, true, streamWriter);
+        streamWriter.flush();
+        
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        XMLStreamReader xr = inFactory.createXMLStreamReader(bais);
+        DepthXMLStreamReader reader = new DepthXMLStreamReader(xr);
+        StaxUtils.toNextElement(reader);
+        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "greetMeResponse"),
+                     reader.getName());
+
+        StaxUtils.nextEvent(reader);
+        StaxUtils.toNextElement(reader);
+        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "responseType"),
+                     reader.getName());
+        
         StaxUtils.nextEvent(reader);
         StaxUtils.toNextText(reader);
         assertEquals("TESTOUTPUTMESSAGE", reader.getText());

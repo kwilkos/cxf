@@ -14,6 +14,7 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
 import org.objectweb.celtix.bindings.DataReader;
+import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.datamodel.soap.SOAPConstants;
 import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
@@ -26,13 +27,9 @@ public class XMLStreamDataReaderTest extends TestCase {
     private XMLInputFactory factory;
     private XMLStreamReader reader;
     private InputStream is;
-
+    
     public void setUp() throws Exception {
-        is =  getClass().getResourceAsStream("../resources/GreetMeDocLiteralReq.xml");
-        assertNotNull(is);
         factory = XMLInputFactory.newInstance();
-        reader = factory.createXMLStreamReader(is);
-        assertNotNull(reader);
     }
 
     public void tearDown() throws IOException {
@@ -40,17 +37,16 @@ public class XMLStreamDataReaderTest extends TestCase {
     }
 
     public void testRead() throws Exception {
-        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(Greeter.class);
-        Method m = TestUtil.getMethod(Greeter.class, "greetMe");
-        JAXBDataBindingCallback cb = 
-            new JAXBDataBindingCallback(m, Mode.PARTS, ctx);
+        JAXBDataBindingCallback cb = getTestCallback();
 
         QName[] tags = {SOAPConstants.SOAP_ENV, 
                         SOAPConstants.SOAP_BODY,
                         cb.getRequestWrapperQName()};
+
+        reader = getTestReader("../resources/GreetMeDocLiteralReq.xml");
+        assertNotNull(reader);
         
-        StaxStreamFilter filter = new StaxStreamFilter(tags);
-        XMLStreamReader localReader = factory.createFilteredReader(reader, filter);
+        XMLStreamReader localReader = getTestFilteredReader(reader, tags);
 
         WebParam param = cb.getWebParam(0);
         QName elName = new QName(param.targetNamespace(),
@@ -62,5 +58,75 @@ public class XMLStreamDataReaderTest extends TestCase {
         assertNotNull(val);
         assertTrue(val instanceof String);
         assertEquals("TestSOAPInputPMessage", (String)val);
+    }
+
+    public void testReadWrapper() throws Exception {
+        JAXBDataBindingCallback cb = getTestCallback();
+
+        QName[] tags = {SOAPConstants.SOAP_ENV, 
+                        SOAPConstants.SOAP_BODY};
+
+        reader = getTestReader("../resources/GreetMeDocLiteralReq.xml");
+        assertNotNull(reader);
+        
+        XMLStreamReader localReader = getTestFilteredReader(reader, tags);
+
+        DataReader<XMLStreamReader> dr = cb.createReader(XMLStreamReader.class);
+        assertNotNull(dr);
+        
+        ObjectMessageContextImpl objCtx = new ObjectMessageContextImpl();
+        objCtx.setMessageObjects(new Object[1]);
+        
+        dr.readWrapper(objCtx, false, localReader);
+        
+        Object[] methodArgs = objCtx.getMessageObjects();
+        assertEquals(1, methodArgs.length);
+        assertTrue(methodArgs[0] instanceof String);
+        assertEquals("TestSOAPInputPMessage", (String)methodArgs[0]);
+    }
+
+    public void testReadWrapperReturn() throws Exception {
+        JAXBDataBindingCallback cb = getTestCallback();
+
+        QName[] tags = {SOAPConstants.SOAP_ENV, 
+                        SOAPConstants.SOAP_BODY};
+
+        reader = getTestReader("../resources/GreetMeDocLiteralResp.xml");
+        assertNotNull(reader);
+        XMLStreamReader localReader = getTestFilteredReader(reader, tags);
+
+        DataReader<XMLStreamReader> dr = cb.createReader(XMLStreamReader.class);
+        assertNotNull(dr);
+        
+        ObjectMessageContextImpl objCtx = new ObjectMessageContextImpl();
+        objCtx.setMessageObjects(new Object[1]);
+        
+        dr.readWrapper(objCtx, true, localReader);
+        
+        Object retValue = objCtx.getReturn();
+        assertNotNull(retValue);
+        assertTrue(retValue instanceof String);
+        assertEquals("TestSOAPOutputPMessage", (String)retValue);
+    }
+
+    private JAXBDataBindingCallback getTestCallback() throws Exception {
+        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(Greeter.class);
+        Method m = TestUtil.getMethod(Greeter.class, "greetMe");
+        return new JAXBDataBindingCallback(m, Mode.PARTS, ctx);
+    }
+
+    private XMLStreamReader getTestFilteredReader(XMLStreamReader r, QName[] q) throws Exception {
+        StaxStreamFilter filter = new StaxStreamFilter(q);
+        return factory.createFilteredReader(r, filter);
+    }
+
+    private XMLStreamReader getTestReader(String resource) throws Exception {
+        is = getTestStream(resource);
+        assertNotNull(is);
+        return factory.createXMLStreamReader(is);
+    }
+
+    private InputStream getTestStream(String resource) {
+        return getClass().getResourceAsStream(resource);
     }
 }
