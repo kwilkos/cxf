@@ -196,6 +196,10 @@ public class ServiceImpl extends ServiceDelegate {
         LOG.fine("loading handler chain for service");
         assert handlerResolver != null;
         PortInfoImpl portInfo = new PortInfoImpl(serviceName, portName, null);
+        if (serviceEndpointInterface != null) {
+            ((HandlerResolverImpl)handlerResolver).setServiceEndpointInterfaceClassLoader(
+                serviceEndpointInterface.getClassLoader());
+        }
         List<Handler> handlers = handlerResolver.getHandlerChain(portInfo);
         if (null != serviceEndpointInterface) {
             AnnotationHandlerChainBuilder handlerChainBuilder = new AnnotationHandlerChainBuilder();

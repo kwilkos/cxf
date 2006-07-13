@@ -21,6 +21,7 @@ public class HandlerResolverImpl implements HandlerResolver {
     private final Map<PortInfo, List<Handler>> handlerMap = new HashMap<PortInfo, List<Handler>>();
     private Configuration busConfiguration;
     private QName service;
+    private ClassLoader serviceEndpointInterfaceClassLoader;
 
     public HandlerResolverImpl(Configuration pBusConfiguration, QName pService) {
         this.busConfiguration = pBusConfiguration;
@@ -55,6 +56,7 @@ public class HandlerResolverImpl implements HandlerResolver {
         }
         if (null != portConfiguration) {
             HandlerChainBuilder builder = new HandlerChainBuilder();
+            builder.setHandlerClassLoader(serviceEndpointInterfaceClassLoader);
             HandlerChainType hc = (HandlerChainType)portConfiguration.getObject("handlerChain");
             chain = builder.buildHandlerChainFromConfiguration(hc);
         }
@@ -62,5 +64,13 @@ public class HandlerResolverImpl implements HandlerResolver {
             chain = new ArrayList<Handler>();
         }
         return chain;
+    }
+
+    public ClassLoader getServiceEndpointInterfaceClassLoader() {
+        return serviceEndpointInterfaceClassLoader;
+    }
+
+    public void setServiceEndpointInterfaceClassLoader(ClassLoader classLoader) {
+        this.serviceEndpointInterfaceClassLoader = classLoader;
     }
 }
