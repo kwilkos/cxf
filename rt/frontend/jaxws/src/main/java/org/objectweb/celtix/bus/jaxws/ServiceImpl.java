@@ -199,6 +199,7 @@ public class ServiceImpl extends ServiceDelegate {
         List<Handler> handlers = handlerResolver.getHandlerChain(portInfo);
         if (null != serviceEndpointInterface) {
             AnnotationHandlerChainBuilder handlerChainBuilder = new AnnotationHandlerChainBuilder();
+            handlerChainBuilder.setHandlerClassLoader(serviceEndpointInterface.getClassLoader());
             handlers = handlerChainBuilder.buildHandlerChainFor(serviceEndpointInterface, handlers);
         }
         binding.setHandlerChain(handlers);
@@ -270,6 +271,7 @@ public class ServiceImpl extends ServiceDelegate {
         portCfg = cb.getConfiguration(PORT_CONFIGURATION_URI, id,
                                       bus.getConfiguration());
         if (null == portCfg) {
+            LOG.info("the configuration for port is null, will build configuration");
             portCfg = cb.buildConfiguration(PORT_CONFIGURATION_URI, id, bus.getConfiguration());
         }
 

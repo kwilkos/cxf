@@ -2,7 +2,6 @@ package org.objectweb.celtix.jbi.se;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,6 +13,7 @@ import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.ws.WebServiceClient;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -53,17 +53,10 @@ public class CeltixServiceUnit {
     
     public CeltixServiceUnit(Bus b, String path, ComponentClassLoader parent) {
         
-        URL url = null; 
-        try { 
-            url = new File(path + File.separator).toURL();
-            
-        } catch (MalformedURLException ex) {
-            LOG.log(Level.SEVERE, new Message("SU.FAILED.INIT", LOG).toString(), ex);
-        } 
         bus = b;
         rootPath = path;
-        parent.addResource(url);
         parentLoader = parent;
+          
         parseJbiDescriptor(); 
     }
     
@@ -85,8 +78,11 @@ public class CeltixServiceUnit {
     }
     
     public void start(ComponentContext ctx, CeltixServiceUnitManager serviceUnitManager) {
+        ClassLoader oldLoader = null;
         if (isServiceProvider()) { 
             LOG.fine(new Message("SU.START.PROVIDER", LOG).toString());
+            oldLoader = Thread.currentThread().getContextClassLoader();
+            Thread.currentThread().setContextClassLoader(serviceImplementation.getClass().getClassLoader());
             ref = null;
             try {
                 ref = ctx.activateEndpoint(getServiceName(), getEndpointName());
@@ -96,10 +92,13 @@ public class CeltixServiceUnit {
             LOG.fine("activated endpoint: " + ref.getEndpointName() 
                      + " service: " + ref.getServiceName());
             serviceUnitManager.putServiceEndpoint(ref, this);
-            
+            Thread.currentThread().setContextClassLoader(oldLoader);
         } else {
             LOG.fine(new Message("SU.START.CONSUMER", LOG).toString());
+            oldLoader = Thread.currentThread().getContextClassLoader();
+            Thread.currentThread().setContextClassLoader(serviceConsumer.getClass().getClassLoader());
             new Thread(serviceConsumer).start();
+            Thread.currentThread().setContextClassLoader(oldLoader);
         }
     }
     
@@ -114,19 +113,18 @@ public class CeltixServiceUnit {
             }
             ret = serviceName;
         } else {
-            WebService ws;
+            WebServiceClient ws;
             WebServiceClassFinder finder = new WebServiceClassFinder(rootPath, parentLoader);
             Collection<Class<?>> classes = null;
             try {
-                classes = finder.findWebServiceInterface();
+                classes = finder.findWebServiceClient();
             } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOG.severe("Exception Caught:" + e);
             } 
             if (classes.size() > 0) {
                 Class<?> clz = classes.iterator().next();
-                ws = clz.getAnnotation(WebService.class);
-                serviceName = new QName(ws.targetNamespace(), ws.serviceName());
+                ws = clz.getAnnotation(WebServiceClient.class);
+                serviceName = new QName(ws.targetNamespace(), ws.name());
                 ret = serviceName;
             }
         }
@@ -140,6 +138,7 @@ public class CeltixServiceUnit {
     public void prepare(ComponentContext ctx) { 
         
         try { 
+            
             WebServiceClassFinder finder = new WebServiceClassFinder(rootPath, parentLoader);
             Collection<Class<?>> classes = finder.findWebServiceClasses(); 
             if (classes.size() > 0) {
@@ -149,11 +148,13 @@ public class CeltixServiceUnit {
                 serviceImplementation = clz.newInstance();
                 if (EndpointUtils.isValidImplementor(serviceImplementation)) {
                     createProviderConfiguration();
-                    
+                    ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
+                    Thread.currentThread().setContextClassLoader(
+                        serviceImplementation.getClass().getClassLoader());
                     endpoint = new EndpointImpl(bus, serviceImplementation, null);
                     //dummy endpoint to publish on
                     endpoint.publish("http://foo/bar/baz");
-                    
+                    Thread.currentThread().setContextClassLoader(oldLoader);
                 }
                 
             } else {
@@ -299,9 +300,11 @@ public class CeltixServiceUnit {
             return;
         }
         String id = getServiceName().toString() + "/" + getEndpointName();
+        LOG.info("the client bean id is " + id);
         ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
         cb.buildConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, id, busCfg);
         System.setProperty("celtix.config.file", oldConfiguration);
     }
 
+    
 }

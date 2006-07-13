@@ -115,9 +115,10 @@ public class LogicalMessageImpl implements LogicalMessage {
     }
 
 
-    private Object createWrapperInstance(String className) { 
+    private Object createWrapperInstance(String className) {
+        Class<?> wrapperClass = null;
         try {
-            Class<?> wrapperClass = Class.forName(className, true, 
+            wrapperClass = Class.forName(className, true, 
                                                   LogicalMessageContextImpl.class.getClassLoader());
             return wrapperClass.newInstance();
         } catch (IllegalAccessException ex) {
@@ -125,7 +126,16 @@ public class LogicalMessageImpl implements LogicalMessage {
         } catch (InstantiationException ex) {
             LOG.log(Level.SEVERE, "WRAPPER_INSTANTIATION_FAILURE_MSG", ex); 
         } catch (ClassNotFoundException ex) {
-            LOG.log(Level.SEVERE, "WRAPPER_LOAD_FAILURE_MSG", ex); 
+            try {
+                wrapperClass = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
+                return wrapperClass.newInstance();
+            } catch (ClassNotFoundException e) {
+                LOG.log(Level.SEVERE, "WRAPPER_LOAD_FAILURE_MSG", e);
+            } catch (InstantiationException e) {
+                LOG.log(Level.SEVERE, "WRAPPER_INSTANTIATION_FAILURE_MSG", e);
+            } catch (IllegalAccessException e) {
+                LOG.log(Level.SEVERE, "WRAPPER_MISSING_DEFAULT_CTOR_MSG", e);
+            }
         }
         // should never get here, I think
         assert false : "unable to create wrappper " + className;

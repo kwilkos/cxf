@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.jws.WebService;
+import javax.xml.ws.WebServiceClient;
 
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -59,6 +60,16 @@ public class WebServiceClassFinder {
             }
         });
     }
+    
+    public Collection<Class<?>> findWebServiceClient() throws MalformedURLException {
+
+        return find(new Matcher() {
+            public boolean accept(Class<?> clz) {
+                return clz.getAnnotation(WebServiceClient.class) != null;
+            }
+        });
+    }
+
 
     private Collection<Class<?>> find(Matcher matcher) throws MalformedURLException {
         List<Class<?>> classes = new ArrayList<Class<?>>();

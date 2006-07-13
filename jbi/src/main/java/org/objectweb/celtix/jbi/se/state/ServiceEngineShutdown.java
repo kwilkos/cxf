@@ -96,7 +96,7 @@ public class ServiceEngineShutdown extends AbstractServiceEngineStateMachine {
                 }
             });
             URL[] urls;
-            if (jars.length == 0) {
+            if (jars == null || jars.length == 0) {
                 urls = new URL[0];
             } else {
                 urls = new URL[jars.length];

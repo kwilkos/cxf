@@ -158,7 +158,7 @@ public class JBIServerTransport implements ServerTransport {
                         ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
                         
                         try { 
-                            Thread.currentThread().setContextClassLoader(csu.getClassLoader());
+                            //Thread.currentThread().setContextClassLoader(csu.getClassLoader());
                             if (csu != null) { 
                                 LOG.fine(new Message("DISPATCH.TO.SU", LOG).toString());
                                 dispatch(exchange, callback);

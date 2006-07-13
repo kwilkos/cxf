@@ -84,13 +84,9 @@ public class HandlerChainBuilder {
     
     //will add container class loader configuration item later
     protected ClassLoader getHandlerClassLoader() {
-        //return getClass().getClassLoader();
-        LOG.info("getHandlerClassLoader is called");
         if (handlerLoader != null) {
-            LOG.info("get the class loader we set");
             return handlerLoader;
         } else {
-            LOG.info("get the class loader which is not set by us");
             return getClass().getClassLoader();
         }
     }
