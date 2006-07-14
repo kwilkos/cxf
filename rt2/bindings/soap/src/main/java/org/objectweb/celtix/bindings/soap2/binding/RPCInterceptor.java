@@ -13,9 +13,9 @@ import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.bindings.soap2.SoapVersion;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.objectweb.celtix.servicemodel.BindingOperationInfo;
 import org.objectweb.celtix.servicemodel.MessageInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
-import org.objectweb.celtix.servicemodel.OperationInfo;
 import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
 import org.objectweb.celtix.staxutils.StaxStreamFilter;
 import org.objectweb.celtix.staxutils.StaxUtils;
@@ -51,8 +51,8 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
         return opName;
     }
 
-    private OperationInfo getOperation(String opName) {
-        OperationInfo operation = ServiceModelUtil.getOperation(this.soapMessage, opName);
+    private BindingOperationInfo getOperation(String opName) {
+        BindingOperationInfo operation = ServiceModelUtil.getOperation(this.soapMessage, opName);
         if (operation == null) {
             this.soapMessage.put(RPC_INTERCEPTOR_EXCEPTION,
                         new RuntimeException("Could not find operation:" + opName));
@@ -63,16 +63,16 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
     public void handleMessage(Message message) {
         init(message);
 
-        OperationInfo operation = getOperation(getOperationName());
+        BindingOperationInfo operation = getOperation(getOperationName());
         
         storeOperation(operation);
 
         MessageInfo msg;
         if (isInboundMessage()) {
-            msg = operation.getInput();
+            msg = operation.getInput().getMessageInfo();
         } else {
-            msg = operation.getOutput();
-            if (msg.getMessageParts().size() > 0 && !msg.getMessageParts().get(0).isHeader()) {
+            msg = operation.getOutput().getMessageInfo();
+            if (msg.getMessageParts().size() > 0) {
                 StaxUtils.nextEvent(this.xmlReader);
                 StaxUtils.toNextElement(this.xmlReader);
                 Object retVal = getDataReader().read(msg.getMessageParts().get(0).getName(),
@@ -135,7 +135,7 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
     }
 
 
-    protected void storeOperation(OperationInfo operation) {
+    protected void storeOperation(BindingOperationInfo operation) {
         this.soapMessage.put(MessageContext.WSDL_OPERATION, operation.getName());
     }
     

@@ -8,13 +8,13 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.soap2.TestBase;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.servicemodel.BindingInfo;
+import org.objectweb.celtix.servicemodel.BindingOperationInfo;
 import org.objectweb.celtix.servicemodel.MessageInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
-import org.objectweb.celtix.servicemodel.OperationInfo;
 import org.objectweb.celtix.servicemodel.ServiceInfo;
 import org.objectweb.hello_world_soap_http.Greeter;
 
-public class WrapperInterceptorTest extends TestBase {
+public abstract class AbstractWrapperInterceptorTest extends TestBase {
 
     ObjectMessageContextImpl objCtx;
     
@@ -64,13 +64,13 @@ public class WrapperInterceptorTest extends TestBase {
         ServiceInfo service = getTestService(Greeter.class);
         assertNotNull(service);
         
-        BindingInfo binding = service.getPort("GreeterPort").getBinding();
+        BindingInfo binding = service.getEndpoint("GreeterPort").getBinding();
         assertNotNull(binding);
-        OperationInfo op = binding.getOperation("greetMe");
+        BindingOperationInfo op = binding.getOperation("greetMe");
         assertNotNull(op);
-        assertEquals(1, op.getInput().size());
-        assertEquals(1, op.getOutput().size());
-        MessageInfo msg = op.getInput();
+        assertEquals(1, op.getInput().getMessageInfo().size());
+        assertEquals(1, op.getOutput().getMessageInfo().size());
+        MessageInfo msg = op.getInput().getMessageInfo();
         assertEquals(1, msg.getMessageParts().size());
         MessagePartInfo part = msg.getMessageParts().get(0);
         assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "requestType"),

@@ -25,7 +25,7 @@ public abstract class Bus {
     private static Map<String, WeakReference<Bus>> nameMap = 
         new ConcurrentHashMap<String, WeakReference<Bus>>();
     private static Bus defaultBus; 
-    private static Map<String, Object> registry;
+    private Map<String, Object> registry;
     
     /**
      * Returns a newly created and fully initialised <code>Bus</code>.

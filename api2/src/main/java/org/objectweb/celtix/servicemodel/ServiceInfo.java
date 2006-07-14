@@ -1,19 +1,25 @@
 package org.objectweb.celtix.servicemodel;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bindings.BindingFactory;
+
 
 public class ServiceInfo extends AbstractPropertiesHolder {
+    Bus bus;
     QName name;
-    Map<String, PortInfo> portMap = new HashMap<String, PortInfo>(2);
     String targetNamespace;
-
+    InterfaceInfo intf;
+    Map<QName, BindingInfo> bindings = new ConcurrentHashMap<QName, BindingInfo>(2);
+    Map<String, EndpointInfo> endpoints = new ConcurrentHashMap<String, EndpointInfo>(2);
     
-    public ServiceInfo() {
-        
+    public ServiceInfo(Bus b) {
+        bus = b;
     }
     
     public String getTargetNamespace() {
@@ -30,22 +36,47 @@ public class ServiceInfo extends AbstractPropertiesHolder {
         return name;
     }
     
-    public PortInfo createPort(String q) {
-        PortInfo pi = new PortInfo(q, this);
-        addPort(pi);
-        return pi;
+    public InterfaceInfo createInterface(QName qn) {
+        intf = new InterfaceInfo(this, qn);
+        return intf;
+    }
+    public void setInterface(InterfaceInfo inf) {
+        intf = inf;
+    }
+    public InterfaceInfo getInterface() {
+        return intf;
     }
     
-    public void addPort(PortInfo pi) {
-        if (portMap.containsKey(pi.getName())) {
-            throw new IllegalStateException("Already contains port named " + pi.getName());
+    public BindingInfo createBinding(QName qn, String ns) {
+        BindingInfo bi = null;
+        try {
+            BindingFactory factory = bus.getBindingManager().getBindingFactory(ns);
+            if (factory != null) {
+                bi = factory.createBindingInfo(this);
+            }
+        } catch (BusException e) {
+            //ignore, we'll use a generic BindingInfo
         }
-        portMap.put(pi.getName(), pi);
+        if (bi == null) {
+            bi = new BindingInfo(this);
+        }
+        bi.setName(qn);
+        addBinding(bi);
+        return bi;
     }
-    
-    public PortInfo getPort(String q) {
-        return portMap.get(q);
+    public BindingInfo getBinding(QName qn) {
+        return bindings.get(qn);
     }
+    public void addBinding(BindingInfo binding) {
+        bindings.put(binding.getName(), binding);
+    }
+    public EndpointInfo getEndpoint(String qn) {
+        return endpoints.get(qn);
+    }
+    public void addEndpoint(EndpointInfo ep) {
+        endpoints.put(ep.getName(), ep);
+    }
+
     
 
 }

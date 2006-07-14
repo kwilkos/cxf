@@ -7,15 +7,15 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.soap2.TestBase;
 import org.objectweb.celtix.servicemodel.BindingInfo;
+import org.objectweb.celtix.servicemodel.BindingOperationInfo;
 import org.objectweb.celtix.servicemodel.MessageInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
-import org.objectweb.celtix.servicemodel.OperationInfo;
 import org.objectweb.celtix.servicemodel.ServiceInfo;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
 
 
-public class RPCInterceptorTest extends TestBase {
+public abstract class AbstractRPCInterceptorTest extends TestBase {
 
     
     public void setUp() throws Exception {
@@ -63,13 +63,13 @@ public class RPCInterceptorTest extends TestBase {
         ServiceInfo service = getTestService(GreeterRPCLit.class);
         assertNotNull(service);
         
-        BindingInfo binding = service.getPort("GreeterRPCLitPort").getBinding();
+        BindingInfo binding = service.getEndpoint("GreeterRPCLitPort").getBinding();
         assertNotNull(binding);
-        OperationInfo op = binding.getOperation("sendReceiveData");
+        BindingOperationInfo op = binding.getOperation("sendReceiveData");
         assertNotNull(op);
-        assertEquals(1, op.getInput().size());
-        assertEquals(1, op.getOutput().size());
-        MessageInfo msg = op.getInput();
+        assertEquals(1, op.getInput().getMessageInfo().size());
+        assertEquals(1, op.getOutput().getMessageInfo().size());
+        MessageInfo msg = op.getInput().getMessageInfo();
         assertEquals(1, msg.getMessageParts().size());
         MessagePartInfo part = msg.getMessageParts().get(0);
         assertEquals(new QName("in"), part.getName());

@@ -3,53 +3,60 @@ package org.objectweb.celtix.servicemodel;
 import javax.xml.namespace.QName;
 
 public final class MessagePartInfo extends AbstractPropertiesHolder {
-    private QName name;
-    private String pname;
+    private QName pname;
     private AbstractMessageContainer mInfo;
-    private boolean header;
-    private boolean inOut;
+    
+    private boolean isElement;
+    private QName typeName;
 
     MessagePartInfo(QName n, AbstractMessageContainer info) {
         mInfo = info;
-        name = n;
+        pname = n;
     }
 
     /**
      * @return Returns the name.
      */
     public QName getName() {
-        return name;
+        return pname;
     }
     /**
      * @param name The name to set.
      */
     public void setName(QName n) {
-        name = n;
-    }
-    
-    public String getPartName() {
-        return pname;
-    }
-    public void setPartName(String n) {
         pname = n;
     }
-
+    
+    public boolean isElement() { 
+        return isElement;
+    }
+    public void setIsElement(boolean b) {
+        isElement = b;
+    }
+    
+    public QName getElementQName() {
+        if (isElement) {
+            return typeName; 
+        }
+        return null;
+    }
+    public QName getTypeQName() {
+        if (!isElement) {
+            return typeName; 
+        }
+        return null;
+    }
+    public void setTypeQName(QName qn) {
+        isElement = false;
+        typeName = qn;
+    }
+    public void setElementQName(QName qn) {
+        isElement = false;
+        typeName = qn;
+    }
+    
     public AbstractMessageContainer getMessageInfo() {
         return mInfo;
     }
-    
-    public boolean isHeader() {
-        return header;
-    }
-    public void setHeader(boolean b) {
-        header = b;
-    }
 
-    public boolean isInOut() {
-        return inOut;
-    }
-    
-    public void setInOut(boolean b) {
-        inOut = b;
-    }
 }

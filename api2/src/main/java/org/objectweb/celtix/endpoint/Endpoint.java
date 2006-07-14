@@ -3,7 +3,6 @@ package org.objectweb.celtix.endpoint;
 import java.util.concurrent.Executor;
 
 import org.objectweb.celtix.bindings.Binding;
-import org.objectweb.celtix.servicemodel.PortInfo;
 
 public interface Endpoint {
    
@@ -13,6 +12,5 @@ public interface Endpoint {
     
     Executor getExecutor();
     
-    PortInfo getPortInfo();
   
 }

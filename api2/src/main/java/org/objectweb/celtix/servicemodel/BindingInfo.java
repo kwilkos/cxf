@@ -7,24 +7,26 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 
-public final class BindingInfo extends AbstractPropertiesHolder {
+public class BindingInfo extends AbstractPropertiesHolder {
     QName name;
-    PortInfo port;
+    ServiceInfo service;
+    
+    Map<String, BindingOperationInfo> operations = new ConcurrentHashMap<String, BindingOperationInfo>(4);
     
     Invoker invoker;
-    Map<String, OperationInfo> operations = new ConcurrentHashMap<String, OperationInfo>(4);
-    boolean rpc;
     DataReaderFactory readerFactory;
     DataWriterFactory writerFactory;
     
     
-    public BindingInfo(PortInfo info, QName q) {
-        name = q;
-        port = info;
+    public BindingInfo(ServiceInfo serv) {
+        service = serv;
     }
     
-    public PortInfo getPort() {
-        return port;
+    public InterfaceInfo getInterface() {
+        return service.getInterface();
+    }
+    public ServiceInfo getService() {
+        return service;
     }
     
     public void setName(QName n) {
@@ -34,32 +36,20 @@ public final class BindingInfo extends AbstractPropertiesHolder {
         return name;
     }
     
-    public boolean isDefaultRPC() {
-        return rpc;
-    }
-    public void setDefaultRPC(boolean b) {
-        rpc = b;
-    }
     
-    
-    /**
-     * Adds an operation to this service.
-     *
-     * @param name the qualified name of the operation.
-     * @return the operation.
-     */
-    public OperationInfo addOperation(String oname) {
-        if ((oname == null) || (oname.length() == 0)) {
-            throw new IllegalArgumentException("Invalid name [" + oname + "]");
+    private boolean nameEquals(String a, String b) {
+        return "".equals(a) ? "".equals(b) : a.equals(b);
+    }
+    public BindingOperationInfo buildOperation(String opName, String inName, String outName) {
+        for (OperationInfo op : getInterface().getOperations()) {
+            if (opName.equals(op.getName())
+                && nameEquals(inName, op.getInputName())
+                && nameEquals(outName, op.getOutputName())) {
+                
+                return new BindingOperationInfo(this, op);
+            }
         }
-        if (operations.containsKey(oname)) {
-            throw new IllegalArgumentException("An operation with name [" + oname
-                                               + "] already exists in this service");
-        }
-
-        OperationInfo operation = new OperationInfo(this, oname);
-        addOperation(operation);
-        return operation;
+        return null;
     }
 
     /**
@@ -67,7 +57,14 @@ public final class BindingInfo extends AbstractPropertiesHolder {
      *
      * @param operation the operation.
      */
-    void addOperation(OperationInfo operation) {
+    public void addOperation(BindingOperationInfo operation) {
+        if ((operation.getName() == null) || (operation.getName().length() == 0)) {
+            throw new IllegalArgumentException("Invalid name [" + operation.getName() + "]");
+        }
+        if (operations.containsKey(operation.getName())) {
+            throw new IllegalArgumentException("An operation with name [" + operation.getName()
+                                               + "] already exists in this service");
+        }
         operations.put(operation.getName(), operation);
     }
 
@@ -77,7 +74,7 @@ public final class BindingInfo extends AbstractPropertiesHolder {
      * @param name the name.
      * @return the operation; or <code>null</code> if not found.
      */
-    public OperationInfo getOperation(String oname) {
+    public BindingOperationInfo getOperation(String oname) {
         return operations.get(oname);
     }
 
@@ -86,7 +83,7 @@ public final class BindingInfo extends AbstractPropertiesHolder {
      *
      * @return all operations.
      */
-    public Collection<OperationInfo> getOperations() {
+    public Collection<BindingOperationInfo> getOperations() {
         return Collections.unmodifiableCollection(operations.values());
     }   
     
@@ -113,8 +110,6 @@ public final class BindingInfo extends AbstractPropertiesHolder {
     public void setDefaultWriterFactory(DataWriterFactory wf) {
         writerFactory = wf;
     }
-    
-    
     
 }
 

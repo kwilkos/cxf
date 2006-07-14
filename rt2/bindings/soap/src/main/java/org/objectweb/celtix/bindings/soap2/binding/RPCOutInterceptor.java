@@ -5,7 +5,6 @@ import java.util.*;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.ws.Holder;
 import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataWriter;
@@ -15,8 +14,8 @@ import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.servicemodel.BindingInfo;
+import org.objectweb.celtix.servicemodel.BindingOperationInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
-import org.objectweb.celtix.servicemodel.OperationInfo;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class RPCOutInterceptor extends AbstractPhaseInterceptor {
@@ -54,7 +53,7 @@ public class RPCOutInterceptor extends AbstractPhaseInterceptor {
             
             addOperationNode();
 
-            OperationInfo operation = this.bindingInfo.getOperation(getOperationName());
+            BindingOperationInfo operation = this.bindingInfo.getOperation(getOperationName());
             
             if (isOutboundMessage()) {
                 addReturnPart(operation);
@@ -70,31 +69,31 @@ public class RPCOutInterceptor extends AbstractPhaseInterceptor {
         message.getInterceptorChain().doIntercept(message);
     }
 
-    private void addReturnPart(OperationInfo operation) {
-        MessagePartInfo ret = operation.getOutput().getMessageParts().get(0);
-        if (ret != null && !ret.isHeader()) {
+    private void addReturnPart(BindingOperationInfo operation) {
+        MessagePartInfo ret = operation.getOutput().getMessageInfo().getMessageParts().get(0);
+        if (ret != null) {
             getDataWriter().write(this.soapMessage.get("RETURN"), ret.getName(), this.xmlWriter);
         }
     }
 
-    private void addParts(OperationInfo operation) {
-        int noArgs = operation.getInput().size();
+    private void addParts(BindingOperationInfo operation) {
+        int noArgs = operation.getInput().getMessageInfo().size();
 
         List<?> parts = (List<?>)this.soapMessage.get("PARAMETERS");
         Object[] args = parts.toArray();
         
         for (int idx = 0; idx < noArgs; idx++) {
-            MessagePartInfo part = operation.getInput().getMessageParts().get(idx);
-            if (!part.isHeader()) {
-                Object partValue = args[idx];
-                if (part.isInOut()) {
-                    partValue = ((Holder)args[idx]).value;
-                }
-                
-                getDataWriter().write(partValue,
-                                      part.getName(),
-                                      this.xmlWriter);
+            MessagePartInfo part = operation.getInput().getMessageInfo().getMessageParts().get(idx);
+            Object partValue = args[idx];
+            /*
+            if (part.isInOut()) {
+                partValue = ((Holder)args[idx]).value;
             }
+            */
+            
+            getDataWriter().write(partValue,
+                                  part.getName(),
+                                  this.xmlWriter);
         }
     }
 
@@ -128,7 +127,7 @@ public class RPCOutInterceptor extends AbstractPhaseInterceptor {
 
     protected void addOperationNode() throws XMLStreamException {
         String responseSuffix = isOutboundMessage() ? "Response" : "";
-        String namespaceURI = this.bindingInfo.getPort().getService().getTargetNamespace();
+        String namespaceURI = this.bindingInfo.getService().getTargetNamespace();
         nsStack.add(namespaceURI);
         String prefix = nsStack.getPrefix(namespaceURI);
 

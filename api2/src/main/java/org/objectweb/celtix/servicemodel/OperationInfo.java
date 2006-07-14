@@ -12,22 +12,17 @@ import javax.xml.namespace.QName;
  */
 public final class OperationInfo extends AbstractPropertiesHolder {
     
-    final BindingInfo service;
+    final InterfaceInfo intf;
     String opName;
     
+    String inName;
     MessageInfo inputMessage;
+    String outName;
     MessageInfo outputMessage;
     Map<String, FaultInfo> faults;
     
-    boolean rpc;
-    String action = "";
-
-    DataReaderFactory readerFactory;
-    DataWriterFactory writerFactory;
-    Invoker invoker;
-    
-    OperationInfo(BindingInfo serv, String n) { 
-        service = serv;
+    OperationInfo(InterfaceInfo it, String n) { 
+        intf = it;
         setName(n);
     }
     
@@ -48,23 +43,10 @@ public final class OperationInfo extends AbstractPropertiesHolder {
         }        
         opName = name;
     }
-    
+    public InterfaceInfo getInterface() {
+        return intf;
+    }
 
-    public boolean isRPC() {
-        return rpc;
-    }
-    public void setRPC(boolean b) {
-        rpc = b;
-    }
-    
-
-    public String getSOAPAction() {
-        return action;
-    }
-    public void setSOAPAction(String s) {
-        action = s;
-    }
-    
     
     public MessageInfo createMessage(QName nm) {
         return new MessageInfo(this, nm);
@@ -73,7 +55,11 @@ public final class OperationInfo extends AbstractPropertiesHolder {
     public MessageInfo getOutput() {
         return outputMessage;
     }
-    public void setOutput(MessageInfo out) {
+    public String getOutputName() {
+        return outName;
+    }
+    public void setOutput(String nm, MessageInfo out) {
+        outName = nm;
         outputMessage = out;
     }    
     public boolean hasOutput() {
@@ -83,7 +69,11 @@ public final class OperationInfo extends AbstractPropertiesHolder {
     public MessageInfo getInput() {
         return inputMessage;
     }
-    public void setInput(MessageInfo in) {
+    public String getInputName() {
+        return inName;
+    }
+    public void setInput(String nm, MessageInfo in) {
+        inName = nm;
         inputMessage = in;
     }
     public boolean hasInput() {
@@ -161,34 +151,4 @@ public final class OperationInfo extends AbstractPropertiesHolder {
         return Collections.unmodifiableCollection(faults.values());
     }
     
-    
-    public Invoker getInvoker() {
-        if (invoker == null) {
-            return service.getDefaultInvoker();
-        }
-        return invoker;
-    }
-    public void setInvoker(Invoker i) {
-        invoker = i;
-    }
-    
-    public DataReaderFactory getReaderFactory() {
-        if (readerFactory == null) {
-            return service.getDefaultReaderFactory();
-        }
-        return readerFactory;
-    }
-    public void setReaderFactory(DataReaderFactory rf) {
-        readerFactory = rf;
-    }
-    public DataWriterFactory getWriterFactory() {
-        if (writerFactory == null) {
-            return service.getDefaultWriterFactory();
-        }
-        return writerFactory;
-    }
-    public void setWriterFactory(DataWriterFactory wf) {
-        writerFactory = wf;
-    }
-
 }
