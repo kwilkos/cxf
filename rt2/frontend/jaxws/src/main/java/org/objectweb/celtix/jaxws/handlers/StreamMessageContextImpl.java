@@ -2,7 +2,10 @@ package org.objectweb.celtix.jaxws.handlers;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.jaxws.context.WrappedMessageContext;
 import org.objectweb.celtix.message.Message;
 
@@ -20,39 +23,35 @@ import org.objectweb.celtix.message.Message;
 public class StreamMessageContextImpl extends WrappedMessageContext 
     implements StreamMessageContext {
 
+    private static final Logger LOG = 
+        LogUtils.getL7dLogger(StreamMessageContextImpl.class);
+    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
+    
     public StreamMessageContextImpl(Message m) { 
         super(m); 
     }
 
     public InputStream getInputStream() {   
-        // Message m = getWrappedMessage();
-        InputStream is = null;
-        // TODO: get input stream from message
+        InputStream is = getWrappedMessage().getSource(InputStream.class);
         if (is == null) { 
-            throw new IllegalStateException("Context intialised for OutputStream");
+            throw new IllegalStateException(BUNDLE.getString("NO_INPUT_STREAM_EXC"));
         }
         return is;
     } 
 
-    public void setInputStream(InputStream in) { 
-        // Message m = getWrappedMessage();
-        // replace input stream in message with this one or else
-        throw new IllegalStateException("Context intialised for OutputStream");
+    public void setInputStream(InputStream is) { 
+        getWrappedMessage().setSource(InputStream.class, is);
     } 
 
     public OutputStream getOutputStream() { 
-        // Message m = getWrappedMessage();
-        OutputStream os = null;
-        // TODO: get output stream from message
+        OutputStream os =  getWrappedMessage().getSource(OutputStream.class);
         if (os == null) { 
-            throw new IllegalStateException("Context intialised for InputStream");
+            throw new IllegalStateException(BUNDLE.getString("NO_OUTPUT_STREAM_EXC"));
         }
         return os;
     } 
 
-    public void setOutputStream(OutputStream out) { 
-        // Message m = getWrappedMessage();
-        // replace output stream in message with this one or else 
-        throw new IllegalStateException("Context intialised for InputStream");
+    public void setOutputStream(OutputStream os) { 
+        getWrappedMessage().setSource(OutputStream.class, os);
     } 
 }

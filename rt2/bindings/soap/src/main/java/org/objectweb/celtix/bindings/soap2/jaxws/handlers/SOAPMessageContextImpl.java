@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.handlers.soap;
+package org.objectweb.celtix.bindings.soap2.jaxws.handlers;
 
 import java.util.Set;
 
