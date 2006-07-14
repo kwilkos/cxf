@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.objectweb.celtix.interceptors.Interceptor;
+import org.objectweb.celtix.message.Message;
 
 /**
  * A phase interceptor participates in a PhaseInterceptorChain.
@@ -51,5 +52,7 @@ public abstract class AbstractPhaseInterceptor implements Interceptor {
     }
     public void setPhase(String p) {
         this.phase = p;
+    }
+    public void handleFault(Message message)  {      
     }
 }

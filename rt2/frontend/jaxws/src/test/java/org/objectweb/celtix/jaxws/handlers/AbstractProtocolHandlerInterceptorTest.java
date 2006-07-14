@@ -32,14 +32,14 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
         expect(invoker.invokeProtocolHandlers(true, message)).andReturn(true);
         control.replay();
         AbstractProtocolHandlerInterceptor pi = new IIOPHandlerInterceptor(invoker);
-        pi.intercept(message);
+        pi.handleMessage(message);
     }
     
     public void testInterceptFailure() {
         expect(invoker.invokeProtocolHandlers(true, message)).andReturn(false);
         control.replay();
         AbstractProtocolHandlerInterceptor pi = new IIOPHandlerInterceptor(invoker);
-        pi.intercept(message);  
+        pi.handleMessage(message);  
     }
     
     interface IIOPMessageContext extends MessageContext {

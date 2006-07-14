@@ -8,7 +8,11 @@ public abstract class AbstractProtocolHandlerInterceptor extends AbstractJAXWSHa
         super(invoker);
     }
     
-    public void intercept(Message message) {
+    public void handleMessage(Message message) {
         invoker.invokeProtocolHandlers(isRequestor(message), message);            
+    }
+    
+    public void handleFault(Message message) {
+        
     }
 }

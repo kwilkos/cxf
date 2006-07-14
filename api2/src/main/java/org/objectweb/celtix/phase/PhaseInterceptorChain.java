@@ -106,7 +106,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
             }
         }
 
-        currentInterceptor.intercept(message);
+        currentInterceptor.handleMessage(message);
     }
 
     private boolean setupPhase(int phaseIndex) {

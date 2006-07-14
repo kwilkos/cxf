@@ -28,7 +28,7 @@ public class SoapOutInterceptor extends AbstractPhaseInterceptor {
     private SoapMessage soapMessage;
     private XMLStreamWriter xtw;
 
-    public void intercept(Message message) {
+    public void handleMessage(Message message) {
         // Create XML Stream Writer from Output Stream setted by
         // TransportOutInterceptor
         soapMessage = (SoapMessage)message;

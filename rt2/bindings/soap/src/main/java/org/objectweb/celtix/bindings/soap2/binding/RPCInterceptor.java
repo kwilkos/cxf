@@ -60,7 +60,7 @@ public class RPCInterceptor extends AbstractPhaseInterceptor {
         return operation;
     }
 
-    public void intercept(Message message) {
+    public void handleMessage(Message message) {
         init(message);
 
         OperationInfo operation = getOperation(getOperationName());

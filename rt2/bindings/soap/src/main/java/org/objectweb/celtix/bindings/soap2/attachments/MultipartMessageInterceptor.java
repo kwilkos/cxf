@@ -47,7 +47,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
      * 
      * @param messageParam
      */
-    public void intercept(Message messageParam) {
+    public void handleMessage(Message messageParam) {
         // processing message if its multi-part/form-related
         try {
             this.message = (AbstractWrappedMessage)messageParam;

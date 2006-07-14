@@ -9,7 +9,7 @@ import org.objectweb.celtix.message.Message;
 
 public class GZipOutInterceptor implements Interceptor {
 
-    public void intercept(Message message) {
+    public void handleMessage(Message message) {
         try {
             message.getInterceptorChain().doIntercept(message);
 
@@ -20,6 +20,10 @@ public class GZipOutInterceptor implements Interceptor {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+    
+    public void handleFault(Message message) {
+        
     }
 
 }

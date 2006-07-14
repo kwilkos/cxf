@@ -19,7 +19,7 @@ public class MustUnderstandInterceptor extends AbstractPhaseInterceptor {
     private Set<QName> mustUnderstandQNames;
     private Set<String> serviceRoles;
     
-    public void intercept(Message message) {
+    public void handleMessage(Message message) {
 
         // TODO Auto-generated method stub
         soapMessage = (SoapMessage)message;

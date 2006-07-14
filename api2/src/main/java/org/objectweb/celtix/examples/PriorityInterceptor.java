@@ -7,7 +7,7 @@ import org.objectweb.celtix.message.Message;
 
 public class PriorityInterceptor implements Interceptor {
 
-    public void intercept(final Message message) {
+    public void handleMessage(final Message message) {
         Runnable runnable = new Runnable() {
             public void run() {
                 message.getInterceptorChain().doIntercept(message);
@@ -19,6 +19,10 @@ public class PriorityInterceptor implements Interceptor {
         } else {
             getLowPrioirityExectutor().execute(runnable);
         }
+    }
+    
+    public void handleFault(Message message) {
+        
     }
 
     private boolean isHighPriority(Message message) {

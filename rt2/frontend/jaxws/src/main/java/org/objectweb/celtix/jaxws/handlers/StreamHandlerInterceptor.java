@@ -8,7 +8,13 @@ public class StreamHandlerInterceptor extends AbstractJAXWSHandlerInterceptor {
         super(invoker);
     }
 
-    public void intercept(Message message) {
+    public void handleMessage(Message message) {
         invoker.invokeStreamHandlers(message);
     } 
+    
+    public void handleFault(Message message) {
+        
+    }
+    
+    
 }

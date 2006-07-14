@@ -29,13 +29,13 @@ public class StreamHandlerInterceptorTest extends TestCase {
         expect(invoker.invokeStreamHandlers(message)).andReturn(true);
         control.replay();
         StreamHandlerInterceptor si = new StreamHandlerInterceptor(invoker);
-        si.intercept(message);
+        si.handleMessage(message);
     }
     
     public void testInterceptFailure() {
         expect(invoker.invokeStreamHandlers(message)).andReturn(false);
         control.replay();
         StreamHandlerInterceptor si = new StreamHandlerInterceptor(invoker);
-        si.intercept(message); 
+        si.handleMessage(message); 
     }
 }

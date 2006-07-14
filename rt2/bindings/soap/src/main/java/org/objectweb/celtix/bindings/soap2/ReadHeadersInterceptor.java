@@ -25,7 +25,7 @@ public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {
     private XMLStreamReader xmlReader;
     private Document doc;
 
-    public void intercept(Message messageParam) {
+    public void handleMessage(Message messageParam) {
         // TODO Auto-generated method stub
         this.message = (SoapMessage)messageParam;
         try {

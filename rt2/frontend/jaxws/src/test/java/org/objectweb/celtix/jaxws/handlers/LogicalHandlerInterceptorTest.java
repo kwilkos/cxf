@@ -30,14 +30,14 @@ public class LogicalHandlerInterceptorTest extends TestCase {
         expect(invoker.invokeLogicalHandlers(true, message)).andReturn(true);
         control.replay();
         LogicalHandlerInterceptor li = new LogicalHandlerInterceptor(invoker);
-        li.intercept(message);
+        li.handleMessage(message);
     }
     
     public void testInterceptFailure() {
         expect(invoker.invokeLogicalHandlers(true, message)).andReturn(false);
         control.replay();
         LogicalHandlerInterceptor li = new LogicalHandlerInterceptor(invoker);
-        li.intercept(message);   
+        li.handleMessage(message);   
     }
     
     public void testOnCompletion() {

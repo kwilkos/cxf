@@ -100,7 +100,7 @@ public class PhaseInterceptorChainTest extends TestCase {
             setPhase("phase1");
         }
 
-        public void intercept(Message message) {
+        public void handleMessage(Message message) {
             invoked++;
             message.getInterceptorChain().doIntercept(message);
         }
@@ -112,7 +112,7 @@ public class PhaseInterceptorChainTest extends TestCase {
             setPhase("phase2");
         }
 
-        public void intercept(Message message) {
+        public void handleMessage(Message message) {
             invoked++;
         }
     }

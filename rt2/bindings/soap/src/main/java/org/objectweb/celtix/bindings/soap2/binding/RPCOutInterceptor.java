@@ -48,7 +48,7 @@ public class RPCOutInterceptor extends AbstractPhaseInterceptor {
         this.xmlWriter.close();
     }
 
-    public void intercept(Message message) {
+    public void handleMessage(Message message) {
         try {
             init(message);
             
