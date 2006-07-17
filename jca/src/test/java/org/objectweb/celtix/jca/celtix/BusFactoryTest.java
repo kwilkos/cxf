@@ -2,10 +2,15 @@ package org.objectweb.celtix.jca.celtix;
 
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Properties;
 import java.util.ResourceBundle;
-
 
 import javax.resource.ResourceException;
 import javax.xml.namespace.QName;
@@ -24,29 +29,18 @@ import org.objectweb.celtix.jca.celtix.test.DummyBus;
 import org.objectweb.celtix.jca.core.resourceadapter.ResourceAdapterInternalException;
 
 public class BusFactoryTest extends TestCase {
-
-    //private String urlPrefix;
-
+   
     public BusFactoryTest(String name) {
         super(name);
     }
 
-    /*
-    public void setUp() throws Exception {
-       
-        urlPrefix = "file://";
-        if (System.getProperty("os.name").startsWith("Win")) {
-            urlPrefix = "file:/";
-        }
-    }
-    */
-
+   
     public void testSetAppserverClassLoader() {
         ClassLoader loader = new DummyClassLoader();
         BusFactory bf = new BusFactory(new ManagedConnectionFactoryImpl());
         bf.setAppserverClassLoader(loader);
         assertSame("Checking appserverClassLoader.", loader, bf.getAppserverClassLoader());
-    }
+    } 
 
     // Not a real test, just exercise the code, if classpath contains a vaild
     // license then fine, otherwise expect an exception to indicate it cannot be
@@ -291,8 +285,8 @@ public class BusFactoryTest extends TestCase {
         }
     }
     
-    /*
-    public void testInitServants() throws Exception {
+    
+    /*public void testInitServants() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         //get resource 
         URL propFile = getClass().getResource("ejb_servants.properties");
@@ -303,54 +297,57 @@ public class BusFactoryTest extends TestCase {
         busFactory.setBus((Bus)mockBus);
         busFactory.initialiseServants();
         
-    }
-    */
+    }*/
+    
     public void testAddServantsCache() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         BusFactory busFactory = new BusFactory(mcf);
-        //Bus mockBus = EasyMock.createMock(Bus.class);
-        Bus mockBus = Bus.init();
+        Bus bus = Bus.init();
 
         Properties props = new Properties();
         String wsdlLocation =
             this.getClass().getResource("resources/hello_world.wsdl").toString();
-        //        props.put("jndiName",
-        //"{http://objectweb.org/hello_world_soap_http}serviceName,portName@" + wsdlLocation);
+       
         props.put("jndiName", "{http://objectweb.org/hello_world_soap_http}SOAPService@"
                   + wsdlLocation);
 
         assertTrue("there's no registered servants at beginning", busFactory.getRegisteredServants()
             .isEmpty());
-        busFactory.setBus(mockBus);
+        busFactory.setBus(bus);
         busFactory.initialiseServantsFromProperties(props, true);
+       
+        javax.xml.ws.Endpoint ep = (javax.xml.ws.Endpoint) busFactory.getRegisteredServants().get(0);
+              
         assertTrue("registered servant with the expected service name", ((Endpoint)busFactory
             .getRegisteredServants().get(0)).isPublished());
-        busFactory.deregisterServants(mockBus);
+        ep.stop();
+        busFactory.deregisterServants(bus);
+
         assertTrue("servants should be deregistered", busFactory.getRegisteredServants().isEmpty());
+        bus.shutdown(true);
     }
-    /*
+
+    
     public void testInitServantsFromPropertiesWithPortName() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         BusFactory busFactory = new BusFactory(mcf);
-        MockObject mockBus = MockObjectFactory.create(Bus.class);
-        busFactory.setBus((Bus)mockBus);
+        Bus mockBus = EasyMock.createMock(Bus.class);
+        busFactory.setBus(mockBus);
         Properties props = new Properties();
-        props.put("jndiName", "{http://com.iona}serviceName,portName@file:///");
-        busFactory.initialiseServantsFromProperties(props, true);
-        assertEquals("called registerServant(servant, service) once", 1, mockBus
-            .getCallCount("registerServant", new Class[] {Servant.class, QName.class, String.class}));
+        props.put("jndiName", "{http://objectweb.org/hello_world_soap_http}SOAPService,SoapPort@file:///");
+        try {
+            busFactory.initialiseServantsFromProperties(props, true);
+        } catch (ResourceException expected) {
+            assertTrue("reasonable message", expected.toString().indexOf("jndiName") != -1);
+            assertTrue(expected instanceof ResourceAdapterInternalException);            
+        }
     }
 
     public void testInitServantsFromPropertiesWithMissingWsdlLocInPropertiesAndConfig() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         BusFactory busFactory = new BusFactory(mcf);
-        MockObject mockBus = MockObjectFactory.create(Bus.class);
-        mockBus.setResult("getServiceWSDL", new MockInvoke() {
-            public Object invoke(Object[] args) throws Exception {
-                throw new BusException("ServiceA");
-            }
-        });
-        busFactory.setBus((Bus)mockBus);
+        Bus mockBus = EasyMock.createMock(Bus.class);
+        busFactory.setBus(mockBus);
         final String jndiName = "/a/b";
         try {
             Properties props = new Properties();
@@ -359,63 +356,16 @@ public class BusFactoryTest extends TestCase {
             fail("expect ex on missing wsdl loc");
         } catch (ResourceException expected) {
             assertTrue("reasonable message", expected.toString().indexOf(jndiName) != -1);
-            assertTrue(expected.getCause() instanceof BusException);
-            assertTrue(expected.getCause().getMessage().indexOf("ServiceA") != -1);
+            assertTrue(expected instanceof ResourceAdapterInternalException);
+            assertTrue(expected.getMessage().indexOf("ServiceA") != -1);
         }
-        assertTrue("not called on missing wsdl loc", mockBus.getCallCount("registerServant",
-                                                                          new Class[] {Servant.class,
-                                                                                       QName.class}) == 0);
     }
-
-    public void testInitServantsFromPropertiesWithNoWsdlLocInPropertiesAndNoPortName() throws Exception {
-        ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-        BusFactory busFactory = new BusFactory(mcf);
-        MockObject mockBus = MockObjectFactory.create(Bus.class);
-        busFactory.setBus((Bus)mockBus);
-        mockBus.setResult("getServiceWSDL", new MockInvoke() {
-            public Object invoke(Object[] args) throws Exception {
-                assertTrue(args[0] instanceof QName);
-                QName service = (QName)args[0];
-                assertEquals("{http://ns}ServiceA", service.toString());
-                return "file:///";
-            }
-
-        });
-        final String jndiName = "/a/b";
-        Properties props = new Properties();
-        props.put(jndiName, "{http://ns}ServiceA");
-        busFactory.initialiseServantsFromProperties(props, true);
-        assertEquals("called registerServant(servant, service) once", 1, mockBus
-            .getCallCount("registerServant", new Class[] {Servant.class, QName.class}));
-    }
-
-    public void testInitServantsFromPropertiesWithNoWsdlLocInProperties() throws Exception {
-        ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-        BusFactory busFactory = new BusFactory(mcf);
-        MockObject mockBus = MockObjectFactory.create(Bus.class);
-        busFactory.setBus((Bus)mockBus);
-        mockBus.setResult("getServiceWSDL", new MockInvoke() {
-            public Object invoke(Object[] args) throws Exception {
-                assertTrue(args[0] instanceof QName);
-                QName service = (QName)args[0];
-                assertEquals("{http://ns}ServiceA", service.toString());
-                return "file:///";
-            }
-
-        });
-        final String jndiName = "/a/b";
-        Properties props = new Properties();
-        props.put(jndiName, "{http://ns}ServiceA,portName");
-        busFactory.initialiseServantsFromProperties(props, true);
-        assertEquals("called registerServant(servant, service) once", 1, mockBus
-            .getCallCount("registerServant", new Class[] {Servant.class, QName.class, String.class}));
-    }
-
+     
     public void testInitServantsFromPropertiesWithNoServiceQName() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         BusFactory busFactory = new BusFactory(mcf);
-        MockObject mockBus = MockObjectFactory.create(Bus.class);
-        busFactory.setBus((Bus)mockBus);
+        Bus bus = EasyMock.createMock(Bus.class);
+        busFactory.setBus(bus);
         final String jndiName = "/a/b";
         try {
             Properties props = new Properties();
@@ -425,9 +375,6 @@ public class BusFactoryTest extends TestCase {
         } catch (ResourceException expected) {
             assertTrue("reasonable message", expected.toString().indexOf(jndiName) != -1);
         }
-        assertTrue("not called on missing wsdl loc", mockBus.getCallCount("registerServant",
-                                                                          new Class[] {Servant.class,
-                                                                                       QName.class}) == 0);
     }
 
     public void testInitFromPropsWithInvalidWsdlLocUrls() throws Exception {
@@ -468,92 +415,25 @@ public class BusFactoryTest extends TestCase {
 
     }
 
+    
     public void testInitFromPropsDoesNotThrowExceptionWhenSomethingGoesWrong() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         BusFactory busFactory = new BusFactory(mcf);
-        MockObject mockBus = MockObjectFactory.create(Bus.class);
-        busFactory.setBus((Bus)mockBus);
+        Bus mockBus = EasyMock.createMock(Bus.class);
+        busFactory.setBus(mockBus);
         Properties props = new Properties();
         props.put("/a/b", "{http://ns}ServiceA@unknownprotocol:/a");
-        busFactory.initialiseServantsFromProperties(props, false);
-        assertEquals(" registerServant(servant, service) not called ", 0, mockBus
-            .getCallCount("registerServant", new Class[] {Servant.class, QName.class}));
-    }
-
-    public void testDeregisterServants() throws Exception {
-        ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-        BusFactory busFactory = new BusFactory(mcf);
-        MockObject mockBus = MockObjectFactory.create(Bus.class);
-        busFactory.setBus((Bus)mockBus);
-        Properties props = new Properties();
-        props.put("jndiName", "{http://com.iona}serviceName,portName@file:///");
-        busFactory.initialiseServantsFromProperties(props, true);
-        assertEquals("servantsCache is empty , removeServant not called", 0, mockBus
-            .getCallCount("removeServant", new Class[] {QName.class}));
-        busFactory.initialiseServantsFromProperties(props, true);
-        assertEquals("removeServant called once, before register servant", 1, mockBus
-            .getCallCount("removeServant", new Class[] {QName.class}));
-        busFactory.deregisterServants((Bus)mockBus);
-        assertEquals("removeServant called again when deregister", 2, mockBus
-            .getCallCount("removeServant", new Class[] {QName.class}));
-    }
-
-    public void testPropertiesMonitorThread() throws Exception {
-        FileChannel in, out;
-        URL propFile = getClass().getResource("ejb_servants.properties");
-        File origFile = new File(propFile.toString());
-        File tmpFile = File.createTempFile("anyname", "properties");
-        File tmpDir = tmpFile.getParentFile();
-
-        File testFile = new File(tmpDir, "cubaunittest.properties");
-        if (testFile.exists()) {
-            testFile.delete();
-        }
-        assertTrue("file: " + testFile.getAbsolutePath() + " does not exist", !(testFile.exists()));
-
-        ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-        mcf.setEJBServicePropertiesURL(testFile.toURI().toURL().toString());
-        BusFactory busFactory = new BusFactory(mcf);
-        Bus mockBus = EasyMock.createMock(Bus.class);
-        busFactory.setBus((Bus)mockBus);
-
-        BusFactory.EJBServicePropertiesMonitorRunnable propsRunnable = 
-            busFactory.new EJBServicePropertiesMonitorRunnable(10);
-        propsRunnable.setContinue(false);
-        propsRunnable.run();
-        //need to rewrite
-        //assertEquals("not called ", 0, mockBus.getCallCount("registerServant", new Class[] {Servant.class,
-                                                                                           // QName.class}));
-
-        testFile.createNewFile();
-        assertTrue("file exist", testFile.exists());
-
         
-        try {
-            in = new FileInputStream(origFile).getChannel();
-            out = new FileOutputStream(testFile).getChannel();
-            long size = in.size();
-            MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, size);
-            out.write(buf);
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-
-            if (out != null) {
-                out.close();
-            }
-        }
-
-        propsRunnable.run();
-        testFile.delete();
-        assertEquals("called twice", 2, mockBus.getCallCount("registerServant", new Class[] {Servant.class,
-                                                                                             QName.class}));
+        busFactory.initialiseServantsFromProperties(props, false);
+           
     }
-
+            
     public void testPropertiesMonitorThreadCausesSomeFailures() throws Exception {
-        File origFile = new File(DummyBus.vobRoot()
-                                 + "/test/unit/com/iona/jca/Celtix/ejb_servants_one_wrong.properties");
+        FileChannel in = null;
+        FileChannel out = null;
+        URL propFile = getClass().getResource("resources/ejb_servants_one_wrong.properties");
+        
+        File origFile = new File(propFile.toString().substring(5));
         File tmpFile = File.createTempFile("anyname", "properties");
         File tmpDir = tmpFile.getParentFile();
 
@@ -566,25 +446,22 @@ public class BusFactoryTest extends TestCase {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         mcf.setEJBServicePropertiesURL(testFile.toURI().toURL().toString());
         BusFactory busFactory = new BusFactory(mcf);
-        MockObject mockBus = MockObjectFactory.create(Bus.class);
+        Bus mockBus = EasyMock.createMock(Bus.class);
         busFactory.setBus((Bus)mockBus);
 
         BusFactory.EJBServicePropertiesMonitorRunnable propsRunnable =
-            busFactory.new EJBServicePropertiesMonitorRunnable(10);
-        propsRunnable.setContinue(false);
+            busFactory.new EJBServicePropertiesMonitorRunnable(5);
+        propsRunnable.setContinue(false);        
         propsRunnable.run();
-        assertEquals("not called ", 0, mockBus.getCallCount("registerServant", new Class[] {Servant.class,
-                                                                                            QName.class}));
-
+        //do nothing here 
+        
         testFile.createNewFile();
         assertTrue("file exist", testFile.exists());
-
-        FileChannel in, out;
         try {
-            in = new FileInputStream(origFile).getChannel();
+            in = new FileInputStream(origFile).getChannel();            
             out = new FileOutputStream(testFile).getChannel();
             long size = in.size();
-            MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, size);
+            MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, size);            
             out.write(buf);
         } finally {
             if (in != null) {
@@ -598,11 +475,10 @@ public class BusFactoryTest extends TestCase {
 
         propsRunnable.run();
         testFile.delete();
-        assertEquals("called once", 1, mockBus.getCallCount("registerServant", new Class[] {Servant.class,
-                                                                                            QName.class}));
+        
     }
 
-   public void testInitServantsWithBootstrapContextNotNull() throws Exception {
+   /*public void testInitServantsWithBootstrapContextNotNull() throws Exception {
         System.setProperty("test.bus.class", DummyBus.class.getName());
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         mcf.setCeltixInstallDir(DummyBus.vobRoot());
@@ -618,17 +494,7 @@ public class BusFactoryTest extends TestCase {
         assertEquals("bus initialized ", DummyBus.initializeCount, 1);
     }
 
-    public void testNotRegisterXAResourceIfBootstrapContextIsNull() throws Exception {
-        ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-        mcf.setCeltixInstallDir(DummyBus.vobRoot());
-        mcf.setCeltixCEURL(DummyBus.CeltixCEURL);
-        BusFactory busFactory = new BusFactory(mcf);
-        busFactory.setBootstrapContext(null);
-        busFactory.setResourceRegistered(false);
-        assertTrue("XAResource not registered", !BusFactory.resourceRegistered);
-        busFactory.registerXAResource();
-        assertTrue("XAResource not registered", !BusFactory.resourceRegistered);
-    }*/
+   */
 
   
    

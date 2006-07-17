@@ -107,12 +107,10 @@ public class BusFactory {
 
     
     void initialiseServants() throws ResourceException {
-        if (isMonitorEJBServicePropertiesEnabled()) {
-            System.out.println(">>>><<<< will start properties monitor thread");
-            LOG.config("ejb service properties update enabled. ");
+        if (isMonitorEJBServicePropertiesEnabled()) {            
+            LOG.info("ejb service properties update enabled. ");
             startPropertiesMonitorThread();
-        } else {
-            System.out.println("<<<<>>>> getejbservicepropertiesURL");
+        } else {            
             URL propsUrl = mcf.getEJBServicePropertiesURLInstance();
             if (propsUrl != null) {
                 initialiseServantsFromProperties(loadProperties(propsUrl), false);
@@ -220,28 +218,7 @@ public class BusFactory {
         Definition wsdlDef = reader.readWSDL(wsdlUrl.toString(), input);
             
         // get service and port from wsdl definition
-        Service wsdlService = wsdlDef.getService(serviceQName);
-//         Map services = wsdlDef.getServices();
-//         //        Service wsdlService = (Service) (services.get(serviceQName));
-
-//         Set servicesKeys = services.keySet();
-//         Iterator it = servicesKeys.iterator();
-
-//         while (it.hasNext()) {
-//             Object key = it.next();
-// //             System.out.println("\n\n  >>>>>>>>> <<<<<<<<<<<< key class: "
-// //                                + key.getClass().toString() + "  key value: " + key.toString() + "\n");
-// //             System.out.println("  >>>>>>>>> <<<<<<<<<<<< serviceQName class: "
-// //                                + serviceQName.getClass().toString()
-// //                                + "  serviceQName value: " + serviceQName.toString() + "\n");
-//             System.out.println("\n\n KEY: [" + key.toString() + "]\n");
-//             System.out.println("QName: [" + serviceQName.toString() + "]");
-//             wsdlService = (Service) (services.get(key));
-//             if (wsdlService == null) {
-//                 System.out.println(" >>>>>>> <<<<<<< Can not find service. ");
-//             }
-//         }
-            
+        Service wsdlService = wsdlDef.getService(serviceQName);      
 
         Port port = null;
         if (portName == null) {
@@ -258,15 +235,12 @@ public class BusFactory {
         // get bindingId from wsdl definition
         String bindingId = null;
         Binding binding = port.getBinding();
-        if (null != binding) {
-            System.out.println("<> <> binding is not null");
+        if (null != binding) {            
             List list = binding.getExtensibilityElements();
             if (!list.isEmpty()) {
                 bindingId = ((ExtensibilityElement) list.get(0)).getElementType().getNamespaceURI();
             }
-        } else {
-            System.out.println("<> <> binding is null");
-        }
+        } 
         // get address
         String address = "";
         List<?> list = port.getExtensibilityElements();
@@ -285,9 +259,7 @@ public class BusFactory {
                 address = ((AddressType) ext).getLocation();
             }
         }
-
-        System.out.println("<> <> address: " + address);
-        System.out.println("<> <> bindingId: " + bindingId);
+        
         EJBServant servant = new CeltixConnectEJBServant(this, wsdlLocation, jndiName);
 
         if (getBootstrapContext() == null) {
@@ -299,7 +271,7 @@ public class BusFactory {
         } else {
             // for transaction
             LOG.info("Transaction inflow involved.");
-        }
+        }       
         ei.publish(address);
         return ei;
     }
@@ -341,11 +313,8 @@ public class BusFactory {
                 Endpoint ed = null;
                 Iterator servants = servantsCache.iterator();
                 while (servants.hasNext()) {
-                    ed = (Endpoint)(servants.next());
-                    //                     LOG.info("Deregistering ejb servant for service: " + service);
-                    //TODO need to remove the service endpoint
-                    //bus.removeServant(service);
-                    EndpointRegistry er = bus.getEndpointRegistry();
+                    ed = (Endpoint)(servants.next());                   
+                    EndpointRegistry er = aBus.getEndpointRegistry();
                     er.unregisterEndpoint(ed);
                 }
                 servantsCache.clear();
