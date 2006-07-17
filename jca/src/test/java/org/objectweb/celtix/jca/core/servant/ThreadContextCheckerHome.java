@@ -23,8 +23,8 @@ public class ThreadContextCheckerHome implements EJBHome {
 
     public Object create() throws RemoteException {
         ClassLoader current = Thread.currentThread().getContextClassLoader();
-        test.assertSame("thread context classloader is set as expected, current=" + current,
-                   current, cl);
+        TestCase.assertSame("thread context classloader is set as expected, current=" + current,
+                            current, cl);
         return ejb;
     }
     

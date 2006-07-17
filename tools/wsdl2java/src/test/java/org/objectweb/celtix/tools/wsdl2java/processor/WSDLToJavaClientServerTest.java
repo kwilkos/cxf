@@ -1,15 +1,14 @@
 package org.objectweb.celtix.tools.wsdl2java.processor;
 
 import java.io.File;
-import java.net.URLClassLoader;
 
 import org.objectweb.celtix.tools.common.ProcessorTestBase;
 import org.objectweb.celtix.tools.common.ToolConstants;
-import org.objectweb.celtix.tools.util.AnnotationUtil;
+//import org.objectweb.celtix.tools.util.AnnotationUtil;
 
 public class WSDLToJavaClientServerTest extends ProcessorTestBase {
     private WSDLToJavaProcessor processor = new WSDLToJavaProcessor();
-    private URLClassLoader classLoader;
+    //private ClassLoader classLoader;
 
     public void setUp() throws Exception {
         super.setUp();
@@ -17,7 +16,7 @@ public class WSDLToJavaClientServerTest extends ProcessorTestBase {
         classFile.mkdir();
         System.setProperty("java.class.path", getClassPath() + classFile.getCanonicalPath()
                                               + File.separatorChar);
-        classLoader = AnnotationUtil.getClassLoader(Thread.currentThread().getContextClassLoader());
+        //classLoader = AnnotationUtil.getClassLoader(Thread.currentThread().getContextClassLoader());
 
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
