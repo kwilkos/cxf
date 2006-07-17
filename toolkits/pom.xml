@@ -19,6 +19,6 @@
     </properties>
 
     <modules>
-        <module>MTOSI</module>
+        <module>MTOSI/1.1</module>
     </modules>
 </project>

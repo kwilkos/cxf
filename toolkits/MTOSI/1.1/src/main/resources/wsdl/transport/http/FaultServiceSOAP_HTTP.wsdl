@@ -5,7 +5,7 @@
 
 	<wsdl:service name="AlarmRetrieval">
 		<wsdl:port name="AlarmRetrieval" binding="tmf854WS:AlarmRetrievalSoapHTTPBinding">
-			<soap:address location="http://aserver/mtosi/v1/AlarmRetrieval" />
+			<soap:address location="http://localhost:9090/mtosi/v1/AlarmRetrieval" />
 		</wsdl:port>
 	</wsdl:service>
 

@@ -10,7 +10,7 @@
 
     <parent>
         <groupId>org.objectweb.celtixfire</groupId>
-        <artifactId>cxf-toolkits-MTOSI</artifactId>
+        <artifactId>cxf-toolkits</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
@@ -20,9 +20,45 @@
 
     <dependencies>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>cxf-tools-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-testutils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-jaxws</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-bindings-soap</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-transports-jms</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -40,7 +76,9 @@
                         <configuration>
                             <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
                             <wsdlOptions>
+                            
                                 <!-- http services -->
+                                
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/transport/http/DiscoveryServiceSOAP_HTTP.wsdl</wsdl>
                                     <dependencies>
@@ -56,14 +94,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.http</extraarg>
+                                        <extraarg>ws.v1.tmf854.discovery.http</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.discovery</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -89,14 +122,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.http</extraarg>
+                                        <extraarg>ws.v1.tmf854.inventorymgr.http</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.inventorymgr</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -119,16 +147,11 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.http</extraarg>
+                                        <extraarg>ws.v1.tmf854.fault.http</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
+                                        <extraarg>tmf854.v1=v1.tmf854.fault</extraarg>
                                         <extraarg>-b</extraarg>
                                         <extraarg>${basedir}/src/main/resources/wsdl/transport/http/async_binding.xml</extraarg>
-                                        -->
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -163,14 +186,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.http</extraarg>
+                                        <extraarg>ws.v1.tmf854.inventoryretrieval.http</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.inventoryretrieval</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -198,14 +216,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.http</extraarg>
+                                        <extraarg>ws.v1.tmf854.elementmgr.http</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.elementmgr</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -240,14 +253,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.http</extraarg>
+                                        <extraarg>ws.v1.tmf854.subnetworkmgr.http</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.subnetworkmgr</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -270,14 +278,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.http</extraarg>
+                                        <extraarg>ws.v1.tmf854.notification.http</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.notification</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -312,14 +315,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.http</extraarg>
+                                        <extraarg>ws.v1.tmf854.operationsmgr.http</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.operationsmgr</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -343,14 +341,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.http</extraarg>
+                                        <extraarg>ws.v1.tmf854.protectionmgr.http</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.protectionmgr</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -375,18 +368,14 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.http</extraarg>
+                                        <extraarg>ws.v1.tmf854.transmissionmgr.http</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.transmissionmgr</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 
                                 <!-- jms services -->
+
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/transport/jms/DiscoveryServiceSOAP_JMS.wsdl</wsdl>
                                     <dependencies>
@@ -402,16 +391,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.jms</extraarg>
+                                        <extraarg>ws.v1.tmf854.discovery.jms</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        <extraarg>-b</extraarg>
-                                        <extraarg>${basedir}/src/main/resources/wsdl/async_binding.xml</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.discovery</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -437,14 +419,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.jms</extraarg>
+                                        <extraarg>ws.v1.tmf854.inventorymgr.jms</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.inventorymgr</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -467,16 +444,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.jms</extraarg>
+                                        <extraarg>ws.v1.tmf854.fault.jms</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        <extraarg>-b</extraarg>
-                                        <extraarg>${basedir}/src/main/resources/wsdl/transport/jms/async_binding.xml</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.fault</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -511,14 +481,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.jms</extraarg>
+                                        <extraarg>ws.v1.tmf854.inventoryretrieval.jms</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.inventoryretrieval</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -546,14 +511,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.jms</extraarg>
+                                        <extraarg>ws.v1.tmf854.elementmgr.jms</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.elementmgr</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -588,14 +548,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.jms</extraarg>
+                                        <extraarg>ws.v1.tmf854.subnetworkmgr.jms</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.subnetworkmgr</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -618,14 +573,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.jms</extraarg>
+                                        <extraarg>ws.v1.tmf854.notification.jms</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.notification</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -660,14 +610,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.jms</extraarg>
+                                        <extraarg>ws.v1.tmf854.operationsmgr.jms</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.operationsmgr</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -691,14 +636,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.jms</extraarg>
+                                        <extraarg>ws.v1.tmf854.protectionmgr.jms</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.protectionmgr</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
@@ -723,14 +663,9 @@
                                     </dependencies>
                                     <extraargs>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>ws.v1.tmf854.jms</extraarg>
+                                        <extraarg>ws.v1.tmf854.transmissionmgr.jms</extraarg>
                                         <extraarg>-p</extraarg>
-                                        <extraarg>tmf854.v1=v1.tmf854</extraarg>
-                                        <!--
-                                        <extraarg>-impl</extraarg>
-                                        <extraarg>-server</extraarg>
-                                        <extraarg>-client</extraarg>
-                                        -->
+                                        <extraarg>tmf854.v1=v1.tmf854.transmissionmgr</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                             </wsdlOptions>
