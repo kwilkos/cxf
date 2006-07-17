@@ -1,91 +1,100 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <chapter>
-  <title>Code Listings and Other Code Snippets</title>
-
+  <title>Working with Programming Languages</title>
   <section>
     <title>Overview</title>
-
     <para>There are several instances when you will need to code in the
     CeltiXfire documentation. You may need to use a class name, interface
     name, or element name as part of a sentence. You will also need to provide
     long code samples in many places. Docbook has a number of elements that
     are used for placing code in your documentation. </para>
-
     <note>
       <para>XML mark-up, such as WSDL and XMLSchema, are also considered code
       for the purposes of CeltiXfire documentation.</para>
     </note>
   </section>
-
   <section>
     <title>Code Listings</title>
-
     <section>
       <title>Examples</title>
-
       <para>When providing code examples, you need to seperate them from the
-      text and provide a caption for them. To do this you use the <sgmltag
-      class="element">example</sgmltag> element. You should always provide a
+      text and provide a caption for them. To do this you use the <sgmltag class="element">example</sgmltag> element. You should always provide a
       descriptive value for the <sgmltag class="element">example</sgmltag>
-      element's <sgmltag class="attribute">id</sgmltag> attribute.</para>
-
-      <para>As shown in <xref linkend="example_example" />, the first child of
+      element&apos;s <sgmltag class="attribute">id</sgmltag> attribute.</para>
+      <para>As shown in <xref linkend="example_example"/>, the first child of
       the example element is a title element. The contents of the title
       element will be used as the caption of the example. It will also be used
       as the text for any cross references.</para>
-
       <note>
         <para>If you want to have different text appear when cross referencing
         an example, set the <sgmltag class="element">example</sgmltag>
-        element's <sgmltag class="attribute">xreflabel</sgmltag>
+        element&apos;s <sgmltag class="attribute">xreflabel</sgmltag>
         attribute.</para>
       </note>
-
-      <para>The last child of the example element is the <sgmltag
-      class="element">programlisting</sgmltag> element. The <sgmltag
-      class="element">programlisting</sgmltag> element contains the code
+      <para>The last child of the example element is the <sgmltag class="element">programlisting</sgmltag> element. The <sgmltag class="element">programlisting</sgmltag> element contains the code
       sample itself. Any text placed inside the programlisting element is
       treated literally. Therefore, any spacing that you use will be exactly
       reproduced when the document is produced.</para>
-
       <warning>
-        <para>When using XML inside a <sgmltag>programlisting</sgmltag>
-        element you must not use the <code>&lt;</code> or <code>&gt;</code>
-        characters. Instead use <wordasword>&amp;lt;</wordasword> and
+        <para>When using XML inside a <sgmltag class="element">programlisting</sgmltag>
+        element you must not use the   <literal>&lt;</literal> or  
+        <literal>&gt;</literal>characters. Instead use <wordasword>&amp;lt;</wordasword> and
         <wordasword>&amp;gt;</wordasword>.</para>
       </warning>
-
       <example id="example_example">
         <title>Example Mark-Up</title>
+        <programlisting>&lt;example id=&quot;example_example&quot;&gt;
+  &lt;title&gt;Example Mark-Up&lt;/title&gt;
+  &lt;programlisting&gt;public class ServiceName extends javax.xml.ws.Service
+{
+  ...
+  public ServiceName(URL wsdlLocation, QName serviceName) { }
+  
+  public ServiceName() { }
 
-        <programlisting></programlisting>
+  public Greeter getPortName() { }
+  .
+  .
+  .
+}</programlisting>
       </example>
-
       <section>
         <title>Using Callouts</title>
-
         <para>I need to figure out how to write the mark-up for using
-        callouts. It is complicated and I haven't had time to really try
+        callouts. It is complicated and I haven&apos;t had time to really try
         it.</para>
       </section>
     </section>
-
     <section>
       <title>Code Blocks</title>
-
-      <para>These are short code listings that are not in-lined.</para>
+      <para>There are cases when you need to use a block of code, but do not need to create a formal example with a title. In such cases you can use one of two methods:</para>
+      <itemizedlist>
+        <listitem>
+          <para>Use an <sgmltag class="element">informalexample</sgmltag> element</para>
+        </listitem>
+        <listitem>
+          <para>Use a <sgmltag class="element">programlisting</sgmltag> element</para>
+        </listitem>
+      </itemizedlist>
+      <para>In terms of the generated output, there is no difference between the two approaches. The real difference is in the complexity of the mark-up and the formality of the structure you wish to use. In the CeltiXfire documentation, the prefered method is to simply use the <sgmltag class="element">programlisting</sgmltag> element. However, if you feel that a code block needs to be wrapped in an <sgmltag class="element">informalexample</sgmltag> element, that is fine.</para>
+      <para><xref linkend="block_example"/> shows the mark-up for a standalone block of code.</para>
+      <example id="block_example">
+        <title>Example Code Block</title>
+        <programlisting>&lt;programlisting&gt;var WebServiceProvider1 = {
+    &apos;wsdlLocation&apos;: &apos;file:./wsdl/hello_world.wsdl&apos;,
+    &apos;serviceName&apos;: &apos;SOAPService1&apos;,
+    &apos;portName&apos;: &apos;SoapPort1&apos;,
+    &apos;targetNamespace&apos;: http://objectweb.org/hello_world_soap_http&apos;,
+};&lt;/programlisting&gt;</programlisting>
+      </example>
     </section>
   </section>
-
   <section>
     <title>In-Line Code</title>
-
-    <para></para>
+    <para>Code that appears in the text of a paragraph.</para>
   </section>
-
   <section>
     <title>Class Synopses</title>
-
-    <para></para>
+    <para>This is pretty complex stuff. It needs to cover both class abd ooclass.</para>
   </section>
 </chapter>
