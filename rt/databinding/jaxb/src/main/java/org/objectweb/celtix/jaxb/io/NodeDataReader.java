@@ -35,6 +35,10 @@ public class NodeDataReader<T> implements DataReader<T> {
         Class<?> cls;
         if (idx == -1) {
             cls = callback.getMethod().getReturnType();
+            // Async calls will have javax.xml.ws.Response return type
+            if (cls.isAssignableFrom(javax.xml.ws.Response.class)) {
+                cls = null;
+            }
         } else {
             cls = callback.getMethod().getParameterTypes()[idx];
             if (cls.isAssignableFrom(Holder.class)) {

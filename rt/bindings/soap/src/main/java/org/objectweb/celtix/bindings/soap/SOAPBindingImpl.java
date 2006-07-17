@@ -593,6 +593,9 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
                 if (param.mode() != WebParam.Mode.IN) {
                     partValue = ((Holder)args[idx]).value;
                 }
+                if (param.name().equals("asyncHandler") && idx == (noArgs - 1)) {
+                    break;
+                }
 
                 QName elName = (callback.getSOAPStyle() == Style.DOCUMENT) 
                                     ? new QName(param.targetNamespace(), param.name()) 
