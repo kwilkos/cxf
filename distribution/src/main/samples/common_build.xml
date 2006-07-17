@@ -22,8 +22,8 @@
     <property name="srcbuild.classpath" value=""/>
 
     <uptodate property="codegen.notrequired" value="true">
-        <srcfiles dir="${wsdl.dir}" includes="*.wsdl"/>
-        <srcfiles dir="${wsdl.dir}" includes="*.xsd"/>
+        <srcfiles dir="${wsdl.dir}" includes="**/*.wsdl"/>
+        <srcfiles dir="${wsdl.dir}" includes="**/*.xsd"/>
         <mapper type="merge" to="${codegen.timestamp.file}"/>
     </uptodate>
 
