@@ -46,6 +46,9 @@ public final class ToolConstants {
     public static final String CFG_ANT = "ant";
     public static final String CFG_LIB_REF = "library.references";
     public static final String CFG_ANT_PROP = "ant.prop";
+    public static final String CFG_GEN_CLIENT = "genClient";
+    public static final String CFG_GEN_SERVER = "genServer";
+    public static final String CFG_GEN_OVERWRITE = "overwrite";
 
     // Java2WSDL Constants
 

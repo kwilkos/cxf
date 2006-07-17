@@ -22,6 +22,10 @@ public class FaultGenerator extends AbstractGenerator {
 
 
     public boolean passthrough() {
+        if (env.optionSet(ToolConstants.CFG_GEN_CLIENT) 
+            || env.optionSet(ToolConstants.CFG_GEN_SERVER)) {
+            return true;
+        }
         return false;
     }
 

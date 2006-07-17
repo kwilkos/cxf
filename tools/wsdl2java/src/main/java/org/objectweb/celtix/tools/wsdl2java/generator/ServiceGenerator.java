@@ -23,7 +23,10 @@ public class ServiceGenerator extends AbstractGenerator {
         this.name = ToolConstants.SERVICE_GENERATOR;
     }
 
-    public boolean passthrough() {
+    public boolean passthrough() {  
+        if (env.optionSet(ToolConstants.CFG_GEN_SERVER)) {
+            return true;
+        }
         return false;
     }
     

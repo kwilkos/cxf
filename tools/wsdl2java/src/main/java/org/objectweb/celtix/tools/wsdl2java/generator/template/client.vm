@@ -31,15 +31,20 @@ public final class ${clientClassName} {
             System.out.println("please specify wsdl");
             System.exit(1); 
         }
-        URL wsdlUrl;
+        URL wsdlURL = null;
+        File wsdlFile = new File(args[0]);
         try {
-            wsdlUrl = new URL(args[0]);
-        } catch (MalformedURLException mue) {
-        	wsdlUrl = new URL("file:///" + args[0]);
+            if (wsdlFile.exists()) {
+                wsdlURL = wsdlFile.toURL();
+            } else {
+                wsdlURL = new URL(args[0]);
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
-    
-        $service.Name ss = new ${service.Name}(wsdlUrl, SERVICE_NAME);
-        $intf.Name port = ss.get${port.Name}();  
+      
+        $service.Name ss = new ${service.Name}(wsdlURL, SERVICE_NAME);
+        $intf.Name port = ss.get${port.PortName}();  
         
 #foreach ($method in $intf.Methods)
 

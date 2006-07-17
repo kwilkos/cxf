@@ -19,13 +19,9 @@ public class SEIGenerator extends AbstractGenerator {
     }
 
     public boolean passthrough() {
-       /* if (env.optionSet(ToolConstants.CFG_INTERFACE)
-                || env.optionSet(ToolConstants.CFG_ALL)) {
-            return false;
-        }
-        if (env.optionSet(ToolConstants.CFG_TYPES)) {
+        if (env.optionSet(ToolConstants.CFG_GEN_CLIENT) || env.optionSet(ToolConstants.CFG_GEN_SERVER)) {
             return true;
-        }*/ 
+        }
         return false;
     }
 

@@ -22,12 +22,13 @@ public class ClientGenerator extends AbstractGenerator {
 
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_CLIENT)
-                || env.optionSet(ToolConstants.CFG_ALL)) {
+        if (env.optionSet(ToolConstants.CFG_CLIENT) 
+            || env.optionSet(ToolConstants.CFG_GEN_CLIENT) || env.optionSet(ToolConstants.CFG_ALL)) {
             return false;
         }
         return true;
     }
+
 
     public void generate() throws ToolException {
         if (passthrough()) {
