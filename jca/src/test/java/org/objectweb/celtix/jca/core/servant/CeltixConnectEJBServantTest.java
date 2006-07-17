@@ -1,14 +1,9 @@
 package org.objectweb.celtix.jca.core.servant;
 
 import java.lang.reflect.Method;
-//import java.util.Properties;
 
-//import javax.naming.Context;
-//import javax.naming.InitialContext;
-
-//import javax.ejb.EJBObject;
-//import javax.naming.InitialContext;
-
+import javax.ejb.EJBObject;
+import javax.naming.InitialContext;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -31,13 +26,9 @@ public class CeltixConnectEJBServantTest extends TestCase {
     public void setUp() throws Exception {
         Bus mockBus = createMockBus();
         ejbservant = createCeltixConnectEJBServant(mockBus);
-
-       
-        // Configuration.setConfiguration(new SampleConfiguration());
     }
 
     public void tearDown() {
-       // DispatchLocals.setCurrentMessageContext(null);
     }
 
     public static Test suite() {
@@ -52,58 +43,50 @@ public class CeltixConnectEJBServantTest extends TestCase {
         assertTrue("constructor works", 
                    createCeltixConnectEJBServant(createMockBus()) instanceof CeltixConnectEJBServant);
     }
-
-    /*
+    
     public void testGetTargetObjectSetsThreadContextClassloader() throws Exception {
         final ClassLoader cl = EasyMock.createMock(ClassLoader.class);
         final EJBObject ejb = EasyMock.createMock(EJBObject.class);
+        BusFactory rai = EasyMock.createMock(BusFactory.class);
         InitialContext ic = EasyMock.createMock(InitialContext.class);
-        
-        final MockObject ejb = MockObjectFactory.create(EJBObject.class);
-        
-        MockObject rai = MockObjectFactory.create(BusFactory.class, 
-            new Class[]{ManagedConnectionFactoryImpl.class}, 
-            new Object[]{null});
-
-        ic.setResult("lookup", new ThreadContextCheckerHome((Object)ejb, (ClassLoader)cl, this));
-        
-        rai.setResult("getInitialContext", ic);
-        rai.setResult("getJAASLoginConfigName", null);
-        rai.setResult("getJAASLoginUserName", null);
-        rai.setResult("getJAASLoginPassword", null);
-        rai.setResult("getAppserverClassLoader", (ClassLoader)cl);
-        
-        EJBServant testServant = createCeltixConnectEJBServant((BusFactory)rai, null);
-        
         ClassLoader current = Thread.currentThread().getContextClassLoader();
+
+        ic.lookup(EasyMock.isA(String.class));
+        EasyMock.expectLastCall().
+            andReturn(new ThreadContextCheckerHome((Object)ejb, (ClassLoader)current, this)).anyTimes();
+        EasyMock.replay(ic);
+        
+        rai.setBus(null);
+        EasyMock.expectLastCall();
+        rai.getBus();
+        EasyMock.expectLastCall().andReturn(null);
+        rai.getInitialContext();
+        EasyMock.expectLastCall().andReturn(ic);
+        rai.getAppserverClassLoader();
+        EasyMock.expectLastCall().andReturn(cl).andReturn(current);
+        // retrun current classloader for getTargetObject pass
+        EasyMock.replay(rai);
+        
+        
+        EJBServant testServant = createCeltixConnectEJBServant(rai, null);
+        
+        
         assertTrue("thread classloader is not set before call, current=" + current,
                     !cl.equals(current));
         
+        Thread.currentThread().setContextClassLoader(current);
         Object o = testServant.getTargetObject();
         assertSame("we got back out test object from create, o=" + o,
                    o, ejb);
         
-        current = Thread.currentThread().getContextClassLoader();
+        current = Thread.currentThread().getContextClassLoader();        
         assertTrue("thread classloader is again not set after call, current=" + current,
-                   !cl.equals(current));
+                   !cl.equals(current));       
+        EasyMock.verify(ic);
+        EasyMock.verify(rai);
+       
     }
-*/    
-    /*
-    public void testGetTartgetObject() throws Exception {
-        Properties props = new Properties();
-        String wsdlLocation =
-            this.getClass().getResource("resources/hello_world.wsdl").toString();
-        System.out.println(" ****  wsdlLocation: " + wsdlLocation);
-        props.put("GreeterBean", "{http://objectweb.org/hello_world_soap_http}SOAPService@"
-                  + wsdlLocation);
-//        ejbservant.setProperties(props);
-        InitialContext context = new InitialContext(props);
-        ejbservant.setInitialContext(context);
-//        System.out.println(" ***** set properties ok.");
-        assertTrue("  some thing is wrong ", 
-                   "GreeterBean".equals(ejbservant.getTargetObject().getClass().toString()));
-    }
-    */
+    
     public void testServantInvoke() throws Exception { 
 
         Greeter target = new GreeterImpl(); 

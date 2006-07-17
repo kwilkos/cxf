@@ -19,9 +19,6 @@ import org.objectweb.celtix.BusException;
 
 import org.objectweb.celtix.common.i18n.Message;
 
-// import com.iona.jbus.util.JBusLogging;
-// import com.iona.jbus.util.LogTraceLevel;
-
 /**
  * This servant is used to dispatch invocations to an EJB.
  */
@@ -175,9 +172,6 @@ public class EJBServant extends AbstractServant {
             properties.load(istream);
             istream.close();
         } else {
-//             JBusLogging.traceLogWithLevel(LogTraceLevel.IT_TRACE,
-//                                           "Properties " + defaultPropsName + " or " +
-//                                           jndiName + defaultPropsName + "  not found in ClassPath");
             LOG.fine("Properties " + defaultPropsName + " or " + jndiName
                      + defaultPropsName + "  not found in ClassPath");
         }
