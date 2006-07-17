@@ -1,12 +1,16 @@
 package org.objectweb.celtix.jaxws.handlers;
 
+import javax.xml.ws.handler.LogicalMessageContext;
+
 import junit.framework.TestCase;
 
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.message.Message;
 
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.isA;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
 
@@ -27,14 +31,16 @@ public class LogicalHandlerInterceptorTest extends TestCase {
     }
 
     public void testInterceptSuccess() {
-        expect(invoker.invokeLogicalHandlers(true, message)).andReturn(true);
+        expect(invoker.invokeLogicalHandlers(eq(true),
+            isA(LogicalMessageContext.class))).andReturn(true);
         control.replay();
         LogicalHandlerInterceptor li = new LogicalHandlerInterceptor(invoker);
         li.handleMessage(message);
     }
     
     public void testInterceptFailure() {
-        expect(invoker.invokeLogicalHandlers(true, message)).andReturn(false);
+        expect(invoker.invokeLogicalHandlers(eq(true), 
+            isA(LogicalMessageContext.class))).andReturn(false);
         control.replay();
         LogicalHandlerInterceptor li = new LogicalHandlerInterceptor(invoker);
         li.handleMessage(message);   

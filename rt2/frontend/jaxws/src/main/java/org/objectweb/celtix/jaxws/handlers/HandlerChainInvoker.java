@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
+import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -74,27 +75,25 @@ public class HandlerChainInvoker {
         return streamHandlers;
     }
 
-    public boolean invokeLogicalHandlers(boolean requestor, Message message) { 
-        LogicalMessageContextImpl logicalContext = new LogicalMessageContextImpl(message);
+    public boolean invokeLogicalHandlers(boolean requestor, LogicalMessageContext context) { 
         // objectCtx.setRequestorRole(requestor);
-        logicalContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, isOutbound()); 
-        return invokeHandlerChain(logicalHandlers, logicalContext); 
+        context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, isOutbound()); 
+        return invokeHandlerChain(logicalHandlers, context); 
 
     }
         
-    public boolean invokeProtocolHandlers(boolean requestor, Message message) {
-        WrappedMessageContext context = new WrappedMessageContext(message);
+    public boolean invokeProtocolHandlers(boolean requestor, MessageContext context) {
+        // WrappedMessageContext context = new WrappedMessageContext(message);
         // bindingContext.put(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY, requestor);
         context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, isOutbound()); 
 
         return invokeHandlerChain(protocolHandlers, context);
     }    
     
-    public boolean invokeStreamHandlers(Message message) {
-        StreamMessageContextImpl sctx = new StreamMessageContextImpl(message);
-        sctx.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
+    public boolean invokeStreamHandlers(StreamMessageContext context) {
+        context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
         // return invokeHandlerChain(streamHandlers, new StreamMessageContextImpl(ctx));
-        return invokeHandlerChain(streamHandlers, sctx);
+        return invokeHandlerChain(streamHandlers, context);
     }
         
     public void closeHandlers() {

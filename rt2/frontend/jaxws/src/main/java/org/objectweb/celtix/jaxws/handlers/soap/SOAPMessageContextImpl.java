@@ -1,0 +1,79 @@
+package org.objectweb.celtix.jaxws.handlers.soap;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.MimeHeaders;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+
+import org.w3c.dom.Element;
+
+import org.objectweb.celtix.bindings.soap2.SoapMessage;
+import org.objectweb.celtix.jaxws.context.WrappedMessageContext;
+import org.objectweb.celtix.message.Message;
+
+public class SOAPMessageContextImpl extends WrappedMessageContext  implements SOAPMessageContext {
+
+    SOAPMessageContextImpl(Message m) {
+        super(m);
+    }
+
+    public void setMessage(SOAPMessage message) {
+        getWrappedMessage().setSource(SOAPMessage.class, message);
+    }
+    
+    public SOAPMessage getMessage() {
+        SOAPMessage message = getWrappedMessage().getSource(SOAPMessage.class);
+        if (null == message) {
+
+            try {
+                MessageFactory factory = MessageFactory.newInstance();
+                // getMimeHeaders from message
+                MimeHeaders mhs = null;
+                InputStream is = getWrappedMessage().getSource(InputStream.class);
+                message = factory.createMessage(mhs, is);
+                getWrappedMessage().setSource(SOAPMessage.class, message);    
+            } catch (SOAPException ex) {
+                // do something
+            } catch (IOException ex) {
+                // do something
+            }         
+        }
+        return message;
+    }
+    
+    // TODO: handle the boolean parameter
+    public Object[] getHeaders(QName name, JAXBContext context, boolean allRoles) {
+        Element[] headerElements = getWrappedSoapMessage().getHeaders(Element[].class);
+        Collection<Object> objects = new ArrayList<Object>();
+        for (Element e : headerElements) {
+            if (name.equals(e.getNamespaceURI())) {
+                try {
+                    objects.add(context.createUnmarshaller().unmarshal(e));
+                } catch (JAXBException ex) {
+                    // do something
+                }
+            }
+        }
+        Object[] headerObjects = new Object[objects.size()];
+        return objects.toArray(headerObjects);
+    }
+
+    public Set<String> getRoles() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    private SoapMessage getWrappedSoapMessage() {
+        return (SoapMessage)getWrappedMessage();
+    }   
+}

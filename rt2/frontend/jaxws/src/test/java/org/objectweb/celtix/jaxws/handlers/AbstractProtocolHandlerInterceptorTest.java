@@ -6,9 +6,12 @@ import javax.xml.ws.handler.MessageContext;
 import junit.framework.TestCase;
 
 import org.easymock.classextension.IMocksControl;
+import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Message;
 
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
 
@@ -21,7 +24,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
     public void setUp() {
         control = createNiceControl();
         invoker = control.createMock(HandlerChainInvoker.class);
-        message = control.createMock(Message.class);
+        message = control.createMock(IIOPMessage.class);
     }
     
     public void tearDown() {
@@ -29,17 +32,23 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
     }
 
     public void testInterceptSuccess() {
-        expect(invoker.invokeProtocolHandlers(true, message)).andReturn(true);
+        expect(invoker.invokeProtocolHandlers(eq(true), isA(MessageContext.class))).andReturn(true);
         control.replay();
-        AbstractProtocolHandlerInterceptor pi = new IIOPHandlerInterceptor(invoker);
+        IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor(invoker);
         pi.handleMessage(message);
     }
     
     public void testInterceptFailure() {
-        expect(invoker.invokeProtocolHandlers(true, message)).andReturn(false);
+        expect(invoker.invokeProtocolHandlers(eq(true), isA(MessageContext.class))).andReturn(false);
         control.replay();
-        AbstractProtocolHandlerInterceptor pi = new IIOPHandlerInterceptor(invoker);
+        IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor(invoker);
         pi.handleMessage(message);  
+    }
+
+    class IIOPMessage extends AbstractWrappedMessage {
+        public IIOPMessage(Message m) {
+            super(m);
+        }
     }
     
     interface IIOPMessageContext extends MessageContext {

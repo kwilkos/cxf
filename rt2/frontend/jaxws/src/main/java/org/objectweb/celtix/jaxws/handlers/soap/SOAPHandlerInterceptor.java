@@ -1,15 +1,17 @@
-package org.objectweb.celtix.bindings.soap2.jaxws.handlers;
+package org.objectweb.celtix.jaxws.handlers.soap;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 
 import org.objectweb.celtix.bindings.soap2.SoapInterceptor;
 import org.objectweb.celtix.jaxws.handlers.AbstractProtocolHandlerInterceptor;
 import org.objectweb.celtix.jaxws.handlers.HandlerChainInvoker;
+import org.objectweb.celtix.message.Message;
 
 public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor 
     implements SoapInterceptor {
@@ -34,6 +36,13 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor
         }
         return understood;
     }
+
+    @Override
+    protected MessageContext createProtocolMessageContext(Message message) {
+        return new SOAPMessageContextImpl(message);
+    }
+    
+    
     
     
     

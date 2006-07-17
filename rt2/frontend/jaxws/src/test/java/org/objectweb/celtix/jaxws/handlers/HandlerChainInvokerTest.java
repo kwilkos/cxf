@@ -9,11 +9,13 @@ import java.util.Map;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
+import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.jaxws.context.WrappedMessageContext;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 
@@ -23,6 +25,9 @@ public class HandlerChainInvokerTest extends TestCase {
     
     HandlerChainInvoker invoker;    
     Message message = new MessageImpl();
+    LogicalMessageContext lmc = new LogicalMessageContextImpl(message);
+    MessageContext pmc = new WrappedMessageContext(message);
+    StreamMessageContext smc = new StreamMessageContextImpl(message);
     
     TestLogicalHandler[] logicalHandlers = new TestLogicalHandler[HANDLER_COUNT];
     TestProtocolHandler[] protocolHandlers = new TestProtocolHandler[HANDLER_COUNT];
@@ -49,9 +54,9 @@ public class HandlerChainInvokerTest extends TestCase {
     
     public void testInvokeEmptyHandlerChain() {
         invoker = new HandlerChainInvoker(new ArrayList<Handler>());
-        assertTrue(invoker.invokeLogicalHandlers(false, message));
+        assertTrue(invoker.invokeLogicalHandlers(false, lmc));
         assertTrue(doInvokeProtocolHandlers(false));
-        assertTrue(invoker.invokeStreamHandlers(message));
+        assertTrue(invoker.invokeStreamHandlers(smc));
     }
 
     
@@ -125,7 +130,7 @@ public class HandlerChainInvokerTest extends TestCase {
         // invoke the handlers.  when a handler returns false, processing
         // of handlers is stopped and message direction is  reversed.
         logicalHandlers[0].setHandleMessageRet(false);        
-        boolean ret = invoker.invokeLogicalHandlers(false, message);
+        boolean ret = invoker.invokeLogicalHandlers(false, lmc);
                 
         assertEquals(false, ret); 
         assertFalse(invoker.isClosed()); 
@@ -138,7 +143,7 @@ public class HandlerChainInvokerTest extends TestCase {
         // one on the list is actually invoked.
         logicalHandlers[0].setHandleMessageRet(true);        
         
-        ret = invoker.invokeLogicalHandlers(false, message);
+        ret = invoker.invokeLogicalHandlers(false, lmc);
         assertTrue(ret);
         assertFalse(invoker.isClosed()); 
         assertEquals(1, logicalHandlers[0].getHandleMessageCount());
@@ -154,7 +159,7 @@ public class HandlerChainInvokerTest extends TestCase {
         invoker.setInbound();
          
         logicalHandlers[1].setHandleMessageRet(false);        
-        boolean ret = invoker.invokeLogicalHandlers(false, message);
+        boolean ret = invoker.invokeLogicalHandlers(false, lmc);
         assertFalse(invoker.isClosed()); 
                 
         assertEquals(false, ret); 
@@ -171,13 +176,13 @@ public class HandlerChainInvokerTest extends TestCase {
         ProtocolException pe = new ProtocolException("banzai");
         logicalHandlers[1].setException(pe);
 
-        boolean continueProcessing = invoker.invokeLogicalHandlers(false, message); 
+        boolean continueProcessing = invoker.invokeLogicalHandlers(false, lmc); 
         assertFalse(continueProcessing);
         assertTrue(invoker.faultRaised()); 
 
         assertEquals(1, logicalHandlers[0].getHandleMessageCount()); 
         assertEquals(1, logicalHandlers[1].getHandleMessageCount()); 
-        continueProcessing = invoker.invokeLogicalHandlers(false, message);
+        continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
         assertTrue(continueProcessing);
         assertTrue(invoker.faultRaised()); 
         assertFalse(invoker.isClosed()); 
@@ -200,7 +205,7 @@ public class HandlerChainInvokerTest extends TestCase {
         RuntimeException re = new RuntimeException("banzai");
         logicalHandlers[1].setException(re);
 
-        boolean continueProcessing = invoker.invokeLogicalHandlers(false, message); 
+        boolean continueProcessing = invoker.invokeLogicalHandlers(false, lmc); 
         assertFalse(continueProcessing);
         assertFalse(invoker.faultRaised()); 
         assertTrue(invoker.isClosed()); 
@@ -209,7 +214,7 @@ public class HandlerChainInvokerTest extends TestCase {
         assertEquals(1, logicalHandlers[1].getHandleMessageCount()); 
 
         // should this throw exception???
-        continueProcessing = invoker.invokeLogicalHandlers(false, message);
+        continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
         assertFalse(continueProcessing);
 
         assertEquals(1, logicalHandlers[0].getHandleMessageCount()); 
@@ -225,7 +230,7 @@ public class HandlerChainInvokerTest extends TestCase {
         ProtocolException pe = new ProtocolException("banzai");
         invoker.setFault(pe); 
 
-        boolean continueProcessing = invoker.invokeLogicalHandlers(false, message);
+        boolean continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
         assertTrue(continueProcessing); 
         assertEquals(0, logicalHandlers[0].getHandleMessageCount());
         assertEquals(0, logicalHandlers[1].getHandleMessageCount());
@@ -274,9 +279,9 @@ public class HandlerChainInvokerTest extends TestCase {
 
     public void testMEPComplete() { 
 
-        invoker.invokeLogicalHandlers(false, message); 
+        invoker.invokeLogicalHandlers(false, lmc); 
         doInvokeProtocolHandlers(false);
-        invoker.invokeStreamHandlers(message);
+        invoker.invokeStreamHandlers(smc);
         assertEquals(6, invoker.getInvokedHandlers().size()); 
 
         invoker.mepComplete(message); 
@@ -313,7 +318,7 @@ public class HandlerChainInvokerTest extends TestCase {
         invoker.setInbound();
         //invoker.invokeProtocolHandlers(true, soapContext);
         doInvokeProtocolHandlers(true);
-        invoker.invokeLogicalHandlers(true, message); 
+        invoker.invokeLogicalHandlers(true, lmc); 
 
         assertEquals(2, invoker.getInvokedHandlers().size());
         assertTrue(!invoker.getInvokedHandlers().contains(logicalHandlers[1]));
@@ -326,7 +331,7 @@ public class HandlerChainInvokerTest extends TestCase {
         assertEquals(1, protocolHandlers[1].getHandleMessageCount()); 
 
         // now, invoke handlers on outbound leg
-        invoker.invokeLogicalHandlers(true, message); 
+        invoker.invokeLogicalHandlers(true, lmc); 
 
         assertEquals(1, logicalHandlers[1].getHandleMessageCount()); 
         assertEquals(0, logicalHandlers[0].getHandleMessageCount()); 
@@ -337,7 +342,7 @@ public class HandlerChainInvokerTest extends TestCase {
     
     protected void checkLogicalHandlersInvoked(boolean outboundProperty, boolean requestorProperty) { 
 
-        invoker.invokeLogicalHandlers(requestorProperty, message);
+        invoker.invokeLogicalHandlers(requestorProperty, lmc);
 
         assertNotNull(message.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY));
         assertEquals(outboundProperty, message.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY));
@@ -351,7 +356,7 @@ public class HandlerChainInvokerTest extends TestCase {
     
     protected void checkProtocolHandlersInvoked(boolean outboundProperty) { 
   
-        invoker.invokeProtocolHandlers(false, message);
+        invoker.invokeProtocolHandlers(false, pmc);
         
         assertTrue("handler not invoked", protocolHandlers[0].isHandleMessageInvoked());
         assertTrue("handler not invoked", protocolHandlers[1].isHandleMessageInvoked());
@@ -363,7 +368,7 @@ public class HandlerChainInvokerTest extends TestCase {
     protected void checkStreamHandlersInvoked(boolean outboundProperty, boolean requestorProperty) { 
         
         // InputStreamMessageContext istreamCtx = new TestInputStreamMessageContext(message);    
-        invoker.invokeStreamHandlers(message);
+        invoker.invokeStreamHandlers(smc);
                  
         assertNotNull(message.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY));
         assertEquals(outboundProperty, message.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY));
@@ -383,7 +388,7 @@ public class HandlerChainInvokerTest extends TestCase {
 
         // throw exception during handleFault processing
         logicalHandlers[0].setException(e);
-        boolean continueProcessing = invoker.invokeLogicalHandlers(false, message);
+        boolean continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
         assertFalse(continueProcessing); 
         assertTrue(invoker.isClosed()); 
         assertEquals(1, logicalHandlers[0].getHandleFaultCount());
@@ -391,7 +396,7 @@ public class HandlerChainInvokerTest extends TestCase {
     } 
  
     private boolean doInvokeProtocolHandlers(boolean requestor) {
-        return invoker.invokeProtocolHandlers(requestor, message);
+        return invoker.invokeProtocolHandlers(requestor, pmc);
     }
     
     static class TestStreamHandler extends AbstractHandlerBase<StreamMessageContext> 

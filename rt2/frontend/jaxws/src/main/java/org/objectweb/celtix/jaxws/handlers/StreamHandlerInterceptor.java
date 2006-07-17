@@ -9,7 +9,8 @@ public class StreamHandlerInterceptor extends AbstractJAXWSHandlerInterceptor {
     }
 
     public void handleMessage(Message message) {
-        invoker.invokeStreamHandlers(message);
+        StreamMessageContextImpl sctx = new StreamMessageContextImpl(message);
+        invoker.invokeStreamHandlers(sctx);
     } 
     
     public void handleFault(Message message) {

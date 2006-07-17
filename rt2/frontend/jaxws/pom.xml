@@ -10,7 +10,7 @@
 
     <parent>
         <groupId>org.objectweb.celtixfire</groupId>
-        <artifactId>cxf-rt</artifactId>
+        <artifactId>cxf-rt2</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
@@ -34,6 +34,11 @@
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>cxf-api2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt2-bindings-soap</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

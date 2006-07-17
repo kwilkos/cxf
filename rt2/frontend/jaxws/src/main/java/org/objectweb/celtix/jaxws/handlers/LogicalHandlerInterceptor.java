@@ -9,7 +9,8 @@ public class LogicalHandlerInterceptor extends AbstractJAXWSHandlerInterceptor {
     }
     
     public void handleMessage(Message message) {
-        if (!invoker.invokeLogicalHandlers(isRequestor(message), message)) {
+        LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
+        if (!invoker.invokeLogicalHandlers(isRequestor(message), lctx)) {
             // need to abort - not sure how to do this:
             // we have access to the interceptor chain via the message but 
             // there is no support for terminating the chain yet
