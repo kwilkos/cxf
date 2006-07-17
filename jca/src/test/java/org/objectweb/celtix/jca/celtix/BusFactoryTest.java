@@ -3,11 +3,13 @@ package org.objectweb.celtix.jca.celtix;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 
 import javax.resource.ResourceException;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Endpoint;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -20,7 +22,6 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.jca.celtix.test.DummyBus;
 import org.objectweb.celtix.jca.core.resourceadapter.ResourceAdapterInternalException;
-
 
 public class BusFactoryTest extends TestCase {
 
@@ -303,23 +304,31 @@ public class BusFactoryTest extends TestCase {
         busFactory.initialiseServants();
         
     }
-
+    */
     public void testAddServantsCache() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         BusFactory busFactory = new BusFactory(mcf);
-        Bus mockBus = EasyMock.createMock(Bus.class);
+        //Bus mockBus = EasyMock.createMock(Bus.class);
+        Bus mockBus = Bus.init();
+
         Properties props = new Properties();
-        props.put("jndiName", "{http://com.iona}serviceName,portName@file:///");
+        String wsdlLocation =
+            this.getClass().getResource("resources/hello_world.wsdl").toString();
+        //        props.put("jndiName",
+        //"{http://objectweb.org/hello_world_soap_http}serviceName,portName@" + wsdlLocation);
+        props.put("jndiName", "{http://objectweb.org/hello_world_soap_http}SOAPService@"
+                  + wsdlLocation);
+
         assertTrue("there's no registered servants at beginning", busFactory.getRegisteredServants()
             .isEmpty());
         busFactory.setBus(mockBus);
         busFactory.initialiseServantsFromProperties(props, true);
-        assertEquals("registered servant with the expected service name", ((QName)busFactory
-            .getRegisteredServants().get(0)).toString(), "{http://com.iona}serviceName");
+        assertTrue("registered servant with the expected service name", ((Endpoint)busFactory
+            .getRegisteredServants().get(0)).isPublished());
         busFactory.deregisterServants(mockBus);
         assertTrue("servants should be deregistered", busFactory.getRegisteredServants().isEmpty());
     }
-
+    /*
     public void testInitServantsFromPropertiesWithPortName() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         BusFactory busFactory = new BusFactory(mcf);

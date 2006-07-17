@@ -5,29 +5,49 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.Vector;
 import java.util.logging.Logger;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.resource.ResourceException;
+import javax.wsdl.Binding;
+import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.Service;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Endpoint;
+import org.xml.sax.InputSource;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bus.jaxws.EndpointImpl;
+import org.objectweb.celtix.jaxws.EndpointRegistry;
 import org.objectweb.celtix.jca.core.resourceadapter.ResourceAdapterInternalException;
 import org.objectweb.celtix.jca.core.resourceadapter.UriHandlerInit;
+import org.objectweb.celtix.jca.core.servant.CeltixConnectEJBServant;
+import org.objectweb.celtix.jca.core.servant.EJBServant;
+import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+
+import org.xmlsoap.schemas.wsdl.http.AddressType;
+
 
 public class BusFactory {
     
     private static final Logger LOG = Logger.getLogger(BusFactory.class.getName());
 
     private Bus bus;
-    private List servantsCache = new Vector();
+    private List<Endpoint> servantsCache = new ArrayList<Endpoint>();
     private InitialContext jndiContext;
     private ClassLoader appserverClassLoader;
     private ManagedConnectionFactoryImpl mcf;
@@ -88,9 +108,11 @@ public class BusFactory {
     
     void initialiseServants() throws ResourceException {
         if (isMonitorEJBServicePropertiesEnabled()) {
+            System.out.println(">>>><<<< will start properties monitor thread");
             LOG.config("ejb service properties update enabled. ");
             startPropertiesMonitorThread();
         } else {
+            System.out.println("<<<<>>>> getejbservicepropertiesURL");
             URL propsUrl = mcf.getEJBServicePropertiesURLInstance();
             if (propsUrl != null) {
                 initialiseServantsFromProperties(loadProperties(propsUrl), false);
@@ -127,9 +149,8 @@ public class BusFactory {
             String serviceName = (String)ejbServants.getProperty(jndiName);
             LOG.config("Found ejb endpoint: jndi name=" + jndiName + ", wsdl service=" + serviceName);
             //TODO publish the service endpoint 
-            /* try {
-                
-                //initialiseServant(jndiName, serviceName);
+            try {
+                initialiseServant(jndiName, serviceName);
                 //registerXAResource();
             } catch (ResourceException re) {
                 LOG.warning("Error initialising servant with jndi name " 
@@ -140,71 +161,149 @@ public class BusFactory {
                     throw re;
                 }
 
-            }*/
+            }
         }
     }
 
     //TODO need to publish the Endpoint
-    /*
     void initialiseServant(String jndiName, String serviceName) throws ResourceException {
-
+        Endpoint ei = null;
+        QName serviceQName = null;
+        String wsdlLocation = "";
+        String portName = "";
         if ("".equals(serviceName)) {
             throw new ResourceAdapterInternalException(
-                       "A WSDL service QName must be specified as the value of the EJB JNDI name key: "
-                       + jndiName);
+                          "A WSDL service QName must be specified as the value of the EJB JNDI name key: "
+                          + jndiName);
         } else {
-            QName service = serviceQNameFromString(serviceName);
-            String wsdlLocation = wsdlLocFromString(serviceName);
+            serviceQName = serviceQNameFromString(serviceName);
+            wsdlLocation = wsdlLocFromString(serviceName);
             if (wsdlLocation == null) {
-                try {
-                    wsdlLocation = bus.getServiceWSDL(service);
-                    LOG.info("getServiceWSDL returns " + wsdlLocation + " for service: " + serviceName);
-                } catch (BusException be) {
-                    throw new ResourceAdapterInternalException(
-                               "Service string value:"
-                               + serviceName
-                               + " for key="
-                               + jndiName
-                               + " is incomplete. You must specify wsdl location using the '@' notation, "
-                               + "eg: jndiName={namespace url}ServiceName@WsdlURL or configure"
-                               + " the relevant bus:" + "initial_contract in configuration",
-                               be);
-                }
-            }
-            mcf.validateURLString(wsdlLocation,
-                                  "WSDL location specified using '@' notation"
-                                  + " in service string is invalid, value="
-                                  + wsdlLocation);
-            String portName = portNameFromString(serviceName);
-            try {
-                CeltixConnectEJBServant servant;
-                if (getBootstrapContext() == null) {
-                    logger.info("No transaction inflow involved.");
-                    servant = new CeltixConnectEJBServant(this, wsdlLocation, jndiName);
-                } else {
-                    logger.info("Transaction inflow involved.");
-                    servant = new TransactionalArtixConnectEJBServant(this, wsdlLocation, jndiName);
-                }
-
-                if (portName != null) {
-                    bus.registerServant(servant, service, portName);
-                } else {
-                    bus.registerServant(servant, service);
-                }
-                LOG.info("Registering ejb servant: " + servant + " for service: " + service
-                            + (portName == null ? "" : ", with port: " + portName));
-
-            } catch (Exception e) {
-                throw new ResourceAdapterInternalException("Failed to register EJBServant for jnidName "
-                                                           + jndiName, e);
-            }
-
-            synchronized (servantsCache) {
-                servantsCache.add(service);
+                throw new ResourceAdapterInternalException(
+                          "Service string value:"
+                          + serviceName
+                          + " for key="
+                          + jndiName
+                          + " is incomplete. You must specify wsdl location using the '@' notation, "
+                          + "eg: jndiName={namespace url}ServiceName@WsdlURL or configure"
+                          + " the relevant bus:" + "initial_contract in configuration");
             }
         }
-    }*/
+        mcf.validateURLString(wsdlLocation,
+                              "WSDL location specified using '@' notation"
+                              + " in service string is invalid, value="
+                              + wsdlLocation);
+        portName = portNameFromString(serviceName);
+        try {
+            ei = processWSDL(jndiName, serviceQName, wsdlLocation, portName);
+        } catch (Exception e) {
+            throw new ResourceAdapterInternalException("Failed to register EJBServant for jnidName "
+                                                       + jndiName, e);
+        }
+        
+        synchronized (servantsCache) {
+            if (ei instanceof Endpoint) {
+                servantsCache.add(ei);
+            }
+        }
+    }
 
+    private Endpoint processWSDL(String jndiName, QName serviceQName, String wsdlLocation, String portName)
+        throws Exception {
+        Endpoint ei = null;
+        
+        URL wsdlUrl = new URL(wsdlLocation);
+        WSDLFactory factory = WSDLFactory.newInstance();
+        WSDLReader reader = factory.newWSDLReader();
+        reader.setFeature("javax.wsdl.verbose", false);
+        InputSource input = new InputSource(wsdlUrl.openStream());
+        Definition wsdlDef = reader.readWSDL(wsdlUrl.toString(), input);
+            
+        // get service and port from wsdl definition
+        Service wsdlService = wsdlDef.getService(serviceQName);
+//         Map services = wsdlDef.getServices();
+//         //        Service wsdlService = (Service) (services.get(serviceQName));
+
+//         Set servicesKeys = services.keySet();
+//         Iterator it = servicesKeys.iterator();
+
+//         while (it.hasNext()) {
+//             Object key = it.next();
+// //             System.out.println("\n\n  >>>>>>>>> <<<<<<<<<<<< key class: "
+// //                                + key.getClass().toString() + "  key value: " + key.toString() + "\n");
+// //             System.out.println("  >>>>>>>>> <<<<<<<<<<<< serviceQName class: "
+// //                                + serviceQName.getClass().toString()
+// //                                + "  serviceQName value: " + serviceQName.toString() + "\n");
+//             System.out.println("\n\n KEY: [" + key.toString() + "]\n");
+//             System.out.println("QName: [" + serviceQName.toString() + "]");
+//             wsdlService = (Service) (services.get(key));
+//             if (wsdlService == null) {
+//                 System.out.println(" >>>>>>> <<<<<<< Can not find service. ");
+//             }
+//         }
+            
+
+        Port port = null;
+        if (portName == null) {
+            Map ports = wsdlService.getPorts();
+            Iterator it = ports.values().iterator();
+            if (it.hasNext()) {
+                port = (Port) it.next();
+                portName = port.getName();
+            }
+        } else {
+            port = wsdlService.getPort(portName);
+        }
+        
+        // get bindingId from wsdl definition
+        String bindingId = null;
+        Binding binding = port.getBinding();
+        if (null != binding) {
+            System.out.println("<> <> binding is not null");
+            List list = binding.getExtensibilityElements();
+            if (!list.isEmpty()) {
+                bindingId = ((ExtensibilityElement) list.get(0)).getElementType().getNamespaceURI();
+            }
+        } else {
+            System.out.println("<> <> binding is null");
+        }
+        // get address
+        String address = "";
+        List<?> list = port.getExtensibilityElements();
+        for (Object ep : list) {
+            ExtensibilityElement ext = (ExtensibilityElement) ep;
+            if (ext instanceof SOAPAddress) {
+                if (bindingId == null) {
+                    bindingId = ((SOAPAddress) ext).getLocationURI();
+                }
+                address = ((SOAPAddress) ext).getLocationURI();
+            }
+            if (ext instanceof AddressType) {
+                if (bindingId == null) {
+                    bindingId = ((AddressType) ext).getLocation();
+                }
+                address = ((AddressType) ext).getLocation();
+            }
+        }
+
+        System.out.println("<> <> address: " + address);
+        System.out.println("<> <> bindingId: " + bindingId);
+        EJBServant servant = new CeltixConnectEJBServant(this, wsdlLocation, jndiName);
+
+        if (getBootstrapContext() == null) {
+            LOG.info("No transaction inflow involved.");
+            EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlUrl,
+                                                                                    serviceQName,
+                                                                                    portName);
+            ei = new EndpointImpl(bus, servant, bindingId, ref);
+        } else {
+            // for transaction
+            LOG.info("Transaction inflow involved.");
+        }
+        ei.publish(address);
+        return ei;
+    }
+    
     void startPropertiesMonitorThread() throws ResourceException {
         Integer pollIntervalInteger = mcf.getEJBServicePropertiesPollInterval();
         int pollInterval = pollIntervalInteger.intValue();
@@ -236,27 +335,24 @@ public class BusFactory {
         return url != null && "file".equals(url.getProtocol());
     }
 
-    protected void deregisterServants(Bus aBus) throws ResourceException {
+    protected void deregisterServants(Bus aBus) {
         synchronized (servantsCache) {
             if (!servantsCache.isEmpty()) {
-                QName service = null;
+                Endpoint ed = null;
                 Iterator servants = servantsCache.iterator();
                 while (servants.hasNext()) {
-                    service = (QName)(servants.next());
-                    LOG.info("Deregistering ejb servant for service: " + service);
-                    /*try {
-                        //TODO need to remove the service endpoint
-                        //bus.removeServant(service);
-                    } catch (BusException be) {
-                        LOG.warning("Failed to deregister ejb servant for service: " 
-                                    + service + "Exception" + be);
-                    }*/
+                    ed = (Endpoint)(servants.next());
+                    //                     LOG.info("Deregistering ejb servant for service: " + service);
+                    //TODO need to remove the service endpoint
+                    //bus.removeServant(service);
+                    EndpointRegistry er = bus.getEndpointRegistry();
+                    er.unregisterEndpoint(ed);
                 }
                 servantsCache.clear();
             }
         }
     }
-
+    
     Properties loadProperties(URL propsUrl) throws ResourceException {
         Properties props = null;
         InputStream istream = null;
