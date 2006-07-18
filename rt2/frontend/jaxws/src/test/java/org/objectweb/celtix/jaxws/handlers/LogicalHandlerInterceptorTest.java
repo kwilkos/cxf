@@ -29,12 +29,13 @@ public class LogicalHandlerInterceptorTest extends TestCase {
     public void tearDown() {
         control.verify();
     }
-
+    
     public void testInterceptSuccess() {
         expect(invoker.invokeLogicalHandlers(eq(true),
             isA(LogicalMessageContext.class))).andReturn(true);
         control.replay();
         LogicalHandlerInterceptor li = new LogicalHandlerInterceptor(invoker);
+        assertEquals("unexpected phase", "user-logical", li.getPhase());
         li.handleMessage(message);
     }
     

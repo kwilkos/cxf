@@ -1,11 +1,13 @@
 package org.objectweb.celtix.jaxws.handlers;
 
 import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.phase.Phase;
 
 public class LogicalHandlerInterceptor extends AbstractJAXWSHandlerInterceptor {
     
     public LogicalHandlerInterceptor(HandlerChainInvoker invoker) {
         super(invoker);
+        setPhase(Phase.USER_LOGICAL);
     }
     
     public void handleMessage(Message message) {

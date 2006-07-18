@@ -30,6 +30,7 @@ public class StreamHandlerInterceptorTest extends TestCase {
         expect(invoker.invokeStreamHandlers(isA(StreamMessageContext.class))).andReturn(true);
         control.replay();
         StreamHandlerInterceptor si = new StreamHandlerInterceptor(invoker);
+        assertEquals("unexpected phase", "user-stream", si.getPhase());
         si.handleMessage(message);
     }
     

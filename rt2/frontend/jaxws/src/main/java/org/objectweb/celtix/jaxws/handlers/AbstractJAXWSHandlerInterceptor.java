@@ -2,8 +2,10 @@ package org.objectweb.celtix.jaxws.handlers;
 
 import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 
-public abstract class AbstractJAXWSHandlerInterceptor implements Interceptor {
+public abstract class AbstractJAXWSHandlerInterceptor extends AbstractPhaseInterceptor 
+    implements Interceptor {
     protected HandlerChainInvoker invoker;
     
     AbstractJAXWSHandlerInterceptor(HandlerChainInvoker i) {

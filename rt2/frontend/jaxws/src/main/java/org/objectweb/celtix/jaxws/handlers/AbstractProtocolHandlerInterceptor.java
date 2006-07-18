@@ -4,11 +4,13 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.jaxws.context.WrappedMessageContext;
 import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.phase.Phase;
 
 public abstract class AbstractProtocolHandlerInterceptor extends AbstractJAXWSHandlerInterceptor {
 
     protected AbstractProtocolHandlerInterceptor(HandlerChainInvoker invoker) {
         super(invoker);
+        setPhase(Phase.USER_PROTOCOL);
     }
     
     public void handleMessage(Message message) {

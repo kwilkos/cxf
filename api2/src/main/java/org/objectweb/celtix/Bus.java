@@ -2,6 +2,7 @@ package org.objectweb.celtix;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,6 +13,7 @@ import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.configuration.Configuration;
 // import org.objectweb.celtix.jaxws.EndpointRegistry;
 // import org.objectweb.celtix.plugins.PluginManager;
+import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.resource.ResourceManager;
 // import org.objectweb.celtix.transports.TransportFactoryManager;
 // import org.objectweb.celtix.workqueue.WorkQueueManager;
@@ -25,7 +27,6 @@ public abstract class Bus {
     private static Map<String, WeakReference<Bus>> nameMap = 
         new ConcurrentHashMap<String, WeakReference<Bus>>();
     private static Bus defaultBus; 
-    private Map<String, Object> registry;
     
     /**
      * Returns a newly created and fully initialised <code>Bus</code>.
@@ -157,7 +158,7 @@ public abstract class Bus {
     public abstract void shutdown(boolean wait) throws BusException;
 
     /** 
-     * Returns the <code>Configuration</code> of this <code>Bus</code>.
+     * Returns the configuration of this <code>Bus</code>.
      * 
      * @return Configuration the configuration of this <code>bus</code>.
      */
@@ -171,13 +172,23 @@ public abstract class Bus {
     // public abstract TransportFactoryManager getTransportFactoryManager();
 
     /** 
-     * Returns the <code>BindingManager</code> of this <code>Bus</code>.
+     * Returns the BindingFactoryManager of this <code>Bus</code>.
      * 
-     * @return BindingManager the binding manager of this <code>Bus</code>.
+     * @return the BindingFactoryManager of this <code>Bus</code>.
      */
-    public BindingFactoryManager getBindingManager() {
-        return (BindingFactoryManager)registry.get(BindingFactoryManager.class.getName());
-    }
+    public abstract BindingFactoryManager getBindingManager();    
+    
+    /**
+     * Returns the list of in phases for this bus.
+     * @return the list of in phases for this bus
+     */
+    public abstract List<Phase> getInPhases(); 
+    
+    /**
+     * Returns the list of out phases for this bus.
+     * @return the list of out phases for this bus
+     */
+    public abstract List<Phase> getOutPhases();
 
     /** 
      * Returns the <code>ClientRegistry</code> of this <code>Bus</code>.
@@ -185,13 +196,6 @@ public abstract class Bus {
      * @return WSDLManager the wsdl manager of this <code>Bus</code>.
      */
     // public abstract WSDLManager getWSDLManager();
-
-    /** 
-     * Returns the <code>PluginManager</code> of this <code>Bus</code>.
-     * 
-     * @return PluginManager the plugin manager of this <code>Bus</code>.
-     */
-    // public abstract PluginManager getPluginManager();
 
     /** 
      * Returns the <code>BusLifeCycleManager</code> of this <code>Bus</code>.

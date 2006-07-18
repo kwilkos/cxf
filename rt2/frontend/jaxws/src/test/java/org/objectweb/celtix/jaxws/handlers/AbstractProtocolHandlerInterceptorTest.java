@@ -35,6 +35,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
         expect(invoker.invokeProtocolHandlers(eq(true), isA(MessageContext.class))).andReturn(true);
         control.replay();
         IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor(invoker);
+        assertEquals("unexpected phase", "user-protocol", pi.getPhase());
         pi.handleMessage(message);
     }
     
