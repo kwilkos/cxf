@@ -129,6 +129,14 @@ public class PhaseInterceptorChain implements InterceptorChain {
         // TODO
     }
     
+    public Iterator<Interceptor> getIterator() {
+        List<Interceptor> allInterceptors = new ArrayList<Interceptor>();
+        for (List<Interceptor> interceptorList : interceptors.values()) {
+            allInterceptors.addAll(interceptorList);
+        }
+        return allInterceptors.iterator();
+    }
+    
     protected void insertInterceptor(List<Interceptor> intercs, AbstractPhaseInterceptor interc) {
         if (intercs.size() == 0) {
             intercs.add(interc);

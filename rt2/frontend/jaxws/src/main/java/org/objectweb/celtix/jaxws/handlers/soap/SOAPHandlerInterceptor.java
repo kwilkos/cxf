@@ -1,5 +1,6 @@
 package org.objectweb.celtix.jaxws.handlers.soap;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +21,8 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor
         super(invoker);
     }
 
-    public List<QName> getRoles() {
-        List<QName> roles = new ArrayList<QName>();
+    public List<URI> getRoles() {
+        List<URI> roles = new ArrayList<URI>();
         // TODO
         return roles;
     }

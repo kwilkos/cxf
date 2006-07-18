@@ -1,6 +1,9 @@
 package org.objectweb.celtix.bindings.soap2;
 
+import java.net.URI;
+
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -8,6 +11,7 @@ import javax.xml.soap.SOAPException;
 
 import org.w3c.dom.Element;
 
+import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 
@@ -17,7 +21,7 @@ public class MustUnderstandInterceptor extends AbstractPhaseInterceptor {
     private Set<Element> mustUnderstandHeaders = new HashSet<Element>();
     private Set<QName> notUnderstandQNames = new HashSet<QName>();
     private Set<QName> mustUnderstandQNames;
-    private Set<String> serviceRoles;
+    private Set<URI> serviceRoles;
     
     public void handleMessage(Message message) {
 
@@ -47,9 +51,15 @@ public class MustUnderstandInterceptor extends AbstractPhaseInterceptor {
             mustUnderstandQNames = new HashSet<QName>();
         }
         mustUnderstandQNames.addAll(ServiceModelUtil.getHeaderQNameInOperationParam(soapMessage));
-        // Loop all SoapInterceptor, add roles into serviceRoles
-        // And add understood QName to mustUnderstandQNames
-        
+        Iterator it = soapMessage.getInterceptorChain().getIterator();
+        while (it.hasNext()) {
+            Interceptor interceptorInstance = (Interceptor)it.next();
+            if (interceptorInstance instanceof SoapInterceptor) {
+                SoapInterceptor si = (SoapInterceptor)interceptorInstance;
+                serviceRoles.addAll(si.getRoles());
+                mustUnderstandQNames.addAll(si.getUnderstoodHeaders());
+            }
+        }
     }
 
     private void buildMustUnderstandHeaders() {
@@ -64,7 +74,7 @@ public class MustUnderstandInterceptor extends AbstractPhaseInterceptor {
                     if (role.equals(Soap12.ROLE_NEXT) || role.equals(Soap12.ROLE_ULTIMATERECEIVER)) {
                         mustUnderstandHeaders.add(header);
                     } else {
-                        for (String roleFromBinding : serviceRoles) {
+                        for (URI roleFromBinding : serviceRoles) {
                             if (role.equals(roleFromBinding)) {
                                 mustUnderstandHeaders.add(header);
                             }

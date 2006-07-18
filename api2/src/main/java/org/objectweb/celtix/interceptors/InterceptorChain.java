@@ -1,5 +1,6 @@
 package org.objectweb.celtix.interceptors;
 
+import java.util.Iterator;
 import org.objectweb.celtix.message.Message;
 
 public interface InterceptorChain  {
@@ -14,4 +15,5 @@ public interface InterceptorChain  {
      */
     void doIntercept(Message message);
 
+    Iterator<Interceptor> getIterator();
 }
