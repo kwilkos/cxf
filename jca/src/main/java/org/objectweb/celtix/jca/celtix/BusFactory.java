@@ -58,8 +58,7 @@ public class BusFactory {
     }
 
     protected String[] getBusArgs() throws ResourceException {
-        //There is only setting up the BUSID
-        
+        //There is only setting up the BUSID        
         String busId = mcf.getConfigurationScope();
         LOG.config("BUSid=" + busId);
 
@@ -91,7 +90,8 @@ public class BusFactory {
             ClassLoader cl = this.getClass().getClassLoader();
             // ensure resourceadapter: url handler can be found by URLFactory
             Thread.currentThread().setContextClassLoader(cl);
-            mcf.validateProperties();
+            //TODO Check for the managed connection factory properties
+            //mcf.validateProperties();            
             bus = initBus(cl);
             initialiseServants();
         } catch (Exception ex) {
@@ -136,20 +136,17 @@ public class BusFactory {
         deregisterServants(bus);
 
         LOG.config("Initialising EJB endpoints...");
-        String loginConfigName = mcf.getJAASLoginConfigName();
-        if (loginConfigName == null) {
-            loginConfigName = "other";
-        }
+       
         Enumeration keys = ejbServants.keys();
 
         while (keys.hasMoreElements()) {
             String jndiName = (String)keys.nextElement();
             String serviceName = (String)ejbServants.getProperty(jndiName);
             LOG.config("Found ejb endpoint: jndi name=" + jndiName + ", wsdl service=" + serviceName);
-            //TODO publish the service endpoint 
+            
             try {
                 initialiseServant(jndiName, serviceName);
-                //registerXAResource();
+                
             } catch (ResourceException re) {
                 LOG.warning("Error initialising servant with jndi name " 
                             + jndiName + " and service name "
@@ -163,7 +160,6 @@ public class BusFactory {
         }
     }
 
-    //TODO need to publish the Endpoint
     void initialiseServant(String jndiName, String serviceName) throws ResourceException {
         Endpoint ei = null;
         QName serviceQName = null;
@@ -464,20 +460,7 @@ public class BusFactory {
     public void setBus(Bus b) {
         bus = b;
     }
-
-    public String getJAASLoginConfigName() {
-        return mcf.getJAASLoginConfigName();
-    }
-
-    public String getJAASLoginUserName() {
-        return mcf.getJAASLoginUserName();
-    }
-
-    // REVISIT - gtully - feb-08-05 - may want to hide plain text password
-    public String getJAASLoginPassword() {
-        return mcf.getJAASLoginPassword();
-    }
-
+   
     public void create(ClassLoader classLoader, Object context) throws ResourceException {
         this.appserverClassLoader = classLoader;
         this.raBootstrapContext = context;

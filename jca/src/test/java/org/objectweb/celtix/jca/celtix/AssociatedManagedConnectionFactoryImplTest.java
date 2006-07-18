@@ -1,9 +1,11 @@
 package org.objectweb.celtix.jca.celtix;
 
+import java.lang.reflect.Method;
 import java.util.Properties;
 
 import javax.resource.ResourceException;
 
+import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ResourceAdapter;
 
 import junit.framework.Test;
@@ -12,10 +14,10 @@ import junit.textui.TestRunner;
 
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.jca.celtix.test.DummyBus;
 
 public class AssociatedManagedConnectionFactoryImplTest extends ManagedConnectionFactoryImplTest {
-    private static final String CELTIX_INSTALL_DIR = "celtix.install.dir";
-
+    
     public AssociatedManagedConnectionFactoryImplTest(String name) {
         super(name);
     }
@@ -52,34 +54,31 @@ public class AssociatedManagedConnectionFactoryImplTest extends ManagedConnectio
     }
 
     public void testBusInitializedAndRegisteredToResourceAdapter() throws ResourceException, Exception {
-        //TODO need to check the bus init get invovled with classloader
-        /*
+        DummyBus.reset();     
         System.setProperty("test.bus.class", DummyBus.class.getName());
         TestableAssociatedManagedConnectionFactoryImpl mci =
             new TestableAssociatedManagedConnectionFactoryImpl();
         DummyResourceAdapterImpl rai = new DummyResourceAdapterImpl();
         mci.setResourceAdapter(rai);
-
         ClassLoader originalCl = Thread.currentThread().getContextClassLoader();
         try {
             // do this for MockObject creation
             Thread.currentThread().setContextClassLoader(mci.getClass().getClassLoader());
 
             Class dummyBusClass = Class.forName(DummyBus.class.getName(), true, mci.getClass()
-                .getClassLoader());
-            Field initializeCount = dummyBusClass.getField("initializeCount");
-
-            mci.setCeltixInstallDir(DummyBus.vobRoot());
-            mci.setCeltixCEURL(DummyBus.CeltixCEURL);
-            ConnectionManager cm = (ConnectionManager)MockObjectFactory.create(Class
-                .forName(ConnectionManager.class.getName(), true, mci.getClass().getClassLoader()));
+                .getClassLoader());           
+            Method initializeCount = dummyBusClass.getMethod("getInitializeCount", new Class[]{});
+            ConnectionManager cm = 
+                (ConnectionManager)EasyMock.createMock(
+                    Class.forName(ConnectionManager.class.getName(), true, mci.getClass().getClassLoader()));
 
             mci.createConnectionFactory(cm);
-            assertEquals("bus should be initialized once", 1, initializeCount.getInt(null));
+            assertEquals("bus should be initialized once", 1, 
+                         initializeCount.invoke(null, new Object[]{}));
             assertEquals("bus registered once after first call", 1, rai.registeredCount);
         } finally {
             Thread.currentThread().setContextClassLoader(originalCl);
-        }*/
+        }
     }
 
     public void testMergeNonDuplicateResourceAdapterProps() throws ResourceException {
@@ -89,49 +88,17 @@ public class AssociatedManagedConnectionFactoryImplTest extends ManagedConnectio
 
         TestableAssociatedManagedConnectionFactoryImpl mci =
             new TestableAssociatedManagedConnectionFactoryImpl();
-        mci.setCeltixInstallDir("value2");
+       
 
-        assertEquals("before associate, one props", 1, mci.getPluginProps().size());
-        assertTrue("before associate, Celtix_INSTALL_DIR_PROPERTY is set", mci.getPluginProps()
-            .containsKey(CELTIX_INSTALL_DIR));
+        assertEquals("before associate, one props", 0, mci.getPluginProps().size());
         assertTrue("before associate, key1 not set", !mci.getPluginProps().containsKey("key1"));
 
         mci.setResourceAdapter(rai);
-        assertEquals("after associate, two props", 2, mci.getPluginProps().size());
+        assertEquals("after associate, two props", 1, mci.getPluginProps().size());
         assertTrue("after associate, key1 is set", mci.getPluginProps().containsKey("key1"));
     }
 
-    public void testMergeDuplicateResourceAdapterProps() throws ResourceException {
-        Properties props = new Properties();
-        props.setProperty(CELTIX_INSTALL_DIR, "value1");
-        ResourceAdapterImpl rai = new ResourceAdapterImpl(props);
-
-        TestableAssociatedManagedConnectionFactoryImpl mci = 
-            new TestableAssociatedManagedConnectionFactoryImpl();
-        mci.setCeltixInstallDir("value2");
-
-        assertEquals("before associate, one props", 1, mci.getPluginProps().size());
-        assertEquals("before associate,  CELTIX_INSTALL_DIR_PROPERTY set to value2", "value2", mci
-            .getPluginProps().getProperty(CELTIX_INSTALL_DIR));
-
-        mci.setResourceAdapter(rai);
-
-        assertEquals("after associate, still one props", 1, mci.getPluginProps().size());
-        assertEquals("after associate, CELTIX_INSTALL_DIR_PROPERTY value no change", "value2", mci
-            .getPluginProps().getProperty(CELTIX_INSTALL_DIR));
-    }
-
-    public void testMergeEmptyResourceAdapterProps() throws ResourceException {
-        Properties props = new Properties();
-        ResourceAdapterImpl rai = new ResourceAdapterImpl(props);
-        TestableAssociatedManagedConnectionFactoryImpl mci =
-            new TestableAssociatedManagedConnectionFactoryImpl();
-        mci.setCeltixInstallDir("value1");
-        assertEquals("before associate, one props", 1, mci.getPluginProps().size());
-        mci.setResourceAdapter(rai);
-        assertEquals("after associate, still one props", 1, mci.getPluginProps().size());
-    }
-
+    
     protected ManagedConnectionFactoryImpl createManagedConnectionFactoryImpl() {
         TestableAssociatedManagedConnectionFactoryImpl mci =
             new TestableAssociatedManagedConnectionFactoryImpl();

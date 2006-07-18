@@ -70,7 +70,7 @@ public class AssociatedManagedConnectionFactoryImpl
             throw new ResourceAdapterInternalException("ResourceAdapter can not be null");
         }
         
-        //TODO ((ResourceAdapterImpl)ra).registerBus(getBus());
+        ((ResourceAdapterImpl)ra).registerBus(getBus());
     }
 
     protected Object getBootstrapContext() {

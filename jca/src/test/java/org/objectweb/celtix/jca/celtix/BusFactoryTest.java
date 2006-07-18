@@ -42,20 +42,7 @@ public class BusFactoryTest extends TestCase {
         assertSame("Checking appserverClassLoader.", loader, bf.getAppserverClassLoader());
     } 
 
-    // Not a real test, just exercise the code, if classpath contains a vaild
-    // license then fine, otherwise expect an exception to indicate it cannot be
-    // found
-    // in the RAR
-      
-
-    public void testNoDefaultValueForJAASConfigName() throws Exception {
-
-        ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-        BusFactory busFactory = new BusFactory(mcf);
-        assertNull("checking JAASConfigName default value", busFactory.getJAASLoginConfigName());
-    }
-  
-    
+     
     public void testModifiedBusArguments() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         mcf.setConfigurationScope("a.b.c");
@@ -72,9 +59,7 @@ public class BusFactoryTest extends TestCase {
         DummyBus.reset();
         System.setProperty("test.bus.class", DummyBus.class.getName());
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-        mcf.setCeltixInstallDir(DummyBus.getCeltixHome());
-        //mcf.setCeltixCEURL(DummyBus.CeltixCEURL);
-
+       
         assertEquals("bus not yet initialized", DummyBus.getInitializeCount(), 0);
 
         
@@ -94,8 +79,7 @@ public class BusFactoryTest extends TestCase {
         ClassLoader originalCl = Thread.currentThread().getContextClassLoader();
         try {
             ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-            mcf.setCeltixInstallDir(DummyBus.getCeltixHome());
-           // mcf.setCeltixCEURL(DummyBus.CeltixCEURL);
+           
             BusFactory busFactory = new BusFactory(mcf);
 
             // do this for MockObject creation
@@ -124,8 +108,7 @@ public class BusFactoryTest extends TestCase {
         ClassLoader originalCl = Thread.currentThread().getContextClassLoader();
         try {
             ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-            mcf.setCeltixInstallDir(DummyBus.getCeltixHome());
-            //mcf.setCeltixCEURL(DummyBus.CeltixCEURL);
+          
             BusFactory busFactory = new BusFactory(mcf);
 
             // do this for MockObject creation

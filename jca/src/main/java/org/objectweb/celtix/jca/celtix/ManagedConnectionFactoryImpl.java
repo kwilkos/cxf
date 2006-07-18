@@ -55,19 +55,7 @@ public class ManagedConnectionFactoryImpl
     public void setEJBServicePropertiesPollInterval(Integer pollInterval) {
         setProperty(MONITOR_POLL_INTERVAL, pollInterval.toString());
     }
-
-    public void setJAASLoginConfigName(String name) {
-        setProperty(JAAS_LOGIN_CONFIG, name);
-    }
-
-    public void setJAASLoginUserName(String name) {
-        setProperty(JAAS_LOGIN_USER, name);
-    }
-    
-    public void setJAASLoginPassword(String name) {
-        setProperty(JAAS_LOGIN_PASSWORD, name);
-    }
-
+   
     public String getLogLevel() {
         return getPluginProps().getProperty(LOG_LEVEL);
     }
@@ -92,22 +80,7 @@ public class ManagedConnectionFactoryImpl
         return new Integer(getPluginProps().getProperty(MONITOR_POLL_INTERVAL, 
                                                         DEFAULT_MONITOR_POLL_INTERVAL));
     }
-
-    public String getJAASLoginConfigName() {
-        return getPluginProps().getProperty(JAAS_LOGIN_CONFIG);
-    }
-    
-    public String getJAASLoginUserName() {
-        return getPluginProps().getProperty(JAAS_LOGIN_USER);
-    }
-    
-    public String getJAASLoginPassword() {
-        return getPluginProps().getProperty(JAAS_LOGIN_PASSWORD);
-    }
-
-
-    
-
+   
     public URL getEJBServicePropertiesURLInstance() throws ResourceException {
         return getPropsURL(getEJBServicePropertiesURL());
     }

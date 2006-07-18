@@ -121,36 +121,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals(value, mcf.getEJBServicePropertiesPollInterval());
     }
 
-    public void testSetJAASLoginConfigName() throws Exception {
-        final String name = "jaaslogin";
-        Properties p = new Properties();
-        ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl(p);
-
-        mcf.setJAASLoginConfigName(name);
-        assertTrue(p.containsValue(name));
-        assertEquals(name, mcf.getJAASLoginConfigName());
-    }
-
-    public void testSetJAASLoginUserName() throws Exception {
-        final String name = "jaasuser";
-        Properties p = new Properties();
-        ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl(p);
-
-        mcf.setJAASLoginUserName(name);
-        assertTrue(p.containsValue(name));
-        assertEquals(name, mcf.getJAASLoginUserName());
-    }
-
-    public void testSetJAASLoginPassword() throws Exception {
-        final String name = "jaaspassword";
-        Properties p = new Properties();
-        ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl(p);
-
-        mcf.setJAASLoginPassword(name);
-        assertTrue(p.containsValue(name));
-        assertEquals(name, mcf.getJAASLoginPassword());
-    }
-
+    
     public void testSetLogLevelSetsLevelOnPlugin() throws Exception {
         Properties props = new Properties();
         ManagedConnectionFactoryImpl propsmcf = new ManagedConnectionFactoryImpl(props);
@@ -159,14 +130,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         propsmcf.setLogLevel(logLevel);
         assertTrue("prop is set", props.containsValue(logLevel));
     }
-
-    public void testNoDefaultValueForJAASLoginConfigName() throws Exception {
-        Properties p = new Properties();
-        ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl(p);
-
-        String value = mcf.getJAASLoginConfigName();
-        assertNull("value must not be preset ", value);
-    }
+  
 
     public void testGetPropsURLFromBadURL() throws Exception {
         try {
