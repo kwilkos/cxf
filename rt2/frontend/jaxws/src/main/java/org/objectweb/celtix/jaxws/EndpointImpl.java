@@ -23,6 +23,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         implementor = i;
         bindingURI = uri;
         
+        
+        
         // build ServiceInfo and create celtix service
         
         // use service's endpoint factory to create the celtix endpoint - this

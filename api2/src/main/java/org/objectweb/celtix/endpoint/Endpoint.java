@@ -12,5 +12,9 @@ public interface Endpoint {
     
     Executor getExecutor();
     
+    void start(String address);
+    
+    void stop();
+    
   
 }

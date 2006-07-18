@@ -4,10 +4,10 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.client.Client;
+import org.objectweb.celtix.client.ClientFactory;
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.endpoint.EndpointFactory;
-import org.objectweb.celtix.proxy.Proxy;
-import org.objectweb.celtix.proxy.ProxyFactory;
 import org.objectweb.celtix.servicemodel.ServiceInfo;
 
 public interface Service {
@@ -18,9 +18,9 @@ public interface Service {
     
     List<Endpoint> getEndpoints();
     
-    List<Proxy> getClients();
+    List<Client> getClients();
     
-    ProxyFactory getClientFactory();
+    ClientFactory getClientFactory();
     
     EndpointFactory getEndpointFactory();
     
