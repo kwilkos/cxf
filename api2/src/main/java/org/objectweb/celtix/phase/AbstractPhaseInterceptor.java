@@ -6,16 +6,7 @@ import java.util.Set;
 import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.message.Message;
 
-/**
- * A phase interceptor participates in a PhaseInterceptorChain.
- * <pre>
- * The before and after properties contain a list of Ids that the
- * particular interceptor runs before or after.
- * </pre> 
- * @see org.objectweb.celtix.phase.PhaseInterceptorChain
- * @author Dan Diephouse
- */
-public abstract class AbstractPhaseInterceptor implements Interceptor {
+public abstract class AbstractPhaseInterceptor implements Interceptor, PhaseInterceptor {
     private String id;
     private String phase;
     private Set<String> before = new HashSet<String>();
@@ -28,31 +19,44 @@ public abstract class AbstractPhaseInterceptor implements Interceptor {
     public void addAfter(String i) {
         after.add(i);
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.objectweb.celtix.phase.PhaseInterceptor#getAfter()
+     */
     public Set<String> getAfter() {
         return after;
     }
+
     public void setAfter(Set<String> a) {
         this.after = a;
     }
+
     public Set<String> getBefore() {
         return before;
     }
+
     public void setBefore(Set<String> b) {
         this.before = b;
     }
+
     public String getId() {
         return id;
     }
+
     public void setId(String i) {
         this.id = i;
     }
+
     public String getPhase() {
         return phase;
     }
+
     public void setPhase(String p) {
         this.phase = p;
     }
-    public void handleFault(Message message)  {      
+
+    public void handleFault(Message message) {
     }
 }

@@ -150,7 +150,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         Collection after = interc.getAfter();
 
         for (int i = 0; i < intercs.size(); i++) {
-            AbstractPhaseInterceptor cmp = (AbstractPhaseInterceptor) intercs.get(i);
+            PhaseInterceptor cmp = (PhaseInterceptor) intercs.get(i);
 
             if (cmp.getId() == null) {
                 continue;
