@@ -13,8 +13,8 @@ import javax.xml.stream.XMLStreamReader;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.CachedOutputStream;
-import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Attachment;
+import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 
@@ -33,14 +33,14 @@ public class SoapOutInterceptorTest extends TestBase {
         chain.add(soi);
     }
 
-    public void testDoIntercept() {
+    public void testHandleMessage() {
         try {
             prepareSoapMessage();
         } catch (IOException ioe) {
             fail("Failed in creating soap message! " + ioe.getMessage());
         }
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
-        Exception oe = (Exception)soapMessage.get(AbstractWrappedMessage.OUTBOUND_EXCEPTION);
+        Exception oe = (Exception)soapMessage.get(Message.OUTBOUND_EXCEPTION);
         if (oe != null) {
             fail("OutBound Exception found! e=" + oe.getMessage());
         }

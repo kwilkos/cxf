@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -20,7 +22,6 @@ import org.objectweb.celtix.message.Attachment;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.staxutils.StaxUtils;
-
 
 public class SoapOutInterceptor extends AbstractPhaseInterceptor {
 
@@ -43,7 +44,7 @@ public class SoapOutInterceptor extends AbstractPhaseInterceptor {
                                   soapVersion.getNamespace());
             xtw.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
             Element eleHeaders = soapMessage.getHeaders(Element.class);
-            serializeDom2XmlStreamWriter(eleHeaders, xtw);
+            serializeDom2XmlStreamWriter(eleHeaders, xtw, new HashSet<String>());
             // Calling for Wrapped/Rpt/Doc/ Interceptor for writing SOAP body
             message.getInterceptorChain().doIntercept(message);
             // Write Envelop end element
@@ -52,7 +53,7 @@ public class SoapOutInterceptor extends AbstractPhaseInterceptor {
             soapMessage.setResult(InputStream.class, cos.getInputStream());
             Collection<Attachment> attachments = message.getAttachments();
             if (attachments.size() > 0) {
-                AttachmentUtil.serializeMultipartMessage(soapMessage, ops);                
+                AttachmentUtil.serializeMultipartMessage(soapMessage, ops);
             } else {
                 streamCopy(cos.getInputStream(), ops);
             }
@@ -77,25 +78,31 @@ public class SoapOutInterceptor extends AbstractPhaseInterceptor {
             output.close();
         }
     }
-    
-    private static void serializeDom2XmlStreamWriter(Element element, XMLStreamWriter xtw)
+
+    private static void serializeDom2XmlStreamWriter(Element element, XMLStreamWriter xtw,
+                                                     Set<String> eleNsCache)
         throws XMLStreamException {
 
         xtw.writeStartElement(element.getPrefix(), element.getLocalName(), element.getNamespaceURI());
-        if (xtw.getNamespaceContext().getNamespaceURI(element.getPrefix()) == null) {
+        if (!eleNsCache.contains(element.getPrefix() + element.getNamespaceURI())) {
             xtw.writeNamespace(element.getPrefix(), element.getNamespaceURI());
+            eleNsCache.add(element.getPrefix() + element.getNamespaceURI());
         }
-
+        Set<String> attrNsCache = new HashSet<String>();
         for (int i = 0; i < element.getAttributes().getLength(); i++) {
-            Node attributeNode = (Node)element.getAttributes().item(i);
-            xtw.writeAttribute(attributeNode.getNamespaceURI(), attributeNode.getLocalName(), attributeNode
-                .getTextContent());
+            Node attributeNode = (Node)element.getAttributes().item(i);            
+            if (!attrNsCache.contains(attributeNode.getPrefix() + attributeNode.getNamespaceURI())) {
+                xtw.writeNamespace(attributeNode.getPrefix(), attributeNode.getNamespaceURI());
+                attrNsCache.add(attributeNode.getPrefix() + attributeNode.getNamespaceURI());
+            }            
+            xtw.writeAttribute(attributeNode.getPrefix(), attributeNode.getNamespaceURI(), attributeNode
+                .getLocalName(), attributeNode.getTextContent());
         }
 
         for (int i = 0; i < element.getChildNodes().getLength(); i++) {
             Node child = element.getChildNodes().item(i);
             if (child instanceof Element) {
-                serializeDom2XmlStreamWriter((Element)child, xtw);
+                serializeDom2XmlStreamWriter((Element)child, xtw, eleNsCache);
             } else if (child instanceof Text) {
                 xtw.writeCharacters(((Text)child).getWholeText());
             } else if (child instanceof CharacterData) {

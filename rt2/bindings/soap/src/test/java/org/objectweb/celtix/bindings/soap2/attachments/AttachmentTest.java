@@ -45,7 +45,7 @@ public class AttachmentTest extends TestBase {
         } catch (IOException ioe) {
             fail(ioe.getStackTrace().toString());
         }
-        testDoIntercept(soapMessage, true);
+        testHandleMessage(soapMessage, true);
     }
 
     public void testDoInterceptOfSoap11() {
@@ -54,14 +54,14 @@ public class AttachmentTest extends TestBase {
         } catch (IOException ioe) {
             fail(ioe.getStackTrace().toString());
         }
-        testDoIntercept(soapMessage, true);
+        testHandleMessage(soapMessage, true);
     }
 
     public void testDoUnmarshallXopEnabled() {
         Object obj = null;
         try {
             soapMessage = TestUtil.createSoapMessage(new Soap12(), chain, this.getClass());
-            testDoIntercept(soapMessage, false);
+            testHandleMessage(soapMessage, false);
 
             JAXBContext context = JAXBContext
                 .newInstance("org.objectweb.celtix.bindings.soap2.attachments.types");
@@ -135,7 +135,7 @@ public class AttachmentTest extends TestBase {
             // Set result
             soapMessage.setResult(InputStream.class, cosXml.getInputStream());
             // Do intercept
-            testDoIntercept(soapMessage, true);
+            testHandleMessage(soapMessage, true);
 
         } catch (XMLStreamException xse) {
             fail(xse.getStackTrace().toString());
@@ -156,7 +156,7 @@ public class AttachmentTest extends TestBase {
 
     }
 
-    private static void testDoIntercept(SoapMessage soapMessage, boolean testXmlConent) {
+    private static void testHandleMessage(SoapMessage soapMessage, boolean testXmlConent) {
         try {
             CachedOutputStream cos = new CachedOutputStream(64 * 1024, null);
             String contentType = AttachmentUtil.serializeMultipartMessage(soapMessage, cos);

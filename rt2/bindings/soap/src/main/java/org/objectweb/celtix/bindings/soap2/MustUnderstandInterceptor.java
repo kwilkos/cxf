@@ -16,18 +16,18 @@ import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 
 public class MustUnderstandInterceptor extends AbstractPhaseInterceptor {
-        
-    private SoapMessage soapMessage;    
+
+    private SoapMessage soapMessage;
     private Set<Element> mustUnderstandHeaders = new HashSet<Element>();
     private Set<QName> notUnderstandQNames = new HashSet<QName>();
     private Set<QName> mustUnderstandQNames;
-    private Set<URI> serviceRoles;
-    
+    private Set<URI> serviceRoles = new HashSet<URI>();
+
     public void handleMessage(Message message) {
 
         // TODO Auto-generated method stub
         soapMessage = (SoapMessage)message;
-        if (!(soapMessage.getVersion() instanceof Soap12)) {            
+        if (!(soapMessage.getVersion() instanceof Soap12)) {
             message.getInterceptorChain().doIntercept(message);
             return;
         }
@@ -50,7 +50,10 @@ public class MustUnderstandInterceptor extends AbstractPhaseInterceptor {
         } else {
             mustUnderstandQNames = new HashSet<QName>();
         }
-        mustUnderstandQNames.addAll(ServiceModelUtil.getHeaderQNameInOperationParam(soapMessage));
+        Set<QName> paramHeaders = ServiceModelUtil.getHeaderQNameInOperationParam(soapMessage);
+        if (paramHeaders != null) {
+            mustUnderstandQNames.addAll(paramHeaders);
+        }
         Iterator it = soapMessage.getInterceptorChain().getIterator();
         while (it.hasNext()) {
             Interceptor interceptorInstance = (Interceptor)it.next();
@@ -63,12 +66,14 @@ public class MustUnderstandInterceptor extends AbstractPhaseInterceptor {
     }
 
     private void buildMustUnderstandHeaders() {
-        Element headers = (Element)soapMessage.getHeaders(Element.class);        
+        Element headers = (Element)soapMessage.getHeaders(Element.class);
         for (int i = 0; i < headers.getChildNodes().getLength(); i++) {
             Element header = (Element)headers.getChildNodes().item(i);
-            String mustUnderstand = header.getAttribute(Soap12.ATTRNAME_MUSTUNDERSTAND);
+            String mustUnderstand = header.getAttributeNS(soapMessage.getVersion().getNamespace(),
+                                                          Soap12.ATTRNAME_MUSTUNDERSTAND);
             if (Boolean.valueOf(mustUnderstand) || "1".equals(mustUnderstand.trim())) {
-                String role = header.getAttribute(Soap12.ATTRNAME_ROLE);
+                String role = header.getAttributeNS(soapMessage.getVersion().getNamespace(),
+                                                    Soap12.ATTRNAME_ROLE);
                 if (role != null) {
                     role = role.trim();
                     if (role.equals(Soap12.ROLE_NEXT) || role.equals(Soap12.ROLE_ULTIMATERECEIVER)) {
@@ -81,7 +86,8 @@ public class MustUnderstandInterceptor extends AbstractPhaseInterceptor {
                         }
                     }
                 } else {
-                    // if role omitted, the soap node is ultimate receiver, needs to understand
+                    // if role omitted, the soap node is ultimate receiver,
+                    // needs to understand
                     mustUnderstandHeaders.add(header);
                 }
             }

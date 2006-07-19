@@ -26,8 +26,10 @@ public class TestBase extends TestCase {
         List<Phase> phases = new ArrayList<Phase>();
         Phase phase1 = new Phase("phase1", 1);
         Phase phase2 = new Phase("phase2", 2);
+        Phase phase3 = new Phase("phase3", 3);
         phases.add(phase1);
         phases.add(phase2);
+        phases.add(phase3);
         chain = new PhaseInterceptorChain(phases);
 
         soapMessage = TestUtil.createEmptySoapMessage(new Soap11(), chain);

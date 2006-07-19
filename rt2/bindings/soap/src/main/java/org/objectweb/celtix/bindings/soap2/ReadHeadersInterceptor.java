@@ -12,6 +12,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.ws.WebServiceException;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -95,6 +96,13 @@ public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {
             if (eventType == XMLStreamConstants.START_ELEMENT) {
                 QName name = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());
                 Element eleChild = doc.createElementNS(name.getNamespaceURI(), name.getLocalPart());
+                for (int i = 0; i < xmlReader.getAttributeCount(); i++) {
+                    Attr attr = doc.createAttributeNS(xmlReader.getAttributeNamespace(i), xmlReader
+                        .getAttributeLocalName(i));
+                    attr.setPrefix(xmlReader.getAttributePrefix(i));
+                    attr.setTextContent(xmlReader.getAttributeValue(i));
+                    eleChild.setAttributeNode(attr);
+                }
                 eleChild.setPrefix(xmlReader.getPrefix());
                 hasChild = true;
                 processElement(ele, eleChild);

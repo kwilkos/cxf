@@ -25,7 +25,7 @@ public class ReadHeaderInterceptorTest extends TestBase {
         chain.add(rhi);
     }
 
-    public void testDoIntercept() {
+    public void testHandleMessage() {
         try {
             prepareSoapMessage();
         } catch (IOException ioe) {
