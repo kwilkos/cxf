@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bindings.soap2;
 
 import java.net.URI;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -13,7 +12,6 @@ import org.w3c.dom.Element;
 
 import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 
 public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
 

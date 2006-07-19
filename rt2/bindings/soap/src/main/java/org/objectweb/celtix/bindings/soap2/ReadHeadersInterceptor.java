@@ -6,7 +6,6 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.soap.SOAPException;
-
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -17,7 +16,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
