@@ -1,8 +1,8 @@
 package org.objectweb.celtix.jaxws.handlers.soap;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.Handler;
@@ -21,15 +21,15 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor
         super(invoker);
     }
 
-    public List<URI> getRoles() {
-        List<URI> roles = new ArrayList<URI>();
+    public Set<URI> getRoles() {
+        Set<URI> roles = new HashSet<URI>();
         // TODO
         return roles;
     }
     
     @SuppressWarnings("unchecked")
-    public List<QName> getUnderstoodHeaders() {
-        List<QName> understood = new ArrayList<QName>();  
+    public Set<QName> getUnderstoodHeaders() {
+        Set<QName> understood = new HashSet<QName>();  
         for (Handler h : invoker.getProtocolHandlers()) {
             if (h instanceof SOAPHandler) {
                 understood.addAll(((SOAPHandler)h).getHeaders());
