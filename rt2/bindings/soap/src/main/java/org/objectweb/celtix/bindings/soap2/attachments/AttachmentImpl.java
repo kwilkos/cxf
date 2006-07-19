@@ -33,10 +33,10 @@ public class AttachmentImpl implements Attachment {
     }
 
     public String getHeader(String name) {
-        return (String)headers.get(name);
+        return headers.get(name);
     }
     
-    public Iterator getHeaderNames() {
+    public Iterator<String> getHeaderNames() {
         return headers.keySet().iterator();
     }
 

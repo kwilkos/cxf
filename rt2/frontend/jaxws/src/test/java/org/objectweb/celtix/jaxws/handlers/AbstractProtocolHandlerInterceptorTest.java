@@ -19,7 +19,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
     
     private IMocksControl control;
     private HandlerChainInvoker invoker;
-    private Message message;
+    private IIOPMessage message;
     
     public void setUp() {
         control = createNiceControl();
@@ -60,7 +60,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
         
     }
     
-    class IIOPHandlerInterceptor extends AbstractProtocolHandlerInterceptor {
+    class IIOPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<IIOPMessage> {
 
         IIOPHandlerInterceptor(HandlerChainInvoker i) {
             super(i);

@@ -3,14 +3,14 @@ package org.objectweb.celtix.jaxws.handlers;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.Phase;
 
-public class LogicalHandlerInterceptor extends AbstractJAXWSHandlerInterceptor {
+public class LogicalHandlerInterceptor<T extends Message> extends AbstractJAXWSHandlerInterceptor<T> {
     
     public LogicalHandlerInterceptor(HandlerChainInvoker invoker) {
         super(invoker);
         setPhase(Phase.USER_LOGICAL);
     }
     
-    public void handleMessage(Message message) {
+    public void handleMessage(T message) {
         LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
         if (!invoker.invokeLogicalHandlers(isRequestor(message), lctx)) {
             // need to abort - not sure how to do this:
@@ -19,12 +19,12 @@ public class LogicalHandlerInterceptor extends AbstractJAXWSHandlerInterceptor {
         }
     }
     
-    public void handleFault(Message message) {
+    public void handleFault(T message) {
         // TODO
     }
     
     
-    public void onCompletion(Message message) {
+    public void onCompletion(T message) {
         if (isRequestor(message) && (isOneway(message) || !isOutbound(message))) {
             invoker.mepComplete(message);
         }

@@ -17,7 +17,7 @@ public interface Attachment {
     
     String getHeader(String name);
     
-    Iterator getHeaderNames();
+    Iterator<String> getHeaderNames();
     
     /**
      * Whether or not this is an XOP package. This will affect the 

@@ -34,7 +34,7 @@ public class LogicalHandlerInterceptorTest extends TestCase {
         expect(invoker.invokeLogicalHandlers(eq(true),
             isA(LogicalMessageContext.class))).andReturn(true);
         control.replay();
-        LogicalHandlerInterceptor li = new LogicalHandlerInterceptor(invoker);
+        LogicalHandlerInterceptor<Message> li = new LogicalHandlerInterceptor<Message>(invoker);
         assertEquals("unexpected phase", "user-logical", li.getPhase());
         li.handleMessage(message);
     }
@@ -43,7 +43,7 @@ public class LogicalHandlerInterceptorTest extends TestCase {
         expect(invoker.invokeLogicalHandlers(eq(true), 
             isA(LogicalMessageContext.class))).andReturn(false);
         control.replay();
-        LogicalHandlerInterceptor li = new LogicalHandlerInterceptor(invoker);
+        LogicalHandlerInterceptor<Message> li = new LogicalHandlerInterceptor<Message>(invoker);
         li.handleMessage(message);   
     }
     
@@ -51,7 +51,7 @@ public class LogicalHandlerInterceptorTest extends TestCase {
         invoker.mepComplete(message);
         expectLastCall();
         control.replay();
-        LogicalHandlerInterceptor li = new LogicalHandlerInterceptor(invoker);
+        LogicalHandlerInterceptor<Message> li = new LogicalHandlerInterceptor<Message>(invoker);
         li.onCompletion(message);
     }
 }
