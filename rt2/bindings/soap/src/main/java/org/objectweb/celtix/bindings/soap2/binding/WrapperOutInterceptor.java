@@ -1,19 +1,17 @@
 package org.objectweb.celtix.bindings.soap2.binding;
 
-import java.io.*;
-import java.util.*;
-
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataWriter;
+import org.objectweb.celtix.bindings.soap2.AbstractSoapInterceptor;
 import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 
-public class WrapperOutInterceptor extends AbstractPhaseInterceptor {
+public class WrapperOutInterceptor extends AbstractSoapInterceptor {
     
     private static final String INBOUND_MESSAGE = "message.inbound";
     
@@ -21,11 +19,8 @@ public class WrapperOutInterceptor extends AbstractPhaseInterceptor {
     private XMLStreamWriter xmlWriter;
     private DataWriter<XMLStreamWriter> dataWriter;
     
-    private void init(Message message) {
-        if (!(message instanceof SoapMessage)) {
-            return;
-        }
-        this.soapMessage = (SoapMessage) message;
+    private void init(SoapMessage message) {
+        this.soapMessage = message;
         
         this.xmlWriter = getXMLStreamWriter(message);
     }
@@ -35,7 +30,7 @@ public class WrapperOutInterceptor extends AbstractPhaseInterceptor {
         this.xmlWriter.close();
     }
 
-    public void handleMessage(Message message) {
+    public void handleMessage(SoapMessage message) {
         try {
             init(message);
             

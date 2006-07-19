@@ -1,14 +1,14 @@
 package org.objectweb.celtix.bindings.soap2;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
-
 
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;

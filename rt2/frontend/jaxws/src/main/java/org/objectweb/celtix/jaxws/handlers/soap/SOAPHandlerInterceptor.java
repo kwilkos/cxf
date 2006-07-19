@@ -10,11 +10,12 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 
 import org.objectweb.celtix.bindings.soap2.SoapInterceptor;
+import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.jaxws.handlers.AbstractProtocolHandlerInterceptor;
 import org.objectweb.celtix.jaxws.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.message.Message;
 
-public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor 
+public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<SoapMessage>
     implements SoapInterceptor {
     
     public SOAPHandlerInterceptor(HandlerChainInvoker invoker) {
@@ -42,10 +43,10 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor
     protected MessageContext createProtocolMessageContext(Message message) {
         return new SOAPMessageContextImpl(message);
     }
-    
-    
-    
-    
-    
-    
+
+    public void handleFault(SoapMessage message) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

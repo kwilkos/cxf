@@ -1,10 +1,10 @@
 package org.objectweb.celtix.bindings.soap2.binding;
 
-import java.io.*;
-import java.util.*;
+import java.io.InputStream;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
+
 import org.objectweb.celtix.bindings.soap2.TestBase;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.celtix.servicemodel.BindingInfo;

@@ -1,7 +1,7 @@
 package org.objectweb.celtix.bindings.soap2;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -10,7 +10,6 @@ import org.w3c.dom.Element;
 
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
-
 import org.objectweb.celtix.message.Attachment;
 
 public class ReadHeaderInterceptorTest extends TestBase {

@@ -1,8 +1,12 @@
 package org.objectweb.celtix.bindings.soap2.attachments;
 
 import java.awt.Image;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.mail.MessagingException;
 import javax.xml.bind.JAXBContext;

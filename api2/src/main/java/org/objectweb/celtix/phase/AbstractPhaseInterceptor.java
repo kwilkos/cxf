@@ -3,10 +3,9 @@ package org.objectweb.celtix.phase;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.message.Message;
 
-public abstract class AbstractPhaseInterceptor implements Interceptor, PhaseInterceptor {
+public abstract class AbstractPhaseInterceptor<T extends Message> implements PhaseInterceptor<T> {
     private String id;
     private String phase;
     private Set<String> before = new HashSet<String>();
@@ -57,6 +56,6 @@ public abstract class AbstractPhaseInterceptor implements Interceptor, PhaseInte
         this.phase = p;
     }
 
-    public void handleFault(Message message) {
+    public void handleFault(T message) {
     }
 }

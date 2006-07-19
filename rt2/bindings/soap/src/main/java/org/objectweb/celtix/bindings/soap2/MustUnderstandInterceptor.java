@@ -21,7 +21,7 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
     private Set<QName> mustUnderstandQNames;
     private Set<URI> serviceRoles = new HashSet<URI>();
 
-    public void handleMessage(Message message) {
+    public void handleMessage(SoapMessage message) {
 
         // TODO Auto-generated method stub
         soapMessage = (SoapMessage)message;

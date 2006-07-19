@@ -3,6 +3,7 @@ package org.objectweb.celtix.phase;
 import java.util.Set;
 
 import org.objectweb.celtix.interceptors.Interceptor;
+import org.objectweb.celtix.message.Message;
 
 /**
  * A phase interceptor participates in a PhaseInterceptorChain.
@@ -13,7 +14,7 @@ import org.objectweb.celtix.interceptors.Interceptor;
  * @see org.objectweb.celtix.phase.PhaseInterceptorChain
  * @author Dan Diephouse
  */
-public interface PhaseInterceptor extends Interceptor {
+public interface PhaseInterceptor<T extends Message> extends Interceptor<T> {
 
     /**
      * A Set of IDs that this interceptor needs to run after.

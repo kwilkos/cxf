@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bindings.soap2.binding;
 
-import java.io.*;
-import java.util.*;
+import java.io.InputStream;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
@@ -9,19 +8,18 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataReader;
+import org.objectweb.celtix.bindings.soap2.AbstractSoapInterceptor;
 import org.objectweb.celtix.bindings.soap2.ServiceModelUtil;
 import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.bindings.soap2.SoapVersion;
 import org.objectweb.celtix.context.ObjectMessageContext;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.servicemodel.BindingOperationInfo;
 import org.objectweb.celtix.servicemodel.MessageInfo;
 import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
 import org.objectweb.celtix.staxutils.StaxStreamFilter;
 import org.objectweb.celtix.staxutils.StaxUtils;
         
-public class WrapperInterceptor extends AbstractPhaseInterceptor {
+public class WrapperInterceptor extends AbstractSoapInterceptor {
         
     private static final String RPC_INTERCEPTOR_EXCEPTION = "wrapper.interceptor.exception";
     private static final String INBOUND_MESSAGE = "message.inbound";
@@ -30,11 +28,8 @@ public class WrapperInterceptor extends AbstractPhaseInterceptor {
 
     private DepthXMLStreamReader xmlReader;
 
-    private void init(Message message) {
-        if (!(message instanceof SoapMessage)) {
-            return;
-        }
-        this.soapMessage = (SoapMessage) message;
+    private void init(SoapMessage message) {
+        this.soapMessage = message;
         
         this.xmlReader = getXMLStreamReader();
     }
@@ -61,7 +56,7 @@ public class WrapperInterceptor extends AbstractPhaseInterceptor {
         return operation;
     }
 
-    public void handleMessage(Message message) {
+    public void handleMessage(SoapMessage message) {
         init(message);
 
         BindingOperationInfo operation = getOperation(getOperationName());

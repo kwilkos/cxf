@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.MessageContext.Scope;
 
 import org.objectweb.celtix.message.Message;
 

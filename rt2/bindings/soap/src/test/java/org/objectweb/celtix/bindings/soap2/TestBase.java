@@ -1,12 +1,15 @@
 package org.objectweb.celtix.bindings.soap2;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+
 import junit.framework.TestCase;
 
 import org.objectweb.celtix.bindings.DataBindingCallback.Mode;

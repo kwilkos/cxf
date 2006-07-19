@@ -1,24 +1,24 @@
 package org.objectweb.celtix.bindings.soap2.binding;
 
-import java.io.*;
-import java.util.*;
+import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.ws.handler.MessageContext;
+
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.DataWriter;
+import org.objectweb.celtix.bindings.soap2.AbstractSoapInterceptor;
 import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.helpers.NSStack;
 import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.servicemodel.BindingInfo;
 import org.objectweb.celtix.servicemodel.BindingOperationInfo;
 import org.objectweb.celtix.servicemodel.MessagePartInfo;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
-public class RPCOutInterceptor extends AbstractPhaseInterceptor {
+public class RPCOutInterceptor extends AbstractSoapInterceptor {
     
     private static final String SERVICE_MODEL_BINDING = "service.model.binding";
     private static final String INBOUND_MESSAGE = "message.inbound";
@@ -29,11 +29,8 @@ public class RPCOutInterceptor extends AbstractPhaseInterceptor {
     private XMLStreamWriter xmlWriter;
     private DataWriter<XMLStreamWriter> dataWriter;
     
-    private void init(Message message) {
-        if (!(message instanceof SoapMessage)) {
-            return;
-        }
-        this.soapMessage = (SoapMessage) message;
+    private void init(SoapMessage message) {
+        this.soapMessage = message;
         
         this.xmlWriter = getXMLStreamWriter(message);
         this.bindingInfo = (BindingInfo) message.get(SERVICE_MODEL_BINDING);
@@ -47,7 +44,7 @@ public class RPCOutInterceptor extends AbstractPhaseInterceptor {
         this.xmlWriter.close();
     }
 
-    public void handleMessage(Message message) {
+    public void handleMessage(SoapMessage message) {
         try {
             init(message);
             

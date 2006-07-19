@@ -16,7 +16,6 @@ import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 import org.objectweb.celtix.message.Attachment;
 import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 
 public class MustUnderstandInterceptorTest extends TestBase {
 
@@ -101,7 +100,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
 
     }
 
-    private class DummySoapInterceptor extends AbstractPhaseInterceptor implements SoapInterceptor {
+    private class DummySoapInterceptor extends AbstractSoapInterceptor {
 
         private boolean calledGetRoles;
         private boolean calledGetUnderstood;
@@ -109,7 +108,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
         private Set<URI> roles = new HashSet<URI>();
         private Set<QName> understood = new HashSet<QName>();
 
-        public void handleMessage(Message messageParam) {
+        public void handleMessage(SoapMessage messageParam) {
         }
 
         public Set<URI> getRoles() {

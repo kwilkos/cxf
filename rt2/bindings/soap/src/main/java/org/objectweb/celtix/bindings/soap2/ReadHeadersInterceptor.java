@@ -24,7 +24,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
     private XMLStreamReader xmlReader;
     private Document doc;
 
-    public void handleMessage(Message messageParam) {
+    public void handleMessage(SoapMessage messageParam) {
         // TODO Auto-generated method stub
         this.message = (SoapMessage)messageParam;
         try {

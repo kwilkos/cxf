@@ -1,6 +1,7 @@
 package org.objectweb.celtix.jaxws.context;
 
 import java.security.Principal;
+
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 

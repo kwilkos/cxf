@@ -14,7 +14,6 @@ import java.util.Map;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
-
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
@@ -25,7 +24,7 @@ import org.objectweb.celtix.message.Attachment;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 
-public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
+public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public static final String ATTACHMENT_DIRECTORY = "attachment-directory";
     public static final String ATTACHMENT_MEMORY_THRESHOLD = "attachment-memory-threshold";
@@ -62,6 +61,9 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor {
         }
         // continue interceptor chain processing
         message.getInterceptorChain().doIntercept(message);
+    }
+
+    public void handleFault(Message messageParam) {
     }
 
     /**
