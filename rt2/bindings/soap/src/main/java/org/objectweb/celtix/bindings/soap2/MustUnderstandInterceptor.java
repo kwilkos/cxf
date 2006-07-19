@@ -15,7 +15,7 @@ import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 
-public class MustUnderstandInterceptor extends AbstractPhaseInterceptor {
+public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
 
     private SoapMessage soapMessage;
     private Set<Element> mustUnderstandHeaders = new HashSet<Element>();

@@ -20,7 +20,7 @@ import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
-public class ReadHeadersInterceptor extends AbstractPhaseInterceptor {
+public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
 
     private SoapMessage message;
     private XMLStreamReader xmlReader;

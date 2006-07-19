@@ -3,8 +3,8 @@ package org.objectweb.celtix.bindings.soap2;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -106,13 +106,13 @@ public class MustUnderstandInterceptorTest extends TestBase {
         private boolean calledGetRoles;
         private boolean calledGetUnderstood;
 
-        private List<URI> roles = new ArrayList<URI>();
-        private List<QName> understood = new ArrayList<QName>();
+        private Set<URI> roles = new HashSet<URI>();
+        private Set<QName> understood = new HashSet<QName>();
 
         public void handleMessage(Message messageParam) {
         }
 
-        public List<URI> getRoles() {
+        public Set<URI> getRoles() {
             calledGetRoles = true;
             if (roles.size() == 0) {
                 try {
@@ -126,7 +126,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
             return roles;
         }
 
-        public List<QName> getUnderstoodHeaders() {
+        public Set<QName> getUnderstoodHeaders() {
             calledGetUnderstood = true;
             return understood;
         }

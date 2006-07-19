@@ -23,7 +23,7 @@ import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
-public class SoapOutInterceptor extends AbstractPhaseInterceptor {
+public class SoapOutInterceptor extends AbstractSoapInterceptor {
 
     private static long threshCount;
     private SoapMessage soapMessage;

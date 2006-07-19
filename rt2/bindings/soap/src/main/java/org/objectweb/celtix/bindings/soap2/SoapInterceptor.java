@@ -1,11 +1,13 @@
 package org.objectweb.celtix.bindings.soap2;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-public interface SoapInterceptor {
-    List<URI> getRoles();
-    List<QName> getUnderstoodHeaders();
+import org.objectweb.celtix.interceptors.Interceptor;
+
+public interface SoapInterceptor extends Interceptor {
+    Set<URI> getRoles();
+    Set<QName> getUnderstoodHeaders();
 }
