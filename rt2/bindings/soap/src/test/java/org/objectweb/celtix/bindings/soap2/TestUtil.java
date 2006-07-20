@@ -1,7 +1,7 @@
 package org.objectweb.celtix.bindings.soap2;
 
 import java.awt.Image;
-import java.awt.Toolkit;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.Collection;
 
 import javax.activation.DataHandler;
+import javax.imageio.ImageIO;
 import javax.mail.util.ByteArrayDataSource;
 
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
@@ -32,7 +33,7 @@ public final class TestUtil {
                 
         URL url1 = clazz.getResource("my.wav");
         URL url2 = clazz.getResource("me.jpg");
-        Image image = Toolkit.getDefaultToolkit().createImage(url2);
+        Image image = ImageIO.read(new File(url2.getFile()));
         detailObj.setPhoto(image);
         File file = new File(url1.getFile());
         FileInputStream fi = new FileInputStream(file);
