@@ -23,7 +23,7 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
     public void handleMessage(SoapMessage message) {
 
         // TODO Auto-generated method stub
-        soapMessage = (SoapMessage)message;
+        soapMessage = message;
         buildMustUnderstandHeaders();
         initServiceSideInfo();
         if (!checkUnderstand()) {

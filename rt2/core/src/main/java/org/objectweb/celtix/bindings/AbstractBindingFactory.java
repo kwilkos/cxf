@@ -15,6 +15,20 @@ import org.objectweb.celtix.service.model.ServiceInfo;
 import org.objectweb.celtix.wsdl11.WSDLBindingFactory;
 
 public abstract class AbstractBindingFactory implements BindingFactory, WSDLBindingFactory {
+
+    
+    /**
+     * Creates a "default" BindingInfo object for the service.  Called by 
+     * createBindingInfo(ServiceInfo service, Binding binding) to actually 
+     * create the BindingInfo.  Can return a subclass which can then process
+     * the extensors within the subclass.
+     * @param service
+     * @return
+     */
+    public BindingInfo createBindingInfo(ServiceInfo service) {
+        return new BindingInfo(service);
+    }
+    
     
     /**
      * Copies extensors from the Binding to BindingInfo.
@@ -24,7 +38,7 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
      */
     public BindingInfo createBindingInfo(ServiceInfo service, Binding binding) {
 
-        BindingInfo bi = new BindingInfo(service);
+        BindingInfo bi = createBindingInfo(service);
         bi.setName(binding.getQName());
         copyExtensors(bi, binding.getExtensibilityElements());
         

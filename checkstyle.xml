@@ -146,7 +146,10 @@ lengths, if/try depths, etc...
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
         <!--<module name="FinalLocalVariable"/>-->
-        <!--<Module name="HiddenField"/>-->
+        <module name="HiddenField">
+            <property name="ignoreConstructorParameter" value="true"/>
+            <property name="ignoreSetter" value="true"/>
+        </module>
         <module name="IllegalInstantiation"/>
         <!--<module name="IllegalToken"/>-->
         <!--<module name="IllegalTokenText"/>-->
