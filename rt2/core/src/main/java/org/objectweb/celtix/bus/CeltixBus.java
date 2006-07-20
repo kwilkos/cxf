@@ -15,6 +15,7 @@ import org.objectweb.celtix.bindings.BindingFactoryManagerImpl;
 import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
 import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.interceptors.InterceptorProvider;
 import org.objectweb.celtix.phase.Phase;
@@ -42,7 +43,7 @@ public class CeltixBus extends Bus implements InterceptorProvider {
     // private CeltixBusLifeCycleManager lifeCycleManager;
     // private WorkQueueManager workQueueManager;
     private ResourceManager resourceManager;
-    private String busID;
+
     private List<Phase> inPhases;
     private List<Phase> outPhases;
     private List<Interceptor> inInterceptors;
@@ -54,9 +55,9 @@ public class CeltixBus extends Bus implements InterceptorProvider {
     /**
      * Used by the <code>BusFactory</code> to initialize a new bus.
      *
-     * @param args the command line configuration of this <code>Bus</code>.
+     * @param p properties for this <code>Bus</code>.
      */
-    public void initialize(String[] args, Map<String, Object> p)
+    public void initialize(Map<String, Object> p)
         throws BusException {
 
         if (null != p) {
@@ -64,10 +65,11 @@ public class CeltixBus extends Bus implements InterceptorProvider {
         }
         
         Collection<Object> newPropertyValues = new ArrayList<Object>();
-        
-        configuration = null;
-        // configuration = new BusConfigurationBuilder().build(args, properties);
-        busID = (String)configuration.getId();
+        try { 
+            configuration = new BusConfigurationBuilder().build(properties);
+        } catch (ConfigurationException ex) {
+            // TODO: bus configuration metadata
+        }
         
         bindingFactoryManager = (BindingFactoryManager)properties.get(BINDINGFACTORYMANAGER_PROPERTY_NAME);
         if (null == bindingFactoryManager) {            
@@ -175,7 +177,10 @@ public class CeltixBus extends Bus implements InterceptorProvider {
 
    
     public String getBusID() {
-        return busID;
+        if (null != configuration) {
+            return (String)configuration.getId();
+        }
+        return null;
     }
     
     public List<Phase> getInPhases() {

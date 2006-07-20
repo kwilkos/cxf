@@ -5,20 +5,14 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
-import org.objectweb.celtix.configuration.CommandLineOption;
 
 /**
  * Manages the <code>Bus</code> instances in a process.
  */
 public final class BusFactory {
 
-    private static final CommandLineOption BUS_CLASS_OPT;
     private static final String DEFAULT_BUS_CLASSNAME = "org.objectweb.celtix.bus.busimpl.CeltixBus";
     private static BusFactory theInstance;
-    
-    static {
-        BUS_CLASS_OPT = new CommandLineOption("-BUSclass");
-    }
     
     private BusFactory() {
     }
@@ -32,18 +26,16 @@ public final class BusFactory {
         return theInstance;
     }
     
-    public Bus getBus(String[] args, 
-                      Map<String, Object> properties, 
+    public Bus getBus(Map<String, Object> properties, 
                       ClassLoader classLoader) throws BusException {
         
-        // check command line options and properties to
-        // determine bus class 
+        // check properties to determine bus class 
         
-        String busClass = getBusClass(args, properties, classLoader);
+        String busClass = getBusClass(properties, classLoader);
         
         // create the bus
        
-        return createBus(busClass, selectClassLoader(classLoader), args, properties);
+        return createBus(busClass, selectClassLoader(classLoader), properties);
     }
     
     private ClassLoader selectClassLoader(ClassLoader classLoader) { 
@@ -56,33 +48,25 @@ public final class BusFactory {
 
     private static Bus createBus(String className,
                                  ClassLoader classLoader,
-                                 String[] args,
                                  Map<String, Object> properties) throws BusException {
 
         Class<? extends Bus> busClass;
         try {
             busClass = Class.forName(className, true, classLoader).asSubclass(Bus.class);
             Bus bus = busClass.newInstance();
-            bus.initialize(args, properties);
+            bus.initialize(properties);
             return bus;
         } catch (Exception ex) {
             throw new BusException(ex);
         }
     }
     
-    String getBusClass(String[] args, Map<String, Object> properties, ClassLoader classLoader)
+    String getBusClass(Map<String, Object> properties, ClassLoader classLoader)
         throws BusException {
         
         String busClass = null;
     
-        // first check command line arguments
-        BUS_CLASS_OPT.initialize(args);
-        busClass = (String)BUS_CLASS_OPT.getValue();
-        if (isValidBusClass(busClass)) {
-            return busClass;
-        }
-        
-        // next check properties    
+        // first check properties    
         busClass = (String)properties.get(Bus.BUS_CLASS_PROPERTY);
         if (isValidBusClass(busClass)) {
             return busClass;

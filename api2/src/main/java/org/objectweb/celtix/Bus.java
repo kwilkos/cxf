@@ -35,58 +35,40 @@ public abstract class Bus {
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
     public static synchronized Bus init() throws BusException {
-        return init(new String[0]);
-    }
-
-    /**
-     * Returns a newly created and fully initialised <code>Bus</code>.
-     * 
-     * @param args any args, such as domain name, bus class, and other configuration
-     * options that can be used to initialize this <code>Bus</code>.
-     * @return Bus the newly created <code>Bus</code>.
-     * @throws BusException If there is an error initializing <code>Bus</code>.
-     */
-    public static synchronized Bus init(String[] args) throws BusException {
-        return init(args, new HashMap<String, Object>());
+        return init(new HashMap<String, Object>());
     }
     
     /**
      * Returns a newly created and fully initialised <code>Bus</code>.
      * 
-     * @param args any args, such as domain name, bus class, and other configuration
-     * options that can be used to initialize this <code>Bus</code>.
      * @param properties any properties, such as bus identifier, bus class, and other configuration
      * options that can be used to identify and initialize this <code>Bus</code>. 
-     * The properties are superceded by the settings in the <code>args</code> parameter,
-     * and they in turn supercede system properties.
+     * These properties supercede corresponding system properties.
      * @return Bus the newly created <code>Bus</code>.
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
-    public static synchronized Bus init(String[] args, Map<String, Object> properties) throws BusException {
-        return init(args, properties, null);
+    public static synchronized Bus init(Map<String, Object> properties) throws BusException {
+        return init(properties, null);
     }
     
     /**
      * Returns a newly created and fully initialised <code>Bus</code>.
      * 
-     * @param args any args, such as domain name, bus class, and other configuration
-     * options that can be used to initialize this <code>Bus</code>.
      * @param properties any properties, such as domain name, bus class, and other configuration
      * options that can be used to initialize this <code>Bus</code>. 
-     * The properties are superceded by the settings in the <code>args</code> parameter,
-     * and they in turn supercede system properties.
+     * These properties supercede corresponding system properties.
      * @param classLoader an optional classloader to use when instantiating a <code>Bus</code>
      * needs to be instantiated (defaults to the current thread's context classloader).
      * @return Bus the newly created <code>Bus</code>.
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
-    public static synchronized Bus init(String[] args, 
+    public static synchronized Bus init(
         Map<String, Object> properties, 
         ClassLoader classLoader) throws BusException {
         
         // delegate to the factory 
         BusFactory bf = BusFactory.getInstance();
-        Bus b = bf.getBus(args, properties, classLoader);
+        Bus b = bf.getBus(properties, classLoader);
         nameMap.put(b.getBusID(), new WeakReference<Bus>(b));
         return b;
     }
@@ -234,12 +216,8 @@ public abstract class Bus {
      */
     public abstract void run();
     
-    /**
-     * Get the Endpoint Registry from bus , which contains the jaxws endpoint reference
-     */
-    // public abstract EndpointRegistry getEndpointRegistry();
-    
-    public abstract void initialize(String[] args,
+
+    public abstract void initialize(
             Map<String, Object> properties) throws BusException;
 
 
