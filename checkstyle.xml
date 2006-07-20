@@ -146,7 +146,7 @@ lengths, if/try depths, etc...
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
         <!--<module name="FinalLocalVariable"/>-->
-        <module name="HiddenField"/>
+        <!--<Module name="HiddenField"/>-->
         <module name="IllegalInstantiation"/>
         <!--<module name="IllegalToken"/>-->
         <!--<module name="IllegalTokenText"/>-->
