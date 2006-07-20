@@ -25,6 +25,7 @@ import org.objectweb.celtix.tools.wsdl2java.processor.WSDLToJavaProcessor;
 public class WSDLToJava extends AbstractCeltixToolContainer {
     
     private static final String TOOL_NAME = "wsdl2java";
+    private static final String DEFAULT_NS2PACKAGE = "http://www.w3.org/2005/08/addressing";
     private static String[] args;
 
     public WSDLToJava(ToolSpec toolspec) throws Exception {
@@ -61,10 +62,9 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
                 env.put(ToolConstants.CFG_CMD_ARG, args);
 
                 validate(env);
+                setExcludePackageAndNamespaces(env);
                 loadDefaultNSPackageMapping(env);
                 setPackageAndNamespaces(env);
-                setExcludePackageAndNamespaces(env);
-                
                 processor.setEnvironment(env);
                 processor.process();
             }
@@ -87,7 +87,8 @@ public class WSDLToJava extends AbstractCeltixToolContainer {
     }
 
     private void loadDefaultNSPackageMapping(ProcessorEnvironment env) {
-        if (env.getBooleanValue(ToolConstants.CFG_DEFAULT_NS, "true")) {
+        if (!env.hasExcludeNamespace(DEFAULT_NS2PACKAGE) 
+            && env.getBooleanValue(ToolConstants.CFG_DEFAULT_NS, "true")) {
             env.loadDefaultNS2Pck(getResourceAsStream("namespace2package.cfg"));
         }
         if (env.getBooleanValue(ToolConstants.CFG_DEFAULT_EX, "true")) {

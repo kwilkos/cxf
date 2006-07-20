@@ -209,6 +209,7 @@ public class ParameterProcessor extends AbstractProcessor {
     @SuppressWarnings("unchecked")
     private void processWrappedOutput(JavaMethod method, Message inputMessage, Message outputMessage,
                                       boolean isRequestResponse) throws ToolException {
+        
         Map<String, Part> inputPartsMap = inputMessage.getParts();
         Map<String, Part> outputPartsMap = outputMessage.getParts();
         Collection<Part> outputParts = outputPartsMap.values();
@@ -222,17 +223,27 @@ public class ParameterProcessor extends AbstractProcessor {
             addVoidReturn(method);
             return;
         }
-        Part inputPart = inputParts.iterator().next();
-        Part outputPart = outputParts.iterator().next();
-        List<? extends Property> inputBlock = ProcessorUtil.getBlock(inputPart, env);
-        List<? extends Property> outputBlock = ProcessorUtil.getBlock(outputPart, env);
+        
+        Part inputPart = inputParts.size() > 0 ? inputParts.iterator().next() : null;
+        Part outputPart = outputParts.size() > 0 ? outputParts.iterator().next() : null;
+        
+        List<? extends Property> inputBlock = null;
+        List<? extends Property> outputBlock = null;
+        
+        if (inputPart != null) {
+            inputBlock = ProcessorUtil.getBlock(inputPart, env);
+        }       
+        
+        if (outputPart != null) {
+            outputBlock = ProcessorUtil.getBlock(outputPart, env);
+        }
 
         if (outputBlock == null || outputBlock.size() == 0) {
             addVoidReturn(method);
             return;
         }
         method.setReturn(null);
-        if (outputBlock.size() == 1) {
+        if (outputBlock.size() == 1 && inputBlock != null) {
             Property outElement = outputBlock.iterator().next();
             boolean sameWrapperChild = false;
             for (Property inElement : inputBlock) {
@@ -248,10 +259,10 @@ public class ParameterProcessor extends AbstractProcessor {
             }
             if (!sameWrapperChild) {
                 method.setReturn(getReturnFromProperty(outElement, outputPart));
+                return;
             }
-            return;
+            
         }
-        method.setReturn(null);
         for (Property outElement : outputBlock) {
             if ("return".equals(outElement.elementName().getLocalPart())) {
                 if (method.getReturn() != null) {
@@ -263,12 +274,14 @@ public class ParameterProcessor extends AbstractProcessor {
                 continue;
             }
             boolean sameWrapperChild = false;
-            for (Property inElement : inputBlock) {
-                if (isSameWrapperChild(inElement, outElement)) {
-                    addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT,
-                                                                  outputPart));
-                    sameWrapperChild = true;
-                    break;
+            if (inputBlock != null) {
+                for (Property inElement : inputBlock) {
+                    if (isSameWrapperChild(inElement, outElement)) {
+                        addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT,
+                                                                      outputPart));
+                        sameWrapperChild = true;
+                        break;
+                    }
                 }
             }
             if (!sameWrapperChild) {

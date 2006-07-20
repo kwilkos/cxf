@@ -15,7 +15,6 @@ import javax.wsdl.Definition;
 import javax.wsdl.PortType;
 
 import com.sun.codemodel.JCodeModel;
-import com.sun.codemodel.writer.FileCodeWriter;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 
 import org.objectweb.celtix.common.i18n.Message;
@@ -36,7 +35,7 @@ import org.objectweb.celtix.tools.wsdl2java.processor.compiler.Compiler;
 import org.objectweb.celtix.tools.wsdl2java.processor.internal.PortTypeProcessor;
 import org.objectweb.celtix.tools.wsdl2java.processor.internal.SEIAnnotationProcessor;
 import org.objectweb.celtix.tools.wsdl2java.processor.internal.ServiceProcessor;
-
+import org.objectweb.celtix.tools.wsdl2java.processor.internal.TypesCodeWriter;
 
 public class WSDLToJavaProcessor extends WSDLToProcessor {
 
@@ -68,11 +67,52 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         if (env.get(ToolConstants.CFG_COMPILE) != null) {
             compile();
         }
+        try {
+            if (env.isExcludeNamespaceEnabled()) {
+                removeExcludeFiles();
+            }
+        } catch (IOException e) {
+            throw new ToolException(e);
+        }
+    }
+
+    public void removeExcludeFiles() throws IOException {
+        if (excludeGenFiles == null) {
+            return;
+        }
+        String outPutDir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
+        for (int i = 0; i < excludeGenFiles.size(); i++) {
+            String excludeFile = excludeGenFiles.get(i);
+            File file = new File(outPutDir, excludeFile);
+            file.delete();
+            File tmpFile = file.getParentFile();
+            while (!tmpFile.getCanonicalPath().equalsIgnoreCase(outPutDir)) {
+                if (tmpFile.isDirectory() && tmpFile.list().length == 0) {
+                    tmpFile.delete();
+                }
+                tmpFile = tmpFile.getParentFile();
+            }
+
+            if (env.get(ToolConstants.CFG_COMPILE) != null) {
+                String classDir = env.get(ToolConstants.CFG_CLASSDIR) == null ? outPutDir : (String)env
+                    .get(ToolConstants.CFG_CLASSDIR);
+                File classFile = new File(classDir, 
+                                          excludeFile.substring(0, excludeFile.indexOf(".java")) + ".class");
+                classFile.delete();
+                File tmpClzFile = classFile.getParentFile();
+                while (!tmpClzFile.getCanonicalPath().equalsIgnoreCase(outPutDir)) {
+                    if (tmpClzFile.isDirectory() && tmpClzFile.list().length == 0) {
+                        tmpClzFile.delete();
+                    }
+                    tmpClzFile = tmpClzFile.getParentFile();
+                }
+            }
+
+        }
     }
 
     private void generateTypes() throws ToolException {
-        if (env.optionSet(ToolConstants.CFG_GEN_CLIENT) 
-            || env.optionSet(ToolConstants.CFG_GEN_SERVER)) {
+        if (env.optionSet(ToolConstants.CFG_GEN_CLIENT) || env.optionSet(ToolConstants.CFG_GEN_SERVER)) {
             return;
         }
         if (rawJaxbModelGenCode == null) {
@@ -83,16 +123,18 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
                 S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
                 JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
                 String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
-                FileCodeWriter fileCodeWriter = new FileCodeWriter(new File(dir));
+
+                TypesCodeWriter fileCodeWriter = new TypesCodeWriter(new File(dir), excludePkgList);
                 jcodeModel.build(fileCodeWriter);
+                excludeGenFiles = fileCodeWriter.getExcludeFileList();
             } else {
                 return;
             }
         } catch (IOException e) {
             Message msg = new Message("FAIL_TO_GENERATE_TYPES", LOG);
             throw new ToolException(msg);
-
         }
+
     }
 
     private JavaModel wsdlDefinitionToJavaModel(Definition definition) throws ToolException {
@@ -214,7 +256,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
         for (Object o : fileList.toArray()) {
             String file = (String)o;
-           
+
             arguments[i] = file;
             i++;
         }

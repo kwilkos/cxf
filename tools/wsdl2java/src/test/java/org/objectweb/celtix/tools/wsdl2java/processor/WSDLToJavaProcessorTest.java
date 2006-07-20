@@ -1,11 +1,15 @@
 package org.objectweb.celtix.tools.wsdl2java.processor;
 
 import java.io.File;
+
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
 import java.net.URLClassLoader;
 
 import javax.jws.HandlerChain;
+
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -43,7 +47,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         processor = null;
 
     }
-
+  
     public void testRPCLit() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_rpc_lit.wsdl"));
         processor.setEnvironment(env);
@@ -543,7 +547,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         processor.setEnvironment(env);
         processor.process();
     }
-
+    
     public void testExcludeNSWithPackageName() throws Exception {
 
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-nexclude",
@@ -554,16 +558,14 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         assertNotNull(output);
         File com = new File(output, "com");
-        assertTrue(com.exists());
+        assertFalse("Generated file has been excluded", com.exists());
         File iona = new File(com, "iona");
-        assertTrue(iona.exists());
-        File[] files = iona.listFiles();
-        assertEquals(17, files.length);
-
+        assertFalse("Generated file has been excluded", iona.exists());
+        
         File org = new File(output, "org");
         File objectweb = new File(org, "objectweb");
         File invoice = new File(objectweb, "Invoice");
-        assertTrue(!invoice.exists());
+        assertFalse("Generated file has been excluded", invoice.exists());
 
     }
 
@@ -576,7 +578,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         assertNotNull(output);
         File com = new File(output, "test");
-        assertTrue(!com.exists());
+        assertFalse("Generated file has been excluded", com.exists());
 
     }
 
@@ -774,7 +776,85 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File[] files = header.listFiles();
         assertEquals(3, files.length);
     }
+    
 
+
+    public void testBug305728HelloWorld() {
+        try {
+            String[] args = new String[] {"-compile", "-classdir", output.getCanonicalPath() + "/classes",
+                                          "-d",
+                                          output.getCanonicalPath(),
+                                          "-nexclude",
+                                          "http://www.w3.org/2005/08/addressing"
+                                              + "=org.objectweb.celtix.ws.addressing",
+                                          getLocation("/wsdl/bug305728/hello_world.wsdl")};
+            WSDLToJava.main(args);
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+        
+        try {
+            File file = new File(output.getCanonicalPath(), 
+                                 "org/objectweb/celtix/ws/addressing/EndpointReferenceType.java");
+            
+            assertFalse("Exclude java file should not be generated : " + file.getCanonicalPath(), 
+                        file.exists());
+            
+            file = new File(output.getCanonicalPath() + File.separator + "classes",
+                            "org/objectweb/celtix/ws/addressing/EndpointReferenceType.class");
+            assertFalse("Exclude class should not be generated : " + file.getCanonicalPath(), file.exists());
+            
+        
+            file = new File(output.getCanonicalPath(), 
+                            "org/w3/_2005/_08/addressing/EndpointReferenceType.java");
+            assertFalse("Exclude file should not be generated : " + file.getCanonicalPath(), file.exists());
+           
+            file = new File(output.getCanonicalPath() + File.separator + "classes", 
+                            "org/w3/_2005/_08/addressing/EndpointReferenceType.class");
+            assertFalse("Exclude class should not be generated : " + file.getCanonicalPath(), file.exists());
+           
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void testBug305728HelloWorld2() {
+        try {
+            String[] args = new String[] {"-compile", "-classdir", output.getCanonicalPath() + "/classes",
+                                          "-d",
+                                          output.getCanonicalPath(),
+                                          "-nexclude",
+                                          "http://objectweb.org/hello_world/types",
+                                          getLocation("/wsdl/bug305728/hello_world2.wsdl")};
+            WSDLToJava.main(args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        try {
+            File file = new File(output.getCanonicalPath() , "org/objectweb/hello_world/types");
+            assertFalse("Exclude file should not be generated : " + file.getCanonicalPath(), file.exists());
+           
+            file = new File(output.getCanonicalPath() + File.separator + "classes", 
+                            "org/objectweb/hello_world/types");
+            
+            assertFalse("Exclude file should not be generated : " + file.getCanonicalPath(), file.exists());
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+    }
+    
+    public void testBug305729() {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bug305729/hello_world.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+        assertNotNull("Process message with no part wsdl error", output);
+    }
+
+    
+    
 
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();

@@ -54,6 +54,7 @@ import org.objectweb.celtix.tools.common.extensions.jaxws.CustomizationParser;
 import org.objectweb.celtix.tools.util.ClassCollector;
 import org.objectweb.celtix.tools.util.FileWriterUtil;
 import org.objectweb.celtix.tools.util.JAXBUtils;
+import org.objectweb.celtix.tools.util.URIParserUtil;
 import org.objectweb.celtix.tools.util.WSDLExtensionRegister;
 
 import org.objectweb.celtix.tools.validator.internal.WSDL11Validator;
@@ -73,11 +74,13 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     protected S2JJAXBModel rawJaxbModelGenCode;
 
     protected ClassCollector classColletor;
+    protected List<String> excludePkgList = new ArrayList<String>();
+    protected List<String> excludeGenFiles;
     List<Schema> schemaList = new ArrayList<Schema>();
     private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
     private List<String> schemaTargetNamespaces = new ArrayList<String>();
-
+   
     protected Writer getOutputWriter(String newNameExt) throws ToolException {
         Writer writer = null;
         String newName = null;
@@ -250,8 +253,9 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             .getTargetNamespace()));
         schemaCompiler.setClassNameAllocator(allocator);
         schemaCompiler.setErrorListener(this);
-
+       
         SchemaCompiler schemaCompilerGenCode = schemaCompiler;
+        String excludePackageName = "";
         if (env.isExcludeNamespaceEnabled()) {
             schemaCompilerGenCode = XJC.createSchemaCompiler();
             schemaCompilerGenCode.setClassNameAllocator(allocator);
@@ -259,17 +263,19 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         }
         List schemaSystemidList = new ArrayList();
         for (Schema schema : schemaList) {
-            boolean skipGenCode = false;
-
             Element schemaElement = schema.getElement();
             String targetNamespace = schemaElement.getAttribute("targetNamespace");
             if (StringUtils.isEmpty(targetNamespace)) {
                 continue;
             }
-
-            if (env.hasExcludeNamespace(targetNamespace)
-                && env.getExcludePackageName(targetNamespace) == null) {
-                skipGenCode = true;
+        
+            if (env.hasExcludeNamespace(targetNamespace)) {
+                excludePackageName = env.getExcludePackageName(targetNamespace); 
+                if (excludePackageName != null) {
+                    excludePkgList.add(excludePackageName);
+                } else {
+                    excludePkgList.add(URIParserUtil.getPackageName(targetNamespace));
+                }
             }
             customizeSchema(schemaElement, targetNamespace);
             String systemid = schema.getDocumentBaseURI();
@@ -278,9 +284,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             }
             schemaSystemidList.add(systemid);
             schemaCompiler.parseSchema(systemid, schemaElement);
-            if (env.isExcludeNamespaceEnabled() && !skipGenCode) {
-                schemaCompilerGenCode.parseSchema(systemid, schemaElement);
-            }
+            schemaCompilerGenCode.parseSchema(systemid, schemaElement);        
         }
         Collection<InputSource> jaxbBindingFiles = env.getJaxbBindingFile().values();
         for (InputSource bindingFile : jaxbBindingFiles) {
@@ -322,6 +326,8 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         for (int i = 0; i < nodeListLen; i++) {
             removeImportElement(schema);
         }
+        
+      
     }
 
     private void removeImportElement(Element element) {
