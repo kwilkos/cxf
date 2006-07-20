@@ -1,9 +1,10 @@
 package org.objectweb.celtix.bus.resource;
 
-import org.objectweb.celtix.Bus;
+import java.util.Map;
+
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.resource.DefaultResourceManager;
+import org.objectweb.celtix.resource.PropertiesResolver;
 
 
 public class ResourceManagerImpl extends DefaultResourceManager {
@@ -12,18 +13,22 @@ public class ResourceManagerImpl extends DefaultResourceManager {
         super();
     }
     
-    public ResourceManagerImpl(Bus bus) throws BusException { 
+    public ResourceManagerImpl(Map<String, Object> properties) throws BusException { 
         super();
         registeredResolvers.clear();
         
-        Configuration conf = bus.getConfiguration(); 
-        assert null != conf;
-        Object obj = conf.getObject("resourceResolvers");
-        assert null != obj;
+        registeredResolvers.add(new PropertiesResolver(properties));
         
         // TODO: replace by dynamic loading
         
         /*
+        Configuration conf = bus.getConfiguration(); g
+        assert null != conf;
+        Object obj = conf.getObject("resourceResolvers");
+        assert null != obj;
+        
+        
+        
         try { 
             for (String className : ((StringListType)obj).getItem()) { 
                 if (LOG.isLoggable(Level.FINEST)) { 

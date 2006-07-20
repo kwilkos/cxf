@@ -2,6 +2,9 @@ package org.objectweb.celtix.bus;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -10,17 +13,29 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.bindings.BindingFactoryManagerImpl;
 import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
+import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.interceptors.InterceptorProvider;
 import org.objectweb.celtix.phase.Phase;
+import org.objectweb.celtix.resource.PropertiesResolver;
 import org.objectweb.celtix.resource.ResourceManager;
 
 
 public class CeltixBus extends Bus implements InterceptorProvider {
 
+    public static final String BUS_PROPERTY_NAME = "bus";
+    public static final String BINDINGFACTORYMANAGER_PROPERTY_NAME = "bindingFactoryManager";
+    public static final String TRANSPORTFACTORYMANAGER_PROPERTY_NAME = "transportFactoryManager";
+    public static final String WSDLMANAGER_PROPERTY_NAME = "wsdlManager";
+    public static final String LIFECYCLEMANAGER_PROPERTY_NAME = "lifeCycleManager";
+    public static final String WORKQUEUEMANAGER_PROPERTY_NAME = "workQueueManager";
+    public static final String RESOURCEMANAGER_PROPERTY_NAME = "resourceManager";
+
+    
+    
     private Configuration configuration;
-    private Map<String, Object> properties;
+    private Map<String, Object> properties = new HashMap<String, Object>();
     private BindingFactoryManager bindingFactoryManager;
     // private TransportFactoryManager transportFactoryManager;
     // private WSDLManager wsdlManager;
@@ -44,16 +59,21 @@ public class CeltixBus extends Bus implements InterceptorProvider {
     public void initialize(String[] args, Map<String, Object> p)
         throws BusException {
 
-        properties = p;
+        if (null != p) {
+            properties.putAll(p);
+        }
+        
+        Collection<Object> newPropertyValues = new ArrayList<Object>();
         
         configuration = null;
         // configuration = new BusConfigurationBuilder().build(args, properties);
         busID = (String)configuration.getId();
         
-        bindingFactoryManager = (BindingFactoryManager)properties.get(BindingFactoryManager.class.getName());
-        if (null == bindingFactoryManager) {
-            bindingFactoryManager = new BindingFactoryManagerImpl(this);
-            properties.put(BindingFactoryManager.class.getName(), bindingFactoryManager);
+        bindingFactoryManager = (BindingFactoryManager)properties.get(BINDINGFACTORYMANAGER_PROPERTY_NAME);
+        if (null == bindingFactoryManager) {            
+            bindingFactoryManager = new BindingFactoryManagerImpl();
+            properties.put(BINDINGFACTORYMANAGER_PROPERTY_NAME, bindingFactoryManager);
+            newPropertyValues.add(bindingFactoryManager);
         }
         
         
@@ -80,7 +100,9 @@ public class CeltixBus extends Bus implements InterceptorProvider {
         
         // workQueueManager = new WorkQueueManagerImpl(this);
         
-        resourceManager = new ResourceManagerImpl(this);   
+        resourceManager = new ResourceManagerImpl();
+        
+        injectResources(newPropertyValues, false); 
         
         createPhases();
         
@@ -176,6 +198,37 @@ public class CeltixBus extends Bus implements InterceptorProvider {
     public List<Interceptor> getOutInterceptors() {
         return outInterceptors;
     }
+    
+    /**
+     * Inject resources into all bus properties. 
+     * The resource manager used by the injector includes a resolver that resolves the bus
+     * properties themselves, thus allowing one property value to obtain a reference to 
+     * another or the bus.
+     * Alternatively, only inject the bus itself.
+     * 
+     */
+    void injectResources(Collection<Object> objs, boolean all) { 
+        
+        Map<String, Object> injectedProperties = null;
+        if (all) {
+            injectedProperties = new HashMap<String, Object>(properties);      
+        } else {
+            injectedProperties = new HashMap<String, Object>();
+        }
+        injectedProperties.put(BUS_PROPERTY_NAME, this);
+        
+        ResourceManager rm = new ResourceManagerImpl();
+        rm.addResourceResolver(new PropertiesResolver(injectedProperties));
+        ResourceInjector injector = new ResourceInjector(rm);
+        
+        Iterator it = objs.iterator();
+        while (it.hasNext()) {
+            Object o = it.next();
+            if (this != o) {
+                injector.inject(o);
+            }
+        }
+    }
 
     void createPhases() {
         PhaseFactory pf = new PhaseFactory(this);
@@ -189,5 +242,9 @@ public class CeltixBus extends Bus implements InterceptorProvider {
         faultInterceptors = new ArrayList<Interceptor>();
         
         // TODO: initialise from configuration
+    }
+    
+    protected Map<String, Object> getProperties() {
+        return properties;
     }
 }

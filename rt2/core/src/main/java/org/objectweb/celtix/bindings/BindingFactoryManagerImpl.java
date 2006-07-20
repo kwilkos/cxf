@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.Resource;
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.configuration.utils.PropertiesLoaderUtils;
@@ -17,11 +19,12 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
     
     final Map<String, BindingFactory> bindingFactories;
     Properties factoryNamespaceMappings;
-    private final Bus bus;
     
-    public BindingFactoryManagerImpl(Bus b) throws BusException {
+    @Resource
+    Bus bus;
+   
+    public BindingFactoryManagerImpl() throws BusException {
         bindingFactories = new ConcurrentHashMap<String, BindingFactory>();
-        bus = b;
         
         try {
             factoryNamespaceMappings = PropertiesLoaderUtils
@@ -31,6 +34,7 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
             throw new BusException(ex);
         }
     }
+
     
     BindingFactory loadBindingFactory(String className, String ...namespaceURIs) throws BusException {
         BindingFactory factory = null;
