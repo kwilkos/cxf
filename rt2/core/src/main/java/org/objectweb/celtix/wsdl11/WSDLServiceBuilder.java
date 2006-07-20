@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.wsdl.Binding;
+import javax.wsdl.BindingFault;
+import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Fault;
 import javax.wsdl.Input;
@@ -23,6 +25,7 @@ import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.service.model.AbstractMessageContainer;
 import org.objectweb.celtix.service.model.AbstractPropertiesHolder;
 import org.objectweb.celtix.service.model.BindingInfo;
+import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.FaultInfo;
 import org.objectweb.celtix.service.model.InterfaceInfo;
 import org.objectweb.celtix.service.model.MessageInfo;
@@ -116,6 +119,32 @@ public class WSDLServiceBuilder {
         
         if (bi == null) {
             bi = new BindingInfo(service);
+            copyExtensors(bi, binding.getExtensibilityElements());
+            
+            for (BindingOperation bop : cast(binding.getBindingOperations(), BindingOperation.class)) {
+                String inName = null;
+                String outName = null;
+                if (bop.getBindingInput() != null) {
+                    inName = bop.getBindingInput().getName();
+                }
+                if (bop.getBindingOutput() != null) {
+                    inName = bop.getBindingOutput().getName();
+                }
+                BindingOperationInfo bop2 = bi.buildOperation(bop.getName(), inName, outName);
+                copyExtensors(bop2, bop.getExtensibilityElements());
+                bi.addOperation(bop2);
+                
+                if (bop.getBindingInput() != null) {
+                    copyExtensors(bop2.getInput(), bop.getBindingInput().getExtensibilityElements());
+                }
+                if (bop.getBindingOutput() != null) {
+                    copyExtensors(bop2.getOutput(), bop.getBindingOutput().getExtensibilityElements());
+                }
+                for (BindingFault f : cast(bop.getBindingFaults().values(), BindingFault.class)) {
+                    copyExtensors(bop2.getFault(f.getName()),
+                                  bop.getBindingFault(f.getName()).getExtensibilityElements());
+                }
+            } 
         }
         
         service.addBinding(bi);
