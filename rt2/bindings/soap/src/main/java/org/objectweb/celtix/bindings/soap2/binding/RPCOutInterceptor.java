@@ -11,7 +11,6 @@ import org.objectweb.celtix.bindings.DataWriter;
 import org.objectweb.celtix.bindings.soap2.AbstractSoapInterceptor;
 import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.helpers.NSStack;
-import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
@@ -60,7 +59,7 @@ public class RPCOutInterceptor extends AbstractSoapInterceptor {
 
             finish();
         } catch (Exception e) {
-            soapMessage.put(AbstractWrappedMessage.OUTBOUND_EXCEPTION, e);
+            soapMessage.setResult(Exception.class, e);
         }
         
         message.getInterceptorChain().doIntercept(message);

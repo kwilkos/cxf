@@ -15,7 +15,7 @@ import org.w3c.dom.Element;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 import org.objectweb.celtix.message.Attachment;
-import org.objectweb.celtix.message.Message;
+
 
 public class MustUnderstandInterceptorTest extends TestBase {
 
@@ -61,7 +61,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
         assertEquals("DummaySoapInterceptor getUnderstood has been called!", true, dsi
             .isCalledGetUnderstood());
 
-        Exception ie = (Exception)soapMessage.get(Message.INBOUND_EXCEPTION);
+        Exception ie = (Exception)soapMessage.getSource(Exception.class);
         if (ie != null) {
             fail("InBound Exception found! e=" + ie.getMessage());
         }
@@ -79,7 +79,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
         assertEquals("DummaySoapInterceptor getUnderstood has been called!", true, dsi
             .isCalledGetUnderstood());
 
-        Exception ie = (Exception)soapMessage.get(Message.INBOUND_EXCEPTION);
+        Exception ie = (Exception)soapMessage.getSource(Exception.class);
         if (ie == null) {
             fail("InBound Exception Missing! Exception should be Can't understands QNames: " + PASSENGER
                  + ", ");

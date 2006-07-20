@@ -19,7 +19,6 @@ import org.w3c.dom.Text;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.CachedOutputStream;
 import org.objectweb.celtix.message.Attachment;
-import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class SoapOutInterceptor extends AbstractSoapInterceptor {
@@ -57,7 +56,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                 streamCopy(cos.getInputStream(), ops);
             }
         } catch (Exception e) {
-            soapMessage.put(Message.OUTBOUND_EXCEPTION, e);
+            soapMessage.setResult(Exception.class, e);
             return;
         }
         // Continue the Chain processing

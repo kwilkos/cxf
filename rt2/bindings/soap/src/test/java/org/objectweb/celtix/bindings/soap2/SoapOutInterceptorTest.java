@@ -14,7 +14,6 @@ import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.CachedOutputStream;
 import org.objectweb.celtix.message.Attachment;
-import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 
@@ -40,7 +39,7 @@ public class SoapOutInterceptorTest extends TestBase {
             fail("Failed in creating soap message! " + ioe.getMessage());
         }
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
-        Exception oe = (Exception)soapMessage.get(Message.OUTBOUND_EXCEPTION);
+        Exception oe = (Exception)soapMessage.getResult(Exception.class);
         if (oe != null) {
             fail("OutBound Exception found! e=" + oe.getMessage());
         }

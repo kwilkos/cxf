@@ -11,7 +11,7 @@ import javax.xml.soap.SOAPException;
 import org.w3c.dom.Element;
 
 import org.objectweb.celtix.interceptors.Interceptor;
-import org.objectweb.celtix.message.Message;
+
 
 public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
 
@@ -38,7 +38,7 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
                 sb.append(qname.toString() + ", ");
             }
             SOAPException mustUnderstandException = new SOAPException(sb.toString());
-            soapMessage.put(Message.INBOUND_EXCEPTION, mustUnderstandException);
+            soapMessage.setSource(Exception.class, mustUnderstandException);
         }
     }
 

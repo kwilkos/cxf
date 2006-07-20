@@ -15,7 +15,6 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
@@ -31,7 +30,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
             init();
             process();
         } catch (Exception e) {
-            message.put(Message.INBOUND_EXCEPTION, e);
+            message.setResult(Exception.class, e);
             return;
         }
         // continue interceptor chain processing

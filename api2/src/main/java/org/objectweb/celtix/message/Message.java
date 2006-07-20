@@ -9,8 +9,6 @@ import org.objectweb.celtix.interceptors.InterceptorChain;
 
 public interface Message extends Map<String, Object> {
     
-    String INBOUND_EXCEPTION = "INBOUND_EXCEPTION";
-    String OUTBOUND_EXCEPTION = "OUTBOUND_EXCEPTION";    
     String SERVICE_MODEL_BINDING = "service.model.binding";
     
     String getId();
