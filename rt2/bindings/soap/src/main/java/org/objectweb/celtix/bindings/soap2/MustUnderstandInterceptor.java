@@ -12,7 +12,6 @@ import org.w3c.dom.Element;
 
 import org.objectweb.celtix.interceptors.Interceptor;
 
-
 public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
 
     private SoapMessage soapMessage;
@@ -25,14 +24,10 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
 
         // TODO Auto-generated method stub
         soapMessage = (SoapMessage)message;
-        if (!(soapMessage.getVersion() instanceof Soap12)) {
-            message.getInterceptorChain().doIntercept(message);
-            return;
-        }
         buildMustUnderstandHeaders();
         initServiceSideInfo();
         if (!checkUnderstand()) {
-            StringBuffer sb = new StringBuffer(200);
+            StringBuffer sb = new StringBuffer(300);
             sb.append("Can't understands QNames: ");
             for (QName qname : notUnderstandQNames) {
                 sb.append(qname.toString() + ", ");
@@ -68,13 +63,16 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
         for (int i = 0; i < headers.getChildNodes().getLength(); i++) {
             Element header = (Element)headers.getChildNodes().item(i);
             String mustUnderstand = header.getAttributeNS(soapMessage.getVersion().getNamespace(),
-                                                          Soap12.ATTRNAME_MUSTUNDERSTAND);
+                                                          soapMessage.getVersion()
+                                                              .getAttrNameMustUnderstand());
+
             if (Boolean.valueOf(mustUnderstand) || "1".equals(mustUnderstand.trim())) {
-                String role = header.getAttributeNS(soapMessage.getVersion().getNamespace(),
-                                                    Soap12.ATTRNAME_ROLE);
+                String role = header.getAttributeNS(soapMessage.getVersion().getNamespace(), soapMessage
+                    .getVersion().getAttrNameRole());
                 if (role != null) {
                     role = role.trim();
-                    if (role.equals(Soap12.ROLE_NEXT) || role.equals(Soap12.ROLE_ULTIMATERECEIVER)) {
+                    if (role.equals(soapMessage.getVersion().getNextRole())
+                        || role.equals(soapMessage.getVersion().getUltimateReceiverRole())) {
                         mustUnderstandHeaders.add(header);
                     } else {
                         for (URI roleFromBinding : serviceRoles) {

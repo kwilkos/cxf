@@ -40,8 +40,12 @@ public interface SoapVersion {
 
     String getSoapEncodingStyle();
 
+    String getAttrNameMustUnderstand();
+    
     // Role related properties
     //-------------------------------------------------------------------------
+    String getAttrNameRole();
+    
     String getNoneRole();
 
     String getUltimateReceiverRole();

@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
  * @version $Revision$
  */
 public class Soap11 implements SoapVersion {
+    
     private static final Soap11 INSTANCE = new Soap11();
 
     private final double version = 1.1;
@@ -103,4 +104,12 @@ public class Soap11 implements SoapVersion {
         return nextRole;
     }
     
+    public String getAttrNameRole() {
+        return "actor";
+    }
+
+    public String getAttrNameMustUnderstand() {
+        return "mustUnderstand";
+    }
+
 }

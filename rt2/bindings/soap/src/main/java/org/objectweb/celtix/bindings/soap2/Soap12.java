@@ -25,11 +25,7 @@ import javax.xml.namespace.QName;
  * @version $Revision$
  */
 public class Soap12 implements SoapVersion {
-
-    public static final String ATTRNAME_MUSTUNDERSTAND = "mustUnderstand";
-
-    public static final String ATTRNAME_ROLE = "role";
-    
+   
     public static final String ROLE_NONE = "http://www.w3.org/2003/05/soap-envelope/role/none";
     public static final String ROLE_NEXT = "http://www.w3.org/2003/05/soap-envelope/role/next";
     public static final String ROLE_ULTIMATERECEIVER = 
@@ -113,4 +109,13 @@ public class Soap12 implements SoapVersion {
     public String getNextRole() {
         return nextRole;
     }
+    
+    public String getAttrNameRole() {
+        return "role";
+    }
+
+    public String getAttrNameMustUnderstand() {
+        return "mustUnderstand";
+    }
+
 }
