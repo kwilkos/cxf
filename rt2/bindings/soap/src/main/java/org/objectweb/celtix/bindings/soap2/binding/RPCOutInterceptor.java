@@ -13,9 +13,9 @@ import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.helpers.NSStack;
 import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.servicemodel.BindingInfo;
-import org.objectweb.celtix.servicemodel.BindingOperationInfo;
-import org.objectweb.celtix.servicemodel.MessagePartInfo;
+import org.objectweb.celtix.service.model.BindingInfo;
+import org.objectweb.celtix.service.model.BindingOperationInfo;
+import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class RPCOutInterceptor extends AbstractSoapInterceptor {

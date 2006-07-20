@@ -17,7 +17,7 @@ import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
-import org.objectweb.celtix.servicemodel.ServiceInfo;
+import org.objectweb.celtix.service.model.ServiceInfo;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class TestBase extends TestCase {

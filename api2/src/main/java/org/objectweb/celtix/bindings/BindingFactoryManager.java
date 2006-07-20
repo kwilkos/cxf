@@ -28,7 +28,7 @@ public interface BindingFactoryManager {
      * @param name The name of the BindingFactory.
      * @throws BusException If there is an error deregistering the name.
      */
-    void deregisterBindingFactory(String name)
+    void unregisterBindingFactory(String name)
         throws BusException;
 
     /**
@@ -39,9 +39,4 @@ public interface BindingFactoryManager {
      * @throws BusException If there is an error retrieving the BindingFactory.
      */
     BindingFactory getBindingFactory(String name) throws BusException;
-    
-    /**
-     * Shuts down the BindingManager and do clean up things.
-     */
-    void shutdown();
 }

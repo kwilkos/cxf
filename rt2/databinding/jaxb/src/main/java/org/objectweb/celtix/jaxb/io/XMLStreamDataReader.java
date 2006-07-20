@@ -4,9 +4,9 @@ package org.objectweb.celtix.jaxb.io;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
+import org.objectweb.celtix.databinding.DataReader;
 import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
-import org.objectweb.celtix.servicemodel.DataReader;
 
 public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
     final JAXBDataReaderFactory factory;

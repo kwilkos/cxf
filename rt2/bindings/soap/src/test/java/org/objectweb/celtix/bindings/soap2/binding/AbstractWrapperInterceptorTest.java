@@ -7,11 +7,11 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bindings.soap2.TestBase;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
-import org.objectweb.celtix.servicemodel.BindingInfo;
-import org.objectweb.celtix.servicemodel.BindingOperationInfo;
-import org.objectweb.celtix.servicemodel.MessageInfo;
-import org.objectweb.celtix.servicemodel.MessagePartInfo;
-import org.objectweb.celtix.servicemodel.ServiceInfo;
+import org.objectweb.celtix.service.model.BindingInfo;
+import org.objectweb.celtix.service.model.BindingOperationInfo;
+import org.objectweb.celtix.service.model.MessageInfo;
+import org.objectweb.celtix.service.model.MessagePartInfo;
+import org.objectweb.celtix.service.model.ServiceInfo;
 import org.objectweb.hello_world_soap_http.Greeter;
 
 public abstract class AbstractWrapperInterceptorTest extends TestBase {

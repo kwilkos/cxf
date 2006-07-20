@@ -1,4 +1,4 @@
-package org.objectweb.celtix.servicemodel;
+package org.objectweb.celtix.service.model;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
+
+import org.objectweb.celtix.databinding.DataReaderFactory;
+import org.objectweb.celtix.databinding.DataWriterFactory;
 
 public class BindingInfo extends AbstractPropertiesHolder {
     QName name;

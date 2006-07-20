@@ -1,25 +1,18 @@
-package org.objectweb.celtix.servicemodel;
+package org.objectweb.celtix.service.model;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.bindings.BindingFactory;
-
-
 public class ServiceInfo extends AbstractPropertiesHolder {
-    Bus bus;
     QName name;
     String targetNamespace;
     InterfaceInfo intf;
     Map<QName, BindingInfo> bindings = new ConcurrentHashMap<QName, BindingInfo>(2);
     Map<String, EndpointInfo> endpoints = new ConcurrentHashMap<String, EndpointInfo>(2);
     
-    public ServiceInfo(Bus b) {
-        bus = b;
+    public ServiceInfo() {
     }
     
     public String getTargetNamespace() {
@@ -47,23 +40,6 @@ public class ServiceInfo extends AbstractPropertiesHolder {
         return intf;
     }
     
-    public BindingInfo createBinding(QName qn, String ns) {
-        BindingInfo bi = null;
-        try {
-            BindingFactory factory = bus.getBindingManager().getBindingFactory(ns);
-            if (factory != null) {
-                bi = factory.createBindingInfo(this);
-            }
-        } catch (BusException e) {
-            //ignore, we'll use a generic BindingInfo
-        }
-        if (bi == null) {
-            bi = new BindingInfo(this);
-        }
-        bi.setName(qn);
-        addBinding(bi);
-        return bi;
-    }
     public BindingInfo getBinding(QName qn) {
         return bindings.get(qn);
     }
@@ -76,7 +52,4 @@ public class ServiceInfo extends AbstractPropertiesHolder {
     public void addEndpoint(EndpointInfo ep) {
         endpoints.put(ep.getName(), ep);
     }
-
-    
-
 }

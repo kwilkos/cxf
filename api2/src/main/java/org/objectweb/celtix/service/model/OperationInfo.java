@@ -1,4 +1,4 @@
-package org.objectweb.celtix.servicemodel;
+package org.objectweb.celtix.service.model;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -14,7 +14,6 @@ public final class OperationInfo extends AbstractPropertiesHolder {
     
     final InterfaceInfo intf;
     String opName;
-    
     String inName;
     MessageInfo inputMessage;
     String outName;

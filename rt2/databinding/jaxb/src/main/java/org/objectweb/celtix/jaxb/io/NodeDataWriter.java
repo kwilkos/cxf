@@ -4,9 +4,9 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Node;
 
+import org.objectweb.celtix.databinding.DataWriter;
 import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
-import org.objectweb.celtix.servicemodel.DataWriter;
 
 public class NodeDataWriter implements DataWriter<Node> {
     final JAXBDataWriterFactory factory;

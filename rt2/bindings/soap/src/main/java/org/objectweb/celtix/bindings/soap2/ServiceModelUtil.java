@@ -7,9 +7,9 @@ import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.servicemodel.BindingInfo;
-import org.objectweb.celtix.servicemodel.BindingMessageInfo;
-import org.objectweb.celtix.servicemodel.BindingOperationInfo;
+import org.objectweb.celtix.service.model.BindingInfo;
+import org.objectweb.celtix.service.model.BindingMessageInfo;
+import org.objectweb.celtix.service.model.BindingOperationInfo;
 
 public final class ServiceModelUtil {
     private static final String HEADERS_PROPERTY = ServiceModelUtil.class.getName() + ".HEADERS";

@@ -5,10 +5,10 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Node;
 
+import org.objectweb.celtix.databinding.DataReader;
+import org.objectweb.celtix.databinding.DataReaderFactory;
 import org.objectweb.celtix.jaxb.io.EventDataReader;
 import org.objectweb.celtix.jaxb.io.XMLStreamDataReader;
-import org.objectweb.celtix.servicemodel.DataReader;
-import org.objectweb.celtix.servicemodel.DataReaderFactory;
 
 
 public class JAXBDataReaderFactory extends JAXBDataFactoryBase implements DataReaderFactory {

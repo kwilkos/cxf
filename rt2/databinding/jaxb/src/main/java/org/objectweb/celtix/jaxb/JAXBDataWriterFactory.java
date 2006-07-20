@@ -5,10 +5,10 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Node;
 
+import org.objectweb.celtix.databinding.DataWriter;
+import org.objectweb.celtix.databinding.DataWriterFactory;
 import org.objectweb.celtix.jaxb.io.EventDataWriter;
 import org.objectweb.celtix.jaxb.io.XMLStreamDataWriter;
-import org.objectweb.celtix.servicemodel.DataWriter;
-import org.objectweb.celtix.servicemodel.DataWriterFactory;
 
 public class JAXBDataWriterFactory extends JAXBDataFactoryBase implements DataWriterFactory {
     private static final Class<?> SUPPORTED_FORMATS[] = new Class<?>[] {Node.class,

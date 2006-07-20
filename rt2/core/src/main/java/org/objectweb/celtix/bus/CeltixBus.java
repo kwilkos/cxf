@@ -52,7 +52,7 @@ public class CeltixBus extends Bus implements InterceptorProvider {
         
         bindingFactoryManager = (BindingFactoryManager)properties.get(BindingFactoryManager.class.getName());
         if (null == bindingFactoryManager) {
-            bindingFactoryManager = new BindingFactoryManagerImpl(this);
+            bindingFactoryManager = new BindingFactoryManagerImpl();
             properties.put(BindingFactoryManager.class.getName(), bindingFactoryManager);
         }
         
@@ -110,7 +110,7 @@ public class CeltixBus extends Bus implements InterceptorProvider {
 
         // transportFactoryManager.shutdown();
         
-        bindingFactoryManager.shutdown();
+        // bindingFactoryManager.shutdown();
         
         // lifeCycleManager.postShutdown();
         

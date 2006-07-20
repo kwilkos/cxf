@@ -1,4 +1,4 @@
-package org.objectweb.celtix.servicemodel;
+package org.objectweb.celtix.service.model;
 
 public interface Invoker {
     //REVISIT - what is needed for the invoker?

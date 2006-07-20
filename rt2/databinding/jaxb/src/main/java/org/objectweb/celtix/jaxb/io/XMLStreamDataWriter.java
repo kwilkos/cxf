@@ -3,9 +3,9 @@ package org.objectweb.celtix.jaxb.io;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.objectweb.celtix.databinding.DataWriter;
 import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
-import org.objectweb.celtix.servicemodel.DataWriter;
 
 public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
     final JAXBDataWriterFactory factory;

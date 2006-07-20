@@ -10,8 +10,8 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bindings.soap2.TestBase;
-import org.objectweb.celtix.servicemodel.BindingInfo;
-import org.objectweb.celtix.servicemodel.ServiceInfo;
+import org.objectweb.celtix.service.model.BindingInfo;
+import org.objectweb.celtix.service.model.ServiceInfo;
 import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
 import org.objectweb.celtix.staxutils.StaxUtils;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;

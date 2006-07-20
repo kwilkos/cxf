@@ -1,4 +1,4 @@
-package org.objectweb.celtix.servicemodel;
+package org.objectweb.celtix.service.model;
 
 public class EndpointInfo extends AbstractPropertiesHolder {
     //TODO -define all of this stuff.   Could we just use a WS-A EPR?

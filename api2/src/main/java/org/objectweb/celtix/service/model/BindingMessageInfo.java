@@ -1,4 +1,4 @@
-package org.objectweb.celtix.servicemodel;
+package org.objectweb.celtix.service.model;
 
 public class BindingMessageInfo extends AbstractPropertiesHolder {
 

@@ -5,9 +5,9 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Node;
 
+import org.objectweb.celtix.databinding.DataReader;
 import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
-import org.objectweb.celtix.servicemodel.DataReader;
 
 public class NodeDataReader implements DataReader<Node> {
     final JAXBDataReaderFactory factory;

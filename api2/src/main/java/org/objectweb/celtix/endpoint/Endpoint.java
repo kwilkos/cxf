@@ -15,6 +15,5 @@ public interface Endpoint {
     void start(String address);
     
     void stop();
-    
-  
+
 }
