@@ -1,5 +1,14 @@
 package org.objectweb.celtix.bindings.soap2.binding;
 
+import org.objectweb.celtix.bindings.soap2.AbstractSoapInterceptor;
+import org.objectweb.celtix.bindings.soap2.SoapMessage;
+
+public class WrapperInterceptor extends AbstractSoapInterceptor {
+    public void handleMessage(SoapMessage message) {
+    }
+}
+
+/*
 import java.io.InputStream;
 
 import javax.xml.namespace.QName;
@@ -128,3 +137,4 @@ public class WrapperInterceptor extends AbstractSoapInterceptor {
         return new DepthXMLStreamReader(xr);
     }
 }
+*/

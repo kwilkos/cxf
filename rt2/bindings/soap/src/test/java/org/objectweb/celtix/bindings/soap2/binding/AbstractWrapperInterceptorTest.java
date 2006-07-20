@@ -1,5 +1,11 @@
 package org.objectweb.celtix.bindings.soap2.binding;
 
+import org.objectweb.celtix.bindings.soap2.TestBase;
+
+public abstract class AbstractWrapperInterceptorTest extends TestBase {
+}
+
+/*
 import java.io.InputStream;
 
 import javax.xml.namespace.QName;
@@ -78,3 +84,4 @@ public abstract class AbstractWrapperInterceptorTest extends TestBase {
         return binding;
     }
 }
+*/

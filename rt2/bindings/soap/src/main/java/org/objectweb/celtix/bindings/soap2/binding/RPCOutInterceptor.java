@@ -1,5 +1,14 @@
 package org.objectweb.celtix.bindings.soap2.binding;
 
+import org.objectweb.celtix.bindings.soap2.AbstractSoapInterceptor;
+import org.objectweb.celtix.bindings.soap2.SoapMessage;
+
+public class RPCOutInterceptor extends AbstractSoapInterceptor {
+
+    public void handleMessage(SoapMessage message) {
+    }
+}
+/*
 import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
@@ -81,11 +90,9 @@ public class RPCOutInterceptor extends AbstractSoapInterceptor {
         for (int idx = 0; idx < noArgs; idx++) {
             MessagePartInfo part = operation.getInput().getMessageInfo().getMessageParts().get(idx);
             Object partValue = args[idx];
-            /*
-            if (part.isInOut()) {
-                partValue = ((Holder)args[idx]).value;
-            }
-            */
+            //if (part.isInOut()) {
+             //   partValue = ((Holder)args[idx]).value;
+            //}
             
             getDataWriter().write(partValue,
                                   part.getName(),
@@ -136,3 +143,4 @@ public class RPCOutInterceptor extends AbstractSoapInterceptor {
         return message.getResult(XMLStreamWriter.class);
     }
 }
+*/

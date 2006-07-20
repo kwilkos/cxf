@@ -1,5 +1,11 @@
 package org.objectweb.celtix.bindings.soap2.binding;
 
+import org.objectweb.celtix.bindings.soap2.TestBase;
+
+public abstract class AbstractRPCOutInterceptorTest extends TestBase {
+}
+
+/*
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -100,3 +106,4 @@ public abstract class AbstractRPCOutInterceptorTest extends TestBase {
         return obj;
     }
 }
+*/

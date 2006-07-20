@@ -2,19 +2,19 @@ package org.objectweb.celtix.bindings.soap2;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
+// import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
+// import javax.xml.bind.JAXBContext;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
-import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
-import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
+// import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
+// import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
+// import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.service.model.ServiceInfo;
@@ -58,10 +58,12 @@ public class TestBase extends TestCase {
         return null;
     }
 
+    /*
     protected JAXBDataBindingCallback getTestCallback(Class<?> clz, String methodName) throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
         Method m = org.objectweb.celtix.testutil.common.TestUtil.getMethod(clz,
                                                                            methodName);
         return new JAXBDataBindingCallback(m, Mode.PARTS, ctx);
     }
+    */
 }

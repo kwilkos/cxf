@@ -1,5 +1,13 @@
 package org.objectweb.celtix.bindings.soap2.binding;
 
+import org.objectweb.celtix.bindings.soap2.AbstractSoapInterceptor;
+import org.objectweb.celtix.bindings.soap2.SoapMessage;
+
+public class RPCInterceptor extends AbstractSoapInterceptor {
+    public void handleMessage(SoapMessage message) {
+    }
+}
+/*
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -146,3 +154,4 @@ public class RPCInterceptor extends AbstractSoapInterceptor {
         return new DepthXMLStreamReader(xr);
     }
 }
+*/

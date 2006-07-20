@@ -1,5 +1,14 @@
 package org.objectweb.celtix.bindings.soap2.binding;
 
+import org.objectweb.celtix.bindings.soap2.AbstractSoapInterceptor;
+import org.objectweb.celtix.bindings.soap2.SoapMessage;
+
+public class WrapperOutInterceptor extends AbstractSoapInterceptor {
+    public void handleMessage(SoapMessage message) {
+    }
+}
+
+/*
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -77,3 +86,4 @@ public class WrapperOutInterceptor extends AbstractSoapInterceptor {
         return message.getResult(XMLStreamWriter.class);
     }
 }
+*/

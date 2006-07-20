@@ -25,7 +25,7 @@
 	</dependency>
 	<dependency>
 	    <groupId>org.objectweb.celtixfire</groupId>
-	    <artifactId>cxf-rt-databinding-jaxb</artifactId>
+	    <artifactId>cxf-rt2-databinding-jaxb</artifactId>
 	    <version>${project.version}</version>
 	</dependency>
 	<dependency>
