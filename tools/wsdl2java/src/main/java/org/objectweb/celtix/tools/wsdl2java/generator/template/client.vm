@@ -53,6 +53,7 @@ public final class ${clientClassName} {
         try{
             #if($method.return.Type != "void")
             $method.return.ClassName _${method.Name}_$method.return.Name=#end  port.${method.Name}(#foreach ($parameter in $method.Parameters) ${parameter.DefaultTypeValue}  #if ($velocityCount != $method.parameterCount) , #end #end);
+            System.out.println("${method.Name}.result=" + _${method.Name}_$method.return.Name);
         }#foreach($exception in $method.Exceptions)
         catch($exception.ClassName e){ 
         System.out.println("Expected exception: $exception.Name has occurred.");
@@ -61,7 +62,6 @@ public final class ${clientClassName} {
         #else
         #if($method.return.ClassName != "void")$method.return.ClassName _${method.Name}_$method.return.Name =#end port.${method.Name}(#foreach($parameter in $method.Parameters)${parameter.DefaultTypeValue}#if($velocityCount != $method.parameterCount),#end#end);
 #end#if($method.return.Type != "void")
-        System.out.println("${method.Name}.result=" + _${method.Name}_$method.return.Name);
         #end
 #end
         

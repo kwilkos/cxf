@@ -853,9 +853,21 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertNotNull("Process message with no part wsdl error", output);
     }
 
+    public void testBug305700() {
+        try {
+            env.put(ToolConstants.CFG_COMPILE, "compile");
+            env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
+            env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+            env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bug305700/addNumbers.wsdl"));
+            processor.setEnvironment(env);
+            processor.process();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
     
-
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
     }
