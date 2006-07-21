@@ -14,7 +14,7 @@ import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
 import org.objectweb.celtix.configuration.Configurator;
-import org.objectweb.celtix.configuration.impl.AbstractConfigurationImpl;
+import org.objectweb.celtix.configuration.impl.ConfigurationImpl;
 import org.objectweb.celtix.configuration.impl.DefaultConfigurationProviderFactory;
 
 
@@ -54,8 +54,8 @@ public class AbstractConfigurationImplTest extends TestCase {
     }
     
     public void testConfigurators() {
-        AbstractConfigurationImpl topConfiguration = 
-            (AbstractConfigurationImpl)new TopConfigurationBuilder().build("TOP");
+        ConfigurationImpl topConfiguration = 
+            (ConfigurationImpl)new TopConfigurationBuilder().build("TOP");
         Configurator topConfigurator = topConfiguration.getConfigurator();
         assertNotNull(topConfigurator);
         assertTrue(topConfiguration == topConfigurator.getConfiguration());
@@ -63,8 +63,8 @@ public class AbstractConfigurationImplTest extends TestCase {
         Collection<Configurator> topClients = topConfigurator.getClients();
         assertEquals(0, topClients.size());    
         
-        AbstractConfigurationImpl leafConfiguration = 
-            (AbstractConfigurationImpl)new LeafConfigurationBuilder().build(topConfiguration, "LEAF");
+        ConfigurationImpl leafConfiguration = 
+            (ConfigurationImpl)new LeafConfigurationBuilder().build(topConfiguration, "LEAF");
         assertEquals(1, topClients.size());   
         Configurator leafConfigurator = leafConfiguration.getConfigurator();
         assertNotNull(leafConfigurator);

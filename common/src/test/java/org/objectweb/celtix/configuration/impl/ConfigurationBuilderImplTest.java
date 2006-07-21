@@ -1,7 +1,5 @@
 package org.objectweb.celtix.configuration.impl;
 
-import java.util.Properties;
-
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
@@ -20,41 +18,27 @@ public class ConfigurationBuilderImplTest extends TestCase {
         "http://celtix.objectweb.org/bus/transports/http/http-listener-config";
     private static final String HTTP_LISTENER_CONFIGURATION_ID = "http-listener.44959";
     private static final String UNKNOWN_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/unknown/unknown-config";    
-    private static final String DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME =
+        "http://celtix.objectweb.org/unknown/unknown-config";  
+    private static final String DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME = 
         TestProvider.class.getName();
+    
     private static final String DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME_PROPERTY = 
         "org.objectweb.celtix.bus.configuration.ConfigurationProvider";
     
     
     private String orgProviderClassname;
-    private String orgBuilderClassname;
     
     public void setUp() {
         orgProviderClassname = System.getProperty(DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME_PROPERTY);
         System.setProperty(DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME_PROPERTY, 
-                           DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME);
-        orgBuilderClassname = System.getProperty(ConfigurationBuilder.CONFIGURATION_BUILDER_CLASS_PROPERTY);
-        System.setProperty(ConfigurationBuilder.CONFIGURATION_BUILDER_CLASS_PROPERTY, 
-                           ConfigurationBuilderImpl.class.getName());          
+                           DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME);      
     }
     
     public void tearDown() {
         if (null != orgProviderClassname) {
             System.setProperty(DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME_PROPERTY, orgProviderClassname);
         } else {
-            Properties p = System.getProperties();
-            p.remove(DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME_PROPERTY);
-            System.setProperties(p);
-        }
-        
-        if (null != orgBuilderClassname) {
-            System.setProperty(ConfigurationBuilder.CONFIGURATION_BUILDER_CLASS_PROPERTY, 
-                               orgBuilderClassname);
-        } else {
-            Properties p = System.getProperties();
-            p.remove(ConfigurationBuilder.CONFIGURATION_BUILDER_CLASS_PROPERTY);
-            System.setProperties(p);
+            System.clearProperty(DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME_PROPERTY);
         }
     }
     

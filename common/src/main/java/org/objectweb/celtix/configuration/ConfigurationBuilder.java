@@ -2,7 +2,6 @@ package org.objectweb.celtix.configuration;
 
 
 public interface ConfigurationBuilder {
-    String CONFIGURATION_BUILDER_CLASS_PROPERTY = "org.objectweb.celtix.ConfigurationBuilderClass";
     
     /**
      * Returns the top level <code>Configuration</code> object with the specified namespace and

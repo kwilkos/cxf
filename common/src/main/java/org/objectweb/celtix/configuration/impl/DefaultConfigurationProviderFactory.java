@@ -20,10 +20,9 @@ public class DefaultConfigurationProviderFactory {
     private static final Logger LOG = LogUtils.getL7dLogger(DefaultConfigurationProviderFactory.class);
     
     private static final String DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME = 
-        "org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl";
-    
+        "org.objectweb.celtix.configuration.impl.InMemoryProvider";
     private static final String DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME_PROPERTY = 
-        "org.objectweb.celtix.bus.configuration.ConfigurationProvider";
+        "org.objectweb.celtix.configuration.ConfigurationProviderClass";
     
     private static DefaultConfigurationProviderFactory theInstance;
     

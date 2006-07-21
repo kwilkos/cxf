@@ -6,8 +6,11 @@ import java.io.InputStreamReader;
 
 
 public final class ConfigurationBuilderFactory {
-    private static final String DEFAULT_CONFIGURATION_BUILDER_CLASSNAME = 
-        "org.objectweb.celtix.bus.configuration.CeltixConfigurationBuilder";
+    private static final String CONFIGURATION_BUILDER_CLASS_PROPERTY = 
+        "org.objectweb.celtix.ConfigurationBuilderClass";
+    private static final String DEFAULT_CONFIGURATION_BUILDER_CLASSNAME =
+        "org.objectweb.celtix.configuration.impl.ConfigurationBuilderImpl";
+    
     private static ConfigurationBuilder theBuilder;
 
     private ConfigurationBuilderFactory() {
@@ -57,7 +60,7 @@ public final class ConfigurationBuilderFactory {
         String builderClass = null;
 
         // check system properties
-        builderClass = System.getProperty(ConfigurationBuilder.CONFIGURATION_BUILDER_CLASS_PROPERTY);
+        builderClass = System.getProperty(CONFIGURATION_BUILDER_CLASS_PROPERTY);
         if (isValidBuilderClass(builderClass)) {
             return builderClass;
         }
@@ -65,7 +68,7 @@ public final class ConfigurationBuilderFactory {
         try {
             // next, check for the services stuff in the jar file
             String serviceId = "META-INF/services/"
-                               + ConfigurationBuilder.CONFIGURATION_BUILDER_CLASS_PROPERTY;
+                               + CONFIGURATION_BUILDER_CLASS_PROPERTY;
             InputStream is = null;
 
             if (classLoader == null) {

@@ -20,8 +20,8 @@ public class ConfiguratorImpl implements Configurator {
     public ConfiguratorImpl(Configuration c, Configuration parent) {
         configuration = c;
         clients = new ArrayList<Configurator>();
-        if (parent instanceof AbstractConfigurationImpl) {
-            hook = ((AbstractConfigurationImpl)parent).getConfigurator();
+        if (parent instanceof ConfigurationImpl) {
+            hook = ((ConfigurationImpl)parent).getConfigurator();
             hook.registerClient(this);
         } else {
             hook = null;

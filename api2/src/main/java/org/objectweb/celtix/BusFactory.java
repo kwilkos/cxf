@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public final class BusFactory {
 
-    private static final String DEFAULT_BUS_CLASSNAME = "org.objectweb.celtix.bus.busimpl.CeltixBus";
+    private static final String DEFAULT_BUS_CLASSNAME = "org.objectweb.celtix.bus.CeltixBus";
     private static BusFactory theInstance;
     
     private BusFactory() {

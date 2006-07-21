@@ -22,26 +22,23 @@ import org.objectweb.celtix.configuration.ConfigurationMetadata;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
 import org.objectweb.celtix.configuration.Configurator;
 
-public class AbstractConfigurationImpl implements Configuration {
+public class ConfigurationImpl implements Configuration {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(AbstractConfigurationImpl.class);
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AbstractConfigurationImpl.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationImpl.class);
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ConfigurationImpl.class);
     private Configurator configurator;
     private ConfigurationMetadata model;
     private String id;
     private List<ConfigurationProvider> providers;
 
-    public AbstractConfigurationImpl(ConfigurationMetadata m, String instanceId, Configuration parent) {
+    public ConfigurationImpl(ConfigurationMetadata m, String instanceId, Configuration parent) {
         model = m;
         id = instanceId;
-        configurator = new ConfiguratorImpl(this, parent instanceof AbstractConfigurationImpl
-                                            ? (AbstractConfigurationImpl)parent
+        configurator = new ConfiguratorImpl(this, parent instanceof ConfigurationImpl
+                                            ? (ConfigurationImpl)parent
                                             : null);
 
         providers = new Vector<ConfigurationProvider>();
-
-        // temporary:
-        //providers.add(new InMemoryProvider());
 
         DefaultConfigurationProviderFactory factory = DefaultConfigurationProviderFactory.getInstance();
         ConfigurationProvider defaultProvider = factory.createDefaultProvider(this);
@@ -98,16 +95,9 @@ public class AbstractConfigurationImpl implements Configuration {
         if (null == definition) {
             throw new ConfigurationException(new Message("ITEM_NOT_DEFINED_EXC", BUNDLE, name));
         }
+        Object obj = getLocal(name);
+        return null == obj ? definition.getDefaultValue() : obj;
 
-        Configuration holder = this;
-        while (null != holder) {
-            Object obj = getLocal(holder, name);
-            if (null != obj) {
-                return obj;
-            }
-            holder = holder.getParent();
-        }
-        return definition.getDefaultValue();
     }
 
     /**
@@ -143,7 +133,7 @@ public class AbstractConfigurationImpl implements Configuration {
         }
 
         if (accepted) {
-            reconfigure(name);
+            propertyModified(name);
         }
         return accepted;
     }
@@ -306,7 +296,7 @@ public class AbstractConfigurationImpl implements Configuration {
         }
     }
 
-    protected Object getLocal(Configuration c, String name) {
+    protected Object getLocal(String name) {
         if (null == providers) {
             return null;
         }
@@ -324,7 +314,7 @@ public class AbstractConfigurationImpl implements Configuration {
         return configurator;
     }
 
-    public void reconfigure(String name) {
+    public void propertyModified(String name) {
         //Do nothing
     }
 }

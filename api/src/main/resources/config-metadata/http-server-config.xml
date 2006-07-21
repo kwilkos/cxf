@@ -10,7 +10,8 @@
 
     <cm:configImport namespace="http://celtix.objectweb.org/transports/http/configuration" location="schemas/wsdl/http-conf.xsd"/>
     <cm:configImport namespace="http://celtix.objectweb.org/bus/configuration/security" location="schemas/configuration/security.xsd"/>
-
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    
     <cm:configItem>
         <cm:name>httpServer</cm:name>
         <cm:type>http-conf:HTTPServerPolicy</cm:type>

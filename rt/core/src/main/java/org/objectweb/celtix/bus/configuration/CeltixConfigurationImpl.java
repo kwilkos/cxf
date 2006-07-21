@@ -3,15 +3,15 @@ package org.objectweb.celtix.bus.configuration;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
-import org.objectweb.celtix.configuration.impl.AbstractConfigurationImpl;
+import org.objectweb.celtix.configuration.impl.ConfigurationImpl;
 
-public class CeltixConfigurationImpl extends AbstractConfigurationImpl {
+public class CeltixConfigurationImpl extends ConfigurationImpl {
 
     public CeltixConfigurationImpl(ConfigurationMetadata m, String instanceId, Configuration parent) {
         super(m, instanceId, parent);
     }
 
-    public void reconfigure(String name) {
+    public void propertyModified(String name) {
         Bus.getCurrent().sendEvent(new ConfigurationEvent(name, ConfigurationEvent.RECONFIGURED));
     }
 

@@ -11,6 +11,7 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.phase.Phase;
 
@@ -21,6 +22,15 @@ public class CeltixBusTest extends TestCase {
     public void setUp() {
         bus = new CeltixBus();
     }
+    
+    public void testInitWithoutProperties() throws BusException {
+        Bus b = Bus.init();
+        assertTrue(b instanceof CeltixBus);
+    }
+    
+    public void testInitWithProperties() {
+        
+    }
 
     public void testCreatePhases() {
         assertNull(bus.getInPhases());
@@ -29,14 +39,6 @@ public class CeltixBusTest extends TestCase {
         assertTrue(phases.size() > 0);
         phases = bus.getOutPhases();
         assertTrue(phases.size() > 0);     
-    }
-    
-    public void testInitWithoutProperties() {
-        
-    }
-    
-    public void testInitWithProperties() {
-        
     }
     
     public void testResourceInjection() {
@@ -81,9 +83,6 @@ public class CeltixBusTest extends TestCase {
         
         @Resource 
         BindingFactoryManager bindingManager;
-        
-        
-        
-        
+          
     }
 }

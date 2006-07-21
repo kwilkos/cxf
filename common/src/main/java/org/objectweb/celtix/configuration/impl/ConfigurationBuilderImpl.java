@@ -78,7 +78,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
                                                          BUNDLE, namespaceUri));
         }
 
-        Configuration c = new AbstractConfigurationImpl(model, id, parent);
+        Configuration c = new ConfigurationImpl(model, id, parent);
         if (null == parent) {
             Map<String, Configuration> instances = configurations.get(namespaceUri);
             if (null == instances) {

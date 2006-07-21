@@ -49,7 +49,6 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
     private BusEventCache eventCache;
     private BusEventProcessor eventProcessor;
     private String busID;
-    private boolean servicesMonitoring;
 
 
     /**
@@ -74,7 +73,6 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
         addListener((BusEventListener)this, configurationEventFilter);
 
         busID = (String)configuration.getId();
-        servicesMonitoring = configuration.getBoolean("servicesMonitoring");
 
         try {
             //REVISIT - dynamic discovery of objects, generic registry instead of fields
@@ -287,15 +285,17 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
     }
 
     public boolean isServicesMonitoring() {
-        return servicesMonitoring;
+        return configuration.getBoolean("servicesMonitoring");
     }
 
     public void setServicesMonitoring(boolean pServicesMonitoring) {
-        servicesMonitoring = pServicesMonitoring;
+        configuration.setBoolean("servicesMonitoring", pServicesMonitoring);
     }
 
     // The notification between runtime components and corresponding
     // configurations to support dynamic configuration
+    // REVISIT!!!
+    
     public void processEvent(BusEvent e) throws BusException {
         if (e.getID().equals(ConfigurationEvent.RECONFIGURED)) {
             String configName = (String)e.getSource();
@@ -309,9 +309,11 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
     }
 
     private void reConfigure(String configName) {
+        /*
         if ("servicesMonitoring".equals(configName)) {
             servicesMonitoring = configuration.getBoolean("servicesMonitoring");
         }
+        */
 
     }
 

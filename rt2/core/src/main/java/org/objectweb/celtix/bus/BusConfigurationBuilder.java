@@ -12,7 +12,7 @@ public class BusConfigurationBuilder  {
     public static final String BUS_ID_PROPERTY = "org.objectweb.celtix.bus.id";
     public static final String BUS_CONFIGURATION_URI = 
         "http://celtix.objectweb.org/bus/bus-config";    
-    private static final String DEFAULT_BUS_ID = "celtix";
+    public static final String DEFAULT_BUS_ID = "celtix";
    
     
     Configuration build(Map<String, Object> properties) {

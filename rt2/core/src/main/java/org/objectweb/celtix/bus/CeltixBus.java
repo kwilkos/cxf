@@ -180,7 +180,7 @@ public class CeltixBus extends Bus implements InterceptorProvider {
         if (null != configuration) {
             return (String)configuration.getId();
         }
-        return null;
+        return BusConfigurationBuilder.DEFAULT_BUS_ID;
     }
     
     public List<Phase> getInPhases() {
