@@ -51,11 +51,11 @@ http://java/sun.com/xml/ns/j2ee/connector_1_5.xsd" version="1.5">
         <connection-impl-class>org.objectweb.celtix.jca.celtix.ManagedConnectionImpl</connection-impl-class>
       </connection-definition>
       <transaction-support>NoTransaction</transaction-support>
-      <!--authentication-mechanism>
+      <authentication-mechanism>
         <authentication-mechanism-type>BasicPassword</authentication-mechanism-type>
         <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
       </authentication-mechanism>
-      <reauthentication-support>false</reauthentication-support-->
+      <reauthentication-support>false</reauthentication-support>
     </outbound-resourceadapter>
   </resourceadapter>
 </connector>
