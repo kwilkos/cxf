@@ -44,4 +44,32 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.objectweb.celtixfire</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+                            <xsdOptions>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr.xsd</xsd>
+                                    <packagename>org.objectweb.celtix.ws.addressing</packagename>
+                                </xsdOption>
+                            </xsdOptions>
+                        </configuration>
+                        <goals>
+                            <goal>xsdtojava</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
