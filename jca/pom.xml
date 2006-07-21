@@ -73,8 +73,7 @@
         <dependency>
             <groupId>jboss</groupId>
             <artifactId>jboss-common</artifactId>
-            <version>4.0.2</version>
-            <optional>true</optional>
+            <version>4.0.2</version>            
             <exclusions>
                 <exclusion>
                     <groupId>xerces</groupId>
@@ -85,8 +84,7 @@
         <dependency>
             <groupId>jboss</groupId>
             <artifactId>jboss-j2ee</artifactId>
-            <version>4.0.2</version>
-            <optional>true</optional>
+            <version>4.0.2</version>            
             <exclusions>
                 <exclusion>
                     <groupId>xerces</groupId>
