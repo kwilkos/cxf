@@ -8,5 +8,13 @@ public class BindingFaultInfo extends AbstractPropertiesHolder {
         fault = f;
         opinfo = info;
     }
+    
+    public FaultInfo getFaultInfo() {
+        return fault;
+    }
+    
+    public BindingOperationInfo getBindingOperation() {
+        return opinfo;
+    }
 
 }

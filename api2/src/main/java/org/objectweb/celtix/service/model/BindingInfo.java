@@ -96,6 +96,7 @@ public class BindingInfo extends AbstractPropertiesHolder {
     public Invoker getDefaultInvoker() {
         return invoker;
     }
+    
     public void setDefaultInvoker(Invoker i) {
         invoker = i;
     }

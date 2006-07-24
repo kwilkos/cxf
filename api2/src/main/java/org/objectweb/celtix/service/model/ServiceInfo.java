@@ -1,5 +1,7 @@
 package org.objectweb.celtix.service.model;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,5 +53,13 @@ public class ServiceInfo extends AbstractPropertiesHolder {
     }
     public void addEndpoint(EndpointInfo ep) {
         endpoints.put(ep.getName(), ep);
+    }
+    
+    public Collection<EndpointInfo> getEndpoints() {
+        return Collections.unmodifiableCollection(endpoints.values());
+    }
+    
+    public Collection<BindingInfo> getBindings() {
+        return Collections.unmodifiableCollection(bindings.values());
     }
 }
