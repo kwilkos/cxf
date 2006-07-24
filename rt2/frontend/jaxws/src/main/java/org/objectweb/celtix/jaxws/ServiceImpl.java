@@ -13,6 +13,7 @@ import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.service.Service;
+import org.objectweb.celtix.wsdl11.WSDLServiceFactory;
 
 public class ServiceImpl extends ServiceDelegate {
     
@@ -25,12 +26,8 @@ public class ServiceImpl extends ServiceDelegate {
         bus = b;
         wsdlURL = url;
         
-        // parse wsdl
-        
-        // create service info
-        
-        // create service
- 
+        WSDLServiceFactory sf = new WSDLServiceFactory(bus, url, name);
+        service = sf.create(); 
     }
 
     @Override
