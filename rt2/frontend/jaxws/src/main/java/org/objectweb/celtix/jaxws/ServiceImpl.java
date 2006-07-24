@@ -113,4 +113,68 @@ public class ServiceImpl extends ServiceDelegate {
     public Service getService() {
         return service;
     }
+    
+    protected <T> T createPort(QName portName, Class<T> serviceEndpointInterface) {
+
+        /*
+        LOG.log(Level.FINE, "creating port for portName", portName);
+        LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
+
+        //Assuming Annotation is Present
+        javax.jws.WebService wsAnnotation = serviceEndpointInterface.getAnnotation(WebService.class);
+
+        if (wsdlLocation == null) {
+            wsdlLocation = getWsdlLocation(wsAnnotation);
+        }
+
+        if (wsdlLocation == null) {
+            throw new WebServiceException("No wsdl url specified");
+        }
+
+        if (serviceName == null) {
+            serviceName = getServiceName(wsAnnotation);
+        }
+        
+        if (portName == null) {
+            portName = getPortName(wsAnnotation);
+            if (portName == null) {
+                try {
+                    Definition def = bus.getWSDLManager().getDefinition(wsdlLocation);
+                    javax.wsdl.Service service = def.getService(serviceName);
+                    if (service.getPorts().size() == 1) {
+                        Port port = (Port)service.getPorts().values().iterator().next();
+                        portName = new QName(serviceName.getNamespaceURI(), port.getName());
+                    } else {
+                        throw new WebServiceException("Unable to determine portName");                      
+                    }
+                } catch (WSDLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlLocation,
+                serviceName, portName.getLocalPart());
+
+        Configuration portConfiguration = createPortConfiguration(portName, ref);
+
+        EndpointInvocationHandler endpointHandler =
+                new EndpointInvocationHandler(bus, ref, this, portConfiguration, serviceEndpointInterface);
+
+        createHandlerChainForBinding(serviceEndpointInterface, portName, endpointHandler.getBinding());
+
+        Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(),
+                                            new Class[] {serviceEndpointInterface, BindingProvider.class},
+                                            endpointHandler);
+
+        LOG.log(Level.FINE, "created proxy", obj);
+
+        endpointList.add(portName);
+
+        return serviceEndpointInterface.cast(obj);
+        */
+        
+        return null;
+    }
+
 }

@@ -59,8 +59,6 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
             message.setSource(Exception.class, ioe);
             return;
         }
-        // continue interceptor chain processing
-        message.getInterceptorChain().doIntercept(message);
     }
 
     public void handleFault(Message messageParam) {

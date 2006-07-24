@@ -3,9 +3,10 @@ package org.objectweb.celtix.endpoint;
 import java.util.concurrent.Executor;
 
 import org.objectweb.celtix.bindings.Binding;
+import org.objectweb.celtix.interceptors.AbstractBasicInterceptorProvider;
 import org.objectweb.celtix.service.model.EndpointInfo;
 
-public class EndpointImpl implements Endpoint {
+public class EndpointImpl extends AbstractBasicInterceptorProvider implements Endpoint {
     
 //    private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
 //    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
@@ -21,7 +22,7 @@ public class EndpointImpl implements Endpoint {
         endpointInfo = info;      
     }
     
-    EndpointInfo getEndpointInfo() {
+    public EndpointInfo getEndpointInfo() {
         return endpointInfo;
     }
     
@@ -45,6 +46,7 @@ public class EndpointImpl implements Endpoint {
         executor = e;     
     }
      
+    /*
     public void start(String address) {
         // find a transport compatible with binding  and address address
         
@@ -53,6 +55,7 @@ public class EndpointImpl implements Endpoint {
     public void stop() {
         
     }
+    */
 
 //    final void createBinding(String uri) {
 //        

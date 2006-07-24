@@ -34,7 +34,6 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
             return;
         }
         // continue interceptor chain processing
-        message.getInterceptorChain().doIntercept(message);
     }
 
     private void init() throws Exception {

@@ -43,8 +43,11 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             xtw.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
             Element eleHeaders = soapMessage.getHeaders(Element.class);
             serializeDom2XmlStreamWriter(eleHeaders, xtw, new HashSet<String>());
+            
             // Calling for Wrapped/Rpt/Doc/ Interceptor for writing SOAP body
-            message.getInterceptorChain().doIntercept(message);
+            // message.getInterceptorChain().doIntercept(message);
+            
+            
             // Write Envelop end element
             xtw.writeEndElement();
             xtw.flush();
@@ -60,7 +63,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             return;
         }
         // Continue the Chain processing
-        message.getInterceptorChain().doIntercept(message);
+        //  message.getInterceptorChain().doIntercept(message);
     }
 
     private static void streamCopy(InputStream input, OutputStream output) throws IOException {

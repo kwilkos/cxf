@@ -18,7 +18,7 @@ public final class ServiceModelUtil {
     }
 
     public static BindingOperationInfo getOperation(SoapMessage soapMessage, String opName) {
-        BindingInfo service = (BindingInfo)soapMessage.get(Message.SERVICE_MODEL_BINDING);
+        BindingInfo service = (BindingInfo)soapMessage.get(Message.BINDING_INFO);
         return service.getOperation(opName);
     }
 
@@ -40,7 +40,7 @@ public final class ServiceModelUtil {
 
     public static Set<QName> getHeaderQNameInOperationParam(SoapMessage soapMessage) {
         Set<QName> headers = new HashSet<QName>();
-        BindingInfo binding = (BindingInfo)soapMessage.get(Message.SERVICE_MODEL_BINDING);
+        BindingInfo binding = (BindingInfo)soapMessage.get(Message.BINDING_INFO);
         if (binding != null) {
             for (BindingOperationInfo opi : binding.getOperations()) {
                 headers.addAll(getHeaderParts(opi.getInput()));

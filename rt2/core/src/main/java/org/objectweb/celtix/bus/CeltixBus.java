@@ -17,13 +17,12 @@ import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.interceptors.Interceptor;
-import org.objectweb.celtix.interceptors.InterceptorProvider;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.resource.PropertiesResolver;
 import org.objectweb.celtix.resource.ResourceManager;
 
 
-public class CeltixBus extends Bus implements InterceptorProvider {
+public class CeltixBus extends Bus {
 
     public static final String BUS_PROPERTY_NAME = "bus";
     public static final String BINDINGFACTORYMANAGER_PROPERTY_NAME = "bindingFactoryManager";

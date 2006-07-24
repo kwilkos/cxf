@@ -11,6 +11,7 @@ import javax.xml.ws.WebServiceException;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
 // import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.interceptors.InterceptorProvider;
 // import org.objectweb.celtix.jaxws.EndpointRegistry;
 // import org.objectweb.celtix.plugins.PluginManager;
 import org.objectweb.celtix.phase.Phase;
@@ -19,7 +20,7 @@ import org.objectweb.celtix.resource.ResourceManager;
 // import org.objectweb.celtix.workqueue.WorkQueueManager;
 // import org.objectweb.celtix.wsdl.WSDLManager;
 
-public abstract class Bus {
+public abstract class Bus implements InterceptorProvider {
     
     public static final String BUS_CLASS_PROPERTY = "org.objectweb.celtix.BusClass";
 
