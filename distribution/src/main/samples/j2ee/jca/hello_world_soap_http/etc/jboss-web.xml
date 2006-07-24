@@ -1,0 +1,7 @@
+<jboss-web>
+  <resource-ref>
+    <res-ref-name>eis/CeltixConnector</res-ref-name>
+    <res-type>org.objectweb.celtix.connector.CeltixConnectionFactory</res-type>
+    <jndi-name>java:/CeltixConnector</jndi-name>
+  </resource-ref>
+</jboss-web>
