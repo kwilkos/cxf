@@ -75,12 +75,20 @@ public class WSDL2JavaMojo extends AbstractMojo {
         String cp = System.getProperty("java.class.path");
         SecurityManager oldSm = System.getSecurityManager();
         long timestamp = CodegenUtils.getCodegenTimestamp();
+        boolean result = true;
         try {
             System.setProperty("java.class.path", newCp);
             System.setSecurityManager(new NoExitSecurityManager());
         
             for (int x = 0; x < wsdlOptions.length; x++) {
                 processWsdl(wsdlOptions[x], outputDirFile, timestamp);
+
+                File dirs[] = wsdlOptions[x].getDeleteDirs();
+                if (dirs != null) {
+                    for (int idx = 0; idx < dirs.length; ++idx) {
+                        result = result && deleteDir(dirs[idx]);
+                    }
+                }
             }
         } finally {
             System.setSecurityManager(oldSm);
@@ -157,5 +165,20 @@ public class WSDL2JavaMojo extends AbstractMojo {
                 throw new MojoExecutionException(e.getMessage(), e);
             }
         }
+    }
+
+    private boolean deleteDir(File f) {
+        if (f.isDirectory()) {
+            File files[] = f.listFiles();
+            for (int idx = 0; idx < files.length; ++idx) {
+                deleteDir(files[idx]);
+            }
+        }
+        
+        if (f.exists()) {
+            return f.delete();
+        }
+        
+        return true;
     }
 }

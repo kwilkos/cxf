@@ -8,6 +8,7 @@ public class WsdlOption {
     List packagenames;
     List extraargs;
     File dependencies[];
+    File redundantDirs[];
 
     public List getExtraargs() {
         return extraargs;
@@ -38,4 +39,10 @@ public class WsdlOption {
     public File[] getDependencies() {
         return dependencies;
     }    
+    public void setDeleteDirs(File files[]) {
+        redundantDirs = files;
+    }
+    public File[] getDeleteDirs() {
+        return redundantDirs;
+    }
 }
