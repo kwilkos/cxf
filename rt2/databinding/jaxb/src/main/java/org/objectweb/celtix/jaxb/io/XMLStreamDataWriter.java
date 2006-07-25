@@ -22,7 +22,7 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
         if (obj != null) {
             JAXBEncoderDecoder.marshall(factory.getJAXBContext(),
                                         factory.getSchema(), obj,
-                                        elName, output);
+                                        elName, output, null);
         }
     }
     

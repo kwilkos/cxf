@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2.attachments;
+package org.objectweb.celtix.jaxb;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -6,16 +6,19 @@ import java.util.UUID;
 import javax.activation.DataHandler;
 import javax.xml.bind.attachment.AttachmentMarshaller;
 
-import org.objectweb.celtix.bindings.soap2.SoapMessage;
+import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
+import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
+import org.objectweb.celtix.bindings.attachments.ByteDataSource;
 import org.objectweb.celtix.message.Attachment;
+import org.objectweb.celtix.message.Message;
 
 public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
 
-    private SoapMessage message;
+    private Message message;
     private Collection<Attachment> atts;
     private boolean isXop;
 
-    public JAXBAttachmentMarshaller(SoapMessage messageParam) {
+    public JAXBAttachmentMarshaller(Message messageParam) {
         super();
         this.message = messageParam;
         atts = message.getAttachments();

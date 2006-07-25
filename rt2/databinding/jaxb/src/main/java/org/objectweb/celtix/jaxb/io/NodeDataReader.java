@@ -40,7 +40,7 @@ public class NodeDataReader implements DataReader<Node> {
         
         return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
                                              factory.getSchema(),
-                                             xmlNode, name, cls);
+                                             xmlNode, name, cls, null);
     }
     
    

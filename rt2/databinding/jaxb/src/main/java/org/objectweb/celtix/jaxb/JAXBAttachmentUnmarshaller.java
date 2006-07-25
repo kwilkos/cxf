@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2.attachments;
+package org.objectweb.celtix.jaxb;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,14 +9,14 @@ import javax.activation.DataHandler;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
 import javax.xml.ws.WebServiceException;
 
-import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.message.Attachment;
+import org.objectweb.celtix.message.Message;
 
 public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
 
-    private SoapMessage message;
+    private Message message;
 
-    public JAXBAttachmentUnmarshaller(SoapMessage messageParam) {
+    public JAXBAttachmentUnmarshaller(Message messageParam) {
         super();
         this.message = messageParam;
     }
@@ -68,6 +68,26 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
 
     @Override
     public boolean isXOPPackage() {
-        return AttachmentUtil.isXOPPackage(this.message);
+        String contentTypeOfSoapBodyPart;
+        String typeOfSoapBodyPart;
+        Attachment primaryMimePart = message.getSource(Attachment.class);
+        if (primaryMimePart == null) {
+            return false;
+        } else {
+            contentTypeOfSoapBodyPart = primaryMimePart.getHeader("Content-Type");
+        }
+        if ("application/xop+xml".equals(contentTypeOfSoapBodyPart)) {
+            typeOfSoapBodyPart = primaryMimePart.getHeader("type");
+            if (typeOfSoapBodyPart.indexOf("application/soap+xml") >= 0) {
+                return true;
+            } else if (typeOfSoapBodyPart.indexOf("text/xml") >= 0) {
+                return true;
+            }
+        }
+        return false;
+
     }
+    
+
+
 }

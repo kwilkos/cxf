@@ -19,6 +19,9 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.bindings.attachments.AttachmentDataSource;
+import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
+import org.objectweb.celtix.bindings.attachments.CachedOutputStream;
 import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Attachment;
 import org.objectweb.celtix.message.Message;

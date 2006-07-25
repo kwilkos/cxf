@@ -16,8 +16,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
-import org.objectweb.celtix.bindings.soap2.attachments.CachedOutputStream;
+import org.objectweb.celtix.bindings.attachments.CachedOutputStream;
+import org.objectweb.celtix.bindings.soap2.attachments.AttachmentSerializer;
 import org.objectweb.celtix.message.Attachment;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
@@ -54,7 +54,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             soapMessage.setResult(InputStream.class, cos.getInputStream());
             Collection<Attachment> attachments = message.getAttachments();
             if (attachments.size() > 0) {
-                AttachmentUtil.serializeMultipartMessage(soapMessage, ops);
+                AttachmentSerializer.serializeMultipartMessage(soapMessage, ops);
             } else {
                 streamCopy(cos.getInputStream(), ops);
             }

@@ -20,6 +20,8 @@ import javax.xml.bind.UnmarshalException;
 import javax.xml.bind.Unmarshaller;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.attachment.AttachmentMarshaller;
+import javax.xml.bind.attachment.AttachmentUnmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
@@ -212,7 +214,8 @@ public final class JAXBEncoderDecoder {
     }
     
     public static void marshall(JAXBContext context, Schema schema,
-                                Object elValue, QName elNname,  Node destNode) {
+                                Object elValue, QName elNname,  
+                                Object source, AttachmentMarshaller am) {
         
         Class<?> cls = null != elValue ? elValue.getClass() : null;
         Marshaller u = createMarshaller(context, cls);
@@ -225,7 +228,19 @@ public final class JAXBEncoderDecoder {
                     .newInstance(elNname, cls, mObj);
             }
             u.setSchema(schema);
-            u.marshal(mObj, destNode);
+            if (am != null) {
+                u.setAttachmentMarshaller(am);
+            }
+            if (source instanceof Node) {
+                u.marshal(mObj, (Node)source);
+            } else if (source instanceof XMLEventWriter) {
+                u.marshal(mObj, (XMLEventWriter)source);
+            } else if (source instanceof XMLStreamWriter) {
+                u.marshal(mObj, (XMLStreamWriter)source);
+            } else {
+                throw new ProtocolException("Marshalling Error, unrecognized source " 
+                                            + source.getClass().getName());
+            }
         } catch (MarshalException me) {
             // It's helpful to include the cause in the case of
             // schema validation exceptions.
@@ -238,9 +253,10 @@ public final class JAXBEncoderDecoder {
             throw new ProtocolException("Marshalling Error", ex);
         }
     }
-
+    /*
     public static void marshall(JAXBContext context, Schema schema,
-                                Object elValue, QName elName, XMLEventWriter writer) {
+                                Object elValue, QName elName,   
+                                XMLEventWriter writer, AttachmentMarshaller am) {
         
         Class<?> cls = null != elValue ? elValue.getClass() : null;
         Marshaller u = createMarshaller(context, elValue.getClass());
@@ -271,7 +287,8 @@ public final class JAXBEncoderDecoder {
 
 
     public static void marshall(JAXBContext context, Schema schema,
-                                Object elValue, QName elName, XMLStreamWriter writer) {
+                                Object elValue, QName elName,   
+                                XMLStreamWriter writer, AttachmentMarshaller am) {
         
         Class<?> cls = null != elValue ? elValue.getClass() : null;
         Marshaller u = createMarshaller(context, elValue.getClass());
@@ -299,7 +316,7 @@ public final class JAXBEncoderDecoder {
             throw new ProtocolException("Marshalling error", ex);
         }
     }
-
+    */
     private static Unmarshaller createUnmarshaller(JAXBContext context,
                                                    Class<?> cls) {
         Unmarshaller um = null;
@@ -317,14 +334,28 @@ public final class JAXBEncoderDecoder {
     }
     
     public static Object unmarshall(JAXBContext context, Schema schema,
-                                    Node srcNode, QName elName, Class<?> clazz) {
+                                    Object source, QName elName, 
+                                    Class<?> clazz, AttachmentUnmarshaller au) {
         Object obj = null;
         try {
             Unmarshaller u = createUnmarshaller(context, clazz);
-            u.setSchema(schema);
-
-            obj = (clazz != null) ? u.unmarshal(srcNode, clazz) 
-                                  : u.unmarshal(srcNode);
+            u.setSchema(schema);            
+            if (au != null) {
+                u.setAttachmentUnmarshaller(au);
+            }
+            if (source instanceof Node) {
+                obj = (clazz != null) ? u.unmarshal((Node)source, clazz) 
+                                  : u.unmarshal((Node)source);
+            } else if (source instanceof XMLStreamReader) {
+                obj = (clazz != null) ? u.unmarshal((XMLStreamReader)source, clazz) 
+                    : u.unmarshal((XMLStreamReader)source);                
+            } else if (source instanceof XMLEventReader) {
+                obj = (clazz != null) ? u.unmarshal((XMLEventReader)source, clazz) 
+                    : u.unmarshal((XMLEventReader)source);                                
+            } else {
+                throw new ProtocolException("Unmarshalling error, unrecognized source " 
+                                            + source.getClass().getName());
+            }
         } catch (UnmarshalException ue) {
             // It's helpful to include the cause in the case of
             // schema validation exceptions.
@@ -338,9 +369,10 @@ public final class JAXBEncoderDecoder {
         }
         return getElementValue(obj, elName);
     }
-
+    /*
     public static Object unmarshall(JAXBContext context, Schema schema,
-                                    XMLEventReader reader, QName elName, Class<?> clazz) {
+                                    XMLEventReader reader, QName elName, 
+                                    Class<?> clazz, AttachmentUnmarshaller au) {
         
         Object obj = null;
         try {
@@ -349,6 +381,9 @@ public final class JAXBEncoderDecoder {
             }
             Unmarshaller u = context.createUnmarshaller();
             u.setSchema(schema);
+            if (au != null) {
+                u.setAttachmentUnmarshaller(au);
+            }
 
             obj = (clazz != null) ? u.unmarshal(reader, clazz) 
                                   : u.unmarshal(reader);
@@ -367,7 +402,8 @@ public final class JAXBEncoderDecoder {
     }
 
     public static Object unmarshall(JAXBContext context, Schema schema,
-                                    XMLStreamReader reader, QName elName, Class<?> clazz) {
+                                    XMLStreamReader reader, QName elName, 
+                                    Class<?> clazz, AttachmentUnmarshaller au) {
         
         Object obj = null;
         try {
@@ -376,6 +412,9 @@ public final class JAXBEncoderDecoder {
             }
             Unmarshaller u = context.createUnmarshaller();
             u.setSchema(schema);
+            if (au != null) {
+                u.setAttachmentUnmarshaller(au);
+            }
 
             obj = (clazz != null) ? u.unmarshal(reader, clazz) 
                                   : u.unmarshal(reader);
@@ -392,7 +431,7 @@ public final class JAXBEncoderDecoder {
         }
         return getElementValue(obj, elName);
     }
-
+    */
     private static Object getElementValue(Object obj, QName elName) {
         if (null == obj) {
             return null;

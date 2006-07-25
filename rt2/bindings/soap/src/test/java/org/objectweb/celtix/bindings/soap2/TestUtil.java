@@ -13,8 +13,8 @@ import javax.activation.DataHandler;
 import javax.imageio.ImageIO;
 import javax.mail.util.ByteArrayDataSource;
 
-import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
-import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
+import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
+import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.types.DetailType;
 import org.objectweb.celtix.interceptors.InterceptorChain;
 import org.objectweb.celtix.message.Attachment;

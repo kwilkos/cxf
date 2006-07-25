@@ -42,7 +42,8 @@ public class EventDataReader implements DataReader<XMLEventReader> {
         return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
                                              factory.getSchema(), reader,
                                              name,
-                                             cls);
+                                             cls, 
+                                             null);
     }
 
     

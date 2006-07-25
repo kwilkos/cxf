@@ -26,11 +26,6 @@ import javax.xml.namespace.QName;
  */
 public class Soap12 implements SoapVersion {
    
-    public static final String ROLE_NONE = "http://www.w3.org/2003/05/soap-envelope/role/none";
-    public static final String ROLE_NEXT = "http://www.w3.org/2003/05/soap-envelope/role/next";
-    public static final String ROLE_ULTIMATERECEIVER = 
-        "http://www.w3.org/2003/05/soap-envelope/role/ultimateReceiver";
-    
     private static Soap12 instance = new Soap12();
 
     private final double version = 1.2;

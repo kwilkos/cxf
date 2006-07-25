@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2.attachments;
+package org.objectweb.celtix.bindings.attachments;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;

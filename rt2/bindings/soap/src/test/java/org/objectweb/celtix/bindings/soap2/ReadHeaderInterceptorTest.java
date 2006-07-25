@@ -8,8 +8,8 @@ import javax.mail.util.ByteArrayDataSource;
 
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.bindings.soap2.attachments.AttachmentImpl;
-import org.objectweb.celtix.bindings.soap2.attachments.AttachmentUtil;
+import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
+import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
 import org.objectweb.celtix.message.Attachment;
 
 public class ReadHeaderInterceptorTest extends TestBase {

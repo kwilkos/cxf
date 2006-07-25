@@ -24,12 +24,15 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.bindings.attachments.CachedOutputStream;
 import org.objectweb.celtix.bindings.soap2.Soap11;
 import org.objectweb.celtix.bindings.soap2.Soap12;
 import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.bindings.soap2.TestBase;
 import org.objectweb.celtix.bindings.soap2.TestUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.types.DetailType;
+import org.objectweb.celtix.jaxb.JAXBAttachmentMarshaller;
+import org.objectweb.celtix.jaxb.JAXBAttachmentUnmarshaller;
 import org.objectweb.celtix.message.Attachment;
 
 public class AttachmentTest extends TestBase {
@@ -163,7 +166,7 @@ public class AttachmentTest extends TestBase {
     private static void testHandleMessage(SoapMessage soapMessage, boolean testXmlConent) {
         try {
             CachedOutputStream cos = new CachedOutputStream(64 * 1024, null);
-            String contentType = AttachmentUtil.serializeMultipartMessage(soapMessage, cos);
+            String contentType = AttachmentSerializer.serializeMultipartMessage(soapMessage, cos);
             soapMessage.getAttachments().clear();
 
             assertTrue(cos.getInputStream() != null);

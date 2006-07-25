@@ -22,7 +22,7 @@ public class EventDataWriter implements DataWriter<XMLEventWriter> {
         if (obj != null) {
             JAXBEncoderDecoder.marshall(factory.getJAXBContext(),
                                         factory.getSchema(), obj,
-                                        elName, output);
+                                        elName, output, null);
         }
     }
     /*

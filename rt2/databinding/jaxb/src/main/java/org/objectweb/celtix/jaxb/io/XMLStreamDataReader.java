@@ -43,6 +43,7 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
                                              factory.getSchema(),
                                              reader,
                                              name,
-                                             cls);
+                                             cls,
+                                             null);
     }
 }

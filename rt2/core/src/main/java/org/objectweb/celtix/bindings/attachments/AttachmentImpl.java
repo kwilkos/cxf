@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2.attachments;
+package org.objectweb.celtix.bindings.attachments;
 
 import java.util.HashMap;
 import java.util.Iterator;
