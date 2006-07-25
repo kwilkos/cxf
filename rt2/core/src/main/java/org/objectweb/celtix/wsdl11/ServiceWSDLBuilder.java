@@ -32,13 +32,21 @@ import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
 
-public class ServiceWSDLBuilder {
+public final class ServiceWSDLBuilder {
     
-            
-    public ServiceWSDLBuilder() {
+    private static ServiceWSDLBuilder serviceWSDLBuilder;       
+    
+    private ServiceWSDLBuilder() {
         
     }
 
+    public static synchronized ServiceWSDLBuilder getServiceWSDLBuilder() {
+        if (serviceWSDLBuilder == null) {
+            serviceWSDLBuilder = new ServiceWSDLBuilder();
+        }
+        return serviceWSDLBuilder;
+    }
+    
     private void addExtensibiltyElements(ElementExtensible elementExtensible, 
         List<ExtensibilityElement> extensibilityElements) {
         for (ExtensibilityElement element : extensibilityElements) {

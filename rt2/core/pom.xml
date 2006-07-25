@@ -44,6 +44,14 @@
             <version>2.2</version>
             <scope>test</scope>
         </dependency>
+
+	<dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-testutils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         
     </dependencies>
 

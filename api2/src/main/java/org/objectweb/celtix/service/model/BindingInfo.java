@@ -41,7 +41,13 @@ public class BindingInfo extends AbstractPropertiesHolder {
     
     
     private boolean nameEquals(String a, String b) {
-        return "".equals(a) ? "".equals(b) : a.equals(b);
+        if (a == null && b == null) {
+            return true;
+        } else if (a == null && b != null) {
+            return false;
+        } else {
+            return "".equals(a) ? "".equals(b) : a.equals(b);
+        }
     }
     public BindingOperationInfo buildOperation(String opName, String inName, String outName) {
         for (OperationInfo op : getInterface().getOperations()) {
