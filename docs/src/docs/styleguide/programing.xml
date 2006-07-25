@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <chapter>
-  <title>Working with Programming Languages</title>
+  <title>Working with Code</title>
   <section>
     <title>Overview</title>
     <para>There are several instances when you will need to code in the
@@ -90,11 +90,74 @@
     </section>
   </section>
   <section>
-    <title>In-Line Code</title>
-    <para>Code that appears in the text of a paragraph.</para>
+    <title>In-line Code</title>
+    <para>There are many instances where you need to place a code artifact in a block of text such as when you are refering to a Java class or an XML element. Docbook has a number of specialized elements for placing code artifacts in-line. The ones used in CeltiXfire include:</para>
+    <itemizedlist>
+      <listitem>
+        <para><sgmltag class="element">sgmltag</sgmltag></para>
+      </listitem>
+      <listitem>
+        <para><sgmltag>classname</sgmltag></para>
+      </listitem>
+      <listitem>
+        <para><sgmltag>interfacename</sgmltag></para>
+      </listitem>
+      <listitem>
+        <para><sgmltag>methodname</sgmltag></para>
+      </listitem>
+    </itemizedlist>
+    <section>
+      <title>XML Artifacts</title>
+      <para>When placing XML artifacts such as element names or attribute names in your text wrap them in an <sgmltag class="element">sgmltag</sgmltag> element. To specify the type of XML artifact, the <sgmltag class="element">sgmltag</sgmltag> element&apos;s <sgmltag class="attribute">class</sgmltag> attribute is always used. <xref linkend="class_values"/> shows the values used for the <sgmltag class="attribute">class</sgmltag> attribute.</para>
+      <table id="class_values">
+        <title>Values for the <sgmltag class="attribute">class</sgmltag> Atribute</title>
+        <tgroup cols="2">
+          <thead>
+            <row>
+              <entry>Value</entry>
+              <entry>Description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>
+                <sgmltag class="attvalue">attribute</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is an attribute of an XML element.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="attvalue">element</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is an XML element.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="attvalue">attrvalue</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is the value of an XML element&apos;s attribute.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="attvalue">emptytag</sgmltag>
+              </entry>
+              <entry>Specifies an XML element that does not hold any data such as <sgmltag class="emptytag">foo</sgmltag>.</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+    <section>
+      <title>General Programming Language Artifacts</title>
+      <para>This is for things like function and other stuff.</para>
+    </section>
+    <section>
+      <title>Object Oriented Programming Language Artifacts</title>
+      <para>This is all of the programing things like interface name and classname.</para>
+    </section>
   </section>
   <section>
     <title>Class Synopses</title>
-    <para>This is pretty complex stuff. It needs to cover both class abd ooclass.</para>
+    <para>This is pretty complex stuff. It needs to cover both class and ooclass.</para>
   </section>
 </chapter>
