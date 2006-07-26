@@ -11,7 +11,7 @@
         </listeners>
         <schedule interval="120">
             <maven2 mvnscript="/x1/celtix_cruisecontrol/celtix/trunk/maven/bin/mvn"
-                 pomfile="pom.xml" goal="clean|install"  timeout="1800">
+                 pomfile="/x1/celtix_cruisecontrol/celtix/trunk/pom.xml" goal="clean|install"  timeout="1800">
             </maven2>
         </schedule>
         <log dir="/x1/celtix_cruisecontrol/logs/celtix">
