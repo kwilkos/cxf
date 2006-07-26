@@ -18,7 +18,7 @@ import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.resource.ResourceManager;
 // import org.objectweb.celtix.transports.TransportFactoryManager;
 // import org.objectweb.celtix.workqueue.WorkQueueManager;
-// import org.objectweb.celtix.wsdl.WSDLManager;
+import org.objectweb.celtix.wsdl.WSDLManager;
 
 public abstract class Bus implements InterceptorProvider {
     
@@ -178,7 +178,7 @@ public abstract class Bus implements InterceptorProvider {
      * 
      * @return WSDLManager the wsdl manager of this <code>Bus</code>.
      */
-    // public abstract WSDLManager getWSDLManager();
+    public abstract WSDLManager getWSDLManager();
 
     /** 
      * Returns the <code>BusLifeCycleManager</code> of this <code>Bus</code>.

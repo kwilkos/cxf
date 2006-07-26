@@ -62,6 +62,10 @@
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr.xsd</xsd>
                                     <packagename>org.objectweb.celtix.ws.addressing</packagename>
                                 </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr-wsdl.xsd</xsd>
+                                    <packagename>org.objectweb.celtix.ws.addressing.wsdl</packagename>
+                                </xsdOption>
                             </xsdOptions>
                         </configuration>
                         <goals>

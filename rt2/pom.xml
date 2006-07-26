@@ -23,5 +23,6 @@
         <module>databinding/jaxb</module>
         <module>frontend/jaxws</module>
         <module>bindings</module>
+        <module>transports/http</module>
     </modules>
 </project>

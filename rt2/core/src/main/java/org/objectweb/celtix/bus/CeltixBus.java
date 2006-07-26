@@ -20,6 +20,7 @@ import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.resource.PropertiesResolver;
 import org.objectweb.celtix.resource.ResourceManager;
+import org.objectweb.celtix.wsdl.WSDLManager;
 
 
 public class CeltixBus extends Bus {
@@ -38,7 +39,7 @@ public class CeltixBus extends Bus {
     private Map<String, Object> properties = new HashMap<String, Object>();
     private BindingFactoryManager bindingFactoryManager;
     // private TransportFactoryManager transportFactoryManager;
-    // private WSDLManager wsdlManager;
+    private WSDLManager wsdlManager;
     // private CeltixBusLifeCycleManager lifeCycleManager;
     // private WorkQueueManager workQueueManager;
     private ResourceManager resourceManager;
@@ -154,12 +155,13 @@ public class CeltixBus extends Bus {
     public TransportFactoryManager getTransportFactoryManager() {
         return transportFactoryManager;
     }
-
+    */
 
     public WSDLManager getWSDLManager() {
         return wsdlManager;
     }
 
+    /*
     public BusLifeCycleManager getLifeCycleManager() {
         return lifeCycleManager;
     }
