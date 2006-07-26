@@ -36,8 +36,8 @@ public class ClientServerTest extends ClientServerTestBase {
             }
         };
     }
-    public void testBasicConnection() throws Exception {
-        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+    public void testGreetMeSometime() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/hello_world_underscore.wsdl");
         assertNotNull(wsdl);
         
         SOAPService service = new SOAPService(wsdl, serviceName);
