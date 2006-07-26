@@ -50,7 +50,7 @@ public class ClientServerTest extends ClientServerTestBase {
             GreetMeSometime request = new GreetMeSometime();
             GreetMeSometimeResponse response = greeter.greetMeSometime(request);
 
-            this.assertEquals("hello world", response.getResponseType());
+            assertEquals("hello world", response.getResponseType());
 
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();

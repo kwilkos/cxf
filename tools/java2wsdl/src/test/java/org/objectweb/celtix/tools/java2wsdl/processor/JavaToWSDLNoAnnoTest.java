@@ -46,9 +46,6 @@ public class JavaToWSDLNoAnnoTest extends ProcessorTestBase {
         j2wProcessor.setEnvironment(env);
         j2wProcessor.process();
     }
-    
-    private String getLocation(String file) {
-        return JavaToWSDLNoAnnoTest.class.getClassLoader().getResource(file).getFile();
-    }
+
 
 }
