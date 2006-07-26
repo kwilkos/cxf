@@ -1,6 +1,10 @@
 package org.objectweb.celtix.jaxb.io;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamReader;
+
+import org.w3c.dom.Node;
 
 import org.objectweb.celtix.databinding.DataReader;
 import org.objectweb.celtix.jaxb.JAXBAttachmentUnmarshaller;
@@ -27,9 +31,24 @@ public class MessageDataReader implements DataReader<Message> {
         if (input.getAttachments().size() > 0) {
             au = new JAXBAttachmentUnmarshaller(input); 
         }
-        
+        Object source = null;
+        XMLStreamReader xsr = (XMLStreamReader)input.getSource(XMLStreamReader.class);
+        if (xsr != null) {
+            source = xsr;
+        } else {
+            XMLEventReader xer = (XMLEventReader)input.getSource(XMLEventReader.class);
+            if (xer != null) {
+                source = xer;
+            } else {
+                Node node = (Node)input.getSource(Node.class);
+                source = node;
+            }
+        }
+        if (source == null) {
+            return null;
+        }
         return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
-                                             factory.getSchema(), input,
+                                             factory.getSchema(), source,
                                              name,
                                              cls, 
                                              au);
