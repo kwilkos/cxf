@@ -29,7 +29,7 @@ public class JavaToWSDLNoAnnoTest extends ProcessorTestBase {
 
     }
 
-    public void testGeneratedWithDocWrappedClass() throws Exception {
+    /*public void testGeneratedWithDocWrappedClass() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_wrapped.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME,
                 "org.objectweb.celtix.tools.fortest.classnoanno.docwrapped.Stock");
@@ -37,7 +37,7 @@ public class JavaToWSDLNoAnnoTest extends ProcessorTestBase {
         j2wProcessor.setEnvironment(env);
         j2wProcessor.process();
 
-    }
+    }*/
 
     public void testGeneratedWithRPCClass() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/rpc.wsdl");
