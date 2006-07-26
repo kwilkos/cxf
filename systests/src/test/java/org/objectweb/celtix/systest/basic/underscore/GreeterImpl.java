@@ -6,8 +6,8 @@ import org.objectweb.hello_world_soap_http_underscore.types.GreetMeSometimeRespo
 
 @WebService(serviceName = "SOAPService", 
             portName = "SoapPort", 
-            endpointInterface = "org.objectweb.hello_world_soap_http.Greeter",
-            targetNamespace = "http://objectweb.org/hello_world_soap_http")
+            endpointInterface = "org.objectweb.hello_world_soap_http_underscore.Greeter",
+            targetNamespace = "http://objectweb.org/hello_world_soap_http_underscore")
 public class GreeterImpl implements Greeter {
 
    
