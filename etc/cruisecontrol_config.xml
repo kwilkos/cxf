@@ -22,6 +22,8 @@
             <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/target/surefire-reports"/>
         </log>
         <publishers>
+            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/build.out.clean" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
             <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/target/surefire-reports"
                 subdirectory="test-reports"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
