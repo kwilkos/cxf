@@ -10,42 +10,21 @@
             <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/celtix/currentbuild.txt"/>
         </listeners>
         <schedule interval="120">
-            <maven2 mvnscript="/x1/celtix_cruisecontrol/celtix/trunk/maven/bin/mvn"
+            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
+                 buildfile="build.xml" target="cruisecontrol.build"
+                 antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true" timeout="1800">
+            </ant>
+            <!--maven2 mvnscript="/x1/celtix_cruisecontrol/celtix/trunk/maven/bin/mvn"
                  pomfile="/x1/celtix_cruisecontrol/celtix/trunk/pom.xml" goal="clean|install"  timeout="1800">
-            </maven2>
+            </maven2-->
         </schedule>
         <log dir="/x1/celtix_cruisecontrol/logs/celtix">
-            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/" pattern="**/surefire-reports/*.xml"/>
+            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/target/surefire-reports"/>
         </log>
         <publishers>
-
-            <!--
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/common/target/surefire-reports"
-                subdirectory="common"
+            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/target/surefire-reports"
+                subdirectory="test-reports"
                 dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/tools/target/surefire-reports"
-                subdirectory="tools"
-                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/api/target/surefire-reports"
-                subdirectory="api"
-                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/rt/target/surefire-reports"
-                subdirectory="rt"
-                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/jbi/target/surefire-reports"
-                subdirectory="jbi"
-                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/router/target/surefire-reports"
-                subdirectory="router"
-                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/systests/target/surefire-reports"
-                subdirectory="systests"
-                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/axisinterop/target/surefire-reports"
-                subdirectory="axisinterop"
-                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            -->
 
             <htmlemail mailhost="amereast-ems2.iona.com"
                 returnaddress="eng-celtix-dev@iona.com"
