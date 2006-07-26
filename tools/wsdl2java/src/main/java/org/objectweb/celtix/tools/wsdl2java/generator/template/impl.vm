@@ -19,7 +19,8 @@ import ${import};
  * 
  */
 
-@javax.jws.WebService(name = "$intf.Name", serviceName = "SOAPService", 
+@javax.jws.WebService(name = "$intf.Name", serviceName = "$service",
+                      portName = "$port",
                       targetNamespace = "$intf.Namespace", 
                       wsdlLocation = "$intf.Location")
                       

@@ -863,6 +863,32 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             e.printStackTrace();
         }
     }
+    
+    public void testBug305773() {
+        try {
+            env.put(ToolConstants.CFG_COMPILE, "compile");
+            env.put(ToolConstants.CFG_IMPL, ToolConstants.CFG_IMPL);
+            env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
+            env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bug305773/hello_world.wsdl"));
+            processor.setEnvironment(env);
+            processor.process();
+            Class clz = classLoader.loadClass("org.objectweb.hello_world_soap_http.GreeterImpl");
+           
+
+            WebService webServiceAnn = AnnotationUtil.getPrivClassAnnotation(clz, WebService.class);
+            assertEquals("Greeter", webServiceAnn.name());
+            assertFalse("Impl class should generate portName property value in webService annotation"
+                        , webServiceAnn.portName().equals(""));
+            assertFalse("Impl class should generate serviceName property value in webService annotation"
+                        , webServiceAnn.serviceName().equals(""));
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
 
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();

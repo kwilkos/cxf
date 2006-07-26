@@ -8,6 +8,8 @@ import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.model.JavaInterface;
 import org.objectweb.celtix.tools.common.model.JavaModel;
+import org.objectweb.celtix.tools.common.model.JavaPort;
+import org.objectweb.celtix.tools.common.model.JavaServiceClass;
 
 public class ImplGenerator extends AbstractGenerator {
 
@@ -33,12 +35,26 @@ public class ImplGenerator extends AbstractGenerator {
         }
 
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
+        Map<String, JavaServiceClass> services = javaModel.getServiceClasses();
+        String service = "";
+        String port = "";
+        if (!services.values().isEmpty()) {
+            JavaServiceClass javaservice = services.values().iterator().next();
+            service = javaservice.getServiceName();
+            if (javaservice.getPorts().size() != 0) {
+                JavaPort jport = (JavaPort)javaservice.getPorts().get(0);
+                port = jport.getPortName();
+            }
+        }
         for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
             String interfaceName = (String)iter.next();
             JavaInterface intf = interfaces.get(interfaceName);
 
             clearAttributes();
             setAttributes("intf", intf);
+           
+            setAttributes("service", service);
+            setAttributes("port", port);
            
             setCommonAttributes();
 
