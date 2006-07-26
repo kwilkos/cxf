@@ -41,7 +41,7 @@ import org.objectweb.celtix.transports.jms.context.JMSPropertyType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
-public class JMSTransportTest extends TestCase {
+public abstract class AbstractJMSTransportTest extends TestCase {
 
     public static final String JMSTRANSPORT_SKIP_RESPONSE = "JMSTransport.skipResponse"; 
     private ServerTransportCallback callback;
@@ -50,16 +50,13 @@ public class JMSTransportTest extends TestCase {
     private String serverRcvdInOneWayCall;
     private WorkQueueManagerImpl wqm;
 
-    public JMSTransportTest(String arg0) {
+    public AbstractJMSTransportTest(String arg0) {
         super(arg0);
     }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(JMSTransportTest.suite());
-    }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(JMSTransportTest.class);
+        TestSuite suite = new TestSuite(AbstractJMSTransportTest.class);
         return  new JMSBrokerSetup(suite, "tcp://localhost:61500");
     }
 
