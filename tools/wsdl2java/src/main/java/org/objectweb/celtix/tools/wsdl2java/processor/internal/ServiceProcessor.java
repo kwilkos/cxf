@@ -244,6 +244,11 @@ public class ServiceProcessor extends AbstractProcessor {
                     // REVISIT: fix for xml binding
                     jm.setSoapStyle(jf.getSOAPStyle());
                 }
+                
+                if (jm.getSoapStyle().equals(javax.jws.soap.SOAPBinding.Style.RPC)) {
+                    jm.getAnnotationMap().remove("SOAPBinding");
+                }
+                
                 OperationProcessor processor = new OperationProcessor(env);
 
                 int headerType = isNonWrappable(bop);

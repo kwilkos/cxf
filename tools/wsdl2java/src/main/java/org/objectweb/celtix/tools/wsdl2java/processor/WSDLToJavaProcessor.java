@@ -50,7 +50,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
     }
 
     public void process() throws ToolException {
-        validateWSDL();
         init();
         if (isSOAP12Binding(wsdlDefinition)) {
             Message msg = new Message("SOAP12_UNSUPPORTED", LOG);
@@ -75,6 +74,32 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             throw new ToolException(e);
         }
     }
+    
+    public void processImportDefinition(Definition def) throws ToolException {    
+        checkSupported(def);
+        validateWSDL(def);
+        parseCustomization(def);
+        env.put(ToolConstants.GENERATED_CLASS_COLLECTOR, classColletor);
+        if (isSOAP12Binding(def)) {
+            Message msg = new Message("SOAP12_UNSUPPORTED", LOG);
+            throw new ToolException(msg);
+        }
+        JavaModel jmodel = wsdlDefinitionToJavaModel(def);
+        if (jmodel == null) {
+            Message msg = new Message("FAIL_TO_CREATE_JAVA_MODEL", LOG);
+            throw new ToolException(msg);
+        }
+        registerGenerators(jmodel);
+        doGeneration();
+        try {
+            if (env.isExcludeNamespaceEnabled()) {
+                removeExcludeFiles();
+            }
+        } catch (IOException e) {
+            throw new ToolException(e);
+        }
+    }
+    
 
     public void removeExcludeFiles() throws IOException {
         if (excludeGenFiles == null) {

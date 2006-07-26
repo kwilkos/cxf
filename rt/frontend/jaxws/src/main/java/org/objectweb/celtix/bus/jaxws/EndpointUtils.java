@@ -71,8 +71,8 @@ public final class EndpointUtils {
                 WebMethod wm = m.getAnnotation(WebMethod.class);
 
                 if (wm != null && !"".equals(wm.operationName())) {
-                    if (methodName.equals(wm.operationName()) 
-                        && methodName.equalsIgnoreCase(m.getName())) {
+                    if (methodName.equals(wm.operationName())) { 
+                        //&& methodName.equalsIgnoreCase(m.getName())) {
                         iMethod = m;
                         strictMatch = true;
                         break;

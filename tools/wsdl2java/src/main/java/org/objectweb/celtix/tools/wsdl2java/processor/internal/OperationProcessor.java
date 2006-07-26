@@ -43,6 +43,9 @@ public class OperationProcessor  extends AbstractProcessor {
     @SuppressWarnings("unchecked")
     public void process(JavaInterface intf, Operation operation) throws ToolException {
         JavaMethod method = new JavaMethod(intf);
+        //set default Document Bare style
+        method.setSoapStyle(javax.jws.soap.SOAPBinding.Style.DOCUMENT);
+        
         method.setName(ProcessorUtil.mangleNameToVariableName(operation.getName()));
         method.setOperationName(operation.getName());
         method.setStyle(operation.getStyle());

@@ -183,6 +183,11 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/basic_callback.wsdl</wsdl>
                                 </wsdlOption>
+                                
+                                <wsdlOption>
+				     <wsdl>${basedir}/src/main/resources/wsdl/hello_world_underscore.wsdl</wsdl>
+                                </wsdlOption>
+                                
                                 <wsdlOption>
                                     <wsdl>${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_xml.wsdl</wsdl>
                                     <dependencies>

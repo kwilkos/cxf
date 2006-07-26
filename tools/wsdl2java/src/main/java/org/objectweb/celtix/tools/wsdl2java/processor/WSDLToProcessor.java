@@ -19,12 +19,10 @@ import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.Message;
-
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
-
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.factory.WSDLFactory;
@@ -44,21 +42,17 @@ import org.apache.velocity.app.Velocity;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.StringUtils;
 import org.objectweb.celtix.helpers.WSDLHelper;
-
 import org.objectweb.celtix.tools.common.Processor;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.extensions.jaxws.CustomizationParser;
-
 import org.objectweb.celtix.tools.util.ClassCollector;
 import org.objectweb.celtix.tools.util.FileWriterUtil;
 import org.objectweb.celtix.tools.util.JAXBUtils;
 import org.objectweb.celtix.tools.util.URIParserUtil;
 import org.objectweb.celtix.tools.util.WSDLExtensionRegister;
-
 import org.objectweb.celtix.tools.validator.internal.WSDL11Validator;
-
 import org.objectweb.celtix.tools.wsdl2java.generator.AbstractGenerator;
 import org.objectweb.celtix.tools.wsdl2java.processor.internal.ClassNameAllocatorImpl;
 
@@ -146,6 +140,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     }
 
     private void buildWSDLDefinition() {
+
         for (Definition def : importedDefinitions) {
             this.wsdlDefinition.addNamespace(def.getPrefix(def.getTargetNamespace()), def
                 .getTargetNamespace());
@@ -153,22 +148,42 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             for (int i = 0; i < services.length; i++) {
                 this.wsdlDefinition.addService((Service)services[i]);
             }
-
             Object[] messages = def.getMessages().values().toArray();
             for (int i = 0; i < messages.length; i++) {
                 this.wsdlDefinition.addMessage((Message)messages[i]);
             }
-
             Object[] bindings = def.getBindings().values().toArray();
             for (int i = 0; i < bindings.length; i++) {
                 this.wsdlDefinition.addBinding((Binding)bindings[i]);
             }
-
             Object[] portTypes = def.getPortTypes().values().toArray();
             for (int i = 0; i < portTypes.length; i++) {
                 this.wsdlDefinition.addPortType((PortType)portTypes[i]);
             }
         }
+         
+        /*
+        for (Definition def : importedDefinitions) {
+            this.wsdlDefinition.addNamespace(def.getPrefix(def.getTargetNamespace()), def
+                .getTargetNamespace());
+            Types typesElement = def.getTypes();
+            if (typesElement != null) {
+                Iterator ite = typesElement.getExtensibilityElements().iterator();
+                while (ite.hasNext()) {
+                    Object obj = ite.next();
+                    if (obj instanceof Schema) {
+                        Schema schema = (Schema)obj;
+                        for (Object nsobj : schema.getImports().keySet()) {
+                            String namespace = (String)nsobj;
+                            wsdlDefinition.addNamespace(def.getPrefix(namespace), namespace);
+                        }
+                    }
+                }
+            }
+
+        }
+        */
+
     }
 
     @SuppressWarnings("unchecked")
@@ -365,20 +380,20 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         }
     }
 
-    private void parseCustomization() {
+    public void parseCustomization(Definition def) {
         CustomizationParser customizationParser = CustomizationParser.getInstance();
         customizationParser.clean();
         if (!env.optionSet(ToolConstants.CFG_BINDING)) {
             return;
         }
-        customizationParser.parse(env, wsdlDefinition);
+        customizationParser.parse(env, def);
     }
 
     protected void init() throws ToolException {
         parseWSDL((String)env.get(ToolConstants.CFG_WSDLURL));
         checkSupported(getWSDLDefinition());
-        validateWSDL();
-        parseCustomization();
+        validateWSDL(getWSDLDefinition());
+        parseCustomization(getWSDLDefinition());
         initVelocity();
         classColletor = new ClassCollector();
         env.put(ToolConstants.GENERATED_CLASS_COLLECTOR, classColletor);
@@ -401,9 +416,9 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     public void process() throws ToolException {
     }
 
-    public void validateWSDL() throws ToolException {
+    public void validateWSDL(Definition def) throws ToolException {
         if (env.validateWSDL()) {
-            WSDL11Validator validator = new WSDL11Validator(this.wsdlDefinition, this.env);
+            WSDL11Validator validator = new WSDL11Validator(def, this.env);
             validator.isValid();
         }
     }

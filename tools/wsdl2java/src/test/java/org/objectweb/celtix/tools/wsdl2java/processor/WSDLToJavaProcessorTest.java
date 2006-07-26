@@ -1,15 +1,12 @@
 package org.objectweb.celtix.tools.wsdl2java.processor;
 
 import java.io.File;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-
 import java.net.URLClassLoader;
 
 import javax.jws.HandlerChain;
-
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -47,7 +44,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         processor = null;
 
     }
-  
+    
     public void testRPCLit() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_rpc_lit.wsdl"));
         processor.setEnvironment(env);
@@ -86,7 +83,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         Method method = clz.getMethod("sendReceiveData", new Class[] {paraClass});
         assertEquals("MyComplexStruct", method.getReturnType().getSimpleName());
     }
-
+  
     public void testAsynMethod() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_async.wsdl"));
         processor.setEnvironment(env);
@@ -340,7 +337,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         clz = classLoader.loadClass("org.objectweb.Greeter_Exception");
         clz = classLoader.loadClass("org.objectweb.Greeter_Service");
     }
-
+ 
     public void testHelloWorldExternalBindingFile() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_jaxws_base.wsdl"));
         env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl/hello_world_jaxws_binding.wsdl"));
@@ -547,7 +544,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         processor.setEnvironment(env);
         processor.process();
     }
-    
+
     public void testExcludeNSWithPackageName() throws Exception {
 
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-nexclude",
@@ -668,14 +665,14 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         Method method = clz.getMethod("getGreetings", new Class[] {java.lang.String.class});
         WebResult webResultAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebResult.class);
         assertEquals("http://helloworldaxis.samples.tuscany.apache.org", webResultAnno.targetNamespace());
-        assertEquals("", webResultAnno.partName());
-        assertEquals("return", webResultAnno.name());
+        assertEquals("response", webResultAnno.partName());
+        assertEquals("getGreetingsResponse", webResultAnno.name());
 
-        WebParam webParamAnno = AnnotationUtil.getWebParam(method, "request");
+        WebParam webParamAnno = AnnotationUtil.getWebParam(method, "getGreetings");
         assertNotNull("WebParam should be annotated", webParamAnno);
 
     }
-
+ 
     public void testVoidInOutMethod() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/interoptestdoclit.wsdl"));
         processor.setEnvironment(env);
@@ -866,8 +863,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             e.printStackTrace();
         }
     }
-    
-    
+
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
     }
