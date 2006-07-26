@@ -55,19 +55,18 @@ public class DocWrapperMethodProcessor {
         String reqClassName = "";
         String reqName = method.getName();
         String reqNS = model.getTargetNameSpace();
-        if (reqWrapper != null) {
+        if (!reqWrapper.className().equals("")) {
             reqClassName = reqWrapper.className().length() > 0 ? reqWrapper.className() : reqClassName;
             reqName = reqWrapper.localName().length() > 0 ? reqWrapper.localName() : reqName;
             reqNS = reqWrapper.targetNamespace().length() > 0 ? reqWrapper.targetNamespace() : reqNS;
-        } else {
+        } else {      
             reqClassName = model.getPackageName() + ".jaxws." + AnnotationUtil.capitalize(method.getName());
         }
-
+        
         Class reqClass = null;
         try {
-            reqClass = AnnotationUtil.loadClass(reqClassName, method.getDeclaringClass().getClassLoader());
+            reqClass = AnnotationUtil.loadClass(reqClassName, this.getClass().getClassLoader());
         } catch (Exception e) {
-
             Message msg = new Message("LOAD_CLASS_ERROR", LOG, reqClassName);
             throw new ToolException(msg, e);
         }
@@ -77,7 +76,7 @@ public class DocWrapperMethodProcessor {
         request.setTargetNamespace(reqNS);
         javaMethod.addRequest(request);
 
-        WSDLParameter response = null;
+       
         if (!isOneWayMethod(method)) {
             // process response
             ResponseWrapper resWrapper = method.getAnnotation(ResponseWrapper.class);
@@ -85,7 +84,7 @@ public class DocWrapperMethodProcessor {
             // rule 3.5 suffix -"Response"
             String resName = method.getName() + "Response";
             String resNS = model.getTargetNameSpace();
-            if (resWrapper != null) {
+            if (!reqWrapper.className().equals("")) {
                 resClassName = resWrapper.className();
                 resName = resWrapper.localName().length() > 0 ? resWrapper.localName() : resName;
                 resNS = resWrapper.targetNamespace().length() > 0 ? resWrapper.targetNamespace() : resNS;
@@ -104,7 +103,7 @@ public class DocWrapperMethodProcessor {
                 throw new ToolException(msg, e);
             }
             typeRef = new TypeReference(resQN, resClass, new Annotation[0]);
-            response = new WSDLParameter(resName, typeRef, JavaType.Style.OUT);
+            WSDLParameter response = new WSDLParameter(resName, typeRef, JavaType.Style.OUT);
             response.setTargetNamespace(resNS);
             javaMethod.addResponse(response);
             WebResult webResult = method.getAnnotation(WebResult.class);
