@@ -59,12 +59,21 @@
                             <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
                             <xsdOptions>
                                 <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/wsdl.xsd</xsd>
+                                    <dependencies>
+                                        <dependency>${basedir}/src/main/resources/schemas/wsdl/http-conf.xsd</dependency>
+                                    </dependencies>
+                                </xsdOption>
+                                <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr.xsd</xsd>
                                     <packagename>org.objectweb.celtix.ws.addressing</packagename>
                                 </xsdOption>
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr-wsdl.xsd</xsd>
                                     <packagename>org.objectweb.celtix.ws.addressing.wsdl</packagename>
+                                </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/configuration/security.xsd</xsd>
                                 </xsdOption>
                             </xsdOptions>
                         </configuration>
