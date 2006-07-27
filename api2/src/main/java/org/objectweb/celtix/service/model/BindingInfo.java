@@ -8,32 +8,33 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.databinding.DataReaderFactory;
-import org.objectweb.celtix.databinding.DataWriterFactory;
-
 public class BindingInfo extends AbstractPropertiesHolder {
     
     private static final Logger LOG = Logger.getLogger(BindingInfo.class.getName());
     
     QName name;
     ServiceInfo service;
+    final String namespaceURI;
     
     Map<String, BindingOperationInfo> operations = new ConcurrentHashMap<String, BindingOperationInfo>(4);
     
     Invoker invoker;
-    DataReaderFactory readerFactory;
-    DataWriterFactory writerFactory;
     
-    
-    public BindingInfo(ServiceInfo serv) {
+    public BindingInfo(ServiceInfo serv, String n) {
         service = serv;
+        namespaceURI = n;
     }
     
     public InterfaceInfo getInterface() {
         return service.getInterface();
     }
+
     public ServiceInfo getService() {
         return service;
+    }
+
+    public String getNamespaceURI() {
+        return namespaceURI;
     }
     
     public void setName(QName n) {
@@ -101,8 +102,6 @@ public class BindingInfo extends AbstractPropertiesHolder {
     }   
     
     
-    
-
     public Invoker getDefaultInvoker() {
         return invoker;
     }
@@ -111,19 +110,6 @@ public class BindingInfo extends AbstractPropertiesHolder {
         invoker = i;
     }
     
-    
-    public DataReaderFactory getDefaultReaderFactory() {
-        return readerFactory;
-    }
-    public void setDefaultReaderFactory(DataReaderFactory rf) {
-        readerFactory = rf;
-    }
-    public DataWriterFactory getDefaultWriterFactory() {
-        return writerFactory;
-    }
-    public void setDefaultWriterFactory(DataWriterFactory wf) {
-        writerFactory = wf;
-    }
     
 }
 

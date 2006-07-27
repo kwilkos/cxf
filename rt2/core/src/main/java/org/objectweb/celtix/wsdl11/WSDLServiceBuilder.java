@@ -110,10 +110,9 @@ public class WSDLServiceBuilder {
 
     public BindingInfo buildBinding(ServiceInfo service, Binding binding) {
         BindingInfo bi = null;
+        String ns = ((ExtensibilityElement)binding.getExtensibilityElements().get(0))
+            .getElementType().getNamespaceURI();
         try {
-            String ns = ((ExtensibilityElement)binding.getExtensibilityElements().get(0))
-                .getElementType().getNamespaceURI();
-        
             BindingFactory factory = bus.getBindingManager().getBindingFactory(ns);
             if (factory instanceof WSDLBindingFactory) {
                 WSDLBindingFactory wFactory = (WSDLBindingFactory) factory;
@@ -124,7 +123,7 @@ public class WSDLServiceBuilder {
         }
         
         if (bi == null) {
-            bi = new BindingInfo(service);
+            bi = new BindingInfo(service, ns);
             bi.setName(binding.getQName());
             copyExtensors(bi, binding.getExtensibilityElements());
             

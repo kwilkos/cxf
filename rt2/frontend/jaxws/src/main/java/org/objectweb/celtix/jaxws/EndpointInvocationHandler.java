@@ -43,7 +43,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
             } else {
                 operationName = method.getName();
             }
-            InterfaceInfo ii = client.getEndpointInfo().getBinding().getInterface();
+            InterfaceInfo ii = client.getEndpoint().getService().getServiceInfo().getInterface();
             oi = ii.getOperation(operationName);
             if (null == oi) {
                 Message msg = new Message("NO_OPERATION_INFO", LOG, operationName);
