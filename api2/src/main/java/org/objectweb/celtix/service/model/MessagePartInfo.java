@@ -51,7 +51,7 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
         typeName = qn;
     }
     public void setElementQName(QName qn) {
-        isElement = false;
+        isElement = true;
         typeName = qn;
     }
     

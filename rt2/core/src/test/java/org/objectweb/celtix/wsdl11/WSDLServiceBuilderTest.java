@@ -1,16 +1,22 @@
 package org.objectweb.celtix.wsdl11;
 
+import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Service;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
+import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
+
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.service.model.BindingFaultInfo;
 import org.objectweb.celtix.service.model.BindingInfo;
+import org.objectweb.celtix.service.model.BindingMessageInfo;
+import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
 
@@ -100,5 +106,90 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertEquals(bindingInfo.getInterface().getName().getLocalPart(), "Greeter");
         assertEquals(bindingInfo.getName().getLocalPart(), "Greeter_SOAPBinding");
         assertEquals(bindingInfo.getName().getNamespaceURI(), "http://objectweb.org/hello_world_soap_http");
+    }
+    
+    public void testBindingOperationInfo() throws Exception {
+        BindingInfo bindingInfo = null;
+        bindingInfo = serviceInfo.getBindings().iterator().next();
+        Collection<BindingOperationInfo> bindingOperationInfos = bindingInfo.getOperations();
+        assertNotNull(bindingOperationInfos);
+        assertEquals(bindingOperationInfos.size(), 4);
+        LOG.info("the binding operation is " + bindingOperationInfos.iterator().next().getName());
+        
+        BindingOperationInfo sayHi = bindingInfo.getOperation("sayHi");
+        assertNotNull(sayHi);
+        assertEquals(sayHi.getName(), "sayHi");
+        
+        BindingOperationInfo greetMe = bindingInfo.getOperation("greetMe");
+        assertNotNull(greetMe);
+        assertEquals(greetMe.getName(), "greetMe");
+        
+        BindingOperationInfo greetMeOneWay = bindingInfo.getOperation("greetMeOneWay");
+        assertNotNull(greetMeOneWay);
+        assertEquals(greetMeOneWay.getName(), "greetMeOneWay");
+        
+        BindingOperationInfo pingMe = bindingInfo.getOperation("pingMe");
+        assertNotNull(pingMe);
+        assertEquals(pingMe.getName(), "pingMe");
+    }
+    
+    public void testBindingMessageInfo() throws Exception {
+        BindingInfo bindingInfo = null;
+        bindingInfo = serviceInfo.getBindings().iterator().next();
+        
+        BindingOperationInfo sayHi = bindingInfo.getOperation("sayHi");
+        BindingMessageInfo input = sayHi.getInput();
+        assertNotNull(input);
+        assertEquals(input.getMessageInfo().getName().getLocalPart(), "sayHiRequest");
+        assertEquals(input.getMessageInfo().getName().getNamespaceURI(),
+                     "http://objectweb.org/hello_world_soap_http");
+        assertEquals(input.getMessageInfo().getMessageParts().size(), 1);
+        assertEquals(input.getMessageInfo().getMessageParts().get(0).getName().getLocalPart(), "in");
+        assertEquals(input.getMessageInfo().getMessageParts().get(0).getName().getNamespaceURI(),
+                     "http://objectweb.org/hello_world_soap_http");
+        assertTrue(input.getMessageInfo().getMessageParts().get(0).isElement());
+        QName elementName = input.getMessageInfo().getMessageParts().get(0).getElementQName();
+        assertEquals(elementName.getLocalPart(),
+                     "sayHi");
+        assertEquals(elementName.getNamespaceURI(),
+                     "http://objectweb.org/hello_world_soap_http/types");
+        
+        BindingMessageInfo output = sayHi.getOutput();
+        assertNotNull(output);
+        assertEquals(output.getMessageInfo().getName().getLocalPart(), "sayHiResponse");
+        assertEquals(output.getMessageInfo().getName().getNamespaceURI(),
+                     "http://objectweb.org/hello_world_soap_http");
+        assertEquals(output.getMessageInfo().getMessageParts().size(), 1);
+        assertEquals(output.getMessageInfo().getMessageParts().get(0).getName().getLocalPart(), "out");
+        assertEquals(output.getMessageInfo().getMessageParts().get(0).getName().getNamespaceURI(),
+                     "http://objectweb.org/hello_world_soap_http");
+        assertTrue(output.getMessageInfo().getMessageParts().get(0).isElement());
+        elementName = output.getMessageInfo().getMessageParts().get(0).getElementQName();
+        assertEquals(elementName.getLocalPart(),
+                     "sayHiResponse");
+        assertEquals(elementName.getNamespaceURI(),
+                     "http://objectweb.org/hello_world_soap_http/types");
+        
+        assertTrue(sayHi.getFaults().size() == 0);
+        
+        BindingOperationInfo pingMe = bindingInfo.getOperation("pingMe");
+        assertNotNull(pingMe);
+        assertEquals(1, pingMe.getFaults().size());
+        BindingFaultInfo fault = pingMe.getFaults().iterator().next();
+        
+        assertNotNull(fault);
+        assertEquals(fault.getFaultInfo().getName().getLocalPart(), "pingMeFault");
+        assertEquals(fault.getFaultInfo().getName().getNamespaceURI(),
+                     "http://objectweb.org/hello_world_soap_http");
+        assertEquals(fault.getFaultInfo().getMessageParts().size(), 1);
+        assertEquals(fault.getFaultInfo().getMessageParts().get(0).getName().getLocalPart(), "faultDetail");
+        assertEquals(fault.getFaultInfo().getMessageParts().get(0).getName().getNamespaceURI(),
+                     "http://objectweb.org/hello_world_soap_http");
+        assertTrue(fault.getFaultInfo().getMessageParts().get(0).isElement());
+        elementName = fault.getFaultInfo().getMessageParts().get(0).getElementQName();
+        assertEquals(elementName.getLocalPart(),
+                     "faultDetail");
+        assertEquals(elementName.getNamespaceURI(),
+                     "http://objectweb.org/hello_world_soap_http/types");
     }
 }

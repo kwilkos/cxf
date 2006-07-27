@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
@@ -11,6 +12,9 @@ import org.objectweb.celtix.databinding.DataReaderFactory;
 import org.objectweb.celtix.databinding.DataWriterFactory;
 
 public class BindingInfo extends AbstractPropertiesHolder {
+    
+    private static final Logger LOG = Logger.getLogger(BindingInfo.class.getName());
+    
     QName name;
     ServiceInfo service;
     
@@ -41,10 +45,9 @@ public class BindingInfo extends AbstractPropertiesHolder {
     
     
     private boolean nameEquals(String a, String b) {
-        if (a == null && b == null) {
+        if (a == null) {
+            // in case of input/output itself is empty
             return true;
-        } else if (a == null && b != null) {
-            return false;
         } else {
             return "".equals(a) ? "".equals(b) : a.equals(b);
         }
@@ -74,6 +77,7 @@ public class BindingInfo extends AbstractPropertiesHolder {
             throw new IllegalArgumentException("An operation with name [" + operation.getName()
                                                + "] already exists in this service");
         }
+        LOG.fine("the operation name is " + operation.getName());
         operations.put(operation.getName(), operation);
     }
 

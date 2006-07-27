@@ -3,6 +3,7 @@ package org.objectweb.celtix.wsdl11;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingFault;
@@ -35,6 +36,8 @@ import org.objectweb.celtix.service.model.ServiceInfo;
 
 public class WSDLServiceBuilder {
     
+
+       
     public static final String WSDL_DEFINITION = WSDLServiceBuilder.class.getName() + ".DEFINITION";
     public static final String WSDL_SERVICE = WSDLServiceBuilder.class.getName() + ".SERVICE";
     public static final String WSDL_PORTTYPE = WSDLServiceBuilder.class.getName() + ".WSDL_PORTTYPE";
@@ -45,6 +48,7 @@ public class WSDLServiceBuilder {
     public static final String WSDL_BINDING_OPERATION = WSDLServiceBuilder.class.getName()
                                                         + ".BINDING_OPERATION";
     
+    private static final Logger LOG = Logger.getLogger(WSDLServiceBuilder.class.getName());
     private Bus bus;
     
     public WSDLServiceBuilder(Bus bus) {
@@ -125,6 +129,7 @@ public class WSDLServiceBuilder {
             copyExtensors(bi, binding.getExtensibilityElements());
             
             for (BindingOperation bop : cast(binding.getBindingOperations(), BindingOperation.class)) {
+                LOG.fine("binding operation name is " + bop.getName());
                 String inName = null;
                 String outName = null;
                 if (bop.getBindingInput() != null) {
@@ -135,6 +140,7 @@ public class WSDLServiceBuilder {
                 }
                 BindingOperationInfo bop2 = bi.buildOperation(bop.getName(), inName, outName);
                 if (bop2 != null) {
+                    
                     copyExtensors(bop2, bop.getExtensibilityElements());
                     bi.addOperation(bop2);
                     if (bop.getBindingInput() != null) {
@@ -177,8 +183,8 @@ public class WSDLServiceBuilder {
         Output output = op.getOutput();
         if (output != null) {
             MessageInfo minfo = opInfo.createMessage(output.getMessage().getQName());
-            opInfo.setOutput(input.getName(), minfo);
-            buildMessage(minfo, input.getMessage());
+            opInfo.setOutput(output.getName(), minfo);
+            buildMessage(minfo, output.getMessage());
         }
         Map<?, ?> m = op.getFaults();
         for (Map.Entry<?, ?> rawentry : m.entrySet()) {
@@ -193,8 +199,10 @@ public class WSDLServiceBuilder {
             MessagePartInfo pi = minfo.addMessagePart(part.getName());
             if (part.getTypeName() != null) {
                 pi.setTypeQName(part.getTypeName());
+                pi.setIsElement(false);
             } else {
                 pi.setElementQName(part.getElementName());
+                pi.setIsElement(true);
             }
         }
     }
