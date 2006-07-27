@@ -66,7 +66,8 @@ public class PortTypeProcessor extends AbstractProcessor {
             OperationProcessor operationProcessor = new OperationProcessor(env);
             operationProcessor.process(intf, operation);
         }
-        jmodel.setLocation(location);
+        //Fixed issue 305772
+        jmodel.setLocation(urlLocation);
         jmodel.addInterface(intf.getName() , intf);
        
     }

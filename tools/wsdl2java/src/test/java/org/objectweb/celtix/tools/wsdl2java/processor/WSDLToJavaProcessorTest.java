@@ -1,6 +1,7 @@
 package org.objectweb.celtix.tools.wsdl2java.processor;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -888,7 +889,29 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         }
     }
     
-    
+    public void testBug305772() {
+        try {
+            env.put(ToolConstants.CFG_COMPILE, "compile");
+            env.put(ToolConstants.CFG_ANT, ToolConstants.CFG_ANT);
+            env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
+            env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+            // env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bug305772/hello_world.wsdl"));
+            processor.setEnvironment(env);
+            processor.process();
+            File file = new File(output.getCanonicalPath(), "build.xml");
+            FileInputStream fileinput = new FileInputStream(file);
+            java.io.BufferedInputStream filebuffer = new java.io.BufferedInputStream(fileinput);
+            byte[] buffer = new byte[(int)file.length()]; 
+            filebuffer.read(buffer);
+            String content = new String(buffer);
+            assertTrue("wsdl location should be url style in build.xml", 
+                       content.indexOf("param1=\"file:") > -1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
