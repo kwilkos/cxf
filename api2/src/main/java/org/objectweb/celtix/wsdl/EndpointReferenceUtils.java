@@ -235,7 +235,7 @@ public final class EndpointReferenceUtils {
         return null;
     }
     
-    private static void setWSDLLocation(EndpointReferenceType ref, String... wsdlLocation) {
+    public static void setWSDLLocation(EndpointReferenceType ref, String... wsdlLocation) {
         
         MetadataType metadata = ref.getMetadata();
         if (null == metadata) {
