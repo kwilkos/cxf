@@ -17,7 +17,7 @@
     <title>Code Listings</title>
     <section>
       <title>Examples</title>
-      <para>When providing code examples, you need to seperate them from the
+      <para>When providing code examples, you need to separate them from the
       text and provide a caption for them. To do this you use the <sgmltag class="element">example</sgmltag> element. You should always provide a
       descriptive value for the <sgmltag class="element">example</sgmltag>
       element&apos;s <sgmltag class="attribute">id</sgmltag> attribute.</para>
@@ -32,7 +32,7 @@
         attribute.</para>
       </note>
       <para>The last child of the example element is the <sgmltag class="element">programlisting</sgmltag> element. The <sgmltag class="element">programlisting</sgmltag> element contains the code
-      sample itself. Any text placed inside the programlisting element is
+      sample itself. Any text placed inside the <sgmltag class="element">programlisting</sgmltag> element is
       treated literally. Therefore, any spacing that you use will be exactly
       reproduced when the document is produced.</para>
       <warning>
@@ -76,7 +76,7 @@
           <para>Use a <sgmltag class="element">programlisting</sgmltag> element</para>
         </listitem>
       </itemizedlist>
-      <para>In terms of the generated output, there is no difference between the two approaches. The real difference is in the complexity of the mark-up and the formality of the structure you wish to use. In the CeltiXfire documentation, the prefered method is to simply use the <sgmltag class="element">programlisting</sgmltag> element. However, if you feel that a code block needs to be wrapped in an <sgmltag class="element">informalexample</sgmltag> element, that is fine.</para>
+      <para>In terms of the generated output, there is no difference between the two approaches. The real difference is in the complexity of the mark-up and the formality of the structure you wish to use. In the CeltiXfire documentation, the preferred method is to simply use the <sgmltag class="element">programlisting</sgmltag> element. However, if you feel that a code block needs to be wrapped in an <sgmltag class="element">informalexample</sgmltag> element, that is fine.</para>
       <para><xref linkend="block_example"/> shows the mark-up for a standalone block of code.</para>
       <example id="block_example">
         <title>Example Code Block</title>
@@ -91,7 +91,7 @@
   </section>
   <section>
     <title>In-line Code</title>
-    <para>There are many instances where you need to place a code artifact in a block of text such as when you are refering to a Java class or an XML element. Docbook has a number of specialized elements for placing code artifacts in-line. The ones used in CeltiXfire include:</para>
+    <para>There are many instances where you need to place a code artifact in a block of text such as when you are referring to a Java class or an XML element. Docbook has a number of specialized elements for placing code artifacts in-line. The ones used in CeltiXfire include:</para>
     <itemizedlist>
       <listitem>
         <para><sgmltag class="element">sgmltag</sgmltag></para>
@@ -110,8 +110,9 @@
       <title>XML Artifacts</title>
       <para>When placing XML artifacts such as element names or attribute names in your text wrap them in an <sgmltag class="element">sgmltag</sgmltag> element. To specify the type of XML artifact, the <sgmltag class="element">sgmltag</sgmltag> element&apos;s <sgmltag class="attribute">class</sgmltag> attribute is always used. <xref linkend="class_values"/> shows the values used for the <sgmltag class="attribute">class</sgmltag> attribute.</para>
       <table id="class_values">
-        <title>Values for the <sgmltag class="attribute">class</sgmltag> Atribute</title>
+        <title>Values for the <sgmltag class="attribute">class</sgmltag> Attribute</title>
         <tgroup cols="2">
+          <colspec colwidth="1.5in"/>
           <thead>
             <row>
               <entry>Value</entry>
@@ -149,7 +150,52 @@
     </section>
     <section>
       <title>General Programming Language Artifacts</title>
-      <para>This is for things like function and other stuff.</para>
+      <para>Docbook defines a number of in-line tags for specifying programming artifacts. The CeltiXfire documentation makes use of the tags listed in <xref linkend="progarti"/>.</para>
+      <table id="progarti" frame="all">
+        <title>Elements for In-Line Programming Artifacts</title>
+        <tgroup cols="2">
+          <colspec colwidth="1.5in" colnum="1" colname="c1"/>
+          <colspec colnum="2" colname="c2"/>
+          <thead>
+            <row>
+              <entry>Element</entry>
+              <entry>Description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>
+                <sgmltag class="element">constant</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a constant such as <constant>NULL</constant> or <constant>9</constant>.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">exceptionname</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is an exception. It could be the name of the exception or the name of the class that implements the exception.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">function</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a function such as <function>println()</function>.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">parameter</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a parameter to a function or a method.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">varname</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a variable.</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
     </section>
     <section>
       <title>Object Oriented Programming Language Artifacts</title>
