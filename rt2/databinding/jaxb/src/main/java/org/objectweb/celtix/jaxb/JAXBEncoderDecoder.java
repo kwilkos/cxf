@@ -222,7 +222,7 @@ public final class JAXBEncoderDecoder {
         Object mObj = elValue;      
 
         try {
-            if (null != cls 
+            if (null != elNname && null != cls 
                 && !cls.isAnnotationPresent(XmlRootElement.class)) {
                 mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
                     .newInstance(elNname, cls, mObj);
@@ -253,70 +253,17 @@ public final class JAXBEncoderDecoder {
             throw new ProtocolException("Marshalling Error", ex);
         }
     }
-    /*
-    public static void marshall(JAXBContext context, Schema schema,
-                                Object elValue, QName elName,   
-                                XMLEventWriter writer, AttachmentMarshaller am) {
-        
-        Class<?> cls = null != elValue ? elValue.getClass() : null;
-        Marshaller u = createMarshaller(context, elValue.getClass());
-        Object mObj = elValue;
-        
-        try {
-            if (null != cls 
-                && !cls.isAnnotationPresent(XmlRootElement.class)) {
-                mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
-                        .newInstance(elName, cls, mObj);
-            }
-            //No START_DOCUMENT/END_DOCUMENT events are generated.
-            u.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);            
-            u.setSchema(schema);
-            u.marshal(mObj, writer);
-        } catch (MarshalException me) {
-            // It's helpful to include the cause in the case of
-            // schema validation exceptions.
-            String message = "Marshalling error ";
-            if (me.getCause() != null) {
-                message += me.getCause();
-            }
-            throw new ProtocolException(message, me);
-        } catch (Exception ex) {
-            throw new ProtocolException("Marshalling error", ex);
-        }
-    }
-
 
     public static void marshall(JAXBContext context, Schema schema,
-                                Object elValue, QName elName,   
-                                XMLStreamWriter writer, AttachmentMarshaller am) {
-        
-        Class<?> cls = null != elValue ? elValue.getClass() : null;
-        Marshaller u = createMarshaller(context, elValue.getClass());
-        Object mObj = elValue;
-        
-        try {
-            if (null != cls 
-                && !cls.isAnnotationPresent(XmlRootElement.class)) {
-                mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
-                        .newInstance(elName, cls, mObj);
-            }
-            //No START_DOCUMENT/END_DOCUMENT events are generated.
-            u.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);            
-            u.setSchema(schema);
-            u.marshal(mObj, writer);
-        } catch (MarshalException me) {
-            // It's helpful to include the cause in the case of
-            // schema validation exceptions.
-            String message = "Marshalling error ";
-            if (me.getCause() != null) {
-                message += me.getCause();
-            }
-            throw new ProtocolException(message, me);
-        } catch (Exception ex) {
-            throw new ProtocolException("Marshalling error", ex);
-        }
+                                Object elValue, Object source) {
+        marshall(context, schema, elValue, null, source, null);
     }
-    */
+    
+    public static void marshall(JAXBContext context, Schema schema,
+                                Object elValue, QName elNname, Object source) {
+        marshall(context, schema, elValue, elNname, source, null);
+    }
+
     private static Unmarshaller createUnmarshaller(JAXBContext context,
                                                    Class<?> cls) {
         Unmarshaller um = null;
@@ -331,6 +278,21 @@ public final class JAXBEncoderDecoder {
         }
         
         return um;
+    }
+
+    public static Object unmarshall(JAXBContext context, Schema schema, Object source) {
+        return unmarshall(context, schema, source, null, null, null);
+    }
+
+    public static Object unmarshall(JAXBContext context, Schema schema,
+                                    Object source, QName elName) {
+        return unmarshall(context, schema, source, elName, null, null);
+    }
+
+    public static Object unmarshall(JAXBContext context, Schema schema,
+                                    Object source, QName elName, 
+                                    Class<?> clazz) {
+        return unmarshall(context, schema, source, elName, clazz, null);
     }
     
     public static Object unmarshall(JAXBContext context, Schema schema,
@@ -367,71 +329,9 @@ public final class JAXBEncoderDecoder {
         } catch (Exception ex) {
             throw new ProtocolException("Unmarshalling error", ex);
         }
-        return getElementValue(obj, elName);
-    }
-    /*
-    public static Object unmarshall(JAXBContext context, Schema schema,
-                                    XMLEventReader reader, QName elName, 
-                                    Class<?> clazz, AttachmentUnmarshaller au) {
-        
-        Object obj = null;
-        try {
-            if (context == null) {
-                context = JAXBContext.newInstance(clazz);
-            }
-            Unmarshaller u = context.createUnmarshaller();
-            u.setSchema(schema);
-            if (au != null) {
-                u.setAttachmentUnmarshaller(au);
-            }
-
-            obj = (clazz != null) ? u.unmarshal(reader, clazz) 
-                                  : u.unmarshal(reader);
-        } catch (UnmarshalException ue) {
-            // It's helpful to include the cause in the case of
-            // schema validation exceptions.
-            String message = "Unmarshalling error ";
-            if (ue.getCause() != null) {
-                message += ue.getCause();
-            }
-            throw new ProtocolException(message, ue);
-        } catch (Exception ex) {
-            throw new ProtocolException("Unmarshalling error", ex);
-        }
-        return getElementValue(obj, elName);
+        return (elName == null) ? obj : getElementValue(obj, elName);
     }
 
-    public static Object unmarshall(JAXBContext context, Schema schema,
-                                    XMLStreamReader reader, QName elName, 
-                                    Class<?> clazz, AttachmentUnmarshaller au) {
-        
-        Object obj = null;
-        try {
-            if (context == null) {
-                context = JAXBContext.newInstance(clazz);
-            }
-            Unmarshaller u = context.createUnmarshaller();
-            u.setSchema(schema);
-            if (au != null) {
-                u.setAttachmentUnmarshaller(au);
-            }
-
-            obj = (clazz != null) ? u.unmarshal(reader, clazz) 
-                                  : u.unmarshal(reader);
-        } catch (UnmarshalException ue) {
-            // It's helpful to include the cause in the case of
-            // schema validation exceptions.
-            String message = "Unmarshalling error ";
-            if (ue.getCause() != null) {
-                message += ue.getCause();
-            }
-            throw new ProtocolException(message, ue);
-        } catch (Exception ex) {
-            throw new ProtocolException("Unmarshalling error", ex);
-        }
-        return getElementValue(obj, elName);
-    }
-    */
     private static Object getElementValue(Object obj, QName elName) {
         if (null == obj) {
             return null;
