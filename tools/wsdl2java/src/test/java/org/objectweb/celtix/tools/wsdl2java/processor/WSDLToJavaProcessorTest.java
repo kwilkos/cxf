@@ -719,10 +719,6 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File helloWorld = new File(objectweb, "hello_world");
         assertTrue(helloWorld.exists());
 
-        File messages = new File(helloWorld, "messages");
-        assertTrue(messages.exists());
-        File[] files = messages.listFiles();
-        assertEquals(1, files.length);
 
         Class clz = classLoader.loadClass("org.objectweb.hello_world.Greeter");
         assertEquals(3, clz.getMethods().length);
@@ -730,10 +726,10 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         Method method = clz.getMethod("pingMe", new Class[] {});
         assertEquals("void", method.getReturnType().getSimpleName());
         assertEquals("Exception class is not generated ", 1, method.getExceptionTypes().length);
-        assertEquals("org.objectweb.hello_world.messages.PingMeFault", method.getExceptionTypes()[0]
+        assertEquals("org.objectweb.hello_world.PingMeFault", method.getExceptionTypes()[0]
             .getCanonicalName());
     }
-
+    
     public void testWebFault() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/InvoiceServer-issue305570.wsdl"));
         processor.setEnvironment(env);

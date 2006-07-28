@@ -49,7 +49,9 @@ public class FaultProcessor extends AbstractProcessor {
         JavaModel model = method.getInterface().getJavaModel();
         Message faultMessage = fault.getMessage();
         String name = ProcessorUtil.mangleNameToClassName(faultMessage.getQName().getLocalPart());
-        String namespace = faultMessage.getQName().getNamespaceURI();
+        //Fix issue 305770
+        //String namespace = faultMessage.getQName().getNamespaceURI();
+        String namespace = method.getInterface().getNamespace();
         String packageName = ProcessorUtil.parsePackageName(namespace, env.mapPackageName(namespace));
 
         while (isNameCollision(packageName, name)) {
