@@ -67,6 +67,8 @@ public class WSDLServiceBuilderTest extends TestCase {
     }
     
     public void testOperationInfo() throws Exception {
+        
+        assertEquals(serviceInfo.getInterface().getOperations().size(), 4);
         OperationInfo sayHi = serviceInfo.getInterface().getOperation("sayHi"); 
         assertNotNull(sayHi);
         assertEquals(sayHi.getName(), "sayHi");

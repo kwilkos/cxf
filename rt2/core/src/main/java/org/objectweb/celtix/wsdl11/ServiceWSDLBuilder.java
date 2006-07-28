@@ -17,6 +17,7 @@ import javax.wsdl.OperationType;
 import javax.wsdl.Output;
 import javax.wsdl.Part;
 import javax.wsdl.PortType;
+import javax.wsdl.Service;
 import javax.wsdl.extensions.ElementExtensible;
 import javax.wsdl.extensions.ExtensibilityElement;
 
@@ -25,7 +26,6 @@ import org.objectweb.celtix.service.model.BindingFaultInfo;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
-import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.service.model.FaultInfo;
 import org.objectweb.celtix.service.model.InterfaceInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
@@ -49,8 +49,10 @@ public final class ServiceWSDLBuilder {
     
     private void addExtensibiltyElements(ElementExtensible elementExtensible, 
         List<ExtensibilityElement> extensibilityElements) {
-        for (ExtensibilityElement element : extensibilityElements) {
-            elementExtensible.addExtensibilityElement(element);
+        if (extensibilityElements != null) {
+            for (ExtensibilityElement element : extensibilityElements) {
+                elementExtensible.addExtensibilityElement(element);
+            }
         }
     }
     
@@ -61,11 +63,11 @@ public final class ServiceWSDLBuilder {
         } catch (ClassCastException e) {
             def.setQName(service.getName());
             def.setTargetNamespace(service.getTargetNamespace());
+            addExtensibiltyElements(def, service.getWSDL11Extensors());
+            buildPortType(def, service.getInterface());
+            buildService(def, service);
+            buildBinding(def, service.getBindings());
         }
-        addExtensibiltyElements(def, service.getWSDL11Extensors());
-        buildPortType(def, service.getInterface());
-        buildService(def, service.getEndpoints());
-        buildBinding(def, service.getBindings());
         return def;
     }
 
@@ -144,8 +146,8 @@ public final class ServiceWSDLBuilder {
         }
     }
 
-    private void buildService(Definition def, Collection<EndpointInfo> endpoints) {
-        //REVISIT when EndpointInfo of service model is done
+    private void buildService(Definition def, ServiceInfo service) {
+        def.addService(service.getProperty(WSDLServiceBuilder.WSDL_SERVICE, Service.class));
     }
 
     private void buildPortType(Definition def, InterfaceInfo intf) {
@@ -155,8 +157,8 @@ public final class ServiceWSDLBuilder {
         } catch (ClassCastException e) {
             portType = def.createPortType();
             portType.setQName(intf.getName());
+            buildPortTypeOperation(def, portType, intf.getOperations());
         }
-        buildPortTypeOperation(def, portType, intf.getOperations());
         def.addPortType(portType);
     }
 
